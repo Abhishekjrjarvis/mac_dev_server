@@ -13,6 +13,7 @@ const Batch = require("../../models/Batch");
 const InstituteSupport = require("../../models/InstituteSupport");
 const Complaint = require("../../models/Complaint");
 const Transfer = require("../../models/Transfer");
+const DisplayPerson = require('../../models/DisplayPerson')
 const Finance = require("../../models/Finance");
 const Library = require("../../models/Library");
 const Subject = require("../../models/Subject");

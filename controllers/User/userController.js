@@ -524,7 +524,7 @@ exports.updateUserPersonal = async (req, res) => {
     const { id } = req.params;
     const user = await User.findByIdAndUpdate(id, req.body);
     await user.save();
-    res.status(200).send({ message: "Personal Info Updated", user });
+    res.status(200).send({ message: "Personal Info Updated"});
   } catch (e) {
     console.log(`Error`, e.message);
   }

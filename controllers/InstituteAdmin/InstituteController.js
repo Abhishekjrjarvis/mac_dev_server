@@ -452,7 +452,6 @@ exports.getUpdatePersonalIns = async (req, res) => {
     const { id } = req.params;
     const institute = await InstituteAdmin.findByIdAndUpdate(id, req.body);
     await institute.save();
-    console.log(institute)
     res.status(200).send({ message: "Personal Info Updated"});
   } catch {
   }
@@ -528,7 +527,7 @@ exports.getUpdateAnnouncement = async (req, res) => {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id });
     const announcements = await new InsAnnouncement({ ...req.body });
-    institute.announcement.push(announcements);
+    institute.announcement.unshift(announcements);
     announcements.institute = institute;
     await institute.save();
     await announcements.save();

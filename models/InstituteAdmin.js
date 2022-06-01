@@ -45,7 +45,7 @@ const instituteAdminSchema = new mongoose.Schema({
   insPrinciple: { type: String },
   insTrusty: { type: String },
   insAdminClerk: { type: String },
-  insEstdDate: { type: Date },
+  insEstdDate: { type: String },
   // insRegNumber: { type: Number, required: true, unique: true },
   insAchievement: { type: String },
   insAffiliated: { type: String },

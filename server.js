@@ -148,8 +148,8 @@ const availNew = require("./routes/Attendence/indexRoute");
 const institutePostRoute = require("./routes/InstituteAdmin/Post/PostRoute");
 const userPostRoute = require("./routes/User/Post/PostRoute");
 
-// const dburl = `${process.env.DB_URL1}`;
-const dburl = `${process.env.L_DB_URL}`;
+const dburl = `${process.env.DB_URL1}`;
+// const dburl = `${process.env.L_DB_URL}`;
 // const dburl = `mongodb://127.0.0.1:27017/Erp_app`;
 
 mongoose
@@ -178,8 +178,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(
   cors({
-    // origin: "http://18.205.27.165",
-    origin: "http://localhost:3000",
+    origin: "http://18.205.27.165",
+    // origin: "http://localhost:3000",
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   })
@@ -707,7 +707,7 @@ app.get("/user/:id/chat", async (req, res) => {
 
 app.post("/ins-register", async (req, res) => {
   try {
-    const admins = await Admin.findById({ _id: `6290c548a331276e83f5aab1` });
+    const admins = await Admin.findById({ _id: `6d2596c3a47690fe0d371f5b4` });
     const existInstitute = await InstituteAdmin.findOne({
       name: req.body.name,
     });
@@ -7260,7 +7260,7 @@ app.post("/ins/:id/add/field", async (req, res) => {
 //     const { id } = req.params;
 //     const { batchId } = req.body;
 //     const institute = await InstituteAdmin.findById({ _id: id });
-//     const admin = await Admin.findById({ _id: "6290c548a331276e83f5aab1"  });
+//     const admin = await Admin.findById({ _id: "6d2596c3a47690fe0d371f5b4"  });
 //     var batch = await Batch.findById({ _id: batchId });
 //     if (
 //       admin.instituteIdCardBatch.length >= 1 &&
@@ -7284,7 +7284,7 @@ app.post("/user/:id/user-post/:uid/report", async (req, res) => {
     const user = await User.findById({ _id: id });
     const post = await UserPost.findById({ _id: uid });
     const admin = await Admin.findById({
-      _id: `6290c548a331276e83f5aab1
+      _id: `6d2596c3a47690fe0d371f5b4
 `,
     });
     const report = await new Report({ reportStatus: reportStatus });
@@ -7308,7 +7308,7 @@ app.post("/ins/:id/ins-post/:uid/report", async (req, res) => {
     const user = await User.findById({ _id: id });
     const post = await Post.findById({ _id: uid });
     const admin = await Admin.findById({
-      _id: `6290c548a331276e83f5aab1
+      _id: `6d2596c3a47690fe0d371f5b4
 `,
     });
     const report = await new Report({ reportStatus: reportStatus });
@@ -7373,7 +7373,7 @@ app.post("/ins/:id/id-card/:bid/send/print", async (req, res) => {
     const institute = await InstituteAdmin.findById({ _id: id });
     const batch = await Batch.findById({ _id: bid });
     const admin = await Admin.findById({
-      _id: `6290c548a331276e83f5aab1
+      _id: `6d2596c3a47690fe0d371f5b4
 `,
     });
     const notify = await new Notification({});
@@ -7406,7 +7406,7 @@ app.post("/ins/:id/id-card/:bid/un-send/print", async (req, res) => {
     const institute = await InstituteAdmin.findById({ _id: id });
     const batch = await Batch.findById({ _id: bid });
     const admin = await Admin.findById({
-      _id: `6290c548a331276e83f5aab1
+      _id: `6d2596c3a47690fe0d371f5b4
 `,
     });
     const notify = await new Notification({});
@@ -7438,7 +7438,7 @@ app.post("/ins/:id/id-card/:bid/done", async (req, res) => {
     const institute = await InstituteAdmin.findById({ _id: id });
     const batch = await Batch.findById({ _id: bid });
     const admin = await Admin.findById({
-      _id: `6290c548a331276e83f5aab1
+      _id: `6d2596c3a47690fe0d371f5b4
 `,
     });
     const notify = await new Notification({});
@@ -7935,7 +7935,7 @@ var rDate = `${r_l_year}-${r_l_month}-${r_l_day}`;
 app.post("/profile-creation/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const admins = await Admin.findById({ _id: `6290c548a331276e83f5aab1` });
+    const admins = await Admin.findById({ _id: `6d2596c3a47690fe0d371f5b4` });
     const {
       userLegalName,
       userGender,

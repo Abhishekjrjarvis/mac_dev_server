@@ -6,6 +6,7 @@ const Student = require("./Student");
 const UserAnnouncement = require("./UserAnnouncement");
 const Post = require("./Post");
 const Role = require("./Role");
+const DisplayPerson = require('./DisplayPerson')
 const Conversation = require("./Conversation");
 const Video = require("./Video");
 const Playlist = require("./Playlist");
@@ -257,6 +258,12 @@ const userSchema = new mongoose.Schema({
     ref: 'InstituteChat'
     }
   ],
+  displayPersonArray: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'DisplayPerson'
+    }
+  ]
 });
 
 userSchema.post("findOneAndDelete", async function (doc) {

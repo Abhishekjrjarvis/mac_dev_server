@@ -533,4 +533,13 @@ router.get('/:sid/staff-status', isLoggedIn, catchAsync(Institute.retrieveStaffP
 // coming Status of Student Profile In Institute
 router.get('/:sid/student-status', isLoggedIn, catchAsync(Institute.retrieveStudentProfileStatus))
 
+// Get Display Person
+router.get('/:id/display/person-array', isLoggedIn, catchAsync(Institute.retrieveDisplayPersonArray))
+
+// Display Person 
+router.post('/:id/display-person', isLoggedIn, catchAsync(Institute.updateDisplayPersonArray))
+
+// Delete Display Person 
+router.delete('/:id/display-person/:did/delete/:uid', isLoggedIn, catchAsync(Institute.deleteDisplayPersonArray))
+
 module.exports = router;

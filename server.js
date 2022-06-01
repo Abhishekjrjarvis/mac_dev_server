@@ -2748,6 +2748,18 @@ app.post(
   }
 );
 
+
+var classRandomCodeHandler = () =>{
+  const c_1 = Math.floor(Math.random() * 9) + 1
+  const c_2 = Math.floor(Math.random() * 9) + 1
+  const c_3 = Math.floor(Math.random() * 9) + 1
+  const c_4 = Math.floor(Math.random() * 9) + 1
+  var r_class_code = `${c_1}${c_2}${c_3}${c_4}`
+  return r_class_code
+}
+
+var result = classRandomCodeHandler()
+
 app.post("/ins/:id/department/:did/batch/:bid", async (req, res) => {
   try {
     const { id, did, bid } = req.params;
@@ -2764,15 +2776,18 @@ app.post("/ins/:id/department/:did/batch/:bid", async (req, res) => {
     const depart = await Department.findById({ _id: did }).populate({
       path: "dHead",
     });
+    if(institute.classCodeList.includes(`${result}`)){
+    }
+    else{
     const notify = await new Notification({});
-    institute.classCodeList.push(classCode);
-    const classRoom = await new Class({
-      masterClassName: mcId,
-      className: mCName,
-      classTitle: classTitle,
-      classHeadTitle: classHeadTitle,
-      classCode: classCode,
-    });
+      institute.classCodeList.push(classCode);
+      const classRoom = await new Class({
+        masterClassName: mcId,
+        className: mCName,
+        classTitle: classTitle,
+        classHeadTitle: classHeadTitle,
+        classCode: `${result}`,
+      });
     institute.classRooms.push(classRoom);
     classRoom.institute = institute;
     batch.classroom.push(classRoom);
@@ -2794,14 +2809,16 @@ app.post("/ins/:id/department/:did/batch/:bid", async (req, res) => {
     user.uNotify.push(notify);
     notify.user = user;
     notify.notifyByInsPhoto = institute;
-    await institute.save();
-    await batch.save();
-    await masterClass.save();
-    await staff.save();
-    await classRoom.save();
-    await depart.save();
-    await user.save();
-    await notify.save();
+    await Promise.all([
+        institute.save(),
+        batch.save(),
+        masterClass.save(),
+        staff.save(),
+        classRoom.save(),
+        depart.save(),
+        user.save(),
+        notify.save()
+    ])
     res.status(200).send({
       message: "Successfully Created Class",
       classRoom,
@@ -2810,6 +2827,7 @@ app.post("/ins/:id/department/:did/batch/:bid", async (req, res) => {
       institute,
       depart,
     });
+  }
   } catch (e) {
     console.log(
       `SomeThing Went Wrong at this EndPoint(/ins/:id/department/:did/batch/:bid)`,

@@ -13,6 +13,7 @@ const SportClass = require("./SportClass");
 const Leave = require("./Leave");
 const Transfer = require("./Transfer");
 const Complaint = require("./Complaint");
+const DisplayPerson = require('./DisplayPerson')
 const InstituteSupport = require("./InstituteSupport");
 const GroupConversation = require("./GroupConversation");
 const Batch = require("./Batch");
@@ -311,6 +312,12 @@ const instituteAdminSchema = new mongoose.Schema({
     },
   ],
   classCodeList: [],
+  displayPersonList: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'DisplayPerson'
+    }
+  ]
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

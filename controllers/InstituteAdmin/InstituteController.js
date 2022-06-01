@@ -2056,3 +2056,80 @@ exports.retrieveStudentProfileStatus = async(req, res) =>{
 
   }
 }
+
+
+
+exports.retrieveDisplayPersonArray = async(req, res) =>{
+  try{
+    const { id } = req.params
+    const institute = await InstituteAdmin.findById({_id: id})
+    .select('id')
+    .populate({
+      path: 'displayPersonList',
+      select: 'displayTitle createdAt',
+      populate: {
+        path: 'displayUser',
+        select: 'userLegalName username photoId profilePhoto'
+      }
+    })
+    .lean()
+    .exec()
+    if(institute){
+      res.status(200).send({ message: 'Success', institute})
+    }
+    else{
+      res.status(404).send({ message: 'Failure'})
+    }
+  }
+  catch{
+
+  }
+}
+
+
+exports.updateDisplayPersonArray = async(req, res) =>{
+  try{
+    const { id } = req.params
+    const institute = await InstituteAdmin.findById({_id: id})
+    const user = await User.findById({_id: `${req.body.displayUser}`})
+    const notify = new Notification({})
+    const display = new DisplayPerson({})
+
+    display.displayTitle = req.body.displayTitle
+    display.displayUser = user._id
+    institute.displayPersonList.push(display._id)
+    display.displayBy = institute._id
+    user.displayPersonArray.push(display._id)
+
+    notify.notifyContent = `Congrats 🎉 for ${req.body.displayTitle} of the ${institute.insName}`
+    notify.notifySender = institute._id
+    notify.notifyReceiever = user._id
+    user.uNotify.push(notify._id)
+    notify.user = user._id
+    notify.notifyByPhoto = user._id
+    await Promise.all([
+      institute.save(),
+      display.save(),
+      user.save(),
+      notify.save()
+    ])
+  }
+  catch{
+
+  }
+}
+
+
+
+exports.deleteDisplayPersonArray = async(req, res) =>{
+  try{
+    const { id, did, uid } = req.params
+    await InstituteAdmin.findByIdAndUpdate(id, { $pull: { displayPersonList: did }})
+    await User.findByIdAndUpdate(uid, { $pull: { displayPersonArray: did }})
+    await DisplayPerson.findByIdAndDelete({_id: did})
+    res.status(200).send({ message: 'Deleted'})
+  }
+  catch{
+
+  }
+}

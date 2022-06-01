@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const InstituteAdmin = require("./InstituteAdmin");
+const ReplyAnnouncement = require('./ReplyAnnouncement')
 
 const insAnnouncementSchema = new mongoose.Schema({
   insAnnTitle: { type: String },
@@ -12,6 +13,12 @@ const insAnnouncementSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteAdmin",
   },
+  reply: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'ReplyAnnouncement'
+    }
+  ]
 });
 
 const InsAnnouncement = mongoose.model(

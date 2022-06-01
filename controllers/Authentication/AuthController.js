@@ -424,9 +424,12 @@ var deactivate_date = `${d_a_year}-${d_a_month}-${d_a_date}`;
 module.exports.authentication = async (req, res) => {
   try {
     const { insUserName, insPassword } = req.body;
-    const institute = await InstituteAdmin.findOne({ name: `${insUserName}` });
-    const user = await User.findOne({ username: `${insUserName}` });
-    const admin = await Admin.findOne({ adminUserName: `${insUserName}` });
+    const institute = await InstituteAdmin.findOne({ name: `${insUserName}` })
+    
+    const user = await User.findOne({ username: `${insUserName}` })
+    
+    const admin = await Admin.findOne({ adminUserName: `${insUserName}` })
+    
     if (institute) {
       const checkPass = bcrypt.compareSync(insPassword, institute.insPassword);
       if (checkPass) {

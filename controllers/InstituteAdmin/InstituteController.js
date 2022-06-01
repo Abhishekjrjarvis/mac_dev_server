@@ -260,8 +260,21 @@ exports.getAnnouncementArray = async (req, res) => {
         path: "announcement",
         select:
           "insAnnPhoto photoId insAnnTitle insAnnVisibilty insAnnDescription createdAt",
+        populate: {
+          path: 'institute',
+          select: 'id insName photoId insProfilePhoto'
+        }
       })
-      .select("_id insName insProfilePhoto photoId")
+      .populate({
+        path: "announcement",
+        select:
+          "insAnnPhoto photoId insAnnTitle insAnnVisibilty insAnnDescription createdAt",
+        populate: {
+          path: 'reply',
+          select: 'replyText createdAt replyAuthorAsUser replyAuthorAsIns'
+        }
+      })
+      .select("_id")
       .lean()
       .exec();
     res.status(200).send({ message: "all announcement list", institute });
@@ -439,9 +452,9 @@ exports.getUpdatePersonalIns = async (req, res) => {
     const { id } = req.params;
     const institute = await InstituteAdmin.findByIdAndUpdate(id, req.body);
     await institute.save();
-    res.status(200).send({ message: "Personal Info Updated", institute });
-  } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(institute)
+    res.status(200).send({ message: "Personal Info Updated"});
+  } catch {
   }
 };
 
@@ -1954,15 +1967,16 @@ exports.retrieveStaffCode = async (req, res) => {
   try {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
-      .select("staffJoinCode insName")
-      .lean()
-      .exec();
+    .select("staffJoinCode insName")
+    .lean()
+    .exec()
     if (institute) {
       res.status(200).send({ message: "Success", institute });
     } else {
       res.status(404).send({ message: "Failure" });
     }
-  } catch {}
+  } catch(e) {
+  }
 };
 
 exports.retrieveStudentCode = async (req, res) => {
@@ -2001,3 +2015,45 @@ exports.replyAnnouncement = async (req, res) => {
     }
   } catch {}
 };
+
+
+
+exports.retrieveStaffProfileStatus = async(req, res) =>{
+  try{
+    const { sid } = req.params
+    const staff = await Staff.findById({_id: sid})
+    .select('staffStatus')
+    .lean()
+    .exec()
+    if(staff){
+      res.status(200).send({ message: 'Success', staff})
+    }
+    else{
+      res.status(404).send({ message: 'Failure'})
+    }
+  }
+  catch{
+
+  }
+}
+
+
+
+exports.retrieveStudentProfileStatus = async(req, res) =>{
+  try{
+    const { sid } = req.params
+    const student = await Student.findById({_id: sid})
+    .select('studentStatus')
+    .lean()
+    .exec()
+    if(student){
+      res.status(200).send({ message: 'Success', student})
+    }
+    else{
+      res.status(404).send({ message: 'Failure'})
+    }
+  }
+  catch{
+
+  }
+}

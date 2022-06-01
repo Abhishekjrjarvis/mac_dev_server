@@ -83,8 +83,25 @@ exports.retrieveFIAnnouncement = async (req, res) => {
           path: "announcement",
           select:
             "insAnnPhoto insAnnDescription insAnnTitle insAnnVisibility createdAt",
+          populate: {
+            path: 'reply',
+            select: 'replyText createdAt replyAuthorAsUser replyAuthorAsIns'
+          }
         },
-        select: "id insName insProfilePhoto photoId",
+        select: "id",
+      })
+      .populate({
+        path: "userInstituteFollowing",
+        populate: {
+          path: "announcement",
+          select:
+            "insAnnPhoto insAnnDescription insAnnTitle insAnnVisibility createdAt",
+          populate: {
+            path: 'institute',
+            select: 'insName photoId insProfilePhoto'
+          }
+        },
+        select: "id",
       })
       .select("_id")
       .lean()

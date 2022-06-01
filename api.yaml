@@ -1353,6 +1353,88 @@ paths:
           description: OK
 
 
+  /api/v1/user/{uid}/followers-array:
+    get:
+      tags:
+        - User-All-API
+      summary: User all followers List 
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: uid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The user ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/{uid}/following-array:
+    get:
+      tags:
+        - User-All-API
+      summary: User all following User List 
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: uid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The user ID
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/user/{uid}/following/ins-array:
+    get:
+      tags:
+        - User-All-API
+      summary: User all following Institute List 
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: uid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The user ID
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/user/{uid}/circle-array:
+    get:
+      tags:
+        - User-All-API
+      summary: User all circle List 
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: uid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The user ID
+      responses:
+        "200":
+          description: OK
+
   #This is for user side all post Related API
   /api/v1/user/post/{id}:
     post:
@@ -1811,6 +1893,48 @@ paths:
       responses:
         "200":
           description: OK
+
+  /api/v1/ins/personal/info/{id}:
+    patch:
+      tags:
+        - Institute-All-API
+      summary: Update Profile Details
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              insType:
+                type: string
+              insMode:
+                type: string
+              insEmail:
+                type: string
+              insState:
+                type: string
+              insAddress:
+                type: string
+              insAbout:
+                type: string
+              insAffiliated:
+                type: string
+              insEstdDate:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+
   /api/v1/ins/{id}/profile:
     get:
       tags:
@@ -2648,6 +2772,47 @@ paths:
           description: OK
 
   #This is staff Related Api
+
+  /api/v1/ins/{id}/staff-code:
+    get:
+      tags:
+        - Staff-All-API
+      summary: Get Staff Code for joining by Institute
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: This is institute id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/{sid}/staff-status:
+    get:
+      tags:
+        - Staff-All-API
+      summary: Get Staff Status for Application Status
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          schema:
+            type: string
+          description: This is Staff id
+      responses:
+        "200":
+          description: OK
+
   /api/v1/ins/{uid}/staffform/{id}:
     post:
       tags:
@@ -2777,6 +2942,45 @@ paths:
         "200":
           description: OK      
   #This is student Related Api
+
+  /api/v1/ins/{id}/student-code:
+    get:
+      tags:
+        - Student-All-API
+      summary: Get Student Code for joining by Institute
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is institute id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/{sid}/student-status:
+    get:
+      tags:
+        - Student-All-API
+      summary: Get Student Status for Application Status
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
+      responses:
+        "200":
+          description: OK
+
   /api/v1/ins/{uid}/studentform/{id}:
     post:
       tags:
@@ -3012,5 +3216,4 @@ paths:
       responses:
         "200":
           description: OK
-
 

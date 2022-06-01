@@ -527,4 +527,10 @@ router.post(
   catchAsync(Institute.replyAnnouncement)
 );
 
+// coming Status of Staff Profile In Institute
+router.get('/:sid/staff-status', isLoggedIn, catchAsync(Institute.retrieveStaffProfileStatus))
+
+// coming Status of Student Profile In Institute
+router.get('/:sid/student-status', isLoggedIn, catchAsync(Institute.retrieveStudentProfileStatus))
+
 module.exports = router;

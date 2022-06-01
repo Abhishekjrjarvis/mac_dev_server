@@ -1,0 +1,877 @@
+const InstituteAdmin = require("../../models/InstituteAdmin");
+const Admin = require("../../models/superAdmin");
+const User = require("../../models/User");
+const UserComment = require("../../models/UserComment");
+const UserPost = require("../../models/userPost");
+const Notification = require("../../models/notification");
+const Conversation = require("../../models/Conversation");
+const UserSupport = require("../../models/UserSupport");
+const Report = require("../../models/Report");
+const {
+  getFileStream,
+  uploadDocFile,
+  uploadVideo,
+} = require("../../S3Configuration");
+const fs = require("fs");
+const util = require("util");
+const unlinkFile = util.promisify(fs.unlink);
+
+exports.getUserData = async (req, res) => {
+  try {
+    const { uid } = req.params;
+    const user = await User.findById({ _id: uid })
+      .select("userLegalName photoId profilePhoto userAbout")
+      .lean()
+      .exec();
+    res.status(200).send({ message: "Limit User Data", user });
+  } catch (e) {
+    console.log("Error", e.message);
+  }
+};
+
+exports.retrieveProfileData = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById({ _id: id })
+      .select(
+        "userLegalName photoId profilePhoto saveUsersPost userBio userGender saveUserInsPost coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
+      )
+      .populate({
+        path: "userPosts",
+        select:
+          "userCreateInsPost userCreateImage imageId userCreateVideo userLike userLikeIns user userPostStatus createdAt",
+        populate: {
+          path: "userComment",
+          select: "userCommentDesc createdAt",
+          populate: {
+            path: "users",
+            select: "userLegalName username photoId profilePhoto",
+          },
+        },
+      })
+      .populate({
+        path: "userFollowers",
+        select: "userLegalName username photoId profilePhoto",
+      })
+      .populate({
+        path: "userFollowing",
+        select: "userLegalName username photoId profilePhoto",
+      })
+      .populate({
+        path: "userCircle",
+        select: "userLegalName username photoId profilePhoto",
+      })
+      .populate({
+        path: "userInstituteFollowing",
+        select: "insName name photoId insProfilePhoto",
+      })
+      .lean()
+      .exec();
+    res.status(200).send({ message: "Limit User Profile Data ", user });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveFIAnnouncement = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById({ _id: id })
+      .populate({
+        path: "userInstituteFollowing",
+        populate: {
+          path: "announcement",
+          select:
+            "insAnnPhoto insAnnDescription insAnnTitle insAnnVisibility createdAt",
+        },
+        select: "id insName insProfilePhoto photoId",
+      })
+      .select("_id")
+      .lean()
+      .exec();
+    if (user) {
+      res.status(200).send({ message: "Success", user });
+    } else {
+      res.status(404).send({ message: "Failure" });
+    }
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+exports.addPostUserData = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById({ _id: id });
+    const post = new UserPost({ ...req.body });
+    post.imageId = "1";
+    user.userPosts.push(post);
+    user.postCount += 1;
+    post.user = user._id;
+    await user.save();
+    await post.save();
+    res.status(200).send({ message: "Post Successfully Created", user });
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.uploadPostImage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const file = req.file;
+    const results = await uploadDocFile(file);
+    const user = await User.findById({ _id: id });
+    const post = new UserPost({ ...req.body });
+    post.imageId = "0";
+    post.userCreateImage = results.Key;
+    user.userPosts.push(post);
+    user.postCount += 1;
+    post.user = user._id;
+    await user.save();
+    await post.save();
+    await unlinkFile(file.path);
+    res.status(200).send({ message: "Post Successfully Created", user });
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.retrievePostImage = async (req, res) => {
+  try {
+    const key = req.params.key;
+    const readStream = getFileStream(key);
+    readStream.pipe(res);
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.uploadPostVideo = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const file = req.file;
+    const results = await uploadVideo(file);
+    const user = await User.findById({ _id: id });
+    const post = new UserPost({ ...req.body });
+    post.userCreateVideo = results.Key;
+    post.imageId = "1";
+    user.userPosts.push(post);
+    user.postCount += 1;
+    post.user = user._id;
+    await user.save();
+    await post.save();
+    await unlinkFile(file.path);
+    res.status(200).send({ message: "Post Successfully Created", user });
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.retrievePostVideo = async (req, res) => {
+  try {
+    const key = req.params.key;
+    const readStream = getFileStream(key);
+    readStream.pipe(res);
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.userPostVisibiltyChange = async (req, res) => {
+  try {
+    const { id, uid } = req.params;
+    const { userPostStatus } = req.body;
+    const userpost = await UserPost.findById({ _id: uid });
+    userpost.userPostStatus = userPostStatus;
+    await userpost.save();
+    res.status(200).send({ message: "visibility change", userpost });
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.getDeletedUserPost = async (req, res) => {
+  try {
+    const { id, uid } = req.params;
+    await User.findByIdAndUpdate(id, { $pull: { userPosts: uid } });
+    await User.findByIdAndUpdate(id, { $pull: { saveUsersPost: uid } });
+    await UserPost.findByIdAndDelete({ _id: uid });
+    res.status(200).send({ message: "deleted Post" });
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.updateUserInfo = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById({ _id: id });
+    user.userAbout = req.body.userAbout;
+    user.userCity = req.body.userCity;
+    user.userState = req.body.userState;
+    user.userCountry = req.body.userCountry;
+    user.userHobbies = req.body.userHobbies;
+    user.userEducation = req.body.userEducation;
+    await user.save();
+    res.status(200).send({ message: "About Updated", user });
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.updatePostLike = async (req, res) => {
+  try {
+    const { postId } = req.body;
+    const userpost = await UserPost.findById({ _id: postId });
+    const user_sessions = req.session.user;
+    const institute_sessions = req.session.institute;
+    if (user_sessions) {
+      if (
+        userpost.userlike.length >= 0 &&
+        userpost.userlike.includes(String(user_sessions._id))
+      ) {
+      } else {
+        userpost.userlike.push(user_sessions._id);
+        await userpost.save();
+        res.status(200).send({ message: "Added To Likes", userpost });
+      }
+    } else if (institute_sessions) {
+      if (
+        userpost.userlikeIns.length >= 1 &&
+        userpost.userlikeIns.includes(String(institute_sessions._id))
+      ) {
+      } else {
+        userpost.userlikeIns.push(institute_sessions._id);
+        await userpost.save();
+        res.status(200).send({ message: "Added To Likes", userpost });
+      }
+    } else {
+    }
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.removePostLike = async (req, res) => {
+  try {
+    const { postId } = req.body;
+    const userpost = await UserPost.findById({ _id: postId });
+    const user_sessions = req.session.user;
+    const institute_sessions = req.session.institute;
+    if (user_sessions) {
+      userpost.userlike.pull(user_sessions._id);
+      await userpost.save();
+      res.status(200).send({ message: "Removed from Likes", userpost });
+    } else if (institute_sessions) {
+      userpost.userlikeIns.pull(institute_sessions._id);
+      await userpost.save();
+      res.status(200).send({ message: "Removed from Likes", userpost });
+    } else {
+    }
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.updatePostComment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userpost = await UserPost.findById({ _id: id });
+    const usercomment = await new UserComment({ ...req.body });
+    if (req.session.institute) {
+      usercomment.userInstitute = req.session.institute;
+    } else {
+      usercomment.users = req.session.user;
+    }
+    userpost.userComment.push(usercomment);
+    usercomment.userpost = userpost;
+    await userpost.save();
+    await usercomment.save();
+    res.status(200).send({ message: "Successfully Commented", userpost });
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.updateUserFollowIns = async (req, res) => {
+  try {
+    const user = await User.findById({ _id: req.session.user._id });
+    const sinstitute = await InstituteAdmin.findById({
+      _id: req.body.InsfollowId,
+    });
+
+    if (sinstitute.userFollowersList.includes(req.session.user._id)) {
+      res.status(200).send({ message: "You Already Following This Institute" });
+    } else {
+      const notify = await new Notification({});
+      sinstitute.userFollowersList.push(req.session.user._id);
+      user.userInstituteFollowing.push(req.body.InsfollowId);
+      user.followingUICount += 1;
+      notify.notifyContent = `${user.userLegalName} started to following you`;
+      notify.notifySender = user._id;
+      notify.notifyReceiever = sinstitute._id;
+      sinstitute.iNotify.push(notify);
+      notify.institute = sinstitute;
+      notify.notifyByPhoto = user;
+      await user.save();
+      await sinstitute.save();
+      await notify.save();
+      res.status(200).send({ message: "Following This Institute" });
+    }
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.removeUserFollowIns = async (req, res) => {
+  try {
+    const user = await User.findById({ _id: req.session.user._id });
+    const sinstitute = await InstituteAdmin.findById({
+      _id: req.body.InsfollowId,
+    });
+
+    if (sinstitute.userFollowersList.includes(req.session.user._id)) {
+      user.userInstituteFollowing.pull(req.body.InsfollowId);
+      sinstitute.userFollowersList.pull(req.session.user._id);
+      await user.save();
+      await sinstitute.save();
+    } else {
+      res.status(200).send({ message: "You Already Unfollow This Institute" });
+    }
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.querySearchUser = async (req, res) => {
+  try {
+    const user = await User.findOne({
+      userLegalName: req.body.userSearchProfile,
+    });
+    res.status(200).send({ message: "Search User Here", user });
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.updateUserFollow = async (req, res) => {
+  try {
+    const user = await User.findById({ _id: req.session.user._id });
+    const suser = await User.findById({ _id: req.body.userFollowId });
+
+    if (user.userFollowing.includes(req.body.userFollowId)) {
+      res.status(200).send({ message: "You Already Following This User" });
+    } else {
+      const notify = await new Notification({});
+      suser.userFollowers.push(req.session.user._id);
+      user.userFollowing.push(req.body.userFollowId);
+      user.followingUICount += 1;
+      suser.followerCount += 1;
+      notify.notifyContent = `${user.userLegalName} started to following you`;
+      notify.notifySender = user._id;
+      notify.notifyReceiever = suser._id;
+      suser.uNotify.push(notify);
+      notify.user = suser;
+      notify.notifyByPhoto = user;
+      await user.save();
+      await suser.save();
+      await notify.save();
+      res.status(200).send({ message: " Following This User" });
+    }
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.updateUserCircle = async (req, res) => {
+  try {
+    const user = await User.findById({ _id: req.session.user._id });
+    const suser = await User.findById({ _id: req.body.followId });
+
+    if (
+      user.userCircle.includes(req.body.followId) &&
+      suser.userCircle.includes(req.session.user._id)
+    ) {
+      res.status(200).send({ message: "You are Already In a Circle" });
+    } else {
+      const newConversation = new Conversation({
+        members: [req.session.user._id, req.body.followId],
+      });
+      try {
+        const savedConversation = await newConversation.save();
+        user.conversation = newConversation;
+        suser.conversation = newConversation;
+        await user.save();
+        await suser.save();
+        res.status(200).json(savedConversation);
+      } catch (err) {
+        res.status(500).json(err);
+      }
+      try {
+        const notify = await new Notification({});
+        suser.userFollowing.pull(req.session.user._id);
+        user.userFollowers.pull(req.body.followId);
+        suser.userCircle.push(req.session.user._id);
+        user.userCircle.push(req.body.followId);
+        suser.circleCount += 1;
+        user.circleCount += 1;
+        notify.notifyContent = `${user.userLegalName} has been added to your circle`;
+        notify.notifySender = user._id;
+        notify.notifyReceiever = suser._id;
+        suser.uNotify.push(notify);
+        notify.user = suser;
+        notify.notifyByPhoto = user;
+        await user.save();
+        await suser.save();
+        await notify.save();
+      } catch {
+        res.status(500).send({ error: "error" });
+      }
+    }
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.removeUserCircle = async (Req, res) => {
+  try {
+    const user = await User.findById({ _id: req.session.user._id });
+    const suser = await User.findById({ _id: req.body.followId });
+
+    if (
+      user.userCircle.includes(req.body.followId) &&
+      suser.userCircle.includes(req.session.user._id)
+    ) {
+      try {
+        user.userCircle.pull(req.body.followId);
+        suser.userCircle.pull(req.session.user._id);
+        user.userFollowers.push(req.body.followId);
+        suser.userFollowing.push(req.session.user._id);
+        user.conversation = "";
+        suser.conversation = "";
+        await user.save();
+        await suser.save();
+      } catch {
+        res.status(500).send({ error: "error" });
+      }
+    } else {
+      res.status(200).send({ message: "You are Not In a Circle" });
+    }
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.updateSavePost = async (req, res) => {
+  try {
+    const { postId } = req.body;
+    const user = await User.findById({ _id: req.session.user._id });
+    const userPostsData = await UserPost.findById({ _id: postId });
+    user.saveUsersPost.push(userPostsData);
+    await user.save();
+    res.status(200).send({ message: "Added To favourites", user });
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.removeSavePost = async (req, res) => {
+  try {
+    const { postId } = req.body;
+    const user = await User.findById({ _id: req.session.user._id });
+    const userPostsData = await UserPost.findById({ _id: postId });
+    user.saveUsersPost.pull(postId);
+    await user.save();
+    res.status(200).send({ message: "Remove To favourites", user });
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.updateUserPhone = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userPhoneNumber } = req.body;
+    const user = await User.findById({ _id: id });
+    user.userPhoneNumber = userPhoneNumber;
+    await user.save();
+    res.status(200).send({ message: "Mobile No Updated", user });
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.updateUserPersonal = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findByIdAndUpdate(id, req.body);
+    await user.save();
+    res.status(200).send({ message: "Personal Info Updated", user });
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.addUserAccountInstitute = async (req, res) => {
+  try {
+    const { id, iid } = req.params;
+    const user = await User.findById({ _id: id });
+    const institute = await InstituteAdmin.findById({ _id: iid });
+    user.addUserInstitute.push(institute);
+    institute.addInstituteUser.push(user);
+    await user.save();
+    await institute.save();
+    res.status(200).send({ message: "Added", user, institute });
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.addUserAccountUser = async (req, res) => {
+  try {
+    const { id, iid } = req.params;
+    const user = await User.findById({ _id: id });
+    const userNew = await User.findById({ _id: iid });
+    user.addUser.push(userNew);
+    userNew.addUser.push(user);
+    await user.save();
+    await userNew.save();
+    res.status(200).send({ message: "Added", user, userNew });
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.deactivateUserAccount = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, ddate } = req.body;
+    const user = await User.findById({ _id: id });
+    user.activeStatus = status;
+    user.activeDate = ddate;
+    await user.save();
+    res.clearCookie("SessionID", { path: "/" });
+    res.status(200).send({ message: "Deactivated Account", user });
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.feedbackUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const admin = await Admin.findById({ _id: "62596c3a47690fe0d371f5b4" });
+    const user = await User.findById({ _id: id });
+    const feed = await new Feedback({});
+    feed.rating = req.body.rating;
+    feed.bestPart = req.body.bestPart;
+    feed.worstPart = req.body.worstPart;
+    feed.suggestion = req.body.suggestion;
+    feed.user = user;
+    admin.feedbackList.push(feed);
+    await feed.save();
+    await admin.save();
+    res.status(200).send({ message: "Feedback" });
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.feedbackRemindLater = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { remindDate } = req.body;
+    const user = await User.findById({ _id: id });
+    user.remindLater = remindDate;
+    await user.save();
+    res.status(200).send({ message: "Remind me Later" });
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.getCreditTransfer = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { transferCredit, transferIns } = req.body;
+    const user = await User.findById({ _id: id });
+    const institute = await InstituteAdmin.findById({ _id: `${transferIns}` });
+    const notify = await new Notification({});
+    institute.transferCredit =
+      institute.transferCredit + parseInt(transferCredit);
+    user.referalPercentage = user.referalPercentage - parseInt(transferCredit);
+    institute.userReferral.push(user);
+    user.transferInstitute.push(institute);
+    notify.notifyContent = `${user.userLegalName} transfer ${transferCredit} points to you`;
+    notify.notifySender = id;
+    notify.notifyReceiever = institute._id;
+    institute.iNotify.push(notify);
+    notify.institute = institute;
+    notify.notifyByPhoto = user;
+    await user.save();
+    await institute.save();
+    await notify.save();
+    res.status(200).send({ message: "transfer", user });
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.getSupportByUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById({ _id: id });
+    const support = await new UserSupport({ ...req.body });
+    user.support.push(support);
+    support.user = user;
+    await user.save();
+    await support.save();
+    res.status(200).send({ message: "Successfully Updated", user });
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.getSupportReply = async (req, res) => {
+  try {
+    const { id, sid } = req.params;
+    const { queryReply } = req.body;
+    const reply = await UserSupport.findById({ _id: sid });
+    reply.queryReply = queryReply;
+    await reply.save();
+    res.status(200).send({ message: "reply", reply });
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.getReportPostUser = async (req, res) => {
+  try {
+    const { id, uid } = req.params;
+    const { reportStatus } = req.body;
+    const user = await User.findById({ _id: id });
+    const post = await UserPost.findById({ _id: uid });
+    const admin = await Admin.findById({ _id: `62596c3a47690fe0d371f5b4` });
+    const report = await new Report({ reportStatus: reportStatus });
+    admin.reportList.push(report);
+    report.reportUserPost = post;
+    report.reportBy = user;
+    await admin.save();
+    await report.save();
+    res.status(200).send({ message: "reported", report });
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+exports.getNotifications = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById({ _id: id }).populate({
+      path: "uNotify",
+      populate: {
+        path: "notifyByPhoto",
+      },
+    });
+    res.status(200).send({ message: "Notification send", user });
+  } catch (e) {
+    console.log("Error", e.message);
+  }
+};
+
+exports.updateReadNotifications = async (Req, res) => {
+  try {
+    const { rid } = req.params;
+    const read = await Notification.findById({ _id: rid });
+    read.notifyReadStatus = "Read";
+    await read.save();
+    res.status(200).send({ message: "updated" });
+  } catch (e) {
+    console.log("Error", e.message);
+  }
+};
+
+exports.getHideNotifications = async (req, res) => {
+  try {
+    const { id, nid } = req.params;
+    const notify = await Notification.findById({ _id: nid });
+    notify.notifyVisibility = "hide";
+    await notify.save();
+    res.status(200).send({ message: "Hide" });
+  } catch (e) {
+    console.log("Error", e.message);
+  }
+};
+
+exports.getDeleteNotifications = async (req, res) => {
+  try {
+    const { id, nid } = req.params;
+    const user = await User.findByIdAndUpdate(id, { $pull: { uNotify: nid } });
+    const notify = await Notification.findByIdAndDelete({ _id: nid });
+    res.status(200).send({ message: "Deleted" });
+  } catch (e) {
+    console.log("Error", e.message);
+  }
+};
+
+exports.getPersonalSetting = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById({ _id: id })
+      .select(
+        "userLegalName userEmail userDateOfBirth userPhoneNumber userStatus userGender userAddress userBio username photoId profilePhoto userHobbies userEducation "
+      )
+      .populate({
+        path: "InstituteReferals",
+        select: "insName name photoId insProfilePhoto",
+      })
+      .lean()
+      .exec();
+    if (user) {
+      res.status(200).send({ message: "Success", user });
+    } else {
+      res.status(404).send({ message: "Failure" });
+    }
+  } catch {}
+};
+
+exports.getSwitchAccounts = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById({ _id: id })
+      .populate({
+        path: "addUser",
+        select: "userLegalName username photoId profilePhoto",
+      })
+      .populate({
+        path: "addUserInstitute",
+        select: "insName name photoId insProfilePhoto",
+      })
+      .select("-userPassword")
+      .lean()
+      .exec();
+    if (user) {
+      res.status(200).send({ message: "Success", user });
+    } else {
+      res.status(404).send({ message: "Failure" });
+    }
+  } catch {}
+};
+
+exports.getQCoins = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById({ _id: id })
+      .select("referalPercentage")
+      .populate({
+        path: "InstituteReferals",
+        select: "insName name photoId insProfilePhoto",
+      })
+      .lean()
+      .exec();
+    if (user) {
+      res.status(200).send({ message: "Success", user });
+    } else {
+      res.status(404).send({ message: "Failure" });
+    }
+  } catch {}
+};
+
+exports.getDashDataQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById({ _id: id })
+      .select(
+        "userLegalName username photoId profilephoto userBio userDateOfBirth remindLater "
+      )
+      .populate({
+        path: "staff",
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+      })
+      .lean()
+      .exec();
+    if (user) {
+      res.status(200).send({ message: "Success", user });
+    } else {
+      res.status(404).send({ message: "Failure" });
+    }
+  } catch {}
+};
+
+exports.followersArray = async (req, res) => {
+  try {
+    const { uid } = req.params;
+    const user = await User.findById({ _id: uid })
+      .select("id")
+      .populate({
+        path: "userFollowers",
+        select: "userLegalName username photoId profilePhoto",
+      })
+      .lean()
+      .exec();
+    if (user) {
+      res.status(200).send({ message: "Success", user });
+    } else {
+      res.status(404).send({ message: "Failure" });
+    }
+  } catch {}
+};
+
+exports.followingArray = async (req, res) => {
+  try {
+    const { uid } = req.params;
+    const user = await User.findById({ _id: uid })
+      .select("id")
+      .populate({
+        path: "userFollowing",
+        select: "userLegalName username photoId profilePhoto",
+      })
+      .lean()
+      .exec();
+    if (user) {
+      res.status(200).send({ message: "Success", user });
+    } else {
+      res.status(404).send({ message: "Failure" });
+    }
+  } catch {}
+};
+
+exports.circleArray = async (req, res) => {
+  try {
+    const { uid } = req.params;
+    const user = await User.findById({ _id: uid })
+      .select("id")
+      .populate({
+        path: "userCircle",
+        select: "userLegalName username photoId profilePhoto",
+      })
+      .lean()
+      .exec();
+    if (user) {
+      res.status(200).send({ message: "Success", user });
+    } else {
+      res.status(404).send({ message: "Failure" });
+    }
+  } catch {}
+};
+
+exports.followingInsArray = async (req, res) => {
+  try {
+    const { uid } = req.params;
+    const user = await User.findById({ _id: uid })
+      .select("id")
+      .populate({
+        path: "userInstituteFollowing",
+        select: "insName name photoId insProfilePhoto",
+      })
+      .lean()
+      .exec();
+    if (user) {
+      res.status(200).send({ message: "Success", user });
+    } else {
+      res.status(404).send({ message: "Failure" });
+    }
+  } catch {}
+};

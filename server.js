@@ -143,14 +143,15 @@ const miscellaneousNew = require("./routes/Miscellaneous/miscellaneousRoute");
 const newAppApiNew = require("./routes/NewApi/newRoute");
 const userNew = require("./routes/User/userRoute");
 const availNew = require("./routes/Attendence/indexRoute");
+const landingNew = require('./routes/LandingRoute/indexRoute')
 
 // =============IMPORT INSTITUTE POST ROUTER====================
 const institutePostRoute = require("./routes/InstituteAdmin/Post/PostRoute");
 const userPostRoute = require("./routes/User/Post/PostRoute");
 
-const dburl = `${process.env.DB_URL1}`;
+// const dburl = `${process.env.DB_URL1}`;
 // const dburl = `${process.env.L_DB_URL}`;
-// const dburl = `mongodb://127.0.0.1:27017/Erp_app`;
+const dburl = `mongodb://127.0.0.1:27017/Erp_app`;
 
 mongoose
   .connect(dburl, {
@@ -178,8 +179,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(
   cors({
-    origin: "http://18.205.27.165",
-    // origin: "http://localhost:3000",
+    // origin: "http://18.205.27.165",
+    origin: "http://localhost:3000",
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   })
@@ -269,6 +270,10 @@ app.use("/api/v1/user/post", userPostRoute);
 // ===========================================================
 // All Attendence Api related to Qviple
 app.use("/api/v1/avail", availNew);
+
+// All Landing Api related to Qviple
+app.use('/api/v1/landing', landingNew)
+
 // Super Admin Routes
 
 app.get("/", async (req, res) => {
@@ -702,12 +707,12 @@ app.get("/user/:id/chat", async (req, res) => {
 });
 
 // Institute Creation
-//for global user admin "${process.env.SuperAdmin_ID6d2596c3a47690fe0d371f5b4"
+//for global user admin "${process.env.SuperAdmin_ID${process.env.S_ADMIN_ID}"
 //for local my system "${process.env.SuperAdmin_ID}"
 
 app.post("/ins-register", async (req, res) => {
   try {
-    const admins = await Admin.findById({ _id: `6d2596c3a47690fe0d371f5b4` });
+    const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const existInstitute = await InstituteAdmin.findOne({
       name: req.body.name,
     });
@@ -7278,7 +7283,7 @@ app.post("/ins/:id/add/field", async (req, res) => {
 //     const { id } = req.params;
 //     const { batchId } = req.body;
 //     const institute = await InstituteAdmin.findById({ _id: id });
-//     const admin = await Admin.findById({ _id: "6d2596c3a47690fe0d371f5b4"  });
+//     const admin = await Admin.findById({ _id: "${process.env.S_ADMIN_ID}"  });
 //     var batch = await Batch.findById({ _id: batchId });
 //     if (
 //       admin.instituteIdCardBatch.length >= 1 &&
@@ -7302,7 +7307,7 @@ app.post("/user/:id/user-post/:uid/report", async (req, res) => {
     const user = await User.findById({ _id: id });
     const post = await UserPost.findById({ _id: uid });
     const admin = await Admin.findById({
-      _id: `6d2596c3a47690fe0d371f5b4
+      _id: `${process.env.S_ADMIN_ID}
 `,
     });
     const report = await new Report({ reportStatus: reportStatus });
@@ -7326,7 +7331,7 @@ app.post("/ins/:id/ins-post/:uid/report", async (req, res) => {
     const user = await User.findById({ _id: id });
     const post = await Post.findById({ _id: uid });
     const admin = await Admin.findById({
-      _id: `6d2596c3a47690fe0d371f5b4
+      _id: `${process.env.S_ADMIN_ID}
 `,
     });
     const report = await new Report({ reportStatus: reportStatus });
@@ -7391,7 +7396,7 @@ app.post("/ins/:id/id-card/:bid/send/print", async (req, res) => {
     const institute = await InstituteAdmin.findById({ _id: id });
     const batch = await Batch.findById({ _id: bid });
     const admin = await Admin.findById({
-      _id: `6d2596c3a47690fe0d371f5b4
+      _id: `${process.env.S_ADMIN_ID}
 `,
     });
     const notify = await new Notification({});
@@ -7424,7 +7429,7 @@ app.post("/ins/:id/id-card/:bid/un-send/print", async (req, res) => {
     const institute = await InstituteAdmin.findById({ _id: id });
     const batch = await Batch.findById({ _id: bid });
     const admin = await Admin.findById({
-      _id: `6d2596c3a47690fe0d371f5b4
+      _id: `${process.env.S_ADMIN_ID}
 `,
     });
     const notify = await new Notification({});
@@ -7456,7 +7461,7 @@ app.post("/ins/:id/id-card/:bid/done", async (req, res) => {
     const institute = await InstituteAdmin.findById({ _id: id });
     const batch = await Batch.findById({ _id: bid });
     const admin = await Admin.findById({
-      _id: `6d2596c3a47690fe0d371f5b4
+      _id: `${process.env.S_ADMIN_ID}
 `,
     });
     const notify = await new Notification({});
@@ -7953,7 +7958,7 @@ var rDate = `${r_l_year}-${r_l_month}-${r_l_day}`;
 app.post("/profile-creation/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const admins = await Admin.findById({ _id: `6d2596c3a47690fe0d371f5b4` });
+    const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const {
       userLegalName,
       userGender,

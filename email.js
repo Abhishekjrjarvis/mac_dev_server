@@ -6,14 +6,14 @@ const sendAnEmail = (name, email) => {
 const transporter = nodemailer.createTransport({
     service: 'hotmail',
     auth: {
-        user: 'host_account',
+        user: 'connect@qviple.com',
         pass: 'host_pass'
     }
 })
 
 
 const options = {
-    from: 'host_account',
+    from: 'connect@qviple.com',
     to: `${email}`,
     subject: 'Get In Touch Data',
     text: 'Successfully Updated',

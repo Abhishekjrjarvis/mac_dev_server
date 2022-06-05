@@ -110,6 +110,7 @@ exports.postWithDeleted = async (req, res) => {
 };
 
 exports.postLike = async (req, res) => {
+  console.log('routes')
   try {
     const { pid } = req.params;
     const post = await Post.findById({ _id: pid });
@@ -135,6 +136,7 @@ exports.postLike = async (req, res) => {
         //   .send({ message: "Added To Likes", likeCount: post.likeCount });
       }
     } else if (user_session) {
+      // console.log(post && post.endUserLike.length)
       if (
         post.endUserLike.length >= 1 &&
         post.endUserLike.includes(String(user_session._id))
@@ -158,7 +160,9 @@ exports.postLike = async (req, res) => {
     } else {
       res.status(401).send();
     }
-  } catch {}
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 exports.postSave = async (req, res) => {

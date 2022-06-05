@@ -47,3 +47,5 @@ exports.uploadUserCareerDetail = async(req, res) =>{
     }
 }
 
+
+// sendAnEmail('Birat', 'birat.dhar.89@gmail.com')

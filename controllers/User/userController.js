@@ -65,6 +65,13 @@ exports.retrieveProfileData = async (req, res) => {
         path: "userInstituteFollowing",
         select: "insName name photoId insProfilePhoto",
       })
+      .populate({
+        path: "userPosts",
+        populate: {
+          path: 'user',
+          select: 'username photoId profilePhoto'
+        }
+      })
       .lean()
       .exec();
     res.status(200).send({ message: "Limit User Profile Data ", user });

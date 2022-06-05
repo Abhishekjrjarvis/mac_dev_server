@@ -81,6 +81,9 @@ router.post('/expense/:id', isLoggedIn, upload.single("file"), catchAsync(Financ
 // Retrieve ACK for Expense
 router.get('/expense/ack/:key', isLoggedIn, catchAsync(Finance.RetrieveExpenseACK))
 
+// Repay From Super-Admin to Institute-Admin
+router.post('/admin/:aid/ins/:id/repay', isLoggedIn, catchAsync(Finance.RepayBySuperAdmin))
+
 
 
 

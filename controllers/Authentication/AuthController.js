@@ -16,7 +16,7 @@ const axios = require("axios");
 
 exports.getRegisterIns = async (req, res) => {
   try {
-    const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const admins = await Admin.findById({ _id: `62596c3a47690fe0d371f5b4` });
     const existInstitute = await InstituteAdmin.findOne({
       name: req.body.name,
     });
@@ -237,7 +237,7 @@ var c_date = `${p_year}-${p_month}-${p_date}`;
 exports.profileByUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const admins = await Admin.findById({ _id: `62596c3a47690fe0d371f5b4` });
     const { userLegalName, userGender, userDateOfBirth, username } = req.body;
     const existAdmin = await Admin.findOne({ adminUserName: username });
     const existInstitute = await InstituteAdmin.findOne({ name: username });

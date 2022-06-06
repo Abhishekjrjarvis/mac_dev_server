@@ -15,6 +15,7 @@ const unlinkFile = util.promisify(fs.unlink);
 const axios = require("axios");
 
 exports.getRegisterIns = async (req, res) => {
+  console.log(req.body, req.file)
   try {
     const admins = await Admin.findById({ _id: `62596c3a47690fe0d371f5b4` });
     const existInstitute = await InstituteAdmin.findOne({

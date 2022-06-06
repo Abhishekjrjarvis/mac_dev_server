@@ -279,7 +279,7 @@ app.use('/api/v1/landing', landingNew)
 app.get("/", async (req, res) => {
   try {
     const admins = await Admin.find({});
-    res.send(admins);
+    res.send(admins._id);
   } catch {
     console.log(`SomeThing went wrong at this endPoint(/)`);
   }

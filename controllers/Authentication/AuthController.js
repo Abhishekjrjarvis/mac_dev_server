@@ -211,7 +211,6 @@ exports.verifyOtpByUser = async (req, res) => {
 exports.verifyOtpByIns = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log(req.body.insOtpCode);
     if (req.body.insOtpCode && req.body.insOtpCode === `${InsOTP}`) {
       console.log("Valid OTP");
       var insMobileStatus = "approved";
@@ -254,8 +253,9 @@ exports.profileByUser = async (req, res) => {
         const width = 200;
         const height = 200;
         const file = req.file;
+        // console.log(req.file)
         const results = await uploadFile(file, width, height);
-        const user = await new User({
+        const user = new User({
           userLegalName: userLegalName,
           userGender: userGender,
           userDateOfBirth: userDateOfBirth,
@@ -277,7 +277,7 @@ exports.profileByUser = async (req, res) => {
       }
     }
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(`Error`, e);
   }
 };
 

@@ -25,7 +25,7 @@ router.post('/user-detail', catchAsync(Auth.getOtpAtUser))
 router.post('/user-detail-verify/:id', catchAsync(Auth.verifyOtpByUser))
 
 // Profile Creation By User
-router.post('/profile-creation/:id', catchAsync(Auth.profileByUser))
+router.post('/profile-creation/:id', upload.single('file'), catchAsync(Auth.profileByUser))
 
 // Password Creation By User
 router.post('/create-user-password/:id', catchAsync(Auth.getUserPassword))

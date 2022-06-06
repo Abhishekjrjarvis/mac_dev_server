@@ -19,9 +19,11 @@ const superAdminSchema = new mongoose.Schema({
     adminBio: { type: String },
     adminCity: { type: String },
     adminState: { type: String },
-    adminCountry: { type: String },
     adminAadharCard: { type: String },
-    adminStatus: { type: String, default: 'Verified'},
+    photoId: { type: String },
+    adminStatus: { type: String, default: 'Not Verified'},
+    adminRecoveryPhrase: { type: String, unique: true },
+    isAdmin: { type: String, default: 'Not Assigned' },
     instituteList: [
         {
             type: mongoose.Schema.Types.ObjectId,
@@ -136,6 +138,5 @@ const superAdminSchema = new mongoose.Schema({
 })
 
 const Admin = mongoose.model('Admin', superAdminSchema)
-// const InstituteList = mongoose.model('InstituteList', instituteListSchema)
 
 module.exports = Admin

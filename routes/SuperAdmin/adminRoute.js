@@ -3,6 +3,8 @@ const router = express.Router()
 const Admin = require('../../controllers/SuperAdmin/AdminController')
 const catchAsync = require('../../Utilities/catchAsync')
 const { isLoggedIn } = require('../../middleware')
+const multer = require('multer')
+const upload = multer({ dest: "uploads/" });
 
 
 // Get Super Admin Id
@@ -11,8 +13,17 @@ router.get('/', catchAsync(Admin.getAdmin))
 // Get Super Admin Form
 router.get('/new', catchAsync(Admin.getSuperAdmin))
 
+// Send OTP 
+router.post('/send-otp', catchAsync(Admin.sendOtpToAdmin))
+
+// Verify OTP
+router.post('/verify-otp', catchAsync(Admin.getVerifySuperAdmin))
+
 // Post Super Admin Details
-router.post('/', catchAsync(Admin.updateSuperAdmin))
+router.post('/register', upload.single('file'), catchAsync(Admin.updateSuperAdmin))
+
+// Get Recovery Phrase
+router.get('/phrase', catchAsync(Admin.retrieveRecoveryPhrase))
 
 // Get Admin Data
 router.get('dashboard/:id',isLoggedIn, catchAsync(Admin.getAll))

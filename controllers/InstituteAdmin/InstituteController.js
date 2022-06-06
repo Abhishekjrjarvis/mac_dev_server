@@ -295,12 +295,45 @@ exports.getAllPostIns = async (req, res) => {
 exports.getNotificationIns = async (req, res) => {
   try {
     const { id } = req.params;
-    const institute = await InstituteAdmin.findById({ _id: id }).populate({
+    const institute = await InstituteAdmin.findById({ _id: id })
+    .select('id')
+    .populate({
+      path: "iNotify",
+      populate: {
+        path: "notifyByInsPhoto",
+        select: 'photoId insProfilePhoto'
+      },
+    })
+    .populate({
       path: "iNotify",
       populate: {
         path: "notifyByPhoto",
+        select: 'photoId profilePhoto'
       },
-    });
+    })
+    .populate({
+      path: "iNotify",
+      populate: {
+        path: "notifyByStaffPhoto",
+        select: 'photoId staffProfilePhoto'
+      },
+    })
+    .populate({
+      path: "iNotify",
+      populate: {
+        path: "notifyByStudentPhoto",
+        select: 'photoId studentProfilePhoto'
+      },
+    })
+    .populate({
+      path: "iNotify",
+      populate: {
+        path: "notifyByDepartPhoto",
+        select: 'photoId photo'
+      },
+    })
+    .lean()
+    .exec()
     res.status(200).send({ message: "Notification send", institute });
   } catch (e) {
     console.log("Error", e.message);

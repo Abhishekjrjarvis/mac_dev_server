@@ -119,14 +119,14 @@ router.post(
 );
 
 // User Follow Institute
-router.put(
-  "/follow-ins/institute",
+router.patch(
+  "/follow/institute",
   isLoggedIn,
   catchAsync(User.updateUserFollowIns)
 );
 
 // User Unfollow Institute
-router.put(
+router.patch(
   "/unfollow/institute",
   isLoggedIn,
   catchAsync(User.removeUserFollowIns)
@@ -136,7 +136,7 @@ router.put(
 router.post("-search-profile", isLoggedIn, catchAsync(User.querySearchUser));
 
 // User Follow User
-router.put("/follow-ins", isLoggedIn, catchAsync(User.updateUserFollow));
+router.patch("/follow-ins", isLoggedIn, catchAsync(User.updateUserFollow));
 
 // Add User To Circle
 router.put("/circle-ins", isLoggedIn, catchAsync(User.updateUserCircle));
@@ -173,7 +173,6 @@ router.post(
   isLoggedIn,
   catchAsync(User.addUserAccountUser)
 );
-
 // Account Deactivated By User
 router.post(
   "/:id/deactivate/account",
@@ -217,7 +216,7 @@ router.post(
 
 // All Notification For User
 router.get(
-  "dashboard/:id/notify",
+  "/dashboard/:id/notify",
   isLoggedIn,
   catchAsync(User.getNotifications)
 );

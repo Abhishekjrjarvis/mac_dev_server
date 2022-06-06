@@ -80,7 +80,7 @@ router.get(
 
 // Institute All Notification
 router.get(
-  "dashboard/:id/notify",
+  "/dashboard/:id/notify",
   isLoggedIn,
   catchAsync(Institute.getNotificationIns)
 );

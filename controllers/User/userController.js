@@ -335,9 +335,9 @@ exports.updateUserFollowIns = async (req, res) => {
       notify.notifyContent = `${user.userLegalName} started to following you`;
       notify.notifySender = user._id;
       notify.notifyReceiever = sinstitute._id;
-      sinstitute.iNotify.push(notify);
-      notify.institute = sinstitute;
-      notify.notifyByPhoto = user;
+      sinstitute.iNotify.push(notify._id);
+      notify.institute = sinstitute._id;
+      notify.notifyByPhoto = user._id;
       await user.save();
       await sinstitute.save();
       await notify.save();
@@ -692,12 +692,45 @@ exports.getReportPostUser = async (req, res) => {
 exports.getNotifications = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await User.findById({ _id: id }).populate({
+    const user = await User.findById({ _id: id })
+    .select('id')
+    .populate({
       path: "uNotify",
       populate: {
         path: "notifyByPhoto",
+        select: 'photoId profilePhoto'
       },
-    });
+    })
+    .populate({
+      path: "uNotify",
+      populate: {
+        path: "notifyByInsPhoto",
+        select: 'photoId insProfilePhoto'
+      },
+    })
+    .populate({
+      path: "uNotify",
+      populate: {
+        path: "notifyByStaffPhoto",
+        select: 'photoId staffProfilePhoto'
+      },
+    })
+    .populate({
+      path: "uNotify",
+      populate: {
+        path: "notifyByStudentPhoto",
+        select: 'photoId studentProfilePhoto'
+      },
+    })
+    .populate({
+      path: "uNotify",
+      populate: {
+        path: "notifyByDepartPhoto",
+        select: 'photoId photo'
+      },
+    })
+    .lean()
+    .exec()
     res.status(200).send({ message: "Notification send", user });
   } catch (e) {
     console.log("Error", e.message);

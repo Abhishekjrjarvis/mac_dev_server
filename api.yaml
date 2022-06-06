@@ -1288,6 +1288,8 @@ paths:
                 type: string
               userEducation:
                 type: string
+              userAddress:
+                type: string
       responses:
         "200":
           description: OK
@@ -3258,3 +3260,130 @@ paths:
           description: OK
 
 
+
+
+  /api/v1/all/staff/list/data:
+    get:
+      tags:
+        - Required-Api-Tushar-All
+      summary: Get All Mentors List
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/all/user/list/data:
+    get:
+      tags:
+        - Required-Api-Tushar-All
+      summary: Get All Users List
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/all/institute/list/data:
+    get:
+      tags:
+        - Required-Api-Tushar-All
+      summary: Get All Institute List
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/dashboard/{id}/notify:
+    get:
+      tags:
+        - Required-Api-Tushar-All
+      summary: Get All Notifications Of Users
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is user id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/dashboard/{id}/notify:
+    get:
+      tags:
+        - Required-Api-Tushar-All
+      summary: Get All Notifications Of Institute
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/user/{id}/deactivate/account:
+    post:
+      tags:
+        - Required-Api-Tushar-All
+      summary: Deactivate User A/c for atleast 2 days
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is user ID
+        - in: path
+          name: activeStatus
+          required: true
+          type: string
+          description: status of A/c (Deactivated paste in Input)   
+        - in: path
+          name: activeDate
+          required: true
+          type: string
+          description: Date of A/c (Deactivated)      
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/follow/institute/:
+    patch:
+      tags:
+        - Required-Api-Tushar-All
+      summary: Follow Institute Api
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+      responses:
+        "200":
+          description: OK

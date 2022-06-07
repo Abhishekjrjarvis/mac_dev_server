@@ -1276,6 +1276,8 @@ paths:
             properties:
               userDateOfBirth:
                 type: string
+              userLegalName:
+                type: string
               userGender:
                 type: string
               userAddress:

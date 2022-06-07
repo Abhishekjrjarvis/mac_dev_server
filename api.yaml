@@ -5,11 +5,11 @@ info:
   version: one
 
 
-host: 18.205.27.165
-basePath: /api
-# schemes: [http, https]
-schemes: 
-  - http
+# host: 18.205.27.165
+# basePath: /api
+schemes: [http, https]
+# schemes: 
+#   - http
 
 
 #Return Users From get request
@@ -3694,5 +3694,55 @@ paths:
         "200":
           description: OK
 
+  /api/v1/ins/{id}/display-person:
+    post:
+      tags:
+        - Required-Api-Tushar-All
+      summary: Add Display Person
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - displayTitle
+              - displayUser
+            properties:
+              displayTitle:
+                type: string
+                description: Enter Display Title
+              displayUser:
+                type: string
+                description: Enter User Id
+      responses:
+        "200":
+          description: OK
 
+  /api/v1/ins/{id}/display/person-array:
+    get:
+      tags:
+        - Required-Api-Tushar-All
+      summary: Retrieve Display Person
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+      responses:
+        "200":
+          description: OK
           

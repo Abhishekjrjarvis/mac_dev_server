@@ -2147,9 +2147,10 @@ exports.updateDisplayPersonArray = async(req, res) =>{
       user.save(),
       notify.save()
     ])
+    res.status(200).send({ message: 'Success', display})
   }
-  catch{
-
+  catch(e){
+    console.log(e)
   }
 }
 

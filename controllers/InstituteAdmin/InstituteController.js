@@ -1027,7 +1027,7 @@ exports.reportPostByUser = async (req, res) => {
     const { reportStatus } = req.body;
     const user = await User.findById({ _id: id });
     const post = await Post.findById({ _id: uid });
-    const admin = await Admin.findById({ _id: `62596c3a47690fe0d371f5b4` });
+    const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const report = await new Report({ reportStatus: reportStatus });
     admin.reportList.push(report);
     report.reportInsPost = post;
@@ -2156,6 +2156,21 @@ exports.updateDisplayPersonArray = async(req, res) =>{
 
 
 
+exports.updateDisplayPersonIns = async(req, res) =>{
+  try{
+    const { did } = req.params
+    const display = await DisplayPerson.findById({_id: did})
+    display.displayTitle = req.body.displayTitle
+    display.displayUser = req.body.displayUser
+    await Promise.all([ display.save()])
+    res.status(200).send({ message: 'update Display Person'})
+  }
+  catch(e){
+  }
+}
+
+
+
 exports.deleteDisplayPersonArray = async(req, res) =>{
   try{
     const { id, did, uid } = req.params
@@ -2260,6 +2275,50 @@ exports.retrieveRecoveryMailIns = async(req, res) =>{
     institute.recoveryMail = recoveryMail
     await Promise.all([ institute.save()])
     res.status(200).send({ message: 'Success', mail: institute.recoveryMail})
+  }
+  catch{
+
+  }
+}
+
+
+
+exports.retrieveInsFollowersArray = async(req, res) =>{
+  try{
+    const { id } = req.params
+    const institute = await InstituteAdmin.findById({_id: id})
+    .select('id')
+    .populate({
+      path: 'followers',
+      select: 'insName photoId insProfilePhoto name'
+    })
+    .populate({
+      path: 'userFollowersList',
+      select: 'userLegalName photoId profilePhoto username'
+    })
+    .lean()
+    .exec()
+    res.status(200).send({ message: 'Followers List', institute: institute.followers, user: institute.userFollowersList})
+  }
+  catch{
+
+  }
+}
+
+
+
+exports.retrieveInsFollowingArray = async(req, res) =>{
+  try{
+    const { id } = req.params
+    const institute = await InstituteAdmin.findById({_id: id})
+    .select('id')
+    .populate({
+      path: 'following',
+      select: 'insName photoId insProfilePhoto name'
+    })
+    .lean()
+    .exec()
+    res.status(200).send({ message: 'Following List', institute: institute.following})
   }
   catch{
 

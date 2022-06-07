@@ -5,11 +5,11 @@ info:
   version: one
 
 
-# host: 18.205.27.165
-# basePath: /api
-schemes: [http, https]
-# schemes: 
-#   - http
+host: 18.205.27.165
+basePath: /api
+# schemes: [http, https]
+schemes: 
+  - http
 
 
 #Return Users From get request
@@ -3361,9 +3361,13 @@ paths:
           schema:
             type: object
             required:
+              - password
               - activeStatus
               - activeDate
             properties:
+              password:
+                type: string
+                description: Enter your A/c password
               activeStatus:
                 type: string
                 description: Enter Deactivated Text
@@ -3745,4 +3749,176 @@ paths:
       responses:
         "200":
           description: OK
+
+  /api/v1/ins/{did}/display-person/update:
+    patch:
+      tags:
+        - Required-Api-Tushar-All
+      summary: Update Display Person
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is Display Person id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - displayTitle
+              - displayUser
+            properties:
+              displayTitle:
+                type: string
+                description: Enter Display Title
+              displayUser:
+                type: string
+                description: Enter User Id
+      responses:
+        "200":
+          description: OK
+  
+  /api/v1/ins/{id}/display-person/{did}/delete/{uid}:
+    delete:
+      tags:
+        - Required-Api-Tushar-All
+      summary: Delete Display Person
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is Display Person id
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is User id
+      responses:
+        "200":
+          description: OK
           
+
+  /api/v1/user/{id}/user-post/{uid}/report:
+    post:
+      tags:
+        - Required-Api-Tushar-All
+      summary: Report User's Post By User
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is User id
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is Post id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - reportStatus
+            properties:
+              reportStatus:
+                type: string
+                description: Enter Report Content
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/ins/{id}/ins-post/{uid}/report:
+    post:
+      tags:
+        - Required-Api-Tushar-All
+      summary: Report Institute's Post By User
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is User id
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is Post id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - reportStatus
+            properties:
+              reportStatus:
+                type: string
+                description: Enter Report Content
+      responses:
+        "200":
+          description: OK
+
+
+
+  /api/v1/ins/{id}/followers-array:
+    get:
+      tags:
+        - Required-Api-Tushar-All
+      summary: Institute Followers List of Institute and User
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/ins/{id}/following-array:
+    get:
+      tags:
+        - Required-Api-Tushar-All
+      summary: Institute Following List of Institute
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+      responses:
+        "200":
+          description: OK

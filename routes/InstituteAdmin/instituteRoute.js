@@ -539,6 +539,9 @@ router.get('/:id/display/person-array', isLoggedIn, catchAsync(Institute.retriev
 // Display Person 
 router.post('/:id/display-person', isLoggedIn, catchAsync(Institute.updateDisplayPersonArray))
 
+// Update Display Person
+router.patch('/:did/display-person/update', isLoggedIn, catchAsync(Institute.updateDisplayPersonIns))
+
 // Delete Display Person 
 router.delete('/:id/display-person/:did/delete/:uid', isLoggedIn, catchAsync(Institute.deleteDisplayPersonArray))
 
@@ -547,6 +550,12 @@ router.post('/:aid/star-announcement', isLoggedIn, catchAsync(Institute.retrieve
 
 // Recovery Mail 
 router.post('/:id/recovery-mail', isLoggedIn, catchAsync(Institute.retrieveRecoveryMailIns))
+
+// Institute Followers List
+router.get('/:id/followers-array', isLoggedIn, catchAsync(Institute.retrieveInsFollowersArray))
+
+// Institute Following List
+router.get('/:id/following-array', isLoggedIn, catchAsync(Institute.retrieveInsFollowingArray))
 
 // Display All Api
 // Report Post

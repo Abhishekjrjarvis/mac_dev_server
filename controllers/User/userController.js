@@ -8,6 +8,7 @@ const Conversation = require("../../models/Conversation");
 const UserSupport = require("../../models/UserSupport");
 const Report = require("../../models/Report");
 const Staff = require('../../models/Staff')
+const bcrypt = require('bcryptjs')
 const {
   getFileStream,
   uploadDocFile,
@@ -571,13 +572,19 @@ exports.addUserAccountUser = async (req, res) => {
 exports.deactivateUserAccount = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status, ddate } = req.body;
+    const { status, ddate, password } = req.body;
     const user = await User.findById({ _id: id });
+    const comparePassword = bcrypt.compareSync(user.userPassword, password)
+    if(comparePassword){
     user.activeStatus = status;
     user.activeDate = ddate;
     await user.save();
     res.clearCookie("SessionID", { path: "/" });
     res.status(200).send({ message: "Deactivated Account", user });
+    }
+    else{
+      res.status(404).send({ message: 'Bad Request'})
+    }
   } catch (e) {
     console.log(`Error`, e.message);
   }
@@ -676,8 +683,8 @@ exports.getReportPostUser = async (req, res) => {
     const { id, uid } = req.params;
     const { reportStatus } = req.body;
     const user = await User.findById({ _id: id });
-    const post = await UserPost.findById({ _id: uid });
-    const admin = await Admin.findById({ _id: `62596c3a47690fe0d371f5b4` });
+    const post = await Post.findById({ _id: uid });
+    const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const report = await new Report({ reportStatus: reportStatus });
     admin.reportList.push(report);
     report.reportUserPost = post;

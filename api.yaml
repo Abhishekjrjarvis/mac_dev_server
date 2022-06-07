@@ -3362,16 +3362,16 @@ paths:
             type: object
             required:
               - password
-              - activeStatus
-              - activeDate
+              - status
+              - ddate
             properties:
               password:
                 type: string
                 description: Enter your A/c password
-              activeStatus:
+              status:
                 type: string
                 description: Enter Deactivated Text
-              activeDate:
+              ddate:
                 type: string
                 description: Enter Date after 2 days
       responses:

@@ -574,7 +574,7 @@ exports.deactivateUserAccount = async (req, res) => {
     const { id } = req.params;
     const { status, ddate, password } = req.body;
     const user = await User.findById({ _id: id });
-    const comparePassword = bcrypt.compareSync(user.userPassword, password)
+    const comparePassword = bcrypt.compareSync(password, user.userPassword)
     if(comparePassword){
     user.activeStatus = status;
     user.activeDate = ddate;

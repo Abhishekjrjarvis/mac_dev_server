@@ -18,7 +18,8 @@ const insAnnouncementSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'ReplyAnnouncement'
     }
-  ]
+  ],
+  starList: []
 });
 
 const InsAnnouncement = mongoose.model(

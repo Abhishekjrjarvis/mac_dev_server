@@ -263,7 +263,16 @@ const userSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'DisplayPerson'
     }
-  ]
+  ],
+  starAnnouncement: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'InsAnnouncement'
+    }
+  ],
+  recoveryMail: {
+    type: String
+  }
 });
 
 userSchema.post("findOneAndDelete", async function (doc) {

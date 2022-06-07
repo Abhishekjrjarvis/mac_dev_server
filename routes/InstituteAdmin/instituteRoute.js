@@ -542,4 +542,18 @@ router.post('/:id/display-person', isLoggedIn, catchAsync(Institute.updateDispla
 // Delete Display Person 
 router.delete('/:id/display-person/:did/delete/:uid', isLoggedIn, catchAsync(Institute.deleteDisplayPersonArray))
 
+// Mark as star Announcement
+router.post('/:aid/star-announcement', isLoggedIn, catchAsync(Institute.retrieveStarAnnouncementArray))
+
+// Recovery Mail 
+router.post('/:id/recovery-mail', isLoggedIn, catchAsync(Institute.retrieveRecoveryMailIns))
+
+// Display All Api
+// Report Post
+// Delete Post
+// Institute Followers List
+// Institute Following List
+
 module.exports = router;
+
+

@@ -7,6 +7,7 @@ const Notification = require("../../models/notification");
 const Conversation = require("../../models/Conversation");
 const UserSupport = require("../../models/UserSupport");
 const Report = require("../../models/Report");
+const Staff = require('../../models/Staff')
 const {
   getFileStream,
   uploadDocFile,
@@ -102,7 +103,7 @@ exports.retrieveFIAnnouncement = async (req, res) => {
         populate: {
           path: "announcement",
           select:
-            "insAnnPhoto insAnnDescription insAnnTitle insAnnVisibility createdAt",
+            "insAnnPhoto insAnnDescription insAnnTitle insAnnVisibility createdAt starList",
           populate: {
             path: 'institute',
             select: 'insName photoId insProfilePhoto'
@@ -458,7 +459,7 @@ exports.updateUserCircle = async (req, res) => {
   }
 };
 
-exports.removeUserCircle = async (Req, res) => {
+exports.removeUserCircle = async (req, res) => {
   try {
     const user = await User.findById({ _id: req.session.user._id });
     const suser = await User.findById({ _id: req.body.followId });
@@ -522,7 +523,7 @@ exports.updateUserPhone = async (req, res) => {
     await user.save();
     res.status(200).send({ message: "Mobile No Updated", user });
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(`Error`);
   }
 };
 
@@ -932,3 +933,125 @@ exports.followingInsArray = async (req, res) => {
     }
   } catch {}
 };
+
+
+
+exports.retrieveAllStarAnnouncementUser = async(req, res) =>{
+  try{
+    const { id } = req.params
+    const user = await User.findById({_id: id})
+    .select('id')
+    .populate({
+      path: 'starAnnouncement',
+      select: 'insAnnTitle insAnnPhoto insAnnDescription insAnnVisibility createdAt',
+      populate: {
+        path: 'reply',
+        select: 'replyText replyAuthorByIns replyAuthorByUser createdAt'
+      }
+    })
+    .populate({
+      path: 'starAnnouncement',
+      select: 'insAnnTitle insAnnPhoto insAnnDescription insAnnVisibility createdAt',
+      populate: {
+        path: 'institute',
+        select: 'insName photoId insProfilePhoto'
+      }
+    })
+    .lean()
+    .exec()
+    res.status(200).send({ message: 'Success', user})
+  }
+  catch{
+
+  }
+}
+
+
+
+exports.retrieveRecoveryMailUser = async(req, res) =>{
+  try{
+    const { id } = req.params
+    const { recoveryMail } = req.body
+    const user = await User.findById({_id: id})
+    user.recoveryMail = recoveryMail
+    await Promise.all([ user.save()])
+    res.status(200).send({ message: 'Success', mail: user.recoveryMail})
+  }
+  catch{
+
+  }
+}
+
+
+
+exports.retrieveStaffDesignationArray = async(req, res) =>{
+  try {
+    const { sid } = req.params;
+    const staff = await Staff.findById({ _id: sid })
+    .select('staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto')
+      .populate({
+        path: "staffDepartment",
+        select: 'dName dTitle'
+      })
+      .populate({
+        path: "staffClass",
+        select: 'className classTitle classStatus',
+        populate: {
+          path: "batch",
+          select: 'batchName batchStatus'
+        },
+      })
+      .populate({
+        path: "staffSubject",
+        select: 'subjectName subjectTitle subjectStatus',
+        populate: {
+          path: "class",
+          select: 'className classTitle classStatus',
+          populate: {
+            path: "batch",
+            select: 'batchName batchStatus'
+          },
+        },
+      })
+      .populate({
+        path: "institute",
+        select: 'insName photoId insProfilePhoto'
+      })
+      .populate({
+        path: 'user',
+        select: 'userLegalName photoId profilePhoto'
+      })
+      .lean()
+      .exec()
+      // .populate({
+      //   path: "staffAdmissionAdmin",
+      //   populate: {
+      //     path: "institute",
+      //     populate: {
+      //       path: "depart",
+      //       populate: {
+      //         path: "batches",
+      //       },
+      //     },
+      //   },
+      // })
+      // .populate({
+      //   path: "elearning",
+      // })
+      // .populate({
+      //   path: "library",
+      // })
+      // .populate("financeDepartment")
+      // .populate("sportDepartment")
+      // .populate("staffSportClass")
+      // .populate("staffAdmissionAdmin")
+      // .populate({
+      //   path: "staffAdmissionAdmin",
+      //   populate: {
+      //     path: "adAdminName",
+      //   },
+      // });
+    res.status(200).send({ message: "Staff Designation Data", staff });
+  } catch {
+  }
+}

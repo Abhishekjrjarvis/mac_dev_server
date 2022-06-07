@@ -269,7 +269,7 @@ exports.getAnnouncementArray = async (req, res) => {
       .populate({
         path: "announcement",
         select:
-          "insAnnPhoto photoId insAnnTitle insAnnVisibilty insAnnDescription createdAt",
+          "insAnnPhoto photoId insAnnTitle insAnnVisibilty insAnnDescription createdAt starList",
         populate: {
           path: 'reply',
           select: 'replyText createdAt replyAuthorAsUser replyAuthorAsIns'
@@ -2162,6 +2162,103 @@ exports.deleteDisplayPersonArray = async(req, res) =>{
     await User.findByIdAndUpdate(uid, { $pull: { displayPersonArray: did }})
     await DisplayPerson.findByIdAndDelete({_id: did})
     res.status(200).send({ message: 'Deleted'})
+  }
+  catch{
+
+  }
+}
+
+
+
+exports.retrieveStarAnnouncementArray = async(req, res) =>{
+  try{
+    const { aid } = req.params
+    const insAnn = await InsAnnouncement.findById({_id: aid})
+    if(req.session.user){
+    var user = await User.findById({_id: req.session.user._id})
+    }
+    else{
+    var institute = await InstituteAdmin.findById({_id: req.session.institute._id})
+    }
+    if(institute){
+      if(insAnn.starList.length >=1 && insAnn.starList.includes(String(institute._id))){
+        insAnn.starList.pull(institute._id)
+        institute.starAnnouncement.pull(insAnn._id)
+        await Promise.all([ insAnn.save(), institute.save()])
+        res.status(200).send({ message: 'Remove from Star By Ins'})
+      }
+      else{
+        insAnn.starList.push(institute._id)
+        institute.starAnnouncement.push(insAnn._id)
+        await Promise.all([ insAnn.save(), institute.save()])
+        res.status(200).send({ message: 'Added to Star By Ins'})
+      }
+    }
+    else if(user){
+      if(insAnn.starList.length >=1 && insAnn.starList.includes(String(user._id))){
+        insAnn.starList.pull(user._id)
+        user.starAnnouncement.pull(insAnn._id)
+        await Promise.all([ insAnn.save(), user.save()])
+        res.status(200).send({ message: 'Remove from Star By User'})
+      }
+      else{
+        insAnn.starList.push(user._id)
+        user.starAnnouncement.push(insAnn._id)
+        await Promise.all([ insAnn.save(), user.save()])
+        res.status(200).send({ message: 'Added to Star By User'})
+      }
+    }
+  }
+  catch(e){
+    // console.log(e)
+  }
+}
+
+
+
+exports.retrieveAllStarAnnouncement = async(req, res) =>{
+  try{
+    const { id } = req.params
+    const institute = await InstituteAdmin.findById({_id: id})
+    .select('id')
+    .populate({
+      path: 'starAnnouncement',
+      select: 'insAnnTitle insAnnPhoto insAnnDescription insAnnVisibility createdAt',
+      populate: {
+        path: 'reply',
+        select: 'replyText replyAuthorByIns replyAuthorByUser createdAt'
+      }
+    })
+    .populate({
+      path: 'starAnnouncement',
+      select: 'insAnnTitle insAnnPhoto insAnnDescription insAnnVisibility createdAt',
+      populate: {
+        path: 'institute',
+        select: 'insName photoId insProfilePhoto'
+      }
+    })
+    .lean()
+    .exec()
+    res.status(200).send({ message: 'Success', institute})
+  }
+  catch{
+
+  }
+}
+
+
+
+
+
+
+exports.retrieveRecoveryMailIns = async(req, res) =>{
+  try{
+    const { id } = req.params
+    const { recoveryMail } = req.body
+    const institute = await InstituteAdmin.findById({_id: id})
+    institute.recoveryMail = recoveryMail
+    await Promise.all([ institute.save()])
+    res.status(200).send({ message: 'Success', mail: institute.recoveryMail})
   }
   catch{
 

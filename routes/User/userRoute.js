@@ -136,13 +136,13 @@ router.patch(
 router.post("-search-profile", isLoggedIn, catchAsync(User.querySearchUser));
 
 // User Follow User
-router.patch("/follow-ins", isLoggedIn, catchAsync(User.updateUserFollow));
+router.patch("/follow/user", isLoggedIn, catchAsync(User.updateUserFollow));
 
 // Add User To Circle
-router.put("/circle-ins", isLoggedIn, catchAsync(User.updateUserCircle));
+router.patch("/circle/user", isLoggedIn, catchAsync(User.updateUserCircle));
 
 // Remove User From Circle
-router.put("/uncircle-ins", isLoggedIn, catchAsync(User.removeUserCircle));
+router.patch("/uncircle/user", isLoggedIn, catchAsync(User.removeUserCircle));
 
 // Add Post To Save
 router.post("/save/post", isLoggedIn, catchAsync(User.updateSavePost));
@@ -265,4 +265,14 @@ router.get(
 
 // Circle List
 router.get("/:uid/circle-array", isLoggedIn, catchAsync(User.circleArray));
+
+// Get Star Announcement User
+router.get('/:id/all/star-announcement', isLoggedIn, catchAsync(User.retrieveAllStarAnnouncementUser))
+
+// Recovery Mail 
+router.post('/:id/recovery-mail', isLoggedIn, catchAsync(User.retrieveRecoveryMailUser))
+
+// Staff Designation Data
+router.get('/staffdesignationdata/:sid', isLoggedIn, catchAsync(User.retrieveStaffDesignationArray))
+
 module.exports = router;

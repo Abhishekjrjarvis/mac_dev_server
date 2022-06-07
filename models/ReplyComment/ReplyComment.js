@@ -18,6 +18,18 @@ const replySchema = new mongoose.Schema({
   author: {
     type: String,
   },
+  authorName: {
+    type: String,
+  },
+  authorUserName: {
+    type: String
+  },
+  authorPhotoId: {
+    type: String
+  },
+  authorProfilePhoto: {
+    type: String
+  },
   // modelId: {
   //   type: mongoose.Schema.Types.ObjectId,
   //   required: true,

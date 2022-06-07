@@ -45,6 +45,18 @@ const postSchema = new mongoose.Schema({
   author: {
     type: String,
   },
+  authorName: {
+    type: String
+  },
+  authorUserName: {
+    type: String
+  },
+  authorPhotoId: {
+    type: String
+  },
+  authorProfilePhoto: {
+    type: String
+  },
   comment: [
     {
       type: mongoose.Schema.Types.ObjectId,

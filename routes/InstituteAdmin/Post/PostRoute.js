@@ -6,6 +6,8 @@ const { isLoggedIn, isApproved } = require("../../../middleware");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 
+router.get('/:id/all/posts', isLoggedIn, catchAsync(Post.retrieveAllPosts))
+
 router.post("/:id", isLoggedIn, isApproved, catchAsync(Post.postWithText));
 
 router.post(
@@ -59,7 +61,6 @@ router.get(
 router.post(
   "/comment/child/:pcid",
   isLoggedIn,
-
   catchAsync(Post.postCommentChild)
 );
 

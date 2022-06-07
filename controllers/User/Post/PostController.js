@@ -28,6 +28,10 @@ exports.postWithText = async (req, res) => {
     post.imageId = "1";
     user.userPosts.push(post._id);
     post.author = user._id;
+    post.authorName = user.userLegalName
+    post.authorUserName = user.username
+    post.authorPhotoId = user.photoId
+    post.authorProfilePhoto = user.profilePhoto
     await Promise.all([user.save(), post.save()]);
     res.status(201).send({ message: "post is create" });
   } catch {}
@@ -56,6 +60,10 @@ exports.postWithImage = async (req, res) => {
     post.imageId = "0";
     user.userPosts.push(post._id);
     post.author = user._id;
+    post.authorName = user.userLegalName
+    post.authorUserName = user.username
+    post.authorPhotoId = user.photoId
+    post.authorProfilePhoto = user.profilePhoto
     await Promise.all([user.save(), post.save()]);
     res.status(201).send({ message: "post is create" });
   } catch {}
@@ -82,6 +90,10 @@ exports.postWithVideo = async (req, res) => {
     post.imageId = "1";
     user.userPosts.push(post._id);
     post.author = user._id;
+    post.authorName = user.userLegalName
+    post.authorUserName = user.username
+    post.authorPhotoId = user.photoId
+    post.authorProfilePhoto = user.profilePhoto
     await Promise.all([user.save(), post.save()]);
     await unlinkFile(file.path);
     res.status(201).send({ message: "post created" });
@@ -210,8 +222,16 @@ exports.postComment = async (req, res) => {
     const comment = new Comment({ ...req.body });
     if (req.session.institute) {
       comment.author = req.session.institute._id;
+      comment.authorName = req.session.institute.insName
+      comment.authorUserName = req.session.institute.name
+      comment.authorPhotoId = req.session.institute.photoId
+      comment.authorProfilePhoto = req.session.institute.insProfilePhoto
     } else if (req.session.user) {
       comment.author = req.session.user._id;
+      comment.authorName = req.session.user.userLegalName
+      comment.authorUserName = req.session.user.username
+      comment.authorPhotoId = req.session.user.photoId
+      comment.authorProfilePhoto = req.session.user.profilePhoto
     } else {
       res.status(401).send();
     }
@@ -223,6 +243,27 @@ exports.postComment = async (req, res) => {
   } catch {}
 };
 
+
+exports.retrieveAllUserPosts = async(req, res) =>{
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const id = req.params.id;
+    const skip = (page - 1) * limit;
+    const user = await User.findById(id);
+    const post = await Post.find({
+      _id: { $in: user.userPosts },
+    })
+      .sort("-createdAt")
+      .limit(limit)
+      .skip(skip)
+      .select("postTitle postText postDescription createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto")
+    res.status(200).send({ message: "Success", post });
+  } catch(e) {
+    console.log(e)
+  }
+}
+
 //Check this route for get all child comment that is reply
 exports.getComment = async (req, res) => {
   try {
@@ -232,12 +273,12 @@ exports.getComment = async (req, res) => {
     const skip = (page - 1) * limit;
     const insPost = await Post.findById(pid);
     const comment = await Comment.find({
-      _id: { $in: insPost.userComment },
+      _id: { $in: insPost.comment },
     })
       .sort("-createdAt")
       .limit(limit)
       .skip(skip)
-      .select("commentDesc createdAt allLikeCount allChildCommentCount");
+      .select("commentDescription createdAt allLikeCount allChildCommentCount author authorName authorUserName authorPhotoId authorProfilePhoto");
     // .populate({
     //   path: "users",
     //   select: "userLegalName photoId profilePhoto ",
@@ -256,11 +297,7 @@ exports.getCommentChild = async (req, res) => {
     const comment = await Comment.findById(pcid)
       .populate({
         path: "childComment",
-        select: "repliedComment createdAt",
-        populate: {
-          path: "authorUser ",
-          select: "username userLegalName photoId profilePhoto",
-        },
+        select: "repliedComment createdAt author authorName authorUserName authorPhotoId authorProfilePhoto",
       })
       .select("allChildCommentCount allLikeCount")
       .lean()
@@ -282,6 +319,8 @@ exports.postCommentChild = async (req, res) => {
   try {
     const { pcid } = req.params;
     const { comment, uid } = req.body;
+    var rUser = req.session.user && req.session.user._id
+    const users = await User.findById({_id: rUser}) 
     if (req.session.institute) {
       // const childComment = new ReplyCommentUser({
       //   repliedComment: comment,
@@ -306,25 +345,31 @@ exports.postCommentChild = async (req, res) => {
       //   childReplyComment,
       //   commentCount: parentComment.allChildCommentCount,
       // });
-    } else if (req.session.user) {
+    } else if (users) {
       const childComment = new ReplyComment({
         repliedComment: comment,
-        author: uid,
+        author: users._id,
+        authorName: users.userLegalName,
+        authorUserName: users.username,
+        authorPhotoId: users.photoId,
+        authorProfilePhoto: users.profilePhoto,
         parentComment: pcid,
       });
       const parentComment = await Comment.findById(pcid);
       parentComment.childComment.unshift(childComment._id);
       parentComment.allChildCommentCount += 1;
       await Promise.all([parentComment.save(), childComment.save()]);
-      const user = await User.findById(uid)
+      const user = await User.findById(users._id)
         .select("photoId profilePhoto username userLegalName")
-        .lean()
-        .exec();
       const childReplyComment = {
         _id: childComment._id,
         repliedComment: childComment.repliedComment,
         createdAt: childComment.createdAt,
-        author: user,
+        author: user._id,
+        authorName: user.userLegalName,
+        authorUserName: user.username,
+        authorPhotoId: user.photoId,
+        authorProfilePhoto: user.profilePhoto,
       };
       res.status(201).send({
         childReplyComment,

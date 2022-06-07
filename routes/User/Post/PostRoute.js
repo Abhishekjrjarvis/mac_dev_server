@@ -7,6 +7,8 @@ const { isLoggedIn } = require("../../../middleware");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 
+router.get('/:id/all/user/posts', isLoggedIn, catchAsync(Post.retrieveAllUserPosts))
+
 router.post("/:id", isLoggedIn, catchAsync(Post.postWithText));
 
 router.post(

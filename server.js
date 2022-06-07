@@ -149,8 +149,8 @@ const landingNew = require('./routes/LandingRoute/indexRoute')
 const institutePostRoute = require("./routes/InstituteAdmin/Post/PostRoute");
 const userPostRoute = require("./routes/User/Post/PostRoute");
 
-const dburl = `${process.env.DB_URL1}`;
-// const dburl = `${process.env.DB_URL2}`;
+// const dburl = `${process.env.DB_URL1}`;
+const dburl = `${process.env.DB_URL2}`;
 // const dburl = `${process.env.L_DB_URL}`;
 // const dburl = `mongodb://127.0.0.1:27017/Erp_app`;
 

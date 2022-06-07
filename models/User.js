@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const UserPost = require("./userPost");
+// const Post = require("./Post");
 const Staff = require("./Staff");
 const InstituteAdmin = require("./InstituteAdmin");
 const Student = require("./Student");
@@ -44,7 +44,7 @@ const userSchema = new mongoose.Schema({
   userPosts: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "UserPost",
+      ref: "Post",
     },
   ],
   staff: [
@@ -98,7 +98,7 @@ const userSchema = new mongoose.Schema({
   saveUsersPost: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "UserPost",
+      ref: "Post",
     },
   ],
   saveUserInsPost: [
@@ -277,7 +277,7 @@ const userSchema = new mongoose.Schema({
 
 userSchema.post("findOneAndDelete", async function (doc) {
   if (doc) {
-    await UserPost.deleteMany({
+    await Post.deleteMany({
       _id: {
         $in: doc.userPosts,
       },

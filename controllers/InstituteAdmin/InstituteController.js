@@ -1638,6 +1638,29 @@ exports.retrieveApproveStaffList = async (req, res) => {
   } catch {}
 };
 
+
+
+exports.retrieveApproveStudentList = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const studentIns = await InstituteAdmin.findById({ _id: id })
+      .select("insName")
+      .populate({
+        path: "ApproveStudent",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+      })
+      .lean()
+      .exec();
+    if (studentIns) {
+      res.status(200).send({ message: "Success", studentIns });
+    } else {
+      res.status(404).send({ message: "Failure" });
+    }
+  } catch {}
+};
+
+
 exports.getFullStaffInfo = async (req, res) => {
   try {
     const { id } = req.params;
@@ -1662,6 +1685,34 @@ exports.getFullStaffInfo = async (req, res) => {
     }
   } catch {}
 };
+
+
+
+exports.getFullStudentInfo = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const student = await Student.findById({ _id: id })
+      .select(
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentDistrict studentState studentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentDocuments studentAadharCard studentStatus studentGRNO studentROLLNO"
+      )
+      .populate({
+        path: "user",
+        select: "userLegalName",
+      })
+      .populate({
+        path: "institute",
+        select: "insName",
+      })
+      .lean()
+      .exec();
+    if (student) {
+      res.status(200).send({ message: "Student Data To Member", student });
+    } else {
+      res.status(404).send({ message: "Failure" });
+    }
+  } catch {}
+};
+
 
 exports.retrieveDepartmentList = async (req, res) => {
   try {
@@ -1906,6 +1957,21 @@ exports.updateOneStaffDepartmentInfo = async (req, res) => {
     res.status(200).send({ message: "Department Info Updates" });
   } catch {}
 };
+
+
+exports.updateOneStaffClassInfo = async (req, res) =>{
+  try {
+    const { cid } = req.params;
+    const { classAbout, classDisplayPerson, classStudentTotal } = req.body;
+    const classInfo = await Class.findById({ _id: cid });
+    classInfo.classAbout = classAbout;
+    classInfo.classDisplayPerson = classDisplayPerson;
+    classInfo.classStudentTotal = classStudentTotal;
+    await classInfo.save();
+    res.status(200).send({ message: "Class Info Updated", classInfo });
+  } catch {
+  }
+}
 
 exports.allStaffDepartmentClassList = async (req, res) => {
   try {

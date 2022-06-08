@@ -423,8 +423,18 @@ router.get(
   catchAsync(Institute.retrieveApproveStaffList)
 );
 
+// Approve Staff Data for Institute Sub-Module
+router.get(
+  "/:id/approve-student/list",
+  isLoggedIn,
+  catchAsync(Institute.retrieveApproveStudentList)
+);
+
 // Staff Full Details Before Approval
 router.get("/staff/:id", isLoggedIn, catchAsync(Institute.getFullStaffInfo));
+
+// Student Full Details After Approval
+router.get("/student/:id", isLoggedIn, catchAsync(Institute.getFullStudentInfo));
 
 // Department List Data at Department Tab
 router.get(
@@ -487,6 +497,13 @@ router.post(
   "/staff/department-info/:did",
   isLoggedIn,
   catchAsync(Institute.updateOneStaffDepartmentInfo)
+);
+
+// Staff Class Info Updates
+router.post(
+  "/staff/class-info/:cid",
+  isLoggedIn,
+  catchAsync(Institute.updateOneStaffClassInfo)
 );
 
 // Class DataList at StaffDepartmentClass

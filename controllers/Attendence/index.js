@@ -395,7 +395,7 @@ exports.holidayCalendar = async (req, res) => {
     } else {
       const leave = await new Holiday({
         dDate: dateStatus,
-        dHolidayReason: req.body.dateData.dHolidayReason,
+        dHolidayReason: req.body.reason,
       });
       depart.holiday.push(leave);
       leave.department = depart;

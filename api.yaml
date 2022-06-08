@@ -93,6 +93,2194 @@ paths:
         "200":
           description: OK
 
+    #This is for all account forget process 
+
+  /api/v1/auth/user/forgot:
+    post:
+      tags:
+        - Forgot Password Related Authentication
+      summary: Forget Password with username
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - username
+            properties:
+              username:
+                type: string
+                description: Enter Password
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/auth/user/forgot/{fid}:
+    post:
+      tags:
+        - Forgot Password Related Authentication
+      summary: Forget Password verification
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter the id of user or institute
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - userOtpCode
+            properties:
+              userOtpCode:
+                type: string
+                description: Enter OTP, which send you mobile number
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/auth/user/reset/password/{rid}:
+    post:
+      tags:
+        - Forgot Password Related Authentication
+      summary: Create New Password
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: Enter the id of user or institute
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - userPassword
+              - userRePassword
+            properties:
+              userPassword:
+                type: string
+                description: Enter New Password
+              userRePassword:
+                type: string
+                description: Enter New Confirm Password
+      responses:
+        "200":
+          description: OK
+
+  # User Authentication Module
+
+  /api/v1/auth/user-detail:
+    post:
+      tags:
+        - User Authentication
+      summary: User Mobile Authentication
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - userPhoneNumber
+              - status
+            properties:
+              userPhoneNumber:
+                type: string
+                description: Enter a OTP which send you mobile number
+              status:
+                type: string
+                description: Enter a status Not Verified
+
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/auth/user-detail-verify/{id}:
+    post:
+      tags:
+        - User Authentication
+      summary: User Mobile Authentication Verification
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is user phone number
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - userOtpCode
+            properties:
+              userOtpCode:
+                type: string
+                description: Enter a OTP which send you mobile number
+
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/auth/profile-creation/{id}:
+    post:
+      tags:
+        - User Authentication
+      summary: User registration process
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is user phone number
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your user profile image
+        - in: formData
+          name: userLegalName
+          type: string
+          required: true
+          description: Enter a User full Name
+        - in: formData
+          name: username
+          type: string
+          required: true
+          description: Enter a user username as unique
+        - in: formData
+          name: userGender
+          type: string
+          required: true
+          description: Enter a gender
+        - in: formData
+          name: userDateOfBirth
+          type: string
+          required: true
+          description: Enter a Date of Birth
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/auth/create-user-password/{id}:
+    post:
+      tags:
+        - User Authentication
+      summary: User create Password
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: Enter the id of user which provide by registration process
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - userPassword
+              - userRePassword
+            properties:
+              userPassword:
+                type: string
+                description: Enter Password
+              userRePassword:
+                type: string
+                description: Enter confirm Password
+      responses:
+        "200":
+          description: OK
+
+
+   #This is for the User side API
+  /api/v1/user/{id}/dash/query:
+    get:
+      tags:
+        - User Profile API
+      summary: User dashboard page Data
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The user ID
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/user/personal/info/{id}:
+    patch:
+      tags:
+        - User Profile API
+      summary: Update User Profile Details (Only details part)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is user id
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              userDateOfBirth:
+                type: string
+              userLegalName:
+                type: string
+              userGender:
+                type: string
+              userAddress:
+                type: string
+              userAbout:
+                type: string
+              userHobbies:
+                type: string
+              userEmail:
+                type: string
+              userEducation:
+                type: string
+              userAddress:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/{id}/profile:
+    get:
+      tags:
+        - User Profile API
+      summary: User Profile page Data
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The user ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/{id}/ins-announcement:
+    get:
+      tags:
+        - User Profile API
+      summary: User side Institute Announcement Data
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The user ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/{id}/setting/personal:
+    get:
+      tags:
+        - User Profile API
+      summary: User setting personal info page Data
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The user ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/{id}/switch/account:
+    get:
+      tags:
+        - User Profile API
+      summary: User setting switch account page Data
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The user ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/{id}/referals/q-coins:
+    get:
+      tags:
+        - User Profile API
+      summary: User setting referals Q-coin page Data
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The user ID
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/user/{uid}/followers-array:
+    get:
+      tags:
+        - User Profile API
+      summary: User all followers List 
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: uid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The user ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/{uid}/following-array:
+    get:
+      tags:
+        - User Profile API
+      summary: User all following User List 
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: uid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The user ID
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/user/{uid}/following/ins-array:
+    get:
+      tags:
+        - User Profile API
+      summary: User all following Institute List 
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: uid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The user ID
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/user/{uid}/circle-array:
+    get:
+      tags:
+        - User Profile API
+      summary: User all circle List 
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: uid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The user ID
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/user/{id}/deactivate/account:
+    post:
+      tags:
+        - User Profile API
+      summary: Deactivate User A/c for atleast 2 days
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is User id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - password
+              - status
+              - ddate
+            properties:
+              password:
+                type: string
+                description: Enter your A/c password
+              status:
+                type: string
+                description: Enter Deactivated Text
+              ddate:
+                type: string
+                description: Enter Date after 2 days
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/phone/info/{id}:
+    post:
+      tags:
+        - User Profile API
+      summary: User Phone No. Update Setting
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is User id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - userPhoneNumber
+            properties:
+              userPhoneNumber:
+                type: string
+                description: Enter mobile number
+
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/{id}/recovery-mail:
+    post:
+      tags:
+        - User Profile API
+      summary: User Recovery Mail Setting
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is User id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - recoveryMail
+            properties:
+              recoveryMail:
+                type: string
+                description: Enter Recovery Mail
+
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/follow/institute/:
+    patch:
+      tags:
+        - User Profile API
+      summary: Follow Institute Api
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - InsfollowId
+            properties:
+              InsfollowId:
+                type: string
+                description: follow Institute Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/unfollow/institute/:
+    patch:
+      tags:
+        - User Profile API
+      summary: UnFollow Institute Api
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - InsfollowId
+            properties:
+              InsfollowId:
+                type: string
+                description: follow Institute Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/follow/user/:
+    patch:
+      tags:
+        - User Profile API
+      summary: Follow User to User Api
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - userFollowId
+            properties:
+              userFollowId:
+                type: string
+                description: follow User Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/circle/user/:
+    patch:
+      tags:
+        - User Profile API
+      summary: Circle User to User Api
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - followId
+            properties:
+              followId:
+                type: string
+                description: circle User Id
+      responses:
+        "200":
+          description: OK
+  
+  /api/v1/user/uncircle/user/:
+    patch:
+      tags:
+        - User Profile API
+      summary: UnCircle User to User Api (currently depreceated)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - followId
+            properties:
+              followId:
+                type: string
+                description: Uncircle User Id
+      responses:
+        "200":
+          description: OK
+
+
+  #User Dashboard API
+
+  /api/v1/user/post/{id}/all/user/posts:
+    get:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: User All Posts
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is User id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/user/post/{id}:
+    post:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: User post create only with text 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is User id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              postTitle:
+                type: string
+                description: type a text here for Title
+              postDescription:
+                type: string
+                description: type a text here for Description
+              postText:
+                type: string
+                description: type a text here for text
+              postStatus:
+                type: string
+                decription: status should be "Anyone" or "Private"
+              people:
+                type: array
+                description: This is all taged users ids
+                items:
+                  type: string
+                  description: one user id
+      responses:
+        "200":
+          description: OK
+ 
+  /api/v1/user/post/{id}/image:
+    post:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: User post create text and image
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is User id
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your post multiple image
+        # - in: formData
+        #   name: file
+        #   type: file
+        #   required: true
+        #   description: upload your post multiple image
+        - in: formData
+          name: postTitle
+          type: string
+          description: type a text here for Title
+        - in: formData
+          name: postDescription
+          type: string
+          description: type a text here for Description
+        - in: formData
+          name: postText
+          type: string
+          description: type a text here for text
+        - in: formData
+          name: postStatus
+          type: string
+          required: true
+          description: status should be "Anyone" or "Private"
+        - in: formData
+          name: people
+          type: array
+          items:
+            type: string
+            description: one user id
+          description: This is all taged users ids
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/post/{id}/video:
+    post:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: User post create text and video
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is User id
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your post video
+        - in: formData
+          name: postTitle
+          type: string
+          description: type a text here for Title
+        - in: formData
+          name: postDescription
+          type: string
+          description: type a text here for Description
+        - in: formData
+          name: postText
+          type: string
+          description: type a text here for text
+        - in: formData
+          name: postStatus
+          type: string
+          required: true
+          description: status should be "Anyone" or "Private"
+        - in: formData
+          name: people
+          type: array
+          items:
+            type: string
+            description: one user id
+          description: This is all taged users ids
+      responses:
+        "200":
+          description: OK
+          
+  /api/v1/user/post/update/{pid}:
+    patch:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: User post update with their visibility
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          type: string
+          description: This is User id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - postStatus
+            properties:
+              postStatus:
+                type: string
+                description: status should be "Anyone" or "Private"
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/post/{id}/deleted/{pid}:
+    delete:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: User post deleted permanently
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is User id
+        - in: path
+          name: pid
+          required: true
+          type: string
+          description: This is post id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/post/tag/{uid}:
+    get:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: In User post Added tag people list which user want to tag
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is user id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: type here name or username         
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/post/reaction/{pid}:
+    get:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: This is list of people who like that particular post that is reaction
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          type: string
+          description: This is post id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/post/like/{pid}:
+    get:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: User post like and unlike
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          type: string
+          description: This is post id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/post/save/{pid}:
+    get:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: User post save and unsave
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          type: string
+          description: This is post id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/post/comment/{id}:
+    get:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: Get User one post all comment
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is post id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
+      responses:
+        "200":
+          description: OK
+    post:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: Post User one post comment
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is post id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - commentDescription
+            properties:
+              commentDescription:
+                type: string
+                description: Type here comments
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/post/comment/child/{pcid}:
+    get:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: In post one comment, child or reply comment limit to get all reply comment
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pcid
+          required: true
+          type: string
+          description: This is comment id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
+      responses:
+        "200":
+          description: OK
+    post:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: In post one comment, child or reply comment
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pcid
+          required: true
+          type: string
+          description: This is Comment id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - comment
+              - uid
+            properties:
+              comment:
+                type: string
+                description: Type here reply comments
+              uid:
+                type: string
+                description: This is user id which reply to comment              
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/post/{id}/comment/child/like/{cid}/:
+    get:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: In post one comment like and dislike
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is user id
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is comment id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/all/staff/list/data:
+    get:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: Get All Mentors List
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/all/user/list/data:
+    get:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: Get All Users List
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/all/institute/list/data:
+    get:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: Get All Institute List
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/dashboard/{id}/notify:
+    get:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: Get All Notifications Of Users
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is user id
+      responses:
+        "200":
+          description: OK
+      
+  
+  /api/v1/user/{id}/user-post/{uid}/report:
+    post:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: Report User's Post By User
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is User id
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is Post id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - reportStatus
+            properties:
+              reportStatus:
+                type: string
+                description: Enter Report Content
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/user/{id}/all/star-announcement:
+    get:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: All Star Announcement User
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is user id
+      responses:
+        "200":
+          description: OK
+
+
+  #This is for universal search of user
+
+  /api/v1/search/user/{id}/allsearch:
+    get:
+      tags:
+        - user-universal-search
+      summary: user-universal-search
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The user ID
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: What you want to search
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
+      responses:
+        "200":
+          description: OK
+
+
+   #This is staff and student joining Related Api
+
+  /api/v1/ins/{id}/staff-code:
+    get:
+      tags:
+        - Staff-Student-Joining-All-API
+      summary: Get Staff Code for joining by Institute
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: This is institute id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/{sid}/staff-status:
+    get:
+      tags:
+        - Staff-Student-Joining-All-API
+      summary: Get Staff Status for Application Status
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          schema:
+            type: string
+          description: This is Staff id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/{uid}/staffform/{id}:
+    post:
+      tags:
+        - Staff-Student-Joining-All-API
+      summary: Staff joining form apply to Institute
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is user id which apply to institute as staff
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is institute id which search by user to apply for as staff
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your staff profile photo
+        - in: formData
+          name: staffCode
+          type: string
+          required: true
+          description: This is staff code to join institute which provided by the institute
+        - in: formData
+          name: staffFirstName
+          type: string
+          required: true
+          description: staff first name
+        - in: formData
+          name: StaffMiddleName
+          type: string
+          required: true
+          description: staff middle name
+        - in: formData
+          name: staffLastName
+          type: string
+          required: true
+          description: staff last name
+        - in: formData
+          name: staffDOB
+          type: string
+          required: true
+          description: staff staffDOB
+        - in: formData
+          name: staffGender
+          type: string
+          required: true
+          description: staff staffGender
+        - in: formData
+          name: staffNationality
+          type: string
+          required: true
+          description: staff staffNationality
+        - in: formData
+          name: staffMTongue
+          type: string
+          required: true
+          description: staff staffMTongue
+        - in: formData
+          name: staffCast
+          type: string
+          required: true
+          description: staff staffCast
+        - in: formData
+          name: staffCastCategory
+          type: string
+          required: true
+          description: staff staffCastCategory
+        - in: formData
+          name: staffReligion
+          type: string
+          required: true
+          description: staff staffReligion
+        - in: formData
+          name: staffBirthPlace
+          type: string
+          required: true
+          description: staff staffBirthPlace
+        - in: formData
+          name: staffDistrict
+          type: string
+          required: true
+          description: staff staffDistrict
+        - in: formData
+          name: staffState
+          type: string
+          required: true
+          description: staff staffState
+        - in: formData
+          name: staffAddress
+          type: string
+          required: true
+          description: staff staffAddress
+        - in: formData
+          name: staffPhoneNumber
+          type: string
+          required: true
+          description: staff staffPhoneNumber
+        - in: formData
+          name: staffAadharNumber
+          type: string
+          required: true
+          description: staff staffAadharNumber
+        - in: formData
+          name: staffQualification
+          type: string
+          required: true
+          description: staff staffQualification
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your addhar card front side photo  
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your addhar card back side photo           
+      responses:
+        "200":
+          description: OK 
+
+  
+  /api/v1/ins/{id}/student-code:
+    get:
+      tags:
+        - Staff-Student-Joining-All-API
+      summary: Get Student Code for joining by Institute
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is institute id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/{sid}/student-status:
+    get:
+      tags:
+        - Staff-Student-Joining-All-API
+      summary: Get Student Status for Application Status
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/{uid}/studentform/{id}:
+    post:
+      tags:
+        - Staff-Student-Joining-All-API
+      summary: Student joining form apply to Institute (not verified )
+      produces:
+        - application/json
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is user id which apply to institute as student
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is institute id which search by user to apply for as student
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your student profile photo
+        - in: formData
+          name: studentCode
+          type: string
+          required: true
+          description: This is student code to join class which provided by the class Teacher
+        - in: formData
+          name: studentFirstName
+          type: string
+          required: true
+          description: student first name
+        - in: formData
+          name: studentMiddleName
+          type: string
+          required: true
+          description: student middle name
+        - in: formData
+          name: studentLastName
+          type: string
+          required: true
+          description: student last name
+        - in: formData
+          name: studentDOB
+          type: string
+          required: true
+          description: student studentDOB
+        - in: formData
+          name: studentGender
+          type: string
+          required: true
+          description: student studentGender
+        - in: formData
+          name: studentNationality
+          type: string
+          required: true
+          description: student studentNationality
+        - in: formData
+          name: studentMTongue
+          type: string
+          required: true
+          description: student studentMTongue
+        - in: formData
+          name: studentCast
+          type: string
+          required: true
+          description: student studentCast
+        - in: formData
+          name: studentCastCategory
+          type: string
+          required: true
+          description: student studentCastCategory
+        - in: formData
+          name: studentReligion
+          type: string
+          required: true
+          description: student studentReligion
+        - in: formData
+          name: studentBirthPlace
+          type: string
+          required: true
+          description: student studentBirthPlace
+        - in: formData
+          name: studentDistrict
+          type: string
+          required: true
+          description: student studentDistrict
+        - in: formData
+          name: studentState
+          type: string
+          required: true
+          description: student studentState
+        - in: formData
+          name: studentAddress
+          type: string
+          required: true
+          description: student studentAddress
+        - in: formData
+          name: studentPhoneNumber
+          type: string
+          required: true
+          description: student studentPhoneNumber
+        - in: formData
+          name: studentAadharNumber
+          type: string
+          required: true
+          description: student studentAadharNumber
+        - in: formData
+          name: studentQualification
+          type: string
+          required: true
+          description: student studentQualification
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your addhar card front side photo  
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your addhar card back side photo     
+      responses:
+        "200":
+          description: OK
+
+
+  #Staff Member's Tab
+  /api/v1/user/staffdesignationdata/{sid}:
+    get:
+      tags:
+        - Staff-Member-Tab
+      summary: Staff All Designation Data
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is staff id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/avail/attendence/status/staff/{sid}:
+    get:
+      tags:
+        - Staff-Member-Tab
+      summary: Show Staff Attendence At Calendar (dateStatus - to be date)
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is staff ID
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - dateStatus
+            properties:
+              dateStatus:
+                type: string
+                description: Enter Date for finding present or absent         
+      responses:
+        "200":
+          description: OK
+
+
+  # Student Member's Tab
+
+  /api/v1/user/studentdesignationdata/{sid}:
+    get:
+      tags:
+        - Student-Member-Tab
+      summary: Student All Member Data
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is student id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/avail/attendence/status/student/{sid}:
+    get:
+      tags:
+        - Student-Member-Tab
+      summary: Show Student Attendence At Calendar (dateStatus - to be date)
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is student ID
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - dateStatus
+            properties:
+              dateStatus:
+                type: string
+                description: Enter Date for finding present or absent       
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/ins/staffdepartment/{did}:
+    get:
+      tags:
+        - Staff-Department-Head
+      summary: One Department profile Data
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is department id
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/ins/staff/department-info/{did}:
+    post:
+      tags:
+        - Staff-Department-Head
+      summary: One Department info/about update by staff side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is department id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - dAbout
+              - dSpeaker
+              - dEmail
+              - dPhoneNumber
+              - dVicePrinciple
+              - dAdminClerk
+              - dStudentPresident
+            properties:
+              dAbout:
+                type: string
+                description: Enter Department About
+              dSpeaker:
+                type: string
+                description: Enter Department Speaker
+              dEmail:
+                type: string
+                description: Enter Department Email
+              dPhoneNumber:
+                type: string
+                description: Enter Department Phone Number
+              dVicePrinciple:
+                type: string
+                description: Enter Department Vice Principle
+              dAdminClerk:
+                type: string
+                description: Enter Department Admin Clerk
+              dStudentPresident:
+                type: string
+                description: Enter Department Student President
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/batch-detail/{bid}:
+    get:
+      tags:
+        - Staff-Department-Head
+      summary: In one batch All classes List by staff side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: bid
+          required: true
+          type: string
+          description: This is batch id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/avail/batch-detail/{bid}/attend:
+    get:
+      tags:
+        - Staff-Department-Head
+      summary: Get Staff Data of a Batch
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: bid
+          required: true
+          type: string
+          description: This is Batch ID
+      responses:
+        "200":
+          description: OK
+        
+  /api/v1/avail/batch-detail/{bid}/attend-id:
+    get:
+      tags:
+        - Staff-Department-Head
+      summary: Get Staff Id of a batch
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: bid
+          required: true
+          type: string
+          description: This is Batch ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/avail/department/{did}/staff/attendence:
+    get:
+      tags:
+        - Staff-Department-Head
+      summary: Department mark staff attendence (date - to be date)
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is Department ID
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - date
+            properties:
+              date:
+                type: string
+                description: Enter Date for finding present or absent
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/avail/department/{did}/get/attendence/{date}:
+    get:
+      tags:
+        - Staff-Department-Head
+      summary: Attendence in class of Student retrieve by Date
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is Department ID
+        - in: path
+          name: date
+          required: true
+          type: string
+          description: This is Date to give in url         
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/avail/department/holiday/{did}:
+    post:
+      tags:
+        - Staff-Department-Head
+      summary: Mark Holiday by Staff Department Head (dateStatus - to be date)
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is Department ID
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - dateStatus
+              - reason
+            properties:
+              dateStatus:
+                type: string
+                description: Enter Date for finding present or absent
+              reason:
+                type: string
+                description: Type Holiday rason       
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/avail/holiday/{did}:
+    get:
+      tags:
+        - Staff-Department-Head
+      summary: Fetch Holiday
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is Department ID       
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/avail/delHoliday/{hid}:
+    get:
+      tags:
+        - Staff-Department-Head
+      summary: Delete Holiday
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Holiday ID       
+      responses:
+        "200":
+          description: OK
+
+  # Class Teacher
+
+  /api/v1/ins/staffclass/{cid}:
+    get:
+      tags:
+        - Staff-Class-Teacher
+      summary: One class related data by staff side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/staff/class-info/{cid}:
+    post:
+      tags:
+        - Staff-Class-Teacher
+      summary: One class info/about update by staff side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - classAbout
+              - classDisplayPerson
+              - classStudentTotal
+            properties:
+              classAbout:
+                type: string
+                description: Enter Class About
+              classDisplayPerson:
+                type: string
+                description: Enter Class Display Person
+              classStudentTotal:
+                type: string
+                description: Enter Class Student 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/avail/staffclass/{cid}/attend:
+    get:
+      tags:
+        - Staff-Class-Teacher
+      summary: Attendence in class of Student
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class ID
+      responses:
+        "200":
+          description: OK
+        
+  /api/v1/avail/staffclass/{cid}/attend-id:
+    get:
+      tags:
+        - Staff-Class-Teacher
+      summary: Attendence in class of Student by id
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/avail/class/{cid}/student/attendence:
+    get:
+      tags:
+        - Staff-Class-Teacher
+      summary: class mark student attendence (date - to be date)
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class ID
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - date
+            properties:
+              date:
+                type: string
+                description: Enter Date for finding present or absent
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/avail/class/{cid}/get/attendence/{date}:
+    get:
+      tags:
+        - Staff-Class-Teacher
+      summary: Attendence in class of Student retrieve by Date
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class ID
+        - in: path
+          name: date
+          required: true
+          type: string
+          description: This is Date to give in url         
+      responses:
+        "200":
+          description: OK
+
+  
+
+  # Subject Teacher
+
+  /api/v1/ins/subject-detail/{suid}:
+    get:
+      tags:
+        - Staff-Subject-Teacher
+      summary: This is subject and class related data that is Subject Teacher catalog
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: suid
+          required: true
+          type: string
+          description: This is subject id
+      responses:
+        "200":
+          description: OK
+
   #This is for institute registration process 
 
   /api/v1/auth/ins-detail:
@@ -261,45 +2449,16 @@ paths:
         "200":
           description: OK
 
-  #This is for user registration process 
 
-  /api/v1/auth/user-detail:
-    post:
+  #This is for the Institute side API
+  /api/v1/ins/{id}/dash:
+    get:
       tags:
-        - User Authentication
-      summary: User Mobile Authentication
-      consumes:
-        - application/json
+        - Institute Profile API
+      summary: Institute dashboard page Data
       produces:
         - application/json
-      parameters:
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - userPhoneNumber
-              - status
-            properties:
-              userPhoneNumber:
-                type: string
-                description: Enter a OTP which send you mobile number
-              status:
-                type: string
-                description: Enter a status Not Verified
-
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/auth/user-detail-verify/{id}:
-    post:
-      tags:
-        - User Authentication
-      summary: User Mobile Authentication Verification
       consumes:
-        - application/json
-      produces:
         - application/json
       parameters:
         - in: path
@@ -307,72 +2466,16 @@ paths:
           required: true
           schema:
             type: string
-          description: This is user phone number
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - userOtpCode
-            properties:
-              userOtpCode:
-                type: string
-                description: Enter a OTP which send you mobile number
-
+          description: The institute ID
       responses:
         "200":
           description: OK
 
-  /api/v1/auth/profile-creation/{id}:
-    post:
+  /api/v1/ins/personal/info/{id}:
+    patch:
       tags:
-        - User Authentication
-      summary: User registration process
-      consumes:
-        - multipart/form-data
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id # Note the name is the same as in the path
-          required: true
-          schema:
-            type: string
-          description: This is user phone number
-        - in: formData
-          name: file
-          type: file
-          required: true
-          description: upload your user profile image
-        - in: formData
-          name: userLegalName
-          type: string
-          required: true
-          description: Enter a User full Name
-        - in: formData
-          name: username
-          type: string
-          required: true
-          description: Enter a user username as unique
-        - in: formData
-          name: userGender
-          type: string
-          required: true
-          description: Enter a gender
-        - in: formData
-          name: userDateOfBirth
-          type: string
-          required: true
-          description: Enter a Date of Birth
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/auth/create-user-password/{id}:
-    post:
-      tags:
-        - User Authentication
-      summary: User create Password
+        - Institute Profile API
+      summary: Update Profile Details (only details part)
       consumes:
         - application/json
       produces:
@@ -382,120 +2485,38 @@ paths:
           name: id
           required: true
           type: string
-          description: Enter the id of user which provide by registration process
+          description: This is Institute id
         - in: body
           name: body
           schema:
             type: object
-            required:
-              - userPassword
-              - userRePassword
             properties:
-              userPassword:
+              insType:
                 type: string
-                description: Enter Password
-              userRePassword:
+              insMode:
                 type: string
-                description: Enter confirm Password
+              insEmail:
+                type: string
+              insState:
+                type: string
+              insAddress:
+                type: string
+              insAbout:
+                type: string
+              insAffiliated:
+                type: string
+              insEstdDate:
+                type: string
       responses:
         "200":
           description: OK
 
-  #This is for all account forget process 
 
-  /api/v1/auth/user/forgot:
-    post:
-      tags:
-        - Forgot Password Related Authentication
-      summary: Forget Password with username
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - username
-            properties:
-              username:
-                type: string
-                description: Enter Password
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/auth/user/forgot/{fid}:
-    post:
-      tags:
-        - Forgot Password Related Authentication
-      summary: Forget Password verification
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: fid
-          required: true
-          type: string
-          description: Enter the id of user or institute
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - userOtpCode
-            properties:
-              userOtpCode:
-                type: string
-                description: Enter OTP, which send you mobile number
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/auth/user/reset/password/{rid}:
-    post:
-      tags:
-        - Forgot Password Related Authentication
-      summary: Create New Password
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: rid
-          required: true
-          type: string
-          description: Enter the id of user or institute
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - userPassword
-              - userRePassword
-            properties:
-              userPassword:
-                type: string
-                description: Enter New Password
-              userRePassword:
-                type: string
-                description: Enter New Confirm Password
-      responses:
-        "200":
-          description: OK
-
-  #This is for universal search of user
-
-  /api/v1/search/user/{id}/allsearch:
+  /api/v1/ins/{id}/profile:
     get:
       tags:
-        - user-universal-search
-      summary: user-universal-search
+        - Institute Profile API
+      summary: Institute profile page Data
       produces:
         - application/json
       consumes:
@@ -506,12 +2527,324 @@ paths:
           required: true
           schema:
             type: string
-          description: The user ID
-        - in: query
-          name: search
+          description: The institute ID
+      responses:
+        "200":
+          description: OK
+  /api/v1/ins/{id}/announcemnt:
+    get:
+      tags:
+        - Institute Profile API
+      summary: Institute Announcement page Data
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
           schema:
             type: string
-          description: What you want to search
+          description: The institute ID
+      responses:
+        "200":
+          description: OK
+  /api/v1/ins/{id}/setting/personal:
+    get:
+      tags:
+        - Institute Profile API
+      summary: Institute setting personal page Data
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The institute ID
+      responses:
+        "200":
+          description: OK
+  /api/v1/ins/{id}/switch/account:
+    get:
+      tags:
+        - Institute Profile API
+      summary: Institute setting switch account page Data
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The institute ID
+      responses:
+        "200":
+          description: OK
+  /api/v1/ins/{id}/credit/q-coins:
+    get:
+      tags:
+        - Institute Profile API
+      summary: Institute credit Q-coin page Data
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The institute ID
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/ins/phone/info/{id}:
+    post:
+      tags:
+        - Institute Profile API
+      summary: Institute Phone No. Update Setting
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Institute id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - insPhoneNumber
+            properties:
+              insPhoneNumber:
+                type: string
+                description: Enter mobile number
+
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/{id}/recovery-mail:
+    post:
+      tags:
+        - Institute Profile API
+      summary: Institute Recovery Mail Setting
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Institute id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - recoveryMail
+            properties:
+              recoveryMail:
+                type: string
+                description: Enter Recovery Mail
+
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/ins/{id}/followers-array:
+    get:
+      tags:
+        - Institute Profile API
+      summary: Institute Followers List of Institute and User
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/ins/{id}/following-array:
+    get:
+      tags:
+        - Institute Profile API
+      summary: Institute Following List of Institute
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+      responses:
+        "200":
+          description: OK
+
+
+  
+  /api/v1/ins/{id}/display-person:
+    post:
+      tags:
+        - Institute Profile API
+      summary: Add Display Person
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - displayTitle
+              - displayUser
+            properties:
+              displayTitle:
+                type: string
+                description: Enter Display Title
+              displayUser:
+                type: string
+                description: Enter User Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/{id}/display/person-array:
+    get:
+      tags:
+        - Institute Profile API
+      summary: Retrieve Display Person
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/{did}/display-person/update:
+    patch:
+      tags:
+        - Institute Profile API
+      summary: Update Display Person
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is Display Person id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - displayTitle
+              - displayUser
+            properties:
+              displayTitle:
+                type: string
+                description: Enter Display Title
+              displayUser:
+                type: string
+                description: Enter User Id
+      responses:
+        "200":
+          description: OK
+  
+  /api/v1/ins/{id}/display-person/{did}/delete/{uid}:
+    delete:
+      tags:
+        - Institute Profile API
+      summary: Delete Display Person
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is Display Person id
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is User id
+      responses:
+        "200":
+          description: OK
+
+
+    #This is for institute side all post Related API
+
+  /api/v1/ins/post/{id}/all/posts:
+    get:
+      tags:
+        - Institute DashBoard API (including Notification, Post, Announcement)
+      summary: Institute All Posts
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
         - in: query
           name: page
           schema:
@@ -525,6 +2858,571 @@ paths:
       responses:
         "200":
           description: OK
+
+
+  /api/v1/ins/post/{id}:
+    post:
+      tags:
+        - Institute DashBoard API (including Notification, Post, Announcement)
+      summary: Institute post create only with text 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is institute id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              postTitle:
+                type: string
+                description: type a text here for Title
+              postDescription:
+                type: string
+                description: type a text here for Description
+              postText:
+                type: string
+                description: type a text here for text
+              postStatus:
+                type: string
+                decription: status should be "Anyone" or "Private"
+              people:
+                type: array
+                description: This is all taged users ids
+                items:
+                  type: string
+                  description: one user id
+      responses:
+        "200":
+          description: OK
+ 
+  /api/v1/ins/post/{id}/image:
+    post:
+      tags:
+        - Institute DashBoard API (including Notification, Post, Announcement)
+      summary: Institute post create text and image
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is institute id
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your post multiple image
+        # - in: formData
+        #   name: file
+        #   type: file
+        #   required: true
+        #   description: upload your post multiple image
+        - in: formData
+          name: postTitle
+          type: string
+          description: type a text here for Title
+        - in: formData
+          name: postDescription
+          type: string
+          description: type a text here for Description
+        - in: formData
+          name: postText
+          type: string
+          description: type a text here for text
+        - in: formData
+          name: postStatus
+          type: string
+          required: true
+          description: status should be "Anyone" or "Private"
+        - in: formData
+          name: people
+          type: array
+          items:
+            type: string
+            description: one user id
+          description: This is all taged users ids
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/post/{id}/video:
+    post:
+      tags:
+        - Institute DashBoard API (including Notification, Post, Announcement)
+      summary: Institute post create text and video
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is institute id
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your post video
+        - in: formData
+          name: postTitle
+          type: string
+          description: type a text here for Title
+        - in: formData
+          name: postDescription
+          type: string
+          description: type a text here for Description
+        - in: formData
+          name: postText
+          type: string
+          description: type a text here for text
+        - in: formData
+          name: postStatus
+          type: string
+          required: true
+          description: status should be "Anyone" or "Private"
+        - in: formData
+          name: people
+          type: array
+          items:
+            type: string
+            description: one user id
+          description: This is all taged users ids
+      responses:
+        "200":
+          description: OK
+          
+  /api/v1/ins/post/update/{pid}:
+    patch:
+      tags:
+        - Institute DashBoard API (including Notification, Post, Announcement)
+      summary: Institute post update with their visibility
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          type: string
+          description: This is institute id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - postStatus
+            properties:
+              postStatus:
+                type: string
+                description: status should be "Anyone" or "Private"
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/post/{id}/deleted/{pid}:
+    delete:
+      tags:
+        - Institute DashBoard API (including Notification, Post, Announcement)
+      summary: Institute post deleted permanently
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is institute id
+        - in: path
+          name: pid
+          required: true
+          type: string
+          description: This is post id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/post/tag/{uid}:
+    get:
+      tags:
+        - Institute DashBoard API (including Notification, Post, Announcement)
+      summary: In Institute post Added tag people list which user want to tag
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is institute id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: type here name or username          
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/post/reaction/{pid}:
+    get:
+      tags:
+        - Institute DashBoard API (including Notification, Post, Announcement)
+      summary: This is list of people who like that particular post that is reaction
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          type: string
+          description: This is post id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/post/like/{pid}:
+    get:
+      tags:
+        - Institute DashBoard API (including Notification, Post, Announcement)
+      summary: Institute post like and unlike
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          type: string
+          description: This is post id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/post/save/{pid}:
+    get:
+      tags:
+        - Institute DashBoard API (including Notification, Post, Announcement)
+      summary: Institute post save and unsave
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          type: string
+          description: This is post id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/post/comment/{id}:
+    get:
+      tags:
+        - Institute DashBoard API (including Notification, Post, Announcement)
+      summary: Institute All comments of one Post
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Post id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/ins/post/comment/{id}:
+    get:
+      tags:
+        - Institute DashBoard API (including Notification, Post, Announcement)
+      summary: Get Institute one post comment
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is post id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
+      responses:
+        "200":
+          description: OK
+    post:
+      tags:
+        - Institute DashBoard API (including Notification, Post, Announcement)
+      summary: Post Institute one post comment
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is post id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - commentDescription
+            properties:
+              commentDescription:
+                type: string
+                description: Type here comments
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/post/comment/child/{pcid}:
+    get:
+      tags:
+        - Institute DashBoard API (including Notification, Post, Announcement)
+      summary: In post one comment, child or reply comment limit to get all reply comment
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pcid
+          required: true
+          type: string
+          description: This is comment id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
+      responses:
+        "200":
+          description: OK
+    post:
+      tags:
+        - Institute DashBoard API (including Notification, Post, Announcement)
+      summary: In post one comment, child or reply comment
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pcid
+          required: true
+          type: string
+          description: This is Comment id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - comment
+              - uid
+            properties:
+              comment:
+                type: string
+                description: Type here reply comments
+              uid:
+                type: string
+                description: This is user or institute id which reply to comment              
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/post/{id}/comment/child/like/{cid}/:
+    get:
+      tags:
+        - Institute DashBoard API (including Notification, Post, Announcement)
+      summary: In post one comment, child or reply comment
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is user or institute id
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is comment id
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/ins/dashboard/{id}/notify:
+    get:
+      tags:
+        - Institute DashBoard API (including Notification, Post, Announcement)
+      summary: Get All Notifications Of Institute
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+      responses:
+        "200":
+          description: OK
+
+  
+
+  /api/v1/ins/{aid}/star-announcement:
+    post:
+      tags:
+        - Institute DashBoard API (including Notification, Post, Announcement)
+      summary: Mark As Star Announcement
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is announcement id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/{id}/all/star-announcement:
+    get:
+      tags:
+        - Institute DashBoard API (including Notification, Post, Announcement)
+      summary: All Star Announcement Institute
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is institute id
+      responses:
+        "200":
+          description: OK
+
+      
+
+  /api/v1/ins/{id}/ins-post/{uid}/report:
+    post:
+      tags:
+        - Institute DashBoard API (including Notification, Post, Announcement)
+      summary: Report Institute's Post By User
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is User id
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is Post id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - reportStatus
+            properties:
+              reportStatus:
+                type: string
+                description: Enter Report Content
+      responses:
+        "200":
+          description: OK
+
   
   #THis is for universal search of institute
 
@@ -698,6 +3596,253 @@ paths:
           schema:
             type: integer
           description: The numbers of items to return
+      responses:
+        "200":
+          description: OK
+
+
+  #This is for institute side all Department API
+  /api/v1/ins/{id}/pending-staff/list:
+    get:
+      tags:
+        - Institute Internal Departments (Staff, Student, Internal)
+      summary: All pending staff List that is request to the institute side to approve as a staff
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is institute id
+      responses:
+        "200":
+          description: OK
+  /api/v1/ins/{id}/approve-staff/list:
+    get:
+      tags:
+        - Institute Internal Departments (Staff, Student, Internal)
+      summary: When edit the class master card to change staff then all approve staff get via api
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is institute id
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/ins/{id}/approve-student/list:
+    get:
+      tags:
+        - Institute Internal Departments (Staff, Student, Internal)
+      summary: All Students in Student Tab at Institute Side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is institute id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/staff/{id}:
+    get:
+      tags:
+        - Institute Internal Departments (Staff, Student, Internal)
+      summary: All full detail of one staff 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is staff id
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/ins/student/{id}:
+    get:
+      tags:
+        - Institute Internal Departments (Staff, Student, Internal)
+      summary: All full detail of one student 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is student id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/{id}/department:
+    get:
+      tags:
+        - Institute Internal Departments (Staff, Student, Internal)
+      summary: All department List
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is institute id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/department/{did}:
+    get:
+      tags:
+        - Institute Internal Departments (Staff, Student, Internal)
+      summary: All details of one department
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is department id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/{id}/batchdetail/{bid}:
+    get:
+      tags:
+        - Institute Internal Departments (Staff, Student, Internal)
+      summary: Get current batch details
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is institute id
+        - in: path
+          name: bid
+          required: true
+          type: string
+          description: This is current batch id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/{id}/departmentmasterclass/{did}:
+    get:
+      tags:
+        - Institute Internal Departments (Staff, Student, Internal)
+      summary: One department All class master
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is institute id
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is department id
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/ins/{id}/departmentmastersubject/{did}:
+    get:
+      tags:
+        - Institute Internal Departments (Staff, Student, Internal)
+      summary: One department All subject master
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is institute id
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is department id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/batch/class/{bid}:
+    get:
+      tags:
+        - Institute Internal Departments (Staff, Student, Internal)
+      summary: One batch All Class list
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: bid
+          required: true
+          type: string
+          description: This is batch id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/class/{cid}:
+    get:
+      tags:
+        - Institute Internal Departments (Staff, Student, Internal)
+      summary: One class All subject List
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class id
       responses:
         "200":
           description: OK
@@ -1230,2789 +4375,12 @@ paths:
       responses:
         "200":
           description: OK
-
-     
-  #This is for the User side API
-  /api/v1/user/{id}/dash/query:
-    get:
-      tags:
-        - User-All-API
-      summary: User dashboard page Data
-      produces:
-        - application/json
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: id # Note the name is the same as in the path
-          required: true
-          schema:
-            type: string
-          description: The user ID
-      responses:
-        "200":
-          description: OK
-
-
-  /api/v1/user/personal/info/{id}:
-    patch:
-      tags:
-        - User-All-API
-      summary: Update User Profile Details (Only details part)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is user id
-        - in: body
-          name: body
-          schema:
-            type: object
-            properties:
-              userDateOfBirth:
-                type: string
-              userLegalName:
-                type: string
-              userGender:
-                type: string
-              userAddress:
-                type: string
-              userAbout:
-                type: string
-              userHobbies:
-                type: string
-              userEmail:
-                type: string
-              userEducation:
-                type: string
-              userAddress:
-                type: string
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/user/{id}/profile:
-    get:
-      tags:
-        - User-All-API
-      summary: User Profile page Data
-      produces:
-        - application/json
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: id # Note the name is the same as in the path
-          required: true
-          schema:
-            type: string
-          description: The user ID
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/user/{id}/ins-announcement:
-    get:
-      tags:
-        - User-All-API
-      summary: User side Institute Announcement Data
-      produces:
-        - application/json
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: id # Note the name is the same as in the path
-          required: true
-          schema:
-            type: string
-          description: The user ID
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/user/{id}/setting/personal:
-    get:
-      tags:
-        - User-All-API
-      summary: User setting personal info page Data
-      produces:
-        - application/json
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: id # Note the name is the same as in the path
-          required: true
-          schema:
-            type: string
-          description: The user ID
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/user/{id}/switch/account:
-    get:
-      tags:
-        - User-All-API
-      summary: User setting switch account page Data
-      produces:
-        - application/json
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: id # Note the name is the same as in the path
-          required: true
-          schema:
-            type: string
-          description: The user ID
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/user/{id}/referals/q-coins:
-    get:
-      tags:
-        - User-All-API
-      summary: User setting referals Q-coin page Data
-      produces:
-        - application/json
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: id # Note the name is the same as in the path
-          required: true
-          schema:
-            type: string
-          description: The user ID
-      responses:
-        "200":
-          description: OK
-
-
-  /api/v1/user/{uid}/followers-array:
-    get:
-      tags:
-        - User-All-API
-      summary: User all followers List 
-      produces:
-        - application/json
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: uid # Note the name is the same as in the path
-          required: true
-          schema:
-            type: string
-          description: The user ID
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/user/{uid}/following-array:
-    get:
-      tags:
-        - User-All-API
-      summary: User all following User List 
-      produces:
-        - application/json
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: uid # Note the name is the same as in the path
-          required: true
-          schema:
-            type: string
-          description: The user ID
-      responses:
-        "200":
-          description: OK
-
-
-  /api/v1/user/{uid}/following/ins-array:
-    get:
-      tags:
-        - User-All-API
-      summary: User all following Institute List 
-      produces:
-        - application/json
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: uid # Note the name is the same as in the path
-          required: true
-          schema:
-            type: string
-          description: The user ID
-      responses:
-        "200":
-          description: OK
-
-
-  /api/v1/user/{uid}/circle-array:
-    get:
-      tags:
-        - User-All-API
-      summary: User all circle List 
-      produces:
-        - application/json
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: uid # Note the name is the same as in the path
-          required: true
-          schema:
-            type: string
-          description: The user ID
-      responses:
-        "200":
-          description: OK
-
-  #This is for user side all post Related API
-
-  /api/v1/user/post/{id}/all/user/posts:
-    get:
-      tags:
-        - User side All-Post-Related-API
-      summary: User All Posts
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is User id
-        - in: query
-          name: page
-          schema:
-            type: integer
-          description: The number of items to skip before starting to collect the result set
-        - in: query
-          name: limit
-          schema:
-            type: integer
-          description: The numbers of items to return
-      responses:
-        "200":
-          description: OK
-
-
-  /api/v1/user/post/{id}:
-    post:
-      tags:
-        - User side All-Post-Related-API
-      summary: User post create only with text 
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is User id
-        - in : body
-          name: body
-          schema:
-            type: object
-            properties:
-              postTitle:
-                type: string
-                description: type a text here for Title
-              postDescription:
-                type: string
-                description: type a text here for Description
-              postText:
-                type: string
-                description: type a text here for text
-              postStatus:
-                type: string
-                decription: status should be "Anyone" or "Private"
-              people:
-                type: array
-                description: This is all taged users ids
-                items:
-                  type: string
-                  description: one user id
-      responses:
-        "200":
-          description: OK
- 
-  /api/v1/user/post/{id}/image:
-    post:
-      tags:
-        - User side All-Post-Related-API
-      summary: User post create text and image
-      consumes:
-        - multipart/form-data
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is User id
-        - in: formData
-          name: file
-          type: file
-          required: true
-          description: upload your post multiple image
-        # - in: formData
-        #   name: file
-        #   type: file
-        #   required: true
-        #   description: upload your post multiple image
-        - in: formData
-          name: postTitle
-          type: string
-          description: type a text here for Title
-        - in: formData
-          name: postDescription
-          type: string
-          description: type a text here for Description
-        - in: formData
-          name: postText
-          type: string
-          description: type a text here for text
-        - in: formData
-          name: postStatus
-          type: string
-          required: true
-          description: status should be "Anyone" or "Private"
-        - in: formData
-          name: people
-          type: array
-          items:
-            type: string
-            description: one user id
-          description: This is all taged users ids
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/user/post/{id}/video:
-    post:
-      tags:
-        - User side All-Post-Related-API
-      summary: User post create text and video
-      consumes:
-        - multipart/form-data
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is User id
-        - in: formData
-          name: file
-          type: file
-          required: true
-          description: upload your post video
-        - in: formData
-          name: postTitle
-          type: string
-          description: type a text here for Title
-        - in: formData
-          name: postDescription
-          type: string
-          description: type a text here for Description
-        - in: formData
-          name: postText
-          type: string
-          description: type a text here for text
-        - in: formData
-          name: postStatus
-          type: string
-          required: true
-          description: status should be "Anyone" or "Private"
-        - in: formData
-          name: people
-          type: array
-          items:
-            type: string
-            description: one user id
-          description: This is all taged users ids
-      responses:
-        "200":
-          description: OK
-          
-  /api/v1/user/post/update/{pid}:
-    patch:
-      tags:
-        - User side All-Post-Related-API
-      summary: User post update with their visibility
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: pid
-          required: true
-          type: string
-          description: This is User id
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - postStatus
-            properties:
-              postStatus:
-                type: string
-                description: status should be "Anyone" or "Private"
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/user/post/{id}/deleted/{pid}:
-    delete:
-      tags:
-        - User side All-Post-Related-API
-      summary: User post deleted permanently
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is User id
-        - in: path
-          name: pid
-          required: true
-          type: string
-          description: This is post id
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/user/post/tag/{uid}:
-    get:
-      tags:
-        - User side All-Post-Related-API
-      summary: In User post Added tag people list which user want to tag
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: uid
-          required: true
-          type: string
-          description: This is user id
-        - in: query
-          name: page
-          schema:
-            type: integer
-          description: The number of items to skip before starting to collect the result set
-        - in: query
-          name: limit
-          schema:
-            type: integer
-          description: The numbers of items to return
-        - in: query
-          name: search
-          schema:
-            type: string
-          description: type here name or username         
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/user/post/reaction/{pid}:
-    get:
-      tags:
-        - User side All-Post-Related-API
-      summary: This is list of people who like that particular post that is reaction
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: pid
-          required: true
-          type: string
-          description: This is post id
-        - in: query
-          name: page
-          schema:
-            type: integer
-          description: The number of items to skip before starting to collect the result set
-        - in: query
-          name: limit
-          schema:
-            type: integer
-          description: The numbers of items to return
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/user/post/like/{pid}:
-    get:
-      tags:
-        - User side All-Post-Related-API
-      summary: User post like and unlike
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: pid
-          required: true
-          type: string
-          description: This is post id
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/user/post/save/{pid}:
-    get:
-      tags:
-        - User side All-Post-Related-API
-      summary: User post save and unsave
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: pid
-          required: true
-          type: string
-          description: This is post id
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/user/post/comment/{id}:
-    get:
-      tags:
-        - User side All-Post-Related-API
-      summary: Get User one post all comment
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is post id
-        - in: query
-          name: page
-          schema:
-            type: integer
-          description: The number of items to skip before starting to collect the result set
-        - in: query
-          name: limit
-          schema:
-            type: integer
-          description: The numbers of items to return
-      responses:
-        "200":
-          description: OK
-    post:
-      tags:
-        - User side All-Post-Related-API
-      summary: Post User one post comment
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is post id
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - commentDescription
-            properties:
-              commentDescription:
-                type: string
-                description: Type here comments
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/user/post/comment/child/{pcid}:
-    get:
-      tags:
-        - User side All-Post-Related-API
-      summary: In post one comment, child or reply comment limit to get all reply comment
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: pcid
-          required: true
-          type: string
-          description: This is comment id
-        - in: query
-          name: page
-          schema:
-            type: integer
-          description: The number of items to skip before starting to collect the result set
-        - in: query
-          name: limit
-          schema:
-            type: integer
-          description: The numbers of items to return
-      responses:
-        "200":
-          description: OK
-    post:
-      tags:
-        - User side All-Post-Related-API
-      summary: In post one comment, child or reply comment
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: pcid
-          required: true
-          type: string
-          description: This is Comment id
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - comment
-              - uid
-            properties:
-              comment:
-                type: string
-                description: Type here reply comments
-              uid:
-                type: string
-                description: This is user id which reply to comment              
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/user/post/{id}/comment/child/like/{cid}/:
-    get:
-      tags:
-        - User side All-Post-Related-API
-      summary: In post one comment like and dislike
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is user id
-        - in: path
-          name: cid
-          required: true
-          type: string
-          description: This is comment id
-      responses:
-        "200":
-          description: OK
   
-  #This is for the Institute side API
-  /api/v1/ins/{id}/dash:
-    get:
-      tags:
-        - Institute-All-API
-      summary: Institute dashboard page Data
-      produces:
-        - application/json
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: id # Note the name is the same as in the path
-          required: true
-          schema:
-            type: string
-          description: The institute ID
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/ins/personal/info/{id}:
-    patch:
-      tags:
-        - Institute-All-API
-      summary: Update Profile Details (only details part)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is Institute id
-        - in: body
-          name: body
-          schema:
-            type: object
-            properties:
-              insType:
-                type: string
-              insMode:
-                type: string
-              insEmail:
-                type: string
-              insState:
-                type: string
-              insAddress:
-                type: string
-              insAbout:
-                type: string
-              insAffiliated:
-                type: string
-              insEstdDate:
-                type: string
-      responses:
-        "200":
-          description: OK
-
-
-  /api/v1/ins/{id}/profile:
-    get:
-      tags:
-        - Institute-All-API
-      summary: Institute profile page Data
-      produces:
-        - application/json
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: id # Note the name is the same as in the path
-          required: true
-          schema:
-            type: string
-          description: The institute ID
-      responses:
-        "200":
-          description: OK
-  /api/v1/ins/{id}/announcemnt:
-    get:
-      tags:
-        - Institute-All-API
-      summary: Institute Announcement page Data
-      produces:
-        - application/json
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: id # Note the name is the same as in the path
-          required: true
-          schema:
-            type: string
-          description: The institute ID
-      responses:
-        "200":
-          description: OK
-  /api/v1/ins/{id}/setting/personal:
-    get:
-      tags:
-        - Institute-All-API
-      summary: Institute setting personal page Data
-      produces:
-        - application/json
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: id # Note the name is the same as in the path
-          required: true
-          schema:
-            type: string
-          description: The institute ID
-      responses:
-        "200":
-          description: OK
-  /api/v1/ins/{id}/switch/account:
-    get:
-      tags:
-        - Institute-All-API
-      summary: Institute setting switch account page Data
-      produces:
-        - application/json
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: id # Note the name is the same as in the path
-          required: true
-          schema:
-            type: string
-          description: The institute ID
-      responses:
-        "200":
-          description: OK
-  /api/v1/ins/{id}/credit/q-coins:
-    get:
-      tags:
-        - Institute-All-API
-      summary: Institute credit Q-coin page Data
-      produces:
-        - application/json
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: id # Note the name is the same as in the path
-          required: true
-          schema:
-            type: string
-          description: The institute ID
-      responses:
-        "200":
-          description: OK
-
-  #This is for institute side all post Related API
-
-  /api/v1/ins/post/{id}/all/posts:
-    get:
-      tags:
-        - Institute side All-Post-Related-API
-      summary: Institute All Posts
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is Institute id
-        - in: query
-          name: page
-          schema:
-            type: integer
-          description: The number of items to skip before starting to collect the result set
-        - in: query
-          name: limit
-          schema:
-            type: integer
-          description: The numbers of items to return
-      responses:
-        "200":
-          description: OK
-
-
-  /api/v1/ins/post/{id}:
-    post:
-      tags:
-        - Institute side All-Post-Related-API
-      summary: Institute post create only with text 
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is institute id
-        - in : body
-          name: body
-          schema:
-            type: object
-            properties:
-              postTitle:
-                type: string
-                description: type a text here for Title
-              postDescription:
-                type: string
-                description: type a text here for Description
-              postText:
-                type: string
-                description: type a text here for text
-              postStatus:
-                type: string
-                decription: status should be "Anyone" or "Private"
-              people:
-                type: array
-                description: This is all taged users ids
-                items:
-                  type: string
-                  description: one user id
-      responses:
-        "200":
-          description: OK
- 
-  /api/v1/ins/post/{id}/image:
-    post:
-      tags:
-        - Institute side All-Post-Related-API
-      summary: Institute post create text and image
-      consumes:
-        - multipart/form-data
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is institute id
-        - in: formData
-          name: file
-          type: file
-          required: true
-          description: upload your post multiple image
-        # - in: formData
-        #   name: file
-        #   type: file
-        #   required: true
-        #   description: upload your post multiple image
-        - in: formData
-          name: postTitle
-          type: string
-          description: type a text here for Title
-        - in: formData
-          name: postDescription
-          type: string
-          description: type a text here for Description
-        - in: formData
-          name: postText
-          type: string
-          description: type a text here for text
-        - in: formData
-          name: postStatus
-          type: string
-          required: true
-          description: status should be "Anyone" or "Private"
-        - in: formData
-          name: people
-          type: array
-          items:
-            type: string
-            description: one user id
-          description: This is all taged users ids
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/ins/post/{id}/video:
-    post:
-      tags:
-        - Institute side All-Post-Related-API
-      summary: Institute post create text and video
-      consumes:
-        - multipart/form-data
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is institute id
-        - in: formData
-          name: file
-          type: file
-          required: true
-          description: upload your post video
-        - in: formData
-          name: postTitle
-          type: string
-          description: type a text here for Title
-        - in: formData
-          name: postDescription
-          type: string
-          description: type a text here for Description
-        - in: formData
-          name: postText
-          type: string
-          description: type a text here for text
-        - in: formData
-          name: postStatus
-          type: string
-          required: true
-          description: status should be "Anyone" or "Private"
-        - in: formData
-          name: people
-          type: array
-          items:
-            type: string
-            description: one user id
-          description: This is all taged users ids
-      responses:
-        "200":
-          description: OK
-          
-  /api/v1/ins/post/update/{pid}:
-    patch:
-      tags:
-        - Institute side All-Post-Related-API
-      summary: Institute post update with their visibility
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: pid
-          required: true
-          type: string
-          description: This is institute id
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - postStatus
-            properties:
-              postStatus:
-                type: string
-                description: status should be "Anyone" or "Private"
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/ins/post/{id}/deleted/{pid}:
-    delete:
-      tags:
-        - Institute side All-Post-Related-API
-      summary: Institute post deleted permanently
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is institute id
-        - in: path
-          name: pid
-          required: true
-          type: string
-          description: This is post id
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/ins/post/tag/{uid}:
-    get:
-      tags:
-        - Institute side All-Post-Related-API
-      summary: In Institute post Added tag people list which user want to tag
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: uid
-          required: true
-          type: string
-          description: This is institute id
-        - in: query
-          name: page
-          schema:
-            type: integer
-          description: The number of items to skip before starting to collect the result set
-        - in: query
-          name: limit
-          schema:
-            type: integer
-          description: The numbers of items to return
-        - in: query
-          name: search
-          schema:
-            type: string
-          description: type here name or username          
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/ins/post/reaction/{pid}:
-    get:
-      tags:
-        - Institute side All-Post-Related-API
-      summary: This is list of people who like that particular post that is reaction
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: pid
-          required: true
-          type: string
-          description: This is post id
-        - in: query
-          name: page
-          schema:
-            type: integer
-          description: The number of items to skip before starting to collect the result set
-        - in: query
-          name: limit
-          schema:
-            type: integer
-          description: The numbers of items to return
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/ins/post/like/{pid}:
-    get:
-      tags:
-        - Institute side All-Post-Related-API
-      summary: Institute post like and unlike
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: pid
-          required: true
-          type: string
-          description: This is post id
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/ins/post/save/{pid}:
-    get:
-      tags:
-        - Institute side All-Post-Related-API
-      summary: Institute post save and unsave
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: pid
-          required: true
-          type: string
-          description: This is post id
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/ins/post/comment/{id}:
-    get:
-      tags:
-        - Institute side All-Post-Related-API
-      summary: Institute All comments of one Post
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is Post id
-        - in: query
-          name: page
-          schema:
-            type: integer
-          description: The number of items to skip before starting to collect the result set
-        - in: query
-          name: limit
-          schema:
-            type: integer
-          description: The numbers of items to return
-      responses:
-        "200":
-          description: OK
-
-
-  /api/v1/ins/post/comment/{id}:
-    get:
-      tags:
-        - Institute side All-Post-Related-API
-      summary: Get Institute one post comment
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is post id
-        - in: query
-          name: page
-          schema:
-            type: integer
-          description: The number of items to skip before starting to collect the result set
-        - in: query
-          name: limit
-          schema:
-            type: integer
-          description: The numbers of items to return
-      responses:
-        "200":
-          description: OK
-    post:
-      tags:
-        - Institute side All-Post-Related-API
-      summary: Post Institute one post comment
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is post id
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - commentDescription
-            properties:
-              commentDescription:
-                type: string
-                description: Type here comments
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/ins/post/comment/child/{pcid}:
-    get:
-      tags:
-        - Institute side All-Post-Related-API
-      summary: In post one comment, child or reply comment limit to get all reply comment
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: pcid
-          required: true
-          type: string
-          description: This is comment id
-        - in: query
-          name: page
-          schema:
-            type: integer
-          description: The number of items to skip before starting to collect the result set
-        - in: query
-          name: limit
-          schema:
-            type: integer
-          description: The numbers of items to return
-      responses:
-        "200":
-          description: OK
-    post:
-      tags:
-        - Institute side All-Post-Related-API
-      summary: In post one comment, child or reply comment
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: pcid
-          required: true
-          type: string
-          description: This is Comment id
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - comment
-              - uid
-            properties:
-              comment:
-                type: string
-                description: Type here reply comments
-              uid:
-                type: string
-                description: This is user or institute id which reply to comment              
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/ins/post/{id}/comment/child/like/{cid}/:
-    get:
-      tags:
-        - Institute side All-Post-Related-API
-      summary: In post one comment, child or reply comment
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is user or institute id
-        - in: path
-          name: cid
-          required: true
-          type: string
-          description: This is comment id
-      responses:
-        "200":
-          description: OK
   
-  #This is for institute side all Department API
-  /api/vi/ins/{id}/pending-staff/list:
-    get:
-      tags:
-        - Institute side All-Department-API
-      summary: All pending staff List that is request to the institute side to approve as a staff
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is institute id
-      responses:
-        "200":
-          description: OK
-  /api/vi/ins/{id}/approve-staff/list:
-    get:
-      tags:
-        - Institute side All-Department-API
-      summary: When edit the class master card to change staff then all approve staff get via api
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is institute id
-      responses:
-        "200":
-          description: OK
-
-  /api/vi/ins/staff/{id}:
-    get:
-      tags:
-        - Institute side All-Department-API
-      summary: All full detail of one staff 
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is staff id
-      responses:
-        "200":
-          description: OK
-
-  /api/vi/ins/{id}/department:
-    get:
-      tags:
-        - Institute side All-Department-API
-      summary: All department List
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is institute id
-      responses:
-        "200":
-          description: OK
-
-  /api/vi/ins/department/{did}:
-    get:
-      tags:
-        - Institute side All-Department-API
-      summary: All details of one department
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is department id
-      responses:
-        "200":
-          description: OK
-
-  /api/vi/ins/{id}/batchdetail/{bid}:
-    get:
-      tags:
-        - Institute side All-Department-API
-      summary: Get current batch details
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is institute id
-        - in: path
-          name: bid
-          required: true
-          type: string
-          description: This is current batch id
-      responses:
-        "200":
-          description: OK
-
-  /api/vi/ins/{id}/departmentmasterclass/{did}:
-    get:
-      tags:
-        - Institute side All-Department-API
-      summary: One department All class master
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is institute id
-        - in: path
-          name: did
-          required: true
-          type: string
-          description: This is department id
-      responses:
-        "200":
-          description: OK
 
 
-  /api/vi/ins/{id}/departmentmastersubject/{did}:
-    get:
-      tags:
-        - Institute side All-Department-API
-      summary: One department All subject master
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is institute id
-        - in: path
-          name: did
-          required: true
-          type: string
-          description: This is department id
-      responses:
-        "200":
-          description: OK
-
-  /api/vi/ins/batch/class/{bid}:
-    get:
-      tags:
-        - Institute side All-Department-API
-      summary: One batch All Class list
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: bid
-          required: true
-          type: string
-          description: This is batch id
-      responses:
-        "200":
-          description: OK
-
-  /api/vi/ins/class/{cid}:
-    get:
-      tags:
-        - Institute side All-Department-API
-      summary: One class All subject List
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: cid
-          required: true
-          type: string
-          description: This is class id
-      responses:
-        "200":
-          description: OK
-
-  /api/vi/ins/staffdepartment/{did}:
-    get:
-      tags:
-        - Staff side All-Department-API
-      summary: One Department profile Data
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: did
-          required: true
-          type: string
-          description: This is department id
-      responses:
-        "200":
-          description: OK
-
-
-  /api/vi/ins/staff/department-info/{did}:
-    get:
-      tags:
-        - Staff side All-Department-API
-      summary: One Department info/about update by staff side
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: did
-          required: true
-          type: string
-          description: This is department id
-      responses:
-        "200":
-          description: OK
-
-  /api/vi/ins/batch-detail/{bid}:
-    get:
-      tags:
-        - Staff side All-Department-API
-      summary: In one batch All classes List by staff side
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: bid
-          required: true
-          type: string
-          description: This is batch id
-      responses:
-        "200":
-          description: OK
-
-  /api/vi/ins/staffclass/{cid}:
-    get:
-      tags:
-        - Staff side All-Department-API
-      summary: One class related data by staff side
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: cid
-          required: true
-          type: string
-          description: This is class id
-      responses:
-        "200":
-          description: OK
-
-  /api/vi/ins/subject-detail/{suid}:
-    get:
-      tags:
-        - Staff side All-Department-API
-      summary: This is subject and class related data that is Subject Teacher catalog
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: suid
-          required: true
-          type: string
-          description: This is subject id
-      responses:
-        "200":
-          description: OK
-
-  #This is staff Related Api
-
-  /api/v1/ins/{id}/staff-code:
-    get:
-      tags:
-        - Staff-All-API
-      summary: Get Staff Code for joining by Institute
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-          description: This is institute id
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/ins/{sid}/staff-status:
-    get:
-      tags:
-        - Staff-All-API
-      summary: Get Staff Status for Application Status
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: sid
-          required: true
-          schema:
-            type: string
-          description: This is Staff id
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/ins/{uid}/staffform/{id}:
-    post:
-      tags:
-        - Staff-All-API
-      summary: Staff joining form apply to Institute
-      consumes:
-        - multipart/form-data
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: uid
-          required: true
-          type: string
-          description: This is user id which apply to institute as staff
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is institute id which search by user to apply for as staff
-        - in: formData
-          name: file
-          type: file
-          required: true
-          description: upload your staff profile photo
-        - in: formData
-          name: staffCode
-          type: string
-          required: true
-          description: This is staff code to join institute which provided by the institute
-        - in: formData
-          name: staffFirstName
-          type: string
-          required: true
-          description: staff first name
-        - in: formData
-          name: StaffMiddleName
-          type: string
-          required: true
-          description: staff middle name
-        - in: formData
-          name: staffLastName
-          type: string
-          required: true
-          description: staff last name
-        - in: formData
-          name: staffDOB
-          type: string
-          required: true
-          description: staff staffDOB
-        - in: formData
-          name: staffGender
-          type: string
-          required: true
-          description: staff staffGender
-        - in: formData
-          name: staffNationality
-          type: string
-          required: true
-          description: staff staffNationality
-        - in: formData
-          name: staffMTongue
-          type: string
-          required: true
-          description: staff staffMTongue
-        - in: formData
-          name: staffCast
-          type: string
-          required: true
-          description: staff staffCast
-        - in: formData
-          name: staffCastCategory
-          type: string
-          required: true
-          description: staff staffCastCategory
-        - in: formData
-          name: staffReligion
-          type: string
-          required: true
-          description: staff staffReligion
-        - in: formData
-          name: staffBirthPlace
-          type: string
-          required: true
-          description: staff staffBirthPlace
-        - in: formData
-          name: staffDistrict
-          type: string
-          required: true
-          description: staff staffDistrict
-        - in: formData
-          name: staffState
-          type: string
-          required: true
-          description: staff staffState
-        - in: formData
-          name: staffAddress
-          type: string
-          required: true
-          description: staff staffAddress
-        - in: formData
-          name: staffPhoneNumber
-          type: string
-          required: true
-          description: staff staffPhoneNumber
-        - in: formData
-          name: staffAadharNumber
-          type: string
-          required: true
-          description: staff staffAadharNumber
-        - in: formData
-          name: staffQualification
-          type: string
-          required: true
-          description: staff staffQualification
-        - in: formData
-          name: file
-          type: file
-          required: true
-          description: upload your addhar card front side photo  
-        - in: formData
-          name: file
-          type: file
-          required: true
-          description: upload your addhar card back side photo           
-      responses:
-        "200":
-          description: OK      
-  #This is student Related Api
-
-  /api/v1/ins/{id}/student-code:
-    get:
-      tags:
-        - Student-All-API
-      summary: Get Student Code for joining by Institute
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is institute id
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/ins/{sid}/student-status:
-    get:
-      tags:
-        - Student-All-API
-      summary: Get Student Status for Application Status
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: sid
-          required: true
-          type: string
-          description: This is Student id
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/ins/{uid}/studentform/{id}:
-    post:
-      tags:
-        - Student-All-API
-      summary: Student joining form apply to Institute (not verified )
-      produces:
-        - application/json
-      consumes:
-        - multipart/form-data
-      parameters:
-        - in: path
-          name: uid
-          required: true
-          type: string
-          description: This is user id which apply to institute as student
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is institute id which search by user to apply for as student
-        - in: formData
-          name: file
-          type: file
-          required: true
-          description: upload your student profile photo
-        - in: formData
-          name: studentCode
-          type: string
-          required: true
-          description: This is student code to join class which provided by the class Teacher
-        - in: formData
-          name: studentFirstName
-          type: string
-          required: true
-          description: student first name
-        - in: formData
-          name: studentMiddleName
-          type: string
-          required: true
-          description: student middle name
-        - in: formData
-          name: studentLastName
-          type: string
-          required: true
-          description: student last name
-        - in: formData
-          name: studentDOB
-          type: string
-          required: true
-          description: student studentDOB
-        - in: formData
-          name: studentGender
-          type: string
-          required: true
-          description: student studentGender
-        - in: formData
-          name: studentNationality
-          type: string
-          required: true
-          description: student studentNationality
-        - in: formData
-          name: studentMTongue
-          type: string
-          required: true
-          description: student studentMTongue
-        - in: formData
-          name: studentCast
-          type: string
-          required: true
-          description: student studentCast
-        - in: formData
-          name: studentCastCategory
-          type: string
-          required: true
-          description: student studentCastCategory
-        - in: formData
-          name: studentReligion
-          type: string
-          required: true
-          description: student studentReligion
-        - in: formData
-          name: studentBirthPlace
-          type: string
-          required: true
-          description: student studentBirthPlace
-        - in: formData
-          name: studentDistrict
-          type: string
-          required: true
-          description: student studentDistrict
-        - in: formData
-          name: studentState
-          type: string
-          required: true
-          description: student studentState
-        - in: formData
-          name: studentAddress
-          type: string
-          required: true
-          description: student studentAddress
-        - in: formData
-          name: studentPhoneNumber
-          type: string
-          required: true
-          description: student studentPhoneNumber
-        - in: formData
-          name: studentAadharNumber
-          type: string
-          required: true
-          description: student studentAadharNumber
-        - in: formData
-          name: studentQualification
-          type: string
-          required: true
-          description: student studentQualification
-        - in: formData
-          name: file
-          type: file
-          required: true
-          description: upload your addhar card front side photo  
-        - in: formData
-          name: file
-          type: file
-          required: true
-          description: upload your addhar card back side photo     
-      responses:
-        "200":
-          description: OK
-
-
-  #This is Related For the Attendence API
-  /api/v1/avail/staffclass/{cid}/attend:
-    get:
-      tags:
-        - Attendence-Related-All-API
-      summary: Attendence in class of Student
-      produces:
-        - application/json
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: cid
-          required: true
-          type: string
-          description: This is class ID
-      responses:
-        "200":
-          description: OK
-        
-  /api/v1/avail/staffclass/{cid}/attend-id:
-    get:
-      tags:
-        - Attendence-Related-All-API
-      summary: Attendence in class of Student by id
-      produces:
-        - application/json
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: cid
-          required: true
-          type: string
-          description: This is class ID
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/avail/class/{cid}/student/attendence:
-    get:
-      tags:
-        - Attendence-Related-All-API
-      summary: Attendence in class of Student by id
-      produces:
-        - application/json
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: cid
-          required: true
-          type: string
-          description: This is class ID
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/avail/class/{cid}/get/attendence/{date}:
-    get:
-      tags:
-        - Attendence-Related-All-API
-      summary: Attendence in class of Student retrieve by Date
-      produces:
-        - application/json
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: cid
-          required: true
-          type: string
-          description: This is class ID
-        - in: path
-          name: date
-          required: true
-          type: string
-          description: This is Date to give in url         
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/avail/attendence/status/student/{sid}:
-    get:
-      tags:
-        - Attendence-Related-All-API
-      summary: Show Student Attendence At Calendar
-      produces:
-        - application/json
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: cid
-          required: true
-          type: string
-          description: This is class ID
-        - in: path
-          name: date
-          required: true
-          type: string
-          description: This is Date to give in url         
-      responses:
-        "200":
-          description: OK
-
-
-
-
-  /api/v1/all/staff/list/data:
-    get:
-      tags:
-        - Required-Api-Tushar-All
-      summary: Get All Mentors List
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/all/user/list/data:
-    get:
-      tags:
-        - Required-Api-Tushar-All
-      summary: Get All Users List
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/all/institute/list/data:
-    get:
-      tags:
-        - Required-Api-Tushar-All
-      summary: Get All Institute List
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/user/dashboard/{id}/notify:
-    get:
-      tags:
-        - Required-Api-Tushar-All
-      summary: Get All Notifications Of Users
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is user id
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/ins/dashboard/{id}/notify:
-    get:
-      tags:
-        - Required-Api-Tushar-All
-      summary: Get All Notifications Of Institute
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is Institute id
-      responses:
-        "200":
-          description: OK
-
-
-  /api/v1/user/{id}/deactivate/account:
-    post:
-      tags:
-        - Required-Api-Tushar-All
-      summary: Deactivate User A/c for atleast 2 days
-      produces:
-        - application/json
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: id # Note the name is the same as in the path
-          required: true
-          schema:
-            type: string
-          description: This is User id
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - password
-              - status
-              - ddate
-            properties:
-              password:
-                type: string
-                description: Enter your A/c password
-              status:
-                type: string
-                description: Enter Deactivated Text
-              ddate:
-                type: string
-                description: Enter Date after 2 days
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/user/phone/info/{id}:
-    post:
-      tags:
-        - Required-Api-Tushar-All
-      summary: User Phone No. Update Setting
-      produces:
-        - application/json
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: id # Note the name is the same as in the path
-          required: true
-          schema:
-            type: string
-          description: This is User id
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - userPhoneNumber
-            properties:
-              userPhoneNumber:
-                type: string
-                description: Enter mobile number
-
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/user/{id}/recovery-mail:
-    post:
-      tags:
-        - Required-Api-Tushar-All
-      summary: User Recovery Mail Setting
-      produces:
-        - application/json
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: id # Note the name is the same as in the path
-          required: true
-          schema:
-            type: string
-          description: This is User id
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - recoveryMail
-            properties:
-              recoveryMail:
-                type: string
-                description: Enter Recovery Mail
-
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/ins/phone/info/{id}:
-    post:
-      tags:
-        - Required-Api-Tushar-All
-      summary: Institute Phone No. Update Setting
-      produces:
-        - application/json
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: id # Note the name is the same as in the path
-          required: true
-          schema:
-            type: string
-          description: This is Institute id
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - insPhoneNumber
-            properties:
-              insPhoneNumber:
-                type: string
-                description: Enter mobile number
-
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/ins/{id}/recovery-mail:
-    post:
-      tags:
-        - Required-Api-Tushar-All
-      summary: Institute Recovery Mail Setting
-      produces:
-        - application/json
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: id # Note the name is the same as in the path
-          required: true
-          schema:
-            type: string
-          description: This is Institute id
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - recoveryMail
-            properties:
-              recoveryMail:
-                type: string
-                description: Enter Recovery Mail
-
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/user/follow/institute/:
-    patch:
-      tags:
-        - Required-Api-Tushar-All
-      summary: Follow Institute Api
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - InsfollowId
-            properties:
-              InsfollowId:
-                type: string
-                description: follow Institute Id
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/user/unfollow/institute/:
-    patch:
-      tags:
-        - Required-Api-Tushar-All
-      summary: UnFollow Institute Api
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - InsfollowId
-            properties:
-              InsfollowId:
-                type: string
-                description: follow Institute Id
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/user/follow/user/:
-    patch:
-      tags:
-        - Required-Api-Tushar-All
-      summary: Follow User to User Api
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - userFollowId
-            properties:
-              userFollowId:
-                type: string
-                description: follow User Id
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/user/circle/user/:
-    patch:
-      tags:
-        - Required-Api-Tushar-All
-      summary: Circle User to User Api
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - followId
-            properties:
-              followId:
-                type: string
-                description: circle User Id
-      responses:
-        "200":
-          description: OK
   
-  /api/v1/user/uncircle/user/:
-    patch:
-      tags:
-        - Required-Api-Tushar-All
-      summary: UnCircle User to User Api (currently depreceated)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - followId
-            properties:
-              followId:
-                type: string
-                description: Uncircle User Id
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/ins/{aid}/star-announcement:
-    post:
-      tags:
-        - Required-Api-Tushar-All
-      summary: Mark As Star Announcement
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: aid
-          required: true
-          type: string
-          description: This is announcement id
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/ins/{id}/all/star-announcement:
-    get:
-      tags:
-        - Required-Api-Tushar-All
-      summary: All Star Announcement Institute
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is institute id
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/user/{id}/all/star-announcement:
-    get:
-      tags:
-        - Required-Api-Tushar-All
-      summary: All Star Announcement User
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is user id
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/user/staffdesignationdata/{sid}:
-    get:
-      tags:
-        - Required-Api-Tushar-All
-      summary: Staff All Designation Data
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: sid
-          required: true
-          type: string
-          description: This is staff id
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/ins/{id}/display-person:
-    post:
-      tags:
-        - Required-Api-Tushar-All
-      summary: Add Display Person
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is Institute id
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - displayTitle
-              - displayUser
-            properties:
-              displayTitle:
-                type: string
-                description: Enter Display Title
-              displayUser:
-                type: string
-                description: Enter User Id
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/ins/{id}/display/person-array:
-    get:
-      tags:
-        - Required-Api-Tushar-All
-      summary: Retrieve Display Person
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is Institute id
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/ins/{did}/display-person/update:
-    patch:
-      tags:
-        - Required-Api-Tushar-All
-      summary: Update Display Person
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: did
-          required: true
-          type: string
-          description: This is Display Person id
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - displayTitle
-              - displayUser
-            properties:
-              displayTitle:
-                type: string
-                description: Enter Display Title
-              displayUser:
-                type: string
-                description: Enter User Id
-      responses:
-        "200":
-          description: OK
   
-  /api/v1/ins/{id}/display-person/{did}/delete/{uid}:
-    delete:
-      tags:
-        - Required-Api-Tushar-All
-      summary: Delete Display Person
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is Institute id
-        - in: path
-          name: did
-          required: true
-          type: string
-          description: This is Display Person id
-        - in: path
-          name: uid
-          required: true
-          type: string
-          description: This is User id
-      responses:
-        "200":
-          description: OK
-          
+  
 
-  /api/v1/user/{id}/user-post/{uid}/report:
-    post:
-      tags:
-        - Required-Api-Tushar-All
-      summary: Report User's Post By User
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is User id
-        - in: path
-          name: uid
-          required: true
-          type: string
-          description: This is Post id
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - reportStatus
-            properties:
-              reportStatus:
-                type: string
-                description: Enter Report Content
-      responses:
-        "200":
-          description: OK
-
-
-  /api/v1/ins/{id}/ins-post/{uid}/report:
-    post:
-      tags:
-        - Required-Api-Tushar-All
-      summary: Report Institute's Post By User
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is User id
-        - in: path
-          name: uid
-          required: true
-          type: string
-          description: This is Post id
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - reportStatus
-            properties:
-              reportStatus:
-                type: string
-                description: Enter Report Content
-      responses:
-        "200":
-          description: OK
-
-
-
-  /api/v1/ins/{id}/followers-array:
-    get:
-      tags:
-        - Required-Api-Tushar-All
-      summary: Institute Followers List of Institute and User
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is Institute id
-      responses:
-        "200":
-          description: OK
-
-
-  /api/v1/ins/{id}/following-array:
-    get:
-      tags:
-        - Required-Api-Tushar-All
-      summary: Institute Following List of Institute
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is Institute id
-      responses:
-        "200":
-          description: OK
+  

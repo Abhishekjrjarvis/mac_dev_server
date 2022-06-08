@@ -8,6 +8,7 @@ const Conversation = require("../../models/Conversation");
 const UserSupport = require("../../models/UserSupport");
 const Report = require("../../models/Report");
 const Staff = require('../../models/Staff')
+const Student = require('../../models/Student')
 const bcrypt = require('bcryptjs')
 const {
   getFileStream,
@@ -995,7 +996,7 @@ exports.retrieveStaffDesignationArray = async(req, res) =>{
   try {
     const { sid } = req.params;
     const staff = await Staff.findById({ _id: sid })
-    .select('staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto')
+    .select('staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffGender staffNationality staffMTongue staffCast staffCastCategory staffBirthPlace staffState staffDistrict staffReligion staffAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharCard staffDOB staffStatus staffROLLNO')
       .populate({
         path: "staffDepartment",
         select: 'dName dTitle'
@@ -1059,6 +1060,76 @@ exports.retrieveStaffDesignationArray = async(req, res) =>{
       //   },
       // });
     res.status(200).send({ message: "Staff Designation Data", staff });
+  } catch {
+  }
+}
+
+
+
+exports.retrieveStudentDesignationArray = async(req, res) =>{
+  try {
+    const { sid } = req.params;
+    const student = await Student.findById({ _id: sid })
+    .select('studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentDOB studentNationality studentMTongue studentCast studentCastCategory studentBirthPlace studentState studentDistrict studentAddress studentPhoneNumber studentParentsName studentParentsPhoneNumber studentAadharCard studentAadharNumber studentDocuments studentGRNO studentStatus studentROLLNO')
+      .populate({
+        path: "studentClass",
+        select: 'className classTitle classStatus',
+        populate: {
+          path: "ApproveStudent",
+          select: 'id'
+        },
+      })
+      .populate({
+        path: "studentClass",
+        select: 'className classTitle classStatus',
+        populate: {
+          path: "batch",
+          select: 'batchName batchStatus'
+        },
+      })
+      .populate({
+        path: "institute",
+        select: 'insName name photoId insProfilePhoto'
+      })
+      .populate({
+        path: "user",
+        select: 'userLegalName username photoId profilePhoto'
+      })
+      // .populate("checklist")
+      // .populate({
+      //   path: "department",
+      //   populate: {
+      //     path: "fees",
+      //   },
+      // })
+      // .populate({
+      //   path: "studentMarks",
+      //   populate: {
+      //     path: "examId",
+      //   },
+      // })
+      // .populate("studentFee")
+      // .populate({
+      //   path: "department",
+      //   populate: {
+      //     path: "checklists",
+      //   },
+      // })
+      // .populate({
+      //   path: "sportEvent",
+      //   populate: {
+      //     path: "sportEventMatch",
+      //     populate: {
+      //       path: "sportEventMatchClass",
+      //       populate: {
+      //         path: "sportStudent",
+      //       },
+      //     },
+      //   },
+      // })
+      // .populate("complaints");
+    // .populate('studentAttendence')
+    res.status(200).send({ message: "Student Designation Data", student });
   } catch {
   }
 }

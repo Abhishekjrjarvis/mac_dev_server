@@ -3600,12 +3600,11 @@ paths:
         "200":
           description: OK
 
-
-  #This is for institute side all Department API
+  # Staff Module at Institute Side
   /api/v1/ins/{id}/pending-staff/list:
     get:
       tags:
-        - Institute Internal Departments (Staff, Student, Internal)
+        - Staff-Module
       summary: All pending staff List that is request to the institute side to approve as a staff
       consumes:
         - application/json
@@ -3623,28 +3622,8 @@ paths:
   /api/v1/ins/{id}/approve-staff/list:
     get:
       tags:
-        - Institute Internal Departments (Staff, Student, Internal)
+        - Staff-Module
       summary: When edit the class master card to change staff then all approve staff get via api
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is institute id
-      responses:
-        "200":
-          description: OK
-
-
-  /api/v1/ins/{id}/approve-student/list:
-    get:
-      tags:
-        - Institute Internal Departments (Staff, Student, Internal)
-      summary: All Students in Student Tab at Institute Side
       consumes:
         - application/json
       produces:
@@ -3662,7 +3641,7 @@ paths:
   /api/v1/ins/staff/{id}:
     get:
       tags:
-        - Institute Internal Departments (Staff, Student, Internal)
+        -  Staff-Module
       summary: All full detail of one staff 
       consumes:
         - application/json
@@ -3679,10 +3658,30 @@ paths:
           description: OK
 
 
+  # Student Module at Institute Side
+  /api/v1/ins/{id}/approve-student/list:
+    get:
+      tags:
+        - Student-Module
+      summary: All Students in Student Tab at Institute Side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is institute id
+      responses:
+        "200":
+          description: OK
+
   /api/v1/ins/student/{id}:
     get:
       tags:
-        - Institute Internal Departments (Staff, Student, Internal)
+        - Student-Module
       summary: All full detail of one student 
       consumes:
         - application/json
@@ -3698,10 +3697,13 @@ paths:
         "200":
           description: OK
 
+
+  #This is for institute side all Department API
+  
   /api/v1/ins/{id}/department:
     get:
       tags:
-        - Institute Internal Departments (Staff, Student, Internal)
+        - Institute Internal Departments 
       summary: All department List
       consumes:
         - application/json
@@ -3720,7 +3722,7 @@ paths:
   /api/v1/ins/department/{did}:
     get:
       tags:
-        - Institute Internal Departments (Staff, Student, Internal)
+        - Institute Internal Departments 
       summary: All details of one department
       consumes:
         - application/json
@@ -3739,7 +3741,7 @@ paths:
   /api/v1/ins/{id}/batchdetail/{bid}:
     get:
       tags:
-        - Institute Internal Departments (Staff, Student, Internal)
+        - Institute Internal Departments 
       summary: Get current batch details
       consumes:
         - application/json
@@ -3763,7 +3765,7 @@ paths:
   /api/v1/ins/{id}/departmentmasterclass/{did}:
     get:
       tags:
-        - Institute Internal Departments (Staff, Student, Internal)
+        - Institute Internal Departments 
       summary: One department All class master
       consumes:
         - application/json
@@ -3788,7 +3790,7 @@ paths:
   /api/v1/ins/{id}/departmentmastersubject/{did}:
     get:
       tags:
-        - Institute Internal Departments (Staff, Student, Internal)
+        - Institute Internal Departments 
       summary: One department All subject master
       consumes:
         - application/json
@@ -3812,7 +3814,7 @@ paths:
   /api/v1/ins/batch/class/{bid}:
     get:
       tags:
-        - Institute Internal Departments (Staff, Student, Internal)
+        - Institute Internal Departments 
       summary: One batch All Class list
       consumes:
         - application/json
@@ -3831,7 +3833,7 @@ paths:
   /api/v1/ins/class/{cid}:
     get:
       tags:
-        - Institute Internal Departments (Staff, Student, Internal)
+        - Institute Internal Departments 
       summary: One class All subject List
       consumes:
         - application/json

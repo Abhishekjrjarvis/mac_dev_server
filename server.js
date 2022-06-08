@@ -182,8 +182,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(
   cors({
-    origin: "http://18.205.27.165",
-    // origin: "http://localhost:3000",
+    // origin: "http://18.205.27.165",
+    origin: "http://localhost:3000",
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   })

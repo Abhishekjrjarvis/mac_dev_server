@@ -5,11 +5,11 @@ info:
   version: one
 
 
-# host: 18.205.27.165
-# basePath: /api
-schemes: [http, https]
-# schemes: 
-#   - http
+host: 18.205.27.165
+basePath: /api
+# schemes: [http, https]
+schemes: 
+  - http
 
 
 #Return Users From get request
@@ -723,6 +723,30 @@ paths:
       tags:
         - User Profile API
       summary: Follow User to User Api
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - userFollowId
+            properties:
+              userFollowId:
+                type: string
+                description: follow User Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/unfollow/user/:
+    patch:
+      tags:
+        - User Profile API
+      summary: UnFollow User to User Api
       consumes:
         - application/json
       produces:

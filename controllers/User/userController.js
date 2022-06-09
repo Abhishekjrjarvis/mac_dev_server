@@ -412,6 +412,29 @@ exports.updateUserFollow = async (req, res) => {
   }
 };
 
+
+exports.updateUserUnFollow = async (req, res) => {
+  try {
+    const user = await User.findById({ _id: req.session.user._id });
+    const suser = await User.findById({ _id: req.body.userFollowId });
+
+    if (user.userFollowing.includes(req.body.userFollowId)) {
+        suser.userFollowers.pull(req.session.user._id);
+        user.userFollowing.pull(req.body.userFollowId);
+        user.followingUICount -= 1;
+        suser.followerCount -= 1;
+        await user.save();
+        await suser.save();
+        res.status(200).send({ message: " UnFollowing This User" });
+    } else {
+      res.status(200).send({ message: "You Are no Longer Following This User" });
+    }
+  } catch (e) {
+    console.log(`Error`, e.message);
+  }
+};
+
+
 exports.updateUserCircle = async (req, res) => {
   try {
     const user = await User.findById({ _id: req.session.user._id });
@@ -1134,3 +1157,6 @@ exports.retrieveStudentDesignationArray = async(req, res) =>{
   } catch {
   }
 }
+
+
+

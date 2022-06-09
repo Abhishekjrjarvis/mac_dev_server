@@ -138,6 +138,9 @@ router.post("-search-profile", isLoggedIn, catchAsync(User.querySearchUser));
 // User Follow User
 router.patch("/follow/user", isLoggedIn, catchAsync(User.updateUserFollow));
 
+// User UnFollow User
+router.patch("/unfollow/user", isLoggedIn, catchAsync(User.updateUserUnFollow));
+
 // Add User To Circle
 router.patch("/circle/user", isLoggedIn, catchAsync(User.updateUserCircle));
 

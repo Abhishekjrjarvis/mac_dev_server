@@ -445,7 +445,7 @@ router.get(
 
 // Get Data of One Department at Department List
 router.get(
-  "/department/:did",
+  "/department-detail/:did",
   isLoggedIn,
   catchAsync(Institute.getOneDepartment)
 );
@@ -459,10 +459,16 @@ router.get(
 
 // Class Master All at Master Tab
 router.get(
-  "/:id/departmentmasterclass/:did",
+  "/:id/departmentmasterclass-detail/:did",
   isLoggedIn,
   catchAsync(Institute.retrieveClassMaster)
 );
+
+// Add New Class
+router.post('/:id/department/:did/batch/:bid', isLoggedIn, catchAsync(Institute.retrieveNewClass))
+
+// Add New Subject
+router.post('/:id/department/:did/batch/:bid/class/:cid/subject', isLoggedIn, catchAsync(Institute.retrieveNewSubject))
 
 // Subject Master All at Master Tab
 router.get(
@@ -475,7 +481,7 @@ router.get(
 router.get(
   "/batch/class/:bid",
   isLoggedIn,
-  catchAsync(Institute.retrieveClass)
+  catchAsync(Institute.retrieveClassArray)
 );
 
 // Subject In Class at ClassSubject Tab
@@ -512,6 +518,15 @@ router.get(
   isLoggedIn,
   catchAsync(Institute.allStaffDepartmentClassList)
 );
+
+// Add Batch to the Department
+router.post('/addbatch/:did/ins/:id', isLoggedIn, catchAsync(Institute.retrieveNewBatch))
+
+// New Class Master
+router.post('/:id/departmentmasterclass/:did', isLoggedIn, catchAsync(Institute.retrieveNewClassMaster))
+
+// New Subject Master
+router.post('/:id/departmentmastersubject/:did/batch/:bid', isLoggedIn, catchAsync(Institute.retrieveNewSubjectMaster))
 
 // Class Restrict Data
 router.get("/staffclass/:cid", isLoggedIn, catchAsync(Institute.retrieveClass));

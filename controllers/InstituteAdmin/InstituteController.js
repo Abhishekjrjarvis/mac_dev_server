@@ -888,7 +888,7 @@ exports.updateApproveStaff = async (req, res) => {
     const staffs = await Staff.findById({ _id: sid });
     const user = await User.findById({ _id: uid });
     staffs.staffStatus = req.body.status;
-    institute.ApproveStaff.push(staffs);
+    institute.ApproveStaff.push(staffs._id);
     institute.staff.pull(sid);
     staffs.staffROLLNO = institute.ApproveStaff.length;
     notify.notifyContent = `Congrats ${staffs.staffFirstName} ${
@@ -896,15 +896,17 @@ exports.updateApproveStaff = async (req, res) => {
     } ${staffs.staffLastName} for joined as a staff at ${institute.insName}`;
     notify.notifySender = id;
     notify.notifyReceiever = user._id;
-    institute.iNotify.push(notify);
-    notify.institute = institute;
-    user.uNotify.push(notify);
-    notify.user = user;
-    notify.notifyByStaffPhoto = staffs;
-    await staffs.save();
-    await institute.save();
-    await user.save();
-    await notify.save();
+    institute.iNotify.push(notify._id);
+    notify.institute = institute._id;
+    user.uNotify.push(notify._id);
+    notify.user = user._id;
+    notify.notifyByStaffPhoto = staffs._id;
+    await Promise.all([
+      staffs.save(),
+      institute.save(),
+      user.save(),
+      notify.save()
+    ])
     res.status(200).send({
       message: `Welcome To The Institute ${staffs.staffFirstName} ${staffs.staffLastName}`,
       institute,
@@ -953,21 +955,23 @@ exports.getNewDepartment = async (req, res) => {
     const institute = await InstituteAdmin.findById({ _id: id });
     const department = await new Department({ ...req.body });
     const notify = await new Notification({});
-    institute.depart.push(department);
-    department.institute = institute;
-    staff.staffDepartment.push(department);
-    department.dHead = staff;
+    institute.depart.push(department._id);
+    department.institute = institute._id;
+    staff.staffDepartment.push(department._id);
+    department.dHead = staff._id;
     notify.notifyContent = `you got the designation of ${department.dName} as Head`;
     notify.notifySender = id;
     notify.notifyReceiever = user._id;
-    user.uNotify.push(notify);
-    notify.user = user;
-    notify.notifyByInsPhoto = institute;
-    await institute.save();
-    await staff.save();
-    await department.save();
-    await user.save();
-    await notify.save();
+    user.uNotify.push(notify._id);
+    notify.user = user._id;
+    notify.notifyByInsPhoto = institute._id;
+    await Promise.all([
+      institute.save(),
+      staff.save(),
+      department.save(),
+      user.save(),
+      notify.save()
+    ])
     res.status(200).send({
       message: "Successfully Created Department",
       department,
@@ -1741,6 +1745,7 @@ exports.retrieveDepartmentList = async (req, res) => {
 exports.getOneDepartment = async (req, res) => {
   try {
     const { did } = req.params;
+    console.log(req.params)
     const department = await Department.findById({ _id: did })
       .select(
         "dName dAbout dEmail dPhoneNumber dSpeaker dVicePrinciple dAdminClerk dOperatingAdmin dStudentPresident"
@@ -1770,7 +1775,9 @@ exports.getOneDepartment = async (req, res) => {
     } else {
       res.status(404).send({ message: "Failure" });
     }
-  } catch {}
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 exports.retrieveCurrentBatchData = async (req, res) => {
@@ -1811,6 +1818,150 @@ exports.retrieveClassMaster = async (req, res) => {
   } catch {}
 };
 
+var classRandomCodeHandler = () =>{
+  const c_1 = Math.floor(Math.random() * 9) + 1
+  const c_2 = Math.floor(Math.random() * 9) + 1
+  const c_3 = Math.floor(Math.random() * 9) + 1
+  const c_4 = Math.floor(Math.random() * 9) + 1
+  var r_class_code = `${c_1}${c_2}${c_3}${c_4}`
+  return r_class_code
+}
+
+var result = classRandomCodeHandler()
+
+exports.retrieveNewClass = async(req, res) =>{
+  try {
+    const { id, did, bid } = req.params;
+    const { sid, classTitle, className, classCode, classHeadTitle, mcId } =
+      req.body;
+    const institute = await InstituteAdmin.findById({ _id: id });
+    const masterClass = await ClassMaster.findById({ _id: mcId });
+    const mCName = masterClass.className;
+    const batch = await Batch.findById({ _id: bid });
+    const staff = await Staff.findById({ _id: sid }).populate({
+      path: "user",
+    });
+    const user = await User.findById({ _id: `${staff.user._id}` });
+    const depart = await Department.findById({ _id: did }).populate({
+      path: "dHead",
+    });
+    if(institute.classCodeList.includes(`${result}`)){
+    }
+    else{
+    const notify = await new Notification({});
+      institute.classCodeList.push(classCode);
+      const classRoom = await new Class({
+        masterClassName: mcId,
+        className: mCName,
+        classTitle: classTitle,
+        classHeadTitle: classHeadTitle,
+        classCode: `${result}`,
+      });
+    institute.classRooms.push(classRoom._id);
+    classRoom.institute = institute._id;
+    batch.classroom.push(classRoom._id);
+    masterClass.classDivision.push(classRoom._id);
+    if (String(depart.dHead._id) == String(staff._id)) {
+    } else {
+      depart.departmentChatGroup.push(staff._id);
+    }
+    classRoom.batch = batch._id;
+    batch.batchStaff.push(staff._id);
+    staff.batches = batch._id;
+    staff.staffClass.push(classRoom._id);
+    classRoom.classTeacher = staff._id;
+    depart.class.push(classRoom._id);
+    classRoom.department = depart._id;
+    notify.notifyContent = `you got the designation of ${classRoom.className} as Class Teacher`;
+    notify.notifySender = id;
+    notify.notifyReceiever = user._id;
+    user.uNotify.push(notify._id);
+    notify.user = user._id;
+    notify.notifyByInsPhoto = institute._id;
+    await Promise.all([
+        institute.save(),
+        batch.save(),
+        masterClass.save(),
+        staff.save(),
+        classRoom.save(),
+        depart.save(),
+        user.save(),
+        notify.save()
+    ])
+    res.status(200).send({
+      message: "Successfully Created Class",
+      classRoom,
+    });
+  }
+  } catch (e) {
+  }
+}
+
+
+
+exports.retrieveNewSubject = async(req, res) =>{
+  try {
+    const { id, cid, bid, did } = req.params;
+    const { sid, subjectTitle, subjectName, msid } = req.body;
+    const institute = await InstituteAdmin.findById({ _id: id });
+    const classes = await Class.findById({ _id: cid }).populate({
+      path: "classTeacher",
+    });
+    const subjectMaster = await SubjectMaster.findById({ _id: msid });
+    const batch = await Batch.findById({ _id: bid });
+    const staff = await Staff.findById({ _id: sid }).populate({
+      path: "user",
+    });
+    const user = await User.findById({ _id: `${staff.user._id}` });
+    const depart = await Department.findById({ _id: did }).populate({
+      path: "dHead",
+    });
+    const notify = await new Notification({});
+    const subject = await new Subject({
+      subjectTitle: subjectTitle,
+      subjectName: subjectMaster.subjectName,
+      subjectMasterName: subjectMaster._id,
+    });
+    classes.subject.push(subject._id);
+    subjectMaster.subjects.push(subject._id);
+    subject.class = classes._id;
+    if (String(classes.classTeacher._id) == String(staff._id)) {
+    } else {
+      batch.batchStaff.push(staff._id);
+      staff.batches = batch._id;
+    }
+    if (String(depart.dHead._id) == String(staff._id)) {
+    } else {
+      depart.departmentChatGroup.push(staff._id);
+    }
+    staff.staffSubject.push(subject._id);
+    subject.subjectTeacherName = staff._id;
+    notify.notifyContent = `you got the designation of ${subject.subjectName} as Subject Teacher`;
+    notify.notifySender = id;
+    notify.notifyReceiever = user._id;
+    user.uNotify.push(notify._id);
+    notify.user = user._id;
+    notify.notifyByInsPhoto = institute._id;
+    await Promise.all([
+      subjectMaster.save(),
+      classes.save(),
+      batch.save(),
+      staff.save(),
+      subject.save(),
+      depart.save(),
+      user.save(),
+      notify.save()
+    ])
+    res.status(200).send({
+      message: "Successfully Created Subject",
+      subject,
+    });
+  } catch {
+  }
+}
+
+
+
 exports.retrieveSubjectMaster = async (req, res) => {
   try {
     const { did } = req.params;
@@ -1828,7 +1979,7 @@ exports.retrieveSubjectMaster = async (req, res) => {
   } catch {}
 };
 
-exports.retrieveClass = async (req, res) => {
+exports.retrieveClassArray = async (req, res) => {
   try {
     const { bid } = req.params;
     const batch = await Batch.findById({ _id: bid })
@@ -1857,7 +2008,9 @@ exports.retrieveClass = async (req, res) => {
     } else {
       res.status(404).send({ message: "Failure" });
     }
-  } catch {}
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 exports.retrieveClassSubject = async (req, res) => {
@@ -1991,6 +2144,84 @@ exports.allStaffDepartmentClassList = async (req, res) => {
     }
   } catch {}
 };
+
+
+
+exports.retrieveNewBatch = async(req, res) =>{
+  try {
+    const { did, id } = req.params;
+    const department = await Department.findById({ _id: did });
+    const institute = await InstituteAdmin.findById({ _id: id });
+    const batch = await new Batch({ ...req.body });
+    department.batches.push(batch);
+    batch.department = department;
+    batch.institute = institute;
+    await Promise.all([
+      department.save(),
+      batch.save()
+    ])
+    res.status(200).send({ message: "batch data", batch });
+  } catch {
+  }
+}
+
+
+
+exports.retrieveNewClassMaster = async(req, res) =>{
+  try {
+    const { id, did } = req.params;
+    const { classTitle, className } = req.body;
+    const institute = await InstituteAdmin.findById({ _id: id });
+    const department = await Department.findById({ _id: did });
+    const classroomMaster = await new ClassMaster({
+      className: className,
+      classTitle: classTitle,
+      institute: institute._id,
+      department: did,
+    });
+    department.departmentClassMasters.push(classroomMaster._id);
+    await Promise.all([
+      classroomMaster.save(),
+      department.save()
+    ])
+    res.status(200).send({
+      message: "Successfully Created MasterClasses",
+      classroomMaster,
+    });
+  } catch {
+  }
+}
+
+
+
+exports.retrieveNewSubjectMaster = async(req, res) =>{
+  try {
+    const { id, did, bid } = req.params;
+    const { subjectName } = req.body;
+    const institute = await InstituteAdmin.findById({ _id: id });
+    const departmentData = await Department.findById({ _id: did });
+    const batchData = await Batch.findById({ _id: bid });
+    const subjectMaster = await new SubjectMaster({
+      subjectName: subjectName,
+      institute: institute._id,
+      batch: bid,
+      department: did,
+    });
+    await departmentData.departmentSubjectMasters.push(subjectMaster._id);
+    await batchData.subjectMasters.push(subjectMaster._id);
+    await Promise.all([
+      departmentData.save(),
+      batchData.save(),
+      subjectMaster.save()
+    ])
+    res.status(200).send({
+      message: "Successfully Created Master Subject",
+      subjectMaster,
+    });
+  } catch {
+  }
+}
+
 
 exports.retrieveClass = async (req, res) => {
   try {

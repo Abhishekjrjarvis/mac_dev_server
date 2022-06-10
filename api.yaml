@@ -3625,6 +3625,85 @@ paths:
           description: OK
 
   # Staff Module at Institute Side
+
+  /api/v1/ins/{id}/staff/approve/{sid}/user/{uid}:
+    post:
+      tags:
+        - Staff-Module
+      summary: Staff Approval By Institute Side (status - Approved)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is institute id
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Staff id
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is Staff User id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - status
+            properties:
+              status:
+                type: string
+                description: Enter Status (Approved)
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/{id}/staff/reject/{sid}/user/{uid}:
+    post:
+      tags:
+        - Staff-Module
+      summary: Staff Reject By Institute Side (status - Rejected)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is institute id
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Staff id
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is Staff User id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - status
+            properties:
+              status:
+                type: string
+                description: Enter Status (Rejected)
+      responses:
+        "200":
+          description: OK
+
   /api/v1/ins/{id}/pending-staff/list:
     get:
       tags:
@@ -3643,6 +3722,7 @@ paths:
       responses:
         "200":
           description: OK
+          
   /api/v1/ins/{id}/approve-staff/list:
     get:
       tags:
@@ -3743,7 +3823,44 @@ paths:
         "200":
           description: OK
 
-  /api/v1/ins/department/{did}:
+  /api/v1/ins/{id}/new-department:
+    post:
+      tags:
+        - Institute Internal Departments
+      summary: Add New Department
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - dName
+              - dTitle
+              - sid
+            properties:
+              dName:
+                type: string
+                description: Enter Department Name
+              dTitle:
+                type: string
+                description: Enter Department head Title (Professor, Principle)
+              sid:
+                type: string
+                description: Enter Staff Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/department-detail/{did}:
     get:
       tags:
         - Institute Internal Departments 
@@ -3754,10 +3871,44 @@ paths:
         - application/json
       parameters:
         - in: path
-          name: id
+          name: did
           required: true
           type: string
           description: This is department id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/addbatch/{did}/ins/{id}:
+    post:
+      tags:
+        - Institute Internal Departments
+      summary: Add New Batch to the department
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is Department id
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - batchName
+            properties:
+              batchName:
+                type: string
+                description: Enter Batch Name
       responses:
         "200":
           description: OK
@@ -3786,7 +3937,46 @@ paths:
         "200":
           description: OK
 
+
   /api/v1/ins/{id}/departmentmasterclass/{did}:
+    post:
+      tags:
+        - Institute Internal Departments
+      summary: Add New Class Master to the department
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is Department id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - className
+              - classTitle
+            properties:
+              className:
+                type: string
+                description: Enter Class Name
+              classTitle:
+                type: string
+                description: Enter Class Head Title
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/{id}/departmentmasterclass-detail/{did}:
     get:
       tags:
         - Institute Internal Departments 
@@ -3810,6 +4000,44 @@ paths:
         "200":
           description: OK
 
+  /api/v1/ins/{id}/departmentmastersubject/{did}/batch/{bid}:
+    post:
+      tags:
+        - Institute Internal Departments
+      summary: Add New Subject Master to the department
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is Department id
+        - in: path
+          name: bid
+          required: true
+          type: string
+          description: This is Batch id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - subjectName
+            properties:
+              subjectName:
+                type: string
+                description: Enter Subject Name
+      responses:
+        "200":
+          description: OK
 
   /api/v1/ins/{id}/departmentmastersubject/{did}:
     get:
@@ -3835,6 +4063,57 @@ paths:
         "200":
           description: OK
 
+  /api/v1/ins/{id}/department/{did}/batch/{bid}:
+    post:
+      tags:
+        - Institute Internal Departments
+      summary: Add New Class to the Batch
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is Department id
+        - in: path
+          name: bid
+          required: true
+          type: string
+          description: This is Batch id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - mcId
+              - classTitle
+              - classHeadTitle
+              - sid
+            properties:
+              mcId:
+                type: string
+                description: Enter Class Master Id
+              classTitle:
+                type: string
+                description: Enter class Title
+              classHeadTitle:
+                type: string
+                description: Enter class Head Title (Professor, class Teacher)
+              sid:
+                type: string
+                description: Enter Staff Id
+      responses:
+        "200":
+          description: OK
+
   /api/v1/ins/batch/class/{bid}:
     get:
       tags:
@@ -3850,6 +4129,59 @@ paths:
           required: true
           type: string
           description: This is batch id
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/ins/{id}/department/{did}/batch/{bid}/class/{cid}/subject:
+    post:
+      tags:
+        - Institute Internal Departments
+      summary: Add New Subject to the Class
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is Department id
+        - in: path
+          name: bid
+          required: true
+          type: string
+          description: This is Batch id
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Class id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - msid
+              - subjectTitle
+              - sid
+            properties:
+              msid:
+                type: string
+                description: Enter Subject Master Id
+              subjectTitle:
+                type: string
+                description: Enter subject Head Title (Professor, class Teacher)
+              sid:
+                type: string
+                description: Enter Staff Id
       responses:
         "200":
           description: OK

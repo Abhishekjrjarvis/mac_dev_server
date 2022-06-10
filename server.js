@@ -2798,27 +2798,27 @@ app.post("/ins/:id/department/:did/batch/:bid", async (req, res) => {
         classHeadTitle: classHeadTitle,
         classCode: `${result}`,
       });
-    institute.classRooms.push(classRoom);
-    classRoom.institute = institute;
-    batch.classroom.push(classRoom);
-    masterClass.classDivision.push(classRoom);
+    institute.classRooms.push(classRoom._id);
+    classRoom.institute = institute._id;
+    batch.classroom.push(classRoom._id);
+    masterClass.classDivision.push(classRoom._id);
     if (String(depart.dHead._id) == String(staff._id)) {
     } else {
-      depart.departmentChatGroup.push(staff);
+      depart.departmentChatGroup.push(staff._id);
     }
-    classRoom.batch = batch;
-    batch.batchStaff.push(staff);
-    staff.batches = batch;
-    staff.staffClass.push(classRoom);
-    classRoom.classTeacher = staff;
-    depart.class.push(classRoom);
-    classRoom.department = depart;
+    classRoom.batch = batch._id;
+    batch.batchStaff.push(staff._id);
+    staff.batches = batch._id;
+    staff.staffClass.push(classRoom._id);
+    classRoom.classTeacher = staff._id;
+    depart.class.push(classRoom._id);
+    classRoom.department = depart._id;
     notify.notifyContent = `you got the designation of ${classRoom.className} as Class Teacher`;
     notify.notifySender = id;
     notify.notifyReceiever = user._id;
-    user.uNotify.push(notify);
-    notify.user = user;
-    notify.notifyByInsPhoto = institute;
+    user.uNotify.push(notify._id);
+    notify.user = user._id;
+    notify.notifyByInsPhoto = institute._id;
     await Promise.all([
         institute.save(),
         batch.save(),
@@ -2832,17 +2832,9 @@ app.post("/ins/:id/department/:did/batch/:bid", async (req, res) => {
     res.status(200).send({
       message: "Successfully Created Class",
       classRoom,
-      staff,
-      batch,
-      institute,
-      depart,
     });
   }
   } catch (e) {
-    console.log(
-      `SomeThing Went Wrong at this EndPoint(/ins/:id/department/:did/batch/:bid)`,
-      e
-    );
   }
 });
 
@@ -3441,26 +3433,26 @@ app.post(
         subjectName: subjectMaster.subjectName,
         subjectMasterName: subjectMaster._id,
       });
-      classes.subject.push(subject);
-      subjectMaster.subjects.push(subject);
-      subject.class = classes;
+      classes.subject.push(subject._id);
+      subjectMaster.subjects.push(subject._id);
+      subject.class = classes._id;
       if (String(classes.classTeacher._id) == String(staff._id)) {
       } else {
-        batch.batchStaff.push(staff);
-        staff.batches = batch;
+        batch.batchStaff.push(staff._id);
+        staff.batches = batch._id;
       }
       if (String(depart.dHead._id) == String(staff._id)) {
       } else {
-        depart.departmentChatGroup.push(staff);
+        depart.departmentChatGroup.push(staff._id);
       }
-      staff.staffSubject.push(subject);
-      subject.subjectTeacherName = staff;
+      staff.staffSubject.push(subject._id);
+      subject.subjectTeacherName = staff._id;
       notify.notifyContent = `you got the designation of ${subject.subjectName} as Subject Teacher`;
       notify.notifySender = id;
       notify.notifyReceiever = user._id;
-      user.uNotify.push(notify);
-      notify.user = user;
-      notify.notifyByInsPhoto = institute;
+      user.uNotify.push(notify._id);
+      notify.user = user._id;
+      notify.notifyByInsPhoto = institute._id;
       await subjectMaster.save();
       await classes.save();
       await batch.save();
@@ -3471,15 +3463,9 @@ app.post(
       await notify.save();
       res.status(200).send({
         message: "Successfully Created Subject",
-        classes,
-        staff,
         subject,
-        depart,
       });
     } catch {
-      console.log(
-        `SomeThing Went Wrong at this EndPoint(/ins/:id/department/:did/batch/:bid/class/:cid/subject)`
-      );
     }
   }
 );
@@ -3952,19 +3938,18 @@ app.post(
         batch: bid,
         department: did,
       });
-      await departmentData.departmentSubjectMasters.push(subjectMaster);
-      await batchData.subjectMasters.push(subjectMaster);
-      await departmentData.save();
-      await batchData.save();
-      await subjectMaster.save();
+      await departmentData.departmentSubjectMasters.push(subjectMaster._id);
+      await batchData.subjectMasters.push(subjectMaster._id);
+      await Promise.all([
+        departmentData.save(),
+        batchData.save(),
+        subjectMaster.save()
+      ])
       res.status(200).send({
         message: "Successfully Created Master Subject",
         subjectMaster,
       });
     } catch {
-      console.log(
-        `SomeThing Went Wrong at this EndPoint(/ins/:id/departmentmastersubject/:did/batch/:bid)`
-      );
     }
   }
 );
@@ -4365,7 +4350,6 @@ app.get("/staffclass/:cid", async (req, res) => {
       });
     res.status(200).send({ message: "Class Profile Data", classes });
   } catch (e) {
-    console.log(`SomeThing Went Wrong at this EndPoint(/staffclass/:sid)`, e);
   }
 });
 

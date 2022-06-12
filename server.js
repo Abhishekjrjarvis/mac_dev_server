@@ -144,6 +144,7 @@ const newAppApiNew = require("./routes/NewApi/newRoute");
 const userNew = require("./routes/User/userRoute");
 const availNew = require("./routes/Attendence/indexRoute");
 const landingNew = require('./routes/LandingRoute/indexRoute')
+const notifyNew = require('./routes/Notification/push-notification-route')
 
 // =============IMPORT INSTITUTE POST ROUTER====================
 const institutePostRoute = require("./routes/InstituteAdmin/Post/PostRoute");
@@ -276,6 +277,9 @@ app.use("/api/v1/avail", availNew);
 
 // All Landing Api related to Qviple
 app.use('/api/v1/landing', landingNew)
+
+// Push Notification Through Flutter By Node
+app.use('/api/v1//notification', notifyNew)
 
 // Super Admin Routes
 

@@ -239,32 +239,6 @@ router.post(
   catchAsync(Institute.fillStaffJoinFormIns)
 );
 
-// Add Like To Post
-router.post("/post/like", isLoggedIn, catchAsync(Institute.updatePostLikeIns));
-
-// Remove Like To Post
-router.post(
-  "/post/unlike",
-  isLoggedIn,
-  catchAsync(Institute.removePostLikeIns)
-);
-
-// Add Post To Save
-router.post("/save/post", isLoggedIn, catchAsync(Institute.updatePostSaveIns));
-
-// Remove Post To Save
-router.post(
-  "/unsave/post",
-  isLoggedIn,
-  catchAsync(Institute.removePostSaveIns)
-);
-
-// Add Comment To Post
-router.post(
-  "/post/comments/:id",
-  isLoggedIn,
-  catchAsync(Institute.updatePostComment)
-);
 
 // Follow Institute
 router.put("/follow", isLoggedIn, catchAsync(Institute.updateFollowIns));
@@ -296,7 +270,7 @@ router.post(
 
 // Update Staff Joining Code By Institute Admin
 router.post(
-  "/staff/code",
+  "/:id/staff/code",
   isLoggedIn,
   isApproved,
   catchAsync(Institute.getNewStaffJoinCodeIns)
@@ -588,12 +562,6 @@ router.get('/:id/followers-array', isLoggedIn, catchAsync(Institute.retrieveInsF
 
 // Institute Following List
 router.get('/:id/following-array', isLoggedIn, catchAsync(Institute.retrieveInsFollowingArray))
-
-// Display All Api
-// Report Post
-// Delete Post
-// Institute Followers List
-// Institute Following List
 
 module.exports = router;
 

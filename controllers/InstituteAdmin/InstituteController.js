@@ -561,8 +561,8 @@ exports.getUpdateAnnouncement = async (req, res) => {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id });
     const announcements = await new InsAnnouncement({ ...req.body });
-    institute.announcement.unshift(announcements);
-    announcements.institute = institute;
+    institute.announcement.unshift(announcements._id);
+    announcements.institute = institute._id;
     await institute.save();
     await announcements.save();
     res.status(200).send({ message: "Successfully Created", announcements });
@@ -702,130 +702,7 @@ exports.fillStaffJoinFormIns = async (req, res) => {
   }
 };
 
-exports.updatePostLikeIns = async (req, res) => {
-  try {
-    const { postId } = req.body;
-    const post = await Post.findById({ _id: postId });
-    const institute_session = req.session.institute;
-    const user_session = req.session.user;
-    if (institute_session) {
-      if (
-        post.insLike.length >= 1 &&
-        post.insLike.includes(String(institute_session._id))
-      ) {
-      } else {
-        post.insLike.push(institute_session._id);
-        await post.save();
-        res.status(200).send({ message: "Added To Likes", post });
-      }
-    } else if (user_session) {
-      if (
-        post.insUserLike.length >= 1 &&
-        post.insUserLike.includes(String(user_session._id))
-      ) {
-      } else {
-        post.insUserLike.push(user_session._id);
-        console.log(post.insUserLike);
-        await post.save();
-        res.status(200).send({ message: "Added To Likes", post });
-      }
-    } else {
-    }
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
 
-exports.removePostLikeIns = async (req, res) => {
-  try {
-    const { postId } = req.body;
-    const post = await Post.findById({ _id: postId });
-    const institute_session = req.session.institute;
-    const user_session = req.session.user;
-    if (institute_session) {
-      post.insLike.pull(institute_session._id);
-      await post.save();
-      res.status(200).send({ message: "Removed from Likes", post });
-    } else if (user_session) {
-      post.insUserLike.pull(user_session._id);
-      await post.save();
-      res.status(200).send({ message: "Removed from Likes", post });
-    } else {
-    }
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
-
-exports.updatePostSaveIns = async (req, res) => {
-  try {
-    const { postId } = req.body;
-    const post = await Post.findById({ _id: postId });
-    const institute_session = req.session.institute;
-    const user_session = req.session.user;
-    if (institute_session) {
-      const institute = await InstituteAdmin.findById({
-        _id: institute_session._id,
-      });
-      institute.saveInsPost.push(post);
-      await institute.save();
-      res.status(200).send({ message: "Added To Favourites", institute });
-    } else if (user_session) {
-      const user = await User.findById({ _id: user_session._id });
-      user.saveUserInsPost.push(post);
-      await user.save();
-      res.status(200).send({ message: "Added To Favourites", user });
-    } else {
-    }
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
-
-exports.removePostSaveIns = async (req, res) => {
-  try {
-    const { postId } = req.body;
-    const post = await Post.findById({ _id: postId });
-    const institute_session = req.session.institute;
-    const user_session = req.session.user;
-    if (institute_session) {
-      const institute = await InstituteAdmin.findById({
-        _id: institute_session._id,
-      });
-      institute.saveInsPost.pull(postId);
-      await institute.save();
-      res.status(200).send({ message: "Remove To Favourites", institute });
-    } else if (user_session) {
-      const user = await User.findById({ _id: user_session._id });
-      user.saveUserInsPost.pull(postId);
-      await user.save();
-      res.status(200).send({ message: "Remove To Favourites", user });
-    } else {
-    }
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
-
-exports.updatePostComment = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const post = await Post.findById({ _id: id });
-    const comment = await new Comment({ ...req.body });
-    if (req.session.institute) {
-      comment.institutes = req.session.institute;
-    } else {
-      comment.instituteUser = req.session.user;
-    }
-    post.comment.push(comment);
-    comment.post = post;
-    await post.save();
-    await comment.save();
-    res.status(200).send({ message: "Successfully Commented", post });
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
 
 exports.updateFollowIns = async (req, res) => {
   try {
@@ -985,11 +862,12 @@ exports.getNewDepartment = async (req, res) => {
 
 exports.getNewStaffJoinCodeIns = async (req, res) => {
   try {
-    const { InsId, code } = req.body;
-    const institute = await InstituteAdmin.findById({ _id: InsId });
+    const { id } = req.params
+    const { code } = req.body;
+    const institute = await InstituteAdmin.findById({ _id: id });
     institute.staffJoinCode = code;
     await institute.save();
-    res.status(200).send({ message: "staff joining code", institute });
+    res.status(200).send({ message: "staff joining code", institute: institute.staffJoinCode });
   } catch (e) {
     console.log(`Error`, e.message);
   }

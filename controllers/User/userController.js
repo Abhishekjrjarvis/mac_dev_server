@@ -38,44 +38,8 @@ exports.retrieveProfileData = async (req, res) => {
     const { id } = req.params;
     const user = await User.findById({ _id: id })
       .select(
-        "userLegalName photoId profilePhoto saveUsersPost userBio userGender saveUserInsPost coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
+        "userLegalName photoId profilePhoto userBio userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
       )
-      .populate({
-        path: "userPosts",
-        select:
-          "userCreateInsPost userCreateImage imageId userCreateVideo userLike userLikeIns user userPostStatus createdAt",
-        populate: {
-          path: "userComment",
-          select: "userCommentDesc createdAt",
-          populate: {
-            path: "users",
-            select: "userLegalName username photoId profilePhoto",
-          },
-        },
-      })
-      .populate({
-        path: "userFollowers",
-        select: "userLegalName username photoId profilePhoto",
-      })
-      .populate({
-        path: "userFollowing",
-        select: "userLegalName username photoId profilePhoto",
-      })
-      .populate({
-        path: "userCircle",
-        select: "userLegalName username photoId profilePhoto",
-      })
-      .populate({
-        path: "userInstituteFollowing",
-        select: "insName name photoId insProfilePhoto",
-      })
-      .populate({
-        path: "userPosts",
-        populate: {
-          path: 'user',
-          select: 'username photoId profilePhoto'
-        }
-      })
       .lean()
       .exec();
     res.status(200).send({ message: "Limit User Profile Data ", user });
@@ -405,7 +369,7 @@ exports.updateUserFollow = async (req, res) => {
       await user.save();
       await suser.save();
       await notify.save();
-      res.status(200).send({ message: " Following This User" });
+      res.status(200).send({ message: " Following This User", data });
     }
   } catch (e) {
     console.log(`Error`, e.message);

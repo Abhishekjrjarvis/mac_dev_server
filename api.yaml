@@ -5,11 +5,11 @@ info:
   version: one
 
 
-host: 18.205.27.165
-basePath: /api
-# schemes: [http, https]
-schemes: 
-  - http
+# host: 18.205.27.165
+# basePath: /api
+schemes: [http, https]
+# schemes: 
+#   - http
 
 
 #Return Users From get request
@@ -2659,6 +2659,37 @@ paths:
               insPhoneNumber:
                 type: string
                 description: Enter mobile number
+
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/{id}/staff/code:
+    post:
+      tags:
+        - Institute Profile API
+      summary: Institute Staff Code Generation
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Institute id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - code
+            properties:
+              code:
+                type: string
+                description: Enter 5-digit code
 
       responses:
         "200":

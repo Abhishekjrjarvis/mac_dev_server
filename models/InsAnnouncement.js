@@ -1,12 +1,10 @@
 const mongoose = require("mongoose");
-const InstituteAdmin = require("./InstituteAdmin");
-const ReplyAnnouncement = require('./ReplyAnnouncement')
 
 const insAnnouncementSchema = new mongoose.Schema({
   insAnnTitle: { type: String },
   insAnnPhoto: { type: String },
   insAnnDescription: { type: String },
-  insAnnVisibility: { type: String },
+  insAnnVisibility: { type: String, default: true },
   anouncementDocument: [],
   createdAt: { type: Date, default: Date.now },
   institute: {
@@ -22,9 +20,4 @@ const insAnnouncementSchema = new mongoose.Schema({
   starList: []
 });
 
-const InsAnnouncement = mongoose.model(
-  "InsAnnouncement",
-  insAnnouncementSchema
-);
-
-module.exports = InsAnnouncement;
+module.exports = mongoose.model("InsAnnouncement", insAnnouncementSchema);

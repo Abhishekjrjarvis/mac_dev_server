@@ -528,7 +528,7 @@ router.get(
 
 // Update Reply Announcement By Ins
 router.post(
-  "/:id/reply-announcement/:aid",
+  "/reply-announcement/:aid",
   isLoggedIn,
   catchAsync(Institute.replyAnnouncement)
 );

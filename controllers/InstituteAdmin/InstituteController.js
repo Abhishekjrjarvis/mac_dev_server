@@ -2204,9 +2204,9 @@ exports.retrieveStudentCode = async (req, res) => {
 
 exports.replyAnnouncement = async (req, res) => {
   try {
-    const { id, aid } = req.params;
-    const institute = await InstituteAdmin.findOne({ _id: id });
-    const user = await User.findOne({ _id: id });
+    const { aid } = req.params;
+    const institute = await InstituteAdmin.findOne({ _id: req.headers.institute });
+    const user = await User.findOne({ _id: req.headers.user });
     var replyAnn = await InsAnnouncement.findById({ _id: aid });
     var replyData = new ReplyAnnouncement({ ...req.body });
     replyAnn.reply.push(replyData._id);

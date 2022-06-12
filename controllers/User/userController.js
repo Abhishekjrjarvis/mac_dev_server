@@ -288,16 +288,16 @@ exports.updatePostComment = async (req, res) => {
 
 exports.updateUserFollowIns = async (req, res) => {
   try {
-    const user = await User.findById({ _id: req.session.user._id });
+    const user = await User.findById({ _id: req.headers.user });
     const sinstitute = await InstituteAdmin.findById({
       _id: req.body.InsfollowId,
     });
 
-    if (sinstitute.userFollowersList.includes(req.session.user._id)) {
+    if (sinstitute.userFollowersList.includes(req.headers.user)) {
       res.status(200).send({ message: "You Already Following This Institute" });
     } else {
       const notify = await new Notification({});
-      sinstitute.userFollowersList.push(req.session.user._id);
+      sinstitute.userFollowersList.push(req.headers.user);
       user.userInstituteFollowing.push(req.body.InsfollowId);
       user.followingUICount += 1;
       notify.notifyContent = `${user.userLegalName} started to following you`;
@@ -318,14 +318,14 @@ exports.updateUserFollowIns = async (req, res) => {
 
 exports.removeUserFollowIns = async (req, res) => {
   try {
-    const user = await User.findById({ _id: req.session.user._id });
+    const user = await User.findById({ _id: req.headers.user });
     const sinstitute = await InstituteAdmin.findById({
       _id: req.body.InsfollowId,
     });
 
-    if (sinstitute.userFollowersList.includes(req.session.user._id)) {
+    if (sinstitute.userFollowersList.includes(req.headers.user)) {
       user.userInstituteFollowing.pull(req.body.InsfollowId);
-      sinstitute.userFollowersList.pull(req.session.user._id);
+      sinstitute.userFollowersList.pull(req.headers.user);
       await user.save();
       await sinstitute.save();
     } else {
@@ -349,14 +349,14 @@ exports.querySearchUser = async (req, res) => {
 
 exports.updateUserFollow = async (req, res) => {
   try {
-    const user = await User.findById({ _id: req.session.user._id });
+    const user = await User.findById({ _id: req.headers.user });
     const suser = await User.findById({ _id: req.body.userFollowId });
 
     if (user.userFollowing.includes(req.body.userFollowId)) {
       res.status(200).send({ message: "You Already Following This User" });
     } else {
       const notify = await new Notification({});
-      suser.userFollowers.push(req.session.user._id);
+      suser.userFollowers.push(req.headers.user);
       user.userFollowing.push(req.body.userFollowId);
       user.followingUICount += 1;
       suser.followerCount += 1;
@@ -369,7 +369,7 @@ exports.updateUserFollow = async (req, res) => {
       await user.save();
       await suser.save();
       await notify.save();
-      res.status(200).send({ message: " Following This User", data });
+      res.status(200).send({ message: " Following This User" });
     }
   } catch (e) {
     console.log(`Error`, e.message);
@@ -379,11 +379,11 @@ exports.updateUserFollow = async (req, res) => {
 
 exports.updateUserUnFollow = async (req, res) => {
   try {
-    const user = await User.findById({ _id: req.session.user._id });
+    const user = await User.findById({ _id: req.headers.user });
     const suser = await User.findById({ _id: req.body.userFollowId });
 
     if (user.userFollowing.includes(req.body.userFollowId)) {
-        suser.userFollowers.pull(req.session.user._id);
+        suser.userFollowers.pull(req.headers.user);
         user.userFollowing.pull(req.body.userFollowId);
         user.followingUICount -= 1;
         suser.followerCount -= 1;
@@ -401,17 +401,17 @@ exports.updateUserUnFollow = async (req, res) => {
 
 exports.updateUserCircle = async (req, res) => {
   try {
-    const user = await User.findById({ _id: req.session.user._id });
+    const user = await User.findById({ _id: req.headers.user });
     const suser = await User.findById({ _id: req.body.followId });
 
     if (
       user.userCircle.includes(req.body.followId) &&
-      suser.userCircle.includes(req.session.user._id)
+      suser.userCircle.includes(req.headers.user)
     ) {
       res.status(200).send({ message: "You are Already In a Circle" });
     } else {
       const newConversation = new Conversation({
-        members: [req.session.user._id, req.body.followId],
+        members: [req.headers.user, req.body.followId],
       });
       try {
         const savedConversation = await newConversation.save();
@@ -425,9 +425,9 @@ exports.updateUserCircle = async (req, res) => {
       }
       try {
         const notify = await new Notification({});
-        suser.userFollowing.pull(req.session.user._id);
+        suser.userFollowing.pull(req.headers.user);
         user.userFollowers.pull(req.body.followId);
-        suser.userCircle.push(req.session.user._id);
+        suser.userCircle.push(req.headers.user);
         user.userCircle.push(req.body.followId);
         suser.circleCount += 1;
         user.circleCount += 1;
@@ -451,18 +451,18 @@ exports.updateUserCircle = async (req, res) => {
 
 exports.removeUserCircle = async (req, res) => {
   try {
-    const user = await User.findById({ _id: req.session.user._id });
+    const user = await User.findById({ _id: req.headers.user });
     const suser = await User.findById({ _id: req.body.followId });
 
     if (
       user.userCircle.includes(req.body.followId) &&
-      suser.userCircle.includes(req.session.user._id)
+      suser.userCircle.includes(req.headers.user)
     ) {
       try {
         user.userCircle.pull(req.body.followId);
-        suser.userCircle.pull(req.session.user._id);
+        suser.userCircle.pull(req.headers.user);
         user.userFollowers.push(req.body.followId);
-        suser.userFollowing.push(req.session.user._id);
+        suser.userFollowing.push(req.headers.user);
         user.conversation = "";
         suser.conversation = "";
         await user.save();

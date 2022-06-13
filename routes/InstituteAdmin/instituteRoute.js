@@ -198,9 +198,10 @@ router.post(
 
 // Add Institute Announcement
 router.post(
-  "-announcement/:id",
+  "/announcement/:id",
   isLoggedIn,
   isApproved,
+  upload.array('file'),
   catchAsync(Institute.getUpdateAnnouncement)
 );
 

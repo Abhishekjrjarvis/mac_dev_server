@@ -27,6 +27,7 @@ exports.postWithText = async (req, res) => {
     }
     post.imageId = "1";
     user.userPosts.push(post._id);
+    user.postCount += 1
     post.author = user._id;
     post.authorName = user.userLegalName
     post.authorUserName = user.username
@@ -59,6 +60,7 @@ exports.postWithImage = async (req, res) => {
     }
     post.imageId = "0";
     user.userPosts.push(post._id);
+    user.postCount += 1
     post.author = user._id;
     post.authorName = user.userLegalName
     post.authorUserName = user.username
@@ -89,6 +91,7 @@ exports.postWithVideo = async (req, res) => {
     post.postVideo = results.Key;
     post.imageId = "1";
     user.userPosts.push(post._id);
+    user.postCount += 1
     post.author = user._id;
     post.authorName = user.userLegalName
     post.authorUserName = user.username
@@ -258,11 +261,47 @@ exports.retrieveAllUserPosts = async(req, res) =>{
       .limit(limit)
       .skip(skip)
       .select("postTitle postText postDescription createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto")
-    res.status(200).send({ message: "Success", post });
+      const postCount = await Post.find({author: user._id})
+      if(page * limit >= postCount.length){
+        // console.log('There no page exists')
+      }
+      else{
+        var totalPage = page + 1
+        // console.log('Enough data for ', page + 1)
+      }
+      res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage  });
   } catch(e) {
     console.log(e)
   }
 }
+
+
+exports.retrieveAllUserProfilePosts = async(req, res) =>{
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const id = req.params.id;
+    const skip = (page - 1) * limit;
+    const user = await User.findById(id);
+    const post = await Post.find({
+      _id: { $in: user.userPosts },
+    })
+      .sort("-createdAt")
+      .limit(limit)
+      .skip(skip)
+      .select("postTitle postText postDescription createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto")
+      const postCount = await Post.find({author: user._id})
+      if(page * limit >= postCount.length){
+      }
+      else{
+        var totalPage = page + 1
+      }
+      res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage  });
+  } catch(e) {
+    console.log(e)
+  }
+}
+
 
 //Check this route for get all child comment that is reply
 exports.getComment = async (req, res) => {

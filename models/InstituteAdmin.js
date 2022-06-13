@@ -326,6 +326,30 @@ const instituteAdminSchema = new mongoose.Schema({
   ],
   recoveryMail: {
     type: String,
+  },
+  followersCount: {
+    type: Number,
+    default: 0
+  },
+  followingCount: {
+    type: Number,
+    default: 0
+  },
+  departmentCount: {
+    type: Number,
+    default: 0
+  },
+  staffCount: {
+    type: Number,
+    default: 0
+  },
+  studentCount: {
+    type: Number,
+    default: 0
+  },
+  postCount: {
+    type: Number,
+    default: 0
   }
 });
 

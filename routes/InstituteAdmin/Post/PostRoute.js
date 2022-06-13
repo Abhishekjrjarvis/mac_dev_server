@@ -7,6 +7,7 @@ const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 
 router.get('/:id/all/posts', isLoggedIn, catchAsync(Post.retrieveAllPosts))
+router.get('/:id/all/profile/posts', isLoggedIn, catchAsync(Post.retreiveAllProfilePosts))
 
 router.post("/:id", isLoggedIn, isApproved, catchAsync(Post.postWithText));
 

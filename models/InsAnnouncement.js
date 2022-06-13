@@ -4,7 +4,7 @@ const insAnnouncementSchema = new mongoose.Schema({
   insAnnTitle: { type: String },
   insAnnPhoto: { type: String },
   insAnnDescription: { type: String },
-  insAnnVisibility: { type: String, default: true },
+  insAnnVisibility: { type: String, default: 'Anyone' },
   anouncementDocument: [],
   createdAt: { type: Date, default: Date.now },
   institute: {

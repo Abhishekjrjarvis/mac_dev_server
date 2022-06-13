@@ -176,7 +176,7 @@ exports.getProfileOneQuery = async (req, res) => {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName status photoId insProfilePhoto saveInsPost coverId ApproveStaff ApproveStudent insProfileCoverPhoto followers name userFollowersList following insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement insOperatingAdmin insPrinciple insTrusty insStudentPresident insAdminClerk"
+        "insName status photoId insProfilePhoto coverId departmentCount joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement insOperatingAdmin insPrinciple insTrusty insStudentPresident insAdminClerk"
       )
       .lean()
       .exec();
@@ -560,14 +560,31 @@ exports.getUpdateAnnouncement = async (req, res) => {
   try {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id });
-    const announcements = await new InsAnnouncement({ ...req.body });
+    const announcements = new InsAnnouncement({ ...req.body });
     institute.announcement.unshift(announcements._id);
     announcements.institute = institute._id;
-    await institute.save();
-    await announcements.save();
+    for (let file of req.files) {
+      let count = 1;
+      if (count === 1) {
+        const width = 112;
+        const height = 112;
+        const results = await uploadFile(file, width, height);
+        announcements.insAnnPhoto = results.key;
+        count = count + 1;
+      } else if(count === 2) {
+        const results = await uploadDocFile(file);
+        announcements.anouncementDocument.push(results.Key);
+        count = count + 1;
+      }
+      else{
+
+      }
+      await unlinkFile(file.path);
+    }
+    await Promise.all([ institute.save(), announcements.save()])
     res.status(200).send({ message: "Successfully Created", announcements });
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(`Error`, e);
   }
 };
 
@@ -719,6 +736,8 @@ exports.updateFollowIns = async (req, res) => {
       const notify = await new Notification({});
       sinstitute.followers.push(req.session.institute._id);
       institutes.following.push(req.body.followId);
+      institutes.followingCount += 1
+      sinstitute.followersCount += 1
       notify.notifyContent = `${institutes.insName} started to following you`;
       notify.notifyReceiever = sinstitute._id;
       sinstitute.iNotify.push(notify);
@@ -746,8 +765,12 @@ exports.removeFollowIns = async (req, res) => {
     if (institutes.following.includes(req.body.followId)) {
       sinstitute.followers.pull(req.session.institute._id);
       institutes.following.pull(req.body.followId);
-      await sinstitute.save();
-      await institutes.save();
+      institutes.followingCount -= 1
+      sinstitute.followersCount -= 1
+      await Promise.all([
+        sinstitute.save(),
+        institutes.save()
+      ])
       res.status(200).send({ message: "UnFollow This Institute" });
     } else {
       res.status(200).send({ message: "You Already UnFollow This Institute" });
@@ -766,6 +789,7 @@ exports.updateApproveStaff = async (req, res) => {
     const user = await User.findById({ _id: uid });
     staffs.staffStatus = req.body.status;
     institute.ApproveStaff.push(staffs._id);
+    institute.staffCount += 1
     institute.staff.pull(sid);
     staffs.staffROLLNO = institute.ApproveStaff.length;
     notify.notifyContent = `Congrats ${staffs.staffFirstName} ${
@@ -833,6 +857,7 @@ exports.getNewDepartment = async (req, res) => {
     const department = await new Department({ ...req.body });
     const notify = await new Notification({});
     institute.depart.push(department._id);
+    institute.departmentCount += 1
     department.institute = institute._id;
     staff.staffDepartment.push(department._id);
     department.dHead = staff._id;
@@ -1396,7 +1421,9 @@ exports.fillStaffForm = async (req, res) => {
     if (institute.userFollowersList.includes(uid)) {
     } else {
       user.userInstituteFollowing.push(id);
+      user.followingUICount += 1
       institute.userFollowersList.push(uid);
+      institute.followersCount += 1
     }
     staff.institute = institute._id;
     staff.user = user._id;
@@ -1455,7 +1482,9 @@ exports.fillStudentForm = async (req, res) => {
     if (institute.userFollowersList.includes(uid)) {
     } else {
       user.userInstituteFollowing.push(id);
+      user.followingUICount += 1
       institute.userFollowersList.push(uid);
+      institute.followersCount += 1
     }
     student.institute = institute._id;
     student.user = user._id;

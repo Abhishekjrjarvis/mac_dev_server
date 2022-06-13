@@ -87,6 +87,7 @@ exports.postWithText = async (req, res) => {
     }
     post.imageId = "1";
     institute.posts.push(post._id);
+    institute.postCount += 1
     post.author = institute._id;
     post.authorName = institute.insName
     post.authorUserName = institute.name
@@ -120,6 +121,7 @@ exports.postWithImage = async (req, res) => {
     }
     post.imageId = "0";
     institute.posts.push(post._id);
+    institute.postCount += 1
     post.author = institute._id;
     post.authorName = institute.insName
     post.authorUserName = institute.name
@@ -150,6 +152,7 @@ exports.postWithVideo = async (req, res) => {
     post.postVideo = results.Key;
     post.imageId = "1";
     institute.posts.push(post._id);
+    institute.postCount += 1
     post.author = institute._id;
     post.authorName = institute.insName
     post.authorUserName = institute.name
@@ -321,10 +324,45 @@ exports.retrieveAllPosts = async(req, res) =>{
         .limit(limit)
         .skip(skip)
         .select("postTitle postText postDescription createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto")
-      res.status(200).send({ message: "Sucess", post });
+      const postCount = await Post.find({author: institute._id})
+      if(page * limit >= postCount.length){
+        // console.log('There no page exists')
+      }
+      else{
+        var totalPage = page + 1
+        // console.log('Enough data for ', page + 1)
+      }
+      res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage });
     } catch(e) {
       console.log(e)
     }
+}
+
+
+exports.retreiveAllProfilePosts = async(req, res) =>{
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const id = req.params.id;
+    const skip = (page - 1) * limit;
+    const institute = await InstituteAdmin.findById(id);
+    const post = await Post.find({
+      _id: { $in: institute.posts },
+    })
+      .sort("-createdAt")
+      .limit(limit)
+      .skip(skip)
+      .select("postTitle postText postDescription createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto")
+    const postCount = await Post.find({author: institute._id})
+    if(page * limit >= postCount.length){
+    }
+    else{
+      var totalPage = page + 1
+    }
+    res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage });
+  } catch(e) {
+    console.log(e)
+  }
 }
 
 

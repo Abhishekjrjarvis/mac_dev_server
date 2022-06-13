@@ -344,6 +344,35 @@ paths:
           description: OK
 
 
+  /api/v1/user/post/{id}/all/user/profile/posts:
+    get:
+      tags:
+        - User Profile API
+      summary: User All Posts
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is User id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
+      responses:
+        "200":
+          description: OK
+
   /api/v1/user/personal/info/{id}:
     patch:
       tags:
@@ -2495,6 +2524,37 @@ paths:
         "200":
           description: OK
 
+
+  /api/v1/ins/post/{id}/all/profile/posts:
+    get:
+      tags:
+        - Institute Profile API
+      summary: Institute All Posts
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
+      responses:
+        "200":
+          description: OK
+  
+
   /api/v1/ins/personal/info/{id}:
     patch:
       tags:
@@ -2571,6 +2631,51 @@ paths:
           schema:
             type: string
           description: The institute ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/announcement/{id}:
+    post:
+      tags:
+        - Institute Profile API
+      summary: Add New Announcement
+      produces:
+        - application/json
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The Institute ID
+        - in: formData
+          name: insAnnTitle
+          type: string
+          required: true
+          description: Announcement Title
+        - in: formData
+          name: insAnnDescription
+          type: string
+          required: true
+          description: Announcement Description
+        - in: formData
+          name: insAnnVisibility
+          type: string
+          required: true
+          description: Announcement Visibility
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload Announcement Photo
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload Announcement Document
       responses:
         "200":
           description: OK
@@ -2944,7 +3049,6 @@ paths:
       responses:
         "200":
           description: OK
-
 
   /api/v1/ins/post/{id}:
     post:

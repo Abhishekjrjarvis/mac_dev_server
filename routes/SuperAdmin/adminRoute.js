@@ -40,5 +40,7 @@ router.get('/referral/ins',isLoggedIn, catchAsync(Admin.getReferralIns))
 // All Referral By User
 router.get('/referral/user',isLoggedIn, catchAsync(Admin.getReferralUser))
   
+// All Counts for Landing Page
+router.get('/count-details', catchAsync(Admin.retrieveLandingPageCount))
 
 module.exports = router

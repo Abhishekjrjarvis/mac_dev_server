@@ -289,3 +289,15 @@ exports.getReferralUser = async(req, res) =>{
       console.log(`Error`, e.message);
     }
 }
+
+
+exports.retrieveLandingPageCount = async(req, res) =>{
+  try{
+    const admin = await Admin.findById({_id: `${process.env.S_ADMIN_ID}`})
+    .select('instituteCount userCount studentCount staffCount')
+    res.status(200).send({ message: 'Success', admin})
+  }
+  catch{
+
+  }
+}

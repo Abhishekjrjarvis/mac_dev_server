@@ -48,4 +48,4 @@ exports.uploadUserCareerDetail = async(req, res) =>{
 }
 
 
-// sendAnEmail('Birat', 'birat.dhar.89@gmail.com')
+// sendAnEmail('Pankaj Jr.', 'pankajphad.stuff@gmail.com')

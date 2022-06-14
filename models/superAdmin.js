@@ -22,7 +22,7 @@ const superAdminSchema = new mongoose.Schema({
     adminAadharCard: { type: String },
     photoId: { type: String },
     adminStatus: { type: String, default: 'Not Verified'},
-    adminRecoveryPhrase: { type: String, unique: true },
+    // adminRecoveryPhrase: { type: String, unique: true },
     isAdmin: { type: String, default: 'Not Assigned' },
     instituteList: [
         {
@@ -133,7 +133,27 @@ const superAdminSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Career'
         }
-    ]
+    ],
+    instituteCount: {
+        type: Number,
+        default: 0
+    },
+    userCount: {
+        type: Number,
+        default: 0
+    },
+    staffCount: {
+        type: Number,
+        default: 0
+    },
+    studentCount: {
+        type: Number,
+        default: 0
+    },
+    reportPostQueryCount: {
+        type: Number,
+        default: 0
+    }
     
 })
 

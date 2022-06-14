@@ -151,11 +151,12 @@ const institutePostRoute = require("./routes/InstituteAdmin/Post/PostRoute");
 const userPostRoute = require("./routes/User/Post/PostRoute");
 
 // const dburl = `${process.env.DB_URL1}`;
-const dburl = `${process.env.DB_URL2}`;
-// const dburl = `${process.env.L_DB_URL}`;
+// const dburl = `${process.env.DB_URL2}`;
+const dburl = `${process.env.DB_URL}`;
 // const dburl = `mongodb://127.0.0.1:27017/Erp_app`;
 
-// 629f1b9cd3351fa84dd1235c
+// 629f1b9cd3351fa84dd1235c - Development
+// 62a87c658bbfd0861732482e - Production
 
 mongoose
   .connect(dburl, {
@@ -183,8 +184,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(
   cors({
-    origin: "http://18.205.27.165",
+    // origin: "http://18.205.27.165",
     // origin: "http://localhost:3000",
+    origin: "http://qviple.com",
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   })
@@ -464,10 +466,10 @@ app.post("/super-admin", async (req, res) => {
     adminAddress,
     adminAadharCard,
   } = req.body;
-  const genPassword = await bcrypt.genSaltSync(12);
-  const hashPassword = await bcrypt.hashSync(adminPassword, genPassword);
+  const genPassword = bcrypt.genSaltSync(12);
+  const hashPassword = bcrypt.hashSync(adminPassword, genPassword);
   const institute = await InstituteAdmin.find({});
-  const admin = await new Admin({
+  const admin = new Admin({
     adminPhoneNumber: adminPhoneNumber,
     adminEmail: adminEmail,
     adminPassword: hashPassword,
@@ -625,6 +627,7 @@ app.post("/admin/:aid/approve/ins/:id", async (req, res) => {
     institute.chatAdmin = chat;
     institute.joinChat.push(chat);
     admin.ApproveInstitute.push(institute);
+    admin.instituteCount += 1
     admin.instituteList.pull(id);
     institute.insFreeLastDate = insFreeLastDate;
     institute.insPaymentLastDate = insPaymentLastDate;
@@ -3738,6 +3741,7 @@ app.post(
     }
     const { id, sid, cid, did, bid } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id });
+    const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const student = await Student.findById({ _id: sid }).populate({
       path: "user",
     });
@@ -3748,6 +3752,7 @@ app.post(
     const notify = await new Notification({});
     student.studentStatus = req.body.status;
     institute.ApproveStudent.push(student);
+    admins.studentCount += 1
     institute.student.pull(sid);
     if (c_date <= institute.insFreeLastDate) {
       institute.insFreeCredit = institute.insFreeCredit + 1;
@@ -3772,6 +3777,7 @@ app.post(
     user.uNotify.push(notify);
     notify.user = user;
     notify.notifyByStudentPhoto = student;
+    await admins.save()
     await classes.save();
     await depart.save();
     await batch.save();
@@ -3781,10 +3787,7 @@ app.post(
     await notify.save();
     res.status(200).send({
       message: `Welcome To The Institute ${student.studentFirstName} ${student.studentLastName}`,
-      institute,
-      classes,
-      depart,
-      batch,
+      classes: classes._id
     });
   }
 );

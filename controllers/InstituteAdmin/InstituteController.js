@@ -784,12 +784,14 @@ exports.updateApproveStaff = async (req, res) => {
   try {
     const { id, sid, uid } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id });
+    const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const notify = await new Notification({});
     const staffs = await Staff.findById({ _id: sid });
     const user = await User.findById({ _id: uid });
     staffs.staffStatus = req.body.status;
     institute.ApproveStaff.push(staffs._id);
     institute.staffCount += 1
+    admins.staffCount += 1
     institute.staff.pull(sid);
     staffs.staffROLLNO = institute.ApproveStaff.length;
     notify.notifyContent = `Congrats ${staffs.staffFirstName} ${
@@ -805,6 +807,7 @@ exports.updateApproveStaff = async (req, res) => {
     await Promise.all([
       staffs.save(),
       institute.save(),
+      admins.save(),
       user.save(),
       notify.save()
     ])

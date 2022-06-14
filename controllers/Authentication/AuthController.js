@@ -17,7 +17,7 @@ const axios = require("axios");
 
 exports.getRegisterIns = async (req, res) => {
   try {
-    const admins = await Admin.findById({ _id: `629f1b9cd3351fa84dd1235c` });
+    const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const existInstitute = await InstituteAdmin.findOne({
       name: req.body.name,
     });
@@ -238,7 +238,7 @@ var c_date = `${p_year}-${p_month}-${p_date}`;
 exports.profileByUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const admins = await Admin.findById({ _id: `629f1b9cd3351fa84dd1235c` });
+    const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const { userLegalName, userGender, userDateOfBirth, username } = req.body;
     const existAdmin = await Admin.findOne({ adminUserName: username });
     const existInstitute = await InstituteAdmin.findOne({ name: username });
@@ -270,6 +270,7 @@ exports.profileByUser = async (req, res) => {
         });
         user.profilePhoto = results.key;
         admins.users.push(user);
+        admins.userCount += 1
         await Promise.all([admins.save(), user.save()]);
         await unlinkFile(file.path);
         res

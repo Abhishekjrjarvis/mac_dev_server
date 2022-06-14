@@ -11,6 +11,7 @@ const Staff = require('../../models/Staff')
 const Student = require('../../models/Student')
 const axios = require('axios')
 const bcrypt = require('bcryptjs')
+const Post = require('../../models/Post')
 const {
   getFileStream,
   uploadDocFile,

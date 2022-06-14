@@ -189,15 +189,15 @@ exports.postLike = async (req, res) => {
   try {
     const { pid } = req.params;
     const post = await Post.findById({ _id: pid });
-    const institute_session = req.session.institute;
-    const user_session = req.session.user;
+    const institute_session = req.headers.institute;
+    const user_session = req.headers.user;
 
     if (institute_session) {
       if (
         post.endUserLike.length >= 1 &&
-        post.endUserLike.includes(String(institute_session._id))
+        post.endUserLike.includes(String(institute.session))
       ) {
-        post.endUserLike.pull(institute_session._id);
+        post.endUserLike.pull(institute.session);
         if (post.likeCount >= 1) {
           post.likeCount -= 1;
         }
@@ -206,7 +206,7 @@ exports.postLike = async (req, res) => {
           .status(200)
           .send({ message: "Removed from Likes", likeCount: post.likeCount });
       } else {
-        post.endUserLike.push(institute_session._id);
+        post.endUserLike.push(institute.session);
         post.likeCount += 1;
         await post.save();
         res
@@ -216,9 +216,9 @@ exports.postLike = async (req, res) => {
     } else if (user_session) {
       if (
         post.endUserLike.length >= 1 &&
-        post.endUserLike.includes(String(user_session._id))
+        post.endUserLike.includes(String(user_session))
       ) {
-        post.endUserLike.pull(user_session._id);
+        post.endUserLike.pull(user_session);
         if (post.likeCount >= 1) {
           post.likeCount -= 1;
         }
@@ -227,7 +227,7 @@ exports.postLike = async (req, res) => {
           .status(200)
           .send({ message: "Removed from Likes", likeCount: post.likeCount });
       } else {
-        post.endUserLike.push(user_session._id);
+        post.endUserLike.push(user_session);
         post.likeCount += 1;
         await post.save();
         res
@@ -243,11 +243,11 @@ exports.postLike = async (req, res) => {
 exports.postSave = async (req, res) => {
   try {
     const { pid } = req.params;
-    const institute_session = req.session.institute;
-    const user_session = req.session.user;
+    const institute_session = req.headers.institute;
+    const user_session = req.headers.user;
     if (institute_session) {
       const institute = await InstituteAdmin.findById({
-        _id: institute_session._id,
+        _id: institute.session,
       });
       if (
         institute.saveInsPost.length >= 1 &&
@@ -262,7 +262,7 @@ exports.postSave = async (req, res) => {
         res.status(200).send({ message: "Added To Favourites" });
       }
     } else if (user_session) {
-      const user = await User.findById({ _id: user_session._id });
+      const user = await User.findById({ _id: user_session });
       if (
         user.saveUserInsPost.length >= 1 &&
         user.saveUserInsPost.includes(pid)
@@ -286,18 +286,18 @@ exports.postComment = async (req, res) => {
     const { id } = req.params;
     const post = await Post.findById({ _id: id });
     const comment = new Comment({ ...req.body });
-    if (req.session.institute) {
-      comment.author = req.session.institute._id;
-      comment.authorName = req.session.institute.insName
-      comment.authorUserName = req.session.institute.name
-      comment.authorPhotoId = req.session.institute.photoId
-      comment.authorProfilePhoto = req.session.institute.insProfilePhoto
-    } else if (req.session.user) {
-      comment.author = req.session.user._id;
-      comment.authorName = req.session.user.userLegalName
-      comment.authorUserName = req.session.user.username
-      comment.authorPhotoId = req.session.user.photoId
-      comment.authorProfilePhoto = req.session.user.profilePhoto
+    if (req.headers.institute) {
+      comment.author = req.headers.institute._id;
+      comment.authorName = req.headers.institute.insName
+      comment.authorUserName = req.headers.institute.name
+      comment.authorPhotoId = req.headers.institute.photoId
+      comment.authorProfilePhoto = req.headers.institute.insProfilePhoto
+    } else if (req.headers.user) {
+      comment.author = req.headers.user._id;
+      comment.authorName = req.headers.user.userLegalName
+      comment.authorUserName = req.headers.user.username
+      comment.authorPhotoId = req.headers.user.photoId
+      comment.authorProfilePhoto = req.headers.user.profilePhoto
     } else {
       res.status(401).send();
     }
@@ -316,14 +316,22 @@ exports.retrieveAllPosts = async(req, res) =>{
       const limit = req.query.limit ? parseInt(req.query.limit) : 10;
       const id = req.params.id;
       const skip = (page - 1) * limit;
-      const institute = await InstituteAdmin.findById(id);
+      const institute = await InstituteAdmin.findById(id)
+      .select('id')
+      .populate({
+        path: 'saveInsPost'
+      })
       const post = await Post.find({
         _id: { $in: institute.posts },
       })
         .sort("-createdAt")
         .limit(limit)
         .skip(skip)
-        .select("postTitle postText postDescription createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto")
+        .select("postTitle postText postDescription createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike")
+        .populate({
+          path: 'tagPeople',
+          select: 'userLegalName username photoId profilePhoto'
+        })
       const postCount = await Post.find({author: institute._id})
       if(page * limit >= postCount.length){
         // console.log('There no page exists')
@@ -345,14 +353,22 @@ exports.retreiveAllProfilePosts = async(req, res) =>{
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const id = req.params.id;
     const skip = (page - 1) * limit;
-    const institute = await InstituteAdmin.findById(id);
+    const institute = await InstituteAdmin.findById(id)
+    .select('id')
+    .populate({
+      path: 'saveInsPost'
+    })
     const post = await Post.find({
       _id: { $in: institute.posts },
     })
       .sort("-createdAt")
       .limit(limit)
       .skip(skip)
-      .select("postTitle postText postDescription createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto")
+      .select("postTitle postText postDescription createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike")
+      .populate({
+        path: 'tagPeople',
+        select: 'userLegalName username photoId profilePhoto'
+      })
     const postCount = await Post.find({author: institute._id})
     if(page * limit >= postCount.length){
     }
@@ -421,8 +437,8 @@ exports.postCommentChild = async (req, res) => {
   try {
     const { pcid } = req.params;
     const { comment, uid } = req.body;
-    var rUser = req.session.user && req.session.user._id
-    var rInstitute = req.session.institute && req.session.institute._id
+    var rUser = req.headers.user && req.headers.user._id
+    var rInstitute = req.headers.institute && req.headers.institute._id
     const institute = await InstituteAdmin.findById({_id: rInstitute})
     const users = await User.findById({_id: rUser})
     if (institute) {
@@ -496,7 +512,7 @@ exports.likeCommentChild = async (req, res) => {
     const insCommentId = req.params.cid;
     const id = req.params.id;
     const comment = await Comment.findById(insCommentId);
-    if (req.session.institute) {
+    if (req.headers.institute) {
       if (!comment.parentCommentLike.includes(id)) {
         comment.parentCommentLike.push(id);
         comment.allLikeCount += 1;
@@ -515,7 +531,7 @@ exports.likeCommentChild = async (req, res) => {
           count: comment.allLikeCount,
         });
       }
-    } else if (req.session.user) {
+    } else if (req.headers.user) {
       if (!comment.parentCommentLike.includes(id)) {
         comment.parentCommentLike.push(id);
         comment.allLikeCount += 1;

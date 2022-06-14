@@ -142,12 +142,6 @@ const instituteAdminSchema = new mongoose.Schema({
       ref: "Post",
     },
   ],
-  saveUserPost: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "UserPost",
-    },
-  ],
   financeDepart: [
     {
       type: mongoose.Schema.Types.ObjectId,

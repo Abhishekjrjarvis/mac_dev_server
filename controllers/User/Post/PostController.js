@@ -129,21 +129,21 @@ exports.postLike = async (req, res) => {
   try {
     const { pid } = req.params;
     const post = await Post.findById({ _id: pid });
-    const institute_session = req.session.institute;
-    const user_session = req.session.user;
+    const institute_session = req.headers.institute;
+    const user_session = req.headers.user;
     if (institute_session) {
       if (
         post.userlikeIns.length >= 1 &&
-        post.userlikeIns.includes(String(institute_session._id))
+        post.userlikeIns.includes(String(institute_session))
       ) {
-        // post.userlikeIns.pull(institute_session._id);
+        // post.userlikeIns.pull(institute_session);
         // likeCount -= 1;
         // await post.save();
         // res
         //   .status(200)
         //   .send({ message: "Removed from Likes", likeCount: post.likeCount });
         // } else {
-        // post.userlikeIns.push(institute_session._id);
+        // post.userlikeIns.push(institute_session);
         // likeCount += 1;
         // await post.save();
         // res
@@ -154,9 +154,9 @@ exports.postLike = async (req, res) => {
       // console.log(post && post.endUserLike.length)
       if (
         post.endUserLike.length >= 1 &&
-        post.endUserLike.includes(String(user_session._id))
+        post.endUserLike.includes(String(user_session))
       ) {
-        post.endUserLike.pull(user_session._id);
+        post.endUserLike.pull(user_session);
         if (post.likeCount >= 1) {
           post.likeCount -= 1;
         }
@@ -165,7 +165,7 @@ exports.postLike = async (req, res) => {
           .status(200)
           .send({ message: "Removed from Likes", likeCount: post.likeCount });
       } else {
-        post.endUserLike.push(user_session._id);
+        post.endUserLike.push(user_session);
         post.likeCount += 1;
         await post.save();
         res
@@ -183,15 +183,15 @@ exports.postLike = async (req, res) => {
 exports.postSave = async (req, res) => {
   try {
     const { pid } = req.params;
-    const institute_session = req.session.institute;
-    const user_session = req.session.user;
+    const institute_session = req.headers.institute;
+    const user_session = req.headers.user;
     if (institute_session) {
       // const institute = await InstituteAdmin.findById({
-      //   _id: institute_session._id,
+      //   _id: institute_session,
       // });
       // if (
       //   institute.saveInsPost.length >= 1 &&
-      //   institute.saveInsPost.includes(String(institute_session._id))
+      //   institute.saveInsPost.includes(String(institute_session))
       // ) {
       //   institute.saveInsPost.pull(pid);
       //   await institute.save();
@@ -202,7 +202,7 @@ exports.postSave = async (req, res) => {
       //   res.status(200).send({ message: "Added To Favourites" });
       // }
     } else if (user_session) {
-      const user = await User.findById({ _id: user_session._id });
+      const user = await User.findById({ _id: user_session });
       if (user.saveUsersPost.length >= 1 && user.saveUsersPost.includes(pid)) {
         user.saveUsersPost.pull(pid);
         await user.save();
@@ -223,18 +223,18 @@ exports.postComment = async (req, res) => {
     const { id } = req.params;
     const post = await Post.findById({ _id: id });
     const comment = new Comment({ ...req.body });
-    if (req.session.institute) {
-      comment.author = req.session.institute._id;
-      comment.authorName = req.session.institute.insName
-      comment.authorUserName = req.session.institute.name
-      comment.authorPhotoId = req.session.institute.photoId
-      comment.authorProfilePhoto = req.session.institute.insProfilePhoto
-    } else if (req.session.user) {
-      comment.author = req.session.user._id;
-      comment.authorName = req.session.user.userLegalName
-      comment.authorUserName = req.session.user.username
-      comment.authorPhotoId = req.session.user.photoId
-      comment.authorProfilePhoto = req.session.user.profilePhoto
+    if (req.headers.institute) {
+      comment.author = req.headers.institute._id;
+      comment.authorName = req.headers.institute.insName
+      comment.authorUserName = req.headers.institute.name
+      comment.authorPhotoId = req.headers.institute.photoId
+      comment.authorProfilePhoto = req.headers.institute.insProfilePhoto
+    } else if (req.headers.user) {
+      comment.author = req.headers.user._id;
+      comment.authorName = req.headers.user.userLegalName
+      comment.authorUserName = req.headers.user.username
+      comment.authorPhotoId = req.headers.user.photoId
+      comment.authorProfilePhoto = req.headers.user.profilePhoto
     } else {
       res.status(401).send();
     }
@@ -253,14 +253,25 @@ exports.retrieveAllUserPosts = async(req, res) =>{
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const id = req.params.id;
     const skip = (page - 1) * limit;
-    const user = await User.findById(id);
+    const user = await User.findById(id)
+    .select('id')
+    .populate({
+      path: 'saveUsersPost'
+    })
+    .populate({
+      path: 'saveUserInsPost'
+    })
     const post = await Post.find({
       _id: { $in: user.userPosts },
     })
       .sort("-createdAt")
       .limit(limit)
       .skip(skip)
-      .select("postTitle postText postDescription createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto")
+      .select("postTitle postText postDescription createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike")
+      .populate({
+        path: 'tagPeople',
+        select: 'userLegalName username photoId profilePhoto'
+      })
       const postCount = await Post.find({author: user._id})
       if(page * limit >= postCount.length){
         // console.log('There no page exists')
@@ -282,14 +293,25 @@ exports.retrieveAllUserProfilePosts = async(req, res) =>{
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const id = req.params.id;
     const skip = (page - 1) * limit;
-    const user = await User.findById(id);
+    const user = await User.findById(id)
+    .select('id')
+    .populate({
+      path: 'saveUsersPost'
+    })
+    .populate({
+      path: 'saveUserInsPost'
+    })
     const post = await Post.find({
       _id: { $in: user.userPosts },
     })
       .sort("-createdAt")
       .limit(limit)
       .skip(skip)
-      .select("postTitle postText postDescription createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto")
+      .select("postTitle postText postDescription createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike")
+      .populate({
+        path: 'tagPeople',
+        select: 'userLegalName username photoId profilePhoto'
+      })
       const postCount = await Post.find({author: user._id})
       if(page * limit >= postCount.length){
       }
@@ -358,9 +380,9 @@ exports.postCommentChild = async (req, res) => {
   try {
     const { pcid } = req.params;
     const { comment, uid } = req.body;
-    var rUser = req.session.user && req.session.user._id
+    var rUser = req.headers.user && req.headers.user._id
     const users = await User.findById({_id: rUser}) 
-    if (req.session.institute) {
+    if (req.headers.institute) {
       // const childComment = new ReplyCommentUser({
       //   repliedComment: comment,
       //   authorInstitue: uid,
@@ -427,7 +449,7 @@ exports.likeCommentChild = async (req, res) => {
     const insCommentId = req.params.cid;
     const id = req.params.id;
     const comment = await Comment.findById(insCommentId);
-    if (req.session.institute) {
+    if (req.headers.institute) {
       // if (!comment.parentCommentLikeInstitute.includes(id)) {
       //   comment.parentCommentLikeInstitute.push(id);
       //   comment.allLikeCount = comment.allLikeCount + 1;
@@ -444,7 +466,7 @@ exports.likeCommentChild = async (req, res) => {
       //     count: comment.allLikeCount,
       //   });
       // }
-    } else if (req.session.user) {
+    } else if (req.headers.user) {
       if (!comment.parentCommentLike.includes(id)) {
         comment.parentCommentLike.push(id);
         comment.allLikeCount += 1;

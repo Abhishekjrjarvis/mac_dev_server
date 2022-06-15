@@ -4045,6 +4045,25 @@ paths:
         "200":
           description: OK
 
+  /api/v1/ins/{did}/one-batch:
+    get:
+      tags:
+        - Institute Internal Departments 
+      summary: One Department All Batch
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is Department id
+      responses:
+        "200":
+          description: OK
+
   /api/v1/ins/addbatch/{did}/ins/{id}:
     post:
       tags:

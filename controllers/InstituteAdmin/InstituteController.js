@@ -2540,3 +2540,28 @@ exports.retrieveInsFollowingArray = async(req, res) =>{
 
   }
 }
+
+
+
+exports.retrieveDepartmentAllBatch = async(req, res) =>{
+  try{
+    const { did } = req.params
+    const department = await Department.findById({_id: did})
+    .select('id')
+    .populate({
+      path: 'batches',
+      select: 'batchName batchStatus createdAt'
+    })
+    .lean()
+    .exec()
+    if(department){
+      res.status(200).send({ message: 'Success', department})
+    }
+    else{
+      res.status(404).send({ message: 'Failure'})
+    }
+  }
+  catch(e) {
+    console.log(e)
+  }
+}

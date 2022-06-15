@@ -564,6 +564,9 @@ router.get('/:id/followers-array', isLoggedIn, catchAsync(Institute.retrieveInsF
 // Institute Following List
 router.get('/:id/following-array', isLoggedIn, catchAsync(Institute.retrieveInsFollowingArray))
 
+// Get One Department All Batches
+router.get('/:did/one-batch', isLoggedIn, catchAsync(Institute.retrieveDepartmentAllBatch))
+
 module.exports = router;
 
 

@@ -63,6 +63,14 @@ const batchSchema = new mongoose.Schema({
   },
   batchPaymentStatus: {
     type: String
+  },
+  subjectMasterCount: {
+    type: Number,
+    default: 0
+  },
+  classCount: {
+    type: Number,
+    default: 0
   }
   // idCardField: [
   //   {

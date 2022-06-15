@@ -133,6 +133,22 @@ const departmentSchema = new mongoose.Schema({
       ref: "Elections",
     },
   ],
+  classMasterCount: {
+    type: Number,
+    default: 0
+  },
+  subjectMasterCount: {
+    type: Number,
+    default: 0
+  },
+  classCount: {
+    type: Number,
+    default: 0
+  },
+  batchCount: {
+    type: Number,
+    default: 0
+  }
 });
 
 const Department = mongoose.model("Department", departmentSchema);

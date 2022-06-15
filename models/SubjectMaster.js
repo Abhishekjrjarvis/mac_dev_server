@@ -39,6 +39,10 @@ const subjectMasterSchema = new mongoose.Schema({
       ref: "McqQuestions",
     },
   ],
+  subjectCount: {
+    type: Number,
+    default: 0
+  }
 });
 
 const SubjectMaster = mongoose.model("SubjectMaster", subjectMasterSchema);

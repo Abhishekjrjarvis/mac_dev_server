@@ -167,6 +167,10 @@ const classSchema = new mongoose.Schema({
   },
   studentRepresentative: {
     type: String,
+  },
+  subjectCount: {
+    type: Number,
+    default: 0
   }
 });
 

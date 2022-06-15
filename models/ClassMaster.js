@@ -36,6 +36,10 @@ const classMasterSchema = new mongoose.Schema({
       ref: "McqTestSets",
     },
   ],
+  classCount: {
+    type: Number,
+    default: 0
+  }
 });
 
 const ClassMaster = mongoose.model("ClassMaster", classMasterSchema);

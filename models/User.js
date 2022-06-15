@@ -272,6 +272,10 @@ const userSchema = new mongoose.Schema({
   ],
   recoveryMail: {
     type: String
+  },
+  qvipleAccount: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Admin'
   }
 });
 

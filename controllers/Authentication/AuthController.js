@@ -4,6 +4,7 @@ const Admin = require("../../models/superAdmin");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const User = require("../../models/User");
 const bcrypt = require("bcryptjs");
+const Post = require('../../models/Post')
 const {
   getFileStream,
   uploadDocFile,
@@ -450,6 +451,7 @@ module.exports.authentication = async (req, res) => {
       );
       if (checkAdminPass) {
         req.session.admin = admin;
+        req.headers.admin = admin._id
         res
           .status(200)
           .send({ message: "Successfully LoggedIn as a Super Admin", admin });

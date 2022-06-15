@@ -223,18 +223,20 @@ exports.postComment = async (req, res) => {
     const { id } = req.params;
     const post = await Post.findById({ _id: id });
     const comment = new Comment({ ...req.body });
-    if (req.headers.institute) {
-      comment.author = req.headers.institute._id;
-      comment.authorName = req.headers.institute.insName
-      comment.authorUserName = req.headers.institute.name
-      comment.authorPhotoId = req.headers.institute.photoId
-      comment.authorProfilePhoto = req.headers.institute.insProfilePhoto
-    } else if (req.headers.user) {
-      comment.author = req.headers.user._id;
-      comment.authorName = req.headers.user.userLegalName
-      comment.authorUserName = req.headers.user.username
-      comment.authorPhotoId = req.headers.user.photoId
-      comment.authorProfilePhoto = req.headers.user.profilePhoto
+    const institute = await InstituteAdmin.findById({_id: req.headers.institute})
+    const user = await User.findById({_id: req.headers.user})
+    if (institute) {
+      comment.author = institute._id;
+      comment.authorName = institute.insName
+      comment.authorUserName = institute.name
+      comment.authorPhotoId = institute.photoId
+      comment.authorProfilePhoto = institute.insProfilePhoto
+    } else if (user) {
+      comment.author = user._id;
+      comment.authorName = user.userLegalName
+      comment.authorUserName = user.username
+      comment.authorPhotoId = user.photoId
+      comment.authorProfilePhoto = user.profilePhoto
     } else {
       res.status(401).send();
     }
@@ -256,31 +258,34 @@ exports.retrieveAllUserPosts = async(req, res) =>{
     const user = await User.findById(id)
     .select('id')
     .populate({
-      path: 'saveUsersPost'
+      path: 'saveUsersPost',
+      select: 'id'
     })
     .populate({
-      path: 'saveUserInsPost'
+      path: 'saveUserInsPost',
+      select: 'id'
+    })
+    .populate({
+      path: 'userPosts',
     })
     const post = await Post.find({
       _id: { $in: user.userPosts },
     })
-      .sort("-createdAt")
-      .limit(limit)
-      .skip(skip)
-      .select("postTitle postText postDescription createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike")
-      .populate({
-        path: 'tagPeople',
-        select: 'userLegalName username photoId profilePhoto'
-      })
-      const postCount = await Post.find({author: user._id})
-      if(page * limit >= postCount.length){
-        // console.log('There no page exists')
-      }
-      else{
-        var totalPage = page + 1
-        // console.log('Enough data for ', page + 1)
-      }
-      res.status(200).send({ message: "Success", postCount: postCount.length, totalPage: totalPage, post: postCount  });
+    .sort("-createdAt")
+    .limit(limit)
+    .skip(skip)
+    .select("postTitle postText postDescription createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike")
+    .populate({
+      path: 'tagPeople',
+      select: 'userLegalName username photoId profilePhoto'
+    })
+    const postCount = await Post.find({_id: { $in: user.userPosts }})
+    if(page * limit >= postCount.length){
+    }
+    else{
+      var totalPage = page + 1
+    }
+    res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage, saveIns: user.saveUserInsPost, saveUser: user.saveUsersPost  });
   } catch(e) {
     console.log(e)
   }
@@ -296,29 +301,34 @@ exports.retrieveAllUserProfilePosts = async(req, res) =>{
     const user = await User.findById(id)
     .select('id')
     .populate({
-      path: 'saveUsersPost'
+      path: 'saveUsersPost',
+      select: 'id'
     })
     .populate({
-      path: 'saveUserInsPost'
+      path: 'saveUserInsPost',
+      select: 'id'
+    })
+    .populate({
+      path: 'userPosts',
     })
     const post = await Post.find({
       _id: { $in: user.userPosts },
     })
-      .sort("-createdAt")
-      .limit(limit)
-      .skip(skip)
-      .select("postTitle postText postDescription createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike")
-      .populate({
+    .sort("-createdAt")
+    .limit(limit)
+    .skip(skip)
+    .select("postTitle postText postDescription createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike")
+    .populate({
         path: 'tagPeople',
         select: 'userLegalName username photoId profilePhoto'
-      })
-      const postCount = await Post.find({author: user._id})
-      if(page * limit >= postCount.length){
-      }
-      else{
-        var totalPage = page + 1
-      }
-      res.status(200).send({ message: "Success", postCount: postCount.length, totalPage: totalPage, post: postCount  });
+    })
+    const postCount = await Post.find({_id: { $in: user.userPosts }})
+    if(page * limit >= postCount.length){
+    }
+    else{
+      var totalPage = page + 1
+    }
+    res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage, saveIns: user.saveUserInsPost, saveUser: user.saveUsersPost  });
   } catch(e) {
     console.log(e)
   }
@@ -380,7 +390,7 @@ exports.postCommentChild = async (req, res) => {
   try {
     const { pcid } = req.params;
     const { comment, uid } = req.body;
-    var rUser = req.headers.user && req.headers.user._id
+    var rUser = req.headers.user && req.headers.user
     const users = await User.findById({_id: rUser}) 
     if (req.headers.institute) {
       // const childComment = new ReplyCommentUser({

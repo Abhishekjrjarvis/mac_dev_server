@@ -4900,7 +4900,76 @@ paths:
         "200":
           description: OK
   
-  
+  /api/v1/admin/post/{id}/all/posts:
+    get:
+      tags:
+        - Super Admin Universal Post
+      summary: Super Admin All Posts
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Super Admin id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admin/post/{id}:
+    post:
+      tags:
+        - Super Admin Universal Post
+      summary: Super Admin post create only with text 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Super Admin id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              postTitle:
+                type: string
+                description: type a text here for Title
+              postDescription:
+                type: string
+                description: type a text here for Description
+              postText:
+                type: string
+                description: type a text here for text
+              postStatus:
+                type: string
+                decription: status should be "Anyone" or "Private"
+              people:
+                type: array
+                description: This is all taged users ids
+                items:
+                  type: string
+                  description: one user id
+      responses:
+        "200":
+          description: OK
 
 
   

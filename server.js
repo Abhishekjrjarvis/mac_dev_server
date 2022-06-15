@@ -149,6 +149,7 @@ const notifyNew = require('./routes/Notification/push-notification-route')
 // =============IMPORT INSTITUTE POST ROUTER====================
 const institutePostRoute = require("./routes/InstituteAdmin/Post/PostRoute");
 const userPostRoute = require("./routes/User/Post/PostRoute");
+const superAdminPostRoute = require('./routes/SuperAdmin/Post/PostRoute')
 
 const dburl = `${process.env.DB_URL2}`;
 // const dburl = `${process.env.DB_URL}`;
@@ -248,6 +249,9 @@ app.use("/api/v1/ins", instituteNew);
 
 //ALL Institute Post Api Related to Qviple
 app.use("/api/v1/ins/post", institutePostRoute);
+
+// All Super Admin Post Api Related to Qviple
+app.use('/api/v1/admin/post', superAdminPostRoute)
 
 // All Authentication Api related to Qviple
 app.use("/api/v1/auth", authNew);

@@ -153,6 +153,28 @@ const superAdminSchema = new mongoose.Schema({
     reportPostQueryCount: {
         type: Number,
         default: 0
+    },
+    postCount: {
+        type: Number,
+        default: 0
+    },
+    posts: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Post'
+        }
+    ],
+    saveAdminPost: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Post'
+        }
+    ],
+    photoId: {
+        type: String
+    },
+    profilePhoto: {
+        type: String
     }
     
 })

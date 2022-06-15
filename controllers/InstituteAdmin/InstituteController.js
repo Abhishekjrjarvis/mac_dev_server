@@ -1770,7 +1770,9 @@ exports.retrieveNewClass = async(req, res) =>{
     institute.classRooms.push(classRoom._id);
     classRoom.institute = institute._id;
     batch.classroom.push(classRoom._id);
+    batch.classCount += 1
     masterClass.classDivision.push(classRoom._id);
+    masterClass.classCount += 1
     if (String(depart.dHead._id) == String(staff._id)) {
     } else {
       depart.departmentChatGroup.push(staff._id);
@@ -1781,6 +1783,7 @@ exports.retrieveNewClass = async(req, res) =>{
     staff.staffClass.push(classRoom._id);
     classRoom.classTeacher = staff._id;
     depart.class.push(classRoom._id);
+    depart.classCount += 1
     classRoom.department = depart._id;
     notify.notifyContent = `you got the designation of ${classRoom.className} as Class Teacher`;
     notify.notifySender = id;
@@ -1833,7 +1836,9 @@ exports.retrieveNewSubject = async(req, res) =>{
       subjectMasterName: subjectMaster._id,
     });
     classes.subject.push(subject._id);
+    classes.subjectCount += 1
     subjectMaster.subjects.push(subject._id);
+    subjectMaster.subjectCount += 1
     subject.class = classes._id;
     if (String(classes.classTeacher._id) == String(staff._id)) {
     } else {
@@ -2064,6 +2069,7 @@ exports.retrieveNewBatch = async(req, res) =>{
     const institute = await InstituteAdmin.findById({ _id: id });
     const batch = await new Batch({ ...req.body });
     department.batches.push(batch);
+    department.batchCount += 1
     batch.department = department;
     batch.institute = institute;
     await Promise.all([
@@ -2090,6 +2096,7 @@ exports.retrieveNewClassMaster = async(req, res) =>{
       department: did,
     });
     department.departmentClassMasters.push(classroomMaster._id);
+    department.classMasterCount += 1
     await Promise.all([
       classroomMaster.save(),
       department.save()
@@ -2117,8 +2124,10 @@ exports.retrieveNewSubjectMaster = async(req, res) =>{
       batch: bid,
       department: did,
     });
-    await departmentData.departmentSubjectMasters.push(subjectMaster._id);
-    await batchData.subjectMasters.push(subjectMaster._id);
+    departmentData.departmentSubjectMasters.push(subjectMaster._id);
+    departmentData.subjectMasterCount += 1
+    batchData.subjectMasters.push(subjectMaster._id);
+    batchData.subjectMasterCount += 1
     await Promise.all([
       departmentData.save(),
       batchData.save(),

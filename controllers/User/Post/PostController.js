@@ -280,7 +280,7 @@ exports.retrieveAllUserPosts = async(req, res) =>{
         var totalPage = page + 1
         // console.log('Enough data for ', page + 1)
       }
-      res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage  });
+      res.status(200).send({ message: "Success", postCount: postCount.length, totalPage: totalPage, post: postCount  });
   } catch(e) {
     console.log(e)
   }
@@ -318,7 +318,7 @@ exports.retrieveAllUserProfilePosts = async(req, res) =>{
       else{
         var totalPage = page + 1
       }
-      res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage  });
+      res.status(200).send({ message: "Success", postCount: postCount.length, totalPage: totalPage, post: postCount  });
   } catch(e) {
     console.log(e)
   }

@@ -2561,10 +2561,14 @@ exports.retrieveDepartmentAllBatch = async(req, res) =>{
       path: 'batches',
       select: 'batchName batchStatus createdAt'
     })
+    .populate({
+      path: 'departmentSelectBatch',
+      select: 'batchName batchStatus createdAt'
+    })
     .lean()
     .exec()
     if(department){
-      res.status(200).send({ message: 'Success', department})
+      res.status(200).send({ message: 'Success', departmentActiveBatch: department.departmentSelectBatch, allBatch: department.batches})
     }
     else{
       res.status(404).send({ message: 'Failure'})

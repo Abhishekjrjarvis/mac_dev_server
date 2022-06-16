@@ -2117,20 +2117,15 @@ exports.retrieveNewSubjectMaster = async(req, res) =>{
     const { subjectName } = req.body;
     const institute = await InstituteAdmin.findById({ _id: id });
     const departmentData = await Department.findById({ _id: did });
-    const batchData = await Batch.findById({ _id: bid });
     const subjectMaster = await new SubjectMaster({
       subjectName: subjectName,
       institute: institute._id,
-      batch: bid,
       department: did,
     });
     departmentData.departmentSubjectMasters.push(subjectMaster._id);
     departmentData.subjectMasterCount += 1
-    batchData.subjectMasters.push(subjectMaster._id);
-    batchData.subjectMasterCount += 1
     await Promise.all([
       departmentData.save(),
-      batchData.save(),
       subjectMaster.save()
     ])
     res.status(200).send({
@@ -2141,6 +2136,20 @@ exports.retrieveNewSubjectMaster = async(req, res) =>{
   }
 }
 
+
+exports.retrieveCurrentSelectBatch = async(req, res) =>{
+  try {
+    const { did, bid } = req.params;
+    const department = await Department.findById({ _id: did });
+    const batches = await Batch.findById({ _id: bid });
+    department.departmentSelectBatch = batches._id;
+    department.userBatch = batches._id;
+    await department.save();
+    res.status(200).send({ message: "Batch Detail Data", batches: batches._id, department: department.departmentSelectBatch });
+  } catch(e) {
+    console.log(e)
+  }
+}
 
 exports.retrieveClass = async (req, res) => {
   try {

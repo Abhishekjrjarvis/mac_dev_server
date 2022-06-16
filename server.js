@@ -2650,18 +2650,16 @@ app.get("/department/:did", async (req, res) => {
 
 // Institute Batch in Department
 
-app.get("/:id/batchdetail/:bid", isLoggedIn, async (req, res) => {
+app.post("/:did/batch-select/:bid", isLoggedIn, async (req, res) => {
   try {
-    const { id, bid } = req.params;
-    const { batchDetail } = req.body;
-    const department = await Department.findById({ _id: id });
+    const { did, bid } = req.params;
+    const department = await Department.findById({ _id: did });
     const batches = await Batch.findById({ _id: bid });
-    department.departmentSelectBatch = batches;
-    department.userBatch = batches;
+    department.departmentSelectBatch = batches._id;
+    department.userBatch = batches._id;
     await department.save();
     res.status(200).send({ message: "Batch Detail Data", batches, department });
   } catch {
-    console.log(`SomeThing Went Wrong at this EndPoint(/:id/batchdetail/:bid)`);
   }
 });
 

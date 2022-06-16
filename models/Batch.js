@@ -28,12 +28,6 @@ const batchSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department",
   },
-  subjectMasters: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "SubjectMaster",
-    },
-  ],
   classroom: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -64,20 +58,10 @@ const batchSchema = new mongoose.Schema({
   batchPaymentStatus: {
     type: String
   },
-  subjectMasterCount: {
-    type: Number,
-    default: 0
-  },
   classCount: {
     type: Number,
     default: 0
   }
-  // idCardField: [
-  //   {
-  //     type: mongoose.Schema.Types.ObjectId,
-  //     ref: 'Field'
-  //   }
-  // ]
 });
 
 const Batch = mongoose.model("Batch", batchSchema);

@@ -12,10 +12,6 @@ const subjectMasterSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteAdmin",
   },
-  batch: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Batch",
-  },
   department: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department",

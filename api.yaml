@@ -4123,6 +4123,31 @@ paths:
           description: OK
 
 
+  /api/v1/ins/{did}/batch-select/{bid}/:
+    post:
+      tags:
+        - Institute Internal Departments
+      summary: Set Current Batch Active
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is Department id
+        - in: path
+          name: bid
+          required: true
+          type: string
+          description: This is Batch id
+      responses:
+        "200":
+          description: OK
+
+
   /api/v1/ins/{id}/departmentmasterclass/{did}:
     post:
       tags:
@@ -4185,7 +4210,7 @@ paths:
         "200":
           description: OK
 
-  /api/v1/ins/{id}/departmentmastersubject/{did}/batch/{bid}:
+  /api/v1/ins/{id}/departmentmastersubject/{did}/:
     post:
       tags:
         - Institute Internal Departments

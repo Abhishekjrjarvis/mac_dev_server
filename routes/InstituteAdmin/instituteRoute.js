@@ -501,10 +501,13 @@ router.post('/addbatch/:did/ins/:id', isLoggedIn, catchAsync(Institute.retrieveN
 router.post('/:id/departmentmasterclass/:did', isLoggedIn, catchAsync(Institute.retrieveNewClassMaster))
 
 // New Subject Master
-router.post('/:id/departmentmastersubject/:did/batch/:bid', isLoggedIn, catchAsync(Institute.retrieveNewSubjectMaster))
+router.post('/:id/departmentmastersubject/:did/', isLoggedIn, catchAsync(Institute.retrieveNewSubjectMaster))
 
 // Class Restrict Data
 router.get("/staffclass/:cid", isLoggedIn, catchAsync(Institute.retrieveClass));
+
+// Select Current Batch
+router.post('/:did/batch-select/:bid', isLoggedIn, catchAsync(Institute.retrieveCurrentSelectBatch))
 
 // Subject Teacher Catalog
 router.get(

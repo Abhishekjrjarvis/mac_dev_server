@@ -1,6 +1,7 @@
 const User = require("../../../models/User");
 const Post = require("../../../models/Post");
 const Comment = require("../../../models/Comment");
+const InstituteAdmin = require("../../../models/InstituteAdmin")
 const ReplyComment = require("../../../models/ReplyComment/ReplyComment");
 const {
   uploadPostImageFile,
@@ -184,29 +185,31 @@ exports.postComment = async (req, res) => {
     const { id } = req.params;
     const post = await Post.findById({ _id: id });
     const comment = new Comment({ ...req.body });
-    const institute = await InstituteAdmin.findById({_id: req.session.institute._id})
-    const user = await User.findById({_id: req.session.user._id})
-    if (institute) {
+    if (req.session.institute) {
+      const institute = await InstituteAdmin.findById({_id: req.session.institute._id})
       comment.author = institute._id;
       comment.authorName = institute.insName
       comment.authorUserName = institute.name
       comment.authorPhotoId = institute.photoId
       comment.authorProfilePhoto = institute.insProfilePhoto
-    } else if (user) {
+    } else if (req.session.user) {
+      const user = await User.findById({_id: req.session.user._id})
       comment.author = user._id;
       comment.authorName = user.userLegalName
       comment.authorUserName = user.username
       comment.authorPhotoId = user.photoId
       comment.authorProfilePhoto = user.profilePhoto
     } else {
-      res.status(401).send();
+      res.status(401).send({ message: 'Unauthorized'});
     }
     post.comment.push(comment._id);
     post.commentCount += 1;
     comment.post = post._id;
     await Promise.all([post.save(), comment.save()]);
     res.status(201).send({ message: "comment created", comment });
-  } catch {}
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 
@@ -217,15 +220,7 @@ exports.retrieveAllUserPosts = async(req, res) =>{
     const id = req.params.id;
     const skip = (page - 1) * limit;
     const user = await User.findById(id)
-    .select('id')
-    .populate({
-      path: 'saveUsersPost',
-      select: 'id'
-    })
-    .populate({
-      path: 'saveUserInsPost',
-      select: 'id'
-    })
+    .select('id saveUsersPost saveUserInsPost')
     .populate({
       path: 'userPosts',
     })
@@ -246,7 +241,7 @@ exports.retrieveAllUserPosts = async(req, res) =>{
     else{
       var totalPage = page + 1
     }
-    res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage, saveIns: user.saveUserInsPost, saveUser: user.saveUsersPost  });
+    res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage, saveUser: user.saveUsersPost, saveIns: user.saveUserInsPost  });
   } catch(e) {
     console.log(e)
   }
@@ -260,15 +255,7 @@ exports.retrieveAllUserProfilePosts = async(req, res) =>{
     const id = req.params.id;
     const skip = (page - 1) * limit;
     const user = await User.findById(id)
-    .select('id')
-    .populate({
-      path: 'saveUsersPost',
-      select: 'id'
-    })
-    .populate({
-      path: 'saveUserInsPost',
-      select: 'id'
-    })
+    .select('id saveUsersPost saveUserInsPost')
     .populate({
       path: 'userPosts',
     })
@@ -289,7 +276,7 @@ exports.retrieveAllUserProfilePosts = async(req, res) =>{
     else{
       var totalPage = page + 1
     }
-    res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage, saveIns: user.saveUserInsPost, saveUser: user.saveUsersPost  });
+    res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage, saveUser: user.saveUsersPost, saveIns: user.saveUserInsPost  });
   } catch(e) {
     console.log(e)
   }
@@ -351,33 +338,8 @@ exports.postCommentChild = async (req, res) => {
   try {
     const { pcid } = req.params;
     const { comment, uid } = req.body;
-    var rUser = req.session.user._id && req.session.user._id
-    const users = await User.findById({_id: rUser}) 
-    if (req.session.institute._id) {
-      // const childComment = new ReplyCommentUser({
-      //   repliedComment: comment,
-      //   authorInstitue: uid,
-      //   parentComment: pcid,
-      // });
-      // const parentComment = await UserComment.findById(pcid);
-      // parentComment.childComment.unshift(childComment._id);
-      // parentComment.allChildCommentCount += 1;
-      // await Promise.all([parentComment.save(), childComment.save()]);
-      // const institute = await InstituteAdmin.findById(uid)
-      //   .select("photoId insProfilePhoto name insName")
-      //   .lean()
-      //   .exec();
-      // const childReplyComment = {
-      //   _id: childComment._id,
-      //   repliedComment: childComment.repliedComment,
-      //   createdAt: childComment.createdAt,
-      //   authorInstitue: institute,
-      // };
-      // res.status(201).send({
-      //   childReplyComment,
-      //   commentCount: parentComment.allChildCommentCount,
-      // });
-    } else if (users) {
+    if (req.session.user) {
+      const users = await User.findById({_id: req.session.user._id}) 
       const childComment = new ReplyComment({
         repliedComment: comment,
         author: users._id,
@@ -391,8 +353,7 @@ exports.postCommentChild = async (req, res) => {
       parentComment.childComment.unshift(childComment._id);
       parentComment.allChildCommentCount += 1;
       await Promise.all([parentComment.save(), childComment.save()]);
-      const user = await User.findById(users._id)
-        .select("photoId profilePhoto username userLegalName")
+      const user = await User.findById(users._id).select("photoId profilePhoto username userLegalName")
       const childReplyComment = {
         _id: childComment._id,
         repliedComment: childComment.repliedComment,
@@ -408,7 +369,7 @@ exports.postCommentChild = async (req, res) => {
         allChildCommentCount: parentComment.allChildCommentCount,
       });
     } else {
-      res.status(401).send();
+      res.status(401).send({ message: 'Unauthorized'});
     }
   } catch (e) {
     console.log(e);

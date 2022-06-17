@@ -191,13 +191,12 @@ exports.postLike = async (req, res) => {
     const post = await Post.findById({ _id: pid });
     const institute_session = req.session.institute._id;
     const user_session = req.session.user._id;
-
     if (institute_session) {
       if (
         post.endUserLike.length >= 1 &&
-        post.endUserLike.includes(String(institute.session))
+        post.endUserLike.includes(String(institute_session))
       ) {
-        post.endUserLike.pull(institute.session);
+        post.endUserLike.pull(institute_session);
         if (post.likeCount >= 1) {
           post.likeCount -= 1;
         }
@@ -206,7 +205,7 @@ exports.postLike = async (req, res) => {
           .status(200)
           .send({ message: "Removed from Likes", likeCount: post.likeCount });
       } else {
-        post.endUserLike.push(institute.session);
+        post.endUserLike.push(institute_session);
         post.likeCount += 1;
         await post.save();
         res
@@ -237,7 +236,9 @@ exports.postLike = async (req, res) => {
     } else {
       res.status(401).send();
     }
-  } catch {}
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 exports.postSave = async (req, res) => {
@@ -247,7 +248,7 @@ exports.postSave = async (req, res) => {
     const user_session = req.session.user._id;
     if (institute_session) {
       const institute = await InstituteAdmin.findById({
-        _id: institute.session,
+        _id: institute_session,
       });
       if (
         institute.saveInsPost.length >= 1 &&
@@ -286,29 +287,31 @@ exports.postComment = async (req, res) => {
     const { id } = req.params;
     const post = await Post.findById({ _id: id });
     const comment = new Comment({ ...req.body });
-    const institute = await InstituteAdmin.findById({_id: req.session.institute._id})
-    const user = await User.findById({_id: req.session.user._id})
-    if (institute) {
+    if (req.session.institute) {
+      const institute = await InstituteAdmin.findById({_id: req.session.institute._id})
       comment.author = institute._id;
       comment.authorName = institute.insName
       comment.authorUserName = institute.name
       comment.authorPhotoId = institute.photoId
       comment.authorProfilePhoto = institute.insProfilePhoto
-    } else if (user) {
+    } else if (req.session.user) {
+      const user = await User.findById({_id: req.session.user._id})
       comment.author = user._id;
       comment.authorName = user.userLegalName
       comment.authorUserName = user.username
       comment.authorPhotoId = user.photoId
       comment.authorProfilePhoto = user.profilePhoto
     } else {
-      res.status(401).send();
+      res.status(401).send({ message: 'Unauthorized'});
     }
     post.comment.push(comment._id);
     post.commentCount += 1;
     comment.post = post._id;
     await Promise.all([post.save(), comment.save()]);
     res.status(201).send({ message: "comment created", comment });
-  } catch {}
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 
@@ -319,10 +322,7 @@ exports.retrieveAllPosts = async(req, res) =>{
       const id = req.params.id;
       const skip = (page - 1) * limit;
       const institute = await InstituteAdmin.findById(id)
-      .select('id')
-      .populate({
-        path: 'saveInsPost'
-      })
+      .select('id saveInsPost')
       .populate({ path: 'posts' })
       const post = await Post.find({
         _id: { $in: institute.posts },
@@ -341,7 +341,7 @@ exports.retrieveAllPosts = async(req, res) =>{
       else{
         var totalPage = page + 1
       }
-      res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage, save: institute.saveInsPost});
+      res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage, saveIns: institute.saveInsPost});
     } catch(e) {
       console.log(e)
     }
@@ -355,10 +355,7 @@ exports.retreiveAllProfilePosts = async(req, res) =>{
     const id = req.params.id;
     const skip = (page - 1) * limit;
     const institute = await InstituteAdmin.findById(id)
-    .select('id')
-    .populate({
-      path: 'saveInsPost'
-    })
+    .select('id saveInsPost')
     .populate({ path: 'posts' })
     const post = await Post.find({
       _id: { $in: institute.posts },
@@ -377,7 +374,7 @@ exports.retreiveAllProfilePosts = async(req, res) =>{
     else{
       var totalPage = page + 1
     }
-    res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage, save: institute.saveInsPost });
+    res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage, saveIns: institute.saveInsPost });
   } catch(e) {
     console.log(e)
   }
@@ -409,6 +406,7 @@ exports.getComment = async (req, res) => {
 exports.getCommentChild = async (req, res) => {
   try {
     const { pcid } = req.params;
+    console.log(pcid)
     const getPage = req.query.page ? parseInt(req.query.page) : 1;
     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
     const dropItem = (getPage - 1) * itemPerPage;
@@ -439,11 +437,8 @@ exports.postCommentChild = async (req, res) => {
   try {
     const { pcid } = req.params;
     const { comment, uid } = req.body;
-    var rUser = req.session.user._id && req.session.user._id
-    var rInstitute = req.session.institute._id && req.session.institute._id
-    const institute = await InstituteAdmin.findById({_id: rInstitute})
-    const users = await User.findById({_id: rUser})
-    if (institute) {
+    if (req.session.institute) {
+      const institute = await InstituteAdmin.findById({_id: req.session.institute._id})
       const childComment = new ReplyComment({
         repliedComment: comment,
         author: institute._id,
@@ -457,22 +452,23 @@ exports.postCommentChild = async (req, res) => {
       parentComment.childComment.unshift(childComment._id);
       parentComment.allChildCommentCount += 1;
       await Promise.all([parentComment.save(), childComment.save()]);
-      const institute = await InstituteAdmin.findById(uid).select("photoId insProfilePhoto name insName")
+      const institutes = await InstituteAdmin.findById(req.session.institute._id).select("photoId insProfilePhoto name insName")
       const childReplyComment = {
         _id: childComment._id,
         repliedComment: childComment.repliedComment,
         createdAt: childComment.createdAt,
-        author: institute._id,
-        authorName: institute.insName,
-        authorUserName: institute.name,
-        authorPhotoId: institute.photoId,
-        authorProfilePhoto: institute.insProfilePhoto,
+        author: institutes._id,
+        authorName: institutes.insName,
+        authorUserName: institutes.name,
+        authorPhotoId: institutes.photoId,
+        authorProfilePhoto: institutes.insProfilePhoto,
       };
       res.status(201).send({
         childReplyComment,
         commentCount: parentComment.allChildCommentCount,
       });
-    } else if (users) {
+    } else if (req.session.user) {
+      const users = await User.findById({_id: req.session.user._id})
       const childComment = new ReplyComment({
         repliedComment: comment,
         author: users._id,
@@ -486,7 +482,7 @@ exports.postCommentChild = async (req, res) => {
       parentComment.childComment.unshift(childComment._id);
       parentComment.allChildCommentCount += 1;
       await Promise.all([parentComment.save(), childComment.save()]);
-      const user = await User.findById({_id: users._id}).select("photoId profilePhoto username userLegalName")
+      const user = await User.findById({_id: req.session.user._id}).select("photoId profilePhoto username userLegalName")
       const childReplyComment = {
         _id: childComment._id,
         repliedComment: childComment.repliedComment,
@@ -502,10 +498,10 @@ exports.postCommentChild = async (req, res) => {
         commentCount: parentComment.allChildCommentCount,
       });
     } else {
-      res.status(401).send();
+      res.status(401).send({ message: 'Unauthorized'});
     }
   } catch(e) {
-    console.log(e)
+    console.log(e.message)
   }
 };
 

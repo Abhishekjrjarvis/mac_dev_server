@@ -5,11 +5,11 @@ info:
   version: one
 
 
-# host: 18.205.27.165
-# basePath: /api
-schemes: [http, https]
-# schemes: 
-#   - http
+host: 18.205.27.165
+basePath: /api
+# schemes: [http, https]
+schemes: 
+  - http
 
 
 #Return Users From get request
@@ -21,7 +21,7 @@ paths:
     get:
       tags:
         - Login And Logout Api
-      summary: Check user or institute is login or not
+      summary: Check user or institute is login or not -(verified)
       consumes:
         - application/json
       produces:
@@ -32,7 +32,7 @@ paths:
     post:  
       tags:
         - Login And Logout Api
-      summary: Login user or institute or super admin
+      summary: Login user or institute or super admin -(verified)
       consumes:
         - application/json
       produces:
@@ -58,7 +58,7 @@ paths:
     post:
       tags:
         - Login And Logout Api
-      summary: Login user or institute or super admin
+      summary: Login user or institute or super admin -(verified)
       consumes:
         - application/json
       produces:
@@ -84,7 +84,7 @@ paths:
     get:
       tags:
         - Login And Logout Api
-      summary: Logout your account
+      summary: Logout your account -(verified)
       consumes:
         - application/json
       produces:
@@ -99,7 +99,7 @@ paths:
     post:
       tags:
         - Forgot Password Related Authentication
-      summary: Forget Password with username
+      summary: Forget Password with username -(verified)
       consumes:
         - application/json
       produces:
@@ -123,7 +123,7 @@ paths:
     post:
       tags:
         - Forgot Password Related Authentication
-      summary: Forget Password verification
+      summary: Forget Password verification -(verified)
       consumes:
         - application/json
       produces:
@@ -152,7 +152,7 @@ paths:
     post:
       tags:
         - Forgot Password Related Authentication
-      summary: Create New Password
+      summary: Create New Password -(verified)
       consumes:
         - application/json
       produces:
@@ -187,7 +187,7 @@ paths:
     post:
       tags:
         - User Authentication
-      summary: User Mobile Authentication
+      summary: User Mobile Authentication -(verified)
       consumes:
         - application/json
       produces:
@@ -216,7 +216,7 @@ paths:
     post:
       tags:
         - User Authentication
-      summary: User Mobile Authentication Verification
+      summary: User Mobile Authentication Verification -(verified)
       consumes:
         - application/json
       produces:
@@ -247,7 +247,7 @@ paths:
     post:
       tags:
         - User Authentication
-      summary: User registration process
+      summary: User registration process -(verified)
       consumes:
         - multipart/form-data
       produces:
@@ -292,7 +292,7 @@ paths:
     post:
       tags:
         - User Authentication
-      summary: User create Password
+      summary: User create Password -(verified)
       consumes:
         - application/json
       produces:
@@ -850,7 +850,7 @@ paths:
     get:
       tags:
         - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
-      summary: User All Posts
+      summary: User All Posts -(verified)
       consumes:
         - application/json
       produces:
@@ -880,7 +880,7 @@ paths:
     post:
       tags:
         - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
-      summary: User post create only with text 
+      summary: User post create only with text -(verified)
       consumes:
         - application/json
       produces:
@@ -922,7 +922,7 @@ paths:
     post:
       tags:
         - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
-      summary: User post create text and image
+      summary: User post create text and image -(verified)
       consumes:
         - multipart/form-data
       produces:
@@ -975,7 +975,7 @@ paths:
     post:
       tags:
         - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
-      summary: User post create text and video
+      summary: User post create text and video -(verified)
       consumes:
         - multipart/form-data
       produces:
@@ -1023,7 +1023,7 @@ paths:
     patch:
       tags:
         - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
-      summary: User post update with their visibility
+      summary: User post update with their visibility -(verified)
       consumes:
         - application/json
       produces:
@@ -1052,7 +1052,7 @@ paths:
     delete:
       tags:
         - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
-      summary: User post deleted permanently
+      summary: User post deleted permanently -(verified)
       consumes:
         - application/json
       produces:
@@ -1076,7 +1076,7 @@ paths:
     get:
       tags:
         - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
-      summary: In User post Added tag people list which user want to tag
+      summary: In User post Added tag people list which user want to tag -(verified)
       consumes:
         - application/json
       produces:
@@ -1110,7 +1110,7 @@ paths:
     get:
       tags:
         - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
-      summary: This is list of people who like that particular post that is reaction
+      summary: This is list of people who like that particular post that is reaction -(verified)
       consumes:
         - application/json
       produces:
@@ -1139,7 +1139,7 @@ paths:
     get:
       tags:
         - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
-      summary: User post like and unlike
+      summary: User post like and unlike -(verified)
       consumes:
         - application/json
       produces:
@@ -1158,7 +1158,7 @@ paths:
     get:
       tags:
         - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
-      summary: User post save and unsave
+      summary: User post save and unsave -(verified)
       consumes:
         - application/json
       produces:
@@ -1177,7 +1177,7 @@ paths:
     get:
       tags:
         - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
-      summary: Get User one post all comment
+      summary: Get User one post all comment -(verified)
       consumes:
         - application/json
       produces:
@@ -1204,7 +1204,7 @@ paths:
     post:
       tags:
         - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
-      summary: Post User one post comment
+      summary: Post User one post comment -(verified)
       consumes:
         - application/json
       produces:
@@ -1233,7 +1233,7 @@ paths:
     get:
       tags:
         - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
-      summary: In post one comment, child or reply comment limit to get all reply comment
+      summary: In post one comment, child or reply comment limit to get all reply comment -(verified)
       consumes:
         - application/json
       produces:
@@ -1260,7 +1260,7 @@ paths:
     post:
       tags:
         - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
-      summary: In post one comment, child or reply comment
+      summary: In post one comment, child or reply comment -(verified)
       consumes:
         - application/json
       produces:
@@ -1293,7 +1293,7 @@ paths:
     get:
       tags:
         - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
-      summary: In post one comment like and dislike
+      summary: In post one comment like and dislike -(verified)
       consumes:
         - application/json
       produces:
@@ -3025,7 +3025,7 @@ paths:
     get:
       tags:
         - Institute DashBoard API (including Notification, Post, Announcement)
-      summary: Institute All Posts
+      summary: Institute All Posts - (Verified)
       consumes:
         - application/json
       produces:
@@ -3054,7 +3054,7 @@ paths:
     post:
       tags:
         - Institute DashBoard API (including Notification, Post, Announcement)
-      summary: Institute post create only with text 
+      summary: Institute post create only with text - (Verified)
       consumes:
         - application/json
       produces:
@@ -3096,7 +3096,7 @@ paths:
     post:
       tags:
         - Institute DashBoard API (including Notification, Post, Announcement)
-      summary: Institute post create text and image
+      summary: Institute post create text and image - (Verified)
       consumes:
         - multipart/form-data
       produces:
@@ -3149,7 +3149,7 @@ paths:
     post:
       tags:
         - Institute DashBoard API (including Notification, Post, Announcement)
-      summary: Institute post create text and video
+      summary: Institute post create text and video - (Verified)
       consumes:
         - multipart/form-data
       produces:
@@ -3197,7 +3197,7 @@ paths:
     patch:
       tags:
         - Institute DashBoard API (including Notification, Post, Announcement)
-      summary: Institute post update with their visibility
+      summary: Institute post update with their visibility - (Verified)
       consumes:
         - application/json
       produces:
@@ -3226,7 +3226,7 @@ paths:
     delete:
       tags:
         - Institute DashBoard API (including Notification, Post, Announcement)
-      summary: Institute post deleted permanently
+      summary: Institute post deleted permanently - (Verified)
       consumes:
         - application/json
       produces:
@@ -3250,7 +3250,7 @@ paths:
     get:
       tags:
         - Institute DashBoard API (including Notification, Post, Announcement)
-      summary: In Institute post Added tag people list which user want to tag
+      summary: In Institute post Added tag people list which user want to tag - (Verified)
       consumes:
         - application/json
       produces:
@@ -3284,7 +3284,7 @@ paths:
     get:
       tags:
         - Institute DashBoard API (including Notification, Post, Announcement)
-      summary: This is list of people who like that particular post that is reaction
+      summary: This is list of people who like that particular post that is reaction - (Verified)
       consumes:
         - application/json
       produces:
@@ -3313,7 +3313,7 @@ paths:
     get:
       tags:
         - Institute DashBoard API (including Notification, Post, Announcement)
-      summary: Institute post like and unlike
+      summary: Institute post like and unlike - (Verified)
       consumes:
         - application/json
       produces:
@@ -3332,7 +3332,7 @@ paths:
     get:
       tags:
         - Institute DashBoard API (including Notification, Post, Announcement)
-      summary: Institute post save and unsave
+      summary: Institute post save and unsave - (Verified)
       consumes:
         - application/json
       produces:
@@ -3351,37 +3351,7 @@ paths:
     get:
       tags:
         - Institute DashBoard API (including Notification, Post, Announcement)
-      summary: Institute All comments of one Post
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: This is Post id
-        - in: query
-          name: page
-          schema:
-            type: integer
-          description: The number of items to skip before starting to collect the result set
-        - in: query
-          name: limit
-          schema:
-            type: integer
-          description: The numbers of items to return
-      responses:
-        "200":
-          description: OK
-
-
-  /api/v1/ins/post/comment/{id}:
-    get:
-      tags:
-        - Institute DashBoard API (including Notification, Post, Announcement)
-      summary: Get Institute one post comment
+      summary: Get User one post all comment - (verified)
       consumes:
         - application/json
       produces:
@@ -3408,7 +3378,7 @@ paths:
     post:
       tags:
         - Institute DashBoard API (including Notification, Post, Announcement)
-      summary: Post Institute one post comment
+      summary: Post User one post comment -(verified)
       consumes:
         - application/json
       produces:
@@ -3437,7 +3407,7 @@ paths:
     get:
       tags:
         - Institute DashBoard API (including Notification, Post, Announcement)
-      summary: In post one comment, child or reply comment limit to get all reply comment
+      summary: In post one comment, child or reply comment limit to get all reply comment - (Verified)
       consumes:
         - application/json
       produces:
@@ -3464,7 +3434,7 @@ paths:
     post:
       tags:
         - Institute DashBoard API (including Notification, Post, Announcement)
-      summary: In post one comment, child or reply comment
+      summary: In post one comment, child or reply comment - (Verified)
       consumes:
         - application/json
       produces:
@@ -3497,7 +3467,7 @@ paths:
     get:
       tags:
         - Institute DashBoard API (including Notification, Post, Announcement)
-      summary: In post one comment, child or reply comment
+      summary: In post one comment, child or reply comment - (Verified)
       consumes:
         - application/json
       produces:
@@ -3974,7 +3944,7 @@ paths:
     get:
       tags:
         - Institute Internal Departments 
-      summary: All department List
+      summary: All department List -(verified)
       consumes:
         - application/json
       produces:
@@ -3993,7 +3963,7 @@ paths:
     post:
       tags:
         - Institute Internal Departments
-      summary: Add New Department
+      summary: Add New Department -(verified)
       consumes:
         - application/json
       produces:
@@ -4030,7 +4000,7 @@ paths:
     get:
       tags:
         - Institute Internal Departments 
-      summary: All details of one department
+      summary: All details of one department -(verified)
       consumes:
         - application/json
       produces:
@@ -4049,7 +4019,7 @@ paths:
     get:
       tags:
         - Institute Internal Departments 
-      summary: One Department All Batch
+      summary: One Department All Batch -(verified)
       consumes:
         - application/json
       produces:
@@ -4068,7 +4038,7 @@ paths:
     post:
       tags:
         - Institute Internal Departments
-      summary: Add New Batch to the department
+      summary: Add New Batch to the department -(verified)
       consumes:
         - application/json
       produces:
@@ -4102,7 +4072,7 @@ paths:
     get:
       tags:
         - Institute Internal Departments 
-      summary: Get current batch details
+      summary: Get current batch details -(verified)
       consumes:
         - application/json
       produces:
@@ -4127,7 +4097,7 @@ paths:
     post:
       tags:
         - Institute Internal Departments
-      summary: Set Current Batch Active
+      summary: Set Current Batch Active -(verified)
       consumes:
         - application/json
       produces:
@@ -4152,7 +4122,7 @@ paths:
     post:
       tags:
         - Institute Internal Departments
-      summary: Add New Class Master to the department
+      summary: Add New Class Master to the department -(verified)
       consumes:
         - application/json
       produces:
@@ -4190,7 +4160,7 @@ paths:
     get:
       tags:
         - Institute Internal Departments 
-      summary: One department All class master
+      summary: One department All class master -(verified)
       consumes:
         - application/json
       produces:
@@ -4214,7 +4184,7 @@ paths:
     post:
       tags:
         - Institute Internal Departments
-      summary: Add New Subject Master to the department
+      summary: Add New Subject Master to the department -(verified)
       consumes:
         - application/json
       produces:
@@ -4230,11 +4200,6 @@ paths:
           required: true
           type: string
           description: This is Department id
-        - in: path
-          name: bid
-          required: true
-          type: string
-          description: This is Batch id
         - in: body
           name: body
           schema:
@@ -4253,7 +4218,7 @@ paths:
     get:
       tags:
         - Institute Internal Departments 
-      summary: One department All subject master
+      summary: One department All subject master -(verified)
       consumes:
         - application/json
       produces:
@@ -4277,7 +4242,7 @@ paths:
     post:
       tags:
         - Institute Internal Departments
-      summary: Add New Class to the Batch
+      summary: Add New Class to the Batch -(verified)
       consumes:
         - application/json
       produces:
@@ -4328,7 +4293,7 @@ paths:
     get:
       tags:
         - Institute Internal Departments 
-      summary: One batch All Class list
+      summary: One batch All Class list -(verified)
       consumes:
         - application/json
       produces:
@@ -4348,7 +4313,7 @@ paths:
     post:
       tags:
         - Institute Internal Departments
-      summary: Add New Subject to the Class
+      summary: Add New Subject to the Class -(verified)
       consumes:
         - application/json
       produces:
@@ -4400,7 +4365,7 @@ paths:
     get:
       tags:
         - Institute Internal Departments 
-      summary: One class All subject List
+      summary: One class Profile -(verified)
       consumes:
         - application/json
       produces:
@@ -4414,6 +4379,26 @@ paths:
       responses:
         "200":
           description: OK
+
+  /api/v1/ins/class/subject/{cid}:
+    get:
+      tags:
+        - Institute Internal Departments 
+      summary: One class All Subject -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class id
+      responses:
+        "200":
+          description: OK
+
 
   #This is for universal image
   /api/v1/all-images/{key}:

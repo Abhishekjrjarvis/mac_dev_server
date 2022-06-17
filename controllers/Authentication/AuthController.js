@@ -439,7 +439,7 @@ module.exports.authentication = async (req, res) => {
         req.session.institute = institute;
         res
           .status(200)
-          .send({ message: "Successfully LoggedIn as a Institute", institute, data: req.headers });
+          .send({ message: "Successfully LoggedIn as a Institute", institute: institute._id, });
       } else {
         res.send({ message: "Invalid Credentials" });
       }
@@ -452,7 +452,7 @@ module.exports.authentication = async (req, res) => {
         req.session.admin = admin;
         res
           .status(200)
-          .send({ message: "Successfully LoggedIn as a Super Admin", admin });
+          .send({ message: "Successfully LoggedIn as a Super Admin", admin: admin._id });
       } else {
         res.send({ message: "Invalid Credentials" });
       }
@@ -473,12 +473,12 @@ module.exports.authentication = async (req, res) => {
             req.session.user = user;
             res
               .status(200)
-              .send({ message: "Successfully LoggedIn as a User", user });
+              .send({ message: "Successfully LoggedIn as a User", user: user._id });
           } else if (user.activeStatus === "Activated") {
             req.session.user = user;
             res
               .status(200)
-              .send({ message: "Successfully LoggedIn as a User", user });
+              .send({ message: "Successfully LoggedIn as a User", user: user._id });
           } else {
           }
         } else {

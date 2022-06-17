@@ -463,6 +463,13 @@ router.get(
 router.get(
   "/class/:cid",
   isLoggedIn,
+  catchAsync(Institute.retrieveClassProfileSubject)
+);
+
+
+router.get(
+  "/class/subject/:cid",
+  isLoggedIn,
   catchAsync(Institute.retrieveClassSubject)
 );
 

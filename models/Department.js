@@ -148,6 +148,10 @@ const departmentSchema = new mongoose.Schema({
   batchCount: {
     type: Number,
     default: 0
+  },
+  staffCount: {
+    type: Number,
+    default: 0
   }
 });
 

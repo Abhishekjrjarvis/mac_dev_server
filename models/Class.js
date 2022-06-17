@@ -171,6 +171,10 @@ const classSchema = new mongoose.Schema({
   subjectCount: {
     type: Number,
     default: 0
+  },
+  studentCount: {
+    type: Number,
+    default: 0
   }
 });
 

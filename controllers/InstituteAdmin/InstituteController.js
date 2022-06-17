@@ -862,6 +862,7 @@ exports.getNewDepartment = async (req, res) => {
     department.institute = institute._id;
     staff.staffDepartment.push(department._id);
     department.dHead = staff._id;
+    department.staffCount += 1
     notify.notifyContent = `you got the designation of ${department.dName} as Head`;
     notify.notifySender = id;
     notify.notifyReceiever = user._id;
@@ -1929,7 +1930,7 @@ exports.retrieveClassProfileSubject = async (req, res) => {
   try {
     const { cid } = req.params;
     const classes = await Class.findById({ _id: cid })
-      .select("className classTitle")
+      .select("className classTitle classAbout subjectCount studentCount")
       .populate({
         path: "classTeacher",
         select:
@@ -1938,6 +1939,10 @@ exports.retrieveClassProfileSubject = async (req, res) => {
       .populate({
         path: "batch",
         select: "batchName",
+      })
+      .populate({
+        path: 'department',
+        select: 'staffCount'
       })
       .lean()
       .exec();

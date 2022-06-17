@@ -152,6 +152,10 @@ const departmentSchema = new mongoose.Schema({
   staffCount: {
     type: Number,
     default: 0
+  },
+  studentCount: {
+    type: Number, 
+    default: 0
   }
 });
 

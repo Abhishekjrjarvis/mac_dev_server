@@ -1662,7 +1662,7 @@ exports.getOneDepartment = async (req, res) => {
     const { did } = req.params;
     const department = await Department.findById({ _id: did })
       .select(
-        "dName dAbout dEmail dPhoneNumber photoId photo dSpeaker dVicePrinciple dAdminClerk dOperatingAdmin dStudentPresident"
+        "dName dAbout dEmail staffCount studentCount classCount dPhoneNumber photoId photo dSpeaker dVicePrinciple dAdminClerk dOperatingAdmin dStudentPresident"
       )
       .populate({ path: "dHead", select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto' })
       .populate({

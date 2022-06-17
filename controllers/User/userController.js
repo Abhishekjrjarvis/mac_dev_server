@@ -10,6 +10,7 @@ const Report = require("../../models/Report");
 const Staff = require('../../models/Staff')
 const Student = require('../../models/Student')
 const axios = require('axios')
+const InsAnnouncement = require('../../models/InsAnnouncement')
 const bcrypt = require('bcryptjs')
 const Post = require('../../models/Post')
 const {
@@ -937,31 +938,31 @@ exports.followingInsArray = async (req, res) => {
 
 exports.retrieveAllStarAnnouncementUser = async(req, res) =>{
   try{
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const { id } = req.params
+    const skip = (page - 1) * limit;
     const user = await User.findById({_id: id})
-    .select('id')
+    .populate({ path: 'starAnnouncement' })
+    const announcement = await InsAnnouncement.find({
+      _id: { $in: user.starAnnouncement}
+    })
+    .select('insAnnTitle insAnnPhoto insAnnDescription insAnnVisibility createdAt')
     .populate({
-      path: 'starAnnouncement',
-      select: 'insAnnTitle insAnnPhoto insAnnDescription insAnnVisibility createdAt',
-      populate: {
-        path: 'reply',
-        select: 'replyText replyAuthorByIns replyAuthorByUser createdAt'
-      }
+      path: 'reply',
+      select: 'replyText replyAuthorByIns replyAuthorByUser createdAt'
     })
     .populate({
-      path: 'starAnnouncement',
-      select: 'insAnnTitle insAnnPhoto insAnnDescription insAnnVisibility createdAt',
-      populate: {
-        path: 'institute',
-        select: 'insName photoId insProfilePhoto'
-      }
+      path: 'institute',
+      select: 'insName photoId insProfilePhoto'
     })
-    .lean()
-    .exec()
-    res.status(200).send({ message: 'Success', user})
+    .sort("-createdAt")
+    .limit(limit)
+    .skip(skip)
+    res.status(200).send({ message: 'Success', announcement})
   }
-  catch{
-
+  catch(e){
+    console.log(e)
   }
 }
 

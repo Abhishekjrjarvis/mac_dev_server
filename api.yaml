@@ -1422,6 +1422,16 @@ paths:
           required: true
           type: string
           description: This is user id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
       responses:
         "200":
           description: OK
@@ -2631,6 +2641,16 @@ paths:
           schema:
             type: string
           description: The institute ID
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
       responses:
         "200":
           description: OK
@@ -2908,7 +2928,7 @@ paths:
     post:
       tags:
         - Institute Profile API
-      summary: Add Display Person
+      summary: Add Display Person -(verified)
       consumes:
         - application/json
       produces:
@@ -2932,7 +2952,7 @@ paths:
                 description: Enter Display Title
               displayUser:
                 type: string
-                description: Enter User Id
+                description: Enter Staff User Id
       responses:
         "200":
           description: OK
@@ -2941,7 +2961,7 @@ paths:
     get:
       tags:
         - Institute Profile API
-      summary: Retrieve Display Person
+      summary: Retrieve Display Person -(verified)
       consumes:
         - application/json
       produces:
@@ -2960,7 +2980,7 @@ paths:
     patch:
       tags:
         - Institute Profile API
-      summary: Update Display Person
+      summary: Update Display Person -(verified)
       consumes:
         - application/json
       produces:
@@ -2993,7 +3013,7 @@ paths:
     delete:
       tags:
         - Institute Profile API
-      summary: Delete Display Person
+      summary: Delete Display Person -(verified)
       consumes:
         - application/json
       produces:
@@ -3543,6 +3563,16 @@ paths:
           required: true
           type: string
           description: This is institute id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
       responses:
         "200":
           description: OK
@@ -3766,7 +3796,7 @@ paths:
     post:
       tags:
         - Staff-Module
-      summary: Staff Approval By Institute Side (status - Approved)
+      summary: Staff Approval By Institute Side (status - Approved) - (verified)
       consumes:
         - application/json
       produces:
@@ -3805,7 +3835,7 @@ paths:
     post:
       tags:
         - Staff-Module
-      summary: Staff Reject By Institute Side (status - Rejected)
+      summary: Staff Reject By Institute Side (status - Rejected) - (verified)
       consumes:
         - application/json
       produces:
@@ -3844,7 +3874,7 @@ paths:
     get:
       tags:
         - Staff-Module
-      summary: All pending staff List that is request to the institute side to approve as a staff
+      summary: All pending staff List that is request to the institute side to approve as a staff - (verified)
       consumes:
         - application/json
       produces:
@@ -3863,7 +3893,7 @@ paths:
     get:
       tags:
         - Staff-Module
-      summary: When edit the class master card to change staff then all approve staff get via api
+      summary: When edit the class master card to change staff then all approve staff get via api - (verified)
       consumes:
         - application/json
       produces:
@@ -3882,7 +3912,7 @@ paths:
     get:
       tags:
         -  Staff-Module
-      summary: All full detail of one staff 
+      summary: All full detail of one staff - (verified)
       consumes:
         - application/json
       produces:

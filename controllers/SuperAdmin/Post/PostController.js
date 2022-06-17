@@ -13,64 +13,6 @@ const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 
-// exports.getPost = async (req, res) => {
-//   try {
-//     const page = req.query.page ? parseInt(req.query.page) : 1;
-//     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-//     const insId = req.params.id;
-//     const skip = (page - 1) * limit;
-//     const ins = await InstituteAdmin.findById(insId);
-//     const allPostId = [];
-//     allPostId.push(...ins.posts);
-//     if (ins.following.length) {
-//       for (let i = 0; i < ins.following.length; i++) {
-//         const element = ins.following[i];
-//         const postid = await InstituteAdmin.findById(element);
-//         allPostId.push(postid);
-//       }
-//     }
-//     // console.log("THIS IS all post after follower only institute", allPostId);
-
-//     const postdata = await post
-//       .find(
-//         { _id: { $in: allPostId } }
-//         // { createdAt: { $gte: Date.now.toISOString() } }
-//       )
-//       .sort({ createdAt: -1 })
-//       .limit(limit)
-//       .skip(skip)
-//       .populate({
-//         path: "comment",
-//         select: "commentDesc createdAt allLikeCount ",
-//         populate: {
-//           path: "institutes",
-//           select: "insName photoId  insProfilePhoto",
-//         },
-//       })
-//       .populate({
-//         path: "comment",
-//         select: "commentDesc createdAt allLikeCount",
-//         populate: {
-//           path: "instituteUser",
-//           select: "userLegalName photoId profilePhoto ",
-//         },
-//       })
-//       .populate({
-//         path: "insLike",
-//         select: "insName",
-//       })
-
-//       .populate({
-//         path: "insUserLike",
-//         select: "userLegalName",
-//       });
-
-//     res.status(200).send({ message: "staff data", postdata });
-//   } catch (e) {
-//     console.log(`Error`, e);
-//   }
-// };
-
 exports.postWithText = async (req, res) => {
   try {
     const { id } = req.params;
@@ -99,6 +41,10 @@ exports.postWithText = async (req, res) => {
     if(post.postStatus === 'Anyone'){
     admin.users.forEach(async (el)  =>{
       el.userPosts.push(post._id)
+      await el.save()
+    })
+    admin.ApproveInstitute.forEach(async (el)  =>{
+      el.posts.push(post._id)
       await el.save()
     })
     }
@@ -149,6 +95,10 @@ exports.postWithImage = async (req, res) => {
         el.userPosts.push(post._id)
         await el.save()
       })
+      admin.ApproveInstitute.forEach(async (el)  =>{
+        el.posts.push(post._id)
+        await el.save()
+      })
     } else if(post.postStatus === 'Private'){
         admin.ApproveInstitute.forEach(async (el)  =>{
           el.posts.push(post._id)
@@ -193,6 +143,10 @@ exports.postWithVideo = async (req, res) => {
         el.userPosts.push(post._id)
         await el.save()
       })
+      admin.ApproveInstitute.forEach(async (el)  =>{
+        el.posts.push(post._id)
+        await el.save()
+      })
     } else if(post.postStatus === 'Private'){
         admin.ApproveInstitute.forEach(async (el)  =>{
           el.posts.push(post._id)
@@ -230,9 +184,9 @@ exports.postLike = async (req, res) => {
   try {
     const { pid } = req.params;
     const post = await Post.findById({ _id: pid });
-    const admin_session = req.headers.admin
-    const institute_session = req.headers.institute;
-    const user_session = req.headers.user;
+    const admin_session = req.session.admin._id
+    const institute_session = req.session.institute._id;
+    const user_session = req.session.user._id;
 
     if (institute_session) {
       if (
@@ -306,9 +260,9 @@ exports.postLike = async (req, res) => {
 exports.postSave = async (req, res) => {
   try {
     const { pid } = req.params;
-    const admin_session = req.headers.admin
-    const institute_session = req.headers.institute;
-    const user_session = req.headers.user;
+    const admin_session = req.session.admin._id
+    const institute_session = req.session.institute._id;
+    const user_session = req.session.user._id;
     if (institute_session) {
       const institute = await InstituteAdmin.findById({
         _id: institute.session,
@@ -364,9 +318,9 @@ exports.postComment = async (req, res) => {
     const { id } = req.params;
     const post = await Post.findById({ _id: id });
     const comment = new Comment({ ...req.body });
-    const institute = await InstituteAdmin.findById({_id: req.headers.institute})
-    const user = await User.findById({_id: req.headers.user})
-    const admin = await Admin.findById({_id: req.headers.admin})
+    const institute = await InstituteAdmin.findById({_id: req.session.institute._id})
+    const user = await User.findById({_id: req.session.user._id})
+    const admin = await Admin.findById({_id: req.session.admin._id})
     if (institute) {
       comment.author = institute._id;
       comment.authorName = institute.insName
@@ -489,9 +443,9 @@ exports.postCommentChild = async (req, res) => {
   try {
     const { pcid } = req.params;
     const { comment, uid } = req.body;
-    var rUser = req.headers.user && req.headers.user
-    var rInstitute = req.headers.institute && req.headers.institute
-    var rAdmin = req.headers.admin && req.headers.admin
+    var rUser = req.session.user._id && req.session.user._id
+    var rInstitute = req.session.institute._id && req.session.institute._id
+    var rAdmin = req.session.admin._id && req.session.admin._id
     const institute = await InstituteAdmin.findById({_id: rInstitute})
     const users = await User.findById({_id: rUser})
     const admins = await Admin.findById({_id: rAdmin})
@@ -595,7 +549,7 @@ exports.likeCommentChild = async (req, res) => {
     const insCommentId = req.params.cid;
     const id = req.params.id;
     const comment = await Comment.findById(insCommentId);
-    if (req.headers.institute) {
+    if (req.session.institute._id) {
       if (!comment.parentCommentLike.includes(id)) {
         comment.parentCommentLike.push(id);
         comment.allLikeCount += 1;
@@ -614,7 +568,7 @@ exports.likeCommentChild = async (req, res) => {
           count: comment.allLikeCount,
         });
       }
-    } else if (req.headers.user) {
+    } else if (req.session.user._id) {
       if (!comment.parentCommentLike.includes(id)) {
         comment.parentCommentLike.push(id);
         comment.allLikeCount += 1;
@@ -630,7 +584,7 @@ exports.likeCommentChild = async (req, res) => {
           .status(200)
           .send({ message: "diliked by user", count: comment.allLikeCount });
       }
-    } else if (req.headers.admin) {
+    } else if (req.session.admin._id) {
         if (!comment.parentCommentLike.includes(id)) {
           comment.parentCommentLike.push(id);
           comment.allLikeCount += 1;

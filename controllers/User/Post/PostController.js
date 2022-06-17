@@ -125,33 +125,11 @@ exports.postWithDeleted = async (req, res) => {
 };
 
 exports.postLike = async (req, res) => {
-  console.log('routes')
   try {
     const { pid } = req.params;
     const post = await Post.findById({ _id: pid });
-    const institute_session = req.headers.institute;
-    const user_session = req.headers.user;
-    if (institute_session) {
-      if (
-        post.userlikeIns.length >= 1 &&
-        post.userlikeIns.includes(String(institute_session))
-      ) {
-        // post.userlikeIns.pull(institute_session);
-        // likeCount -= 1;
-        // await post.save();
-        // res
-        //   .status(200)
-        //   .send({ message: "Removed from Likes", likeCount: post.likeCount });
-        // } else {
-        // post.userlikeIns.push(institute_session);
-        // likeCount += 1;
-        // await post.save();
-        // res
-        //   .status(200)
-        //   .send({ message: "Added To Likes", likeCount: post.likeCount });
-      }
-    } else if (user_session) {
-      // console.log(post && post.endUserLike.length)
+    const user_session = req.session.user._id
+    if (user_session) {
       if (
         post.endUserLike.length >= 1 &&
         post.endUserLike.includes(String(user_session))
@@ -183,25 +161,8 @@ exports.postLike = async (req, res) => {
 exports.postSave = async (req, res) => {
   try {
     const { pid } = req.params;
-    const institute_session = req.headers.institute;
-    const user_session = req.headers.user;
-    if (institute_session) {
-      // const institute = await InstituteAdmin.findById({
-      //   _id: institute_session,
-      // });
-      // if (
-      //   institute.saveInsPost.length >= 1 &&
-      //   institute.saveInsPost.includes(String(institute_session))
-      // ) {
-      //   institute.saveInsPost.pull(pid);
-      //   await institute.save();
-      //   res.status(200).send({ message: "Removed from Favourites" });
-      // } else {
-      //   institute.saveInsPost.push(pid);
-      //   await institute.save();
-      //   res.status(200).send({ message: "Added To Favourites" });
-      // }
-    } else if (user_session) {
+    const user_session = req.session.user._id;
+    if (user_session) {
       const user = await User.findById({ _id: user_session });
       if (user.saveUsersPost.length >= 1 && user.saveUsersPost.includes(pid)) {
         user.saveUsersPost.pull(pid);
@@ -223,8 +184,8 @@ exports.postComment = async (req, res) => {
     const { id } = req.params;
     const post = await Post.findById({ _id: id });
     const comment = new Comment({ ...req.body });
-    const institute = await InstituteAdmin.findById({_id: req.headers.institute})
-    const user = await User.findById({_id: req.headers.user})
+    const institute = await InstituteAdmin.findById({_id: req.session.institute._id})
+    const user = await User.findById({_id: req.session.user._id})
     if (institute) {
       comment.author = institute._id;
       comment.authorName = institute.insName
@@ -390,9 +351,9 @@ exports.postCommentChild = async (req, res) => {
   try {
     const { pcid } = req.params;
     const { comment, uid } = req.body;
-    var rUser = req.headers.user && req.headers.user
+    var rUser = req.session.user._id && req.session.user._id
     const users = await User.findById({_id: rUser}) 
-    if (req.headers.institute) {
+    if (req.session.institute._id) {
       // const childComment = new ReplyCommentUser({
       //   repliedComment: comment,
       //   authorInstitue: uid,
@@ -459,24 +420,7 @@ exports.likeCommentChild = async (req, res) => {
     const insCommentId = req.params.cid;
     const id = req.params.id;
     const comment = await Comment.findById(insCommentId);
-    if (req.headers.institute) {
-      // if (!comment.parentCommentLikeInstitute.includes(id)) {
-      //   comment.parentCommentLikeInstitute.push(id);
-      //   comment.allLikeCount = comment.allLikeCount + 1;
-      //   await comment.save();
-      //   res
-      //     .status(200)
-      //     .send({ message: "liked by Institute", count: comment.allLikeCount });
-      // } else {
-      //   comment.parentCommentLikeInstitute.pull(id);
-      //   comment.allLikeCount = comment.allLikeCount - 1;
-      //   await comment.save();
-      //   res.status(200).send({
-      //     message: "diliked by Institute",
-      //     count: comment.allLikeCount,
-      //   });
-      // }
-    } else if (req.headers.user) {
+    if (req.session.user._id) {
       if (!comment.parentCommentLike.includes(id)) {
         comment.parentCommentLike.push(id);
         comment.allLikeCount += 1;
@@ -492,7 +436,7 @@ exports.likeCommentChild = async (req, res) => {
         }
         await comment.save();
         res.status(200).send({
-          message: "diliked by user",
+          message: "disliked by user",
           allLikeCount: comment.allLikeCount,
         });
       }

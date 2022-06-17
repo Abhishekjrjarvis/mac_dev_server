@@ -1807,6 +1807,7 @@ exports.retrieveNewClass = async(req, res) =>{
     });
   }
   } catch (e) {
+    console.log(e)
   }
 }
 
@@ -2255,8 +2256,8 @@ exports.retrieveStudentCode = async (req, res) => {
 exports.replyAnnouncement = async (req, res) => {
   try {
     const { aid } = req.params;
-    const institute = await InstituteAdmin.findOne({ _id: req.headers.institute });
-    const user = await User.findOne({ _id: req.headers.user });
+    const institute = await InstituteAdmin.findOne({ _id: req.session.institute._id });
+    const user = await User.findOne({ _id: req.session.user._id });
     var replyAnn = await InsAnnouncement.findById({ _id: aid });
     var replyData = new ReplyAnnouncement({ ...req.body });
     replyAnn.reply.push(replyData._id);

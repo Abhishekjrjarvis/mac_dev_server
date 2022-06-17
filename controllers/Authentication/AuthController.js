@@ -437,7 +437,6 @@ module.exports.authentication = async (req, res) => {
       const checkPass = bcrypt.compareSync(insPassword, institute.insPassword);
       if (checkPass) {
         req.session.institute = institute;
-        req.headers.institute = institute._id
         res
           .status(200)
           .send({ message: "Successfully LoggedIn as a Institute", institute, data: req.headers });
@@ -451,7 +450,6 @@ module.exports.authentication = async (req, res) => {
       );
       if (checkAdminPass) {
         req.session.admin = admin;
-        req.headers.admin = admin._id
         res
           .status(200)
           .send({ message: "Successfully LoggedIn as a Super Admin", admin });
@@ -473,13 +471,11 @@ module.exports.authentication = async (req, res) => {
             user.activeDate = "";
             await user.save();
             req.session.user = user;
-            req.headers.user = user._id
             res
               .status(200)
               .send({ message: "Successfully LoggedIn as a User", user });
           } else if (user.activeStatus === "Activated") {
             req.session.user = user;
-            req.headers.user = user._id
             res
               .status(200)
               .send({ message: "Successfully LoggedIn as a User", user });

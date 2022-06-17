@@ -189,8 +189,8 @@ exports.postLike = async (req, res) => {
   try {
     const { pid } = req.params;
     const post = await Post.findById({ _id: pid });
-    const institute_session = req.headers.institute;
-    const user_session = req.headers.user;
+    const institute_session = req.session.institute._id;
+    const user_session = req.session.user._id;
 
     if (institute_session) {
       if (
@@ -243,8 +243,8 @@ exports.postLike = async (req, res) => {
 exports.postSave = async (req, res) => {
   try {
     const { pid } = req.params;
-    const institute_session = req.headers.institute;
-    const user_session = req.headers.user;
+    const institute_session = req.session.institute._id;
+    const user_session = req.session.user._id;
     if (institute_session) {
       const institute = await InstituteAdmin.findById({
         _id: institute.session,
@@ -286,8 +286,8 @@ exports.postComment = async (req, res) => {
     const { id } = req.params;
     const post = await Post.findById({ _id: id });
     const comment = new Comment({ ...req.body });
-    const institute = await InstituteAdmin.findById({_id: req.headers.institute})
-    const user = await User.findById({_id: req.headers.user})
+    const institute = await InstituteAdmin.findById({_id: req.session.institute._id})
+    const user = await User.findById({_id: req.session.user._id})
     if (institute) {
       comment.author = institute._id;
       comment.authorName = institute.insName
@@ -439,8 +439,8 @@ exports.postCommentChild = async (req, res) => {
   try {
     const { pcid } = req.params;
     const { comment, uid } = req.body;
-    var rUser = req.headers.user && req.headers.user
-    var rInstitute = req.headers.institute && req.headers.institute
+    var rUser = req.session.user._id && req.session.user._id
+    var rInstitute = req.session.institute._id && req.session.institute._id
     const institute = await InstituteAdmin.findById({_id: rInstitute})
     const users = await User.findById({_id: rUser})
     if (institute) {
@@ -514,7 +514,7 @@ exports.likeCommentChild = async (req, res) => {
     const insCommentId = req.params.cid;
     const id = req.params.id;
     const comment = await Comment.findById(insCommentId);
-    if (req.headers.institute) {
+    if (req.session.institute._id) {
       if (!comment.parentCommentLike.includes(id)) {
         comment.parentCommentLike.push(id);
         comment.allLikeCount += 1;
@@ -533,7 +533,7 @@ exports.likeCommentChild = async (req, res) => {
           count: comment.allLikeCount,
         });
       }
-    } else if (req.headers.user) {
+    } else if (req.session.user._id) {
       if (!comment.parentCommentLike.includes(id)) {
         comment.parentCommentLike.push(id);
         comment.allLikeCount += 1;

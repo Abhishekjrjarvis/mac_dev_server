@@ -473,12 +473,12 @@ module.exports.authentication = async (req, res) => {
             req.session.user = user;
             res
               .status(200)
-              .send({ message: "Successfully LoggedIn as a User", user: user._id });
+              .send({ message: "Successfully LoggedIn as a User", user: user });
           } else if (user.activeStatus === "Activated") {
             req.session.user = user;
             res
               .status(200)
-              .send({ message: "Successfully LoggedIn as a User", user: user._id });
+              .send({ message: "Successfully LoggedIn as a User", user: user });
           } else {
           }
         } else {

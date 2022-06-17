@@ -259,7 +259,9 @@ exports.getAnnouncementArray = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const { id } = req.params;
     const skip = (page - 1) * limit;
-    const announcement = await InsAnnouncement.find({ institute: id})
+    const institute = await InstituteAdmin.findById({_id: id})
+    .populate({ path: 'announcement' })
+    const announcement = await InsAnnouncement.find({ _id: { $in: institute.announcement }})
     .select("insAnnPhoto photoId insAnnTitle insAnnVisibilty insAnnDescription createdAt")
     .populate({
       path: 'reply',
@@ -273,7 +275,9 @@ exports.getAnnouncementArray = async (req, res) => {
     .limit(limit)
     .skip(skip)
     res.status(200).send({ message: "all announcement list", announcement });
-  } catch {}
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 exports.getAllPostIns = async (req, res) => {
@@ -1533,6 +1537,10 @@ exports.retrieveApproveStaffList = async (req, res) => {
         path: "ApproveStaff",
         select:
           "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        populate: {
+          path: 'user',
+          select: 'userLegalName'
+        }
       })
       .lean()
       .exec();
@@ -1555,6 +1563,10 @@ exports.retrieveApproveStudentList = async (req, res) => {
         path: "ApproveStudent",
         select:
           "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+        populate: {
+          path: 'user',
+          select: 'userLegalName'
+        }
       })
       .lean()
       .exec();
@@ -2417,13 +2429,8 @@ exports.retrieveStarAnnouncementArray = async(req, res) =>{
   try{
     const { aid } = req.params
     const insAnn = await InsAnnouncement.findById({_id: aid})
-    if(req.session.user){
-    var user = await User.findById({_id: req.session.user._id})
-    }
-    else{
-    var institute = await InstituteAdmin.findById({_id: req.session.institute._id})
-    }
-    if(institute){
+    if(req.session.institute){
+      var institute = await InstituteAdmin.findById({_id: req.session.institute._id})
       if(insAnn.starList.length >=1 && insAnn.starList.includes(String(institute._id))){
         insAnn.starList.pull(institute._id)
         institute.starAnnouncement.pull(insAnn._id)
@@ -2437,7 +2444,8 @@ exports.retrieveStarAnnouncementArray = async(req, res) =>{
         res.status(200).send({ message: 'Added to Star By Ins'})
       }
     }
-    else if(user){
+    else if(req.session.user){
+      var user = await User.findById({_id: req.session.user._id})
       if(insAnn.starList.length >=1 && insAnn.starList.includes(String(user._id))){
         insAnn.starList.pull(user._id)
         user.starAnnouncement.pull(insAnn._id)
@@ -2451,6 +2459,9 @@ exports.retrieveStarAnnouncementArray = async(req, res) =>{
         res.status(200).send({ message: 'Added to Star By User'})
       }
     }
+    else{
+
+    }
   }
   catch(e){
     console.log(e)
@@ -2459,7 +2470,7 @@ exports.retrieveStarAnnouncementArray = async(req, res) =>{
 
 
 
-exports.retrieveAllStarAnnouncementUser = async(req, res) =>{
+exports.retrieveAllStarArray = async(req, res) =>{
   try{
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;

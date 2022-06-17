@@ -567,6 +567,7 @@ router.post('/:aid/star-announcement', isLoggedIn, catchAsync(Institute.retrieve
 
 // Get Star Announcement
 router.get('/:id/all/star-announcement', isLoggedIn, catchAsync(Institute.retrieveAllStarArray))
+
 // Recovery Mail 
 router.post('/:id/recovery-mail', isLoggedIn, catchAsync(Institute.retrieveRecoveryMailIns))
 

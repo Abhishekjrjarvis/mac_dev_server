@@ -348,7 +348,7 @@ paths:
     get:
       tags:
         - User Profile API
-      summary: User All Posts
+      summary: User All Posts -(verified)
       consumes:
         - application/json
       produces:
@@ -1481,7 +1481,7 @@ paths:
     get:
       tags:
         - Staff-Student-Joining-All-API
-      summary: Get Staff Code for joining by Institute
+      summary: Get Staff Code for joining by Institute -(verified)
       consumes:
         - application/json
       produces:
@@ -1501,7 +1501,7 @@ paths:
     get:
       tags:
         - Staff-Student-Joining-All-API
-      summary: Get Staff Status for Application Status
+      summary: Get Staff Status for Application Status -(verified)
       consumes:
         - application/json
       produces:
@@ -1521,7 +1521,7 @@ paths:
     post:
       tags:
         - Staff-Student-Joining-All-API
-      summary: Staff joining form apply to Institute
+      summary: Staff joining form apply to Institute -(verified)
       consumes:
         - multipart/form-data
       produces:
@@ -2350,7 +2350,7 @@ paths:
     post:
       tags:
         - Institute Authentication
-      summary: Institute Mobile Authentication
+      summary: Institute Mobile Authentication -(verified)
       consumes:
         - application/json
       produces:
@@ -2378,7 +2378,7 @@ paths:
     post:
       tags:
         - Institute Authentication
-      summary: Institute Mobile Authentication Verification
+      summary: Institute Mobile Authentication Verification -(verified)
       consumes:
         - application/json
       produces:
@@ -2409,7 +2409,7 @@ paths:
     post:
       tags:
         - Institute Authentication
-      summary: Institute registration process
+      summary: Institute registration process -(verified)
       consumes:
         - multipart/form-data
       produces:
@@ -2483,7 +2483,7 @@ paths:
     post:
       tags:
         - Institute Authentication
-      summary: Institute create Password
+      summary: Institute create Password -(verified)
       consumes:
         - application/json
       produces:
@@ -2539,7 +2539,7 @@ paths:
     get:
       tags:
         - Institute Profile API
-      summary: Institute All Posts
+      summary: Institute All Posts -(verified)
       consumes:
         - application/json
       produces:
@@ -2629,7 +2629,7 @@ paths:
     get:
       tags:
         - Institute Profile API
-      summary: Institute Announcement page Data
+      summary: Institute Announcement page Data -(verified)
       produces:
         - application/json
       consumes:
@@ -2659,7 +2659,7 @@ paths:
     post:
       tags:
         - Institute Profile API
-      summary: Add New Announcement
+      summary: Add New Announcement -(verified)
       produces:
         - application/json
       consumes:
@@ -2704,7 +2704,7 @@ paths:
     post:
       tags:
         - Institute Profile API
-      summary: Reply To Announcement By user or Institute
+      summary: Reply To Announcement By user or Institute -(verified)
       produces:
         - application/json
       consumes:
@@ -3533,7 +3533,7 @@ paths:
     post:
       tags:
         - Institute DashBoard API (including Notification, Post, Announcement)
-      summary: Mark As Star Announcement
+      summary: Mark As Star Announcement -(verified)
       consumes:
         - application/json
       produces:
@@ -3552,7 +3552,7 @@ paths:
     get:
       tags:
         - Institute DashBoard API (including Notification, Post, Announcement)
-      summary: All Star Announcement Institute
+      summary: All Star Announcement Institute -(verified)
       consumes:
         - application/json
       produces:

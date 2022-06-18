@@ -1867,6 +1867,26 @@ paths:
 
 
   #Staff Member's Tab
+
+  /api/v1/user/{uid}/staff-role:
+    get:
+      tags:
+        - Staff-Member-Tab
+      summary: User All Applied Staff Role -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is User id
+      responses:
+        "200":
+          description: OK
+
   /api/v1/user/staffdesignationdata/{sid}:
     get:
       tags:
@@ -5232,6 +5252,20 @@ paths:
       responses:
         "200":
           description: OK
+
+
+  /api/v1/notification/todevice:
+    post:
+      tags:
+        - Push Notificcation
+      summary: Flutter Push Notification 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
   
   /api/v1/admin/post/{id}/all/posts:
     get:
@@ -5307,6 +5341,8 @@ paths:
 
   
   
+  
+
   
 
   

@@ -284,7 +284,7 @@ app.use("/api/v1/avail", availNew);
 app.use('/api/v1/landing', landingNew)
 
 // Push Notification Through Flutter By Node
-app.use('/api/v1//notification', notifyNew)
+app.use('/api/v1/notification', notifyNew)
 
 // Super Admin Routes
 

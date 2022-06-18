@@ -982,6 +982,27 @@ exports.retrieveRecoveryMailUser = async(req, res) =>{
 
 
 
+exports.retrieveUserStaffArray = async(req, res) =>{
+  try{
+    const { uid } = req.params
+    const user = await User.findById({ _id: uid })
+    .select('userLegalName username photoId profilePhoto')
+    .populate({
+      path: 'staff',
+      select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto',
+      populate: {
+        path: 'institute',
+        select: 'insName name photoId insProfilePhoto'
+      }
+    })
+    res.status(200).send({ message: 'Success', user})
+  }
+  catch{
+
+  }
+}
+
+
 exports.retrieveStaffDesignationArray = async(req, res) =>{
   try {
     const { sid } = req.params;

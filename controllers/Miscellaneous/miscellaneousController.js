@@ -18,9 +18,15 @@ const UserSupport = require('../../models/UserSupport')
 
 exports.getAllStaff = async(req, res) =>{
     try {
+        const page = req.query.page ? parseInt(req.query.page) : 1;
+        const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+        const skip = (page - 1) * limit;
         const staff = await Staff.find({})
         .select('staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto')
-        res.status(200).send({ message: "staff data", staff });
+        .limit(limit)
+        .skip(skip)
+
+        res.status(200).send({ message: "staff data", sRandom: staff });
       } catch(e) {
         console.log(`Error`, e.message);
       }
@@ -44,9 +50,14 @@ exports.getAllStudent = async(req, res) =>{
 
 exports.getAllUser = async(req, res) =>{
     try {
+        const page = req.query.page ? parseInt(req.query.page) : 1;
+        const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+        const skip = (page - 1) * limit;
         const user = await User.find({})
         .select('userLegalName username photoId profilePhoto')
-        res.status(200).send({ message: "User data", user });
+        .limit(limit)
+        .skip(skip)
+        res.status(200).send({ message: "User data", uRandom: user });
       } catch(e) {
         console.log(`Error`, e.message);
       }
@@ -135,9 +146,14 @@ exports.getAllChecklist = async(req, res) =>{
 
 exports.getAllInstitute = async(req, res) =>{
     try {
+        const page = req.query.page ? parseInt(req.query.page) : 1;
+        const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+        const skip = (page - 1) * limit;
         const institute = await InstituteAdmin.find({})
         .select('insName photoId insProfilePhoto name')
-        res.status(200).send({ message: "Institute data", institute });
+        .limit(limit)
+        .skip(skip)
+        res.status(200).send({ message: "Institute data", iRandom: institute });
       } catch(e) {
         console.log(
           `Error`, e.message

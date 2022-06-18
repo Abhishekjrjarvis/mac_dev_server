@@ -314,7 +314,7 @@ exports.updateUserFollowIns = async (req, res) => {
       res.status(200).send({ message: "Following This Institute" });
     }
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(`Error`, e);
   }
 };
 
@@ -325,16 +325,17 @@ exports.removeUserFollowIns = async (req, res) => {
       _id: req.body.InsfollowId,
     });
 
-    if (sinstitute.userFollowersList.includes(req.session.user._id)) {
-      user.userInstituteFollowing.pull(req.body.InsfollowId);
-      sinstitute.userFollowersList.pull(req.session.user._id);
+    if (sinstitute.userFollowersList.length >= 1 && sinstitute.userFollowersList.includes(`${user._id}`)) {
+      user.userInstituteFollowing.pull(sinstitute._id);
+      sinstitute.userFollowersList.pull(user._id);
       await user.save();
       await sinstitute.save();
+      res.status(200).send({ message: 'Unfollow Institute'})
     } else {
       res.status(200).send({ message: "You Already Unfollow This Institute" });
     }
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(`Error`, e);
   }
 };
 
@@ -571,7 +572,7 @@ exports.deactivateUserAccount = async (req, res) => {
     user.activeDate = ddate;
     await user.save();
     res.clearCookie("SessionID", { path: "/" });
-    res.status(200).send({ message: "Deactivated Account", user });
+    res.status(200).send({ message: "Deactivated Account", status: user.activeStatus });
     }
     else{
       res.status(404).send({ message: 'Bad Request'})
@@ -682,7 +683,7 @@ exports.getReportPostUser = async (req, res) => {
     report.reportBy = user;
     await admin.save();
     await report.save();
-    res.status(200).send({ message: "reported", report });
+    res.status(200).send({ message: "reported", report: report.reportStatus });
   } catch (e) {
     console.log(`Error`, e.message);
   }
@@ -690,47 +691,38 @@ exports.getReportPostUser = async (req, res) => {
 
 exports.getNotifications = async (req, res) => {
   try {
-    const { id } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const id = req.params.id;
+    const skip = (page - 1) * limit;
     const user = await User.findById({ _id: id })
-    .select('id')
+    .populate({ path: 'uNotify' })
+    
+    const notify = await Notification.find({ _id: { $in: user.uNotify }})
     .populate({
-      path: "uNotify",
-      populate: {
-        path: "notifyByPhoto",
-        select: 'photoId profilePhoto'
-      },
+      path: "notifyByInsPhoto",
+      select: 'photoId insProfilePhoto'
     })
     .populate({
-      path: "uNotify",
-      populate: {
-        path: "notifyByInsPhoto",
-        select: 'photoId insProfilePhoto'
-      },
+      path: "notifyByPhoto",
+      select: 'photoId profilePhoto'
     })
     .populate({
-      path: "uNotify",
-      populate: {
-        path: "notifyByStaffPhoto",
-        select: 'photoId staffProfilePhoto'
-      },
+      path: "notifyByStaffPhoto",
+      select: 'photoId staffProfilePhoto'
     })
     .populate({
-      path: "uNotify",
-      populate: {
-        path: "notifyByStudentPhoto",
-        select: 'photoId studentProfilePhoto'
-      },
+      path: "notifyByStudentPhoto",
+      select: 'photoId studentProfilePhoto'
     })
     .populate({
-      path: "uNotify",
-      populate: {
-        path: "notifyByDepartPhoto",
-        select: 'photoId photo'
-      },
+      path: "notifyByDepartPhoto",
+      select: 'photoId photo'
     })
-    .lean()
-    .exec()
-    res.status(200).send({ message: "Notification send", user });
+    .sort("-notifyTime")
+    .limit(limit)
+    .skip(skip)
+    res.status(200).send({ message: "Notification send", notify });
   } catch (e) {
     console.log("Error", e.message);
   }
@@ -862,56 +854,62 @@ exports.followersArray = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const { uid } = req.params;
     const skip = (page - 1) * limit;
-    const users = await User.findById({ _id: uid }).populate({ path: 'userFollowers' })
-    var user = users.userFollowers
+    const user = await User.findById({ _id: uid })
+    .populate({ path: 'userFollowers' })
+
+    const followers = await User.find({ _id: { $in: user.userFollowers }})
+    .select("userLegalName username photoId profilePhoto")
     .limit(limit)
     .skip(skip)
-    .select("userLegalName username photoId profilePhoto")
-    .lean() 
-    .exec();
     if (user) {
-      res.status(200).send({ message: "Success", user });
+      res.status(200).send({ message: "Success", followers: followers });
     } else {
       res.status(404).send({ message: "Failure" });
     }
-  } catch {}
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 exports.followingArray = async (req, res) => {
   try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const { uid } = req.params;
+    const skip = (page - 1) * limit;
     const user = await User.findById({ _id: uid })
-      .select("id")
-      .populate({
-        path: "userFollowing",
-        select: "userLegalName username photoId profilePhoto",
-      })
-      .lean()
-      .exec();
-    if (user) {
-      res.status(200).send({ message: "Success", user });
-    } else {
-      res.status(404).send({ message: "Failure" });
-    }
+    .populate({ path: 'userFollowing' })
+    .populate({ path: 'userInstituteFollowing'})
+
+    const uFollowing = await User.find({ _id: { $in: user.userFollowing }})
+    .select("userLegalName username photoId profilePhoto")
+    .limit(limit)
+    .skip(skip)
+
+    const uInsFollowing= await InstituteAdmin.find({ _id: { $in: user.userInstituteFollowing }})
+    .select("insName name photoId insProfilePhoto")
+    .limit(limit)
+    .skip(skip)
+
+    res.status(200).send({ message: "Success", uFollowing: uFollowing, uInsFollowing: uInsFollowing });
   } catch {}
 };
 
 exports.circleArray = async (req, res) => {
   try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const { uid } = req.params;
+    const skip = (page - 1) * limit;
     const user = await User.findById({ _id: uid })
-      .select("id")
-      .populate({
-        path: "userCircle",
-        select: "userLegalName username photoId profilePhoto",
-      })
-      .lean()
-      .exec();
-    if (user) {
-      res.status(200).send({ message: "Success", user });
-    } else {
-      res.status(404).send({ message: "Failure" });
-    }
+    .populate({ path: 'userCircle' })
+
+    const circle = await User.find({ _id: { $in: user.userCircle }})
+    .select("userLegalName username photoId profilePhoto")
+    .limit(limit)
+    .skip(skip)
+
+    res.status(200).send({ message: "Success", circle: circle });
   } catch {}
 };
 
@@ -1063,14 +1061,6 @@ exports.retrieveStudentDesignationArray = async(req, res) =>{
     const { sid } = req.params;
     const student = await Student.findById({ _id: sid })
     .select('studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentDOB studentNationality studentMTongue studentCast studentCastCategory studentBirthPlace studentState studentDistrict studentAddress studentPhoneNumber studentParentsName studentParentsPhoneNumber studentAadharCard studentAadharNumber studentDocuments studentGRNO studentStatus studentROLLNO')
-      .populate({
-        path: "studentClass",
-        select: 'className classTitle classStatus',
-        populate: {
-          path: "ApproveStudent",
-          select: 'id'
-        },
-      })
       .populate({
         path: "studentClass",
         select: 'className classTitle classStatus',

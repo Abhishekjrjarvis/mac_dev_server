@@ -3734,12 +3734,7 @@ var c_date = `${p_year}-${p_month}-${p_date}`;
 app.post(
   "/ins/:id/student/:cid/approve/:sid/depart/:did/batch/:bid",
   async (req, res) => {
-    try {
-    } catch {
-      console.log(
-        `SomeThing Went Wrong at this EndPoint(/ins/:id/student/:cid/approve/:sid/depart/:did/batch/:bid)`
-      );
-    }
+    try{
     const { id, sid, cid, did, bid } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id });
     const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
@@ -3759,10 +3754,12 @@ app.post(
       institute.insFreeCredit = institute.insFreeCredit + 1;
     }
     classes.ApproveStudent.push(student);
+    classes.studentCount += 1
     classes.student.pull(sid);
     student.studentGRNO = classes.ApproveStudent.length;
     student.studentROLLNO = classes.ApproveStudent.length;
     depart.ApproveStudent.push(student);
+    depart.studentCount += 1
     student.department = depart;
     batch.ApproveStudent.push(student);
     student.batches = batch;
@@ -3778,18 +3775,23 @@ app.post(
     user.uNotify.push(notify);
     notify.user = user;
     notify.notifyByStudentPhoto = student;
-    await admins.save()
-    await classes.save();
-    await depart.save();
-    await batch.save();
-    await student.save();
-    await institute.save();
-    await user.save();
-    await notify.save();
+    await Promise.all([
+     admins.save(),
+     classes.save(),
+     depart.save(),
+     batch.save(),
+     student.save(),
+     institute.save(),
+     user.save(),
+     notify.save()
+    ])
     res.status(200).send({
       message: `Welcome To The Institute ${student.studentFirstName} ${student.studentLastName}`,
       classes: classes._id
     });
+  }catch(e) {
+    console.log(e)
+  }
   }
 );
 
@@ -3800,24 +3802,19 @@ app.post("/ins/:id/student/:cid/reject/:sid", isLoggedIn, async (req, res) => {
     const student = await Student.findById({ _id: sid });
     const classes = await Class.findById({ _id: cid });
     student.studentStatus = req.body.status;
-    // institute.ApproveStudent.push(student)
     institute.student.pull(sid);
-    // classes.ApproveStudent.push(student)
     classes.student.pull(sid);
-    // student.studentGRNO = classes.ApproveStudent.length
-    // console.log(student)
-    await institute.save();
-    await classes.save();
-    await student.save();
+    await Promise.all([
+     institute.save(),
+     classes.save(),
+     student.save()
+    ])
     res.status(200).send({
       message: `Application Rejected ${student.studentFirstName} ${student.studentLastName}`,
-      institute,
-      classes,
+      classes: classes._id,
     });
-  } catch {
-    console.log(
-      `SomeThing Went Wrong at this EndPoint(/ins/:id/student/:cid/reject/:sid)`
-    );
+  } catch(e) {
+    console.log(e);
   }
 });
 

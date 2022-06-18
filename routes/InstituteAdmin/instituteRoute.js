@@ -242,10 +242,10 @@ router.post(
 
 
 // Follow Institute
-router.put("/follow", isLoggedIn, catchAsync(Institute.updateFollowIns));
+router.patch("/follow", isLoggedIn, catchAsync(Institute.updateFollowIns));
 
 // Unfollow Institute
-router.put("/unfollow", isLoggedIn, catchAsync(Institute.removeFollowIns));
+router.patch("/unfollow", isLoggedIn, catchAsync(Institute.removeFollowIns));
 
 // Staff Approve By Institute
 router.post(
@@ -579,6 +579,21 @@ router.get('/:id/following-array', isLoggedIn, catchAsync(Institute.retrieveInsF
 
 // Get One Department All Batches
 router.get('/:did/one-batch', isLoggedIn, catchAsync(Institute.retrieveDepartmentAllBatch))
+
+// Institute Student Approval By Class Teacher
+router.post('/:id/student/:cid/approve/:sid/depart/:did/batch/:bid', isLoggedIn, catchAsync(Institute.retrieveApproveStudentRequest))
+
+// Institute Student Reject By Class Teacher
+router.post('/:id/student/:cid/reject/:sid', isLoggedIn, catchAsync(Institute.retrieveRejectStudentRequest))
+
+// Student Request At Class Teacher
+router.get('/:cid/student/request', isLoggedIn, catchAsync(Institute.retrievePendingRequestArray))
+
+// Student Approved At Class Teacher
+router.get('/:cid/student/catalog', isLoggedIn, catchAsync(Institute.retrieveApproveCatalogArray))
+
+// Department Staff List at Staff Side
+router.get('/department/:did/staff-array', isLoggedIn, catchAsync(Institute.retrieveDepartmentStaffArray))
 
 module.exports = router;
 

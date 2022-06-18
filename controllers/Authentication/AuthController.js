@@ -415,16 +415,16 @@ module.exports.getLogin = async (req, res) => {
   }
 };
 
-var d_date = new Date();
-var d_a_date = d_date.getDate();
-var d_a_month = d_date.getMonth() + 1;
-var d_a_year = d_date.getFullYear();
-if (d_a_month <= 10) {
-  d_a_month = `0${d_a_month}`;
-}
-var deactivate_date = `${d_a_year}-${d_a_month}-${d_a_date}`;
 
 module.exports.authentication = async (req, res) => {
+  var d_date = new Date();
+  var d_a_date = d_date.getDate();
+  var d_a_month = d_date.getMonth() + 1;
+  var d_a_year = d_date.getFullYear();
+  if (d_a_month <= 10) {
+    d_a_month = `0${d_a_month}`;
+  }
+  var deactivate_date = `${d_a_year}-${d_a_month}-${d_a_date}`;
   try {
     const { insUserName, insPassword } = req.body;
     const institute = await InstituteAdmin.findOne({ name: `${insUserName}` })
@@ -465,7 +465,7 @@ module.exports.authentication = async (req, res) => {
         if (checkUserPass) {
           if (
             user.activeStatus === "Deactivated" &&
-            user.activeDate >= deactivate_date
+            user.activeDate <= deactivate_date
           ) {
             user.activeStatus = "Activated";
             user.activeDate = "";
@@ -480,6 +480,7 @@ module.exports.authentication = async (req, res) => {
               .status(200)
               .send({ message: "Successfully LoggedIn as a User", user: user });
           } else {
+            res.status(401).send({ message: 'Unauthorized'})
           }
         } else {
           res.send({ message: "Invalid Credentials" });

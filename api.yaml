@@ -377,7 +377,7 @@ paths:
     patch:
       tags:
         - User Profile API
-      summary: Update User Profile Details (Only details part)
+      summary: Update User Profile Details (Only details part) -(verified)
       consumes:
         - application/json
       produces:
@@ -419,7 +419,7 @@ paths:
     get:
       tags:
         - User Profile API
-      summary: User Profile page Data
+      summary: User Profile page Data -(verified)
       produces:
         - application/json
       consumes:
@@ -459,7 +459,7 @@ paths:
     get:
       tags:
         - User Profile API
-      summary: User setting personal info page Data
+      summary: User setting personal info page Data -(verified)
       produces:
         - application/json
       consumes:
@@ -520,7 +520,7 @@ paths:
     get:
       tags:
         - User Profile API
-      summary: User all followers List 
+      summary: User all followers List -(verified)
       produces:
         - application/json
       consumes:
@@ -532,6 +532,16 @@ paths:
           schema:
             type: string
           description: The user ID
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
       responses:
         "200":
           description: OK
@@ -540,7 +550,7 @@ paths:
     get:
       tags:
         - User Profile API
-      summary: User all following User List 
+      summary: User all following User List -(verified) 
       produces:
         - application/json
       consumes:
@@ -552,37 +562,25 @@ paths:
           schema:
             type: string
           description: The user ID
-      responses:
-        "200":
-          description: OK
-
-
-  /api/v1/user/{uid}/following/ins-array:
-    get:
-      tags:
-        - User Profile API
-      summary: User all following Institute List 
-      produces:
-        - application/json
-      consumes:
-        - application/json
-      parameters:
-        - in: path
-          name: uid # Note the name is the same as in the path
-          required: true
+        - in: query
+          name: page
           schema:
-            type: string
-          description: The user ID
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
       responses:
         "200":
           description: OK
-
 
   /api/v1/user/{uid}/circle-array:
     get:
       tags:
         - User Profile API
-      summary: User all circle List 
+      summary: User all circle List -(verified)
       produces:
         - application/json
       consumes:
@@ -594,6 +592,16 @@ paths:
           schema:
             type: string
           description: The user ID
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
       responses:
         "200":
           description: OK
@@ -603,7 +611,7 @@ paths:
     post:
       tags:
         - User Profile API
-      summary: Deactivate User A/c for atleast 2 days
+      summary: Deactivate User A/c for atleast 2  -(verified)
       produces:
         - application/json
       consumes:
@@ -641,7 +649,7 @@ paths:
     post:
       tags:
         - User Profile API
-      summary: User Phone No. Update Setting
+      summary: User Phone No. Update Setting -(verified)
       produces:
         - application/json
       consumes:
@@ -672,7 +680,7 @@ paths:
     post:
       tags:
         - User Profile API
-      summary: User Recovery Mail Setting
+      summary: User Recovery Mail Setting -(verified)
       produces:
         - application/json
       consumes:
@@ -703,7 +711,7 @@ paths:
     patch:
       tags:
         - User Profile API
-      summary: Follow Institute Api
+      summary: Follow Institute Api -(verified)
       consumes:
         - application/json
       produces:
@@ -727,7 +735,7 @@ paths:
     patch:
       tags:
         - User Profile API
-      summary: UnFollow Institute Api
+      summary: UnFollow Institute Api -(verified)
       consumes:
         - application/json
       produces:
@@ -751,7 +759,7 @@ paths:
     patch:
       tags:
         - User Profile API
-      summary: Follow User to User Api
+      summary: Follow User to User Api -(verified)
       consumes:
         - application/json
       produces:
@@ -775,7 +783,7 @@ paths:
     patch:
       tags:
         - User Profile API
-      summary: UnFollow User to User Api
+      summary: UnFollow User to User Api -(verified)
       consumes:
         - application/json
       produces:
@@ -799,7 +807,7 @@ paths:
     patch:
       tags:
         - User Profile API
-      summary: Circle User to User Api
+      summary: Circle User to User Api -(verified)
       consumes:
         - application/json
       produces:
@@ -1317,11 +1325,22 @@ paths:
     get:
       tags:
         - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
-      summary: Get All Mentors List
+      summary: Get All Mentors List -(verified)
       consumes:
         - application/json
       produces:
         - application/json
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
       responses:
         "200":
           description: OK
@@ -1330,11 +1349,22 @@ paths:
     get:
       tags:
         - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
-      summary: Get All Users List
+      summary: Get All Users List -(verified)
       consumes:
         - application/json
       produces:
         - application/json
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
       responses:
         "200":
           description: OK
@@ -1343,11 +1373,22 @@ paths:
     get:
       tags:
         - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
-      summary: Get All Institute List
+      summary: Get All Institute List -(verified)
       consumes:
         - application/json
       produces:
         - application/json
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
       responses:
         "200":
           description: OK
@@ -1356,7 +1397,7 @@ paths:
     get:
       tags:
         - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
-      summary: Get All Notifications Of Users
+      summary: Get All Notifications Of Users -(verified)
       consumes:
         - application/json
       produces:
@@ -1367,6 +1408,16 @@ paths:
           required: true
           type: string
           description: This is user id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
       responses:
         "200":
           description: OK
@@ -1376,7 +1427,7 @@ paths:
     post:
       tags:
         - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
-      summary: Report User's Post By User
+      summary: Report User's Post By User -(verified)
       consumes:
         - application/json
       produces:
@@ -1411,7 +1462,7 @@ paths:
     get:
       tags:
         - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
-      summary: All Star Announcement User
+      summary: All Star Announcement User -(verified)
       consumes:
         - application/json
       produces:
@@ -1651,7 +1702,7 @@ paths:
     get:
       tags:
         - Staff-Student-Joining-All-API
-      summary: Get Student Code for joining by Institute
+      summary: Get Student Code for joining by Institute -(verified)
       consumes:
         - application/json
       produces:
@@ -1670,7 +1721,7 @@ paths:
     get:
       tags:
         - Staff-Student-Joining-All-API
-      summary: Get Student Status for Application Status
+      summary: Get Student Status for Application Status -(verified)
       consumes:
         - application/json
       produces:
@@ -1689,7 +1740,7 @@ paths:
     post:
       tags:
         - Staff-Student-Joining-All-API
-      summary: Student joining form apply to Institute (not verified )
+      summary: Student joining form apply to Institute -(verified )
       produces:
         - application/json
       consumes:
@@ -1820,7 +1871,7 @@ paths:
     get:
       tags:
         - Staff-Member-Tab
-      summary: Staff All Designation Data
+      summary: Staff All Designation Data -(verified)
       consumes:
         - application/json
       produces:
@@ -1871,7 +1922,7 @@ paths:
     get:
       tags:
         - Student-Member-Tab
-      summary: Student All Member Data
+      summary: Student All Member Data -(verified)
       consumes:
         - application/json
       produces:
@@ -1920,7 +1971,7 @@ paths:
     get:
       tags:
         - Staff-Department-Head
-      summary: One Department profile Data
+      summary: One Department profile Data -(verified)
       consumes:
         - application/json
       produces:
@@ -1940,7 +1991,7 @@ paths:
     post:
       tags:
         - Staff-Department-Head
-      summary: One Department info/about update by staff side
+      summary: One Department info/about update by staff side -(verified)
       consumes:
         - application/json
       produces:
@@ -1975,7 +2026,7 @@ paths:
                 description: Enter Department Email
               dPhoneNumber:
                 type: string
-                description: Enter Department Phone Number
+                description: Enter Department Phone Number (Number are allowed -10digit)
               dVicePrinciple:
                 type: string
                 description: Enter Department Vice Principle
@@ -1989,11 +2040,30 @@ paths:
         "200":
           description: OK
 
+  /api/v1/ins/department/{did}/staff-array:
+    get:
+      tags:
+        - Staff-Department-Head
+      summary: In one department All Staff List -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is department id
+      responses:
+        "200":
+          description: OK
+
   /api/v1/ins/batch-detail/{bid}:
     get:
       tags:
         - Staff-Department-Head
-      summary: In one batch All classes List by staff side
+      summary: In one batch All classes List by staff side -(verified)
       consumes:
         - application/json
       produces:
@@ -2178,7 +2248,7 @@ paths:
     get:
       tags:
         - Staff-Class-Teacher
-      summary: One class related data by staff side
+      summary: One class related data by staff side -(verified)
       consumes:
         - application/json
       produces:
@@ -2197,7 +2267,7 @@ paths:
     post:
       tags:
         - Staff-Class-Teacher
-      summary: One class info/about update by staff side
+      summary: One class info/about update by staff side -(verified)
       consumes:
         - application/json
       produces:
@@ -2229,6 +2299,133 @@ paths:
       responses:
         "200":
           description: OK
+
+  /api/v1/ins/{cid}/student/request:
+    get:
+      tags:
+        - Staff-Class-Teacher
+      summary: Class Pending Request of Student - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Class id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/{cid}/student/catalog:
+    get:
+      tags:
+        - Staff-Class-Teacher
+      summary: Class Approved Student Catalog - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Class id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/{id}/student/{cid}/approve/{sid}/depart/{did}/batch/{bid}:
+    post:
+      tags:
+        - Staff-Class-Teacher
+      summary: Student Approval By Staff As Class Teacher Side (status - Approved) - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is institute id
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Class id
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is Department id
+        - in: path
+          name: bid
+          required: true
+          type: string
+          description: This is Batch id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - status
+            properties:
+              status:
+                type: string
+                description: Enter Status (Approved)
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/{id}/student/{cid}/reject/{sid}:
+    post:
+      tags:
+        - Staff-Class-Teacher
+      summary: Student Reject By Staff As a Class Teacher Side (status - Rejected) - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is institute id
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Class id
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - status
+            properties:
+              status:
+                type: string
+                description: Enter Status (Approved)
+      responses:
+        "200":
+          description: OK
+
 
   /api/v1/avail/staffclass/{cid}/attend:
     get:
@@ -2329,7 +2526,7 @@ paths:
     get:
       tags:
         - Staff-Subject-Teacher
-      summary: This is subject and class related data that is Subject Teacher catalog
+      summary: This is subject and class related data that is Subject Teacher catalog -(verified)
       consumes:
         - application/json
       produces:
@@ -2734,7 +2931,7 @@ paths:
     get:
       tags:
         - Institute Profile API
-      summary: Institute setting personal page Data
+      summary: Institute setting personal page Data -(verified)
       produces:
         - application/json
       consumes:
@@ -2793,7 +2990,7 @@ paths:
     post:
       tags:
         - Institute Profile API
-      summary: Institute Phone No. Update Setting
+      summary: Institute Phone No. Update Setting -(verified)
       produces:
         - application/json
       consumes:
@@ -2824,7 +3021,7 @@ paths:
     post:
       tags:
         - Institute Profile API
-      summary: Institute Staff Code Generation
+      summary: Institute Staff Code Generation -(verified)
       produces:
         - application/json
       consumes:
@@ -2855,7 +3052,7 @@ paths:
     post:
       tags:
         - Institute Profile API
-      summary: Institute Recovery Mail Setting
+      summary: Institute Recovery Mail Setting -(verified)
       produces:
         - application/json
       consumes:
@@ -2882,12 +3079,59 @@ paths:
         "200":
           description: OK
 
+  /api/v1/ins/follow/:
+    patch:
+      tags:
+        - Institute Profile API
+      summary: Follow Institute Api -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - followId
+            properties:
+              followId:
+                type: string
+                description: follow Institute Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/unfollow:
+    patch:
+      tags:
+        - Institute Profile API
+      summary: UnFollow Institute Api -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - followId
+            properties:
+              followId:
+                type: string
+                description: follow Institute Id
+      responses:
+        "200":
+          description: OK
 
   /api/v1/ins/{id}/followers-array:
     get:
       tags:
         - Institute Profile API
-      summary: Institute Followers List of Institute and User
+      summary: Institute Followers List of Institute and User -(verified)
       consumes:
         - application/json
       produces:
@@ -2898,6 +3142,16 @@ paths:
           required: true
           type: string
           description: This is Institute id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
       responses:
         "200":
           description: OK
@@ -2907,7 +3161,7 @@ paths:
     get:
       tags:
         - Institute Profile API
-      summary: Institute Following List of Institute
+      summary: Institute Following List of Institute -(verified)
       consumes:
         - application/json
       produces:
@@ -2918,6 +3172,16 @@ paths:
           required: true
           type: string
           description: This is Institute id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
       responses:
         "200":
           description: OK
@@ -3512,7 +3776,7 @@ paths:
     get:
       tags:
         - Institute DashBoard API (including Notification, Post, Announcement)
-      summary: Get All Notifications Of Institute
+      summary: Get All Notifications Of Institute -(verified)
       consumes:
         - application/json
       produces:
@@ -3523,6 +3787,16 @@ paths:
           required: true
           type: string
           description: This is Institute id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
       responses:
         "200":
           description: OK
@@ -3583,7 +3857,7 @@ paths:
     post:
       tags:
         - Institute DashBoard API (including Notification, Post, Announcement)
-      summary: Report Institute's Post By User
+      summary: Report Institute's Post By User -(verified)
       consumes:
         - application/json
       produces:
@@ -3933,7 +4207,7 @@ paths:
     get:
       tags:
         - Student-Module
-      summary: All Students in Student Tab at Institute Side
+      summary: All Students in Student Tab at Institute Side -(verified)
       consumes:
         - application/json
       produces:
@@ -3952,7 +4226,7 @@ paths:
     get:
       tags:
         - Student-Module
-      summary: All full detail of one student 
+      summary: All full detail of one student -(verified)
       consumes:
         - application/json
       produces:

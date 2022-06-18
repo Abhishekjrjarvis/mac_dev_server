@@ -476,6 +476,7 @@ module.exports.authentication = async (req, res) => {
               .send({ message: "Successfully LoggedIn as a User", user: user });
           } else if (user.activeStatus === "Activated") {
             req.session.user = user;
+            console.log(req.session)
             res
               .status(200)
               .send({ message: "Successfully LoggedIn as a User", user: user });

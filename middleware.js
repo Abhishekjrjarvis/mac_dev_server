@@ -7,7 +7,7 @@ module.exports.isLoggedIn = (req, res, next) => {
       req.session.user ||
       req.session.institute ||
       req.session.admin ||
-      JSON.stringify(req.headers.session.sessionid)
+      JSON.stringify(req.headers.session)
     )
   ) {
     // req.session.returnTo = req.originalUrl

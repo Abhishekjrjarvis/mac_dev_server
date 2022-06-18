@@ -129,7 +129,7 @@ exports.postLike = async (req, res) => {
   try {
     const { pid } = req.params;
     const post = await Post.findById({ _id: pid });
-    const user_session = req.session.user ? req.session.user._id : req.headers.session.user._id
+    const user_session = JSON.stringify(req.headers.user._id)
     if (user_session) {
       if (
         post.endUserLike.length >= 1 &&

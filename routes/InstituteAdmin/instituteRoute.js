@@ -35,7 +35,7 @@ router.get("/:id/dash", isLoggedIn, catchAsync(Institute.getDashOneQuery));
 // Institute Profile Data
 router.get(
   "/:id/profile",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Institute.getProfileOneQuery)
 );
 

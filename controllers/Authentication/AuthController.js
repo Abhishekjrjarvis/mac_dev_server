@@ -439,7 +439,7 @@ module.exports.authentication = async (req, res) => {
         req.session.institute = institute;
         res
           .status(200)
-          .send({ message: "Successfully LoggedIn as a Institute", institute: institute._id, });
+          .send({ message: "Successfully LoggedIn as a Institute", institute: institute, });
       } else {
         res.send({ message: "Invalid Credentials" });
       }

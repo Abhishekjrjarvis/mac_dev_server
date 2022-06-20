@@ -156,7 +156,13 @@ const departmentSchema = new mongoose.Schema({
   studentCount: {
     type: Number, 
     default: 0
-  }
+  },
+  displayPersonList: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'DisplayPerson'
+    }
+  ]
 });
 
 const Department = mongoose.model("Department", departmentSchema);

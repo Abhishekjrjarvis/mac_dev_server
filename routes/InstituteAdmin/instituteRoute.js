@@ -595,6 +595,15 @@ router.get('/:cid/student/catalog', isLoggedIn, catchAsync(Institute.retrieveApp
 // Department Staff List at Staff Side
 router.get('/department/:did/staff-array', isLoggedIn, catchAsync(Institute.retrieveDepartmentStaffArray))
 
+// User 3-Follow System Array
+router.get('/:id/all-two-array', isLoggedIn, catchAsync(Institute.retrieveInstituteTwoArray))
+
+// Department Display Person 
+router.post('/:did/department/display-person', isLoggedIn, catchAsync(Institute.updateDepartmentDisplayPersonArray))
+
+// Class Display Person 
+router.post('/:cid/class/display-person', isLoggedIn, catchAsync(Institute.updateClassDisplayPersonArray))
+
 module.exports = router;
 
 

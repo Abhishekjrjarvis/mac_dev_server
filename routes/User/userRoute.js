@@ -284,4 +284,7 @@ router.get('/staffdesignationdata/:sid', isLoggedIn, catchAsync(User.retrieveSta
 // Student Designation Data
 router.get('/studentdesignationdata/:sid', isLoggedIn, catchAsync(User.retrieveStudentDesignationArray))
 
+// User 3-Follow System Array
+router.get('/:id/all-three-array', isLoggedIn, catchAsync(User.retrieveUserThreeArray))
+
 module.exports = router;

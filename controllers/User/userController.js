@@ -1139,3 +1139,16 @@ exports.retrieveStudentDesignationArray = async(req, res) =>{
 
 
 
+
+
+exports.retrieveUserThreeArray = async(req, res) =>{
+  try{
+    const { id } = req.params
+    const user = await User.findById({_id: id})
+    .select('id userFollowers userFollowing userInstituteFollowing userCircle')
+    res.status(200).send({ message: '3-Array', user})
+  }
+  catch{
+
+  }
+}

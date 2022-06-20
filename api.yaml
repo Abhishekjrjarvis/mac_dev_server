@@ -5,11 +5,11 @@ info:
   version: one
 
 
-# host: 18.205.27.165
-# basePath: /api
-schemes: [http, https]
-# schemes: 
-#   - http
+host: 18.205.27.165
+basePath: /api
+# schemes: [http, https]
+schemes: 
+  - http
 
 
 #Return Users From get request
@@ -602,6 +602,26 @@ paths:
           schema:
             type: integer
           description: The numbers of items to return
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/{id}/all-three-array:
+    get:
+      tags:
+        - User Profile API
+      summary: User all 3-Follow List -(verified)
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The user ID
       responses:
         "200":
           description: OK
@@ -2028,34 +2048,52 @@ paths:
             type: object
             required:
               - dAbout
-              - dSpeaker
               - dEmail
               - dPhoneNumber
-              - dVicePrinciple
-              - dAdminClerk
-              - dStudentPresident
             properties:
               dAbout:
                 type: string
                 description: Enter Department About
-              dSpeaker:
-                type: string
-                description: Enter Department Speaker
               dEmail:
                 type: string
                 description: Enter Department Email
               dPhoneNumber:
                 type: string
                 description: Enter Department Phone Number (Number are allowed -10digit)
-              dVicePrinciple:
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/ins/{did}/department/display-person:
+    post:
+      tags:
+        - Staff-Department-Head
+      summary: Add Display Person -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is Department id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - displayTitle
+              - displayUser
+            properties:
+              displayTitle:
                 type: string
-                description: Enter Department Vice Principle
-              dAdminClerk:
+                description: Enter Display Title
+              displayUser:
                 type: string
-                description: Enter Department Admin Clerk
-              dStudentPresident:
-                type: string
-                description: Enter Department Student President
+                description: Enter Staff or Student User Id
       responses:
         "200":
           description: OK
@@ -2304,18 +2342,43 @@ paths:
             type: object
             required:
               - classAbout
-              - classDisplayPerson
-              - classStudentTotal
             properties:
               classAbout:
                 type: string
-                description: Enter Class About
-              classDisplayPerson:
+                description: Enter Class About 
+      responses:
+        "200":
+          description: OK
+  
+  /api/v1/ins/{cid}/class/display-person:
+    post:
+      tags:
+        - Staff-Class-Teacher
+      summary: Add Display Person -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Class id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - displayTitle
+              - displayUser
+            properties:
+              displayTitle:
                 type: string
-                description: Enter Class Display Person
-              classStudentTotal:
+                description: Enter Display Title
+              displayUser:
                 type: string
-                description: Enter Class Student 
+                description: Enter Staff or Student User Id
       responses:
         "200":
           description: OK
@@ -3206,6 +3269,25 @@ paths:
         "200":
           description: OK
 
+  /api/v1/ins/{id}/all-two-array:
+    get:
+      tags:
+        - Institute Profile API
+      summary: Institute all 2-Follow List -(verified)
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The Institute ID
+      responses:
+        "200":
+          description: OK
 
   
   /api/v1/ins/{id}/display-person:
@@ -3236,7 +3318,7 @@ paths:
                 description: Enter Display Title
               displayUser:
                 type: string
-                description: Enter Staff User Id
+                description: Enter Staff or Student User Id
       responses:
         "200":
           description: OK

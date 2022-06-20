@@ -18,6 +18,14 @@ const displaySchema = new mongoose.Schema({
     displayBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'InstituteAdmin'
+    },
+    displayByDepartment: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Department'
+    },
+    displayByClass: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Department'
     }
 })
 

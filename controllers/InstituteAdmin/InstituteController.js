@@ -1995,6 +1995,14 @@ exports.fetchOneStaffDepartmentInfo = async (req, res) => {
           select: "className classTitle classStatus",
         }
       })
+      .populate({
+        path: 'displayPersonList',
+        select: 'displayTitle createdAt',
+        populate: {
+          path: 'displayUser',
+          select: 'userLegalName username photoId profilePhoto'
+        }
+      })
       .lean()
       .exec();
     if (department) {
@@ -2012,21 +2020,13 @@ exports.updateOneStaffDepartmentInfo = async (req, res) => {
     const { did } = req.params;
     const {
       dAbout,
-      dSpeaker,
       dEmail,
       dPhoneNumber,
-      dVicePrinciple,
-      dStudentPresident,
-      dAdminClerk,
     } = req.body;
     const departmentInfo = await Department.findById({ _id: did });
     departmentInfo.dAbout = dAbout;
-    departmentInfo.dSpeaker = dSpeaker;
     departmentInfo.dEmail = dEmail;
     departmentInfo.dPhoneNumber = dPhoneNumber;
-    departmentInfo.dVicePrinciple = dVicePrinciple;
-    departmentInfo.dStudentPresident = dStudentPresident;
-    departmentInfo.dAdminClerk = dAdminClerk;
     await Promise.all([departmentInfo.save()]);
     res.status(200).send({ message: "Department Info Updates" });
   } catch(e) {
@@ -2038,11 +2038,9 @@ exports.updateOneStaffDepartmentInfo = async (req, res) => {
 exports.updateOneStaffClassInfo = async (req, res) =>{
   try {
     const { cid } = req.params;
-    const { classAbout, classDisplayPerson, classStudentTotal } = req.body;
+    const { classAbout } = req.body;
     const classInfo = await Class.findById({ _id: cid });
     classInfo.classAbout = classAbout;
-    classInfo.classDisplayPerson = classDisplayPerson;
-    classInfo.classStudentTotal = classStudentTotal;
     await classInfo.save();
     res.status(200).send({ message: "Class Info Updated", classInfo });
   } catch {
@@ -2164,7 +2162,7 @@ exports.retrieveClass = async (req, res) => {
     const { cid } = req.params;
     const classes = await Class.findById({ _id: cid })
       .select(
-        "className classTitle classStatus studentCount photoId photo coverId cover subjectCount classAbout classDisplayPerson classStudentTotal"
+        "className classTitle classCode classStatus studentCount photoId photo coverId cover subjectCount classAbout classDisplayPerson classStudentTotal"
       )
       .populate({
         path: "subject",
@@ -2182,6 +2180,14 @@ exports.retrieveClass = async (req, res) => {
       .populate({
         path: "department",
         select: "dName",
+      })
+      .populate({
+        path: 'displayPersonList',
+        select: 'displayTitle createdAt',
+        populate: {
+          path: 'displayUser',
+          select: 'userLegalName username photoId profilePhoto'
+        }
       })
       .lean()
       .exec();
@@ -2766,5 +2772,90 @@ exports.retrieveDepartmentStaffArray = async(req, res) =>{
   }
   catch{
 
+  }
+}
+
+
+
+exports.retrieveInstituteTwoArray = async(req, res) =>{
+  try{
+    const { id } = req.params
+    const institute = await InstituteAdmin.findById({_id: id})
+    .select('id followers following')
+    res.status(200).send({ message: '2-List Array', institute})
+  }
+  catch{
+
+  }
+}
+
+
+
+exports.updateDepartmentDisplayPersonArray = async(req, res) =>{
+  try{
+    const { did } = req.params
+    const department = await Department.findById({_id: did})
+    const user = await User.findById({_id: `${req.body.displayUser}`})
+    const notify = new Notification({})
+    const display = new DisplayPerson({})
+
+    display.displayTitle = req.body.displayTitle
+    display.displayUser = user._id
+    department.displayPersonList.push(display._id)
+    display.displayBy = department._id
+    user.displayPersonArray.push(display._id)
+
+    notify.notifyContent = `Congrats 🎉 for ${req.body.displayTitle} of the ${department.dName}`
+    notify.notifySender = department._id
+    notify.notifyReceiever = user._id
+    user.uNotify.push(notify._id)
+    notify.user = user._id
+    notify.notifyByPhoto = user._id
+    await Promise.all([
+      department.save(),
+      display.save(),
+      user.save(),
+      notify.save()
+    ])
+    res.status(200).send({ message: 'Success', display})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+
+
+
+exports.updateClassDisplayPersonArray = async(req, res) =>{
+  try{
+    const { cid } = req.params
+    const classes = await Class.findById({_id: cid})
+    const user = await User.findById({_id: `${req.body.displayUser}`})
+    const notify = new Notification({})
+    const display = new DisplayPerson({})
+
+    display.displayTitle = req.body.displayTitle
+    display.displayUser = user._id
+    classes.displayPersonList.push(display._id)
+    display.displayBy = classes._id
+    user.displayPersonArray.push(display._id)
+
+    notify.notifyContent = `Congrats 🎉 for ${req.body.displayTitle} of the ${classes.className}`
+    notify.notifySender = classes._id
+    notify.notifyReceiever = user._id
+    user.uNotify.push(notify._id)
+    notify.user = user._id
+    notify.notifyByPhoto = user._id
+    await Promise.all([
+      classes.save(),
+      display.save(),
+      user.save(),
+      notify.save()
+    ])
+    res.status(200).send({ message: 'Success', display})
+  }
+  catch(e){
+    console.log(e)
   }
 }

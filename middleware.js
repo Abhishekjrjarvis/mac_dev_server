@@ -24,7 +24,7 @@ module.exports.isLoggedIn = async (req, res, next) => {
   jwt.verify(token, `${process.env.TOKEN_SECRET}`, (err, decoded) => {
     if (err) return res.sendStatus(403);
     req.tokenData = decoded;
-    console.log(req.tokenData)
+    // console.log(req.tokenData)
     next();
   });
 }

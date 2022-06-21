@@ -129,7 +129,7 @@ exports.postLike = async (req, res) => {
   try {
     const { pid } = req.params;
     const post = await Post.findById({ _id: pid });
-    const user_session = req.session.user._id
+    const user_session = req.tokenData && req.tokenData.userId ? req.tokenData.userId : ''
     if (user_session) {
       if (
         post.endUserLike.length >= 1 &&
@@ -162,7 +162,7 @@ exports.postLike = async (req, res) => {
 exports.postSave = async (req, res) => {
   try {
     const { pid } = req.params;
-    const user_session = req.session.user._id;
+    const user_session = req.tokenData && req.tokenData.userId ? req.tokenData.userId : ''
     if (user_session) {
       const user = await User.findById({ _id: user_session });
       if (user.saveUsersPost.length >= 1 && user.saveUsersPost.includes(pid)) {
@@ -185,15 +185,15 @@ exports.postComment = async (req, res) => {
     const { id } = req.params;
     const post = await Post.findById({ _id: id });
     const comment = new Comment({ ...req.body });
-    if (req.session.institute) {
-      const institute = await InstituteAdmin.findById({_id: req.session.institute._id})
+    if (req.tokenData && req.tokenData.insId) {
+      const institute = await InstituteAdmin.findById({_id: req.tokenData.insId})
       comment.author = institute._id;
       comment.authorName = institute.insName
       comment.authorUserName = institute.name
       comment.authorPhotoId = institute.photoId
       comment.authorProfilePhoto = institute.insProfilePhoto
-    } else if (req.session.user) {
-      const user = await User.findById({_id: req.session.user._id})
+    } else if (req.tokenData && req.tokenData.userId) {
+      const user = await User.findById({_id: req.tokenData.userId})
       comment.author = user._id;
       comment.authorName = user.userLegalName
       comment.authorUserName = user.username
@@ -338,8 +338,8 @@ exports.postCommentChild = async (req, res) => {
   try {
     const { pcid } = req.params;
     const { comment, uid } = req.body;
-    if (req.session.user) {
-      const users = await User.findById({_id: req.session.user._id}) 
+    if (req.tokenData && req.tokenData.userId) {
+      const users = await User.findById({_id: req.tokenData.userId}) 
       const childComment = new ReplyComment({
         repliedComment: comment,
         author: users._id,
@@ -381,7 +381,7 @@ exports.likeCommentChild = async (req, res) => {
     const insCommentId = req.params.cid;
     const id = req.params.id;
     const comment = await Comment.findById(insCommentId);
-    if (req.session.user._id) {
+    if (req.tokenData && req.tokenData.userId) {
       if (!comment.parentCommentLike.includes(id)) {
         comment.parentCommentLike.push(id);
         comment.allLikeCount += 1;

@@ -14,6 +14,8 @@ const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const axios = require("axios");
+const jwt = require("jsonwebtoken");
+
 
 
 exports.getRegisterIns = async (req, res) => {
@@ -416,6 +418,20 @@ module.exports.getLogin = async (req, res) => {
 };
 
 
+
+function generateAccessToken(username, userId, userPassword) {
+  return jwt.sign({ username, userId, userPassword }, process.env.TOKEN_SECRET, { expiresIn: "1800s", });
+}
+
+function generateAccessInsToken(name, insId, insPassword) {
+  return jwt.sign({ name, insId, insPassword }, process.env.TOKEN_SECRET, { expiresIn: "1800s", });
+}
+
+function generateAccessAdminToken(adminUserName, adminId, adminPassword) {
+  return jwt.sign({ adminUserName, adminId, adminPassword }, process.env.TOKEN_SECRET, { expiresIn: "1800s", });
+}
+
+
 module.exports.authentication = async (req, res) => {
   var d_date = new Date();
   var d_a_date = d_date.getDate();
@@ -436,10 +452,11 @@ module.exports.authentication = async (req, res) => {
     if (institute) {
       const checkPass = bcrypt.compareSync(insPassword, institute.insPassword);
       if (checkPass) {
-        req.session.institute = institute;
-        res
-          .status(200)
-          .send({ message: "Successfully LoggedIn as a Institute", institute: institute, });
+        const token = generateAccessInsToken(institute?.name, institute?._id, institute?.insPassword);
+        res.json({ token: `Bearer ${token}`, institute: institute});
+        // res
+        //   .status(200)
+        //   .send({ message: "Successfully LoggedIn as a Institute", institute: institute, });
       } else {
         res.send({ message: "Invalid Credentials" });
       }
@@ -449,10 +466,11 @@ module.exports.authentication = async (req, res) => {
         admin.adminPassword
       );
       if (checkAdminPass) {
-        req.session.admin = admin;
-        res
-          .status(200)
-          .send({ message: "Successfully LoggedIn as a Super Admin", admin: admin._id });
+        const token = generateAccessAdminToken(admin?.username, admin?._id, admin?.userPassword);
+        res.json({ token: `Bearer ${token}`, admin: admin._id });
+        // res
+        //   .status(200)
+        //   .send({ message: "Successfully LoggedIn as a Super Admin", admin: admin._id });
       } else {
         res.send({ message: "Invalid Credentials" });
       }
@@ -470,15 +488,17 @@ module.exports.authentication = async (req, res) => {
             user.activeStatus = "Activated";
             user.activeDate = "";
             await user.save();
-            req.session.user = user;
-            res
-              .status(200)
-              .send({ message: "Successfully LoggedIn as a User", user: user });
+            const token = generateAccessToken(user?.username, user?._id, user?.userPassword);
+            res.json({
+              token: `Bearer ${token}`,
+              user: user
+            });
           } else if (user.activeStatus === "Activated") {
-            req.session.user = user;
-            res
-              .status(200)
-              .send({ message: "Successfully LoggedIn as a User", user: user });
+            const token = generateAccessToken(user?.username, user?._id, user?.userPassword);
+            res.json({
+              token: `Bearer ${token}`,
+              user: user
+            });
           } else {
             res.status(401).send({ message: 'Unauthorized'})
           }
@@ -493,6 +513,30 @@ module.exports.authentication = async (req, res) => {
     console.log(`Error`, e.message);
   }
 };
+
+
+
+
+// module.exports.authentication = async(req, res) =>{
+//   try{
+//     const { insUserName, insPassword } = req.body;
+//   // Ideally search the user in a database and validate password, throw an error if not found.
+//   const user = await User.findOne({ username: insUserName });
+//   const compare = bcrypt.compareSync(insPassword, user.userPassword)
+//   if(compare){
+//       const token = generateAccessToken(user?.username, user?._id, user?.userPassword);
+//       res.json({
+//         token: `Bearer ${token}`,
+//       });
+//   }
+//   else{
+//     res.status(401).send({ message: 'Unauthorized'})
+//   }
+//   }
+//   catch{
+
+//   }
+// }
 
 module.exports.getLogout = async (req, res) => {
   try {

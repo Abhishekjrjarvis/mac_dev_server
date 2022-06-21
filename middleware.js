@@ -1,22 +1,7 @@
 const InstituteAdmin = require("./models/InstituteAdmin");
 const User = require("./models/User");
+const jwt = require("jsonwebtoken");
 
-module.exports.isLoggedIn = (req, res, next) => {
-  if (
-    !(
-      req.session.user ||
-      req.session.institute ||
-      req.session.admin ||
-      JSON.stringify(req.headers.sessionid)
-    )
-  ) {
-    // req.session.returnTo = req.originalUrl
-    return res
-      .status(200)
-      .send({ message: "You need to be send session first" });
-  }
-  next();
-};
 
 module.exports.isApproved = async (req, res, next) => {
   const { id } = req.params;
@@ -28,3 +13,18 @@ module.exports.isApproved = async (req, res, next) => {
   }
   next();
 };
+
+
+module.exports.isLoggedIn = async (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (token == null) return res.sendStatus(401);
+
+  jwt.verify(token, `${process.env.TOKEN_SECRET}`, (err, decoded) => {
+    if (err) return res.sendStatus(403);
+    req.tokenData = decoded;
+    console.log(req.tokenData)
+    next();
+  });
+}

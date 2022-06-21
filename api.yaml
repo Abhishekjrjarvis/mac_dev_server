@@ -4550,14 +4550,10 @@ paths:
             type: object
             required:
               - className
-              - classTitle
             properties:
               className:
                 type: string
                 description: Enter Class Name
-              classTitle:
-                type: string
-                description: Enter Class Head Title
       responses:
         "200":
           description: OK

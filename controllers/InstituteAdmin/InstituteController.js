@@ -2092,12 +2092,11 @@ exports.retrieveNewBatch = async(req, res) =>{
 exports.retrieveNewClassMaster = async(req, res) =>{
   try {
     const { id, did } = req.params;
-    const { classTitle, className } = req.body;
+    const { className } = req.body;
     const institute = await InstituteAdmin.findById({ _id: id });
     const department = await Department.findById({ _id: did });
     const classroomMaster = await new ClassMaster({
       className: className,
-      classTitle: classTitle,
       institute: institute._id,
       department: did,
     });

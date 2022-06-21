@@ -712,8 +712,9 @@ exports.fillStaffJoinFormIns = async (req, res) => {
 
 exports.updateFollowIns = async (req, res) => {
   try {
+    var institute_session = req.tokenData && req.tokenData.insId
     const institutes = await InstituteAdmin.findById({
-      _id: req.session.institute._id,
+      _id: institute_session,
     });
     const sinstitute = await InstituteAdmin.findById({
       _id: req.body.followId,
@@ -723,7 +724,7 @@ exports.updateFollowIns = async (req, res) => {
       res.status(200).send({ message: "You Already Following This Institute" });
     } else {
       const notify = await new Notification({});
-      sinstitute.followers.push(req.session.institute._id);
+      sinstitute.followers.push(institute_session);
       institutes.following.push(req.body.followId);
       institutes.followingCount += 1
       sinstitute.followersCount += 1
@@ -744,15 +745,16 @@ exports.updateFollowIns = async (req, res) => {
 
 exports.removeFollowIns = async (req, res) => {
   try {
+    var institute_session = req.tokenData && req.tokenData.insId
     const institutes = await InstituteAdmin.findById({
-      _id: req.session.institute._id,
+      _id: institute_session,
     });
     const sinstitute = await InstituteAdmin.findById({
       _id: req.body.followId,
     });
 
     if (institutes.following.includes(req.body.followId)) {
-      sinstitute.followers.pull(req.session.institute._id);
+      sinstitute.followers.pull(institute_session);
       institutes.following.pull(req.body.followId);
       institutes.followingCount -= 1
       sinstitute.followersCount -= 1
@@ -2258,9 +2260,11 @@ exports.retrieveStudentCode = async (req, res) => {
 
 exports.replyAnnouncement = async (req, res) => {
   try {
+    var institute_session = req.tokenData && req.tokenData.insId
+    var user_session = req.tokenData && req.tokenData.userId
     const { aid } = req.params;
-    const institute = await InstituteAdmin.findOne({ _id: req.session.institute._id });
-    const user = await User.findOne({ _id: req.session.user._id });
+    const institute = await InstituteAdmin.findOne({ _id: institute_session });
+    const user = await User.findOne({ _id: user_session });
     var replyAnn = await InsAnnouncement.findById({ _id: aid });
     var replyData = new ReplyAnnouncement({ ...req.body });
     replyAnn.reply.push(replyData._id);
@@ -2418,9 +2422,11 @@ exports.deleteDisplayPersonArray = async(req, res) =>{
 exports.retrieveStarAnnouncementArray = async(req, res) =>{
   try{
     const { aid } = req.params
+    var institute_session = req.tokenData && req.tokenData.insId
+    var user_session = req.tokenData && req.tokenData.userId
     const insAnn = await InsAnnouncement.findById({_id: aid})
-    if(req.session.institute){
-      var institute = await InstituteAdmin.findById({_id: req.session.institute._id})
+    if(institute_session){
+      var institute = await InstituteAdmin.findById({_id: institute_session})
       if(insAnn.starList.length >=1 && insAnn.starList.includes(String(institute._id))){
         insAnn.starList.pull(institute._id)
         institute.starAnnouncement.pull(insAnn._id)
@@ -2434,8 +2440,8 @@ exports.retrieveStarAnnouncementArray = async(req, res) =>{
         res.status(200).send({ message: 'Added to Star By Ins'})
       }
     }
-    else if(req.session.user){
-      var user = await User.findById({_id: req.session.user._id})
+    else if(user_session){
+      var user = await User.findById({_id: user_session})
       if(insAnn.starList.length >=1 && insAnn.starList.includes(String(user._id))){
         insAnn.starList.pull(user._id)
         user.starAnnouncement.pull(insAnn._id)

@@ -18,6 +18,21 @@ const jwt = require("jsonwebtoken");
 
 
 
+
+function generateAccessToken(username, userId, userPassword) {
+  return jwt.sign({ username, userId, userPassword }, process.env.TOKEN_SECRET, { expiresIn: "378432000s", });
+}
+
+function generateAccessInsToken(name, insId, insPassword) {
+  return jwt.sign({ name, insId, insPassword }, process.env.TOKEN_SECRET, { expiresIn: "378432000s", });
+}
+
+function generateAccessAdminToken(adminUserName, adminId, adminPassword) {
+  return jwt.sign({ adminUserName, adminId, adminPassword }, process.env.TOKEN_SECRET, { expiresIn: "378432000s", });
+}
+
+
+
 exports.getRegisterIns = async (req, res) => {
   try {
     const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
@@ -83,15 +98,13 @@ exports.getPassIns = async (req, res) => {
     const { id } = req.params;
     const { insPassword, insRePassword } = req.body;
     const institute = await InstituteAdmin.findById({ _id: id });
-    const genPass = await bcrypt.genSaltSync(12);
-    const hashPass = await bcrypt.hashSync(insPassword, genPass);
+    const genPass = bcrypt.genSaltSync(12);
+    const hashPass = bcrypt.hashSync(insPassword, genPass);
     if (insPassword === insRePassword) {
       institute.insPassword = hashPass;
       await institute.save();
-      req.session.institute = institute;
-      res
-        .status(200)
-        .send({ message: "Password successfully created...", institute });
+      const token = generateAccessInsToken(institute?.name, institute?._id, institute?.insPassword);
+      res.json({ token: `Bearer ${token}`, institute: institute});
     } else {
       res.send({ message: "Invalid Combination" });
     }
@@ -300,8 +313,8 @@ exports.getUserPassword = async (req, res) => {
       if (userPassword === userRePassword) {
         user.userPassword = hashUserPass;
         await user.save();
-        req.session.user = user;
-        res.send({ message: "Password successfully created...", user });
+        const token = generateAccessToken(user?.username, user?._id, user?.userPassword);
+        res.json({ token: `Bearer ${token}`, user: user});
       } else {
         res.send({ message: "Invalid Password Combination" });
       }
@@ -404,10 +417,10 @@ exports.getNewPassword = async (req, res) => {
 
 module.exports.getLogin = async (req, res) => {
   try {
-    if (req.session.institute || req.session.user || req.session.admin) {
+    if (req.tokenData.insId || req.tokenData.userId || req.tokenData.adminId) {
       res.send({
         loggedIn: true,
-        User: req.session.institute || req.session.user || req.session.admin,
+        User: req.tokenData.insId || req.tokenData.userId || req.tokenData.adminId,
       });
     } else {
       res.send({ loggedIn: false });
@@ -416,20 +429,6 @@ module.exports.getLogin = async (req, res) => {
     console.log(`Error`, e.message);
   }
 };
-
-
-
-function generateAccessToken(username, userId, userPassword) {
-  return jwt.sign({ username, userId, userPassword }, process.env.TOKEN_SECRET, { expiresIn: "1800s", });
-}
-
-function generateAccessInsToken(name, insId, insPassword) {
-  return jwt.sign({ name, insId, insPassword }, process.env.TOKEN_SECRET, { expiresIn: "1800s", });
-}
-
-function generateAccessAdminToken(adminUserName, adminId, adminPassword) {
-  return jwt.sign({ adminUserName, adminId, adminPassword }, process.env.TOKEN_SECRET, { expiresIn: "1800s", });
-}
 
 
 module.exports.authentication = async (req, res) => {

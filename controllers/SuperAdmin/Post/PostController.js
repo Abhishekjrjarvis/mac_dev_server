@@ -184,9 +184,9 @@ exports.postLike = async (req, res) => {
   try {
     const { pid } = req.params;
     const post = await Post.findById({ _id: pid });
-    const admin_session = req.session.admin._id
-    const institute_session = req.session.institute._id;
-    const user_session = req.session.user._id;
+    const admin_session = req.tokenData && req.tokenData.adminId ? req.tokenData.adminId : ''
+    const institute_session = req.tokenData && req.tokenData.insId ? req.tokenData.insId : ''
+    const user_session = req.tokenData && req.tokenData.userId ? req.tokenData.userId : ''
 
     if (institute_session) {
       if (
@@ -260,9 +260,9 @@ exports.postLike = async (req, res) => {
 exports.postSave = async (req, res) => {
   try {
     const { pid } = req.params;
-    const admin_session = req.session.admin._id
-    const institute_session = req.session.institute._id;
-    const user_session = req.session.user._id;
+    const admin_session = req.tokenData && req.tokenData.adminId ? req.tokenData.adminId : ''
+    const institute_session = req.tokenData && req.tokenData.insId ? req.tokenData.insId : ''
+    const user_session = req.tokenData && req.tokenData.userId ? req.tokenData.userId : ''
     if (institute_session) {
       const institute = await InstituteAdmin.findById({
         _id: institute.session,
@@ -318,22 +318,22 @@ exports.postComment = async (req, res) => {
     const { id } = req.params;
     const post = await Post.findById({ _id: id });
     const comment = new Comment({ ...req.body });
-    const institute = await InstituteAdmin.findById({_id: req.session.institute._id})
-    const user = await User.findById({_id: req.session.user._id})
-    const admin = await Admin.findById({_id: req.session.admin._id})
-    if (institute) {
+    if (req.tokenData && req.tokenData.insId) {
+      const institute = await InstituteAdmin.findById({_id: req.tokenData.insId})
       comment.author = institute._id;
       comment.authorName = institute.insName
       comment.authorUserName = institute.name
       comment.authorPhotoId = institute.photoId
       comment.authorProfilePhoto = institute.insProfilePhoto
-    } else if (user) {
+    } else if (req.tokenData && req.tokenData.userId) {
+      const user = await User.findById({_id: req.tokenData.userId})
       comment.author = user._id;
       comment.authorName = user.userLegalName
       comment.authorUserName = user.username
       comment.authorPhotoId = user.photoId
       comment.authorProfilePhoto = user.profilePhoto
-    } else if (admin) {
+    } else if (req.tokenData && req.tokenData.adminId) {
+      const admin = await Admin.findById({_id: req.tokenData.adminId})
       comment.author = admin._id;
       comment.authorName = admin.adminName
       comment.authorUserName = admin.adminUserName
@@ -443,9 +443,9 @@ exports.postCommentChild = async (req, res) => {
   try {
     const { pcid } = req.params;
     const { comment, uid } = req.body;
-    var rUser = req.session.user._id && req.session.user._id
-    var rInstitute = req.session.institute._id && req.session.institute._id
-    var rAdmin = req.session.admin._id && req.session.admin._id
+    var rUser = req.tokenData && req.tokenData.userId
+    var rInstitute = req.tokenData && req.tokenData.insId
+    var rAdmin = req.tokenData && req.tokenData.adminId
     const institute = await InstituteAdmin.findById({_id: rInstitute})
     const users = await User.findById({_id: rUser})
     const admins = await Admin.findById({_id: rAdmin})
@@ -549,7 +549,7 @@ exports.likeCommentChild = async (req, res) => {
     const insCommentId = req.params.cid;
     const id = req.params.id;
     const comment = await Comment.findById(insCommentId);
-    if (req.session.institute._id) {
+    if (req.tokenData && req.tokenData.insId) {
       if (!comment.parentCommentLike.includes(id)) {
         comment.parentCommentLike.push(id);
         comment.allLikeCount += 1;
@@ -568,7 +568,7 @@ exports.likeCommentChild = async (req, res) => {
           count: comment.allLikeCount,
         });
       }
-    } else if (req.session.user._id) {
+    } else if (req.tokenData && req.tokenData.userId) {
       if (!comment.parentCommentLike.includes(id)) {
         comment.parentCommentLike.push(id);
         comment.allLikeCount += 1;
@@ -584,7 +584,7 @@ exports.likeCommentChild = async (req, res) => {
           .status(200)
           .send({ message: "diliked by user", count: comment.allLikeCount });
       }
-    } else if (req.session.admin._id) {
+    } else if (req.tokenData && req.tokenData.adminId) {
         if (!comment.parentCommentLike.includes(id)) {
           comment.parentCommentLike.push(id);
           comment.allLikeCount += 1;

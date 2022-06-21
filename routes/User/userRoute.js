@@ -105,19 +105,6 @@ router.delete(
 // Update Info At User
 router.post("profileabout/:id", isLoggedIn, catchAsync(User.updateUserInfo));
 
-// Add Like To The Post
-router.post("/post/like", isLoggedIn, catchAsync(User.updatePostLike));
-
-// Remove Like To The Post
-router.post("/post/unlike", isLoggedIn, catchAsync(User.removePostLike));
-
-// Add Comment To the User Post
-router.post(
-  "/post/comments/:id",
-  isLoggedIn,
-  catchAsync(User.updatePostComment)
-);
-
 // User Follow Institute
 router.patch(
   "/follow/institute",
@@ -146,12 +133,6 @@ router.patch("/circle/user", isLoggedIn, catchAsync(User.updateUserCircle));
 
 // Remove User From Circle
 router.patch("/uncircle/user", isLoggedIn, catchAsync(User.removeUserCircle));
-
-// Add Post To Save
-router.post("/save/post", isLoggedIn, catchAsync(User.updateSavePost));
-
-// Remove Post From Save
-router.post("/unsave/post", isLoggedIn, catchAsync(User.removeSavePost));
 
 // Update Phone Number By User
 router.post("/phone/info/:id", isLoggedIn, catchAsync(User.updateUserPhone));

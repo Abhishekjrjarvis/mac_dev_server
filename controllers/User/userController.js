@@ -214,92 +214,20 @@ exports.updateUserInfo = async (req, res) => {
   }
 };
 
-exports.updatePostLike = async (req, res) => {
-  try {
-    const { postId } = req.body;
-    const userpost = await UserPost.findById({ _id: postId });
-    const user_sessions = req.session.user;
-    const institute_sessions = req.session.institute;
-    if (user_sessions) {
-      if (
-        userpost.userlike.length >= 0 &&
-        userpost.userlike.includes(String(user_sessions._id))
-      ) {
-      } else {
-        userpost.userlike.push(user_sessions._id);
-        await userpost.save();
-        res.status(200).send({ message: "Added To Likes", userpost });
-      }
-    } else if (institute_sessions) {
-      if (
-        userpost.userlikeIns.length >= 1 &&
-        userpost.userlikeIns.includes(String(institute_sessions._id))
-      ) {
-      } else {
-        userpost.userlikeIns.push(institute_sessions._id);
-        await userpost.save();
-        res.status(200).send({ message: "Added To Likes", userpost });
-      }
-    } else {
-    }
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
-
-exports.removePostLike = async (req, res) => {
-  try {
-    const { postId } = req.body;
-    const userpost = await UserPost.findById({ _id: postId });
-    const user_sessions = req.session.user;
-    const institute_sessions = req.session.institute;
-    if (user_sessions) {
-      userpost.userlike.pull(user_sessions._id);
-      await userpost.save();
-      res.status(200).send({ message: "Removed from Likes", userpost });
-    } else if (institute_sessions) {
-      userpost.userlikeIns.pull(institute_sessions._id);
-      await userpost.save();
-      res.status(200).send({ message: "Removed from Likes", userpost });
-    } else {
-    }
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
-
-exports.updatePostComment = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const userpost = await UserPost.findById({ _id: id });
-    const usercomment = await new UserComment({ ...req.body });
-    if (req.session.institute) {
-      usercomment.userInstitute = req.session.institute;
-    } else {
-      usercomment.users = req.session.user;
-    }
-    userpost.userComment.push(usercomment);
-    usercomment.userpost = userpost;
-    await userpost.save();
-    await usercomment.save();
-    res.status(200).send({ message: "Successfully Commented", userpost });
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
 
 exports.updateUserFollowIns = async (req, res) => {
   try {
-    const user = await User.findById({ _id: req.session.user._id });
+    var user_session = req.tokenData && req.tokenData.userId
+    const user = await User.findById({ _id: user_session });
     const sinstitute = await InstituteAdmin.findById({
       _id: req.body.InsfollowId,
     });
 
-    if (sinstitute.userFollowersList.includes(req.session.user._id)) {
+    if (sinstitute.userFollowersList.includes(user_session)) {
       res.status(200).send({ message: "You Already Following This Institute" });
     } else {
       const notify = await new Notification({});
-      sinstitute.userFollowersList.push(req.session.user._id);
+      sinstitute.userFollowersList.push(user_session);
       user.userInstituteFollowing.push(req.body.InsfollowId);
       user.followingUICount += 1;
       notify.notifyContent = `${user.userLegalName} started to following you`;
@@ -320,7 +248,8 @@ exports.updateUserFollowIns = async (req, res) => {
 
 exports.removeUserFollowIns = async (req, res) => {
   try {
-    const user = await User.findById({ _id: req.session.user._id });
+    var user_session = req.tokenData && req.tokenData.userId
+    const user = await User.findById({ _id: user_session });
     const sinstitute = await InstituteAdmin.findById({
       _id: req.body.InsfollowId,
     });
@@ -352,14 +281,15 @@ exports.querySearchUser = async (req, res) => {
 
 exports.updateUserFollow = async (req, res) => {
   try {
-    const user = await User.findById({ _id: req.session.user._id });
+    var user_session = req.tokenData && req.tokenData.userId
+    const user = await User.findById({ _id: user_session });
     const suser = await User.findById({ _id: req.body.userFollowId });
 
     if (user.userFollowing.includes(req.body.userFollowId)) {
       res.status(200).send({ message: "You Already Following This User" });
     } else {
       const notify = await new Notification({});
-      suser.userFollowers.push(req.session.user._id);
+      suser.userFollowers.push(user_session);
       user.userFollowing.push(req.body.userFollowId);
       user.followingUICount += 1;
       suser.followerCount += 1;
@@ -382,11 +312,12 @@ exports.updateUserFollow = async (req, res) => {
 
 exports.updateUserUnFollow = async (req, res) => {
   try {
-    const user = await User.findById({ _id: req.session.user._id });
+    var user_session = req.tokenData && req.tokenData.userId
+    const user = await User.findById({ _id: user_session });
     const suser = await User.findById({ _id: req.body.userFollowId });
 
     if (user.userFollowing.includes(req.body.userFollowId)) {
-        suser.userFollowers.pull(req.session.user._id);
+        suser.userFollowers.pull(user_session);
         user.userFollowing.pull(req.body.userFollowId);
         user.followingUICount -= 1;
         suser.followerCount -= 1;
@@ -404,17 +335,18 @@ exports.updateUserUnFollow = async (req, res) => {
 
 exports.updateUserCircle = async (req, res) => {
   try {
-    const user = await User.findById({ _id: req.session.user._id });
+    var user_session = req.tokenData && req.tokenData.userId
+    const user = await User.findById({ _id: user_session });
     const suser = await User.findById({ _id: req.body.followId });
 
     if (
       user.userCircle.includes(req.body.followId) &&
-      suser.userCircle.includes(req.session.user._id)
+      suser.userCircle.includes(user_session)
     ) {
       res.status(200).send({ message: "You are Already In a Circle" });
     } else {
       const newConversation = new Conversation({
-        members: [req.session.user._id, req.body.followId],
+        members: [user_session, req.body.followId],
       });
       try {
         const savedConversation = await newConversation.save();
@@ -428,9 +360,9 @@ exports.updateUserCircle = async (req, res) => {
       }
       try {
         const notify = await new Notification({});
-        suser.userFollowing.pull(req.session.user._id);
+        suser.userFollowing.pull(user_session);
         user.userFollowers.pull(req.body.followId);
-        suser.userCircle.push(req.session.user._id);
+        suser.userCircle.push(user_session);
         user.userCircle.push(req.body.followId);
         suser.circleCount += 1;
         user.circleCount += 1;
@@ -454,18 +386,19 @@ exports.updateUserCircle = async (req, res) => {
 
 exports.removeUserCircle = async (req, res) => {
   try {
-    const user = await User.findById({ _id: req.session.user._id });
+    var user_session = req.tokenData && req.tokenData.userId
+    const user = await User.findById({ _id: user_session });
     const suser = await User.findById({ _id: req.body.followId });
 
     if (
       user.userCircle.includes(req.body.followId) &&
-      suser.userCircle.includes(req.session.user._id)
+      suser.userCircle.includes(user_session)
     ) {
       try {
         user.userCircle.pull(req.body.followId);
-        suser.userCircle.pull(req.session.user._id);
+        suser.userCircle.pull(user_session);
         user.userFollowers.push(req.body.followId);
-        suser.userFollowing.push(req.session.user._id);
+        suser.userFollowing.push(user_session);
         user.conversation = "";
         suser.conversation = "";
         await user.save();
@@ -476,32 +409,6 @@ exports.removeUserCircle = async (req, res) => {
     } else {
       res.status(200).send({ message: "You are Not In a Circle" });
     }
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
-
-exports.updateSavePost = async (req, res) => {
-  try {
-    const { postId } = req.body;
-    const user = await User.findById({ _id: req.session.user._id });
-    const userPostsData = await UserPost.findById({ _id: postId });
-    user.saveUsersPost.push(userPostsData);
-    await user.save();
-    res.status(200).send({ message: "Added To favourites", user });
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
-
-exports.removeSavePost = async (req, res) => {
-  try {
-    const { postId } = req.body;
-    const user = await User.findById({ _id: req.session.user._id });
-    const userPostsData = await UserPost.findById({ _id: postId });
-    user.saveUsersPost.pull(postId);
-    await user.save();
-    res.status(200).send({ message: "Remove To favourites", user });
   } catch (e) {
     console.log(`Error`, e.message);
   }

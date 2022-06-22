@@ -9,9 +9,6 @@ const postSchema = new mongoose.Schema({
   postDescription: {
     type: String,
   },
-  postText: {
-    type: String,
-  },
   postImage: [],
   imageId: {
     type: String,

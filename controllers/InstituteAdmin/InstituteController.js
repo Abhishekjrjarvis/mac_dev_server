@@ -1683,7 +1683,7 @@ exports.getOneDepartment = async (req, res) => {
         select: "batchName batchStatus createdAt ApproveStudent",
         populate: {
           path: "classroom",
-          select: "className",
+          select: "className classTitle",
           populate: {
             path: "ApproveStudent",
             select:

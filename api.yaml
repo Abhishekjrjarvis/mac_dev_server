@@ -1958,6 +1958,25 @@ paths:
 
   # Student Member's Tab
 
+  /api/v1/user/{uid}/student-role:
+    get:
+      tags:
+        - Student-Member-Tab
+      summary: User All Applied Student Role -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is User id
+      responses:
+        "200":
+          description: OK
+
   /api/v1/user/studentdesignationdata/{sid}:
     get:
       tags:

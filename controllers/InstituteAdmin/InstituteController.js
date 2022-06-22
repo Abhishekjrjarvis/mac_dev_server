@@ -771,7 +771,11 @@ exports.removeFollowIns = async (req, res) => {
   }
 };
 
+
+
 exports.updateApproveStaff = async (req, res) => {
+ var staffDate = new Date()
+ var joinDate = `${staffDate.getFullYear()}-${staffDate.getMonth() <10 ? `0${staffDate.getMonth() + 1}` : staffDate.getMonth() + 1}-${staffDate.getDate() <10 ? `0${staffDate.getDate()}` : staffDate.getDate()}`
   try {
     const { id, sid, uid } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id });
@@ -785,6 +789,7 @@ exports.updateApproveStaff = async (req, res) => {
     admins.staffCount += 1
     institute.staff.pull(sid);
     staffs.staffROLLNO = institute.ApproveStaff.length;
+    staffs.staffJoinDate = joinDate
     notify.notifyContent = `Congrats ${staffs.staffFirstName} ${
       staffs.staffMiddleName ? `${staffs.staffMiddleName}` : ""
     } ${staffs.staffLastName} for joined as a staff at ${institute.insName}`;
@@ -1387,6 +1392,8 @@ exports.RejectLeaveByIns = async (req, res) => {
 };
 
 exports.fillStaffForm = async (req, res) => {
+  var staffDate = new Date()
+  var joinDate = `${staffDate.getFullYear()}-${staffDate.getMonth() <10 ? `0${staffDate.getMonth() + 1}` : staffDate.getMonth() + 1}-${staffDate.getDate() <10 ? `0${staffDate.getDate()}` : staffDate.getDate()}`
   try {
     const { uid, id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id });
@@ -1423,6 +1430,7 @@ exports.fillStaffForm = async (req, res) => {
       institute.followersCount += 1
     }
     staff.institute = institute._id;
+    staff.staffApplyDate = joinDate
     staff.user = user._id;
     notify.notifyContent = `${staff.staffFirstName}${
       staff.staffMiddleName ? ` ${staff.staffMiddleName}` : ""
@@ -1514,7 +1522,11 @@ exports.retrievePendingStaffList = async (req, res) => {
       .populate({
         path: "staff",
         select:
-          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffPhoneNumber staffApplyDate",
+        populate: {
+          path: 'user',
+          select: 'userLegalName userEmail'
+        }
       })
       .lean()
       .exec();
@@ -1534,10 +1546,10 @@ exports.retrieveApproveStaffList = async (req, res) => {
       .populate({
         path: "ApproveStaff",
         select:
-          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO",
         populate: {
           path: 'user',
-          select: 'userLegalName'
+          select: 'userLegalName userEmail'
         }
       })
       .lean()
@@ -1560,10 +1572,10 @@ exports.retrieveApproveStudentList = async (req, res) => {
       .populate({
         path: "ApproveStudent",
         select:
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate",
         populate: {
           path: 'user',
-          select: 'userLegalName'
+          select: 'userLegalName userEmail'
         }
       })
       .lean()
@@ -1582,7 +1594,7 @@ exports.getFullStaffInfo = async (req, res) => {
     const { id } = req.params;
     const staff = await Staff.findById({ _id: id })
       .select(
-        "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffDistrict staffState staffAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharCard staffStatus"
+        "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffDistrict staffState staffAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffStatus staffPhoneNumber"
       )
       .populate({
         path: "user",
@@ -1609,7 +1621,7 @@ exports.getFullStudentInfo = async (req, res) => {
     const { id } = req.params;
     const student = await Student.findById({ _id: id })
       .select(
-        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentDistrict studentState studentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentDocuments studentAadharCard studentStatus studentGRNO studentROLLNO"
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentDistrict studentState studentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentDocuments studentAadharFrontCard studentAadharBackCard studentStatus studentGRNO studentROLLNO"
       )
       .populate({
         path: "user",
@@ -1678,6 +1690,14 @@ exports.getOneDepartment = async (req, res) => {
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
           },
         },
+      })
+      .populate({
+        path: 'displayPersonList',
+        select: 'displayTitle createdAt',
+        populate: {
+          path: 'displayUser',
+          select: 'userLegalName username photoId profilePhoto'
+        }
       })
       .lean()
       .exec();
@@ -1928,7 +1948,7 @@ exports.retrieveClassProfileSubject = async (req, res) => {
   try {
     const { cid } = req.params;
     const classes = await Class.findById({ _id: cid })
-      .select("className classTitle classAbout subjectCount studentCount")
+      .select("className classTitle classAbout subjectCount studentCount photoId photo coverId cover classStatus")
       .populate({
         path: "classTeacher",
         select:
@@ -1941,6 +1961,14 @@ exports.retrieveClassProfileSubject = async (req, res) => {
       .populate({
         path: 'department',
         select: 'staffCount'
+      })
+      .populate({
+        path: 'displayPersonList',
+        select: 'displayTitle createdAt',
+        populate: {
+          path: 'displayUser',
+          select: 'userLegalName username photoId profilePhoto'
+        }
       })
       .lean()
       .exec();
@@ -1958,7 +1986,7 @@ exports.retrieveClassSubject = async (req, res) => {
   try {
     const { cid } = req.params;
     const classes = await Class.findById({ _id: cid })
-      .select("className classTitle classStatus")
+      .select("className classTitle classAbout classStatus")
       .populate({
         path: "subject",
         select: "subjectName subjectTitle subjectStatus",
@@ -2663,6 +2691,7 @@ exports.retrieveApproveStudentRequest = async(req, res) =>{
     classes.student.pull(sid);
     student.studentGRNO = classes.ApproveStudent.length;
     student.studentROLLNO = classes.ApproveStudent.length;
+    student.studentAdmissionDate = c_date
     depart.ApproveStudent.push(student);
     depart.studentCount += 1
     student.department = depart;

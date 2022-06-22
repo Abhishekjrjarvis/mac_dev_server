@@ -246,38 +246,35 @@ exports.postSave = async (req, res) => {
     const { pid } = req.params;
     const institute_session = req.tokenData && req.tokenData.insId ? req.tokenData.insId : ''
     const user_session = req.tokenData && req.tokenData.userId ? req.tokenData.userId : ''
+    const post = await Post.findById({_id: pid})
     if (institute_session) {
-      const institute = await InstituteAdmin.findById({
-        _id: institute_session,
-      });
       if (
-        institute.saveInsPost.length >= 1 &&
-        institute.saveInsPost.includes(pid)
+        post.endUserSave.length >= 1 &&
+        post.endUserSave.includes(institute_session)
       ) {
-        institute.saveInsPost.pull(pid);
-        await institute.save();
+        post.endUserSave.pull(institute_session);
+        await post.save();
         res.status(200).send({ message: "Removed from Favourites" });
       } else {
-        institute.saveInsPost.push(pid);
-        await institute.save();
+        post.endUserSave.push(institute_session);
+        await post.save();
         res.status(200).send({ message: "Added To Favourites" });
       }
     } else if (user_session) {
-      const user = await User.findById({ _id: user_session });
       if (
-        user.saveUserInsPost.length >= 1 &&
-        user.saveUserInsPost.includes(pid)
+        post.endUserSave.length >= 1 &&
+        post.endUserSave.includes(user_session)
       ) {
-        user.saveUserInsPost.pull(pid);
-        await user.save();
+        post.endUserSave.pull(user_session);
+        await post.save();
         res.status(200).send({ message: "Remove To Favourites" });
       } else {
-        user.saveUserInsPost.push(pid);
-        await user.save();
+        post.endUserSave.push(user_session);
+        await post.save();
         res.status(200).send({ message: "Added To Favourites" });
       }
     } else {
-      res.status(401).send();
+      res.status(401).send({ message: 'Unauthorized access'});
     }
   } catch {}
 };
@@ -322,7 +319,7 @@ exports.retrieveAllPosts = async(req, res) =>{
       const id = req.params.id;
       const skip = (page - 1) * limit;
       const institute = await InstituteAdmin.findById(id)
-      .select('id saveInsPost')
+      .select('id')
       .populate({ path: 'posts' })
       const post = await Post.find({
         _id: { $in: institute.posts },
@@ -330,7 +327,7 @@ exports.retrieveAllPosts = async(req, res) =>{
       .sort("-createdAt")
       .limit(limit)
       .skip(skip)
-      .select("postTitle postText postDescription createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike")
+      .select("postTitle postText postDescription endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike")
       .populate({
           path: 'tagPeople',
           select: 'userLegalName username photoId profilePhoto'
@@ -341,7 +338,7 @@ exports.retrieveAllPosts = async(req, res) =>{
       else{
         var totalPage = page + 1
       }
-      res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage, saveIns: institute.saveInsPost});
+      res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage,});
     } catch(e) {
       console.log(e)
     }
@@ -355,15 +352,13 @@ exports.retreiveAllProfilePosts = async(req, res) =>{
     const id = req.params.id;
     const skip = (page - 1) * limit;
     const institute = await InstituteAdmin.findById(id)
-    .select('id saveInsPost')
+    .select('id ')
     .populate({ path: 'posts' })
-    const post = await Post.find({
-      _id: { $in: institute.posts },
-    })
+    const post = await Post.find({author: id})
     .sort("-createdAt")
     .limit(limit)
     .skip(skip)
-    .select("postTitle postText postDescription createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike")
+    .select("postTitle postText postDescription endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike")
     .populate({
       path: 'tagPeople',
       select: 'userLegalName username photoId profilePhoto'
@@ -374,7 +369,7 @@ exports.retreiveAllProfilePosts = async(req, res) =>{
     else{
       var totalPage = page + 1
     }
-    res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage, saveIns: institute.saveInsPost });
+    res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage,  });
   } catch(e) {
     console.log(e)
   }

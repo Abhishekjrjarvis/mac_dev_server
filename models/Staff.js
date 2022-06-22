@@ -157,6 +157,12 @@ const staffSchema = new mongoose.Schema({
       ref: "InstituteChat",
     },
   ],
+  staffJoinDate: {
+    type: String
+  },
+  staffApplyDate: {
+    type: String
+  }
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

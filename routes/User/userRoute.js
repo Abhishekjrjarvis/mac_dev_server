@@ -259,6 +259,9 @@ router.post('/:id/recovery-mail', isLoggedIn, catchAsync(User.retrieveRecoveryMa
 // User Staff Array
 router.get('/:uid/staff-role', isLoggedIn, catchAsync(User.retrieveUserStaffArray))
 
+// User Staff Array
+router.get('/:uid/student-role', isLoggedIn, catchAsync(User.retrieveUserStudentArray))
+
 // Staff Designation Data
 router.get('/staffdesignationdata/:sid', isLoggedIn, catchAsync(User.retrieveStaffDesignationArray))
 

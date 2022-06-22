@@ -164,18 +164,19 @@ exports.postSave = async (req, res) => {
     const { pid } = req.params;
     const user_session = req.tokenData && req.tokenData.userId ? req.tokenData.userId : ''
     if (user_session) {
-      const user = await User.findById({ _id: user_session });
-      if (user.saveUsersPost.length >= 1 && user.saveUsersPost.includes(pid)) {
-        user.saveUsersPost.pull(pid);
-        await user.save();
+      // const user = await User.findById({ _id: user_session });
+      const post = await Post.findById({_id: pid})
+      if (post.endUserSave.length >= 1 && post.endUserSave.includes(user_session)) {
+        post.endUserSave.pull(user_session);
+        await post.save();
         res.status(200).send({ message: "Remove To Favourites" });
       } else {
-        user.saveUsersPost.push(pid);
-        await user.save();
+        post.endUserSave.push(user_session);
+        await post.save();
         res.status(200).send({ message: "Added To Favourites" });
       }
     } else {
-      res.status(401).send();
+      res.status(401).send({ message: 'Unauthorized access'});
     }
   } catch {}
 };
@@ -220,7 +221,7 @@ exports.retrieveAllUserPosts = async(req, res) =>{
     const id = req.params.id;
     const skip = (page - 1) * limit;
     const user = await User.findById(id)
-    .select('id saveUsersPost saveUserInsPost')
+    .select('id')
     .populate({
       path: 'userPosts',
     })
@@ -230,7 +231,7 @@ exports.retrieveAllUserPosts = async(req, res) =>{
     .sort("-createdAt")
     .limit(limit)
     .skip(skip)
-    .select("postTitle postText postDescription createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike")
+    .select("postTitle postText postDescription endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike")
     .populate({
       path: 'tagPeople',
       select: 'userLegalName username photoId profilePhoto'
@@ -241,7 +242,7 @@ exports.retrieveAllUserPosts = async(req, res) =>{
     else{
       var totalPage = page + 1
     }
-    res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage, saveUser: user.saveUsersPost, saveIns: user.saveUserInsPost  });
+    res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage, });
   } catch(e) {
     console.log(e)
   }
@@ -255,17 +256,15 @@ exports.retrieveAllUserProfilePosts = async(req, res) =>{
     const id = req.params.id;
     const skip = (page - 1) * limit;
     const user = await User.findById(id)
-    .select('id saveUsersPost saveUserInsPost')
+    .select('id')
     .populate({
       path: 'userPosts',
     })
-    const post = await Post.find({
-      _id: { $in: user.userPosts },
-    })
+    const post = await Post.find({author: id})
     .sort("-createdAt")
     .limit(limit)
     .skip(skip)
-    .select("postTitle postText postDescription createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike")
+    .select("postTitle postText postDescription endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike")
     .populate({
         path: 'tagPeople',
         select: 'userLegalName username photoId profilePhoto'
@@ -276,7 +275,7 @@ exports.retrieveAllUserProfilePosts = async(req, res) =>{
     else{
       var totalPage = page + 1
     }
-    res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage, saveUser: user.saveUsersPost, saveIns: user.saveUserInsPost  });
+    res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage, });
   } catch(e) {
     console.log(e)
   }

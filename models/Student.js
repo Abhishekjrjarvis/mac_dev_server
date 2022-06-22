@@ -293,6 +293,9 @@ const studentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Library",
   },
+  studentAdmissionDate: {
+    type: String
+  },
   borrow: [{ type: mongoose.Schema.Types.ObjectId, ref: "Issue" }],
   deposite: [{ type: mongoose.Schema.Types.ObjectId, ref: "Collect" }],
   previousClassData: [

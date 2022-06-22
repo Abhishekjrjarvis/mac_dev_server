@@ -896,7 +896,7 @@ exports.retrieveUserStaffArray = async(req, res) =>{
     .select('userLegalName username photoId profilePhoto')
     .populate({
       path: 'staff',
-      select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto',
+      select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffStatus',
       populate: {
         path: 'institute',
         select: 'insName name photoId insProfilePhoto'
@@ -908,6 +908,29 @@ exports.retrieveUserStaffArray = async(req, res) =>{
 
   }
 }
+
+
+
+exports.retrieveUserStudentArray = async(req, res) =>{
+  try{
+    const { uid } = req.params
+    const user = await User.findById({ _id: uid })
+    .select('userLegalName username photoId profilePhoto')
+    .populate({
+      path: 'student',
+      select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentStatus',
+      populate: {
+        path: 'institute',
+        select: 'insName name photoId insProfilePhoto'
+      }
+    })
+    res.status(200).send({ message: 'Success', user})
+  }
+  catch{
+
+  }
+}
+
 
 
 exports.retrieveStaffDesignationArray = async(req, res) =>{

@@ -38,6 +38,7 @@ const postSchema = new mongoose.Schema({
     default: 0,
   },
   endUserLike: [],
+  endUserSave: [],
   createdAt: {
     type: Date,
     default: Date.now,

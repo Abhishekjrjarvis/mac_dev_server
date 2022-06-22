@@ -264,47 +264,42 @@ exports.postSave = async (req, res) => {
     const institute_session = req.tokenData && req.tokenData.insId ? req.tokenData.insId : ''
     const user_session = req.tokenData && req.tokenData.userId ? req.tokenData.userId : ''
     if (institute_session) {
-      const institute = await InstituteAdmin.findById({
-        _id: institute.session,
-      });
       if (
-        institute.saveInsPost.length >= 1 &&
-        institute.saveInsPost.includes(pid)
+        post.endUserSave.length >= 1 &&
+        post.endUserSave.includes(institute_session)
       ) {
-        institute.saveInsPost.pull(pid);
-        await institute.save();
+        post.endUserSave.pull(institute_session);
+        await post.save();
         res.status(200).send({ message: "Removed from Favourites" });
       } else {
-        institute.saveInsPost.push(pid);
-        await institute.save();
+        post.endUserSave.push(institute_session);
+        await post.save();
         res.status(200).send({ message: "Added To Favourites" });
       }
     } else if (user_session) {
-      const user = await User.findById({ _id: user_session });
       if (
-        user.saveUserInsPost.length >= 1 &&
-        user.saveUserInsPost.includes(pid)
+        post.endUserSave.length >= 1 &&
+        post.endUserSave.includes(user_session)
       ) {
-        user.saveUserInsPost.pull(pid);
-        await user.save();
+        post.endUserSave.pull(user_session);
+        await post.save();
         res.status(200).send({ message: "Remove To Favourites" });
       } else {
-        user.saveUserInsPost.push(pid);
-        await user.save();
+        post.endUserSave.push(user_session);
+        await post.save();
         res.status(200).send({ message: "Added To Favourites" });
       }
     } else if (admin_session) {
-        const user = await User.findById({ _id: admin_session });
         if (
-          user.saveAdminPost.length >= 1 &&
-          user.saveAdminPost.includes(pid)
+          post.endUserSave.length >= 1 &&
+          post.endUserSave.includes(admin_session)
         ) {
-          user.saveAdminPost.pull(pid);
-          await user.save();
+          post.endUserSave.pull(admin_session);
+          await post.save();
           res.status(200).send({ message: "Remove To Favourites" });
         } else {
-          user.saveAdminPost.push(pid);
-          await user.save();
+          post.endUserSave.push(admin_session);
+          await post.save();
           res.status(200).send({ message: "Added To Favourites" });
         }
     } else {
@@ -368,7 +363,7 @@ exports.retrieveAllPosts = async(req, res) =>{
         .sort("-createdAt")
         .limit(limit)
         .skip(skip)
-        .select("postTitle postText postDescription createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike")
+        .select("postTitle postText postDescription createdAt postImage endUserSave postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike")
         .populate({
           path: 'tagPeople',
           select: 'userLegalName username photoId profilePhoto'

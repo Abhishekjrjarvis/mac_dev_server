@@ -1872,6 +1872,7 @@ exports.retrieveNewSubject = async(req, res) =>{
     if (depart.departmentChatGroup.length >=1 && depart.departmentChatGroup.includes(`${staff._id}`)) {
     } else {
       depart.departmentChatGroup.push(staff._id);
+      await depart.save()
     }
     staff.staffSubject.push(subject._id);
     subject.subjectTeacherName = staff._id;
@@ -1885,7 +1886,6 @@ exports.retrieveNewSubject = async(req, res) =>{
       subjectMaster.save(),
       classes.save(),
       // batch.save(),
-      depart.save(),
       staff.save(),
       subject.save(),
       depart.save(),
@@ -1896,7 +1896,8 @@ exports.retrieveNewSubject = async(req, res) =>{
       message: "Successfully Created Subject",
       subject,
     });
-  } catch {
+  } catch(e) {
+    console.log(e)
   }
 }
 

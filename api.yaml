@@ -2902,7 +2902,7 @@ paths:
                 type: string
               insEstdDate:
                 type: string
-              createdAt:
+              insRegDate:
                 type: string
       responses:
         "200":

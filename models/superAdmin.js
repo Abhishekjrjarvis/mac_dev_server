@@ -158,6 +158,18 @@ const superAdminSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    playlistCount: {
+        type: Number,
+        default: 0
+    },
+    paymentCount: {
+        type: Number,
+        default: 0
+    },
+    requestInstituteCount: {
+        type: Number, 
+        default: 0
+    },
     posts: [
         {
             type: mongoose.Schema.Types.ObjectId,
@@ -175,7 +187,19 @@ const superAdminSchema = new mongoose.Schema({
     },
     profilePhoto: {
         type: String
-    }
+    },
+    staffArray: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Staff'
+        }
+    ],
+    studentArray: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Student'
+        }
+    ]
     
 })
 

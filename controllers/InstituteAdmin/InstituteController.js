@@ -787,6 +787,7 @@ exports.updateApproveStaff = async (req, res) => {
     staffs.staffStatus = req.body.status;
     institute.ApproveStaff.push(staffs._id);
     institute.staffCount += 1
+    admins.staffArray.push(staffs._id)
     admins.staffCount += 1
     institute.staff.pull(sid);
     staffs.staffROLLNO = institute.ApproveStaff.length;
@@ -2682,23 +2683,25 @@ exports.retrieveApproveStudentRequest = async(req, res) =>{
     const batch = await Batch.findById({ _id: bid });
     const notify = await new Notification({});
     student.studentStatus = req.body.status;
-    institute.ApproveStudent.push(student);
+    institute.ApproveStudent.push(student._id);
+    admins.studentArray.push(student._id)
     admins.studentCount += 1
     institute.student.pull(sid);
     if (c_date <= institute.insFreeLastDate) {
       institute.insFreeCredit = institute.insFreeCredit + 1;
     }
-    classes.ApproveStudent.push(student);
+    classes.ApproveStudent.push(student._id);
     classes.studentCount += 1
     classes.student.pull(sid);
     student.studentGRNO = classes.ApproveStudent.length;
     student.studentROLLNO = classes.ApproveStudent.length;
+    student.studentClass = classes._id
     student.studentAdmissionDate = c_date
-    depart.ApproveStudent.push(student);
+    depart.ApproveStudent.push(student._id);
     depart.studentCount += 1
-    student.department = depart;
-    batch.ApproveStudent.push(student);
-    student.batches = batch;
+    student.department = depart._id;
+    batch.ApproveStudent.push(student._id);
+    student.batches = batch._id;
     notify.notifyContent = `${student.studentFirstName}${
       student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
     } ${student.studentLastName} joined as a Student of Class ${
@@ -2706,11 +2709,11 @@ exports.retrieveApproveStudentRequest = async(req, res) =>{
     } of ${batch.batchName}`;
     notify.notifySender = cid;
     notify.notifyReceiever = user._id;
-    institute.iNotify.push(notify);
-    notify.institute = institute;
-    user.uNotify.push(notify);
-    notify.user = user;
-    notify.notifyByStudentPhoto = student;
+    institute.iNotify.push(notify._id);
+    notify.institute = institute._id;
+    user.uNotify.push(notify._id);
+    notify.user = user._id;
+    notify.notifyByStudentPhoto = student._id;
     await Promise.all([
      admins.save(),
      classes.save(),

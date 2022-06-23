@@ -5385,6 +5385,149 @@ paths:
       responses:
         "200":
           description: OK
+
+  /api/v1/admin/{aid}:
+    get:
+      tags:
+        - Super Admin Universal Post
+      summary: Super Admin Dashboard
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Super Admin id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admin/{aid}/approve-array:
+    get:
+      tags:
+        - Super Admin Universal Post
+      summary: Super Admin Approve Institute
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Super Admin id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admin/{aid}/pending-array:
+    get:
+      tags:
+        - Super Admin Universal Post
+      summary: Super Admin Request Institute
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Super Admin id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admin/{aid}/user-array:
+    get:
+      tags:
+        - Super Admin Universal Post
+      summary: Super Admin All Users
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Super Admin id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admin/one/institute/{id}:
+    get:
+      tags:
+        - Super Admin Universal Post
+      summary: Super Admin View One Institute
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admin/{aid}/approve/ins/{id}:
+    post:
+      tags:
+        - Super Admin Universal Post
+      summary: Super Admin Approve One Institute
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Super Admin id
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admin/{aid}/reject/ins/{id}:
+    post:
+      tags:
+        - Super Admin Universal Post
+      summary: Super Admin Reject One Institute
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Super Admin id
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+      responses:
+        "200":
+          description: OK
   
   /api/v1/admin/post/{id}/all/posts:
     get:

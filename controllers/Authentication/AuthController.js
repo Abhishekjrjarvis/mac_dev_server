@@ -58,6 +58,7 @@ exports.getRegisterIns = async (req, res) => {
         institute.photoId = "1";
         institute.coverId = "2";
         admins.instituteList.push(institute);
+        admins.requestInstituteCount += 1
         await Promise.all([admins.save(), institute.save()]);
         await unlinkFile(file.path);
         res.status(201).send({ message: "Institute", institute });

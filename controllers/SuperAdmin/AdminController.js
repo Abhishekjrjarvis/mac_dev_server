@@ -39,13 +39,100 @@ const generateAdminOTP = async (mob) => {
 
 exports.getAdmin = async(req, res) =>{
     try {
-        const admins = await Admin.find({})
-        .select('id')
+        const { aid } = req.params
+        const admins = await Admin.findById({ _id: aid})
+        .select('id postCount instituteCount userCount staffCount studentCount playlistCount paymentCount adminName adminUserName photoId profilePhoto')
+        .populate({
+          path: 'staffArray',
+          select: 'staffFirstName staffMiddleName staffJoinDate staffLastName photoId staffProfilePhoto',
+          populate: {
+            path: 'institute',
+            select: 'insName'
+          }
+        }) 
+        .populate({
+          path: 'staffArray',
+          select: 'staffFirstName staffMiddleName staffJoinDate staffLastName photoId staffProfilePhoto',
+          populate: {
+            path: 'user',
+            select: 'userLegalName username'
+          }
+        })
+        .populate({
+          path: 'studentArray',
+          select: 'studentFirstName studentMiddleName studentAdmissionDate studentLastName photoId studentProfilePhoto',
+          populate: {
+            path: 'institute',
+            select: 'insName'
+          }
+        }) 
+        .populate({
+          path: 'studentArray',
+          select: 'studentFirstName studentMiddleName studentAdmissionDate studentLastName photoId studentProfilePhoto',
+          populate: {
+            path: 'user',
+            select: 'userLegalName username'
+          }
+        })
         res.status(200).send({ message: 'Success', admins });
     } catch(e) {
         console.log(`Error`, e.message);
     }
 }
+
+
+exports.retrieveApproveInstituteArray = async(req, res) =>{
+  try{
+    const { aid } = req.params
+    const admin = await Admin.findById({ _id: aid})
+    .select('adminName')
+    .populate({
+      path: 'ApproveInstitute',
+      select: 'insName name photoId insProfilePhoto status staffCount studentCount'
+    })
+    res.status(200).send({ message: 'Approve Array', admin})
+  }
+  catch{
+
+  }
+}
+
+
+exports.retrievePendingInstituteArray = async(req, res) =>{
+  try{
+    const { aid } = req.params
+    const admin = await Admin.findById({ _id: aid})
+    .select('adminName')
+    .populate({
+      path: 'instituteList',
+      select: 'insName name photoId insProfilePhoto status insEmail insPhoneNumber insType insApplyDate'
+    })
+    res.status(200).send({ message: 'Pending Array', admin})
+  }
+  catch{
+
+  }
+}
+
+
+
+exports.retrieveUserArray = async(req, res) =>{
+  try{
+    const { aid } = req.params
+    const admin = await Admin.findById({ _id: aid})
+    .select('adminName')
+    .populate({
+      path: 'users',
+      select: 'userLegalName username photoId profilePhoto userAddress userDateOfBirth userGender userEmail userPhoneNumber '
+    })
+    res.status(200).send({ message: 'Pending Array', admin})
+  }
+  catch{
+
+  }
+}
+
+
 
 exports.getSuperAdmin = async(req, res) =>{
     res.render('SuperAdmin')
@@ -184,50 +271,28 @@ exports.getAll = async(req, res) =>{
 exports.getApproveIns = async(req, res) =>{
     try {
         const { aid, id } = req.params;
-        const { referalPercentage, insFreeLastDate, insPaymentLastDate, userID, status} = req.body;
-
         const admin = await Admin.findById({ _id: aid });
         const institute = await InstituteAdmin.findById({ _id: id });
-        const user = await User.findById({ _id: userID });
-        const rInstitute = await InstituteAdmin.findById({ _id: userID });
         const notify = await new Notification({});
-    
-        admin.ApproveInstitute.push(institute);
+        admin.ApproveInstitute.push(institute._id);
+        admin.instituteCount += 1
+        admin.requestInstituteCount -= 1
         admin.instituteList.pull(id);
-        institute.insFreeLastDate = insFreeLastDate;
-        institute.insPaymentLastDate = insPaymentLastDate;
-        institute.status = status;
-
-        if (user) {
-          admin.referals.push(user);
-          user.InstituteReferals.push(institute);
-          user.referalPercentage = user.referalPercentage + parseInt(referalPercentage);
-          institute.AllUserReferral.push(user);
-          await user.save();
-          await institute.save();
-
-        } else if (rInstitute) {
-          admin.referalsIns.push(rInstitute);
-          rInstitute.instituteReferral.push(institute);
-          rInstitute.referalPercentage = rInstitute.referalPercentage + parseInt(referalPercentage);
-          institute.AllInstituteReferral.push(rInstitute);
-          await rInstitute.save();
-          await institute.save();
-        }
-
+        institute.status = "Approved";
         notify.notifyContent = "Approval For Super Admin is successfull";
         notify.notifySender = aid;
         notify.notifyReceiever = id;
-        institute.iNotify.push(notify);
-        notify.institute = institute;
-        notify.notifyByInsPhoto = institute;
-        await institute.save();
-        await notify.save();
-        await admin.save();
+        institute.iNotify.push(notify._id);
+        notify.institute = institute._id;
+        notify.notifyBySuperAdminPhoto = "https://qviple.com/static/media/Mithkal_icon.043e3412.png";
+        await Promise.all([
+           institute.save(),
+           notify.save(),
+           admin.save()
+        ])
         res.status(200).send({
           message: `Congrats for Approval ${institute.insName}`,
-          admin,
-          institute,
+          admin: admin._id
         });
       } catch (e) {console.log('Error', e.message)}
 }
@@ -236,30 +301,27 @@ exports.getApproveIns = async(req, res) =>{
 exports.getRejectIns = async(req, res) =>{
     try {
         const { aid, id } = req.params;
-        const { rejectReason, status } = req.body;
-
         const admin = await Admin.findById({ _id: aid });
         const institute = await InstituteAdmin.findById({ _id: id });
         const notify = await new Notification({});
 
-        admin.RejectInstitute.push(institute);
+        admin.RejectInstitute.push(institute._id);
         admin.instituteList.pull(id);
-        institute.status = status;
-        institute.rejectReason = rejectReason;
+        institute.status = "Rejected";
         notify.notifyContent = `Rejected from Super Admin Contact at connect@qviple.com`;
         notify.notifySender = aid;
         notify.notifyReceiever = id;
-        institute.iNotify.push(notify);
-        notify.institute = institute;
-        notify.notifyByInsPhoto = institute;
-
-        await admin.save();
-        await institute.save();
-        await notify.save();
+        institute.iNotify.push(notify._id);
+        notify.institute = institute._id;
+        notify.notifyBySuperAdminPhoto = "https://qviple.com/static/media/Mithkal_icon.043e3412.png";
+        await Promise.all([
+           admin.save(),
+           institute.save(),
+           notify.save()
+        ])
         res.status(200).send({
           message: `Application Rejected ${institute.insName}`,
-          admin,
-          institute,
+          admin: admin._id
         });
       } catch {
         console.log(
@@ -296,6 +358,19 @@ exports.retrieveLandingPageCount = async(req, res) =>{
     const admin = await Admin.findById({_id: `${process.env.S_ADMIN_ID}`})
     .select('instituteCount userCount studentCount staffCount')
     res.status(200).send({ message: 'Success', admin})
+  }
+  catch{
+
+  }
+}
+
+
+exports.retrieveOneInstitute = async(req, res) =>{
+  try{
+    const { id } = req.params
+    const institute = await InstituteAdmin.findById({_id: id})
+    .select('insName name insAbout insAddress insEmail insPhoneNumber status insMode insType insPincode insState insDistrict insDocument')
+    res.status(200).send({ message: 'One Institute', institute})
   }
   catch{
 

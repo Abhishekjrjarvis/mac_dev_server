@@ -6,9 +6,17 @@ const { isLoggedIn } = require('../../middleware')
 const multer = require('multer')
 const upload = multer({ dest: "uploads/" });
 
-
 // Get Super Admin Id
-router.get('/', catchAsync(Admin.getAdmin))
+router.get('/:aid', isLoggedIn, catchAsync(Admin.getAdmin))
+
+// Get Approve Institute Array
+router.get('/:aid/approve-array', isLoggedIn, catchAsync(Admin.retrieveApproveInstituteArray))
+
+// Get Pending Institute Array
+router.get('/:aid/pending-array', isLoggedIn, catchAsync(Admin.retrievePendingInstituteArray))
+
+// Get User Array
+router.get('/:aid/user-array', isLoggedIn, catchAsync(Admin.retrieveUserArray))
 
 // Get Super Admin Form
 router.get('/new', catchAsync(Admin.getSuperAdmin))
@@ -42,5 +50,8 @@ router.get('/referral/user',isLoggedIn, catchAsync(Admin.getReferralUser))
   
 // All Counts for Landing Page
 router.get('/count-details', catchAsync(Admin.retrieveLandingPageCount))
+
+// Get One Institute 
+router.get('/one/institute/:id', isLoggedIn, catchAsync(Admin.retrieveOneInstitute))
 
 module.exports = router

@@ -344,6 +344,14 @@ const instituteAdminSchema = new mongoose.Schema({
   postCount: {
     type: Number,
     default: 0
+  },
+  announcementCount: {
+    type: Number,
+    default: 0
+  },
+  admissionCount: {
+    type: Number,
+    default: 0
   }
 });
 

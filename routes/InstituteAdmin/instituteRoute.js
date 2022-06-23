@@ -598,6 +598,9 @@ router.get('/department/:did/staff-array', isLoggedIn, catchAsync(Institute.retr
 // User 3-Follow System Array
 router.get('/:id/all-two-array', isLoggedIn, catchAsync(Institute.retrieveInstituteTwoArray))
 
+// One Announcement Detail
+router.get('/one/announcement/:aid', isLoggedIn, catchAsync(Institute.retrieveOneAnnouncement))
+
 // Department Display Person 
 router.post('/:did/department/display-person', isLoggedIn, catchAsync(Institute.updateDepartmentDisplayPersonArray))
 

@@ -176,7 +176,7 @@ exports.getProfileOneQuery = async (req, res) => {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName status photoId insProfilePhoto coverId departmentCount joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement insOperatingAdmin insPrinciple insTrusty insStudentPresident insAdminClerk"
+        "insName status photoId insProfilePhoto coverId departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement insOperatingAdmin insPrinciple insTrusty insStudentPresident insAdminClerk"
       )
       .lean()
       .exec();
@@ -551,6 +551,7 @@ exports.getUpdateAnnouncement = async (req, res) => {
     const institute = await InstituteAdmin.findById({ _id: id });
     const announcements = new InsAnnouncement({ ...req.body });
     institute.announcement.unshift(announcements._id);
+    institute.announcementCount += 1
     announcements.institute = institute._id;
     for (let file of req.files) {
       let count = 1;
@@ -2824,6 +2825,38 @@ exports.retrieveInstituteTwoArray = async(req, res) =>{
   }
 }
 
+
+exports.retrieveOneAnnouncement = async (req, res) =>{
+  try{
+    const { aid } = req.params
+    const announcement = await InsAnnouncement.findById({_id: aid})
+    .select('insAnnTitle insAnnDescription insAnnPhoto insAnnVisibilty starList createdAt')
+    .populate({
+      path: 'reply',
+      select: 'replyText createdAt',
+      populate: {
+        path: 'replyAuthorAsIns',
+        select: 'insName name photoId insProfilePhoto'
+      }
+    })
+    .populate({
+      path: 'institute',
+      select: 'insName name photoId insProfilePhoto'
+    })
+    .populate({
+      path: 'reply',
+      select: 'replyText createdAt',
+      populate: {
+        path: 'replyAuthorAsUser',
+        select: 'userLegalName username photoId profilePhoto'
+      }
+    })
+    res.status(200).send({ message: 'One Announcement', announcement})
+  }
+  catch(e) {
+    console.log(e)
+  }
+}
 
 
 exports.updateDepartmentDisplayPersonArray = async(req, res) =>{

@@ -2884,13 +2884,15 @@ paths:
           schema:
             type: object
             properties:
-              insType:
+              insName:
                 type: string
-              insMode:
+              insType:
                 type: string
               insEmail:
                 type: string
-              insState:
+              insPhoneNumber:
+                type: string
+              insAchievement:
                 type: string
               insAddress:
                 type: string
@@ -2899,6 +2901,8 @@ paths:
               insAffiliated:
                 type: string
               insEstdDate:
+                type: string
+              createdAt:
                 type: string
       responses:
         "200":
@@ -3972,6 +3976,24 @@ paths:
         "200":
           description: OK
 
+  /api/v1/ins/one/announcement/{aid}:
+    get:
+      tags:
+        - Institute DashBoard API (including Notification, Post, Announcement)
+      summary: One Announcement Detail Institute -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is announcement id
+      responses:
+        "200":
+          description: OK
       
 
   /api/v1/ins/{id}/ins-post/{uid}/report:

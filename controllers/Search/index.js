@@ -96,7 +96,7 @@ exports.searchInstituteUniversal = async (req, res) => {
         ],
       })
         .select(
-          "insName insProfilePhoto photoId name insState insDistrict followers userFollowersList"
+          "insName insProfilePhoto photoId name "
         )
         .limit(itemPerPage)
         .skip(dropItem)
@@ -165,11 +165,13 @@ exports.searchInstituteUniversal = async (req, res) => {
       )
         res.status(202).send({ message: "Not found any search" });
       else
+        var universalArray = [...allInstitutes, ...departments, ...staff, ...students]
         res.status(200).send({
           allInstitutes,
           departments,
           staff,
           students,
+          universalArray
         });
     }
   } catch (e) {

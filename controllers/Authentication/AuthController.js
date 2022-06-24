@@ -418,13 +418,20 @@ exports.getNewPassword = async (req, res) => {
 
 module.exports.getLogin = async (req, res) => {
   try {
-    if (req.tokenData.insId || req.tokenData.userId || req.tokenData.adminId) {
-      res.send({
-        loggedIn: true,
-        User: req.tokenData.insId || req.tokenData.userId || req.tokenData.adminId,
-      });
-    } else {
-      res.send({ loggedIn: false });
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    if(token == null){
+      res.status(401).send({ message: 'Invalid Token'})
+    }
+    else{
+      jwt.verify(token, `${process.env.TOKEN_SECRET}`, function(err, decoded) {
+        if (err) {
+            res.status(401).send({ message: 'UnAuthorized User', status: false})
+        }
+        else {
+            res.status(200).send({ message: 'Authorized User', status: true})
+        }
+    });
     }
   } catch (e) {
     console.log(`Error`, e.message);

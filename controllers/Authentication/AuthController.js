@@ -434,9 +434,10 @@ module.exports.getLogin = async (req, res) => {
     });
     }
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(`Error`, e);
   }
 };
+
 
 
 module.exports.authentication = async (req, res) => {

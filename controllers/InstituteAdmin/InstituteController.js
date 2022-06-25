@@ -793,6 +793,7 @@ exports.updateApproveStaff = async (req, res) => {
     admins.staffArray.push(staffs._id)
     admins.staffCount += 1
     institute.staff.pull(sid);
+    institute.joinedUserList.push(user._id)
     staffs.staffROLLNO = institute.ApproveStaff.length;
     staffs.staffJoinDate = joinDate
     notify.notifyContent = `Congrats ${staffs.staffFirstName} ${

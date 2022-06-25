@@ -118,6 +118,12 @@ const instituteAdminSchema = new mongoose.Schema({
       ref: "User",
     },
   ],
+  joinedUserList: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
   classRooms: [
     {
       type: mongoose.Schema.Types.ObjectId,

@@ -73,7 +73,10 @@ const unlinkFile = util.promisify(fs.unlink);
 exports.postWithText = async (req, res) => {
   try {
     const { id } = req.params;
-    const institute = await InstituteAdmin.findById({ _id: id });
+    const institute = await InstituteAdmin.findById({ _id: id })
+    .populate({ path: 'followers'})
+    .populate({ path: 'userFollowersList'})
+    .populate({ path: 'joinedUserList'})
     const post = new Post({ ...req.body });
     if (Array.isArray(req.body.people)) {
       for (let val of req.body.people) {
@@ -95,6 +98,29 @@ exports.postWithText = async (req, res) => {
     post.authorProfilePhoto = institute.insProfilePhoto
     await Promise.all([institute.save(), post.save()]);
     res.status(201).send({ message: "post is create", post });
+    if(institute.followers.length >= 1){
+      if(post.postStatus === 'Anyone'){
+        institute.followers.forEach(async (ele) => {
+          ele.posts.push(post._id)
+          await ele.save()
+        })
+      }else{}
+    }
+    if(institute.userFollowersList.length >= 1){
+      if(post.postStatus === 'Anyone'){
+        institute.userFollowersList.forEach(async (ele) => {
+          ele.userPosts.push(post._id)
+          await ele.save()
+        })
+      }else{
+        if(institute.joinedUserList.length >=1){
+          institute.joinedUserList.forEach(async (ele) => {
+            ele.userPosts.push(post._id)
+            await ele.save()
+          })
+        }
+      }
+    }
   } catch {}
 };
 

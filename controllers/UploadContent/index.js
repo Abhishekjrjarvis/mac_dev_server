@@ -16,6 +16,8 @@ const InsAnnouncement = require("../../models/InsAnnouncement");
 const ResourcesKey = require("../../models/ResourcesKey");
 const Video = require("../../models/Video");
 const Post = require('../../models/Post')
+const Comment = require('../../models/Comment')
+const ReplyComment = require('../../models/ReplyComment')
 
 const {
   getFileStream,
@@ -50,8 +52,21 @@ exports.patchInstituteImagePhoto = async (req, res) => {
     res.status(201).send({ message: "Successfully photo change" });
     const post = await Post.find({author: institute._id})
     post.forEach(async (ele) =>{
+      ele.authorPhotoId = "1"
       ele.authorProfilePhoto = institute.insProfilePhoto
       await ele.save()
+    })
+    const comment = await Comment.find({ author: institute._id})
+    comment.forEach(async (com) => {
+      com.authorPhotoId = "1"
+      com.authorProfilePhoto = institute.insProfilePhoto
+      await com.save()
+    })
+    const replyComment = await ReplyComment.find({ author: institute._id})
+    replyComment.forEach(async (reply) => {
+      reply.authorPhotoId = "1"
+      reply.authorProfilePhoto = institute.insProfilePhoto
+      await reply.save()
     })
   } catch (err) {
     console.log(err.message);

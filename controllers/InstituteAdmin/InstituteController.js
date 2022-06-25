@@ -154,17 +154,8 @@ exports.getDashOneQuery = async (req, res) => {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName insAbout photoId status insAdmissionAdminStatus insAdmissionAdmin insProfilePhoto saveInsPost insOperatingAdmin insTrusty insPrinciple insAdminClerk insStudentPresident"
+        "insName name insAbout photoId status insProfilePhoto "
       )
-      .populate({
-        path: "ApproveStaff",
-        select:
-          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
-        populate: {
-          path: "user",
-          select: "userLegalName username profilePhoto photoId",
-        },
-      })
       .lean()
       .exec();
     res.status(200).send({ message: "limit Ins Data", institute });

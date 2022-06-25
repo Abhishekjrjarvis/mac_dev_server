@@ -52,19 +52,19 @@ exports.patchInstituteImagePhoto = async (req, res) => {
     res.status(201).send({ message: "Successfully photo change" });
     const post = await Post.find({author: institute._id})
     post.forEach(async (ele) =>{
-      ele.authorPhotoId = "1"
+      ele.authorPhotoId = "0"
       ele.authorProfilePhoto = institute.insProfilePhoto
       await ele.save()
     })
     const comment = await Comment.find({ author: institute._id})
     comment.forEach(async (com) => {
-      com.authorPhotoId = "1"
+      com.authorPhotoId = "0"
       com.authorProfilePhoto = institute.insProfilePhoto
       await com.save()
     })
     const replyComment = await ReplyComment.find({ author: institute._id})
     replyComment.forEach(async (reply) => {
-      reply.authorPhotoId = "1"
+      reply.authorPhotoId = "0"
       reply.authorProfilePhoto = institute.insProfilePhoto
       await reply.save()
     })

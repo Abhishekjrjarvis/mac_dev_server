@@ -17,7 +17,7 @@ const ResourcesKey = require("../../models/ResourcesKey");
 const Video = require("../../models/Video");
 const Post = require('../../models/Post')
 const Comment = require('../../models/Comment')
-const ReplyComment = require('../../models/ReplyComment')
+const ReplyComment = require('../../models/ReplyComment/ReplyComment')
 
 const {
   getFileStream,

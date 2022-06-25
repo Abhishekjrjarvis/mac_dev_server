@@ -152,6 +152,24 @@ exports.patchUserImagePhoto = async (req, res) => {
     await user.save();
     await unlinkFile(file.path);
     res.status(201).send({ message: "Successfully photo change" });
+    const post = await Post.find({author: user._id})
+    post.forEach(async (ele) =>{
+      ele.authorPhotoId = "0"
+      ele.authorProfilePhoto = user.profilePhoto
+      await ele.save()
+    })
+    const comment = await Comment.find({ author: user._id})
+    comment.forEach(async (com) => {
+      com.authorPhotoId = "0"
+      com.authorProfilePhoto = user.profilePhoto
+      await com.save()
+    })
+    const replyComment = await ReplyComment.find({ author: user._id})
+    replyComment.forEach(async (reply) => {
+      reply.authorPhotoId = "0"
+      reply.authorProfilePhoto = user.profilePhoto
+      await reply.save()
+    })
   } catch (err) {
     console.log(err.message);
   }

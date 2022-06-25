@@ -722,13 +722,20 @@ exports.updateFollowIns = async (req, res) => {
       sinstitute.followersCount += 1
       notify.notifyContent = `${institutes.insName} started to following you`;
       notify.notifyReceiever = sinstitute._id;
-      sinstitute.iNotify.push(notify);
-      notify.institute = sinstitute;
-      notify.notifyByInsPhoto = institutes;
-      await institutes.save();
-      await sinstitute.save();
-      await notify.save();
+      sinstitute.iNotify.push(notify._id);
+      notify.institute = sinstitute._id;
+      notify.notifyByInsPhoto = institutes._id;
+      await Promise.all([
+       institutes.save(),
+       sinstitute.save(),
+       notify.save()
+      ])
       res.status(200).send({ message: "Following This Institute" });
+      const post = await Post.find({ $and: [{ author: sinstitute._id, postStatus: 'Anyone' }] })
+      post.forEach(async (pt) => {
+        institutes.posts.push(pt)
+        await institutes.save()
+      })
     }
   } catch (e) {
     console.log(`Error`, e.message);
@@ -755,6 +762,11 @@ exports.removeFollowIns = async (req, res) => {
         institutes.save()
       ])
       res.status(200).send({ message: "UnFollow This Institute" });
+      const post = await Post.find({ $and: [{ author: sinstitute._id, postStatus: 'Anyone' }] })
+      post.forEach(async (pt) => {
+        institutes.posts.pull(pt)
+        await institutes.save()
+      })
     } else {
       res.status(200).send({ message: "You Already UnFollow This Institute" });
     }

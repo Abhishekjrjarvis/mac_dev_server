@@ -429,7 +429,7 @@ module.exports.getLogin = async (req, res) => {
             res.status(401).send({ message: 'UnAuthorized User', status: false})
         }
         else {
-            res.status(200).send({ message: 'Authorized User', status: true})
+            res.status(200).send({ message: 'Authorized User', status: true, token: token})
         }
     });
     }

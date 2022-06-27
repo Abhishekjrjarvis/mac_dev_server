@@ -734,8 +734,8 @@ exports.updateFollowIns = async (req, res) => {
       const post = await Post.find({ $and: [{ author: sinstitute._id, postStatus: 'Anyone' }] })
       post.forEach(async (pt) => {
         institutes.posts.push(pt)
-        await institutes.save()
       })
+      await institutes.save()
     }
   } catch (e) {
     console.log(`Error`, e.message);
@@ -765,8 +765,8 @@ exports.removeFollowIns = async (req, res) => {
       const post = await Post.find({ $and: [{ author: sinstitute._id, postStatus: 'Anyone' }] })
       post.forEach(async (pt) => {
         institutes.posts.pull(pt)
-        await institutes.save()
       })
+      await institutes.save()
     } else {
       res.status(200).send({ message: "You Already UnFollow This Institute" });
     }
@@ -820,8 +820,8 @@ exports.updateApproveStaff = async (req, res) => {
     const post = await Post.find({ author: institute._id })
       post.forEach(async (pt) => {
         user.userPosts.push(pt)
-        await user.save()
     })
+    await user.save()
   } catch (e) {
     console.log(`Error`, e.message);
   }

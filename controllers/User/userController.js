@@ -240,6 +240,11 @@ exports.updateUserFollowIns = async (req, res) => {
       await sinstitute.save();
       await notify.save();
       res.status(200).send({ message: "Following This Institute" });
+      const post = await Post.find({ $and: [{ author: sinstitute._id, postStatus: 'Anyone' }]})
+      post.forEach(async (ele) => {
+       user.userPosts.push(ele)
+      })
+      await user.save()
     }
   } catch (e) {
     console.log(`Error`, e);
@@ -260,6 +265,11 @@ exports.removeUserFollowIns = async (req, res) => {
       await user.save();
       await sinstitute.save();
       res.status(200).send({ message: 'Unfollow Institute'})
+      const post = await Post.find({ $and: [{ author: sinstitute._id, postStatus: 'Anyone' }]})
+      post.forEach(async (ele) => {
+       user.userPosts.pull(ele)
+      })
+      await user.save()
     } else {
       res.status(200).send({ message: "You Already Unfollow This Institute" });
     }
@@ -303,6 +313,11 @@ exports.updateUserFollow = async (req, res) => {
       await suser.save();
       await notify.save();
       res.status(200).send({ message: " Following This User" });
+      const post = await Post.find({ $and: [{ author: suser._id, postStatus: 'Anyone'}]})
+      post.forEach(async (ele) =>{
+        user.userPosts.push(ele)
+      })
+      await user.save()
     }
   } catch (e) {
     console.log(`Error`, e.message);
@@ -324,6 +339,11 @@ exports.updateUserUnFollow = async (req, res) => {
         await user.save();
         await suser.save();
         res.status(200).send({ message: " UnFollowing This User" });
+        const post = await Post.find({ $and: [{ author: suser._id, postStatus: 'Anyone'}]})
+        post.forEach(async (ele) =>{
+          user.userPosts.pull(ele)
+        })
+        await user.save()
     } else {
       res.status(200).send({ message: "You Are no Longer Following This User" });
     }
@@ -375,6 +395,17 @@ exports.updateUserCircle = async (req, res) => {
         await user.save();
         await suser.save();
         await notify.save();
+        res.status(200).send({ message: '😀 Added to circle'})
+        const post = await Post.find({ $and: [{ author: suser._id, postStatus: 'Private'}]})
+        post.forEach(async (ele) =>{
+          user.userPosts.push(ele)
+        })
+        await user.save()
+        const posts = await Post.find({ $and: [{ author: user._id, postStatus: 'Private'}]})
+        posts.forEach(async (ele) =>{
+          suser.userPosts.push(ele)
+        })
+        await suser.save()
       } catch {
         res.status(500).send({ error: "error" });
       }

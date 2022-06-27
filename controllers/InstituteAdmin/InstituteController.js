@@ -817,6 +817,11 @@ exports.updateApproveStaff = async (req, res) => {
       message: `Welcome To The Institute ${staffs.staffFirstName} ${staffs.staffLastName}`,
       institute: institute.ApproveStaff,
     });
+    const post = await Post.find({ author: institute._id })
+      post.forEach(async (pt) => {
+        user.userPosts.push(pt)
+        await user.save()
+    })
   } catch (e) {
     console.log(`Error`, e.message);
   }

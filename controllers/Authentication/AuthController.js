@@ -475,7 +475,7 @@ module.exports.authentication = async (req, res) => {
       );
       if (checkAdminPass) {
         const token = generateAccessAdminToken(admin?.username, admin?._id, admin?.userPassword);
-        res.json({ token: `Bearer ${token}`, admin: admin._id });
+        res.json({ token: `Bearer ${token}`, admin: admin });
         // res
         //   .status(200)
         //   .send({ message: "Successfully LoggedIn as a Super Admin", admin: admin._id });

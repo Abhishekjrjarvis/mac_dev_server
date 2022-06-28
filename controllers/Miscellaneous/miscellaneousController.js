@@ -24,7 +24,8 @@ exports.getAllStaff = async(req, res) =>{
         const staff = await Staff.find({})
         .select('staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto')
         .populate({
-          path: 'userLegalName photoId profilePhoto'
+          path: 'user',
+          select: 'userLegalName photoId profilePhoto'
         })
         .limit(limit)
         .skip(skip)

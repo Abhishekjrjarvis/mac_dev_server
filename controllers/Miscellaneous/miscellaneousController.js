@@ -23,6 +23,9 @@ exports.getAllStaff = async(req, res) =>{
         const skip = (page - 1) * limit;
         const staff = await Staff.find({})
         .select('staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto')
+        .populate({
+          path: 'userLegalName photoId profilePhoto'
+        })
         .limit(limit)
         .skip(skip)
 

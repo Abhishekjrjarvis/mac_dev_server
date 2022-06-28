@@ -239,21 +239,26 @@ exports.postWithVideo = async (req, res) => {
 exports.postWithVsibilityUpdate = async (req, res) => {
   try {
     const { pid } = req.params;
+    console.log(req.params, req.body)
     const { postStatus } = req.body;
     const post = await Post.findById({ _id: pid });
     post.postStatus = postStatus;
     await post.save();
-    res.status(200).send({ message: "visibility change" });
-  } catch {}
+    res.status(200).send({ message: "visibility change 👓" });
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 exports.postWithDeleted = async (req, res) => {
   try {
     const { id, pid } = req.params;
+    const institute = await InstituteAdmin.findById({_id: id})
     await InstituteAdmin.findByIdAndUpdate(id, { $pull: { posts: pid } });
-    await InstituteAdmin.findByIdAndUpdate(id, { $pull: { saveInsPost: pid } });
     await Post.findByIdAndDelete({ _id: pid });
-    res.status(200).send({ message: "post deleted" });
+    institute.postCount -= 1
+    await institute.save()
+    res.status(200).send({ message: "post deleted 🙄🙄" });
   } catch {}
 };
 

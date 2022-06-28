@@ -30,18 +30,16 @@ router.post(
 router.patch(
   "/update/:pid",
   isLoggedIn,
-  isApproved,
   catchAsync(Post.postWithVsibilityUpdate)
 );
 
 router.delete(
   "/:id/deleted/:pid",
   isLoggedIn,
-  isApproved,
   catchAsync(Post.postWithDeleted)
 );
 
-router.get("/tag/:uid", isLoggedIn, isApproved, catchAsync(Post.circleList));
+router.get("/tag/:uid", isLoggedIn, catchAsync(Post.circleList));
 
 router.get("/reaction/:pid", isLoggedIn, catchAsync(Post.reactionPost));
 

@@ -7,6 +7,7 @@ const InsAnnouncement = require("../../models/InsAnnouncement");
 const Student = require("../../models/Student");
 const Comment = require("../../models/Comment");
 const Department = require("../../models/Department");
+const InsDcoument = require('../../models/Document/InsDocument')
 const Admin = require("../../models/superAdmin");
 const Report = require("../../models/Report");
 const Batch = require("../../models/Batch");
@@ -545,22 +546,14 @@ exports.getUpdateAnnouncement = async (req, res) => {
     institute.announcementCount += 1
     announcements.institute = institute._id;
     for (let file of req.files) {
-      let count = 1;
-      if (count === 1) {
-        const width = 112;
-        const height = 112;
-        const results = await uploadFile(file, width, height);
-        announcements.insAnnPhoto = results.key;
-        count = count + 1;
-      } else if(count === 2) {
-        const results = await uploadDocFile(file);
-        announcements.anouncementDocument.push(results.Key);
-        count = count + 1;
-      }
-      else{
-
-      }
-      await unlinkFile(file.path);
+      const insDocument = new InsDocument({})
+      insDocument.documentType = file.mimetype
+      insDocument.documentName = file.originalname
+      insDocument.documentEncoding = file.encoding
+      insDocument.documentSize = file.size
+      const results = await uploadDocFile(file);
+      insDocument.documentKey = results.Key
+      await unlinkFile(file.path)
     }
     await Promise.all([ institute.save(), announcements.save()])
     res.status(200).send({ message: "Successfully Created", announcements });

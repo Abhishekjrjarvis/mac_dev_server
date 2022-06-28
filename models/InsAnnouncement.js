@@ -2,10 +2,14 @@ const mongoose = require("mongoose");
 
 const insAnnouncementSchema = new mongoose.Schema({
   insAnnTitle: { type: String },
-  insAnnPhoto: { type: String },
   insAnnDescription: { type: String },
   insAnnVisibility: { type: String, default: 'Anyone' },
-  anouncementDocument: [],
+  anouncementDocument: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "InsDocument",
+    },
+  ],
   createdAt: { type: Date, default: Date.now },
   institute: {
     type: mongoose.Schema.Types.ObjectId,

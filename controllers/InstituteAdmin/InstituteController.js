@@ -7,7 +7,7 @@ const InsAnnouncement = require("../../models/InsAnnouncement");
 const Student = require("../../models/Student");
 const Comment = require("../../models/Comment");
 const Department = require("../../models/Department");
-const InsDcoument = require('../../models/Document/InsDocument')
+const InsDocument = require('../../models/Document/InsDocument')
 const Admin = require("../../models/superAdmin");
 const Report = require("../../models/Report");
 const Batch = require("../../models/Batch");
@@ -553,6 +553,8 @@ exports.getUpdateAnnouncement = async (req, res) => {
       insDocument.documentSize = file.size
       const results = await uploadDocFile(file);
       insDocument.documentKey = results.Key
+      announcements.announcementDocument.push(insDocument._id)
+      await insDocument.save()
       await unlinkFile(file.path)
     }
     await Promise.all([ institute.save(), announcements.save()])

@@ -155,6 +155,29 @@ exports.postWithImage = async (req, res) => {
     post.authorProfilePhoto = institute.insProfilePhoto
     await Promise.all([institute.save(), post.save()]);
     res.status(201).send({ message: "post is create" });
+    if(institute.followers.length >= 1){
+      if(post.postStatus === 'Anyone'){
+        institute.followers.forEach(async (ele) => {
+          ele.posts.push(post._id)
+          await ele.save()
+        })
+      }else{}
+    }
+    if(institute.userFollowersList.length >= 1){
+      if(post.postStatus === 'Anyone'){
+        institute.userFollowersList.forEach(async (ele) => {
+          ele.userPosts.push(post._id)
+          await ele.save()
+        })
+      }else{
+        if(institute.joinedUserList.length >=1){
+          institute.joinedUserList.forEach(async (ele) => {
+            ele.userPosts.push(post._id)
+            await ele.save()
+          })
+        }
+      }
+    }
   } catch {}
 };
 
@@ -187,6 +210,29 @@ exports.postWithVideo = async (req, res) => {
     await Promise.all([institute.save(), post.save()]);
     await unlinkFile(file.path);
     res.status(201).send({ message: "post created" });
+    if(institute.followers.length >= 1){
+      if(post.postStatus === 'Anyone'){
+        institute.followers.forEach(async (ele) => {
+          ele.posts.push(post._id)
+          await ele.save()
+        })
+      }else{}
+    }
+    if(institute.userFollowersList.length >= 1){
+      if(post.postStatus === 'Anyone'){
+        institute.userFollowersList.forEach(async (ele) => {
+          ele.userPosts.push(post._id)
+          await ele.save()
+        })
+      }else{
+        if(institute.joinedUserList.length >=1){
+          institute.joinedUserList.forEach(async (ele) => {
+            ele.userPosts.push(post._id)
+            await ele.save()
+          })
+        }
+      }
+    }
   } catch {}
 };
 

@@ -36,6 +36,20 @@ exports.postWithText = async (req, res) => {
     post.authorProfilePhoto = user.profilePhoto
     await Promise.all([user.save(), post.save()]);
     res.status(201).send({ message: "post is create" });
+    if(user.userFollowers.length >= 1){
+      if(post.postStatus === 'Anyone'){
+        user.userFollowers.forEach(async (ele) => {
+          ele.userPosts.push(post._id)
+          await ele.save()
+        })
+      }else{}
+    }
+    if(user.userCircle.length >= 1){
+        user.userCircle.forEach(async (ele) => {
+          ele.userPosts.push(post._id)
+          await ele.save()
+        })
+    }
   } catch {}
 };
 
@@ -69,6 +83,20 @@ exports.postWithImage = async (req, res) => {
     post.authorProfilePhoto = user.profilePhoto
     await Promise.all([user.save(), post.save()]);
     res.status(201).send({ message: "post is create" });
+    if(user.userFollowers.length >= 1){
+      if(post.postStatus === 'Anyone'){
+        user.userFollowers.forEach(async (ele) => {
+          ele.userPosts.push(post._id)
+          await ele.save()
+        })
+      }else{}
+    }
+    if(user.userCircle.length >= 1){
+        user.userCircle.forEach(async (ele) => {
+          ele.userPosts.push(post._id)
+          await ele.save()
+        })
+    }
   } catch {}
 };
 
@@ -101,6 +129,20 @@ exports.postWithVideo = async (req, res) => {
     await Promise.all([user.save(), post.save()]);
     await unlinkFile(file.path);
     res.status(201).send({ message: "post created" });
+    if(user.userFollowers.length >= 1){
+      if(post.postStatus === 'Anyone'){
+        user.userFollowers.forEach(async (ele) => {
+          ele.userPosts.push(post._id)
+          await ele.save()
+        })
+      }else{}
+    }
+    if(user.userCircle.length >= 1){
+        user.userCircle.forEach(async (ele) => {
+          ele.userPosts.push(post._id)
+          await ele.save()
+        })
+    }
   } catch {}
 };
 

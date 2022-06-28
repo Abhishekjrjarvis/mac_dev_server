@@ -2858,6 +2858,10 @@ exports.retrieveOneAnnouncement = async (req, res) =>{
         select: 'userLegalName username photoId profilePhoto'
       }
     })
+    .populate({
+      path: 'announcementDocument',
+      select: 'documentType documentName documentKey'
+    })
     res.status(200).send({ message: 'One Announcement', announcement})
   }
   catch(e) {

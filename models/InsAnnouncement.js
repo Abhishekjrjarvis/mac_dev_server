@@ -4,7 +4,7 @@ const insAnnouncementSchema = new mongoose.Schema({
   insAnnTitle: { type: String },
   insAnnDescription: { type: String },
   insAnnVisibility: { type: String, default: 'Anyone' },
-  anouncementDocument: [
+  announcementDocument: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "InsDocument",

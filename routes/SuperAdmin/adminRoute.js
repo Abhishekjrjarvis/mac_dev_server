@@ -18,6 +18,9 @@ router.get('/:aid/pending-array', isLoggedIn, catchAsync(Admin.retrievePendingIn
 // Get User Array
 router.get('/:aid/user-array', isLoggedIn, catchAsync(Admin.retrieveUserArray))
 
+// Assign One Institute to be Universal Following
+router.post('/:aid/ins/universal', isLoggedIn, catchAsync(Admin.retrieveUniversalInstitute))
+
 // Get Super Admin Form
 router.get('/new', catchAsync(Admin.getSuperAdmin))
 

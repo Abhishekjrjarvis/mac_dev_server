@@ -88,7 +88,7 @@ exports.retrieveApproveInstituteArray = async(req, res) =>{
     .select('adminName')
     .populate({
       path: 'ApproveInstitute',
-      select: 'insName name photoId insProfilePhoto status staffCount studentCount'
+      select: 'insName name photoId insProfilePhoto status staffCount studentCount isUniversal'
     })
     res.status(200).send({ message: 'Approve Array', admin})
   }
@@ -129,6 +129,30 @@ exports.retrieveUserArray = async(req, res) =>{
   }
   catch{
 
+  }
+}
+
+
+
+exports.retrieveUniversalInstitute = async(req, res) =>{
+  try{
+    const { aid } = req.params
+    const { id } = req.body
+    const admin = await Admin.findById({ _id: aid})
+    const institute = await InstituteAdmin.findById({_id: id})
+    const notify = new Notification({})
+    admin.assignUniversal = institute
+    institute.isUniversal = "Universal"
+    notify.notifyContent = "Congrats for the Designation of Universal at Qviple 🎉✨🎉✨";
+    notify.notifySender = admin._id;
+    notify.notifyReceiever = institute._id;
+    institute.iNotify.push(notify._id);
+    notify.institute = institute._id;
+    notify.notifyBySuperAdminPhoto = "https://qviple.com/images/newLogo-text-icon.svg";
+    await Promise.all([ admin.save(), institute.save(), notify.save() ])
+  }
+  catch(e){
+    console.log(e)
   }
 }
 

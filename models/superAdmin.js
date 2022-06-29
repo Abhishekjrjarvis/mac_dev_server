@@ -1,10 +1,4 @@
 const mongoose = require('mongoose')
-const InstituteAdmin = require('./InstituteAdmin')
-const User = require('./User')
-const Report = require('./Report')
-const IdCardPayment = require('./IdCardPayment')
-const CreditPayment = require('./CreditPayment')
-const Feedback = require('./Feedback')
 
 const superAdminSchema = new mongoose.Schema({
     adminName: { type: String, required: true },
@@ -199,7 +193,11 @@ const superAdminSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Student'
         }
-    ]
+    ],
+    assignUniversal: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'InstituteAdmin'
+    }
     
 })
 

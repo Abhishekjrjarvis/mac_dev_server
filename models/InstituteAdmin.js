@@ -358,6 +358,10 @@ const instituteAdminSchema = new mongoose.Schema({
   admissionCount: {
     type: Number,
     default: 0
+  },
+  isUniversal: {
+    type: String,
+    default: 'Not Assigned'
   }
 });
 

@@ -98,27 +98,53 @@ exports.postWithText = async (req, res) => {
     post.authorProfilePhoto = institute.insProfilePhoto
     await Promise.all([institute.save(), post.save()]);
     res.status(201).send({ message: "post is create", post });
-    if(institute.followers.length >= 1){
-      if(post.postStatus === 'Anyone'){
-        institute.followers.forEach(async (ele) => {
-          ele.posts.push(post._id)
-          await ele.save()
-        })
-      }else{}
-    }
-    if(institute.userFollowersList.length >= 1){
-      if(post.postStatus === 'Anyone'){
-        institute.userFollowersList.forEach(async (ele) => {
-          ele.userPosts.push(post._id)
-          await ele.save()
-        })
-      }else{
-        if(institute.joinedUserList.length >=1){
-          institute.joinedUserList.forEach(async (ele) => {
+    if(institute.isUniversal === 'Not Assigned'){
+      if(institute.followers.length >= 1){
+        if(post.postStatus === 'Anyone'){
+          institute.followers.forEach(async (ele) => {
+            ele.posts.push(post._id)
+            await ele.save()
+          })
+        }else{}
+      }
+      if(institute.userFollowersList.length >= 1){
+        if(post.postStatus === 'Anyone'){
+          institute.userFollowersList.forEach(async (ele) => {
             ele.userPosts.push(post._id)
             await ele.save()
           })
+        }else{
+          if(institute.joinedUserList.length >=1){
+            institute.joinedUserList.forEach(async (ele) => {
+              ele.userPosts.push(post._id)
+              await ele.save()
+            })
+          }
         }
+      }
+    }
+    else if(institute.isUniversal === 'Universal'){
+      const all = await InstituteAdmin.find({ status: 'Approved'})
+      const user = await User.find({ userStatus: 'Approved'})
+      if(post.postStatus === 'Anyone'){
+        all.forEach(async (el)  =>{
+          if(el._id !== institute._id){
+            el.posts.push(post._id)
+            await el.save()
+          }
+        })
+        user.forEach(async (el)  =>{
+          el.userPosts.push(post._id)          
+          await el.save()
+        })
+      }
+      if(post.postStatus === 'Private'){
+        all.forEach(async (el)  =>{
+          if(el._id !== institute._id){
+            el.posts.push(post._id)
+            await el.save()
+          }
+        })
       }
     }
   } catch {}

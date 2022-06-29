@@ -105,9 +105,9 @@ exports.getPassIns = async (req, res) => {
       institute.insPassword = hashPass;
       await institute.save();
       const token = generateAccessInsToken(institute?.name, institute?._id, institute?.insPassword);
-      res.json({ token: `Bearer ${token}`, institute: institute});
+      res.json({ token: `Bearer ${token}`, institute: institute, login: true});
     } else {
-      res.send({ message: "Invalid Combination" });
+      res.send({ message: "Invalid Combination", login: false });
     }
   } catch (e) {
     console.log(`Error`, e.message);
@@ -429,7 +429,7 @@ module.exports.getLogin = async (req, res) => {
             res.status(401).send({ message: 'UnAuthorized User', status: false})
         }
         else {
-            res.status(200).send({ message: 'Authorized User', status: true, token: token})
+            res.status(200).send({ message: 'Authorized User', status: true, token: token, user: decoded.userId, institute: decoded.insId, admin: decoded.adminId})
         }
     });
     }
@@ -461,12 +461,12 @@ module.exports.authentication = async (req, res) => {
       const checkPass = bcrypt.compareSync(insPassword, institute.insPassword);
       if (checkPass) {
         const token = generateAccessInsToken(institute?.name, institute?._id, institute?.insPassword);
-        res.json({ token: `Bearer ${token}`, institute: institute});
+        res.json({ token: `Bearer ${token}`, institute: institute, login: true});
         // res
         //   .status(200)
         //   .send({ message: "Successfully LoggedIn as a Institute", institute: institute, });
       } else {
-        res.send({ message: "Invalid Credentials" });
+        res.send({ message: "Invalid Credentials", login: false });
       }
     } else if (admin) {
       const checkAdminPass = bcrypt.compareSync(
@@ -475,12 +475,12 @@ module.exports.authentication = async (req, res) => {
       );
       if (checkAdminPass) {
         const token = generateAccessAdminToken(admin?.username, admin?._id, admin?.userPassword);
-        res.json({ token: `Bearer ${token}`, admin: admin });
+        res.json({ token: `Bearer ${token}`, admin: admin, login: true });
         // res
         //   .status(200)
         //   .send({ message: "Successfully LoggedIn as a Super Admin", admin: admin._id });
       } else {
-        res.send({ message: "Invalid Credentials" });
+        res.send({ message: "Invalid Credentials", login: false });
       }
     } else {
       if (user) {
@@ -499,22 +499,24 @@ module.exports.authentication = async (req, res) => {
             const token = generateAccessToken(user?.username, user?._id, user?.userPassword);
             res.json({
               token: `Bearer ${token}`,
-              user: user
+              user: user,
+              login: true
             });
           } else if (user.activeStatus === "Activated") {
             const token = generateAccessToken(user?.username, user?._id, user?.userPassword);
             res.json({
               token: `Bearer ${token}`,
-              user: user
+              user: user,
+              login: true
             });
           } else {
-            res.status(401).send({ message: 'Unauthorized'})
+            res.status(401).send({ message: 'Unauthorized', login: false})
           }
         } else {
-          res.send({ message: "Invalid Credentials" });
+          res.send({ message: "Invalid Credentials", login: false });
         }
       } else {
-        res.send({ message: "Invalid End User" });
+        res.send({ message: "Invalid End User", login: false });
       }
     }
   } catch (e) {

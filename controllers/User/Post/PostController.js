@@ -160,9 +160,11 @@ exports.postWithVsibilityUpdate = async (req, res) => {
 exports.postWithDeleted = async (req, res) => {
   try {
     const { id, pid } = req.params;
+    const user = await User.findById({ _id: id})
     await User.findByIdAndUpdate(id, { $pull: { userPosts: pid } });
-    await User.findByIdAndUpdate(id, { $pull: { saveUsersPost: pid } });
     await Post.findByIdAndDelete({ _id: pid });
+    user.postCount -= 1
+    await user.save()
     res.status(200).send({ message: "post deleted" });
   } catch {}
 };

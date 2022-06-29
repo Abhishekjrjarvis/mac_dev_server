@@ -726,11 +726,14 @@ exports.updateFollowIns = async (req, res) => {
        notify.save()
       ])
       res.status(200).send({ message: "Following This Institute" });
-      const post = await Post.find({ $and: [{ author: sinstitute._id, postStatus: 'Anyone' }] })
-      post.forEach(async (pt) => {
-        institutes.posts.push(pt)
-      })
-      await institutes.save()
+      if(sinstitute.isUniversal === 'Not Assigned'){
+        const post = await Post.find({ $and: [{ author: sinstitute._id, postStatus: 'Anyone' }] })
+        post.forEach(async (pt) => {
+          institutes.posts.push(pt)
+        })
+        await institutes.save()
+      }
+      else{}
     }
   } catch (e) {
     console.log(`Error`, e.message);
@@ -757,11 +760,14 @@ exports.removeFollowIns = async (req, res) => {
         institutes.save()
       ])
       res.status(200).send({ message: "UnFollow This Institute" });
-      const post = await Post.find({ $and: [{ author: sinstitute._id, postStatus: 'Anyone' }] })
-      post.forEach(async (pt) => {
-        institutes.posts.pull(pt)
-      })
-      await institutes.save()
+      if(sinstitute.isUniversal === 'Not Assigned'){
+        const post = await Post.find({ $and: [{ author: sinstitute._id, postStatus: 'Anyone' }] })
+        post.forEach(async (pt) => {
+          institutes.posts.pull(pt)
+        })
+        await institutes.save()
+      }
+      else{}
     } else {
       res.status(200).send({ message: "You Already UnFollow This Institute" });
     }
@@ -812,11 +818,19 @@ exports.updateApproveStaff = async (req, res) => {
       message: `Welcome To The Institute ${staffs.staffFirstName} ${staffs.staffLastName}`,
       institute: institute.ApproveStaff,
     });
-    const post = await Post.find({ author: institute._id })
-      post.forEach(async (pt) => {
-        user.userPosts.push(pt)
-    })
-    await user.save()
+    if(institute.isUniversal === 'Not Assigned'){
+      const post = await Post.find({ author: institute._id })
+        post.forEach(async (pt) => {
+          if(user.userPosts.length >=1 && user.userPosts.includes(String(pt))){
+
+          }
+          else{
+            user.userPosts.push(pt)
+          }
+      })
+      await user.save()
+    }
+    else{}
   } catch (e) {
     console.log(`Error`, e.message);
   }

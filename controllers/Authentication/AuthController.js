@@ -50,8 +50,6 @@ exports.getRegisterIns = async (req, res) => {
         res.send({ message: "Institute Existing with this Username" });
       } else {
         const file = req.file;
-        // console.log(req.body);
-        // console.log(file);
         const results = await uploadDocFile(file);
         const institute = await new InstituteAdmin({ ...req.body });
         institute.insDocument = results.key;
@@ -62,6 +60,11 @@ exports.getRegisterIns = async (req, res) => {
         await Promise.all([admins.save(), institute.save()]);
         await unlinkFile(file.path);
         res.status(201).send({ message: "Institute", institute });
+        const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
+        uInstitute.posts.forEach(async (ele) => {
+          institute.posts.push(ele)
+        })
+        await institute.save()
       }
     }
   } catch (e) {
@@ -290,9 +293,12 @@ exports.profileByUser = async (req, res) => {
         admins.userCount += 1
         await Promise.all([admins.save(), user.save()]);
         await unlinkFile(file.path);
-        res
-          .status(200)
-          .send({ message: "Profile Successfully Created...", user });
+        res.status(200).send({ message: "Profile Successfully Created...", user });
+        const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
+        uInstitute.posts.forEach(async (ele) => {
+          user.userPosts.push(ele)
+        })
+        await user.save()
       }
     }
   } catch (e) {

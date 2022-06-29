@@ -90,6 +90,9 @@ exports.retrieveApproveInstituteArray = async(req, res) =>{
       path: 'ApproveInstitute',
       select: 'insName name photoId insProfilePhoto status staffCount studentCount isUniversal'
     })
+    .populate({
+      path: 'assignUniversal'
+    })
     res.status(200).send({ message: 'Approve Array', admin})
   }
   catch{

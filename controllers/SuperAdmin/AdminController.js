@@ -386,8 +386,8 @@ exports.retrieveLandingPageCount = async(req, res) =>{
     .select('instituteCount userCount studentCount staffCount')
     res.status(200).send({ message: 'Success', admin})
   }
-  catch{
-
+  catch(e){
+    console.log(e)
   }
 }
 

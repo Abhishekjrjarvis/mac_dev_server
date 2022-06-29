@@ -52,7 +52,7 @@ router.get('/referral/ins',isLoggedIn, catchAsync(Admin.getReferralIns))
 router.get('/referral/user',isLoggedIn, catchAsync(Admin.getReferralUser))
   
 // All Counts for Landing Page
-router.get('/count-details', catchAsync(Admin.retrieveLandingPageCount))
+router.get('/count/detail', catchAsync(Admin.retrieveLandingPageCount))
 
 // Get One Institute 
 router.get('/one/institute/:id', isLoggedIn, catchAsync(Admin.retrieveOneInstitute))

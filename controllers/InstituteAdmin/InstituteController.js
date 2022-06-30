@@ -1974,7 +1974,7 @@ exports.retrieveClassProfileSubject = async (req, res) => {
   try {
     const { cid } = req.params;
     const classes = await Class.findById({ _id: cid })
-      .select("className classTitle classAbout subjectCount studentCount photoId photo coverId cover classStatus")
+      .select("className classTitle classHeadTitle classAbout subjectCount studentCount photoId photo coverId cover classStatus")
       .populate({
         path: "classTeacher",
         select:
@@ -2012,7 +2012,7 @@ exports.retrieveClassSubject = async (req, res) => {
   try {
     const { cid } = req.params;
     const classes = await Class.findById({ _id: cid })
-      .select("className classTitle classAbout classStatus")
+      .select("className classTitle classHeadTitle classAbout classStatus")
       .populate({
         path: "subject",
         select: "subjectName subjectTitle subjectStatus",

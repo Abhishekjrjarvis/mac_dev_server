@@ -151,12 +151,12 @@ const institutePostRoute = require("./routes/InstituteAdmin/Post/PostRoute");
 const userPostRoute = require("./routes/User/Post/PostRoute");
 const superAdminPostRoute = require('./routes/SuperAdmin/Post/PostRoute')
 
-const dburl = `${process.env.DB_URL2}`;
-// const dburl = `${process.env.DB_URL}`;
+// const dburl = `${process.env.DB_URL2}`;
+const dburl = `${process.env.DB_URL}`;
 // const dburl = `mongodb://127.0.0.1:27017/Erp_app`;
 
 // 62b9476c59fb91a51211ee9c - Development
-// 62a87c658bbfd0861732482e - Production
+// 62bdc9658b4155f336e7960e - Production
 
 mongoose
   .connect(dburl, {
@@ -185,7 +185,7 @@ app.use(express.json());
 app.use(
   cors({
     // origin: "http://18.205.27.165",
-    origin: "http://localhost:3000",
+    origin: ["http://18.205.27.165","http://localhost:3000"],
     // origin: "http://qviple.com",
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,

@@ -226,6 +226,7 @@ exports.updateUserFollowIns = async (req, res) => {
     if (sinstitute.userFollowersList.includes(user_session)) {
       res.status(200).send({ message: "You Already Following This Institute" });
     } else {
+      if(sinstitute.status === 'Approved'){
       const notify = await new Notification({});
       sinstitute.userFollowersList.push(user_session);
       user.userInstituteFollowing.push(req.body.InsfollowId);
@@ -249,6 +250,10 @@ exports.updateUserFollowIns = async (req, res) => {
         await user.save()
       }
       else{}
+      }
+      else{
+        res.status(200).send({ message: 'Institute is Not Approved, you will not follow'})
+      }
     }
   } catch (e) {
     console.log(`Error`, e);
@@ -263,24 +268,29 @@ exports.removeUserFollowIns = async (req, res) => {
       _id: req.body.InsfollowId,
     });
 
-    if (sinstitute.userFollowersList.length >= 1 && sinstitute.userFollowersList.includes(`${user._id}`)) {
-      user.userInstituteFollowing.pull(sinstitute._id);
-      user.followingUICount -= 1
-      sinstitute.userFollowersList.pull(user._id);
-      sinstitute.followersCount -= 1
-      await user.save();
-      await sinstitute.save();
-      res.status(200).send({ message: 'Unfollow Institute'})
-      if(sinstitute.isUniversal === 'Not Assigned'){
-        const post = await Post.find({ $and: [{ author: sinstitute._id, postStatus: 'Anyone' }]})
-        post.forEach(async (ele) => {
-        user.userPosts.pull(ele)
-        })
-        await user.save()
+    if(sinstitute.status === 'Approved'){
+      if (sinstitute.userFollowersList.length >= 1 && sinstitute.userFollowersList.includes(`${user._id}`)) {
+        user.userInstituteFollowing.pull(sinstitute._id);
+        user.followingUICount -= 1
+        sinstitute.userFollowersList.pull(user._id);
+        sinstitute.followersCount -= 1
+        await user.save();
+        await sinstitute.save();
+        res.status(200).send({ message: 'Unfollow Institute'})
+        if(sinstitute.isUniversal === 'Not Assigned'){
+          const post = await Post.find({ $and: [{ author: sinstitute._id, postStatus: 'Anyone' }]})
+          post.forEach(async (ele) => {
+          user.userPosts.pull(ele)
+          })
+          await user.save()
+        }
+        else{}
+      } else {
+        res.status(200).send({ message: "You Already Unfollow This Institute" });
       }
-      else{}
-    } else {
-      res.status(200).send({ message: "You Already Unfollow This Institute" });
+    }
+    else{
+      res.status(200).send({ message: 'Institute is Not Approved, you will not follow'})
     }
   } catch (e) {
     console.log(`Error`, e);

@@ -706,34 +706,39 @@ exports.updateFollowIns = async (req, res) => {
     const sinstitute = await InstituteAdmin.findById({
       _id: req.body.followId,
     });
-
-    if (institutes.following.includes(req.body.followId)) {
-      res.status(200).send({ message: "You Already Following This Institute" });
-    } else {
-      const notify = await new Notification({});
-      sinstitute.followers.push(institute_session);
-      institutes.following.push(req.body.followId);
-      institutes.followingCount += 1
-      sinstitute.followersCount += 1
-      notify.notifyContent = `${institutes.insName} started to following you`;
-      notify.notifyReceiever = sinstitute._id;
-      sinstitute.iNotify.push(notify._id);
-      notify.institute = sinstitute._id;
-      notify.notifyByInsPhoto = institutes._id;
-      await Promise.all([
-       institutes.save(),
-       sinstitute.save(),
-       notify.save()
-      ])
-      res.status(200).send({ message: "Following This Institute" });
-      if(sinstitute.isUniversal === 'Not Assigned'){
-        const post = await Post.find({ $and: [{ author: sinstitute._id, postStatus: 'Anyone' }] })
-        post.forEach(async (pt) => {
-          institutes.posts.push(pt)
-        })
-        await institutes.save()
+ 
+    if(institutes.status === 'Approved' && sinstitute.status === 'Approved'){
+      if (institutes.following.includes(req.body.followId)) {
+        res.status(200).send({ message: "You Already Following This Institute" });
+      } else {
+        const notify = await new Notification({});
+        sinstitute.followers.push(institute_session);
+        institutes.following.push(req.body.followId);
+        institutes.followingCount += 1
+        sinstitute.followersCount += 1
+        notify.notifyContent = `${institutes.insName} started to following you`;
+        notify.notifyReceiever = sinstitute._id;
+        sinstitute.iNotify.push(notify._id);
+        notify.institute = sinstitute._id;
+        notify.notifyByInsPhoto = institutes._id;
+        await Promise.all([
+        institutes.save(),
+        sinstitute.save(),
+        notify.save()
+        ])
+        res.status(200).send({ message: "Following This Institute" });
+        if(sinstitute.isUniversal === 'Not Assigned'){
+          const post = await Post.find({ $and: [{ author: sinstitute._id, postStatus: 'Anyone' }] })
+          post.forEach(async (pt) => {
+            institutes.posts.push(pt)
+          })
+          await institutes.save()
+        }
+        else{}
       }
-      else{}
+    }
+    else{
+      res.status(200).send({ message: 'Institute is Not Approved, you will not follow'})
     }
   } catch (e) {
     console.log(`Error`, e.message);
@@ -750,26 +755,31 @@ exports.removeFollowIns = async (req, res) => {
       _id: req.body.followId,
     });
 
-    if (institutes.following.includes(req.body.followId)) {
-      sinstitute.followers.pull(institute_session);
-      institutes.following.pull(req.body.followId);
-      institutes.followingCount -= 1
-      sinstitute.followersCount -= 1
-      await Promise.all([
-        sinstitute.save(),
-        institutes.save()
-      ])
-      res.status(200).send({ message: "UnFollow This Institute" });
-      if(sinstitute.isUniversal === 'Not Assigned'){
-        const post = await Post.find({ $and: [{ author: sinstitute._id, postStatus: 'Anyone' }] })
-        post.forEach(async (pt) => {
-          institutes.posts.pull(pt)
-        })
-        await institutes.save()
+    if(institutes.status === 'Approved' && sinstitute.status === 'Approved'){
+      if (institutes.following.includes(req.body.followId)) {
+        sinstitute.followers.pull(institute_session);
+        institutes.following.pull(req.body.followId);
+        institutes.followingCount -= 1
+        sinstitute.followersCount -= 1
+        await Promise.all([
+          sinstitute.save(),
+          institutes.save()
+        ])
+        res.status(200).send({ message: "UnFollow This Institute" });
+        if(sinstitute.isUniversal === 'Not Assigned'){
+          const post = await Post.find({ $and: [{ author: sinstitute._id, postStatus: 'Anyone' }] })
+          post.forEach(async (pt) => {
+            institutes.posts.pull(pt)
+          })
+          await institutes.save()
+        }
+        else{}
+      } else {
+        res.status(200).send({ message: "You Already UnFollow This Institute" });
       }
-      else{}
-    } else {
-      res.status(200).send({ message: "You Already UnFollow This Institute" });
+    }
+    else{
+      res.status(200).send({ message: 'Institute is Not Approved, you will not follow'})
     }
   } catch (e) {
     console.log(`Error`, e.message);

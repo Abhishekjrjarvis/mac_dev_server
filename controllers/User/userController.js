@@ -230,6 +230,7 @@ exports.updateUserFollowIns = async (req, res) => {
       sinstitute.userFollowersList.push(user_session);
       user.userInstituteFollowing.push(req.body.InsfollowId);
       user.followingUICount += 1;
+      sinstitute.followersCount += 1
       notify.notifyContent = `${user.userLegalName} started to following you`;
       notify.notifySender = user._id;
       notify.notifyReceiever = sinstitute._id;
@@ -264,7 +265,9 @@ exports.removeUserFollowIns = async (req, res) => {
 
     if (sinstitute.userFollowersList.length >= 1 && sinstitute.userFollowersList.includes(`${user._id}`)) {
       user.userInstituteFollowing.pull(sinstitute._id);
+      user.followingUICount -= 1
       sinstitute.userFollowersList.pull(user._id);
+      sinstitute.followersCount -= 1
       await user.save();
       await sinstitute.save();
       res.status(200).send({ message: 'Unfollow Institute'})

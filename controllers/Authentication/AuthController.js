@@ -20,15 +20,15 @@ const jwt = require("jsonwebtoken");
 
 
 function generateAccessToken(username, userId, userPassword) {
-  return jwt.sign({ username, userId, userPassword }, process.env.TOKEN_SECRET, { expiresIn: "1d", });
+  return jwt.sign({ username, userId, userPassword }, process.env.TOKEN_SECRET, { expiresIn: "1y", });
 }
 
 function generateAccessInsToken(name, insId, insPassword) {
-  return jwt.sign({ name, insId, insPassword }, process.env.TOKEN_SECRET, { expiresIn: "1d", });
+  return jwt.sign({ name, insId, insPassword }, process.env.TOKEN_SECRET, { expiresIn: "1y", });
 }
 
 function generateAccessAdminToken(adminUserName, adminId, adminPassword) {
-  return jwt.sign({ adminUserName, adminId, adminPassword }, process.env.TOKEN_SECRET, { expiresIn: "1d", });
+  return jwt.sign({ adminUserName, adminId, adminPassword }, process.env.TOKEN_SECRET, { expiresIn: "1y", });
 }
 
 

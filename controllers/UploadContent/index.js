@@ -198,6 +198,7 @@ exports.patchDepartmentImagePhoto = async (req, res) => {
   try {
     const { did } = req.params;
     const department = await Department.findById({ _id: did });
+    console.log(department)
     if (department.photoId !== '1') await deleteFile(department.photo);
     const width = 112;
     const height = 112;

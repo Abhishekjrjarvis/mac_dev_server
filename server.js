@@ -151,9 +151,9 @@ const institutePostRoute = require("./routes/InstituteAdmin/Post/PostRoute");
 const userPostRoute = require("./routes/User/Post/PostRoute");
 const superAdminPostRoute = require('./routes/SuperAdmin/Post/PostRoute')
 
-const dburl = `${process.env.DB_URL2}`;
+// const dburl = `${process.env.DB_URL2}`;
 // const dburl = `${process.env.DB_URL}`;
-// const dburl = `mongodb://127.0.0.1:27017/Erp_app`;
+const dburl = `mongodb://127.0.0.1:27017/Erp_app`;
 
 // 62b9476c59fb91a51211ee9c - Development
 // 62a87c658bbfd0861732482e - Production

@@ -977,7 +977,11 @@ exports.retrieveStaffDesignationArray = async(req, res) =>{
     .select('staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffGender staffNationality staffMTongue staffCast staffCastCategory staffBirthPlace staffState staffDistrict staffReligion staffAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharCard staffDOB staffStatus staffROLLNO')
       .populate({
         path: "staffDepartment",
-        select: 'dName dTitle'
+        select: 'dName dTitle',
+        populate: {
+          path: 'departmentSelectBatch',
+          select: 'batchName batchStatus'
+        }
       })
       .populate({
         path: "staffClass",

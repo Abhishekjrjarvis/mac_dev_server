@@ -153,7 +153,10 @@ exports.postWithText = async (req, res) => {
 exports.postWithImage = async (req, res) => {
   try {
     const { id } = req.params;
-    const institute = await InstituteAdmin.findById({ _id: id });
+    const institute = await InstituteAdmin.findById({ _id: id })
+    .populate({ path: 'followers'})
+    .populate({ path: 'userFollowersList'})
+    .populate({ path: 'joinedUserList'})
     const post = new Post({ ...req.body });
 
     if (Array.isArray(req.body.people)) {
@@ -236,7 +239,10 @@ exports.postWithImage = async (req, res) => {
 exports.postWithVideo = async (req, res) => {
   try {
     const { id } = req.params;
-    const institute = await InstituteAdmin.findById({ _id: id });
+    const institute = await InstituteAdmin.findById({ _id: id })
+    .populate({ path: 'followers'})
+    .populate({ path: 'userFollowersList'})
+    .populate({ path: 'joinedUserList'})
     const post = new Post({ ...req.body });
     if (Array.isArray(req.body.people)) {
       for (let val of req.body.people) {

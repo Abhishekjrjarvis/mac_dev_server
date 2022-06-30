@@ -1520,7 +1520,7 @@ exports.fillStudentForm = async (req, res) => {
     notify.notifyReceiever = institute._id;
     institute.iNotify.push(notify._id);
     notify.institute = institute._id;
-    notify.notifyBystudentPhoto = student._id;
+    notify.notifyByStudentPhoto = student._id;
     await Promise.all([
       student.save(),
       institute.save(),
@@ -1614,11 +1614,11 @@ exports.getFullStaffInfo = async (req, res) => {
     const { id } = req.params;
     const staff = await Staff.findById({ _id: id })
       .select(
-        "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffDistrict staffState staffAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffStatus staffPhoneNumber"
+        "staffFirstName staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffDistrict staffState staffAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffStatus staffROLLNO staffPhoneNumber"
       )
       .populate({
         path: "user",
-        select: "userLegalName",
+        select: "userLegalName userEmail",
       })
       .populate({
         path: "institute",
@@ -1627,7 +1627,8 @@ exports.getFullStaffInfo = async (req, res) => {
       .lean()
       .exec();
     if (staff) {
-      res.status(200).send({ message: "Staff Data To Member", staff });
+      var designation = staff.department.length + staff.staffClass.length + staff.staffSubject.length
+      res.status(200).send({ message: "Staff Data To Member", staff, designation });
     } else {
       res.status(404).send({ message: "Failure" });
     }
@@ -1641,15 +1642,19 @@ exports.getFullStudentInfo = async (req, res) => {
     const { id } = req.params;
     const student = await Student.findById({ _id: id })
       .select(
-        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentDistrict studentState studentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentDocuments studentAadharFrontCard studentAadharBackCard studentStatus studentGRNO studentROLLNO"
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentDistrict studentState studentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentDocuments studentAadharFrontCard studentAadharBackCard studentStatus studentGRNO studentROLLNO"
       )
       .populate({
         path: "user",
-        select: "userLegalName",
+        select: "userLegalName userEmail",
       })
       .populate({
         path: "institute",
         select: "insName",
+      })
+      .populate({
+        path: 'studentClass',
+        select: 'className classStatus'
       })
       .lean()
       .exec();
@@ -1691,7 +1696,7 @@ exports.getOneDepartment = async (req, res) => {
     const { did } = req.params;
     const department = await Department.findById({ _id: did })
       .select(
-        "dName dAbout dEmail staffCount studentCount classCount dPhoneNumber photoId photo dSpeaker dVicePrinciple dAdminClerk dOperatingAdmin dStudentPresident"
+        "dName dAbout dTitle dEmail staffCount studentCount classCount dPhoneNumber photoId photo dSpeaker dVicePrinciple dAdminClerk dOperatingAdmin dStudentPresident"
       )
       .populate({ path: "dHead", select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto' })
       .populate({

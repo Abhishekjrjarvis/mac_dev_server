@@ -31,6 +31,7 @@
     "nodemailer": "^6.7.5",
     "paytmchecksum": "^1.5.0",
     "sharp": "^0.30.3",
+    "swagger-jsdoc": "^6.2.1",
     "swagger-ui-express": "^4.4.0",
     "twilio": "^3.72.0",
     "yamljs": "^0.3.0"

@@ -6,6 +6,7 @@ const { isLoggedIn, isApproved } = require("../../middleware");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 
+
 // All Institute Data
 router.get("dashboard", isLoggedIn, catchAsync(Institute.getAllIns));
 

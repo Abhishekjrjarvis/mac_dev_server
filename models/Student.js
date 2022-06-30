@@ -37,6 +37,7 @@ const studentSchema = new mongoose.Schema({
   studentGender: { type: String },
   studentNationality: { type: String },
   studentMTongue: { type: String },
+  studentMotherName: { type: String },
   studentCast: { type: String },
   studentCastCategory: { type: String },
   studentReligion: { type: String },

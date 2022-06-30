@@ -14,7 +14,9 @@ const unlinkFile = util.promisify(fs.unlink);
 exports.postWithText = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await User.findById({ _id: id });
+    const user = await User.findById({ _id: id })
+    .populate({ path: 'userFollowers'})
+    .populate({ path: 'userCircle'})
     const post = new Post({ ...req.body });
     if (Array.isArray(req.body.people)) {
       for (let val of req.body.people) {
@@ -57,7 +59,9 @@ exports.postWithImage = async (req, res) => {
   try {
     const { id } = req.params;
     const post = new Post({ ...req.body });
-    const user = await User.findById({ _id: id });
+    const user = await User.findById({ _id: id })
+    .populate({ path: 'userFollowers'})
+    .populate({ path: 'userCircle'})
     if (Array.isArray(req.body.people)) {
       for (let val of req.body.people) {
         post.tagPeople.push(val);
@@ -103,7 +107,9 @@ exports.postWithImage = async (req, res) => {
 exports.postWithVideo = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await User.findById({ _id: id });
+    const user = await User.findById({ _id: id })
+    .populate({ path: 'userFollowers'})
+    .populate({ path: 'userCircle'})
     const post = new Post({ ...req.body });
     if (Array.isArray(req.body.people)) {
       for (let val of req.body.people) {

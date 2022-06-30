@@ -28,6 +28,7 @@ const staffSchema = new mongoose.Schema({
   staffGender: { type: String },
   staffNationality: { type: String },
   staffMTongue: { type: String },
+  staffMotherName: { type: String },
   staffCast: { type: String },
   staffCastCategory: { type: String },
   staffReligion: { type: String },

@@ -1654,6 +1654,11 @@ paths:
           required: true
           description: staff staffMTongue
         - in: formData
+          name: staffMotherName
+          type: string
+          required: true
+          description: staff staffMotherName
+        - in: formData
           name: staffCast
           type: string
           required: true
@@ -1822,6 +1827,11 @@ paths:
           required: true
           description: student studentMTongue
         - in: formData
+          name: studentMotherName
+          type: string
+          required: true
+          description: student studentMotherName
+        - in: formData
           name: studentCast
           type: string
           required: true
@@ -1867,10 +1877,15 @@ paths:
           required: true
           description: student studentAadharNumber
         - in: formData
-          name: studentQualification
+          name: studentParentsName
           type: string
           required: true
-          description: student studentQualification
+          description: student studentParentsName
+        - in: formData
+          name: studentParentsPhoneNumber
+          type: string
+          required: true
+          description: student studentParentsPhoneNumber
         - in: formData
           name: file
           type: file

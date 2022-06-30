@@ -880,6 +880,7 @@ exports.getNewDepartment = async (req, res) => {
     department.institute = institute._id;
     staff.staffDepartment.push(department._id);
     staff.staffDesignationCount += 1
+    staff.recentDesignation = req.body.dTitle
     department.dHead = staff._id;
     department.staffCount += 1
     if (department.departmentChatGroup.length >=1 && department.departmentChatGroup.includes(`${staff._id}`)) {
@@ -1567,7 +1568,7 @@ exports.retrieveApproveStaffList = async (req, res) => {
       .populate({
         path: "ApproveStaff",
         select:
-          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO",
+          "staffFirstName staffMiddleName recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO",
         populate: {
           path: 'user',
           select: 'userLegalName userEmail'
@@ -1836,6 +1837,7 @@ var result = classRandomCodeHandler()
     // staff.batches = batch._id;
     staff.staffClass.push(classRoom._id);
     staff.staffDesignationCount += 1
+    staff.recentDesignation = classHeadTitle
     classRoom.classTeacher = staff._id;
     depart.class.push(classRoom._id);
     depart.classCount += 1
@@ -1908,6 +1910,7 @@ exports.retrieveNewSubject = async(req, res) =>{
     }
     staff.staffSubject.push(subject._id);
     staff.staffDesignationCount += 1
+    staff.recentDesignation = subjectTitle
     subject.subjectTeacherName = staff._id;
     notify.notifyContent = `you got the designation of ${subject.subjectName} as Subject Teacher`;
     notify.notifySender = id;

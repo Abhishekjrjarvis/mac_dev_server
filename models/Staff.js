@@ -167,6 +167,9 @@ const staffSchema = new mongoose.Schema({
   staffDesignationCount: {
     type: Number,
     default: 0
+  },
+  recentDesignation: {
+    type: String,
   }
 });
 

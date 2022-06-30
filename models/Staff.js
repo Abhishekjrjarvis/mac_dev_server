@@ -163,6 +163,10 @@ const staffSchema = new mongoose.Schema({
   },
   staffApplyDate: {
     type: String
+  },
+  staffDesignationCount: {
+    type: Number,
+    default: 0
   }
 });
 

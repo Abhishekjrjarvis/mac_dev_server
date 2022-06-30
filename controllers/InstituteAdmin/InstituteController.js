@@ -879,6 +879,7 @@ exports.getNewDepartment = async (req, res) => {
     institute.departmentCount += 1
     department.institute = institute._id;
     staff.staffDepartment.push(department._id);
+    staff.staffDesignationCount += 1
     department.dHead = staff._id;
     department.staffCount += 1
     if (department.departmentChatGroup.length >=1 && department.departmentChatGroup.includes(`${staff._id}`)) {
@@ -1596,6 +1597,10 @@ exports.retrieveApproveStudentList = async (req, res) => {
         populate: {
           path: 'user',
           select: 'userLegalName userEmail'
+        },
+        populate: {
+          path: 'studentClass',
+          select: 'className classStatus'
         }
       })
       .lean()
@@ -1614,7 +1619,7 @@ exports.getFullStaffInfo = async (req, res) => {
     const { id } = req.params;
     const staff = await Staff.findById({ _id: id })
       .select(
-        "staffFirstName staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffDistrict staffState staffAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffStatus staffROLLNO staffPhoneNumber"
+        "staffFirstName staffDesignationCount staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffDistrict staffState staffAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffStatus staffROLLNO staffPhoneNumber"
       )
       .populate({
         path: "user",
@@ -1627,12 +1632,13 @@ exports.getFullStaffInfo = async (req, res) => {
       .lean()
       .exec();
     if (staff) {
-      var designation = staff.department.length + staff.staffClass.length + staff.staffSubject.length
-      res.status(200).send({ message: "Staff Data To Member", staff, designation });
+      res.status(200).send({ message: "Staff Data To Member", staff });
     } else {
       res.status(404).send({ message: "Failure" });
     }
-  } catch {}
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 
@@ -1829,6 +1835,7 @@ var result = classRandomCodeHandler()
     // batch.batchStaff.push(staff._id);
     // staff.batches = batch._id;
     staff.staffClass.push(classRoom._id);
+    staff.staffDesignationCount += 1
     classRoom.classTeacher = staff._id;
     depart.class.push(classRoom._id);
     depart.classCount += 1
@@ -1900,6 +1907,7 @@ exports.retrieveNewSubject = async(req, res) =>{
       await depart.save()
     }
     staff.staffSubject.push(subject._id);
+    staff.staffDesignationCount += 1
     subject.subjectTeacherName = staff._id;
     notify.notifyContent = `you got the designation of ${subject.subjectName} as Subject Teacher`;
     notify.notifySender = id;

@@ -1598,7 +1598,12 @@ exports.retrieveApproveStudentList = async (req, res) => {
         populate: {
           path: 'user',
           select: 'userLegalName userEmail'
-        },
+        }
+      })
+      .populate({
+        path: "ApproveStudent",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate",
         populate: {
           path: 'studentClass',
           select: 'className classStatus'

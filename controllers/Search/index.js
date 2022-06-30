@@ -30,7 +30,7 @@ exports.searchUserUniversal = async (req, res) => {
         ],
       })
         .select(
-          "insName insProfilePhoto photoId name insState insDistrict followers userFollowersList"
+          "insName insProfilePhoto photoId name"
         )
         .limit(itemPerPage)
         .skip(dropItem)
@@ -50,33 +50,36 @@ exports.searchUserUniversal = async (req, res) => {
         .lean()
         .exec();
 
-      const staffs = await Staff.find({
-        $or: [
-          { staffFirstName: { $regex: req.query.search, $options: "i" } },
-          {
-            staffMiddleName: { $regex: req.query.search, $options: "i" },
-          },
-          { staffLastName: { $regex: req.query.search, $options: "i" } },
-        ],
-      })
-        .select(
-          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto user"
-        )
-        .limit(itemPerPage)
-        .skip(dropItem)
-        .lean()
-        .exec();
-      if (!allInstitutes.length && !users.length && !staffs.length)
+      // const staffs = await Staff.find({
+      //   $or: [
+      //     { staffFirstName: { $regex: req.query.search, $options: "i" } },
+      //     {
+      //       staffMiddleName: { $regex: req.query.search, $options: "i" },
+      //     },
+      //     { staffLastName: { $regex: req.query.search, $options: "i" } },
+      //   ],
+      // })
+      //   .select(
+      //     "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto user"
+      //   )
+      //   .limit(itemPerPage)
+      //   .skip(dropItem)
+      //   .lean()
+      // && !staffs.length
+      //   .exec();
+      if (!allInstitutes.length && !users.length)
         res.status(204).send({ message: "Not found any search" });
       else
+        var universalArrayUser = [...allInstitutes, ...users]
         res.status(200).send({
-          allInstitutes,
-          users,
-          staffs,
+          // allInstitutes,
+          // users,
+          universalArrayUser
+          // staffs,
         });
     }
   } catch (e) {
-    console.log(e.kind);
+    console.log(e);
   }
 };
 

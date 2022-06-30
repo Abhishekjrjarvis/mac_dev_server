@@ -2835,7 +2835,7 @@ exports.retrieveApproveCatalogArray = async(req, res) =>{
     .populate({
       path: 'ApproveStudent',
       select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO',
-      populate: {
+      populate:{
         path: 'user',
         select: 'userLegalName username'
       }

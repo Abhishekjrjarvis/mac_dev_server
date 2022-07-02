@@ -49,6 +49,7 @@ exports.patchInstituteImagePhoto = async (req, res) => {
     institute.photoId = "0";
     await institute.save();
     await unlinkFile(file.path);
+    console.log(institute.insProfilePhoto)
     res.status(201).send({ message: "Successfully photo change" });
     const post = await Post.find({author: institute._id})
     post.forEach(async (ele) =>{

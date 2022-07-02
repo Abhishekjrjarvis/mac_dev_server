@@ -34,7 +34,7 @@ const {
   // patchStudentAddharDoc,
 } = require("../../controllers/UploadContent/index");
 
-router.route("/:key").get(isLoggedIn, getImage);
+router.route("/:key").get(getImage);
 router
   .route("/:id/instiute/photo")
   .patch(isLoggedIn, upload.single("file"), patchInstituteImagePhoto);

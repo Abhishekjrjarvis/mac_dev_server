@@ -13,6 +13,8 @@ const s3 = new S3({
   secretAccessKey,
 });
 
+console.log(s3)
+
 const sharpify = async (file, width, height) => {
   try {
     const image = sharp(file.path);

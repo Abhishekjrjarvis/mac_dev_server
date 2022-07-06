@@ -5,11 +5,11 @@ info:
   version: one
 
 
-host: 18.205.27.165
-basePath: /api
-# schemes: [http, https]
-schemes: 
-  - http
+# host: 18.205.27.165
+# basePath: /api
+schemes: [http, https]
+# schemes: 
+#   - http
 
 
 #Return Users From get request
@@ -5615,11 +5615,507 @@ paths:
         "200":
           description: OK
 
+  /api/v1/attendance/institute/{id}/staff/attendance:
+    get:
+      tags:
+        - Staff Attendance
+      summary: This is give current date particular Staff Attendance id which is use in update the staff attendance api 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+      responses:
+        "200":
+          description: OK
 
-  
-  
-  
+    post:
+      tags:
+        - Staff Attendance
+      summary: Mark staff Attendance by the Intitute 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              date:
+                type: string
+                description: only date is accept in this format like "16/07/2022"
+                required: true
+              present:
+                type: array
+                description: This is present array of staff ids like this ["62bb4dd84f87f09b9c55b625", "62bb4dd84f87f09b9c55b625"]
+                items:
+                  type: string
+                  description: staff id
+              absent:
+                type: array
+                description: This is absent array of staff ids like this ["62bb4dd84f87f09b9c55b625", "62bb4dd84f87f09b9c55b625"]
+                items:
+                  type: string
+                  description: staff id
+      responses:
+        "200":
+          description: OK
 
+  /api/v1/attendance/staff/update/{said}:
+    patch:
+      tags:
+        - Staff Attendance
+      summary: Update Mark staff Attendance by the Intitute 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: said
+          required: true
+          type: string
+          description: This is  Staff Attendance id of particular date that is current date
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              date:
+                type: string
+                description: only date is accept in this format like "16/07/2022"
+                required: true
+              present:
+                type: array
+                description: This is present array of staff ids like this ["62bb4dd84f87f09b9c55b625", "62bb4dd84f87f09b9c55b625"]
+                items:
+                  type: string
+                  description: staff id
+              absent:
+                type: array
+                description: This is absent array of staff ids like this ["62bb4dd84f87f09b9c55b625", "62bb4dd84f87f09b9c55b625"]
+                items:
+                  type: string
+                  description: staff id
+      responses:
+        "200":
+          description: OK
   
+  /api/v1/attendance/staff-calender/{sid}:
+    get:
+      tags:
+        - Staff Attendance
+      summary: This is give the one month all attendance OR one year all attendance 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Staff id
+        - in: query
+          name: month
+          schema:
+            type: integer
+          description: Enter a month in digit that month attendance you want
+        - in: query
+          name: year
+          schema:
+            type: integer
+          description: Enter a year in digit that year attendance you want
+      responses:
+        "200":
+          description: OK
 
+  /api/v1/attendance/class/{cid}/student/attendance:
+    get:
+      tags:
+        - Student Attendance
+      summary: This is give current date particular Student Attendance id which is use in update the Student attendance api 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Class id
+      responses:
+        "200":
+          description: OK
+
+    post:
+      tags:
+        - Student Attendance
+      summary: Mark Sudent Attendance by the Class Teacher 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Class id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              date:
+                type: string
+                description: only date is accept in this format like "16/07/2022"
+                required: true
+              present:
+                type: array
+                description: This is present array of staff ids like this ["62bb4dd84f87f09b9c55b625", "62bb4dd84f87f09b9c55b625"]
+                items:
+                  type: string
+                  description: staff id
+              absent:
+                type: array
+                description: This is absent array of staff ids like this ["62bb4dd84f87f09b9c55b625", "62bb4dd84f87f09b9c55b625"]
+                items:
+                  type: string
+                  description: staff id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/attendance/student/update/{said}:
+    patch:
+      tags:
+        - Student Attendance
+      summary: Update Mark student Attendance by the Class Teacher 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: said
+          required: true
+          type: string
+          description: This is  student Attendance id of particular date that is current date
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              date:
+                type: string
+                description: only date is accept in this format like "16/07/2022"
+                required: true
+              present:
+                type: array
+                description: This is present array of staff ids like this ["62bb4dd84f87f09b9c55b625", "62bb4dd84f87f09b9c55b625"]
+                items:
+                  type: string
+                  description: staff id
+              absent:
+                type: array
+                description: This is absent array of staff ids like this ["62bb4dd84f87f09b9c55b625", "62bb4dd84f87f09b9c55b625"]
+                items:
+                  type: string
+                  description: staff id
+      responses:
+        "200":
+          description: OK
   
+  /api/v1/attendance/student-calender/{sid}:
+    get:
+      tags:
+        - Student Attendance
+      summary: This is give the one month all attendance OR one year all attendance 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
+        - in: query
+          name: month
+          schema:
+            type: integer
+          description: Enter a month in digit that month attendance you want
+        - in: query
+          name: year
+          schema:
+            type: integer
+          description: Enter a year in digit that year attendance you want
+      responses:
+        "200":
+          description: OK
+  
+  /api/v1/class/{cid}:
+    patch:
+      tags:
+        - Class Related Api
+      summary: It is give the class code refresh every time
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/class/setting/{cid}:
+    patch:
+      tags:
+        - Class Related Api
+      summary: It is edit the Class Start Date for taking the attendance and much more
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class id
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              classStartDate:
+                type: string
+                description: It is accept date format like "06/07/2022" only
+
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/attendance/department/{did}/holiday:
+    post:
+      tags:
+        - Holiday Related Api
+      summary: It is create the holiday by department head
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is Department id
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              reason:
+                type: string
+                description: Give reason of creating Holiday for that day
+                required: true
+              dates:
+                type: array
+                description: give the arrays of the dates
+                items:
+                  type: string
+                  description: It is accept date format like "06/07/2022" only
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/attendance/holiday/{did}:
+    get:
+      tags:
+        - Holiday Related Api
+      summary: It is give the holiday list that is created by department head
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is department id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/checklist/department/{did}:
+    post:
+      tags:
+        - Checklist Related Api
+      summary: It is create the checklist by department head
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is Department id
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              checklistName:
+                type: string
+                description: Give checklistName of creating checklist
+                required: true
+              checklistFees:
+                type: string
+                description: Give checklistFees of two type that is "Yes" or "No"
+              checklistAmount:
+                type: integer
+                description: Give checklistAmount in number only 
+              ClassId:
+                type: array
+                description: give the arrays of the ClassId for which class(division) making the checklist
+                required: true 
+                items:
+                  type: string
+                  description: It is accept ClassId
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/checklist/{cid}:
+    get:
+      tags:
+        - Checklist Related Api
+      summary: It is give information about one checklist is assign how many student (student list)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Checklist id
+      responses:
+        "200":
+          description: OK  
+    patch:
+      tags:
+        - Checklist Related Api
+      summary: It is update checklist by department head
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Checklist id
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              checklistName:
+                type: string
+                description: Give checklistName of creating checklist
+              checklistFees:
+                type: string
+                description: Give checklistFees of two type that is "Yes" or "No"
+              checklistAmount:
+                type: integer
+                description: Give checklistAmount in number only 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/checklist/checklist-all/new:
+    get:
+      tags:
+        - Checklist Related Api
+      summary: It is give the checklist list that is created by department head
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Enter a page which page data you want
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Enter a limit that retrieve one time
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/checklist/{cid}/assign-student/{sid}:
+    get:
+      tags:
+        - Checklist Related Api
+      summary: It is assign the checklist  that student which student id you have pass in url
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Checklist id
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id          
+      responses:
+        "200":
+          description: OK
+
+
+
+
+
+
+
+
+
+
+
+

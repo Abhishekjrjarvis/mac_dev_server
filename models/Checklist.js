@@ -1,7 +1,4 @@
 const mongoose = require("mongoose");
-const Class = require("./Class");
-const Department = require("./Department");
-const Student = require("./Student");
 
 const checklistSchema = new mongoose.Schema({
   checklistName: {
@@ -10,11 +7,11 @@ const checklistSchema = new mongoose.Schema({
   },
   checklistFees: {
     type: String,
-    required: true,
+    default: "No",
   },
   checklistAmount: {
     type: Number,
-    required: true,
+    default: 0,
   },
   checklistClass: {
     type: mongoose.Schema.Types.ObjectId,

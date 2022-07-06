@@ -1,50 +1,42 @@
-const mongoose = require('mongoose')
-const Student = require('./Student')
-const Class = require('./Class')
-const Attendence = require('./Attendence')
+const mongoose = require("mongoose");
 
 const attendenceDateSchema = new mongoose.Schema({
-    attendDate: {
-        type: Date,
-        required: true
-    },
-    attendTime: {
-        type: String,
-        required: true
-    },
-    outTime: {
-        type: String,
-    },
-    presentstudents:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Student'
-    },
-    absentstudents:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Student'
-    },
-    attendence: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Attendence'
-    },
-    className: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Class'
-    },
-    presentStudent: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Student'
-        }
-    ],
-    absentStudent: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Student'
-        }
-    ],
-})
+  attendDate: {
+    type: String,
+    required: true,
+  },
+  attendTime: {
+    type: String,
+    required: true,
+  },
+  outTime: {
+    type: String,
+  },
+  presentTotal: {
+    type: String,
+  },
 
-const AttendenceDate = mongoose.model('AttendenceDate', attendenceDateSchema)
+  absentTotal: {
+    type: String,
+  },
+  className: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Class",
+  },
+  presentStudent: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
+  absentStudent: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
+});
 
-module.exports = AttendenceDate
+const AttendenceDate = mongoose.model("AttendenceDate", attendenceDateSchema);
+
+module.exports = AttendenceDate;

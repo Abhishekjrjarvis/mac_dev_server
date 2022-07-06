@@ -143,14 +143,15 @@ const miscellaneousNew = require("./routes/Miscellaneous/miscellaneousRoute");
 const newAppApiNew = require("./routes/NewApi/newRoute");
 const userNew = require("./routes/User/userRoute");
 const availNew = require("./routes/Attendence/indexRoute");
-const landingNew = require('./routes/LandingRoute/indexRoute')
-const notifyNew = require('./routes/Notification/push-notification-route')
+const landingNew = require("./routes/LandingRoute/indexRoute");
+const notifyNew = require("./routes/Notification/push-notification-route");
 
 // =============IMPORT INSTITUTE POST ROUTER====================
 const institutePostRoute = require("./routes/InstituteAdmin/Post/PostRoute");
 const userPostRoute = require("./routes/User/Post/PostRoute");
-const superAdminPostRoute = require('./routes/SuperAdmin/Post/PostRoute')
-
+const superAdminPostRoute = require("./routes/SuperAdmin/Post/PostRoute");
+const classRoute = require("./routes/Class/classRoute");
+const checklistRoute = require("./routes/Checklist/checklistRoute");
 const dburl = `${process.env.DB_URL2}`;
 // const dburl = `${process.env.DB_URL}`;
 // const dburl = `mongodb://127.0.0.1:27017/Erp_app`;
@@ -193,7 +194,6 @@ app.use(
   })
 );
 
-
 const secret = "Thisismysecret";
 // `${process.env.SECRET}` ||
 
@@ -222,7 +222,6 @@ app.use(
   })
 );
 
-
 app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerJSDocs));
 app.use("/api/conversations", conversationRoute);
 app.use("/api/messages", messageRoute);
@@ -233,7 +232,8 @@ app.use("/api/v1/all-images", uploadRoute);
 app.use("/api/v1/elearning", elearningRoute);
 app.use("/api/v1/library", libraryRoute);
 app.use("/api/v1/comment/reply", commentReplyRoute);
-
+app.use("/api/v1/class", classRoute);
+app.use("/api/v1/checklist", checklistRoute);
 // app.use("/all-images/v1", uploadRoute);
 // app.use("/elearning/v1", elearningRoute);
 // app.use("/library/v1", libraryRoute);
@@ -254,7 +254,7 @@ app.use("/api/v1/ins", instituteNew);
 app.use("/api/v1/ins/post", institutePostRoute);
 
 // All Super Admin Post Api Related to Qviple
-app.use('/api/v1/admin/post', superAdminPostRoute)
+app.use("/api/v1/admin/post", superAdminPostRoute);
 
 // All Authentication Api related to Qviple
 app.use("/api/v1/auth", authNew);
@@ -281,13 +281,13 @@ app.use("/api/v1/user", userNew);
 app.use("/api/v1/user/post", userPostRoute);
 // ===========================================================
 // All Attendence Api related to Qviple
-app.use("/api/v1/avail", availNew);
+app.use("/api/v1/attendance", availNew);
 
 // All Landing Api related to Qviple
-app.use('/api/v1/landing', landingNew)
+app.use("/api/v1/landing", landingNew);
 
 // Push Notification Through Flutter By Node
-app.use('/api/v1/notification', notifyNew)
+app.use("/api/v1/notification", notifyNew);
 
 // Super Admin Routes
 
@@ -299,8 +299,6 @@ app.get("/", async (req, res) => {
     console.log(`SomeThing went wrong at this endPoint(/)`);
   }
 });
-
-
 
 app.get("/ins/:id/dash/post/page/:p/size/:limit", async (req, res) => {
   try {
@@ -633,7 +631,7 @@ app.post("/admin/:aid/approve/ins/:id", async (req, res) => {
     institute.chatAdmin = chat;
     institute.joinChat.push(chat);
     admin.ApproveInstitute.push(institute);
-    admin.instituteCount += 1
+    admin.instituteCount += 1;
     admin.instituteList.pull(id);
     institute.insFreeLastDate = insFreeLastDate;
     institute.insPaymentLastDate = insPaymentLastDate;
@@ -2662,8 +2660,7 @@ app.post("/:did/batch-select/:bid", isLoggedIn, async (req, res) => {
     department.userBatch = batches._id;
     await department.save();
     res.status(200).send({ message: "Batch Detail Data", batches, department });
-  } catch {
-  }
+  } catch {}
 });
 
 // Institute Batch Class Data
@@ -2769,17 +2766,16 @@ app.post(
   }
 );
 
+var classRandomCodeHandler = () => {
+  const c_1 = Math.floor(Math.random() * 9) + 1;
+  const c_2 = Math.floor(Math.random() * 9) + 1;
+  const c_3 = Math.floor(Math.random() * 9) + 1;
+  const c_4 = Math.floor(Math.random() * 9) + 1;
+  var r_class_code = `${c_1}${c_2}${c_3}${c_4}`;
+  return r_class_code;
+};
 
-var classRandomCodeHandler = () =>{
-  const c_1 = Math.floor(Math.random() * 9) + 1
-  const c_2 = Math.floor(Math.random() * 9) + 1
-  const c_3 = Math.floor(Math.random() * 9) + 1
-  const c_4 = Math.floor(Math.random() * 9) + 1
-  var r_class_code = `${c_1}${c_2}${c_3}${c_4}`
-  return r_class_code
-}
-
-var result = classRandomCodeHandler()
+var result = classRandomCodeHandler();
 
 app.post("/ins/:id/department/:did/batch/:bid", async (req, res) => {
   try {
@@ -2797,10 +2793,9 @@ app.post("/ins/:id/department/:did/batch/:bid", async (req, res) => {
     const depart = await Department.findById({ _id: did }).populate({
       path: "dHead",
     });
-    if(institute.classCodeList.includes(`${result}`)){
-    }
-    else{
-    const notify = await new Notification({});
+    if (institute.classCodeList.includes(`${result}`)) {
+    } else {
+      const notify = await new Notification({});
       institute.classCodeList.push(classCode);
       const classRoom = await new Class({
         masterClassName: mcId,
@@ -2809,28 +2804,28 @@ app.post("/ins/:id/department/:did/batch/:bid", async (req, res) => {
         classHeadTitle: classHeadTitle,
         classCode: `${result}`,
       });
-    institute.classRooms.push(classRoom._id);
-    classRoom.institute = institute._id;
-    batch.classroom.push(classRoom._id);
-    masterClass.classDivision.push(classRoom._id);
-    if (String(depart.dHead._id) == String(staff._id)) {
-    } else {
-      depart.departmentChatGroup.push(staff._id);
-    }
-    classRoom.batch = batch._id;
-    batch.batchStaff.push(staff._id);
-    staff.batches = batch._id;
-    staff.staffClass.push(classRoom._id);
-    classRoom.classTeacher = staff._id;
-    depart.class.push(classRoom._id);
-    classRoom.department = depart._id;
-    notify.notifyContent = `you got the designation of ${classRoom.className} as Class Teacher`;
-    notify.notifySender = id;
-    notify.notifyReceiever = user._id;
-    user.uNotify.push(notify._id);
-    notify.user = user._id;
-    notify.notifyByInsPhoto = institute._id;
-    await Promise.all([
+      institute.classRooms.push(classRoom._id);
+      classRoom.institute = institute._id;
+      batch.classroom.push(classRoom._id);
+      masterClass.classDivision.push(classRoom._id);
+      if (String(depart.dHead._id) == String(staff._id)) {
+      } else {
+        depart.departmentChatGroup.push(staff._id);
+      }
+      classRoom.batch = batch._id;
+      batch.batchStaff.push(staff._id);
+      staff.batches = batch._id;
+      staff.staffClass.push(classRoom._id);
+      classRoom.classTeacher = staff._id;
+      depart.class.push(classRoom._id);
+      classRoom.department = depart._id;
+      notify.notifyContent = `you got the designation of ${classRoom.className} as Class Teacher`;
+      notify.notifySender = id;
+      notify.notifyReceiever = user._id;
+      user.uNotify.push(notify._id);
+      notify.user = user._id;
+      notify.notifyByInsPhoto = institute._id;
+      await Promise.all([
         institute.save(),
         batch.save(),
         masterClass.save(),
@@ -2838,15 +2833,14 @@ app.post("/ins/:id/department/:did/batch/:bid", async (req, res) => {
         classRoom.save(),
         depart.save(),
         user.save(),
-        notify.save()
-    ])
-    res.status(200).send({
-      message: "Successfully Created Class",
-      classRoom,
-    });
-  }
-  } catch (e) {
-  }
+        notify.save(),
+      ]);
+      res.status(200).send({
+        message: "Successfully Created Class",
+        classRoom,
+      });
+    }
+  } catch (e) {}
 });
 
 // Get all Exam Data
@@ -3476,8 +3470,7 @@ app.post(
         message: "Successfully Created Subject",
         subject,
       });
-    } catch {
-    }
+    } catch {}
   }
 );
 
@@ -3737,64 +3730,64 @@ var c_date = `${p_year}-${p_month}-${p_date}`;
 app.post(
   "/ins/:id/student/:cid/approve/:sid/depart/:did/batch/:bid",
   async (req, res) => {
-    try{
-    const { id, sid, cid, did, bid } = req.params;
-    const institute = await InstituteAdmin.findById({ _id: id });
-    const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-    const student = await Student.findById({ _id: sid }).populate({
-      path: "user",
-    });
-    const user = await User.findById({ _id: `${student.user._id}` });
-    const classes = await Class.findById({ _id: cid });
-    const depart = await Department.findById({ _id: did });
-    const batch = await Batch.findById({ _id: bid });
-    const notify = await new Notification({});
-    student.studentStatus = req.body.status;
-    institute.ApproveStudent.push(student);
-    admins.studentCount += 1
-    institute.student.pull(sid);
-    if (c_date <= institute.insFreeLastDate) {
-      institute.insFreeCredit = institute.insFreeCredit + 1;
+    try {
+      const { id, sid, cid, did, bid } = req.params;
+      const institute = await InstituteAdmin.findById({ _id: id });
+      const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+      const student = await Student.findById({ _id: sid }).populate({
+        path: "user",
+      });
+      const user = await User.findById({ _id: `${student.user._id}` });
+      const classes = await Class.findById({ _id: cid });
+      const depart = await Department.findById({ _id: did });
+      const batch = await Batch.findById({ _id: bid });
+      const notify = await new Notification({});
+      student.studentStatus = req.body.status;
+      institute.ApproveStudent.push(student);
+      admins.studentCount += 1;
+      institute.student.pull(sid);
+      if (c_date <= institute.insFreeLastDate) {
+        institute.insFreeCredit = institute.insFreeCredit + 1;
+      }
+      classes.ApproveStudent.push(student);
+      classes.studentCount += 1;
+      classes.student.pull(sid);
+      student.studentGRNO = classes.ApproveStudent.length;
+      student.studentROLLNO = classes.ApproveStudent.length;
+      depart.ApproveStudent.push(student);
+      depart.studentCount += 1;
+      student.department = depart;
+      batch.ApproveStudent.push(student);
+      student.batches = batch;
+      notify.notifyContent = `${student.studentFirstName}${
+        student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+      } ${student.studentLastName} joined as a Student of Class ${
+        classes.className
+      } of ${batch.batchName}`;
+      notify.notifySender = cid;
+      notify.notifyReceiever = user._id;
+      institute.iNotify.push(notify);
+      notify.institute = institute;
+      user.uNotify.push(notify);
+      notify.user = user;
+      notify.notifyByStudentPhoto = student;
+      await Promise.all([
+        admins.save(),
+        classes.save(),
+        depart.save(),
+        batch.save(),
+        student.save(),
+        institute.save(),
+        user.save(),
+        notify.save(),
+      ]);
+      res.status(200).send({
+        message: `Welcome To The Institute ${student.studentFirstName} ${student.studentLastName}`,
+        classes: classes._id,
+      });
+    } catch (e) {
+      console.log(e);
     }
-    classes.ApproveStudent.push(student);
-    classes.studentCount += 1
-    classes.student.pull(sid);
-    student.studentGRNO = classes.ApproveStudent.length;
-    student.studentROLLNO = classes.ApproveStudent.length;
-    depart.ApproveStudent.push(student);
-    depart.studentCount += 1
-    student.department = depart;
-    batch.ApproveStudent.push(student);
-    student.batches = batch;
-    notify.notifyContent = `${student.studentFirstName}${
-      student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
-    } ${student.studentLastName} joined as a Student of Class ${
-      classes.className
-    } of ${batch.batchName}`;
-    notify.notifySender = cid;
-    notify.notifyReceiever = user._id;
-    institute.iNotify.push(notify);
-    notify.institute = institute;
-    user.uNotify.push(notify);
-    notify.user = user;
-    notify.notifyByStudentPhoto = student;
-    await Promise.all([
-     admins.save(),
-     classes.save(),
-     depart.save(),
-     batch.save(),
-     student.save(),
-     institute.save(),
-     user.save(),
-     notify.save()
-    ])
-    res.status(200).send({
-      message: `Welcome To The Institute ${student.studentFirstName} ${student.studentLastName}`,
-      classes: classes._id
-    });
-  }catch(e) {
-    console.log(e)
-  }
   }
 );
 
@@ -3807,16 +3800,12 @@ app.post("/ins/:id/student/:cid/reject/:sid", isLoggedIn, async (req, res) => {
     student.studentStatus = req.body.status;
     institute.student.pull(sid);
     classes.student.pull(sid);
-    await Promise.all([
-     institute.save(),
-     classes.save(),
-     student.save()
-    ])
+    await Promise.all([institute.save(), classes.save(), student.save()]);
     res.status(200).send({
       message: `Application Rejected ${student.studentFirstName} ${student.studentLastName}`,
       classes: classes._id,
     });
-  } catch(e) {
+  } catch (e) {
     console.log(e);
   }
 });
@@ -3951,14 +3940,13 @@ app.post(
       await Promise.all([
         departmentData.save(),
         batchData.save(),
-        subjectMaster.save()
-      ])
+        subjectMaster.save(),
+      ]);
       res.status(200).send({
         message: "Successfully Created Master Subject",
         subjectMaster,
       });
-    } catch {
-    }
+    } catch {}
   }
 );
 
@@ -4357,8 +4345,7 @@ app.get("/staffclass/:cid", async (req, res) => {
         },
       });
     res.status(200).send({ message: "Class Profile Data", classes });
-  } catch (e) {
-  }
+  } catch (e) {}
 });
 
 app.get("/staffclass/:sid", async (req, res) => {
@@ -4680,70 +4667,6 @@ app.post("/staff/class-info/:cid", isLoggedIn, async (req, res) => {
 });
 
 // Staff Checklist in Department Updated
-
-app.post("/department-class/checklist/:did", async (req, res) => {
-  try {
-    const { did } = req.params;
-    const { ClassId, checklistFees, checklistName, checklistAmount } = req.body;
-    const department = await Department.findById({ _id: did }).populate(
-      "ApproveStudent"
-    );
-    var check = await new Checklist({
-      checklistName: checklistName,
-      checklistFees: checklistFees,
-      checklistAmount: checklistAmount,
-    });
-    department.checklists.push(check);
-    check.checklistDepartment = department;
-    await department.save();
-    for (let i = 0; i < ClassId.length; i++) {
-      var classes = await Class.findById({ _id: ClassId[i].classId });
-      classes.checklist.push(check);
-      check.checklistClass = classes;
-      await classes.save();
-      await check.save();
-    }
-    for (let i = 0; i < department.ApproveStudent.length; i++) {
-      var student = await Student.findById({
-        _id: department.ApproveStudent[i]._id,
-      }).populate({
-        path: "user",
-      });
-      const user = await User.findById({ _id: `${student.user._id}` });
-      var notify = await new Notification({});
-      notify.notifyContent = `New ${check.checklistName} (checklist) has been created. check your member's Tab`;
-      notify.notifySender = did;
-      notify.notifyReceiever = user._id;
-      user.uNotify.push(notify);
-      notify.user = user;
-      notify.notifyByDepartPhoto = department;
-      await user.save();
-      await notify.save();
-    }
-    res
-      .status(200)
-      .send({ message: "Checklist Created", department, classes, check });
-  } catch (e) {
-    console.log(
-      `SomeThing Went Wrong at this EndPoint(/department-class/checklist/:did)`,
-      e
-    );
-  }
-});
-
-app.get("/checklist/:checklistId", isLoggedIn, async (req, res) => {
-  try {
-    const { checklistId } = req.params;
-    const checklist = await Checklist.findById({ _id: checklistId }).populate(
-      "student"
-    );
-    res.status(200).send({ message: "Checklist Data", checklist });
-  } catch {
-    console.log(
-      `SomeThing Went Wrong at this EndPoint(/checklist/:checklistId)`
-    );
-  }
-});
 
 app.post("/department-class/fee/:did", async (req, res) => {
   try {
@@ -5348,37 +5271,6 @@ app.post("/department/holiday/:did", isLoggedIn, async (req, res) => {
   }
 });
 
-app.post("/student/:sid/checklist/:cid", isLoggedIn, async (req, res) => {
-  try {
-    const { sid, cid } = req.params;
-    // console.log(req.params);
-    const student = await Student.findById({ _id: sid }).populate({
-      path: "user",
-    });
-    const user = await User.findById({ _id: `${student.user._id}` });
-    const checklist = await Checklist.findById({ _id: cid });
-    const notify = await new Notification({});
-    student.checklist.push(checklist);
-    student.checklistAllottedStatus = "Allotted";
-    checklist.student.push(student);
-    checklist.studentAssignedStatus = "Assigned";
-    notify.notifyContent = `${checklist.checklistName} (checklist) Allotted to you check your member's Tab`;
-    notify.notifyReceiever = user._id;
-    user.uNotify.push(notify);
-    notify.user = user;
-    notify.notifyByStudentPhoto = student;
-    await student.save();
-    await checklist.save();
-    await user.save();
-    await notify.save();
-    res.status(200).send({ message: "checklist Assigned", student, checklist });
-  } catch {
-    console.log(
-      `SomeThing Went Wrong at this EndPoint(/student/:sid/checklist/:cid)`
-    );
-  }
-});
-
 // ========================= Finance Department =========================
 
 app.post(
@@ -5725,35 +5617,7 @@ app.post("/all/bank/expenses", async (req, res) => {
 //   }
 // });
 
-// app.post("/student/:sid/checklist/:id/online", isLoggedIn, async (req, res) => {
-//   const { sid, id } = req.params;
-//   const { status } = req.body;
-//   const student = await Student.findById({ _id: sid });
-//   const checklistData = await Checklist.findById({ _id: id });
-//   if (
-//     checklistData.studentsList.length >= 1 &&
-//     checklistData.studentsList.includes(String(student._id))
-//   ) {
-//     res.status(200).send({
-//       message: `${student.studentFirstName} paid the ${checklistData.checklistName}`,
-//     });
-//   } else {
-//     try {
-//       student.studentChecklist.push(checklistData);
-//       checklistData.checklistFeeStatus = status;
-//       checklistData.studentsList.push(student);
-//       checklistData.checklistStudent = student;
-//       student.onlineCheckList.push(checklistData);
-//       await student.save();
-//       await checklistData.save();
-//       res.status(200).send({
-//         message: `${checklistData.checklistName} received by ${student.studentFirstName}`,
-//         checklistData,
-//         student,
-//       });
-//     } catch {}
-//   }
-// });
+//
 
 app.post("/finance/all/fee/online/:id", isLoggedIn, async (req, res) => {
   try {

@@ -1,28 +1,4 @@
 const mongoose = require("mongoose");
-const Department = require("./Department");
-const Post = require("./Post");
-const InsAnnouncement = require("./InsAnnouncement");
-const Staff = require("./Staff");
-const User = require("./User");
-const Class = require("./Class");
-const Student = require("./Student");
-const UserPost = require("./userPost");
-const Finance = require("./Finance");
-const Sport = require("./Sport");
-const SportClass = require("./SportClass");
-const Leave = require("./Leave");
-const Transfer = require("./Transfer");
-const Complaint = require("./Complaint");
-const DisplayPerson = require('./DisplayPerson')
-const InstituteSupport = require("./InstituteSupport");
-const GroupConversation = require("./GroupConversation");
-const Batch = require("./Batch");
-const Field = require("./Field");
-const ELearning = require("./ELearning");
-const Library = require("./Library");
-const AdmissionAdmin = require("./AdmissionAdmin");
-const Notification = require("./notification");
-const InstituteChat = require("./InstituteChat");
 
 const instituteAdminSchema = new mongoose.Schema({
   insName: { type: String, required: true, unique: true },
@@ -315,54 +291,57 @@ const instituteAdminSchema = new mongoose.Schema({
   displayPersonList: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'DisplayPerson'
-    }
+      ref: "DisplayPerson",
+    },
   ],
   starAnnouncement: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'InsAnnouncement'
-    }
+      ref: "InsAnnouncement",
+    },
   ],
   recoveryMail: {
     type: String,
   },
   followersCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   followingCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   departmentCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   staffCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   studentCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   postCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   announcementCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   admissionCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   isUniversal: {
     type: String,
-    default: 'Not Assigned'
-  }
+    default: "Not Assigned",
+  },
+  staffAttendance: [
+    { type: mongoose.Schema.Types.ObjectId, ref: "StaffAttendenceDate" },
+  ],
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

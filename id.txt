@@ -1,0 +1,135 @@
+{
+    Department=62bad1270a73354277d9379e (HOD)
+
+
+
+batch=62bad1960a73354277d937c3 (batchName: "2022-23")
+
+
+
+classMaster= classMaster: [{_id: "62bad1460a73354277d937ae", className: "1st Sem",…}]
+	0: {_id: "62bad1460a73354277d937ae", className: "1st Sem",…}
+		classDivision: ["62bad1bb0a73354277d937da", "62bd68f0022dd813eae0b8a9"]
+		className: "1st Sem"
+		department: {_id: "62bad1270a73354277d9379e", dName: "Computer Science"}
+		_id: "62bad1460a73354277d937ae"
+	message: "ClassMaster Are here"
+
+
+
+class=	62bd68f0022dd813eae0b8a9 (classTitle: "Computer Chamber")
+
+	{message: "create class data",…}
+	classes: {_id: "62bd68f0022dd813eae0b8a9", className: "1st Sem", classTitle: "Computer Chamber", photoId: "1",…}
+	batch: {_id: "62bad1960a73354277d937c3", batchName: "2022-23"}
+	classHeadTitle: "Marvel's"
+	className: "1st Sem"
+	classStatus: "UnLocked"
+	classTeacher: {_id: "62b9b245ab7dbc624c68ee40", staffFirstName: "Pankaj", staffLastName: "Phad", photoId: "0",…}
+	classTitle: "Computer Chamber"
+	coverId: "2"
+	department: {_id: "62bad1270a73354277d9379e", staffCount: 1}
+	displayPersonList: []
+	photoId: "1"
+	studentCount: 0
+	subjectCount: 1
+	_id: "62bd68f0022dd813eae0b8a9"
+	message: "create class data"
+
+SubjectMaster= message: "SubjectMaster Are here"
+	subjectMaster: [{_id: "62bad1510a73354277d937b5", subjectName: "SOM",…},…]
+	0: {_id: "62bad1510a73354277d937b5", subjectName: "SOM",…}
+		subjectName: "SOM"
+		subjects: ["62bad1d90a73354277d937f8", "62bd6c9610dce7c3a3819df7"]
+		_id: "62bad1510a73354277d937b5"
+	1: {_id: "62bad15b0a73354277d937bb", subjectName: "TOM", subjects: ["62bad1e90a73354277d93810"]}
+		subjectName: "TOM"
+		subjects: ["62bad1e90a73354277d93810"]
+		_id: "62bad15b0a73354277d937bb"
+
+
+subject= classes: {_id: "62bd68f0022dd813eae0b8a9", className: "1st Sem", classTitle: "Computer Chamber",…}
+	classHeadTitle: "Marvel's"
+	className: "1st Sem"
+	classStatus: "UnLocked"
+	classTitle: "Computer Chamber"
+	subject: [{_id: "62bd6c9610dce7c3a3819df7", subjectName: "SOM", subjectStatus: "Unlocked",…}]
+	0: {_id: "62bd6c9610dce7c3a3819df7", subjectName: "SOM", subjectStatus: "Unlocked",…}
+		subjectName: "SOM"
+		subjectStatus: "Unlocked"
+		subjectTitle: "Teacher"
+		_id: "62bd6c9610dce7c3a3819df7"
+	_id: "62bd68f0022dd813eae0b8a9"
+message: "create class data"
+
+checklist =   "message": "Checklist Created",
+  "checklist": {
+    "checklistName": "Winter checklist",
+    "checklistFees": "300",
+    "checklistAmount": 200,
+    "student": [],
+    "studentAssignedStatus": "Not Assigned",
+    "studentsList": [],
+    "checklistFeeStatus": "Not Paid",
+    "_id": "62c00777004db168671474ca",
+    "createdAt": "2022-07-02T08:53:11.567Z",
+    "checklistDepartment": "62bad1270a73354277d9379e",
+    "checklistClass": "62bd68f0022dd813eae0b8a9",
+    "__v": 0
+  }
+
+
+
+approve staff in Institute=  staffIns: {_id: "62b95d10faf3502404812dad", insName: "Inter College Of Engineering",…}
+ApproveStaff: [{_id: "62b9b245ab7dbc624c68ee40", staffFirstName: "Pankaj", staffLastName: "Phad",…},…]
+	0: {_id: "62b9b245ab7dbc624c68ee40", staffFirstName: "Pankaj", staffLastName: "Phad",…}
+	photoId: "0"
+	recentDesignation: "Teacher"
+	staffFirstName: "Pankaj"
+	staffJoinDate: "2022-06-28"
+	staffLastName: "Phad"
+	staffPhoneNumber: 8329911939
+	staffProfilePhoto: "5bd36c24668fa215972b726c4cc36e24"
+	staffROLLNO: "1"
+	user: {_id: "62b9afd1ab7dbc624c68ec55", userLegalName: "Pankaj Phad ", userEmail: "phadpankaj@gmail.com"}
+	_id: "62b9b245ab7dbc624c68ee40"
+	1: {_id: "62bb4dd84f87f09b9c55b625", staffFirstName: "adad", staffLastName: "adad",…}
+	photoId: "0"
+	staffFirstName: "adad"
+	staffJoinDate: "2022-06-30"
+	staffLastName: "adad"
+	staffPhoneNumber: 7020687305
+	staffProfilePhoto: "9ec23c43b616950709c5b264fc302f2e"
+	staffROLLNO: "2"
+	user: {_id: "62b9666c4399e43eeaa6ee7c", userLegalName: "user no 1", userEmail: "asdasd"}
+	_id: "62bb4dd84f87f09b9c55b625"
+	2: {_id: "62bc0e95b1924a602e66595f", staffFirstName: "Birat", staffLastName: "Dhar",…}
+	photoId: "0"
+	staffFirstName: "Birat"
+	staffJoinDate: "2022-06-30"
+	staffLastName: "Dhar"
+	staffPhoneNumber: 12345678910
+	staffProfilePhoto: "1fba4d1950aa5e24961896e34c5b598f"
+	staffROLLNO: "3"
+	user: {_id: "62bc0368f22976b59ed23349", userLegalName: "birat"}
+	_id: "62bc0e95b1924a602e66595f"
+insName: "Inter College Of Engineering"
+_id: "62b95d10faf3502404812dad"
+}
+
+
+
+This is classes where is student = message: "create class data",…}
+	classes: {_id: "62ba96ec9c9a6c978227d1a0", className: "Design", classTitle: "12th - A",…}
+	classHeadTitle: "Professor"
+	className: "Design"
+	classStatus: "UnLocked"
+	classTitle: "12th - A"
+	subject: [{_id: "62ba970f9c9a6c978227d1bd", subjectName: "Designing world", subjectStatus: "Unlocked",…}]
+	_id: "62ba96ec9c9a6c978227d1a0"
+	message: "create class data"
+
+Student IDs= "student": [
+      "62bc0f24b1924a602e66596e",
+      "62bc1047b1924a602e6659d2"
+    ],

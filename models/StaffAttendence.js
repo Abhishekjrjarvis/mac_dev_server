@@ -1,21 +1,21 @@
-const mongoose = require('mongoose')
-const Staff = require('./Staff')
-const Department = require('./Department')
-const StaffAttendenceDate = require('./StaffAttendenceDate')
+const mongoose = require("mongoose");
 
 const staffAttendenceSchema = new mongoose.Schema({
-    staffAttendenceDate: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'StaffAttendenceDate'
-        }
-    ],
-    department: {
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'Department'
-    }
-})
+  staffAttendenceDate: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "StaffAttendenceDate",
+    },
+  ],
+  institute: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "InstituteAdmin",
+  },
+});
 
-const StaffAttendence = mongoose.model('StaffAttendence', staffAttendenceSchema)
+const StaffAttendence = mongoose.model(
+  "StaffAttendence",
+  staffAttendenceSchema
+);
 
-module.exports = StaffAttendence
+module.exports = StaffAttendence;

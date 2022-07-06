@@ -1,11 +1,5 @@
 const mongoose = require("mongoose");
 
-const Subject = require("./Subject");
-const InstituteAdmin = require("./InstituteAdmin");
-const Batch = require("./Batch");
-const Department = require("./Department");
-const McqTestSets = require("./McqTestSets");
-const McqQuestions = require("./McqQuestions");
 const subjectMasterSchema = new mongoose.Schema({
   subjectName: { type: String, required: true },
   institute: {
@@ -37,8 +31,8 @@ const subjectMasterSchema = new mongoose.Schema({
   ],
   subjectCount: {
     type: Number,
-    default: 0
-  }
+    default: 0,
+  },
 });
 
 const SubjectMaster = mongoose.model("SubjectMaster", subjectMasterSchema);

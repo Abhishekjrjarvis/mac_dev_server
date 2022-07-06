@@ -4,87 +4,109 @@ const Avail = require("../../controllers/Attendence/index");
 const { isLoggedIn } = require("../../middleware");
 const catchAsync = require("../../Utilities/catchAsync");
 
-// Class Attendence Student Data
-router.get(
-  "/staffclass/:cid/attend",
-  isLoggedIn,
-  catchAsync(Avail.getAttendStudentClass)
-);
+//=========ATTENDANCE OF STUDENT=============================
 
-// Class Attendence Student Data By Id
-router.get(
-  "/staffclass/:cid/attend-id",
-  isLoggedIn,
-  catchAsync(Avail.getAttendStudentClassById)
-);
+router
+  .route("/class/:cid/student/attendance")
+  .get(catchAsync(Avail.getAttendClassStudent))
+  .post(catchAsync(Avail.markAttendenceClassStudent));
 
-// Class Mark Attendence
-router.post(
-  "/class/:cid/student/attendence",
-  isLoggedIn,
-  catchAsync(Avail.markAttendenceClassStudent)
-);
+router
+  .route("/student/update/:said")
+  .patch(catchAsync(Avail.markAttendenceClassStudentUpdate));
 
-// Class Get Attendence By Date
-router.get(
-  "/class/:cid/get/attendence/:date",
-  isLoggedIn,
-  catchAsync(Avail.retrieveAttendenceByDate)
-);
+router.get("/student-calender/:sid", catchAsync(Avail.getAttendStudentById));
 
-// Show Student Attendence At Calendar
-router.post(
-  "/attendence/status/student/:sid",
-  isLoggedIn,
-  catchAsync(Avail.retrieveStudentAttendenceCalendar)
-);
+router.get("/student/:sid", catchAsync(Avail.viewClassStudent));
 
-// Department Attendence Staff Data
-router.get(
-  "/batch-detail/:bid/attend",
-  isLoggedIn,
-  catchAsync(Avail.getAttendDepartmentStaff)
-);
+//=========ATTENDANCE OF STAFF================================
 
-// Department Attendence Staff Data By Id
-router.get(
-  "/batch-detail/:bid/attend-id",
-  isLoggedIn,
-  catchAsync(Avail.getAttendDepartmentStaffById)
-);
+router
+  .route("/institute/:id/staff/attendance")
+  .get(catchAsync(Avail.getAttendInstituteStaff))
+  .post(catchAsync(Avail.markAttendenceDepartmentStaff));
 
-// Staff Mark Attendence
-router.post(
-  "/department/:did/staff/attendence",
-  isLoggedIn,
-  catchAsync(Avail.markAttendenceDepartmentStaff)
-);
+router
+  .route("/staff/update/:said")
+  .patch(catchAsync(Avail.markAttendenceDepartmentStaffUpdate));
+router.get("/staff-calender/:sid", catchAsync(Avail.getAttendStaffById));
 
-// Department Get Attendence By Date
-router.get(
-  "/department/:did/get/attendence/:date",
-  isLoggedIn,
-  catchAsync(Avail.retrieveAttendenceByStaffDate)
-);
+router.get("/institute/:id", catchAsync(Avail.viewInstitute));
+router.get("/staff/:sid", catchAsync(Avail.viewInstituteStaff));
 
-// Show Staff Attendence At Calendar
-router.post(
-  "/attendence/status/staff/:sid",
-  isLoggedIn,
-  catchAsync(Avail.retrieveStaffAttendenceCalendar)
-);
+//=========HOLIDAY OF DEPARTMENT CREATED================================
 
-// Department Holiday Calendar
-router.post(
-  "/department/holiday/:did",
-  isLoggedIn,
-  catchAsync(Avail.holidayCalendar)
-);
+router.post("/department/:did/holiday", catchAsync(Avail.holidayCalendar));
+router.get("/holiday/:did", catchAsync(Avail.fetchHoliday));
 
-// Get Holiday
-router.get("/holiday/:did", isLoggedIn, catchAsync(Avail.fetchHoliday));
+//==============================================================
 
-// Delete Holiday
-router.delete("/delHoliday/:hid", isLoggedIn, catchAsync(Avail.delHoliday));
+// // Class Attendence Student Data
+// router.get(
+//   "/staffclass/:cid/attend",
+//   isLoggedIn,
+//   catchAsync(Avail.getAttendStudentClass)
+// );
+
+// // Class Attendence Student Data By Id
+// router.get(
+//   "/staffclass/:cid/attend-id",
+//   isLoggedIn,
+//   catchAsync(Avail.getAttendStudentClassById)
+// );
+// // ==============================================================
+// // Class Mark Attendence
+
+// // =====================================================
+// // Class Get Attendence By Date
+// router.get(
+//   "/class/:cid/get/attendence/:date",
+//   isLoggedIn,
+//   catchAsync(Avail.retrieveAttendenceByDate)
+// );
+
+// // Show Student Attendence At Calendar
+// router.post(
+//   "/attendence/status/student/:sid",
+//   isLoggedIn,
+//   catchAsync(Avail.retrieveStudentAttendenceCalendar)
+// );
+
+// // Department Attendence Staff Data
+// router.get(
+//   "/batch-detail/:bid/attend",
+//   isLoggedIn,
+//   catchAsync(Avail.getAttendDepartmentStaff)
+// );
+
+// // // Department Attendence Staff Data By Id
+// // router.get(
+// //   "/batch-detail/:bid/attend-id",
+// //   isLoggedIn,
+// //   catchAsync(Avail.getAttendInstituteStaff)
+// // );
+
+// // Staff Mark Attendence
+
+// // router.post(
+// //   "/institute/:id/staff/attendence",
+// //   catchAsync(Avail.markAttendenceDepartmentStaff)
+// // );
+
+// // Department Get Attendence By Date
+// router.get(
+//   "/department/:did/get/attendence/:date",
+//   catchAsync(Avail.retrieveAttendenceByStaffDate)
+// );
+
+// // Show Staff Attendence At Calendar
+// router.post(
+//   "/attendence/status/staff/:sid",
+//   isLoggedIn,
+//   catchAsync(Avail.retrieveStaffAttendenceCalendar)
+// );
+
+// // Delete Holiday
+// // router.delete("/delHoliday/:hid", catchAsync(Avail.delHoliday));
 
 module.exports = router;

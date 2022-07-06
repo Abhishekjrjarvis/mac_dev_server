@@ -1,12 +1,9 @@
 const mongoose = require("mongoose");
-const Department = require("./Department");
-
-const InstituteAdmin = require("./InstituteAdmin");
-const McqQuestions = require("./McqQuestions")
-const McqTestSets = require("./McqTestSets")
 
 const classMasterSchema = new mongoose.Schema({
   className: { type: String, required: true },
+
+  ///depricaited this not use
   classTitle: { type: String },
 
   department: {
@@ -21,7 +18,7 @@ const classMasterSchema = new mongoose.Schema({
   classDivision: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Subject",
+      ref: "Class",
     },
   ],
   classQuestions: [
@@ -38,8 +35,8 @@ const classMasterSchema = new mongoose.Schema({
   ],
   classCount: {
     type: Number,
-    default: 0
-  }
+    default: 0,
+  },
 });
 
 const ClassMaster = mongoose.model("ClassMaster", classMasterSchema);

@@ -1,21 +1,4 @@
 const mongoose = require("mongoose");
-const InstituteAdmin = require("./InstituteAdmin");
-const User = require("./User");
-const Department = require("./Department");
-const Subject = require("./Subject");
-const Batch = require("./Batch");
-const StaffAttendenceDate = require("./StaffAttendenceDate");
-const StaffAttendence = require("./StaffAttendence");
-const Finance = require("./Finance");
-const Sport = require("./Sport");
-const SportClass = require("./SportClass");
-const Leave = require("./Leave");
-const Transfer = require("./Transfer");
-const GroupConversation = require("./GroupConversation");
-const ELearning = require("./ELearning");
-const Library = require("./Library");
-const AdmissionAdmin = require("./AdmissionAdmin");
-const McqQuestions = require("./McqQuestions");
 
 const staffSchema = new mongoose.Schema({
   staffCode: { type: String },
@@ -159,18 +142,18 @@ const staffSchema = new mongoose.Schema({
     },
   ],
   staffJoinDate: {
-    type: String
+    type: String,
   },
   staffApplyDate: {
-    type: String
+    type: String,
   },
   staffDesignationCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   recentDesignation: {
     type: String,
-  }
+  },
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

@@ -15,19 +15,30 @@ exports.viewClassStudent = async (req, res) => {
 };
 
 exports.getAttendClassStudent = async (req, res) => {
-  const currentDate = new Date();
-  const currentDateLocalFormat = currentDate.toLocaleDateString().split("/");
-  const day =
-    +currentDateLocalFormat[0] > 9
-      ? +currentDateLocalFormat[0]
-      : `0${+currentDateLocalFormat[0]}`;
-  const month =
-    +currentDateLocalFormat[1] > 9
-      ? +currentDateLocalFormat[1]
-      : `0${+currentDateLocalFormat[1]}`;
-  const year = +currentDateLocalFormat[2];
-  const regularexp = new RegExp(`${day}\/${month}\/${year}$`);
-  const institute = await Class.findById(req.params.cid)
+  const prevDate = req.query.date;
+  let regularexp = "";
+  if (prevDate) {
+    const previousDate = prevDate.split("/");
+    regularexp = new RegExp(
+      `${previousDate[0]}\/${previousDate[1]}\/${previousDate[2]}$`
+    );
+  } else {
+    const currentDate = new Date();
+    const currentDateLocalFormat = currentDate.toLocaleDateString().split("/");
+    const day =
+      +currentDateLocalFormat[0] > 9
+        ? +currentDateLocalFormat[0]
+        : `0${+currentDateLocalFormat[0]}`;
+    const month =
+      +currentDateLocalFormat[1] > 9
+        ? +currentDateLocalFormat[1]
+        : `0${+currentDateLocalFormat[1]}`;
+    const year = +currentDateLocalFormat[2];
+
+    regularexp = new RegExp(`${day}\/${month}\/${year}$`);
+  }
+
+  const classes = await Class.findById(req.params.cid)
     .populate({
       path: "attendenceDate",
       match: {
@@ -39,8 +50,9 @@ exports.getAttendClassStudent = async (req, res) => {
     .select("_id")
     .lean()
     .exec();
-  res.status(200).send({ institute });
+  res.status(200).send({ classes });
 };
+
 exports.markAttendenceClassStudent = async (req, res) => {
   try {
     const { cid } = req.params;
@@ -335,18 +347,29 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
 exports.getAttendInstituteStaff = async (req, res) => {
   try {
     const { id } = req.params;
-    const currentDate = new Date();
-    const currentDateLocalFormat = currentDate.toLocaleDateString().split("/");
-    const day =
-      +currentDateLocalFormat[0] > 9
-        ? +currentDateLocalFormat[0]
-        : `0${+currentDateLocalFormat[0]}`;
-    const month =
-      +currentDateLocalFormat[1] > 9
-        ? +currentDateLocalFormat[1]
-        : `0${+currentDateLocalFormat[1]}`;
-    const year = +currentDateLocalFormat[2];
-    const regularexp = new RegExp(`${day}\/${month}\/${year}$`);
+    const prevDate = req.query.date;
+    let regularexp = "";
+    if (prevDate) {
+      const previousDate = prevDate.split("/");
+      regularexp = new RegExp(
+        `${previousDate[0]}\/${previousDate[1]}\/${previousDate[2]}$`
+      );
+    } else {
+      const currentDate = new Date();
+      const currentDateLocalFormat = currentDate
+        .toLocaleDateString()
+        .split("/");
+      const day =
+        +currentDateLocalFormat[0] > 9
+          ? +currentDateLocalFormat[0]
+          : `0${+currentDateLocalFormat[0]}`;
+      const month =
+        +currentDateLocalFormat[1] > 9
+          ? +currentDateLocalFormat[1]
+          : `0${+currentDateLocalFormat[1]}`;
+      const year = +currentDateLocalFormat[2];
+      regularexp = new RegExp(`${day}\/${month}\/${year}$`);
+    }
     const institute = await InstituteAdmin.findById({ _id: id })
       .select("_id")
       .populate({

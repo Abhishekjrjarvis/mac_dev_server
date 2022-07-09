@@ -52,7 +52,6 @@ exports.getAttendClassStudent = async (req, res) => {
     .exec();
   res.status(200).send({ classes });
 };
-
 exports.markAttendenceClassStudent = async (req, res) => {
   try {
     const { cid } = req.params;

@@ -6109,13 +6109,238 @@ paths:
           description: OK
 
 
+  /api/v1/chat:
+    post:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: Create One to One chat 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              userId:
+                type: string
+                description: Enter User Id of chat Person
+      responses:
+        "200":
+          description: OK
+  
+  /api/v1/chat:
+    get:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: fetch chats of user by its userId
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:          
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/chat/{id}/fetch/message:
+    get:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: fetch one chat messages
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters: 
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is chat id         
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/message/{chatId}:
+    get:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: fetch All messages of one Chat
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters: 
+        - in: path
+          name: chatId
+          required: true
+          type: string
+          description: This is chat id         
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/message:
+    post:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: Create message
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              content:
+                type: string
+                description: Enter messaging content
+              chatId:
+                type: string
+                description: Enter current chat Id
+              replyContent:
+                type: string
+                description: Enter Reply Content when click on reply of particular messages
+              replyIndex:
+                type: string
+                description: Enter Reply Content Index when click on reply of particular messages
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/message/document:
+    post:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: Create message with documents (Image, Gif, Pdf document, Doc)
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your message document
+        - in: formData
+          name: content
+          type: string
+          required: true
+          description: enter messaging content
+        - in: formData
+          name: chatId
+          type: string
+          required: true
+          description: Enter current chat Id
+        - in: formData
+          name: replyContent
+          type: string
+          description: Enter Reply Content when click on reply of particular messages
+        - in: formData
+          name: replyIndex
+          type: string
+          description: Enter Reply Content Index when click on reply of particular messages
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/message/forward:
+    post:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: Create Forward Message to one or another
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              Id:
+                type: array
+                description: Enter Array of Chat Id where a message to be forwarded
+              messageQuery:
+                type: string
+                description: Enter Current Message Id
+              forward:
+                type: boolean
+                description: Enter (true / false)
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/message/read/receipts/{cid}:
+    patch:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: Mark all messages As a (Read)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters: 
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is chat id         
+      responses:
+        "200":
+          description: OK
 
 
+  /api/v1/message/unread/receipts/{cid}:
+    patch:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: Mark all messages As a (UnRead)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters: 
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is chat id         
+      responses:
+        "200":
+          description: OK
 
-
-
-
-
-
-
-
+  /api/v1/message/{mid}/chat/dump/{cid}:
+    delete:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: Delete one message of one chat
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters: 
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: This is message id
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is chat id         
+      responses:
+        "200":
+          description: OK

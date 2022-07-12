@@ -12780,3 +12780,21 @@ io.on("connection", (socket) => {
     socket.leave(userData);
   });
 });
+
+
+
+  // socket.on("support chat", (room) => {
+  //   socket.join(room);
+  //   console.log("User Joined Room: " + room);
+  // });
+
+  // socket.on("support query", (newSupportQuery) => {
+  //   var chat = newSupportQuery.chat;
+  //   if (!chat.users) return console.log("chat.users not defined");
+
+  //   chat.users.forEach((user) => {
+  //     if (user == newSupportQuery.sender) return;
+  //     // var delievered = true
+  //     socket.in(user).emit("support query recieved", newSupportQuery);
+  //   });
+  // });

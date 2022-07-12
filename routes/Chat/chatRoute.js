@@ -20,4 +20,8 @@ router.patch('/:cid/admin/group/disable', isLoggedIn, catchAsync(Chat.disableGro
 
 router.get('/:id/fetch/message', isLoggedIn,  catchAsync(Chat.fetchChatMessage));
 
+router.post('/support/new/chat', isLoggedIn, catchAsync(Chat.supportAdminChat));
+
+router.post('/support/admin/chat', isLoggedIn,  catchAsync(Chat.supportAdminFetchChat));
+
 module.exports = router;

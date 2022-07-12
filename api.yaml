@@ -6485,3 +6485,79 @@ paths:
       responses:
         "200":
           description: OK
+
+
+  /api/v1/chat/support/new/chat:
+    post:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: Create One to One support chat between user and super admin
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              userId:
+                type: string
+                description: Enter User Id of chat Person
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/message/support/admin/message:
+    post:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: Super Admin Support create new message 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              content:
+                type: string
+                description: Enter messaging content
+              chatId:
+                type: string
+                description: Enter current chat Id
+              userId:
+                type: string
+                description: Enter Sender User Id
+      responses:
+        "200":
+          description: OK
+
+
+
+  /api/v1/chat/support/admin/chat:
+    post:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: fetch recents chat of user supports
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              userId:
+                type: string
+                description: Enter Sender User Id
+      responses:
+        "200":
+          description: OK

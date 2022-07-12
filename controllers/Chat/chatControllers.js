@@ -1,5 +1,6 @@
 const Chat = require("../../models/Chat/Chat");
 const User = require("../../models/User");
+const SupportChat = require('../../models/Chat/SupportChat')
 
 exports.accessChat = async (req, res) => {
   const { userId } = req.body;
@@ -246,3 +247,57 @@ exports.fetchChatMessage = async(req, res) =>{
   }
 }
 
+
+
+
+exports.supportAdminChat = async (req, res) => {
+  const { userId } = req.body;
+
+  if (!userId) {
+    console.log("UserId param not sent with request");
+    return res.sendStatus(400);
+  }
+
+  var isChat = await SupportChat.find({
+    isGroupChat: false,
+    $and: [
+      { users: { $elemMatch: { $eq: req.tokenData && req.tokenData.adminId } } },
+      { users: { $elemMatch: { $eq: userId } } },
+    ],
+  })
+    .populate("latestMessage");
+
+  if (isChat.length > 0) {
+    res.send(isChat[0]);
+  } else {
+    var chatData = {
+      chatName: `Qviple Support Platform`,
+      isGroupChat: false,
+      users: [req.tokenData && req.tokenData.adminId, userId],
+    };
+
+    try {
+      const createdChat = await SupportChat.create(chatData);
+      const FullChat = await SupportChat.findOne({ _id: createdChat._id })
+      res.status(200).json(FullChat);
+    } catch (error) {
+      res.status(400);
+      throw new Error(error.message);
+    }
+  }
+}
+
+
+
+exports.supportAdminFetchChat = async (req, res) => {
+  try {
+    const { userId } = req.body
+    const chat = await SupportChat.find({ users: { $elemMatch: { $eq: userId } } })
+      .populate("latestMessage")
+      .sort({ updatedAt: -1 })
+      res.status(200).send({ message: 'All Chats', chat})
+  } catch (error) {
+    res.status(400);
+    throw new Error(error.message);
+  }
+}

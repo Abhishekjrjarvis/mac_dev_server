@@ -6,6 +6,7 @@ const chatModel = mongoose.Schema(
     isGroupChat: { type: Boolean, default: false },
     chatProfilePhoto: { type: String },
     chatDescription: { type: String },
+    chatVisibility: { type: String, default: 'Enable' },
     users: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     latestMessage: {
       type: mongoose.Schema.Types.ObjectId,

@@ -6358,3 +6358,130 @@ paths:
       responses:
         "200":
           description: OK
+
+  /api/v1/chat/new/group:
+    post:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: Create Group By Institute to Assign Admin as its user profile 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              users:
+                type: array
+                description: Enter Array of Staff for its user profile
+              name:
+                type: string
+                description: Enter chat name
+              admin:
+                type: string
+                description: Enter Institute Admin user profile Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/chat/rename/group:
+    patch:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: Rename Group chat 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              chatId:
+                type: string
+                description: Enter chat Id
+              chatName:
+                type: string
+                description: Enter chatName
+              chatDescription:
+                type: string
+                description: Enter Chat Description
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/chat/remove/user/group:
+    post:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: Remove Staff User Profile Id from group by Group Admin
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              userId:
+                type: array
+                description: Enter Staff User Id which want to remove
+              chatId:
+                type: string
+                description: Enter chat Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/chat/group/re/add:
+    post:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: Add Staff User Profile Id from group by Group Admin
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              userId:
+                type: array
+                description: Enter Staff User Id which want to add
+              chatId:
+                type: string
+                description: Enter chat Id
+      responses:
+        "200":
+          description: OK
+
+  
+
+  /api/v1/chat/{cid}/admin/group/disable:
+    patch:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: Group Admin Disable the Group (you'll be no longer accessible)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters: 
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is chat id         
+      responses:
+        "200":
+          description: OK

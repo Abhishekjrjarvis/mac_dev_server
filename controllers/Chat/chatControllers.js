@@ -16,7 +16,7 @@ exports.accessChat = async (req, res) => {
       { users: { $elemMatch: { $eq: userId } } },
     ],
   })
-    .populate("users", "-userPassword")
+    .populate("users", "username photoId profilePhoto")
     .populate("latestMessage");
 
   isChat = await User.populate(isChat, {
@@ -37,7 +37,7 @@ exports.accessChat = async (req, res) => {
       const createdChat = await Chat.create(chatData);
       const FullChat = await Chat.findOne({ _id: createdChat._id }).populate(
         "users",
-        "-userPassword"
+        "username photoId profilePhoto"
       );
       res.status(200).json(FullChat);
     } catch (error) {
@@ -51,15 +51,15 @@ exports.accessChat = async (req, res) => {
 exports.fetchChats = async (req, res) => {
   try {
     Chat.find({ users: { $elemMatch: { $eq: req.tokenData && req.tokenData.userId } } })
-      .populate("users", "-userPassword")
-      .populate("groupAdmin", "-userPassword")
-      .populate('message')
+      .populate("users", "username photoId profilePhoto")
+      .populate("groupAdmin", "username photoId profilePhoto")
+      // .populate('message')
       .populate("latestMessage")
       .sort({ updatedAt: -1 })
       .then(async (results) => {
         results = await User.populate(results, {
           path: "latestMessage.sender",
-          select: "username photoId profilePhoto userLegalName userEmail",
+          select: "username photoId profilePhoto ",
         });
         res.status(200).send(results);
       });
@@ -94,8 +94,8 @@ exports.createGroupChat = async (req, res) => {
     await groupChat.save()
 
     const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
-      .populate("users", "-userPassword")
-      .populate("groupAdmin", "-userPassword");
+      .populate("users", "username photoId profilePhoto")
+      .populate("groupAdmin", "username photoId profilePhoto");
 
     res.status(200).json(fullGroupChat);
   } catch (error) {
@@ -106,19 +106,20 @@ exports.createGroupChat = async (req, res) => {
 
 
 exports.renameGroup = async (req, res) => {
-  const { chatId, chatName } = req.body;
+  const { chatId, chatName, chatDescription } = req.body;
 
   const updatedChat = await Chat.findByIdAndUpdate(
     chatId,
     {
       chatName: chatName,
+      chatDescription: chatDescription,
     },
     {
       new: true,
     }
   )
-    .populate("users", "-userPassword")
-    .populate("groupAdmin", "-userPassword");
+    .populate("users", "username photoId profilePhoto")
+    .populate("groupAdmin", "username photoId profilePhoto");
 
   if (!updatedChat) {
     res.status(404);
@@ -143,8 +144,8 @@ exports.removeFromGroup = async (req, res) => {
       new: true,
     }
   )
-    .populate("users", "-userPassword")
-    .populate("groupAdmin", "-userPassword");
+    .populate("users", "username photoId profilePhoto")
+    .populate("groupAdmin", "username photoId profilePhoto");
 
   if (!removed) {
     res.status(404);
@@ -158,8 +159,6 @@ exports.removeFromGroup = async (req, res) => {
 exports.addToGroup = async (req, res) => {
   const { chatId, userId } = req.body;
 
-  // check if the requester is admin
-
   const added = await Chat.findByIdAndUpdate(
     chatId,
     {
@@ -169,8 +168,8 @@ exports.addToGroup = async (req, res) => {
       new: true,
     }
   )
-    .populate("users", "-userPassword")
-    .populate("groupAdmin", "-userPassword");
+    .populate("users", "username photoId profilePhoto")
+    .populate("groupAdmin", "username photoId profilePhoto");
 
   if (!added) {
     res.status(404);
@@ -179,6 +178,37 @@ exports.addToGroup = async (req, res) => {
     res.json(added);
   }
 }
+
+
+
+exports.disableGroupByAdmin = async(req, res) =>{
+  try{
+    const { cid } = req.params
+    const chat = await Chat.findById({_id: cid}).populate({
+      path: 'groupAdmin',
+      select: 'username'
+    })
+    if(`${chat.groupAdmin.username}` === `${req?.tokenData?.username}`){
+      if(`${chat.chatVisibility}` === 'Enable'){
+        chat.chatVisibility = 'Disable'
+        await chat.save()
+        res.status(200).send({ message: 'Disabled Group'})
+      }
+      else if(`${chat.chatVisibility}` === 'Disable'){
+        chat.chatVisibility = 'Enable'
+        await chat.save()
+        res.status(200).send({ message: 'Enabled Group'})
+      }
+    }
+    else{
+      res.status(401).send({ message: 'Invalid Access to Disable Group'})
+    }
+  }
+  catch{
+
+  }
+}
+
 
 exports.fetchChatMessage = async(req, res) =>{
   try{

@@ -1,30 +1,22 @@
 const mongoose = require("mongoose");
-const Department = require("./Department");
-const Subject = require("./Subject");
-const InstituteAdmin = require("./InstituteAdmin");
-const Batch = require("./Batch");
-const Staff = require("./Staff");
-const Checklist = require("./Checklist");
-const Fees = require("./Fees");
-const Behaviour = require("./Behaviour");
-const Attendence = require("./Attendence");
-const Exam = require("./Exam");
-const ClassMaster = require("./ClassMaster");
-const Complaint = require("./Complaint");
-const StudentLeave = require("./StudentLeave");
-const StudentTransfer = require("./StudentTransfer");
-const Playlist = require("./Playlist");
 
 const classSchema = new mongoose.Schema({
   classCode: { type: String, required: true, unique: true },
   className: { type: String, required: true },
   classTitle: { type: String, required: true },
   gradeMarks: { type: Boolean, default: false },
-  classPhoto: { type: String },
+
   classAbout: { type: String },
+
+  //depricaited this object
+  classPhoto: { type: String },
+
+  //depricaited this object
+
   classStudentTotal: { type: String },
   classSubjectTotal: { type: String },
   classDisplayPerson: { type: String },
+
   photoId: { type: String, default: "1" },
   photo: { type: String },
   coverId: { type: String, default: "2" },
@@ -85,10 +77,13 @@ const classSchema = new mongoose.Schema({
       ref: "Exam",
     },
   ],
-  attendence: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Attendence",
-  },
+
+  attendenceDate: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "AttendenceDate",
+    },
+  ],
   department: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department",
@@ -120,7 +115,7 @@ const classSchema = new mongoose.Schema({
   ],
   exemptFee: {
     type: Number,
-    default: 0
+    default: 0,
   },
   finalReportsSettings: {
     finalReport: { type: Boolean, default: false },
@@ -133,7 +128,7 @@ const classSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  
+
   classStatus: {
     type: String,
     default: "UnLocked",
@@ -162,26 +157,30 @@ const classSchema = new mongoose.Schema({
       ref: "Playlist",
     },
   ],
+
   classStartDate: {
-    type: Date,
+    type: String,
   },
+
+  //depriciated
   studentRepresentative: {
     type: String,
   },
+
   subjectCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   studentCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   displayPersonList: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'DisplayPerson'
-    }
-  ]
+      ref: "DisplayPerson",
+    },
+  ],
 });
 
 const Class = mongoose.model("Class", classSchema);

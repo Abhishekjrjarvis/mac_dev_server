@@ -1,21 +1,17 @@
-const mongoose = require('mongoose')
-const Department = require('./Department')
+const mongoose = require("mongoose");
 
 const holidaySchema = new mongoose.Schema({
-    dDate: {
-        type: Date,
-        required: true
-    },
-    dHolidayReason: {
-        type: String, 
-        required: true
-    },
-    department: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Department'
-    }
-})
+  dDate: [],
+  dHolidayReason: {
+    type: String,
+    required: true,
+  },
+  department: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Department",
+  },
+});
 
-const Holiday = mongoose.model('Holiday', holidaySchema)
+const Holiday = mongoose.model("Holiday", holidaySchema);
 
-module.exports = Holiday
+module.exports = Holiday;

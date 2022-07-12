@@ -1,30 +1,4 @@
 const mongoose = require("mongoose");
-const InstituteAdmin = require("./InstituteAdmin");
-const User = require("./User");
-const Department = require("./Department");
-const Subject = require("./Subject");
-const Fees = require("./Fees");
-const AttendenceDate = require("./AttendenceDate");
-const Attendence = require("./Attendence");
-const Exam = require("./Exam");
-const Behaviour = require("./Behaviour");
-const SportClass = require("./SportClass");
-const SportTeam = require("./SportTeam");
-const SportEventMatch = require("./SportEventMatch");
-const SportEvent = require("./SportEvent");
-const Complaint = require("./Complaint");
-const Batch = require("./Batch");
-const StudentLeave = require("./StudentLeave");
-const StudentTransfer = require("./StudentTransfer");
-const Library = require("./Library");
-const Collect = require("./Collect");
-const Issue = require("./Issue");
-const Payment = require("./Payment");
-const ApplyPayment = require("./ApplyPayment");
-const McqTest = require("./McqTestSets");
-const scheduleTestSets = require("./ScheduleTestSets");
-const McqQuestions = require("./McqQuestions");
-const Elections = require("./Elections");
 
 const studentSchema = new mongoose.Schema({
   studentCode: { type: String },
@@ -295,7 +269,7 @@ const studentSchema = new mongoose.Schema({
     ref: "Library",
   },
   studentAdmissionDate: {
-    type: String
+    type: String,
   },
   borrow: [{ type: mongoose.Schema.Types.ObjectId, ref: "Issue" }],
   deposite: [{ type: mongoose.Schema.Types.ObjectId, ref: "Collect" }],

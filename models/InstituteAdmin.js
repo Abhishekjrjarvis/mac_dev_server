@@ -268,59 +268,57 @@ const instituteAdminSchema = new mongoose.Schema({
   displayPersonList: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'DisplayPerson'
-    }
+      ref: "DisplayPerson",
+    },
   ],
   starAnnouncement: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'InsAnnouncement'
-    }
+      ref: "InsAnnouncement",
+    },
   ],
   recoveryMail: {
     type: String,
   },
   followersCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   followingCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   departmentCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   staffCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   studentCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   postCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   announcementCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   admissionCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   isUniversal: {
     type: String,
-    default: 'Not Assigned'
+    default: "Not Assigned",
   },
-  isAdmin: {
-    type: Boolean,
-    required: true,
-    default: false,
-  },
+  staffAttendance: [
+    { type: mongoose.Schema.Types.ObjectId, ref: "StaffAttendenceDate" },
+  ],
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

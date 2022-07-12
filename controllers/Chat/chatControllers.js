@@ -301,3 +301,76 @@ exports.supportAdminFetchChat = async (req, res) => {
     throw new Error(error.message);
   }
 }
+
+
+
+exports.retrieveSubjectStudentArray = async(req, res) =>{
+  try{
+    const userId = req.tokenData && req.tokenData.userId
+    const user = await User.findById({_id: userId})
+    .select('id')
+    .populate({
+      path: 'isSubjectChat',
+      select: 'subjectName',
+      populate: {
+        path: 'class',
+        select: 'className classTitle',
+        populate: {
+          path: 'ApproveStudent',
+          select: 'studentFirstName'
+        }
+      }
+    })
+    res.status(200).send({ message: 'Subject Student ', user})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+
+
+exports.createSubjectGroupChat = async (req, res) => {
+  if (!req.body.users || !req.body.name ) {
+    return res.status(400).send({ message: "Please Fill all the feilds" });
+  }
+
+  if (req.body.users.length < 2) {
+    return res
+      .status(400)
+      .send("More than 2 users are required to form a group chat");
+  }
+
+  var user = await User.findById({_id: req.tokenData && req.tokenData.userId})
+
+  if(req.body.users.includes(`${user._id}`)){
+  }
+  else{
+  req.body.users.push(user._id);
+  }
+
+  try {
+    if(user.isSubjectTeacher === 'Yes'){
+      const groupChat = new Chat({})
+      groupChat.chatName = req.body.name
+      groupChat.isGroupChat = true
+      groupChat.groupAdmin = user._id
+      for(let i = 0; i< req.body.users.length; i++){
+        groupChat.users.push(req.body.users[i])
+      }
+      await groupChat.save()
+
+      const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
+        .populate("users", "username photoId profilePhoto")
+        .populate("groupAdmin", "username photoId profilePhoto");
+
+      res.status(200).json(fullGroupChat);
+    }
+    else{
+      res.status(401).send({ message: 'Invalid Access to Group Chat'})
+    }
+  } catch (error) {
+    res.status(400);
+    throw new Error(error.message);
+  }
+}

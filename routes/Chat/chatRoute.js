@@ -24,4 +24,8 @@ router.post('/support/new/chat', isLoggedIn, catchAsync(Chat.supportAdminChat));
 
 router.post('/support/admin/chat', isLoggedIn,  catchAsync(Chat.supportAdminFetchChat));
 
+router.post('/new/group/subject', isLoggedIn,  catchAsync(Chat.createSubjectGroupChat));
+
+router.get('/user/subject/student', isLoggedIn, catchAsync(Chat.retrieveSubjectStudentArray))
+
 module.exports = router;

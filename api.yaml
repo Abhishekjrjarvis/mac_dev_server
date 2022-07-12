@@ -6561,3 +6561,44 @@ paths:
       responses:
         "200":
           description: OK
+
+
+  /api/v1/chat/user/subject/student:
+    get:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: Get Student List of Subject of Class 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:         
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/chat/new/group/subject:
+    post:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: Create Group By Subject Teacher to Assign Admin as its user profile 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              users:
+                type: array
+                description: Enter Array of Student for its user profile
+              name:
+                type: string
+                description: Enter chat name
+      responses:
+        "200":
+          description: OK

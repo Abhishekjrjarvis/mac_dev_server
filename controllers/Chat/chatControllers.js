@@ -71,27 +71,27 @@ exports.fetchChats = async (req, res) => {
 
 
 exports.createGroupChat = async (req, res) => {
-  if (!req.body.users || !req.body.name) {
+  if (!req.body.users || !req.body.name || !req.body.admin) {
     return res.status(400).send({ message: "Please Fill all the feilds" });
   }
 
-  var users = JSON.parse(req.body.users);
-
-  if (users.length < 2) {
+  if (req.body.users.length < 2) {
     return res
       .status(400)
       .send("More than 2 users are required to form a group chat");
   }
 
-  users.push(req.user);
+  req.body.users.push(req.body.admin);
 
   try {
-    const groupChat = await Chat.create({
-      chatName: req.body.name,
-      users: users,
-      isGroupChat: true,
-      groupAdmin: req.user,
-    });
+    const groupChat = new Chat({})
+    groupChat.chatName = req.body.name
+    groupChat.isGroupChat = true
+    groupChat.groupAdmin = req.body.admin
+    for(let i = 0; i< req.body.users.length; i++){
+      groupChat.users.push(req.body.users[i])
+    }
+    await groupChat.save()
 
     const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
       .populate("users", "-userPassword")

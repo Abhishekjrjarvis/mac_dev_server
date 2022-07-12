@@ -16,6 +16,6 @@ router.post('/groupremove', isLoggedIn,  catchAsync(Chat.removeFromGroup));
 
 router.post('/groupadd', isLoggedIn,  catchAsync(Chat.addToGroup));
 
-router.post('/:id/fetch/message', isLoggedIn,  catchAsync(Chat.fetchChatMessage));
+router.get('/:id/fetch/message', isLoggedIn,  catchAsync(Chat.fetchChatMessage));
 
 module.exports = router;

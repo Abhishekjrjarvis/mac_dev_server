@@ -49,7 +49,7 @@ router.get("/:id/referals/q-coins", isLoggedIn, catchAsync(User.getQCoins));
 router.get("/:id/dash/query", isLoggedIn, catchAsync(User.getDashDataQuery));
 
 // User DashBoard Limited Data
-router.get("/:uid/dash", isLoggedIn, catchAsync(User.getUserData));
+router.get("/:uid/dash", catchAsync(User.getUserData));
 
 // Add User Post At User
 router.post(
@@ -270,5 +270,9 @@ router.get('/studentdesignationdata/:sid', isLoggedIn, catchAsync(User.retrieveS
 
 // User 3-Follow System Array
 router.get('/:id/all-three-array', isLoggedIn, catchAsync(User.retrieveUserThreeArray))
+
+router.get("/:uid/circle/array/query", catchAsync(User.circleArrayQuery));
+
+router.get('/circle/user', isLoggedIn, catchAsync(User.allCircleUsers));
 
 module.exports = router;

@@ -1,28 +1,4 @@
 const mongoose = require("mongoose");
-const Department = require("./Department");
-const Post = require("./Post");
-const InsAnnouncement = require("./InsAnnouncement");
-const Staff = require("./Staff");
-const User = require("./User");
-const Class = require("./Class");
-const Student = require("./Student");
-const UserPost = require("./userPost");
-const Finance = require("./Finance");
-const Sport = require("./Sport");
-const SportClass = require("./SportClass");
-const Leave = require("./Leave");
-const Transfer = require("./Transfer");
-const Complaint = require("./Complaint");
-const DisplayPerson = require('./DisplayPerson')
-const InstituteSupport = require("./InstituteSupport");
-const GroupConversation = require("./GroupConversation");
-const Batch = require("./Batch");
-const Field = require("./Field");
-const ELearning = require("./ELearning");
-const Library = require("./Library");
-const AdmissionAdmin = require("./AdmissionAdmin");
-const Notification = require("./notification");
-const InstituteChat = require("./InstituteChat");
 
 const instituteAdminSchema = new mongoose.Schema({
   insName: { type: String, required: true, unique: true },
@@ -41,11 +17,6 @@ const instituteAdminSchema = new mongoose.Schema({
   insType: { type: String, required: true },
   status: { type: String, default: "Not Approved" },
   insProfilePassword: { type: String },
-  insOperatingAdmin: { type: String },
-  insStudentPresident: { type: String },
-  insPrinciple: { type: String },
-  insTrusty: { type: String },
-  insAdminClerk: { type: String },
   insEstdDate: { type: String },
   insRegDate: { type: String },
   insAchievement: { type: String },
@@ -196,10 +167,6 @@ const instituteAdminSchema = new mongoose.Schema({
       ref: "Complaint",
     },
   ],
-  groupConversation: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "GroupConversation",
-  },
   idCardBatch: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -297,20 +264,6 @@ const instituteAdminSchema = new mongoose.Schema({
       ref: "Notification",
     },
   ],
-  isAdmin: {
-    type: Boolean,
-    default: true,
-  },
-  chatAdmin: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "InstituteChat",
-  },
-  joinChat: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "InstituteChat",
-    },
-  ],
   classCodeList: [],
   displayPersonList: [
     {
@@ -362,7 +315,12 @@ const instituteAdminSchema = new mongoose.Schema({
   isUniversal: {
     type: String,
     default: 'Not Assigned'
-  }
+  },
+  isAdmin: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

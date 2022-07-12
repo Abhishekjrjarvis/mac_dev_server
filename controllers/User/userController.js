@@ -26,7 +26,7 @@ exports.getUserData = async (req, res) => {
   try {
     const { uid } = req.params;
     const user = await User.findById({ _id: uid })
-      .select("userLegalName photoId profilePhoto userAbout")
+      .select("userLegalName photoId profilePhoto username userEmail")
       .lean()
       .exec();
     res.status(200).send({ message: "Limit User Data", user });
@@ -1135,4 +1135,35 @@ exports.retrieveUserThreeArray = async(req, res) =>{
   catch{
 
   }
+}
+
+
+exports.circleArrayQuery = async (req, res) => {
+  try {
+    const { uid } = req.params;
+    const user = await User.findById({ _id: uid })
+    .select("userLegalName username photoId profilePhoto")
+    .populate({ 
+      path: 'userCircle',
+      select: "userLegalName username photoId profilePhoto"
+    })
+    res.status(200).send({ message: "Success", user });
+  } catch {}
+};
+
+
+exports.allCircleUsers = async (req, res) => {
+  console.log(req.query)
+  const keyword = req.query.search
+    ? {
+        $or: [
+          { username: { $regex: req.query.search, $options: "i" } },
+          { userLegalName: { $regex: req.query.search, $options: "i" } },
+        ],
+      }
+    : {};
+
+  const users = await User.find({ _id: { $ne: req.tokenData && req.tokenData.userId } }).populate({ path: 'userCircle'})
+  const user = users.userCircle.find(keyword)
+  res.send(user);
 }

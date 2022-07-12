@@ -37,8 +37,10 @@ router.get("/staff/:sid", catchAsync(Avail.viewInstituteStaff));
 //=========HOLIDAY OF DEPARTMENT CREATED================================
 
 router.post("/department/:did/holiday", catchAsync(Avail.holidayCalendar));
-router.get("/holiday/:did", catchAsync(Avail.fetchHoliday));
+router.get("/class/:cid/holiday", catchAsync(Avail.holidayInClassSide));
+router.route("/holiday/:did").get(catchAsync(Avail.fetchHoliday));
 
+router.route("/holiday/:hid/delete").get(catchAsync(Avail.delHoliday));
 //==============================================================
 
 // // Class Attendence Student Data

@@ -7,6 +7,7 @@ const InstituteAdmin = require("../../models/InstituteAdmin");
 const StaffAttendenceDate = require("../../models/StaffAttendenceDate");
 const Staff = require("../../models/Staff");
 const Notification = require("../../models/notification");
+const StudentNotification = require("../../models/Marks/StudentNotification");
 
 //THis is route with tested OF STUDENT
 exports.viewClassStudent = async (req, res) => {
@@ -18,23 +19,22 @@ exports.getAttendClassStudent = async (req, res) => {
   const prevDate = req.query.date;
   let regularexp = "";
   if (prevDate) {
-    const previousDate = prevDate.split("/");
+    const previousDate = prevDate?.split("/");
     regularexp = new RegExp(
       `${previousDate[0]}\/${previousDate[1]}\/${previousDate[2]}$`
     );
   } else {
     const currentDate = new Date();
-    const currentDateLocalFormat = currentDate.toLocaleDateString().split("/");
+    const currentDateLocalFormat = currentDate.toISOString().split("-");
     const day =
-      +currentDateLocalFormat[0] > 9
-        ? +currentDateLocalFormat[0]
-        : `0${+currentDateLocalFormat[0]}`;
+      +currentDateLocalFormat[2].split("T")[0] > 9
+        ? +currentDateLocalFormat[2].split("T")[0]
+        : `0${+currentDateLocalFormat[2].split("T")[0]}`;
     const month =
       +currentDateLocalFormat[1] > 9
         ? +currentDateLocalFormat[1]
         : `0${+currentDateLocalFormat[1]}`;
-    const year = +currentDateLocalFormat[2];
-
+    const year = +currentDateLocalFormat[0];
     regularexp = new RegExp(`${day}\/${month}\/${year}$`);
   }
 
@@ -58,19 +58,20 @@ exports.markAttendenceClassStudent = async (req, res) => {
     const dLeave = await Holiday.findOne({
       dDate: { $eq: `${req.body.date}` },
     });
-
-    if (dLeave) {
+    const attendanceone = await AttendenceDate.findOne({
+      attendDate: { $eq: `${req.body.date}` },
+    });
+    if (dLeave || attendanceone) {
       res.status(200).send({
-        message: "Today will be holiday Provided by department Admin",
+        message:
+          "Today will be holiday  Provided by department Admin or already marked attendance",
       });
     } else {
       const classes = await Class.findById({ _id: cid });
       const startDateClass = classes?.classStartDate?.split("/");
       const currentDate = new Date();
-      const currentDateLocalFormat = currentDate
-        .toLocaleDateString()
-        .split("/");
-      const markDate = req.body.date.split("/");
+      const currentDateLocalFormat = currentDate.toISOString().split("-");
+      const markDate = req.body.date?.split("/");
       //this is logic
       // +markDate[0] === +currentDateLocalFormat[0] &&
       // +markDate[1] === +currentDateLocalFormat[1] &&
@@ -78,35 +79,64 @@ exports.markAttendenceClassStudent = async (req, res) => {
       // +markDate[2] >= +startDateClass?.[2] &&
       // +markDate[1] >= +startDateClass?.[1] &&
       // +markDate[0] >= +startDateClass?.[0]
+      const classyear = +markDate[2] > +startDateClass?.[2];
+      const year = +markDate[2] === +startDateClass?.[2];
+      const classmonth = +markDate[1] > +startDateClass?.[1];
+      const month = +markDate[1] === +startDateClass?.[1];
+      const day = +markDate[0] >= +startDateClass?.[0];
+      const fun = () => {
+        if (classyear) {
+          return true;
+        } else if (year) {
+          if (classmonth) {
+            return true;
+          } else if (month) {
+            if (day) {
+              return true;
+            }
+          } else {
+          }
+        } else {
+        }
+      };
       if (
-        +markDate[0] === +currentDateLocalFormat[0] &&
+        +markDate[0] === +currentDateLocalFormat[2].split("T")[0] &&
         +markDate[1] === +currentDateLocalFormat[1] &&
-        +markDate[2] === +currentDateLocalFormat[2] &&
-        +markDate[2] >= +startDateClass?.[2] &&
-        +markDate[1] >= +startDateClass?.[1] &&
-        +markDate[0] >= +startDateClass?.[0]
+        +markDate[2] === +currentDateLocalFormat[0] &&
+        fun()
       ) {
         const attendence = new AttendenceDate({});
         attendence.attendDate = req.body.date;
         attendence.className = classes._id;
         attendence.attendTime = new Date();
-
         for (let i = 0; i < req.body.present.length; i++) {
           const student = await Student.findById({
             _id: `${req.body.present[i]}`,
           });
+          const notify = new StudentNotification({});
+          notify.notifyContent = `Today is present`;
+          notify.notifySender = classes._id;
+          notify.notifyReceiever = student._id;
+          notify.notifyByClassPhoto = classes._id;
+          student.notification.push(notify._id);
           student.attendDate.push(attendence._id);
           attendence.presentStudent.push(student._id);
-          await student.save();
+          await Promise.all([student.save(), notify.save()]);
         }
 
         for (let i = 0; i < req.body.absent.length; i++) {
           const student = await Student.findById({
             _id: `${req.body.absent[i]}`,
           });
+          const notify = new StudentNotification({});
+          notify.notifyContent = `Today is absent`;
+          notify.notifySender = classes._id;
+          notify.notifyReceiever = student._id;
+          notify.notifyByClassPhoto = classes._id;
+          student.notification.push(notify._id);
           student.attendDate.push(attendence._id);
           attendence.absentStudent.push(student._id);
-          await student.save();
+          await Promise.all([student.save(), notify.save()]);
         }
         classes.attendenceDate.push(attendence._id);
         attendence.presentTotal = req.body.present.length;
@@ -137,37 +167,51 @@ exports.markAttendenceClassStudentUpdate = async (req, res) => {
       });
     } else {
       const currentDate = new Date();
-      const currentDateLocalFormat = currentDate
-        .toLocaleDateString()
-        .split("/");
-      const markDate = req.body.date.split("/");
+      const currentDateLocalFormat = currentDate.toISOString().split("-");
+      const markDate = req.body.date?.split("/");
       if (
-        +markDate[0] === +currentDateLocalFormat[0] &&
+        +markDate[0] === +currentDateLocalFormat[2].split("T")[0] &&
         +markDate[1] === +currentDateLocalFormat[1] &&
-        +markDate[2] === +currentDateLocalFormat[2]
+        +markDate[2] === +currentDateLocalFormat[0]
       ) {
         const studentAttendance = await AttendenceDate.findById(said);
-        for (let i = 0; i < req.body.present.length; i++) {
-          if (studentAttendance.presentStudent.includes(req.body.present[i])) {
+        for (let i = 0; i < req.body.present?.length; i++) {
+          if (studentAttendance.presentStudent?.includes(req.body.present[i])) {
           } else if (
-            studentAttendance.absentStudent.includes(req.body.present[i])
+            studentAttendance.absentStudent?.includes(req.body.present[i])
           ) {
-            studentAttendance.presentStudent.push(req.body.present[i]);
-            studentAttendance.absentStudent.pull(req.body.present[i]);
+            studentAttendance.presentStudent?.push(req.body.present[i]);
+            studentAttendance.absentStudent?.pull(req.body.present[i]);
             studentAttendance.presentTotal = ++studentAttendance.presentTotal;
             studentAttendance.absentTotal = --studentAttendance.absentTotal;
+            // const student=await Student.findById(req.body.present[i])
+            // const notify = new StudentNotification({});
+            // notify.notifyContent = `Today is present`;
+            // notify.notifySender = studentAttendance.className;
+            // notify.notifyReceiever = student._id;
+            // notify.notifyByClassPhoto = studentAttendance.className;
+            // student.notification.push(notify._id);
+            // await Promise.all([student.save(), notify.save()]);
           } else {
           }
         }
         for (let i = 0; i < req.body.absent.length; i++) {
-          if (studentAttendance.absentStudent.includes(req.body.absent[i])) {
+          if (studentAttendance.absentStudent?.includes(req.body.absent[i])) {
           } else if (
-            studentAttendance.presentStudent.includes(req.body.absent[i])
+            studentAttendance.presentStudent?.includes(req.body.absent[i])
           ) {
-            studentAttendance.absentStudent.push(req.body.absent[i]);
-            studentAttendance.presentStudent.pull(req.body.absent[i]);
+            studentAttendance.absentStudent?.push(req.body.absent[i]);
+            studentAttendance.presentStudent?.pull(req.body.absent[i]);
             studentAttendance.presentTotal = --studentAttendance.presentTotal;
             studentAttendance.absentTotal = ++studentAttendance.absentTotal;
+            // const student=await Student.findById(req.body.absent[i])
+            // const notify = new StudentNotification({});
+            // notify.notifyContent = `Today is absent`;
+            // notify.notifySender = studentAttendance.className;
+            // notify.notifyReceiever = student._id;
+            // notify.notifyByClassPhoto = studentAttendance.className;
+            // student.notification.push(notify._id);
+            // await Promise.all([student.save(), notify.save()]);
           } else {
           }
         }
@@ -200,7 +244,7 @@ exports.getAttendStudentById = async (req, res) => {
       regularexp = new RegExp(`\/${year}$`);
     }
     const student = await Student.findById(req.params.sid)
-      .select("_id attendDate")
+      .select("_id attendDate studentClass")
       .populate({
         path: "attendDate",
         match: {
@@ -226,6 +270,7 @@ exports.getAttendStudentById = async (req, res) => {
 
       let presentPercentage = ((present * 100) / days).toFixed(2);
       let absentPercentage = ((absent * 100) / days).toFixed(2);
+
       res.status(200).send({
         message: "Success",
         presentArray,
@@ -266,14 +311,12 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
       });
     } else {
       const currentDate = new Date();
-      const currentDateLocalFormat = currentDate
-        .toLocaleDateString()
-        .split("/");
-      const markDate = req.body.date.split("/");
+      const currentDateLocalFormat = currentDate.toISOString().split("-");
+      const markDate = req.body.date?.split("/");
       if (
-        +markDate[0] === +currentDateLocalFormat[0] &&
+        +markDate[0] === +currentDateLocalFormat[2].split("T")[0] &&
         +markDate[1] === +currentDateLocalFormat[1] &&
-        +markDate[2] === +currentDateLocalFormat[2]
+        +markDate[2] === +currentDateLocalFormat[0]
       ) {
         const institute = await InstituteAdmin.findById({ _id: id });
         const staffAttendence = new StaffAttendenceDate({});
@@ -349,24 +392,22 @@ exports.getAttendInstituteStaff = async (req, res) => {
     const prevDate = req.query.date;
     let regularexp = "";
     if (prevDate) {
-      const previousDate = prevDate.split("/");
+      const previousDate = prevDate?.split("/");
       regularexp = new RegExp(
         `${previousDate[0]}\/${previousDate[1]}\/${previousDate[2]}$`
       );
     } else {
       const currentDate = new Date();
-      const currentDateLocalFormat = currentDate
-        .toLocaleDateString()
-        .split("/");
+      const currentDateLocalFormat = currentDate.toISOString().split("-");
       const day =
-        +currentDateLocalFormat[0] > 9
-          ? +currentDateLocalFormat[0]
-          : `0${+currentDateLocalFormat[0]}`;
+        +currentDateLocalFormat[2].split("T")[0] > 9
+          ? +currentDateLocalFormat[2].split("T")[0]
+          : `0${+currentDateLocalFormat[2].split("T")[0]}`;
       const month =
         +currentDateLocalFormat[1] > 9
           ? +currentDateLocalFormat[1]
           : `0${+currentDateLocalFormat[1]}`;
-      const year = +currentDateLocalFormat[2];
+      const year = +currentDateLocalFormat[0];
       regularexp = new RegExp(`${day}\/${month}\/${year}$`);
     }
     const institute = await InstituteAdmin.findById({ _id: id })
@@ -402,35 +443,33 @@ exports.markAttendenceDepartmentStaffUpdate = async (req, res) => {
       });
     } else {
       const currentDate = new Date();
-      const currentDateLocalFormat = currentDate
-        .toLocaleDateString()
-        .split("/");
-      const markDate = req.body.date.split("/");
+      const currentDateLocalFormat = currentDate.toISOString().split("-");
+      const markDate = req.body.date?.split("/");
       if (
-        +markDate[0] === +currentDateLocalFormat[0] &&
+        +markDate[0] === +currentDateLocalFormat[2].split("T")[0] &&
         +markDate[1] === +currentDateLocalFormat[1] &&
-        +markDate[2] === +currentDateLocalFormat[2]
+        +markDate[2] === +currentDateLocalFormat[0]
       ) {
         const staffAttendence = await StaffAttendenceDate.findById(said);
-        for (let i = 0; i < req.body.present.length; i++) {
-          if (staffAttendence.presentStaff.includes(req.body.present[i])) {
+        for (let i = 0; i < req.body.present?.length; i++) {
+          if (staffAttendence.presentStaff?.includes(req.body.present[i])) {
           } else if (
-            staffAttendence.absentStaff.includes(req.body.present[i])
+            staffAttendence.absentStaff?.includes(req.body.present[i])
           ) {
-            staffAttendence.presentStaff.push(req.body.present[i]);
-            staffAttendence.absentStaff.pull(req.body.present[i]);
+            staffAttendence.presentStaff?.push(req.body.present[i]);
+            staffAttendence.absentStaff?.pull(req.body.present[i]);
             staffAttendence.presentTotal = ++staffAttendence.presentTotal;
             staffAttendence.absentTotal = --staffAttendence.absentTotal;
           } else {
           }
         }
-        for (let i = 0; i < req.body.absent.length; i++) {
-          if (staffAttendence.absentStaff.includes(req.body.absent[i])) {
+        for (let i = 0; i < req.body.absent?.length; i++) {
+          if (staffAttendence.absentStaff?.includes(req.body.absent[i])) {
           } else if (
-            staffAttendence.presentStaff.includes(req.body.absent[i])
+            staffAttendence.presentStaff?.includes(req.body.absent[i])
           ) {
-            staffAttendence.absentStaff.push(req.body.absent[i]);
-            staffAttendence.presentStaff.pull(req.body.absent[i]);
+            staffAttendence.absentStaff?.push(req.body.absent[i]);
+            staffAttendence.presentStaff?.pull(req.body.absent[i]);
             staffAttendence.presentTotal = --staffAttendence.presentTotal;
             staffAttendence.absentTotal = ++staffAttendence.absentTotal;
           } else {
@@ -477,10 +516,10 @@ exports.getAttendStaffById = async (req, res) => {
     if (staff) {
       if (staff.attendDates) {
         staff.attendDates.forEach((day) => {
-          if (day.presentStaff.includes(req.params.sid)) {
+          if (day.presentStaff?.includes(req.params.sid)) {
             present += 1;
             presentArray.push(day.staffAttendDate);
-          } else if (day.absentStaff.includes(req.params.sid)) {
+          } else if (day.absentStaff?.includes(req.params.sid)) {
             absent += 1;
             absentArray.push(day.staffAttendDate);
           } else {
@@ -514,15 +553,15 @@ exports.holidayCalendar = async (req, res) => {
     const { dates } = req.body;
     const depart = await Department.findById({ _id: did });
     const currentDate = new Date();
-    const adate = currentDate.toLocaleDateString().split("/");
+    const adate = currentDate.toISOString().split("-");
     const leave = new Holiday({
       dHolidayReason: req.body.reason,
     });
     dates.forEach((dat) => {
-      const fdate = dat.split("/");
-      const year = +fdate[2] >= +adate[2];
+      const fdate = dat?.split("/");
+      const year = +fdate[2] >= +adate[0];
       const month = +fdate[1] >= +adate[1];
-      const day = +fdate[0] >= +adate[0];
+      const day = +fdate[0] >= +adate[2].split("T")[0];
       if (year && month && day) {
         leave.dDate.push(dat);
       } else if (year && month) {
@@ -560,6 +599,31 @@ exports.fetchHoliday = async (req, res) => {
   } catch {}
 };
 
+exports.holidayInClassSide = async (req, res) => {
+  try {
+    const month = req.query.month;
+    const year = req.query.year;
+    let regularexp = "";
+    if (month) {
+      regularexp = new RegExp(`\/${month}\/${year}$`);
+    } else {
+      regularexp = new RegExp(`\/${year}$`);
+    }
+    const classes = await Class.findById(req.params.cid).populate({
+      path: "department",
+      populate: {
+        path: "holiday",
+        match: {
+          dDate: { $regex: regularexp },
+        },
+      },
+    });
+
+    res.status(200).send({ holiday: classes.department.holiday });
+  } catch (e) {
+    console.log(e);
+  }
+};
 // exports.updateHoliday = async (req, res) => {
 //   try {
 //     const holiday = await Holiday.findById(req.params.hid);

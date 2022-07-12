@@ -143,8 +143,11 @@ const miscellaneousNew = require("./routes/Miscellaneous/miscellaneousRoute");
 const newAppApiNew = require("./routes/NewApi/newRoute");
 const userNew = require("./routes/User/userRoute");
 const availNew = require("./routes/Attendence/indexRoute");
-const landingNew = require("./routes/LandingRoute/indexRoute");
-const notifyNew = require("./routes/Notification/push-notification-route");
+
+const landingNew = require('./routes/LandingRoute/indexRoute')
+const notifyNew = require('./routes/Notification/push-notification-route')
+const chatNew = require('./routes/Chat/chatRoute')
+const messageNew = require('./routes/Chat/messageRoute')
 
 // =============IMPORT INSTITUTE POST ROUTER====================
 const institutePostRoute = require("./routes/InstituteAdmin/Post/PostRoute");
@@ -288,6 +291,12 @@ app.use("/api/v1/landing", landingNew);
 
 // Push Notification Through Flutter By Node
 app.use("/api/v1/notification", notifyNew);
+
+// Chat Related to Qviple
+app.use('/api/v1/chat', chatNew)
+
+// Message from Chat related to Qviple
+app.use('/api/v1/message', messageNew)
 
 // Super Admin Routes
 
@@ -12728,9 +12737,46 @@ app.get("*", (req, res) => {
 
 const port = process.env.PORT || 8080;
 
-app.listen(port, function () {
+const server = app.listen(port, function () {
   console.log("Server listening on port " + port);
-  // console.log("Server listening on port " + process.env.ACCOUNTSID);
-  // console.log("Server listening on port " + process.env.SERVICEID);
-  // console.log("Server listening on port " + port);
+});
+
+
+const io = require("socket.io")(server, {
+  pingTimeout: 60000,
+  cors: {
+    origin: "http://localhost:3000",
+    // credentials: true,
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("Connected to socket.io");
+  socket.on("setup", (userData) => {
+    socket.join(userData);
+    socket.emit("connected");
+  });
+
+  socket.on("join chat", (room) => {
+    socket.join(room);
+    console.log("User Joined Room: " + room);
+  });
+  socket.on("typing", (room) => socket.in(room).emit("typing"));
+  socket.on("stop typing", (room) => socket.in(room).emit("stop typing"));
+
+  socket.on("new message", (newMessageRecieved) => {
+    var chat = newMessageRecieved.chat;
+    if (!chat.users) return console.log("chat.users not defined");
+
+    chat.users.forEach((user) => {
+      if (user._id == newMessageRecieved.sender._id) return;
+      // var delievered = true
+      socket.in(user._id).emit("message recieved", newMessageRecieved);
+    });
+  });
+
+  socket.off("setup", () => {
+    console.log("USER DISCONNECTED");
+    socket.leave(userData);
+  });
 });

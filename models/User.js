@@ -1,22 +1,4 @@
 const mongoose = require("mongoose");
-// const Post = require("./Post");
-const Staff = require("./Staff");
-const InstituteAdmin = require("./InstituteAdmin");
-const Student = require("./Student");
-const UserAnnouncement = require("./UserAnnouncement");
-const Post = require("./Post");
-const Role = require("./Role");
-const DisplayPerson = require('./DisplayPerson')
-const Conversation = require("./Conversation");
-const Video = require("./Video");
-const Playlist = require("./Playlist");
-const UserSupport = require("./UserSupport");
-const PreAppliedStudent = require("./PreAppliedStudent");
-const DepartApplication = require("./DepartmentApplication");
-const PlaylistPayment = require("./PlaylistPayment");
-const Notification = require('./notification')
-const InstituteChat = require('./InstituteChat')
-
 
 const userSchema = new mongoose.Schema({
   userPhoneNumber: { type: Number, required: true, maxlength: 10 },
@@ -95,25 +77,9 @@ const userSchema = new mongoose.Schema({
       ref: "UserAnnouncement",
     },
   ],
-  saveUsersPost: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Post",
-    },
-  ],
-  saveUserInsPost: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Post",
-    },
-  ],
   role: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Role",
-  },
-  conversation: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Conversation",
   },
   addUser: [
     {
@@ -244,20 +210,6 @@ const userSchema = new mongoose.Schema({
       ref: 'Notification'
     }
   ],
-  isAdmin: {
-    type: Boolean,
-    default: false,
-  },
-  chatAdmin: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'InstituteChat'
-  },
-  joinChat: [
-    {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'InstituteChat'
-    }
-  ],
   displayPersonArray: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -276,7 +228,18 @@ const userSchema = new mongoose.Schema({
   qvipleAccount: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Admin'
-  }
+  },
+  isAdmin: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+  isChat: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Chat'
+    }
+  ]
 });
 
 userSchema.post("findOneAndDelete", async function (doc) {

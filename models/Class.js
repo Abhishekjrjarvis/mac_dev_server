@@ -71,7 +71,7 @@ const classSchema = new mongoose.Schema({
       ref: "Behaviour",
     },
   ],
-  classExam: [
+  exams: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Exam",
@@ -123,6 +123,8 @@ const classSchema = new mongoose.Schema({
     behaviour: { type: Boolean, default: false },
     graceMarks: { type: Boolean, default: false },
     gradeMarks: { type: Boolean, default: false },
+    subjectPassingMarks: { type: Number, default: 0 },
+    aggregatePassingPercentage: { type: Number, default: 0 },
   },
   created_at: {
     type: Date,

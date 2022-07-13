@@ -1,15 +1,15 @@
 const mongoose = require("mongoose");
 
 const behaviourSchema = new mongoose.Schema({
-  bimprovements: {
+  improvements: {
     type: String,
     required: true,
   },
-  bratings: {
-    type: String,
+  ratings: {
+    type: Number,
     required: true,
   },
-  blackIn: {
+  lackIn: {
     type: String,
     required: true,
   },

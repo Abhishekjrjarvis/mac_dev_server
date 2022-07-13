@@ -1,10 +1,4 @@
 const mongoose = require("mongoose");
-const Department = require("./Department");
-const Class = require("./Class");
-const InstituteAdmin = require("./InstituteAdmin");
-const Staff = require("./Staff");
-const SubjectMaster = require("./SubjectMaster");
-const McqTestSets = require("./McqTestSets");
 
 const subjectSchema = new mongoose.Schema({
   subjectName: {
@@ -27,7 +21,7 @@ const subjectSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "SubjectMaster",
   },
-  subjectExams: [
+  exams: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Exam",

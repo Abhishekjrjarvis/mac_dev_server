@@ -29,7 +29,10 @@ const studentSchema = new mongoose.Schema({
   studentAadharBackCard: { type: String },
   studentCertificateNo: { type: String },
   studentStatus: { type: String, default: "Not Approved" },
+
+  //depriciated this
   studentBehaviourReportStatus: { type: String, default: "Not Ready" },
+
   studentPremoteStatus: { type: String, default: "Not Promoted" },
   studentReason: { type: String },
   studentCertificateDate: { type: String },
@@ -40,7 +43,7 @@ const studentSchema = new mongoose.Schema({
   studentLeavingReason: { type: String },
   studentBookNo: { type: String },
   studentROLLNO: { type: String },
-  studentBehaviourStatus: {
+  studentBehaviour: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Behaviour",
   },
@@ -58,6 +61,34 @@ const studentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteAdmin",
   },
+
+  notification: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "StudentNotification",
+    },
+  ],
+  subjectMarks: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubjectMarks",
+    },
+  ],
+  exams: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Exam",
+    },
+  ],
+
+  finalReportStatus: { type: String, default: "No" },
+  finalReport: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FinalReport",
+    },
+  ],
+
   studentFinalReportFinalizedStatus: { type: String, default: "Not Ready" },
   studentFinalReportData: {
     finalObtainTotal: { type: String },

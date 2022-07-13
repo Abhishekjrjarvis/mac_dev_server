@@ -1,49 +1,43 @@
-const mongoose = require('mongoose')
-const User = require('./User')
-const InstituteAdmin = require('./InstituteAdmin')
-const Staff = require('./Staff')
-const Department = require('./Department')
-const Student = require('./Student')
+const mongoose = require("mongoose");
 
 const notificationSchema = new mongoose.Schema({
-    notifyContent: { type: String, required: true },
-    notifyTime: { type: Date, default: Date.now },
-    notifySender: { type: String, },
-    notifyReceiever: { type: String, required: true },
-    notifyReadStatus: { type: String, default: 'Unread' },
-    notifyVisibility: { type: String, default: 'Unhide'},
-    user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    },
-    institute: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'InstituteAdmin'
-    },
-    notifyByPhoto: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    },
-    notifyByInsPhoto: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'InstituteAdmin'
-    },
-    notifyByStaffPhoto: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Staff'
-    },
-    notifyByDepartPhoto: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Department'
-    },
-    notifyByStudentPhoto: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Student'
-    },
-    notifyBySuperAdminPhoto: {
-        type: String
-    }
-})
+  notifyContent: { type: String, required: true },
+  notifyTime: { type: Date, default: Date.now },
+  notifySender: { type: String },
+  notifyReceiever: { type: String, required: true },
+  notifyReadStatus: { type: String, default: "Unread" },
+  notifyVisibility: { type: String, default: "Unhide" },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+  institute: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "InstituteAdmin",
+  },
+  notifyByPhoto: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+  notifyByInsPhoto: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "InstituteAdmin",
+  },
+  notifyByStaffPhoto: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Staff",
+  },
+  notifyByDepartPhoto: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Department",
+  },
+  notifyByStudentPhoto: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Student",
+  },
+  notifyBySuperAdminPhoto: {
+    type: String,
+  },
+});
 
-
-module.exports = mongoose.model('Notification', notificationSchema)
+module.exports = mongoose.model("Notification", notificationSchema);

@@ -300,6 +300,7 @@ app.use('/api/v1/message', messageNew)
 
 // Super Admin Routes
 
+
 app.get("/", async (req, res) => {
   try {
     const admins = await Admin.find({});

@@ -57,4 +57,7 @@ router.get('/count/detail', catchAsync(Admin.retrieveLandingPageCount))
 // Get One Institute 
 router.get('/one/institute/:id', isLoggedIn, catchAsync(Admin.retrieveOneInstitute))
 
+// Bank Detail verified by Super Admin
+router.post('/:aid/bank/detail/verification/:id', isLoggedIn, catchAsync(Admin.verifyInstituteBankDetail))
+
 module.exports = router

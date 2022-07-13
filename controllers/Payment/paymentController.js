@@ -34,7 +34,7 @@ exports.processPayment = async (req, res, next) => {
   params["TXN_AMOUNT"] = amount;
   params[
     "CALLBACK_URL"
-  ] = `http://localhost:8080/api/v1/callback/pay/${fiid}/${uid}/student/${sid}/fee/${fid}`;
+  ] = `http://18.205.27.165/api/v1/callback/pay/${fiid}/${uid}/student/${sid}/fee/${fid}`;
 
   let paytmChecksum = paytm.generateSignature(
     params,
@@ -300,7 +300,7 @@ exports.processEContentPayment = async (req, res, next) => {
   params["TXN_AMOUNT"] = amount;
   params[
     "CALLBACK_URL"
-  ] = `http://34.201.132.26/api/api/v1/e-content/callback/user/${uid}/playlist/${pid}/ins/${fid}`;
+  ] = `http://18.205.27.165/api/api/v1/e-content/callback/user/${uid}/playlist/${pid}/ins/${fid}`;
   let paytmChecksum = paytm.generateSignature(
     params,
     process.env.PAYTM_MERCHANT_KEY
@@ -372,10 +372,10 @@ exports.paytmEContentResponse = (req, res, next) => {
               addEContentPayment(body, uid, pid);
               userEContentUpdated(uid, pid, fid, status, price);
               res.redirect(
-                `http://34.201.132.26/user/${uid}/e-content/playlist/${pid}`
+                `http://18.205.27.165/user/${uid}/e-content/playlist/${pid}`
               );
             } else {
-              res.redirect(`http://34.201.132.26/`);
+              res.redirect(`http://18.205.27.165/`);
             }
           });
         });
@@ -460,7 +460,7 @@ exports.processIdCardPayment = async (req, res, next) => {
   params["TXN_AMOUNT"] = amount;
   params[
     "CALLBACK_URL"
-  ] = `http://34.201.132.26/api/api/v1/callback/ins/${id}/batch/${batchId}`;
+  ] = `http://18.205.27.165/api/api/v1/callback/ins/${id}/batch/${batchId}`;
   let paytmChecksum = paytm.generateSignature(
     params,
     process.env.PAYTM_MERCHANT_KEY
@@ -531,9 +531,9 @@ exports.paytmIdCardResponse = (req, res, next) => {
             if (status === "TXN_SUCCESS") {
               addIdCardPayment(body, id, batchId);
               userIdCardUpdated(id, batchId, status, price);
-              res.redirect(`http://34.201.132.26/ins/${id}/student/card`);
+              res.redirect(`http://18.205.27.165/ins/${id}/student/card`);
             } else {
-              res.redirect(`http://34.201.132.26/`);
+              res.redirect(`http://18.205.27.165/`);
             }
           });
         });

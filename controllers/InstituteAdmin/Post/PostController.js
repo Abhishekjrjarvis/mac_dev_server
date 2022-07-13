@@ -481,7 +481,7 @@ exports.retrieveAllPosts = async(req, res) =>{
       const institute = await InstituteAdmin.findById(id)
       .select('id')
       .populate({ path: 'posts' })
-    if(institute.posts.length >=1){
+    if(institute && institute.posts.length >=1){
       const post = await Post.find({
         _id: { $in: institute.posts },
       })

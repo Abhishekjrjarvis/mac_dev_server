@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const instituteAdminSchema = new mongoose.Schema({
-  insName: { type: String, required: true, unique: true },
+  insName: { type: String, required: true },
   name: { type: String, required: true, unique: true },
   insEmail: { type: String, required: true, unique: true },
   insPhoneNumber: { type: Number, required: true, maxlength: 10 },
@@ -317,12 +317,23 @@ const instituteAdminSchema = new mongoose.Schema({
     default: "Not Assigned",
   },
   paymentBankStatus: { type: String },
+  GSTInfo: { type: String },
   accessFeature: { type: String, default: 'Locked'},
-  unlockAmount: { type: Number, default: 0},
+  unlockAmount: { type: Number, default: 1000},
   featurePaymentStatus: { type: String, default: 'Not Paid'},
   staffAttendance: [
     { type: mongoose.Schema.Types.ObjectId, ref: "StaffAttendenceDate" },
   ],
+  userProfile: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  referralArray: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Referral'
+    }
+  ]
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

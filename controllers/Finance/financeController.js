@@ -52,7 +52,7 @@ exports.getFinanceDepart = async(req, res) =>{
 exports.uploadBankDetail = async(req, res) =>{
     try {
         const { id } = req.params;
-        const { bankAccountHolderName, bankAccountNumber, bankIfscCode, bankAccountPhoneNumber } = req.body;
+        const { bankAccountHolderName, bankAccountNumber, bankIfscCode, bankAccountPhoneNumber, GSTInfo } = req.body;
         const admin = await Admin.findById({_id: `${process.env.S_ADMIN_ID}`})
         const institute = await InstituteAdmin.findById({ _id: id });
         const notify = new Notification({})
@@ -61,6 +61,7 @@ exports.uploadBankDetail = async(req, res) =>{
         institute.bankIfscCode = bankIfscCode;
         institute.bankAccountPhoneNumber = bankAccountPhoneNumber;
         institute.paymentBankStatus = 'verification in progress'
+        institute.GSTInfo = GSTInfo
         notify.notifyContent = ` ${institute.insName} Institute payment Details updated Check and Verify `
         notify.notifySender = institute._id;
         notify.notifyReceiever = admin._id;
@@ -81,6 +82,7 @@ exports.removeBankDetail = async(req, res) =>{
         institute.bankAccountNumber = "";
         institute.bankIfscCode = "";
         institute.bankAccountPhoneNumber = "";
+        institute.GSTInfo = ""
         institute.paymentBankStatus = 'payment Details are mandatory for Finance Department'
         await Promise.all([ institute.save() ]);
         res.status(200).send({ message: "Bank Details Removed" });

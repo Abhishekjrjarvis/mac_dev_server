@@ -249,7 +249,13 @@ const userSchema = new mongoose.Schema({
   ],
   deviceToken: {
     type: String
-  }
+  },
+  referralArray: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Referral'
+    }
+  ]
 });
 
 userSchema.post("findOneAndDelete", async function (doc) {

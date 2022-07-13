@@ -15,8 +15,11 @@ const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const axios = require("axios");
 const jwt = require("jsonwebtoken");
+const usernameGenerator = require('./AuthFunction')
+const Referral = require('../../models/QCoins/Referral')
+// const invokeFirebaseNotification = require('../../Firebase/firebase')
 
-
+// const data = invokeFirebaseNotification()
 
 
 function generateAccessToken(username, userId, userPassword) {
@@ -49,15 +52,21 @@ exports.getRegisterIns = async (req, res) => {
       if (existInstitute) {
         res.send({ message: "Institute Existing with this Username" });
       } else {
+        const user = await User.findById({ _id: req.body.userId })
         const file = req.file;
         const results = await uploadDocFile(file);
-        const institute = await new InstituteAdmin({ ...req.body });
+        const institute = new InstituteAdmin({ ...req.body });
+        const refCoins = new Referral({...req.body})
+        refCoins.referralBy = institute._id
+        institute.referralArray.push(refCoins._id)
+        refCoins.referralTo = user._id
+        user.referralArray.push(refCoins._id)
         institute.insDocument = results.key;
         institute.photoId = "1";
         institute.coverId = "2";
         admins.instituteList.push(institute);
         admins.requestInstituteCount += 1
-        await Promise.all([admins.save(), institute.save()]);
+        await Promise.all([admins.save(), institute.save(), refCoins.save()]);
         await unlinkFile(file.path);
         res.status(201).send({ message: "Institute", institute });
         const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
@@ -97,11 +106,16 @@ exports.getUpDocIns = async (req, res) => {
   }
 };
 
+// const username = usernameGenerator()
+// console.log(username)
+
 exports.getPassIns = async (req, res) => {
   try {
+    var usernameExp = usernameGenerator()
     const { id } = req.params;
     const { insPassword, insRePassword } = req.body;
     const institute = await InstituteAdmin.findById({ _id: id });
+    const admin = await Admin.findById({_id: `${process.env.S_ADMIN_ID}`})
     const genPass = bcrypt.genSaltSync(12);
     const hashPass = bcrypt.hashSync(insPassword, genPass);
     if (insPassword === insRePassword) {
@@ -112,6 +126,28 @@ exports.getPassIns = async (req, res) => {
     } else {
       res.send({ message: "Invalid Combination", login: false });
     }
+    const user = new User({})
+    user.userPhoneNumber = institute.insPhoneNumber
+    user.userStatus = institute.insMobileStatus
+    user.userLegalName = institute.insName
+    user.username = usernameExp && usernameExp
+    user.userGender = 'NA'
+    user.userDateOfBirth = '2020-01-01'
+    user.photoId = "0"
+    user.coverId = "2"
+    user.userPassword = institute.insPassword
+    user.createdAt = institute.createdAt
+    institute.userProfile = user._id
+    admin.users.push(user._id);
+    admin.userCount += 1
+    await Promise.all([user.save(), institute.save(), admin.save()])
+    const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
+    .populate({ path: 'posts' })
+    const post = await Post.find({ _id: { $in: uInstitute.posts }, postVisibility: 'Anyone'})
+    post.forEach(async (ele) => {
+      user.userPosts.push(ele)
+    })
+    await user.save()
   } catch (e) {
     console.log(`Error`, e.message);
   }
@@ -295,10 +331,17 @@ exports.profileByUser = async (req, res) => {
         await unlinkFile(file.path);
         res.status(200).send({ message: "Profile Successfully Created...", user });
         const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
-        uInstitute.posts.forEach(async (ele) => {
+        .populate({ path: 'posts' })
+        const post = await Post.find({ _id: { $in: uInstitute.posts }, postVisibility: 'Anyone'})
+        post.forEach(async (ele) => {
           user.userPosts.push(ele)
         })
         await user.save()
+        // const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
+        // uInstitute.posts.forEach(async (ele) => {
+        //   user.userPosts.push(ele)
+        // })
+        // await user.save()
       }
     }
   } catch (e) {

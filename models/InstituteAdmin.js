@@ -17,11 +17,6 @@ const instituteAdminSchema = new mongoose.Schema({
   insType: { type: String, required: true },
   status: { type: String, default: "Not Approved" },
   insProfilePassword: { type: String },
-  insOperatingAdmin: { type: String },
-  insStudentPresident: { type: String },
-  insPrinciple: { type: String },
-  insTrusty: { type: String },
-  insAdminClerk: { type: String },
   insEstdDate: { type: String },
   insRegDate: { type: String },
   insAchievement: { type: String },
@@ -172,10 +167,6 @@ const instituteAdminSchema = new mongoose.Schema({
       ref: "Complaint",
     },
   ],
-  groupConversation: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "GroupConversation",
-  },
   idCardBatch: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -273,20 +264,6 @@ const instituteAdminSchema = new mongoose.Schema({
       ref: "Notification",
     },
   ],
-  isAdmin: {
-    type: Boolean,
-    default: true,
-  },
-  chatAdmin: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "InstituteChat",
-  },
-  joinChat: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "InstituteChat",
-    },
-  ],
   classCodeList: [],
   displayPersonList: [
     {
@@ -339,6 +316,10 @@ const instituteAdminSchema = new mongoose.Schema({
     type: String,
     default: "Not Assigned",
   },
+  paymentBankStatus: { type: String },
+  accessFeature: { type: String, default: 'Locked'},
+  unlockAmount: { type: Number, default: 0},
+  featurePaymentStatus: { type: String, default: 'Not Paid'},
   staffAttendance: [
     { type: mongoose.Schema.Types.ObjectId, ref: "StaffAttendenceDate" },
   ],

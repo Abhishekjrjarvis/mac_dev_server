@@ -1926,6 +1926,8 @@ exports.retrieveNewSubject = async(req, res) =>{
     staff.staffSubject.push(subject._id);
     staff.staffDesignationCount += 1
     staff.recentDesignation = subjectTitle
+    user.isSubjectTeacher = 'Yes'
+    user.isSubjectChat.push(subject._id)
     subject.subjectTeacherName = staff._id;
     notify.notifyContent = `you got the designation of ${subject.subjectName} as Subject Teacher`;
     notify.notifySender = id;
@@ -2243,7 +2245,7 @@ exports.retrieveClass = async (req, res) => {
     const { cid } = req.params;
     const classes = await Class.findById({ _id: cid })
       .select(
-        "className classTitle classCode classStatus studentCount photoId photo coverId cover subjectCount classAbout classDisplayPerson classStudentTotal"
+        "className classTitle classCode classStartDate classStatus studentCount photoId photo coverId cover subjectCount classAbout classDisplayPerson classStudentTotal"
       )
       .populate({
         path: "subject",

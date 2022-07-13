@@ -481,6 +481,7 @@ exports.retrieveAllPosts = async(req, res) =>{
       const institute = await InstituteAdmin.findById(id)
       .select('id')
       .populate({ path: 'posts' })
+    if(institute.posts.length >=1){
       const post = await Post.find({
         _id: { $in: institute.posts },
       })
@@ -499,6 +500,10 @@ exports.retrieveAllPosts = async(req, res) =>{
         var totalPage = page + 1
       }
       res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage,});
+    }
+    else{
+      res.status(204).send({ message: 'No Posts Yet...'})
+    }
     } catch(e) {
       console.log(e)
     }

@@ -34,13 +34,13 @@ const {
   // patchStudentAddharDoc,
 } = require("../../controllers/UploadContent/index");
 
-router.route("/:key").get(isLoggedIn, getImage);
+router.route("/:key").get(getImage);
 router
-  .route("/:id/instiute/photo")
+  .route("/:id/institute/photo")
   .patch(isLoggedIn, upload.single("file"), patchInstituteImagePhoto);
 
 router
-  .route("/:id/instiute/cover")
+  .route("/:id/institute/cover")
   .patch(isLoggedIn, upload.single("file"), patchInstituteImageCover);
 // router
 //   .route("/:id/ins-register/doc")

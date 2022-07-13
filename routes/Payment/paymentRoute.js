@@ -1,4 +1,6 @@
 const express = require('express');
+const router = express.Router();
+
 const { processPayment, paytmResponse, processEContentPayment, paytmEContentResponse, 
      getPaymentStatus, processIdCardPayment, paytmIdCardResponse
 } = require('../../controllers/Payment/paymentController');
@@ -7,8 +9,9 @@ const { processVideoPayment, paytmVideoResponse } = require('../../controllers/P
 const { processApplicationPayment, paytmApplicationResponse } = require('../../controllers/Payment/ApplicationController')
 const { processAdmissionPayment, paytmAdmissionResponse } = require('../../controllers/Payment/AdmissionController')
 
-// const { isLogged } = require('../middlewares/auth');
-const router = express.Router();
+const { processUnlockFeaturePayment, paytmUnlockFeatureResponse } = require('../../controllers/Payment/UnlockController')
+
+
 
 
 // ================= Student Fee And Checklist Payment ====================
@@ -48,6 +51,12 @@ router.route('/admission/callback/:uid/apply/:aid/ins/:iid/finance/:fid').post(p
 
 router.route('/payment/id-card/process').post(processIdCardPayment);
 router.route('/callback/ins/:id/batch/:batchId').post(paytmIdCardResponse);
+
+
+// ================== Unlock Feature Payment ========================
+
+router.route('/payment/unlock/process').post(processUnlockFeaturePayment);
+router.route('/callback/ins/:id/user/:name').post(paytmUnlockFeatureResponse);
 
 
 module.exports = router;

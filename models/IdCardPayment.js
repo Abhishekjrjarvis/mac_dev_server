@@ -69,7 +69,6 @@ const idCardPaymentSchema = new mongoose.Schema({
     },
     batchId: {
         type: String,
-        required: true
     },
 });
 

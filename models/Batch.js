@@ -1,11 +1,4 @@
 const mongoose = require("mongoose");
-const Department = require("./Department");
-const Class = require("./Class");
-const Staff = require("./Staff");
-const SubjectMaster = require("./SubjectMaster");
-const Student = require('./Student')
-const Field = require('./Field')
-const InstituteAdmin = require('./InstituteAdmin')
 
 const batchSchema = new mongoose.Schema({
   batchName: {
@@ -14,7 +7,7 @@ const batchSchema = new mongoose.Schema({
   },
   batchStatus: {
     type: String,
-    default: "UnLocked"
+    default: "UnLocked",
   },
   createdAt: {
     type: Date,
@@ -22,7 +15,7 @@ const batchSchema = new mongoose.Schema({
   },
   institute: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'InstituteAdmin'
+    ref: "InstituteAdmin",
   },
   department: {
     type: mongoose.Schema.Types.ObjectId,
@@ -34,11 +27,11 @@ const batchSchema = new mongoose.Schema({
       ref: "Class",
     },
   ],
-  batchExam: [
+  exams: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Exam"
-    }
+      ref: "Exam",
+    },
   ],
   batchStaff: [
     {
@@ -49,19 +42,19 @@ const batchSchema = new mongoose.Schema({
   ApproveStudent: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Student'
-    }
+      ref: "Student",
+    },
   ],
   idCardStatus: {
-    type: String
+    type: String,
   },
   batchPaymentStatus: {
-    type: String
+    type: String,
   },
   classCount: {
     type: Number,
-    default: 0
-  }
+    default: 0,
+  },
 });
 
 const Batch = mongoose.model("Batch", batchSchema);

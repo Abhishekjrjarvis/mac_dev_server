@@ -1,16 +1,4 @@
 const mongoose = require("mongoose");
-const Class = require("./Class");
-const InstituteAdmin = require("./InstituteAdmin");
-const Staff = require("./Staff");
-const Checklist = require("./Checklist");
-const Fees = require("./Fees");
-const Holiday = require("./Holiday");
-const Batch = require("./Batch");
-const SubjectMaster = require("./SubjectMaster");
-const Student = require("./Student");
-const Complaint = require("./Complaint");
-const Field = require("./Field");
-const Elections = require("./Elections");
 
 const departmentSchema = new mongoose.Schema({
   dName: { type: String, required: true },
@@ -69,7 +57,7 @@ const departmentSchema = new mongoose.Schema({
       ref: "Batch",
     },
   ],
-  departmentExam: [
+  exams: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Exam",
@@ -135,34 +123,34 @@ const departmentSchema = new mongoose.Schema({
   ],
   classMasterCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   subjectMasterCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   classCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   batchCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   staffCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   studentCount: {
-    type: Number, 
-    default: 0
+    type: Number,
+    default: 0,
   },
   displayPersonList: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'DisplayPerson'
-    }
-  ]
+      ref: "DisplayPerson",
+    },
+  ],
 });
 
 const Department = mongoose.model("Department", departmentSchema);

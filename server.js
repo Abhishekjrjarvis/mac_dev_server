@@ -152,6 +152,7 @@ const userPostRoute = require("./routes/User/Post/PostRoute");
 const superAdminPostRoute = require("./routes/SuperAdmin/Post/PostRoute");
 const classRoute = require("./routes/Class/classRoute");
 const checklistRoute = require("./routes/Checklist/checklistRoute");
+const examRoute = require("./routes/Exam/examRoute");
 const dburl = `${process.env.DB_URL2}`;
 // const dburl = `${process.env.DB_URL}`;
 // const dburl = `mongodb://127.0.0.1:27017/Erp_app`;
@@ -186,8 +187,8 @@ app.use(express.json());
 app.use(
   cors({
     // origin: "http://18.205.27.165",
-    // origin: ["http://18.205.27.165","http://localhost:3000"],
-    origin: "http://localhost:3000",
+    origin: ["http://18.205.27.165","http://localhost:3000"],
+    // origin: "http://localhost:3000",
     // origin: "http://qviple.com",
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
@@ -234,6 +235,7 @@ app.use("/api/v1/library", libraryRoute);
 app.use("/api/v1/comment/reply", commentReplyRoute);
 app.use("/api/v1/class", classRoute);
 app.use("/api/v1/checklist", checklistRoute);
+app.use("/api/v1/exam", examRoute);
 // app.use("/all-images/v1", uploadRoute);
 // app.use("/elearning/v1", elearningRoute);
 // app.use("/library/v1", libraryRoute);

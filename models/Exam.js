@@ -1,65 +1,46 @@
 const mongoose = require("mongoose");
-const Department = require("./Department");
-const Subject = require("./Subject");
-const InstituteAdmin = require("./InstituteAdmin");
-const Batch = require("./Batch");
-const Class = require("./Class");
-const Staff = require("./Staff");
-const Checklist = require("./Checklist");
-const SubjectMaster = require("./SubjectMaster");
-const TestSet = require("./McqTestSets");
 
 const examSchema = new mongoose.Schema({
   examName: { type: String, required: true },
   examType: { type: String, required: true },
   examMode: { type: String, required: true },
   examWeight: { type: Number },
+  createdAt: { type: Date, default: Date.now },
+  department: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Department",
+    required: true,
+  },
+
   batch: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Batch",
     required: true,
   },
-  examForDepartment: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Department",
-    required: true,
-  },
-  examForClass: [
+
+  class: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Class",
       required: true,
     },
   ],
-  subject: [
+  subjects: [
     {
-      subMasterId: {
+      subjectId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Subject",
+        required: true,
+      },
+      subjectName: { type: String, required: true },
+      totalMarks: { type: Number, required: true },
+      date: { type: String, required: true },
+      startTime: { type: String, required: true },
+      endTime: { type: String, required: true },
+      subjectMasterId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "SubjectMaster",
         required: true,
-      },
-      classId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Class",
-        required: true,
-      },
-      subjectName: {
-        type: String,
-        required: true,
-      },
-      totalMarks: {
-        type: Number,
-        required: true,
-      },
-      testSet: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "TestSet"
-      },
-      testSetSolTime: {
-        type: Number,
-      },
-      examDate: {
-        type: Date,
       },
     },
   ],

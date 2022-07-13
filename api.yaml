@@ -5,11 +5,11 @@ info:
   version: one
 
 
-host: 18.205.27.165
-basePath: /api
-# schemes: [http, https]
-schemes: 
-  - http
+# host: 18.205.27.165
+# basePath: /api
+schemes: [http, https]
+# schemes: 
+#   - http
 
 
 #Return Users From get request
@@ -5619,7 +5619,7 @@ paths:
     get:
       tags:
         - Staff Attendance
-      summary: This is give current date particular Staff Attendance id which is use in update the staff attendance api 
+      summary: This is give current date particular Staff Attendance id which is use in update the staff attendance api (Verified)
       consumes:
         - application/json
       produces:
@@ -5630,6 +5630,10 @@ paths:
           required: true
           type: string
           description: This is Institute id
+        - in: query
+          name: date
+          type: string
+          description: This is date like (08/07/2022)
       responses:
         "200":
           description: OK
@@ -5637,7 +5641,7 @@ paths:
     post:
       tags:
         - Staff Attendance
-      summary: Mark staff Attendance by the Intitute 
+      summary: Mark staff Attendance by the Intitute (Verified)
       consumes:
         - application/json
       produces:
@@ -5677,7 +5681,7 @@ paths:
     patch:
       tags:
         - Staff Attendance
-      summary: Update Mark staff Attendance by the Intitute 
+      summary: Update Mark staff Attendance by the Intitute (Verified)
       consumes:
         - application/json
       produces:
@@ -5717,7 +5721,7 @@ paths:
     get:
       tags:
         - Staff Attendance
-      summary: This is give the one month all attendance OR one year all attendance 
+      summary: This is give the one month all attendance OR one year all attendance (Verified)
       consumes:
         - application/json
       produces:
@@ -5746,7 +5750,7 @@ paths:
     get:
       tags:
         - Student Attendance
-      summary: This is give current date particular Student Attendance id which is use in update the Student attendance api 
+      summary: This is give current date particular Student Attendance id which is use in update the Student attendance api (Verified)
       consumes:
         - application/json
       produces:
@@ -5757,6 +5761,10 @@ paths:
           required: true
           type: string
           description: This is Class id
+        - in: query
+          name: date
+          type: string
+          description: This is date like (08/07/2022)          
       responses:
         "200":
           description: OK
@@ -5764,7 +5772,7 @@ paths:
     post:
       tags:
         - Student Attendance
-      summary: Mark Sudent Attendance by the Class Teacher 
+      summary: Mark Sudent Attendance by the Class Teacher (Verified)
       consumes:
         - application/json
       produces:
@@ -5804,7 +5812,7 @@ paths:
     patch:
       tags:
         - Student Attendance
-      summary: Update Mark student Attendance by the Class Teacher 
+      summary: Update Mark student Attendance by the Class Teacher (Verified)
       consumes:
         - application/json
       produces:
@@ -5844,7 +5852,7 @@ paths:
     get:
       tags:
         - Student Attendance
-      summary: This is give the one month all attendance OR one year all attendance 
+      summary: This is give the one month all attendance OR one year all attendance (Verified)
       consumes:
         - application/json
       produces:
@@ -5873,7 +5881,7 @@ paths:
     patch:
       tags:
         - Class Related Api
-      summary: It is give the class code refresh every time
+      summary: It is give the class code refresh every time (Verified)
       consumes:
         - application/json
       produces:
@@ -5892,7 +5900,7 @@ paths:
     patch:
       tags:
         - Class Related Api
-      summary: It is edit the Class Start Date for taking the attendance and much more
+      summary: It is edit the Class Start Date for taking the attendance and much more (Verified)
       consumes:
         - application/json
       produces:
@@ -5911,7 +5919,22 @@ paths:
               classStartDate:
                 type: string
                 description: It is accept date format like "06/07/2022" only
-
+              finalReportsSettings:
+                type: object
+                properties:
+                  finalReport:
+                    type: boolean
+                    description: if it is true then class Teacher side show the report card other wise not show
+                  gradeMarks:
+                    type: boolean
+                    description: if it is true then class Teacher side show the report card other wise not show
+                  subjectPassingMarks:
+                    type: integer
+                    description: if it is true then class Teacher side show the report card other wise not show
+                  aggregatePassingPercentage:
+                    type: integer
+                    description: if it is true then class Teacher side show the report card other wise not show                                                            
+                description: It is class setting for the report card related function
       responses:
         "200":
           description: OK
@@ -5920,7 +5943,7 @@ paths:
     post:
       tags:
         - Holiday Related Api
-      summary: It is create the holiday by department head
+      summary: It is create the holiday by department head (Verified)
       consumes:
         - application/json
       produces:
@@ -5954,7 +5977,7 @@ paths:
     get:
       tags:
         - Holiday Related Api
-      summary: It is give the holiday list that is created by department head
+      summary: It is give the holiday list that is created by department head (Verified)
       consumes:
         - application/json
       produces:
@@ -5969,11 +5992,57 @@ paths:
         "200":
           description: OK
 
+  /api/v1/attendance/class/{cid}/holiday:
+    get:
+      tags:
+        - Holiday Related Api
+      summary: It is give the holiday list in class side created by department head with specific months or year (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class id
+        - in: query
+          name: month
+          type: integer
+          description: pass the month value if month less than 10 then pass month like 07
+        - in: query
+          name: year
+          type: integer
+          description: pass the year value        
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/attendance/holiday/{hid}/delete:
+    delete:
+      tags:
+        - Holiday Related Api
+      summary: It is give the holiday (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is holiday id
+      responses:
+        "200":
+          description: OK
+
   /api/v1/checklist/department/{did}:
     post:
       tags:
         - Checklist Related Api
-      summary: It is create the checklist by department head
+      summary: It is create the checklist by department head (Verified)
       consumes:
         - application/json
       produces:
@@ -6014,7 +6083,7 @@ paths:
     get:
       tags:
         - Checklist Related Api
-      summary: It is give information about one checklist is assign how many student (student list)
+      summary: It is give information about one checklist is assign how many student (student list) (Verified)
       consumes:
         - application/json
       produces:
@@ -6031,7 +6100,7 @@ paths:
     patch:
       tags:
         - Checklist Related Api
-      summary: It is update checklist by department head
+      summary: It is update checklist by department head (Verified)
       consumes:
         - application/json
       produces:
@@ -6064,7 +6133,7 @@ paths:
     get:
       tags:
         - Checklist Related Api
-      summary: It is give the checklist list that is created by department head
+      summary: It is give the checklist list that is created by department head (Verified)
       consumes:
         - application/json
       produces:
@@ -6088,7 +6157,7 @@ paths:
     get:
       tags:
         - Checklist Related Api
-      summary: It is assign the checklist  that student which student id you have pass in url
+      summary: It is assign the checklist  that student which student id you have pass in url (Verified)
       consumes:
         - application/json
       produces:
@@ -6109,11 +6178,602 @@ paths:
           description: OK
 
 
+# This is api for the only exam and report card related
+  /api/v1/exam/{did}/classmaster/{bid}:
+    get:
+      tags:
+        - Exam Related Api
+      summary: It is give the total class master with their classes id(divisions) created in that particular department with according their batch id (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: it is selected Department id for creating the exam 
+        - in: path
+          name: bid
+          required: true
+          type: string
+          description: It is selected Batch id for creating the exam         
+      responses:
+        "200":
+          description: OK
 
+  /api/v1/exam/{cmid}/subjectmaster/{bid}:
+    get:
+      tags:
+        - Exam Related Api
+      summary: It is give the total Subject master with their subjects id (divisions) created in that particular department with according their batch id (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cmid
+          required: true
+          type: string
+          description: It is selected Class Master id for showing the subject master list 
+        - in: path
+          name: bid
+          required: true
+          type: string
+          description: It is selected Batch id for showing the current batch subject list         
+      responses:
+        "200":
+          description: OK
 
+  /api/v1/exam/batch/{bid}:
+    post:
+      tags:
+        - Exam Related Api
+      summary: It is created exam in that particular department with according their batch id (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: bid
+          required: true
+          type: string
+          description: It is selected Batch id for creating the exam   
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              examName:
+                type: string
+                description: give name of the exam
+                required: true
+              examType:
+                type: string
+                required: true
+                description: give the exam type  that is "Final" or "Other"
+              examMode:
+                type: string
+                required: true
+                description: give the exam mode  that is "Offline" or "Online"
+              examWeight:
+                type: integer
+                description: give the exam weightage, only exam type is "Other"           
+              allclasses:
+                type: array
+                required: true 
+                description: give the arrays of the classes id that is selected by the class Master
+                items:
+                  type: string
+                  description: It is accept classes id 
+              allsubject:
+                type: array
+                description: give the arrays of the subject with their details
+                required: true 
+                items:
+                  type: object
+                  properties:
+                    subjectIds:
+                      type: array
+                      required: true 
+                      description: give the arrays of the subjects id that is selected by the subject Master
+                      items:
+                        type: string
+                        description: It is accept subject id 
+                    subjectName:
+                      type: string
+                      required: true
+                      description: give the name of the subject that is show in Subject Master(subjectName)
+                    totalMarks:
+                      type: integer
+                      required: true
+                      description: give the total maximum marks of that subject
+                    date:
+                      type: string
+                      required: true
+                      description: give the date which day exam is schedule of that subject and fomate (28/07/2022) 
+                    startTime:
+                      type: string
+                      required: true
+                      description: give the exam start time of that particular subject (02:00 Pm)
+                    endTime:
+                      type: string
+                      required: true
+                      description: give the exam end time of that particular subject (04:00 Pm)
+                    _id:
+                      type: string
+                      required: true
+                      description: it is Subject Master id that is selecetd when add the subject in created time                                                                                                    
+      responses:
+        "200":
+          description: OK
 
+  /api/v1/exam/all/{did}:
+    get:
+      tags:
+        - Exam Related Api
+      summary: It is give the total created exams in that particular department (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: It is Department id
+      responses:
+        "200":
+          description: OK
 
+  /api/v1/exam/{eid}:
+    get:
+      tags:
+        - Exam Related Api
+      summary: It is give the details of exams with their slected subjects and classes (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: It is particular Exam id
+      responses:
+        "200":
+          description: OK
 
+  /api/v1/exam/subjectteacher/{sid}:
+    get:
+      tags:
+        - Exam Related Api
+      summary: It is give the all exams list in subject Teacher side (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular Subject Teacher id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/allstudents/subjectteacher/{sid}/exam/{eid}:
+    get:
+      tags:
+        - Exam Related Api
+      summary: It is give all students list in that selected exam in subject Teacher side with their obtain marks in that particular subject (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular Subject Teacher id
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: It is particular Exam id          
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/allstudents/marks/subjectteacher/{sid}:
+    post:
+      tags:
+        - Exam Related Api
+      summary: It is give all students marks in that selected exam in subject Teacher side (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular Subject Teacher id
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              examId:
+                type: string
+                required: true
+                description: give selected Exam Id in subject teacher side when give numbers 
+              marks:
+                type: array
+                description: give the arrays of the subject with their id and grace marks
+                required: true 
+                items:
+                  type: object
+                  properties:
+                    studentId:
+                      type: string
+                      required: true
+                      description: it is Student id
+                    obtainMarks:
+                      type: integer
+                      required: true
+                      description: give the obtain marks of that student       
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/student/{sid}/allexam:
+    get:
+      tags:
+        - Exam Related Api
+      summary: It is give all exam list in student Side (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular Student id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/student/{sid}/exam/{eid}:
+    get:
+      tags:
+        - Exam Related Api
+      summary: It is give details of one exam with their subjects list with all details (time, date etc) in student Side (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular Student id
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: It is particular Exam id          
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/class/student/{sid}/grace:
+    patch:
+      tags:
+        - Exam Related Api
+      summary: It is update the grace marks of students in class Teacher side (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular Student id
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              allsubjects:
+                type: array
+                description: give the arrays of the subject with their id and grace marks
+                required: true 
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                      required: true
+                      description: it is a subject id
+                    graceMarks:
+                      type: integer
+                      required: true
+                      description: it is grace marks of particular subject         
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/class/{cid}/settings:
+    get:
+      tags:
+        - Exam Related Api
+      summary: It is give details of reprot card settings in class Teacher side (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: It is particular Class id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/class/student/{sid}/behaviour:
+    get:
+      tags:
+        - Exam Related Api
+      summary: It is give the behaviour of student (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular Student id
+      responses:
+        "200":
+          description: OK  
+    post:
+      tags:
+        - Exam Related Api
+      summary: It is created behaviour of student by class Teacher side (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular Student id
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              improvements:
+                type: string
+                description: Give improvements of student
+                required: true
+              lackIn:
+                type: string
+                description: Give lackin of student
+              ratings:
+                type: integer
+                description: Give star count of student 
+      responses:
+        "200":
+          description: OK
+
+  # /api/v1/exam/class/student/{sid}/report:
+  #   get:
+  #     tags:
+  #       - Exam Related Api
+  #     summary: It is give details of reprot card of student with their details in class Teacher side
+  #     consumes:
+  #       - application/json
+  #     produces:
+  #       - application/json
+  #     parameters:
+  #       - in: path
+  #         name: sid
+  #         required: true
+  #         type: string
+  #         description: It is particular Student id
+  #     responses:
+  #       "200":
+  #         description: OK
+
+  # /api/v1/exam/class/student/{sid}/report/attendance:
+  #   get:
+  #     tags:
+  #       - Exam Related Api
+  #     summary: It is give details of reprot card Attendance of student with their details in class Teacher side
+  #     consumes:
+  #       - application/json
+  #     produces:
+  #       - application/json
+  #     parameters:
+  #       - in: path
+  #         name: sid
+  #         required: true
+  #         type: string
+  #         description: It is particular Student id
+  #     responses:
+  #       "200":
+  #         description: OK
+
+  # /api/v1/exam/class/student/{sid}/report/finalize:
+  #   post:
+  #     tags:
+  #       - Exam Related Api
+  #     summary: It is finalize (created final report card) reprot card of student with their details in class Teacher side
+  #     consumes:
+  #       - application/json
+  #     produces:
+  #       - application/json
+  #     parameters:
+  #       - in: path
+  #         name: sid
+  #         required: true
+  #         type: string
+  #         description: It is particular Student id
+  #       - in: body
+  #         name: body
+  #         schema:
+  #           type: object
+  #           properties:
+  #             totalFinalExam:
+  #               type: integer
+  #               description: Total of all subjects final marks
+  #               required: true
+  #             totalOtherExam:
+  #               type: integer
+  #               description: Total of all subjects other marks
+  #               required: true
+  #             totalGraceExam:
+  #               type: integer
+  #               description: Total of all subjects grace marks 
+  #               required: true
+  #             totalTotalExam:
+  #               type: integer
+  #               description: Total of all subjects wise Total marks
+  #               required: true
+  #             totalPercentage:
+  #               type: integer
+  #               description: Total percentage of student
+  #               required: true
+  #             attendance:
+  #               type: integer
+  #               description: Total number of present days of student 
+  #               required: true
+  #             attendanceTotal:
+  #               type: integer
+  #               description: Total number of attendance taken by class teacher 
+  #               required: true
+  #             attendancePercentage:
+  #               type: integer
+  #               description: Total percentage of student present in class that year
+  #               required: true
+  #             behaviourStar:
+  #               type: integer
+  #               description: Total star count given by class teacher in behaviour
+  #               required: true
+  #             behaviourImprovement:
+  #               type: string
+  #               description: Improvement given by class teacher in behaviour 
+  #               required: true
+  #             behaviourLack:
+  #               type: string
+  #               description: Lack given by class teacher in behaviour 
+  #               required: true
+  #             subjects:
+  #               type: array
+  #               description: give the arrays of the subject with their details
+  #               required: true 
+  #               items:
+  #                 type: object
+  #                 properties:
+  #                   _id:
+  #                     type: string
+  #                     required: true
+  #                     description: it is a subject id
+  #                   subjectName:
+  #                     type: string
+  #                     required: true
+  #                     description: it is subject name
+  #                   finalExamTotal:
+  #                     type: integer
+  #                     required: true
+  #                     description: it is a subject wise finalExamTotal
+  #                   finalExamObtain:
+  #                     type: integer
+  #                     required: true
+  #                     description: it is a subject wise finalExamObtain
+  #                   otherExamTotal:
+  #                     type: integer
+  #                     required: true
+  #                     description: it is a subject wise otherExamTotal
+  #                   otherExamObtain:
+  #                     type: integer
+  #                     required: true
+  #                     description: it is a subject wise otherExamObtain
+  #                   graceMarks:
+  #                     type: integer
+  #                     required: true
+  #                     description: it is a subject wise graceMarks
+  #                   totalMarks:
+  #                     type: integer
+  #                     required: true
+  #                     description: it is a subject wise totalMarks
+  #                   obtainTotalMarks:
+  #                     type: integer
+  #                     required: true
+  #                     description: it is a subject wise obtainTotalMarks                                                                                                 
+  #     responses:
+  #       "200":
+  #         description: OK
+
+  # /api/v1/exam/class/student/{sid}/report/finalize/grace/update:
+  #   patch:
+  #     tags:
+  #       - Exam Related Api
+  #     summary: It is updated grace marks of student after finalize reprot card of student in class Teacher side
+  #     consumes:
+  #       - application/json
+  #     produces:
+  #       - application/json
+  #     parameters:
+  #       - in: path
+  #         name: sid
+  #         required: true
+  #         type: string
+  #         description: It is particular Student id
+  #       - in: body
+  #         name: body
+  #         schema:
+  #           type: object
+  #           properties:
+  #             subjects:
+  #               type: array
+  #               description: give the arrays of the subject with their id and grace marks
+  #               required: true 
+  #               items:
+  #                 type: object
+  #                 properties:
+  #                   _id:
+  #                     type: string
+  #                     required: true
+  #                     description: it is a subject id
+  #                   graceMarks:
+  #                     type: integer
+  #                     required: true
+  #                     description: it is grace marks of particular subject
+  #     responses:
+  #       "200":
+  #         description: OK
 
 
 

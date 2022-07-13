@@ -316,6 +316,10 @@ const instituteAdminSchema = new mongoose.Schema({
     type: String,
     default: "Not Assigned",
   },
+  paymentBankStatus: { type: String },
+  accessFeature: { type: String, default: 'Locked'},
+  unlockAmount: { type: Number, default: 0},
+  featurePaymentStatus: { type: String, default: 'Not Paid'},
   staffAttendance: [
     { type: mongoose.Schema.Types.ObjectId, ref: "StaffAttendenceDate" },
   ],

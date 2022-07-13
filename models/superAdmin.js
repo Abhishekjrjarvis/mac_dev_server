@@ -164,6 +164,10 @@ const superAdminSchema = new mongoose.Schema({
         type: Number, 
         default: 0
     },
+    featureAmount: {
+        type: Number,
+        default: 0
+    },
     posts: [
         {
             type: mongoose.Schema.Types.ObjectId,
@@ -197,7 +201,19 @@ const superAdminSchema = new mongoose.Schema({
     assignUniversal: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'InstituteAdmin'
-    }
+    },
+    aNotify: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Notification'
+        }
+    ],
+    exploreFeatureList: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'IdCardPayment'
+        }
+    ]
     
 })
 

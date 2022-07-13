@@ -300,6 +300,7 @@ app.use('/api/v1/message', messageNew)
 
 // Super Admin Routes
 
+
 app.get("/", async (req, res) => {
   try {
     const admins = await Admin.find({});
@@ -12746,6 +12747,7 @@ const io = require("socket.io")(server, {
   pingTimeout: 60000,
   cors: {
     origin: "http://localhost:3000",
+    methods: ["GET", "POST"]
     // credentials: true,
   },
 });
@@ -12780,3 +12782,21 @@ io.on("connection", (socket) => {
     socket.leave(userData);
   });
 });
+
+
+
+  // socket.on("support chat", (room) => {
+  //   socket.join(room);
+  //   console.log("User Joined Room: " + room);
+  // });
+
+  // socket.on("support query", (newSupportQuery) => {
+  //   var chat = newSupportQuery.chat;
+  //   if (!chat.users) return console.log("chat.users not defined");
+
+  //   chat.users.forEach((user) => {
+  //     if (user == newSupportQuery.sender) return;
+  //     // var delievered = true
+  //     socket.in(user).emit("support query recieved", newSupportQuery);
+  //   });
+  // });

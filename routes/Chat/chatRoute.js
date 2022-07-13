@@ -8,14 +8,24 @@ router.post('/', isLoggedIn, catchAsync(Chat.accessChat));
 
 router.get('/', isLoggedIn,  catchAsync(Chat.fetchChats));
 
-router.post('/group', isLoggedIn,  catchAsync(Chat.createGroupChat));
+router.post('/new/group', isLoggedIn,  catchAsync(Chat.createGroupChat));
 
-router.put('/rename', isLoggedIn,  catchAsync(Chat.renameGroup));
+router.patch('/rename/group', isLoggedIn,  catchAsync(Chat.renameGroup));
 
-router.post('/groupremove', isLoggedIn,  catchAsync(Chat.removeFromGroup));
+router.post('/remove/user/group', isLoggedIn,  catchAsync(Chat.removeFromGroup));
 
-router.post('/groupadd', isLoggedIn,  catchAsync(Chat.addToGroup));
+router.post('/group/re/add', isLoggedIn,  catchAsync(Chat.addToGroup));
 
-router.post('/:id/fetch/message', isLoggedIn,  catchAsync(Chat.fetchChatMessage));
+router.patch('/:cid/admin/group/disable', isLoggedIn, catchAsync(Chat.disableGroupByAdmin))
+
+router.get('/:id/fetch/message', isLoggedIn,  catchAsync(Chat.fetchChatMessage));
+
+router.post('/support/new/chat', isLoggedIn, catchAsync(Chat.supportAdminChat));
+
+router.post('/support/admin/chat', isLoggedIn,  catchAsync(Chat.supportAdminFetchChat));
+
+router.post('/new/group/subject', isLoggedIn,  catchAsync(Chat.createSubjectGroupChat));
+
+router.get('/user/subject/student', isLoggedIn, catchAsync(Chat.retrieveSubjectStudentArray))
 
 module.exports = router;

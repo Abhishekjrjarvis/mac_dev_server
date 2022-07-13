@@ -10,7 +10,7 @@ const upload = multer({ dest: "uploads/" });
 router.post('/ins/:id/staff/:sid', isLoggedIn, isApproved, catchAsync(Finance.getFinanceDepart))
 
 // Upload Bank Details By Finance Head
-router.post('/:fid/add/bank/details/:id', isLoggedIn, isApproved, catchAsync(Finance.uploadBankDetail))
+router.post('/add/bank/details/:id', isLoggedIn, isApproved, catchAsync(Finance.uploadBankDetail))
 
 // Remove Bank Details By Finance Head
 router.post('/ins/bank/:id', isLoggedIn, catchAsync(Finance.removeBankDetail))
@@ -25,7 +25,7 @@ router.get('/detail/:id', isLoggedIn, catchAsync(Finance.getFinanceDetail))
 router.post('/info/:fid', isLoggedIn, catchAsync(Finance.getFinanceInfo))
 
 // Added Income
-router.post('/staff/:sid/finance/:fid/income', isLoggedIn, catchAsync(Finance.getIncome))
+router.post('/:fid/income', isLoggedIn, catchAsync(Finance.getIncome))
 
 // All Cash Incomes
 router.post('/all/incomes', isLoggedIn, catchAsync(Finance.getAllCashIncomes))
@@ -34,7 +34,7 @@ router.post('/all/incomes', isLoggedIn, catchAsync(Finance.getAllCashIncomes))
 router.post('/all/bank/incomes', isLoggedIn, catchAsync(Finance.getAllBankIncomes))
 
 // Add Expense
-router.post('/staff/:sid/finance/:fid/expense', isLoggedIn, catchAsync(Finance.getExpense))
+router.post('/:fid/expense', isLoggedIn, catchAsync(Finance.getExpense))
 
 // All Cash Expenses
 router.post('/all/expenses', isLoggedIn, catchAsync(Finance.getAllCashExpense))

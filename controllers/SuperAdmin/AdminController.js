@@ -403,3 +403,40 @@ exports.retrieveOneInstitute = async(req, res) =>{
 
   }
 }
+
+
+exports.verifyInstituteBankDetail = async(req, res) =>{
+  try{
+    const { aid, id } = req.params
+    var admin = await Admin.findById({_id: aid})
+    var regExp = "^[A-Z]{4}[0][A-Z0-9]{6}$"
+    var institute = await InstituteAdmin.findById({_id: id})
+    if(institute.bankAccountNumber.length >=9 && institute.bankIfscCode.length >=1 && institute.bankIfscCode.match(regExp)){
+      institute.paymentBankStatus = 'verified'
+      const notify = new Notification({})
+      notify.notifyContent = ` ${institute.insName} congrats for payment bank verification was successfull`
+      notify.notifySender = admin._id;
+      notify.notifyReceiever = institute._id;
+      institute.iNotify.push(notify._id);
+      notify.notifyPid = "1";
+      notify.notifyBySuperAdminPhoto = "https://qviple.com/images/newLogo.svg"
+      await Promise.all([ institute.save(), notify.save()])
+      res.status(200).send({ message: 'Verification Done' })
+    }
+    else{
+      institute.paymentBankStatus = 'Not Verified'
+      const notify = new Notification({})
+      notify.notifyContent = ` ${institute.insName} your payment bank verification was unsuccessfull due to Incorrect Bank Data`
+      notify.notifySender = admin._id;
+      notify.notifyReceiever = institute._id;
+      institute.iNotify.push(notify._id);
+      notify.notifyPid = "1";
+      notify.notifyBySuperAdminPhoto = "https://qviple.com/images/newLogo.svg"
+      await Promise.all([ institute.save(), notify.save()])
+      res.status(422).send({ message: 'Invalid Payment Bank Credentials' })
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}

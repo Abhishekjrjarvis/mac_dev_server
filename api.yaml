@@ -6189,7 +6189,7 @@ paths:
     post:
       tags:
         - Qviple Socket (one to one chat)
-      summary: Create message
+      summary: Create message (socket)
       consumes:
         - application/json
       produces:
@@ -6220,7 +6220,7 @@ paths:
     post:
       tags:
         - Qviple Socket (one to one chat)
-      summary: Create message with documents (Image, Gif, Pdf document, Doc)
+      summary: Create message with documents (Image, Gif, Pdf document, Doc) (socket)
       consumes:
         - multipart/form-data
       produces:
@@ -6257,7 +6257,7 @@ paths:
     post:
       tags:
         - Qviple Socket (one to one chat)
-      summary: Create Forward Message to one or another
+      summary: Create Forward Message to one or another (socket)
       consumes:
         - application/json
       produces:
@@ -6341,6 +6341,264 @@ paths:
           required: true
           type: string
           description: This is chat id         
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/chat/:
+    get:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: fetch recents chat of logged In user
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:         
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/chat/new/group:
+    post:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: Create Group By Institute to Assign Admin as its user profile 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              users:
+                type: array
+                description: Enter Array of Staff for its user profile
+              name:
+                type: string
+                description: Enter chat name
+              admin:
+                type: string
+                description: Enter Institute Admin user profile Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/chat/rename/group:
+    patch:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: Rename Group chat 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              chatId:
+                type: string
+                description: Enter chat Id
+              chatName:
+                type: string
+                description: Enter chatName
+              chatDescription:
+                type: string
+                description: Enter Chat Description
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/chat/remove/user/group:
+    post:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: Remove Staff User Profile Id from group by Group Admin
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              userId:
+                type: array
+                description: Enter Staff User Id which want to remove
+              chatId:
+                type: string
+                description: Enter chat Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/chat/group/re/add:
+    post:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: Add Staff User Profile Id from group by Group Admin
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              userId:
+                type: array
+                description: Enter Staff User Id which want to add
+              chatId:
+                type: string
+                description: Enter chat Id
+      responses:
+        "200":
+          description: OK
+
+  
+
+  /api/v1/chat/{cid}/admin/group/disable:
+    patch:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: Group Admin Disable the Group (you'll be no longer accessible)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters: 
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is chat id         
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/chat/support/new/chat:
+    post:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: Create One to One support chat between user and super admin
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              userId:
+                type: string
+                description: Enter User Id of chat Person
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/message/support/admin/message:
+    post:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: Super Admin Support create new message 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              content:
+                type: string
+                description: Enter messaging content
+              chatId:
+                type: string
+                description: Enter current chat Id
+              userId:
+                type: string
+                description: Enter Sender User Id
+      responses:
+        "200":
+          description: OK
+
+
+
+  /api/v1/chat/support/admin/chat:
+    post:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: fetch recents chat of user supports
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              userId:
+                type: string
+                description: Enter Sender User Id
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/chat/user/subject/student:
+    get:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: Get Student List of Subject of Class 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:         
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/chat/new/group/subject:
+    post:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: Create Group By Subject Teacher to Assign Admin as its user profile 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              users:
+                type: array
+                description: Enter Array of Student for its user profile
+              name:
+                type: string
+                description: Enter chat name
       responses:
         "200":
           description: OK

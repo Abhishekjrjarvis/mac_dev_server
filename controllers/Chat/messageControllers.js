@@ -4,6 +4,8 @@ const Chat = require("../../models/Chat/Chat");
 const ChatDocument = require('../../models/Chat/ChatDocument')
 const ReplyChat = require('../../models/Chat/ReplyChat')
 const ForwardMessage = require('../../models/Chat/ForwardMessage')
+const SupportChat = require('../../models/Chat/SupportChat')
+const SupportMessage = require('../../models/Chat/SupportMessage')
 const {
   uploadDocFile,
 } = require("../../S3Configuration");
@@ -302,5 +304,44 @@ exports.forwardMessageDocumentQuery = async(req, res) =>{
   }
   catch(e){
     console.log(e)
+  }
+}
+
+
+exports.sendSupportMessageQuery = async (req, res) => {
+  const { content, chatId, userId } = req.body;
+
+  if (!content || !chatId || !userId) {
+    console.log("Invalid data passed into request");
+    return res.sendStatus(400);
+  }
+
+  var newMessage = {
+    sender: userId,
+    content: content,
+    chat: chatId,
+    delievered: true
+  };
+
+
+  try {
+    var message = new SupportMessage(newMessage);
+    await message.save()
+
+    message = await message.populate("chat");
+    // message = await User.populate(message, {
+    //   path: "chat.users",
+    //   select: "username userLegalName photoId profilePhoto userEmail",
+    // });
+
+    const chat = await SupportChat.findById(req.body.chatId)
+    chat.latestMessage = message._id
+    chat.message.push(message._id)
+    await chat.save()
+
+    res.json(message);
+  } catch (error) {
+    res.status(400);
+    throw new Error(error.message);
   }
 }

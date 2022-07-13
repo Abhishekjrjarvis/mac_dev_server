@@ -43,9 +43,7 @@ exports.getFinanceDepart = async(req, res) =>{
         ])
         res.status(200).send({
           message: "Successfully Assigned Staff",
-          finance,
-          staff,
-          institute,
+          finance: finance._id
         });
       } catch(e) {
       }
@@ -53,16 +51,24 @@ exports.getFinanceDepart = async(req, res) =>{
 
 exports.uploadBankDetail = async(req, res) =>{
     try {
-        const { fid, id } = req.params;
+        const { id } = req.params;
         const { bankAccountHolderName, bankAccountNumber, bankIfscCode, bankAccountPhoneNumber } = req.body;
-        const finance = await Finance.findById({ _id: fid });
+        const admin = await Admin.findById({_id: `${process.env.S_ADMIN_ID}`})
         const institute = await InstituteAdmin.findById({ _id: id });
+        const notify = new Notification({})
         institute.bankAccountHolderName = bankAccountHolderName;
         institute.bankAccountNumber = bankAccountNumber;
         institute.bankIfscCode = bankIfscCode;
         institute.bankAccountPhoneNumber = bankAccountPhoneNumber;
-        await Promise.all([institute.save()]);
-        res.status(200).send({ message: "bank detail updated" });
+        institute.paymentBankStatus = 'verification in progress'
+        notify.notifyContent = ` ${institute.insName} Institute payment Details updated Check and Verify `
+        notify.notifySender = institute._id;
+        notify.notifyReceiever = admin._id;
+        admin.aNotify.push(notify._id);
+        notify.notifyPid = "1";
+        notify.notifyByInsPhoto = institute._id;
+        await Promise.all([institute.save(), admin.save(), notify.save()]);
+        res.status(200).send({ message: "bank detail updated wait for verification" });
       } catch(e) {
       }
 }
@@ -75,6 +81,7 @@ exports.removeBankDetail = async(req, res) =>{
         institute.bankAccountNumber = "";
         institute.bankIfscCode = "";
         institute.bankAccountPhoneNumber = "";
+        institute.paymentBankStatus = 'payment Details are mandatory for Finance Department'
         await Promise.all([ institute.save() ]);
         res.status(200).send({ message: "Bank Details Removed" });
       } catch(e) {
@@ -84,9 +91,18 @@ exports.removeBankDetail = async(req, res) =>{
 exports.updateBankDetail = async(req, res) =>{
     try {
         const { id } = req.params;
+        const admin = await Admin.findById({_id: `${process.env.S_ADMIN_ID}`})
         const institute = await InstituteAdmin.findByIdAndUpdate(id, req.body);
-        await institute.save();
-        res.status(200).send({ message: "bank detail updated" });
+        const notify = new Notification({})
+        institute.paymentBankStatus = 'verification in progress'
+        notify.notifyContent = ` ${institute.insName} Institute payment Details updated Check and Verify `
+        notify.notifySender = institute._id;
+        notify.notifyReceiever = admin._id;
+        admin.aNotify.push(notify._id);
+        notify.notifyPid = "1";
+        notify.notifyByInsPhoto = institute._id;
+        await Promise.all([institute.save(), admin.save(), notify.save()]);
+        res.status(200).send({ message: "bank detail updated wait for verification" });
       } catch(e) {
       }
 }
@@ -101,6 +117,7 @@ exports.getFinanceDetail = async(req, res) =>{
           })
           .populate({
             path: "institute",
+            select: 'id insName'
           })
           .populate({
             path: "expenseDepartment",
@@ -118,6 +135,7 @@ exports.getFinanceDetail = async(req, res) =>{
             path: "classRoom",
             populate: {
               path: "receieveFee",
+              select: 'feeName feeAmount'
             },
             select: 'id'
           })
@@ -145,15 +163,14 @@ exports.getFinanceInfo = async(req, res) =>{
         financeInfo.financeEmail = financeEmail;
         financeInfo.financePhoneNumber = financePhoneNumber;
         await Promise.all([financeInfo.save()]);
-        res.status(200).send({ message: "Finance Info Updates", financeInfo });
+        res.status(200).send({ message: "Finance Info Updates" });
       } catch(e) {
       }
 }
 
 exports.getIncome = async(req, res) =>{
     try {
-        const { sid, fid } = req.params;
-        const staff = await Staff.findById({ _id: sid });
+        const { fid } = req.params;
         const finance = await Finance.findById({ _id: fid });
         const incomes = await new Income({ ...req.body });
         finance.incomeDepartment.push(incomes._id);
@@ -169,7 +186,7 @@ exports.getIncome = async(req, res) =>{
          finance.save(),
          incomes.save()
         ])
-        res.status(200).send({ message: "Add New Income", finance, incomes });
+        res.status(200).send({ message: "Add New Income", finance: finance._id, incomes: incomes._id });
       } catch(e) {
       }
 }
@@ -178,7 +195,7 @@ exports.getAllCashIncomes = async(req, res) =>{
     try {
         const { queryStatus } = req.body;
         const income = await Income.find({ incomeAccount: queryStatus });
-        res.status(200).send({ message: "cash data", income });
+        res.status(200).send({ message: "cash data", cashIncome: income });
       } catch(e) {
       }
 }
@@ -187,15 +204,14 @@ exports.getAllBankIncomes = async(req, res) =>{
     try {
         const { queryStatus } = req.body;
         const income = await Income.find({ incomeAccount: queryStatus });
-        res.status(200).send({ message: "bank data", income });
+        res.status(200).send({ message: "bank data", bankIncome: income });
       } catch(e) {
       }
 }
 
 exports.getExpense = async(req, res) =>{
     try {
-        const { sid, fid } = req.params;
-        const staff = await Staff.findById({ _id: sid });
+        const { fid } = req.params;
         const finance = await Finance.findById({ _id: fid });
         const expenses = await new Expense({ ...req.body });
         finance.expenseDepartment.push(expenses._id);
@@ -211,7 +227,7 @@ exports.getExpense = async(req, res) =>{
          finance.save(),
          expenses.save()
         ])
-        res.status(200).send({ message: "Add New Expense", finance, expenses });
+        res.status(200).send({ message: "Add New Expense", finance: finance._id, expenses: expenses._id });
       } catch(e) {
       }
 }
@@ -220,7 +236,7 @@ exports.getAllCashExpense = async(req, res) =>{
     try {
         const { queryStatus } = req.body;
         const expense = await Expense.find({ expenseAccount: queryStatus });
-        res.status(200).send({ message: "cash data", expense });
+        res.status(200).send({ message: "cash data", cashExpense: expense });
       } catch(e) {
       }
 }
@@ -229,7 +245,7 @@ exports.getAllBankExpense = async(req, res) =>{
     try {
         const { queryStatus } = req.body;
         const expense = await Expense.find({ expenseAccount: queryStatus });
-        res.status(200).send({ message: "bank data", expense });
+        res.status(200).send({ message: "bank data", bankExpense: expense });
       } catch(e) {
       }
 }
@@ -257,7 +273,7 @@ exports.getClassOnlineFee = async(req, res) =>{
         const classes = await Class.findById({ _id: cid });
         classes.onlineTotalFee = fee;
         await classes.save();
-        res.status(200).send({ message: "class online total", classes });
+        res.status(200).send({ message: "class online total", classes: classes.onlineTotalFee });
       } catch(e) {
       }
 }
@@ -269,7 +285,7 @@ exports.getClassOfflineFee = async(req, res) =>{
         const classes = await Class.findById({ _id: cid });
         classes.offlineTotalFee = fee;
         await classes.save();
-        res.status(200).send({ message: "class offline total", classes });
+        res.status(200).send({ message: "class offline total", classes: classes.offlineTotalFee });
       } catch(e) {
       }
 }
@@ -281,7 +297,7 @@ exports.getClassCollectedFee = async(req, res) =>{
         const classes = await Class.findById({ _id: cid });
         classes.classTotalCollected = fee;
         await classes.save();
-        res.status(200).send({ message: "class offline total", classes });
+        res.status(200).send({ message: "class offline total", classes: classes.classTotalCollected });
       } catch(e) {
 
       }
@@ -299,6 +315,7 @@ exports.collectClassFee = async(req, res) =>{
               select: 'id',
               populate: {
                 path: "onlineCheckList",
+                select: 'checklistName checklistAmount'
               },
             },
           })
@@ -318,6 +335,7 @@ exports.collectClassFee = async(req, res) =>{
               select: 'id',
               populate: {
                 path: "onlineFeeList",
+                select: 'feeName feeAmount'
               },
             },
           });
@@ -339,7 +357,7 @@ exports.requestClassOfflineFee = async(req, res) =>{
          finance.save(),
          classes.save()
         ])
-        res.status(200).send({ message: "class submitted Data", finance });
+        res.status(200).send({ message: "class submitted Data", classOfflineFee: finance });
       } catch(e) {
       }
 }
@@ -349,9 +367,10 @@ exports.submitClassOfflineFee = async(req, res) =>{
         const { fid, cid, id } = req.params;
         const { fee } = req.body;
         const finance = await Finance.findById({ _id: fid });
-        const classes = await Class.findById({ _id: cid }).populate(
-          "ApproveStudent"
-        );
+        const classes = await Class.findById({ _id: cid })
+        // .populate(
+        //   "ApproveStudent"
+        // );
         const fees = await Fees.findById({ _id: id });
         finance.classRoom.pull(classes._id);
         finance.submitClassRoom.push(classes._id);
@@ -364,7 +383,7 @@ exports.submitClassOfflineFee = async(req, res) =>{
          finance.save(),
          fees.save()
         ])
-        res.status(200).send({ message: "finance class submitted Data", finance });
+        res.status(200).send({ message: "finance class submitted Data", submitClassOfflineFee: finance });
       } catch(e) {
       }
 }
@@ -377,7 +396,7 @@ exports.classOfflineFeeIncorrect = async(req, res) =>{
         finance.classRoom.pull(classes._id);
         finance.pendingClassRoom.push(classes._id);
         await finance.save();
-        res.status(200).send({ message: "class submitted Data", finance });
+        res.status(200).send({ message: "class submitted Data", offlineIncorrectFee: finance });
       } catch {
       }
 }
@@ -389,7 +408,7 @@ exports.updatePaymenFinance = async(req, res) =>{
         const finance = await Finance.findById({ _id: fid });
         finance.financeBankBalance = balance;
         await finance.save();
-        res.status(200).send({ message: "balance", finance });
+        res.status(200).send({ message: "balance", bankBalance: finance.financeBankBalance });
       } catch(e) {
       }
 }
@@ -457,7 +476,7 @@ exports.RepayBySuperAdmin = async(req, res) =>{
     institute.iNotify.push(notify._id);
     notify.institute = institute._id;
     notify.notifyBySuperAdminPhoto =
-      "https://qviple.com/static/media/Mithkal_icon.043e3412.png";
+      "https://qviple.com/images/newLogo.svg";
     await Promise.all([
      institute.save(),
      notify.save()

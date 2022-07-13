@@ -23,6 +23,7 @@ const userSchema = new mongoose.Schema({
   profileCoverPhoto: { type: String },
   photoId: { type: String },
   coverId: { type: String },
+  isSubjectTeacher: { type: String, default: 'No'},
   userPosts: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -229,6 +230,12 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Admin'
   },
+  isSubjectChat: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Subject'
+    }
+  ],
   isAdmin: {
     type: Boolean,
     required: true,

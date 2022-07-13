@@ -20,4 +20,8 @@ router.patch('/unread/receipts/:cid', isLoggedIn, catchAsync(Message.markAsUnRea
 
 router.delete('/:mid/chat/dump/:cid', isLoggedIn, catchAsync(Message.dumpOneMessage))
 
+router.post('/support/admin/message', isLoggedIn, catchAsync(Message.sendSupportMessageQuery));
+
+
+
 module.exports = router;

@@ -1,24 +1,20 @@
 const mongoose = require("mongoose");
 
-const chatModel = mongoose.Schema(
+const supportChatSchema = mongoose.Schema(
   {
     chatName: { type: String, trim: true },
     isGroupChat: { type: Boolean, default: false },
-    chatProfilePhoto: { type: String },
-    chatDescription: { type: String },
-    chatVisibility: { type: String, default: 'Enable' },
-    users: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    users: [],
     latestMessage: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Message",
+      ref: "SupportMessage",
     },
     message:[
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Message",
+        ref: "SupportMessage",
       }
     ],
-    groupAdmin: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     lastSeen: {
       type: String,
     },
@@ -29,6 +25,6 @@ const chatModel = mongoose.Schema(
   { timestamps: true }
 );
 
-const Chat = mongoose.model("Chat", chatModel);
+const Chat = mongoose.model("SupportChat", supportChatSchema);
 
 module.exports = Chat;

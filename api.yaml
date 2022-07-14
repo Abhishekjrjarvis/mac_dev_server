@@ -6437,7 +6437,7 @@ paths:
                       required: true
                       description: it is Student id
                     obtainMarks:
-                      type: integer
+                      type: number
                       required: true
                       description: give the obtain marks of that student       
       responses:
@@ -6519,7 +6519,7 @@ paths:
                       required: true
                       description: it is a subject id
                     graceMarks:
-                      type: integer
+                      type: number
                       required: true
                       description: it is grace marks of particular subject         
       responses:
@@ -6655,23 +6655,23 @@ paths:
             type: object
             properties:
               totalFinalExam:
-                type: integer
+                type: number
                 description: Total of all subjects final marks
                 required: true
               totalOtherExam:
-                type: integer
+                type: number
                 description: Total of all subjects other marks
                 required: true
               totalGraceExam:
-                type: integer
+                type: number
                 description: Total of all subjects grace marks 
                 required: true
               totalTotalExam:
-                type: integer
+                type: number
                 description: Total of all subjects wise Total marks
                 required: true
               totalPercentage:
-                type: integer
+                type: number
                 description: Total percentage of student
                 required: true
               attendance:
@@ -6683,7 +6683,7 @@ paths:
                 description: Total number of attendance taken by class teacher 
                 required: true
               attendancePercentage:
-                type: integer
+                type: number
                 description: Total percentage of student present in class that year
                 required: true
               behaviourStar:
@@ -6718,7 +6718,7 @@ paths:
                       required: true
                       description: it is a subject wise finalExamTotal
                     finalExamObtain:
-                      type: integer
+                      type: number
                       required: true
                       description: it is a subject wise finalExamObtain
                     otherExamTotal:
@@ -6726,7 +6726,7 @@ paths:
                       required: true
                       description: it is a subject wise otherExamTotal
                     otherExamObtain:
-                      type: integer
+                      type: number
                       required: true
                       description: it is a subject wise otherExamObtain
                     graceMarks:
@@ -6738,7 +6738,7 @@ paths:
                       required: true
                       description: it is a subject wise totalMarks
                     obtainTotalMarks:
-                      type: integer
+                      type: number
                       required: true
                       description: it is a subject wise obtainTotalMarks                                                                                                 
       responses:

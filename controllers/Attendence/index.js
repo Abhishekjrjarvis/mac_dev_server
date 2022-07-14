@@ -62,7 +62,7 @@ exports.markAttendenceClassStudent = async (req, res) => {
       attendDate: { $eq: `${req.body.date}` },
     });
     if (dLeave || attendanceone) {
-      res.status(200).send({
+      res.status(424).send({
         message:
           "Today will be holiday  Provided by department Admin or already marked attendance",
       });
@@ -304,10 +304,13 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
     const dLeaves = await Holiday.findOne({
       dDate: { $eq: `${req.body.date}` },
     });
-
-    if (dLeaves) {
+    const attend = await StaffAttendenceDate.findOne({
+      staffAttendDate: { $eq: `${req.body.date}` },
+    });
+    if (dLeaves || attend) {
       res.status(200).send({
-        message: "Attendance not mark Current Date due to Holiday",
+        message:
+          "Attendance not mark Current Date due to Holiday or Already marked attendance",
       });
     } else {
       const currentDate = new Date();
@@ -641,165 +644,3 @@ exports.delHoliday = async (req, res) => {
     });
   } catch (error) {}
 };
-
-// ===============================UNUSED ROUTE=====================
-
-// // const Batch = require("../../models/Batch");
-
-// exports.getAttendStudentClass = async (req, res) => {
-//   try {
-//     const { cid } = req.params;
-//     const classes = await Class.findById({ _id: cid })
-//       .select("className classTitle classStatus classStartDate")
-//       .populate({
-//         path: "ApproveStudent",
-//         select:
-//           "studentFirstName studentMiddleName studentLastName studentROLLNO",
-//       })
-//       .lean()
-//       .exec();
-//     if (classes) {
-//       res.status(200).send({ message: "Success", classes });
-//     } else {
-//       res.status(404).send({ message: "Failure" });
-//     }
-//   } catch {}
-// };
-
-// exports.getAttendStudentClassById = async (req, res) => {
-//   try {
-//     const { cid } = req.params;
-//     const classes = await Class.findById({ _id: cid })
-//       .select("className classTitle classStatus classStartDate")
-//       .populate({
-//         path: "ApproveStudent",
-//         select: "id",
-//       })
-//       .lean()
-//       .exec();
-//     if (classes) {
-//       res.status(200).send({ message: "Success", classes });
-//     } else {
-//       res.status(404).send({ message: "Failure" });
-//     }
-//   } catch {}
-// };
-
-// exports.retrieveAttendenceByDate = async (req, res) => {
-//   try {
-//     const { cid, date } = req.params;
-//     const attend = await AttendenceDate.findOne({
-//       $and: [{ className: cid }, { attendDate: date }],
-//     })
-//       .select(
-//         "attendDate presentStudent presentTotal absentStudent absentTotal"
-//       )
-//       .lean()
-//       .exec();
-//     if (attend) {
-//       res.status(200).send({ message: "Success", attend });
-//     } else {
-//       res.status(404).send({ message: "Failure" });
-//     }
-//   } catch {}
-// };
-
-// exports.retrieveStudentAttendenceCalendar = async (req, res) => {
-//   try {
-//     const { sid } = req.params;
-//     const { dateStatus } = req.body;
-//     const attendStatus = await AttendenceDate.findOne({
-//       attendDate: dateStatus,
-//     });
-//     if (attendStatus) {
-//       if (
-//         attendStatus.presentStudent.length >= 1 &&
-//         attendStatus.presentStudent.includes(String(sid))
-//       ) {
-//         res.status(200).send({ message: "Present", status: "Present" });
-//       } else if (
-//         attendStatus.absentStudent.length >= 1 &&
-//         attendStatus.absentStudent.includes(String(sid))
-//       ) {
-//         res.status(200).send({ message: "Absent", status: "Absent" });
-//       } else {
-//       }
-//     } else {
-//       res.status(200).send({ message: "Not Marking", status: "Not Marking" });
-//     }
-//   } catch {}
-// };
-
-// //depriciated this function
-// exports.retrieveAttendenceByStaffDate = async (req, res) => {
-//   try {
-//     const { did, date } = req.params;
-//     const attend = await StaffAttendenceDate.findOne({
-//       $and: [{ department: did }, { staffAttendDate: date }],
-//     })
-//       .select(
-//         "staffAttendDate presentStaff presentTotal absentStaff absentTotal"
-//       )
-//       .lean()
-//       .exec();
-//     if (attend) {
-//       res.status(200).send({ message: "Success", attend });
-//     } else {
-//       res.status(404).send({ message: "Failure" });
-//     }
-//   } catch {}
-// };
-
-// exports.retrieveStaffAttendenceCalendar = async (req, res) => {
-//   try {
-//     const { sid } = req.params;
-//     const { dateStatus } = req.body;
-//     const attendStatus = await StaffAttendenceDate.findOne({
-//       staffAttendDate: dateStatus,
-//     });
-//     if (attendStatus) {
-//       if (
-//         attendStatus.presentStaff.length >= 1 &&
-//         attendStatus.presentStaff.includes(String(sid))
-//       ) {
-//         res.status(200).send({ message: "Present", status: "Present" });
-//       } else if (
-//         attendStatus.absentStaff.length >= 1 &&
-//         attendStatus.absentStaff.includes(String(sid))
-//       ) {
-//         res.status(200).send({ message: "Absent", status: "Absent" });
-//       } else {
-//       }
-//     } else {
-//       res.status(200).send({ message: "Not Marking", status: "Not Marking" });
-//     }
-//   } catch {}
-// };
-
-// // exports.holidayCalendar = async (req, res) => {
-// //   try {
-// //     const { did } = req.params;
-// //     const { dateStatus } = req.body;
-// //     const depart = await Department.findById({ _id: did });
-// //     const staffDate = await StaffAttendenceDate.findOne({
-// //       staffAttendDate: { $eq: `${dateStatus}` },
-// //     });
-// //     const classDate = await AttendenceDate.findOne({
-// //       attendDate: { $eq: `${dateStatus}` },
-// //     });
-// //     if (staffDate && staffDate !== "undefined") {
-// //       res.status(200).send({ message: "Count as a no holiday", staffDate });
-// //     } else if (classDate && classDate !== "undefined") {
-// //       res.status(200).send({ message: "Count as a no holiday", classDate });
-// //     } else {
-// //       const leave = new Holiday({
-// //         dDate: dateStatus,
-// //         dHolidayReason: req.body.reason,
-// //       });
-// //       depart.holiday.push(leave._id);
-// //       leave.department = depart._id;
-// //       await Promise.all([depart.save(), leave.save()]);
-// //       res.status(200).send({ message: "Holiday Marked " });
-// //     }
-// //   } catch {}
-// // };

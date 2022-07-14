@@ -12759,9 +12759,7 @@ io.on("connection", (socket) => {
   socket.on("setup", (userData) => {
     console.log(userData)
     socket.join(userData);
-    socket.emit("connected", (data) => {
-      console.log(data)
-    });
+    socket.emit("connected");
   });
 
   socket.on("join chat", (room) => {
@@ -12772,6 +12770,7 @@ io.on("connection", (socket) => {
   socket.on("stop typing", (room) => socket.in(room).emit("stop typing"));
 
   socket.on("new message", (newMessageRecieved) => {
+    console.log(newMessageRecieved)
     var chat = newMessageRecieved.chat;
     if (!chat.users) return console.log("chat.users not defined");
 

@@ -12757,6 +12757,7 @@ const io = require("socket.io")(server, {
 io.on("connection", (socket) => {
   console.log("Connected to socket.io");
   socket.on("setup", (userData) => {
+    console.log(userData)
     socket.join(userData);
     socket.emit("connected", (data) => {
       console.log(data)

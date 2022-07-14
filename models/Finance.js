@@ -102,8 +102,12 @@ const financeSchema = new mongoose.Schema({
   financeExpenseBankBalance: {
     type: Number,
     default: 0
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
   }
-});
+}, { timestamps: true});
 
 const Finance = mongoose.model("Finance", financeSchema);
 

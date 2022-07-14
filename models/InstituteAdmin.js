@@ -318,6 +318,8 @@ const instituteAdminSchema = new mongoose.Schema({
   },
   paymentBankStatus: { type: String },
   GSTInfo: { type: String },
+  businessName: { type: String },
+  businessAddress: { type: String },
   accessFeature: { type: String, default: 'Locked'},
   unlockAmount: { type: Number, default: 1000},
   featurePaymentStatus: { type: String, default: 'Not Paid'},

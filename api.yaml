@@ -7269,3 +7269,157 @@ paths:
       responses:
         "200":
           description: OK
+
+  
+  /api/v1/finance/ins/{id}/staff/{sid}:
+    post:
+      tags:
+        - Finance Module Query
+      summary: Assign and Activate Finance Module By The Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id 
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is staff id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/add/bank/details/{id}:
+    post:
+      tags:
+        - Finance Module Query
+      summary: Add Payment Bank Details as mentioned in parameters (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              bankAccountHolderName:
+                type: string
+                description: Enter Bank Account Holder Name
+              bankAccountNumber:
+                type: string
+                description: Enter Bank Account Number greater than 9 digit
+              bankIfscCode:
+                type: string
+                description: Enter Bank ISFC Code
+              bankAccountPhoneNumber:
+                type: string
+                description: Enter Phone Number Linked with bank Account
+              GSTInfo:
+                type: string
+                description: Enter GST Details
+              businessName:
+                type: string
+                description: Enter Business Name
+              businessAddress:
+                type: string
+                description: Enter Business Address
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/finance/bank/details/{id}/update:
+    patch:
+      tags:
+        - Finance Module Query
+      summary: Update Payment Bank Details as mentioned in parameters (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              bankAccountHolderName:
+                type: string
+                description: Enter Bank Account Holder Name
+              bankAccountNumber:
+                type: string
+                description: Enter Bank Account Number greater than 9 digit
+              bankIfscCode:
+                type: string
+                description: Enter Bank ISFC Code
+              bankAccountPhoneNumber:
+                type: string
+                description: Enter Phone Number Linked with bank Account
+              GSTInfo:
+                type: string
+                description: Enter GST Details
+              businessName:
+                type: string
+                description: Enter Business Name
+              businessAddress:
+                type: string
+                description: Enter Business Address
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/ins/bank/{id}:
+    post:
+      tags:
+        - Finance Module Query
+      summary: Remove Payment Bank Details
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is  id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/dashboard:
+    get:
+      tags:
+        - Finance Module Query
+      summary: Get Finance Info and Funds
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance Id
+      responses:
+        "200":
+          description: OK

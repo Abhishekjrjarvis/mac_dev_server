@@ -1,7 +1,7 @@
 var firebase = require("firebase-admin");
 var serviceAccount = require("./qviple-user-firebase-adminsdk-4qvna-aca6cd00fb.json");
 
-const invokeFirebaseNotification = (type, info, title, token) => {
+const invokeFirebaseNotification = (type, info, title, id, token) => {
   if(type === 'Followers'){
     // const firebaseToken = `${token && token}`
     const firebaseToken = 'dw1cCrq5Q0SCd7PKpEpq36:APA91bFaJQmGZnBIhJADz0bevYG4Tm8OXVuGSLoGUXB4Z73c9cpd3d2ciPUkIO7NDSDlTQl7GgJPLIl9yqVnDlWVZu85cAN1mKj6IvEKFlwOiMbieMRbwDvtZS1i5JjCxYJ8PadAyZRB'
@@ -16,9 +16,10 @@ const invokeFirebaseNotification = (type, info, title, token) => {
         body: `${info.notifyContent}`,
       },
       data: {
+        type: `${type}`,
+        userId: `${id}`,
         click_action: "FLUTTER_NOTIFICATION_CLICK",
-        sound: "default", 
-        screen: "screenA",
+        sound: "default"
       },
     }
     var options = {
@@ -42,9 +43,10 @@ const invokeFirebaseNotification = (type, info, title, token) => {
           body: `${info.notifyContent}`,
         },
         data: {
+          type: `${type}`,
+          userId: `${id}`,
           click_action: "FLUTTER_NOTIFICATION_CLICK",
           sound: "default", 
-          screen: "screenA",
         },
       }
       var options = {
@@ -64,13 +66,14 @@ const invokeFirebaseNotification = (type, info, title, token) => {
   
       const payload = {
         notification: {
-          title: "Test Notification Qviple Platform",
-          body: "Awesome SAAS Tech Idea",
-          click_action: "FLUTTER_NOTIFICATION_CLICK"
+          title: `${title}`,
+          body: `${info.notifyContent}`,
         },
         data: {
-          data1: 'data value 1',
-          data2: 'data value 2',
+          type: `${type}`,
+          userId: `${id}`,
+          click_action: "FLUTTER_NOTIFICATION_CLICK",
+          sound: 'default'
         }
       }
       var options = {
@@ -90,13 +93,14 @@ const invokeFirebaseNotification = (type, info, title, token) => {
   
       const payload = {
         notification: {
-          title: "Test Notification Qviple Platform",
-          body: "Awesome SAAS Tech Idea",
-          click_action: "FLUTTER_NOTIFICATION_CLICK"
+          title: `${title}`,
+          body: `${info.notifyContent}`,
         },
         data: {
-          data1: 'data value 1',
-          data2: 'data value 2',
+          type: `${type}`,
+          userId: `${id}`,
+          click_action: "FLUTTER_NOTIFICATION_CLICK",
+          sound: 'default'
         }
       }
       var options = {
@@ -116,13 +120,14 @@ const invokeFirebaseNotification = (type, info, title, token) => {
   
       const payload = {
         notification: {
-          title: "Test Notification Qviple Platform",
-          body: "Awesome SAAS Tech Idea",
-          click_action: "FLUTTER_NOTIFICATION_CLICK"
+          title: `${title}`,
+          body: `${info.notifyContent}`,
         },
         data: {
-          data1: 'data value 1',
-          data2: 'data value 2',
+          type: `${type}`,
+          userId: `${id}`,
+          click_action: "FLUTTER_NOTIFICATION_CLICK",
+          sound: 'default'
         }
       }
       var options = {
@@ -142,13 +147,14 @@ const invokeFirebaseNotification = (type, info, title, token) => {
   
       const payload = {
         notification: {
-          title: "Test Notification Qviple Platform",
-          body: "Awesome SAAS Tech Idea",
-          click_action: "FLUTTER_NOTIFICATION_CLICK"
+          title: `${title}`,
+          body: `${info.notifyContent}`,
         },
         data: {
-          data1: 'data value 1',
-          data2: 'data value 2',
+          type: `${type}`,
+          userId: `${id}`,
+          click_action: "FLUTTER_NOTIFICATION_CLICK",
+          sound: 'default'
         }
       }
       var options = {

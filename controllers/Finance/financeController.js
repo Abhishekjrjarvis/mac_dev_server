@@ -52,7 +52,7 @@ exports.getFinanceDepart = async(req, res) =>{
 exports.uploadBankDetail = async(req, res) =>{
     try {
         const { id } = req.params;
-        const { bankAccountHolderName, bankAccountNumber, bankIfscCode, bankAccountPhoneNumber, GSTInfo } = req.body;
+        const { bankAccountHolderName, bankAccountNumber, bankIfscCode, bankAccountPhoneNumber, GSTInfo, businessName, businessAddress } = req.body;
         const admin = await Admin.findById({_id: `${process.env.S_ADMIN_ID}`})
         const institute = await InstituteAdmin.findById({ _id: id });
         const notify = new Notification({})
@@ -62,6 +62,8 @@ exports.uploadBankDetail = async(req, res) =>{
         institute.bankAccountPhoneNumber = bankAccountPhoneNumber;
         institute.paymentBankStatus = 'verification in progress'
         institute.GSTInfo = GSTInfo
+        institute.businessName = businessName
+        institute.businessAddress = businessAddress
         notify.notifyContent = ` ${institute.insName} Institute payment Details updated Check and Verify `
         notify.notifySender = institute._id;
         notify.notifyReceiever = admin._id;
@@ -83,6 +85,8 @@ exports.removeBankDetail = async(req, res) =>{
         institute.bankIfscCode = "";
         institute.bankAccountPhoneNumber = "";
         institute.GSTInfo = ""
+        institute.businessName = ""
+        institute.businessAddress = ""
         institute.paymentBankStatus = 'payment Details are mandatory for Finance Department'
         await Promise.all([ institute.save() ]);
         res.status(200).send({ message: "Bank Details Removed" });
@@ -108,6 +112,25 @@ exports.updateBankDetail = async(req, res) =>{
       } catch(e) {
       }
 }
+
+
+
+exports.retrieveFinanceQuery = async(req, res) =>{
+  try{
+    const { fid } = req.params
+    const finance = await Finance.findById({ _id: fid })
+    .select('financeName financeEmail financePhoneNumber financeAbout photoId photo cover coverId financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance')
+    .populate({
+      path: 'institute',
+      select: 'id'
+    })
+    res.status(200).send({ message: 'Finance', finance})
+  }
+  catch{
+
+  }
+}
+
 
 exports.getFinanceDetail = async(req, res) =>{
     try {

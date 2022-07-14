@@ -239,7 +239,7 @@ exports.updateUserFollowIns = async (req, res) => {
       sinstitute.iNotify.push(notify._id);
       notify.institute = sinstitute._id;
       notify.notifyByPhoto = user._id;
-      invokeFirebaseNotification('Followers', notify, user.userLegalName, token)
+      invokeFirebaseNotification('Followers', notify, user.userLegalName, user._id, 'token')
       await user.save();
       await sinstitute.save();
       await notify.save();
@@ -330,7 +330,7 @@ exports.updateUserFollow = async (req, res) => {
       suser.uNotify.push(notify);
       notify.user = suser;
       notify.notifyByPhoto = user;
-      invokeFirebaseNotification('Followers', notify, user.userLegalName, 'token')
+      invokeFirebaseNotification('Followers', notify, user.userLegalName, user._id, 'token')
       await user.save();
       await suser.save();
       await notify.save();
@@ -414,7 +414,7 @@ exports.updateUserCircle = async (req, res) => {
         suser.uNotify.push(notify);
         notify.user = suser;
         notify.notifyByPhoto = user;
-        invokeFirebaseNotification('Circle', notify, user.userLegalName, token)
+        invokeFirebaseNotification('Circle', notify, user.userLegalName, user._id, 'token')
         await user.save();
         await suser.save();
         await notify.save();

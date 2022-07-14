@@ -24,6 +24,7 @@ const Leave = require("../../models/Leave");
 const ClassMaster = require("../../models/ClassMaster");
 const SubjectMaster = require("../../models/SubjectMaster");
 const ReplyAnnouncement = require("../../models/ReplyAnnouncement");
+const invokeFirebaseNotification = require('../../Firebase/firebase')
 const {
   getFileStream,
   uploadDocFile,
@@ -817,6 +818,7 @@ exports.updateApproveStaff = async (req, res) => {
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByStaffPhoto = staffs._id;
+    invokeFirebaseNotification('Staff Approval', notify, institute.insName, user._id, 'token')
     await Promise.all([
       staffs.save(),
       institute.save(),
@@ -903,6 +905,7 @@ exports.getNewDepartment = async (req, res) => {
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByInsPhoto = institute._id;
+    invokeFirebaseNotification('Designation Allocation', notify, institute.insName, user._id, 'token')
     await Promise.all([
       institute.save(),
       staff.save(),
@@ -1863,6 +1866,7 @@ var result = classRandomCodeHandler()
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByInsPhoto = institute._id;
+    invokeFirebaseNotification('Designation Allocation', notify, institute.insName, user._id, 'token')
     await Promise.all([
         institute.save(),
         batch.save(),
@@ -1935,6 +1939,7 @@ exports.retrieveNewSubject = async(req, res) =>{
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByInsPhoto = institute._id;
+    invokeFirebaseNotification('Designation Allocation', notify, depart.dName, user._id, 'token')
     await Promise.all([
       subjectMaster.save(),
       classes.save(),
@@ -2765,6 +2770,7 @@ exports.retrieveApproveStudentRequest = async(req, res) =>{
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByStudentPhoto = student._id;
+    invokeFirebaseNotification('Student Approval', notify, institute.insName, user._id, 'token')
     await Promise.all([
      admins.save(),
      classes.save(),

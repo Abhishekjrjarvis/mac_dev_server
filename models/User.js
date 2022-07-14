@@ -246,6 +246,15 @@ const userSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Chat'
     }
+  ],
+  deviceToken: {
+    type: String
+  },
+  referralArray: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Referral'
+    }
   ]
 });
 

@@ -16,7 +16,10 @@ router.post('/add/bank/details/:id', isLoggedIn, isApproved, catchAsync(Finance.
 router.post('/ins/bank/:id', isLoggedIn, catchAsync(Finance.removeBankDetail))
 
 // Update Bank Details By Finance Head
-router.patch('/:fid/bank/details/:id/update', isLoggedIn, catchAsync(Finance.updateBankDetail))
+router.patch('/bank/details/:id/update', isLoggedIn, catchAsync(Finance.updateBankDetail))
+
+// Fetch Finance Details 
+router.get('/:fid/dashboard', isLoggedIn, catchAsync(Finance.retrieveFinanceQuery))
 
 // Get Details of Finance Head
 router.get('/detail/:id', isLoggedIn, catchAsync(Finance.getFinanceDetail))

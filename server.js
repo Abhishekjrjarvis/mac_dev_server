@@ -12748,8 +12748,8 @@ const server = app.listen(port, function () {
 const io = require("socket.io")(server, {
   pingTimeout: 60000,
   cors: {
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST"]
+    origin: "*"
+    // methods: ["GET", "POST"]
     // credentials: true,
   },
 });
@@ -12757,6 +12757,7 @@ const io = require("socket.io")(server, {
 io.on("connection", (socket) => {
   console.log("Connected to socket.io");
   socket.on("setup", (userData) => {
+    console.log(userData)
     socket.join(userData);
     socket.emit("connected");
   });
@@ -12776,6 +12777,8 @@ io.on("connection", (socket) => {
       if (user._id == newMessageRecieved.sender._id) return;
       // var delievered = true
       socket.in(user._id).emit("message recieved", newMessageRecieved);
+      console.log(user._id)
+      console.log('message Receieved Fired')
     });
   });
 

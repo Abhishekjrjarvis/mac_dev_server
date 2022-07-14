@@ -518,13 +518,13 @@ exports.oneStudentReportCardClassTeacher = async (req, res) => {
 
           obj.subjectWiseTotal =
             obj.subjectWiseTotal +
-            Math.round((eachmarks.obtainMarks * eachmarks.examWeight) / 100);
+            ((eachmarks.obtainMarks * eachmarks.examWeight) / 100).toFixed(2);
         } else {
           obj.finalTotalMarks = eachmarks.totalMarks;
           obj.finalObtainMarks = eachmarks.obtainMarks;
           obj.subjectWiseTotal =
             obj.subjectWiseTotal +
-            Math.round((eachmarks.obtainMarks * eachmarks.examWeight) / 100);
+            ((eachmarks.obtainMarks * eachmarks.examWeight) / 100).toFixed(2);
         }
       });
       total.finalTotal = total.finalTotal + obj.finalObtainMarks;
@@ -533,9 +533,10 @@ exports.oneStudentReportCardClassTeacher = async (req, res) => {
       total.allSubjectTotal = total.allSubjectTotal + obj.subjectWiseTotal;
       subjects.push(obj);
     });
-    const totalPercantage = Math.round(
-      (total.allSubjectTotal * 100) / (100 * subjects.length)
-    );
+    const totalPercantage = (
+      (total.allSubjectTotal * 100) /
+      (100 * subjects.length)
+    ).toFixed(2);
 
     res.status(200).send({ subjects, total, totalPercantage });
   } catch (e) {
@@ -571,9 +572,10 @@ exports.oneStudentAllYearAttendance = async (req, res) => {
         attendance.totalPresent += 1;
       }
     });
-    attendance.attendancePercentage = Math.round(
-      (attendance.totalPresent * 100) / attendance.totalAttendance
-    );
+    attendance.attendancePercentage = (
+      (attendance.totalPresent * 100) /
+      attendance.totalAttendance
+    ).toFixed(2);
     res.status(200).send({ attendance });
   } catch (e) {
     console.log(e);
@@ -685,9 +687,9 @@ exports.oneStudentReportCardFinalizeGraceUpdate = async (req, res) => {
         }
       }
     }
-    finalize.totalPercentage = Math.round(
-      (finalize.totalTotalExam * 100) / (100 * finalize.subjects?.length)
-    );
+    finalize.totalPercentage =
+      (finalize.totalTotalExam * 100) /
+      (100 * finalize.subjects?.length).toFixed(2);
     await Promise.all([finalize.save()]);
     res.status(200).send({ finalize });
   } catch (e) {

@@ -4,19 +4,10 @@ const classSchema = new mongoose.Schema({
   classCode: { type: String, required: true, unique: true },
   className: { type: String, required: true },
   classTitle: { type: String, required: true },
-  gradeMarks: { type: Boolean, default: false },
-
   classAbout: { type: String },
-
-  //depricaited this object
-  classPhoto: { type: String },
-
-  //depricaited this object
-
   classStudentTotal: { type: String },
   classSubjectTotal: { type: String },
   classDisplayPerson: { type: String },
-
   photoId: { type: String, default: "1" },
   photo: { type: String },
   coverId: { type: String, default: "2" },
@@ -119,7 +110,7 @@ const classSchema = new mongoose.Schema({
   },
   finalReportsSettings: {
     finalReport: { type: Boolean, default: false },
-    attendence: { type: Boolean, default: false },
+    attendance: { type: Boolean, default: false },
     behaviour: { type: Boolean, default: false },
     graceMarks: { type: Boolean, default: false },
     gradeMarks: { type: Boolean, default: false },

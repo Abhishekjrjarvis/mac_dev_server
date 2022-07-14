@@ -518,13 +518,13 @@ exports.oneStudentReportCardClassTeacher = async (req, res) => {
 
           obj.subjectWiseTotal =
             obj.subjectWiseTotal +
-            (eachmarks.obtainMarks * eachmarks.examWeight) / 100;
+            Math.round((eachmarks.obtainMarks * eachmarks.examWeight) / 100);
         } else {
           obj.finalTotalMarks = eachmarks.totalMarks;
           obj.finalObtainMarks = eachmarks.obtainMarks;
           obj.subjectWiseTotal =
             obj.subjectWiseTotal +
-            (eachmarks.obtainMarks * eachmarks.examWeight) / 100;
+            Math.round((eachmarks.obtainMarks * eachmarks.examWeight) / 100);
         }
       });
       total.finalTotal = total.finalTotal + obj.finalObtainMarks;
@@ -533,8 +533,9 @@ exports.oneStudentReportCardClassTeacher = async (req, res) => {
       total.allSubjectTotal = total.allSubjectTotal + obj.subjectWiseTotal;
       subjects.push(obj);
     });
-    const totalPercantage =
-      (total.allSubjectTotal * 100) / (100 * subjects.length);
+    const totalPercantage = Math.round(
+      (total.allSubjectTotal * 100) / (100 * subjects.length)
+    );
 
     res.status(200).send({ subjects, total, totalPercantage });
   } catch (e) {
@@ -620,7 +621,10 @@ exports.oneStudentReportCardFinalize = async (req, res) => {
     student.finalReportStatus = "Yes";
     req.body?.subjects?.forEach((subject) => {
       if (!subject.finalExamObtain || !subject.finalExamTotal) {
-        throw "Final Exam Marks is not updated";
+        throw "All Final Exam Marks is not updated";
+      }
+      if (!subject.otherExamObtain || !subject.otherExamTotal) {
+        throw "All Other Exam Marks is not updated";
       }
       finalize.subjects.push({
         subject: subject._id,

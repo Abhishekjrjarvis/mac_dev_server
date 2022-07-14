@@ -5,11 +5,11 @@ info:
   version: one
 
 
-host: 18.205.27.165
-basePath: /api
-# schemes: [http, https]
-schemes: 
-  - http
+# host: 18.205.27.165
+# basePath: /api
+schemes: [http, https]
+# schemes: 
+#   - http
 
 
 #Return Users From get request
@@ -5928,6 +5928,15 @@ paths:
                   gradeMarks:
                     type: boolean
                     description: if it is true then class Teacher side show the report card other wise not show
+                  graceMarks:
+                    type: boolean
+                    description: if it is true then class Teacher side show the report card other wise not show                    
+                  attendance:
+                    type: boolean
+                    description: if it is true then class Teacher side show the report card other wise not show                                        
+                  behaviour:
+                    type: boolean
+                    description: if it is true then class Teacher side show the report card other wise not show
                   subjectPassingMarks:
                     type: integer
                     description: if it is true then class Teacher side show the report card other wise not show
@@ -6587,193 +6596,193 @@ paths:
         "200":
           description: OK
 
-  # /api/v1/exam/class/student/{sid}/report:
-  #   get:
-  #     tags:
-  #       - Exam Related Api
-  #     summary: It is give details of reprot card of student with their details in class Teacher side
-  #     consumes:
-  #       - application/json
-  #     produces:
-  #       - application/json
-  #     parameters:
-  #       - in: path
-  #         name: sid
-  #         required: true
-  #         type: string
-  #         description: It is particular Student id
-  #     responses:
-  #       "200":
-  #         description: OK
+  /api/v1/exam/class/student/{sid}/report:
+    get:
+      tags:
+        - Exam Related Api
+      summary: It is give details of reprot card of student with their details in class Teacher side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular Student id
+      responses:
+        "200":
+          description: OK
 
-  # /api/v1/exam/class/student/{sid}/report/attendance:
-  #   get:
-  #     tags:
-  #       - Exam Related Api
-  #     summary: It is give details of reprot card Attendance of student with their details in class Teacher side
-  #     consumes:
-  #       - application/json
-  #     produces:
-  #       - application/json
-  #     parameters:
-  #       - in: path
-  #         name: sid
-  #         required: true
-  #         type: string
-  #         description: It is particular Student id
-  #     responses:
-  #       "200":
-  #         description: OK
+  /api/v1/exam/class/student/{sid}/report/attendance:
+    get:
+      tags:
+        - Exam Related Api
+      summary: It is give details of reprot card Attendance of student with their details in class Teacher side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular Student id
+      responses:
+        "200":
+          description: OK
 
-  # /api/v1/exam/class/student/{sid}/report/finalize:
-  #   post:
-  #     tags:
-  #       - Exam Related Api
-  #     summary: It is finalize (created final report card) reprot card of student with their details in class Teacher side
-  #     consumes:
-  #       - application/json
-  #     produces:
-  #       - application/json
-  #     parameters:
-  #       - in: path
-  #         name: sid
-  #         required: true
-  #         type: string
-  #         description: It is particular Student id
-  #       - in: body
-  #         name: body
-  #         schema:
-  #           type: object
-  #           properties:
-  #             totalFinalExam:
-  #               type: integer
-  #               description: Total of all subjects final marks
-  #               required: true
-  #             totalOtherExam:
-  #               type: integer
-  #               description: Total of all subjects other marks
-  #               required: true
-  #             totalGraceExam:
-  #               type: integer
-  #               description: Total of all subjects grace marks 
-  #               required: true
-  #             totalTotalExam:
-  #               type: integer
-  #               description: Total of all subjects wise Total marks
-  #               required: true
-  #             totalPercentage:
-  #               type: integer
-  #               description: Total percentage of student
-  #               required: true
-  #             attendance:
-  #               type: integer
-  #               description: Total number of present days of student 
-  #               required: true
-  #             attendanceTotal:
-  #               type: integer
-  #               description: Total number of attendance taken by class teacher 
-  #               required: true
-  #             attendancePercentage:
-  #               type: integer
-  #               description: Total percentage of student present in class that year
-  #               required: true
-  #             behaviourStar:
-  #               type: integer
-  #               description: Total star count given by class teacher in behaviour
-  #               required: true
-  #             behaviourImprovement:
-  #               type: string
-  #               description: Improvement given by class teacher in behaviour 
-  #               required: true
-  #             behaviourLack:
-  #               type: string
-  #               description: Lack given by class teacher in behaviour 
-  #               required: true
-  #             subjects:
-  #               type: array
-  #               description: give the arrays of the subject with their details
-  #               required: true 
-  #               items:
-  #                 type: object
-  #                 properties:
-  #                   _id:
-  #                     type: string
-  #                     required: true
-  #                     description: it is a subject id
-  #                   subjectName:
-  #                     type: string
-  #                     required: true
-  #                     description: it is subject name
-  #                   finalExamTotal:
-  #                     type: integer
-  #                     required: true
-  #                     description: it is a subject wise finalExamTotal
-  #                   finalExamObtain:
-  #                     type: integer
-  #                     required: true
-  #                     description: it is a subject wise finalExamObtain
-  #                   otherExamTotal:
-  #                     type: integer
-  #                     required: true
-  #                     description: it is a subject wise otherExamTotal
-  #                   otherExamObtain:
-  #                     type: integer
-  #                     required: true
-  #                     description: it is a subject wise otherExamObtain
-  #                   graceMarks:
-  #                     type: integer
-  #                     required: true
-  #                     description: it is a subject wise graceMarks
-  #                   totalMarks:
-  #                     type: integer
-  #                     required: true
-  #                     description: it is a subject wise totalMarks
-  #                   obtainTotalMarks:
-  #                     type: integer
-  #                     required: true
-  #                     description: it is a subject wise obtainTotalMarks                                                                                                 
-  #     responses:
-  #       "200":
-  #         description: OK
+  /api/v1/exam/class/student/{sid}/report/finalize:
+    post:
+      tags:
+        - Exam Related Api
+      summary: It is finalize (created final report card) reprot card of student with their details in class Teacher side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular Student id
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              totalFinalExam:
+                type: integer
+                description: Total of all subjects final marks
+                required: true
+              totalOtherExam:
+                type: integer
+                description: Total of all subjects other marks
+                required: true
+              totalGraceExam:
+                type: integer
+                description: Total of all subjects grace marks 
+                required: true
+              totalTotalExam:
+                type: integer
+                description: Total of all subjects wise Total marks
+                required: true
+              totalPercentage:
+                type: integer
+                description: Total percentage of student
+                required: true
+              attendance:
+                type: integer
+                description: Total number of present days of student 
+                required: true
+              attendanceTotal:
+                type: integer
+                description: Total number of attendance taken by class teacher 
+                required: true
+              attendancePercentage:
+                type: integer
+                description: Total percentage of student present in class that year
+                required: true
+              behaviourStar:
+                type: integer
+                description: Total star count given by class teacher in behaviour
+                required: true
+              behaviourImprovement:
+                type: string
+                description: Improvement given by class teacher in behaviour 
+                required: true
+              behaviourLack:
+                type: string
+                description: Lack given by class teacher in behaviour 
+                required: true
+              subjects:
+                type: array
+                description: give the arrays of the subject with their details
+                required: true 
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                      required: true
+                      description: it is a subject id
+                    subjectName:
+                      type: string
+                      required: true
+                      description: it is subject name
+                    finalExamTotal:
+                      type: integer
+                      required: true
+                      description: it is a subject wise finalExamTotal
+                    finalExamObtain:
+                      type: integer
+                      required: true
+                      description: it is a subject wise finalExamObtain
+                    otherExamTotal:
+                      type: integer
+                      required: true
+                      description: it is a subject wise otherExamTotal
+                    otherExamObtain:
+                      type: integer
+                      required: true
+                      description: it is a subject wise otherExamObtain
+                    graceMarks:
+                      type: integer
+                      required: true
+                      description: it is a subject wise graceMarks
+                    totalMarks:
+                      type: integer
+                      required: true
+                      description: it is a subject wise totalMarks
+                    obtainTotalMarks:
+                      type: integer
+                      required: true
+                      description: it is a subject wise obtainTotalMarks                                                                                                 
+      responses:
+        "200":
+          description: OK
 
-  # /api/v1/exam/class/student/{sid}/report/finalize/grace/update:
-  #   patch:
-  #     tags:
-  #       - Exam Related Api
-  #     summary: It is updated grace marks of student after finalize reprot card of student in class Teacher side
-  #     consumes:
-  #       - application/json
-  #     produces:
-  #       - application/json
-  #     parameters:
-  #       - in: path
-  #         name: sid
-  #         required: true
-  #         type: string
-  #         description: It is particular Student id
-  #       - in: body
-  #         name: body
-  #         schema:
-  #           type: object
-  #           properties:
-  #             subjects:
-  #               type: array
-  #               description: give the arrays of the subject with their id and grace marks
-  #               required: true 
-  #               items:
-  #                 type: object
-  #                 properties:
-  #                   _id:
-  #                     type: string
-  #                     required: true
-  #                     description: it is a subject id
-  #                   graceMarks:
-  #                     type: integer
-  #                     required: true
-  #                     description: it is grace marks of particular subject
-  #     responses:
-  #       "200":
-  #         description: OK
+  /api/v1/exam/class/student/{sid}/report/finalize/grace/update:
+    patch:
+      tags:
+        - Exam Related Api
+      summary: It is updated grace marks of student after finalize reprot card of student in class Teacher side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular Student id
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              subjects:
+                type: array
+                description: give the arrays of the subject with their id and grace marks
+                required: true 
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                      required: true
+                      description: it is a subject id
+                    graceMarks:
+                      type: integer
+                      required: true
+                      description: it is grace marks of particular subject
+      responses:
+        "200":
+          description: OK
 
 
   /api/v1/chat:

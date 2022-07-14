@@ -29,10 +29,6 @@ const studentSchema = new mongoose.Schema({
   studentAadharBackCard: { type: String },
   studentCertificateNo: { type: String },
   studentStatus: { type: String, default: "Not Approved" },
-
-  //depriciated this
-  studentBehaviourReportStatus: { type: String, default: "Not Ready" },
-
   studentPremoteStatus: { type: String, default: "Not Promoted" },
   studentReason: { type: String },
   studentCertificateDate: { type: String },
@@ -43,10 +39,6 @@ const studentSchema = new mongoose.Schema({
   studentLeavingReason: { type: String },
   studentBookNo: { type: String },
   studentROLLNO: { type: String },
-  studentBehaviour: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Behaviour",
-  },
   studentMothersName: { type: String },
   studentGRNO: { type: String },
   studentClass: {
@@ -61,13 +53,16 @@ const studentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteAdmin",
   },
-
   notification: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "StudentNotification",
     },
   ],
+  studentBehaviour: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Behaviour",
+  },
   subjectMarks: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -86,80 +81,6 @@ const studentSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "FinalReport",
-    },
-  ],
-
-  studentFinalReportFinalizedStatus: { type: String, default: "Not Ready" },
-  studentFinalReportData: {
-    finalObtainTotal: { type: String },
-
-    finalMarksTotalTotal: {
-      type: Number,
-      default: 0,
-    },
-    OtherMarksObtainTotal: {
-      type: Number,
-      default: 0,
-    },
-    OtherMarksTotalTotal: {
-      type: Number,
-      default: 0,
-    },
-    FinalObtainMarksTotal: {
-      type: String,
-    },
-    FinalTotalMarksTotal: {
-      type: Number,
-      default: 0,
-    },
-    SubjectWiseMarks: [
-      {
-        subName: { type: String },
-        finalExamObtain: { type: Number },
-        finalExamTotal: { type: Number },
-        otherExamObtain: { type: Number },
-        otherExamTotal: { type: Number },
-        finalObtainTotal: { type: String },
-        finalTotalTotal: { type: Number },
-      },
-    ],
-  },
-
-  studentMarks: [
-    {
-      examId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Exam",
-      },
-      allSubjectMarksStatus: {
-        type: String,
-        default: "Not Updated",
-      },
-      examWeight: {
-        type: Number,
-      },
-      subjectMarks: [
-        {
-          testSet: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "McqTestSet",
-          },
-          subMasterId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "SubjectMaster",
-          },
-          subjectName: {
-            type: String,
-          },
-          obtainMarks: {
-            type: Number,
-          },
-          subjectMarksStatus: {
-            type: String,
-            default: "Not Updated",
-          },
-        },
-      ],
     },
   ],
   studentFee: [

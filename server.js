@@ -12758,7 +12758,9 @@ io.on("connection", (socket) => {
   console.log("Connected to socket.io");
   socket.on("setup", (userData) => {
     socket.join(userData);
-    socket.emit("connected");
+    socket.emit("connected", (data) =>{
+      `This is The Qviple App `
+    });
   });
 
   socket.on("join chat", (room) => {

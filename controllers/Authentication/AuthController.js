@@ -17,9 +17,7 @@ const axios = require("axios");
 const jwt = require("jsonwebtoken");
 const usernameGenerator = require('./AuthFunction')
 const Referral = require('../../models/QCoins/Referral')
-// const invokeFirebaseNotification = require('../../Firebase/firebase')
 
-// const data = invokeFirebaseNotification()
 
 
 function generateAccessToken(username, userId, userPassword) {

@@ -6138,29 +6138,67 @@ paths:
         "200":
           description: OK
 
-  /api/v1/checklist/checklist-all/new:
+  # /api/v1/checklist/checklist-all/new:
+  #   get:
+  #     tags:
+  #       - Checklist Related Api
+  #     summary: It is give the checklist list that is created by department head (Verified)
+  #     consumes:
+  #       - application/json
+  #     produces:
+  #       - application/json
+  #     parameters:
+  #       - in: query
+  #         name: page
+  #         schema:
+  #           type: integer
+  #         description: Enter a page which page data you want
+  #       - in: query
+  #         name: limit
+  #         schema:
+  #           type: integer
+  #         description: Enter a limit that retrieve one time
+  #     responses:
+  #       "200":
+  #         description: OK
+
+  /api/v1/checklist/department/{did}/all:
     get:
       tags:
         - Checklist Related Api
-      summary: It is give the checklist list that is created by department head (Verified)
+      summary: It is give list of all checklist in one department side (Verified)
       consumes:
         - application/json
       produces:
         - application/json
       parameters:
-        - in: query
-          name: page
-          schema:
-            type: integer
-          description: Enter a page which page data you want
-        - in: query
-          name: limit
-          schema:
-            type: integer
-          description: Enter a limit that retrieve one time
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is department id
       responses:
         "200":
-          description: OK
+          description: OK  
+
+  /api/v1/checklist/class/{cid}/all:
+    get:
+      tags:
+        - Checklist Related Api
+      summary: It is give list of all checklist in one class side (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class id
+      responses:
+        "200":
+          description: OK 
 
   /api/v1/checklist/{cid}/assign-student/{sid}:
     get:
@@ -7011,6 +7049,30 @@ paths:
           required: true
           type: string
           description: It is particular Class id 
+        - in: query
+          name: status
+          required: true
+          type: string
+          description: It is "Unsolved" or "Solved"         
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/compleave/department/{did}/complaint:
+    get:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is give all list of complaints in Department side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: It is particular Department id 
         - in: query
           name: status
           required: true

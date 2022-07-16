@@ -9,6 +9,27 @@ exports.viewDepartment = async (req, res) => {
   const department = await Department.findById(req.params.did);
   res.status(200).send({ department });
 };
+
+exports.getAllChecklistClass = async (req, res) => {
+  try {
+    // const page = req.query.page ? parseInt(req.query.page) : 1;
+    // const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    // const skip = (page - 1) * limit;
+    const classes = await Class.findById(req.params.cid)
+      .populate({
+        path: "checklist",
+        select: "checklistName checklistAmount createdAt",
+      })
+      .select("checklist")
+      .lean()
+      .exec();
+    // .limit(limit)
+    // .skip(skip);
+    res
+      .status(200)
+      .send({ message: "checklist data", checklist: classes.checklist });
+  } catch {}
+};
 exports.createChecklist = async (req, res) => {
   try {
     const { did } = req.params;
@@ -104,17 +125,28 @@ exports.updateChecklist = async (req, res) => {
   } catch {}
 };
 
-exports.getAllChecklist = async (req, res) => {
+exports.getAllChecklistDepartment = async (req, res) => {
   try {
-    const page = req.query.page ? parseInt(req.query.page) : 1;
-    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const skip = (page - 1) * limit;
-    const checklist = await Checklist.find({})
-      .select("checklistName checklistAmount createdAt")
-      .limit(limit)
-      .skip(skip);
-    res.status(200).send({ message: "checklist data", checklist });
-  } catch {}
+    // const page = req.query.page ? parseInt(req.query.page) : 1;
+    // const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    // const skip = (page - 1) * limit;
+    const department = await Department.findById(req.params.did)
+      .populate({
+        path: "checklists",
+        select: "checklistName checklistAmount createdAt",
+      })
+      .select("checklists")
+      .lean()
+      .exec();
+    // .limit(limit)
+    // .skip(skip);
+    res.status(200).send({
+      message: "checklist data",
+      checklist: department.checklists,
+    });
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 // exports.delChecklist = async (req, res) => {

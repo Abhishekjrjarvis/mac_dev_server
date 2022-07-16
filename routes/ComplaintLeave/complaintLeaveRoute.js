@@ -32,8 +32,13 @@ router
   .get(catchAsync(complaintController.classAllComplaint));
 
 router
+  .route("/department/:did/complaint")
+  .get(catchAsync(complaintController.departmentAllComplaint));
+
+router
   .route("/institute/:id/complaint")
   .get(catchAsync(complaintController.instituteAllComplaint));
+
 router
   .route("/complaint/:cid")
   .get(catchAsync(complaintController.OneComplaint))

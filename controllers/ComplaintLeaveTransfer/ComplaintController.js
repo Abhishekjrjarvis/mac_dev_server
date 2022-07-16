@@ -322,6 +322,30 @@ exports.classAllComplaint = async (req, res) => {
   }
 };
 
+exports.departmentAllComplaint = async (req, res) => {
+  try {
+    const department = await Department.findById(req.params.did).populate({
+      path: "studentComplaint",
+      match: {
+        complaintStatus: { $eq: `${req.query.status}` },
+        // complaintType: "Open",
+      },
+      populate: {
+        path: "student",
+        select: "studentFirstName studentMiddleName studentLastName",
+      },
+      select: "complaintType complaintTo complaintStatus createdAt",
+    });
+
+    res.status(200).send({
+      message: "all complaints",
+      complaints: department.studentComplaint,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.classComplaintSolve = async (req, res) => {
   try {
     const complaint = await Complaint.findById(req.params.cid);

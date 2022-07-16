@@ -47,7 +47,6 @@ exports.createChecklist = async (req, res) => {
     for (let i = 0; i < ClassId.length; i++) {
       const classes = await Class.findById({ _id: ClassId[i] });
       classes.checklist.push(check._id);
-      check.checklistClass = classes._id;
       await classes.save();
       await check.save();
     }

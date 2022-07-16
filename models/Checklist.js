@@ -13,10 +13,7 @@ const checklistSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  checklistClass: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Class",
-  },
+
   checklistDepartment: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department",

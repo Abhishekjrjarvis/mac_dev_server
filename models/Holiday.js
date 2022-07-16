@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const holidaySchema = new mongoose.Schema({
-  dDate: [],
+  dDate: [{ type: String }],
   dHolidayReason: {
     type: String,
     required: true,

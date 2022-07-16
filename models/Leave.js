@@ -1,38 +1,29 @@
-const mongoose = require('mongoose')
-const InstituteAdmin = require('./InstituteAdmin')
-const Staff = require('./Staff')
+const mongoose = require("mongoose");
 
 const leaveSchema = new mongoose.Schema({
-    leaveReason: {
-        type: String,
-        required: true
-    },
-    leaveDateFrom: {
-        type: String,
-        required: true
-    },
-    leaveDateTo: {
-        type: String,
-        required: true
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
-    institute: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'InstituteAdmin'
-    },
-    staff: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Staff'
-    },
-    leaveStatus: {
-        type: String,
-    }
+  reason: {
+    type: String,
+    required: true,
+  },
+  date: [{ type: String }],
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  institute: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "InstituteAdmin",
+  },
+  staff: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Staff",
+  },
+  status: {
+    type: String,
+    default: "Request",
+  },
+});
 
-})
+const Leave = mongoose.model("Leave", leaveSchema);
 
-const Leave = mongoose.model('Leave', leaveSchema)
-
-module.exports = Leave
+module.exports = Leave;

@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
-const Student = require("./Student");
-const Class = require("./Class");
-const Department = require("./Department");
-const InstituteAdmin = require("./InstituteAdmin");
 
 const complaintSchema = new mongoose.Schema({
   complaintType: {
+    type: String,
+    required: true,
+  },
+  complaintTo: {
     type: String,
     required: true,
   },
@@ -27,6 +27,7 @@ const complaintSchema = new mongoose.Schema({
   },
   complaintStatus: {
     type: String,
+    default: "Unsolved",
   },
   createdAt: {
     type: Date,
@@ -34,6 +35,7 @@ const complaintSchema = new mongoose.Schema({
   },
   complaintInsStatus: {
     type: String,
+    default: "Unsloved",
   },
   institute: {
     type: mongoose.Schema.Types.ObjectId,

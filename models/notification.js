@@ -35,6 +35,10 @@ const notificationSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Student",
   },
+  notifyByClassPhoto: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Class",
+  },
   notifyBySuperAdminPhoto: {
     type: String,
   },

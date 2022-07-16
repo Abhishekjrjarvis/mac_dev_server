@@ -244,13 +244,21 @@ exports.getAttendStudentById = async (req, res) => {
       regularexp = new RegExp(`\/${year}$`);
     }
     const student = await Student.findById(req.params.sid)
-      .select("_id attendDate studentClass")
+      .select("_id attendDate leave studentClass")
       .populate({
         path: "attendDate",
         match: {
           attendDate: { $regex: regularexp },
         },
         select: "attendDate presentStudent absentStudent",
+      })
+      .populate({
+        path: "leave",
+        match: {
+          date: { $regex: regularexp },
+          status: { $eq: "Accepetd" },
+        },
+        select: "date",
       });
 
     if (student) {
@@ -277,6 +285,7 @@ exports.getAttendStudentById = async (req, res) => {
         absentArray,
         present: presentPercentage,
         absent: absentPercentage,
+        takenLeave: student.leave,
       });
     } else {
       res.status(404).send({ message: "Failure" });
@@ -562,17 +571,37 @@ exports.holidayCalendar = async (req, res) => {
     });
     dates.forEach((dat) => {
       const fdate = dat?.split("/");
-      const year = +fdate[2] >= +adate[0];
-      const month = +fdate[1] >= +adate[1];
+      const classyear = +fdate[2] > +adate[0];
+      const year = +fdate[2] === +adate[0];
+      const classmonth = +fdate[1] > +adate[1];
+      const month = +fdate[1] === +adate[1];
       const day = +fdate[0] >= +adate[2].split("T")[0];
-      if (year && month && day) {
-        leave.dDate.push(dat);
-      } else if (year && month) {
+      if (classyear) {
         leave.dDate.push(dat);
       } else if (year) {
-        leave.dDate.push(dat);
+        if (classmonth) {
+          leave.dDate.push(dat);
+        } else if (month) {
+          if (day) {
+            leave.dDate.push(dat);
+          }
+        } else {
+        }
       } else {
       }
+      //old ithink not work
+      // const fdate = dat?.split("/");
+      // const year = +fdate[2] >= +adate[0];
+      // const month = +fdate[1] >= +adate[1];
+      // const day = +fdate[0] >= +adate[2].split("T")[0];
+      // if (year && month && day) {
+      //   leave.dDate.push(dat);
+      // } else if (year && month) {
+      //   leave.dDate.push(dat);
+      // } else if (year) {
+      //   leave.dDate.push(dat);
+      // } else {
+      // }
     });
     depart.holiday.push(leave._id);
     leave.department = depart._id;

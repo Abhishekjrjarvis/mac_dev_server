@@ -6,7 +6,6 @@ const { isLoggedIn, isApproved } = require("../../middleware");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 
-
 // All Institute Data
 router.get("dashboard", isLoggedIn, catchAsync(Institute.getAllIns));
 
@@ -202,7 +201,7 @@ router.post(
   "/announcement/:id",
   isLoggedIn,
   isApproved,
-  upload.array('file'),
+  upload.array("file"),
   catchAsync(Institute.getUpdateAnnouncement)
 );
 
@@ -240,7 +239,6 @@ router.post(
   isLoggedIn,
   catchAsync(Institute.fillStaffJoinFormIns)
 );
-
 
 // Follow Institute
 router.patch("/follow", isLoggedIn, catchAsync(Institute.updateFollowIns));
@@ -410,7 +408,11 @@ router.get(
 router.get("/staff/:id", isLoggedIn, catchAsync(Institute.getFullStaffInfo));
 
 // Student Full Details After Approval
-router.get("/student/:id", isLoggedIn, catchAsync(Institute.getFullStudentInfo));
+router.get(
+  "/student/:id",
+  isLoggedIn,
+  catchAsync(Institute.getFullStudentInfo)
+);
 
 // Department List Data at Department Tab
 router.get(
@@ -441,10 +443,18 @@ router.get(
 );
 
 // Add New Class
-router.post('/:id/department/:did/batch/:bid', isLoggedIn, catchAsync(Institute.retrieveNewClass))
+router.post(
+  "/:id/department/:did/batch/:bid",
+  isLoggedIn,
+  catchAsync(Institute.retrieveNewClass)
+);
 
 // Add New Subject
-router.post('/:id/department/:did/batch/:bid/class/:cid/subject', isLoggedIn, catchAsync(Institute.retrieveNewSubject))
+router.post(
+  "/:id/department/:did/batch/:bid/class/:cid/subject",
+  isLoggedIn,
+  catchAsync(Institute.retrieveNewSubject)
+);
 
 // Subject Master All at Master Tab
 router.get(
@@ -466,7 +476,6 @@ router.get(
   isLoggedIn,
   catchAsync(Institute.retrieveClassProfileSubject)
 );
-
 
 router.get(
   "/class/subject/:cid",
@@ -503,19 +512,35 @@ router.get(
 );
 
 // Add Batch to the Department
-router.post('/addbatch/:did/ins/:id', isLoggedIn, catchAsync(Institute.retrieveNewBatch))
+router.post(
+  "/addbatch/:did/ins/:id",
+  isLoggedIn,
+  catchAsync(Institute.retrieveNewBatch)
+);
 
 // New Class Master
-router.post('/:id/departmentmasterclass/:did', isLoggedIn, catchAsync(Institute.retrieveNewClassMaster))
+router.post(
+  "/:id/departmentmasterclass/:did",
+  isLoggedIn,
+  catchAsync(Institute.retrieveNewClassMaster)
+);
 
 // New Subject Master
-router.post('/:id/departmentmastersubject/:did/', isLoggedIn, catchAsync(Institute.retrieveNewSubjectMaster))
+router.post(
+  "/:id/departmentmastersubject/:did/",
+  isLoggedIn,
+  catchAsync(Institute.retrieveNewSubjectMaster)
+);
 
 // Class Restrict Data
 router.get("/staffclass/:cid", isLoggedIn, catchAsync(Institute.retrieveClass));
 
 // Select Current Batch
-router.post('/:did/batch-select/:bid', isLoggedIn, catchAsync(Institute.retrieveCurrentSelectBatch))
+router.post(
+  "/:did/batch-select/:bid",
+  isLoggedIn,
+  catchAsync(Institute.retrieveCurrentSelectBatch)
+);
 
 // Subject Teacher Catalog
 router.get(
@@ -546,68 +571,149 @@ router.post(
 );
 
 // coming Status of Staff Profile In Institute
-router.get('/:sid/staff-status', isLoggedIn, catchAsync(Institute.retrieveStaffProfileStatus))
+router.get(
+  "/:sid/staff-status",
+  isLoggedIn,
+  catchAsync(Institute.retrieveStaffProfileStatus)
+);
 
 // coming Status of Student Profile In Institute
-router.get('/:sid/student-status', isLoggedIn, catchAsync(Institute.retrieveStudentProfileStatus))
+router.get(
+  "/:sid/student-status",
+  isLoggedIn,
+  catchAsync(Institute.retrieveStudentProfileStatus)
+);
 
 // Get Display Person
-router.get('/:id/display/person-array', isLoggedIn, catchAsync(Institute.retrieveDisplayPersonArray))
+router.get(
+  "/:id/display/person-array",
+  isLoggedIn,
+  catchAsync(Institute.retrieveDisplayPersonArray)
+);
 
-// Display Person 
-router.post('/:id/display-person', isLoggedIn, catchAsync(Institute.updateDisplayPersonArray))
+// Display Person
+router.post(
+  "/:id/display-person",
+  isLoggedIn,
+  catchAsync(Institute.updateDisplayPersonArray)
+);
 
 // Update Display Person
-router.patch('/:did/display-person/update', isLoggedIn, catchAsync(Institute.updateDisplayPersonIns))
+router.patch(
+  "/:did/display-person/update",
+  isLoggedIn,
+  catchAsync(Institute.updateDisplayPersonIns)
+);
 
-// Delete Display Person 
-router.delete('/:id/display-person/:did/delete/:uid', isLoggedIn, catchAsync(Institute.deleteDisplayPersonArray))
+// Delete Display Person
+router.delete(
+  "/:id/display-person/:did/delete/:uid",
+  isLoggedIn,
+  catchAsync(Institute.deleteDisplayPersonArray)
+);
 
 // Mark as star Announcement
-router.post('/:aid/star-announcement', isLoggedIn, catchAsync(Institute.retrieveStarAnnouncementArray))
+router.post(
+  "/:aid/star-announcement",
+  isLoggedIn,
+  catchAsync(Institute.retrieveStarAnnouncementArray)
+);
 
 // Get Star Announcement
-router.get('/:id/all/star-announcement', isLoggedIn, catchAsync(Institute.retrieveAllStarArray))
+router.get(
+  "/:id/all/star-announcement",
+  isLoggedIn,
+  catchAsync(Institute.retrieveAllStarArray)
+);
 
-// Recovery Mail 
-router.post('/:id/recovery-mail', isLoggedIn, catchAsync(Institute.retrieveRecoveryMailIns))
+// Recovery Mail
+router.post(
+  "/:id/recovery-mail",
+  isLoggedIn,
+  catchAsync(Institute.retrieveRecoveryMailIns)
+);
 
 // Institute Followers List
-router.get('/:id/followers-array', isLoggedIn, catchAsync(Institute.retrieveInsFollowersArray))
+router.get(
+  "/:id/followers-array",
+  isLoggedIn,
+  catchAsync(Institute.retrieveInsFollowersArray)
+);
 
 // Institute Following List
-router.get('/:id/following-array', isLoggedIn, catchAsync(Institute.retrieveInsFollowingArray))
+router.get(
+  "/:id/following-array",
+  isLoggedIn,
+  catchAsync(Institute.retrieveInsFollowingArray)
+);
 
 // Get One Department All Batches
-router.get('/:did/one-batch', isLoggedIn, catchAsync(Institute.retrieveDepartmentAllBatch))
+router.get(
+  "/:did/one-batch",
+  isLoggedIn,
+  catchAsync(Institute.retrieveDepartmentAllBatch)
+);
 
 // Institute Student Approval By Class Teacher
-router.post('/:id/student/:cid/approve/:sid/depart/:did/batch/:bid', isLoggedIn, catchAsync(Institute.retrieveApproveStudentRequest))
+router.post(
+  "/:id/student/:cid/approve/:sid/depart/:did/batch/:bid",
+  isLoggedIn,
+  catchAsync(Institute.retrieveApproveStudentRequest)
+);
 
 // Institute Student Reject By Class Teacher
-router.post('/:id/student/:cid/reject/:sid', isLoggedIn, catchAsync(Institute.retrieveRejectStudentRequest))
+router.post(
+  "/:id/student/:cid/reject/:sid",
+  isLoggedIn,
+  catchAsync(Institute.retrieveRejectStudentRequest)
+);
 
 // Student Request At Class Teacher
-router.get('/:cid/student/request', isLoggedIn, catchAsync(Institute.retrievePendingRequestArray))
+router.get(
+  "/:cid/student/request",
+  isLoggedIn,
+  catchAsync(Institute.retrievePendingRequestArray)
+);
 
 // Student Approved At Class Teacher
-router.get('/:cid/student/catalog', isLoggedIn, catchAsync(Institute.retrieveApproveCatalogArray))
+router.get(
+  "/:cid/student/catalog",
+  catchAsync(Institute.retrieveApproveCatalogArray)
+);
 
 // Department Staff List at Staff Side
-router.get('/department/:did/staff-array', isLoggedIn, catchAsync(Institute.retrieveDepartmentStaffArray))
+router.get(
+  "/department/:did/staff-array",
+  isLoggedIn,
+  catchAsync(Institute.retrieveDepartmentStaffArray)
+);
 
 // User 3-Follow System Array
-router.get('/:id/all-two-array', isLoggedIn, catchAsync(Institute.retrieveInstituteTwoArray))
+router.get(
+  "/:id/all-two-array",
+  isLoggedIn,
+  catchAsync(Institute.retrieveInstituteTwoArray)
+);
 
 // One Announcement Detail
-router.get('/one/announcement/:aid', isLoggedIn, catchAsync(Institute.retrieveOneAnnouncement))
+router.get(
+  "/one/announcement/:aid",
+  isLoggedIn,
+  catchAsync(Institute.retrieveOneAnnouncement)
+);
 
-// Department Display Person 
-router.post('/:did/department/display-person', isLoggedIn, catchAsync(Institute.updateDepartmentDisplayPersonArray))
+// Department Display Person
+router.post(
+  "/:did/department/display-person",
+  isLoggedIn,
+  catchAsync(Institute.updateDepartmentDisplayPersonArray)
+);
 
-// Class Display Person 
-router.post('/:cid/class/display-person', isLoggedIn, catchAsync(Institute.updateClassDisplayPersonArray))
+// Class Display Person
+router.post(
+  "/:cid/class/display-person",
+  isLoggedIn,
+  catchAsync(Institute.updateClassDisplayPersonArray)
+);
 
 module.exports = router;
-
-

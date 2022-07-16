@@ -164,6 +164,9 @@ exports.getDashOneQuery = async (req, res) => {
   } catch {}
 };
 
+
+
+
 exports.getProfileOneQuery = async (req, res) => {
   try {
     const { id } = req.params;

@@ -28,4 +28,8 @@ router.post('/new/group/subject', isLoggedIn,  catchAsync(Chat.createSubjectGrou
 
 router.get('/user/subject/student', isLoggedIn, catchAsync(Chat.retrieveSubjectStudentArray))
 
+// router.get('/institute/recent/group/:uid', isLoggedIn,  catchAsync(Chat.retrieveRecentGroup));
+
+router.get('/institute/recent/group/:id', isLoggedIn,  catchAsync(Chat.getRecentChats));
+
 module.exports = router;

@@ -5,26 +5,15 @@ const complaintSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  complaintTo: {
-    type: String,
-    required: true,
-  },
   complaintContent: {
     type: String,
     required: true,
   },
-  student: {
+  staff: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Student",
+    ref: "Staff",
   },
-  classes: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Class",
-  },
-  department: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Department",
-  },
+
   complaintStatus: {
     type: String,
     default: "Unsolved",
@@ -33,16 +22,12 @@ const complaintSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  complaintInsStatus: {
-    type: String,
-    default: "Unsloved",
-  },
   institute: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteAdmin",
   },
 });
 
-const Complaint = mongoose.model("Complaint", complaintSchema);
+const Complaint = mongoose.model("StaffComplaint", complaintSchema);
 
 module.exports = Complaint;

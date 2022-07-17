@@ -144,10 +144,10 @@ const newAppApiNew = require("./routes/NewApi/newRoute");
 const userNew = require("./routes/User/userRoute");
 const availNew = require("./routes/Attendence/indexRoute");
 
-const landingNew = require('./routes/LandingRoute/indexRoute')
-const notifyNew = require('./routes/Notification/push-notification-route')
-const chatNew = require('./routes/Chat/chatRoute')
-const messageNew = require('./routes/Chat/messageRoute')
+const landingNew = require("./routes/LandingRoute/indexRoute");
+const notifyNew = require("./routes/Notification/push-notification-route");
+const chatNew = require("./routes/Chat/chatRoute");
+const messageNew = require("./routes/Chat/messageRoute");
 
 // =============IMPORT INSTITUTE POST ROUTER====================
 const institutePostRoute = require("./routes/InstituteAdmin/Post/PostRoute");
@@ -156,6 +156,7 @@ const superAdminPostRoute = require("./routes/SuperAdmin/Post/PostRoute");
 const classRoute = require("./routes/Class/classRoute");
 const checklistRoute = require("./routes/Checklist/checklistRoute");
 const examRoute = require("./routes/Exam/examRoute");
+const complaintLeaveRoute = require("./routes/ComplaintLeave/ComplaintLeaveRoute");
 const dburl = `${process.env.DB_URL2}`;
 // const dburl = `${process.env.DB_URL}`;
 // const dburl = `mongodb://127.0.0.1:27017/Erp_app`;
@@ -190,7 +191,7 @@ app.use(express.json());
 app.use(
   cors({
     // origin: "http://18.205.27.165",
-    origin: ["http://18.205.27.165","http://localhost:3000"],
+    origin: ["http://18.205.27.165", "http://localhost:3000"],
     // origin: "http://localhost:3000",
     // origin: "http://qviple.com",
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
@@ -239,6 +240,7 @@ app.use("/api/v1/comment/reply", commentReplyRoute);
 app.use("/api/v1/class", classRoute);
 app.use("/api/v1/checklist", checklistRoute);
 app.use("/api/v1/exam", examRoute);
+app.use("/api/v1/compleave", complaintLeaveRoute);
 // app.use("/all-images/v1", uploadRoute);
 // app.use("/elearning/v1", elearningRoute);
 // app.use("/library/v1", libraryRoute);
@@ -295,13 +297,12 @@ app.use("/api/v1/landing", landingNew);
 app.use("/api/v1/notification", notifyNew);
 
 // Chat Related to Qviple
-app.use('/api/v1/chat', chatNew)
+app.use("/api/v1/chat", chatNew);
 
 // Message from Chat related to Qviple
-app.use('/api/v1/message', messageNew)
+app.use("/api/v1/message", messageNew);
 
 // Super Admin Routes
-
 
 app.get("/", async (req, res) => {
   try {
@@ -12744,11 +12745,10 @@ const server = app.listen(port, function () {
   console.log("Server listening on port " + port);
 });
 
-
 const io = require("socket.io")(server, {
   pingTimeout: 60000,
   cors: {
-    origin: "*"
+    origin: "*",
     // methods: ["GET", "POST"]
     // credentials: true,
   },
@@ -12757,7 +12757,7 @@ const io = require("socket.io")(server, {
 io.on("connection", (socket) => {
   console.log("Connected to socket.io");
   socket.on("setup", (userData) => {
-    console.log(userData)
+    console.log(userData);
     socket.join(userData);
     socket.emit("connected");
   });
@@ -12777,8 +12777,8 @@ io.on("connection", (socket) => {
       if (user._id == newMessageRecieved.sender._id) return;
       // var delievered = true
       socket.in(user._id).emit("message recieved", newMessageRecieved);
-      console.log(user._id)
-      console.log('message Receieved Fired')
+      console.log(user._id);
+      console.log("message Receieved Fired");
     });
   });
 
@@ -12788,20 +12788,18 @@ io.on("connection", (socket) => {
   });
 });
 
+// socket.on("support chat", (room) => {
+//   socket.join(room);
+//   console.log("User Joined Room: " + room);
+// });
 
+// socket.on("support query", (newSupportQuery) => {
+//   var chat = newSupportQuery.chat;
+//   if (!chat.users) return console.log("chat.users not defined");
 
-  // socket.on("support chat", (room) => {
-  //   socket.join(room);
-  //   console.log("User Joined Room: " + room);
-  // });
-
-  // socket.on("support query", (newSupportQuery) => {
-  //   var chat = newSupportQuery.chat;
-  //   if (!chat.users) return console.log("chat.users not defined");
-
-  //   chat.users.forEach((user) => {
-  //     if (user == newSupportQuery.sender) return;
-  //     // var delievered = true
-  //     socket.in(user).emit("support query recieved", newSupportQuery);
-  //   });
-  // });
+//   chat.users.forEach((user) => {
+//     if (user == newSupportQuery.sender) return;
+//     // var delievered = true
+//     socket.in(user).emit("support query recieved", newSupportQuery);
+//   });
+// });

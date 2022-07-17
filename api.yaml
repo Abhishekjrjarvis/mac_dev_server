@@ -6138,29 +6138,67 @@ paths:
         "200":
           description: OK
 
-  /api/v1/checklist/checklist-all/new:
+  # /api/v1/checklist/checklist-all/new:
+  #   get:
+  #     tags:
+  #       - Checklist Related Api
+  #     summary: It is give the checklist list that is created by department head (Verified)
+  #     consumes:
+  #       - application/json
+  #     produces:
+  #       - application/json
+  #     parameters:
+  #       - in: query
+  #         name: page
+  #         schema:
+  #           type: integer
+  #         description: Enter a page which page data you want
+  #       - in: query
+  #         name: limit
+  #         schema:
+  #           type: integer
+  #         description: Enter a limit that retrieve one time
+  #     responses:
+  #       "200":
+  #         description: OK
+
+  /api/v1/checklist/department/{did}/all:
     get:
       tags:
         - Checklist Related Api
-      summary: It is give the checklist list that is created by department head (Verified)
+      summary: It is give list of all checklist in one department side (Verified)
       consumes:
         - application/json
       produces:
         - application/json
       parameters:
-        - in: query
-          name: page
-          schema:
-            type: integer
-          description: Enter a page which page data you want
-        - in: query
-          name: limit
-          schema:
-            type: integer
-          description: Enter a limit that retrieve one time
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is department id
       responses:
         "200":
-          description: OK
+          description: OK  
+
+  /api/v1/checklist/class/{cid}/all:
+    get:
+      tags:
+        - Checklist Related Api
+      summary: It is give list of all checklist in one class side (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class id
+      responses:
+        "200":
+          description: OK 
 
   /api/v1/checklist/{cid}/assign-student/{sid}:
     get:
@@ -6784,7 +6822,501 @@ paths:
         "200":
           description: OK
 
+# For the Complaints leave and transfer
 
+  /api/v1/compleave/student/{sid}:
+    get:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is give list of leave request
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular Student id
+      responses:
+        "200":
+          description: OK
+    post:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is for create a leave request
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular Student id
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              reason:
+                type: string
+                description: Give thereasone for leaving
+              dates:
+                type: array
+                description: give the arrays of the dates 
+                required: true 
+                items:
+                  type: string 
+                  description: it is a date like format (12/08/2022)             
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/compleave/leave/{lid}:
+    get:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is give leave details
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: It is particular Leave id
+      responses:
+        "200":
+          description: OK          
+    delete:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is delete leave request
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: It is particular Leave id          
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/compleave/class/{cid}:
+    get:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is give list of leave request in class side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: It is particular class Teacher id
+      responses:
+        "200":
+          description: OK          
+    patch:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is approve or reject the leave in class side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: It is particular Leave id 
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: pass the "Accepetd" of "Rejected" here
+                
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/compleave/student/{sid}/compdest:
+    get:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is give name of the ClassHead(classTeacher) or Department Head(department) 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: It is particular student id
+      responses:
+        "200":
+          description: OK
+  
+  /api/v1/compleave/student/{sid}/complaint:
+    get:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is give list of all Complaints
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular Student id
+      responses:
+        "200":
+          description: OK          
+    post:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is create complaint request for class or department
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular Student id 
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              classHead:
+                type: string
+                description: It is the class (class teacher) Id
+              departmentHead:
+                type: string
+                description: It is the department Id
+              complaintType:
+                type: string
+                required:  true
+                description: It is complaint type "Open" or "Anonymous"      
+              complaintContent:
+                type: string
+                required: true
+                description: It is complaint content  
+              complaintTo:
+                type: string
+                required: true
+                description: It is the classHeadTitle or department dTitle according with classHead or departmentHead                      
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/compleave/class/{cid}/complaint:
+    get:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is give all list of complaints in class side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: It is particular Class id 
+        - in: query
+          name: status
+          required: true
+          type: string
+          description: It is "Unsolved" or "Solved"         
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/compleave/department/{did}/complaint:
+    get:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is give all list of complaints in Department side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: It is particular Department id 
+        - in: query
+          name: status
+          required: true
+          type: string
+          description: It is "Unsolved" or "Solved"         
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/compleave/institute/{id}/complaint:
+    get:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is give all list of complaints in Institute side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: It is particular Institute id 
+        - in: query
+          name: status
+          required: true
+          type: string
+          description: It is "Unsolved" or "Solved"         
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/compleave/complaint/{cid}:
+    get:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is give one complaints all details
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: It is particular Complaint id
+      responses:
+        "200":
+          description: OK          
+    put:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is create complaint request for Institute Admin in student side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: It is particular Complaint id 
+      responses:
+        "200":
+          description: OK          
+    patch:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is solve complaint request by class Teacher side or Institute side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: It is particular Complaint id 
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: give the value here "Solved"
+      responses:
+        "200":
+          description: OK
+    delete:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is delete particular complaint request by student side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: It is particular Complaint id 
+      responses:
+        "200":
+          description: OK
+
+#for the staff
+  /api/v1/compleave/staff/{sid}:
+    get:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is give list of leave request
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular staff id
+      responses:
+        "200":
+          description: OK
+    post:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is for create a leave request
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular staff id
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              reason:
+                type: string
+                description: Give thereasone for leaving
+              dates:
+                type: array
+                description: give the arrays of the dates 
+                required: true 
+                items:
+                  type: string 
+                  description: it is a date like format (12/08/2022)             
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/compleave/staff/leave/{lid}:
+    get:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is give leave details
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: It is particular Leave id
+      responses:
+        "200":
+          description: OK          
+    delete:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is delete leave request
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: It is particular Leave id          
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/compleave/institute/{id}:
+    get:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is give list of leave request in institute side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: It is particular institute id
+      responses:
+        "200":
+          description: OK          
+    patch:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is approve or reject the leave in institute side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: It is particular Leave id 
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: pass the "Accepetd" of "Rejected" here          
+      responses:
+        "200":
+          description: OK
+
+# =================END=====================
   /api/v1/chat:
     post:
       tags:

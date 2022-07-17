@@ -326,16 +326,22 @@ const instituteAdminSchema = new mongoose.Schema({
   staffAttendance: [
     { type: mongoose.Schema.Types.ObjectId, ref: "StaffAttendenceDate" },
   ],
-  userProfile: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  },
+  recentChat: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Chat'
+    }
+  ],
   referralArray: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Referral'
     }
-  ]
+  ],
+  financeStatus: {
+    type: String,
+    default: 'Disable'
+  } 
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

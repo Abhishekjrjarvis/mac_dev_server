@@ -1,6 +1,7 @@
 const Chat = require("../../models/Chat/Chat");
 const User = require("../../models/User");
 const SupportChat = require('../../models/Chat/SupportChat')
+const InstituteAdmin = require('../../models/InstituteAdmin')
 
 exports.accessChat = async (req, res) => {
   const { userId } = req.body;
@@ -53,7 +54,10 @@ exports.fetchChats = async (req, res) => {
   try {
     Chat.find({ users: { $elemMatch: { $eq: req.tokenData && req.tokenData.userId } } })
       .populate("users", "username photoId profilePhoto")
-      .populate("groupAdmin", "username photoId profilePhoto")
+      .populate({
+        path: 'groupAdmin',
+        select: 'username photoId profilePhoto'
+      })
       // .populate('message')
       .populate("latestMessage")
       .sort({ updatedAt: -1 })
@@ -72,7 +76,7 @@ exports.fetchChats = async (req, res) => {
 
 
 exports.createGroupChat = async (req, res) => {
-  if (!req.body.users || !req.body.name || !req.body.admin) {
+  if (!req.body.users || !req.body.name || !req.body.admin || !req.body.instituteQuery) {
     return res.status(400).send({ message: "Please Fill all the feilds" });
   }
 
@@ -82,21 +86,34 @@ exports.createGroupChat = async (req, res) => {
       .send("More than 2 users are required to form a group chat");
   }
 
+  const userAdmin = await User.findById({ _id: req.body.admin})
+  if(req.body.users.includes(`${userAdmin._id}`)){
+
+  }
+  else{
   req.body.users.push(req.body.admin);
+  }
 
   try {
     const groupChat = new Chat({})
+    const user = await User.findById({_id: req.body.admin})
+    const institute = await InstituteAdmin.findById({ _id: req.body.instituteQuery})
     groupChat.chatName = req.body.name
     groupChat.isGroupChat = true
-    groupChat.groupAdmin = req.body.admin
+    groupChat.groupAdmin.push(req.body.admin)
+    user.recentChat.push(groupChat._id)
+    institute.recentChat.push(groupChat._id)
     for(let i = 0; i< req.body.users.length; i++){
       groupChat.users.push(req.body.users[i])
     }
-    await groupChat.save()
+    await Promise.all([ user.save(), institute.save(), groupChat.save()])
 
     const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
       .populate("users", "username photoId profilePhoto")
-      .populate("groupAdmin", "username photoId profilePhoto");
+      .populate({
+        path: 'groupAdmin',
+        select: 'username photoId profilePhoto'
+      });
 
     res.status(200).json(fullGroupChat);
   } catch (error) {
@@ -120,7 +137,10 @@ exports.renameGroup = async (req, res) => {
     }
   )
     .populate("users", "username photoId profilePhoto")
-    .populate("groupAdmin", "username photoId profilePhoto");
+    .populate({
+      path: 'groupAdmin',
+      select: 'username photoId profilePhoto'
+    });
 
   if (!updatedChat) {
     res.status(404);
@@ -146,7 +166,10 @@ exports.removeFromGroup = async (req, res) => {
     }
   )
     .populate("users", "username photoId profilePhoto")
-    .populate("groupAdmin", "username photoId profilePhoto");
+    .populate({
+      path: 'groupAdmin',
+      select: 'username photoId profilePhoto'
+    });
 
   if (!removed) {
     res.status(404);
@@ -170,7 +193,10 @@ exports.addToGroup = async (req, res) => {
     }
   )
     .populate("users", "username photoId profilePhoto")
-    .populate("groupAdmin", "username photoId profilePhoto");
+    .populate({
+      path: 'groupAdmin',
+      select: 'username photoId profilePhoto'
+    });
 
   if (!added) {
     res.status(404);
@@ -354,7 +380,7 @@ exports.createSubjectGroupChat = async (req, res) => {
       const groupChat = new Chat({})
       groupChat.chatName = req.body.name
       groupChat.isGroupChat = true
-      groupChat.groupAdmin = user._id
+      groupChat.groupAdmin.push(user._id)
       for(let i = 0; i< req.body.users.length; i++){
         groupChat.users.push(req.body.users[i])
       }
@@ -362,7 +388,10 @@ exports.createSubjectGroupChat = async (req, res) => {
 
       const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
         .populate("users", "username photoId profilePhoto")
-        .populate("groupAdmin", "username photoId profilePhoto");
+        .populate({
+          path: 'groupAdmin',
+          select: 'username photoId profilePhoto'
+        });
 
       res.status(200).json(fullGroupChat);
     }
@@ -372,5 +401,145 @@ exports.createSubjectGroupChat = async (req, res) => {
   } catch (error) {
     res.status(400);
     throw new Error(error.message);
+  }
+}
+
+
+
+// exports.retrieveRecentGroup = async (req, res) => {
+//   try {
+//     const { uid } = req.params
+//     Chat.find({ users: { $elemMatch: { $eq: uid } } })
+//       .populate("users", "username photoId profilePhoto")
+//       .populate("groupAdmin", "username photoId profilePhoto")
+//       .populate({
+//         path: 'message',
+//         select: 'content updatedAt',
+//         populate: {
+//           path: 'sender',
+//           select: 'username'
+//         }
+//       })
+//       .populate({
+//         path: 'message',
+//         select: 'content updatedAt',
+//         populate: {
+//           path: 'sender',
+//           select: 'username'
+//         }
+//       })
+//       .populate({
+//         path: 'message',
+//         select: 'content updatedAt',
+//         populate: {
+//           path: 'replyMessage',
+//           select: 'replyContent reply replyIndex',
+//           populate: {
+//             path: 'replySender',
+//             select: 'username'
+//           }
+//         }
+//       })
+//       .populate({
+//         path: 'message',
+//         select: 'content updatedAt',
+//         populate: {
+//           path: 'forwardMessage',
+//           select: 'isForward'
+//         }
+//       })
+//       .populate({
+//         path: 'message',
+//         populate: {
+//           path: 'document',
+//           select: 'documentName documentSize documentKey documentType'
+//         }
+//       })
+//       .populate("latestMessage")
+//       .sort({ updatedAt: -1 })
+//       .then(async (results) => {
+//         results = await User.populate(results, {
+//           path: "latestMessage.sender",
+//           select: "username photoId profilePhoto ",
+//         });
+//         res.status(200).send(results);
+//       });
+//   } catch (error) {
+//     res.status(400);
+//     // throw new Error(error.message);
+//   }
+// }
+
+exports.getRecentChats = async(req, res) => {
+  try{
+    const { id } = req.params
+    const institute = await InstituteAdmin.findById({ _id: id })
+    .select('insName name photoId insProfilePhoto recentChat')
+
+    const chat = await Chat.find({ _id: {$in: institute.recentChat}})
+    .select('chatName chatProfilePhoto chatDescription updatedAt isGroupChat createdAt groupAdmin')
+    .populate({
+      path: 'latestMessage',
+      select: 'content updatedAt',
+      populate: {
+        path: 'sender',
+        populate: 'username'
+      }
+    })
+    .populate({
+        path: 'latestMessage',
+        select: 'content updatedAt',
+        populate: {
+          path: 'document',
+          populate: 'documentName documentType documentKey documentSize'
+        }
+    })
+    .populate({
+        path: 'message',
+        select: 'content updatedAt',
+        populate: {
+          path: 'sender',
+          select: 'username'
+        }
+    })
+    .populate({
+        path: 'message',
+        select: 'content updatedAt',
+        populate: {
+          path: 'replyMessage',
+          select: 'reply replyContent replyIndex',
+          populate: {
+            path: 'replySender',
+            select: 'username'
+          }
+        }
+    })
+    .populate({
+        path: 'message',
+        select: 'content updatedAt',
+        populate: {
+          path: 'forwardMessage',
+          select: 'isForward'
+        }
+    })
+    .populate({
+        path: 'message',
+        select: 'content updatedAt',
+        populate: {
+          path: 'document',
+          select: 'documentName documentType documentSize document documentKey'
+        }
+    })
+    .populate({
+        path: 'users',
+        select: 'username userLegalName photoId profilePhoto',
+    })
+    .sort("-updatedAt")
+    .lean()
+    .exec()
+    res.status(200).send({ message: 'Recent chats', institute, chat})
+  }
+  catch{
+
   }
 }

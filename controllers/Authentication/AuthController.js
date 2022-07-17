@@ -104,12 +104,9 @@ exports.getUpDocIns = async (req, res) => {
   }
 };
 
-// const username = usernameGenerator()
-// console.log(username)
 
 exports.getPassIns = async (req, res) => {
   try {
-    var usernameExp = usernameGenerator()
     const { id } = req.params;
     const { insPassword, insRePassword } = req.body;
     const institute = await InstituteAdmin.findById({ _id: id });
@@ -124,28 +121,28 @@ exports.getPassIns = async (req, res) => {
     } else {
       res.send({ message: "Invalid Combination", login: false });
     }
-    const user = new User({})
-    user.userPhoneNumber = institute.insPhoneNumber
-    user.userStatus = institute.insMobileStatus
-    user.userLegalName = institute.insName
-    user.username = usernameExp && usernameExp
-    user.userGender = 'NA'
-    user.userDateOfBirth = '2020-01-01'
-    user.photoId = "0"
-    user.coverId = "2"
-    user.userPassword = institute.insPassword
-    user.createdAt = institute.createdAt
-    institute.userProfile = user._id
-    admin.users.push(user._id);
-    admin.userCount += 1
-    await Promise.all([user.save(), institute.save(), admin.save()])
-    const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
-    .populate({ path: 'posts' })
-    const post = await Post.find({ _id: { $in: uInstitute.posts }, postVisibility: 'Anyone'})
-    post.forEach(async (ele) => {
-      user.userPosts.push(ele)
-    })
-    await user.save()
+    // const user = new User({})
+    // user.userPhoneNumber = institute.insPhoneNumber
+    // user.userStatus = institute.insMobileStatus
+    // user.userLegalName = institute.insName
+    // user.username = usernameExp && usernameExp
+    // user.userGender = 'NA'
+    // user.userDateOfBirth = '2020-01-01'
+    // user.photoId = "0"
+    // user.coverId = "2"
+    // user.userPassword = institute.insPassword
+    // user.createdAt = institute.createdAt
+    // institute.userProfile = user._id
+    // admin.users.push(user._id);
+    // admin.userCount += 1
+    // await Promise.all([user.save(), institute.save(), admin.save()])
+    // const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
+    // .populate({ path: 'posts' })
+    // const post = await Post.find({ _id: { $in: uInstitute.posts }, postVisibility: 'Anyone'})
+    // post.forEach(async (ele) => {
+    //   user.userPosts.push(ele)
+    // })
+    // await user.save()
   } catch (e) {
     console.log(`Error`, e.message);
   }

@@ -337,7 +337,11 @@ const instituteAdminSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Referral'
     }
-  ]
+  ],
+  financeStatus: {
+    type: String,
+    default: 'Disable'
+  } 
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

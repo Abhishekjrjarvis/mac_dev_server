@@ -26,6 +26,7 @@ exports.getFinanceDepart = async(req, res) =>{
         staff.financeDepartment.push(finance._id);
         finance.financeHead = staff._id;
         institute.financeDepart.push(finance._id);
+        institute.financeStatus = 'Enable'
         finance.institute = institute._id;
         notify.notifyContent = `you got the designation of ${finance.financeName} as Finance Manager`;
         notify.notifySender = id;
@@ -43,7 +44,8 @@ exports.getFinanceDepart = async(req, res) =>{
         ])
         res.status(200).send({
           message: "Successfully Assigned Staff",
-          finance: finance._id
+          finance: finance._id,
+          status: true
         });
       } catch(e) {
       }
@@ -122,12 +124,15 @@ exports.retrieveFinanceQuery = async(req, res) =>{
     .select('financeName financeEmail financePhoneNumber financeAbout photoId photo cover coverId financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance')
     .populate({
       path: 'institute',
-      select: 'id'
+      select: 'id adminRepayAmount'
+    })
+    .populate({
+      path: 'financeHead',
+      select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto'
     })
     res.status(200).send({ message: 'Finance', finance})
   }
-  catch{
-
+  catch(e){
   }
 }
 

@@ -156,7 +156,7 @@ exports.getDashOneQuery = async (req, res) => {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName name insAbout photoId status insProfilePhoto "
+        "insName name insAbout photoId status insProfilePhoto financeStatus financeDepart"
       )
       .lean()
       .exec();

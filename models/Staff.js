@@ -154,6 +154,13 @@ const staffSchema = new mongoose.Schema({
   recentDesignation: {
     type: String,
   },
+
+  complaints: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "StaffComplaint",
+    },
+  ],
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

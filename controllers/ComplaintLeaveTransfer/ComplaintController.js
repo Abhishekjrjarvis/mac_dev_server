@@ -5,6 +5,7 @@ const Department = require("../../models/Department");
 const User = require("../../models/User");
 const StudentLeave = require("../../models/StudentLeave");
 const Complaint = require("../../models/Complaint");
+const StaffComplaint = require("../../models/StaffComplaint");
 const Notification = require("../../models/notification");
 const Leave = require("../../models/Leave");
 const Staff = require("../../models/Staff");
@@ -244,7 +245,7 @@ exports.studentComplaint = async (req, res) => {
       await classes.save();
     } else {
     }
-    student.complaints.push(complaint);
+    student.complaints.push(complaint._id);
     await Promise.all([student.save(), complaint.save()]);
 
     res.status(201).send({ message: "Request complaint" });
@@ -1258,3 +1259,109 @@ exports.oneStaffLeaveProcess = async (req, res) => {
 //       );
 //     }
 //   });
+
+exports.staffComplaint = async (req, res) => {
+  try {
+    const staff = await Staff.findById(req.params.sid);
+    const complaint = new Complaint({
+      complaintType: req.body.complaintType,
+      complaintContent: req.body.complaintContent,
+      staff: staff._id,
+      institute: staff.institute,
+    });
+    const institute = await InstituteAdmin.findById(staff.institute);
+    institute.staffComplaints.push(complaint._id);
+    staff.complaints.push(complaint > _id);
+    await Promise.all([staff.save(), complaint.save(), institute.save()]);
+    res.status(201).send({ message: "Request complaint" });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.stafftAllComplaint = async (req, res) => {
+  try {
+    const staff = await Staff.findById(req.params.sid)
+      .populate({
+        path: "complaints",
+        select: "complaintType complaintStatus createdAt",
+      })
+      .select("complaints _id");
+    res
+      .status(200)
+      .send({ message: "all complaints", complaints: staff.complaints });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.OneStaffComplaint = async (req, res) => {
+  try {
+    const complaint = await StaffComplaint.findById(req.params.cid).select(
+      "complaintType  complaintContent complaintStatus createdAt"
+    );
+    res.status(200).send({ message: "one complaint details", complaint });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.staffComplaintSolve = async (req, res) => {
+  try {
+    const complaint = await StaffComplaint.findById(req.params.cid);
+    if (complaint.complaintStatus === "Solved") {
+      throw "Complaints is Already solved";
+    }
+    complaint.complaintStatus = req.body.status;
+    await complaint.save();
+    res.status(200).send({ message: "Complaint Resolevd" });
+  } catch (e) {
+    res.send(424).send({ e });
+  }
+};
+
+exports.staffComplaintDelete = async (req, res) => {
+  try {
+    const complaint = await StaffComplaint.findById(req.params.cid);
+
+    const staff = await Staff.findById(complaint.staff).select("complaints");
+    staff.complaints.pull(req.params.cid);
+
+    const institute = await InstituteAdmin.findById(complaint.institute).select(
+      "studentComplaint"
+    );
+    institute.staffComplaints.pull(req.params.cid);
+
+    await Promise.all([staff.save(), institute.save()]);
+    await StaffComplaint.findByIdAndDelete(req.params.cid);
+    res.status(200).send({ message: "complaint deleted successfully" });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.instituteStaffAllComplaint = async (req, res) => {
+  try {
+    const institute = await InstituteAdmin.findById(req.params.id)
+      .populate({
+        path: "staffComplaints",
+        match: {
+          complaintStatus: { $eq: `${req.query.status}` },
+          // complaintType: "Open",
+        },
+        populate: {
+          path: "staff",
+          select: "staffFirstName staffMiddleName staffLastName",
+        },
+        select: "complaintType complaintStatus createdAt",
+      })
+      .select("staffComplaints");
+
+    res.status(200).send({
+      message: "all complaints",
+      complaints: institute.staffComplaints,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

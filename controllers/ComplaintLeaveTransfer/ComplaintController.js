@@ -435,6 +435,135 @@ exports.instituteAllComplaint = async (req, res) => {
   }
 };
 
+exports.studentTransferRequested = async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.sid);
+    const classes = await Class.findById(student.studentClass).populate({
+      path: "classTeacher",
+      select: "user",
+    });
+    const user = await User.findById({
+      _id: `${classes.classTeacher.user}`,
+    });
+    const transfer = new StudentTransfer({
+      transferReason: req.body.transferReason,
+      fromClass: classes._id,
+      student: student._id,
+    });
+    classes.studentTransfer.push(transfer._id);
+    student.transfer.push(transfer._id);
+    const notify = new Notification({});
+    notify.notifyContent = `${student.studentFirstName}${
+      student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+    } ${student.studentLastName} requested for a Transfer check application`;
+    notify.notifySender = student._id;
+    notify.notifyReceiever = classes._id;
+    user.uNotify.push(notify._id);
+    notify.user = user._id;
+    notify.notifyByStudentPhoto = student._id;
+    await Promise.all([
+      classes.save(),
+      student.save(),
+      transfer.save(),
+      user.save(),
+      notify.save(),
+    ]);
+    res.status(201).send({ message: "request to transfer" });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.studentTransferApproved = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const transfer = await StudentTransfer.findById(req.params.tid);
+    const student = await Student.findById(transfer.student).populate({
+      path: "user",
+    });
+    const classes = await Class.findById(transfer.fromClass);
+    const user = await User.findById({ _id: `${student.user._id}` });
+    const department = await Department.findById(classes.department);
+    const institute = await InstituteAdmin.findById(department.institute);
+
+    const batch = await Batch.findById(classes.batch);
+    const notify = new Notification({});
+    transfer.transferStatus = status;
+    classes.ApproveStudent.pull(student._id);
+    department.ApproveStudent.pull(student._id);
+    student.department = "";
+    batch.ApproveStudent.pull(student._id);
+    notify.notifyContent = `Your Transfer request has been Approved by ${institute.insName} from ${classes.className}`;
+    notify.notifySender = classes._id;
+    notify.notifyReceiever = user._id;
+    user.uNotify.push(notify._id);
+    notify.user = user._id;
+    notify.notifyByClassPhoto = classes._id;
+    await Promise.all([
+      transfer.save(),
+      classes.save(),
+      department.save(),
+      student.save(),
+      batch.save(),
+      user.save(),
+      notify.save(),
+    ]);
+    res.status(200).send({ message: "Transfer Granted" });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.studentTransferRejected = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const transfer = await StudentTransfer.findById(req.params.tid);
+    const classes = await Class.findById(transfer.fromClass);
+    const student = await Student.findById(transfer.student).populate({
+      path: "user",
+    });
+    const user = await User.findById({ _id: `${student.user._id}` });
+    const notify = new Notification({});
+    transfer.transferStatus = status;
+    notify.notifyContent = `Your Transfer request has been Rejected by ${classes.className}`;
+    notify.notifySender = classes._id;
+    notify.notifyReceiever = user._id;
+    user.uNotify.push(notify._id);
+    notify.user = user._id;
+    notify.notifyByClassPhoto = classes._id;
+    await Promise.all([transfer.save(), user.save(), notify.save()]);
+    res.status(200).send({ message: "Transfer Not Granted" });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.classAllTransfer = async (req, res) => {
+  try {
+    const classes = await Class.findById(req.params.cid)
+      .populate({
+        path: "studentTransfer",
+        // match: {
+        //   complaintStatus: { $eq: `${req.query.status}` },
+        //   // complaintType: "Open",
+        // },
+        populate: {
+          path: "student",
+          select: "studentFirstName studentMiddleName studentLastName",
+        },
+        select: "transferReason createdAt student transferStatus",
+      })
+      .select("studentTransfer");
+
+    res.status(200).send({
+      message: "all transfers",
+      transfers: classes.studentTransfer,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 //=======================================For the staff related controller=========================================
 
 exports.getStaffLeave = async (req, res) => {
@@ -839,104 +968,28 @@ exports.staffTransferRejected = async (req, res) => {
     console.log(e);
   }
 };
-exports.studentTransferRequested = async (req, res) => {
-  try {
-    const student = await Student.findById(req.params.sid);
-    const classes = await Class.findById(student.studentClass).populate({
-      path: "classTeacher",
-      select: "user",
-    });
-    const user = await User.findById({
-      _id: `${classes.classTeacher.user}`,
-    });
-    const transfer = new StudentTransfer({
-      transferReason: req.body.transferReason,
-      fromClass: classes._id,
-      student: student._id,
-    });
-    classes.studentTransfer.push(transfer._id);
-    student.transfer.push(transfer._id);
-    const notify = new Notification({});
-    notify.notifyContent = `${student.studentFirstName}${
-      student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
-    } ${student.studentLastName} requested for a Transfer check application`;
-    notify.notifySender = student._id;
-    notify.notifyReceiever = classes._id;
-    user.uNotify.push(notify._id);
-    notify.user = user._id;
-    notify.notifyByStudentPhoto = student._id;
-    await Promise.all([
-      classes.save(),
-      student.save(),
-      transfer.save(),
-      user.save(),
-      notify.save(),
-    ]);
-    res.status(201).send({ message: "request to transfer" });
-  } catch (e) {
-    console.log(e);
-  }
-};
 
-exports.studentTransferApproved = async (req, res) => {
+exports.instituteStaffAllTransfer = async (req, res) => {
   try {
-    const { status } = req.body;
-    const transfer = await StudentTransfer.findById(req.params.tid);
-    const student = await Student.findById(transfer.student).populate({
-      path: "user",
-    });
-    const classes = await Class.findById(transfer.fromClass);
-    const user = await User.findById({ _id: `${student.user._id}` });
-    const department = await Department.findById(classes.department);
-    const institute = await InstituteAdmin.findById(department.institute);
+    const institute = await InstituteAdmin.findById(req.params.id)
+      .populate({
+        path: "transfer",
+        // match: {
+        //   complaintStatus: { $eq: `${req.query.status}` },
+        //   // complaintType: "Open",
+        // },
+        populate: {
+          path: "staff",
+          select: "staffFirstName staffMiddleName staffLastName",
+        },
+        select: "transferReason createdAt staff transferStatus",
+      })
+      .select("transfer");
 
-    const batch = await Batch.findById(classes.batch);
-    const notify = new Notification({});
-    transfer.transferStatus = status;
-    classes.ApproveStudent.pull(student._id);
-    department.ApproveStudent.pull(student._id);
-    student.department = "";
-    batch.ApproveStudent.pull(student._id);
-    notify.notifyContent = `Your Transfer request has been Approved by ${institute.insName} from ${classes.className}`;
-    notify.notifySender = classes._id;
-    notify.notifyReceiever = user._id;
-    user.uNotify.push(notify._id);
-    notify.user = user._id;
-    notify.notifyByClassPhoto = classes._id;
-    await Promise.all([
-      transfer.save(),
-      classes.save(),
-      department.save(),
-      student.save(),
-      batch.save(),
-      user.save(),
-      notify.save(),
-    ]);
-    res.status(200).send({ message: "Transfer Granted" });
-  } catch (e) {
-    console.log(e);
-  }
-};
-
-exports.studentTransferRejected = async (req, res) => {
-  try {
-    const { status } = req.body;
-    const transfer = await StudentTransfer.findById(req.params.tid);
-    const classes = await Class.findById(transfer.fromClass);
-    const student = await Student.findById(transfer.student).populate({
-      path: "user",
+    res.status(200).send({
+      message: "all transfer",
+      transfers: institute.transfer,
     });
-    const user = await User.findById({ _id: `${student.user._id}` });
-    const notify = new Notification({});
-    transfer.transferStatus = status;
-    notify.notifyContent = `Your Transfer request has been Rejected by ${classes.className}`;
-    notify.notifySender = classes._id;
-    notify.notifyReceiever = user._id;
-    user.uNotify.push(notify._id);
-    notify.user = user._id;
-    notify.notifyByClassPhoto = classes._id;
-    await Promise.all([transfer.save(), user.save(), notify.save()]);
-    res.status(200).send({ message: "Transfer Not Granted" });
   } catch (e) {
     console.log(e);
   }

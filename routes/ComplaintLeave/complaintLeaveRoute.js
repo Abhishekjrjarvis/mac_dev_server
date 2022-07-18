@@ -49,6 +49,10 @@ router
 router
   .route("/student/:sid/transfer")
   .post(catchAsync(complaintController.studentTransferRequested));
+
+router
+  .route("/class/:cid/transfer")
+  .get(catchAsync(complaintController.classAllTransfer));
 router
   .route("/class/student/:tid/transfer")
   .put(catchAsync(complaintController.studentTransferRejected))
@@ -88,6 +92,11 @@ router
 router
   .route("/staff/:sid/transfer")
   .post(catchAsync(complaintController.staffTransferRequested));
+
+router
+  .route("/institute/:id/transfer")
+  .get(catchAsync(complaintController.instituteStaffAllTransfer));
+
 router
   .route("/institute/staff/:tid/transfer")
   .put(catchAsync(complaintController.staffTransferRejected))

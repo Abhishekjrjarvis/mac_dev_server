@@ -9,6 +9,11 @@ const StaffComplaint = require("../../models/StaffComplaint");
 const Notification = require("../../models/notification");
 const Leave = require("../../models/Leave");
 const Staff = require("../../models/Staff");
+const Finance = require("../../models/Finance");
+const Batch = require("../../models/Batch");
+const Subject = require("../../models/Subject");
+const Transfer = require("../../models/Transfer");
+const StudentTransfer = require("../../models/StudentTransfer");
 
 //=======================================For the students related controller=========================================
 
@@ -605,660 +610,6 @@ exports.oneStaffLeaveProcess = async (req, res) => {
     console.log(e);
   }
 };
-// exports.getStaffLeave=async (req, res) => {
-//     try {
-//       const { id } = req.params;
-//       const staff = await Staff.findById({ _id: id }).populate({
-//         path: "institute",
-//       });
-//       res.status(200).send({ message: "Staff Leave Data", staff });
-//     } catch {}
-//   }
-
-//   exports.postStaffLeave=async (req, res) => {
-//     try {
-//       const { sid, id } = req.params;
-//       const staff = await Staff.findById({ _id: sid });
-//       const institute = await InstituteAdmin.findById({ _id: id });
-//       const leave = await new Leave({ ...req.body });
-//       const notify = await new Notification({});
-//       institute.leave.push(leave);
-//       leave.institute = institute;
-//       staff.staffLeave.push(leave);
-//       leave.staff = staff;
-//       notify.notifyContent = `${staff.staffFirstName}${
-//         staff.staffMiddleName ? ` ${staff.staffMiddleName}` : ""
-//       } ${staff.staffLastName} requested for a leave check application`;
-//       notify.notifySender = sid;
-//       notify.notifyReceiever = id;
-//       institute.iNotify.push(notify);
-//       notify.institute = institute;
-//       notify.notifyByStaffPhoto = staff;
-//       await staff.save();
-//       await leave.save();
-//       await institute.save();
-//       await notify.save();
-//       res
-//         .status(200)
-//         .send({ message: "request to leave", leave, staff, institute });
-//     } catch {
-//       console.log(`SomeThing Went Wrong at this EndPoint(/staff/:sid/leave/:id)`);
-//     }
-//   }
-
-//   exports.oneStaffLeaveGrant=async (req, res) => {
-//     try {
-//       const { id, sid, eid } = req.params;
-//       const { status } = req.body;
-//       const institute = await InstituteAdmin.findById({ _id: id });
-//       const staff = await Staff.findById({ _id: sid }).populate({
-//         path: "user",
-//       });
-//       const user = await User.findById({ _id: `${staff.user._id}` });
-//       const leave = await Leave.findById({ _id: eid });
-//       const notify = await new Notification({});
-//       leave.leaveStatus = status;
-//       notify.notifyContent = `Your Leave request has been Approved by ${institute.insName}`;
-//       notify.notifySender = id;
-//       notify.notifyReceiever = user._id;
-//       user.uNotify.push(notify);
-//       notify.user = user;
-//       notify.notifyByStaffPhoto = staff;
-//       await leave.save();
-//       await user.save();
-//       await notify.save();
-//       res.status(200).send({ message: "Leave Granted", leave });
-//     } catch {
-//       console.log(
-//         `SomeThing Went Wrong at this EndPoint(/ins/:id/staff/leave/grant/:eid)`
-//       );
-//     }
-//   }
-
-//   exports.oneStaffLeaveReject=async (req, res) => {
-//     try {
-//       const { id, sid, eid } = req.params;
-//       const { status } = req.body;
-//       const institute = await InstituteAdmin.findById({ _id: id });
-//       const staff = await Staff.findById({ _id: sid }).populate({
-//         path: "user",
-//       });
-//       const user = await User.findById({ _id: `${staff.user._id}` });
-//       const leave = await Leave.findById({ _id: eid });
-//       const notify = await new Notification({});
-//       leave.leaveStatus = status;
-//       notify.notifyContent = `Your Leave request has been Rejected by ${institute.insName}`;
-//       notify.notifySender = id;
-//       notify.notifyReceiever = user._id;
-//       user.uNotify.push(notify);
-//       notify.user = user;
-//       notify.notifyByStaffPhoto = staff;
-//       await leave.save();
-//       await user.save();
-//       await notify.save();
-//       res.status(200).send({ message: "Leave Not Granted", leave });
-//     } catch {
-//       console.log(
-//         `SomeThing Went Wrong at this EndPoint(/ins/:id/staff/leave/reject/:eid)`
-//       );
-//     }
-//   }
-// app.get("/staff/:id/detail/leave", async (req, res) => {
-//     try {
-//       const { id } = req.params;
-//       const staff = await Staff.findById({ _id: id }).populate({
-//         path: "institute",
-//       });
-//       res.status(200).send({ message: "Staff Leave Data", staff });
-//     } catch {}
-//   });
-
-//   app.get("/student/:id/detail/leave", async (req, res) => {
-//     try {
-//       const { id } = req.params;
-//       const student = await Student.findById({ _id: id }).populate({
-//         path: "studentClass",
-//       });
-//       res.status(200).send({ message: "Student Leave Data", student });
-//     } catch {
-//       console.log(
-//         `SomeThing Went Wrong at this EndPoint(/student/:id/detail/leave)`
-//       );
-//     }
-//   });
-
-//   app.post("/staff/:sid/leave/:id", async (req, res) => {
-//     try {
-//       const { sid, id } = req.params;
-//       const staff = await Staff.findById({ _id: sid });
-//       const institute = await InstituteAdmin.findById({ _id: id });
-//       const leave = await new Leave({ ...req.body });
-//       const notify = await new Notification({});
-//       institute.leave.push(leave);
-//       leave.institute = institute;
-//       staff.staffLeave.push(leave);
-//       leave.staff = staff;
-//       notify.notifyContent = `${staff.staffFirstName}${
-//         staff.staffMiddleName ? ` ${staff.staffMiddleName}` : ""
-//       } ${staff.staffLastName} requested for a leave check application`;
-//       notify.notifySender = sid;
-//       notify.notifyReceiever = id;
-//       institute.iNotify.push(notify);
-//       notify.institute = institute;
-//       notify.notifyByStaffPhoto = staff;
-//       await staff.save();
-//       await leave.save();
-//       await institute.save();
-//       await notify.save();
-//       res
-//         .status(200)
-//         .send({ message: "request to leave", leave, staff, institute });
-//     } catch {
-//       console.log(`SomeThing Went Wrong at this EndPoint(/staff/:sid/leave/:id)`);
-//     }
-//   });
-
-//   app.post("/student/:sid/leave/:id", async (req, res) => {
-//     try {
-//       const { sid, id } = req.params;
-//       const student = await Student.findById({ _id: sid });
-//       const classes = await Class.findById({ _id: id }).populate({
-//         path: "classTeacher",
-//         populate: {
-//           path: "user",
-//         },
-//       });
-//       const user = await User.findById({
-//         _id: `${classes.classTeacher.user._id}`,
-//       });
-//       const leave = await new StudentLeave({ ...req.body });
-//       const notify = await new Notification({});
-//       classes.studentLeave.push(leave);
-//       leave.fromClass = classes;
-//       student.leave.push(leave);
-//       leave.student = student;
-//       notify.notifyContent = `${student.studentFirstName}${
-//         student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
-//       } ${student.studentLastName} requested for a leave check application`;
-//       notify.notifySender = sid;
-//       notify.notifyReceiever = id;
-//       user.uNotify.push(notify);
-//       notify.user = user;
-//       notify.notifyByStudentPhoto = student;
-//       await classes.save();
-//       await student.save();
-//       await leave.save();
-//       await user.save();
-//       await notify.save();
-//       res
-//         .status(200)
-//         .send({ message: "request to leave", leave, student, classes });
-//     } catch {
-//       console.log(
-//         `SomeThing Went Wrong at this EndPoint(/student/:sid/leave/:id)`
-//       );
-//     }
-//   });
-
-//   app.post("/ins/:id/staff/:sid/leave/grant/:eid", async (req, res) => {
-//     try {
-//       const { id, sid, eid } = req.params;
-//       const { status } = req.body;
-//       const institute = await InstituteAdmin.findById({ _id: id });
-//       const staff = await Staff.findById({ _id: sid }).populate({
-//         path: "user",
-//       });
-//       const user = await User.findById({ _id: `${staff.user._id}` });
-//       const leave = await Leave.findById({ _id: eid });
-//       const notify = await new Notification({});
-//       leave.leaveStatus = status;
-//       notify.notifyContent = `Your Leave request has been Approved by ${institute.insName}`;
-//       notify.notifySender = id;
-//       notify.notifyReceiever = user._id;
-//       user.uNotify.push(notify);
-//       notify.user = user;
-//       notify.notifyByStaffPhoto = staff;
-//       await leave.save();
-//       await user.save();
-//       await notify.save();
-//       res.status(200).send({ message: "Leave Granted", leave });
-//     } catch {
-//       console.log(
-//         `SomeThing Went Wrong at this EndPoint(/ins/:id/staff/leave/grant/:eid)`
-//       );
-//     }
-//   });
-
-//   app.post("/class/:id/student/:sid/leave/grant/:eid", async (req, res) => {
-//     try {
-//       const { id, sid, eid } = req.params;
-//       const { status } = req.body;
-//       const classes = await Class.findById({ _id: id });
-//       const student = await Student.findById({ _id: sid }).populate({
-//         path: "user",
-//       });
-//       const user = await User.findById({ _id: `${student.user._id}` });
-//       const leave = await StudentLeave.findById({ _id: eid });
-//       const notify = await new Notification({});
-//       leave.leaveStatus = status;
-//       notify.notifyContent = `Your Leave request has been Approved by ${classes.className}`;
-//       notify.notifySender = id;
-//       notify.notifyReceiever = user._id;
-//       user.uNotify.push(notify);
-//       notify.user = user;
-//       notify.notifyByStudentPhoto = student;
-//       await leave.save();
-//       await user.save();
-//       await notify.save();
-//       res.status(200).send({ message: "Leave Granted", leave });
-//     } catch {
-//       console.log(
-//         `SomeThing Went Wrong at this EndPoint(/class/:id/student/leave/grant/:eid)`
-//       );
-//     }
-//   });
-
-//   app.post("/ins/:id/staff/:sid/leave/reject/:eid", async (req, res) => {
-//     try {
-//       const { id, sid, eid } = req.params;
-//       const { status } = req.body;
-//       const institute = await InstituteAdmin.findById({ _id: id });
-//       const staff = await Staff.findById({ _id: sid }).populate({
-//         path: "user",
-//       });
-//       const user = await User.findById({ _id: `${staff.user._id}` });
-//       const leave = await Leave.findById({ _id: eid });
-//       const notify = await new Notification({});
-//       leave.leaveStatus = status;
-//       notify.notifyContent = `Your Leave request has been Rejected by ${institute.insName}`;
-//       notify.notifySender = id;
-//       notify.notifyReceiever = user._id;
-//       user.uNotify.push(notify);
-//       notify.user = user;
-//       notify.notifyByStaffPhoto = staff;
-//       await leave.save();
-//       await user.save();
-//       await notify.save();
-//       res.status(200).send({ message: "Leave Not Granted", leave });
-//     } catch {
-//       console.log(
-//         `SomeThing Went Wrong at this EndPoint(/ins/:id/staff/leave/reject/:eid)`
-//       );
-//     }
-//   });
-
-//   app.post("/class/:id/student/:sid/leave/reject/:eid", async (req, res) => {
-//     try {
-//       const { id, sid, eid } = req.params;
-//       const { status } = req.body;
-//       const classes = await Class.findById({ _id: id });
-//       const student = await Student.findById({ _id: sid }).populate({
-//         path: "user",
-//       });
-//       const user = await User.findById({ _id: `${student.user._id}` });
-//       const leave = await StudentLeave.findById({ _id: eid });
-//       const notify = await new Notification({});
-//       leave.leaveStatus = status;
-//       notify.notifyContent = `Your Leave request has been Rejected by ${classes.className}`;
-//       notify.notifySender = id;
-//       notify.notifyReceiever = user._id;
-//       user.uNotify.push(notify);
-//       notify.user = user;
-//       notify.notifyByStudentPhoto = student;
-//       await leave.save();
-//       await user.save();
-//       await notify.save();
-//       res.status(200).send({ message: "Leave Not Granted", leave });
-//     } catch {
-//       console.log(
-//         `SomeThing Went Wrong at this EndPoint(/class/:id/student/leave/reject/:eid)`
-//       );
-//     }
-//   });
-
-// app.post("/student/:sid/complaint", async (req, res) => {
-//     try {
-//       const { sid } = req.params;
-//       const { complaintHead, complaintType, complaintContent } = req.body;
-//       const department = await Department.findOne({ _id: complaintHead });
-//       const classes = await Class.findOne({ _id: complaintHead });
-//       if (department) {
-//         const student = await Student.findById({ _id: sid });
-//         const complaint = await new Complaint({
-//           complaintType: complaintType,
-//           complaintContent: complaintContent,
-//         });
-//         student.complaints.push(complaint);
-//         complaint.student = student;
-//         department.studentComplaint.push(complaint);
-//         complaint.department = department;
-//         await student.save();
-//         await department.save();
-//         await complaint.save();
-//         res
-//           .status(200)
-//           .send({ message: "Request To Department", complaint, student });
-//       } else if (classes) {
-//         const student = await Student.findById({ _id: sid });
-//         const complaint = await new Complaint({
-//           complaintType: complaintType,
-//           complaintContent: complaintContent,
-//         });
-//         student.complaints.push(complaint);
-//         complaint.student = student;
-//         classes.studentComplaint.push(complaint);
-//         complaint.classes = classes;
-//         await student.save();
-//         await classes.save();
-//         await complaint.save();
-//         res.status(200).send({ message: "Request To Class", complaint, student });
-//       } else {
-//       }
-//     } catch {
-//       console.log(
-//         `SomeThing Went Wrong at this EndPoint(/student/:sid/complaint)`
-//       );
-//     }
-//   });
-
-//   app.post("/student/complaint/reply/:id", async (req, res) => {
-//     try {
-//       const { id } = req.params;
-//       const { status } = req.body;
-//       const complaint = await Complaint.findById({ _id: id });
-//       complaint.complaintStatus = status;
-//       await complaint.save();
-//       res.status(200).send({ message: "Complaint Resolevd", complaint });
-//     } catch {
-//       console.log(
-//         `SomeThing Went Wrong at this EndPoint(/student/complaint/reply/:id)`
-//       );
-//     }
-//   });
-
-//   app.post("/student/complaint/:id/institute/:iid", async (req, res) => {
-//     try {
-//       const { id, iid } = req.params;
-//       const { status } = req.body;
-//       const complaint = await Complaint.findById({ _id: id });
-//       const institute = await InstituteAdmin.findById({ _id: iid });
-//       institute.studentComplaints.push(complaint);
-//       complaint.institute = institute;
-//       complaint.complaintInsStatus = status;
-//       await institute.save();
-//       await complaint.save();
-//       res
-//         .status(200)
-//         .send({ message: "Report To Institute", complaint, institute });
-//     } catch {
-//       console.log(
-//         `SomeThing Went Wrong at this EndPoint(/student/complaint/:id/institute/:iid)`
-//       );
-//     }
-//   });
-
-//   app.post("/staff/:sid/transfer/:id", async (req, res) => {
-//     try {
-//       const { sid, id } = req.params;
-//       const staff = await Staff.findById({ _id: sid });
-//       const institute = await InstituteAdmin.findById({ _id: id });
-//       const transfer = await new Transfer({ ...req.body });
-//       institute.transfer.push(transfer);
-//       transfer.institute = institute;
-//       staff.staffTransfer.push(transfer);
-//       transfer.staff = staff;
-//       await institute.save();
-//       await staff.save();
-//       await transfer.save();
-//       res
-//         .status(200)
-//         .send({ message: "request to transfer", transfer, staff, institute });
-//     } catch {
-//       console.log(
-//         `SomeThing Went Wrong at this EndPoint(/staff/:sid/transfer/:id)`
-//       );
-//     }
-//   });
-
-//   app.post("/student/:sid/transfer/:id", async (req, res) => {
-//     try {
-//       const { sid, id } = req.params;
-//       const student = await Student.findById({ _id: sid });
-//       const classes = await Class.findById({ _id: id }).populate({
-//         path: "classTeacher",
-//         populate: {
-//           path: "user",
-//         },
-//       });
-//       const user = await User.findById({
-//         _id: `${classes.classTeacher.user._id}`,
-//       });
-//       const transfer = await new StudentTransfer({ ...req.body });
-//       const notify = await new Notification({});
-//       classes.studentTransfer.push(transfer);
-//       transfer.fromClass = classes;
-//       student.transfer.push(transfer);
-//       transfer.student = student;
-//       notify.notifyContent = `${student.studentFirstName}${
-//         student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
-//       } ${student.studentLastName} requested for a Transfer check application`;
-//       notify.notifySender = sid;
-//       notify.notifyReceiever = id;
-//       user.uNotify.push(notify);
-//       notify.user = user;
-//       notify.notifyByStudentPhoto = student;
-//       await classes.save();
-//       await student.save();
-//       await transfer.save();
-//       await user.save();
-//       await notify.save();
-//       res
-//         .status(200)
-//         .send({ message: "request to transfer", transfer, student, classes });
-//     } catch {
-//       console.log(
-//         `SomeThing Went Wrong at this EndPoint(/student/:sid/transfer/:id)`
-//       );
-//     }
-//   });
-
-//   app.post("/ins/:id/staff/:sid/transfer/:ssid/grant/:eid", async (req, res) => {
-//     try {
-//       const { id, sid, ssid, eid } = req.params;
-//       const { status } = req.body;
-//       var institute = await InstituteAdmin.findById({ _id: id }).populate({
-//         path: "depart",
-//         populate: {
-//           path: "batches",
-//           populate: {
-//             path: "batchStaff",
-//           },
-//         },
-//       });
-//       var staffNew = await Staff.findById({ _id: sid });
-//       var transfer = await Transfer.findById({ _id: eid });
-//       var transferStaff = await Staff.findById({ _id: ssid })
-//         .populate("staffDepartment")
-//         .populate("staffClass")
-//         .populate("staffSubject")
-//         .populate("financeDepartment")
-
-//       transfer.transferStatus = status;
-//       await transfer.save();
-//       for (let i = 0; i < transferStaff.staffDepartment.length; i++) {
-//         const department = await Department.findById({
-//           _id: transferStaff.staffDepartment[i]._id,
-//         });
-//         staffNew.staffDepartment.push(department);
-//         department.dHead = staffNew;
-//         transferStaff.staffDepartment.pull(department);
-//         await staffNew.save();
-//         await department.save();
-//         await transferStaff.save();
-//       }
-//       for (let i = 0; i < transferStaff.staffClass.length; i++) {
-//         const classes = await Class.findById({
-//           _id: transferStaff.staffClass[i]._id,
-//         });
-//         staffNew.staffClass.push(classes);
-//         classes.classTeacher = staffNew;
-//         transferStaff.staffClass.pull(classes);
-//         await staffNew.save();
-//         await classes.save();
-//         await transferStaff.save();
-//       }
-//       for (let i = 0; i < transferStaff.staffSubject.length; i++) {
-//         const subject = await Subject.findById({
-//           _id: transferStaff.staffSubject[i]._id,
-//         });
-//         staffNew.staffSubject.push(subject);
-//         subject.subjectTeacherName = staffNew;
-//         transferStaff.staffSubject.pull(subject);
-//         await staffNew.save();
-//         await subject.save();
-//         await transferStaff.save();
-//       }
-//       for (let i = 0; i < transferStaff.financeDepartment.length; i++) {
-//         const finance = await Finance.findById({
-//           _id: transferStaff.financeDepartment[i]._id,
-//         });
-//         staffNew.financeDepartment.push(finance);
-//         finance.financeHead = staffNew;
-//         transferStaff.financeDepartment.pull(finance);
-//         await staffNew.save();
-//         await finance.save();
-//         await transferStaff.save();
-//       }
-//       if (
-//         institute.ApproveStaff.length >= 1 &&
-//         institute.ApproveStaff.includes(String(transferStaff._id))
-//       ) {
-//         institute.ApproveStaff.pull(transferStaff._id);
-//         transferStaff.institute = "";
-//         await institute.save();
-//         await transferStaff.save();
-//       } else {
-//         console.log("Not To Leave");
-//       }
-//       for (let i = 0; i < institute.depart.length; i++) {
-//         const depart = await Department.findById({
-//           _id: institute.depart[i]._id,
-//         });
-//         depart.departmentChatGroup.pull(transferStaff);
-//         depart.departmentChatGroup.push(staffNew);
-//         await depart.save();
-//       }
-//       for (let i = 0; i < institute.depart.length; i++) {
-//         for (let j = 0; j < i.batches.length; j++) {
-//           const batchData = await Batch.findById({ _id: i.batches[j]._id });
-//           batchData.batchStaff.pull(transferStaff);
-//           batchData.batchStaff.push(staffNew);
-//           staffNew.batches = batchData;
-//           await batchData.save();
-//           await staffNew.save();
-//         }
-//       }
-//       res
-//         .status(200)
-//         .send({ message: "Transfer Granted", staffNew, transferStaff, transfer });
-//     } catch {
-//       console.log(
-//         `SomeThing Went Wrong at this EndPoint(/ins/:id/staff/:sid/transfer/:ssid/grant/:eid)`
-//       );
-//     }
-//   });
-
-//   app.post(
-//     "/class/:id/student/:sid/transfer/grant/:eid/department/:did/batch/:bid",
-//     async (req, res) => {
-//       try {
-//         const { id, sid, eid, did, bid } = req.params;
-//         const { status } = req.body;
-//         const classes = await Class.findById({ _id: id });
-//         var student = await Student.findById({ _id: sid }).populate({
-//           path: "user",
-//         });
-//         const user = await User.findById({ _id: `${student.user._id}` });
-//         var transfer = await StudentTransfer.findById({ _id: eid });
-//         const department = await Department.findById({ _id: did }).populate({
-//           path: "institute",
-//         });
-//         const institute = await InstituteAdmin.findById({
-//           _id: `${department.institute._id}`,
-//         });
-//         const batch = await Batch.findById({ _id: bid });
-//         const notify = await new Notification({});
-//         transfer.transferStatus = status;
-//         classes.ApproveStudent.pull(student);
-//         department.ApproveStudent.pull(student);
-//         student.department = "";
-//         batch.ApproveStudent.pull(student);
-//         notify.notifyContent = `Your Transfer request has been Approved by ${institute.insName} from ${classes.className}`;
-//         notify.notifySender = id;
-//         notify.notifyReceiever = user._id;
-//         user.uNotify.push(notify);
-//         notify.user = user;
-//         notify.notifyByStudentPhoto = student;
-//         await transfer.save();
-//         await classes.save();
-//         await department.save();
-//         await student.save();
-//         await batch.save();
-//         await user.save();
-//         await notify.save();
-//         res.status(200).send({ message: "Transfer Granted", classes, transfer });
-//       } catch {
-//         console.log(
-//           `SomeThing Went Wrong at this EndPoint(/class/:id/student/:sid/transfer/grant/:eid/department/:did/batch/:bid)`
-//         );
-//       }
-//     }
-//   );
-
-//   app.post("/ins/:id/staff/transfer/reject/:eid", async (req, res) => {
-//     try {
-//       const { id, eid } = req.params;
-//       const { status } = req.body;
-//       const institute = await InstituteAdmin.findById({ _id: id });
-//       const transfer = await Transfer.findById({ _id: eid });
-//       transfer.transferStatus = status;
-//       await transfer.save();
-//       res.status(200).send({ message: "Transfer Not Granted", transfer });
-//     } catch {
-//       console.log(
-//         `SomeThing Went Wrong at this EndPoint(/ins/:id/staff/transfer/reject/:eid)`
-//       );
-//     }
-//   });
-
-//   app.post("/class/:id/student/:sid/transfer/reject/:eid", async (req, res) => {
-//     try {
-//       const { id, sid, eid } = req.params;
-//       const { status } = req.body;
-//       const classes = await Class.findById({ _id: id });
-//       const student = await Student.findById({ _id: sid }).populate({
-//         path: "user",
-//       });
-//       const user = await User.findById({ _id: `${student.user._id}` });
-//       const transfer = await StudentTransfer.findById({ _id: eid });
-//       const notify = await new Notification({});
-//       transfer.transferStatus = status;
-//       notify.notifyContent = `Your Transfer request has been Rejected by ${classes.className}`;
-//       notify.notifySender = id;
-//       notify.notifyReceiever = user._id;
-//       user.uNotify.push(notify);
-//       notify.user = user;
-//       notify.notifyByStudentPhoto = student;
-//       await transfer.save();
-//       await user.save();
-//       await notify.save();
-//       res.status(200).send({ message: "Transfer Not Granted", transfer });
-//     } catch {
-//       console.log(
-//         `SomeThing Went Wrong at this EndPoint(/class/:id/student/transfer/reject/:eid)`
-//       );
-//     }
-//   });
 
 exports.staffComplaint = async (req, res) => {
   try {
@@ -1361,6 +712,231 @@ exports.instituteStaffAllComplaint = async (req, res) => {
       message: "all complaints",
       complaints: institute.staffComplaints,
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+//For the transfer api related staff and student
+
+exports.staffTransferRequested = async (req, res) => {
+  try {
+    const staff = await Staff.findById(req.params.sid);
+    const institute = await InstituteAdmin.findById(staff.institute);
+    const transfer = new Transfer({
+      transferReason: req.body.transferReason,
+      institute: institute._id,
+      staff: req.params.sid,
+    });
+    institute.transfer.push(transfer._id);
+    staff.staffTransfer.push(transfer._id);
+    await Promise.all([institute.save(), staff.save(), transfer.save()]);
+    res.status(201).send({ message: "request to transfer" });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.staffTransferApproved = async (req, res) => {
+  try {
+    const { status, previousStaff, assignedStaff } = req.body;
+    var transfer = await Transfer.findById(req.params.tid);
+    var institute = await InstituteAdmin.findById(transfer.institute).populate({
+      path: "depart",
+      populate: {
+        path: "batches",
+        populate: {
+          path: "batchStaff",
+        },
+      },
+    });
+    var staffNew = await Staff.findById(assignedStaff);
+    var transferStaff = await Staff.findById(previousStaff)
+      .populate("staffDepartment")
+      .populate("staffClass")
+      .populate("staffSubject")
+      .populate("financeDepartment");
+
+    transfer.transferStatus = status;
+    await transfer.save();
+    for (let i = 0; i < transferStaff.staffDepartment.length; i++) {
+      const department = await Department.findById({
+        _id: transferStaff.staffDepartment[i]._id,
+      });
+      staffNew.staffDepartment.push(department._id);
+      department.dHead = staffNew;
+      transferStaff.staffDepartment.pull(department._id);
+      await Promise.all([
+        staffNew.save(),
+        department.save(),
+        transferStaff.save(),
+      ]);
+    }
+    for (let i = 0; i < transferStaff.staffClass.length; i++) {
+      const classes = await Class.findById({
+        _id: transferStaff.staffClass[i]._id,
+      });
+      staffNew.staffClass.push(classes._id);
+      classes.classTeacher = staffNew;
+      transferStaff.staffClass.pull(classes._id);
+      await Promise.all([
+        staffNew.save(),
+        classes.save(),
+        transferStaff.save(),
+      ]);
+    }
+    for (let i = 0; i < transferStaff.staffSubject.length; i++) {
+      const subject = await Subject.findById({
+        _id: transferStaff.staffSubject[i]._id,
+      });
+      staffNew.staffSubject.push(subject);
+      subject.subjectTeacherName = staffNew;
+      transferStaff.staffSubject.pull(subject);
+      await Promise.all([
+        staffNew.save(),
+        subject.save(),
+        transferStaff.save(),
+      ]);
+    }
+    for (let i = 0; i < transferStaff.financeDepartment.length; i++) {
+      const finance = await Finance.findById({
+        _id: transferStaff.financeDepartment[i]._id,
+      });
+      staffNew.financeDepartment.push(finance);
+      finance.financeHead = staffNew;
+      transferStaff.financeDepartment.pull(finance);
+
+      await Promise.all([
+        staffNew.save(),
+        finance.save(),
+        transferStaff.save(),
+      ]);
+    }
+    if (
+      institute.ApproveStaff.length >= 1 &&
+      institute.ApproveStaff.includes(String(transferStaff._id))
+    ) {
+      institute.ApproveStaff.pull(transferStaff._id);
+      transferStaff.institute = "";
+      await Promise.all([institute.save(), transferStaff.save()]);
+    } else {
+      console.log("Not To Leave");
+    }
+    res.status(200).send({ message: "Transfer Granted" });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.staffTransferRejected = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const transfer = await Transfer.findById(req.params.tid);
+    transfer.transferStatus = status;
+    await transfer.save();
+    res.status(200).send({ message: "Transfer Not Granted" });
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.studentTransferRequested = async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.sid);
+    const classes = await Class.findById(student.studentClass).populate({
+      path: "classTeacher",
+      select: "user",
+    });
+    const user = await User.findById({
+      _id: `${classes.classTeacher.user}`,
+    });
+    const transfer = new StudentTransfer({
+      transferReason: req.body.transferReason,
+      fromClass: classes._id,
+      student: student._id,
+    });
+    classes.studentTransfer.push(transfer._id);
+    student.transfer.push(transfer._id);
+    const notify = new Notification({});
+    notify.notifyContent = `${student.studentFirstName}${
+      student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+    } ${student.studentLastName} requested for a Transfer check application`;
+    notify.notifySender = student._id;
+    notify.notifyReceiever = classes._id;
+    user.uNotify.push(notify._id);
+    notify.user = user._id;
+    notify.notifyByStudentPhoto = student._id;
+    await Promise.all([
+      classes.save(),
+      student.save(),
+      transfer.save(),
+      user.save(),
+      notify.save(),
+    ]);
+    res.status(201).send({ message: "request to transfer" });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.studentTransferApproved = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const transfer = await StudentTransfer.findById(req.params.tid);
+    const student = await Student.findById(transfer.student).populate({
+      path: "user",
+    });
+    const classes = await Class.findById(transfer.fromClass);
+    const user = await User.findById({ _id: `${student.user._id}` });
+    const department = await Department.findById(classes.department);
+    const institute = await InstituteAdmin.findById(department.institute);
+
+    const batch = await Batch.findById(classes.batch);
+    const notify = new Notification({});
+    transfer.transferStatus = status;
+    classes.ApproveStudent.pull(student._id);
+    department.ApproveStudent.pull(student._id);
+    student.department = "";
+    batch.ApproveStudent.pull(student._id);
+    notify.notifyContent = `Your Transfer request has been Approved by ${institute.insName} from ${classes.className}`;
+    notify.notifySender = classes._id;
+    notify.notifyReceiever = user._id;
+    user.uNotify.push(notify._id);
+    notify.user = user._id;
+    notify.notifyByClassPhoto = classes._id;
+    await Promise.all([
+      transfer.save(),
+      classes.save(),
+      department.save(),
+      student.save(),
+      batch.save(),
+      user.save(),
+      notify.save(),
+    ]);
+    res.status(200).send({ message: "Transfer Granted" });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.studentTransferRejected = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const transfer = await StudentTransfer.findById(req.params.tid);
+    const classes = await Class.findById(transfer.fromClass);
+    const student = await Student.findById(transfer.student).populate({
+      path: "user",
+    });
+    const user = await User.findById({ _id: `${student.user._id}` });
+    const notify = new Notification({});
+    transfer.transferStatus = status;
+    notify.notifyContent = `Your Transfer request has been Rejected by ${classes.className}`;
+    notify.notifySender = classes._id;
+    notify.notifyReceiever = user._id;
+    user.uNotify.push(notify._id);
+    notify.user = user._id;
+    notify.notifyByClassPhoto = classes._id;
+    await Promise.all([transfer.save(), user.save(), notify.save()]);
+    res.status(200).send({ message: "Transfer Not Granted" });
   } catch (e) {
     console.log(e);
   }

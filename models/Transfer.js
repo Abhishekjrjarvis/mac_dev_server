@@ -1,30 +1,28 @@
-const mongoose = require('mongoose')
-const InstituteAdmin = require('./InstituteAdmin')
-const Staff = require('./Staff')
+const mongoose = require("mongoose");
 
 const transferSchema = new mongoose.Schema({
-    transferReason: {
-        type: String,
-        required: true
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
-    institute: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'InstituteAdmin'
-    },
-    staff: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Staff'
-    },
-    transferStatus: {
-        type: String,
-    }
+  transferReason: {
+    type: String,
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  institute: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "InstituteAdmin",
+  },
+  staff: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Staff",
+  },
+  transferStatus: {
+    type: String,
+    default: "Requested",
+  },
+});
 
-})
+const Transfer = mongoose.model("Transfer", transferSchema);
 
-const Transfer = mongoose.model('Transfer', transferSchema)
-
-module.exports = Transfer
+module.exports = Transfer;

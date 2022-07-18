@@ -61,6 +61,22 @@ router
   .route("/institute/:id")
   .get(catchAsync(complaintController.getAllStaffLeaveInstitute))
   .patch(catchAsync(complaintController.oneStaffLeaveProcess));
+
+router
+  .route("/staff/:sid/complaint")
+  .get(catchAsync(complaintController.stafftAllComplaint))
+  .post(catchAsync(complaintController.staffComplaint));
+
+router
+  .route("/staff/complaint/:cid")
+  .get(catchAsync(complaintController.OneStaffComplaint))
+  .patch(catchAsync(complaintController.staffComplaintSolve))
+  .delete(catchAsync(complaintController.staffComplaintDelete));
+
+router
+  .route("/institute/:id/staff/complaint")
+  .get(catchAsync(complaintController.instituteStaffAllComplaint));
+
 // router
 //   .route("/student/:sid/complaint")
 //   .get(catchAsync(complaintController.studentComplaint));

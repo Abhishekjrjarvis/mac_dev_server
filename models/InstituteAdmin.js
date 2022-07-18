@@ -167,6 +167,12 @@ const instituteAdminSchema = new mongoose.Schema({
       ref: "Complaint",
     },
   ],
+  staffComplaints: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "StaffComplaint",
+    },
+  ],
   idCardBatch: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -320,9 +326,9 @@ const instituteAdminSchema = new mongoose.Schema({
   GSTInfo: { type: String },
   businessName: { type: String },
   businessAddress: { type: String },
-  accessFeature: { type: String, default: 'Locked'},
-  unlockAmount: { type: Number, default: 1000},
-  featurePaymentStatus: { type: String, default: 'Not Paid'},
+  accessFeature: { type: String, default: "Locked" },
+  unlockAmount: { type: Number, default: 1000 },
+  featurePaymentStatus: { type: String, default: "Not Paid" },
   staffAttendance: [
     { type: mongoose.Schema.Types.ObjectId, ref: "StaffAttendenceDate" },
   ],

@@ -7316,6 +7316,141 @@ paths:
         "200":
           description: OK
 
+  /api/v1/compleave/staff/{sid}/complaint:
+    get:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is give list of all Complaints in staff side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular Staff id
+      responses:
+        "200":
+          description: OK          
+    post:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is create complaint request for institute side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular Staff id 
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              complaintType:
+                type: string
+                required:  true
+                description: It is complaint type "Open" or "Anonymous"      
+              complaintContent:
+                type: string
+                required: true
+                description: It is complaint content  
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/compleave/institute/{id}/staff/complaint:
+    get:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is give all list of complaints in Institute side of staff
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: It is particular Institute id 
+        - in: query
+          name: status
+          required: true
+          type: string
+          description: It is "Unsolved" or "Solved"         
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/compleave/staff/complaint/{cid}:
+    get:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is give one complaints all details in staff side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: It is particular Complaint id
+      responses:
+        "200":
+          description: OK          
+    patch:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is solve complaint request by Institute side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: It is particular Complaint id 
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: give the value here "Solved"
+      responses:
+        "200":
+          description: OK
+    delete:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is delete particular complaint request by staff side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: It is particular Complaint id 
+      responses:
+        "200":
+          description: OK
+
 # =================END=====================
   /api/v1/chat:
     post:

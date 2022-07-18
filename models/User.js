@@ -241,7 +241,7 @@ const userSchema = new mongoose.Schema({
     required: true,
     default: false,
   },
-  isChat: [
+  recentChat: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Chat'

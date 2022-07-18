@@ -46,6 +46,18 @@ router
   .patch(catchAsync(complaintController.classComplaintSolve))
   .delete(catchAsync(complaintController.OneComplaintDelete));
 
+router
+  .route("/student/:sid/transfer")
+  .post(catchAsync(complaintController.studentTransferRequested));
+
+router
+  .route("/class/:cid/transfer")
+  .get(catchAsync(complaintController.classAllTransfer));
+router
+  .route("/class/student/:tid/transfer")
+  .put(catchAsync(complaintController.studentTransferRejected))
+  .patch(catchAsync(complaintController.studentTransferApproved));
+
 //for the staff
 router
   .route("/staff/:sid")
@@ -76,6 +88,19 @@ router
 router
   .route("/institute/:id/staff/complaint")
   .get(catchAsync(complaintController.instituteStaffAllComplaint));
+
+router
+  .route("/staff/:sid/transfer")
+  .post(catchAsync(complaintController.staffTransferRequested));
+
+router
+  .route("/institute/:id/transfer")
+  .get(catchAsync(complaintController.instituteStaffAllTransfer));
+
+router
+  .route("/institute/staff/:tid/transfer")
+  .put(catchAsync(complaintController.staffTransferRejected))
+  .patch(catchAsync(complaintController.staffTransferApproved));
 
 // router
 //   .route("/student/:sid/complaint")

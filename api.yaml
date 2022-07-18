@@ -7184,6 +7184,105 @@ paths:
         "200":
           description: OK
 
+  /api/v1/compleave/student/{sid}/transfer:
+    post:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is create transfer of student to class
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular Student id 
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              transferReason:
+                type: string
+                description: give the value here why you want to leave        
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/compleave/class/{cid}/transfer:
+    get:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is give all list of Transfers in Class side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: It is particular Class id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/compleave/class/student/{tid}/transfer:
+    put:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is Rejected the Student Transfer request by class
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: It is particular Transfer id 
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: give the value here "Rejected"       
+      responses:
+        "200":
+          description: OK
+    patch:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is Accepetd the student Transfer request by class
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: It is particular Transfer id 
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: give the value here "Accepted" 
+                required: true 
+      responses:
+        "200":
+          description: OK
+
 #for the staff
   /api/v1/compleave/staff/{sid}:
     get:
@@ -7447,6 +7546,113 @@ paths:
           required: true
           type: string
           description: It is particular Complaint id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/compleave/staff/{sid}/transfer:
+    post:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is create transfer of staff to institute
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular Staff id 
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              transferReason:
+                type: string
+                description: give the value here why you want to leave        
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/compleave/institute/{id}/transfer:
+    get:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is give all list of Transfers in Institute side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: It is particular Institute id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/compleave/institute/staff/{tid}/transfer:
+    put:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is Rejected the staff Transfer request
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: It is particular Transfer id 
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: give the value here "Rejected"       
+      responses:
+        "200":
+          description: OK
+    patch:
+      tags:
+        - Complaints Leave And Transfer Related Api
+      summary: It is Accepetd the staff Transfer request
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: It is particular Transfer id 
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: give the value here "Accepted" 
+                required: true 
+              previousStaff:
+                type: string
+                description: It is  requested transfer staff id
+                required: true  
+              assignedStaff:
+                type: string
+                description: It is  replacement staff id
+                required: true                                     
       responses:
         "200":
           description: OK

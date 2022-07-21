@@ -74,9 +74,9 @@ exports.postWithText = async (req, res) => {
   try {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
-    .populate({ path: 'followers'})
-    .populate({ path: 'userFollowersList'})
-    .populate({ path: 'joinedUserList'})
+      .populate({ path: "followers" })
+      .populate({ path: "userFollowersList" })
+      .populate({ path: "joinedUserList" });
     const post = new Post({ ...req.body });
     if (Array.isArray(req.body.people)) {
       for (let val of req.body.people) {
@@ -90,61 +90,61 @@ exports.postWithText = async (req, res) => {
     }
     post.imageId = "1";
     institute.posts.push(post._id);
-    institute.postCount += 1
+    institute.postCount += 1;
     post.author = institute._id;
-    post.authorName = institute.insName
-    post.authorUserName = institute.name
-    post.authorPhotoId = institute.photoId
-    post.authorProfilePhoto = institute.insProfilePhoto
+    post.authorName = institute.insName;
+    post.authorUserName = institute.name;
+    post.authorPhotoId = institute.photoId;
+    post.authorProfilePhoto = institute.insProfilePhoto;
     await Promise.all([institute.save(), post.save()]);
     res.status(201).send({ message: "post is create", post });
-    if(institute.isUniversal === 'Not Assigned'){
-      if(institute.followers.length >= 1){
-        if(post.postStatus === 'Anyone'){
+    if (institute.isUniversal === "Not Assigned") {
+      if (institute.followers.length >= 1) {
+        if (post.postStatus === "Anyone") {
           institute.followers.forEach(async (ele) => {
-            ele.posts.push(post._id)
-            await ele.save()
-          })
-        }else{}
+            ele.posts.push(post._id);
+            await ele.save();
+          });
+        } else {
+        }
       }
-      if(institute.userFollowersList.length >= 1){
-        if(post.postStatus === 'Anyone'){
+      if (institute.userFollowersList.length >= 1) {
+        if (post.postStatus === "Anyone") {
           institute.userFollowersList.forEach(async (ele) => {
-            ele.userPosts.push(post._id)
-            await ele.save()
-          })
-        }else{
-          if(institute.joinedUserList.length >=1){
+            ele.userPosts.push(post._id);
+            await ele.save();
+          });
+        } else {
+          if (institute.joinedUserList.length >= 1) {
             institute.joinedUserList.forEach(async (ele) => {
-              ele.userPosts.push(post._id)
-              await ele.save()
-            })
+              ele.userPosts.push(post._id);
+              await ele.save();
+            });
           }
         }
       }
-    }
-    else if(institute.isUniversal === 'Universal'){
-      const all = await InstituteAdmin.find({ status: 'Approved'})
-      const user = await User.find({ userStatus: 'Approved'})
-      if(post.postStatus === 'Anyone'){
-        all.forEach(async (el)  =>{
-          if(el._id !== institute._id){
-            el.posts.push(post._id)
-            await el.save()
+    } else if (institute.isUniversal === "Universal") {
+      const all = await InstituteAdmin.find({ status: "Approved" });
+      const user = await User.find({ userStatus: "Approved" });
+      if (post.postStatus === "Anyone") {
+        all.forEach(async (el) => {
+          if (el._id !== institute._id) {
+            el.posts.push(post._id);
+            await el.save();
           }
-        })
-        user.forEach(async (el)  =>{
-          el.userPosts.push(post._id)          
-          await el.save()
-        })
+        });
+        user.forEach(async (el) => {
+          el.userPosts.push(post._id);
+          await el.save();
+        });
       }
-      if(post.postStatus === 'Private'){
-        all.forEach(async (el)  =>{
-          if(el._id !== institute._id){
-            el.posts.push(post._id)
-            await el.save()
+      if (post.postStatus === "Private") {
+        all.forEach(async (el) => {
+          if (el._id !== institute._id) {
+            el.posts.push(post._id);
+            await el.save();
           }
-        })
+        });
       }
     }
   } catch {}
@@ -154,9 +154,9 @@ exports.postWithImage = async (req, res) => {
   try {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
-    .populate({ path: 'followers'})
-    .populate({ path: 'userFollowersList'})
-    .populate({ path: 'joinedUserList'})
+      .populate({ path: "followers" })
+      .populate({ path: "userFollowersList" })
+      .populate({ path: "joinedUserList" });
     const post = new Post({ ...req.body });
 
     if (Array.isArray(req.body.people)) {
@@ -176,61 +176,61 @@ exports.postWithImage = async (req, res) => {
     }
     post.imageId = "0";
     institute.posts.push(post._id);
-    institute.postCount += 1
+    institute.postCount += 1;
     post.author = institute._id;
-    post.authorName = institute.insName
-    post.authorUserName = institute.name
-    post.authorPhotoId = institute.photoId
-    post.authorProfilePhoto = institute.insProfilePhoto
+    post.authorName = institute.insName;
+    post.authorUserName = institute.name;
+    post.authorPhotoId = institute.photoId;
+    post.authorProfilePhoto = institute.insProfilePhoto;
     await Promise.all([institute.save(), post.save()]);
-    res.status(201).send({ message: "post is create" });
-    if(institute.isUniversal === 'Not Assigned'){
-      if(institute.followers.length >= 1){
-        if(post.postStatus === 'Anyone'){
+    res.status(201).send({ message: "post is create", post });
+    if (institute.isUniversal === "Not Assigned") {
+      if (institute.followers.length >= 1) {
+        if (post.postStatus === "Anyone") {
           institute.followers.forEach(async (ele) => {
-            ele.posts.push(post._id)
-            await ele.save()
-          })
-        }else{}
+            ele.posts.push(post._id);
+            await ele.save();
+          });
+        } else {
+        }
       }
-      if(institute.userFollowersList.length >= 1){
-        if(post.postStatus === 'Anyone'){
+      if (institute.userFollowersList.length >= 1) {
+        if (post.postStatus === "Anyone") {
           institute.userFollowersList.forEach(async (ele) => {
-            ele.userPosts.push(post._id)
-            await ele.save()
-          })
-        }else{
-          if(institute.joinedUserList.length >=1){
+            ele.userPosts.push(post._id);
+            await ele.save();
+          });
+        } else {
+          if (institute.joinedUserList.length >= 1) {
             institute.joinedUserList.forEach(async (ele) => {
-              ele.userPosts.push(post._id)
-              await ele.save()
-            })
+              ele.userPosts.push(post._id);
+              await ele.save();
+            });
           }
         }
       }
-    }
-    else if(institute.isUniversal === 'Universal'){
-      const all = await InstituteAdmin.find({ status: 'Approved'})
-      const user = await User.find({ userStatus: 'Approved'})
-      if(post.postStatus === 'Anyone'){
-        all.forEach(async (el)  =>{
-          if(el._id !== institute._id){
-            el.posts.push(post._id)
-            await el.save()
+    } else if (institute.isUniversal === "Universal") {
+      const all = await InstituteAdmin.find({ status: "Approved" });
+      const user = await User.find({ userStatus: "Approved" });
+      if (post.postStatus === "Anyone") {
+        all.forEach(async (el) => {
+          if (el._id !== institute._id) {
+            el.posts.push(post._id);
+            await el.save();
           }
-        })
-        user.forEach(async (el)  =>{
-          el.userPosts.push(post._id)          
-          await el.save()
-        })
+        });
+        user.forEach(async (el) => {
+          el.userPosts.push(post._id);
+          await el.save();
+        });
       }
-      if(post.postStatus === 'Private'){
-        all.forEach(async (el)  =>{
-          if(el._id !== institute._id){
-            el.posts.push(post._id)
-            await el.save()
+      if (post.postStatus === "Private") {
+        all.forEach(async (el) => {
+          if (el._id !== institute._id) {
+            el.posts.push(post._id);
+            await el.save();
           }
-        })
+        });
       }
     }
   } catch {}
@@ -240,9 +240,9 @@ exports.postWithVideo = async (req, res) => {
   try {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
-    .populate({ path: 'followers'})
-    .populate({ path: 'userFollowersList'})
-    .populate({ path: 'joinedUserList'})
+      .populate({ path: "followers" })
+      .populate({ path: "userFollowersList" })
+      .populate({ path: "joinedUserList" });
     const post = new Post({ ...req.body });
     if (Array.isArray(req.body.people)) {
       for (let val of req.body.people) {
@@ -259,62 +259,62 @@ exports.postWithVideo = async (req, res) => {
     post.postVideo = results.Key;
     post.imageId = "1";
     institute.posts.push(post._id);
-    institute.postCount += 1
+    institute.postCount += 1;
     post.author = institute._id;
-    post.authorName = institute.insName
-    post.authorUserName = institute.name
-    post.authorPhotoId = institute.photoId
-    post.authorProfilePhoto = institute.insProfilePhoto
+    post.authorName = institute.insName;
+    post.authorUserName = institute.name;
+    post.authorPhotoId = institute.photoId;
+    post.authorProfilePhoto = institute.insProfilePhoto;
     await Promise.all([institute.save(), post.save()]);
     await unlinkFile(file.path);
-    res.status(201).send({ message: "post created" });
-    if(institute.isUniversal === 'Not Assigned'){
-      if(institute.followers.length >= 1){
-        if(post.postStatus === 'Anyone'){
+    res.status(201).send({ message: "post created", post });
+    if (institute.isUniversal === "Not Assigned") {
+      if (institute.followers.length >= 1) {
+        if (post.postStatus === "Anyone") {
           institute.followers.forEach(async (ele) => {
-            ele.posts.push(post._id)
-            await ele.save()
-          })
-        }else{}
+            ele.posts.push(post._id);
+            await ele.save();
+          });
+        } else {
+        }
       }
-      if(institute.userFollowersList.length >= 1){
-        if(post.postStatus === 'Anyone'){
+      if (institute.userFollowersList.length >= 1) {
+        if (post.postStatus === "Anyone") {
           institute.userFollowersList.forEach(async (ele) => {
-            ele.userPosts.push(post._id)
-            await ele.save()
-          })
-        }else{
-          if(institute.joinedUserList.length >=1){
+            ele.userPosts.push(post._id);
+            await ele.save();
+          });
+        } else {
+          if (institute.joinedUserList.length >= 1) {
             institute.joinedUserList.forEach(async (ele) => {
-              ele.userPosts.push(post._id)
-              await ele.save()
-            })
+              ele.userPosts.push(post._id);
+              await ele.save();
+            });
           }
         }
       }
-    }
-    else if(institute.isUniversal === 'Universal'){
-      const all = await InstituteAdmin.find({ status: 'Approved'})
-      const user = await User.find({ userStatus: 'Approved'})
-      if(post.postStatus === 'Anyone'){
-        all.forEach(async (el)  =>{
-          if(el._id !== institute._id){
-            el.posts.push(post._id)
-            await el.save()
+    } else if (institute.isUniversal === "Universal") {
+      const all = await InstituteAdmin.find({ status: "Approved" });
+      const user = await User.find({ userStatus: "Approved" });
+      if (post.postStatus === "Anyone") {
+        all.forEach(async (el) => {
+          if (el._id !== institute._id) {
+            el.posts.push(post._id);
+            await el.save();
           }
-        })
-        user.forEach(async (el)  =>{
-          el.userPosts.push(post._id)          
-          await el.save()
-        })
+        });
+        user.forEach(async (el) => {
+          el.userPosts.push(post._id);
+          await el.save();
+        });
       }
-      if(post.postStatus === 'Private'){
-        all.forEach(async (el)  =>{
-          if(el._id !== institute._id){
-            el.posts.push(post._id)
-            await el.save()
+      if (post.postStatus === "Private") {
+        all.forEach(async (el) => {
+          if (el._id !== institute._id) {
+            el.posts.push(post._id);
+            await el.save();
           }
-        })
+        });
       }
     }
   } catch {}
@@ -328,19 +328,19 @@ exports.postWithVsibilityUpdate = async (req, res) => {
     post.postStatus = postStatus;
     await post.save();
     res.status(200).send({ message: "visibility change 👓" });
-  } catch(e) {
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
 };
 
 exports.postWithDeleted = async (req, res) => {
   try {
     const { id, pid } = req.params;
-    const institute = await InstituteAdmin.findById({_id: id})
+    const institute = await InstituteAdmin.findById({ _id: id });
     await InstituteAdmin.findByIdAndUpdate(id, { $pull: { posts: pid } });
     await Post.findByIdAndDelete({ _id: pid });
-    institute.postCount -= 1
-    await institute.save()
+    institute.postCount -= 1;
+    await institute.save();
     res.status(200).send({ message: "post deleted 🙄🙄" });
   } catch {}
 };
@@ -349,8 +349,10 @@ exports.postLike = async (req, res) => {
   try {
     const { pid } = req.params;
     const post = await Post.findById({ _id: pid });
-    const institute_session = req.tokenData && req.tokenData.insId ? req.tokenData.insId : ''
-    const user_session = req.tokenData && req.tokenData.userId ? req.tokenData.userId : ''
+    const institute_session =
+      req.tokenData && req.tokenData.insId ? req.tokenData.insId : "";
+    const user_session =
+      req.tokenData && req.tokenData.userId ? req.tokenData.userId : "";
     if (institute_session) {
       if (
         post.endUserLike.length >= 1 &&
@@ -396,17 +398,19 @@ exports.postLike = async (req, res) => {
     } else {
       res.status(401).send();
     }
-  } catch(e) {
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
 };
 
 exports.postSave = async (req, res) => {
   try {
     const { pid } = req.params;
-    const institute_session = req.tokenData && req.tokenData.insId ? req.tokenData.insId : ''
-    const user_session = req.tokenData && req.tokenData.userId ? req.tokenData.userId : ''
-    const post = await Post.findById({_id: pid})
+    const institute_session =
+      req.tokenData && req.tokenData.insId ? req.tokenData.insId : "";
+    const user_session =
+      req.tokenData && req.tokenData.userId ? req.tokenData.userId : "";
+    const post = await Post.findById({ _id: pid });
     if (institute_session) {
       if (
         post.endUserSave.length >= 1 &&
@@ -434,7 +438,7 @@ exports.postSave = async (req, res) => {
         res.status(200).send({ message: "Added To Favourites" });
       }
     } else {
-      res.status(401).send({ message: 'Unauthorized access'});
+      res.status(401).send({ message: "Unauthorized access" });
     }
   } catch {}
 };
@@ -445,101 +449,115 @@ exports.postComment = async (req, res) => {
     const post = await Post.findById({ _id: id });
     const comment = new Comment({ ...req.body });
     if (req.tokenData && req.tokenData.insId) {
-      const institute = await InstituteAdmin.findById({_id: req.tokenData.insId})
+      const institute = await InstituteAdmin.findById({
+        _id: req.tokenData.insId,
+      });
       comment.author = institute._id;
-      comment.authorName = institute.insName
-      comment.authorUserName = institute.name
-      comment.authorPhotoId = institute.photoId
-      comment.authorProfilePhoto = institute.insProfilePhoto
+      comment.authorName = institute.insName;
+      comment.authorUserName = institute.name;
+      comment.authorPhotoId = institute.photoId;
+      comment.authorProfilePhoto = institute.insProfilePhoto;
     } else if (req.tokenData && req.tokenData.userId) {
-      const user = await User.findById({_id: req.tokenData.userId})
+      const user = await User.findById({ _id: req.tokenData.userId });
       comment.author = user._id;
-      comment.authorName = user.userLegalName
-      comment.authorUserName = user.username
-      comment.authorPhotoId = user.photoId
-      comment.authorProfilePhoto = user.profilePhoto
+      comment.authorName = user.userLegalName;
+      comment.authorUserName = user.username;
+      comment.authorPhotoId = user.photoId;
+      comment.authorProfilePhoto = user.profilePhoto;
     } else {
-      res.status(401).send({ message: 'Unauthorized'});
+      res.status(401).send({ message: "Unauthorized" });
     }
     post.comment.push(comment._id);
     post.commentCount += 1;
     comment.post = post._id;
     await Promise.all([post.save(), comment.save()]);
     res.status(201).send({ message: "comment created", comment });
-  } catch(e) {
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
 };
 
-
-exports.retrieveAllPosts = async(req, res) =>{
-    try {
-      const page = req.query.page ? parseInt(req.query.page) : 1;
-      const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-      const id = req.params.id;
-      const skip = (page - 1) * limit;
-      const institute = await InstituteAdmin.findById(id)
-      .select('id')
-      .populate({ path: 'posts' })
-    if(institute && institute.posts.length >=1){
-      const post = await Post.find({
-        _id: { $in: institute.posts },
-      })
-      .sort("-createdAt")
-      .limit(limit)
-      .skip(skip)
-      .select("postTitle postText postDescription endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike")
-      .populate({
-          path: 'tagPeople',
-          select: 'userLegalName username photoId profilePhoto'
-      })
-      const postCount = await Post.find({_id: { $in: institute.posts }})
-      if(page * limit >= postCount.length){
-      }
-      else{
-        var totalPage = page + 1
-      }
-      res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage,});
-    }
-    else{
-      res.status(204).send({ message: 'No Posts Yet...'})
-    }
-    } catch(e) {
-      console.log(e)
-    }
-}
-
-
-exports.retreiveAllProfilePosts = async(req, res) =>{
+exports.retrieveAllPosts = async (req, res) => {
   try {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const id = req.params.id;
     const skip = (page - 1) * limit;
     const institute = await InstituteAdmin.findById(id)
-    .select('id ')
-    .populate({ path: 'posts' })
-    const post = await Post.find({author: id})
-    .sort("-createdAt")
-    .limit(limit)
-    .skip(skip)
-    .select("postTitle postText postDescription endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike")
-    .populate({
-      path: 'tagPeople',
-      select: 'userLegalName username photoId profilePhoto'
-    })
-    const postCount = await Post.find({_id: { $in: institute.posts }})
-    if(page * limit >= postCount.length){
+      .select("id")
+      .populate({ path: "posts" });
+    if (institute && institute.posts.length >= 1) {
+      const post = await Post.find({
+        _id: { $in: institute.posts },
+      })
+        .sort("-createdAt")
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "postTitle postText postDescription endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
+        )
+        .populate({
+          path: "tagPeople",
+          select: "userLegalName username photoId profilePhoto",
+        });
+      const postCount = await Post.find({ _id: { $in: institute.posts } });
+      if (page * limit >= postCount.length) {
+      } else {
+        var totalPage = page + 1;
+      }
+      res
+        .status(200)
+        .send({
+          message: "Success",
+          post,
+          postCount: postCount.length,
+          totalPage: totalPage,
+        });
+    } else {
+      res.status(204).send({ message: "No Posts Yet..." });
     }
-    else{
-      var totalPage = page + 1
-    }
-    res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage,  });
-  } catch(e) {
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
-}
+};
 
+exports.retreiveAllProfilePosts = async (req, res) => {
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const id = req.params.id;
+    const skip = (page - 1) * limit;
+    const institute = await InstituteAdmin.findById(id)
+      .select("id ")
+      .populate({ path: "posts" });
+    const post = await Post.find({ author: id })
+      .sort("-createdAt")
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "postTitle postText postDescription endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
+      )
+      .populate({
+        path: "tagPeople",
+        select: "userLegalName username photoId profilePhoto",
+      });
+    const postCount = await Post.find({ _id: { $in: institute.posts } });
+    if (page * limit >= postCount.length) {
+    } else {
+      var totalPage = page + 1;
+    }
+    res
+      .status(200)
+      .send({
+        message: "Success",
+        post,
+        postCount: postCount.length,
+        totalPage: totalPage,
+      });
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 //Check this route for get all child comment that is reply
 exports.getComment = async (req, res) => {
@@ -555,10 +573,12 @@ exports.getComment = async (req, res) => {
       .sort("-createdAt")
       .limit(limit)
       .skip(skip)
-      .select("commentDescription createdAt allLikeCount allChildCommentCount author authorName authorUserName authorPhotoId authorProfilePhoto")
+      .select(
+        "commentDescription createdAt allLikeCount allChildCommentCount author authorName authorUserName authorPhotoId authorProfilePhoto"
+      );
     res.status(200).send({ message: "Sucess", comment });
-  } catch(e) {
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
 };
 
@@ -566,14 +586,15 @@ exports.getComment = async (req, res) => {
 exports.getCommentChild = async (req, res) => {
   try {
     const { pcid } = req.params;
-    console.log(pcid)
+    console.log(pcid);
     const getPage = req.query.page ? parseInt(req.query.page) : 1;
     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
     const dropItem = (getPage - 1) * itemPerPage;
     const comment = await Comment.findById(pcid)
       .populate({
         path: "childComment",
-        select: "repliedComment createdAt author authorName authorUserName authorPhotoId authorProfilePhoto",
+        select:
+          "repliedComment createdAt author authorName authorUserName authorPhotoId authorProfilePhoto",
       })
       .select("allChildCommentCount allLikeCount")
       .lean()
@@ -588,8 +609,8 @@ exports.getCommentChild = async (req, res) => {
     }
     const replyComment = userPagination(comment.childComment);
     res.status(200).send({ replyComment });
-  } catch(e) {
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
 };
 
@@ -598,7 +619,9 @@ exports.postCommentChild = async (req, res) => {
     const { pcid } = req.params;
     const { comment, uid } = req.body;
     if (req.tokenData && req.tokenData.insId) {
-      const institute = await InstituteAdmin.findById({_id: req.tokenData.insId})
+      const institute = await InstituteAdmin.findById({
+        _id: req.tokenData.insId,
+      });
       const childComment = new ReplyComment({
         repliedComment: comment,
         author: institute._id,
@@ -612,7 +635,9 @@ exports.postCommentChild = async (req, res) => {
       parentComment.childComment.unshift(childComment._id);
       parentComment.allChildCommentCount += 1;
       await Promise.all([parentComment.save(), childComment.save()]);
-      const institutes = await InstituteAdmin.findById(req.tokenData.insId).select("photoId insProfilePhoto name insName")
+      const institutes = await InstituteAdmin.findById(
+        req.tokenData.insId
+      ).select("photoId insProfilePhoto name insName");
       const childReplyComment = {
         _id: childComment._id,
         repliedComment: childComment.repliedComment,
@@ -628,7 +653,7 @@ exports.postCommentChild = async (req, res) => {
         commentCount: parentComment.allChildCommentCount,
       });
     } else if (req.tokenData && req.tokenData.userId) {
-      const users = await User.findById({_id: req.tokenData.userId})
+      const users = await User.findById({ _id: req.tokenData.userId });
       const childComment = new ReplyComment({
         repliedComment: comment,
         author: users._id,
@@ -642,7 +667,9 @@ exports.postCommentChild = async (req, res) => {
       parentComment.childComment.unshift(childComment._id);
       parentComment.allChildCommentCount += 1;
       await Promise.all([parentComment.save(), childComment.save()]);
-      const user = await User.findById({_id: req.tokenData.userId}).select("photoId profilePhoto username userLegalName")
+      const user = await User.findById({ _id: req.tokenData.userId }).select(
+        "photoId profilePhoto username userLegalName"
+      );
       const childReplyComment = {
         _id: childComment._id,
         repliedComment: childComment.repliedComment,
@@ -658,10 +685,10 @@ exports.postCommentChild = async (req, res) => {
         commentCount: parentComment.allChildCommentCount,
       });
     } else {
-      res.status(401).send({ message: 'Unauthorized'});
+      res.status(401).send({ message: "Unauthorized" });
     }
-  } catch(e) {
-    console.log(e.message)
+  } catch (e) {
+    console.log(e.message);
   }
 };
 

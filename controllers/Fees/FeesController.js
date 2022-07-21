@@ -22,8 +22,7 @@ exports.createFess = async (req, res) => {
     for (let i = 0; i < ClassId.length; i++) {
       const classes = await Class.findById({ _id: ClassId[i] });
       classes.fee.push(feeData._id);
-      feeData.feeClass = classes._id;
-      await Promise.all([classes.save(), feeData.save()]);
+      await Promise.all([classes.save()]);
     }
     for (let i = 0; i < department.ApproveStudent.length; i++) {
       const student = await Student.findById({
@@ -44,8 +43,10 @@ exports.createFess = async (req, res) => {
       notify.notifyByDepartPhoto = department._id;
       await Promise.all([user.save(), notify.save()]);
     }
-    res.status(201).send({ message: "Fees Raised" });
-  } catch {}
+    res.status(201).send({ message: `${feeData.feeName} Fees Raised` });
+  } catch (e){
+    console.log(e)
+  }
 };
 
 exports.getOneFeesDetail = async (req, res) => {
@@ -54,13 +55,24 @@ exports.getOneFeesDetail = async (req, res) => {
     const feeData = await Fees.findById({ _id: feesId })
       .populate({
         path: "feeStudent",
+        select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO'
       })
-      .populate("studentsList")
+      .populate({
+        path: "studentsList",
+        select: 'id'
+      })
       .populate({
         path: "feeDepartment",
+        select: 'dName dTitle'
       })
-      .populate("offlineStudentsList")
-      .populate("studentExemptList");
+      .populate({
+        path: "offlineStudentsList",
+        select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO'
+      })
+      .populate({
+        path: "studentExemptList",
+        select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO'
+      });
     res.status(200).send({ message: "Fees Data", feeData });
   } catch {}
 };
@@ -68,7 +80,6 @@ exports.getOneFeesDetail = async (req, res) => {
 exports.feesPaidByStudent = async (req, res) => {
   try {
     const { sid, id } = req.params;
-    const { status } = req.body;
     const student = await Student.findById({ _id: sid });
     const fData = await Fees.findById({ _id: id });
     if (
@@ -79,22 +90,21 @@ exports.feesPaidByStudent = async (req, res) => {
         message: `${student.studentFirstName} paid the ${fData.feeName}`,
       });
     } else {
-      student.studentFee.push(fData);
-      fData.feeStatus = status;
-      fData.studentsList.push(student);
+      student.studentFee.push(fData._id);
+      fData.feeStatus = "Paid";
+      fData.studentsList.push(student._id);
       fData.feeStudent = student;
-      student.offlineFeeList.push(fData);
-      fData.offlineStudentsList.push(student);
+      student.offlineFeeList.push(fData._id);
+      fData.offlineStudentsList.push(student._id);
       fData.offlineFee += fData.feeAmount;
-      await student.save();
-      await fData.save();
+      await Promise.all([ student.save(), fData.save()])
       res.status(200).send({
         message: `${fData.feeName} received by ${student.studentFirstName}`,
-        fData,
-        student,
       });
     }
-  } catch {}
+  } catch (e){
+    console.log(e)
+  }
 };
 
 exports.exemptFeesPaidByStudent = async (req, res) => {
@@ -113,22 +123,115 @@ exports.exemptFeesPaidByStudent = async (req, res) => {
       });
     } else {
       try {
-        student.studentExemptFee.push(fData);
+        student.studentExemptFee.push(fData._id);
         fData.feeStatus = status;
-        fData.studentExemptList.push(student);
+        fData.studentExemptList.push(student._id);
         fData.feeStudent = student;
-        student.exemptFeeList.push(fData);
-        fData.exemptList.push(student);
+        student.exemptFeeList.push(fData._id);
+        fData.exemptList.push(student._id);
         classes.exemptFee += fData.feeAmount;
-        await student.save();
-        await fData.save();
-        await classes.save();
+        await Promise.all([
+          student.save(),
+          fData.save(),
+          classes.save()
+        ])
         res.status(200).send({
           message: `${fData.feeName} received by ${student.studentFirstName}`,
-          fData,
-          student,
         });
       } catch {}
     }
   } catch {}
 };
+
+
+exports.retrieveStudentFeeStatus = async(req, res) =>{
+  try {
+    const { studentId } = req.body;
+    const student = await Student.findById({ _id: studentId })
+    .select('studentFirstName studentMiddleName studentLastName studentROLLNO photoId studentProfilePhoto')
+    res.status(200).send({ message: "Student Detail Data", student });
+  } catch {
+  }
+}
+
+
+exports.retrieveDepartmentFeeArray = async(req, res) =>{
+  try{
+    const { did } = req.params
+    const depart = await Department.findById({_id: did})
+    .select('dName')
+    .populate({
+      path: 'fees',
+      select: 'feeName feeAmount feeDate createdAt'
+    })
+    res.status(200).send({ message: 'Department Fee Data ', depart})
+  }
+  catch{
+
+  }
+}
+
+
+exports.retrieveClassFeeArray = async(req, res) =>{
+  try{
+    const { cid } = req.params
+    const classes = await Class.findById({_id: cid})
+    .select('className classStatus')
+    .populate({
+      path: 'ApproveStudent',
+      select: 'studentFirstName studentMiddleName studentLastName studentROLLNO photoId studentProfilePhoto onlineFeeList offlineFeeList'
+    })
+    .populate({
+      path: 'institute',
+      select: 'id',
+      populate: {
+        path: 'financeDepart',
+        select: 'id',
+        populate: {
+          path: 'classRoom',
+          select: 'id'
+        }
+      }
+    })
+    .populate({
+      path: 'fee',
+      select: 'feeName feeAmount'
+    })
+    res.status(200).send({ message: 'Class Fee Data ', classes})
+  }
+  catch{
+
+  }
+}
+
+exports.retrieveStudentQuery = async(req, res) => {
+  try{
+    const { sid } = req.params
+    const student = await Student.findById({_id: sid})
+    .select('id onlineFeeList offlineFeeList exemptFeeList onlineCheckList offlineCheckList')
+    .populate({
+      path: 'institute',
+      select: 'insName'
+    })
+    .populate({
+      path: 'department',
+      select: 'dName',
+      populate: {
+        path: 'fees',
+        select: 'feeName feeAmount createdAt feeDate'
+      }
+    })
+    .populate({
+      path: 'department',
+      select: 'dName',
+      populate: {
+        path: 'checklists',
+        select: 'checklistName checklistfees checklistAmount createdAt '
+      }
+    })
+    res.status(200).send({ message: 'Student Fee and Checklist', student})
+  }
+  catch{
+
+  }
+}

@@ -279,7 +279,10 @@ exports.OneComplaint = async (req, res) => {
   try {
     const complaint = await Complaint.findById(req.params.cid).select(
       "complaintType complaintTo complaintContent complaintStatus createdAt"
-    );
+    ).populate({
+      path: 'student',
+      select: 'studentFirstName studentMiddleName studentLastName'
+    })
     res.status(200).send({ message: "one complaint details", complaint });
   } catch (e) {
     console.log(e);

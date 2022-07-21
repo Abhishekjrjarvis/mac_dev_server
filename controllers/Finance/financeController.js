@@ -202,8 +202,11 @@ exports.getIncome = async(req, res) =>{
     try {
         const { fid } = req.params;
         const finance = await Finance.findById({ _id: fid });
+        const file = req.file;
+        const results = await uploadDocFile(file);
         const incomes = await new Income({ ...req.body });
         finance.incomeDepartment.push(incomes._id);
+        incomes.incomeAck = results.key;
         incomes.finances = finance._id;
         if (req.body.incomeAccount === "By Cash") {
           finance.financeIncomeCashBalance =
@@ -221,30 +224,34 @@ exports.getIncome = async(req, res) =>{
       }
 }
 
-exports.getAllCashIncomes = async(req, res) =>{
+exports.getAllIncomes = async(req, res) =>{
     try {
         const { queryStatus } = req.body;
-        const income = await Income.find({ incomeAccount: queryStatus });
-        res.status(200).send({ message: "cash data", cashIncome: income });
+        if(queryStatus === 'By Cash'){
+          const income = await Income.find({ incomeAccount: queryStatus });
+          res.status(200).send({ message: "cash data", cashIncome: income });
+        }
+        else if(queryStatus === 'By Bank'){
+          const income = await Income.find({ incomeAccount: queryStatus });
+          res.status(200).send({ message: "bank data", bankIncome: income });
+        }
+        else{
+
+        }
       } catch(e) {
       }
 }
 
-exports.getAllBankIncomes = async(req, res) =>{
-    try {
-        const { queryStatus } = req.body;
-        const income = await Income.find({ incomeAccount: queryStatus });
-        res.status(200).send({ message: "bank data", bankIncome: income });
-      } catch(e) {
-      }
-}
 
 exports.getExpense = async(req, res) =>{
     try {
         const { fid } = req.params;
         const finance = await Finance.findById({ _id: fid });
+        const file = req.file;
+        const results = await uploadDocFile(file);
         const expenses = await new Expense({ ...req.body });
         finance.expenseDepartment.push(expenses._id);
+        expenses.expenseAck = results.key;
         expenses.finances = finance._id;
         if (req.body.expenseAccount === "By Cash") {
           finance.financeExpenseCashBalance =
@@ -262,20 +269,18 @@ exports.getExpense = async(req, res) =>{
       }
 }
 
-exports.getAllCashExpense = async(req, res) =>{
+exports.getAllExpense = async(req, res) =>{
     try {
         const { queryStatus } = req.body;
-        const expense = await Expense.find({ expenseAccount: queryStatus });
-        res.status(200).send({ message: "cash data", cashExpense: expense });
-      } catch(e) {
-      }
-}
-
-exports.getAllBankExpense = async(req, res) =>{
-    try {
-        const { queryStatus } = req.body;
-        const expense = await Expense.find({ expenseAccount: queryStatus });
-        res.status(200).send({ message: "bank data", bankExpense: expense });
+        if(queryStatus === 'By Cash'){
+          const expense = await Expense.find({ expenseAccount: queryStatus });
+          res.status(200).send({ message: "cash data", cashExpense: expense });
+        }
+        else if(queryStatus === 'By Bank'){
+          const expense = await Expense.find({ expenseAccount: queryStatus });
+          res.status(200).send({ message: "bank data", bankExpense: expense });
+        }
+        else{}
       } catch(e) {
       }
 }
@@ -426,7 +431,7 @@ exports.classOfflineFeeIncorrect = async(req, res) =>{
         finance.classRoom.pull(classes._id);
         finance.pendingClassRoom.push(classes._id);
         await finance.save();
-        res.status(200).send({ message: "class submitted Data", offlineIncorrectFee: finance });
+        res.status(200).send({ message: "class submitted Data", offlineIncorrectFee: finance.pendingClassRoom });
       } catch {
       }
 }
@@ -442,53 +447,6 @@ exports.updatePaymenFinance = async(req, res) =>{
       } catch(e) {
       }
 }
-
-exports.uploadIncomeACK = async(req, res) =>{
-  try {
-    const sid = req.params.id;
-    const file = req.file;
-    const results = await uploadDocFile(file);
-    const incomes = await Income.findById({ _id: sid });
-    incomes.incomeAck = results.key;
-    await incomes.save();
-    await unlinkFile(file.path);
-    res.status(200).send({ message: "Uploaded" });
-  } catch(e) {
-  }
-}
-
-exports.RetrieveIncomeACK = async(req, res) =>{
-  try {
-    const key = req.params.key;
-    const readStream = getFileStream(key);
-    readStream.pipe(res);
-  } catch(e) {
-  }
-}
-
-exports.uploadExpenseACK = async(req, res) =>{
-  try {
-    const sid = req.params.id;
-    const file = req.file;
-    const results = await uploadDocFile(file);
-    const expenses = await Expense.findById({ _id: sid });
-    expenses.expenseAck = results.key;
-    await expenses.save();
-    await unlinkFile(file.path);
-    res.status(200).send({ message: "Uploaded" });
-  } catch(e) {
-  }
-}
-
-exports.RetrieveExpenseACK = async(req, res) =>{
-  try {
-    const key = req.params.key;
-    const readStream = getFileStream(key);
-    readStream.pipe(res);
-  } catch(e) {
-  }
-}
-
 
 
 exports.RepayBySuperAdmin = async(req, res) =>{
@@ -514,3 +472,53 @@ exports.RepayBySuperAdmin = async(req, res) =>{
     res.status(200).send({ message: "Amount Transferred" });
   } catch {}
 }
+
+
+
+// exports.uploadIncomeACK = async(req, res) =>{
+//   try {
+//     const sid = req.params.id;
+//     const file = req.file;
+//     const results = await uploadDocFile(file);
+//     const incomes = await Income.findById({ _id: sid });
+//     incomes.incomeAck = results.key;
+//     await incomes.save();
+//     await unlinkFile(file.path);
+//     res.status(200).send({ message: "Uploaded" });
+//   } catch(e) {
+//   }
+// }
+
+// exports.RetrieveIncomeACK = async(req, res) =>{
+//   try {
+//     const key = req.params.key;
+//     const readStream = getFileStream(key);
+//     readStream.pipe(res);
+//   } catch(e) {
+//   }
+// }
+
+// exports.uploadExpenseACK = async(req, res) =>{
+//   try {
+//     const sid = req.params.id;
+//     const file = req.file;
+//     const results = await uploadDocFile(file);
+//     const expenses = await Expense.findById({ _id: sid });
+//     expenses.expenseAck = results.key;
+//     await expenses.save();
+//     await unlinkFile(file.path);
+//     res.status(200).send({ message: "Uploaded" });
+//   } catch(e) {
+//   }
+// }
+
+// exports.RetrieveExpenseACK = async(req, res) =>{
+//   try {
+//     const key = req.params.key;
+//     const readStream = getFileStream(key);
+//     readStream.pipe(res);
+//   } catch(e) {
+//   }
+// }
+
+

@@ -138,7 +138,7 @@ exports.markAttendenceClassStudent = async (req, res) => {
           student.notification.push(notify._id);
           student.attendDate.push(attendence._id);
           attendence.absentStudent.push(student._id);
-          invokeFirebaseNotification('Student Member Activity', notify, student.studentFirstName, student._id, 'token')
+          // invokeFirebaseNotification('Student Member Activity', notify, student.studentFirstName, student._id, 'token')
           await Promise.all([student.save(), notify.save()]);
         }
         classes.attendenceDate.push(attendence._id);
@@ -381,7 +381,7 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
           notify.user = staff.user._id;
           notify.notifyByInsPhoto = id;
           staffAttendence.absentTotal = req.body.absent.length;
-          invokeFirebaseNotification('Staff Member Activity', notify, staff.user.userLegalName, staff.user._id, 'token')
+          // invokeFirebaseNotification('Staff Member Activity', notify, staff.user.userLegalName, staff.user._id, 'token')
           await Promise.all([
             staff.save(),
             staffAttendence.save(),

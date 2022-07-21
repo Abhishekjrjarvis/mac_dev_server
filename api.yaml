@@ -2040,6 +2040,26 @@ paths:
         "200":
           description: OK
 
+  
+  /api/v1/fees/student/{sid}:
+    get:
+      tags:
+        - Student-Member-Tab
+      summary: Student Fee and Checklist Array for Payment -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
+      responses:
+        "200":
+          description: OK
+
 
   /api/v1/ins/staffdepartment/{did}:
     get:
@@ -8153,6 +8173,186 @@ paths:
           description: OK
 
   
+  /api/v1/fees/department-class/fee/{did}:
+    post:
+      tags:
+        - Fees Module Query
+      summary: Add Fees By Department Head
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is Department id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              feeName:
+                type: string
+                description: Enter Name of Fee
+              feeAmount:
+                type: string
+                description: Enter Amount of Fee
+              feeDate:
+                type: string
+                description: Enter Due date of Fee
+              ClassId:
+                type: array
+                description: Enter Multiple Class Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/fees/department/{did}/query:
+    get:
+      tags:
+        - Fees Module Query
+      summary: Department Fee Array
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is Department id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/fees/class/{cid}/query:
+    get:
+      tags:
+        - Fees Module Query
+      summary: Class Fee Array
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Class id 
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/fees/{feesId}:
+    get:
+      tags:
+        - Fees Module Query
+      summary: Get One Fees Detail
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: feesId
+          required: true
+          type: string
+          description: This is Fees Id
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/fees/class/student/{sid}/fee/{id}:
+    post:
+      tags:
+        - Fees Module Query
+      summary: Offline Fee Paid by Student
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id 
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Fees id 
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/fees/class/{cid}/student/{sid}/exempt/fee/{id}:
+    post:
+      tags:
+        - Fees Module Query
+      summary: Exempted Fee Paid by Student
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Class id 
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id 
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Fees id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: Enter Status of Fee
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/fees/student/status:
+    post:
+      tags:
+        - Fees Module Query
+      summary: One Student Detail at fee One Module
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              studentId:
+                type: string
+                description: Enter Student Id
+      responses:
+        "200":
+          description: OK
+
+  
   /api/v1/finance/ins/{id}/staff/{sid}:
     post:
       tags:
@@ -8302,6 +8502,364 @@ paths:
           required: true
           type: string
           description: This is Finance Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/info/{fid}:
+    post:
+      tags:
+        - Finance Module Query
+      summary: Add Info in Finance Department
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              financeAbout:
+                type: string
+                description: Enter Finance About 
+              financeEmail:
+                type: string
+                description: Enter Finance Email
+              financePhoneNumber:
+                type: string
+                description: Enter finance Phone Number
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/income:
+    post:
+      tags:
+        - Finance Module Query
+      summary: Add Income in Finance Department
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in: formData
+          name: incomeAccount
+          type: string
+          required: true
+          description: Enter Type of Income Account (By Cash / By Bank )
+        - in: formData
+          name: incomePurpose
+          type: string
+          required: true
+          description: Enter Income Purpose
+        - in: formData
+          name: incomeAmount
+          type: number
+          required: true
+          description: Enter Income Amount in Rs.
+        - in: formData
+          name: incomeFrom
+          type: string
+          required: true
+          description: Enter Sender of Income 
+        - in: formData
+          name: incomeDesc
+          type: string
+          required: true
+          description: Enter Description of Income 
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload Income Acknowledge Report / Receipt
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/all/incomes:
+    post:
+      tags:
+        - Finance Module Query
+      summary: Filter Income By Cash or By Bank Query
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              queryStatus:
+                type: string
+                description: Enter Query (By Bank) or (By Cash)
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/expense:
+    post:
+      tags:
+        - Finance Module Query
+      summary: Add Expense in Finance Department
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in: formData
+          name: expenseAccount
+          type: string
+          required: true
+          description: Enter Type of Expense Account (By Cash / By Bank )
+        - in: formData
+          name: expensePurpose
+          type: string
+          required: true
+          description: Enter Expense Purpose
+        - in: formData
+          name: expenseAmount
+          type: number
+          required: true
+          description: Enter Expense Amount in Rs.
+        - in: formData
+          name: expensePaid
+          type: string
+          required: true
+          description: Enter Sender of Expense 
+        - in: formData
+          name: expenseDesc
+          type: string
+          required: true
+          description: Enter Description of Expense 
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload Expense Acknowledge Report / Receipt
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/all/expenses:
+    post:
+      tags:
+        - Finance Module Query
+      summary: Filter Expense By Cash or By Bank Query
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              queryStatus:
+                type: string
+                description: Enter Query (By Bank) or (By Cash)
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/class/collect:
+    get:
+      tags:
+        - Finance Module Query
+      summary: Get Class Collected Fee
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/class/{cid}/fee/{id}/receieve:
+    post:
+      tags:
+        - Finance Module Query
+      summary: Class Fee Request At Finance
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Class id 
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Fee id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/class/{cid}/fee/{id}/submit:
+    post:
+      tags:
+        - Finance Module Query
+      summary: Class Fee Submitted At Finance
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Class id 
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Fee id 
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/finance/{fid}/class/{cid}/fee/incorrect:
+    post:
+      tags:
+        - Finance Module Query
+      summary: Class Incorrect Fee At Finance
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Class id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/class/{cid}/total/online/fee:
+    post:
+      tags:
+        - Finance Module Query
+      summary: Class Online Fee 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Class id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee:
+                type: string
+                description: Enter fee in Amount
+      responses:
+        "200":
+          description: OK
+  
+  /api/v1/finance/class/{cid}/total/offline/fee:
+    post:
+      tags:
+        - Finance Module Query
+      summary: Class Offline Fee 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Class id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee:
+                type: string
+                description: Enter fee in Amount
+      responses:
+        "200":
+          description: OK
+        
+  /api/v1/finance/class/{cid}/total/collected/fee:
+    post:
+      tags:
+        - Finance Module Query
+      summary: Class Collected Fee 
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Class id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee:
+                type: string
+                description: Enter fee in Amount
       responses:
         "200":
           description: OK

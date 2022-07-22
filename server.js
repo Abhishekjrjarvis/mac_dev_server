@@ -194,7 +194,7 @@ app.use(
     // origin: "http://18.205.27.165",
     // origin: ["http://18.205.27.165", "http://localhost:3000"],
     // origin: "http://localhost:3000",
-    origin: "http://qviple.com",
+    origin: "https://qviple.com",
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   })

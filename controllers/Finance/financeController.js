@@ -54,7 +54,7 @@ exports.getFinanceDepart = async(req, res) =>{
 exports.uploadBankDetail = async(req, res) =>{
     try {
         const { id } = req.params;
-        const { bankAccountHolderName, bankAccountNumber, bankIfscCode, bankAccountPhoneNumber, GSTInfo, businessName, businessAddress } = req.body;
+        const { bankAccountHolderName, bankAccountNumber, bankIfscCode, bankAccountPhoneNumber, bankAccountType, GSTInfo, businessName, businessAddress } = req.body;
         const admin = await Admin.findById({_id: `${process.env.S_ADMIN_ID}`})
         const institute = await InstituteAdmin.findById({ _id: id });
         const notify = new Notification({})
@@ -66,6 +66,7 @@ exports.uploadBankDetail = async(req, res) =>{
         institute.GSTInfo = GSTInfo
         institute.businessName = businessName
         institute.businessAddress = businessAddress
+        institute.bankAccountType = bankAccountType
         notify.notifyContent = ` ${institute.insName} Institute payment Details updated Check and Verify `
         notify.notifySender = institute._id;
         notify.notifyReceiever = admin._id;
@@ -73,7 +74,7 @@ exports.uploadBankDetail = async(req, res) =>{
         notify.notifyPid = "1";
         notify.notifyByInsPhoto = institute._id;
         await Promise.all([institute.save(), admin.save(), notify.save()]);
-        res.status(200).send({ message: "bank detail updated wait for verification" });
+        res.status(200).send({ message: "bank detail updated wait for verification", status: true });
       } catch(e) {
       }
 }
@@ -476,6 +477,17 @@ exports.RepayBySuperAdmin = async(req, res) =>{
 }
 
 
+exports.retrievePaymentDetail = async(req, res) => {
+  try{
+    const { id } = req.params
+    const bank = await InstituteAdmin.findById({_id: id})
+    .select('bankAccountHolderName paymentBankStatus bankAccountNumber bankAccountType bankAccountPhoneNumber bankIfscCode')
+    res.status(200).send({ message: 'Payment Detail', bank})
+  }
+  catch{
+
+  }
+}
 
 // exports.uploadIncomeACK = async(req, res) =>{
 //   try {

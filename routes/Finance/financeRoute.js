@@ -69,6 +69,9 @@ router.post('/:fid/online/payment/updated', isLoggedIn, catchAsync(Finance.updat
 // Repay From Super-Admin to Institute-Admin
 router.post('/admin/:aid/ins/:id/repay', isLoggedIn, catchAsync(Finance.RepayBySuperAdmin))
 
+// Payment Detail
+router.get('/:id/ins/bank/query', isLoggedIn, catchAsync(Finance.retrievePaymentDetail))
+
 // // Upload ACK for Income
 // router.post('/income/:id', isLoggedIn, upload.single("file"), catchAsync(Finance.uploadIncomeACK))
 

@@ -19,7 +19,7 @@ exports.processUnlockFeaturePayment = async (req, res, next) => {
     params["TXN_AMOUNT"] = amount;
     params[
       "CALLBACK_URL"
-    ] = `http://localhost:8080/api/v1/callback/ins/${id}/user/${name}`;
+    ] = `${req.host}/api/v1/callback/ins/${id}/user/${name}`;
     let paytmChecksum = paytm.generateSignature(
       params,
       process.env.PAYTM_MERCHANT_KEY
@@ -89,9 +89,9 @@ exports.processUnlockFeaturePayment = async (req, res, next) => {
               if (status === "TXN_SUCCESS") {
                 addUnlockPayment(body, id, name);
                 unlockInstitute(id, price);
-                res.redirect(`http://localhost:3000/q/${name}/feed`);
+                res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
               } else {
-                res.redirect(`http://localhost:3000/`);
+                res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
               }
             });
           });

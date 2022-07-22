@@ -206,6 +206,10 @@ const superAdminSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'InstituteAdmin'
     },
+    assignUniversalStatus: {
+        type: String,
+        default: 'Not Assigned'
+    },
     aNotify: [
         {
             type: mongoose.Schema.Types.ObjectId,

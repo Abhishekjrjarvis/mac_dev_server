@@ -8,7 +8,7 @@ const StaffAttendenceDate = require("../../models/StaffAttendenceDate");
 const Staff = require("../../models/Staff");
 const Notification = require("../../models/notification");
 const StudentNotification = require("../../models/Marks/StudentNotification");
-const invokeFirebaseNotification = require('../../Firebase/firebase')
+const invokeFirebaseNotification = require("../../Firebase/firebase");
 
 //THis is route with tested OF STUDENT
 exports.viewClassStudent = async (req, res) => {
@@ -122,7 +122,13 @@ exports.markAttendenceClassStudent = async (req, res) => {
           student.notification.push(notify._id);
           student.attendDate.push(attendence._id);
           attendence.presentStudent.push(student._id);
-          invokeFirebaseNotification('Student Member Activity', notify, student.studentFirstName, student._id, 'token')
+          invokeFirebaseNotification(
+            "Student Member Activity",
+            notify,
+            student.studentFirstName,
+            student._id,
+            "token"
+          );
           await Promise.all([student.save(), notify.save()]);
         }
 
@@ -138,7 +144,7 @@ exports.markAttendenceClassStudent = async (req, res) => {
           student.notification.push(notify._id);
           student.attendDate.push(attendence._id);
           attendence.absentStudent.push(student._id);
-          // invokeFirebaseNotification('Student Member Activity', notify, student.studentFirstName, student._id, 'token')
+          invokeFirebaseNotification('Student Member Activity', notify, student.studentFirstName, student._id, 'token')
           await Promise.all([student.save(), notify.save()]);
         }
         classes.attendenceDate.push(attendence._id);
@@ -313,13 +319,13 @@ exports.viewInstituteStaff = async (req, res) => {
 exports.markAttendenceDepartmentStaff = async (req, res) => {
   try {
     const { id } = req.params;
-    const dLeaves = await Holiday.findOne({
-      dDate: { $eq: `${req.body.date}` },
-    });
+    // const dLeaves = await Holiday.findOne({
+    //   dDate: { $eq: `${req.body.date}` },
+    // });
     const attend = await StaffAttendenceDate.findOne({
       staffAttendDate: { $eq: `${req.body.date}` },
     });
-    if (dLeaves || attend) {
+    if (attend) {
       res.status(200).send({
         message:
           "Attendance not mark Current Date due to Holiday or Already marked attendance",
@@ -355,7 +361,13 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
           notify.notifyByInsPhoto = id;
           staffAttendence.presentStaff.push(staff._id);
           staffAttendence.presentTotal = req.body.present.length;
-          invokeFirebaseNotification('Staff Member Activity', notify, staff.user.userLegalName, staff.user._id, 'token')
+          invokeFirebaseNotification(
+            "Staff Member Activity",
+            notify,
+            staff.user.userLegalName,
+            staff.user._id,
+            "token"
+          );
           await Promise.all([
             staff.save(),
             staffAttendence.save(),
@@ -450,9 +462,7 @@ exports.getAttendInstituteStaff = async (req, res) => {
 exports.markAttendenceDepartmentStaffUpdate = async (req, res) => {
   try {
     const { said } = req.params;
-    const attendance = await StaffAttendenceDate.findOne({
-      staffAttendDate: { $eq: `${req.body.date}` },
-    });
+    const attendance = await StaffAttendenceDate.findById(said);
 
     if (!attendance) {
       res.status(200).send({
@@ -521,13 +531,22 @@ exports.getAttendStaffById = async (req, res) => {
       regularexp = new RegExp(`\/${year}$`);
     }
     const staff = await Staff.findById(req.params.sid)
-      .select("_id attendDates")
+      .select("_id attendDates staffLeave")
       .populate({
         path: "attendDates",
         match: {
           staffAttendDate: { $regex: regularexp },
         },
+
         select: "staffAttendDate presentStaff absentStaff",
+      })
+      .populate({
+        path: "staffLeave",
+        match: {
+          date: { $regex: regularexp },
+          status: { $eq: "Accepted" },
+        },
+        select: "date",
       });
 
     if (staff) {
@@ -553,6 +572,7 @@ exports.getAttendStaffById = async (req, res) => {
         absentArray,
         present: presentPercentage,
         absent: absentPercentage,
+        leaves: staff.staffLeave,
       });
     } else {
       res.status(404).send({ message: "Failure" });

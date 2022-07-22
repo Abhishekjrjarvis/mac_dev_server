@@ -6987,7 +6987,7 @@ paths:
         - application/json
       parameters:
         - in: path
-          name: cid
+          name: sid
           required: true
           type: string
           description: It is particular student id

@@ -29,9 +29,7 @@ exports.searchUserUniversal = async (req, res) => {
           { name: { $regex: req.query.search, $options: "i" } },
         ],
       })
-        .select(
-          "insName insProfilePhoto photoId name"
-        )
+        .select("insName insProfilePhoto photoId name")
         .limit(itemPerPage)
         .skip(dropItem)
         .lean()
@@ -69,14 +67,13 @@ exports.searchUserUniversal = async (req, res) => {
       //   .exec();
       if (!allInstitutes.length && !users.length)
         res.status(204).send({ message: "Not found any search" });
-      else
-        var universalArrayUser = [...allInstitutes, ...users]
-        res.status(200).send({
-          // allInstitutes,
-          // users,
-          universalArrayUser
-          // staffs,
-        });
+      else var universalArrayUser = [...allInstitutes, ...users];
+      res.status(200).send({
+        // allInstitutes,
+        // users,
+        universalArrayUser,
+        // staffs,
+      });
     }
   } catch (e) {
     console.log(e);
@@ -98,9 +95,7 @@ exports.searchInstituteUniversal = async (req, res) => {
           { name: { $regex: req.query.search, $options: "i" } },
         ],
       })
-        .select(
-          "insName insProfilePhoto photoId name "
-        )
+        .select("insName insProfilePhoto photoId name ")
         .limit(itemPerPage)
         .skip(dropItem)
         .lean()
@@ -168,14 +163,19 @@ exports.searchInstituteUniversal = async (req, res) => {
       )
         res.status(202).send({ message: "Not found any search" });
       else
-        var universalArray = [...allInstitutes, ...departments, ...staff, ...students]
-        res.status(200).send({
-          allInstitutes,
-          departments,
-          staff,
-          students,
-          universalArray
-        });
+        var universalArray = [
+          ...allInstitutes,
+          ...departments,
+          ...staff,
+          ...students,
+        ];
+      res.status(200).send({
+        allInstitutes,
+        departments,
+        staff,
+        students,
+        universalArray,
+      });
     }
   } catch (e) {
     console.log(e.kind);
@@ -470,6 +470,10 @@ exports.searchStudent = async (req, res) => {
         .populate({
           path: "user",
           select: "_id",
+        })
+        .populate({
+          path: "studentClass",
+          select: "className",
         })
         .limit(itemPerPage)
         .skip(dropItem)

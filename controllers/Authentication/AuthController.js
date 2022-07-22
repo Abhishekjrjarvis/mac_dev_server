@@ -53,14 +53,18 @@ exports.getRegisterIns = async (req, res) => {
       } else {
         const institute = new InstituteAdmin({ ...req.body });
         if(req.body.userId !== ''){
-          const user = await User.findById({ _id: req.body.userId })
+          const user = await User.findOne({ username: req.body.userId })
+          if(user){
           var refCoins = new Referral({})
           refCoins.referralBy = institute._id
           institute.referralArray.push(refCoins._id)
           institute.initialReferral = user._id
           refCoins.referralTo = user._id
           user.referralArray.push(refCoins._id)
-          await refCoins.save()
+          user.referralStatus = 'Granted'
+          user.paymentStatus = 'Not Paid'
+          await Promise.all([ refCoins.save(), user.save()])
+          }
         }
         institute.photoId = "1";
         institute.coverId = "2";

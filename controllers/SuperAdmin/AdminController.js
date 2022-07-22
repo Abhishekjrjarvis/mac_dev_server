@@ -4,6 +4,7 @@ const InstituteAdmin = require('../../models/InstituteAdmin')
 const User = require('../../models/User')
 const Notification = require('../../models/notification')
 const axios = require("axios");
+const Post = require('../../models/Post')
 const {
   uploadDocFile,
 } = require("../../S3Configuration");
@@ -40,8 +41,9 @@ const generateAdminOTP = async (mob) => {
 exports.getAdmin = async(req, res) =>{
     try {
         const { aid } = req.params
+        const post = await Post.find({}).select('id')
         const admins = await Admin.findById({ _id: aid})
-        .select('id postCount instituteCount userCount staffCount studentCount playlistCount paymentCount adminName adminUserName photoId profilePhoto')
+        .select('id postCount instituteCount userCount featureAmount idCardBalance staffCount studentCount playlistCount paymentCount adminName adminUserName photoId profilePhoto')
         .populate({
           path: 'staffArray',
           select: 'staffFirstName staffMiddleName staffJoinDate staffLastName photoId staffProfilePhoto',
@@ -74,7 +76,7 @@ exports.getAdmin = async(req, res) =>{
             select: 'userLegalName username'
           }
         })
-        res.status(200).send({ message: 'Success', admins });
+        res.status(200).send({ message: 'Success', admins, postCount: post.length });
     } catch(e) {
         console.log(`Error`, e.message);
     }
@@ -85,13 +87,14 @@ exports.retrieveApproveInstituteArray = async(req, res) =>{
   try{
     const { aid } = req.params
     const admin = await Admin.findById({ _id: aid})
-    .select('adminName')
+    .select('adminName assignUniversalStatus')
     .populate({
       path: 'ApproveInstitute',
       select: 'insName name photoId insProfilePhoto status staffCount studentCount isUniversal'
     })
     .populate({
-      path: 'assignUniversal'
+      path: 'assignUniversal',
+      select: 'id'
     })
     res.status(200).send({ message: 'Approve Array', admin})
   }
@@ -144,7 +147,8 @@ exports.retrieveUniversalInstitute = async(req, res) =>{
     const admin = await Admin.findById({ _id: aid})
     const institute = await InstituteAdmin.findById({_id: id})
     const notify = new Notification({})
-    admin.assignUniversal = institute
+    admin.assignUniversal = institute._id
+    admin.assignUniversalStatus = 'Assigned'
     institute.isUniversal = "Universal"
     notify.notifyContent = "Congrats for the Designation of Universal at Qviple 🎉✨🎉✨";
     notify.notifySender = admin._id;
@@ -301,6 +305,7 @@ exports.getApproveIns = async(req, res) =>{
         const { charges } = req.body
         const admin = await Admin.findById({ _id: aid });
         const institute = await InstituteAdmin.findById({ _id: id });
+        const user = await User.findOne({ _id: `${institute.initialReferral}`})
         const notify = await new Notification({});
         admin.ApproveInstitute.push(institute._id);
         admin.instituteCount += 1
@@ -308,6 +313,9 @@ exports.getApproveIns = async(req, res) =>{
         admin.instituteList.pull(id);
         institute.status = "Approved";
         institute.unlockAmount = charges
+        if(user){
+          user.userCommision += (charges * 40) / 100
+        }
         notify.notifyContent = "Approval For Super Admin is successfull";
         notify.notifySender = aid;
         notify.notifyReceiever = id;
@@ -317,7 +325,8 @@ exports.getApproveIns = async(req, res) =>{
         await Promise.all([
            institute.save(),
            notify.save(),
-           admin.save()
+           admin.save(),
+           user.save()
         ])
         res.status(200).send({
           message: `Congrats for Approval ${institute.insName}`,
@@ -429,6 +438,10 @@ exports.verifyInstituteBankDetail = async(req, res) =>{
       await Promise.all([ institute.save(), notify.save()])
       res.status(200).send({ message: 'Verification Done' })
     }
+    else if(institute.paymentBankStatus === 'Verified'){
+      institute.paymentBankStatus === 'Not Verified'
+      await institute.save()
+    }
     else{
       institute.paymentBankStatus = 'Not Verified'
       const notify = new Notification({})
@@ -439,7 +452,7 @@ exports.verifyInstituteBankDetail = async(req, res) =>{
       notify.notifyPid = "1";
       notify.notifyBySuperAdminPhoto = "https://qviple.com/images/newLogo.svg"
       await Promise.all([ institute.save(), notify.save()])
-      res.status(422).send({ message: 'Invalid Payment Bank Credentials' })
+      res.status(422).send({ message: 'Invalid Payment Bank Credentials', status: true })
     }
   }
   catch(e){
@@ -474,8 +487,63 @@ exports.retrieveApproveInstituteActivateVolume = async(req, res) => {
     const admin = await Admin.findById({_id: aid})
     .select('activateAccount')
     const institute = await InstituteAdmin.find({ activateStatus: 'Activated'})
-    .select('createdAt insName name photoId insProfilePhoto bankAccountHolderName bankAccountNumber bankIfscCode bankAccountPhoneNumber bankAccountType paymentBankStatus insBankBalance adminRepayAmount')
+    .select('createdAt insName name photoId insProfilePhoto bankAccountHolderName paymentBankStatus bankAccountNumber bankIfscCode bankAccountPhoneNumber bankAccountType paymentBankStatus insBankBalance adminRepayAmount')
     res.status(200).send({ message: 'Activate Query ', institute, admin})
+  }
+  catch{
+
+  }
+}
+
+
+exports.retrieveReferralUserArray = async(req, res) => {
+  try{
+    const user = await User.find({ referralStatus: 'Granted'})
+    .select('createdAt userLegalName username photoId profilePhoto referralArray userCommission paymentStatus')
+    res.status(200).send({ message: 'Referral Query ', user})
+  }
+  catch{
+
+  }
+}
+
+
+exports.retrieveReferralUserPayment = async(req, res) => {
+  try{
+    const { aid, uid } = req.params
+    const { amount } = req.body
+    const admin = await Admin.findById({_id: aid})
+    const user = await User.findById({_id: uid})
+    admin.featureAmount -= amount
+    user.userCommission -= amount
+    if(user.userCommission === 0){
+      user.paymentStatus = 'Paid'
+    }
+    else{
+      user.paymentStatus = 'Pay Left'
+    }
+    await Promise.all([
+      admin.save(),
+      user.save()
+    ])
+    res.status(200).send({ message: 'Referral Paid ', status: true})
+  }
+  catch{
+
+  }
+}
+
+
+
+exports.retrieveGetInTouch = async(req, res) => {
+  try{
+    const { aid } = req.params
+    const admin = await Admin.findById({_id: aid})
+    .select('id')
+    .populate({
+      path: 'getTouchUsers'
+    })
+    res.status(200).send({ message: 'Get In Touch Data', admin})
   }
   catch{
 

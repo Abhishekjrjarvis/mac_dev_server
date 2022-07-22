@@ -158,8 +158,8 @@ const classRoute = require("./routes/Class/classRoute");
 const checklistRoute = require("./routes/Checklist/checklistRoute");
 const examRoute = require("./routes/Exam/examRoute");
 const complaintLeaveRoute = require("./routes/ComplaintLeave/complaintLeaveRoute");
-const dburl = `${process.env.DB_URL2}`;
-// const dburl = `${process.env.DB_URL}`;
+// const dburl = `${process.env.DB_URL2}`;
+const dburl = `${process.env.DB_URL}`;
 // const dburl = `mongodb://127.0.0.1:27017/Erp_app`;
 
 // 62b9476c59fb91a51211ee9c - Development

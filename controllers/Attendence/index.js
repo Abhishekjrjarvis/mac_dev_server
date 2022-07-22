@@ -550,7 +550,7 @@ exports.getAttendStaffById = async (req, res) => {
         path: "staffLeave",
         match: {
           date: { $regex: regularexp },
-          status: { $eq: "Accepetd" },
+          status: { $eq: "Accepted" },
         },
         select: "date",
       });
@@ -578,6 +578,7 @@ exports.getAttendStaffById = async (req, res) => {
         absentArray,
         present: presentPercentage,
         absent: absentPercentage,
+        leaves: staff.staffLeave,
       });
     } else {
       res.status(404).send({ message: "Failure" });

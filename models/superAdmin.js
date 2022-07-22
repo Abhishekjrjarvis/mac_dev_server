@@ -168,6 +168,10 @@ const superAdminSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    activateAccount: {
+        type: Number,
+        default: 0
+    },
     posts: [
         {
             type: mongoose.Schema.Types.ObjectId,

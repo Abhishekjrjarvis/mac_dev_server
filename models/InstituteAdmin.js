@@ -344,6 +344,21 @@ const instituteAdminSchema = new mongoose.Schema({
       ref: 'Referral'
     }
   ],
+  initialReferral: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  activateStatus: {
+    type: String,
+    default: 'Not Activated'
+  },
+  activateDate: {
+    type: String,
+  },
+  supportChat: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'SupportChat'
+  },
   financeStatus: {
     type: String,
     default: 'Disable'

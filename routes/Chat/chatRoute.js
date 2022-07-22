@@ -22,7 +22,7 @@ router.get('/:id/fetch/message', isLoggedIn,  catchAsync(Chat.fetchChatMessage))
 
 router.post('/support/new/chat', isLoggedIn, catchAsync(Chat.supportAdminChat));
 
-router.post('/support/admin/chat', isLoggedIn,  catchAsync(Chat.supportAdminFetchChat));
+router.get('/support/admin/chat/:userId', isLoggedIn,  catchAsync(Chat.supportAdminFetchChat));
 
 router.post('/new/group/subject', isLoggedIn,  catchAsync(Chat.createSubjectGroupChat));
 

@@ -308,6 +308,20 @@ exports.forwardMessageDocumentQuery = async(req, res) =>{
 }
 
 
+exports.sendSupportChatMessage = async (req, res) => {
+  try {
+    if(req.params && req.params.chatId){
+    const messages = await SupportMessage.find({ chat: req.params.chatId })
+    .populate("chat")
+    res.json(messages);
+    }
+  } catch (error) {
+    res.status(400);
+    throw new Error(error.message);
+  }
+}
+
+
 exports.sendSupportMessageQuery = async (req, res) => {
   const { content, chatId, userId } = req.body;
 

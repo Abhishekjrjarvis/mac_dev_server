@@ -298,6 +298,7 @@ exports.getAll = async(req, res) =>{
 exports.getApproveIns = async(req, res) =>{
     try {
         const { aid, id } = req.params;
+        const { charges } = req.body
         const admin = await Admin.findById({ _id: aid });
         const institute = await InstituteAdmin.findById({ _id: id });
         const notify = await new Notification({});
@@ -306,6 +307,7 @@ exports.getApproveIns = async(req, res) =>{
         admin.requestInstituteCount -= 1
         admin.instituteList.pull(id);
         institute.status = "Approved";
+        institute.unlockAmount = charges
         notify.notifyContent = "Approval For Super Admin is successfull";
         notify.notifySender = aid;
         notify.notifyReceiever = id;
@@ -396,11 +398,15 @@ exports.retrieveOneInstitute = async(req, res) =>{
   try{
     const { id } = req.params
     const institute = await InstituteAdmin.findById({_id: id})
-    .select('insName name insAbout insAddress insEmail insPhoneNumber status insMode insType insPincode insState insDistrict insDocument')
+    .select('insName name insAbout insAddress insEmail insPhoneNumber status insMode unlockAmount insType insPincode insState insDistrict insDocument')
+    .populate({
+      path: 'initialReferral',
+      select: 'userLegalName username photoId profilePhoto'
+    })
     res.status(200).send({ message: 'One Institute', institute})
   }
-  catch{
-
+  catch(e){
+    console.log(e)
   }
 }
 
@@ -438,5 +444,25 @@ exports.verifyInstituteBankDetail = async(req, res) =>{
   }
   catch(e){
     console.log(e)
+  }
+}
+
+
+
+exports.retrieveApproveInstituteActivate = async(req, res) => {
+  try{
+    const { aid } = req.params
+    const admin = await Admin.findById({_id: aid})
+    .select('activateAccount')
+    const institute = await InstituteAdmin.find({ activateStatus: 'Activated'})
+    .select('createdAt activateDate insName name unlockAmount photoId insProfilePhoto')
+    .populate({
+      path: 'initialReferral',
+      select: 'username userLegalName photoId profilePhoto'
+    })
+    res.status(200).send({ message: 'Activate Query ', institute, admin})
+  }
+  catch{
+
   }
 }

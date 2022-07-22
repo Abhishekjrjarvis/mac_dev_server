@@ -17,6 +17,7 @@ const axios = require("axios");
 const jwt = require("jsonwebtoken");
 const usernameGenerator = require('./AuthFunction')
 const Referral = require('../../models/QCoins/Referral')
+const SupportChat = require('../../models/Chat/SupportChat')
 
 
 
@@ -54,9 +55,10 @@ exports.getRegisterIns = async (req, res) => {
         const file = req.file;
         const results = await uploadDocFile(file);
         const institute = new InstituteAdmin({ ...req.body });
-        const refCoins = new Referral({...req.body})
+        const refCoins = new Referral({})
         refCoins.referralBy = institute._id
         institute.referralArray.push(refCoins._id)
+        institute.initialReferral = user._id
         refCoins.referralTo = user._id
         user.referralArray.push(refCoins._id)
         institute.insDocument = results.key;
@@ -118,6 +120,38 @@ exports.getPassIns = async (req, res) => {
       await institute.save();
       const token = generateAccessInsToken(institute?.name, institute?._id, institute?.insPassword);
       res.json({ token: `Bearer ${token}`, institute: institute, login: true});
+      var isChat = await SupportChat.find({
+        isGroupChat: false,
+        $and: [
+          { users: { $elemMatch: { $eq: `${process.env.S_ADMIN_ID}` } } },
+          { users: { $elemMatch: { $eq: institute._id } } },
+        ],
+      })
+        .populate("latestMessage");
+
+      if (isChat.length > 0) {
+        res.send(isChat[0]);
+      } else {
+        var chatData = {
+          chatName: `Qviple Support Platform`,
+          isGroupChat: false,
+          participant_one: 'Qviple Support Platform',
+          participant_two: `${institute.insName}`,
+          users: [`${process.env.S_ADMIN_ID}`, institute._id],
+        };
+
+        try {
+          const createdChat = await SupportChat.create(chatData);
+          institute.supportChat = createdChat._id
+          await institute.save()
+          const FullChat = await SupportChat.findOne({ _id: createdChat._id })
+          res.status(200).json(FullChat);
+        } catch (error) {
+          res.status(400);
+          throw new Error(error.message);
+        }
+      }
+
     } else {
       res.send({ message: "Invalid Combination", login: false });
     }
@@ -349,8 +383,8 @@ exports.getUserPassword = async (req, res) => {
     const { id } = req.params;
     const { userPassword, userRePassword } = req.body;
     const user = await User.findById({ _id: id });
-    const genUserPass = await bcrypt.genSaltSync(12);
-    const hashUserPass = await bcrypt.hashSync(
+    const genUserPass =  bcrypt.genSaltSync(12);
+    const hashUserPass =  bcrypt.hashSync(
       req.body.userPassword,
       genUserPass
     );
@@ -360,6 +394,39 @@ exports.getUserPassword = async (req, res) => {
         await user.save();
         const token = generateAccessToken(user?.username, user?._id, user?.userPassword);
         res.json({ token: `Bearer ${token}`, user: user});
+
+        var isChat = await SupportChat.find({
+          isGroupChat: false,
+          $and: [
+            { users: { $elemMatch: { $eq: `${process.env.S_ADMIN_ID}` } } },
+            { users: { $elemMatch: { $eq: user._id } } },
+          ],
+        })
+          .populate("latestMessage");
+
+        if (isChat.length > 0) {
+          res.send(isChat[0]);
+        } else {
+          var chatData = {
+            chatName: `Qviple Support Platform`,
+            isGroupChat: false,
+            participant_one: 'Qviple Support Platform',
+            participant_two: `${user.username}`,
+            users: [`${process.env.S_ADMIN_ID}`, user._id],
+          };
+
+          try {
+            const createdChat = await SupportChat.create(chatData);
+            user.supportChat = createdChat._id
+            await user.save()
+            const FullChat = await SupportChat.findOne({ _id: createdChat._id })
+            res.status(200).json(FullChat);
+          } catch (error) {
+            res.status(400);
+            throw new Error(error.message);
+          }
+        }
+
       } else {
         res.send({ message: "Invalid Password Combination" });
       }

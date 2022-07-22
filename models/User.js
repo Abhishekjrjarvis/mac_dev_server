@@ -255,7 +255,11 @@ const userSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Referral'
     }
-  ]
+  ],
+  supportChat: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'SupportChat'
+  }
 });
 
 userSchema.post("findOneAndDelete", async function (doc) {

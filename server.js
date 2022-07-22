@@ -12786,6 +12786,19 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("new support", (newMessageRecieved) => {
+    var chats = newMessageRecieved.chat;
+    if (!chats.users) return console.log("chat.users not defined");
+
+    chats.users.forEach((user) => {
+      if (user == newMessageRecieved.sender) return;
+      // var delievered = true
+      socket.in(user).emit("message support", newMessageRecieved);
+      console.log(user);
+      console.log("message Receieved Fired");
+    });
+  });
+
   socket.off("setup", () => {
     console.log("USER DISCONNECTED");
     socket.leave(userData);

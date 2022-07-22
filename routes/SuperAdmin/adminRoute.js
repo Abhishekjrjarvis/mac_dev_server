@@ -60,7 +60,10 @@ router.get('/one/institute/:id', isLoggedIn, catchAsync(Admin.retrieveOneInstitu
 // Bank Detail verified by Super Admin
 router.post('/:aid/bank/detail/verification/:id', isLoggedIn, catchAsync(Admin.verifyInstituteBankDetail))
 
-// Get Approve Institute Array
+// Get Approve Activate Institute Array
 router.get('/:aid/approve/activate-array', isLoggedIn, catchAsync(Admin.retrieveApproveInstituteActivate))
+
+// Get Approve Activate Volume Institute Array
+router.get('/:aid/approve/activate/volume-array', isLoggedIn, catchAsync(Admin.retrieveApproveInstituteActivateVolume))
 
 module.exports = router

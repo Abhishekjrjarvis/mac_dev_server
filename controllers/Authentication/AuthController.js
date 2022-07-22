@@ -52,8 +52,6 @@ exports.getRegisterIns = async (req, res) => {
         res.send({ message: "Institute Existing with this Username" });
       } else {
         const user = await User.findById({ _id: req.body.userId })
-        const file = req.file;
-        const results = await uploadDocFile(file);
         const institute = new InstituteAdmin({ ...req.body });
         const refCoins = new Referral({})
         refCoins.referralBy = institute._id
@@ -61,13 +59,11 @@ exports.getRegisterIns = async (req, res) => {
         institute.initialReferral = user._id
         refCoins.referralTo = user._id
         user.referralArray.push(refCoins._id)
-        institute.insDocument = results.key;
         institute.photoId = "1";
         institute.coverId = "2";
         admins.instituteList.push(institute);
         admins.requestInstituteCount += 1
         await Promise.all([admins.save(), institute.save(), refCoins.save()]);
-        await unlinkFile(file.path);
         res.status(201).send({ message: "Institute", institute });
         const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
         uInstitute.posts.forEach(async (ele) => {

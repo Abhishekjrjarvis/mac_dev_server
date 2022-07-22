@@ -145,11 +145,20 @@ exports.paytmResponse = (req, res, next) => {
 const addPayment = async (data, studentId, feeId, userId) => {
   try {
     const student = await Student.findById({ _id: studentId });
+    const fee = await Fees.findOne({_id: feeId})
+    const checklist = await Checklist.findOne({_id: feeId})
     const payment = await new Payment(data);
-    payment.studentId = studentId;
+    payment.studentId = student._id;
     payment.feeId = feeId;
     payment.userId = userId;
     student.paymentList.push(payment);
+    if(fee){
+      payment.feeType = fee.feeName
+    }
+    else if(checklist){
+      payment.feeType = checklist.checklistName
+    }
+    else{}
     await payment.save();
     await student.save();
   } catch (error) {

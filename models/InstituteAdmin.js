@@ -36,6 +36,7 @@ const instituteAdminSchema = new mongoose.Schema({
   bankAccountNumber: { type: String },
   bankIfscCode: { type: String },
   bankAccountPhoneNumber: { type: String },
+  bankAccountType: { type: String },
   insFreeLastDate: { type: String },
   insPaymentLastDate: { type: String },
   referalPercentage: { type: Number, default: 0 },

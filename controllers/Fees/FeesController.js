@@ -41,7 +41,7 @@ exports.createFess = async (req, res) => {
       user.uNotify.push(notify._id);
       notify.user = user._id;
       notify.notifyByDepartPhoto = department._id;
-      await Promise.all([user.save(), notify.save()]);
+      await Promise.all([user.save(), notify.save(), feeData.save()]);
     }
     res.status(201).send({ message: `${feeData.feeName} Fees Raised` });
   } catch (e){

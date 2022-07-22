@@ -466,3 +466,18 @@ exports.retrieveApproveInstituteActivate = async(req, res) => {
 
   }
 }
+
+
+exports.retrieveApproveInstituteActivateVolume = async(req, res) => {
+  try{
+    const { aid } = req.params
+    const admin = await Admin.findById({_id: aid})
+    .select('activateAccount')
+    const institute = await InstituteAdmin.find({ activateStatus: 'Activated'})
+    .select('createdAt insName name photoId insProfilePhoto bankAccountHolderName bankAccountNumber bankIfscCode bankAccountPhoneNumber bankAccountType paymentBankStatus insBankBalance adminRepayAmount')
+    res.status(200).send({ message: 'Activate Query ', institute, admin})
+  }
+  catch{
+
+  }
+}

@@ -69,7 +69,15 @@ exports.getAllUser = async(req, res) =>{
 
 exports.getAllPaymentFee = async(req, res) =>{
     try {
-        const payment = await Payment.find({});
+        const payment = await Payment.find({})
+        .populate({
+          path: 'student',
+          select: 'studentFirstName studentMiddleName studentLastName',
+          populate: {
+            path: 'user',
+            select: 'userLegalName username photoId profilePhoto'
+          }
+        })
         res.status(200).send({ message: "Data", payment });
       } catch(e) {
         console.log(

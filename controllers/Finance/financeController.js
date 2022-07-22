@@ -219,6 +219,7 @@ exports.getIncome = async(req, res) =>{
          finance.save(),
          incomes.save()
         ])
+        await unlinkFile(file.path);
         res.status(200).send({ message: "Add New Income", finance: finance._id, incomes: incomes._id });
       } catch(e) {
       }
@@ -264,6 +265,7 @@ exports.getExpense = async(req, res) =>{
          finance.save(),
          expenses.save()
         ])
+        await unlinkFile(file.path);
         res.status(200).send({ message: "Add New Expense", finance: finance._id, expenses: expenses._id });
       } catch(e) {
       }

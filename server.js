@@ -158,12 +158,12 @@ const classRoute = require("./routes/Class/classRoute");
 const checklistRoute = require("./routes/Checklist/checklistRoute");
 const examRoute = require("./routes/Exam/examRoute");
 const complaintLeaveRoute = require("./routes/ComplaintLeave/ComplaintLeaveRoute");
-const dburl = `${process.env.DB_URL2}`;
-// const dburl = `${process.env.DB_URL}`;
+// const dburl = `${process.env.DB_URL2}`;
+const dburl = `${process.env.DB_URL}`;
 // const dburl = `mongodb://127.0.0.1:27017/Erp_app`;
 
 // 62b9476c59fb91a51211ee9c - Development
-// 62bdc9658b4155f336e7960e - Production
+// 62da5c76e962e1ae29134522 - Production
 
 mongoose
   .connect(dburl, {
@@ -192,9 +192,9 @@ app.use(express.json());
 app.use(
   cors({
     // origin: "http://18.205.27.165",
-    origin: ["http://18.205.27.165", "http://localhost:3000"],
+    // origin: ["http://18.205.27.165", "http://localhost:3000"],
     // origin: "http://localhost:3000",
-    // origin: "http://qviple.com",
+    origin: "http://qviple.com",
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   })

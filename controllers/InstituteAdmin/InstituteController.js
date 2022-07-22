@@ -2859,15 +2859,6 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
       .select("className classStatus classTitle")
       .populate({
         path: "ApproveStudent",
-        select:
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO",
-        populate: {
-          path: "user",
-          select: "userLegalName username",
-        },
-      })
-      .populate({
-        path: "ApproveStudent",
         select: "leave",
         populate: {
           path: "leave",
@@ -2875,6 +2866,14 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
             date: { $in: [`${day}/${month}/${year}`] },
           },
           select: "date",
+        },
+      })
+      .populate({
+        path: "ApproveStudent",
+        select: "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO",
+        populate: {
+          path: "user",
+          select: "userLegalName username",
         },
       })
       .lean()

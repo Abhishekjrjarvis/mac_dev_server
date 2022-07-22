@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const complaintController = require("../../controllers/ComplaintLeaveTransfer/complaintController");
+const complaintController = require("../../controllers/ComplaintLeaveTransfer/ComplaintController");
 const catchAsync = require("../../Utilities/catchAsync");
 
 router

@@ -1,7 +1,7 @@
 const Message = require("../../models/Chat/Message");
 const User = require("../../models/User");
 const Chat = require("../../models/Chat/Chat");
-// const ChatDocument = require('../../models/Chat/ChatDocument')
+const ChatDocument = require('../../models/Chat/ChatDocument')
 const ReplyChat = require('../../models/Chat/ReplyChat')
 const ForwardMessage = require('../../models/Chat/ForwardMessage')
 const SupportChat = require('../../models/Chat/SupportChat')

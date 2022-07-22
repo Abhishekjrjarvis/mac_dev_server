@@ -52,7 +52,7 @@ exports.getRegisterIns = async (req, res) => {
         res.send({ message: "Institute Existing with this Username" });
       } else {
         const institute = new InstituteAdmin({ ...req.body });
-        if(req.body.userId){
+        if(req.body.userId !== ''){
           const user = await User.findById({ _id: req.body.userId })
           const refCoins = new Referral({})
           refCoins.referralBy = institute._id

@@ -22,7 +22,7 @@ exports.createFess = async (req, res) => {
     for (let i = 0; i < ClassId.length; i++) {
       const classes = await Class.findById({ _id: ClassId[i] });
       classes.fee.push(feeData._id);
-      await Promise.all([classes.save()]);
+      await Promise.all([classes.save(), feeData.save()]);
     }
     for (let i = 0; i < department.ApproveStudent.length; i++) {
       const student = await Student.findById({
@@ -41,7 +41,7 @@ exports.createFess = async (req, res) => {
       user.uNotify.push(notify._id);
       notify.user = user._id;
       notify.notifyByDepartPhoto = department._id;
-      await Promise.all([user.save(), notify.save(), feeData.save()]);
+      await Promise.all([user.save(), notify.save()]);
     }
     res.status(201).send({ message: `${feeData.feeName} Fees Raised` });
   } catch (e){

@@ -51,14 +51,16 @@ exports.getRegisterIns = async (req, res) => {
       if (existInstitute) {
         res.send({ message: "Institute Existing with this Username" });
       } else {
-        const user = await User.findById({ _id: req.body.userId })
         const institute = new InstituteAdmin({ ...req.body });
-        const refCoins = new Referral({})
-        refCoins.referralBy = institute._id
-        institute.referralArray.push(refCoins._id)
-        institute.initialReferral = user._id
-        refCoins.referralTo = user._id
-        user.referralArray.push(refCoins._id)
+        if(req.body.userId){
+          const user = await User.findById({ _id: req.body.userId })
+          const refCoins = new Referral({})
+          refCoins.referralBy = institute._id
+          institute.referralArray.push(refCoins._id)
+          institute.initialReferral = user._id
+          refCoins.referralTo = user._id
+          user.referralArray.push(refCoins._id)
+        }
         institute.photoId = "1";
         institute.coverId = "2";
         admins.instituteList.push(institute);

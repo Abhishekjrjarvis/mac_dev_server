@@ -1028,6 +1028,22 @@ exports.retrieveStaffDesignationArray = async(req, res) =>{
         path: 'user',
         select: 'userLegalName photoId profilePhoto'
       })
+      .populate({
+        path: 'financeDepartment',
+        select: 'financeName financeEmail financePhoneNumber',
+        populate: {
+          path: 'financeHead',
+          select: 'staffFirstName staffMiddleName staffLastName'
+        }
+      })
+      .populate({
+        path: 'financeDepartment',
+        select: 'financeName financeEmail financePhoneNumber',
+        populate: {
+          path: 'institute',
+          select: 'financeStatus'
+        }
+      })
       .lean()
       .exec()
       // .populate({

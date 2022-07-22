@@ -28,22 +28,16 @@ router.get('/detail/:id', isLoggedIn, catchAsync(Finance.getFinanceDetail))
 router.post('/info/:fid', isLoggedIn, catchAsync(Finance.getFinanceInfo))
 
 // Added Income
-router.post('/:fid/income', isLoggedIn, catchAsync(Finance.getIncome))
+router.post('/:fid/income', isLoggedIn, upload.single('file'), catchAsync(Finance.getIncome))
 
 // All Cash Incomes
-router.post('/all/incomes', isLoggedIn, catchAsync(Finance.getAllCashIncomes))
-
-// All Bank Incomes
-router.post('/all/bank/incomes', isLoggedIn, catchAsync(Finance.getAllBankIncomes))
+router.post('/all/incomes', isLoggedIn, catchAsync(Finance.getAllIncomes))
 
 // Add Expense
-router.post('/:fid/expense', isLoggedIn, catchAsync(Finance.getExpense))
+router.post('/:fid/expense', isLoggedIn, upload.single('file'), catchAsync(Finance.getExpense))
 
 // All Cash Expenses
-router.post('/all/expenses', isLoggedIn, catchAsync(Finance.getAllCashExpense))
-
-// All Bank Expenses
-router.post('/all/bank/expenses', isLoggedIn, catchAsync(Finance.getAllBankExpense))
+router.post('/all/expenses', isLoggedIn, catchAsync(Finance.getAllExpense))
 
 // All Finance Fee Online
 router.post('/all/fee/online/:id', isLoggedIn, catchAsync(Finance.getFinanceOnlineFee))
@@ -72,20 +66,20 @@ router.post('/:fid/class/:cid/fee/incorrect', isLoggedIn, catchAsync(Finance.cla
 // Finance Online Payment Updated
 router.post('/:fid/online/payment/updated', isLoggedIn, catchAsync(Finance.updatePaymenFinance))
 
-// Upload ACK for Income
-router.post('/income/:id', isLoggedIn, upload.single("file"), catchAsync(Finance.uploadIncomeACK))
-
-// Retrieve ACK for Income
-router.get('/income/ack/:key', isLoggedIn, catchAsync(Finance.RetrieveIncomeACK))
-
-// Upload ACK for Expense
-router.post('/expense/:id', isLoggedIn, upload.single("file"), catchAsync(Finance.uploadExpenseACK))
-
-// Retrieve ACK for Expense
-router.get('/expense/ack/:key', isLoggedIn, catchAsync(Finance.RetrieveExpenseACK))
-
 // Repay From Super-Admin to Institute-Admin
 router.post('/admin/:aid/ins/:id/repay', isLoggedIn, catchAsync(Finance.RepayBySuperAdmin))
+
+// // Upload ACK for Income
+// router.post('/income/:id', isLoggedIn, upload.single("file"), catchAsync(Finance.uploadIncomeACK))
+
+// // Retrieve ACK for Income
+// router.get('/income/ack/:key', isLoggedIn, catchAsync(Finance.RetrieveIncomeACK))
+
+// // Upload ACK for Expense
+// router.post('/expense/:id', isLoggedIn, upload.single("file"), catchAsync(Finance.uploadExpenseACK))
+
+// // Retrieve ACK for Expense
+// router.get('/expense/ack/:key', isLoggedIn, catchAsync(Finance.RetrieveExpenseACK))
 
 
 

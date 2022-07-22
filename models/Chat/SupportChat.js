@@ -20,6 +20,12 @@ const supportChatSchema = mongoose.Schema(
     },
     isOnline: {
       type: String
+    },
+    participant_one: {
+      type: String
+    },
+    participant_two: {
+      type: String
     }
   },
   { timestamps: true }

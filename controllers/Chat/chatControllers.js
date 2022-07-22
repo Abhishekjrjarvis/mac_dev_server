@@ -317,9 +317,10 @@ exports.supportAdminChat = async (req, res) => {
 
 exports.supportAdminFetchChat = async (req, res) => {
   try {
-    const { userId } = req.body
+    const { userId } = req.params
     const chat = await SupportChat.find({ users: { $elemMatch: { $eq: userId } } })
       .populate("latestMessage")
+      .populate('message')
       .sort({ updatedAt: -1 })
       res.status(200).send({ message: 'All Chats', chat})
   } catch (error) {

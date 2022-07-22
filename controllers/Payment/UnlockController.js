@@ -19,7 +19,7 @@ exports.processUnlockFeaturePayment = async (req, res, next) => {
     params["TXN_AMOUNT"] = amount;
     params[
       "CALLBACK_URL"
-    ] = `http://18.205.27.165/api/api/v1/callback/ins/${id}/user/${name}`;
+    ] = `http://localhost:8080/api/v1/callback/ins/${id}/user/${name}`;
     let paytmChecksum = paytm.generateSignature(
       params,
       process.env.PAYTM_MERCHANT_KEY
@@ -89,9 +89,9 @@ exports.processUnlockFeaturePayment = async (req, res, next) => {
               if (status === "TXN_SUCCESS") {
                 addUnlockPayment(body, id, name);
                 unlockInstitute(id, price);
-                res.redirect(`http://18.205.27.165/q/${name}/feed`);
+                res.redirect(`http://localhost:3000/q/${name}/feed`);
               } else {
-                res.redirect(`http://18.205.27.165/`);
+                res.redirect(`http://localhost:3000/`);
               }
             });
           });
@@ -124,8 +124,11 @@ exports.processUnlockFeaturePayment = async (req, res, next) => {
       const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
       const notify = await new Notification({});
       admin.featureAmount = admin.featureAmount + parseInt(tx_iAmounts);
+      admin.activateAccount += 1
       institute.featurePaymentStatus = 'Paid'
       institute.accessFeature = 'UnLocked'
+      institute.activateStatus = 'Activated'
+      institute.activateDate = new Date()
       notify.notifyContent = `Feature Unlock Amount ${institute.insName}/ (Rs.${tx_iAmounts})  has been paid successfully stay tuned...`;
       notify.notifySender = institute._id
       notify.notifyReceiever = admin._id

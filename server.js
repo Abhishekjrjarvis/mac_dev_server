@@ -148,6 +148,7 @@ const landingNew = require("./routes/LandingRoute/indexRoute");
 const notifyNew = require("./routes/Notification/push-notification-route");
 const chatNew = require("./routes/Chat/chatRoute");
 const messageNew = require("./routes/Chat/messageRoute");
+const feesNew = require('./routes/Fees/feesRoute')
 
 // =============IMPORT INSTITUTE POST ROUTER====================
 const institutePostRoute = require("./routes/InstituteAdmin/Post/PostRoute");
@@ -301,6 +302,9 @@ app.use("/api/v1/chat", chatNew);
 
 // Message from Chat related to Qviple
 app.use("/api/v1/message", messageNew);
+
+// Fees related to Qviple
+app.use('/api/v1/fees', feesNew)
 
 // Super Admin Routes
 
@@ -12778,6 +12782,19 @@ io.on("connection", (socket) => {
       // var delievered = true
       socket.in(user._id).emit("message recieved", newMessageRecieved);
       console.log(user._id);
+      console.log("message Receieved Fired");
+    });
+  });
+
+  socket.on("new support", (newMessageRecieved) => {
+    var chats = newMessageRecieved.chat;
+    if (!chats.users) return console.log("chat.users not defined");
+
+    chats.users.forEach((user) => {
+      if (user == newMessageRecieved.sender) return;
+      // var delievered = true
+      socket.in(user).emit("message support", newMessageRecieved);
+      console.log(user);
       console.log("message Receieved Fired");
     });
   });

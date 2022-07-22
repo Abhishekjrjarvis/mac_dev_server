@@ -64,12 +64,15 @@ const paymentSchema = new mongoose.Schema({
         default: Date.now
     },
     studentId: {
-        type: String,
-        required: true
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Student'
     },
     feeId: {
         type: String,
         required: true
+    },
+    feeType: {
+        type: String
     },
     userId: {
         type: String,

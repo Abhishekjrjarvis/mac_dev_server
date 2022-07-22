@@ -156,8 +156,20 @@ exports.getDashOneQuery = async (req, res) => {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName name insAbout photoId status insProfilePhoto financeStatus financeDepart"
+        "insName name insAbout photoId status insProfilePhoto financeStatus financeDepart unlockAmount accessFeature activateStatus"
       )
+      .populate({
+        path: 'supportChat',
+        populate: {
+          path: 'latestMessage'
+        }
+      })
+      .populate({
+        path: 'supportChat',
+        populate: {
+          path: 'message'
+        }
+      })
       .lean()
       .exec();
     res.status(200).send({ message: "limit Ins Data", institute });

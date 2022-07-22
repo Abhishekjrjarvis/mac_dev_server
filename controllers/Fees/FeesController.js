@@ -195,7 +195,7 @@ exports.retrieveClassFeeArray = async(req, res) =>{
     })
     .populate({
       path: 'fee',
-      select: 'feeName feeAmount'
+      select: 'feeName feeAmount feeDate'
     })
     res.status(200).send({ message: 'Class Fee Data ', classes})
   }

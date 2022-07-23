@@ -500,6 +500,7 @@ exports.retrieveAllPosts = async (req, res) => {
           path: "tagPeople",
           select: "userLegalName username photoId profilePhoto",
         });
+      if(institute.posts.length >= 1){
       const postCount = await Post.find({ _id: { $in: institute.posts } });
       if (page * limit >= postCount.length) {
       } else {
@@ -513,6 +514,7 @@ exports.retrieveAllPosts = async (req, res) => {
           postCount: postCount.length,
           totalPage: totalPage,
         });
+      }
     } else {
       res.status(204).send({ message: "No Posts Yet..." });
     }
@@ -541,6 +543,7 @@ exports.retreiveAllProfilePosts = async (req, res) => {
         path: "tagPeople",
         select: "userLegalName username photoId profilePhoto",
       });
+    if(institute.posts.length >=1 ){
     const postCount = await Post.find({ _id: { $in: institute.posts } });
     if (page * limit >= postCount.length) {
     } else {
@@ -554,6 +557,7 @@ exports.retreiveAllProfilePosts = async (req, res) => {
         postCount: postCount.length,
         totalPage: totalPage,
       });
+    }
   } catch (e) {
     console.log(e);
   }

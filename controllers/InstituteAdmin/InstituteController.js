@@ -181,7 +181,7 @@ exports.getProfileOneQuery = async (req, res) => {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName status photoId insProfilePhoto coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement insOperatingAdmin insPrinciple insTrusty insStudentPresident insAdminClerk"
+        "insName status photoId insProfilePhoto accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement insOperatingAdmin insPrinciple insTrusty insStudentPresident insAdminClerk"
       )
       .lean()
       .exec();
@@ -2859,15 +2859,6 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
       .select("className classStatus classTitle")
       .populate({
         path: "ApproveStudent",
-        select:
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO",
-        populate: {
-          path: "user",
-          select: "userLegalName username",
-        },
-      })
-      .populate({
-        path: "ApproveStudent",
         select: "leave",
         populate: {
           path: "leave",
@@ -2875,6 +2866,14 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
             date: { $in: [`${day}/${month}/${year}`] },
           },
           select: "date",
+        },
+      })
+      .populate({
+        path: "ApproveStudent",
+        select: "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO",
+        populate: {
+          path: "user",
+          select: "userLegalName username",
         },
       })
       .lean()

@@ -66,4 +66,14 @@ router.get('/:aid/approve/activate-array', isLoggedIn, catchAsync(Admin.retrieve
 // Get Approve Activate Volume Institute Array
 router.get('/:aid/approve/activate/volume-array', isLoggedIn, catchAsync(Admin.retrieveApproveInstituteActivateVolume))
 
+// User Referral Payment Array
+router.get('/referral/user/payment', isLoggedIn, catchAsync(Admin.retrieveReferralUserArray))
+
+// User Referral Payment Array
+router.post('/:aid/referral/:uid/pay', isLoggedIn, catchAsync(Admin.retrieveReferralUserPayment))
+
+// Get In Touch Array
+router.get('/:aid/get/touch', isLoggedIn, catchAsync(Admin.retrieveGetInTouch))
+
+
 module.exports = router

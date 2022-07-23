@@ -51,19 +51,26 @@ exports.getRegisterIns = async (req, res) => {
       if (existInstitute) {
         res.send({ message: "Institute Existing with this Username" });
       } else {
-        const user = await User.findById({ _id: req.body.userId })
         const institute = new InstituteAdmin({ ...req.body });
-        const refCoins = new Referral({})
-        refCoins.referralBy = institute._id
-        institute.referralArray.push(refCoins._id)
-        institute.initialReferral = user._id
-        refCoins.referralTo = user._id
-        user.referralArray.push(refCoins._id)
+        if(req.body.userId !== ''){
+          const user = await User.findOne({ username: req.body.userId })
+          if(user){
+          var refCoins = new Referral({})
+          refCoins.referralBy = institute._id
+          institute.referralArray.push(refCoins._id)
+          institute.initialReferral = user._id
+          refCoins.referralTo = user._id
+          user.referralArray.push(refCoins._id)
+          user.referralStatus = 'Granted'
+          user.paymentStatus = 'Not Paid'
+          await Promise.all([ refCoins.save(), user.save()])
+          }
+        }
         institute.photoId = "1";
         institute.coverId = "2";
         admins.instituteList.push(institute);
         admins.requestInstituteCount += 1
-        await Promise.all([admins.save(), institute.save(), refCoins.save()]);
+        await Promise.all([admins.save(), institute.save()]);
         res.status(201).send({ message: "Institute", institute });
         const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
         uInstitute.posts.forEach(async (ele) => {

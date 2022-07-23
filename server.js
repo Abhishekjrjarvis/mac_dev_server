@@ -148,7 +148,7 @@ const landingNew = require("./routes/LandingRoute/indexRoute");
 const notifyNew = require("./routes/Notification/push-notification-route");
 const chatNew = require("./routes/Chat/chatRoute");
 const messageNew = require("./routes/Chat/messageRoute");
-const feesNew = require('./routes/Fees/feesRoute')
+const feesNew = require("./routes/Fees/feesRoute");
 
 // =============IMPORT INSTITUTE POST ROUTER====================
 const institutePostRoute = require("./routes/InstituteAdmin/Post/PostRoute");
@@ -157,7 +157,7 @@ const superAdminPostRoute = require("./routes/SuperAdmin/Post/PostRoute");
 const classRoute = require("./routes/Class/classRoute");
 const checklistRoute = require("./routes/Checklist/checklistRoute");
 const examRoute = require("./routes/Exam/examRoute");
-const complaintLeaveRoute = require("./routes/ComplaintLeave/ComplaintLeaveRoute");
+const complaintLeaveRoute = require("./routes/ComplaintLeave/complaintLeaveRoute");
 const dburl = `${process.env.DB_URL2}`;
 // const dburl = `${process.env.DB_URL}`;
 // const dburl = `mongodb://127.0.0.1:27017/Erp_app`;
@@ -304,7 +304,7 @@ app.use("/api/v1/chat", chatNew);
 app.use("/api/v1/message", messageNew);
 
 // Fees related to Qviple
-app.use('/api/v1/fees', feesNew)
+app.use("/api/v1/fees", feesNew);
 
 // Super Admin Routes
 

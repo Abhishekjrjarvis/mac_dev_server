@@ -277,12 +277,14 @@ exports.studentAllComplaint = async (req, res) => {
 
 exports.OneComplaint = async (req, res) => {
   try {
-    const complaint = await Complaint.findById(req.params.cid).select(
-      "complaintType complaintTo complaintContent complaintStatus createdAt"
-    ).populate({
-      path: 'student',
-      select: 'studentFirstName studentMiddleName studentLastName'
-    })
+    const complaint = await Complaint.findById(req.params.cid)
+      .select(
+        "complaintType complaintTo complaintContent complaintStatus createdAt"
+      )
+      .populate({
+        path: "student",
+        select: "studentFirstName studentMiddleName studentLastName",
+      });
     res.status(200).send({ message: "one complaint details", complaint });
   } catch (e) {
     console.log(e);
@@ -398,7 +400,7 @@ exports.OneComplaintDelete = async (req, res) => {
     }
 
     const institute = await InstituteAdmin.findById(complaint.institute).select(
-      "studentComplaint"
+      "studentComplaints"
     );
     if (institute.studentComplaints)
       institute.studentComplaints.pull(req.params.cid);
@@ -746,7 +748,8 @@ exports.oneStaffLeaveProcess = async (req, res) => {
 exports.staffComplaint = async (req, res) => {
   try {
     const staff = await Staff.findById(req.params.sid);
-    const complaint = new Complaint({
+    // console.log(staff);
+    const complaint = new StaffComplaint({
       complaintType: req.body.complaintType,
       complaintContent: req.body.complaintContent,
       staff: staff._id,
@@ -754,7 +757,7 @@ exports.staffComplaint = async (req, res) => {
     });
     const institute = await InstituteAdmin.findById(staff.institute);
     institute.staffComplaints.push(complaint._id);
-    staff.complaints.push(complaint > _id);
+    staff.complaints.push(complaint._id);
     await Promise.all([staff.save(), complaint.save(), institute.save()]);
     res.status(201).send({ message: "Request complaint" });
   } catch (e) {
@@ -767,7 +770,7 @@ exports.stafftAllComplaint = async (req, res) => {
     const staff = await Staff.findById(req.params.sid)
       .populate({
         path: "complaints",
-        select: "complaintType complaintStatus createdAt",
+        select: "complaintType complaintStatus createdAt complaintContent",
       })
       .select("complaints _id");
     res
@@ -811,7 +814,7 @@ exports.staffComplaintDelete = async (req, res) => {
     staff.complaints.pull(req.params.cid);
 
     const institute = await InstituteAdmin.findById(complaint.institute).select(
-      "studentComplaint"
+      "staffComplaints"
     );
     institute.staffComplaints.pull(req.params.cid);
 

@@ -250,3 +250,26 @@ exports.getAllUserSupport = async(req, res) =>{
         console.log(`Error`, e.message);
       }
 }
+
+
+
+exports.fetchDeviceToken = async(req, res) => {
+  try{
+    const { deviceToken, id } = req.body
+    const user = await User.findOne({_id: id})
+    const institute = await InstituteAdmin.findOne({_id: id})
+    if(user){
+      user.deviceToken = deviceToken
+      await user.save()
+    }
+    else if(institute){
+      institute.deviceToken = deviceToken
+      await institute.save()
+    }
+    else{}
+    res.status(200).send({ message: 'device Token set'})
+  }
+  catch{
+
+  }
+}

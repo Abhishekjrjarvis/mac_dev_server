@@ -5408,15 +5408,27 @@ paths:
           description: OK
 
 
-  /api/v1/notification/todevice:
+  /api/v1/all/todevice/token:
     post:
       tags:
-        - Push Notificcation
-      summary: Flutter Push Notification 
+        - Push Notificcation Device
+      summary: Flutter Push Notification Token 
       consumes:
         - application/json
       produces:
         - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              deviceToken:
+                type: string
+                description: Send Unique Token
+              id:
+                type: string
+                description: Send User or Institute id
       responses:
         "200":
           description: OK

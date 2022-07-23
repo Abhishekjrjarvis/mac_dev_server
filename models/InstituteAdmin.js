@@ -363,7 +363,10 @@ const instituteAdminSchema = new mongoose.Schema({
   financeStatus: {
     type: String,
     default: 'Disable'
-  } 
+  },
+  deviceToken: {
+    type: String
+  }
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

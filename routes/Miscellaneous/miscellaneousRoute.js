@@ -59,5 +59,8 @@ router.get('/ins/support', isLoggedIn, catchAsync(All.getAllInsSupport))
 // All User Support Query At Super Admin
 router.get('/user/support', isLoggedIn, catchAsync(All.getAllUserSupport))
 
+// Update Device Token At User Id
+router.post('/todevice/token', catchAsync(All.fetchDeviceToken))
+
 
 module.exports = router

@@ -164,7 +164,7 @@ const dburl = `${process.env.DB_URL2}`;
 
 // const dburl = `mongodb://127.0.0.1:27017/Erp_app`;
 
-// 62b9476c59fb91a51211ee9c - Development
+// 62db9b723365776ee48d3a16 - Development
 // 62da5c76e962e1ae29134522 - Production
 
 mongoose

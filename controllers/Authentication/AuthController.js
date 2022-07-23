@@ -73,10 +73,12 @@ exports.getRegisterIns = async (req, res) => {
         await Promise.all([admins.save(), institute.save()]);
         res.status(201).send({ message: "Institute", institute });
         const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
+        if(uInstitute.posts.length >=1){
         uInstitute.posts.forEach(async (ele) => {
           institute.posts.push(ele)
         })
         await institute.save()
+        }
       }
     }
   } catch (e) {
@@ -364,11 +366,13 @@ exports.profileByUser = async (req, res) => {
         res.status(200).send({ message: "Profile Successfully Created...", user });
         const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
         .populate({ path: 'posts' })
+        if(uInstitute.posts.length >=1){
         const post = await Post.find({ _id: { $in: uInstitute.posts }, postVisibility: 'Anyone'})
         post.forEach(async (ele) => {
           user.userPosts.push(ele)
         })
         await user.save()
+        }
         // const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
         // uInstitute.posts.forEach(async (ele) => {
         //   user.userPosts.push(ele)

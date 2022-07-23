@@ -35,7 +35,7 @@ const complaintSchema = new mongoose.Schema({
   },
   complaintInsStatus: {
     type: String,
-    default: "Unsloved",
+    default: "Unsolved",
   },
   institute: {
     type: mongoose.Schema.Types.ObjectId,

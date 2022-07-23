@@ -10,7 +10,7 @@ const SubjectMarks = require("../../models/Marks/SubjectMarks");
 const Behaviour = require("../../models/Behaviour");
 const FinalReport = require("../../models/Marks/FinalReport");
 const StudentNotification = require("../../models/Marks/StudentNotification");
-const invokeFirebaseNotification = require('../../Firebase/firebase')
+const invokeFirebaseNotification = require("../../Firebase/firebase");
 
 exports.getClassMaster = async (req, res) => {
   try {
@@ -114,7 +114,7 @@ exports.createExam = async (req, res) => {
               });
               if (subjectMarks1) {
                 if (exam.examType === "Final") {
-                  const otherWeightage = 0;
+                  let otherWeightage = 0;
                   for (let weihtage of subjectMarks1?.marks) {
                     if (weihtage.examType === "Other") {
                       otherWeightage += weihtage.examWeight;
@@ -172,7 +172,13 @@ exports.createExam = async (req, res) => {
               notify.notifyReceiever = student._id;
               student.notification.push(notify._id);
               notify.notifyByDepartPhoto = department._id;
-              invokeFirebaseNotification('Student Member Activity', notify, student.studentFirstName, student._id, 'token')
+              invokeFirebaseNotification(
+                "Student Member Activity",
+                notify,
+                student.studentFirstName,
+                student._id,
+                "token"
+              );
               await Promise.all([student.save(), notify.save()]);
             }
             subject.exams.push(exam._id);
@@ -520,13 +526,13 @@ exports.oneStudentReportCardClassTeacher = async (req, res) => {
 
           obj.subjectWiseTotal =
             obj.subjectWiseTotal +
-            ((eachmarks.obtainMarks * eachmarks.examWeight) / 100).toFixed(2);
+            (eachmarks.obtainMarks * eachmarks.examWeight) / 100;
         } else {
           obj.finalTotalMarks = eachmarks.totalMarks;
           obj.finalObtainMarks = eachmarks.obtainMarks;
           obj.subjectWiseTotal =
             obj.subjectWiseTotal +
-            ((eachmarks.obtainMarks * eachmarks.examWeight) / 100).toFixed(2);
+            (eachmarks.obtainMarks * eachmarks.examWeight) / 100;
         }
       });
       total.finalTotal = total.finalTotal + obj.finalObtainMarks;
@@ -535,10 +541,8 @@ exports.oneStudentReportCardClassTeacher = async (req, res) => {
       total.allSubjectTotal = total.allSubjectTotal + obj.subjectWiseTotal;
       subjects.push(obj);
     });
-    const totalPercantage = (
-      (total.allSubjectTotal * 100) /
-      (100 * subjects.length)
-    ).toFixed(2);
+    const totalPercantage =
+      (total.allSubjectTotal * 100) / (100 * subjects.length);
 
     res.status(200).send({ subjects, total, totalPercantage });
   } catch (e) {

@@ -159,8 +159,8 @@ const checklistRoute = require("./routes/Checklist/checklistRoute");
 const examRoute = require("./routes/Exam/examRoute");
 const complaintLeaveRoute = require("./routes/ComplaintLeave/complaintLeaveRoute");
 
-// const dburl = `${process.env.DB_URL2}`;
-const dburl = `${process.env.DB_URL}`;
+const dburl = `${process.env.DB_URL2}`;
+// const dburl = `${process.env.DB_URL}`;
 
 // const dburl = `mongodb://127.0.0.1:27017/Erp_app`;
 
@@ -194,7 +194,7 @@ app.use(express.json());
 app.use(
   cors({
     // origin: "http://18.205.27.165",
-    origin: ["http://18.205.27.165", "http://localhost:3000", "https://qviple.com"],
+    origin: ["http://18.205.27.165", "http://localhost:3000"],
     // origin: "http://localhost:3000",
     // origin: "https://qviple.com",
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],

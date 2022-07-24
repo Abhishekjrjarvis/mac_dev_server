@@ -22,10 +22,10 @@ exports.getAllStaff = async(req, res) =>{
         const limit = req.query.limit ? parseInt(req.query.limit) : 10;
         const skip = (page - 1) * limit;
         const staff = await Staff.find({})
-        .select('staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto')
+        .select('staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffStatus')
         .populate({
           path: 'user',
-          select: 'userLegalName photoId profilePhoto'
+          select: 'userLegalName photoId profilePhoto userStatus'
         })
         .limit(limit)
         .skip(skip)
@@ -58,7 +58,7 @@ exports.getAllUser = async(req, res) =>{
         const limit = req.query.limit ? parseInt(req.query.limit) : 10;
         const skip = (page - 1) * limit;
         const user = await User.find({})
-        .select('userLegalName username photoId profilePhoto')
+        .select('userLegalName username photoId profilePhoto userStatus')
         .limit(limit)
         .skip(skip)
         res.status(200).send({ message: "User data", uRandom: user });

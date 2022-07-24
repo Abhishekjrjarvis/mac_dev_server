@@ -264,6 +264,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'Not Granted'
   },
+  ageRestrict: {
+    type: String,
+    default: 'Yes'
+  },
   paymentStatus: {
     type: String,
     default: 'Not Paid'

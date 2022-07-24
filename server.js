@@ -149,6 +149,7 @@ const notifyNew = require("./routes/Notification/push-notification-route");
 const chatNew = require("./routes/Chat/chatRoute");
 const messageNew = require("./routes/Chat/messageRoute");
 const feesNew = require("./routes/Fees/feesRoute");
+const extraNew = require('./routes/Extra/extraRoute')
 
 // =============IMPORT INSTITUTE POST ROUTER====================
 const institutePostRoute = require("./routes/InstituteAdmin/Post/PostRoute");
@@ -307,6 +308,9 @@ app.use("/api/v1/message", messageNew);
 
 // Fees related to Qviple
 app.use("/api/v1/fees", feesNew);
+
+// Extra related to Qviple
+app.use('/api/v1/extra', extraNew)
 
 // Super Admin Routes
 

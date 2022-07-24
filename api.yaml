@@ -414,6 +414,7 @@ paths:
       responses:
         "200":
           description: OK
+  
 
   /api/v1/user/{id}/profile:
     get:
@@ -871,6 +872,25 @@ paths:
         "200":
           description: OK
 
+
+  /api/v1/extra/age/{uid}:
+    patch:
+      tags:
+        - Setting Control API
+      summary: User age restriction, concentration mode -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is user id
+      responses:
+        "200":
+          description: OK
 
   #User Dashboard API
 

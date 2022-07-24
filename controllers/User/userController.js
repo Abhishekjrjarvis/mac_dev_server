@@ -792,7 +792,7 @@ exports.getDashDataQuery = async (req, res) => {
     const { id } = req.params;
     const user = await User.findById({ _id: id })
       .select(
-        "userLegalName username photoId profilephoto userBio userDateOfBirth remindLater "
+        "userLegalName username ageRestrict photoId profilephoto userBio userDateOfBirth remindLater "
       )
       .populate({
         path: "staff",

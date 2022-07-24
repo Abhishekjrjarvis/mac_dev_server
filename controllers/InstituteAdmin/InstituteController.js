@@ -2750,6 +2750,7 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     admins.studentArray.push(student._id);
     admins.studentCount += 1;
     institute.student.pull(sid);
+    institute.studentCount += 1
     if (c_date <= institute.insFreeLastDate) {
       institute.insFreeCredit = institute.insFreeCredit + 1;
     }

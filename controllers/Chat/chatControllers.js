@@ -80,10 +80,10 @@ exports.createGroupChat = async (req, res) => {
     return res.status(400).send({ message: "Please Fill all the feilds" });
   }
 
-  if (req.body.users.length < 2) {
+  if (req.body.users.length < 1) {
     return res
       .status(400)
-      .send("More than 2 users are required to form a group chat");
+      .send("More than 1 users and admin are required to form a group chat");
   }
 
   const userAdmin = await User.findById({ _id: req.body.admin})

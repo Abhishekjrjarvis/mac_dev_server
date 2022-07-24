@@ -156,7 +156,7 @@ exports.getDashOneQuery = async (req, res) => {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName name insAbout photoId status insProfilePhoto financeDetailStatus financeStatus financeDepart unlockAmount accessFeature activateStatus"
+        "insName name insAbout photoId status insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart unlockAmount accessFeature activateStatus"
       )
       .populate({
         path: 'supportChat',
@@ -475,7 +475,7 @@ exports.getUpdatePhone = async (req, res) => {
     const institute = await InstituteAdmin.findById({ _id: id });
     institute.insPhoneNumber = insPhoneNumber;
     await institute.save();
-    res.status(200).send({ message: "Mobile No Updated", institute });
+    res.status(200).send({ message: "Mobile No Updated", status: true });
   } catch (e) {
     console.log(`Error`, e.message);
   }
@@ -2637,7 +2637,7 @@ exports.retrieveRecoveryMailIns = async (req, res) => {
     const institute = await InstituteAdmin.findById({ _id: id });
     institute.recoveryMail = recoveryMail;
     await Promise.all([institute.save()]);
-    res.status(200).send({ message: "Success", mail: institute.recoveryMail });
+    res.status(200).send({ message: "Recovery Mail updated", mail: institute.recoveryMail, status: true });
   } catch {}
 };
 

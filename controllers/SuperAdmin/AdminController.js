@@ -426,7 +426,8 @@ exports.verifyInstituteBankDetail = async(req, res) =>{
     var admin = await Admin.findById({_id: aid})
     var regExp = "^[A-Z]{4}[0][A-Z0-9]{6}$"
     var institute = await InstituteAdmin.findById({_id: id})
-    if(institute.bankAccountNumber.length >=9 && institute.bankIfscCode.length >=1 && institute.bankIfscCode.match(regExp)){
+    // && institute.bankIfscCode.match(regExp)
+    if(institute.bankAccountNumber.length >=9 && institute.bankIfscCode.length >=1 && institute.paymentBankStatus === 'verification in progress'){
       institute.paymentBankStatus = 'verified'
       const notify = new Notification({})
       notify.notifyContent = ` ${institute.insName} congrats for payment bank verification was successfull`
@@ -436,14 +437,10 @@ exports.verifyInstituteBankDetail = async(req, res) =>{
       notify.notifyPid = "1";
       notify.notifyBySuperAdminPhoto = "https://qviple.com/images/newLogo.svg"
       await Promise.all([ institute.save(), notify.save()])
-      res.status(200).send({ message: 'Verification Done' })
+      res.status(200).send({ message: 'Verification Done', status: true })
     }
-    else if(institute.paymentBankStatus === 'Verified'){
+    else if(institute.paymentBankStatus === 'verified'){
       institute.paymentBankStatus === 'Not Verified'
-      await institute.save()
-    }
-    else{
-      institute.paymentBankStatus = 'Not Verified'
       const notify = new Notification({})
       notify.notifyContent = ` ${institute.insName} your payment bank verification was unsuccessfull due to Incorrect Bank Data`
       notify.notifySender = admin._id;
@@ -452,7 +449,21 @@ exports.verifyInstituteBankDetail = async(req, res) =>{
       notify.notifyPid = "1";
       notify.notifyBySuperAdminPhoto = "https://qviple.com/images/newLogo.svg"
       await Promise.all([ institute.save(), notify.save()])
-      res.status(422).send({ message: 'Invalid Payment Bank Credentials', status: true })
+      res.status(200).send({ message: 'Invalid Payment Bank Credentials', status: true })
+    }
+    else if(institute.paymentBankStatus === 'Not Verified'){
+      institute.paymentBankStatus === 'verified'
+      const notify = new Notification({})
+      notify.notifyContent = ` ${institute.insName} your payment bank verification was unsuccessfull due to Incorrect Bank Data`
+      notify.notifySender = admin._id;
+      notify.notifyReceiever = institute._id;
+      institute.iNotify.push(notify._id);
+      notify.notifyPid = "1";
+      notify.notifyBySuperAdminPhoto = "https://qviple.com/images/newLogo.svg"
+      await Promise.all([ institute.save(), notify.save()])
+      res.status(200).send({ message: 'Invalid Payment Bank Credentials', status: true })
+    }
+    else{
     }
   }
   catch(e){

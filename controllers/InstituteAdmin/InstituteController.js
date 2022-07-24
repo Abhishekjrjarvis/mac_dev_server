@@ -1763,6 +1763,10 @@ exports.retrieveDepartmentList = async (req, res) => {
 exports.getOneDepartment = async (req, res) => {
   try {
     const { did } = req.params;
+    if(did === 'undefined'){
+
+    }
+    else{
     const department = await Department.findById({ _id: did })
       .select(
         "dName dAbout dTitle dEmail staffCount studentCount classCount dPhoneNumber photoId photo dSpeaker dVicePrinciple dAdminClerk dOperatingAdmin dStudentPresident"
@@ -1804,8 +1808,9 @@ exports.getOneDepartment = async (req, res) => {
     } else {
       res.status(404).send({ message: "Failure" });
     }
+    } 
   } catch (e) {
-    console.log(e);
+    console.log(e)
   }
 };
 

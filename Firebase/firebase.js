@@ -21,7 +21,7 @@ const invokeFirebaseNotification = (type, info, title, id, token) => {
         sound: "default"
       },
     }
-    var options = {
+    const options = {
       priority: "high",
       timeToLive: 60 * 60 * 24
     }; 
@@ -48,7 +48,7 @@ const invokeFirebaseNotification = (type, info, title, id, token) => {
           sound: "default", 
         },
       }
-      var options = {
+      const options = {
         priority: "high",
         timeToLive: 60 * 60 * 24
       }; 
@@ -75,7 +75,7 @@ const invokeFirebaseNotification = (type, info, title, id, token) => {
           sound: 'default'
         }
       }
-      var options = {
+      const options = {
         priority: "high",
         timeToLive: 60 * 60 * 24
       }; 
@@ -102,7 +102,7 @@ const invokeFirebaseNotification = (type, info, title, id, token) => {
           sound: 'default'
         }
       }
-      var options = {
+      const options = {
         priority: "high",
         timeToLive: 60 * 60 * 24
       }; 
@@ -129,7 +129,7 @@ const invokeFirebaseNotification = (type, info, title, id, token) => {
           sound: 'default'
         }
       }
-      var options = {
+      const options = {
         priority: "high",
         timeToLive: 60 * 60 * 24
       }; 
@@ -156,7 +156,7 @@ const invokeFirebaseNotification = (type, info, title, id, token) => {
           sound: 'default'
         }
       }
-      var options = {
+      const options = {
         priority: "high",
         timeToLive: 60 * 60 * 24
       }; 
@@ -182,7 +182,7 @@ const invokeFirebaseNotification = (type, info, title, id, token) => {
         sound: 'default'
       }
     }
-    var options = {
+    const options = {
       priority: "high",
       timeToLive: 60 * 60 * 24
     }; 
@@ -208,7 +208,7 @@ const invokeFirebaseNotification = (type, info, title, id, token) => {
         sound: 'default'
       }
     }
-    var options = {
+    const options = {
       priority: "high",
       timeToLive: 60 * 60 * 24
     }; 

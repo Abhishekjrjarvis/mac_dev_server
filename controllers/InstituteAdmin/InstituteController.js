@@ -844,13 +844,13 @@ exports.updateApproveStaff = async (req, res) => {
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByStaffPhoto = staffs._id;
-    invokeFirebaseNotification(
-      "Staff Approval",
-      notify,
-      institute.insName,
-      user._id,
-      user.deviceToken
-    );
+    // invokeFirebaseNotification(
+    //   "Staff Approval",
+    //   notify,
+    //   institute.insName,
+    //   user._id,
+    //   user.deviceToken
+    // );
     await Promise.all([
       staffs.save(),
       institute.save(),
@@ -938,13 +938,13 @@ exports.getNewDepartment = async (req, res) => {
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByInsPhoto = institute._id;
-    invokeFirebaseNotification(
-      "Designation Allocation",
-      notify,
-      institute.insName,
-      user._id,
-      user.deviceToken
-    );
+    // invokeFirebaseNotification(
+    //   "Designation Allocation",
+    //   notify,
+    //   institute.insName,
+    //   user._id,
+    //   user.deviceToken
+    // );
     await Promise.all([
       institute.save(),
       staff.save(),
@@ -1919,13 +1919,13 @@ exports.retrieveNewClass = async (req, res) => {
       user.uNotify.push(notify._id);
       notify.user = user._id;
       notify.notifyByInsPhoto = institute._id;
-      invokeFirebaseNotification(
-        "Designation Allocation",
-        notify,
-        institute.insName,
-        user._id,
-        user.deviceToken
-      );
+      // invokeFirebaseNotification(
+      //   "Designation Allocation",
+      //   notify,
+      //   institute.insName,
+      //   user._id,
+      //   user.deviceToken
+      // );
       await Promise.all([
         institute.save(),
         batch.save(),
@@ -1999,13 +1999,13 @@ exports.retrieveNewSubject = async (req, res) => {
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByInsPhoto = institute._id;
-    invokeFirebaseNotification(
-      "Designation Allocation",
-      notify,
-      depart.dName,
-      user._id,
-      user.deviceToken
-    );
+    // invokeFirebaseNotification(
+    //   "Designation Allocation",
+    //   notify,
+    //   depart.dName,
+    //   user._id,
+    //   user.deviceToken
+    // );
     await Promise.all([
       subjectMaster.save(),
       classes.save(),
@@ -2783,13 +2783,13 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByStudentPhoto = student._id;
-    invokeFirebaseNotification(
-      "Student Approval",
-      notify,
-      institute.insName,
-      user._id,
-      user.deviceToken
-    );
+    // invokeFirebaseNotification(
+    //   "Student Approval",
+    //   notify,
+    //   institute.insName,
+    //   user._id,
+    //   user.deviceToken
+    // );
     await Promise.all([
       admins.save(),
       classes.save(),

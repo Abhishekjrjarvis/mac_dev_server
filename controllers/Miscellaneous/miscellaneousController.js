@@ -27,6 +27,10 @@ exports.getAllStaff = async(req, res) =>{
           path: 'user',
           select: 'userLegalName photoId profilePhoto userStatus'
         })
+        .populate({
+          path: 'institute',
+          select: 'insName name photoId insProfilePhoto'
+        })
         .limit(limit)
         .skip(skip)
 

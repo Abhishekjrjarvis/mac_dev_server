@@ -311,6 +311,10 @@ const instituteAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  financeDetailStatus: {
+    type: String,
+    default: 'Not Added'
+  },
   announcementCount: {
     type: Number,
     default: 0,

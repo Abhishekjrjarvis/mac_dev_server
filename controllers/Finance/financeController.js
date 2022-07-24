@@ -66,6 +66,7 @@ exports.uploadBankDetail = async(req, res) =>{
         institute.GSTInfo = GSTInfo
         institute.businessName = businessName
         institute.businessAddress = businessAddress
+        institute.financeDetailStatus = 'Added'
         institute.bankAccountType = bankAccountType
         notify.notifyContent = ` ${institute.insName} Institute payment Details updated Check and Verify `
         notify.notifySender = institute._id;
@@ -90,6 +91,7 @@ exports.removeBankDetail = async(req, res) =>{
         institute.GSTInfo = ""
         institute.businessName = ""
         institute.businessAddress = ""
+        institute.financeDetailStatus = 'Not Added'
         institute.paymentBankStatus = 'payment Details are mandatory for Finance Department'
         await Promise.all([ institute.save() ]);
         res.status(200).send({ message: "Bank Details Removed" });

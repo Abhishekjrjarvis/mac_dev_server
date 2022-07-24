@@ -849,7 +849,7 @@ exports.updateApproveStaff = async (req, res) => {
       notify,
       institute.insName,
       user._id,
-      "token"
+      user.deviceToken
     );
     await Promise.all([
       staffs.save(),
@@ -943,7 +943,7 @@ exports.getNewDepartment = async (req, res) => {
       notify,
       institute.insName,
       user._id,
-      "token"
+      user.deviceToken
     );
     await Promise.all([
       institute.save(),
@@ -1919,7 +1919,7 @@ exports.retrieveNewClass = async (req, res) => {
         notify,
         institute.insName,
         user._id,
-        "token"
+        user.deviceToken
       );
       await Promise.all([
         institute.save(),
@@ -1999,7 +1999,7 @@ exports.retrieveNewSubject = async (req, res) => {
       notify,
       depart.dName,
       user._id,
-      "token"
+      user.deviceToken
     );
     await Promise.all([
       subjectMaster.save(),
@@ -2782,7 +2782,7 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
       notify,
       institute.insName,
       user._id,
-      "token"
+      user.deviceToken
     );
     await Promise.all([
       admins.save(),

@@ -312,7 +312,7 @@ exports.getApproveIns = async(req, res) =>{
         admin.requestInstituteCount -= 1
         admin.instituteList.pull(id);
         institute.status = "Approved";
-        institute.unlockAmount = charges
+        institute.unlockAmount = charges == null ? 1000 : charges
         if(user){
           user.userCommision += (charges * 40) / 100
         }

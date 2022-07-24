@@ -122,13 +122,13 @@ exports.markAttendenceClassStudent = async (req, res) => {
           student.notification.push(notify._id);
           student.attendDate.push(attendence._id);
           attendence.presentStudent.push(student._id);
-          invokeFirebaseNotification(
-            "Student Member Activity",
-            notify,
-            student.studentFirstName,
-            student._id,
-            "token"
-          );
+          // invokeFirebaseNotification(
+          //   "Student Member Activity",
+          //   notify,
+          //   student.studentFirstName,
+          //   student._id,
+          //   "token"
+          // );
           await Promise.all([student.save(), notify.save()]);
         }
 
@@ -144,7 +144,7 @@ exports.markAttendenceClassStudent = async (req, res) => {
           student.notification.push(notify._id);
           student.attendDate.push(attendence._id);
           attendence.absentStudent.push(student._id);
-          invokeFirebaseNotification('Student Member Activity', notify, student.studentFirstName, student._id, 'token')
+          // invokeFirebaseNotification('Student Member Activity', notify, student.studentFirstName, student._id, 'token')
           await Promise.all([student.save(), notify.save()]);
         }
         classes.attendenceDate.push(attendence._id);
@@ -349,7 +349,7 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
             _id: `${req.body.present[i]}`,
           }).populate({
             path: "user",
-            select: "_id uNotify userLegalName",
+            select: "_id uNotify userLegalName deviceToken",
           });
           staff.attendDates.push(staffAttendence._id);
           const notify = new Notification({});
@@ -366,7 +366,7 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
             notify,
             staff.user.userLegalName,
             staff.user._id,
-            "token"
+            staff.user.deviceToken
           );
           await Promise.all([
             staff.save(),
@@ -381,7 +381,7 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
             _id: `${req.body.absent[i]}`,
           }).populate({
             path: "user",
-            select: "_id uNotify userLegalName",
+            select: "_id uNotify userLegalName deviceToken",
           });
           staff.attendDates.push(staffAttendence._id);
           staffAttendence.absentStaff.push(staff._id);
@@ -393,7 +393,7 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
           notify.user = staff.user._id;
           notify.notifyByInsPhoto = id;
           staffAttendence.absentTotal = req.body.absent.length;
-          // invokeFirebaseNotification('Staff Member Activity', notify, staff.user.userLegalName, staff.user._id, 'token')
+          invokeFirebaseNotification('Staff Member Activity', notify, staff.user.userLegalName, staff.user._id, staff.user.deviceToken)
           await Promise.all([
             staff.save(),
             staffAttendence.save(),

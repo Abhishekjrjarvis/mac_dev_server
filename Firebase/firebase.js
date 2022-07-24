@@ -3,8 +3,7 @@ var serviceAccount = require("./qviple-user-firebase-adminsdk-4qvna-aca6cd00fb.j
 
 const invokeFirebaseNotification = (type, info, title, id, token) => {
   if(type === 'Followers'){
-    // const firebaseToken = `${token && token}`
-    const firebaseToken = 'dw1cCrq5Q0SCd7PKpEpq36:APA91bFaJQmGZnBIhJADz0bevYG4Tm8OXVuGSLoGUXB4Z73c9cpd3d2ciPUkIO7NDSDlTQl7GgJPLIl9yqVnDlWVZu85cAN1mKj6IvEKFlwOiMbieMRbwDvtZS1i5JjCxYJ8PadAyZRB'
+    const firebaseToken = `${token && token}`
 
     firebase.initializeApp({
       credential: firebase.credential.cert(serviceAccount)
@@ -30,8 +29,8 @@ const invokeFirebaseNotification = (type, info, title, id, token) => {
     firebase.messaging().sendToDevice(firebaseToken, payload, options)
   }
   else if(type === 'Circle'){
-      // const firebaseToken = `${token && token}`
-      const firebaseToken = 'dw1cCrq5Q0SCd7PKpEpq36:APA91bFaJQmGZnBIhJADz0bevYG4Tm8OXVuGSLoGUXB4Z73c9cpd3d2ciPUkIO7NDSDlTQl7GgJPLIl9yqVnDlWVZu85cAN1mKj6IvEKFlwOiMbieMRbwDvtZS1i5JjCxYJ8PadAyZRB'
+      const firebaseToken = `${token && token}`
+
   
       firebase.initializeApp({
         credential: firebase.credential.cert(serviceAccount)
@@ -57,8 +56,8 @@ const invokeFirebaseNotification = (type, info, title, id, token) => {
       firebase.messaging().sendToDevice(firebaseToken, payload, options)
   }
   else if(type === 'Staff Approval'){
-      // const firebaseToken = `${token && token}`
-      const firebaseToken = 'dw1cCrq5Q0SCd7PKpEpq36:APA91bFaJQmGZnBIhJADz0bevYG4Tm8OXVuGSLoGUXB4Z73c9cpd3d2ciPUkIO7NDSDlTQl7GgJPLIl9yqVnDlWVZu85cAN1mKj6IvEKFlwOiMbieMRbwDvtZS1i5JjCxYJ8PadAyZRB'
+      const firebaseToken = `${token && token}`
+
   
       firebase.initializeApp({
         credential: firebase.credential.cert(serviceAccount)
@@ -84,8 +83,8 @@ const invokeFirebaseNotification = (type, info, title, id, token) => {
       firebase.messaging().sendToDevice(firebaseToken, payload, options)
   }
   else if(type === 'Student Approval'){
-      // const firebaseToken = `${token && token}`
-      const firebaseToken = 'dw1cCrq5Q0SCd7PKpEpq36:APA91bFaJQmGZnBIhJADz0bevYG4Tm8OXVuGSLoGUXB4Z73c9cpd3d2ciPUkIO7NDSDlTQl7GgJPLIl9yqVnDlWVZu85cAN1mKj6IvEKFlwOiMbieMRbwDvtZS1i5JjCxYJ8PadAyZRB'
+      const firebaseToken = `${token && token}`
+
   
       firebase.initializeApp({
         credential: firebase.credential.cert(serviceAccount)
@@ -111,8 +110,8 @@ const invokeFirebaseNotification = (type, info, title, id, token) => {
       firebase.messaging().sendToDevice(firebaseToken, payload, options)
   }
   else if(type === 'Designation Allocation'){
-      // const firebaseToken = `${token && token}`
-      const firebaseToken = 'dw1cCrq5Q0SCd7PKpEpq36:APA91bFaJQmGZnBIhJADz0bevYG4Tm8OXVuGSLoGUXB4Z73c9cpd3d2ciPUkIO7NDSDlTQl7GgJPLIl9yqVnDlWVZu85cAN1mKj6IvEKFlwOiMbieMRbwDvtZS1i5JjCxYJ8PadAyZRB'
+      const firebaseToken = `${token && token}`
+
   
       firebase.initializeApp({
         credential: firebase.credential.cert(serviceAccount)
@@ -138,8 +137,8 @@ const invokeFirebaseNotification = (type, info, title, id, token) => {
       firebase.messaging().sendToDevice(firebaseToken, payload, options)
   }
   else if(type === 'Announcement'){
-      // const firebaseToken = `${token && token}`
-      const firebaseToken = 'dw1cCrq5Q0SCd7PKpEpq36:APA91bFaJQmGZnBIhJADz0bevYG4Tm8OXVuGSLoGUXB4Z73c9cpd3d2ciPUkIO7NDSDlTQl7GgJPLIl9yqVnDlWVZu85cAN1mKj6IvEKFlwOiMbieMRbwDvtZS1i5JjCxYJ8PadAyZRB'
+      const firebaseToken = `${token && token}`
+
   
       firebase.initializeApp({
         credential: firebase.credential.cert(serviceAccount)
@@ -165,8 +164,7 @@ const invokeFirebaseNotification = (type, info, title, id, token) => {
       firebase.messaging().sendToDevice(firebaseToken, payload, options)
   }
   else if(type === 'Student Member Activity'){
-    // const firebaseToken = `${token && token}`
-    const firebaseToken = 'dw1cCrq5Q0SCd7PKpEpq36:APA91bFaJQmGZnBIhJADz0bevYG4Tm8OXVuGSLoGUXB4Z73c9cpd3d2ciPUkIO7NDSDlTQl7GgJPLIl9yqVnDlWVZu85cAN1mKj6IvEKFlwOiMbieMRbwDvtZS1i5JjCxYJ8PadAyZRB'
+    const firebaseToken = `${token && token}`
 
     firebase.initializeApp({
       credential: firebase.credential.cert(serviceAccount)
@@ -192,8 +190,7 @@ const invokeFirebaseNotification = (type, info, title, id, token) => {
     firebase.messaging().sendToDevice(firebaseToken, payload, options)
   }
   else if(type === 'Staff Member Activity'){
-    // const firebaseToken = `${token && token}`
-    const firebaseToken = 'dw1cCrq5Q0SCd7PKpEpq36:APA91bFaJQmGZnBIhJADz0bevYG4Tm8OXVuGSLoGUXB4Z73c9cpd3d2ciPUkIO7NDSDlTQl7GgJPLIl9yqVnDlWVZu85cAN1mKj6IvEKFlwOiMbieMRbwDvtZS1i5JjCxYJ8PadAyZRB'
+    const firebaseToken = `${token && token}`
 
     firebase.initializeApp({
       credential: firebase.credential.cert(serviceAccount)

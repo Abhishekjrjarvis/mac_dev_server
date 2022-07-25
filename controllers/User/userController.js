@@ -662,23 +662,23 @@ exports.getNotifications = async (req, res) => {
     const notify = await Notification.find({ _id: { $in: user.uNotify }})
     .populate({
       path: "notifyByInsPhoto",
-      select: 'photoId insProfilePhoto'
+      select: 'photoId insProfilePhoto name insName'
     })
     .populate({
       path: "notifyByPhoto",
-      select: 'photoId profilePhoto'
+      select: 'photoId profilePhoto username userLegalName'
     })
     .populate({
       path: "notifyByStaffPhoto",
-      select: 'photoId staffProfilePhoto'
+      select: 'photoId staffProfilePhoto staffFirstName staffMiddleName staffLastName'
     })
     .populate({
       path: "notifyByStudentPhoto",
-      select: 'photoId studentProfilePhoto'
+      select: 'photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName'
     })
     .populate({
       path: "notifyByDepartPhoto",
-      select: 'photoId photo'
+      select: 'photoId photo dName'
     })
     .sort("-notifyTime")
     .limit(limit)

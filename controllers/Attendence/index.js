@@ -144,7 +144,13 @@ exports.markAttendenceClassStudent = async (req, res) => {
           student.notification.push(notify._id);
           student.attendDate.push(attendence._id);
           attendence.absentStudent.push(student._id);
-          invokeFirebaseNotification('Student Member Activity', notify, student.studentFirstName, student._id, 'token')
+          invokeFirebaseNotification(
+            "Student Member Activity",
+            notify,
+            student.studentFirstName,
+            student._id,
+            "token"
+          );
           await Promise.all([student.save(), notify.save()]);
         }
         classes.attendenceDate.push(attendence._id);
@@ -265,7 +271,7 @@ exports.getAttendStudentById = async (req, res) => {
         path: "leave",
         match: {
           date: { $regex: regularexp },
-          status: { $eq: "Accepetd" },
+          status: { $eq: "Accepted" },
         },
         select: "date",
       });

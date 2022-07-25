@@ -543,7 +543,7 @@ exports.retreiveAllProfilePosts = async (req, res) => {
         path: "tagPeople",
         select: "userLegalName username photoId profilePhoto",
       });
-    if(institute.posts.length >=1 ){
+    if(institute && institute.posts.length >=1 ){
     const postCount = await Post.find({ _id: { $in: institute.posts } });
     if (page * limit >= postCount.length) {
     } else {

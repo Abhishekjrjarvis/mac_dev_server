@@ -60,19 +60,6 @@ exports.retrieveFIAnnouncement = async (req, res) => {
         populate: {
           path: "announcement",
           select:
-            "insAnnPhoto insAnnDescription insAnnTitle insAnnVisibility createdAt",
-          populate: {
-            path: 'reply',
-            select: 'replyText createdAt replyAuthorAsUser replyAuthorAsIns'
-          }
-        },
-        select: "id",
-      })
-      .populate({
-        path: "userInstituteFollowing",
-        populate: {
-          path: "announcement",
-          select:
             "insAnnPhoto insAnnDescription insAnnTitle insAnnVisibility createdAt starList",
           populate: {
             path: 'institute',
@@ -792,13 +779,8 @@ exports.getDashDataQuery = async (req, res) => {
     const { id } = req.params;
     const user = await User.findById({ _id: id })
       .select(
-        "userLegalName username ageRestrict photoId profilephoto userBio userDateOfBirth remindLater "
+        "userLegalName username ageRestrict photoId profilephoto "
       )
-      .populate({
-        path: "staff",
-        select:
-          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
-      })
       .lean()
       .exec();
     if (user) {

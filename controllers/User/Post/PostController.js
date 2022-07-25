@@ -275,6 +275,7 @@ exports.retrieveAllUserPosts = async(req, res) =>{
     .populate({
       path: 'userPosts',
     })
+    if(user && user.userPosts.length >=1){
     const post = await Post.find({
       _id: { $in: user.userPosts },
     })
@@ -286,7 +287,6 @@ exports.retrieveAllUserPosts = async(req, res) =>{
       path: 'tagPeople',
       select: 'userLegalName username photoId profilePhoto'
     })
-    if(user && user.userPosts.length >=1){
     const postCount = await Post.find({_id: { $in: user.userPosts }})
     if(page * limit >= postCount.length){
     }
@@ -312,6 +312,7 @@ exports.retrieveAllUserProfilePosts = async(req, res) =>{
     .populate({
       path: 'userPosts',
     })
+    if(user && user.userPosts.length >=1){
     const post = await Post.find({author: id})
     .sort("-createdAt")
     .limit(limit)
@@ -321,7 +322,6 @@ exports.retrieveAllUserProfilePosts = async(req, res) =>{
         path: 'tagPeople',
         select: 'userLegalName username photoId profilePhoto'
     })
-    if(user && user.userPosts.length >= 1){
     const postCount = await Post.find({_id: { $in: user.userPosts }})
     if(page * limit >= postCount.length){
     }

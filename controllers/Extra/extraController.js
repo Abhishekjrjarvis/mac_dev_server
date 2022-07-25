@@ -1,5 +1,5 @@
 const User = require('../../models/User')
-
+const InstituteAdmin = require('../../models/InstituteAdmin')
 
 exports.validateUserAge = async(req, res) =>{
     try{
@@ -40,6 +40,21 @@ exports.validateUserAge = async(req, res) =>{
             res.status(200).send({ message: 'Age Restriction Enabled', restrict: user.ageRestrict})
         }
         
+    }
+    catch(e){
+        console.log(e)
+    }
+}
+
+
+
+exports.retrieveRandomInstituteQuery = async(req, res) => {
+    try{
+        const institute = await InstituteAdmin.find({})
+        .select('insName name photoId insProfilePhoto status')
+        var random = Math.floor(Math.random() * institute.length)
+        var r_Ins = institute[random]
+        res.status(200).send({ message: 'Random Institute', r_Ins})
     }
     catch(e){
         console.log(e)

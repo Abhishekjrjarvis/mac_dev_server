@@ -781,6 +781,18 @@ exports.getDashDataQuery = async (req, res) => {
       .select(
         "userLegalName username ageRestrict photoId profilePhoto "
       )
+      .populate({
+        path: 'supportChat',
+        populate: {
+          path: 'latestMessage'
+        }
+      })
+      .populate({
+        path: 'supportChat',
+        populate: {
+          path: 'message'
+        }
+      })
       .lean()
       .exec();
     if (user) {

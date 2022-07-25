@@ -366,7 +366,7 @@ exports.profileByUser = async (req, res) => {
         res.status(200).send({ message: "Profile Successfully Created...", user });
         const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
         .populate({ path: 'posts' })
-        if(uInstitute.posts.length >=1){
+        if(uInstitute && uInstitute.posts && uInstitute.posts.length >=1){
         const post = await Post.find({ _id: { $in: uInstitute.posts }, postVisibility: 'Anyone'})
         post.forEach(async (ele) => {
           user.userPosts.push(ele)

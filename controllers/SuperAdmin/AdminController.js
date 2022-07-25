@@ -300,6 +300,7 @@ exports.getAll = async(req, res) =>{
 
 
 exports.getApproveIns = async(req, res) =>{
+  console.log(req.params, req.body)
     try {
         const { aid, id } = req.params;
         const { charges } = req.body

@@ -779,7 +779,7 @@ exports.getDashDataQuery = async (req, res) => {
     const { id } = req.params;
     const user = await User.findById({ _id: id })
       .select(
-        "userLegalName username ageRestrict photoId profilephoto "
+        "userLegalName username ageRestrict photoId profilePhoto "
       )
       .lean()
       .exec();

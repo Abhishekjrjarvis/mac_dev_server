@@ -306,6 +306,7 @@ exports.getApproveIns = async(req, res) =>{
         const { charges } = req.body
         const admin = await Admin.findById({ _id: aid });
         const institute = await InstituteAdmin.findById({ _id: id });
+        console.log(institute.initialReferral)
         const user = await User.findOne({ _id: `${institute.initialReferral}`})
         const notify = await new Notification({});
         admin.ApproveInstitute.push(institute._id);

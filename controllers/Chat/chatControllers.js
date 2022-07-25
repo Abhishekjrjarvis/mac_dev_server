@@ -37,6 +37,11 @@ exports.accessChat = async (req, res) => {
 
     try {
       const createdChat = await Chat.create(chatData);
+      const user_1 = await User.findById({_id: userId})
+      const user_2 = await User.findById({_id: req.tokenData && req.tokenData.userId})
+      user_1.recentChat.push(createdChat._id)
+      user_2.recentChat.push(createdChat._id)
+      await Promise.all([ user_1.save(), user_2.save()])
       const FullChat = await Chat.findOne({ _id: createdChat._id }).populate(
         "users",
         "username photoId profilePhoto"

@@ -316,7 +316,11 @@ exports.getApproveIns = async(req, res) =>{
         admin.requestInstituteCount -= 1
         admin.instituteList.pull(id);
         institute.status = "Approved";
-        institute.unlockAmount = charges == null ? 1000 : charges
+        institute.unlockAmount = charges == null ? 1000 : charges 
+        if(charges == 0){
+        institute.activateStatus = 'Activated'
+        institute.accessFeature = 'UnLocked'
+        }
         notify.notifyContent = "Approval For Super Admin is successfull";
         notify.notifySender = aid;
         notify.notifyReceiever = id;

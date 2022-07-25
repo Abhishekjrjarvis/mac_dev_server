@@ -36,6 +36,7 @@ exports.postWithText = async (req, res) => {
     post.authorUserName = user.username
     post.authorPhotoId = user.photoId
     post.authorProfilePhoto = user.profilePhoto
+    post.isUser = 'user'
     await Promise.all([user.save(), post.save()]);
     res.status(201).send({ message: "post is create" });
     if(user.userFollowers.length >= 1){
@@ -85,6 +86,7 @@ exports.postWithImage = async (req, res) => {
     post.authorUserName = user.username
     post.authorPhotoId = user.photoId
     post.authorProfilePhoto = user.profilePhoto
+    post.isUser = 'user'
     await Promise.all([user.save(), post.save()]);
     res.status(201).send({ message: "post is create" });
     if(user.userFollowers.length >= 1){
@@ -132,6 +134,7 @@ exports.postWithVideo = async (req, res) => {
     post.authorUserName = user.username
     post.authorPhotoId = user.photoId
     post.authorProfilePhoto = user.profilePhoto
+    post.isUser = 'user'
     await Promise.all([user.save(), post.save()]);
     await unlinkFile(file.path);
     res.status(201).send({ message: "post created" });

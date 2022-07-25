@@ -20,6 +20,12 @@ const postSchema = new mongoose.Schema({
     type: String,
     default: "Anyone",
   },
+  isUser: {
+    type: String,
+  },
+  isInstitute: {
+    type: String
+  },
   tagPeople: [
     {
       type: mongoose.Schema.Types.ObjectId,

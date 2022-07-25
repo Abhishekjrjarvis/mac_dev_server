@@ -37,6 +37,10 @@ const complaintSchema = new mongoose.Schema({
     type: String,
     default: "Unsolved",
   },
+  reportAdmin: {
+    type: String,
+    default: "No",
+  },
   institute: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteAdmin",

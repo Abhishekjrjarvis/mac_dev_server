@@ -279,7 +279,7 @@ exports.OneComplaint = async (req, res) => {
   try {
     const complaint = await Complaint.findById(req.params.cid)
       .select(
-        "complaintType complaintTo complaintContent complaintStatus createdAt"
+        "complaintType complaintTo complaintContent complaintStatus reportAdmin createdAt"
       )
       .populate({
         path: "student",
@@ -294,14 +294,16 @@ exports.OneComplaint = async (req, res) => {
 exports.OneComplaintReportAdmin = async (req, res) => {
   try {
     const complaint = await Complaint.findById(req.params.cid).select(
-      "complaintInsStatus institute"
+      "complaintInsStatus reportAdmin institute"
     );
-    if (complaint.complaintInsStatus === "Unsloved") {
+    if (complaint.reportAdmin === "No") {
       const institute = await InstituteAdmin.findById(
         complaint.institute
       ).select("studentComplaints");
       institute.studentComplaints.push(complaint._id);
+      complaint.reportAdmin = "Yes";
       await institute.save();
+      await complaint.save();
     }
     res.status(201).send({ message: "Complaints to the Admin" });
   } catch (e) {

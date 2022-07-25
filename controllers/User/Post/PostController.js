@@ -286,6 +286,7 @@ exports.retrieveAllUserPosts = async(req, res) =>{
       path: 'tagPeople',
       select: 'userLegalName username photoId profilePhoto'
     })
+    if(user && user.userPosts.length >=1){
     const postCount = await Post.find({_id: { $in: user.userPosts }})
     if(page * limit >= postCount.length){
     }
@@ -293,6 +294,7 @@ exports.retrieveAllUserPosts = async(req, res) =>{
       var totalPage = page + 1
     }
     res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage, });
+    }
   } catch(e) {
     console.log(e)
   }
@@ -319,6 +321,7 @@ exports.retrieveAllUserProfilePosts = async(req, res) =>{
         path: 'tagPeople',
         select: 'userLegalName username photoId profilePhoto'
     })
+    if(user && user.userPosts.length >= 1){
     const postCount = await Post.find({_id: { $in: user.userPosts }})
     if(page * limit >= postCount.length){
     }
@@ -326,6 +329,7 @@ exports.retrieveAllUserProfilePosts = async(req, res) =>{
       var totalPage = page + 1
     }
     res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage, });
+    }
   } catch(e) {
     console.log(e)
   }

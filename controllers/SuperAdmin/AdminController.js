@@ -307,9 +307,8 @@ exports.getApproveIns = async(req, res) =>{
         const institute = await InstituteAdmin.findById({ _id: id });
         if(institute.initialReferral){
         var user = await User.findOne({ _id: `${institute.initialReferral}`})
-        user.userCommision += (charges * 40) / 100
+        user.userCommission += (charges * 40) / 100
         await user.save()
-        console.log(user.userCommision)
         }
         const notify = await new Notification({});
         admin.ApproveInstitute.push(institute._id);
@@ -324,7 +323,6 @@ exports.getApproveIns = async(req, res) =>{
         institute.iNotify.push(notify._id);
         notify.institute = institute._id;
         notify.notifyBySuperAdminPhoto = "https://qviple.com/static/media/Mithkal_icon.043e3412.png";
-        console.log(institute.unlockAmount)
         await Promise.all([
            institute.save(),
            notify.save(),

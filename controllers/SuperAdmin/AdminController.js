@@ -308,6 +308,7 @@ exports.getApproveIns = async(req, res) =>{
         if(institute.initialReferral){
         var user = await User.findOne({ _id: `${institute.initialReferral}`})
         user.userCommision += (charges * 40) / 100
+        await user.save()
         console.log(user.userCommision)
         }
         const notify = await new Notification({});
@@ -327,8 +328,7 @@ exports.getApproveIns = async(req, res) =>{
         await Promise.all([
            institute.save(),
            notify.save(),
-           admin.save(),
-           user.save()
+           admin.save()
         ])
         res.status(200).send({
           message: `Congrats for Approval ${institute.insName}`,

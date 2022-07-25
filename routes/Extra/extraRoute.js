@@ -7,5 +7,7 @@ router.patch('/age/:uid', catchAsync(Extra.validateUserAge))
 
 router.get('/random/query', catchAsync(Extra.retrieveRandomInstituteQuery))
 
+router.get('/:uid/referral', catchAsync(Extra.retrieveReferralQuery))
+
 
 module.exports = router

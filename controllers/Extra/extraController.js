@@ -60,3 +60,22 @@ exports.retrieveRandomInstituteQuery = async(req, res) => {
         console.log(e)
     }
 }
+
+exports.retrieveReferralQuery = async(req, res) => {
+    try{
+      const { uid } = req.params
+      const user = await User.findById({_id: uid})
+      .select('id userCommission userEarned')
+      .populate({
+        path: 'referralArray',
+        populate: {
+          path: 'referralBy',
+          select: 'unlockAmount activateStatus insName name'
+        }
+      })
+      res.status(200).send({ message: 'Referral', user})
+    }
+    catch{
+  
+    }
+  }

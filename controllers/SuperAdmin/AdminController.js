@@ -531,6 +531,7 @@ exports.retrieveReferralUserPayment = async(req, res) => {
     const user = await User.findById({_id: uid})
     admin.featureAmount -= amount
     user.userCommission -= amount
+    user.userEarned += amount
     if(user.userCommission === 0){
       user.paymentStatus = 'Paid'
     }

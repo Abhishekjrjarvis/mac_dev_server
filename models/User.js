@@ -260,6 +260,10 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  userEarned: {
+    type: Number,
+    default: 0
+  },
   referralStatus: {
     type: String,
     default: 'Not Granted'

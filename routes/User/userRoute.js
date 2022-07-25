@@ -275,4 +275,6 @@ router.get("/:uid/circle/array/query", catchAsync(User.circleArrayQuery));
 
 router.get('/circle/user', isLoggedIn, catchAsync(User.allCircleUsers));
 
+
+
 module.exports = router;

@@ -47,6 +47,18 @@ exports.validateUserAge = async(req, res) =>{
 }
 
 
+exports.retrieveAgeRestrict = async(req, res) =>{
+    try{
+        const { uid } = req.params
+        const user = await User.findById({_id: uid})
+        res.status(200).send({ message: 'Get Age Rstrict', status: user.ageRestrict})
+    }
+    catch(e){
+        console.log(e)
+    }
+}
+
+
 
 exports.retrieveRandomInstituteQuery = async(req, res) => {
     try{

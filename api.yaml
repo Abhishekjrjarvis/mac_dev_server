@@ -926,6 +926,26 @@ paths:
         "200":
           description: OK
 
+  
+  /api/v1/extra/age/{uid}/get:
+    get:
+      tags:
+        - Setting Control API
+      summary: User Age Fetch -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is user id
+      responses:
+        "200":
+          description: OK
+
   #User Dashboard API
 
   /api/v1/user/post/{id}/all/user/posts:

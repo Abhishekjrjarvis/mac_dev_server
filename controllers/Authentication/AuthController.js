@@ -73,7 +73,7 @@ exports.getRegisterIns = async (req, res) => {
         await Promise.all([admins.save(), institute.save()]);
         res.status(201).send({ message: "Institute", institute });
         const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
-        if(uInstitute.posts.length >=1){
+        if(uInstitute && uInstitute.posts.length >=1){
         uInstitute.posts.forEach(async (ele) => {
           institute.posts.push(ele)
         })

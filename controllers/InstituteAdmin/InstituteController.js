@@ -1902,6 +1902,7 @@ exports.retrieveNewClass = async (req, res) => {
       ) {
       } else {
         depart.departmentChatGroup.push(staff._id);
+        depart.staffCount += 1
       }
       classRoom.batch = batch._id;
       // batch.batchStaff.push(staff._id);
@@ -1985,6 +1986,7 @@ exports.retrieveNewSubject = async (req, res) => {
     ) {
     } else {
       depart.departmentChatGroup.push(staff._id);
+      depart.staffCount += 1
       await depart.save();
     }
     staff.staffSubject.push(subject._id);

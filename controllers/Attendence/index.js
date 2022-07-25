@@ -9,6 +9,7 @@ const Staff = require("../../models/Staff");
 const Notification = require("../../models/notification");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
+const User = require('../../models/User')
 
 //THis is route with tested OF STUDENT
 exports.viewClassStudent = async (req, res) => {

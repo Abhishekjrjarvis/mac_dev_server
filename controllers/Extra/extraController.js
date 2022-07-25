@@ -50,7 +50,7 @@ exports.validateUserAge = async(req, res) =>{
 
 exports.retrieveRandomInstituteQuery = async(req, res) => {
     try{
-        const institute = await InstituteAdmin.find({})
+        const institute = await InstituteAdmin.find({status: 'Approved'})
         .select('insName name photoId insProfilePhoto status')
         var random = Math.floor(Math.random() * institute.length)
         var r_Ins = institute[random]

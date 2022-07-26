@@ -55,7 +55,7 @@ exports.getRegisterIns = async (req, res) => {
         if(req.body.userId !== ''){
           const user = await User.findOne({ username: req.body.userId })
           if(user){
-          var refCoins = new Referral({})
+          var refCoins = new Referral({referralEarnStatus: 'Earned'})
           refCoins.referralBy = institute._id
           institute.referralArray.push(refCoins._id)
           institute.initialReferral = user._id

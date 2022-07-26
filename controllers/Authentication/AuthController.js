@@ -559,7 +559,7 @@ module.exports.getLogin = async (req, res) => {
 
 
 module.exports.authentication = async (req, res) => {
-  console.log(insUserName, insPassword)
+  console.log(req.body)
   var d_date = new Date();
   var d_a_date = d_date.getDate();
   var d_a_month = d_date.getMonth() + 1;

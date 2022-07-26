@@ -438,7 +438,9 @@ exports.updateUserCircle = async (req, res) => {
       try {
         const notify = await new Notification({});
         suser.userFollowing.pull(user_session);
+        suser.followingUICount -= 1
         user.userFollowers.pull(req.body.followId);
+        user.followerCount -= 1
         suser.userCircle.push(user_session);
         user.userCircle.push(req.body.followId);
         suser.circleCount += 1;
@@ -486,8 +488,12 @@ exports.removeUserCircle = async (req, res) => {
       try {
         user.userCircle.pull(req.body.followId);
         suser.userCircle.pull(user_session);
+        suser.circleCount -= 1;
+        user.circleCount -= 1;
         user.userFollowers.push(req.body.followId);
         suser.userFollowing.push(user_session);
+        user.followerCount += 1
+        suser.followingUICount += 1
         await user.save();
         await suser.save();
         res.status(200).send({ message: 'Uncircled'})

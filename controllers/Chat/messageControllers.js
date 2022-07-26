@@ -312,22 +312,6 @@ exports.sendSupportChatMessage = async (req, res) => {
   try {
     if(req.params && req.params.chatId){
     const messages = await SupportMessage.find({ chat: req.params.chatId })
-    .populate({
-      path: 'chat',
-      select: 'id',
-      populate: {
-        path: 'latestMessage',
-        select: 'content'
-      }
-    })
-    .populate({
-      path: 'chat',
-      select: 'id',
-      populate: {
-        path: 'message',
-        select: 'content'
-      }
-    })
     res.json(messages);
     }
   } catch (error) {

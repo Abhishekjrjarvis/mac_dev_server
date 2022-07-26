@@ -79,6 +79,37 @@ exports.getRegisterIns = async (req, res) => {
         })
         await institute.save()
         }
+        var isChat = await SupportChat.find({
+          isGroupChat: false,
+          $and: [
+            { users: { $elemMatch: { $eq: admins._id } } },
+            { users: { $elemMatch: { $eq: institute._id } } },
+          ],
+        })
+          .populate("latestMessage");
+  
+        if (isChat.length > 0) {
+          res.send(isChat[0]);
+        } else {
+          var chatData = {
+            chatName: `Qviple Support Platform`,
+            isGroupChat: false,
+            participant_one: 'Qviple Support Platform',
+            participant_two: `${institute.insName}`,
+            users: [admins._id, institute._id],
+          };
+  
+          try {
+            const createdChat = await SupportChat.create(chatData);
+            institute.supportChat = createdChat._id
+            await institute.save()
+            const FullChat = await SupportChat.findOne({ _id: createdChat._id })
+            res.status(200).json(FullChat);
+          } catch (error) {
+            res.status(400);
+            throw new Error(error.message);
+          }
+        }
       }
     }
   } catch (e) {
@@ -125,38 +156,6 @@ exports.getPassIns = async (req, res) => {
       await institute.save();
       const token = generateAccessInsToken(institute?.name, institute?._id, institute?.insPassword);
       res.json({ token: `Bearer ${token}`, institute: institute, login: true});
-      var isChat = await SupportChat.find({
-        isGroupChat: false,
-        $and: [
-          { users: { $elemMatch: { $eq: `${process.env.S_ADMIN_ID}` } } },
-          { users: { $elemMatch: { $eq: institute._id } } },
-        ],
-      })
-        .populate("latestMessage");
-
-      if (isChat.length > 0) {
-        res.send(isChat[0]);
-      } else {
-        var chatData = {
-          chatName: `Qviple Support Platform`,
-          isGroupChat: false,
-          participant_one: 'Qviple Support Platform',
-          participant_two: `${institute.insName}`,
-          users: [`${process.env.S_ADMIN_ID}`, institute._id],
-        };
-
-        try {
-          const createdChat = await SupportChat.create(chatData);
-          institute.supportChat = createdChat._id
-          await institute.save()
-          const FullChat = await SupportChat.findOne({ _id: createdChat._id })
-          res.status(200).json(FullChat);
-        } catch (error) {
-          res.status(400);
-          throw new Error(error.message);
-        }
-      }
-
     } else {
       res.send({ message: "Invalid Combination", login: false });
     }
@@ -373,6 +372,38 @@ exports.profileByUser = async (req, res) => {
         })
         await user.save()
         }
+        var isChat = await SupportChat.find({
+          isGroupChat: false,
+          $and: [
+            { users: { $elemMatch: { $eq: admins._id } } },
+            { users: { $elemMatch: { $eq: user._id } } },
+          ],
+        })
+          .populate("latestMessage");
+
+        if (isChat.length > 0) {
+          res.send(isChat[0]);
+        } else {
+          var chatData = {
+            chatName: `Qviple Support Platform`,
+            isGroupChat: false,
+            participant_one: 'Qviple Support Platform',
+            participant_two: `${user.username}`,
+            users: [admins._id, user._id],
+          };
+
+          try {
+            const createdChat = await SupportChat.create(chatData);
+            user.supportChat = createdChat._id
+            await user.save()
+            const FullChat = await SupportChat.findOne({ _id: createdChat._id })
+            res.status(200).json(FullChat);
+          } catch (error) {
+            res.status(400);
+            throw new Error(error.message);
+          }
+        }
+
         // const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
         // uInstitute.posts.forEach(async (ele) => {
         //   user.userPosts.push(ele)
@@ -401,39 +432,6 @@ exports.getUserPassword = async (req, res) => {
         await user.save();
         const token = generateAccessToken(user?.username, user?._id, user?.userPassword);
         res.json({ token: `Bearer ${token}`, user: user});
-
-        var isChat = await SupportChat.find({
-          isGroupChat: false,
-          $and: [
-            { users: { $elemMatch: { $eq: `${process.env.S_ADMIN_ID}` } } },
-            { users: { $elemMatch: { $eq: user._id } } },
-          ],
-        })
-          .populate("latestMessage");
-
-        if (isChat.length > 0) {
-          res.send(isChat[0]);
-        } else {
-          var chatData = {
-            chatName: `Qviple Support Platform`,
-            isGroupChat: false,
-            participant_one: 'Qviple Support Platform',
-            participant_two: `${user.username}`,
-            users: [`${process.env.S_ADMIN_ID}`, user._id],
-          };
-
-          try {
-            const createdChat = await SupportChat.create(chatData);
-            user.supportChat = createdChat._id
-            await user.save()
-            const FullChat = await SupportChat.findOne({ _id: createdChat._id })
-            res.status(200).json(FullChat);
-          } catch (error) {
-            res.status(400);
-            throw new Error(error.message);
-          }
-        }
-
       } else {
         res.send({ message: "Invalid Password Combination" });
       }

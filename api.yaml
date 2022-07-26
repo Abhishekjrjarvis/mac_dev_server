@@ -8195,6 +8195,27 @@ paths:
 
 
 
+
+  /api/v1/message/support/admin/message/{chatId}:
+    get:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: Get Admin Support Message
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters: 
+        - in: path
+          name: chatId
+          required: true
+          type: string
+          description: This is chat id         
+      responses:
+        "200":
+          description: OK
+
+
   /api/v1/chat/support/admin/chat:
     post:
       tags:

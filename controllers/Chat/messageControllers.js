@@ -342,11 +342,15 @@ exports.sendSupportMessageQuery = async (req, res) => {
     var message = new SupportMessage(newMessage);
     await message.save()
 
-    message = await message.populate("chat");
-    // message = await User.populate(message, {
-    //   path: "chat.users",
-    //   select: "username userLegalName photoId profilePhoto userEmail",
-    // });
+    message = await message.populate({
+      path: 'chat',
+      populate: {
+        path: 'latestMessage',
+      }
+    });
+    message = await message.populate({
+      path: 'message'
+    })
 
     const chat = await SupportChat.findById(req.body.chatId)
     chat.latestMessage = message._id

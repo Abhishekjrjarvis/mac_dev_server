@@ -227,6 +227,18 @@ const superAdminSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'IdCardPayment'
         }
+    ],
+    supportUserChat: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'SupportChat'
+        }
+    ],
+    supportInstituteChat: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'SupportChat'
+        }
     ]
     
 })

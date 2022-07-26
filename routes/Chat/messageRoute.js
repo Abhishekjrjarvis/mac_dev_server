@@ -20,7 +20,7 @@ router.patch('/unread/receipts/:cid', isLoggedIn, catchAsync(Message.markAsUnRea
 
 router.delete('/:mid/chat/dump/:cid', isLoggedIn, catchAsync(Message.dumpOneMessage))
 
-router.get('/support/admin/message/:chatId', isLoggedIn, catchAsync(Message.sendSupportChatMessage));
+router.get('/support/admin/message/:chatId', catchAsync(Message.sendSupportChatMessage));
 
 router.post('/support/admin/message', isLoggedIn, catchAsync(Message.sendSupportMessageQuery));
 

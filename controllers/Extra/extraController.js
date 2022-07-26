@@ -1,5 +1,7 @@
 const User = require('../../models/User')
 const InstituteAdmin = require('../../models/InstituteAdmin')
+const Admin = require('../../models/superAdmin')
+const FeedBack = require('../../models/Feedbacks/Feedback')
 
 exports.validateUserAge = async(req, res) =>{
     try{
@@ -91,3 +93,19 @@ exports.retrieveReferralQuery = async(req, res) => {
   
     }
   }
+
+
+  exports.retrieveFeedBackUser = async(req, res) => {
+    try{
+      const admin = await Admin.findById({_id: `${process.env.S_ADMIN_ID}`})
+      const user = await User.findById({_id: req.body.userId})
+      const feed = new FeedBack({...req.body})
+      feed.feedBy = user._id
+      admin.feedbackArray.push(feed._id)
+      await Promise.all([ feed.save(), admin.save()])
+      res.status(200).send({ message: `Thanks for feedback ${user.username}`})
+    }
+    catch(e){
+        console.log(e)
+    }
+}

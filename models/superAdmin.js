@@ -216,6 +216,12 @@ const superAdminSchema = new mongoose.Schema({
             ref: 'Notification'
         }
     ],
+    feedbackArray: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'FeedBack'
+        }
+    ],
     exploreFeatureList: [
         {
             type: mongoose.Schema.Types.ObjectId,

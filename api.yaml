@@ -946,6 +946,38 @@ paths:
         "200":
           description: OK
 
+
+  /api/v1/extra/feedback/user:
+    post:
+      tags:
+        - Setting Control API
+      summary: Feedback By User -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              feedRating:
+                type: number
+                description: Enter feedback Rating
+              feedTag:
+                type: string
+                description: Enter type of Feedback
+              feedContent:
+                type: string
+                description: Enter feedback content
+              userId:
+                type: string
+                decription: Enter User Id 
+      responses:
+        "200":
+          description: OK
+
   #User Dashboard API
 
   /api/v1/user/post/{id}/all/user/posts:

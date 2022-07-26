@@ -11,5 +11,7 @@ router.get('/random/query', catchAsync(Extra.retrieveRandomInstituteQuery))
 
 router.get('/:uid/referral', catchAsync(Extra.retrieveReferralQuery))
 
+router.post('/feedback/user', catchAsync(Extra.retrieveFeedBackUser))
+
 
 module.exports = router

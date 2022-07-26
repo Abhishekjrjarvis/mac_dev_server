@@ -435,19 +435,6 @@ exports.updateUserCircle = async (req, res) => {
     ) {
       res.status(200).send({ message: "You are Already In a Circle" });
     } else {
-      const newConversation = new Conversation({
-        members: [user_session, req.body.followId],
-      });
-      try {
-        const savedConversation = await newConversation.save();
-        user.conversation = newConversation;
-        suser.conversation = newConversation;
-        await user.save();
-        await suser.save();
-        res.status(200).json(savedConversation);
-      } catch (err) {
-        res.status(500).json(err);
-      }
       try {
         const notify = await new Notification({});
         suser.userFollowing.pull(user_session);
@@ -501,8 +488,6 @@ exports.removeUserCircle = async (req, res) => {
         suser.userCircle.pull(user_session);
         user.userFollowers.push(req.body.followId);
         suser.userFollowing.push(user_session);
-        user.conversation = "";
-        suser.conversation = "";
         await user.save();
         await suser.save();
       } catch {

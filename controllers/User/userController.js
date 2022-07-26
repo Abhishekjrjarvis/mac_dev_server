@@ -490,6 +490,7 @@ exports.removeUserCircle = async (req, res) => {
         suser.userFollowing.push(user_session);
         await user.save();
         await suser.save();
+        res.status(200).send({ message: 'Uncircled'})
       } catch {
         res.status(500).send({ error: "error" });
       }

@@ -16,8 +16,14 @@ router.get("/:id/profile", isLoggedIn, catchAsync(User.retrieveProfileData));
 // Get Announcement Detail When Follow Institute
 router.get(
   "/:id/ins-announcement",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(User.retrieveFIAnnouncement)
+);
+
+router.get(
+  "/one-announcement/:aid",
+  // isLoggedIn,
+  catchAsync(User.retrieveFIOneAnnouncement)
 );
 
 // ========= ADDED TO SWAGGER =======================
@@ -251,28 +257,56 @@ router.get(
 router.get("/:uid/circle-array", isLoggedIn, catchAsync(User.circleArray));
 
 // Get Star Announcement User
-router.get('/:id/all/star-announcement', isLoggedIn, catchAsync(User.retrieveAllStarAnnouncementUser))
+router.get(
+  "/:id/all/star-announcement",
+  isLoggedIn,
+  catchAsync(User.retrieveAllStarAnnouncementUser)
+);
 
-// Recovery Mail 
-router.post('/:id/recovery-mail', isLoggedIn, catchAsync(User.retrieveRecoveryMailUser))
+// Recovery Mail
+router.post(
+  "/:id/recovery-mail",
+  isLoggedIn,
+  catchAsync(User.retrieveRecoveryMailUser)
+);
 
 // User Staff Array
-router.get('/:uid/staff-role', isLoggedIn, catchAsync(User.retrieveUserStaffArray))
+router.get(
+  "/:uid/staff-role",
+  isLoggedIn,
+  catchAsync(User.retrieveUserStaffArray)
+);
 
 // User Staff Array
-router.get('/:uid/student-role', isLoggedIn, catchAsync(User.retrieveUserStudentArray))
+router.get(
+  "/:uid/student-role",
+  isLoggedIn,
+  catchAsync(User.retrieveUserStudentArray)
+);
 
 // Staff Designation Data
-router.get('/staffdesignationdata/:sid', isLoggedIn, catchAsync(User.retrieveStaffDesignationArray))
+router.get(
+  "/staffdesignationdata/:sid",
+  isLoggedIn,
+  catchAsync(User.retrieveStaffDesignationArray)
+);
 
 // Student Designation Data
-router.get('/studentdesignationdata/:sid', isLoggedIn, catchAsync(User.retrieveStudentDesignationArray))
+router.get(
+  "/studentdesignationdata/:sid",
+  isLoggedIn,
+  catchAsync(User.retrieveStudentDesignationArray)
+);
 
 // User 3-Follow System Array
-router.get('/:id/all-three-array', isLoggedIn, catchAsync(User.retrieveUserThreeArray))
+router.get(
+  "/:id/all-three-array",
+  isLoggedIn,
+  catchAsync(User.retrieveUserThreeArray)
+);
 
 router.get("/:uid/circle/array/query", catchAsync(User.circleArrayQuery));
 
-router.get('/circle/user', isLoggedIn, catchAsync(User.allCircleUsers));
+router.get("/circle/user", isLoggedIn, catchAsync(User.allCircleUsers));
 
 module.exports = router;

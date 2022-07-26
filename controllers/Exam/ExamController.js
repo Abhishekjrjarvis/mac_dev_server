@@ -215,8 +215,11 @@ exports.examById = async (req, res) => {
     const exam = await Exam.findById(req.params.eid).select("class subjects");
     const masterids = [];
     for (let cid of exam.class) {
-      const classes = await Class.findById(cid).select("masterClassName _id");
-      masterids.push(classes.masterClassName);
+      const classes = await Class.findById(cid).select(
+        "className subject masterClassName"
+      );
+
+      masterids.push(classes);
     }
     for (let i = 0; i < masterids.length; i++) {
       for (let j = i + 1; j < masterids.length; j++) {
@@ -228,25 +231,43 @@ exports.examById = async (req, res) => {
     const subjectids = [];
 
     for (let sub of exam.subjects) {
-      subjectids.push(sub.subjectMasterId);
+      subjectids.push({
+        subjectId: sub.subjectId,
+        totalMarks: sub.totalMarks,
+        date: sub.date,
+        startTime: sub.startTime,
+        endTime: sub.endTime,
+        subjectName: sub.subjectName,
+        subjectMasterId: sub.subjectMasterId,
+      });
     }
 
-    for (let i = 0; i < subjectids.length; i++) {
-      for (let j = i + 1; j < subjectids.length; j++) {
-        if (String(subjectids[i]) === String(subjectids[j])) {
-          subjectids.splice(j, 1);
-        }
-      }
-    }
+    // for (let i = 0; i < subjectids.length; i++) {
+    //   for (let j = i + 1; j < subjectids.length; j++) {
+    //     if (
+    //       String(subjectids[i].subjectMasterId) ===
+    //         String(subjectids[j].subjectMasterId) &&
+    //       subjectids[i].totalMarks === subjectids[j].totalMarks
+    //     ) {
+    //       subjectids.splice(j, 1);
+    //     }
+    //   }
+    // }
 
-    const classMaster = await ClassMaster.find({
-      _id: { $in: masterids },
-    }).select("className _id");
+    // [
+    //   ...new Set(uniqueDepartment.map(JSON.stringify)),
+    // ].map(JSON.parse)
+    const uniqueArra = [...new Set(subjectids.map(JSON.stringify))].map(
+      JSON.parse
+    );
+    // const classMaster = await ClassMaster.find({
+    //   _id: { $in: masterids },
+    // }).select("className _id");
 
-    const subjectMaster = await SubjectMaster.find({
-      _id: { $in: subjectids },
-    }).select("subjectName _id");
-    res.status(200).send({ classMaster, subjectMaster });
+    // const subjectMaster = await SubjectMaster.find({
+    //   _id: { $in: subjectids },
+    // }).select("subjectName _id");
+    res.status(200).send({ masterids, uniqueArra });
   } catch (e) {
     console.log(e);
   }

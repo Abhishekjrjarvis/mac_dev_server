@@ -314,14 +314,18 @@ exports.sendSupportChatMessage = async (req, res) => {
     const messages = await SupportMessage.find({ chat: req.params.chatId })
     .populate({
       path: 'chat',
+      select: 'id',
       populate: {
-        path: 'latestMessage'
+        path: 'latestMessage',
+        select: 'content'
       }
     })
     .populate({
       path: 'chat',
+      select: 'id',
       populate: {
-        path: 'message'
+        path: 'message',
+        select: 'content'
       }
     })
     res.json(messages);
@@ -356,14 +360,18 @@ exports.sendSupportMessageQuery = async (req, res) => {
     message = await SupportMessage.findById({_id: message._id})
     .populate({
       path: 'chat',
+      select: 'id',
       populate: {
-        path: 'latestMessage'
+        path: 'latestMessage',
+        select: 'content'
       }
     })
     .populate({
       path: 'chat',
+      select: 'id',
       populate: {
-        path: 'message'
+        path: 'message',
+        select: 'content'
       }
     })
 

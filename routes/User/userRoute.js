@@ -20,6 +20,11 @@ router.get(
   catchAsync(User.retrieveFIAnnouncement)
 );
 
+router.get(
+  "/one-announcement/:aid",
+  // isLoggedIn,
+  catchAsync(User.retrieveFIOneAnnouncement)
+);
 // ========= ADDED TO SWAGGER =======================
 
 // Limit Setting Data

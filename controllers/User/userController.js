@@ -121,19 +121,90 @@ exports.retrieveFIAnnouncement = async (req, res) => {
         populate: {
           path: "announcement",
           select:
+            "insAnnPhoto insAnnDescription insAnnTitle insAnnVisibility createdAt",
+          populate: {
+            path: "reply",
+            select: "replyText createdAt replyAuthorAsUser replyAuthorAsIns",
+          },
+        },
+        select: "id",
+      })
+      .populate({
+        path: "userInstituteFollowing",
+        populate: {
+          path: "announcement",
+          select:
             "insAnnPhoto insAnnDescription insAnnTitle insAnnVisibility createdAt starList",
           populate: {
-            path: 'institute',
-            select: 'insName photoId insProfilePhoto'
-          }
+            path: "institute",
+            select: "insName photoId insProfilePhoto",
+          },
         },
         select: "id",
       })
       .select("_id")
       .lean()
       .exec();
+
+    const announcementArray = (announcement) => {
+      const announ = [];
+
+      announcement?.forEach((announce) => {
+        announce?.announcement?.forEach((oneAnnounce) => {
+          announ.push({
+            _id: oneAnnounce._id,
+            insAnnTitle: oneAnnounce.insAnnTitle,
+            insAnnVisibility: oneAnnounce.insAnnVisibility,
+            starList: oneAnnounce.starList,
+            createdAt: oneAnnounce.createdAt,
+            institute: {
+              _id: oneAnnounce.institute._id,
+              insName: oneAnnounce.institute.insName,
+              photoId: oneAnnounce.institute.photoId,
+              insProfilePhoto: oneAnnounce.institute.insProfilePhoto,
+            },
+          });
+        });
+      });
+
+      return announ;
+    };
+
     if (user) {
-      res.status(200).send({ message: "Success", user });
+      res.status(200).send({
+        message: "Success",
+        announcements: announcementArray(user?.userInstituteFollowing),
+      });
+    } else {
+      res.status(404).send({ message: "Failure" });
+    }
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+exports.retrieveFIOneAnnouncement = async (req, res) => {
+  try {
+    const announcementDetail = await InsAnnouncement.findById(req.params.aid)
+      .populate({
+        path: "announcementDocument",
+        select: "documentType documentName documentKey",
+      })
+      .populate({
+        path: "institute",
+        select: "insName photoId insProfilePhoto",
+      })
+      .select(
+        "insAnnTitle insAnnDescription insAnnVisibility announcementDocument createdAt institute"
+      )
+      .lean()
+      .exec();
+
+    if (announcementDetail) {
+      res.status(200).send({
+        message: "Success",
+        announcementDetail,
+      });
     } else {
       res.status(404).send({ message: "Failure" });
     }

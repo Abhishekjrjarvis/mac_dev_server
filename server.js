@@ -195,7 +195,7 @@ app.use(express.json());
 app.use(
   cors({
     // origin: "http://18.205.27.165",
-    origin: ["http://18.205.27.165", "http://localhost:3000"],
+    origin: ["http://18.205.27.165", "http://localhost:3000", "https://qviple.com"],
     // origin: "http://localhost:3000",
     // origin: "https://qviple.com",
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],

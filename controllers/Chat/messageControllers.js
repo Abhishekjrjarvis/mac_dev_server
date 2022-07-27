@@ -57,6 +57,7 @@ exports.sendMessageQuery = async (req, res) => {
     sender: req.tokenData && req.tokenData.userId,
     content: content,
     chat: chatId,
+    isSend: true,
     delievered: true
   };
 
@@ -112,6 +113,7 @@ exports.sendMessageDocumentQuery = async (req, res) => {
     message.content = content
     message.chat = chatId
     message.delievered = true
+    message.isSend = true
     message.sender = req.tokenData && req.tokenData.userId
     for (let file of req.files) {
       const cDocument = new ChatDocument({})
@@ -333,7 +335,8 @@ exports.sendSupportMessageQuery = async (req, res) => {
     sender: userId,
     content: content,
     chat: chatId,
-    delievered: true
+    delievered: true,
+    isSend: true
   };
 
 
@@ -344,7 +347,7 @@ exports.sendSupportMessageQuery = async (req, res) => {
     message = await SupportMessage.findById({_id: message._id})
     .populate({
       path: 'chat',
-      select: 'id',
+      select: 'id users',
       populate: {
         path: 'latestMessage',
         select: 'content'
@@ -352,7 +355,7 @@ exports.sendSupportMessageQuery = async (req, res) => {
     })
     .populate({
       path: 'chat',
-      select: 'id',
+      select: 'id users',
       populate: {
         path: 'message',
         select: 'content'

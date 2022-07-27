@@ -75,5 +75,8 @@ router.post('/:aid/referral/:uid/pay', isLoggedIn, catchAsync(Admin.retrieveRefe
 // Get In Touch Array
 router.get('/:aid/get/touch', isLoggedIn, catchAsync(Admin.retrieveGetInTouch))
 
+router.get('/getrecentchat/user', isLoggedIn,  catchAsync(Admin.getRecentChatUser));
+
+router.get('/getrecentchat/institute', isLoggedIn,  catchAsync(Admin.getRecentChatInstitute));
 
 module.exports = router

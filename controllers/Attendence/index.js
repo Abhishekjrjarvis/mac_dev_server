@@ -117,20 +117,20 @@ exports.markAttendenceClassStudent = async (req, res) => {
           })
           const user = await User.findById({_id: `${student.user}`})
           const notify = new StudentNotification({});
-          notify.notifyContent = `Today is present`;
+          notify.notifyContent = `you're present today`;
           notify.notifySender = classes._id;
           notify.notifyReceiever = student._id;
           notify.notifyByClassPhoto = classes._id;
           student.notification.push(notify._id);
           student.attendDate.push(attendence._id);
           attendence.presentStudent.push(student._id);
-          // invokeFirebaseNotification(
-          //   "Student Member Activity",
-          //   notify,
-          //   student.studentFirstName,
-          //   user._id
-          //   user.deviceToken
-          // );
+          invokeFirebaseNotification(
+            "Student Member Activity",
+            notify,
+            student.studentFirstName,
+            user._id,
+            user.deviceToken
+          );
           await Promise.all([student.save(), notify.save()]);
         }
 
@@ -140,15 +140,14 @@ exports.markAttendenceClassStudent = async (req, res) => {
           });
           const user = await User.findById({_id: `${student.user}`})
           const notify = new StudentNotification({});
-          notify.notifyContent = `Today is absent`;
+          notify.notifyContent = `you're absent today`;
           notify.notifySender = classes._id;
           notify.notifyReceiever = student._id;
           notify.notifyByClassPhoto = classes._id;
           student.notification.push(notify._id);
           student.attendDate.push(attendence._id);
           attendence.absentStudent.push(student._id);
-          // invokeFirebaseNotification('Student Member Activity', notify, student.studentFirstName, user._id, user.deviceToken)
-
+          invokeFirebaseNotification('Student Member Activity', notify, student.studentFirstName, user._id, user.deviceToken)
           await Promise.all([student.save(), notify.save()]);
         }
         classes.attendenceDate.push(attendence._id);
@@ -163,7 +162,6 @@ exports.markAttendenceClassStudent = async (req, res) => {
       }
     }
   } catch (e) {
-    console.log(e);
   }
 };
 
@@ -357,7 +355,7 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
           });
           staff.attendDates.push(staffAttendence._id);
           const notify = new Notification({});
-          notify.notifyContent = `Today is Present`;
+          notify.notifyContent = `you're present today`;
           notify.notifySender = id;
           notify.notifyReceiever = staff.user._id;
           staff.user.uNotify.push(notify._id);
@@ -365,13 +363,13 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
           notify.notifyByInsPhoto = id;
           staffAttendence.presentStaff.push(staff._id);
           staffAttendence.presentTotal = req.body.present.length;
-          // invokeFirebaseNotification(
-          //   "Staff Member Activity",
-          //   notify,
-          //   staff.user.userLegalName,
-          //   staff.user._id,
-          //   staff.user.deviceToken
-          // );
+          invokeFirebaseNotification(
+            "Staff Member Activity",
+            notify,
+            staff.user.userLegalName,
+            staff.user._id,
+            staff.user.deviceToken
+          );
           await Promise.all([
             staff.save(),
             staffAttendence.save(),
@@ -390,14 +388,14 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
           staff.attendDates.push(staffAttendence._id);
           staffAttendence.absentStaff.push(staff._id);
           const notify = new Notification({});
-          notify.notifyContent = `Today is Absent`;
+          notify.notifyContent = `you're absent today`;
           notify.notifySender = id;
           notify.notifyReceiever = staff.user._id;
           staff.user.uNotify.push(notify._id);
           notify.user = staff.user._id;
           notify.notifyByInsPhoto = id;
           staffAttendence.absentTotal = req.body.absent.length;
-          // invokeFirebaseNotification('Staff Member Activity', notify, staff.user.userLegalName, staff.user._id, staff.user.deviceToken)
+          invokeFirebaseNotification('Staff Member Activity', notify, staff.user.userLegalName, staff.user._id, staff.user.deviceToken)
           await Promise.all([
             staff.save(),
             staffAttendence.save(),
@@ -415,7 +413,6 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
       }
     }
   } catch (e) {
-    console.log(e);
   }
 };
 

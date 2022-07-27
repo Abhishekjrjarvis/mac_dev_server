@@ -565,3 +565,60 @@ exports.retrieveGetInTouch = async(req, res) => {
 
   }
 }
+
+
+exports.getRecentChatUser = async(req, res) => {
+  try{
+    const admin = await Admin.findById({_id: `${process.env.S_ADMIN_ID}`})
+    .select('id')
+    .populate({
+      path: 'supportUserChat',
+      populate: {
+        path: 'message',
+        select: 'sender content createdAt isSend'
+      }
+    })
+    .populate({
+      path: 'supportUserChat',
+      populate: {
+        path: 'latestMessage',
+        select: 'sender content createdAt isSend'
+      }
+    })
+    .lean()
+    .exec()
+    res.status(200).send({ message: 'User Support Chat', admin})
+  }
+  catch{
+
+  }
+}
+
+
+
+exports.getRecentChatInstitute = async(req, res) => {
+  try{
+    const admin = await Admin.findById({_id: `${process.env.S_ADMIN_ID}`})
+    .select('id')
+    .populate({
+      path: 'supportInstituteChat',
+      populate: {
+        path: 'message',
+        select: 'sender content createdAt isSend'
+      }
+    })
+    .populate({
+      path: 'supportInstituteChat',
+      populate: {
+        path: 'latestMessage',
+        select: 'sender content createdAt isSend'
+      }
+    })
+    .lean()
+    .exec()
+    res.status(200).send({ message: 'Institute Support Chat', admin})
+  }
+  catch{
+
+  }
+}

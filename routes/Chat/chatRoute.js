@@ -32,4 +32,5 @@ router.get('/user/subject/student', isLoggedIn, catchAsync(Chat.retrieveSubjectS
 
 router.get('/institute/recent/group/:id', isLoggedIn,  catchAsync(Chat.getRecentChats));
 
+
 module.exports = router;

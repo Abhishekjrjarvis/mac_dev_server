@@ -172,13 +172,13 @@ exports.createExam = async (req, res) => {
               notify.notifyReceiever = student._id;
               student.notification.push(notify._id);
               notify.notifyByDepartPhoto = department._id;
-              // invokeFirebaseNotification(
-              //   "Student Member Activity",
-              //   notify,
-              //   student.studentFirstName,
-              //   student._id,
-              //   "token"
-              // );
+              invokeFirebaseNotification(
+                "Student Member Activity",
+                notify,
+                student.studentFirstName,
+                student._id,
+                "token"
+              );
               await Promise.all([student.save(), notify.save()]);
             }
             subject.exams.push(exam._id);

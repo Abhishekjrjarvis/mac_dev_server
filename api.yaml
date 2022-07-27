@@ -1954,7 +1954,7 @@ paths:
           required: true
           description: student studentMTongue
         - in: formData
-          name: studentMotherName
+          name: studentMothersName
           type: string
           required: true
           description: student studentMotherName

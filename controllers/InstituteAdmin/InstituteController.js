@@ -844,13 +844,13 @@ exports.updateApproveStaff = async (req, res) => {
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByStaffPhoto = staffs._id;
-    // invokeFirebaseNotification(
-    //   "Staff Approval",
-    //   notify,
-    //   institute.insName,
-    //   user._id,
-    //   user.deviceToken
-    // );
+    invokeFirebaseNotification(
+      "Staff Approval",
+      notify,
+      institute.insName,
+      user._id,
+      user.deviceToken
+    );
     await Promise.all([
       staffs.save(),
       institute.save(),
@@ -874,7 +874,6 @@ exports.updateApproveStaff = async (req, res) => {
     } else {
     }
   } catch (e) {
-    console.log(`Error`, e.message);
   }
 };
 
@@ -938,13 +937,13 @@ exports.getNewDepartment = async (req, res) => {
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByInsPhoto = institute._id;
-    // invokeFirebaseNotification(
-    //   "Designation Allocation",
-    //   notify,
-    //   institute.insName,
-    //   user._id,
-    //   user.deviceToken
-    // );
+    invokeFirebaseNotification(
+      "Designation Allocation",
+      notify,
+      institute.insName,
+      user._id,
+      user.deviceToken
+    );
     await Promise.all([
       institute.save(),
       staff.save(),
@@ -957,7 +956,6 @@ exports.getNewDepartment = async (req, res) => {
       department: department._id,
     });
   } catch (e) {
-    console.log(`Error`, e);
   }
 };
 
@@ -1920,13 +1918,13 @@ exports.retrieveNewClass = async (req, res) => {
       user.uNotify.push(notify._id);
       notify.user = user._id;
       notify.notifyByInsPhoto = institute._id;
-      // invokeFirebaseNotification(
-      //   "Designation Allocation",
-      //   notify,
-      //   institute.insName,
-      //   user._id,
-      //   user.deviceToken
-      // );
+      invokeFirebaseNotification(
+        "Designation Allocation",
+        notify,
+        institute.insName,
+        user._id,
+        user.deviceToken
+      );
       await Promise.all([
         institute.save(),
         batch.save(),
@@ -1943,7 +1941,7 @@ exports.retrieveNewClass = async (req, res) => {
       });
     }
   } catch (e) {
-    console.log(e);
+    // console.log(e);
   }
 };
 
@@ -2001,13 +1999,13 @@ exports.retrieveNewSubject = async (req, res) => {
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByInsPhoto = institute._id;
-    // invokeFirebaseNotification(
-    //   "Designation Allocation",
-    //   notify,
-    //   depart.dName,
-    //   user._id,
-    //   user.deviceToken
-    // );
+    invokeFirebaseNotification(
+      "Designation Allocation",
+      notify,
+      depart.dName,
+      user._id,
+      user.deviceToken
+    );
     await Promise.all([
       subjectMaster.save(),
       classes.save(),
@@ -2023,7 +2021,6 @@ exports.retrieveNewSubject = async (req, res) => {
       subject,
     });
   } catch (e) {
-    console.log(e);
   }
 };
 
@@ -2785,13 +2782,13 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByStudentPhoto = student._id;
-    // invokeFirebaseNotification(
-    //   "Student Approval",
-    //   notify,
-    //   institute.insName,
-    //   user._id,
-    //   user.deviceToken
-    // );
+    invokeFirebaseNotification(
+      "Student Approval",
+      notify,
+      institute.insName,
+      user._id,
+      user.deviceToken
+    );
     await Promise.all([
       admins.save(),
       classes.save(),
@@ -2807,7 +2804,6 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
       classes: classes._id,
     });
   } catch (e) {
-    console.log(e);
   }
 };
 

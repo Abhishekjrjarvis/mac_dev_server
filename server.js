@@ -12787,7 +12787,6 @@ io.on("connection", (socket) => {
       if (user._id == newMessageRecieved.sender._id) return;
       // var delievered = true
       socket.in(user._id).emit("message recieved", newMessageRecieved);
-      console.log(user._id);
       console.log("message Receieved Fired");
     });
   });
@@ -12800,7 +12799,6 @@ io.on("connection", (socket) => {
       if (user == newMessageRecieved.sender) return;
       // var delievered = true
       socket.in(user).emit("message support", newMessageRecieved);
-      console.log(user);
       console.log("message Receieved Fired");
     });
   });

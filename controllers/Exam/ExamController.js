@@ -107,7 +107,8 @@ exports.createExam = async (req, res) => {
               await classes.save();
             }
             for (let stu of classes.ApproveStudent) {
-              const student = await Student.findById(stu);
+              const student = await Student.findById(stu)
+              const user = await User.findById({_id: `${student.user}`})
               if (student.exams.includes(exam._id)) {
               } else {
                 student.exams.push(exam._id);
@@ -180,8 +181,8 @@ exports.createExam = async (req, res) => {
                 "Student Member Activity",
                 notify,
                 student.studentFirstName,
-                student._id,
-                "token"
+                user._id,
+                user.deviceToken
               );
               await Promise.all([student.save(), notify.save()]);
             }

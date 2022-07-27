@@ -10,7 +10,7 @@ const upload = multer({ dest: "uploads/" });
 router.post('/ins/:id/staff/:sid', isLoggedIn, isApproved, catchAsync(Finance.getFinanceDepart))
 
 // Upload Bank Details By Finance Head
-router.post('/add/bank/details/:id', isLoggedIn, isApproved, catchAsync(Finance.uploadBankDetail))
+router.post('/add/bank/details/:id', isLoggedIn, catchAsync(Finance.uploadBankDetail))
 
 // Remove Bank Details By Finance Head
 router.post('/ins/bank/:id', isLoggedIn, catchAsync(Finance.removeBankDetail))

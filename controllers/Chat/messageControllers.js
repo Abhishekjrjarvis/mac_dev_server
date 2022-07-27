@@ -40,7 +40,7 @@ exports.allMessagesQuery = async (req, res) => {
     }
   } catch (error) {
     res.status(400);
-    throw new Error(error.message);
+    // throw new Error(error.message);
   }
 }
 
@@ -101,7 +101,7 @@ exports.sendMessageQuery = async (req, res) => {
     res.json(message);
   } catch (error) {
     res.status(400);
-    throw new Error(error.message);
+    // throw new Error(error.message);
   }
 }
 
@@ -318,7 +318,7 @@ exports.sendSupportChatMessage = async (req, res) => {
     }
   } catch (error) {
     res.status(400);
-    throw new Error(error.message);
+    // throw new Error(error.message);
   }
 }
 
@@ -370,6 +370,6 @@ exports.sendSupportMessageQuery = async (req, res) => {
     res.json(message);
   } catch (error) {
     res.status(400);
-    throw new Error(error.message);
+    // throw new Error(error.message);
   }
 }

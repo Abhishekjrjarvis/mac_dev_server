@@ -270,7 +270,7 @@ const userSchema = new mongoose.Schema({
   },
   ageRestrict: {
     type: String,
-    default: 'Yes'
+    default: 'No'
   },
   paymentStatus: {
     type: String,

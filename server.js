@@ -12800,6 +12800,7 @@ io.on("connection", (socket) => {
       // var delievered = true
       socket.in(user).emit("message support", newMessageRecieved);
       console.log("message Receieved Fired");
+      console.log(`message on ${user}`)
     });
   });
 

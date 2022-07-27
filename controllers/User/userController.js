@@ -7,6 +7,7 @@ const Notification = require("../../models/notification");
 const Conversation = require("../../models/Conversation");
 const UserSupport = require("../../models/UserSupport");
 const Report = require("../../models/Report");
+
 const Staff = require('../../models/Staff')
 const Student = require('../../models/Student')
 const axios = require('axios')
@@ -14,6 +15,7 @@ const InsAnnouncement = require('../../models/InsAnnouncement')
 const bcrypt = require('bcryptjs')
 const Post = require('../../models/Post')
 const Chat = require('../../models/Chat/Chat')
+
 const {
   getFileStream,
   uploadDocFile,
@@ -22,7 +24,8 @@ const {
 const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
-const invokeFirebaseNotification = require('../../Firebase/firebase')
+const invokeFirebaseNotification = require("../../Firebase/firebase");
+const { dateTimeSort } = require("../../Utilities/timeComparison");
 
 exports.getUserData = async (req, res) => {
   try {
@@ -148,6 +151,7 @@ exports.retrieveFIAnnouncement = async (req, res) => {
 
     const announcementArray = (announcement) => {
       const announ = [];
+      // const announ2 = [];
 
       announcement?.forEach((announce) => {
         announce?.announcement?.forEach((oneAnnounce) => {
@@ -166,6 +170,21 @@ exports.retrieveFIAnnouncement = async (req, res) => {
           });
         });
       });
+      // let count = 0;
+      // for (announcement of announ) {
+      //   let countAgain = 0;
+      //   let flag = false;
+      //   for (announcementAgain of announ) {
+      //     if (
+      //       dateTimeSort(
+      //         announcement[count]?.createdAt,
+      //         announcementAgain[countAgain]?.createdAt
+      //       )
+      //     )
+      //       flag = true;
+      //     else flag = false;
+      //   }
+      // }
 
       return announ;
     };
@@ -175,6 +194,38 @@ exports.retrieveFIAnnouncement = async (req, res) => {
         message: "Success",
         announcements: announcementArray(user?.userInstituteFollowing),
       });
+
+    } else {
+      res.status(404).send({ message: "Failure" });
+    }
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+exports.retrieveFIOneAnnouncement = async (req, res) => {
+  try {
+    const announcementDetail = await InsAnnouncement.findById(req.params.aid)
+      .populate({
+        path: "announcementDocument",
+        select: "documentType documentName documentKey",
+      })
+      .populate({
+        path: "institute",
+        select: "insName photoId insProfilePhoto",
+      })
+      .select(
+        "insAnnTitle insAnnDescription insAnnVisibility announcementDocument createdAt institute"
+      )
+      .lean()
+      .exec();
+
+    if (announcementDetail) {
+      res.status(200).send({
+        message: "Success",
+        announcementDetail,
+      });
+
     } else {
       res.status(404).send({ message: "Failure" });
     }
@@ -212,7 +263,6 @@ exports.retrieveFIOneAnnouncement = async (req, res) => {
     console.error(e);
   }
 };
-
 exports.addPostUserData = async (req, res) => {
   try {
     const { id } = req.params;
@@ -334,10 +384,9 @@ exports.updateUserInfo = async (req, res) => {
   }
 };
 
-
 exports.updateUserFollowIns = async (req, res) => {
   try {
-    var user_session = req.tokenData && req.tokenData.userId
+    var user_session = req.tokenData && req.tokenData.userId;
     const user = await User.findById({ _id: user_session });
     const sinstitute = await InstituteAdmin.findById({
       _id: req.body.InsfollowId,
@@ -346,6 +395,7 @@ exports.updateUserFollowIns = async (req, res) => {
     if (sinstitute.userFollowersList.includes(user_session)) {
       res.status(200).send({ message: "You Already Following This Institute" });
     } else {
+
       if(sinstitute.status === 'Approved'){
       const notify = await new Notification({});
       sinstitute.userFollowersList.push(user_session);
@@ -374,6 +424,7 @@ exports.updateUserFollowIns = async (req, res) => {
       }
       else{
         res.status(200).send({ message: 'Institute is Not Approved, you will not follow'})
+
       }
     }
   } catch (e) {
@@ -382,35 +433,43 @@ exports.updateUserFollowIns = async (req, res) => {
 
 exports.removeUserFollowIns = async (req, res) => {
   try {
-    var user_session = req.tokenData && req.tokenData.userId
+    var user_session = req.tokenData && req.tokenData.userId;
     const user = await User.findById({ _id: user_session });
     const sinstitute = await InstituteAdmin.findById({
       _id: req.body.InsfollowId,
     });
 
-    if(sinstitute.status === 'Approved'){
-      if (sinstitute.userFollowersList.length >= 1 && sinstitute.userFollowersList.includes(`${user._id}`)) {
+    if (sinstitute.status === "Approved") {
+      if (
+        sinstitute.userFollowersList.length >= 1 &&
+        sinstitute.userFollowersList.includes(`${user._id}`)
+      ) {
         user.userInstituteFollowing.pull(sinstitute._id);
-        user.followingUICount -= 1
+        user.followingUICount -= 1;
         sinstitute.userFollowersList.pull(user._id);
-        sinstitute.followersCount -= 1
+        sinstitute.followersCount -= 1;
         await user.save();
         await sinstitute.save();
-        res.status(200).send({ message: 'Unfollow Institute'})
-        if(sinstitute.isUniversal === 'Not Assigned'){
-          const post = await Post.find({ $and: [{ author: sinstitute._id, postStatus: 'Anyone' }]})
+        res.status(200).send({ message: "Unfollow Institute" });
+        if (sinstitute.isUniversal === "Not Assigned") {
+          const post = await Post.find({
+            $and: [{ author: sinstitute._id, postStatus: "Anyone" }],
+          });
           post.forEach(async (ele) => {
-          user.userPosts.pull(ele)
-          })
-          await user.save()
+            user.userPosts.pull(ele);
+          });
+          await user.save();
+        } else {
         }
-        else{}
       } else {
-        res.status(200).send({ message: "You Already Unfollow This Institute" });
+        res
+          .status(200)
+          .send({ message: "You Already Unfollow This Institute" });
       }
-    }
-    else{
-      res.status(200).send({ message: 'Institute is Not Approved, you will not follow'})
+    } else {
+      res
+        .status(200)
+        .send({ message: "Institute is Not Approved, you will not follow" });
     }
   } catch (e) {
     console.log(`Error`, e);
@@ -430,7 +489,7 @@ exports.querySearchUser = async (req, res) => {
 
 exports.updateUserFollow = async (req, res) => {
   try {
-    var user_session = req.tokenData && req.tokenData.userId
+    var user_session = req.tokenData && req.tokenData.userId;
     const user = await User.findById({ _id: user_session });
     const suser = await User.findById({ _id: req.body.userFollowId });
 
@@ -448,53 +507,59 @@ exports.updateUserFollow = async (req, res) => {
       suser.uNotify.push(notify);
       notify.user = suser;
       notify.notifyByPhoto = user;
+
       invokeFirebaseNotification('Followers', notify, user.userLegalName, user._id, user.deviceToken)
+
       await user.save();
       await suser.save();
       await notify.save();
       res.status(200).send({ message: " Following This User" });
-      const post = await Post.find({ $and: [{ author: suser._id, postStatus: 'Anyone'}]})
-      post.forEach(async (ele) =>{
-        user.userPosts.push(ele)
-      })
-      await user.save()
+      const post = await Post.find({
+        $and: [{ author: suser._id, postStatus: "Anyone" }],
+      });
+      post.forEach(async (ele) => {
+        user.userPosts.push(ele);
+      });
+      await user.save();
     }
   } catch (e) {
   }
 };
 
-
 exports.updateUserUnFollow = async (req, res) => {
   try {
-    var user_session = req.tokenData && req.tokenData.userId
+    var user_session = req.tokenData && req.tokenData.userId;
     const user = await User.findById({ _id: user_session });
     const suser = await User.findById({ _id: req.body.userFollowId });
 
     if (user.userFollowing.includes(req.body.userFollowId)) {
-        suser.userFollowers.pull(user_session);
-        user.userFollowing.pull(req.body.userFollowId);
-        user.followingUICount -= 1;
-        suser.followerCount -= 1;
-        await user.save();
-        await suser.save();
-        res.status(200).send({ message: " UnFollowing This User" });
-        const post = await Post.find({ $and: [{ author: suser._id, postStatus: 'Anyone'}]})
-        post.forEach(async (ele) =>{
-          user.userPosts.pull(ele)
-        })
-        await user.save()
+      suser.userFollowers.pull(user_session);
+      user.userFollowing.pull(req.body.userFollowId);
+      user.followingUICount -= 1;
+      suser.followerCount -= 1;
+      await user.save();
+      await suser.save();
+      res.status(200).send({ message: " UnFollowing This User" });
+      const post = await Post.find({
+        $and: [{ author: suser._id, postStatus: "Anyone" }],
+      });
+      post.forEach(async (ele) => {
+        user.userPosts.pull(ele);
+      });
+      await user.save();
     } else {
-      res.status(200).send({ message: "You Are no Longer Following This User" });
+      res
+        .status(200)
+        .send({ message: "You Are no Longer Following This User" });
     }
   } catch (e) {
     console.log(`Error`, e.message);
   }
 };
 
-
 exports.updateUserCircle = async (req, res) => {
   try {
-    var user_session = req.tokenData && req.tokenData.userId
+    var user_session = req.tokenData && req.tokenData.userId;
     const user = await User.findById({ _id: user_session });
     const suser = await User.findById({ _id: req.body.followId });
 
@@ -521,20 +586,25 @@ exports.updateUserCircle = async (req, res) => {
         notify.user = suser;
         notify.notifyByPhoto = user;
         invokeFirebaseNotification('Circle', notify, user.userLegalName, user._id, user.deviceToken)
+
         await user.save();
         await suser.save();
         await notify.save();
-        res.status(200).send({ message: '😀 Added to circle'})
-        const post = await Post.find({ $and: [{ author: suser._id, postStatus: 'Private'}]})
-        post.forEach(async (ele) =>{
-          user.userPosts.push(ele)
-        })
-        await user.save()
-        const posts = await Post.find({ $and: [{ author: user._id, postStatus: 'Private'}]})
-        posts.forEach(async (ele) =>{
-          suser.userPosts.push(ele)
-        })
-        await suser.save()
+        res.status(200).send({ message: "😀 Added to circle" });
+        const post = await Post.find({
+          $and: [{ author: suser._id, postStatus: "Private" }],
+        });
+        post.forEach(async (ele) => {
+          user.userPosts.push(ele);
+        });
+        await user.save();
+        const posts = await Post.find({
+          $and: [{ author: user._id, postStatus: "Private" }],
+        });
+        posts.forEach(async (ele) => {
+          suser.userPosts.push(ele);
+        });
+        await suser.save();
       } catch {
         res.status(500).send({ error: "error" });
       }
@@ -545,7 +615,7 @@ exports.updateUserCircle = async (req, res) => {
 
 exports.removeUserCircle = async (req, res) => {
   try {
-    var user_session = req.tokenData && req.tokenData.userId
+    var user_session = req.tokenData && req.tokenData.userId;
     const user = await User.findById({ _id: user_session });
     const suser = await User.findById({ _id: req.body.followId });
 
@@ -594,7 +664,7 @@ exports.updateUserPersonal = async (req, res) => {
     const { id } = req.params;
     const user = await User.findByIdAndUpdate(id, req.body);
     await user.save();
-    res.status(200).send({ message: "Personal Info Updated"});
+    res.status(200).send({ message: "Personal Info Updated" });
   } catch (e) {
     console.log(`Error`, e.message);
   }
@@ -635,16 +705,17 @@ exports.deactivateUserAccount = async (req, res) => {
     const { id } = req.params;
     const { status, ddate, password } = req.body;
     const user = await User.findById({ _id: id });
-    const comparePassword = bcrypt.compareSync(password, user.userPassword)
-    if(comparePassword){
-    user.activeStatus = status;
-    user.activeDate = ddate;
-    await user.save();
-    res.clearCookie("SessionID", { path: "/" });
-    res.status(200).send({ message: "Deactivated Account", status: user.activeStatus });
-    }
-    else{
-      res.status(404).send({ message: 'Bad Request'})
+    const comparePassword = bcrypt.compareSync(password, user.userPassword);
+    if (comparePassword) {
+      user.activeStatus = status;
+      user.activeDate = ddate;
+      await user.save();
+      res.clearCookie("SessionID", { path: "/" });
+      res
+        .status(200)
+        .send({ message: "Deactivated Account", status: user.activeStatus });
+    } else {
+      res.status(404).send({ message: "Bad Request" });
     }
   } catch (e) {
     console.log(`Error`, e.message);
@@ -764,6 +835,7 @@ exports.getNotifications = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const id = req.params.id;
     const skip = (page - 1) * limit;
+
     const user = await User.findById({ _id: id })
     .populate({ path: 'uNotify' })
     
@@ -791,6 +863,7 @@ exports.getNotifications = async (req, res) => {
     .sort("-notifyTime")
     .limit(limit)
     .skip(skip)
+
     res.status(200).send({ message: "Notification send", notify });
   } catch (e) {
     console.log("Error", e.message);
@@ -930,20 +1003,21 @@ exports.followersArray = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const { uid } = req.params;
     const skip = (page - 1) * limit;
-    const user = await User.findById({ _id: uid })
-    .populate({ path: 'userFollowers' })
+    const user = await User.findById({ _id: uid }).populate({
+      path: "userFollowers",
+    });
 
-    const followers = await User.find({ _id: { $in: user.userFollowers }})
-    .select("userLegalName username photoId profilePhoto")
-    .limit(limit)
-    .skip(skip)
+    const followers = await User.find({ _id: { $in: user.userFollowers } })
+      .select("userLegalName username photoId profilePhoto")
+      .limit(limit)
+      .skip(skip);
     if (user) {
       res.status(200).send({ message: "Success", followers: followers });
     } else {
       res.status(404).send({ message: "Failure" });
     }
-  } catch(e) {
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
 };
 
@@ -954,20 +1028,26 @@ exports.followingArray = async (req, res) => {
     const { uid } = req.params;
     const skip = (page - 1) * limit;
     const user = await User.findById({ _id: uid })
-    .populate({ path: 'userFollowing' })
-    .populate({ path: 'userInstituteFollowing'})
+      .populate({ path: "userFollowing" })
+      .populate({ path: "userInstituteFollowing" });
 
-    const uFollowing = await User.find({ _id: { $in: user.userFollowing }})
-    .select("userLegalName username photoId profilePhoto")
-    .limit(limit)
-    .skip(skip)
+    const uFollowing = await User.find({ _id: { $in: user.userFollowing } })
+      .select("userLegalName username photoId profilePhoto")
+      .limit(limit)
+      .skip(skip);
 
-    const uInsFollowing= await InstituteAdmin.find({ _id: { $in: user.userInstituteFollowing }})
-    .select("insName name photoId insProfilePhoto")
-    .limit(limit)
-    .skip(skip)
+    const uInsFollowing = await InstituteAdmin.find({
+      _id: { $in: user.userInstituteFollowing },
+    })
+      .select("insName name photoId insProfilePhoto")
+      .limit(limit)
+      .skip(skip);
 
-    res.status(200).send({ message: "Success", uFollowing: uFollowing, uInsFollowing: uInsFollowing });
+    res.status(200).send({
+      message: "Success",
+      uFollowing: uFollowing,
+      uInsFollowing: uInsFollowing,
+    });
   } catch {}
 };
 
@@ -977,13 +1057,14 @@ exports.circleArray = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const { uid } = req.params;
     const skip = (page - 1) * limit;
-    const user = await User.findById({ _id: uid })
-    .populate({ path: 'userCircle' })
+    const user = await User.findById({ _id: uid }).populate({
+      path: "userCircle",
+    });
 
-    const circle = await User.find({ _id: { $in: user.userCircle }})
-    .select("userLegalName username photoId profilePhoto")
-    .limit(limit)
-    .skip(skip)
+    const circle = await User.find({ _id: { $in: user.userCircle } })
+      .select("userLegalName username photoId profilePhoto")
+      .limit(limit)
+      .skip(skip);
 
     res.status(200).send({ message: "Success", circle: circle });
   } catch {}
@@ -1008,287 +1089,264 @@ exports.followingInsArray = async (req, res) => {
   } catch {}
 };
 
-
-
-exports.retrieveAllStarAnnouncementUser = async(req, res) =>{
-  try{
+exports.retrieveAllStarAnnouncementUser = async (req, res) => {
+  try {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const { id } = req.params
+    const { id } = req.params;
     const skip = (page - 1) * limit;
-    const user = await User.findById({_id: id})
-    .populate({ path: 'starAnnouncement' })
+    const user = await User.findById({ _id: id }).populate({
+      path: "starAnnouncement",
+    });
     const announcement = await InsAnnouncement.find({
-      _id: { $in: user.starAnnouncement}
+      _id: { $in: user.starAnnouncement },
     })
-    .select('insAnnTitle insAnnPhoto insAnnDescription insAnnVisibility createdAt')
-    .populate({
-      path: 'reply',
-      select: 'replyText replyAuthorByIns replyAuthorByUser createdAt'
-    })
-    .populate({
-      path: 'institute',
-      select: 'insName photoId insProfilePhoto'
-    })
-    .sort("-createdAt")
-    .limit(limit)
-    .skip(skip)
-    res.status(200).send({ message: 'Success', announcement})
+      .select(
+        "insAnnTitle insAnnPhoto insAnnDescription insAnnVisibility createdAt"
+      )
+      .populate({
+        path: "reply",
+        select: "replyText replyAuthorByIns replyAuthorByUser createdAt",
+      })
+      .populate({
+        path: "institute",
+        select: "insName photoId insProfilePhoto",
+      })
+      .sort("-createdAt")
+      .limit(limit)
+      .skip(skip);
+    res.status(200).send({ message: "Success", announcement });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
+exports.retrieveRecoveryMailUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { recoveryMail } = req.body;
+    const user = await User.findById({ _id: id });
+    user.recoveryMail = recoveryMail;
+    await Promise.all([user.save()]);
+    res.status(200).send({ message: "Success", mail: user.recoveryMail });
+  } catch {}
+};
 
-
-exports.retrieveRecoveryMailUser = async(req, res) =>{
-  try{
-    const { id } = req.params
-    const { recoveryMail } = req.body
-    const user = await User.findById({_id: id})
-    user.recoveryMail = recoveryMail
-    await Promise.all([ user.save()])
-    res.status(200).send({ message: 'Success', mail: user.recoveryMail})
-  }
-  catch{
-
-  }
-}
-
-
-
-exports.retrieveUserStaffArray = async(req, res) =>{
-  try{
-    const { uid } = req.params
+exports.retrieveUserStaffArray = async (req, res) => {
+  try {
+    const { uid } = req.params;
     const user = await User.findById({ _id: uid })
-    .select('userLegalName username photoId profilePhoto')
-    .populate({
-      path: 'staff',
-      select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffStatus',
-      populate: {
-        path: 'institute',
-        select: 'insName name photoId insProfilePhoto'
-      }
-    })
-    res.status(200).send({ message: 'Success', user})
-  }
-  catch{
+      .select("userLegalName username photoId profilePhoto")
+      .populate({
+        path: "staff",
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffStatus",
+        populate: {
+          path: "institute",
+          select: "insName name photoId insProfilePhoto",
+        },
+      });
+    res.status(200).send({ message: "Success", user });
+  } catch {}
+};
 
-  }
-}
-
-
-
-exports.retrieveUserStudentArray = async(req, res) =>{
-  try{
-    const { uid } = req.params
+exports.retrieveUserStudentArray = async (req, res) => {
+  try {
+    const { uid } = req.params;
     const user = await User.findById({ _id: uid })
-    .select('userLegalName username photoId profilePhoto')
-    .populate({
-      path: 'student',
-      select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentStatus',
-      populate: {
-        path: 'institute',
-        select: 'insName name photoId insProfilePhoto'
-      }
-    })
-    res.status(200).send({ message: 'Success', user})
-  }
-  catch{
+      .select("userLegalName username photoId profilePhoto")
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentStatus",
+        populate: {
+          path: "institute",
+          select: "insName name photoId insProfilePhoto",
+        },
+      });
+    res.status(200).send({ message: "Success", user });
+  } catch {}
+};
 
-  }
-}
-
-
-
-exports.retrieveStaffDesignationArray = async(req, res) =>{
+exports.retrieveStaffDesignationArray = async (req, res) => {
   try {
     const { sid } = req.params;
     const staff = await Staff.findById({ _id: sid })
-    .select('staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffGender staffNationality staffMTongue staffCast staffCastCategory staffBirthPlace staffState staffDistrict staffReligion staffAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharCard staffDOB staffStatus staffROLLNO')
+      .select(
+        "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffGender staffNationality staffMTongue staffCast staffCastCategory staffBirthPlace staffState staffDistrict staffReligion staffAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharCard staffDOB staffStatus staffROLLNO"
+      )
       .populate({
         path: "staffDepartment",
-        select: 'dName dTitle',
+        select: "dName dTitle",
         populate: {
-          path: 'departmentSelectBatch',
-          select: 'batchName batchStatus'
-        }
+          path: "departmentSelectBatch",
+          select: "batchName batchStatus",
+        },
       })
       .populate({
         path: "staffClass",
-        select: 'className classTitle classStatus',
+        select: "className classTitle classStatus",
         populate: {
           path: "batch",
-          select: 'batchName batchStatus'
+          select: "batchName batchStatus",
         },
       })
       .populate({
         path: "staffSubject",
-        select: 'subjectName subjectTitle subjectStatus',
+        select: "subjectName subjectTitle subjectStatus",
         populate: {
           path: "class",
-          select: 'className classTitle classStatus',
+          select: "className classTitle classStatus",
           populate: {
             path: "batch",
-            select: 'batchName batchStatus'
+            select: "batchName batchStatus",
           },
         },
       })
       .populate({
         path: "institute",
-        select: 'insName photoId insProfilePhoto'
+        select: "insName photoId insProfilePhoto",
       })
       .populate({
-        path: 'user',
-        select: 'userLegalName photoId profilePhoto'
+        path: "user",
+        select: "userLegalName photoId profilePhoto",
       })
       .populate({
-        path: 'financeDepartment',
-        select: 'financeName financeEmail financePhoneNumber',
+        path: "financeDepartment",
+        select: "financeName financeEmail financePhoneNumber",
         populate: {
-          path: 'financeHead',
-          select: 'staffFirstName staffMiddleName staffLastName'
-        }
+          path: "financeHead",
+          select: "staffFirstName staffMiddleName staffLastName",
+        },
       })
       .populate({
-        path: 'financeDepartment',
-        select: 'financeName financeEmail financePhoneNumber',
+        path: "financeDepartment",
+        select: "financeName financeEmail financePhoneNumber",
         populate: {
-          path: 'institute',
-          select: 'financeStatus'
-        }
+          path: "institute",
+          select: "financeStatus",
+        },
       })
       .lean()
-      .exec()
-      // .populate({
-      //   path: "staffAdmissionAdmin",
-      //   populate: {
-      //     path: "institute",
-      //     populate: {
-      //       path: "depart",
-      //       populate: {
-      //         path: "batches",
-      //       },
-      //     },
-      //   },
-      // })
-      // .populate({
-      //   path: "elearning",
-      // })
-      // .populate({
-      //   path: "library",
-      // })
-      // .populate("financeDepartment")
-      // .populate("sportDepartment")
-      // .populate("staffSportClass")
-      // .populate("staffAdmissionAdmin")
-      // .populate({
-      //   path: "staffAdmissionAdmin",
-      //   populate: {
-      //     path: "adAdminName",
-      //   },
-      // });
+      .exec();
+    // .populate({
+    //   path: "staffAdmissionAdmin",
+    //   populate: {
+    //     path: "institute",
+    //     populate: {
+    //       path: "depart",
+    //       populate: {
+    //         path: "batches",
+    //       },
+    //     },
+    //   },
+    // })
+    // .populate({
+    //   path: "elearning",
+    // })
+    // .populate({
+    //   path: "library",
+    // })
+    // .populate("financeDepartment")
+    // .populate("sportDepartment")
+    // .populate("staffSportClass")
+    // .populate("staffAdmissionAdmin")
+    // .populate({
+    //   path: "staffAdmissionAdmin",
+    //   populate: {
+    //     path: "adAdminName",
+    //   },
+    // });
     res.status(200).send({ message: "Staff Designation Data", staff });
-  } catch {
-  }
-}
+  } catch {}
+};
 
-
-
-exports.retrieveStudentDesignationArray = async(req, res) =>{
+exports.retrieveStudentDesignationArray = async (req, res) => {
   try {
     const { sid } = req.params;
     const student = await Student.findById({ _id: sid })
-    .select('studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentDOB studentNationality studentMTongue studentCast studentCastCategory studentBirthPlace studentState studentDistrict studentAddress studentPhoneNumber studentParentsName studentParentsPhoneNumber studentAadharCard studentAadharNumber studentDocuments studentGRNO studentStatus studentROLLNO')
+      .select(
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentDOB studentNationality studentMTongue studentCast studentCastCategory studentBirthPlace studentState studentDistrict studentAddress studentPhoneNumber studentParentsName studentParentsPhoneNumber studentAadharCard studentAadharNumber studentDocuments studentGRNO studentStatus studentROLLNO"
+      )
       .populate({
         path: "studentClass",
-        select: 'className classTitle classStatus',
+        select: "className classTitle classStatus",
         populate: {
           path: "batch",
-          select: 'batchName batchStatus'
+          select: "batchName batchStatus",
         },
       })
       .populate({
         path: "institute",
-        select: 'insName name photoId insProfilePhoto'
+        select: "insName name photoId insProfilePhoto",
       })
       .populate({
         path: "user",
-        select: 'userLegalName username photoId profilePhoto'
-      })
-      // .populate("checklist")
-      // .populate({
-      //   path: "department",
-      //   populate: {
-      //     path: "fees",
-      //   },
-      // })
-      // .populate({
-      //   path: "studentMarks",
-      //   populate: {
-      //     path: "examId",
-      //   },
-      // })
-      // .populate("studentFee")
-      // .populate({
-      //   path: "department",
-      //   populate: {
-      //     path: "checklists",
-      //   },
-      // })
-      // .populate({
-      //   path: "sportEvent",
-      //   populate: {
-      //     path: "sportEventMatch",
-      //     populate: {
-      //       path: "sportEventMatchClass",
-      //       populate: {
-      //         path: "sportStudent",
-      //       },
-      //     },
-      //   },
-      // })
-      // .populate("complaints");
+        select: "userLegalName username photoId profilePhoto",
+      });
+    // .populate("checklist")
+    // .populate({
+    //   path: "department",
+    //   populate: {
+    //     path: "fees",
+    //   },
+    // })
+    // .populate({
+    //   path: "studentMarks",
+    //   populate: {
+    //     path: "examId",
+    //   },
+    // })
+    // .populate("studentFee")
+    // .populate({
+    //   path: "department",
+    //   populate: {
+    //     path: "checklists",
+    //   },
+    // })
+    // .populate({
+    //   path: "sportEvent",
+    //   populate: {
+    //     path: "sportEventMatch",
+    //     populate: {
+    //       path: "sportEventMatchClass",
+    //       populate: {
+    //         path: "sportStudent",
+    //       },
+    //     },
+    //   },
+    // })
+    // .populate("complaints");
     // .populate('studentAttendence')
     res.status(200).send({ message: "Student Designation Data", student });
-  } catch {
-  }
-}
+  } catch {}
+};
 
-
-
-
-
-exports.retrieveUserThreeArray = async(req, res) =>{
-  try{
-    const { id } = req.params
-    const user = await User.findById({_id: id})
-    .select('id userFollowers userFollowing userInstituteFollowing userCircle')
-    res.status(200).send({ message: '3-Array', user})
-  }
-  catch{
-
-  }
-}
-
+exports.retrieveUserThreeArray = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById({ _id: id }).select(
+      "id userFollowers userFollowing userInstituteFollowing userCircle"
+    );
+    res.status(200).send({ message: "3-Array", user });
+  } catch {}
+};
 
 exports.circleArrayQuery = async (req, res) => {
   try {
     const { uid } = req.params;
     const user = await User.findById({ _id: uid })
-    .select("userLegalName username photoId profilePhoto")
-    .populate({ 
-      path: 'userCircle',
-      select: "userLegalName username photoId profilePhoto"
-    })
+      .select("userLegalName username photoId profilePhoto")
+      .populate({
+        path: "userCircle",
+        select: "userLegalName username photoId profilePhoto",
+      });
     res.status(200).send({ message: "Success", user });
   } catch {}
 };
 
-
 exports.allCircleUsers = async (req, res) => {
-  console.log(req.query)
+  console.log(req.query);
   const keyword = req.query.search
     ? {
         $or: [
@@ -1298,10 +1356,13 @@ exports.allCircleUsers = async (req, res) => {
       }
     : {};
 
-  const users = await User.find({ _id: { $ne: req.tokenData && req.tokenData.userId } }).populate({ path: 'userCircle'})
-  const user = users.userCircle.find(keyword)
+  const users = await User.find({
+    _id: { $ne: req.tokenData && req.tokenData.userId },
+  }).populate({ path: "userCircle" });
+  const user = users.userCircle.find(keyword);
   res.send(user);
 }
+
 
 
 

@@ -67,13 +67,14 @@ exports.searchUserUniversal = async (req, res) => {
       //   .exec();
       if (!allInstitutes.length && !users.length)
         res.status(204).send({ message: "Not found any search" });
-      else var universalArrayUser = [...allInstitutes, ...users];
-      res.status(200).send({
-        // allInstitutes,
-        // users,
-        universalArrayUser,
-        // staffs,
-      });
+      else {
+        res.status(200).send({
+          // allInstitutes,
+          // users,
+          universalArrayUser: [...allInstitutes, ...users],
+          // staffs,
+        });
+      }
     }
   } catch (e) {
     console.log(e);

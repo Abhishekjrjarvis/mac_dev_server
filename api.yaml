@@ -456,6 +456,26 @@ paths:
         "200":
           description: OK
 
+  /api/v1/user/one-announcement/{aid}:
+    get:
+      tags:
+        - User Profile API
+      summary: User side Institute One Announcement Data
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: aid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The Announcement ID
+      responses:
+        "200":
+          description: OK
+
   /api/v1/user/{id}/setting/personal:
     get:
       tags:

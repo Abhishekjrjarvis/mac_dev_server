@@ -22,6 +22,7 @@ const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require("../../Firebase/firebase");
+const { dateTimeSort } = require("../../Utilities/timeComparison");
 
 exports.getUserData = async (req, res) => {
   try {
@@ -87,6 +88,7 @@ exports.retrieveFIAnnouncement = async (req, res) => {
 
     const announcementArray = (announcement) => {
       const announ = [];
+      // const announ2 = [];
 
       announcement?.forEach((announce) => {
         announce?.announcement?.forEach((oneAnnounce) => {
@@ -105,6 +107,21 @@ exports.retrieveFIAnnouncement = async (req, res) => {
           });
         });
       });
+      // let count = 0;
+      // for (announcement of announ) {
+      //   let countAgain = 0;
+      //   let flag = false;
+      //   for (announcementAgain of announ) {
+      //     if (
+      //       dateTimeSort(
+      //         announcement[count]?.createdAt,
+      //         announcementAgain[countAgain]?.createdAt
+      //       )
+      //     )
+      //       flag = true;
+      //     else flag = false;
+      //   }
+      // }
 
       return announ;
     };

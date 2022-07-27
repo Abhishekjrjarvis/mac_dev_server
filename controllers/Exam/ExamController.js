@@ -88,7 +88,11 @@ exports.createExam = async (req, res) => {
     exam.department = department._id;
     exam.batch = batch._id;
 
-    for (let cid of req.body.allclasses) {
+    const allclasses = [
+      ...new Set(req.body.allclasses?.map(JSON.stringify)),
+    ].map(JSON.parse);
+
+    for (let cid of allclasses) {
       for (let sub of req.body.allsubject) {
         for (let subId of sub.subjectIds) {
           const subject = await Subject.findById(subId).select("class exams");
@@ -181,8 +185,11 @@ exports.createExam = async (req, res) => {
               // );
               await Promise.all([student.save(), notify.save()]);
             }
-            subject.exams.push(exam._id);
-            await subject.save();
+            if (subject?.exams?.includes(exam._id)) {
+            } else {
+              subject.exams.push(exam._id);
+              await subject.save();
+            }
             exam.subjects.push({
               subjectId: subject._id,
               subjectName: sub.subjectName,
@@ -218,15 +225,7 @@ exports.examById = async (req, res) => {
       const classes = await Class.findById(cid).select(
         "className subject masterClassName"
       );
-
       masterids.push(classes);
-    }
-    for (let i = 0; i < masterids.length; i++) {
-      for (let j = i + 1; j < masterids.length; j++) {
-        if (String(masterids[i]) === String(masterids[j])) {
-          masterids.splice(j, 1);
-        }
-      }
     }
     const subjectids = [];
 
@@ -241,33 +240,51 @@ exports.examById = async (req, res) => {
         subjectMasterId: sub.subjectMasterId,
       });
     }
+    const classWithSubject = [];
+    masterids?.forEach((master) => {
+      const obj = {
+        _id: master._id,
+        className: master.className,
+        masterClassName: master.masterClassName,
+        subject: [],
+      };
+      subjectids?.forEach((subject) => {
+        if (master?.subject?.includes(subject?.subjectId))
+          obj.subject.push(subject);
+      });
+      classWithSubject.push(obj);
+    });
 
-    // for (let i = 0; i < subjectids.length; i++) {
-    //   for (let j = i + 1; j < subjectids.length; j++) {
-    //     if (
-    //       String(subjectids[i].subjectMasterId) ===
-    //         String(subjectids[j].subjectMasterId) &&
-    //       subjectids[i].totalMarks === subjectids[j].totalMarks
-    //     ) {
-    //       subjectids.splice(j, 1);
-    //     }
-    //   }
-    // }
+    const oneExamDetail = [];
+    for (let i = 0; i < classWithSubject?.length; i++) {
+      const obj = {
+        _id: classWithSubject[i]._id,
+        className: classWithSubject[i].className,
+        masterClassName: classWithSubject[i].masterClassName,
+        subject: [...classWithSubject[i].subject],
+      };
+      for (let j = i + 1; j < classWithSubject?.length; j++) {
+        if (
+          String(classWithSubject[i].masterClassName) ===
+          String(classWithSubject[j].masterClassName)
+        )
+          obj.subject.push(...classWithSubject[j].subject);
 
-    // [
-    //   ...new Set(uniqueDepartment.map(JSON.stringify)),
-    // ].map(JSON.parse)
-    const uniqueArra = [...new Set(subjectids.map(JSON.stringify))].map(
-      JSON.parse
-    );
-    // const classMaster = await ClassMaster.find({
-    //   _id: { $in: masterids },
-    // }).select("className _id");
+        classWithSubject.splice(j, 1);
+      }
+      for (let z = 0; z < obj.subject?.length; z++) {
+        for (let k = z + 1; k < obj.subject?.length; k++) {
+          if (
+            String(obj.subject[z].subjectMasterId) ===
+            String(obj.subject[k].subjectMasterId)
+          )
+            obj.subject.splice(k, 1);
+        }
+      }
+      oneExamDetail.push(obj);
+    }
 
-    // const subjectMaster = await SubjectMaster.find({
-    //   _id: { $in: subjectids },
-    // }).select("subjectName _id");
-    res.status(200).send({ masterids, uniqueArra });
+    res.status(200).send({ oneExamDetail });
   } catch (e) {
     console.log(e);
   }

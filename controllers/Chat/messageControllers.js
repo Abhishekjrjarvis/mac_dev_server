@@ -353,6 +353,8 @@ exports.sendSupportMessageQuery = async (req, res) => {
         select: 'content'
       }
     })
+
+
     const chat = await SupportChat.findById(req.body.chatId)
     chat.latestMessage = message._id
     chat.message.push(message._id)

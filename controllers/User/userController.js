@@ -558,7 +558,6 @@ exports.updateUserUnFollow = async (req, res) => {
 };
 
 exports.updateUserCircle = async (req, res) => {
-  console.log(req.body)
   try {
     var user_session = req.tokenData && req.tokenData.userId;
     const user = await User.findById({ _id: user_session });

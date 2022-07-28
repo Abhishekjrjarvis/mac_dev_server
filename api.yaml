@@ -2897,11 +2897,6 @@ paths:
         - application/json
       parameters:
         - in: formData
-          name: file
-          type: file
-          required: true
-          description: upload your institute document
-        - in: formData
           name: insName
           type: string
           required: true
@@ -2942,11 +2937,6 @@ paths:
           required: true
           description: Enter a address
         - in: formData
-          name: insAbout
-          type: string
-          required: true
-          description: Enter a about
-        - in: formData
           name: insMode
           type: string
           required: true
@@ -2956,6 +2946,11 @@ paths:
           type: string
           required: true
           description: Enter a type that is college or school etc
+        - in: formData
+          name: userId
+          type: string
+          required: true
+          description: Enter User name
       responses:
         "200":
           description: OK

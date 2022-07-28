@@ -117,19 +117,19 @@ exports.retrieveBonafideGRNO = async(req, res) => {
   try{
     const { gr } = req.params
     const { reason } = req.body
-    const student = await Student.find({ studentGRNO: gr})
+    const student = await Student.findOne({ studentGRNO: `${gr}`})
     .select('studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB')
     .populate({
       path: 'studentClass',
       select: 'className'
     })
     .populate({
-      path: 'batch',
+      path: 'batches',
       select: 'batchName'
     })
     student.studentReason = reason
     await student.save()
-    res.status(200).send({ message: 'Student Certificate', })
+    res.status(200).send({ message: 'Student Certificate', student})
   }
   catch(e){
       console.log(e)

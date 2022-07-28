@@ -19,7 +19,6 @@ const chatDocumentSchema = new mongoose.Schema({
   },
   documentEncoding: {
     type: String,
-    required: true,
   },
 });
 

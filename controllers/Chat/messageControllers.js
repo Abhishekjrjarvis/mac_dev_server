@@ -217,7 +217,7 @@ exports.forwardMessageQuery = async(req, res) =>{
 exports.markAsReadReceipts = async(req, res) =>{
   try{
     const { cid } = req.params
-    const message = await Message.find({ $and: [ { chat: cid }, { readBySelf: false }] })
+    const message = await Message.find({ $and: [ { chat: cid }, { readBySelf: false }, { sender: !req.tokenData.userId}] })
     for(let i = 0; i < message.length; i++ ){
       message[i].readBySelf = 'Read'
       await message[i].save()

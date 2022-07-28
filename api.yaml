@@ -1021,7 +1021,7 @@ paths:
 
 
   /api/v1/extra/bonafide/certificate/{gr}:
-    get:
+    post:
       tags:
         - Setting Control API
       summary: Bonafide certificate -(verified)

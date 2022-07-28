@@ -2,6 +2,7 @@ const User = require('../../models/User')
 const InstituteAdmin = require('../../models/InstituteAdmin')
 const Admin = require('../../models/superAdmin')
 const FeedBack = require('../../models/Feedbacks/Feedback')
+const Student = require('../../models/Student')
 
 exports.validateUserAge = async(req, res) =>{
     // try{
@@ -108,4 +109,29 @@ exports.retrieveReferralQuery = async(req, res) => {
     catch(e){
         console.log(e)
     }
+}
+
+
+
+exports.retrieveBonafideGRNO = async(req, res) => {
+  try{
+    const { gr } = req.params
+    const { reason } = req.body
+    const student = await Student.find({ studentGRNO: gr})
+    .select('studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB')
+    .populate({
+      path: 'studentClass',
+      select: 'className'
+    })
+    .populate({
+      path: 'batch',
+      select: 'batchName'
+    })
+    student.studentReason = reason
+    await student.save()
+    res.status(200).send({ message: 'Student Certificate', })
+  }
+  catch(e){
+      console.log(e)
+  }
 }

@@ -13,5 +13,7 @@ router.get('/:uid/referral', catchAsync(Extra.retrieveReferralQuery))
 
 router.post('/feedback/user', catchAsync(Extra.retrieveFeedBackUser))
 
+router.get('/bonafide/certificate/:gr', catchAsync(Extra.retrieveBonafideGRNO))
+
 
 module.exports = router

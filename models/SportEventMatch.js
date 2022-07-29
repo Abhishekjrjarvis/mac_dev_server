@@ -1,8 +1,4 @@
 const mongoose = require('mongoose')
-const SportEvent = require('./SportEvent')
-const SportClass = require('./SportClass')
-const SportTeam = require('./SportTeam')
-const Student = require('./Student')
 
 const sportEventMatchSchema = new mongoose.Schema({
     sportEventMatchName: { type: String, required: true },

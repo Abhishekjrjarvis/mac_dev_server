@@ -3,6 +3,7 @@ const InstituteAdmin = require('../../models/InstituteAdmin')
 const Admin = require('../../models/superAdmin')
 const FeedBack = require('../../models/Feedbacks/Feedback')
 const Student = require('../../models/Student')
+const logger = require('../../Utilities/Logs/errorLogs')
 
 exports.validateUserAge = async(req, res) =>{
     // try{
@@ -107,7 +108,7 @@ exports.retrieveReferralQuery = async(req, res) => {
       res.status(200).send({ message: `Thanks for feedback ${user.username}`})
     }
     catch(e){
-        console.log(e)
+        
     }
 }
 

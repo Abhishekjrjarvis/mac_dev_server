@@ -50,15 +50,6 @@ router.get('/video/list/data', isLoggedIn, catchAsync(All.getAllVideo))
 // All Application Payment Find By User
 router.get('/application/payment/user/:id', isLoggedIn, catchAsync(All.getAllApplyPaymentUser))
 
-// All Department Application Data
-router.get('/application/list/data', isLoggedIn, catchAsync(All.getAllDepartmentApplication))
-
-// All Institute Support Query At Super Admin
-router.get('/ins/support', isLoggedIn, catchAsync(All.getAllInsSupport))
-
-// All User Support Query At Super Admin
-router.get('/user/support', isLoggedIn, catchAsync(All.getAllUserSupport))
-
 // Update Device Token At User Id
 router.post('/todevice/token', catchAsync(All.fetchDeviceToken))
 

@@ -320,20 +320,6 @@ router.post(
   catchAsync(Institute.printedBySuperAdmin)
 );
 
-// Institute Support Request At Super Admin
-router.post(
-  "/:id/support",
-  isLoggedIn,
-  catchAsync(Institute.requestForSupportIns)
-);
-
-// Support Reply By Super Admin To Institute
-router.post(
-  "/:id/support/:sid/reply",
-  isLoggedIn,
-  catchAsync(Institute.replyBySuperAdmin)
-);
-
 // Complaint Reported By Student To Institute Admin (After Not Resolved By Department / Class Teacher)
 router.post(
   "/student/complaint/:id/institute/:iid",

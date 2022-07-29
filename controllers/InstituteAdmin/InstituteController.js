@@ -5,13 +5,11 @@ const Post = require("../../models/Post");
 const Notification = require("../../models/notification");
 const InsAnnouncement = require("../../models/InsAnnouncement");
 const Student = require("../../models/Student");
-const Comment = require("../../models/Comment");
 const Department = require("../../models/Department");
 const InsDocument = require("../../models/Document/InsDocument");
 const Admin = require("../../models/superAdmin");
 const Report = require("../../models/Report");
 const Batch = require("../../models/Batch");
-const InstituteSupport = require("../../models/InstituteSupport");
 const Complaint = require("../../models/Complaint");
 const Transfer = require("../../models/Transfer");
 const DisplayPerson = require("../../models/DisplayPerson");
@@ -1105,42 +1103,6 @@ exports.printedBySuperAdmin = async (req, res) => {
   }
 };
 
-exports.requestForSupportIns = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const institute = await InstituteAdmin.findById({ _id: id });
-    const support = await new InstituteSupport({ ...req.body });
-    institute.supportIns.push(support);
-    support.institute = institute;
-    await institute.save();
-    await support.save();
-    res.status(200).send({ message: "Successfully Updated", institute });
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
-
-exports.replyBySuperAdmin = async (req, res) => {
-  try {
-    const { id, sid } = req.params;
-    const { queryReply } = req.body;
-    const institute = await InstituteAdmin.findById({ _id: id });
-    const reply = await InstituteSupport.findById({ _id: sid });
-    const notify = new Notification({});
-    reply.queryReply = queryReply;
-    notify.notifyContent = `${reply.body} ${reply.queryReply}`;
-    notify.notifyReceiever = id;
-    institute.iNotify.push(notify);
-    notify.institute = institute;
-    notify.notifyByInsPhoto = institute;
-    await reply.save();
-    await institute.save();
-    await notify.save();
-    res.status(200).send({ message: "reply", reply });
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
 
 exports.complaintReportAtIns = async (req, res) => {
   try {

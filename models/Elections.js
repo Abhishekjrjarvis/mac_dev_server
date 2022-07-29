@@ -1,7 +1,4 @@
 const mongoose = require("mongoose");
-const Class = require("./Class");
-const Department = require("./Department");
-const Student = require("./Student");
 
 
 const electionsSchema = new mongoose.Schema({

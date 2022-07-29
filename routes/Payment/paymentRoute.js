@@ -6,8 +6,8 @@ const { processPayment, paytmResponse, processEContentPayment, paytmEContentResp
 } = require('../../controllers/Payment/paymentController');
 
 const { processVideoPayment, paytmVideoResponse } = require('../../controllers/Payment/videoPaymentController')
-const { processApplicationPayment, paytmApplicationResponse } = require('../../controllers/Payment/ApplicationController')
-const { processAdmissionPayment, paytmAdmissionResponse } = require('../../controllers/Payment/AdmissionController')
+// const { processApplicationPayment, paytmApplicationResponse } = require('../../controllers/Payment/ApplicationController')
+// const { processAdmissionPayment, paytmAdmissionResponse } = require('../../controllers/Payment/AdmissionController')
 
 const { processUnlockFeaturePayment, paytmUnlockFeatureResponse } = require('../../controllers/Payment/UnlockController')
 
@@ -35,15 +35,15 @@ router.route('/e-content/video/callback/user/:uid/playlist/:pid/video/:vid/ins/:
 
 // ================== Application Payment ========================
 
-router.route('/payment/application/process').post(processApplicationPayment);
-router.route('/application/callback/:uid/apply/:aid/ins/:iid/finance/:fid').post(paytmApplicationResponse);
+// router.route('/payment/application/process').post(processApplicationPayment);
+// router.route('/application/callback/:uid/apply/:aid/ins/:iid/finance/:fid').post(paytmApplicationResponse);
 
 
 
 // ================== Admission Payment ========================
 
-router.route('/payment/admission/process').post(processAdmissionPayment);
-router.route('/admission/callback/:uid/apply/:aid/ins/:iid/finance/:fid').post(paytmAdmissionResponse);
+// router.route('/payment/admission/process').post(processAdmissionPayment);
+// router.route('/admission/callback/:uid/apply/:aid/ins/:iid/finance/:fid').post(paytmAdmissionResponse);
 
 
 

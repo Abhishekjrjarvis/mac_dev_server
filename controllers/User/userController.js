@@ -1,16 +1,10 @@
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const Admin = require("../../models/superAdmin");
 const User = require("../../models/User");
-const UserComment = require("../../models/UserComment");
-const UserPost = require("../../models/userPost");
 const Notification = require("../../models/notification");
-const Conversation = require("../../models/Conversation");
-const UserSupport = require("../../models/UserSupport");
 const Report = require("../../models/Report");
-
 const Staff = require('../../models/Staff')
 const Student = require('../../models/Student')
-const axios = require('axios')
 const InsAnnouncement = require('../../models/InsAnnouncement')
 const bcrypt = require('bcryptjs')
 const Post = require('../../models/Post')
@@ -261,109 +255,6 @@ exports.retrieveFIOneAnnouncement = async (req, res) => {
     }
   } catch (e) {
     console.error(e);
-  }
-};
-exports.addPostUserData = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const user = await User.findById({ _id: id });
-    const post = new UserPost({ ...req.body });
-    post.imageId = "1";
-    user.userPosts.push(post);
-    user.postCount += 1;
-    post.user = user._id;
-    await user.save();
-    await post.save();
-    res.status(200).send({ message: "Post Successfully Created", user });
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
-
-exports.uploadPostImage = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const file = req.file;
-    const results = await uploadDocFile(file);
-    const user = await User.findById({ _id: id });
-    const post = new UserPost({ ...req.body });
-    post.imageId = "0";
-    post.userCreateImage = results.Key;
-    user.userPosts.push(post);
-    user.postCount += 1;
-    post.user = user._id;
-    await user.save();
-    await post.save();
-    await unlinkFile(file.path);
-    res.status(200).send({ message: "Post Successfully Created", user });
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
-
-exports.retrievePostImage = async (req, res) => {
-  try {
-    const key = req.params.key;
-    const readStream = getFileStream(key);
-    readStream.pipe(res);
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
-
-exports.uploadPostVideo = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const file = req.file;
-    const results = await uploadVideo(file);
-    const user = await User.findById({ _id: id });
-    const post = new UserPost({ ...req.body });
-    post.userCreateVideo = results.Key;
-    post.imageId = "1";
-    user.userPosts.push(post);
-    user.postCount += 1;
-    post.user = user._id;
-    await user.save();
-    await post.save();
-    await unlinkFile(file.path);
-    res.status(200).send({ message: "Post Successfully Created", user });
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
-
-exports.retrievePostVideo = async (req, res) => {
-  try {
-    const key = req.params.key;
-    const readStream = getFileStream(key);
-    readStream.pipe(res);
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
-
-exports.userPostVisibiltyChange = async (req, res) => {
-  try {
-    const { id, uid } = req.params;
-    const { userPostStatus } = req.body;
-    const userpost = await UserPost.findById({ _id: uid });
-    userpost.userPostStatus = userPostStatus;
-    await userpost.save();
-    res.status(200).send({ message: "visibility change", userpost });
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
-
-exports.getDeletedUserPost = async (req, res) => {
-  try {
-    const { id, uid } = req.params;
-    await User.findByIdAndUpdate(id, { $pull: { userPosts: uid } });
-    await User.findByIdAndUpdate(id, { $pull: { saveUsersPost: uid } });
-    await UserPost.findByIdAndDelete({ _id: uid });
-    res.status(200).send({ message: "deleted Post" });
-  } catch (e) {
-    console.log(`Error`, e.message);
   }
 };
 
@@ -782,33 +673,6 @@ exports.getCreditTransfer = async (req, res) => {
   }
 };
 
-exports.getSupportByUser = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const user = await User.findById({ _id: id });
-    const support = await new UserSupport({ ...req.body });
-    user.support.push(support);
-    support.user = user;
-    await user.save();
-    await support.save();
-    res.status(200).send({ message: "Successfully Updated", user });
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
-
-exports.getSupportReply = async (req, res) => {
-  try {
-    const { id, sid } = req.params;
-    const { queryReply } = req.body;
-    const reply = await UserSupport.findById({ _id: sid });
-    reply.queryReply = queryReply;
-    await reply.save();
-    res.status(200).send({ message: "reply", reply });
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
 
 exports.getReportPostUser = async (req, res) => {
   try {

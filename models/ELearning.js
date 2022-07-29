@@ -1,7 +1,5 @@
 const mongoose = require("mongoose");
-const Staff = require("./Staff");
-const InstituteAdmin = require("./InstituteAdmin");
-const Playlist = require("./Playlist");
+
 const ELearningSchema = new mongoose.Schema({
   elearningHead: {
     type: mongoose.Schema.Types.ObjectId,

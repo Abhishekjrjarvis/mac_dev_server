@@ -1,8 +1,5 @@
 const mongoose = require("mongoose");
-const Topic = require("./Topic");
-const Resource = require("./Resource");
-const VideoComment = require("./VideoComment");
-const User = require("./User");
+
 const videoSchema = new mongoose.Schema({
   fileName:{type:String},
   name: { type: String, required: true },

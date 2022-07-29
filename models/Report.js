@@ -1,7 +1,4 @@
 const mongoose = require('mongoose')
-const User = require('./User')
-const UserPost = require('./userPost')
-const Post = require('./Post')
 
 const reportSchema = new mongoose.Schema({
     reportStatus: {

@@ -1,10 +1,5 @@
 
 const mongoose = require("mongoose");
-const Staff = require("./Staff");
-const InstituteAdmin = require("./InstituteAdmin");
-const Sport = require("./Sport");
-const Student = require("./Student");
-const SportTeam = require("./SportTeam");
 
 const sportClassSchema = new mongoose.Schema({
   photoId: { type: String, default: "1" },

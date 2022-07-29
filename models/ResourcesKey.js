@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Resource = require("./Resource");
+
 const resourcesKeySchema = new mongoose.Schema({
   resourceName: {
     type: String,

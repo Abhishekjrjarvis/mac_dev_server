@@ -4,11 +4,9 @@ const app = express();
 const path = require("path");
 const cors = require("cors");
 const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const MongoStore = require("connect-mongo");
-const Admin = require("./models/superAdmin");
 
 //======================== All Routes ========================
 
@@ -141,24 +139,6 @@ app.use("/api/v1/fees", feesNew);
 app.use('/api/v1/extra', extraNew)
 
 // ============================================================================
-
-app.get("/super-admin", (req, res) => {
-  res.render("SuperAdmin");
-});
-
-app.post("/super-admin", async (req, res) => {
-  try{
-    const { adminPassword } = req.body;
-    const genPassword = bcrypt.genSaltSync(12);
-    const hashPassword = bcrypt.hashSync(adminPassword, genPassword);
-    const admin = new Admin({...req.body});
-    admin.adminPassword = hashPassword,
-    await admin.save();
-    res.redirect("/");
-  }
-  catch{}
-});
-
 
 app.get("*", (req, res) => {
   res.status(404).send("Page Not Found...");

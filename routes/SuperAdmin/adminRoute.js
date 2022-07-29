@@ -6,6 +6,11 @@ const { isLoggedIn } = require('../../middleware')
 const multer = require('multer')
 const upload = multer({ dest: "uploads/" });
 
+// Render Admin
+router.get("/super", catchAsync(Admin.getRenderAdmin))
+
+router.post("/super", catchAsync(Admin.retrieveAdminQuery));
+
 // Get Super Admin Id
 router.get('/:aid', isLoggedIn, catchAsync(Admin.getAdmin))
 

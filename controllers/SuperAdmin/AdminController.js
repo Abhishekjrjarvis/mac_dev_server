@@ -38,6 +38,25 @@ const generateAdminOTP = async (mob) => {
 
 
 
+exports.getRenderAdmin = async(req, res) => {
+  res.render("SuperAdmin");
+}
+
+
+exports.retrieveAdminQuery = async(req, res) =>{
+  try{
+    const { adminPassword } = req.body;
+    const genPassword = bcrypt.genSaltSync(12);
+    const hashPassword = bcrypt.hashSync(adminPassword, genPassword);
+    const admin = new Admin({...req.body});
+    admin.adminPassword = hashPassword,
+    await admin.save();
+    res.redirect("/");
+  }
+  catch{}
+}
+
+
 exports.getAdmin = async(req, res) =>{
     try {
         const { aid } = req.params

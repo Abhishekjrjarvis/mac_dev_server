@@ -4,23 +4,25 @@ const {
     format
 } = require('winston');
 require('winston-mongodb');
-const logger = createLogger({
+
+
+const loggers = createLogger({
     transports: [
         new transports.File({
-            filename: 'error.log',
-            level: 'error',
+            filename: 'access.log',
+            level: 'info',
             format: format.combine(format.timestamp(), format.json())
         }),
         new transports.MongoDB({
-            level: 'error',
+            level: 'info',
             db: `${process.env.DB_URL2}`,
             options: {
                 useUnifiedTopology: true
             },
-            collection: 'Error',
+            collection: 'Logs',
             format: format.combine(format.timestamp(), format.json())
         })
     ]
 })
 
-module.exports = logger;
+module.exports = loggers;

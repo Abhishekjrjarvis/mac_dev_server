@@ -179,7 +179,7 @@ exports.getProfileOneQuery = async (req, res) => {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName status photoId insProfilePhoto activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement insOperatingAdmin insPrinciple insTrusty insStudentPresident insAdminClerk"
+        "insName status photoId insProfilePhoto insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement insOperatingAdmin insPrinciple insTrusty insStudentPresident insAdminClerk"
       )
       .lean()
       .exec();
@@ -2973,4 +2973,16 @@ exports.updateClassDisplayPersonArray = async (req, res) => {
   } catch (e) {
     console.log(e);
   }
+};
+
+
+
+
+exports.updateLeavingCertificateQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const institute = await InstituteAdmin.findByIdAndUpdate(id, req.body);
+    await institute.save();
+    res.status(200).send({ message: "Editable Leaving Info Updated" });
+  } catch {}
 };

@@ -3,7 +3,6 @@ const InstituteAdmin = require('../../models/InstituteAdmin')
 const Admin = require('../../models/superAdmin')
 const FeedBack = require('../../models/Feedbacks/Feedback')
 const Student = require('../../models/Student')
-const logger = require('../../Utilities/Logs/errorLogs')
 
 exports.validateUserAge = async(req, res) =>{
     // try{
@@ -57,9 +56,7 @@ exports.retrieveAgeRestrict = async(req, res) =>{
         const user = await User.findById({_id: uid})
         res.status(200).send({ message: 'Get Age Rstrict', status: user.ageRestrict})
     }
-    catch(e){
-        console.log(e)
-    }
+    catch{}
 }
 
 
@@ -72,9 +69,7 @@ exports.retrieveRandomInstituteQuery = async(req, res) => {
         var r_Ins = institute[random]
         res.status(200).send({ message: 'Random Institute', r_Ins})
     }
-    catch(e){
-        console.log(e)
-    }
+    catch{}
 }
 
 exports.retrieveReferralQuery = async(req, res) => {
@@ -91,9 +86,7 @@ exports.retrieveReferralQuery = async(req, res) => {
       })
       res.status(200).send({ message: 'Referral', user})
     }
-    catch{
-  
-    }
+    catch{}
   }
 
 
@@ -107,9 +100,7 @@ exports.retrieveReferralQuery = async(req, res) => {
       await Promise.all([ feed.save(), admin.save()])
       res.status(200).send({ message: `Thanks for feedback ${user.username}`})
     }
-    catch(e){
-        
-    }
+    catch{}
 }
 
 
@@ -119,7 +110,7 @@ exports.retrieveBonafideGRNO = async(req, res) => {
     const { gr } = req.params
     const { reason } = req.body
     const student = await Student.findOne({ studentGRNO: `${gr}`})
-    .select('studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB')
+    .select('studentFirstName studentMiddleName studentAdmissionDate studentLastName photoId studentProfilePhoto studentDOB')
     .populate({
       path: 'studentClass',
       select: 'className'
@@ -128,11 +119,42 @@ exports.retrieveBonafideGRNO = async(req, res) => {
       path: 'batches',
       select: 'batchName'
     })
+    .populate({
+      path: 'institute',
+      select: 'insName insAddress insState insDistrict insPhoneNumber insPincode photoId insProfilePhoto'
+    })
     student.studentReason = reason
     await student.save()
-    res.status(200).send({ message: 'Student Certificate', student})
+    res.status(200).send({ message: 'Student Bonafide Certificate', student})
   }
-  catch(e){
-      console.log(e)
+  catch{}
+}
+
+
+exports.retrieveLeavingGRNO = async(req, res) => {
+  try{
+    const { gr } = req.params
+    const { reason, study, previous, behaviour } = req.body
+    const student = await Student.findOne({ studentGRNO: `${gr}`})
+    .select('studentFirstName studentMiddleName studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB')
+    .populate({
+      path: 'studentClass',
+      select: 'className'
+    })
+    .populate({
+      path: 'batches',
+      select: 'batchName'
+    })
+    .populate({
+      path: 'institute',
+      select: 'insName insAddress insState insDistrict insAffiliated insEditableText insEditableTexts insPhoneNumber insPincode photoId insProfilePhoto'
+    })
+    student.studentLeavingBehaviour = behaviour
+    student.studentLeavingStudy = study
+    student.studentLeavingPrevious = previous
+    student.studentLeavingReason = reason
+    await student.save()
+    res.status(200).send({ message: 'Student Leaving Certificate', student})
   }
+  catch{}
 }

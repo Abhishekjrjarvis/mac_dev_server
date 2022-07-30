@@ -1047,6 +1047,76 @@ paths:
         "200":
           description: OK
 
+  
+  /api/v1/extra/leaving/certificate/{gr}:
+    post:
+      tags:
+        - Setting Control API
+      summary: Leaving certificate -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: gr
+          required: true
+          type: string
+          description: Enter Student GRNO
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              reason:
+                type: string
+                description: Enter certificate reason
+              study:
+                type: string
+                description: Enter study / progress
+              previous:
+                type: string
+                description: Enter Previous school / college
+              behaviour:
+                type: string
+                description: Enter student behaviour
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/ins/{id}/leaving/editable:
+    patch:
+      tags:
+        - Institute Profile API
+      summary: Institute Fields for Leaving certificate -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: Enter Institute Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              insAffiliated:
+                type: string
+                description: Enter Institute Affiliated
+              insEditableText:
+                type: string
+                description: Enter Editable Text 1
+              insEditableTexts:
+                type: string
+                description: Enter Editable Text 2
+      responses:
+        "200":
+          description: OK
 
   #User Dashboard API
 

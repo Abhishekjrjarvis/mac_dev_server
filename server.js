@@ -7,6 +7,8 @@ const mongoose = require("mongoose");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const MongoStore = require("connect-mongo");
+const loggers = require('./Utilities/Logs/resLogs')
+const passport = require('passport')
 
 //======================== All Routes ========================
 
@@ -38,9 +40,8 @@ const complaintLeaveRoute = require("./routes/ComplaintLeave/complaintLeaveRoute
 
 // ============================= DB Configuration ==============================
 
-const dburl = `${process.env.DB_URL2}`;
-// const dburl = `${process.env.DB_URL}`;
-// const dburl = `mongodb://127.0.0.1:27017/Erp_app`;
+const dburl = `${process.env.DB_URL2}`; // Development
+// const dburl = `${process.env.DB_URL}`; // Production
 
 // 62e155ce168e4858c7ca8c00 - Development
 // 62e157224cc3f4c4d1b859b5 - Production
@@ -60,6 +61,9 @@ mongoose
 const swaggerUI = require("swagger-ui-express");
 const YAML = require("yamljs");
 const swaggerJSDocs = YAML.load("./api.yaml");
+
+app.use(passport.initialize())
+app.use(passport.session())
 
 app.set("view engine", "ejs");
 app.set("/views", path.join(__dirname, "/views"));
@@ -98,12 +102,13 @@ app.use(
     },
   })
 );
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerJSDocs));
 
 app.use((req, res, next) => {
-  logger.error(req.body);
+  loggers.info(req.body);
   let oldSend = res.send;
   res.send = function (data) {
-    logger.error(JSON.parse(data));
+    loggers.info(data);
     oldSend.apply(res, arguments);
   }
   next();
@@ -111,7 +116,6 @@ app.use((req, res, next) => {
 
 // ================================ API Endpoints =============================
 
-app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerJSDocs));
 app.use("/api/v1/search", searchRoute);
 app.use("/api/v1/all-images", uploadRoute);
 app.use("/api/v1/elearning", elearningRoute);

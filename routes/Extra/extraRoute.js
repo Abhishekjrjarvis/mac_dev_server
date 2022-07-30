@@ -15,5 +15,7 @@ router.post('/feedback/user', catchAsync(Extra.retrieveFeedBackUser))
 
 router.post('/bonafide/certificate/:gr', catchAsync(Extra.retrieveBonafideGRNO))
 
+router.post('/leaving/certificate/:gr', catchAsync(Extra.retrieveLeavingGRNO))
+
 
 module.exports = router

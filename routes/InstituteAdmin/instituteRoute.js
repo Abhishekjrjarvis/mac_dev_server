@@ -702,4 +702,9 @@ router.post(
   catchAsync(Institute.updateClassDisplayPersonArray)
 );
 
+router.patch(
+  "/:id/leaving/editable",
+  catchAsync(Institute.updateLeavingCertificateQuery)
+);
+
 module.exports = router;

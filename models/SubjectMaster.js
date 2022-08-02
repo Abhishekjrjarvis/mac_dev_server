@@ -17,18 +17,17 @@ const subjectMasterSchema = new mongoose.Schema({
       ref: "Subject",
     },
   ],
-  subjectTestSets: [
+  testSet: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "McqTestSets",
+      ref: "SubjectMasterTestSet",
     },
   ],
-  subjectQuestions: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "McqQuestions",
-    },
-  ],
+  allQuestion: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "SubjectMasterQuestion",
+  },
+
   subjectCount: {
     type: Number,
     default: 0,

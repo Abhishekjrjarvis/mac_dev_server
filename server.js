@@ -30,15 +30,18 @@ const landingNew = require("./routes/LandingRoute/indexRoute");
 const chatNew = require("./routes/Chat/chatRoute");
 const messageNew = require("./routes/Chat/messageRoute");
 const feesNew = require("./routes/Fees/feesRoute");
-const extraNew = require('./routes/Extra/extraRoute')
+const extraNew = require("./routes/Extra/extraRoute");
 const institutePostRoute = require("./routes/InstituteAdmin/Post/PostRoute");
 const userPostRoute = require("./routes/User/Post/PostRoute");
 const superAdminPostRoute = require("./routes/SuperAdmin/Post/PostRoute");
 const classRoute = require("./routes/Class/classRoute");
 const checklistRoute = require("./routes/Checklist/checklistRoute");
 const examRoute = require("./routes/Exam/examRoute");
+const mcqRoute = require("./routes/MCQ/mcqRoute");
+const batchRoute = require("./routes/Batch/batchRoute");
 const complaintLeaveRoute = require("./routes/ComplaintLeave/complaintLeaveRoute");
-const questionNew = require('./routes/User/Post/QuestionRoute')
+const questionNew = require("./routes/User/Post/QuestionRoute");
+
 
 // ============================= DB Configuration ==============================
 
@@ -61,21 +64,22 @@ mongoose
   });
 
 app.use(mongoSanitize());
-app.use(helmet({contentSecurityPolicy:false}));
+app.use(helmet({ contentSecurityPolicy: false }));
 
-  
 const swaggerUI = require("swagger-ui-express");
 const YAML = require("yamljs");
 const swaggerJSDocs = YAML.load("./api.yaml");
-
-
 app.set("view engine", "ejs");
 app.set("/views", path.join(__dirname, "/views"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://18.205.27.165", "http://localhost:3000", "https://qviple.com"],
+    origin: [
+      "http://18.205.27.165",
+      "http://localhost:3000",
+      "https://qviple.com",
+    ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   })
@@ -127,6 +131,8 @@ app.use("/api/v1/library", libraryRoute);
 app.use("/api/v1/class", classRoute);
 app.use("/api/v1/checklist", checklistRoute);
 app.use("/api/v1/exam", examRoute);
+app.use("/api/v1/mcq", mcqRoute);
+app.use("/api/v1/batch", batchRoute);
 app.use("/api/v1/compleave", complaintLeaveRoute);
 app.use("/api/v1", paymentNew);
 app.use("/api/v1/admin", adminNew);
@@ -144,8 +150,9 @@ app.use("/api/v1/landing", landingNew);
 app.use("/api/v1/chat", chatNew);
 app.use("/api/v1/message", messageNew);
 app.use("/api/v1/fees", feesNew);
-app.use('/api/v1/extra', extraNew)
-app.use('/api/v1/post/question', questionNew)
+app.use("/api/v1/extra", extraNew);
+app.use("/api/v1/post/question", questionNew);
+
 
 // ============================================================================
 
@@ -166,13 +173,15 @@ const io = require("socket.io")(server, {
   },
 });
 
-const users = {}
+const users = {};
+
 io.on("connection", (socket) => {
   console.log("Connected to socket.io");
   socket.on("setup", (userData) => {
     socket.join(userData);
     socket.emit("connected");
   });
+
 
   socket.on('online', (userId) => {
     console.log('a user ' + userId + ' connected');
@@ -184,7 +193,6 @@ io.on("connection", (socket) => {
   });
   socket.on("typing", (room) => socket.in(room).emit("typing"));
   socket.on("stop typing", (room) => socket.in(room).emit("stop typing"));
-
   socket.on("new message", (newMessageRecieved) => {
     var chat = newMessageRecieved.chat;
     if (!chat.users) return console.log("chat.users not defined");

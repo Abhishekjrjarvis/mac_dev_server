@@ -5,9 +5,6 @@ const classSchema = new mongoose.Schema({
   className: { type: String, required: true },
   classTitle: { type: String, required: true },
   classAbout: { type: String },
-  classStudentTotal: { type: String },
-  classSubjectTotal: { type: String },
-  classDisplayPerson: { type: String },
   photoId: { type: String, default: "1" },
   photo: { type: String },
   coverId: { type: String, default: "2" },
@@ -124,7 +121,7 @@ const classSchema = new mongoose.Schema({
 
   classStatus: {
     type: String,
-    default: "UnLocked",
+    default: "UnCompleted",
   },
   studentComplaint: [
     {

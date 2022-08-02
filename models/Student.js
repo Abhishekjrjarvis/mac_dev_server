@@ -84,6 +84,23 @@ const studentSchema = new mongoose.Schema({
       ref: "FinalReport",
     },
   ],
+
+  testSet: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "StudentTestSet",
+    },
+  ],
+
+  previousYearData: [
+    {
+      previoudData: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "StudentPreviousData",
+      },
+    },
+  ],
+
   studentFee: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -96,10 +113,7 @@ const studentSchema = new mongoose.Schema({
       ref: "AttendenceDate",
     },
   ],
-  attendenceReg: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Attendence",
-  },
+
   checklist: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -226,49 +240,7 @@ const studentSchema = new mongoose.Schema({
   },
   borrow: [{ type: mongoose.Schema.Types.ObjectId, ref: "Issue" }],
   deposite: [{ type: mongoose.Schema.Types.ObjectId, ref: "Collect" }],
-  previousClassData: [
-    {
-      classId: { type: mongoose.Schema.Types.ObjectId, ref: "Class" },
-      studentMarks: [],
-      studentFinalReportData: [],
-    },
-  ],
-  testSet: [
-    {
-      testSetType: {
-        type: String,
-      },
-      testExamId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Exam",
-      },
-      scheduleTestSet: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "scheduleTestSets",
-      },
-      testSetTime: {
-        type: Date,
-      },
-      testStatus: {
-        type: String,
-        default: "Not Completed",
-      },
-      testQue: [
-        {
-          queId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "McqQuestions",
-          },
-          mark: {
-            type: Number,
-          },
-          submitAnswer: {
-            type: String,
-          },
-        },
-      ],
-    },
-  ],
+
   deptElections: [
     {
       electionStatus: {

@@ -7,7 +7,7 @@ const subjectSchema = new mongoose.Schema({
   },
   subjectStatus: {
     type: String,
-    default: "Unlocked",
+    default: "UnCompleted",
   },
   subjectTitle: {
     type: String,
@@ -35,13 +35,6 @@ const subjectSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteAdmin",
   },
-
-  subjectTestSets: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "McqTestSets",
-    },
-  ],
 });
 
 const Subject = mongoose.model("Subject", subjectSchema);

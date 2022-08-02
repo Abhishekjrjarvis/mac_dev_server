@@ -7,9 +7,9 @@ const mongoose = require("mongoose");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const MongoStore = require("connect-mongo");
-const loggers = require("./Utilities/Logs/resLogs");
-const mongoSanitize = require("express-mongo-sanitize");
-const helmet = require("helmet");
+const loggers = require('./Utilities/Logs/resLogs')
+const mongoSanitize = require('express-mongo-sanitize');
+const helmet = require('helmet');
 
 //======================== All Routes ========================
 
@@ -42,6 +42,7 @@ const batchRoute = require("./routes/Batch/batchRoute");
 const complaintLeaveRoute = require("./routes/ComplaintLeave/complaintLeaveRoute");
 const questionNew = require("./routes/User/Post/QuestionRoute");
 
+
 // ============================= DB Configuration ==============================
 
 const dburl = `${process.env.DB_URL2}`; // Development
@@ -68,7 +69,6 @@ app.use(helmet({ contentSecurityPolicy: false }));
 const swaggerUI = require("swagger-ui-express");
 const YAML = require("yamljs");
 const swaggerJSDocs = YAML.load("./api.yaml");
-
 app.set("view engine", "ejs");
 app.set("/views", path.join(__dirname, "/views"));
 app.use(express.urlencoded({ extended: true }));
@@ -118,9 +118,9 @@ app.use((req, res, next) => {
   res.send = function (data) {
     loggers.info(data);
     oldSend.apply(res, arguments);
-  };
+  }
   next();
-});
+})
 
 // ================================ API Endpoints =============================
 
@@ -153,6 +153,7 @@ app.use("/api/v1/fees", feesNew);
 app.use("/api/v1/extra", extraNew);
 app.use("/api/v1/post/question", questionNew);
 
+
 // ============================================================================
 
 app.get("*", (req, res) => {
@@ -173,6 +174,7 @@ const io = require("socket.io")(server, {
 });
 
 const users = {};
+
 io.on("connection", (socket) => {
   console.log("Connected to socket.io");
   socket.on("setup", (userData) => {
@@ -180,8 +182,9 @@ io.on("connection", (socket) => {
     socket.emit("connected");
   });
 
-  socket.on("online", (userId) => {
-    console.log("a user " + userId + " connected");
+
+  socket.on('online', (userId) => {
+    console.log('a user ' + userId + ' connected');
     users[socket.id] = userId;
   });
   socket.on("join chat", (room) => {
@@ -190,7 +193,6 @@ io.on("connection", (socket) => {
   });
   socket.on("typing", (room) => socket.in(room).emit("typing"));
   socket.on("stop typing", (room) => socket.in(room).emit("stop typing"));
-
   socket.on("new message", (newMessageRecieved) => {
     var chat = newMessageRecieved.chat;
     if (!chat.users) return console.log("chat.users not defined");
@@ -211,8 +213,8 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.on("offline", (userId) => {
-    console.log("a user " + userId + " disconnected");
+  socket.on('offline', (userId) => {
+    console.log('a user ' + userId + ' disconnected');
     delete users[socket.id];
   });
 
@@ -224,3 +226,4 @@ io.on("connection", (socket) => {
   //     socket.broadcast.to(room).emit('user_leave', userId);
   // });
 });
+

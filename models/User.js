@@ -279,6 +279,14 @@ const userSchema = new mongoose.Schema({
   supportChat: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'SupportChat'
+  },
+  questionCount: {
+    type: Number, 
+    default: 0
+  },
+  answerQuestionCount: {
+    type: Number,
+    default: 0
   }
 });
 

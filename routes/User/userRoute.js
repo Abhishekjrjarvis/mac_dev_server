@@ -243,6 +243,8 @@ router.get(
   catchAsync(User.retrieveUserThreeArray)
 );
 
+router.get('/:uid/know/query', isLoggedIn, catchAsync(User.retrieveUserKnowQuery))
+
 router.get("/:uid/circle/array/query", catchAsync(User.circleArrayQuery));
 
 router.get("/circle/user", isLoggedIn, catchAsync(User.allCircleUsers));

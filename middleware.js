@@ -1,6 +1,8 @@
 const InstituteAdmin = require("./models/InstituteAdmin");
 const User = require("./models/User");
 const jwt = require("jsonwebtoken");
+const { decryptKey } = require('./Utilities/Encrypt/payload')
+const rateLimit = require('express-rate-limit')
 
 
 module.exports.isApproved = async (req, res, next) => {
@@ -28,3 +30,26 @@ module.exports.isLoggedIn = async (req, res, next) => {
     next();
   });
 }
+
+
+module.exports.isValidKey = async(req, res, next) =>{
+  try{
+    const key = req.headers["statickey"]
+    // const d_key = decryptKey(key)
+    if(`${key}` === `${process.env.STATICKEY}`){
+      next()
+    }
+    else{
+      res.status(401).send({ message: 'No Access'})
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+
+module.exports.isLimit = rateLimit({
+  max: 5,
+  windowMs: 10000
+})

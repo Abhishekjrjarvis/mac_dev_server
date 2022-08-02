@@ -8,7 +8,8 @@ const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const MongoStore = require("connect-mongo");
 const loggers = require('./Utilities/Logs/resLogs')
-const passport = require('passport')
+const mongoSanitize = require('express-mongo-sanitize');
+const helmet = require('helmet');
 
 //======================== All Routes ========================
 
@@ -37,6 +38,7 @@ const classRoute = require("./routes/Class/classRoute");
 const checklistRoute = require("./routes/Checklist/checklistRoute");
 const examRoute = require("./routes/Exam/examRoute");
 const complaintLeaveRoute = require("./routes/ComplaintLeave/complaintLeaveRoute");
+const questionNew = require('./routes/User/Post/QuestionRoute')
 
 // ============================= DB Configuration ==============================
 
@@ -58,12 +60,14 @@ mongoose
     console.log("Something Went Wrong...", e);
   });
 
+app.use(mongoSanitize());
+app.use(helmet({contentSecurityPolicy:false}));
+
+  
 const swaggerUI = require("swagger-ui-express");
 const YAML = require("yamljs");
 const swaggerJSDocs = YAML.load("./api.yaml");
 
-app.use(passport.initialize())
-app.use(passport.session())
 
 app.set("view engine", "ejs");
 app.set("/views", path.join(__dirname, "/views"));
@@ -141,6 +145,7 @@ app.use("/api/v1/chat", chatNew);
 app.use("/api/v1/message", messageNew);
 app.use("/api/v1/fees", feesNew);
 app.use('/api/v1/extra', extraNew)
+app.use('/api/v1/post/question', questionNew)
 
 // ============================================================================
 
@@ -161,6 +166,7 @@ const io = require("socket.io")(server, {
   },
 });
 
+const users = {}
 io.on("connection", (socket) => {
   console.log("Connected to socket.io");
   socket.on("setup", (userData) => {
@@ -168,6 +174,10 @@ io.on("connection", (socket) => {
     socket.emit("connected");
   });
 
+  socket.on('online', (userId) => {
+    console.log('a user ' + userId + ' connected');
+    users[socket.id] = userId;
+  });
   socket.on("join chat", (room) => {
     socket.join(room);
     console.log("User Joined Room: " + room);
@@ -195,9 +205,17 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.off("setup", () => {
+  socket.on('offline', (userId) => {
+    console.log('a user ' + userId + ' disconnected');
+    delete users[socket.id];
+  });
+
+  socket.off("setup", (userData) => {
     console.log("USER DISCONNECTED");
     socket.leave(userData);
   });
+  //   socket.on('disconnect', (room, userId) =>{
+  //     socket.broadcast.to(room).emit('user_leave', userId);
+  // });
 });
 

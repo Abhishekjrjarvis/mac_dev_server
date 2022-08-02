@@ -11,7 +11,7 @@ const {
 const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
-const smartPhrase = require('../../smartRecoveryPhrase')
+const smartPhrase = require('../../Service/smartRecoveryPhrase')
 
 
 var AdminOTP = "";

@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
-const replySchema = new mongoose.Schema({
-  repliedComment: {
+const answerReplySchema = new mongoose.Schema({
+  answerReplyContent: {
     type: String,
     required: true,
   },
@@ -9,9 +9,9 @@ const replySchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  parentComment: {
+  parentAnswer: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Comment",
+    ref: "Answer",
     required: true,
   },
   author: {
@@ -28,7 +28,7 @@ const replySchema = new mongoose.Schema({
   },
   authorProfilePhoto: {
     type: String
-  },
+  }
 });
 
-module.exports = mongoose.model("ReplyComment", replySchema);
+module.exports = mongoose.model("AnswerReply", answerReplySchema);

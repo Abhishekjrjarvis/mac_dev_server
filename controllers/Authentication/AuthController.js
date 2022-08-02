@@ -506,8 +506,8 @@ exports.getNewPassword = async (req, res) => {
     const { userPassword, userRePassword } = req.body;
     const user = await User.findById({ _id: rid });
     const institute = await InstituteAdmin.findById({ _id: rid });
-    const genUserPass = await bcrypt.genSaltSync(12);
-    const hashUserPass = await bcrypt.hashSync(
+    const genUserPass = bcrypt.genSaltSync(12);
+    const hashUserPass = bcrypt.hashSync(
       req.body.userPassword,
       genUserPass
     );

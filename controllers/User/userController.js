@@ -1196,6 +1196,26 @@ exports.retrieveUserThreeArray = async (req, res) => {
   } catch {}
 };
 
+
+
+exports.retrieveUserKnowQuery = async(req, res) =>{
+  try{
+    const { uid } = req.params
+    var totalUpVote = 0
+    const user = await User.findById({_id: uid})
+    .select('questionCount answerQuestionCount')
+    const questionUpVote = await Post.find({ author: uid })
+    for(let up of questionUpVote){
+      totalUpVote += up.answerUpVoteCount
+    }
+    res.status(200).send({ message: "Know's ", user, upVote: totalUpVote})
+  }
+  catch{
+
+  }
+} 
+
+
 exports.circleArrayQuery = async (req, res) => {
   try {
     const { uid } = req.params;

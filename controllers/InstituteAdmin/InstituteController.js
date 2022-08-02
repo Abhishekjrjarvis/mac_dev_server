@@ -31,6 +31,7 @@ const {
 } = require("../../S3Configuration");
 const fs = require("fs");
 const util = require("util");
+const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const unlinkFile = util.promisify(fs.unlink);
 
 exports.getAllIns = async (req, res) => {
@@ -42,112 +43,6 @@ exports.getAllIns = async (req, res) => {
   }
 };
 
-exports.getOneIns = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const institute = await InstituteAdmin.findById({ _id: id })
-      .populate({
-        path: "posts",
-        populate: {
-          path: "comment",
-          populate: {
-            path: "institutes",
-          },
-        },
-      })
-      .populate({
-        path: "announcement",
-        select: "insAnnTitle insAnnPhoto insAnnDescription insAnnVisibility",
-      })
-      .populate("staff")
-      .populate({
-        path: "ApproveStaff",
-        populate: {
-          path: "user",
-        },
-      })
-      .populate({
-        path: "depart",
-        populate: {
-          path: "dHead",
-        },
-      })
-      .populate("followers")
-      .populate("following")
-      .populate("classRooms")
-      .populate("student")
-      .populate("ApproveStudent")
-      .populate({
-        path: "saveInsPost",
-        populate: {
-          path: "institute",
-        },
-      })
-      .populate({
-        path: "posts",
-        populate: {
-          path: "insLike",
-        },
-      })
-      .populate("userFollowersList")
-      .populate({
-        path: "posts",
-        populate: {
-          path: "insUserLike",
-        },
-      })
-      .populate("financeDepart")
-      .populate("sportDepart")
-      .populate("addInstitute")
-      .populate("addInstituteUser")
-      .populate({
-        path: "leave",
-        populate: {
-          path: "staff",
-        },
-      })
-      .populate({
-        path: "transfer",
-        populate: {
-          path: "staff",
-        },
-      })
-      .populate({
-        path: "studentComplaints",
-        populate: {
-          path: "student",
-        },
-      })
-      .populate({
-        path: "groupConversation",
-      })
-      .populate("idCardField")
-      .populate("idCardBatch")
-      .populate("AllUserReferral")
-      .populate("AllInstituteReferral")
-      .populate("instituteReferral")
-      .populate({
-        path: "supportIns",
-        populate: {
-          path: "institute",
-        },
-      })
-      .populate({
-        path: "posts",
-        populate: {
-          path: "comment",
-          populate: {
-            path: "instituteUser",
-          },
-        },
-      })
-      .populate("userReferral")
-      .populate("insAdmissionAdmin");
-    res.status(200).send({ message: "Your Institute", institute });
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
 
 exports.getDashOneQuery = async (req, res) => {
   try {
@@ -170,7 +65,8 @@ exports.getDashOneQuery = async (req, res) => {
       })
       .lean()
       .exec();
-    res.status(200).send({ message: "limit Ins Data", institute });
+      const encrypt = await encryptionPayload(institute)
+    res.status(200).send({ message: "limit Ins Data", institute: institute, eData: encrypt });
   } catch {}
 };
 

@@ -65,6 +65,27 @@ const postSchema = new mongoose.Schema({
       ref: "Comment",
     },
   ],
+  postQuestion: {
+    type: String
+  },
+  answerCount: {
+    type: Number,
+    default: 0
+  },
+  answer: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Answer'
+    }
+  ],
+  answerUpVoteCount: {
+    type: Number,
+    default: 0
+  },
+  postType: {
+    type: String,
+    default: 'Post'
+  }
 });
 
 postSchema.post("findOneAndDelete", async function (doc) {
@@ -72,6 +93,11 @@ postSchema.post("findOneAndDelete", async function (doc) {
     await Comment.deleteMany({
       _id: {
         $in: doc.comment,
+      },
+    });
+    await Answer.deleteMany({
+      _id: {
+        $in: doc.answer,
       },
     });
   }

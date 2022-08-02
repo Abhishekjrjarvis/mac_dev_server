@@ -1,5 +1,4 @@
 const mongoose = require('mongoose')
-const Finance = require('./Finance')
 
 const expenseSchema = new mongoose.Schema({
     expenseAccount: {

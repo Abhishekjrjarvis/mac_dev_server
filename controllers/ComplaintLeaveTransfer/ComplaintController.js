@@ -235,7 +235,7 @@ exports.studentComplaint = async (req, res) => {
     });
     if (departmentHead !== "") {
       const department = await Department.findById(departmentHead);
-      department.studentComplaint.push(complaint._id);
+      department?.studentComplaint.push(complaint._id);
       complaint.department = department._id;
       complaint.institute = department.institute;
       await department.save();
@@ -244,7 +244,7 @@ exports.studentComplaint = async (req, res) => {
         path: "department",
         select: "institute",
       });
-      classes.studentComplaint.push(complaint._id);
+      classes?.studentComplaint.push(complaint._id);
       complaint.classes = classes._id;
       complaint.institute = classes.department.institute;
       await classes.save();
@@ -988,7 +988,8 @@ exports.instituteStaffAllTransfer = async (req, res) => {
         // },
         populate: {
           path: "staff",
-          select: "staffFirstName staffMiddleName staffLastName",
+          select:
+            "staffFirstName staffMiddleName staffLastName staffProfilePhoto",
         },
         select: "transferReason createdAt staff transferStatus",
       })

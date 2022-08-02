@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const Comment = require("../Comment");
 
 const replySchema = new mongoose.Schema({
   repliedComment: {
@@ -30,16 +29,6 @@ const replySchema = new mongoose.Schema({
   authorProfilePhoto: {
     type: String
   },
-  // modelId: {
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   required: true,
-  //   refPath: "onModel",
-  // },
-  // onModel: {
-  //   type: String,
-  //   required: true,
-  //   enum: ["User", "InstituteAdmin"],
-  // },
 });
 
 module.exports = mongoose.model("ReplyComment", replySchema);

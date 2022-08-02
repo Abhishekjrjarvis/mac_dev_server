@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
-const Video = require("./Video");
-const Playlist = require("./Playlist");
+
 const topicSchema = new mongoose.Schema({
   topicName: { type: String, required: true },
   playlist: {

@@ -256,9 +256,37 @@ const userSchema = new mongoose.Schema({
       ref: 'Referral'
     }
   ],
+  userCommission: {
+    type: Number,
+    default: 0
+  },
+  userEarned: {
+    type: Number,
+    default: 0
+  },
+  referralStatus: {
+    type: String,
+    default: 'Not Granted'
+  },
+  ageRestrict: {
+    type: String,
+    default: 'No'
+  },
+  paymentStatus: {
+    type: String,
+    default: 'Not Paid'
+  },
   supportChat: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'SupportChat'
+  },
+  questionCount: {
+    type: Number, 
+    default: 0
+  },
+  answerQuestionCount: {
+    type: Number,
+    default: 0
   }
 });
 

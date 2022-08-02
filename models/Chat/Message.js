@@ -32,6 +32,10 @@ const messageSchema = mongoose.Schema(
             ref: 'ChatDocument'
         }
     ],
+    isSend: {
+        type: Boolean,
+        default: false
+    },
     readBySelf: {
         type: String,
         default: false

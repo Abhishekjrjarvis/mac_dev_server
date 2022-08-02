@@ -36,6 +36,7 @@ exports.postWithText = async (req, res) => {
     post.authorUserName = user.username
     post.authorPhotoId = user.photoId
     post.authorProfilePhoto = user.profilePhoto
+    post.isUser = 'user'
     await Promise.all([user.save(), post.save()]);
     res.status(201).send({ message: "post is create" });
     if(user.userFollowers.length >= 1){
@@ -85,6 +86,7 @@ exports.postWithImage = async (req, res) => {
     post.authorUserName = user.username
     post.authorPhotoId = user.photoId
     post.authorProfilePhoto = user.profilePhoto
+    post.isUser = 'user'
     await Promise.all([user.save(), post.save()]);
     res.status(201).send({ message: "post is create" });
     if(user.userFollowers.length >= 1){
@@ -132,6 +134,7 @@ exports.postWithVideo = async (req, res) => {
     post.authorUserName = user.username
     post.authorPhotoId = user.photoId
     post.authorProfilePhoto = user.profilePhoto
+    post.isUser = 'user'
     await Promise.all([user.save(), post.save()]);
     await unlinkFile(file.path);
     res.status(201).send({ message: "post created" });
@@ -275,6 +278,7 @@ exports.retrieveAllUserPosts = async(req, res) =>{
     .populate({
       path: 'userPosts',
     })
+    if(user && user.userPosts.length >=1){
     const post = await Post.find({
       _id: { $in: user.userPosts },
     })
@@ -293,6 +297,7 @@ exports.retrieveAllUserPosts = async(req, res) =>{
       var totalPage = page + 1
     }
     res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage, });
+    }
   } catch(e) {
     console.log(e)
   }
@@ -310,6 +315,7 @@ exports.retrieveAllUserProfilePosts = async(req, res) =>{
     .populate({
       path: 'userPosts',
     })
+    if(user && user.userPosts.length >=1){
     const post = await Post.find({author: id})
     .sort("-createdAt")
     .limit(limit)
@@ -326,6 +332,7 @@ exports.retrieveAllUserProfilePosts = async(req, res) =>{
       var totalPage = page + 1
     }
     res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage, });
+    }
   } catch(e) {
     console.log(e)
   }

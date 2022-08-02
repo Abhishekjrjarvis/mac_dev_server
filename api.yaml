@@ -5,11 +5,11 @@ info:
   version: one
 
 
-# host: 18.205.27.165
-# basePath: /api
-schemes: [http, https]
-# schemes: 
-#   - http
+host: 18.205.27.165
+basePath: /api
+# schemes: [http, https]
+schemes: 
+  - http
 
 
 #Return Users From get request
@@ -414,6 +414,7 @@ paths:
       responses:
         "200":
           description: OK
+  
 
   /api/v1/user/{id}/profile:
     get:
@@ -891,6 +892,231 @@ paths:
         "200":
           description: OK
 
+  
+  /api/v1/user/one-announcement/{aid}:
+    get:
+      tags:
+        - User Profile API
+      summary: User side Institute One Announcement Data
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: aid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The Announcement ID
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/extra/age/{uid}:
+    patch:
+      tags:
+        - Setting Control API
+      summary: User age restriction, concentration mode -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is user id
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/extra/random/query:
+    get:
+      tags:
+        - Setting Control API
+      summary: Random Institute -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/extra/{uid}/referral:
+    get:
+      tags:
+        - Setting Control API
+      summary: User Referral -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is user id
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/extra/age/{uid}/get:
+    get:
+      tags:
+        - Setting Control API
+      summary: User Age Fetch -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is user id
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/extra/feedback/user:
+    post:
+      tags:
+        - Setting Control API
+      summary: Feedback By User -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              feedRating:
+                type: number
+                description: Enter feedback Rating
+              feedTag:
+                type: string
+                description: Enter type of Feedback
+              feedContent:
+                type: string
+                description: Enter feedback content
+              userId:
+                type: string
+                decription: Enter User Id 
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/extra/bonafide/certificate/{gr}:
+    post:
+      tags:
+        - Setting Control API
+      summary: Bonafide certificate -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: gr
+          required: true
+          type: string
+          description: Enter Student GRNO
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              reason:
+                type: string
+                description: Enter certificate reason
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/extra/leaving/certificate/{gr}:
+    post:
+      tags:
+        - Setting Control API
+      summary: Leaving certificate -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: gr
+          required: true
+          type: string
+          description: Enter Student GRNO
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              reason:
+                type: string
+                description: Enter certificate reason
+              study:
+                type: string
+                description: Enter study / progress
+              previous:
+                type: string
+                description: Enter Previous school / college
+              behaviour:
+                type: string
+                description: Enter student behaviour
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/ins/{id}/leaving/editable:
+    patch:
+      tags:
+        - Institute Profile API
+      summary: Institute Fields for Leaving certificate -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: Enter Institute Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              insAffiliated:
+                type: string
+                description: Enter Institute Affiliated
+              insEditableText:
+                type: string
+                description: Enter Editable Text 1
+              insEditableTexts:
+                type: string
+                description: Enter Editable Text 2
+      responses:
+        "200":
+          description: OK
 
   #User Dashboard API
 
@@ -1847,7 +2073,7 @@ paths:
           required: true
           description: student studentMTongue
         - in: formData
-          name: studentMotherName
+          name: studentMothersName
           type: string
           required: true
           description: student studentMotherName
@@ -2770,11 +2996,6 @@ paths:
         - application/json
       parameters:
         - in: formData
-          name: file
-          type: file
-          required: true
-          description: upload your institute document
-        - in: formData
           name: insName
           type: string
           required: true
@@ -2815,11 +3036,6 @@ paths:
           required: true
           description: Enter a address
         - in: formData
-          name: insAbout
-          type: string
-          required: true
-          description: Enter a about
-        - in: formData
           name: insMode
           type: string
           required: true
@@ -2829,6 +3045,11 @@ paths:
           type: string
           required: true
           description: Enter a type that is college or school etc
+        - in: formData
+          name: userId
+          type: string
+          required: true
+          description: Enter User name
       responses:
         "200":
           description: OK
@@ -5428,15 +5649,27 @@ paths:
           description: OK
 
 
-  /api/v1/notification/todevice:
+  /api/v1/all/todevice/token:
     post:
       tags:
-        - Push Notificcation
-      summary: Flutter Push Notification 
+        - Push Notificcation Device
+      summary: Flutter Push Notification Token 
       consumes:
         - application/json
       produces:
         - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              deviceToken:
+                type: string
+                description: Send Unique Token
+              id:
+                type: string
+                description: Send User or Institute id
       responses:
         "200":
           description: OK
@@ -8129,6 +8362,27 @@ paths:
 
 
 
+
+  /api/v1/message/support/admin/message/{chatId}:
+    get:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: Get Admin Support Message
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters: 
+        - in: path
+          name: chatId
+          required: true
+          type: string
+          description: This is chat id         
+      responses:
+        "200":
+          description: OK
+
+
   /api/v1/chat/support/admin/chat:
     post:
       tags:
@@ -8188,6 +8442,26 @@ paths:
               name:
                 type: string
                 description: Enter chat name
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/chat/institute/recent/group/{id}:
+    get:
+      tags:
+        - Qviple Socket (one to one chat)
+      summary: Get Institute Recent Message
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters: 
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id      
       responses:
         "200":
           description: OK

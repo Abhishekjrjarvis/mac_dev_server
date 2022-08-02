@@ -1,12 +1,4 @@
 const mongoose = require("mongoose");
-const Class = require("./Class");
-const InstituteAdmin = require("./InstituteAdmin");
-const Staff = require("./Staff");
-const Fees = require("./Fees");
-const Batch = require("./Batch");
-const Student = require("./Student");
-const Department = require("./Department");
-const DepartmentApplication = require("./DepartmentApplication");
 
 const admissionAdminSchema = new mongoose.Schema({
   institute: { type: mongoose.Schema.Types.ObjectId, ref: "InstituteAdmin" },

@@ -4,6 +4,7 @@ const catchAsync = require('../../Utilities/catchAsync')
 const Auth = require('../../controllers/Authentication/AuthController')
 const multer = require('multer')
 const upload = multer({ dest: "uploads/" });
+const { isLimit } = require('../../middleware')
 
 
 // Send Otp At Institute Phone Number
@@ -43,7 +44,7 @@ router.post('/user/reset/password/:rid', catchAsync(Auth.getNewPassword))
 router.get('/login', catchAsync(Auth.getLogin))
 
 // Fetch Logged In by Which (End User, Institute Admin, Super Admin)
-router.post('/login', catchAsync(Auth.authentication))
+router.post('/login', isLimit, catchAsync(Auth.authentication))
 
 // Logout By End User
 router.get('/logout', catchAsync(Auth.getLogout))

@@ -51,25 +51,34 @@ exports.getRegisterIns = async (req, res) => {
       if (existInstitute) {
         res.send({ message: "Institute Existing with this Username" });
       } else {
-        const user = await User.findById({ _id: req.body.userId })
         const institute = new InstituteAdmin({ ...req.body });
-        const refCoins = new Referral({})
-        refCoins.referralBy = institute._id
-        institute.referralArray.push(refCoins._id)
-        institute.initialReferral = user._id
-        refCoins.referralTo = user._id
-        user.referralArray.push(refCoins._id)
+        if(req.body.userId !== ''){
+          const user = await User.findOne({ username: req.body.userId })
+          if(user){
+          var refCoins = new Referral({referralEarnStatus: 'Earned'})
+          refCoins.referralBy = institute._id
+          institute.referralArray.push(refCoins._id)
+          institute.initialReferral = user._id
+          refCoins.referralTo = user._id
+          user.referralArray.push(refCoins._id)
+          user.referralStatus = 'Granted'
+          user.paymentStatus = 'Not Paid'
+          await Promise.all([ refCoins.save(), user.save()])
+          }
+        }
         institute.photoId = "1";
         institute.coverId = "2";
         admins.instituteList.push(institute);
         admins.requestInstituteCount += 1
-        await Promise.all([admins.save(), institute.save(), refCoins.save()]);
+        await Promise.all([admins.save(), institute.save()]);
         res.status(201).send({ message: "Institute", institute });
         const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
+        if(uInstitute && uInstitute.posts.length >=1){
         uInstitute.posts.forEach(async (ele) => {
           institute.posts.push(ele)
         })
         await institute.save()
+        }
       }
     }
   } catch (e) {
@@ -119,7 +128,7 @@ exports.getPassIns = async (req, res) => {
       var isChat = await SupportChat.find({
         isGroupChat: false,
         $and: [
-          { users: { $elemMatch: { $eq: `${process.env.S_ADMIN_ID}` } } },
+          { users: { $elemMatch: { $eq: admin._id } } },
           { users: { $elemMatch: { $eq: institute._id } } },
         ],
       })
@@ -133,13 +142,14 @@ exports.getPassIns = async (req, res) => {
           isGroupChat: false,
           participant_one: 'Qviple Support Platform',
           participant_two: `${institute.insName}`,
-          users: [`${process.env.S_ADMIN_ID}`, institute._id],
+          users: [admin._id, institute._id],
         };
 
         try {
           const createdChat = await SupportChat.create(chatData);
           institute.supportChat = createdChat._id
-          await institute.save()
+          admin.supportInstituteChat.push(createdChat._id)
+          await Promise.all(institute.save(), admin.save())
           const FullChat = await SupportChat.findOne({ _id: createdChat._id })
           res.status(200).json(FullChat);
         } catch (error) {
@@ -357,11 +367,14 @@ exports.profileByUser = async (req, res) => {
         res.status(200).send({ message: "Profile Successfully Created...", user });
         const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
         .populate({ path: 'posts' })
+        if(uInstitute && uInstitute.posts && uInstitute.posts.length >=1){
         const post = await Post.find({ _id: { $in: uInstitute.posts }, postVisibility: 'Anyone'})
         post.forEach(async (ele) => {
           user.userPosts.push(ele)
         })
         await user.save()
+        }
+        
         // const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
         // uInstitute.posts.forEach(async (ele) => {
         //   user.userPosts.push(ele)
@@ -378,6 +391,7 @@ exports.getUserPassword = async (req, res) => {
   try {
     const { id } = req.params;
     const { userPassword, userRePassword } = req.body;
+    const admin = await Admin.findById({_id: `${process.env.S_ADMIN_ID}`})
     const user = await User.findById({ _id: id });
     const genUserPass =  bcrypt.genSaltSync(12);
     const hashUserPass =  bcrypt.hashSync(
@@ -394,7 +408,7 @@ exports.getUserPassword = async (req, res) => {
         var isChat = await SupportChat.find({
           isGroupChat: false,
           $and: [
-            { users: { $elemMatch: { $eq: `${process.env.S_ADMIN_ID}` } } },
+            { users: { $elemMatch: { $eq: admin._id } } },
             { users: { $elemMatch: { $eq: user._id } } },
           ],
         })
@@ -408,13 +422,14 @@ exports.getUserPassword = async (req, res) => {
             isGroupChat: false,
             participant_one: 'Qviple Support Platform',
             participant_two: `${user.username}`,
-            users: [`${process.env.S_ADMIN_ID}`, user._id],
+            users: [admin._id, user._id],
           };
 
           try {
             const createdChat = await SupportChat.create(chatData);
             user.supportChat = createdChat._id
-            await user.save()
+            admin.supportUserChat.push(createdChat._id)
+            await Promise.all([user.save(), admin.save()])
             const FullChat = await SupportChat.findOne({ _id: createdChat._id })
             res.status(200).json(FullChat);
           } catch (error) {
@@ -491,8 +506,8 @@ exports.getNewPassword = async (req, res) => {
     const { userPassword, userRePassword } = req.body;
     const user = await User.findById({ _id: rid });
     const institute = await InstituteAdmin.findById({ _id: rid });
-    const genUserPass = await bcrypt.genSaltSync(12);
-    const hashUserPass = await bcrypt.hashSync(
+    const genUserPass = bcrypt.genSaltSync(12);
+    const hashUserPass = bcrypt.hashSync(
       req.body.userPassword,
       genUserPass
     );

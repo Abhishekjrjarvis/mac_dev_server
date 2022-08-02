@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Library = require("./Library");
+
 const bookSchema = new mongoose.Schema({
   bookName: { type: String, required: true },
   photoId: { type: String },

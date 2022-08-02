@@ -1,7 +1,4 @@
 const mongoose = require("mongoose");
-const Student = require("./Student");
-const Book = require("./Book");
-const Library = require("./Library");
 
 const collectSchema = new mongoose.Schema({
   book: {

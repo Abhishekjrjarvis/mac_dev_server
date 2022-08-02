@@ -1,6 +1,4 @@
 const mongoose = require("mongoose");
-const User = require("../User");
-const UserComment = require("../UserComment");
 
 const replySchema = new mongoose.Schema({
   repliedComment: {

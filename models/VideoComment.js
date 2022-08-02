@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
-const User = require("./User");
-const Video = require("./Video");
+
 const videoCommentSchema = new mongoose.Schema({
   comment: {
     type: String,

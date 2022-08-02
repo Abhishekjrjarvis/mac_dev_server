@@ -22,7 +22,7 @@ router.get('/:id/fetch/message', isLoggedIn,  catchAsync(Chat.fetchChatMessage))
 
 router.post('/support/new/chat', isLoggedIn, catchAsync(Chat.supportAdminChat));
 
-router.get('/support/admin/chat/:userId', isLoggedIn,  catchAsync(Chat.supportAdminFetchChat));
+router.get('/support/admin/chat/:userId', catchAsync(Chat.supportAdminFetchChat));
 
 router.post('/new/group/subject', isLoggedIn,  catchAsync(Chat.createSubjectGroupChat));
 
@@ -31,5 +31,6 @@ router.get('/user/subject/student', isLoggedIn, catchAsync(Chat.retrieveSubjectS
 // router.get('/institute/recent/group/:uid', isLoggedIn,  catchAsync(Chat.retrieveRecentGroup));
 
 router.get('/institute/recent/group/:id', isLoggedIn,  catchAsync(Chat.getRecentChats));
+
 
 module.exports = router;

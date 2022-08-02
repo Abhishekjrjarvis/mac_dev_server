@@ -1,7 +1,7 @@
 const Message = require("../../models/Chat/Message");
 const User = require("../../models/User");
 const Chat = require("../../models/Chat/Chat");
-const ChatDocument = require('../../models/Chat/ChatDocument')
+const ChatDocument = require('../../models/Chat/chatDocuments')
 const ReplyChat = require('../../models/Chat/ReplyChat')
 const ForwardMessage = require('../../models/Chat/ForwardMessage')
 const SupportChat = require('../../models/Chat/SupportChat')
@@ -40,7 +40,7 @@ exports.allMessagesQuery = async (req, res) => {
     }
   } catch (error) {
     res.status(400);
-    throw new Error(error.message);
+    // throw new Error(error.message);
   }
 }
 
@@ -57,6 +57,7 @@ exports.sendMessageQuery = async (req, res) => {
     sender: req.tokenData && req.tokenData.userId,
     content: content,
     chat: chatId,
+    isSend: true,
     delievered: true
   };
 
@@ -100,7 +101,7 @@ exports.sendMessageQuery = async (req, res) => {
     res.json(message);
   } catch (error) {
     res.status(400);
-    throw new Error(error.message);
+    // throw new Error(error.message);
   }
 }
 
@@ -112,6 +113,7 @@ exports.sendMessageDocumentQuery = async (req, res) => {
     message.content = content
     message.chat = chatId
     message.delievered = true
+    message.isSend = true
     message.sender = req.tokenData && req.tokenData.userId
     for (let file of req.files) {
       const cDocument = new ChatDocument({})
@@ -215,7 +217,7 @@ exports.forwardMessageQuery = async(req, res) =>{
 exports.markAsReadReceipts = async(req, res) =>{
   try{
     const { cid } = req.params
-    const message = await Message.find({ $and: [ { chat: cid }, { readBySelf: false }] })
+    const message = await Message.find({ $and: [ { chat: cid }, { readBySelf: false }, { sender: !req.tokenData.userId}] })
     for(let i = 0; i < message.length; i++ ){
       message[i].readBySelf = 'Read'
       await message[i].save()
@@ -312,12 +314,11 @@ exports.sendSupportChatMessage = async (req, res) => {
   try {
     if(req.params && req.params.chatId){
     const messages = await SupportMessage.find({ chat: req.params.chatId })
-    .populate("chat")
     res.json(messages);
     }
   } catch (error) {
     res.status(400);
-    throw new Error(error.message);
+    // throw new Error(error.message);
   }
 }
 
@@ -334,7 +335,8 @@ exports.sendSupportMessageQuery = async (req, res) => {
     sender: userId,
     content: content,
     chat: chatId,
-    delievered: true
+    delievered: true,
+    isSend: true
   };
 
 
@@ -342,11 +344,16 @@ exports.sendSupportMessageQuery = async (req, res) => {
     var message = new SupportMessage(newMessage);
     await message.save()
 
-    message = await message.populate("chat");
-    // message = await User.populate(message, {
-    //   path: "chat.users",
-    //   select: "username userLegalName photoId profilePhoto userEmail",
-    // });
+    message = await SupportMessage.findById({_id: message._id})
+    .populate({
+      path: 'chat',
+      select: 'id users',
+      populate: {
+        path: 'latestMessage',
+        select: 'content'
+      }
+    })
+
 
     const chat = await SupportChat.findById(req.body.chatId)
     chat.latestMessage = message._id
@@ -356,6 +363,6 @@ exports.sendSupportMessageQuery = async (req, res) => {
     res.json(message);
   } catch (error) {
     res.status(400);
-    throw new Error(error.message);
+    // throw new Error(error.message);
   }
 }

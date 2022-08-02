@@ -25,7 +25,6 @@ router.get(
   // isLoggedIn,
   catchAsync(User.retrieveFIOneAnnouncement)
 );
-
 // ========= ADDED TO SWAGGER =======================
 
 // Limit Setting Data
@@ -56,57 +55,6 @@ router.get("/:id/dash/query", isLoggedIn, catchAsync(User.getDashDataQuery));
 
 // User DashBoard Limited Data
 router.get("/:uid/dash", catchAsync(User.getUserData));
-
-// Add User Post At User
-router.post(
-  "dashboard/:id/user-post",
-  isLoggedIn,
-  catchAsync(User.addPostUserData)
-);
-
-// Upload Image At User Post
-router.post(
-  "dashboard/:id/user-post/image",
-  isLoggedIn,
-  upload.single("file"),
-  catchAsync(User.uploadPostImage)
-);
-
-// Retrieve Image From AWS
-router.get(
-  "dashboard/user-post/images/:key",
-  isLoggedIn,
-  catchAsync(User.retrievePostImage)
-);
-
-// Upload Video At User Post
-router.post(
-  "dashboard/:id/user-post/video",
-  isLoggedIn,
-  upload.single("file"),
-  catchAsync(User.uploadPostVideo)
-);
-
-// Retrieve Video From AWS
-router.get(
-  "dashboard/user-post/video/:key",
-  isLoggedIn,
-  catchAsync(User.retrievePostVideo)
-);
-
-// Update Visibility of User Post
-router.put(
-  "dashboard/:id/user-post/:uid/update",
-  isLoggedIn,
-  catchAsync(User.userPostVisibiltyChange)
-);
-
-// Delete User Post
-router.delete(
-  "dashboard/:id/user-post/:uid",
-  isLoggedIn,
-  catchAsync(User.getDeletedUserPost)
-);
 
 // Update Info At User
 router.post("profileabout/:id", isLoggedIn, catchAsync(User.updateUserInfo));
@@ -185,16 +133,6 @@ router.post(
   "/:id/credit/transfer",
   isLoggedIn,
   catchAsync(User.getCreditTransfer)
-);
-
-// User Support Request At Super Admin
-router.post("/:id/support", isLoggedIn, catchAsync(User.getSupportByUser));
-
-// User Support Reply By Super Admin
-router.post(
-  "/:id/support/:sid/reply",
-  isLoggedIn,
-  catchAsync(User.getSupportReply)
 );
 
 // Report User Post By User
@@ -305,8 +243,12 @@ router.get(
   catchAsync(User.retrieveUserThreeArray)
 );
 
+router.get('/:uid/know/query', isLoggedIn, catchAsync(User.retrieveUserKnowQuery))
+
 router.get("/:uid/circle/array/query", catchAsync(User.circleArrayQuery));
 
 router.get("/circle/user", isLoggedIn, catchAsync(User.allCircleUsers));
+
+
 
 module.exports = router;

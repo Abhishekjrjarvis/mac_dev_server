@@ -1,9 +1,5 @@
 
 const mongoose = require("mongoose");
-const Staff = require("./Staff");
-const InstituteAdmin = require("./InstituteAdmin");
-const SportClass = require("./SportClass");
-const SportEvent = require("./SportEvent");
 
 const sportSchema = new mongoose.Schema({
   sportHead: {

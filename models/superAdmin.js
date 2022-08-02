@@ -206,16 +206,38 @@ const superAdminSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'InstituteAdmin'
     },
+    assignUniversalStatus: {
+        type: String,
+        default: 'Not Assigned'
+    },
     aNotify: [
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Notification'
         }
     ],
+    feedbackArray: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'FeedBack'
+        }
+    ],
     exploreFeatureList: [
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'IdCardPayment'
+        }
+    ],
+    supportUserChat: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'SupportChat'
+        }
+    ],
+    supportInstituteChat: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'SupportChat'
         }
     ]
     

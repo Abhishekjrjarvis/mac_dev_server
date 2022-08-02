@@ -11,9 +11,6 @@ const Batch = require('../../models/Batch')
 const IdCardPayment = require('../../models/IdCardPayment')
 const Video = require('../../models/Video')
 const ApplyPayment = require('../../models/ApplyPayment')
-const DepartmentApplication = require('../../models/DepartmentApplication')
-const InstituteSupport = require('../../models/InstituteSupport')
-const UserSupport = require('../../models/UserSupport')
 
 
 exports.getAllStaff = async(req, res) =>{
@@ -22,10 +19,14 @@ exports.getAllStaff = async(req, res) =>{
         const limit = req.query.limit ? parseInt(req.query.limit) : 10;
         const skip = (page - 1) * limit;
         const staff = await Staff.find({})
-        .select('staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto')
+        .select('staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffStatus')
         .populate({
           path: 'user',
-          select: 'userLegalName photoId profilePhoto'
+          select: 'userLegalName photoId profilePhoto userStatus'
+        })
+        .populate({
+          path: 'institute',
+          select: 'insName name photoId insProfilePhoto'
         })
         .limit(limit)
         .skip(skip)
@@ -58,7 +59,7 @@ exports.getAllUser = async(req, res) =>{
         const limit = req.query.limit ? parseInt(req.query.limit) : 10;
         const skip = (page - 1) * limit;
         const user = await User.find({})
-        .select('userLegalName username photoId profilePhoto')
+        .select('userLegalName username photoId profilePhoto userStatus')
         .limit(limit)
         .skip(skip)
         res.status(200).send({ message: "User data", uRandom: user });
@@ -162,7 +163,7 @@ exports.getAllInstitute = async(req, res) =>{
         const limit = req.query.limit ? parseInt(req.query.limit) : 10;
         const skip = (page - 1) * limit;
         const institute = await InstituteAdmin.find({})
-        .select('insName photoId insProfilePhoto name')
+        .select('insName photoId insProfilePhoto name status isUniversal')
         .limit(limit)
         .skip(skip)
         res.status(200).send({ message: "Institute data", iRandom: institute });
@@ -214,39 +215,24 @@ exports.getAllApplyPaymentUser = async(req, res) =>{
       }
 }
 
-exports.getAllDepartmentApplication = async(req, res) =>{
-    try {
-        const application = await DepartmentApplication.find({});
-        res.status(200).send({ message: "Application Data", application });
-      } catch(e) {
-        console.log(
-          `Error`, e.message
-        );
-      }
-}
 
-exports.getAllInsSupport = async(req, res) =>{
-    try {
-    const support = await InstituteSupport.find({}).populate({
-      path: "institute",
-      select: 'insName name photoId insProfilePhoto'
-    });
-    res.status(200).send({ message: "all institute support data", support });
-  } catch(e) {
-    console.log(`Error`, e.message);
+exports.fetchDeviceToken = async(req, res) => {
+  try{
+    const { deviceToken, id } = req.body
+    const user = await User.findOne({_id: id})
+    const institute = await InstituteAdmin.findOne({_id: id})
+    if(user){
+      user.deviceToken = deviceToken
+      await user.save()
+    }
+    else if(institute){
+      institute.deviceToken = deviceToken
+      await institute.save()
+    }
+    else{}
+    res.status(200).send({ message: 'device Token set'})
   }
-}
+  catch{
 
-exports.getAllUserSupport = async(req, res) =>{
-    try {
-        const userSupport = await UserSupport.find({}).populate({
-          path: "user",
-          select: 'userLegalName username photoId profilePhoto'
-        });
-        res
-          .status(200)
-          .send({ message: "all institute userSupport data", userSupport });
-      } catch(e) {
-        console.log(`Error`, e.message);
-      }
+  }
 }

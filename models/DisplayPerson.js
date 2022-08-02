@@ -1,6 +1,4 @@
 const mongoose = require('mongoose')
-const User = require('./User')
-const InstituteAdmin = require('./InstituteAdmin')
 
 const displaySchema = new mongoose.Schema({
     displayTitle: {

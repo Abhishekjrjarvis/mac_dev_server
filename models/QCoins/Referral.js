@@ -2,10 +2,6 @@ const mongoose = require('mongoose')
 
 
 const referralSchema = new mongoose.Schema({
-    referralPercentage: {
-        type: Number,
-        default: 0
-    },
     referralBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'InstituteAdmin'
@@ -17,6 +13,9 @@ const referralSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
+    },
+    referralEarnStatus: {
+        type: String
     }
 })
 

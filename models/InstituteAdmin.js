@@ -311,6 +311,10 @@ const instituteAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  financeDetailStatus: {
+    type: String,
+    default: 'Not Added'
+  },
   announcementCount: {
     type: Number,
     default: 0,
@@ -363,7 +367,10 @@ const instituteAdminSchema = new mongoose.Schema({
   financeStatus: {
     type: String,
     default: 'Disable'
-  } 
+  },
+  deviceToken: {
+    type: String
+  }
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

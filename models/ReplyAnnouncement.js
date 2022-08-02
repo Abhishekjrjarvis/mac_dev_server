@@ -1,6 +1,4 @@
 const mongoose = require("mongoose");
-const InstituteAdmin = require("./InstituteAdmin");
-const User = require("./User");
 
 const replyAnnSchema = new mongoose.Schema({
   replyText: {

@@ -96,6 +96,7 @@ exports.postWithText = async (req, res) => {
     post.authorUserName = institute.name;
     post.authorPhotoId = institute.photoId;
     post.authorProfilePhoto = institute.insProfilePhoto;
+    post.isInstitute = 'institute'
     await Promise.all([institute.save(), post.save()]);
     res.status(201).send({ message: "post is create", post });
     if (institute.isUniversal === "Not Assigned") {
@@ -182,6 +183,7 @@ exports.postWithImage = async (req, res) => {
     post.authorUserName = institute.name;
     post.authorPhotoId = institute.photoId;
     post.authorProfilePhoto = institute.insProfilePhoto;
+    post.isInstitute = 'institute'
     await Promise.all([institute.save(), post.save()]);
     res.status(201).send({ message: "post is create", post });
     if (institute.isUniversal === "Not Assigned") {
@@ -265,6 +267,7 @@ exports.postWithVideo = async (req, res) => {
     post.authorUserName = institute.name;
     post.authorPhotoId = institute.photoId;
     post.authorProfilePhoto = institute.insProfilePhoto;
+    post.isInstitute = 'institute'
     await Promise.all([institute.save(), post.save()]);
     await unlinkFile(file.path);
     res.status(201).send({ message: "post created", post });
@@ -500,6 +503,7 @@ exports.retrieveAllPosts = async (req, res) => {
           path: "tagPeople",
           select: "userLegalName username photoId profilePhoto",
         });
+      if(institute.posts.length >= 1){
       const postCount = await Post.find({ _id: { $in: institute.posts } });
       if (page * limit >= postCount.length) {
       } else {
@@ -513,6 +517,7 @@ exports.retrieveAllPosts = async (req, res) => {
           postCount: postCount.length,
           totalPage: totalPage,
         });
+      }
     } else {
       res.status(204).send({ message: "No Posts Yet..." });
     }
@@ -541,6 +546,7 @@ exports.retreiveAllProfilePosts = async (req, res) => {
         path: "tagPeople",
         select: "userLegalName username photoId profilePhoto",
       });
+    if(institute && institute.posts.length >=1 ){
     const postCount = await Post.find({ _id: { $in: institute.posts } });
     if (page * limit >= postCount.length) {
     } else {
@@ -554,6 +560,7 @@ exports.retreiveAllProfilePosts = async (req, res) => {
         postCount: postCount.length,
         totalPage: totalPage,
       });
+    }
   } catch (e) {
     console.log(e);
   }

@@ -1,8 +1,5 @@
 const mongoose = require("mongoose");
-const ELearning = require("./ELearning");
-const Topic = require("./Topic");
-const User = require("./User");
-const Class = require("./Class");
+
 const playlistSchema = new mongoose.Schema({
   name: { type: String, required: true },
   photo: { type: String },

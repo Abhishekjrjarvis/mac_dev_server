@@ -1,18 +1,15 @@
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const Admin = require("../../models/superAdmin");
 const User = require("../../models/User");
-const UserComment = require("../../models/UserComment");
-const UserPost = require("../../models/userPost");
 const Notification = require("../../models/notification");
-const Conversation = require("../../models/Conversation");
-const UserSupport = require("../../models/UserSupport");
 const Report = require("../../models/Report");
-const Staff = require("../../models/Staff");
-const Student = require("../../models/Student");
-const axios = require("axios");
-const InsAnnouncement = require("../../models/InsAnnouncement");
-const bcrypt = require("bcryptjs");
-const Post = require("../../models/Post");
+const Staff = require('../../models/Staff')
+const Student = require('../../models/Student')
+const InsAnnouncement = require('../../models/InsAnnouncement')
+const bcrypt = require('bcryptjs')
+const Post = require('../../models/Post')
+const Chat = require('../../models/Chat/Chat')
+
 const {
   getFileStream,
   uploadDocFile,
@@ -42,8 +39,68 @@ exports.retrieveProfileData = async (req, res) => {
     const { id } = req.params;
     const user = await User.findById({ _id: id })
       .select(
-        "userLegalName photoId profilePhoto userBio userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
+        "userLegalName photoId recentChat profilePhoto userBio userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
       )
+    
+      const chat = await Chat.find({ _id: {$in: user.recentChat}})
+      .select('chatName chatProfilePhoto chatDescription updatedAt isGroupChat createdAt groupAdmin')
+      .populate({
+        path: 'latestMessage',
+        select: 'content updatedAt',
+        populate: {
+          path: 'sender',
+          populate: 'username'
+        }
+      })
+      .populate({
+          path: 'latestMessage',
+          select: 'content updatedAt',
+          populate: {
+            path: 'document',
+            populate: 'documentName documentType documentKey documentSize'
+          }
+      })
+      .populate({
+          path: 'message',
+          select: 'content updatedAt',
+          populate: {
+            path: 'sender',
+            select: 'username'
+          }
+      })
+      .populate({
+          path: 'message',
+          select: 'content updatedAt',
+          populate: {
+            path: 'replyMessage',
+            select: 'reply replyContent replyIndex',
+            populate: {
+              path: 'replySender',
+              select: 'username'
+            }
+          }
+      })
+      .populate({
+          path: 'message',
+          select: 'content updatedAt',
+          populate: {
+            path: 'forwardMessage',
+            select: 'isForward'
+          }
+      })
+      .populate({
+          path: 'message',
+          select: 'content updatedAt',
+          populate: {
+            path: 'document',
+            select: 'documentName documentType documentSize document documentKey'
+          }
+      })
+      .populate({
+          path: 'users',
+          select: 'username userLegalName photoId profilePhoto',
+      })
+      .sort("-updatedAt")
       .lean()
       .exec();
     res.status(200).send({ message: "Limit User Profile Data ", user });
@@ -131,6 +188,38 @@ exports.retrieveFIAnnouncement = async (req, res) => {
         message: "Success",
         announcements: announcementArray(user?.userInstituteFollowing),
       });
+
+    } else {
+      res.status(404).send({ message: "Failure" });
+    }
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+exports.retrieveFIOneAnnouncement = async (req, res) => {
+  try {
+    const announcementDetail = await InsAnnouncement.findById(req.params.aid)
+      .populate({
+        path: "announcementDocument",
+        select: "documentType documentName documentKey",
+      })
+      .populate({
+        path: "institute",
+        select: "insName photoId insProfilePhoto",
+      })
+      .select(
+        "insAnnTitle insAnnDescription insAnnVisibility announcementDocument createdAt institute"
+      )
+      .lean()
+      .exec();
+
+    if (announcementDetail) {
+      res.status(200).send({
+        message: "Success",
+        announcementDetail,
+      });
+
     } else {
       res.status(404).send({ message: "Failure" });
     }
@@ -168,109 +257,6 @@ exports.retrieveFIOneAnnouncement = async (req, res) => {
     console.error(e);
   }
 };
-exports.addPostUserData = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const user = await User.findById({ _id: id });
-    const post = new UserPost({ ...req.body });
-    post.imageId = "1";
-    user.userPosts.push(post);
-    user.postCount += 1;
-    post.user = user._id;
-    await user.save();
-    await post.save();
-    res.status(200).send({ message: "Post Successfully Created", user });
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
-
-exports.uploadPostImage = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const file = req.file;
-    const results = await uploadDocFile(file);
-    const user = await User.findById({ _id: id });
-    const post = new UserPost({ ...req.body });
-    post.imageId = "0";
-    post.userCreateImage = results.Key;
-    user.userPosts.push(post);
-    user.postCount += 1;
-    post.user = user._id;
-    await user.save();
-    await post.save();
-    await unlinkFile(file.path);
-    res.status(200).send({ message: "Post Successfully Created", user });
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
-
-exports.retrievePostImage = async (req, res) => {
-  try {
-    const key = req.params.key;
-    const readStream = getFileStream(key);
-    readStream.pipe(res);
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
-
-exports.uploadPostVideo = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const file = req.file;
-    const results = await uploadVideo(file);
-    const user = await User.findById({ _id: id });
-    const post = new UserPost({ ...req.body });
-    post.userCreateVideo = results.Key;
-    post.imageId = "1";
-    user.userPosts.push(post);
-    user.postCount += 1;
-    post.user = user._id;
-    await user.save();
-    await post.save();
-    await unlinkFile(file.path);
-    res.status(200).send({ message: "Post Successfully Created", user });
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
-
-exports.retrievePostVideo = async (req, res) => {
-  try {
-    const key = req.params.key;
-    const readStream = getFileStream(key);
-    readStream.pipe(res);
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
-
-exports.userPostVisibiltyChange = async (req, res) => {
-  try {
-    const { id, uid } = req.params;
-    const { userPostStatus } = req.body;
-    const userpost = await UserPost.findById({ _id: uid });
-    userpost.userPostStatus = userPostStatus;
-    await userpost.save();
-    res.status(200).send({ message: "visibility change", userpost });
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
-
-exports.getDeletedUserPost = async (req, res) => {
-  try {
-    const { id, uid } = req.params;
-    await User.findByIdAndUpdate(id, { $pull: { userPosts: uid } });
-    await User.findByIdAndUpdate(id, { $pull: { saveUsersPost: uid } });
-    await UserPost.findByIdAndDelete({ _id: uid });
-    res.status(200).send({ message: "deleted Post" });
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
 
 exports.updateUserInfo = async (req, res) => {
   try {
@@ -300,47 +286,39 @@ exports.updateUserFollowIns = async (req, res) => {
     if (sinstitute.userFollowersList.includes(user_session)) {
       res.status(200).send({ message: "You Already Following This Institute" });
     } else {
-      if (sinstitute.status === "Approved") {
-        const notify = await new Notification({});
-        sinstitute.userFollowersList.push(user_session);
-        user.userInstituteFollowing.push(req.body.InsfollowId);
-        user.followingUICount += 1;
-        sinstitute.followersCount += 1;
-        notify.notifyContent = `${user.userLegalName} started to following you`;
-        notify.notifySender = user._id;
-        notify.notifyReceiever = sinstitute._id;
-        sinstitute.iNotify.push(notify._id);
-        notify.institute = sinstitute._id;
-        notify.notifyByPhoto = user._id;
-        invokeFirebaseNotification(
-          "Followers",
-          notify,
-          user.userLegalName,
-          user._id,
-          "token"
-        );
-        await user.save();
-        await sinstitute.save();
-        await notify.save();
-        res.status(200).send({ message: "Following This Institute" });
-        if (sinstitute.isUniversal === "Not Assigned") {
-          const post = await Post.find({
-            $and: [{ author: sinstitute._id, postStatus: "Anyone" }],
-          });
-          post.forEach(async (ele) => {
-            user.userPosts.push(ele);
-          });
-          await user.save();
-        } else {
-        }
-      } else {
-        res
-          .status(200)
-          .send({ message: "Institute is Not Approved, you will not follow" });
+
+      if(sinstitute.status === 'Approved'){
+      const notify = await new Notification({});
+      sinstitute.userFollowersList.push(user_session);
+      user.userInstituteFollowing.push(req.body.InsfollowId);
+      user.followingUICount += 1;
+      sinstitute.followersCount += 1
+      notify.notifyContent = `${user.userLegalName} started to following you`;
+      notify.notifySender = user._id;
+      notify.notifyReceiever = sinstitute._id;
+      sinstitute.iNotify.push(notify._id);
+      notify.institute = sinstitute._id;
+      notify.notifyByPhoto = user._id;
+      invokeFirebaseNotification('Followers', notify, user.userLegalName, user._id, user.deviceToken)
+      await user.save();
+      await sinstitute.save();
+      await notify.save();
+      res.status(200).send({ message: "Following This Institute" });
+      if(sinstitute.isUniversal === 'Not Assigned'){
+        const post = await Post.find({ $and: [{ author: sinstitute._id, postStatus: 'Anyone' }]})
+        post.forEach(async (ele) => {
+        user.userPosts.push(ele)
+        })
+        await user.save()
+      }
+      else{}
+      }
+      else{
+        res.status(200).send({ message: 'Institute is Not Approved, you will not follow'})
+
       }
     }
   } catch (e) {
-    console.log(`Error`, e);
   }
 };
 
@@ -420,13 +398,9 @@ exports.updateUserFollow = async (req, res) => {
       suser.uNotify.push(notify);
       notify.user = suser;
       notify.notifyByPhoto = user;
-      invokeFirebaseNotification(
-        "Followers",
-        notify,
-        user.userLegalName,
-        user._id,
-        "token"
-      );
+
+      invokeFirebaseNotification('Followers', notify, user.userLegalName, user._id, user.deviceToken)
+
       await user.save();
       await suser.save();
       await notify.save();
@@ -440,7 +414,6 @@ exports.updateUserFollow = async (req, res) => {
       await user.save();
     }
   } catch (e) {
-    console.log(`Error`, e.message);
   }
 };
 
@@ -487,23 +460,12 @@ exports.updateUserCircle = async (req, res) => {
     ) {
       res.status(200).send({ message: "You are Already In a Circle" });
     } else {
-      const newConversation = new Conversation({
-        members: [user_session, req.body.followId],
-      });
-      try {
-        const savedConversation = await newConversation.save();
-        user.conversation = newConversation;
-        suser.conversation = newConversation;
-        await user.save();
-        await suser.save();
-        res.status(200).json(savedConversation);
-      } catch (err) {
-        res.status(500).json(err);
-      }
       try {
         const notify = await new Notification({});
         suser.userFollowing.pull(user_session);
+        suser.followingUICount -= 1
         user.userFollowers.pull(req.body.followId);
+        user.followerCount -= 1
         suser.userCircle.push(user_session);
         user.userCircle.push(req.body.followId);
         suser.circleCount += 1;
@@ -514,13 +476,8 @@ exports.updateUserCircle = async (req, res) => {
         suser.uNotify.push(notify);
         notify.user = suser;
         notify.notifyByPhoto = user;
-        invokeFirebaseNotification(
-          "Circle",
-          notify,
-          user.userLegalName,
-          user._id,
-          "token"
-        );
+        invokeFirebaseNotification('Circle', notify, user.userLegalName, user._id, user.deviceToken)
+
         await user.save();
         await suser.save();
         await notify.save();
@@ -544,7 +501,6 @@ exports.updateUserCircle = async (req, res) => {
       }
     }
   } catch (e) {
-    console.log(`Error`, e.message);
   }
 };
 
@@ -561,12 +517,15 @@ exports.removeUserCircle = async (req, res) => {
       try {
         user.userCircle.pull(req.body.followId);
         suser.userCircle.pull(user_session);
+        suser.circleCount -= 1;
+        user.circleCount -= 1;
         user.userFollowers.push(req.body.followId);
         suser.userFollowing.push(user_session);
-        user.conversation = "";
-        suser.conversation = "";
+        user.followerCount += 1
+        suser.followingUICount += 1
         await user.save();
         await suser.save();
+        res.status(200).send({ message: 'Uncircled'})
       } catch {
         res.status(500).send({ error: "error" });
       }
@@ -714,33 +673,6 @@ exports.getCreditTransfer = async (req, res) => {
   }
 };
 
-exports.getSupportByUser = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const user = await User.findById({ _id: id });
-    const support = await new UserSupport({ ...req.body });
-    user.support.push(support);
-    support.user = user;
-    await user.save();
-    await support.save();
-    res.status(200).send({ message: "Successfully Updated", user });
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
-
-exports.getSupportReply = async (req, res) => {
-  try {
-    const { id, sid } = req.params;
-    const { queryReply } = req.body;
-    const reply = await UserSupport.findById({ _id: sid });
-    reply.queryReply = queryReply;
-    await reply.save();
-    res.status(200).send({ message: "reply", reply });
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
 
 exports.getReportPostUser = async (req, res) => {
   try {
@@ -767,32 +699,35 @@ exports.getNotifications = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const id = req.params.id;
     const skip = (page - 1) * limit;
-    const user = await User.findById({ _id: id }).populate({ path: "uNotify" });
 
-    const notify = await Notification.find({ _id: { $in: user.uNotify } })
-      .populate({
-        path: "notifyByInsPhoto",
-        select: "photoId insProfilePhoto",
-      })
-      .populate({
-        path: "notifyByPhoto",
-        select: "photoId profilePhoto",
-      })
-      .populate({
-        path: "notifyByStaffPhoto",
-        select: "photoId staffProfilePhoto",
-      })
-      .populate({
-        path: "notifyByStudentPhoto",
-        select: "photoId studentProfilePhoto",
-      })
-      .populate({
-        path: "notifyByDepartPhoto",
-        select: "photoId photo",
-      })
-      .sort("-notifyTime")
-      .limit(limit)
-      .skip(skip);
+    const user = await User.findById({ _id: id })
+    .populate({ path: 'uNotify' })
+    
+    const notify = await Notification.find({ _id: { $in: user.uNotify }})
+    .populate({
+      path: "notifyByInsPhoto",
+      select: 'photoId insProfilePhoto name insName'
+    })
+    .populate({
+      path: "notifyByPhoto",
+      select: 'photoId profilePhoto username userLegalName'
+    })
+    .populate({
+      path: "notifyByStaffPhoto",
+      select: 'photoId staffProfilePhoto staffFirstName staffMiddleName staffLastName'
+    })
+    .populate({
+      path: "notifyByStudentPhoto",
+      select: 'photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName'
+    })
+    .populate({
+      path: "notifyByDepartPhoto",
+      select: 'photoId photo dName'
+    })
+    .sort("-notifyTime")
+    .limit(limit)
+    .skip(skip)
+
     res.status(200).send({ message: "Notification send", notify });
   } catch (e) {
     console.log("Error", e.message);
@@ -902,12 +837,19 @@ exports.getDashDataQuery = async (req, res) => {
     const { id } = req.params;
     const user = await User.findById({ _id: id })
       .select(
-        "userLegalName username photoId profilephoto userBio userDateOfBirth remindLater "
+        "userLegalName username ageRestrict photoId profilePhoto "
       )
       .populate({
-        path: "staff",
-        select:
-          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        path: 'supportChat',
+        populate: {
+          path: 'latestMessage'
+        }
+      })
+      .populate({
+        path: 'supportChat',
+        populate: {
+          path: 'message'
+        }
       })
       .lean()
       .exec();
@@ -1254,6 +1196,26 @@ exports.retrieveUserThreeArray = async (req, res) => {
   } catch {}
 };
 
+
+
+exports.retrieveUserKnowQuery = async(req, res) =>{
+  try{
+    const { uid } = req.params
+    var totalUpVote = 0
+    const user = await User.findById({_id: uid})
+    .select('questionCount answerQuestionCount')
+    const questionUpVote = await Post.find({ author: uid })
+    for(let up of questionUpVote){
+      totalUpVote += up.answerUpVoteCount
+    }
+    res.status(200).send({ message: "Know's ", user, upVote: totalUpVote})
+  }
+  catch{
+
+  }
+} 
+
+
 exports.circleArrayQuery = async (req, res) => {
   try {
     const { uid } = req.params;
@@ -1283,4 +1245,8 @@ exports.allCircleUsers = async (req, res) => {
   }).populate({ path: "userCircle" });
   const user = users.userCircle.find(keyword);
   res.send(user);
-};
+}
+
+
+
+

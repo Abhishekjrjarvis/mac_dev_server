@@ -11,6 +11,7 @@ const Behaviour = require("../../models/Behaviour");
 const FinalReport = require("../../models/Marks/FinalReport");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
+const User = require('../../models/User')
 
 exports.getClassMaster = async (req, res) => {
   try {

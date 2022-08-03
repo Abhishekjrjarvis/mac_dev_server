@@ -1,11 +1,12 @@
 var firebase = require("firebase-admin");
 var serviceAccount = require("./qviple-user-firebase-adminsdk-4qvna-aca6cd00fb.json");
 
-firebase.initializeApp({
-  credential: firebase.credential.cert(serviceAccount)
-});
-
 const invokeFirebaseNotification = (type, info, title, id, token) => {
+  if (!firebase.apps.length) {
+    firebase.initializeApp({
+      credential: firebase.credential.cert(serviceAccount),
+    });
+  }
   if(type === 'Followers'){
     const firebaseToken = `${token && token}`
 

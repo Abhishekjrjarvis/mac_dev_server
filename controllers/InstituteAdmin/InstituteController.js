@@ -32,6 +32,7 @@ const {
 const fs = require("fs");
 const util = require("util");
 const encryptionPayload = require("../../Utilities/Encrypt/payload");
+const { todayDate } = require("../../Utilities/timeComparison");
 const unlinkFile = util.promisify(fs.unlink);
 
 exports.getAllIns = async (req, res) => {
@@ -43,7 +44,6 @@ exports.getAllIns = async (req, res) => {
   }
 };
 
-
 exports.getDashOneQuery = async (req, res) => {
   try {
     const { id } = req.params;
@@ -52,21 +52,27 @@ exports.getDashOneQuery = async (req, res) => {
         "insName name insAbout photoId status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart unlockAmount accessFeature activateStatus"
       )
       .populate({
-        path: 'supportChat',
+        path: "supportChat",
         populate: {
-          path: 'latestMessage'
-        }
+          path: "latestMessage",
+        },
       })
       .populate({
-        path: 'supportChat',
+        path: "supportChat",
         populate: {
-          path: 'message'
-        }
+          path: "message",
+        },
       })
       .lean()
       .exec();
-      const encrypt = await encryptionPayload(institute)
-    res.status(200).send({ message: "limit Ins Data", institute: institute, eData: encrypt });
+    const encrypt = await encryptionPayload(institute);
+    res
+      .status(200)
+      .send({
+        message: "limit Ins Data",
+        institute: institute,
+        eData: encrypt,
+      });
   } catch {}
 };
 
@@ -767,8 +773,7 @@ exports.updateApproveStaff = async (req, res) => {
       await user.save();
     } else {
     }
-  } catch (e) {
-  }
+  } catch (e) {}
 };
 
 exports.updateRejectStaff = async (req, res) => {
@@ -849,8 +854,7 @@ exports.getNewDepartment = async (req, res) => {
       message: "Successfully Created Department",
       department: department._id,
     });
-  } catch (e) {
-  }
+  } catch (e) {}
 };
 
 exports.getNewStaffJoinCodeIns = async (req, res) => {
@@ -860,12 +864,10 @@ exports.getNewStaffJoinCodeIns = async (req, res) => {
     const institute = await InstituteAdmin.findById({ _id: id });
     institute.staffJoinCode = code;
     await institute.save();
-    res
-      .status(200)
-      .send({
-        message: "staff joining code",
-        institute: institute.staffJoinCode,
-      });
+    res.status(200).send({
+      message: "staff joining code",
+      institute: institute.staffJoinCode,
+    });
   } catch (e) {
     console.log(`Error`, e.message);
   }
@@ -998,7 +1000,6 @@ exports.printedBySuperAdmin = async (req, res) => {
     console.log(`Error`, e.message);
   }
 };
-
 
 exports.complaintReportAtIns = async (req, res) => {
   try {
@@ -1619,54 +1620,52 @@ exports.retrieveDepartmentList = async (req, res) => {
 exports.getOneDepartment = async (req, res) => {
   try {
     const { did } = req.params;
-    if(did === 'undefined'){
-
-    }
-    else{
-    const department = await Department.findById({ _id: did })
-      .select(
-        "dName dAbout dTitle dEmail staffCount studentCount classCount dPhoneNumber photoId photo dSpeaker dVicePrinciple dAdminClerk dOperatingAdmin dStudentPresident"
-      )
-      .populate({
-        path: "dHead",
-        select:
-          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
-      })
-      .populate({
-        path: "batches",
-        select: "batchName batchStatus createdAt",
-      })
-      .populate({
-        path: "departmentSelectBatch",
-        select: "batchName batchStatus createdAt ApproveStudent",
-        populate: {
-          path: "classroom",
-          select: "className classTitle",
-          populate: {
-            path: "ApproveStudent",
-            select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
-          },
-        },
-      })
-      .populate({
-        path: "displayPersonList",
-        select: "displayTitle createdAt",
-        populate: {
-          path: "displayUser",
-          select: "userLegalName username photoId profilePhoto",
-        },
-      })
-      .lean()
-      .exec();
-    if (department) {
-      res.status(200).send({ message: "Success", department });
+    if (did === "undefined") {
     } else {
-      res.status(404).send({ message: "Failure" });
+      const department = await Department.findById({ _id: did })
+        .select(
+          "dName dAbout dTitle dEmail staffCount studentCount classCount dPhoneNumber photoId photo dSpeaker dVicePrinciple dAdminClerk dOperatingAdmin dStudentPresident"
+        )
+        .populate({
+          path: "dHead",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        })
+        .populate({
+          path: "batches",
+          select: "batchName batchStatus createdAt",
+        })
+        .populate({
+          path: "departmentSelectBatch",
+          select: "batchName batchStatus createdAt ApproveStudent",
+          populate: {
+            path: "classroom",
+            select: "className classTitle",
+            populate: {
+              path: "ApproveStudent",
+              select:
+                "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+            },
+          },
+        })
+        .populate({
+          path: "displayPersonList",
+          select: "displayTitle createdAt",
+          populate: {
+            path: "displayUser",
+            select: "userLegalName username photoId profilePhoto",
+          },
+        })
+        .lean()
+        .exec();
+      if (department) {
+        res.status(200).send({ message: "Success", department });
+      } else {
+        res.status(404).send({ message: "Failure" });
+      }
     }
-    } 
   } catch (e) {
-    console.log(e)
+    console.log(e);
   }
 };
 
@@ -1738,12 +1737,14 @@ exports.retrieveNewClass = async (req, res) => {
       // res.status(404).send({ message: 'Something wrong with autogenerated code'})
     } else {
       const notify = await new Notification({});
+      const date = await todayDate();
       const classRoom = await new Class({
         masterClassName: mcId,
         className: mCName,
         classTitle: classTitle,
         classHeadTitle: classHeadTitle,
         classCode: `${result}`,
+        classStartDate: date,
       });
       institute.classCodeList.push(`${result}`);
       institute.classRooms.push(classRoom._id);
@@ -1758,7 +1759,7 @@ exports.retrieveNewClass = async (req, res) => {
       ) {
       } else {
         depart.departmentChatGroup.push(staff._id);
-        depart.staffCount += 1
+        depart.staffCount += 1;
       }
       classRoom.batch = batch._id;
       // batch.batchStaff.push(staff._id);
@@ -1842,7 +1843,7 @@ exports.retrieveNewSubject = async (req, res) => {
     ) {
     } else {
       depart.departmentChatGroup.push(staff._id);
-      depart.staffCount += 1
+      depart.staffCount += 1;
       await depart.save();
     }
     staff.staffSubject.push(subject._id);
@@ -1878,8 +1879,7 @@ exports.retrieveNewSubject = async (req, res) => {
       message: "Successfully Created Subject",
       subject,
     });
-  } catch (e) {
-  }
+  } catch (e) {}
 };
 
 exports.retrieveSubjectMaster = async (req, res) => {
@@ -2137,13 +2137,11 @@ exports.retrieveCurrentSelectBatch = async (req, res) => {
     department.departmentSelectBatch = batches._id;
     department.userBatch = batches._id;
     await department.save();
-    res
-      .status(200)
-      .send({
-        message: "Batch Detail Data",
-        batches: batches._id,
-        department: department.departmentSelectBatch,
-      });
+    res.status(200).send({
+      message: "Batch Detail Data",
+      batches: batches._id,
+      department: department.departmentSelectBatch,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -2494,7 +2492,13 @@ exports.retrieveRecoveryMailIns = async (req, res) => {
     const institute = await InstituteAdmin.findById({ _id: id });
     institute.recoveryMail = recoveryMail;
     await Promise.all([institute.save()]);
-    res.status(200).send({ message: "Recovery Mail updated", mail: institute.recoveryMail, status: true });
+    res
+      .status(200)
+      .send({
+        message: "Recovery Mail updated",
+        mail: institute.recoveryMail,
+        status: true,
+      });
   } catch {}
 };
 
@@ -2521,13 +2525,11 @@ exports.retrieveInsFollowersArray = async (req, res) => {
       .select("userLegalName photoId profilePhoto username")
       .limit(limit)
       .skip(skip);
-    res
-      .status(200)
-      .send({
-        message: "Followers List",
-        iFollowers: followers,
-        uFollowers: uFollowers,
-      });
+    res.status(200).send({
+      message: "Followers List",
+      iFollowers: followers,
+      uFollowers: uFollowers,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -2571,13 +2573,11 @@ exports.retrieveDepartmentAllBatch = async (req, res) => {
       .lean()
       .exec();
     if (department) {
-      res
-        .status(200)
-        .send({
-          message: "Success",
-          departmentActiveBatch: department.departmentSelectBatch,
-          allBatch: department.batches,
-        });
+      res.status(200).send({
+        message: "Success",
+        departmentActiveBatch: department.departmentSelectBatch,
+        allBatch: department.batches,
+      });
     } else {
       res.status(404).send({ message: "Failure" });
     }
@@ -2612,7 +2612,7 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     admins.studentArray.push(student._id);
     admins.studentCount += 1;
     institute.student.pull(sid);
-    institute.studentCount += 1
+    institute.studentCount += 1;
     if (c_date <= institute.insFreeLastDate) {
       institute.insFreeCredit = institute.insFreeCredit + 1;
     }
@@ -2661,8 +2661,7 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
       message: `Welcome To The Institute ${student.studentFirstName} ${student.studentLastName}`,
       classes: classes._id,
     });
-  } catch (e) {
-  }
+  } catch (e) {}
 };
 
 exports.retrieveRejectStudentRequest = async (req, res) => {
@@ -2732,7 +2731,8 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
       })
       .populate({
         path: "ApproveStudent",
-        select: "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO",
         populate: {
           path: "user",
           select: "userLegalName username",
@@ -2870,9 +2870,6 @@ exports.updateClassDisplayPersonArray = async (req, res) => {
     console.log(e);
   }
 };
-
-
-
 
 exports.updateLeavingCertificateQuery = async (req, res) => {
   try {

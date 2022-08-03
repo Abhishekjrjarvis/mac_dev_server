@@ -1,13 +1,13 @@
 var firebase = require("firebase-admin");
 var serviceAccount = require("./qviple-user-firebase-adminsdk-4qvna-aca6cd00fb.json");
 
+firebase.initializeApp({
+  credential: firebase.credential.cert(serviceAccount)
+});
+
 const invokeFirebaseNotification = (type, info, title, id, token) => {
   if(type === 'Followers'){
     const firebaseToken = `${token && token}`
-
-    firebase.initializeApp({
-      credential: firebase.credential.cert(serviceAccount)
-    });
 
     const payload = {
       notification: {
@@ -30,11 +30,6 @@ const invokeFirebaseNotification = (type, info, title, id, token) => {
   }
   else if(type === 'Circle'){
       const firebaseToken = `${token && token}`
-
-  
-      firebase.initializeApp({
-        credential: firebase.credential.cert(serviceAccount)
-      });
   
       const payload = {
         notification: {
@@ -57,11 +52,6 @@ const invokeFirebaseNotification = (type, info, title, id, token) => {
   }
   else if(type === 'Staff Approval'){
       const firebaseToken = `${token && token}`
-
-  
-      firebase.initializeApp({
-        credential: firebase.credential.cert(serviceAccount)
-      });
   
       const payload = {
         notification: {
@@ -84,11 +74,6 @@ const invokeFirebaseNotification = (type, info, title, id, token) => {
   }
   else if(type === 'Student Approval'){
       const firebaseToken = `${token && token}`
-
-  
-      firebase.initializeApp({
-        credential: firebase.credential.cert(serviceAccount)
-      });
   
       const payload = {
         notification: {
@@ -111,11 +96,6 @@ const invokeFirebaseNotification = (type, info, title, id, token) => {
   }
   else if(type === 'Designation Allocation'){
       const firebaseToken = `${token && token}`
-
-  
-      firebase.initializeApp({
-        credential: firebase.credential.cert(serviceAccount)
-      });
   
       const payload = {
         notification: {
@@ -138,11 +118,6 @@ const invokeFirebaseNotification = (type, info, title, id, token) => {
   }
   else if(type === 'Announcement'){
       const firebaseToken = `${token && token}`
-
-  
-      firebase.initializeApp({
-        credential: firebase.credential.cert(serviceAccount)
-      });
   
       const payload = {
         notification: {
@@ -166,10 +141,6 @@ const invokeFirebaseNotification = (type, info, title, id, token) => {
   else if(type === 'Student Member Activity'){
     const firebaseToken = `${token && token}`
 
-    firebase.initializeApp({
-      credential: firebase.credential.cert(serviceAccount)
-    });
-
     const payload = {
       notification: {
         title: `${title}`,
@@ -191,10 +162,6 @@ const invokeFirebaseNotification = (type, info, title, id, token) => {
   }
   else if(type === 'Staff Member Activity'){
     const firebaseToken = `${token && token}`
-
-    firebase.initializeApp({
-      credential: firebase.credential.cert(serviceAccount)
-    });
 
     const payload = {
       notification: {

@@ -2184,6 +2184,10 @@ exports.retrieveClass = async (req, res) => {
       .populate({
         path: "department",
         select: "dName",
+        populate: {
+          path: 'institute',
+          select: 'id'
+        }
       })
       .populate({
         path: "displayPersonList",
@@ -2192,6 +2196,10 @@ exports.retrieveClass = async (req, res) => {
           path: "displayUser",
           select: "userLegalName username photoId profilePhoto",
         },
+      })
+      .populate({
+        path: 'institute',
+        select: 'id'
       })
       .lean()
       .exec();

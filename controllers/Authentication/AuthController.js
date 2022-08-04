@@ -371,7 +371,7 @@ exports.profileByUser = async (req, res) => {
         const post = await Post.find({
           $and: [
             { _id: { $in: uInstitute.posts } },
-            { postVisibility: 'Anyone'},
+            { postStatus: 'Anyone'},
           ]})
         post.forEach(async (ele) => {
           user.userPosts.push(ele)

@@ -6,6 +6,7 @@ const Notification = require('../../models/notification')
 const NewApplication = require('../../models/Admission/NewApplication')
 const Student = require('../../models/Student')
 const Status = require('../../models/Admission/status')
+const Post = require('../../models/Post')
 
 
 exports.retrieveAdmissionAdminHead = async(req, res) =>{

@@ -85,6 +85,12 @@ const staffSchema = new mongoose.Schema({
       ref: "SportClass",
     },
   ],
+  admissionDepartment: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "AdmissionAdmin",
+    }
+  ],
   staffLeave: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -113,12 +119,6 @@ const staffSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Library",
-    },
-  ],
-  staffAdmissionAdmin: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "AdmissionAdmin",
     },
   ],
   mcqQuestions: [

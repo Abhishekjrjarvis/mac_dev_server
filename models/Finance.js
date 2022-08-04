@@ -49,12 +49,6 @@ const financeSchema = new mongoose.Schema({
       ref: "Class",
     },
   ],
-  financeProfilePhoto: {
-    type: String,
-  },
-  financeCoverPhoto: {
-    type: String,
-  },
   financeBankBalance: {
     type: Number,
     default: 0,

@@ -6,7 +6,11 @@ const Notification = require('../../models/notification')
 const NewApplication = require('../../models/Admission/NewApplication')
 const Student = require('../../models/Student')
 const Status = require('../../models/Admission/status')
-const Post = require('../../models/Post')
+const Finance = require('../../models/Finance')
+const { uploadDocFile, uploadFile } = require('../../S3Configuration')
+const fs = require("fs");
+const util = require("util");
+const unlinkFile = util.promisify(fs.unlink);
 
 
 exports.retrieveAdmissionAdminHead = async(req, res) =>{
@@ -94,7 +98,7 @@ exports.retrieveAdmissionNewApplication = async(req, res) =>{
 
 exports.retrieveAdmissionReceievedApplication = async (req, res) => {
     try {
-      const { uid, aid, id } = req.params;
+      const { uid, aid } = req.params;
       const user = await User.findById({ _id: uid });
       const student = new Student({ ...req.body });
       const apply = await NewApplication.findById({_id: aid})
@@ -137,3 +141,95 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
       console.log(e);
     }
   };
+
+
+exports.retrieveAdmissionSelectedApplication = async(req, res) =>{
+  try{
+    const { sid, aid } = req.params
+    const apply = await NewApplication.findById({_id: aid})
+    const student = await Student.findById({_id: sid})
+    const user = await User.findById({_id: `${student.user}`})
+    const status = new Status({})
+    apply.selectedApplication.push(student._id)
+    student.selectApplication.push(apply._id)
+    status.content = `You have been selected for ${apply.applicationName}. Confirm your admission`
+    status.applicationId = apply._id
+    user.applicationStatus.push(status._id)
+    await Promise.all([ apply.save(), student.save(), user.save(), status.save() ])
+    res.status(200).send({ message: `congrats ${student.studentFirstName} `, status})
+  }
+  catch{
+
+  }
+}
+
+
+exports.payOfflineAdmissionFee = async(req, res) =>{
+  try{
+    const { sid, aid } = req.params
+    const { amount } = req.body
+    const apply = await NewApplication.findById({_id: aid})
+    const admission = await Admission.findById({_id: `${apply.admissionAdmin}`})
+    const institute = await InstituteAdmin.findById({_id: `${admission.institute}`})
+    const finance = await Finance.findById({_id: `${institute.financeDepart[0]}`})
+    const student = await Student.findById({_id: sid})
+    const user = await User.findById({_id: `${student.user}`})
+    const status = new Status({})
+    if(amount && amount > apply.applicationFee){
+      res.status(204).send({ message: 'Amount can not be greater than Admission Fee'})
+    }
+    else{
+      if(amount < apply.applicationFee){
+        admission.remainingFee.push(student._id)
+        student.applicationPaymentStatus.push({
+          applicationId: apply._id,
+          status: 'Pending',
+          installment: 'Installment',
+          fee: amount
+        })
+      }
+      else if(amount == apply.applicationFee){
+        student.applicationPaymentStatus.push({
+          applicationId: apply._id,
+          status: 'paid offline',
+          installment: 'No Installment',
+          fee: amount
+        })
+      }
+      admission.offlineFee += amount
+      apply.offlineFee += amount
+      finance.financeAdmissionBalance += amount
+      finance.financeCashBalance += amount
+      apply.confirmedApplication.push(student._id)
+      student.confirmApplication.push(apply._id)
+      status.content = `You have been selected for ${apply.applicationName}. Confirm your admission`
+      status.applicationId = apply._id
+      user.applicationStatus.push(status._id)
+      await Promise.all([ admission.save(), apply.save(), student.save(), finance.save()])
+      res.status(200).send({ message: 'Paid Offline Fee and confirm', student: student.applicationPaymentStatus})
+    }
+  }
+  catch{
+
+  }
+}
+
+// exports.retrieveConfirmAdmissionApplication = async(req, res) =>{
+//   try{
+//     const { sid, aid } = req.params
+//     const apply = await NewApplication.findById({_id: aid})
+//     const student = await Student.findById({_id: sid})
+//     const user = await User.findById({_id: `${student.user}`})
+//     const status = new Status({})
+//     apply.selectedApplication.push(student._id)
+//     student.selectApplication.push(apply._id)
+//     status.content = `You have been selected for ${apply.applicationName}. Confirm your admission`
+//     status.applicationId = apply._id
+//     user.applicationStatus.push(status._id)
+//     await Promise.all([ apply.save(), student.save(), user.save(), status.save() ])
+//     res.status(200).send({ message: `congrats ${student.studentFirstName} `, status})
+//   }
+//   catch{
+
+//   }
+// }

@@ -9,7 +9,7 @@ const InsAnnouncement = require('../../models/InsAnnouncement')
 const bcrypt = require('bcryptjs')
 const Post = require('../../models/Post')
 const Chat = require('../../models/Chat/Chat')
-
+const Status = require('../../models/Admission/status')
 const {
   getFileStream,
   uploadDocFile,
@@ -1185,6 +1185,23 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
     res.status(200).send({ message: "Student Designation Data", student });
   } catch {}
 };
+
+
+exports.retrieveApplicationStatusQuery = async(req, res) => {
+  try{
+    const { uid } = req.params
+    const user = await User.findById({_id: uid})
+    .select('applicationStatus')
+    const status = await Status.find({_id: { $in: user.applicationStatus }})
+    .sort("-createdAt")
+    .select('content createdAt')
+    res.status(200).send({ message: 'Application Status', status})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
 
 exports.retrieveUserThreeArray = async (req, res) => {
   try {

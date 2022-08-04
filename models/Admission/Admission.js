@@ -27,7 +27,15 @@ const admissionAdminSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'NewApplication'
         }
-    ]
+    ],
+    offlineFee: {
+        type: Number,
+        default: 0
+    },
+    onlineFee: {
+        type: Number,
+        default: 0
+    }
 })
 
 module.exports = mongoose.model('Admission', admissionAdminSchema)

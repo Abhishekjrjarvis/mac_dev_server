@@ -236,6 +236,8 @@ router.get(
   catchAsync(User.retrieveStudentDesignationArray)
 );
 
+router.get('/:uid/application/status', catchAsync(User.retrieveApplicationStatusQuery))
+
 // User 3-Follow System Array
 router.get(
   "/:id/all-three-array",

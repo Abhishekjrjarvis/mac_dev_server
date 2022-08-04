@@ -8,7 +8,7 @@ const statusSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'NewApplication'
     },
-    createdtAt: {
+    createdAt: {
         type: Date,
         default: Date.now
     }

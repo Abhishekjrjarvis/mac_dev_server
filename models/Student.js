@@ -253,6 +253,20 @@ const studentSchema = new mongoose.Schema({
       },
     },
   ],
+  selectApplication: [],
+  confirmApplication: [],
+  cancelApplication: [],
+  applicationPaymentStatus: [
+    {
+      applicationId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'NewApplication'
+      },
+      status: { type: String },
+      installment: { type: String },
+      fee: { type: Number }
+    }
+  ]
 });
 
 const Student = mongoose.model("Student", studentSchema);

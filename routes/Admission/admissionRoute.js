@@ -16,6 +16,10 @@ router.post('/:aid/new/application', catchAsync(Admission.retrieveAdmissionNewAp
 
 // router.get('/:id/application', catchAsync(Admission.fetchAdmissionApplicationArray))
 
-router.post('/:uid/user/:aid/apply/:id', catchAsync(Admission.retrieveAdmissionReceievedApplication))
+router.post('/:uid/user/:aid/apply', upload.array('file'), catchAsync(Admission.retrieveAdmissionReceievedApplication))
+
+router.post('/:sid/student/:aid/select', catchAsync(Admission.retrieveAdmissionSelectedApplication))
+
+router.post('/:sid/student/:aid/pay/offline/confirm', catchAsync(Admission.payOfflineAdmissionFee))
 
 module.exports = router

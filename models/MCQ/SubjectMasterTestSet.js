@@ -6,6 +6,11 @@ const subjectMasterTestSetShcema = new mongoose.Schema({
     ref: "SubjectMaster",
     required: true,
   },
+  classMaster: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "ClassMaster",
+    required: true,
+  },
   testName: {
     type: String,
   },
@@ -46,19 +51,27 @@ const subjectMasterTestSetShcema = new mongoose.Schema({
       questionDescription: {
         type: String,
       },
-      questionImage: {
-        type: String,
-      },
-      options: [{ type: String }],
-      correctAnswer: {
-        type: String,
-        required: true,
-      },
+      questionImage: [],
+      options: [
+        {
+          option: { type: String },
+          optionNumber: { type: String },
+          image: { type: String },
+        },
+      ],
+      correctAnswer: [
+        {
+          option: { type: String },
+          optionNumber: { type: String },
+          image: { type: String },
+        },
+      ],
       answerDescription: {
         type: String,
       },
-      answerImage: {
-        type: String,
+      answerImage: [],
+      createdAt: {
+        type: Date,
       },
     },
   ],

@@ -33,13 +33,31 @@ const staffSchema = new mongoose.Schema({
       ref: "Department",
     },
   ],
+  previousStaffDepartment: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Department",
+    },
+  ],
   staffClass: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Class",
     },
   ],
+  previousStaffClass: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Class",
+    },
+  ],
   staffSubject: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Subject",
+    },
+  ],
+  previousStaffSubject: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Subject",
@@ -63,10 +81,6 @@ const staffSchema = new mongoose.Schema({
       ref: "StaffAttendenceDate",
     },
   ],
-  attendenceRegs: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "StaffAttendence",
-  },
   financeDepartment: [
     {
       type: mongoose.Schema.Types.ObjectId,

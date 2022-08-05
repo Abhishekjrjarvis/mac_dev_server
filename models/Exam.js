@@ -42,6 +42,11 @@ const examSchema = new mongoose.Schema({
         ref: "SubjectMaster",
         required: true,
       },
+      testSetId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "SubjectMasterTestSet",
+        required: true,
+      },
     },
   ],
 });

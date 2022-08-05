@@ -66,6 +66,12 @@ const instituteAdminSchema = new mongoose.Schema({
       ref: "Staff",
     },
   ],
+  previousApproveStaff: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Staff",
+    },
+  ],
   depart: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -314,7 +320,7 @@ const instituteAdminSchema = new mongoose.Schema({
   },
   financeDetailStatus: {
     type: String,
-    default: 'Not Added'
+    default: "Not Added",
   },
   announcementCount: {
     type: Number,
@@ -341,41 +347,41 @@ const instituteAdminSchema = new mongoose.Schema({
   recentChat: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Chat'
-    }
+      ref: "Chat",
+    },
   ],
   referralArray: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Referral'
-    }
+      ref: "Referral",
+    },
   ],
   initialReferral: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    ref: "User",
   },
   activateStatus: {
     type: String,
-    default: 'Not Activated'
+    default: "Not Activated",
   },
   activateDate: {
     type: String,
   },
   supportChat: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'SupportChat'
+    ref: "SupportChat",
   },
   financeStatus: {
     type: String,
-    default: 'Disable'
+    default: "Disable",
   },
   admissionStatus: {
     type: String,
     default: 'Disable'
   },
   deviceToken: {
-    type: String
-  }
+    type: String,
+  },
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

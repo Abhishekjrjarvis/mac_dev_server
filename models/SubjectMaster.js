@@ -23,10 +23,12 @@ const subjectMasterSchema = new mongoose.Schema({
       ref: "SubjectMasterTestSet",
     },
   ],
-  allQuestion: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "SubjectMasterQuestion",
-  },
+  allQuestion: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubjectMasterQuestion",
+    },
+  ],
 
   subjectCount: {
     type: Number,

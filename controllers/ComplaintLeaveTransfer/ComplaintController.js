@@ -903,6 +903,7 @@ exports.staffTransferApproved = async (req, res) => {
       staffNew.staffDepartment.push(department._id);
       department.dHead = staffNew;
       transferStaff.staffDepartment.pull(department._id);
+      transferStaff.previousStaffDepartment.push(department._id);
       await Promise.all([
         staffNew.save(),
         department.save(),
@@ -916,6 +917,7 @@ exports.staffTransferApproved = async (req, res) => {
       staffNew.staffClass.push(classes._id);
       classes.classTeacher = staffNew;
       transferStaff.staffClass.pull(classes._id);
+      transferStaff.previousStaffClass.push(classes._id);
       await Promise.all([
         staffNew.save(),
         classes.save(),
@@ -926,9 +928,10 @@ exports.staffTransferApproved = async (req, res) => {
       const subject = await Subject.findById({
         _id: transferStaff.staffSubject[i]._id,
       });
-      staffNew.staffSubject.push(subject);
-      subject.subjectTeacherName = staffNew;
-      transferStaff.staffSubject.pull(subject);
+      staffNew.staffSubject.push(subject._id);
+      subject.subjectTeacherName = staffNew._id;
+      transferStaff.staffSubject.pull(subject._id);
+      transferStaff.previousStaffSubject.push(subject._id);
       await Promise.all([
         staffNew.save(),
         subject.save(),
@@ -954,7 +957,8 @@ exports.staffTransferApproved = async (req, res) => {
       institute.ApproveStaff.includes(String(transferStaff._id))
     ) {
       institute.ApproveStaff.pull(transferStaff._id);
-      transferStaff.institute = "";
+      institute.previousApproveStaff.push(transferStaff._id);
+      // transferStaff.institute = "";
       await Promise.all([institute.save(), transferStaff.save()]);
     } else {
       console.log("Not To Leave");

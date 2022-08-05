@@ -9157,3 +9157,182 @@ paths:
       responses:
         "200":
           description: OK
+
+
+  # /api/v1/batch/{bid}:
+  #   get:
+  #     tags:
+  #       - Class, Subject and Preformed Batch Related Api
+  #     summary: It is give list of selected batch all classes. It is use when promote the student 
+  #     consumes:
+  #       - application/json
+  #     produces:
+  #       - application/json
+  #     parameters:
+  #       - in: path
+  #         name: bid
+  #         required: true
+  #         type: string
+  #         description: It is particular Batch id 
+  #     responses:
+  #       "200":
+  #         description: OK
+  #   post:
+  #     tags:
+  #       - Class, Subject and Preformed Batch Related Api
+  #     summary: It is make the Identical Batch that is Preformed Structure Batch
+  #     consumes:
+  #       - application/json
+  #     produces:
+  #       - application/json
+  #     parameters:
+  #       - in: path
+  #         name: bid
+  #         required: true
+  #         type: string
+  #         description: It is particular Batch id 
+  #       - in: body
+  #         name: body
+  #         schema:
+  #           type: object
+  #           properties:
+  #             batchName:
+  #               type: string
+  #               required:  true
+  #               description: Here type the name of batch      
+  #     responses:
+  #       "200":
+  #         description: OK
+
+  # /api/v1/batch/subject/{sid}:
+  #   patch:
+  #     tags:
+  #       - Class, Subject and Preformed Batch Related Api
+  #     summary: for Lock (complete) the subject 
+  #     consumes:
+  #       - application/json
+  #     produces:
+  #       - application/json
+  #     parameters:
+  #       - in: path
+  #         name: sid
+  #         required: true
+  #         type: string
+  #         description: It is particular Subject id 
+  #       - in: body
+  #         name: body
+  #         schema:
+  #           type: object
+  #           properties:
+  #             subjectStatus:
+  #               type: string
+  #               required:  true
+  #               description: Here type the subjectStatus is "Completed"          
+  #     responses:
+  #       "200":
+  #         description: OK
+
+  # /api/v1/batch/class/{cid}:
+  #   get:
+  #     tags:
+  #       - Class, Subject and Preformed Batch Related Api
+  #     summary: It is give list of department with their batches in that perticular class institute 
+  #     consumes:
+  #       - application/json
+  #     produces:
+  #       - application/json
+  #     parameters:
+  #       - in: path
+  #         name: cid
+  #         required: true
+  #         type: string
+  #         description: It is particular Class id 
+  #     responses:
+  #       "200":
+  #         description: OK    
+
+  # /api/v1/batch/promote:
+  #   post:
+  #     tags:
+  #       - Class, Subject and Preformed Batch Related Api
+  #     summary: It is promote the selected students in new batch and new class
+  #     consumes:
+  #       - application/json
+  #     produces:
+  #       - application/json
+  #     parameters:
+  #       - in: body
+  #         name: body
+  #         schema:
+  #           type: object
+  #           properties:
+  #             departmentId:
+  #               type: string
+  #               required:  true
+  #               description: It is department Id
+  #             batchId:
+  #               type: string
+  #               required:  true
+  #               description: It is Batch Id
+  #             classId:
+  #               type: string
+  #               required:  true
+  #               description: It is Class Id
+  #             students:
+  #               type: array
+  #               required:  true
+  #               description: It is list of all selected students Id
+  #               items:
+  #                 type: string
+  #                 description: It is a selected students id
+
+  #     responses:
+  #       "200":
+  #         description: OK    
+
+  # /api/v1/batch/complete/{cid}:
+  #   get:
+  #     tags:
+  #       - Class, Subject and Preformed Batch Related Api
+  #     summary: It is give info about all subject is completed in that class or not
+  #     consumes:
+  #       - application/json
+  #     produces:
+  #       - application/json
+  #     parameters:
+  #       - in: path
+  #         name: cid
+  #         required: true
+  #         type: string
+  #         description: It is particular Class id 
+  #     responses:
+  #       "200":
+  #         description: OK
+  #   patch:
+  #     tags:
+  #       - Class, Subject and Preformed Batch Related Api
+  #     summary: It is complete the class
+  #     consumes:
+  #       - application/json
+  #     produces:
+  #       - application/json
+  #     parameters:
+  #       - in: path
+  #         name: cid
+  #         required: true
+  #         type: string
+  #         description: It is particular Class id 
+  #       - in: body
+  #         name: body
+  #         schema:
+  #           type: object
+  #           properties:
+  #             classStatus:
+  #               type: string
+  #               required:  true
+  #               description: Here type the classStatus is "Completed"    
+  #     responses:
+  #       "200":
+  #         description: OK
+
+

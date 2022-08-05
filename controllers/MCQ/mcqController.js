@@ -4,6 +4,14 @@ const SubjectMasterTestSet = require("../../models/MCQ/SubjectMasterTestSet");
 const StudentTestSet = require("../../models/MCQ/StudentTestSet");
 const Subject = require("../../models/Subject");
 const Student = require("../../models/Student");
+const Department = require("../../models/Department");
+const Batch = require("../../models/Batch");
+const Class = require("../../models/Class");
+const ClassMaster = require("../../models/ClassMaster");
+const SubjectMarks = require("../../models/Marks/SubjectMarks");
+const StudentNotification = require("../../models/Marks/StudentNotification");
+const Exam = require("../../models/Exam");
+
 // const StudentNotification = require("../../models/StudentNotification");
 
 const {
@@ -16,10 +24,9 @@ exports.getQuestion = async (req, res) => {
     const subjectMaster = await SubjectMaster.findById(req.params.smid)
       .populate({
         path: "allQuestion",
-        populate: {
-          path: "questions",
-          select:
-            "questionSNO questionNumber questionDescription questionImage",
+        match: {
+          subjectMaster: { $eq: req.params.smid },
+          classMaster: { $eq: req.params.cmid },
         },
         select: "questions",
       })
@@ -27,39 +34,111 @@ exports.getQuestion = async (req, res) => {
       .lean()
       .exec();
 
-    const questions = [];
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const startItem = (getPage - 1) * itemPerPage;
+    const endItem = startItem + itemPerPage;
 
-    res.status(200).send({
-      message: "all questions",
-      questions: subjectMaster?.allQuestion?.questions,
-    });
+    const filterFunction = (questions, startItem, endItem) => {
+      const limitQuestions = questions.slice(startItem, endItem);
+      const quest = [];
+      limitQuestions?.forEach((que) => {
+        quest.push({
+          questionSNO: que?.questionSNO,
+          questionNumber: que?.questionNumber,
+          questionDescription: que?.questionDescription,
+          questionImage: que?.questionImage,
+        });
+      });
+      return quest;
+    };
+
+    if (subjectMaster?.allQuestion) {
+      const quest = filterFunction(
+        subjectMaster?.allQuestion[0]?.questions,
+        startItem,
+        endItem
+      );
+      res.status(200).send({
+        message: "all questions",
+        questions: quest,
+      });
+    } else {
+      res.status(200).send({
+        message: "not questions",
+      });
+    }
   } catch (e) {
     console.log(e);
   }
 };
+
 exports.addQuestion = async (req, res) => {
   try {
     const questions = await SubjectMasterQuestion.findOne({
       subjectMaster: req.params.smid,
+      classMaster: req.body.classMasterId,
     });
 
     if (!questions) {
       const newQuestion = new SubjectMasterQuestion({
         subjectMaster: req.params.smid,
+        classMaster: req.body.classMasterId,
       });
-      console.log("here");
-
       const master = await SubjectMaster.findById(req.params.smid);
-      master.allQuestion = newQuestion._id;
+      master.allQuestion?.push(newQuestion._id);
       newQuestion.questions.push({ ...req.body });
       await Promise.all([newQuestion.save(), master.save()]);
       res.status(201).send({ message: "queston is created" });
     } else {
       questions.questions.push({ ...req.body });
-      console.log("no here");
-
       await questions.save();
       res.status(201).send({ message: "queston is created" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.getQuestionAddTestSet = async (req, res) => {
+  try {
+    const subjectMaster = await SubjectMaster.findById(req.params.smid)
+      .populate({
+        path: "allQuestion",
+        match: {
+          subjectMaster: { $eq: req.params.smid },
+          classMaster: { $eq: req.params.cmid },
+        },
+        select: "questions",
+      })
+      .select("allQuestion")
+      .lean()
+      .exec();
+
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const startItem = (getPage - 1) * itemPerPage;
+    const endItem = startItem + itemPerPage;
+
+    const filterFunction = (questions, startItem, endItem) => {
+      const limitQuestions = questions.slice(startItem, endItem);
+      return limitQuestions;
+    };
+
+    if (subjectMaster?.allQuestion) {
+      const quest = filterFunction(
+        subjectMaster?.allQuestion[0]?.questions,
+        startItem,
+        endItem
+      );
+      res.status(200).send({
+        message: "all questions for add to test set",
+        questions: quest,
+      });
+    } else {
+      res.status(200).send({
+        message: "not questions",
+      });
     }
   } catch (e) {
     console.log(e);
@@ -69,17 +148,95 @@ exports.addQuestion = async (req, res) => {
 exports.saveTestSet = async (req, res) => {
   try {
     const master = await SubjectMaster.findById(req.params.smid);
+    const classmaster = await ClassMaster.findById(req.params.cmid);
     const testSet = new SubjectMasterTestSet({
       testName: req.body?.testName,
       subjectMaster: req.params.smid,
+      classMaster: req.params.cmid,
       testSubject: master?.subjectName,
       testTotalQuestion: req.body?.testTotalQuestion,
       testTotalNumber: req.body?.testTotalNumber,
       questions: req.body?.questions,
     });
-    master.testSet = testSet._id;
-    await Promise.all([testSet.save(), master.save()]);
+    master.testSet?.push(testSet._id);
+    classmaster.testSet?.push(testSet._id);
+    await Promise.all([testSet.save(), master.save(), classmaster.save()]);
     res.status(201).send({ message: "queston test set is created" });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.allSaveTestSet = async (req, res) => {
+  try {
+    const classMaster = await ClassMaster.findById(req.params.cmid)
+      .populate({
+        path: "testSet",
+        select: "testName testTotalQuestion testTotalNumber",
+      })
+      .select("testSet");
+
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const startItem = (getPage - 1) * itemPerPage;
+    const endItem = startItem + itemPerPage;
+
+    const filterFunction = (testSet, startItem, endItem) => {
+      const testsetList = testSet.slice(startItem, endItem);
+      return testsetList;
+    };
+    if (classMaster?.testSet?.length) {
+      const testSetList = filterFunction(
+        classMaster?.testSet,
+        startItem,
+        endItem
+      );
+      res.status(200).send({ message: "All test set", testSets: testSetList });
+    } else {
+      res.status(200).send({ message: "No any test set" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.oneTestSetDetail = async (req, res) => {
+  try {
+    const subjectMasterTestSet = await SubjectMasterTestSet.findById(
+      req.params.tsid
+    ).select("testName testTotalQuestion testTotalNumber questions");
+
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const startItem = (getPage - 1) * itemPerPage;
+    const endItem = startItem + itemPerPage;
+
+    const filterFunction = (questions, startItem, endItem) => {
+      const limitQuestions = questions.slice(startItem, endItem);
+      const quest = [];
+      limitQuestions?.forEach((que) => {
+        quest.push({
+          questionSNO: que?.questionSNO,
+          questionNumber: que?.questionNumber,
+          questionDescription: que?.questionDescription,
+          questionImage: que?.questionImage,
+        });
+      });
+      return quest;
+    };
+    if (subjectMasterTestSet?.questions?.length) {
+      const testSetQuestion = filterFunction(
+        subjectMasterTestSet?.questions,
+        startItem,
+        endItem
+      );
+      res.status(200).send({
+        message: "All test set questions",
+        testSetAllQuestions: testSetQuestion,
+      });
+    } else {
+      res.status(200).send({ message: "No any test set questions" });
+    }
   } catch (e) {
     console.log(e);
   }
@@ -91,7 +248,7 @@ exports.takeTestSet = async (req, res) => {
       path: "class",
       select: "ApproveStudent",
     });
-    const testSet = await SubjectMasterTestSet.findById(req.body?.smtid);
+    const testSet = await SubjectMasterTestSet.findById(req.body?.tsid);
     testSet.testExamName = req.body?.testExamName;
     testSet.testDate = req.body?.testDate;
     testSet.testStart = `${req.body?.testStart.substr(
@@ -103,30 +260,29 @@ exports.takeTestSet = async (req, res) => {
       5
     )}:00T${req.body?.testEnd.substr(6, 2)}`;
     testSet.testDuration = req.body?.testDuration;
-    await testSet.save();
+    // await testSet.save();
     for (stId of subject?.class?.ApproveStudent) {
       const student = await Student.findById(stId);
       const studentTestSet = new StudentTestSet(...testSet);
       student.testSet.push(studentTestSet._id);
-      // const notify = new StudentNotification({});
-      // notify.notifyContent = `New ${exam.examName} Exam is created for ${sub.subjectName} , check your members tab`;
-      // notify.notifySender = department._id;
-      // notify.notifyReceiever = student._id;
-      // student.notification.push(notify._id);
-      // notify.notifyByDepartPhoto = department._id;
-      // invokeFirebaseNotification(
-      //   "Student Member Activity",
-      //   notify,
-      //   student.studentFirstName,
-      //   student._id,
-      //   "token"
-      // );
-      await Promise.all([studentTestSet.save(), student.save()]);
+      const notify = new StudentNotification({});
+      notify.notifyContent = `New ${testSet.testExamName} Exam is created for ${testSet.testSubject} , check your members tab`;
+      notify.notifySender = subject._id;
+      notify.notifyReceiever = student._id;
+      student.notification.push(notify._id);
+      notify.notifyByDepartPhoto = subject._id;
+      invokeFirebaseNotification(
+        "Student Member Activity",
+        notify,
+        student.studentFirstName,
+        student._id,
+        "token"
+      );
+      // await Promise.all([studentTestSet.save(), student.save()]);
     }
-
     res
       .status(200)
-      .send({ message: "queston test set is assigned to student" });
+      .send({ message: "queston test set is assigned to student", testSet });
   } catch (e) {
     console.log(e);
   }

@@ -127,4 +127,4 @@ const previousSchema = new mongoose.Schema({
   ],
 });
 
-module.exports = mongoose.model("StudentPreviousData", previousSchema);
+module.exports = mongoose.model("StaffPreviousData", previousSchema);

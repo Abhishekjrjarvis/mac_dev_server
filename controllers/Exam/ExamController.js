@@ -6,6 +6,7 @@ const Subject = require("../../models/Subject");
 const Batch = require("../../models/Batch");
 const Exam = require("../../models/Exam");
 const Student = require("../../models/Student");
+const User = require("../../models/User");
 const SubjectMarks = require("../../models/Marks/SubjectMarks");
 const Behaviour = require("../../models/Behaviour");
 const FinalReport = require("../../models/Marks/FinalReport");
@@ -107,8 +108,8 @@ exports.createExam = async (req, res) => {
               await classes.save();
             }
             for (let stu of classes.ApproveStudent) {
-              const student = await Student.findById(stu)
-              const user = await User.findById({_id: `${student.user}`})
+              const student = await Student.findById(stu);
+              const user = await User.findById({ _id: `${student.user}` });
               if (student.exams.includes(exam._id)) {
               } else {
                 student.exams.push(exam._id);

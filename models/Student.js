@@ -253,6 +253,7 @@ const studentSchema = new mongoose.Schema({
       },
     },
   ],
+  applyApplication: [],
   selectApplication: [],
   confirmApplication: [],
   cancelApplication: [],
@@ -264,7 +265,28 @@ const studentSchema = new mongoose.Schema({
       },
       status: { type: String },
       installment: { type: String },
-      fee: { type: Number }
+      fee: { type: Number },
+      firstInstallment: { type: Number },
+      secondInstallment: { type: Number }
+    }
+  ],
+  refundApplication: [
+    {
+      applicationId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'NewApplication'
+      },
+      status: { type: String },
+      amount: { type: Number }
+    }
+  ],
+  applicationStatus: [
+    {
+      applicationId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'NewApplication'
+      },
+      trackStatus: { type: String },
     }
   ]
 });

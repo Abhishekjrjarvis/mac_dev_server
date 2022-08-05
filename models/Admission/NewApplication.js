@@ -17,8 +17,14 @@ const newApplicationSchema = new mongoose.Schema({
     applicationStartDate: { type: String, required: true },
     applicationEndDate: { type: String, required: true },
     applicationFee: { type: Number, required: true },
+    remainingFee: { type: Number, default: 0 },
     applicationAbout: { type: String, required: true },
     applicationStatus: { type: String, default: 'Ongoing' },
+    receievedCount: { type: Number, default: 0 },
+    selectCount: { type: Number, default: 0 },
+    confirmCount: { type: Number, default: 0 },
+    cancelCount: { type: Number, default: 0 },
+    allotCount: { type: Number, default: 0 },
     createdAt: {
         type: Date,
         default: Date.now

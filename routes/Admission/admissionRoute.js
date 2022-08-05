@@ -22,4 +22,16 @@ router.post('/:sid/student/:aid/select', catchAsync(Admission.retrieveAdmissionS
 
 router.post('/:sid/student/:aid/pay/offline/confirm', catchAsync(Admission.payOfflineAdmissionFee))
 
+router.post('/:sid/student/:aid/pay/refund', catchAsync(Admission.cancelAdmissionApplication))
+
+router.get('/:aid/application/class', catchAsync(Admission.retrieveAdmissionApplicationClass))
+
+router.post('/:sid/student/:aid/allot/class/:cid', catchAsync(Admission.retrieveClassAllotQuery))
+
+router.patch('/:aid/application/complete', catchAsync(Admission.completeAdmissionApplication))
+
+router.get('/application', catchAsync(Admission.retrieveAdmissionApplicationStatus))
+
+router.get('/:aid/application/query', catchAsync(Admission.retrieveOneApplicationQuery))
+
 module.exports = router

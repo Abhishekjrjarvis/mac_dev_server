@@ -2146,6 +2146,25 @@ paths:
         "200":
           description: OK
 
+  /api/v1/user/{uid}/application/status:
+    get:
+      tags:
+        - Staff-Student-Joining-All-API
+      summary: Get Application Status -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          schema:
+            type: string
+          description: This is user id
+      responses:
+        "200":
+          description: OK
 
   #Staff Member's Tab
 

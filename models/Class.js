@@ -11,6 +11,8 @@ const classSchema = new mongoose.Schema({
   cover: { type: String },
   masterClassName: { type: mongoose.Schema.Types.ObjectId, ref: "ClassMaster" },
   classHeadTitle: { type: String, required: true },
+  boyCount: { type: Number, default: 0 },
+  girlCount: { type: Number, default: 0 },
   subject: [
     {
       type: mongoose.Schema.Types.ObjectId,

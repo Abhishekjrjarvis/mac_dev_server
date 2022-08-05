@@ -41,6 +41,7 @@ const mcqRoute = require("./routes/MCQ/mcqRoute");
 const batchRoute = require("./routes/Batch/batchRoute");
 const complaintLeaveRoute = require("./routes/ComplaintLeave/complaintLeaveRoute");
 const questionNew = require("./routes/User/Post/QuestionRoute");
+const admissionNew = require('./routes/Admission/admissionRoute')
 
 
 // ============================= DB Configuration ==============================
@@ -48,7 +49,7 @@ const questionNew = require("./routes/User/Post/QuestionRoute");
 const dburl = `${process.env.DB_URL2}`; // Development
 // const dburl = `${process.env.DB_URL}`; // Production
 
-// 62e155ce168e4858c7ca8c00 - Development
+// 62eca1daa4fefd060b193af0 - Development
 // 62e157224cc3f4c4d1b859b5 - Production
 
 mongoose
@@ -142,6 +143,7 @@ app.use("/api/v1/admin/post", superAdminPostRoute);
 app.use("/api/v1/auth", authNew);
 app.use("/api/v1/finance", financeNew);
 app.use("/api/v1/sport", sportNew);
+app.use("/api/v1/admission", admissionNew)
 app.use("/api/v1/all", miscellaneousNew);
 app.use("/api/v1/user", userNew);
 app.use("/api/v1/user/post", userPostRoute);

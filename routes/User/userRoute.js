@@ -225,7 +225,6 @@ router.get(
 // Staff Designation Data
 router.get(
   "/staffdesignationdata/:sid",
-  isLoggedIn,
   catchAsync(User.retrieveStaffDesignationArray)
 );
 
@@ -240,6 +239,7 @@ router.get('/:uid/application/status', catchAsync(User.retrieveApplicationStatus
 // User 3-Follow System Array
 router.get(
   "/:id/all-three-array",
+  isLoggedIn,
   catchAsync(User.retrieveUserThreeArray)
 );
 

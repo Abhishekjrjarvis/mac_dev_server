@@ -35,7 +35,6 @@ const util = require("util");
 const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const { todayDate } = require("../../Utilities/timeComparison");
 const unlinkFile = util.promisify(fs.unlink);
-const { todayDate } = require("../../Utilities/timeComparison");
 
 exports.getAllIns = async (req, res) => {
   try {

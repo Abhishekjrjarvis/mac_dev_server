@@ -2365,7 +2365,7 @@ exports.updateDisplayPersonArray = async (req, res) => {
     notify.notifyReceiever = user._id;
     user.uNotify.push(notify._id);
     notify.user = user._id;
-    notify.notifyByPhoto = user._id;
+    notify.notifyByInsPhoto = institute._id
     await Promise.all([
       institute.save(),
       display.save(),

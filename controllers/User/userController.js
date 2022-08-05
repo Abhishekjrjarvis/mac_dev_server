@@ -1049,7 +1049,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
       })
       .populate({
         path: "staffClass",
-        select: "className classTitle classStatus",
+        select: "className classTitle classStatus classHeadTitle",
         populate: {
           path: "batch",
           select: "batchName batchStatus",
@@ -1060,7 +1060,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         select: "subjectName subjectTitle subjectStatus",
         populate: {
           path: "class",
-          select: "className classTitle classStatus",
+          select: "className classTitle classStatus classHeadTitle",
           populate: {
             path: "batch",
             select: "batchName batchStatus",
@@ -1134,7 +1134,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
       )
       .populate({
         path: "studentClass",
-        select: "className classTitle classStatus",
+        select: "className classTitle classStatus classHeadTitle",
         populate: {
           path: "batch",
           select: "batchName batchStatus",

@@ -88,7 +88,7 @@ const staffSchema = new mongoose.Schema({
   admissionDepartment: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "AdmissionAdmin",
+      ref: "Admission",
     }
   ],
   staffLeave: [

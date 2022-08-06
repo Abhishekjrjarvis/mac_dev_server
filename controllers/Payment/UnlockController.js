@@ -19,7 +19,7 @@ exports.processUnlockFeaturePayment = async (req, res, next) => {
     params["TXN_AMOUNT"] = amount;
     params[
       "CALLBACK_URL"
-    ] = `http://18.205.27.165/api/api/v1/callback/ins/${id}/user/${name}`;
+    ] = `https://qviple.com/api/v1/callback/ins/${id}/user/${name}`;
     let paytmChecksum = paytm.generateSignature(
       params,
       process.env.PAYTM_MERCHANT_KEY

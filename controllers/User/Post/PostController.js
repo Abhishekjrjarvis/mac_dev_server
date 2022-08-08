@@ -271,6 +271,7 @@ exports.retrieveAllUserPosts = async(req, res) =>{
   try {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const p_types = req.query.p_type ? req.query.p_type : 'Post'
     const id = req.params.id;
     const skip = (page - 1) * limit;
     const user = await User.findById(id)
@@ -279,13 +280,13 @@ exports.retrieveAllUserPosts = async(req, res) =>{
       path: 'userPosts',
     })
     if(user && user.userPosts.length >=1){
-    const post = await Post.find({
-      _id: { $in: user.userPosts },
-    })
+    const post = await Post.find({ $and: [
+    {_id: { $in: user.userPosts }}, { postType: p_types}
+    ]})
     .sort("-createdAt")
     .limit(limit)
     .skip(skip)
-    .select("postTitle postText postDescription endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike")
+    .select("postTitle postText postQuestion answerCount answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike")
     .populate({
       path: 'tagPeople',
       select: 'userLegalName username photoId profilePhoto'

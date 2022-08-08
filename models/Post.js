@@ -85,6 +85,13 @@ const postSchema = new mongoose.Schema({
   postType: {
     type: String,
     default: 'Post'
+  },
+  trend_category: {
+    type: String
+  },
+  poll_query:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Poll'
   }
 });
 

@@ -288,6 +288,10 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  poll_Count: {
+    type: Number,
+    default: 0 
+  },
   applicationStatus: [
     {
       type: mongoose.Schema.Types.ObjectId,

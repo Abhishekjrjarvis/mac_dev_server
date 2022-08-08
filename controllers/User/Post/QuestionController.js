@@ -48,7 +48,9 @@ exports.postQuestionText = async (req, res) => {
           await ele.save()
         })
     }
-  } catch {}
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 exports.postQuestionDelete = async (req, res) => {

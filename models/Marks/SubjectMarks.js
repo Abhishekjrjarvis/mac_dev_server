@@ -15,6 +15,10 @@ const subjectMarksSchema = new mongoose.Schema({
       startTime: { type: String, required: true },
       endTime: { type: String, required: true },
       obtainMarks: { type: Number, default: 0 },
+      testSetId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "SubjectMasterTestSet",
+      },
     },
   ],
   graceMarks: { type: Number, default: 0 },

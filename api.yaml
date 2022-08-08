@@ -9177,6 +9177,43 @@ paths:
         "200":
           description: OK
 
+  /api/v1/finance/{fid}/dashboard/income:
+    get:
+      tags:
+        - Finance Module Query
+      summary: Get All Incomes of Finance
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/dashboard/expense:
+    get:
+      tags:
+        - Finance Module Query
+      summary: Get All Expenses of Finance
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance Id
+      responses:
+        "200":
+          description: OK
 
   # /api/v1/batch/{bid}:
   #   get:

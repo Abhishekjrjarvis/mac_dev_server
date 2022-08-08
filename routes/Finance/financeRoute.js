@@ -84,9 +84,9 @@ router.get('/:id/ins/bank/query', isLoggedIn, catchAsync(Finance.retrievePayment
 // // Retrieve ACK for Expense
 // router.get('/expense/ack/:key', isLoggedIn, catchAsync(Finance.RetrieveExpenseACK))
 
+router.get('/:fid/dashboard/income', catchAsync(Finance.retrieveIncomeQuery))
 
-
-
+router.get('/:fid/dashboard/expense', catchAsync(Finance.retrieveExpenseQuery))
 
 
 module.exports = router

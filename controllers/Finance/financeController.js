@@ -492,6 +492,34 @@ exports.retrievePaymentDetail = async(req, res) => {
   }
 }
 
+exports.retrieveIncomeQuery = async(req, res) =>{
+  try{
+    const { fid } = req.params
+    const finance = await Finance.findById({_id: fid})
+    .select('financeName incomeDepartment')
+    const incomes = await Income.find({ _id: { $in: finance.incomeDepartment}})
+    .sort("-createdAt")
+    res.status(200).send({ message: 'All Incomes', allIncome: incomes})
+  }
+  catch{
+
+  }
+}
+
+exports.retrieveExpenseQuery = async(req, res) =>{
+  try{
+    const { fid } = req.params
+    const finance = await Finance.findById({_id: fid})
+    .select('financeName expenseDepartment')
+    const expenses = await Expense.find({ _id: { $in: finance.expenseDepartment}})
+    .sort("-createdAt")
+    res.status(200).send({ message: 'All Expenses', allIncome: expenses})
+  }
+  catch{
+
+  }
+}
+
 // exports.uploadIncomeACK = async(req, res) =>{
 //   try {
 //     const sid = req.params.id;

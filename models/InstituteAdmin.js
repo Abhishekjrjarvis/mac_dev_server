@@ -382,6 +382,8 @@ const instituteAdminSchema = new mongoose.Schema({
   deviceToken: {
     type: String,
   },
+  leavingArray: [],
+  bonaArray: []
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

@@ -1080,6 +1080,33 @@ paths:
               behaviour:
                 type: string
                 description: Enter student behaviour
+              remark:
+                type: string
+                description: Enter student Remark
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/extra/{gr}/status/{type}:
+    get:
+      tags:
+        - Setting Control API
+      summary: Check Download Status -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: gr
+          required: true
+          type: string
+          description: Enter Student GRNO
+        - in: path
+          name: type
+          required: true
+          type: string
+          description: Enter Certificate Type ("Bona" || "Leaving")
       responses:
         "200":
           description: OK

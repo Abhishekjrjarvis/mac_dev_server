@@ -33,21 +33,36 @@ const financeSchema = new mongoose.Schema({
   ],
   classRoom: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Class",
-    },
+      classId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Class"
+      },
+      feeName: { type: String },
+      feeAmount: { type: Number },
+      status: { type: String }
+    }
   ],
   submitClassRoom: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Class",
-    },
+      classId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Class"
+      },
+      feeName: { type: String },
+      feeAmount: { type: Number },
+      status: { type: String }
+    }
   ],
   pendingClassroom: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Class",
-    },
+      classId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Class"
+      },
+      feeName: { type: String },
+      feeAmount: { type: Number },
+      status: { type: String }
+    }
   ],
   financeBankBalance: {
     type: Number,
@@ -95,6 +110,14 @@ const financeSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  financeCollectedSBalance: {
+    type: Number,
+    default: 0
+  },
+  financeExemptBalance: {
+    type: Number,
+    default: 0
   }
 }, { timestamps: true});
 

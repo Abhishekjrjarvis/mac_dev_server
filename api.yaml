@@ -9215,6 +9215,62 @@ paths:
         "200":
           description: OK
 
+  /api/v1/finance/{fid}/dashboard/request/class:
+    get:
+      tags:
+        - Finance Module Query
+      summary: Get All Request At Finance
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/dashboard/submit/class:
+    get:
+      tags:
+        - Finance Module Query
+      summary: Get All Submit
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/dashboard/reject/class:
+    get:
+      tags:
+        - Finance Module Query
+      summary: Get All Rejects
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance Id
+      responses:
+        "200":
+          description: OK
   # /api/v1/batch/{bid}:
   #   get:
   #     tags:

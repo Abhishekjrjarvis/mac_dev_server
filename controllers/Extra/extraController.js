@@ -151,7 +151,7 @@ exports.retrieveLeavingGRNO = async(req, res) => {
       path: 'institute',
       select: 'insName insAddress insState insDistrict insAffiliated insEditableText insEditableTexts insPhoneNumber insPincode photoId insProfilePhoto'
     })
-    const institute = await InstituteAdmin.findById({_id: `${student.institute}`})
+    const institute = await InstituteAdmin.findById({_id: `${student.institute._id}`})
     student.studentLeavingBehaviour = behaviour
     student.studentLeavingStudy = study
     student.studentLeavingPrevious = previous
@@ -164,7 +164,9 @@ exports.retrieveLeavingGRNO = async(req, res) => {
     await Promise.all([ student.save(), institute.save() ])
     res.status(200).send({ message: 'Student Leaving Certificate', student})
   }
-  catch{}
+  catch(e){
+    console.log(e)
+  }
 }
 
 exports.retrieveCertificateStatus = async(req, res) =>{

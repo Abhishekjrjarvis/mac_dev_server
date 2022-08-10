@@ -9298,6 +9298,253 @@ paths:
       responses:
         "200":
           description: OK
+
+  
+
+  /api/v1/post/question/{id}/text:
+    post:
+      tags:
+        - Add Question Module
+      summary: Create Post Question -(verified)
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is User Id
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload Question Image (Optional)
+        - in: formData
+          name: postQuestion
+          type: string
+          required: true
+          description: Enter Question Text
+        - in: formData
+          name: trend_category
+          type: string
+          required: true
+          description: Choose category as mentioned in User Figma
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/post/question/{id}/deleted/{pid}:
+    delete:
+      tags:
+        - Add Question Module
+      summary: Delete Post Question -(verified)
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is User Id
+        - in: path
+          name: pid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Post Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/post/question/like/{aid}:
+    get:
+      tags:
+        - Add Question Module
+      summary: Upvote and Downvote Answer -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Answer id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/post/question/save/{pid}:
+    get:
+      tags:
+        - Add Question Module
+      summary: Question Save  -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Post id
+      responses:
+        "200":
+          description: OK
+
+          
+
+  /api/v1/post/question/answer/save/{aid}:
+    get:
+      tags:
+        - Add Question Module
+      summary: Answer Save  -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Answer id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/post/question/answer/new/{id}:
+    post:
+      tags:
+        - Add Question Module
+      summary: Create Answer at Question -(verified)
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Post Id
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload Answer Image (Optional)
+        - in: formData
+          name: answerContent
+          type: string
+          required: true
+          description: Enter Answer Content
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/post/question/answer/reply/{rid}:
+    get:
+      tags:
+        - Add Question Module
+      summary: Get All Reply of One Answer -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: rid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Answer id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/post/question/answer/reply/new/{rid}:
+    post:
+      tags:
+        - Add Question Module
+      summary: Add Reply To Answer (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: This is Parent Answer id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              reply:
+                type: string
+                description: Enter Answer Reply
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/user/{uid}/know/query:
+    get:
+      tags:
+        - Add Question Module
+      summary: Get User Profile Answer, Question & Upvote -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is User id
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/post/question/answer/{id}:
+    get:
+      tags:
+        - Add Question Module
+      summary: Get All Answers - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Post id
+      responses:
+        "200":
+          description: OK
+
+
   # /api/v1/batch/{bid}:
   #   get:
   #     tags:

@@ -189,3 +189,45 @@
 {"level":"info","message":"c966a8970d9b48c6bb6be0193e27ce2c1660046199082","timestamp":"2022-08-09T11:56:36.668Z"}
 {"level":"info","message":{"amount":"100","callbackUrl":"http://localhost:8080/api/v1/super/admin","custId":"7276147751","key_secret":"AhfaczP0sXEsRLSh","mid":"hVgvnF52198002796615","mode":"2","orderId":"9029389892","testing":"0","website":"WEBSTAGING"},"timestamp":"2022-08-09T12:20:48.267Z"}
 {"level":"info","message":"fdf619d3508e43a7a02e97103d46b7591660047651223","timestamp":"2022-08-09T12:20:49.066Z"}
+{"level":"info","message":{"amount":"100","callbackUrl":"http://localhost:8080/api/v1/super/admin","custId":"7276147751","key_secret":"AhfaczP0sXEsRLSh","mid":"hVgvnF52198002796615","mode":"2","orderId":"9029389890992","testing":"0","website":"WEBSTAGING"},"timestamp":"2022-08-09T13:08:05.161Z"}
+{"level":"info","message":"9a150e1b268c48228ca0a3b8c42ef1ff1660050485506","timestamp":"2022-08-09T13:08:05.697Z"}
+{"level":"info","message":{"amount":"100","callbackUrl":"http://localhost:8080/api/v1/super/admin","custId":"7276147751","key_secret":"AhfaczP0sXEsRLSh","mid":"hVgvnF52198002796615","mode":"2","orderId":"9029389890992","testing":"0","website":"WEBSTAGING"},"timestamp":"2022-08-09T13:09:17.949Z"}
+{"level":"info","message":{"Token":"9a150e1b268c48228ca0a3b8c42ef1ff1660050485506"},"timestamp":"2022-08-09T13:09:18.154Z"}
+{"level":"info","message":"{\"Token\":\"9a150e1b268c48228ca0a3b8c42ef1ff1660050485506\"}","timestamp":"2022-08-09T13:09:18.156Z"}
+{"level":"info","message":{"amount":"100","callbackUrl":"http://localhost:8080/api/v1/super/admin","custId":"7276147751","key_secret":"AhfaczP0sXEsRLSh","mid":"hVgvnF52198002796615","mode":"2","orderId":"3999","testing":"0","website":"WEBSTAGING"},"timestamp":"2022-08-09T13:09:25.841Z"}
+{"level":"info","message":{"Token":"e5741a50f4554c2195089c58eda0a6be1660050566023"},"timestamp":"2022-08-09T13:09:26.256Z"}
+{"level":"info","message":"{\"Token\":\"e5741a50f4554c2195089c58eda0a6be1660050566023\"}","timestamp":"2022-08-09T13:09:26.257Z"}
+{"level":"info","message":{"amount":"100","callbackUrl":"http://localhost:8080/api/v1/super/admin","custId":"7276147751","key_secret":"AhfaczP0sXEsRLSh","mid":"hVgvnF52198002796615","mode":"2","orderId":"399922","testing":"0","website":"WEBSTAGING"},"timestamp":"2022-08-09T13:09:50.706Z"}
+{"level":"info","message":{"Token":"0727d318ebec4fa39b06f7b8c30187691660050590936"},"timestamp":"2022-08-09T13:09:51.181Z"}
+{"level":"info","message":"{\"Token\":\"0727d318ebec4fa39b06f7b8c30187691660050590936\"}","timestamp":"2022-08-09T13:09:51.184Z"}
+{"level":"info","message":{"amount":"100","callbackUrl":"http://localhost:8080/api/v1/super/admin","custId":"7276147751","key_secret":"AhfaczP0sXEsRLSh","mid":"hVgvnF52198002796615","mode":"2","orderId":"399922999","testing":"0","website":"WEBSTAGING"},"timestamp":"2022-08-09T13:11:04.802Z"}
+{"level":"info","message":{"Token":"b2b68027f5d64b9f844175712d6c10d91660050665029"},"timestamp":"2022-08-09T13:11:05.387Z"}
+{"level":"info","message":"{\"Token\":\"b2b68027f5d64b9f844175712d6c10d91660050665029\"}","timestamp":"2022-08-09T13:11:05.396Z"}
+{"level":"info","message":{"amount":"100","callbackUrl":"http://localhost:8080/api/v1/super/admin","custId":"7276147751","key_secret":"AhfaczP0sXEsRLSh","mid":"hVgvnF52198002796615","mode":"2","orderId":"399922999","testing":"0","website":"WEBSTAGING"},"timestamp":"2022-08-09T13:11:44.618Z"}
+{"level":"info","message":{"Token":"b2b68027f5d64b9f844175712d6c10d91660050665029","checksum":"IvNCca8pssv6/+C1tLhw8SB/DA08BIb8Zw80RYdKBJqWS6dG4KpOHh9B42dKBicRR7TxZwXM6Ehw/JuanznPBaNtwsH6G+cyXIJh4pfcJkw="},"timestamp":"2022-08-09T13:11:44.885Z"}
+{"level":"info","message":"{\"Token\":\"b2b68027f5d64b9f844175712d6c10d91660050665029\",\"checksum\":\"IvNCca8pssv6/+C1tLhw8SB/DA08BIb8Zw80RYdKBJqWS6dG4KpOHh9B42dKBicRR7TxZwXM6Ehw/JuanznPBaNtwsH6G+cyXIJh4pfcJkw=\"}","timestamp":"2022-08-09T13:11:44.889Z"}
+{"level":"info","message":{},"timestamp":"2022-08-10T10:05:40.291Z"}
+{"level":"info","message":"tushar received by Pankaj","timestamp":"2022-08-10T10:05:43.892Z"}
+{"level":"info","message":"{\"message\":\"tushar received by Pankaj\",\"level\":\"info\"}","timestamp":"2022-08-10T10:05:43.896Z"}
+{"level":"info","message":{},"timestamp":"2022-08-10T10:05:52.032Z"}
+{"level":"info","message":"Pankaj paid the tushar","timestamp":"2022-08-10T10:05:52.310Z"}
+{"level":"info","message":"{\"message\":\"Pankaj paid the tushar\",\"level\":\"info\"}","timestamp":"2022-08-10T10:05:52.313Z"}
+{"level":"info","message":{},"timestamp":"2022-08-10T10:05:56.828Z"}
+{"level":"info","message":"Pankaj paid the tushar","timestamp":"2022-08-10T10:05:57.119Z"}
+{"level":"info","message":"{\"message\":\"Pankaj paid the tushar\",\"level\":\"info\"}","timestamp":"2022-08-10T10:05:57.120Z"}
+{"level":"info","message":{},"timestamp":"2022-08-10T10:05:58.425Z"}
+{"level":"info","message":"Pankaj paid the tushar","timestamp":"2022-08-10T10:05:58.587Z"}
+{"level":"info","message":"{\"message\":\"Pankaj paid the tushar\",\"level\":\"info\"}","timestamp":"2022-08-10T10:05:58.588Z"}
+{"level":"info","message":{},"timestamp":"2022-08-10T10:06:01.270Z"}
+{"level":"info","message":"Pankaj paid the tushar","timestamp":"2022-08-10T10:06:01.422Z"}
+{"level":"info","message":"{\"message\":\"Pankaj paid the tushar\",\"level\":\"info\"}","timestamp":"2022-08-10T10:06:01.423Z"}
+{"level":"info","message":{},"timestamp":"2022-08-10T10:09:27.940Z"}
+{"level":"info","message":{},"timestamp":"2022-08-10T10:10:05.822Z"}
+{"level":"info","message":"tushar fee received by qwerty12345678903 (Exempted)","timestamp":"2022-08-10T10:10:06.278Z"}
+{"level":"info","message":"{\"message\":\"tushar fee received by qwerty12345678903 (Exempted)\",\"level\":\"info\"}","timestamp":"2022-08-10T10:10:06.281Z"}
+{"level":"info","message":{},"timestamp":"2022-08-10T10:10:11.560Z"}
+{"level":"info","message":"qwerty12345678903 paid the tushar fee (Exempted)","timestamp":"2022-08-10T10:10:11.853Z"}
+{"level":"info","message":"{\"message\":\"qwerty12345678903 paid the tushar fee (Exempted)\",\"level\":\"info\"}","timestamp":"2022-08-10T10:10:11.854Z"}
+{"level":"info","message":{},"timestamp":"2022-08-10T10:10:14.108Z"}
+{"level":"info","message":"qwerty12345678903 paid the tushar fee (Exempted)","timestamp":"2022-08-10T10:10:14.440Z"}
+{"level":"info","message":"{\"message\":\"qwerty12345678903 paid the tushar fee (Exempted)\",\"level\":\"info\"}","timestamp":"2022-08-10T10:10:14.441Z"}

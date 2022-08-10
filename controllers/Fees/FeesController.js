@@ -6,6 +6,7 @@ const Fees = require("../../models/Fees");
 const Notification = require("../../models/notification");
 const Finance = require('../../models/Finance')
 const Checklist = require('../../models/Checklist')
+const InstituteAdmin = require('../../models/InstituteAdmin')
 
 exports.createFess = async (req, res) => {
   try {
@@ -90,7 +91,7 @@ exports.feesPaidByStudent = async (req, res) => {
       fData.studentsList.includes(String(student._id))
     ) {
       res.status(200).send({
-        message: `${student.studentFirstName} paid the ${fData.feeName}`,
+        message: `${student.studentFirstName} paid the ${fData.feeName} fee`,
       });
     } else {
       student.studentFee.push(fData._id);
@@ -103,7 +104,7 @@ exports.feesPaidByStudent = async (req, res) => {
       classes.offlineFeeCollection += fData.feeAmount
       await Promise.all([ student.save(), fData.save(), classes.save()])
       res.status(200).send({
-        message: `${fData.feeName} received by ${student.studentFirstName}`,
+        message: `${fData.feeName} fee received by ${student.studentFirstName}`,
       });
     }
   } catch (e){
@@ -125,7 +126,7 @@ exports.exemptFeesPaidByStudent = async (req, res) => {
       fData.studentExemptList.includes(String(student._id))
     ) {
       res.status(200).send({
-        message: `${student.studentFirstName} paid the ${fData.feeName}`,
+        message: `${student.studentFirstName} paid the ${fData.feeName} fee (Exempted)`,
       });
     } else {
       try {
@@ -144,11 +145,13 @@ exports.exemptFeesPaidByStudent = async (req, res) => {
           finance.save()
         ])
         res.status(200).send({
-          message: `${fData.feeName} received by ${student.studentFirstName}`,
+          message: `${fData.feeName} fee received by ${student.studentFirstName} (Exempted)`,
         });
       } catch {}
     }
-  } catch {}
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 

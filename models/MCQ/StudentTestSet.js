@@ -18,7 +18,6 @@ const studentTestSetShcema = new mongoose.Schema({
   },
   testExamName: {
     type: String,
-    required: true,
   },
   testSubject: {
     type: String,
@@ -26,27 +25,21 @@ const studentTestSetShcema = new mongoose.Schema({
   },
   testDate: {
     type: String,
-    required: true,
   },
   testStart: {
     type: String,
-    required: true,
   },
   testEnd: {
     type: String,
-    required: true,
   },
   testDuration: {
-    type: String,
-    required: true,
+    type: Number,
   },
   testTotalQuestion: {
     type: Number,
-    required: true,
   },
   testTotalNumber: {
     type: Number,
-    required: true,
   },
   testObtainMarks: {
     type: Number,
@@ -56,7 +49,6 @@ const studentTestSetShcema = new mongoose.Schema({
     {
       questionSNO: {
         type: String,
-        required: true,
       },
       questionNumber: {
         type: Number,
@@ -64,7 +56,6 @@ const studentTestSetShcema = new mongoose.Schema({
       },
       questionDescription: {
         type: String,
-        required: true,
       },
       questionImage: [],
       options: [
@@ -94,7 +85,14 @@ const studentTestSetShcema = new mongoose.Schema({
       answerImage: [],
     },
   ],
-  studentTestSet: {
+  testSetAccess: {
+    type: Boolean,
+    default: false,
+  },
+  testSetLeftTime: {
+    type: Number,
+  },
+  testSetComplete: {
     type: Boolean,
     default: false,
   },

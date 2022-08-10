@@ -11,8 +11,6 @@ const classSchema = new mongoose.Schema({
   cover: { type: String },
   masterClassName: { type: mongoose.Schema.Types.ObjectId, ref: "ClassMaster" },
   classHeadTitle: { type: String, required: true },
-  boyCount: { type: Number, default: 0 },
-  girlCount: { type: Number, default: 0 },
   subject: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -38,6 +36,12 @@ const classSchema = new mongoose.Schema({
     },
   ],
   ApproveStudent: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
+  promoteStudent: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Student",

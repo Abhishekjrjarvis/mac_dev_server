@@ -4,6 +4,7 @@ const Batch = require("../../models/Batch");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const Subject = require("../../models/Subject");
 const SubjectMaster = require("../../models/SubjectMaster");
+const ClassMaster = require("../../models/ClassMaster");
 const Staff = require("../../models/Staff");
 const Student = require("../../models/Student");
 const StudentPreviousData = require("../../models/StudentPreviousData");
@@ -36,6 +37,7 @@ exports.preformedStructure = async (req, res) => {
       const code = await classCodeFunction();
       const date = await todayDate();
       const staff = await Staff.findById(oneClass?.classTeacher);
+      const classMaster = await ClassMaster.findById(oneClass?.masterClassName);
       const identicalClass = new Class({
         classCode: code,
         className: oneClass?.className,
@@ -50,6 +52,8 @@ exports.preformedStructure = async (req, res) => {
         classTeacher: oneClass?.classTeacher,
       });
 
+      classMaster?.classDivision.push(identicalClass._id);
+      classMaster.classCount += 1;
       institute?.classRooms.push(identicalClass._id);
       institute?.classCodeList.push(code);
       department?.class.push(identicalClass._id);
@@ -86,7 +90,11 @@ exports.preformedStructure = async (req, res) => {
           subjectMaster.save(),
         ]);
       }
-      await Promise.all([identicalClass.save(), staff.save()]);
+      await Promise.all([
+        identicalClass.save(),
+        classMaster.save(),
+        staff.save(),
+      ]);
     }
 
     await Promise.all([
@@ -106,9 +114,10 @@ exports.subjectComplete = async (req, res) => {
     if (subject.subjectStatus !== "Completed") {
       subject.subjectStatus = req.body?.subjectStatus;
       const staff = await Staff.findById(subject?.subjectTeacherName).select(
-        "staffSubject previousStaffSubject"
+        "staffSubject previousStaffSubject staffDesignationCount"
       );
-      staff.previousStaffSubject?.push(staff?.staffSubject);
+      staff.staffDesignationCount -= 1;
+      staff.previousStaffSubject?.push(req.params.sid);
       staff.staffSubject.pull(req.params.sid);
       await Promise.all([staff.save(), subject.save()]);
       res.status(200).send({ message: "Subject is Completed" });
@@ -164,6 +173,7 @@ exports.allClasses = async (req, res) => {
 exports.promoteStudent = async (req, res) => {
   try {
     const { departmentId, batchId, classId } = req.body;
+    const previousclasses = await Class.findById(req.params.cid);
     const classes = await Class.findById(classId);
     const batch = await Batch.findById(batchId);
     const department = await Department.findById(departmentId);
@@ -173,36 +183,38 @@ exports.promoteStudent = async (req, res) => {
       const previousData = new StudentPreviousData({
         class: student?.studentClass,
         batch: student?.batches,
-        department: department,
-        institute: institute,
+        department: student?.department,
+        institute: student?.institute,
         behaviour: student?.studentBehaviour,
         subjectMarks: student?.subjectMarks,
         exams: student?.exams,
         finalReport: student?.finalReport,
         testSet: student?.testSet,
-        studentFee: studentFee,
-        attendDate: attendDate,
-        checklist: checklist,
-        onlineFeeList: onlineFeeList,
-        onlineCheckList: onlineCheckList,
-        offlineFeeList: offlineFeeList,
-        offlineCheckList: offlineCheckList,
-        complaints: complaints,
-        studentChecklist: studentChecklist,
-        leave: leave,
-        transfer: transfer,
-        paymentList: paymentList,
-        studentExemptFee: studentExemptFee,
-        exemptFeeList: exemptFeeList,
+        studentFee: student?.studentFee,
+        attendDate: student?.attendDate,
+        checklist: student?.checklist,
+        onlineFeeList: student?.onlineFeeList,
+        onlineCheckList: student?.onlineCheckList,
+        offlineFeeList: student?.offlineFeeList,
+        offlineCheckList: student?.offlineCheckList,
+        complaints: student?.complaints,
+        studentChecklist: student?.studentChecklist,
+        leave: student?.leave,
+        transfer: student?.transfer,
+        paymentList: student?.paymentList,
+        studentExemptFee: student?.studentExemptFee,
+        exemptFeeList: student?.exemptFeeList,
         student: student._id,
       });
-      // await previousData.save();
+      // console.log(previousData);
+      await previousData.save();
       student?.previousYearData?.push(previousData._id);
       student.studentClass = classId;
       student.studentCode = classes.classCode;
       student.department = departmentId;
       student.batches = batchId;
-      student.studentBehaviour = "";
+      //here how to give the null in objectID
+      student.studentBehaviour = null;
       student.studentROLLNO = roll;
       student.subjectMarks = [];
       student.exams = [];
@@ -237,10 +249,18 @@ exports.promoteStudent = async (req, res) => {
       } else {
         department?.ApproveStudent.push(student._id);
       }
-      // await student.save();
+
+      previousclasses?.promoteStudent?.push(stu);
+      previousclasses?.ApproveStudent?.pull(stu);
+      await student.save();
     }
 
-    // await Promise.all([classes.save(), batch.save(), department.save()]);
+    await Promise.all([
+      classes.save(),
+      previousclasses.save(),
+      batch.save(),
+      department.save(),
+    ]);
 
     res
       .status(200)
@@ -257,7 +277,7 @@ exports.getclassComplete = async (req, res) => {
         path: "subject",
         select: "subjectStatus",
       })
-      .select("subject")
+      .select("subject classStatus")
       .lean()
       .exec();
     let flag = false;
@@ -273,11 +293,13 @@ exports.getclassComplete = async (req, res) => {
       res.status(200).send({
         message: "All subject is completed",
         flag,
+        classStatus: classes?.classStatus,
       });
     } else {
       res.status(200).send({
         message: "Can not completed class due to all subject is not completed",
         flag,
+        classStatus: classes?.classStatus,
       });
     }
   } catch (e) {
@@ -306,71 +328,13 @@ exports.classComplete = async (req, res) => {
 
       if (flag) {
         classes.classStatus = req.body.classStatus;
-        for (let stu of classes?.ApproveStudent) {
-          const student = await Student.findById(stu);
-          const previousData = new StudentPreviousData({
-            class: student?.studentClass,
-            batch: student?.batches,
-            department: student?.department,
-            institute: student?.institute,
-            behaviour: student?.studentBehaviour,
-            subjectMarks: student?.subjectMarks,
-            exams: student?.exams,
-            finalReport: student?.finalReport,
-            testSet: student?.testSet,
-            studentFee: student?.studentFee,
-            attendDate: student?.attendDate,
-            checklist: student?.checklist,
-            onlineFeeList: student?.onlineFeeList,
-            onlineCheckList: student?.onlineCheckList,
-            offlineFeeList: student?.offlineFeeList,
-            offlineCheckList: student?.offlineCheckList,
-            complaints: student?.complaints,
-            studentChecklist: student?.studentChecklist,
-            leave: student?.leave,
-            transfer: student?.transfer,
-            paymentList: student?.paymentList,
-            studentExemptFee: student?.studentExemptFee,
-            exemptFeeList: student?.exemptFeeList,
-            student: student._id,
-          });
-          // await previousData.save();
-          student?.previousYearData?.push(previousData._id);
-          student.studentClass = "";
-          student.studentCode = "";
-          student.department = "";
-          student.batches = "";
-          student.studentBehaviour = "";
-          student.studentROLLNO = 0;
-          student.subjectMarks = [];
-          student.exams = [];
-          student.finalReportStatus = "No";
-          student.finalReport = [];
-          student.testSet = [];
-          student.studentFee = [];
-          student.attendDate = [];
-          student.checklist = [];
-          student.onlineFeeList = [];
-          student.onlineCheckList = [];
-          student.offlineFeeList = [];
-          student.offlineCheckList = [];
-          student.complaints = [];
-          student.studentChecklist = [];
-          student.leave = [];
-          student.transfer = [];
-          student.paymentList = [];
-          student.applyList = [];
-          student.studentExemptFee = [];
-          student.exemptFeeList = [];
-
-          // await student.save();
-        }
         const staff = await Staff.findById(classes?.classTeacher).select(
           "staffClass previousStaffClass"
         );
-        staff.previousStaffClass?.push(staff?.staffClass);
-        staff.staffClass.pull(req.params.sid);
-        // await Promise.all([staff.save(), classes.save()]);
+        staff.staffDesignationCount -= 1;
+        staff.previousStaffClass?.push(req.params.cid);
+        staff.staffClass.pull(req.params.cid);
+        await Promise.all([staff.save(), classes.save()]);
         res.status(200).send({
           message: "Class is completed",
         });

@@ -42,7 +42,7 @@ const subjectMasterTestSetShcema = new mongoose.Schema({
   questions: [
     {
       questionSNO: {
-        type: Number,
+        type: String,
       },
       questionNumber: {
         type: Number,

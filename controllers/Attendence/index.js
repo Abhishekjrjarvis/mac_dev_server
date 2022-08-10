@@ -9,7 +9,7 @@ const Staff = require("../../models/Staff");
 const Notification = require("../../models/notification");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
-const User = require('../../models/User')
+const User = require("../../models/User");
 
 //THis is route with tested OF STUDENT
 exports.viewClassStudent = async (req, res) => {
@@ -26,7 +26,9 @@ exports.getAttendClassStudent = async (req, res) => {
       `${previousDate[0]}\/${previousDate[1]}\/${previousDate[2]}$`
     );
   } else {
-    const currentDate = new Date();
+    var currentDate = new Date();
+    currentDate.setHours(currentDate.getHours() + 5);
+    currentDate.setMinutes(currentDate.getMinutes() + 30);
     const currentDateLocalFormat = currentDate.toISOString().split("-");
     const day =
       +currentDateLocalFormat[2].split("T")[0] > 9
@@ -71,7 +73,9 @@ exports.markAttendenceClassStudent = async (req, res) => {
     } else {
       const classes = await Class.findById({ _id: cid });
       const startDateClass = classes?.classStartDate?.split("/");
-      const currentDate = new Date();
+      var currentDate = new Date();
+      currentDate.setHours(currentDate.getHours() + 5);
+      currentDate.setMinutes(currentDate.getMinutes() + 30);
       const currentDateLocalFormat = currentDate.toISOString().split("-");
       const markDate = req.body.date?.split("/");
       //this is logic
@@ -114,8 +118,8 @@ exports.markAttendenceClassStudent = async (req, res) => {
         for (let i = 0; i < req.body.present.length; i++) {
           const student = await Student.findById({
             _id: `${req.body.present[i]}`,
-          })
-          const user = await User.findById({_id: `${student.user}`})
+          });
+          const user = await User.findById({ _id: `${student.user}` });
           const notify = new StudentNotification({});
           notify.notifyContent = `you're present today`;
           notify.notifySender = classes._id;
@@ -138,7 +142,7 @@ exports.markAttendenceClassStudent = async (req, res) => {
           const student = await Student.findById({
             _id: `${req.body.absent[i]}`,
           });
-          const user = await User.findById({_id: `${student.user}`})
+          const user = await User.findById({ _id: `${student.user}` });
           const notify = new StudentNotification({});
           notify.notifyContent = `you're absent today`;
           notify.notifySender = classes._id;
@@ -147,7 +151,13 @@ exports.markAttendenceClassStudent = async (req, res) => {
           student.notification.push(notify._id);
           student.attendDate.push(attendence._id);
           attendence.absentStudent.push(student._id);
-          invokeFirebaseNotification('Student Member Activity', notify, student.studentFirstName, user._id, user.deviceToken)
+          invokeFirebaseNotification(
+            "Student Member Activity",
+            notify,
+            student.studentFirstName,
+            user._id,
+            user.deviceToken
+          );
           await Promise.all([student.save(), notify.save()]);
         }
         classes.attendenceDate.push(attendence._id);
@@ -161,8 +171,7 @@ exports.markAttendenceClassStudent = async (req, res) => {
         });
       }
     }
-  } catch (e) {
-  }
+  } catch (e) {}
 };
 
 exports.markAttendenceClassStudentUpdate = async (req, res) => {
@@ -177,7 +186,9 @@ exports.markAttendenceClassStudentUpdate = async (req, res) => {
         message: "Attendance not Updated, first make a attendance",
       });
     } else {
-      const currentDate = new Date();
+      var currentDate = new Date();
+      currentDate.setHours(currentDate.getHours() + 5);
+      currentDate.setMinutes(currentDate.getMinutes() + 30);
       const currentDateLocalFormat = currentDate.toISOString().split("-");
       const markDate = req.body.date?.split("/");
       if (
@@ -333,7 +344,9 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
           "Attendance not mark Current Date due to Holiday or Already marked attendance",
       });
     } else {
-      const currentDate = new Date();
+      var currentDate = new Date();
+      currentDate.setHours(currentDate.getHours() + 5);
+      currentDate.setMinutes(currentDate.getMinutes() + 30);
       const currentDateLocalFormat = currentDate.toISOString().split("-");
       const markDate = req.body.date?.split("/");
       if (
@@ -395,7 +408,13 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
           notify.user = staff.user._id;
           notify.notifyByInsPhoto = id;
           staffAttendence.absentTotal = req.body.absent.length;
-          invokeFirebaseNotification('Staff Member Activity', notify, staff.user.userLegalName, staff.user._id, staff.user.deviceToken)
+          invokeFirebaseNotification(
+            "Staff Member Activity",
+            notify,
+            staff.user.userLegalName,
+            staff.user._id,
+            staff.user.deviceToken
+          );
           await Promise.all([
             staff.save(),
             staffAttendence.save(),
@@ -412,8 +431,7 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
           .send({ message: "You can not mark attendance this date" });
       }
     }
-  } catch (e) {
-  }
+  } catch (e) {}
 };
 
 exports.getAttendInstituteStaff = async (req, res) => {
@@ -427,7 +445,9 @@ exports.getAttendInstituteStaff = async (req, res) => {
         `${previousDate[0]}\/${previousDate[1]}\/${previousDate[2]}$`
       );
     } else {
-      const currentDate = new Date();
+      var currentDate = new Date();
+      currentDate.setHours(currentDate.getHours() + 5);
+      currentDate.setMinutes(currentDate.getMinutes() + 30);
       const currentDateLocalFormat = currentDate.toISOString().split("-");
       const day =
         +currentDateLocalFormat[2].split("T")[0] > 9
@@ -470,7 +490,9 @@ exports.markAttendenceDepartmentStaffUpdate = async (req, res) => {
         message: "Attendance not Updated, first make a attendance",
       });
     } else {
-      const currentDate = new Date();
+      var currentDate = new Date();
+      currentDate.setHours(currentDate.getHours() + 5);
+      currentDate.setMinutes(currentDate.getMinutes() + 30);
       const currentDateLocalFormat = currentDate.toISOString().split("-");
       const markDate = req.body.date?.split("/");
       if (

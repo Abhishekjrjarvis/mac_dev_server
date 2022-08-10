@@ -466,7 +466,7 @@ exports.searchStudent = async (req, res) => {
       const dropItem = (getPage - 1) * itemPerPage;
       const student = await Student.find(search)
         .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto"
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO"
         )
         .populate({
           path: "user",

@@ -64,6 +64,12 @@ const financeSchema = new mongoose.Schema({
       status: { type: String }
     }
   ],
+  financeProfilePhoto: {
+    type: String,
+  },
+  financeCoverPhoto: {
+    type: String,
+  },
   financeBankBalance: {
     type: Number,
     default: 0,

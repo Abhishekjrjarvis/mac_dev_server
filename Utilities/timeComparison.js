@@ -1,16 +1,16 @@
 exports.dateTimeComparison = (first, second) => {
-  const year = +first.substr(0, 4) === +second.substr(0, 4);
-  const yearGreater = +first.substr(0, 4) > +second.substr(0, 4);
-  const month = +first.substr(5, 2) === +second.substr(5, 2);
-  const monthGreate = +first.substr(5, 2) > +second.substr(5, 2);
-  const day = +first.substr(8, 2) === +second.substr(8, 2);
-  const dayGreater = +first.substr(8, 2) > +second.substr(8, 2);
-  const hour = +first.substr(11, 2) === +second.substr(11, 2);
-  const hourGreater = +first.substr(11, 2) > +second.substr(11, 2);
-  const minute = +first.substr(14, 2) === +second.substr(14, 2);
-  const minuteGreater = +first.substr(14, 2) > +second.substr(14, 2);
-  const secondTime = +first.substr(17, 2) === +second.substr(17, 2);
-  const secondTimeGreater = +first.substr(17, 2) > +second.substr(17, 2);
+  const year = +first.substr(1, 4) === +second.substr(6, 4);
+  const yearGreater = +first.substr(1, 4) > +second.substr(6, 4);
+  const month = +first.substr(6, 2) === +second.substr(3, 2);
+  const monthGreate = +first.substr(6, 2) > +second.substr(3, 2);
+  const day = +first.substr(9, 2) === +second.substr(0, 2);
+  const dayGreater = +first.substr(9, 2) > +second.substr(0, 2);
+  const hour = +first.substr(12, 2) === +second.substr(11, 2);
+  const hourGreater = +first.substr(12, 2) > +second.substr(11, 2);
+  const minute = +first.substr(15, 2) === +second.substr(14, 2);
+  const minuteGreater = +first.substr(15, 2) > +second.substr(14, 2);
+  const secondTime = +first.substr(18, 2) === +second.substr(17, 2);
+  const secondTimeGreater = +first.substr(18, 2) > +second.substr(17, 2);
 
   if (yearGreater) return true;
   else if (year)
@@ -26,19 +26,21 @@ exports.dateTimeComparison = (first, second) => {
             else if (secondTime) return true;
             else return false;
           else return false;
-        else false;
+        else return false;
       else return false;
     else return false;
   else return false;
 };
 
 exports.timeComparison = (first, second) => {
-  const hour = +first.substr(11, 2) === +second.substr(0, 2);
-  const hourGreater = +first.substr(11, 2) > +second.substr(0, 2);
-  const minute = +first.substr(14, 2) === +second.substr(3, 2);
-  const minuteGreater = +first.substr(14, 2) > +second.substr(3, 2);
-  const secondTime = +first.substr(17, 2) === +second.substr(6, 2);
-  const secondTimeGreater = +first.substr(17, 2) > +second.substr(6, 2);
+  // console.log(first);
+  // console.log(second);
+  const hour = +first.substr(12, 2) === +second.substr(0, 2);
+  const hourGreater = +first.substr(12, 2) > +second.substr(0, 2);
+  const minute = +first.substr(15, 2) === +second.substr(3, 2);
+  const minuteGreater = +first.substr(15, 2) > +second.substr(3, 2);
+  const secondTime = +first.substr(18, 2) === +second.substr(6, 2);
+  const secondTimeGreater = +first.substr(18, 2) > +second.substr(6, 2);
   if (hourGreater) return true;
   else if (hour)
     if (minuteGreater) return true;
@@ -47,7 +49,7 @@ exports.timeComparison = (first, second) => {
       else if (secondTime) return true;
       else return false;
     else return false;
-  else false;
+  else return false;
 };
 
 exports.todayDate = async () => {

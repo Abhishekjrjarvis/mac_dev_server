@@ -368,11 +368,7 @@ exports.profileByUser = async (req, res) => {
         const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
         .populate({ path: 'posts' })
         if(uInstitute && uInstitute.posts && uInstitute.posts.length >=1){
-        const post = await Post.find({
-          $and: [
-            { _id: { $in: uInstitute.posts } },
-            { postStatus: 'Anyone'},
-          ]})
+        const post = await Post.find({ _id: { $in: uInstitute.posts }, postVisibility: 'Anyone'})
         post.forEach(async (ele) => {
           user.userPosts.push(ele)
         })

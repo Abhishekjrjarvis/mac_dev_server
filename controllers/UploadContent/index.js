@@ -405,13 +405,13 @@ exports.patchLibraryImageCover = async (req, res) => {
 exports.patchAdmissionImagePhoto = async (req, res) => {
   try {
     const { aid } = req.params;
-    const admissionAdmin = await Admission.findById({ _id: aid });
-    if (admissionAdmin.admissionProfilePhoto) await deleteFile(admissionAdmin.admissionProfilePhoto);
+    const admissionAdmin = await AdmissionAdmin.findById({ _id: aid });
+    if (admissionAdmin.photo) await deleteFile(admissionAdmin.photo);
     const width = 112;
     const height = 112;
     const file = req.file;
     const results = await uploadFile(file, width, height);
-    admissionAdmin.admissionProfilePhoto = results.key;
+    admissionAdmin.photo = results.key;
     admissionAdmin.photoId = "0";
     await admissionAdmin.save();
     await unlinkFile(file.path);
@@ -424,13 +424,13 @@ exports.patchAdmissionImagePhoto = async (req, res) => {
 exports.patchAdmissionImageCover = async (req, res) => {
   try {
     const { aid } = req.params;
-    const admissionAdmin = await Admission.findById({ _id: aid });
-    if (admissionAdmin.admissionCoverPhoto) await deleteFile(admissionAdmin.admissionCoverPhoto);
+    const admissionAdmin = await AdmissionAdmin.findById({ _id: aid });
+    if (admissionAdmin.cover) await deleteFile(admissionAdmin.cover);
     const width = 375;
     const height = 245;
     const file = req.file;
     const results = await uploadFile(file, width, height);
-    admissionAdmin.admissionCoverPhoto = results.key;
+    admissionAdmin.cover = results.key;
     admissionAdmin.coverId = "0";
     await admissionAdmin.save();
     await unlinkFile(file.path);

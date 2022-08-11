@@ -37,6 +37,7 @@ const examSchema = new mongoose.Schema({
       date: { type: String, required: true },
       startTime: { type: String, required: true },
       endTime: { type: String, required: true },
+      duration: { type: String, default: 0 },
       subjectMasterId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "SubjectMaster",
@@ -45,7 +46,6 @@ const examSchema = new mongoose.Schema({
       testSetId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "SubjectMasterTestSet",
-        required: true,
       },
     },
   ],

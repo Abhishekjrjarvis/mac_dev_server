@@ -5,6 +5,7 @@ const User = require('../../models/User')
 const Notification = require('../../models/notification')
 const axios = require("axios");
 const Post = require('../../models/Post')
+const RePay = require('../../models/Return/RePay')
 const {
   uploadDocFile,
 } = require("../../S3Configuration");
@@ -636,6 +637,45 @@ exports.getRecentChatInstitute = async(req, res) => {
     .lean()
     .exec()
     res.status(200).send({ message: 'Institute Support Chat', admin})
+  }
+  catch{
+
+  }
+}
+
+
+
+exports.retrieveRepayInstituteAmount = async(req, res) => {
+  try{
+    const { aid, uid } = req.params;
+    const { amount, txnId, message } = req.body;
+    const admin = await Admin.findById({ _id: aid });
+    const institute = await InstituteAdmin.findById({ _id: uid });
+    const notify = new Notification({});
+    const repay = new RePay({})
+    institute.adminRepayAmount += amount;
+    admin.returnAmount -= amount
+    notify.notifyContent = `Super Admin re-pay Rs. ${amount} to you`;
+    notify.notifySender = aid;
+    notify.notifyReceiever = id;
+    institute.iNotify.push(notify._id);
+    notify.institute = institute._id;
+    notify.notifyBySuperAdminPhoto =
+      "https://qviple.com/images/newLogo.svg";
+    repay.repayAmount = amount
+    repay.repayStatus = 'Transferred',
+    repay.txnId = txnId
+    repay.message = message
+    repay.institute = institute._id
+    admin.repayArray.push(repay._id)
+    institute.getReturn.push(repay._id)
+    await Promise.all([
+     institute.save(),
+     notify.save(),
+     admin.save(),
+     repay.save()
+    ])
+    res.status(200).send({ message: "Amount Transferred", status: true });
   }
   catch{
 

@@ -9544,6 +9544,80 @@ paths:
         "200":
           description: OK
 
+  /api/v1/poll/question/{id}:
+    post:
+      tags:
+        - Add Poll Module
+      summary: Create Poll Question
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is User id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              poll_question:
+                type: string
+                description: Enter Poll Question 
+              duration_date:
+                type: string
+                description: Enter Poll Close Duration Date
+              duration_time:
+                type: string
+                description: Enter Poll Close Duration Time
+              trend_category:
+                type: string
+                description: Enter Category as mentioned in Qviple User Figma
+              pollAnswer:
+                type: array
+                description: Enter min. two options & max four options
+                required: true 
+                items:
+                  type: object
+                  properties:
+                    content:
+                      type: string
+                      required: true 
+                      description: Enter Answer Content
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/poll/question/vote/{pid}:
+    patch:
+      tags:
+        - Add Poll Module
+      summary: Add Vote To Poll Answer
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          type: string
+          description: This is Post id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              answerId:
+                type: string
+                description: Enter Answer id which we are voting 
+      responses:
+        "200":
+          description: OK
 
   # /api/v1/batch/{bid}:
   #   get:

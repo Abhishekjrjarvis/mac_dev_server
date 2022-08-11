@@ -151,7 +151,7 @@ const addPayment = async (data, studentId, feeId, userId) => {
     payment.studentId = student._id;
     payment.feeId = feeId;
     payment.userId = userId;
-    student.paymentList.push(payment);
+    student.paymentList.push(payment._id);
     if(fee){
       payment.feeType = fee.feeName
     }
@@ -159,8 +159,7 @@ const addPayment = async (data, studentId, feeId, userId) => {
       payment.feeType = checklist.checklistName
     }
     else{}
-    await payment.save();
-    await student.save();
+    await Promise.all([ payment.save(), student.save()])
   } catch (error) {
     console.log("Payment Failed!");
   }
@@ -190,6 +189,7 @@ const studentPaymentUpdated = async (
     });
     const fData = await Fees.findById({ _id: feeId });
     const checklistData = await Checklist.findById({ _id: feeId });
+    const admin = await Admin.findById({_id: `${process.env.S_ADMIN_ID}`})
     const notify = await new Notification({});
     if (fData) {
       if (
@@ -201,11 +201,11 @@ const studentPaymentUpdated = async (
         });
       } else {
         try {
-          student.studentFee.push(fData);
+          student.studentFee.push(fData._id);
           fData.feeStatus = statusType;
-          fData.studentsList.push(student);
-          fData.feeStudent = student;
-          student.onlineFeeList.push(fData);
+          fData.studentsList.push(student._id);
+          fData.feeStudent = student._id;
+          student.onlineFeeList.push(fData._id);
           finance.financeBankBalance =
             finance.financeBankBalance + parseInt(tx_amount);
           finance.institute.insBankBalance =
@@ -215,19 +215,23 @@ const studentPaymentUpdated = async (
           } ${student.studentLastName} paid the ${
             fData.feeName
           }/ (Rs.${tx_amount}) successfully`;
+          admin.returnAmount += parseInt(tx_amount)
           notify.notifySender = student._id;
           notify.notifyReceiever = user._id;
-          finance.institute.iNotify.push(notify);
+          finance.institute.iNotify.push(notify._id);
           notify.institute = finance.institute;
-          user.uNotify.push(notify);
-          notify.user = user;
-          notify.notifyByStudentPhoto = student;
-          await student.save();
-          await fData.save();
-          await finance.save();
-          await finance.institute.save();
-          await user.save();
-          await notify.save();
+          user.uNotify.push(notify._id);
+          notify.user = user._id;
+          notify.notifyByStudentPhoto = student._id;
+          await Promise.all([
+            student.save(),
+            fData.save(),
+            finance.save(),
+            finance.institute.save(),
+            user.save(),
+            notify.save(),
+            admin.save()
+          ])
         } catch {}
       }
     } else if (checklistData) {
@@ -240,11 +244,11 @@ const studentPaymentUpdated = async (
         });
       } else {
         try {
-          student.studentChecklist.push(checklistData);
+          student.studentChecklist.push(checklistData._id);
           checklistData.checklistFeeStatus = statusType;
-          checklistData.studentsList.push(student);
-          checklistData.checklistStudent = student;
-          student.onlineCheckList.push(checklistData);
+          checklistData.studentsList.push(student._id);
+          checklistData.checklistStudent = student._id;
+          student.onlineCheckList.push(checklistData._id);
           finance.financeBankBalance =
             finance.financeBankBalance + parseInt(tx_amount);
           finance.institute.insBankBalance =
@@ -254,19 +258,23 @@ const studentPaymentUpdated = async (
           } ${student.studentLastName} paid the ${
             checklistData.checklistName
           }/ (Rs.${tx_amount}) successfully`;
+          admin.returnAmount += parseInt(tx_amount)
           notify.notifySender = student._id;
           notify.notifyReceiever = user._id;
-          finance.institute.iNotify.push(notify);
+          finance.institute.iNotify.push(notify._id);
           notify.institute = finance.institute;
-          user.uNotify.push(notify);
-          notify.user = user;
-          notify.notifyByStudentPhoto = student;
-          await student.save();
-          await checklistData.save();
-          await finance.save();
-          await finance.institute.save();
-          await user.save();
-          await notify.save();
+          user.uNotify.push(notify._id);
+          notify.user = user._id;
+          notify.notifyByStudentPhoto = student._id;
+          await Promise.all([
+            student.save(),
+            checklistData.save(),
+            finance.save(),
+            finance.institute.save(),
+            user.save(),
+            notify.save(),
+            admin.save()
+          ])
         } catch {}
       }
     }

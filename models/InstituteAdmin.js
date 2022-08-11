@@ -383,7 +383,13 @@ const instituteAdminSchema = new mongoose.Schema({
     type: String,
   },
   leavingArray: [],
-  bonaArray: []
+  bonaArray: [],
+  getReturn: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'RePay'
+    }
+  ]
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

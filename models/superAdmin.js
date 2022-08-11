@@ -168,6 +168,16 @@ const superAdminSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    returnAmount: {
+        type: Number,
+        default: 0
+    },
+    repayArray: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'RePay'
+        }
+    ],
     activateAccount: {
         type: Number,
         default: 0

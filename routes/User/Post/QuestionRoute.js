@@ -9,26 +9,19 @@ const upload = multer({ dest: "uploads/" });
 
 router.post("/:id/text", isLoggedIn, upload.array("file"), catchAsync(Question.postQuestionText));
 
-router.delete(
-  "/:id/deleted/:pid",
-  isLoggedIn,
-  catchAsync(Question.postQuestionDelete)
-);
+router.delete("/:id/deleted/:pid", isLoggedIn, catchAsync(Question.postQuestionDelete));
 
 router.get("/like/:aid", isLoggedIn, catchAsync(Question.answerLike));
 
 router.get("/save/:pid", isLoggedIn, catchAsync(Question.postQuestionSave));
 
-router
-  .route("/answer/:id")
-  .get(isLoggedIn, catchAsync(Question.getQuestionAnswer))
-  .post(isLoggedIn, upload.array("file"), catchAsync(Question.postQuestionAnswer));
+router.get("/answer/:id", isLoggedIn, catchAsync(Question.getQuestionAnswer))
 
-router
-  .route("/answer/reply/:rid")
-  .get(isLoggedIn, catchAsync(Question.getAnswerReply))
-  .post(isLoggedIn, catchAsync(Question.postAnswerReply));
+router.post("/answer/new/:id", isLoggedIn, upload.array("file"), catchAsync(Question.postQuestionAnswer));
 
+router.get("/answer/reply/:rid", isLoggedIn, catchAsync(Question.getAnswerReply))
+  
+router.post("/answer/reply/new/:rid", isLoggedIn, catchAsync(Question.postAnswerReply));
 
 router.get("/answer/save/:aid", isLoggedIn, catchAsync(Question.questionAnswerSave));
 

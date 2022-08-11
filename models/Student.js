@@ -35,6 +35,7 @@ const studentSchema = new mongoose.Schema({
   studentLeavingInsDate: { type: String },
   studentLeavingRemark: { type: String },
   studentBookNo: { type: String },
+  studentCertificateNo: { type: String },
   studentROLLNO: { type: String },
   studentMothersName: { type: String },
   studentGRNO: { type: String },
@@ -42,6 +43,8 @@ const studentSchema = new mongoose.Schema({
   studentLeavingStudy: { type: String },
   studentLeavingReason: { type: String },
   studentLeavingPrevious: { type: String },
+  studentLeavingStatus: { type: String, default: 'Not Ready'},
+  studentBonaStatus: { type: String, default: 'Not Ready'},
   studentClass: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Class",
@@ -240,7 +243,6 @@ const studentSchema = new mongoose.Schema({
   },
   borrow: [{ type: mongoose.Schema.Types.ObjectId, ref: "Issue" }],
   deposite: [{ type: mongoose.Schema.Types.ObjectId, ref: "Collect" }],
-
   deptElections: [
     {
       electionStatus: {

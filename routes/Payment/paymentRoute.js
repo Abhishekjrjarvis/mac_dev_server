@@ -10,7 +10,7 @@ const { processVideoPayment, paytmVideoResponse } = require('../../controllers/P
 // const { processAdmissionPayment, paytmAdmissionResponse } = require('../../controllers/Payment/AdmissionController')
 
 const { processUnlockFeaturePayment, paytmUnlockFeatureResponse } = require('../../controllers/Payment/UnlockController')
-
+const { generateTxnToken } = require("../../controllers/Payment/ApkPaymentController")
 
 
 
@@ -58,5 +58,7 @@ router.route('/callback/ins/:id/batch/:batchId').post(paytmIdCardResponse);
 router.route('/payment/unlock/process').post(processUnlockFeaturePayment);
 router.route('/callback/ins/:id/user/:name').post(paytmUnlockFeatureResponse);
 
+// ============================= APK Token ==========================================
+router.route('/generateTxnToken').post(generateTxnToken);
 
 module.exports = router;

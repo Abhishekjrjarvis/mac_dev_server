@@ -9,14 +9,14 @@ const transporter = nodemailer.createTransport({
     secureConnection: true,
     port: 465,
     auth: {
-        user: `connect@qviple.com`,
-        pass: `qviple@2219`
+        user: `email`,
+        pass: `pass`
     }
 })
 
 
 const options = {
-    from: `connect@qviple.com`,
+    from: `email`,
     to: `${email}`,
     subject: 'Thanks for Get In Touch',
     text: `Welcome To The Qviple, ${name}`,

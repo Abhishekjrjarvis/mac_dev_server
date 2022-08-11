@@ -123,8 +123,10 @@ exports.retrieveBonafideGRNO = async(req, res) => {
       path: 'institute',
       select: 'insName insAddress insState insDistrict insPhoneNumber insPincode photoId insProfilePhoto'
     })
+    // const institute = await InstituteAdmin.findById({_id: `${student.institute}`})
     student.studentReason = reason
-    await student.save()
+    student.studentBonaStatus = 'Ready'
+    await Promise.all([ student.save() ])
     res.status(200).send({ message: 'Student Bonafide Certificate', student})
   }
   catch{}
@@ -134,7 +136,7 @@ exports.retrieveBonafideGRNO = async(req, res) => {
 exports.retrieveLeavingGRNO = async(req, res) => {
   try{
     const { gr } = req.params
-    const { reason, study, previous, behaviour } = req.body
+    const { reason, study, previous, behaviour, remark } = req.body
     const student = await Student.findOne({ studentGRNO: `${gr}`})
     .select('studentFirstName studentMiddleName studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB')
     .populate({
@@ -149,12 +151,46 @@ exports.retrieveLeavingGRNO = async(req, res) => {
       path: 'institute',
       select: 'insName insAddress insState insDistrict insAffiliated insEditableText insEditableTexts insPhoneNumber insPincode photoId insProfilePhoto'
     })
+    const institute = await InstituteAdmin.findById({_id: `${student.institute._id}`})
     student.studentLeavingBehaviour = behaviour
     student.studentLeavingStudy = study
     student.studentLeavingPrevious = previous
     student.studentLeavingReason = reason
-    await student.save()
+    student.studentLeavingRemark = remark
+    student.studentLeavingInsDate = new Date()
+    student.studentBookNo = institute.leavingArray.length + 1
+    student.studentCertificateNo = institute.leavingArray.length + 1
+    student.studentLeavingStatus = 'Ready'
+    await Promise.all([ student.save(), institute.save() ])
     res.status(200).send({ message: 'Student Leaving Certificate', student})
   }
-  catch{}
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.retrieveCertificateStatus = async(req, res) =>{
+  try{
+    const { gr, type } = req.params
+    const student = await Student.findOne({ studentGRNO: `${gr}`})
+    const institute = await InstituteAdmin.findById({_id: `${student.institute}`})
+    if(type === 'Bona'){
+      student.studentBonaStatus = 'Downloaded True Copy'
+      institute.bonaArray.push(student._id)
+      await Promise.all([ student.save(), institute.save()])
+      res.status(200).send({ message: 'Downloaded True Copy'})
+    }
+    else if(type === 'Leaving'){
+      student.studentLeavingStatus = 'Downloaded True Copy'
+      institute.leavingArray.push(student._id)
+      await Promise.all([ student.save(), institute.save()])
+      res.status(200).send({ message: 'Downloaded True Copy'})
+    }
+    else{
+      res.status(204).send({ message: 'Looking for a new Keyword...'})
+    }
+  }
+  catch{
+
+  }
 }

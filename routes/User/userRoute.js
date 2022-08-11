@@ -225,14 +225,12 @@ router.get(
 // Staff Designation Data
 router.get(
   "/staffdesignationdata/:sid",
-  isLoggedIn,
   catchAsync(User.retrieveStaffDesignationArray)
 );
 
 // Student Designation Data
 router.get(
   "/studentdesignationdata/:sid",
-  isLoggedIn,
   catchAsync(User.retrieveStudentDesignationArray)
 );
 

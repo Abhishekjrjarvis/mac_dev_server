@@ -125,7 +125,7 @@ exports.retrieveFinanceQuery = async(req, res) =>{
   try{
     const { fid } = req.params
     const finance = await Finance.findById({ _id: fid })
-    .select('financeName financeEmail financePhoneNumber financeAbout photoId photo cover coverId financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance')
+    .select('financeName financeEmail financePhoneNumber financeAbout photoId photo cover coverId financeExemptBalance financeCollectedSBalance financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance')
     .populate({
       path: 'institute',
       select: 'id adminRepayAmount'
@@ -392,7 +392,13 @@ exports.requestClassOfflineFee = async(req, res) =>{
         const finance = await Finance.findById({ _id: fid });
         const classes = await Class.findById({ _id: cid });
         const fee = await Fees.findById({ _id: id });
-        finance.classRoom.push(classes._id);
+        finance.classRoom.push({
+          classId: classes._id,
+          feeName: fees.feeName,
+          feeAmount: classes.offlineFeeCollection,
+          status: 'Pending'
+        });
+        finance.financeCollectedSBalance += classes.offlineFeeCollection
         classes.receieveFee.push(fee._id);
         await Promise.all([
          finance.save(),
@@ -409,16 +415,25 @@ exports.submitClassOfflineFee = async(req, res) =>{
         const { fee } = req.body;
         const finance = await Finance.findById({ _id: fid });
         const classes = await Class.findById({ _id: cid })
-        // .populate(
-        //   "ApproveStudent"
-        // );
         const fees = await Fees.findById({ _id: id });
-        finance.classRoom.pull(classes._id);
-        finance.submitClassRoom.push(classes._id);
+        finance.classRoom.pull({
+          classId: classes._id,
+          feeName: fees.feeName,
+          feeAmount: classes.offlineFeeCollection,
+          status: 'Pending'
+        });
+        finance.submitClassRoom.push({
+          classId: classes._id,
+          feeName: fees.feeName,
+          feeAmount: classes.offlineFeeCollection,
+          status: "Accepted"
+        });
         classes.receieveFee.pull(fees._id);
         classes.submitFee.push(fees._id);
-        finance.financeSubmitBalance += fees.offlineFee;
+        finance.financeSubmitBalance += classes.offlineFeeCollection
+        // finance.financeSubmitBalance += fees.offlineFee;
         fees.offlineFee = 0;
+        classes.offlineFeeCollection = 0
         await Promise.all([
          classes.save(),
          finance.save(),
@@ -434,8 +449,18 @@ exports.classOfflineFeeIncorrect = async(req, res) =>{
         const { fid, cid } = req.params;
         const finance = await Finance.findById({ _id: fid });
         const classes = await Class.findById({ _id: cid });
-        finance.classRoom.pull(classes._id);
-        finance.pendingClassRoom.push(classes._id);
+        finance.classRoom.pull({
+          classId: classes._id,
+          feeName: fees.feeName,
+          feeAmount: classes.offlineFeeCollection,
+          status: 'Pending'
+        });
+        finance.pendingClassRoom.push({
+          classId: classes._id,
+          feeName: fees.feeName,
+          feeAmount: classes.offlineFeeCollection,
+          status: 'Rejected'
+        });
         await finance.save();
         res.status(200).send({ message: "class submitted Data", offlineIncorrectFee: finance.pendingClassRoom });
       } catch {
@@ -486,6 +511,88 @@ exports.retrievePaymentDetail = async(req, res) => {
     const bank = await InstituteAdmin.findById({_id: id})
     .select('bankAccountHolderName paymentBankStatus bankAccountNumber bankAccountType bankAccountPhoneNumber bankIfscCode')
     res.status(200).send({ message: 'Payment Detail', bank})
+  }
+  catch{
+
+  }
+}
+
+exports.retrieveIncomeQuery = async(req, res) =>{
+  try{
+    const { fid } = req.params
+    const finance = await Finance.findById({_id: fid})
+    .select('financeName incomeDepartment')
+    const incomes = await Income.find({ _id: { $in: finance.incomeDepartment}})
+    .sort("-createdAt")
+    res.status(200).send({ message: 'All Incomes', allIncome: incomes})
+  }
+  catch{
+
+  }
+}
+
+exports.retrieveExpenseQuery = async(req, res) =>{
+  try{
+    const { fid } = req.params
+    const finance = await Finance.findById({_id: fid})
+    .select('financeName expenseDepartment')
+    const expenses = await Expense.find({ _id: { $in: finance.expenseDepartment}})
+    .sort("-createdAt")
+    res.status(200).send({ message: 'All Expenses', allIncome: expenses})
+  }
+  catch{
+
+  }
+}
+
+exports.retrieveRequestAtFinance = async(req, res) =>{
+  try{
+    const { fid } = req.params
+    const finance = await Finance.findById({_id: fid})
+    .select('financeName')
+    .populate({
+      path: 'classRoom',
+      populate: {
+        path: 'classId'
+      }
+    })
+    res.status(200).send({ message: 'Get Request', request: finance.classRoom})
+  }
+  catch{
+
+  }
+}
+
+exports.retrieveSubmitAtFinance = async(req, res) =>{
+  try{
+    const { fid } = req.params
+    const finance = await Finance.findById({_id: fid})
+    .select('financeName')
+    .populate({
+      path: 'submitClassRoom',
+      populate: {
+        path: 'classId'
+      }
+    })
+    res.status(200).send({ message: 'Get Submit', submit: finance.submitClassRoom})
+  }
+  catch{
+
+  }
+}
+
+exports.retrieveRejectAtFinance = async(req, res) =>{
+  try{
+    const { fid } = req.params
+    const finance = await Finance.findById({_id: fid})
+    .select('financeName')
+    .populate({
+      path: 'pendingClassRoom',
+      populate: {
+        path: 'classId'
+      }
+    })
+    res.status(200).send({ message: 'Get Reject', reject: finance.pendingClassRoom})
   }
   catch{
 

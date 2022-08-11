@@ -17,5 +17,6 @@ router.post('/bonafide/certificate/:gr', catchAsync(Extra.retrieveBonafideGRNO))
 
 router.post('/leaving/certificate/:gr', catchAsync(Extra.retrieveLeavingGRNO))
 
+router.get('/:gr/status/:type', catchAsync(Extra.retrieveCertificateStatus))
 
 module.exports = router

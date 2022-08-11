@@ -41,6 +41,8 @@ const mcqRoute = require("./routes/MCQ/mcqRoute");
 const batchRoute = require("./routes/Batch/batchRoute");
 const complaintLeaveRoute = require("./routes/ComplaintLeave/complaintLeaveRoute");
 const questionNew = require("./routes/User/Post/QuestionRoute");
+const admissionNew = require('./routes/Admission/admissionRoute')
+const pollNew = require('./routes/User/Post/PollsRoute')
 
 
 // ============================= DB Configuration ==============================
@@ -152,6 +154,7 @@ app.use("/api/v1/message", messageNew);
 app.use("/api/v1/fees", feesNew);
 app.use("/api/v1/extra", extraNew);
 app.use("/api/v1/post/question", questionNew);
+app.use("/api/v1/poll", pollNew)
 
 
 // ============================================================================

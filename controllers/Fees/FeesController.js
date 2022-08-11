@@ -4,6 +4,9 @@ const User = require("../../models/User");
 const Class = require("../../models/Class");
 const Fees = require("../../models/Fees");
 const Notification = require("../../models/notification");
+const Finance = require('../../models/Finance')
+const Checklist = require('../../models/Checklist')
+const InstituteAdmin = require('../../models/InstituteAdmin')
 
 exports.createFess = async (req, res) => {
   try {
@@ -79,15 +82,16 @@ exports.getOneFeesDetail = async (req, res) => {
 
 exports.feesPaidByStudent = async (req, res) => {
   try {
-    const { sid, id } = req.params;
+    const { cid, sid, id } = req.params;
     const student = await Student.findById({ _id: sid });
+    const classes = await Class.findById({_id: cid})
     const fData = await Fees.findById({ _id: id });
     if (
       fData.studentsList.length >= 1 &&
       fData.studentsList.includes(String(student._id))
     ) {
       res.status(200).send({
-        message: `${student.studentFirstName} paid the ${fData.feeName}`,
+        message: `${student.studentFirstName} paid the ${fData.feeName} fee`,
       });
     } else {
       student.studentFee.push(fData._id);
@@ -97,9 +101,10 @@ exports.feesPaidByStudent = async (req, res) => {
       student.offlineFeeList.push(fData._id);
       fData.offlineStudentsList.push(student._id);
       fData.offlineFee += fData.feeAmount;
-      await Promise.all([ student.save(), fData.save()])
+      classes.offlineFeeCollection += fData.feeAmount
+      await Promise.all([ student.save(), fData.save(), classes.save()])
       res.status(200).send({
-        message: `${fData.feeName} received by ${student.studentFirstName}`,
+        message: `${fData.feeName} fee received by ${student.studentFirstName}`,
       });
     }
   } catch (e){
@@ -112,6 +117,8 @@ exports.exemptFeesPaidByStudent = async (req, res) => {
     const { cid, sid, id } = req.params;
     const { status } = req.body;
     const classes = await Class.findById({ _id: cid });
+    const institute = await InstituteAdmin.findById({_id: `${classes.institute}`})
+    const finance = await Finance.findById({_id: `${institute.financeDepart[0]}`})
     const student = await Student.findById({ _id: sid });
     const fData = await Fees.findById({ _id: id });
     if (
@@ -119,7 +126,7 @@ exports.exemptFeesPaidByStudent = async (req, res) => {
       fData.studentExemptList.includes(String(student._id))
     ) {
       res.status(200).send({
-        message: `${student.studentFirstName} paid the ${fData.feeName}`,
+        message: `${student.studentFirstName} paid the ${fData.feeName} fee (Exempted)`,
       });
     } else {
       try {
@@ -130,17 +137,21 @@ exports.exemptFeesPaidByStudent = async (req, res) => {
         student.exemptFeeList.push(fData._id);
         fData.exemptList.push(student._id);
         classes.exemptFee += fData.feeAmount;
+        finance.financeExemptBalance += fData.feeAmount
         await Promise.all([
           student.save(),
           fData.save(),
-          classes.save()
+          classes.save(),
+          finance.save()
         ])
         res.status(200).send({
-          message: `${fData.feeName} received by ${student.studentFirstName}`,
+          message: `${fData.feeName} fee received by ${student.studentFirstName} (Exempted)`,
         });
       } catch {}
     }
-  } catch {}
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 
@@ -215,21 +226,14 @@ exports.retrieveStudentQuery = async(req, res) => {
     })
     .populate({
       path: 'department',
-      select: 'dName',
-      populate: {
-        path: 'fees',
-        select: 'feeName feeAmount createdAt feeDate'
-      }
+      select: 'fees checklists'
     })
-    .populate({
-      path: 'department',
-      select: 'dName',
-      populate: {
-        path: 'checklists',
-        select: 'checklistName checklistFees checklistAmount createdAt '
-      }
-    })
-    res.status(200).send({ message: 'Student Fee and Checklist', student})
+    const fees = await Fees.findById({ _id: { $in: student.department.fees}})
+    .sort("-createdAt")
+    const check = await Checklist.findById({_id: { $in: student.department.checklists}})
+    .sort("-createdAt")
+    var mergePay = [...fees, ...check]
+    res.status(200).send({ message: 'Student Fee and Checklist', student, mergePay: mergePay, fee: fees, check: check})
   }
   catch{
 

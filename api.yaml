@@ -2658,7 +2658,7 @@ paths:
         "200":
           description: OK
 
-  /api/v1/ins/staffclass/{cid}/fee/query:
+  /api/v1/ins/staffclass/{cid}/fee/{fid}/query:
     get:
       tags:
         - Staff-Class-Teacher
@@ -2673,6 +2673,11 @@ paths:
           required: true
           type: string
           description: This is class id
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Fee id
       responses:
         "200":
           description: OK

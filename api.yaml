@@ -9390,9 +9390,9 @@ paths:
           description: Enter Question Text
         - in: formData
           name: trend_category
-          type: string
+          type: array
           required: true
-          description: Choose category as mentioned in User Figma
+          description: Choose category as mentioned in User Figma and enter array of strings
       responses:
         "200":
           description: OK
@@ -9635,8 +9635,8 @@ paths:
                 type: string
                 description: Enter Poll Close Duration Time
               trend_category:
-                type: string
-                description: Enter Category as mentioned in Qviple User Figma
+                type: array
+                description: Enter Category as mentioned in Qviple User Figma & enter array of strings
               pollAnswer:
                 type: array
                 description: Enter min. two options & max four options

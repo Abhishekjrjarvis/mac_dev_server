@@ -61,6 +61,12 @@ const feeSchema = new mongoose.Schema({
       ref: "Student",
     },
   ],
+  onlineList: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
 });
 
 const Fees = mongoose.model("Fees", feeSchema);

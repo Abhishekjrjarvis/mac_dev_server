@@ -56,26 +56,27 @@ exports.getOneFeesDetail = async (req, res) => {
   try {
     const { feesId } = req.params;
     const feeData = await Fees.findById({ _id: feesId })
-      .populate({
-        path: "feeStudent",
-        select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO'
-      })
-      .populate({
-        path: "studentsList",
-        select: 'id'
-      })
-      .populate({
-        path: "feeDepartment",
-        select: 'dName dTitle'
-      })
-      .populate({
-        path: "offlineStudentsList",
-        select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO'
-      })
-      .populate({
-        path: "studentExemptList",
-        select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO'
-      });
+    .select('feeName feeAmount exemptList offlineStudentsList onlineList createdAt feeDate')
+      // .populate({
+      //   path: "feeDepartment",
+      //   select: 'dName dTitle'
+      // })
+      // .populate({
+      //   path: "feeStudent",
+      //   select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO'
+      // })
+      // .populate({
+      //   path: "offlineStudentsList",
+      //   select: 'id'
+      // })
+      // .populate({
+      //   path: "studentExemptList",
+      //   select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO'
+      // });
+      // .populate({
+      //   path: "studentsList",
+      //   select: 'id'
+      // })
     res.status(200).send({ message: "Fees Data", feeData });
   } catch {}
 };
@@ -96,8 +97,8 @@ exports.feesPaidByStudent = async (req, res) => {
     } else {
       student.studentFee.push(fData._id);
       fData.feeStatus = "Paid";
-      fData.studentsList.push(student._id);
-      fData.feeStudent = student;
+      // fData.studentsList.push(student._id);
+      // fData.feeStudent = student;
       student.offlineFeeList.push(fData._id);
       fData.offlineStudentsList.push(student._id);
       fData.offlineFee += fData.feeAmount;

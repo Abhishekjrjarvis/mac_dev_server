@@ -202,9 +202,7 @@ const studentPaymentUpdated = async (
       } else {
         try {
           student.studentFee.push(fData._id);
-          fData.feeStatus = statusType;
-          fData.studentsList.push(student._id);
-          fData.feeStudent = student._id;
+          fData.onlineList.push(student._id);
           student.onlineFeeList.push(fData._id);
           finance.financeBankBalance =
             finance.financeBankBalance + parseInt(tx_amount);

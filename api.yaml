@@ -369,6 +369,11 @@ paths:
           schema:
             type: integer
           description: The numbers of items to return
+        - in: query
+          name: p_type
+          schema:
+            type: integer
+          description: Categorisation module by (Post, Question, Poll) default - Post
       responses:
         "200":
           description: OK
@@ -1172,6 +1177,11 @@ paths:
           schema:
             type: integer
           description: The numbers of items to return
+        - in: query
+          name: p_type
+          schema:
+            type: integer
+          description: Categorisation module by (Post, Question, Poll) default - Post
       responses:
         "200":
           description: OK

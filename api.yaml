@@ -9086,7 +9086,7 @@ paths:
             type: object
             properties:
               amount:
-                type: string
+                type: number
                 description: Enter fee in Amount
       responses:
         "200":
@@ -9123,7 +9123,7 @@ paths:
             type: object
             properties:
               amount:
-                type: string
+                type: number
                 description: Enter fee in Amount
       responses:
         "200":
@@ -9161,7 +9161,7 @@ paths:
             type: object
             properties:
               amount:
-                type: string
+                type: number
                 description: Enter fee in Amount
       responses:
         "200":

@@ -183,12 +183,10 @@ const classSchema = new mongoose.Schema({
       feeId: { type: String }
     },
   ],
-  requestFeeStatus: [
-    {
+  requestFeeStatus: {
       feeId: { type: String },
       status: { type: String, default: 'Pending'}
-    },
-  ],
+  },
   exemptFeeCollection: [
     {
       fee: { type: Number, default: 0 },

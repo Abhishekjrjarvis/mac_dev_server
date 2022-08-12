@@ -388,6 +388,7 @@ exports.collectClassFee = async(req, res) =>{
 exports.requestClassOfflineFee = async(req, res) =>{
     try {
         const { fid, cid, id } = req.params;
+        const { amount } = req.body
         const finance = await Finance.findById({ _id: fid })
         const classes = await Class.findById({ _id: cid })
         .populate({ path: 'classTeacher', select: 'staffFirstName staffMiddleName staffLastName'})
@@ -405,16 +406,14 @@ exports.requestClassOfflineFee = async(req, res) =>{
                   photo: classes.photo,
                   staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
                   feeName: fee.feeName,
-                  feeAmount: classes.offlineFeeCollection[i].fee,
+                  feeAmount: amount,
                   status: 'Pending'
                 });
-                finance.financeCollectedSBalance += classes.offlineFeeCollection[i].fee
+                finance.financeCollectedSBalance += amount
                 finance.requestArray.push(classes._id)
                 classes.receieveFee.push(fee._id);
-                classes.requestFeeStatus.push({
-                  feeId: fee._id,
-                  status: 'Requested'
-                })
+                classes.requestFeeStatus.feeId = fee._id
+                classes.requestFeeStatus.status = 'Requested'
                 await Promise.all([
                   finance.save(),
                   classes.save()
@@ -431,6 +430,7 @@ exports.requestClassOfflineFee = async(req, res) =>{
 exports.submitClassOfflineFee = async(req, res) =>{
     try {
         const { fid, cid, id } = req.params;
+        const { amount } = req.body
         const finance = await Finance.findById({ _id: fid });
         const classes = await Class.findById({ _id: cid })
         .populate({ path: 'classTeacher', select: 'staffFirstName staffMiddleName staffLastName'})
@@ -444,7 +444,7 @@ exports.submitClassOfflineFee = async(req, res) =>{
               photo: classes.photo,
               staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
               feeName: fees.feeName,
-              feeAmount: classes.offlineFeeCollection[i].fee,
+              feeAmount: amount,
               status: 'Pending'
             }, 1);
             finance.submitClassRoom.push({
@@ -454,17 +454,19 @@ exports.submitClassOfflineFee = async(req, res) =>{
               photo: classes.photo,
               staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
               feeName: fees.feeName,
-              feeAmount: classes.offlineFeeCollection[i].fee,
+              feeAmount: amount,
               status: "Accepted"
             });
             classes.receieveFee.pull(fees._id);
             classes.submitFee.push(fees._id);
             finance.requestArray.pull(classes._id)
-            finance.financeSubmitBalance += classes.offlineFeeCollection[i].fee
-            finance.financeCollectedSBalance -= classes.offlineFeeCollection[i].fee
+            finance.financeSubmitBalance += amount
+            finance.financeCollectedSBalance -= amount
             // finance.financeSubmitBalance += fees.offlineFee;
             fees.offlineFee = 0;
             classes.offlineFeeCollection[i].fee = 0
+            classes.requestFeeStatus.feeId = fees._id
+            classes.requestFeeStatus.status = 'Accepted'
             await Promise.all([
               classes.save(),
               finance.save(),
@@ -481,6 +483,7 @@ exports.submitClassOfflineFee = async(req, res) =>{
 exports.classOfflineFeeIncorrect = async(req, res) =>{
     try {
         const { fid, cid, id } = req.params;
+        const { amount } = req.body
         const finance = await Finance.findById({ _id: fid });
         const classes = await Class.findById({ _id: cid })
         .populate({ path: 'classTeacher', select: 'staffFirstName staffMiddleName staffLastName'})
@@ -494,7 +497,7 @@ exports.classOfflineFeeIncorrect = async(req, res) =>{
               photo: classes.photo,
               staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
               feeName: fees.feeName,
-              feeAmount: classes.offlineFeeCollection[i].fee,
+              feeAmount: amount,
               status: 'Pending'
             }, 1);
             finance.pendingClassRoom.push({
@@ -504,11 +507,16 @@ exports.classOfflineFeeIncorrect = async(req, res) =>{
               photo: classes.photo,
               staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
               feeName: fees.feeName,
-              feeAmount: classes.offlineFeeCollection[i].fee,
+              feeAmount: amount,
               status: 'Rejected'
             });
             finance.requestArray.pull(classes._id)
-            await finance.save();
+            classes.requestFeeStatus.feeId = fees._id
+            classes.requestFeeStatus.status = 'Rejected'
+            await Promise.all([
+              finance.save(),
+              classes.save()
+            ])
             res.status(200).send({ message: "Request Reject", reject: true });
           }
           else{}

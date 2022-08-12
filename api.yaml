@@ -9079,7 +9079,15 @@ paths:
           name: id
           required: true
           type: string
-          description: This is Fee id 
+          description: This is Fee id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: string
+                description: Enter fee in Amount
       responses:
         "200":
           description: OK
@@ -9109,6 +9117,14 @@ paths:
           required: true
           type: string
           description: This is Fee id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: string
+                description: Enter fee in Amount
       responses:
         "200":
           description: OK
@@ -9139,6 +9155,14 @@ paths:
           required: true
           type: string
           description: This is Fee id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: string
+                description: Enter fee in Amount
       responses:
         "200":
           description: OK

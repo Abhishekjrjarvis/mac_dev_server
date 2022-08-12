@@ -388,68 +388,88 @@ exports.collectClassFee = async(req, res) =>{
 exports.requestClassOfflineFee = async(req, res) =>{
     try {
         const { fid, cid, id } = req.params;
-        const { amount } = req.body;
-        const finance = await Finance.findById({ _id: fid });
-        const classes = await Class.findById({ _id: cid });
+        const finance = await Finance.findById({ _id: fid })
+        const classes = await Class.findById({ _id: cid })
+        .populate({ path: 'classTeacher', select: 'staffFirstName staffMiddleName staffLastName'})
         const fee = await Fees.findById({ _id: id });
-        for(let i=0; i< classes.offlineFeeCollection.length; i++){
-          if(classes.offlineFeeCollection[i].feeId === fee._id){
-            finance.classRoom.push({
-              classId: classes._id,
-              feeName: fees.feeName,
-              feeAmount: classes.offlineFeeCollection[i].fee,
-              status: 'Pending'
-            });
-            finance.financeCollectedSBalance += classes.offlineFeeCollection[i].fee
-            classes.receieveFee.push(fee._id);
-          }
-          else{}
+        if(finance.requestArray.length >= 1 && finance.requestArray.includes(String(classes._id))){
+          res.status(200).send({ message: 'Already Requested wait for further process'})
         }
-        await Promise.all([
-         finance.save(),
-         classes.save()
-        ])
-        res.status(200).send({ message: "class submitted Data", classOfflineFee: finance });
+        else{
+            for(let i=0; i< classes.offlineFeeCollection.length; i++){
+              if(classes.offlineFeeCollection[i].feeId === `${fee._id}`){
+                finance.classRoom.push({
+                  classId: classes._id,
+                  className: classes.className,
+                  photoId: classes.photoId,
+                  photo: classes.photo,
+                  staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
+                  feeName: fee.feeName,
+                  feeAmount: classes.offlineFeeCollection[i].fee,
+                  status: 'Pending'
+                });
+                finance.financeCollectedSBalance += classes.offlineFeeCollection[i].fee
+                finance.requestArray.push(classes._id)
+                classes.receieveFee.push(fee._id);
+                await Promise.all([
+                  finance.save(),
+                  classes.save()
+                 ])
+                res.status(200).send({ message: "class Request At Finance ", request: true });
+              }
+            }
+          }
       } catch(e) {
+        console.log(e)
       }
 }
 
 exports.submitClassOfflineFee = async(req, res) =>{
     try {
         const { fid, cid, id } = req.params;
-        const { fee } = req.body;
         const finance = await Finance.findById({ _id: fid });
         const classes = await Class.findById({ _id: cid })
+        .populate({ path: 'classTeacher', select: 'staffFirstName staffMiddleName staffLastName'})
         const fees = await Fees.findById({ _id: id });
         for(let i=0; i< classes.offlineFeeCollection.length; i++){
-          if(classes.offlineFeeCollection[i].feeId === fees._id){
-            finance.classRoom.pull({
+          if(classes.offlineFeeCollection[i].feeId === `${fees._id}`){
+            finance.classRoom.splice({
               classId: classes._id,
+              className: classes.className,
+              photoId: classes.photoId,
+              photo: classes.photo,
+              staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
               feeName: fees.feeName,
               feeAmount: classes.offlineFeeCollection[i].fee,
               status: 'Pending'
-            });
+            }, 1);
             finance.submitClassRoom.push({
               classId: classes._id,
+              className: classes.className,
+              photoId: classes.photoId,
+              photo: classes.photo,
+              staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
               feeName: fees.feeName,
               feeAmount: classes.offlineFeeCollection[i].fee,
               status: "Accepted"
             });
             classes.receieveFee.pull(fees._id);
             classes.submitFee.push(fees._id);
+            finance.requestArray.pull(classes._id)
             finance.financeSubmitBalance += classes.offlineFeeCollection[i].fee
+            finance.financeCollectedSBalance -= classes.offlineFeeCollection[i].fee
             // finance.financeSubmitBalance += fees.offlineFee;
             fees.offlineFee = 0;
             classes.offlineFeeCollection[i].fee = 0
+            await Promise.all([
+              classes.save(),
+              finance.save(),
+              fees.save()
+             ])
+            res.status(200).send({ message: "Reuqest Accepted", accept: true, classLength: finance.classRoom.length });
           }
           else{}
         }
-        await Promise.all([
-         classes.save(),
-         finance.save(),
-         fees.save()
-        ])
-        res.status(200).send({ message: "finance class submitted Data", submitClassOfflineFee: finance });
       } catch(e) {
       }
 }
@@ -458,27 +478,37 @@ exports.classOfflineFeeIncorrect = async(req, res) =>{
     try {
         const { fid, cid, id } = req.params;
         const finance = await Finance.findById({ _id: fid });
-        const classes = await Class.findById({ _id: cid });
+        const classes = await Class.findById({ _id: cid })
+        .populate({ path: 'classTeacher', select: 'staffFirstName staffMiddleName staffLastName'})
         const fees = await Fees.findById({ _id: id });
         for(let i=0; i< classes.offlineFeeCollection.length; i++){
-          if(classes.offlineFeeCollection[i].feeId === fees._id){
-            finance.classRoom.pull({
+          if(classes.offlineFeeCollection[i].feeId === `${fees._id}`){
+            finance.classRoom.splice({
               classId: classes._id,
+              className: classes.className,
+              photoId: classes.photoId,
+              photo: classes.photo,
+              staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
               feeName: fees.feeName,
               feeAmount: classes.offlineFeeCollection[i].fee,
               status: 'Pending'
-            });
+            }, 1);
             finance.pendingClassRoom.push({
               classId: classes._id,
+              className: classes.className,
+              photoId: classes.photoId,
+              photo: classes.photo,
+              staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
               feeName: fees.feeName,
               feeAmount: classes.offlineFeeCollection[i].fee,
               status: 'Rejected'
             });
+            finance.requestArray.pull(classes._id)
+            await finance.save();
+            res.status(200).send({ message: "Request Reject", reject: true });
           }
           else{}
         }
-        await finance.save();
-        res.status(200).send({ message: "class submitted Data", offlineIncorrectFee: finance.pendingClassRoom });
       } catch {
       }
 }
@@ -567,12 +597,9 @@ exports.retrieveRequestAtFinance = async(req, res) =>{
     const finance = await Finance.findById({_id: fid})
     .select('financeName')
     .populate({
-      path: 'classRoom',
-      populate: {
-        path: 'classId'
-      }
+      path: 'classRoom'
     })
-    res.status(200).send({ message: 'Get Request', request: finance.classRoom})
+    res.status(200).send({ message: 'Get Request', request: finance.classRoom, requestCount: finance.classRoom.length})
   }
   catch{
 
@@ -585,12 +612,9 @@ exports.retrieveSubmitAtFinance = async(req, res) =>{
     const finance = await Finance.findById({_id: fid})
     .select('financeName')
     .populate({
-      path: 'submitClassRoom',
-      populate: {
-        path: 'classId'
-      }
+      path: 'submitClassRoom'
     })
-    res.status(200).send({ message: 'Get Submit', submit: finance.submitClassRoom})
+    res.status(200).send({ message: 'Get Submit', submit: finance.submitClassRoom, submitCount: finance.submitClassRoom.length})
   }
   catch{
 
@@ -603,12 +627,9 @@ exports.retrieveRejectAtFinance = async(req, res) =>{
     const finance = await Finance.findById({_id: fid})
     .select('financeName')
     .populate({
-      path: 'pendingClassRoom',
-      populate: {
-        path: 'classId'
-      }
+      path: 'pendingClassRoom'
     })
-    res.status(200).send({ message: 'Get Reject', reject: finance.pendingClassRoom})
+    res.status(200).send({ message: 'Get Reject', reject: finance.pendingClassRoom, rejectCount: finance.pendingClassRoom.length})
   }
   catch{
 

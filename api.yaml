@@ -9090,7 +9090,7 @@ paths:
           description: OK
 
 
-  /api/v1/finance/{fid}/class/{cid}/fee/incorrect:
+  /api/v1/finance/{fid}/class/{cid}/fee/{id}/incorrect:
     post:
       tags:
         - Finance Module Query
@@ -9110,6 +9110,11 @@ paths:
           required: true
           type: string
           description: This is Class id 
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Fee id 
       responses:
         "200":
           description: OK

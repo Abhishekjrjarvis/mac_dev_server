@@ -55,13 +55,13 @@ router.post('/class/:cid/total/collected/fee', isLoggedIn, catchAsync(Finance.ge
 router.get('/:fid/class/collect', isLoggedIn, catchAsync(Finance.collectClassFee))
 
 // Class Offline Fee Request
-router.post('/:fid/class/:cid/fee/:id/receieve', isLoggedIn, catchAsync(Finance.requestClassOfflineFee))
+router.post('/:fid/class/:cid/fee/:id/receieve', catchAsync(Finance.requestClassOfflineFee))
 
 // Class Offline Fee Submitted
 router.post('/:fid/class/:cid/fee/:id/submit', catchAsync(Finance.submitClassOfflineFee))
 
 // Class Offline Fee Incorrect
-router.post('/:fid/class/:cid/fee/:id/incorrect', isLoggedIn, catchAsync(Finance.classOfflineFeeIncorrect))
+router.post('/:fid/class/:cid/fee/:id/incorrect', catchAsync(Finance.classOfflineFeeIncorrect))
 
 // Finance Online Payment Updated
 router.post('/:fid/online/payment/updated', isLoggedIn, catchAsync(Finance.updatePaymenFinance))

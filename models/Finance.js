@@ -33,36 +33,39 @@ const financeSchema = new mongoose.Schema({
   ],
   classRoom: [
     {
-      classId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Class"
-      },
+      classId: { type: String },
+      className: { type: String },
+      photoId: { type: String },
+      photo: { type: String },
+      staff: { type: String },
       feeName: { type: String },
       feeAmount: { type: Number },
       status: { type: String }
-    }
+    },
   ],
   submitClassRoom: [
     {
-      classId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Class"
-      },
+      classId: { type: String },
+      className: { type: String },
+      photoId: { type: String },
+      photo: { type: String },
+      staff: { type: String },
       feeName: { type: String },
       feeAmount: { type: Number },
       status: { type: String }
-    }
+    },
   ],
   pendingClassroom: [
     {
-      classId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Class"
-      },
+      classId: { type: String },
+      className: { type: String },
+      photoId: { type: String },
+      photo: { type: String },
+      staff: { type: String },
       feeName: { type: String },
       feeAmount: { type: Number },
       status: { type: String }
-    }
+    },
   ],
   financeProfilePhoto: {
     type: String,
@@ -124,7 +127,8 @@ const financeSchema = new mongoose.Schema({
   financeExemptBalance: {
     type: Number,
     default: 0
-  }
+  },
+  requestArray: []
 }, { timestamps: true});
 
 const Finance = mongoose.model("Finance", financeSchema);

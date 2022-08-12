@@ -9319,7 +9319,24 @@ paths:
         "200":
           description: OK
 
-  
+  /api/v1/finance/{id}/ins/bank/query:
+    get:
+      tags:
+        - Finance Module Query
+      summary: Get Bank Detail of Institute - (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute Id
+      responses:
+        "200":
+          description: OK
 
   /api/v1/post/question/{id}/text:
     post:

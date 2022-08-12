@@ -411,6 +411,10 @@ exports.requestClassOfflineFee = async(req, res) =>{
                 finance.financeCollectedSBalance += classes.offlineFeeCollection[i].fee
                 finance.requestArray.push(classes._id)
                 classes.receieveFee.push(fee._id);
+                classes.requestFeeStatus.push({
+                  feeId: fee._id,
+                  status: 'Requested'
+                })
                 await Promise.all([
                   finance.save(),
                   classes.save()

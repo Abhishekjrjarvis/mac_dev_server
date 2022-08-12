@@ -2658,6 +2658,25 @@ paths:
         "200":
           description: OK
 
+  /api/v1/ins/staffclass/{cid}/fee/query:
+    get:
+      tags:
+        - Staff-Class-Teacher
+      summary: One class one fee -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class id
+      responses:
+        "200":
+          description: OK
+
   /api/v1/ins/staff/class-info/{cid}:
     post:
       tags:

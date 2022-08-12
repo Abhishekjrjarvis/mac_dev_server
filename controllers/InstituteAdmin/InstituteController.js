@@ -2152,7 +2152,7 @@ exports.retrieveClass = async (req, res) => {
     const { cid } = req.params;
     const classes = await Class.findById({ _id: cid })
       .select(
-        "className classTitle offlineFeeCollection classCode classStartDate classStatus studentCount photoId photo coverId cover subjectCount classAbout classDisplayPerson classStudentTotal"
+        "className classTitle classCode classStartDate classStatus studentCount photoId photo coverId cover subjectCount classAbout classDisplayPerson classStudentTotal"
       )
       .populate({
         path: "subject",
@@ -2194,6 +2194,19 @@ exports.retrieveClass = async (req, res) => {
     console.log(`SomeThing Went Wrong at this EndPoint(/staffclass/:sid)`);
   }
 };
+
+
+exports.retrieveClassRequestArray = async(req, res) =>{
+  try{
+    const { cid } = req.params
+    const classes = await Class.findById({_id: cid})
+    .select('offlineFeeCollection requestFeeStatus onlineFeeCollection exemptFeeCollection')
+    res.status(200).send({ message: 'Class One Fee Amount Details', oneFee: classes})
+  }
+  catch{
+
+  }
+}
 
 exports.retrieveSubject = async (req, res) => {
   try {

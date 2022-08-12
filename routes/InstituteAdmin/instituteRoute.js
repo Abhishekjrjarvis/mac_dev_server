@@ -521,6 +521,8 @@ router.post(
 // Class Restrict Data
 router.get("/staffclass/:cid", isLoggedIn, catchAsync(Institute.retrieveClass));
 
+router.get("/staffclass/:cid/fee/query", catchAsync(Institute.retrieveClassRequestArray));
+
 // Select Current Batch
 router.post(
   "/:did/batch-select/:bid",

@@ -187,6 +187,7 @@ const studentPaymentUpdated = async (
     const user = await User.findById({
       _id: `${finance.financeHead.user._id}`,
     });
+    const classes = await Class.findById({_id: `${student.studentClass}`})
     const fData = await Fees.findById({ _id: feeId });
     const checklistData = await Checklist.findById({ _id: feeId });
     const admin = await Admin.findById({_id: `${process.env.S_ADMIN_ID}`})
@@ -221,6 +222,10 @@ const studentPaymentUpdated = async (
           user.uNotify.push(notify._id);
           notify.user = user._id;
           notify.notifyByStudentPhoto = student._id;
+          classes.onlineFeeCollection.push({
+            fee: parseInt(tx_amount),
+            feeId: fData._id
+          })
           await Promise.all([
             student.save(),
             fData.save(),
@@ -228,7 +233,8 @@ const studentPaymentUpdated = async (
             finance.institute.save(),
             user.save(),
             notify.save(),
-            admin.save()
+            admin.save(),
+            classes.save()
           ])
         } catch {}
       }

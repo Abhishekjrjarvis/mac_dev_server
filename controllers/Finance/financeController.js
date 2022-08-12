@@ -403,9 +403,11 @@ exports.requestClassOfflineFee = async(req, res) =>{
               photoId: classes.photoId,
               photo: classes.photo,
               staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
+              feeId: fee._id,
               feeName: fee.feeName,
               feeAmount: amount,
-              status: 'Pending'
+              status: 'Pending',
+              createdAt: new Date()
             });
             finance.financeCollectedSBalance += amount
             finance.requestArray.push(classes._id)
@@ -437,9 +439,11 @@ exports.submitClassOfflineFee = async(req, res) =>{
           photoId: classes.photoId,
           photo: classes.photo,
           staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
+          feeId: fees._id,
           feeName: fees.feeName,
           feeAmount: amount,
-          status: 'Pending'
+          status: 'Pending',
+          createdAt: new Date()
         }, 1);
         finance.submitClassRoom.push({
           classId: classes._id,
@@ -447,9 +451,11 @@ exports.submitClassOfflineFee = async(req, res) =>{
           photoId: classes.photoId,
           photo: classes.photo,
           staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
+          feeId: fees._id,
           feeName: fees.feeName,
           feeAmount: amount,
-          status: "Accepted"
+          status: "Accepted",
+          createdAt: new Date()
         });
         classes.receieveFee.pull(fees._id);
         classes.submitFee.push(fees._id);
@@ -490,9 +496,11 @@ exports.classOfflineFeeIncorrect = async(req, res) =>{
           photoId: classes.photoId,
           photo: classes.photo,
           staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
+          feeId: fees._id,
           feeName: fees.feeName,
           feeAmount: amount,
-          status: 'Pending'
+          status: 'Pending',
+          createdAt: new Date()
         }, 1);
         finance.pendingClassRoom.push({
           classId: classes._id,
@@ -500,9 +508,11 @@ exports.classOfflineFeeIncorrect = async(req, res) =>{
           photoId: classes.photoId,
           photo: classes.photo,
           staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
+          feeId: fees._id,
           feeName: fees.feeName,
           feeAmount: amount,
-          status: 'Rejected'
+          status: 'Rejected',
+          createdAt: new Date()
         });
         finance.requestArray.pull(classes._id)
         classes.requestFeeStatus.feeId = fees._id

@@ -142,7 +142,7 @@ exports.generateTxnToken = async(request, res) => {
                     addPayment(response.body.resultInfo.resultMsg);
                     studentPaymentUpdated(response.body.resultInfo.resultMsg);
                 }
-                res.send({ 'Token': response.body.txnToken, 'checksum': response.head.signature});
+                res.send({ 'Token': response.body.txnToken, 'checksum': response.head.signature, 'Response': response});
                 return 0;
             });
         });

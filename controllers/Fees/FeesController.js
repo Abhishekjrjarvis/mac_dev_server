@@ -236,14 +236,14 @@ exports.retrieveStudentQuery = async(req, res) => {
       path: 'department',
       select: 'fees checklists'
     })
-    const fees = await Fees.findById({ _id: { $in: student.department.fees}})
+    const fees = await Fees.find({ _id: { $in: student.department.fees}})
     .sort("-createdAt")
-    const check = await Checklist.findById({_id: { $in: student.department.checklists}})
+    const check = await Checklist.find({_id: { $in: student.department.checklists}})
     .sort("-createdAt")
     var mergePay = [...fees, ...check]
     res.status(200).send({ message: 'Student Fee and Checklist', student, mergePay: mergePay, fee: fees, check: check})
   }
-  catch{
-
+  catch(e){
+    console.log(e)
   }
 }

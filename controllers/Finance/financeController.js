@@ -397,30 +397,26 @@ exports.requestClassOfflineFee = async(req, res) =>{
           res.status(200).send({ message: 'Already Requested wait for further process'})
         }
         else{
-            for(let i=0; i< classes.offlineFeeCollection.length; i++){
-              if(classes.offlineFeeCollection[i].feeId === `${fee._id}`){
-                finance.classRoom.push({
-                  classId: classes._id,
-                  className: classes.className,
-                  photoId: classes.photoId,
-                  photo: classes.photo,
-                  staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
-                  feeName: fee.feeName,
-                  feeAmount: amount,
-                  status: 'Pending'
-                });
-                finance.financeCollectedSBalance += amount
-                finance.requestArray.push(classes._id)
-                classes.receieveFee.push(fee._id);
-                classes.requestFeeStatus.feeId = fee._id
-                classes.requestFeeStatus.status = 'Requested'
-                await Promise.all([
-                  finance.save(),
-                  classes.save()
-                 ])
-                res.status(200).send({ message: "class Request At Finance ", request: true });
-              }
-            }
+            finance.classRoom.push({
+              classId: classes._id,
+              className: classes.className,
+              photoId: classes.photoId,
+              photo: classes.photo,
+              staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
+              feeName: fee.feeName,
+              feeAmount: amount,
+              status: 'Pending'
+            });
+            finance.financeCollectedSBalance += amount
+            finance.requestArray.push(classes._id)
+            classes.receieveFee.push(fee._id);
+            classes.requestFeeStatus.feeId = fee._id
+            classes.requestFeeStatus.status = 'Requested'
+            await Promise.all([
+              finance.save(),
+              classes.save()
+            ])
+            res.status(200).send({ message: "class Request At Finance ", request: true });
           }
       } catch(e) {
         console.log(e)
@@ -435,47 +431,47 @@ exports.submitClassOfflineFee = async(req, res) =>{
         const classes = await Class.findById({ _id: cid })
         .populate({ path: 'classTeacher', select: 'staffFirstName staffMiddleName staffLastName'})
         const fees = await Fees.findById({ _id: id });
+        finance.classRoom.splice({
+          classId: classes._id,
+          className: classes.className,
+          photoId: classes.photoId,
+          photo: classes.photo,
+          staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
+          feeName: fees.feeName,
+          feeAmount: amount,
+          status: 'Pending'
+        }, 1);
+        finance.submitClassRoom.push({
+          classId: classes._id,
+          className: classes.className,
+          photoId: classes.photoId,
+          photo: classes.photo,
+          staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
+          feeName: fees.feeName,
+          feeAmount: amount,
+          status: "Accepted"
+        });
+        classes.receieveFee.pull(fees._id);
+        classes.submitFee.push(fees._id);
+        finance.requestArray.pull(classes._id)
+        finance.financeSubmitBalance += amount
+        finance.financeCollectedSBalance -= amount
+        // finance.financeSubmitBalance += fees.offlineFee;
+        fees.offlineFee = 0;
+        classes.requestFeeStatus.feeId = fees._id
+        classes.requestFeeStatus.status = 'Accepted'
         for(let i=0; i< classes.offlineFeeCollection.length; i++){
           if(classes.offlineFeeCollection[i].feeId === `${fees._id}`){
-            finance.classRoom.splice({
-              classId: classes._id,
-              className: classes.className,
-              photoId: classes.photoId,
-              photo: classes.photo,
-              staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
-              feeName: fees.feeName,
-              feeAmount: amount,
-              status: 'Pending'
-            }, 1);
-            finance.submitClassRoom.push({
-              classId: classes._id,
-              className: classes.className,
-              photoId: classes.photoId,
-              photo: classes.photo,
-              staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
-              feeName: fees.feeName,
-              feeAmount: amount,
-              status: "Accepted"
-            });
-            classes.receieveFee.pull(fees._id);
-            classes.submitFee.push(fees._id);
-            finance.requestArray.pull(classes._id)
-            finance.financeSubmitBalance += amount
-            finance.financeCollectedSBalance -= amount
-            // finance.financeSubmitBalance += fees.offlineFee;
-            fees.offlineFee = 0;
-            classes.offlineFeeCollection[i].fee = 0
-            classes.requestFeeStatus.feeId = fees._id
-            classes.requestFeeStatus.status = 'Accepted'
-            await Promise.all([
-              classes.save(),
-              finance.save(),
-              fees.save()
-             ])
-            res.status(200).send({ message: "Reuqest Accepted", accept: true, classLength: finance.classRoom.length });
+              classes.offlineFeeCollection[i].fee = 0
           }
           else{}
         }
+        await Promise.all([
+          classes.save(),
+          finance.save(),
+          fees.save()
+         ])
+        res.status(200).send({ message: "Reuqest Accepted", accept: true, classLength: finance.classRoom.length });
       } catch(e) {
       }
 }
@@ -488,39 +484,34 @@ exports.classOfflineFeeIncorrect = async(req, res) =>{
         const classes = await Class.findById({ _id: cid })
         .populate({ path: 'classTeacher', select: 'staffFirstName staffMiddleName staffLastName'})
         const fees = await Fees.findById({ _id: id });
-        for(let i=0; i< classes.offlineFeeCollection.length; i++){
-          if(classes.offlineFeeCollection[i].feeId === `${fees._id}`){
-            finance.classRoom.splice({
-              classId: classes._id,
-              className: classes.className,
-              photoId: classes.photoId,
-              photo: classes.photo,
-              staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
-              feeName: fees.feeName,
-              feeAmount: amount,
-              status: 'Pending'
-            }, 1);
-            finance.pendingClassRoom.push({
-              classId: classes._id,
-              className: classes.className,
-              photoId: classes.photoId,
-              photo: classes.photo,
-              staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
-              feeName: fees.feeName,
-              feeAmount: amount,
-              status: 'Rejected'
-            });
-            finance.requestArray.pull(classes._id)
-            classes.requestFeeStatus.feeId = fees._id
-            classes.requestFeeStatus.status = 'Rejected'
-            await Promise.all([
-              finance.save(),
-              classes.save()
-            ])
-            res.status(200).send({ message: "Request Reject", reject: true });
-          }
-          else{}
-        }
+        finance.classRoom.splice({
+          classId: classes._id,
+          className: classes.className,
+          photoId: classes.photoId,
+          photo: classes.photo,
+          staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
+          feeName: fees.feeName,
+          feeAmount: amount,
+          status: 'Pending'
+        }, 1);
+        finance.pendingClassRoom.push({
+          classId: classes._id,
+          className: classes.className,
+          photoId: classes.photoId,
+          photo: classes.photo,
+          staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
+          feeName: fees.feeName,
+          feeAmount: amount,
+          status: 'Rejected'
+        });
+        finance.requestArray.pull(classes._id)
+        classes.requestFeeStatus.feeId = fees._id
+        classes.requestFeeStatus.status = 'Rejected'
+        await Promise.all([
+          finance.save(),
+          classes.save()
+        ])
+        res.status(200).send({ message: "Request Reject", reject: true });
       } catch {
       }
 }

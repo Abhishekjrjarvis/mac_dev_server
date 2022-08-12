@@ -5,8 +5,8 @@ info:
   version: one
 
 
-# host: 18.205.27.165
-# basePath: /api
+host: 18.205.27.165
+basePath: /api
 # schemes: [http, https]
 schemes: 
   - http

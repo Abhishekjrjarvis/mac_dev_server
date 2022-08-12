@@ -2152,7 +2152,7 @@ exports.retrieveClass = async (req, res) => {
     const { cid } = req.params;
     const classes = await Class.findById({ _id: cid })
       .select(
-        "className classTitle classCode classStartDate classStatus studentCount photoId photo coverId cover subjectCount classAbout classDisplayPerson classStudentTotal"
+        "className classTitle offlineFeeCollection classCode classStartDate classStatus studentCount photoId photo coverId cover subjectCount classAbout classDisplayPerson classStudentTotal"
       )
       .populate({
         path: "subject",

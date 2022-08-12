@@ -502,7 +502,7 @@ exports.classOfflineFeeIncorrect = async(req, res) =>{
           status: 'Pending',
           createdAt: new Date()
         }, 1);
-        finance.pendingClassRoom.push({
+        finance.pendingClassroom.push({
           classId: classes._id,
           className: classes.className,
           photoId: classes.photoId,
@@ -640,12 +640,12 @@ exports.retrieveRejectAtFinance = async(req, res) =>{
     const finance = await Finance.findById({_id: fid})
     .select('financeName')
     .populate({
-      path: 'pendingClassRoom'
+      path: 'pendingClassroom'
     })
-    res.status(200).send({ message: 'Get Reject', reject: finance.pendingClassRoom, rejectCount: finance.pendingClassRoom.length})
+    res.status(200).send({ message: 'Get Reject', reject: finance.pendingClassroom, rejectCount: finance.pendingClassroom.length})
   }
-  catch{
-
+  catch(e){
+    console.log(e)
   }
 }
 

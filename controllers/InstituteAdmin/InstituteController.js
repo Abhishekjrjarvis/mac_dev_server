@@ -2179,6 +2179,10 @@ exports.retrieveClass = async (req, res) => {
           select: "userLegalName username photoId profilePhoto",
         },
       })
+      .populate({
+        path: 'institute',
+        select: 'insName'
+      })
       .lean()
       .exec();
     if (classes) {

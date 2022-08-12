@@ -58,7 +58,7 @@ router.get('/:fid/class/collect', isLoggedIn, catchAsync(Finance.collectClassFee
 router.post('/:fid/class/:cid/fee/:id/receieve', isLoggedIn, catchAsync(Finance.requestClassOfflineFee))
 
 // Class Offline Fee Submitted
-router.post('/:fid/class/:cid/fee/:id/submit', isLoggedIn, catchAsync(Finance.submitClassOfflineFee))
+router.post('/:fid/class/:cid/fee/:id/submit', catchAsync(Finance.submitClassOfflineFee))
 
 // Class Offline Fee Incorrect
 router.post('/:fid/class/:cid/fee/incorrect', isLoggedIn, catchAsync(Finance.classOfflineFeeIncorrect))

@@ -101,7 +101,10 @@ exports.feesPaidByStudent = async (req, res) => {
       student.offlineFeeList.push(fData._id);
       fData.offlineStudentsList.push(student._id);
       fData.offlineFee += fData.feeAmount;
-      classes.offlineFeeCollection += fData.feeAmount
+      classes.offlineFeeCollection.push({
+        fee: fData.feeAmount,
+        feeId: fData._id
+      })
       await Promise.all([ student.save(), fData.save(), classes.save()])
       res.status(200).send({
         message: `${fData.feeName} fee received by ${student.studentFirstName}`,

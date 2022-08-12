@@ -392,14 +392,19 @@ exports.requestClassOfflineFee = async(req, res) =>{
         const finance = await Finance.findById({ _id: fid });
         const classes = await Class.findById({ _id: cid });
         const fee = await Fees.findById({ _id: id });
-        finance.classRoom.push({
-          classId: classes._id,
-          feeName: fees.feeName,
-          feeAmount: classes.offlineFeeCollection,
-          status: 'Pending'
-        });
-        finance.financeCollectedSBalance += classes.offlineFeeCollection
-        classes.receieveFee.push(fee._id);
+        for(let i=0; i< classes.offlineFeeCollection.length; i++){
+          if(classes.offlineFeeCollection[i].feeId === fee._id){
+            finance.classRoom.push({
+              classId: classes._id,
+              feeName: fees.feeName,
+              feeAmount: classes.offlineFeeCollection[i].fee,
+              status: 'Pending'
+            });
+            finance.financeCollectedSBalance += classes.offlineFeeCollection[i].fee
+            classes.receieveFee.push(fee._id);
+          }
+          else{}
+        }
         await Promise.all([
          finance.save(),
          classes.save()
@@ -416,24 +421,29 @@ exports.submitClassOfflineFee = async(req, res) =>{
         const finance = await Finance.findById({ _id: fid });
         const classes = await Class.findById({ _id: cid })
         const fees = await Fees.findById({ _id: id });
-        finance.classRoom.pull({
-          classId: classes._id,
-          feeName: fees.feeName,
-          feeAmount: classes.offlineFeeCollection,
-          status: 'Pending'
-        });
-        finance.submitClassRoom.push({
-          classId: classes._id,
-          feeName: fees.feeName,
-          feeAmount: classes.offlineFeeCollection,
-          status: "Accepted"
-        });
-        classes.receieveFee.pull(fees._id);
-        classes.submitFee.push(fees._id);
-        finance.financeSubmitBalance += classes.offlineFeeCollection
-        // finance.financeSubmitBalance += fees.offlineFee;
-        fees.offlineFee = 0;
-        classes.offlineFeeCollection = 0
+        for(let i=0; i< classes.offlineFeeCollection.length; i++){
+          if(classes.offlineFeeCollection[i].feeId === fees._id){
+            finance.classRoom.pull({
+              classId: classes._id,
+              feeName: fees.feeName,
+              feeAmount: classes.offlineFeeCollection[i].fee,
+              status: 'Pending'
+            });
+            finance.submitClassRoom.push({
+              classId: classes._id,
+              feeName: fees.feeName,
+              feeAmount: classes.offlineFeeCollection[i].fee,
+              status: "Accepted"
+            });
+            classes.receieveFee.pull(fees._id);
+            classes.submitFee.push(fees._id);
+            finance.financeSubmitBalance += classes.offlineFeeCollection[i].fee
+            // finance.financeSubmitBalance += fees.offlineFee;
+            fees.offlineFee = 0;
+            classes.offlineFeeCollection[i].fee = 0
+          }
+          else{}
+        }
         await Promise.all([
          classes.save(),
          finance.save(),
@@ -446,21 +456,27 @@ exports.submitClassOfflineFee = async(req, res) =>{
 
 exports.classOfflineFeeIncorrect = async(req, res) =>{
     try {
-        const { fid, cid } = req.params;
+        const { fid, cid, id } = req.params;
         const finance = await Finance.findById({ _id: fid });
         const classes = await Class.findById({ _id: cid });
-        finance.classRoom.pull({
-          classId: classes._id,
-          feeName: fees.feeName,
-          feeAmount: classes.offlineFeeCollection,
-          status: 'Pending'
-        });
-        finance.pendingClassRoom.push({
-          classId: classes._id,
-          feeName: fees.feeName,
-          feeAmount: classes.offlineFeeCollection,
-          status: 'Rejected'
-        });
+        const fees = await Fees.findById({ _id: id });
+        for(let i=0; i< classes.offlineFeeCollection.length; i++){
+          if(classes.offlineFeeCollection[i].feeId === fees._id){
+            finance.classRoom.pull({
+              classId: classes._id,
+              feeName: fees.feeName,
+              feeAmount: classes.offlineFeeCollection[i].fee,
+              status: 'Pending'
+            });
+            finance.pendingClassRoom.push({
+              classId: classes._id,
+              feeName: fees.feeName,
+              feeAmount: classes.offlineFeeCollection[i].fee,
+              status: 'Rejected'
+            });
+          }
+          else{}
+        }
         await finance.save();
         res.status(200).send({ message: "class submitted Data", offlineIncorrectFee: finance.pendingClassRoom });
       } catch {

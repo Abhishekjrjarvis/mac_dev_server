@@ -61,7 +61,7 @@ router.post('/:fid/class/:cid/fee/:id/receieve', isLoggedIn, catchAsync(Finance.
 router.post('/:fid/class/:cid/fee/:id/submit', catchAsync(Finance.submitClassOfflineFee))
 
 // Class Offline Fee Incorrect
-router.post('/:fid/class/:cid/fee/incorrect', isLoggedIn, catchAsync(Finance.classOfflineFeeIncorrect))
+router.post('/:fid/class/:cid/fee/:id/incorrect', isLoggedIn, catchAsync(Finance.classOfflineFeeIncorrect))
 
 // Finance Online Payment Updated
 router.post('/:fid/online/payment/updated', isLoggedIn, catchAsync(Finance.updatePaymenFinance))

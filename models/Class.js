@@ -177,10 +177,12 @@ const classSchema = new mongoose.Schema({
       ref: "DisplayPerson",
     },
   ],
-  offlineFeeCollection: {
-    type: Number,
-    default: 0
-  }
+  offlineFeeCollection: [
+    {
+      fee: { type: Number, default: 0 },
+      feeId: { type: String }
+    },
+  ]
 });
 
 const Class = mongoose.model("Class", classSchema);

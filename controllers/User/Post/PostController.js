@@ -171,6 +171,7 @@ exports.postWithDeleted = async (req, res) => {
     const { id, pid } = req.params;
     const user = await User.findById({ _id: id})
     await User.findByIdAndUpdate(id, { $pull: { userPosts: pid } });
+    await User.findByIdAndUpdate(id, { $pull: { user_saved_post: pid } });
     await Post.findByIdAndDelete({ _id: pid });
     user.postCount -= 1
     await user.save()
@@ -217,15 +218,17 @@ exports.postSave = async (req, res) => {
     const { pid } = req.params;
     const user_session = req.tokenData && req.tokenData.userId ? req.tokenData.userId : ''
     if (user_session) {
-      // const user = await User.findById({ _id: user_session });
+      const user = await User.findById({ _id: `${user_session}` });
       const post = await Post.findById({_id: pid})
       if (post.endUserSave.length >= 1 && post.endUserSave.includes(user_session)) {
         post.endUserSave.pull(user_session);
-        await post.save();
+        user.user_saved_post.pull(post._id)
+        await Promise.all([ post.save(), user.save() ]);
         res.status(200).send({ message: "Remove To Favourites" });
       } else {
         post.endUserSave.push(user_session);
-        await post.save();
+        user.user_saved_post.push(post._id)
+        await Promise.all([ post.save(), user.save() ]);
         res.status(200).send({ message: "Added To Favourites" });
       }
     } else {
@@ -580,3 +583,39 @@ exports.circleList = async (req, res) => {
     });
   } catch {}
 };
+
+
+exports.retrieveAllUserSavedPosts = async(req, res) =>{
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const id = req.params.id;
+    const skip = (page - 1) * limit;
+    const user = await User.findById(id)
+    .select('id')
+    .populate({
+      path: 'user_saved_post',
+    })
+    if(user && user.user_saved_post.length >=1){
+      var post = await Post.find({ $and: [
+        {_id: { $in: user.user_saved_post }}
+        ]})
+        .sort("-createdAt")
+        .limit(limit)
+        .skip(skip)
+        .select("postTitle postText postQuestion answerCount answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType")
+        .populate({
+          path: 'poll_query'
+        })
+    const postCount = await Post.find({_id: { $in: user.user_saved_post }})
+    if(page * limit >= postCount.length){
+    }
+    else{
+      var totalPage = page + 1
+    }
+    res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage, });
+    }
+  } catch(e) {
+    console.log(e)
+  }
+}

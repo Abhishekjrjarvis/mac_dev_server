@@ -1117,6 +1117,41 @@ paths:
           description: OK
 
 
+  
+  /api/v1/extra/{uid}/privacy/feature:
+    patch:
+      tags:
+        - Setting Control API
+      summary: User Privacy Control API -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: Enter User Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              birthStatus:
+                type: number
+                description: Enter Birth Day Privacy Content
+              addressStatus:
+                type: string
+                description: Enter Address Privacy Content
+              circleStatus:
+                type: string
+                description: Enter Circle Privacy Content
+      responses:
+        "200":
+          description: OK
+
+
   /api/v1/ins/{id}/leaving/editable:
     patch:
       tags:
@@ -1776,6 +1811,36 @@ paths:
           required: true
           type: string
           description: This is user id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/user/post/{id}/all/user/saved/posts:
+    get:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: User All Saved Posts -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is User id
         - in: query
           name: page
           schema:

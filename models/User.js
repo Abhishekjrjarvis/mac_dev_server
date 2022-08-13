@@ -292,6 +292,21 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0 
   },
+  user_birth_privacy: {
+    type: String,
+  },
+  user_address_privacy: {
+    type: String,
+  },
+  user_circle_privacy: {
+    type: String,
+  },
+  user_saved_post: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Post'
+    }
+  ],
   applicationStatus: [
     {
       type: mongoose.Schema.Types.ObjectId,

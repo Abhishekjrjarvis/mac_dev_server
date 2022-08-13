@@ -19,4 +19,6 @@ router.post('/leaving/certificate/:gr', catchAsync(Extra.retrieveLeavingGRNO))
 
 router.get('/:gr/status/:type', catchAsync(Extra.retrieveCertificateStatus))
 
+router.patch('/:uid/privacy/feature', catchAsync(Extra.retrieveUserBirthPrivacy))
+
 module.exports = router

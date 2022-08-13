@@ -194,3 +194,26 @@ exports.retrieveCertificateStatus = async(req, res) =>{
 
   }
 }
+
+
+exports.retrieveUserBirthPrivacy = async(req, res) =>{
+  try{
+    const { uid } = req.params
+    const { birthStatus, addressStatus, circleStatus } = req.body
+    const user = await User.findById({_id: uid})
+    if(birthStatus !== ''){
+      user.user_birth_privacy = birthStatus
+    }
+    if(addressStatus !== ''){
+      user.user_address_privacy = addressStatus
+    }
+    if(circleStatus !== ''){
+      user.user_circle_privacy = circleStatus
+    }
+    await user.save()
+    res.status(200).send({ message: `Privacy Updated`})
+  }
+  catch(e){
+    console.log(e)
+  }
+}

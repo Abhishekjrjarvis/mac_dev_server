@@ -94,5 +94,7 @@ router.get('/:fid/dashboard/submit/class', catchAsync(Finance.retrieveSubmitAtFi
 
 router.get('/:fid/dashboard/reject/class', catchAsync(Finance.retrieveRejectAtFinance))
 
+router.get('/:fid/dashboard/reject/class/remaining', catchAsync(Finance.retrieveRemainingAmount))
+
 
 module.exports = router

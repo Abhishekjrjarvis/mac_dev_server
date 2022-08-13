@@ -223,6 +223,68 @@ exports.retrieveClassFeeArray = async(req, res) =>{
   }
 }
 
+
+exports.retrieveStudentCountQuery = async(req, res) =>{
+  try{
+    const { sid } = req.params
+    var paid = 0
+    var unpaid = 0
+    const student = await Student.findById({_id: sid})
+    .select('studentFirstName')
+    .populate({
+      path: 'department',
+      select: 'fees checklists'
+    })
+    .populate({
+      path: 'onlineFeeList',
+      select: 'feeAmount'
+    })
+    .populate({
+      path: 'onlineCheckList',
+      select: 'checklistAmount'
+    })
+    .populate({
+      path: 'offlineFeeList',
+      select: 'feeAmount'
+    })
+    if(student.offlineFeeList.length >=1){
+      student.offlineFeeList.forEach((off) => {
+        if(student.department.fees.length >= 1 && student.department.fees.includes(`${off._id}`)){
+          paid += off.feeAmount
+        }
+        else{
+          unpaid += off.feeAmount
+        }
+      })
+    }
+    if(student.onlineFeeList.length >=1){
+      student.onlineFeeList.forEach((on) => {
+        if(student.department.fees.length >= 1 && student.department.fees.includes(`${on._id}`)){
+          paid += on.feeAmount
+        }
+        else{
+          unpaid += on.feeAmount
+        }
+      })
+    }
+    if(student.onlineCheckList.length >=1){
+      student.onlineCheckList.forEach((onc) => {
+        if(student.department.checklists.length >= 1 && student.department.checklists.includes(`${onc._id}`)){
+          paid += onc.checklistAmount
+        }
+        else{
+          unpaid += onc.checklistAmount
+        }
+      })
+    }
+    res.status(200).send({ message: 'Total Paid Fee & Remaining Fee', paid: paid, unpaid: unpaid})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+
 exports.retrieveStudentQuery = async(req, res) => {
   try{
     const { sid } = req.params

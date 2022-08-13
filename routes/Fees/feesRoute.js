@@ -20,6 +20,9 @@ router.route('/department/:did/query').get(feesController.retrieveDepartmentFeeA
 router.route('/class/:cid/query').get(feesController.retrieveClassFeeArray)
 
 // Student Pay Online Fees and Checklists 
+router.route('/student/:sid/count').get(feesController.retrieveStudentCountQuery)
+
+// Student Pay Online Fees and Checklists 
 router.route('/student/:sid').get(feesController.retrieveStudentQuery)
 
 module.exports = router;

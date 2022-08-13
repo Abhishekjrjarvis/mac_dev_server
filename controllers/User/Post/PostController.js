@@ -271,7 +271,7 @@ exports.retrieveAllUserPosts = async(req, res) =>{
   try {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const p_types = req.query.p_type ? req.query.p_type : 'Post'
+    // const p_types = req.query.p_type ? req.query.p_type : ''
     const id = req.params.id;
     const skip = (page - 1) * limit;
     const user = await User.findById(id)
@@ -281,7 +281,7 @@ exports.retrieveAllUserPosts = async(req, res) =>{
     })
     if(user && user.userPosts.length >=1){
     const post = await Post.find({ $and: [
-    {_id: { $in: user.userPosts }}, { postType: p_types}
+    {_id: { $in: user.userPosts }}
     ]})
     .sort("-createdAt")
     .limit(limit)
@@ -312,7 +312,7 @@ exports.retrieveAllUserProfilePosts = async(req, res) =>{
   try {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const p_types = req.query.p_type ? req.query.p_type : 'Post'
+    // const p_types = req.query.p_type ? req.query.p_type : ''
     const id = req.params.id;
     const skip = (page - 1) * limit;
     const user = await User.findById(id)
@@ -321,7 +321,7 @@ exports.retrieveAllUserProfilePosts = async(req, res) =>{
       path: 'userPosts',
     })
     if(user && user.userPosts.length >=1){
-    const post = await Post.find({author: id, postType: p_types})
+    const post = await Post.find({author: id})
     .sort("-createdAt")
     .limit(limit)
     .skip(skip)

@@ -649,6 +649,32 @@ exports.retrieveRejectAtFinance = async(req, res) =>{
   }
 }
 
+exports.retrieveRemainingAmount = async(req, res) =>{
+  try{
+    const { fid } = req.params
+    const finance = await Finance.findById({_id: fid})
+    const institute = await InstituteAdmin.findById({_id: `${finance.institute}`})
+    .populate({
+      path: 'ApproveStudent',
+      select: 'studentGRNO studentFirstName studentMiddleName studentLastName',
+      populate: {
+        path: 'department',
+        select: 'dName'
+      }
+    })
+    .populate({
+      path: 'ApproveStudent',
+      select: 'studentGRNO studentFirstName studentMiddleName studentLastName onlineFeeList offlineFeeList onlineCheckList',
+    })
+    institute.ApproveStudent.forEach(async (ele) => {
+      const fees = await Fees.find({_id: { $in: ele.onlineFeeList}})
+    })
+  }
+  catch{
+
+  }
+}
+
 // exports.uploadIncomeACK = async(req, res) =>{
 //   try {
 //     const sid = req.params.id;

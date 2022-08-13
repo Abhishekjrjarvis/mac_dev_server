@@ -2323,7 +2323,25 @@ paths:
         "200":
           description: OK
 
-  
+  /api/v1/fees/student/{sid}/count:
+    get:
+      tags:
+        - Student-Member-Tab
+      summary: Get Total Fee & Remaining Fee -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
+      responses:
+        "200":
+          description: OK
+
   /api/v1/fees/student/{sid}:
     get:
       tags:

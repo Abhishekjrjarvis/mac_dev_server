@@ -271,7 +271,7 @@ exports.retrieveAllUserPosts = async(req, res) =>{
   try {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    // const p_types = req.query.p_type ? req.query.p_type : ''
+    const p_types = req.query.p_type ? req.query.p_type : ''
     const id = req.params.id;
     const skip = (page - 1) * limit;
     const user = await User.findById(id)
@@ -280,20 +280,38 @@ exports.retrieveAllUserPosts = async(req, res) =>{
       path: 'userPosts',
     })
     if(user && user.userPosts.length >=1){
-    const post = await Post.find({ $and: [
-    {_id: { $in: user.userPosts }}
-    ]})
-    .sort("-createdAt")
-    .limit(limit)
-    .skip(skip)
-    .select("postTitle postText postQuestion answerCount answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType")
-    .populate({
-      path: 'tagPeople',
-      select: 'userLegalName username photoId profilePhoto'
-    })
-    .populate({
-      path: 'poll_query'
-    })
+      if(p_types !== ''){
+        var post = await Post.find({ $and: [
+        {_id: { $in: user.userPosts }}, { postType: p_types }
+        ]})
+        .sort("-createdAt")
+        .limit(limit)
+        .skip(skip)
+        .select("postTitle postText postQuestion answerCount answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType")
+        .populate({
+          path: 'tagPeople',
+          select: 'userLegalName username photoId profilePhoto'
+        })
+        .populate({
+          path: 'poll_query'
+        })
+      }
+      else{
+        var post = await Post.find({ $and: [
+          {_id: { $in: user.userPosts }}
+          ]})
+          .sort("-createdAt")
+          .limit(limit)
+          .skip(skip)
+          .select("postTitle postText postQuestion answerCount answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType")
+          .populate({
+            path: 'tagPeople',
+            select: 'userLegalName username photoId profilePhoto'
+          })
+          .populate({
+            path: 'poll_query'
+          })
+      }
     const postCount = await Post.find({_id: { $in: user.userPosts }})
     if(page * limit >= postCount.length){
     }
@@ -312,7 +330,7 @@ exports.retrieveAllUserProfilePosts = async(req, res) =>{
   try {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    // const p_types = req.query.p_type ? req.query.p_type : ''
+    const p_types = req.query.p_type ? req.query.p_type : ''
     const id = req.params.id;
     const skip = (page - 1) * limit;
     const user = await User.findById(id)
@@ -321,18 +339,34 @@ exports.retrieveAllUserProfilePosts = async(req, res) =>{
       path: 'userPosts',
     })
     if(user && user.userPosts.length >=1){
-    const post = await Post.find({author: id})
-    .sort("-createdAt")
-    .limit(limit)
-    .skip(skip)
-    .select("postTitle postText postDescription endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postQuestion answerCount answerUpVoteCount trend_category postType")
-    .populate({
-        path: 'tagPeople',
-        select: 'userLegalName username photoId profilePhoto'
-    })
-    .populate({
-      path: 'poll_query'
-    })
+      if(p_types !== ''){
+        var post = await Post.find({author: id, postType: p_types})
+        .sort("-createdAt")
+        .limit(limit)
+        .skip(skip)
+        .select("postTitle postText postDescription endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postQuestion answerCount answerUpVoteCount trend_category postType")
+        .populate({
+            path: 'tagPeople',
+            select: 'userLegalName username photoId profilePhoto'
+        })
+        .populate({
+          path: 'poll_query'
+        })
+      }
+      else{
+        var post = await Post.find({author: id})
+        .sort("-createdAt")
+        .limit(limit)
+        .skip(skip)
+        .select("postTitle postText postDescription endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postQuestion answerCount answerUpVoteCount trend_category postType")
+        .populate({
+            path: 'tagPeople',
+            select: 'userLegalName username photoId profilePhoto'
+        })
+        .populate({
+          path: 'poll_query'
+        })
+      }
     const postCount = await Post.find({_id: { $in: user.userPosts }})
     if(page * limit >= postCount.length){
     }

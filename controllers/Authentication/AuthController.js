@@ -125,64 +125,9 @@ exports.getPassIns = async (req, res) => {
       await institute.save();
       const token = generateAccessInsToken(institute?.name, institute?._id, institute?.insPassword);
       res.json({ token: `Bearer ${token}`, institute: institute, login: true});
-      var isChat = await SupportChat.find({
-        isGroupChat: false,
-        $and: [
-          { users: { $elemMatch: { $eq: admin._id } } },
-          { users: { $elemMatch: { $eq: institute._id } } },
-        ],
-      })
-        .populate("latestMessage");
-
-      if (isChat.length > 0) {
-        res.send(isChat[0]);
-      } else {
-        var chatData = {
-          chatName: `Qviple Support Platform`,
-          isGroupChat: false,
-          participant_one: 'Qviple Support Platform',
-          participant_two: `${institute.insName}`,
-          users: [admin._id, institute._id],
-        };
-
-        try {
-          const createdChat = await SupportChat.create(chatData);
-          institute.supportChat = createdChat._id
-          admin.supportInstituteChat.push(createdChat._id)
-          await Promise.all(institute.save(), admin.save())
-          const FullChat = await SupportChat.findOne({ _id: createdChat._id })
-          res.status(200).json(FullChat);
-        } catch (error) {
-          res.status(400);
-          throw new Error(error.message);
-        }
-      }
-
     } else {
       res.send({ message: "Invalid Combination", login: false });
     }
-    // const user = new User({})
-    // user.userPhoneNumber = institute.insPhoneNumber
-    // user.userStatus = institute.insMobileStatus
-    // user.userLegalName = institute.insName
-    // user.username = usernameExp && usernameExp
-    // user.userGender = 'NA'
-    // user.userDateOfBirth = '2020-01-01'
-    // user.photoId = "0"
-    // user.coverId = "2"
-    // user.userPassword = institute.insPassword
-    // user.createdAt = institute.createdAt
-    // institute.userProfile = user._id
-    // admin.users.push(user._id);
-    // admin.userCount += 1
-    // await Promise.all([user.save(), institute.save(), admin.save()])
-    // const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
-    // .populate({ path: 'posts' })
-    // const post = await Post.find({ _id: { $in: uInstitute.posts }, postVisibility: 'Anyone'})
-    // post.forEach(async (ele) => {
-    //   user.userPosts.push(ele)
-    // })
-    // await user.save()
   } catch (e) {
     console.log(`Error`, e.message);
   }
@@ -345,7 +290,6 @@ exports.profileByUser = async (req, res) => {
         const width = 200;
         const height = 200;
         const file = req.file;
-        // console.log(req.file)
         const results = await uploadFile(file, width, height);
         const user = new User({
           userLegalName: userLegalName,
@@ -374,12 +318,6 @@ exports.profileByUser = async (req, res) => {
         })
         await user.save()
         }
-        
-        // const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
-        // uInstitute.posts.forEach(async (ele) => {
-        //   user.userPosts.push(ele)
-        // })
-        // await user.save()
       }
     }
   } catch (e) {
@@ -404,40 +342,6 @@ exports.getUserPassword = async (req, res) => {
         await user.save();
         const token = generateAccessToken(user?.username, user?._id, user?.userPassword);
         res.json({ token: `Bearer ${token}`, user: user});
-
-        var isChat = await SupportChat.find({
-          isGroupChat: false,
-          $and: [
-            { users: { $elemMatch: { $eq: admin._id } } },
-            { users: { $elemMatch: { $eq: user._id } } },
-          ],
-        })
-          .populate("latestMessage");
-
-        if (isChat.length > 0) {
-          res.send(isChat[0]);
-        } else {
-          var chatData = {
-            chatName: `Qviple Support Platform`,
-            isGroupChat: false,
-            participant_one: 'Qviple Support Platform',
-            participant_two: `${user.username}`,
-            users: [admin._id, user._id],
-          };
-
-          try {
-            const createdChat = await SupportChat.create(chatData);
-            user.supportChat = createdChat._id
-            admin.supportUserChat.push(createdChat._id)
-            await Promise.all([user.save(), admin.save()])
-            const FullChat = await SupportChat.findOne({ _id: createdChat._id })
-            res.status(200).json(FullChat);
-          } catch (error) {
-            res.status(400);
-            throw new Error(error.message);
-          }
-        }
-
       } else {
         res.send({ message: "Invalid Password Combination" });
       }
@@ -574,9 +478,7 @@ module.exports.authentication = async (req, res) => {
   try {
     const { insUserName, insPassword } = req.body;
     const institute = await InstituteAdmin.findOne({ name: `${insUserName}` })
-    
     const user = await User.findOne({ username: `${insUserName}` })
-    
     const admin = await Admin.findOne({ adminUserName: `${insUserName}` })
     
     if (institute) {
@@ -584,9 +486,6 @@ module.exports.authentication = async (req, res) => {
       if (checkPass) {
         const token = generateAccessInsToken(institute?.name, institute?._id, institute?.insPassword);
         res.json({ token: `Bearer ${token}`, institute: institute, login: true});
-        // res
-        //   .status(200)
-        //   .send({ message: "Successfully LoggedIn as a Institute", institute: institute, });
       } else {
         res.send({ message: "Invalid Credentials", login: false });
       }
@@ -598,9 +497,6 @@ module.exports.authentication = async (req, res) => {
       if (checkAdminPass) {
         const token = generateAccessAdminToken(admin?.username, admin?._id, admin?.userPassword);
         res.json({ token: `Bearer ${token}`, admin: admin, login: true });
-        // res
-        //   .status(200)
-        //   .send({ message: "Successfully LoggedIn as a Super Admin", admin: admin._id });
       } else {
         res.send({ message: "Invalid Credentials", login: false });
       }
@@ -645,30 +541,6 @@ module.exports.authentication = async (req, res) => {
     console.log(`Error`, e.message);
   }
 };
-
-
-
-
-// module.exports.authentication = async(req, res) =>{
-//   try{
-//     const { insUserName, insPassword } = req.body;
-//   // Ideally search the user in a database and validate password, throw an error if not found.
-//   const user = await User.findOne({ username: insUserName });
-//   const compare = bcrypt.compareSync(insPassword, user.userPassword)
-//   if(compare){
-//       const token = generateAccessToken(user?.username, user?._id, user?.userPassword);
-//       res.json({
-//         token: `Bearer ${token}`,
-//       });
-//   }
-//   else{
-//     res.status(401).send({ message: 'Unauthorized'})
-//   }
-//   }
-//   catch{
-
-//   }
-// }
 
 module.exports.getLogout = async (req, res) => {
   try {

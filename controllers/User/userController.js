@@ -21,18 +21,6 @@ const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 const { dateTimeSort } = require("../../Utilities/timeComparison");
 
-exports.getUserData = async (req, res) => {
-  try {
-    const { uid } = req.params;
-    const user = await User.findById({ _id: uid })
-      .select("userLegalName photoId profilePhoto username userEmail")
-      .lean()
-      .exec();
-    res.status(200).send({ message: "Limit User Data", user });
-  } catch (e) {
-    console.log("Error", e.message);
-  }
-};
 
 exports.retrieveProfileData = async (req, res) => {
   try {
@@ -258,23 +246,6 @@ exports.retrieveFIOneAnnouncement = async (req, res) => {
   }
 };
 
-exports.updateUserInfo = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const user = await User.findById({ _id: id });
-    user.userAbout = req.body.userAbout;
-    user.userCity = req.body.userCity;
-    user.userState = req.body.userState;
-    user.userCountry = req.body.userCountry;
-    user.userHobbies = req.body.userHobbies;
-    user.userEducation = req.body.userEducation;
-    await user.save();
-    res.status(200).send({ message: "About Updated", user });
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
-
 exports.updateUserFollowIns = async (req, res) => {
   try {
     var user_session = req.tokenData && req.tokenData.userId;
@@ -364,17 +335,6 @@ exports.removeUserFollowIns = async (req, res) => {
     }
   } catch (e) {
     console.log(`Error`, e);
-  }
-};
-
-exports.querySearchUser = async (req, res) => {
-  try {
-    const user = await User.findOne({
-      userLegalName: req.body.userSearchProfile,
-    });
-    res.status(200).send({ message: "Search User Here", user });
-  } catch (e) {
-    console.log(`Error`, e.message);
   }
 };
 

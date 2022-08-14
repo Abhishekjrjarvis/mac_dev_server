@@ -9486,7 +9486,7 @@ paths:
         - Add Question Module
       summary: Delete Post Question -(verified)
       consumes:
-        - multipart/form-data
+        - application/json
       produces:
         - application/json
       parameters:
@@ -9684,6 +9684,45 @@ paths:
           schema:
             type: string
           description: This is Post id
+        - in: path
+          name: page # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is page 
+        - in: path
+          name: limit # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Limit
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/post/question/{pid}/deleted/{aid}/answer:
+    delete:
+      tags:
+        - Add Question Module
+      summary: Delete Post Question Answer -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Post Id
+        - in: path
+          name: aid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Answer Id
       responses:
         "200":
           description: OK

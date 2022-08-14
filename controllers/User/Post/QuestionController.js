@@ -175,7 +175,7 @@ exports.getQuestionAnswer = async (req, res) => {
       .sort("-createdAt")
       .limit(limit)
       .skip(skip)
-      .select("answerContent createdAt answerImageId answerImage upVote upVoteCount answerReplyCount author authorName authorUserName authorPhotoId authorProfilePhoto");
+      .select("answerContent createdAt answerImageId answerImage upVote upVoteCount answerReplyCount author answerSave authorName authorUserName authorPhotoId authorProfilePhoto");
     res.status(200).send({ message: "All answer's of one Question", answer });
   } catch {}
 };
@@ -265,3 +265,18 @@ exports.questionAnswerSave = async (req, res) => {
     } catch {}
   };
 
+
+
+  exports.postQuestionDeleteAnswer = async (req, res) => {
+    try {
+      const { pid, aid } = req.params;
+      const post = await Post.findById({ _id: pid})
+      await Post.findByIdAndUpdate(id, { $pull: { answer: aid } });
+      await Answer.findByIdAndDelete({ _id: aid });
+      post.answerCount -= 1
+      await post.save()
+      res.status(200).send({ message: "post question answer deleted" });
+    } catch(e) {
+      console.log(e)
+    }
+  };

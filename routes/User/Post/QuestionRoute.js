@@ -25,4 +25,6 @@ router.post("/answer/reply/new/:rid", isLoggedIn, catchAsync(Question.postAnswer
 
 router.get("/answer/save/:aid", isLoggedIn, catchAsync(Question.questionAnswerSave));
 
+router.delete("/:pid/deleted/:aid/answer", isLoggedIn, catchAsync(Question.postQuestionDeleteAnswer));
+
 module.exports = router;

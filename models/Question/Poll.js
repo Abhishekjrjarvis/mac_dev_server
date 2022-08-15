@@ -32,7 +32,8 @@ const pollSchema = new mongoose.Schema({
     userPollCount: {
         type: Number,
         default: 0
-    }
+    },
+    answeredUser: []
 });
 
 const Poll = mongoose.model("Poll", pollSchema);

@@ -13,6 +13,8 @@ router.delete("/:id/deleted/:pid", isLoggedIn, catchAsync(Question.postQuestionD
 
 router.get("/like/:aid", isLoggedIn, catchAsync(Question.answerLike));
 
+router.get("/dislike/:aid", isLoggedIn, catchAsync(Question.answerDisLike));
+
 router.get("/save/:pid", isLoggedIn, catchAsync(Question.postQuestionSave));
 
 router.get("/answer/:id", isLoggedIn, catchAsync(Question.getQuestionAnswer))

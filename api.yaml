@@ -9526,6 +9526,27 @@ paths:
         "200":
           description: OK
 
+  
+  /api/v1/post/question/dislike/{aid}:
+    get:
+      tags:
+        - Add Question Module
+      summary: Upvote and Downvote Answer -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Answer id
+      responses:
+        "200":
+          description: OK
+
   /api/v1/post/question/save/{pid}:
     get:
       tags:

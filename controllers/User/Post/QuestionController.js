@@ -105,6 +105,37 @@ exports.answerLike = async (req, res) => {
   }
 };
 
+
+exports.answerDisLike = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const answer = await Answer.findById({ _id: aid });
+    const user_session = req.tokenData && req.tokenData.userId ? req.tokenData.userId : ''
+    if (user_session) {
+      if (
+        answer.downVote.length >= 1 &&
+        answer.downVote.includes(String(user_session))
+      ) {
+        answer.downVote.pull(user_session);
+        if (answer.downVoteCount >= 1) {
+          answer.downVoteCount -= 1;
+        }
+        await Promise.all([ answer.save() ])
+        res.status(200).send({ message: "Removed from DownVote 👎", downVoteCount: answer.downVoteCount, });
+      } else {
+        answer.downVote.push(user_session);
+        answer.downVoteCount += 1;
+        await Promise.all([ answer.save() ])
+        res.status(200).send({ message: "Added To DownVote 👍", downVoteCount: answer.downVoteCount, });
+      }
+    } else {
+      res.status(401).send();
+    }
+  } catch(e) {
+    console.log(e)
+  }
+};
+
 exports.postQuestionSave = async (req, res) => {
   try {
     const { pid } = req.params;
@@ -175,7 +206,7 @@ exports.getQuestionAnswer = async (req, res) => {
       .sort("-createdAt")
       .limit(limit)
       .skip(skip)
-      .select("answerContent createdAt answerImageId answerImage upVote upVoteCount answerReplyCount author answerSave authorName authorUserName authorPhotoId authorProfilePhoto");
+      .select("answerContent createdAt answerImageId answerImage upVote upVoteCount downVote downVoteCount answerReplyCount author answerSave authorName authorUserName authorPhotoId authorProfilePhoto");
     res.status(200).send({ message: "All answer's of one Question", answer });
   } catch {}
 };

@@ -588,3 +588,51 @@
 {"level":"info","message":{},"timestamp":"2022-08-13T15:39:22.814Z"}
 {"level":"info","message":{},"timestamp":"2022-08-13T15:40:17.808Z"}
 {"level":"info","message":"/port","timestamp":"2022-08-13T15:40:17.821Z"}
+{"level":"info","message":{"answerId":"62f936392d1932870e020a2d"},"timestamp":"2022-08-15T03:29:59.943Z"}
+{"level":"info","message":{"answerId":"62f936392d1932870e020a2d"},"timestamp":"2022-08-15T03:35:24.782Z"}
+{"level":"info","message":"Added To Poll","timestamp":"2022-08-15T03:35:26.171Z","voteAtPoll":1}
+{"level":"info","message":"{\"message\":\"Added To Poll\",\"voteAtPoll\":1,\"level\":\"info\"}","timestamp":"2022-08-15T03:35:26.173Z"}
+{"level":"info","message":{"answerId":"62f936392d1932870e020a2d"},"timestamp":"2022-08-15T03:35:35.984Z"}
+{"level":"info","message":{"answerId":"62f936392d1932870e020a2d"},"timestamp":"2022-08-15T03:38:09.746Z"}
+{"level":"info","message":"You're already voted","timestamp":"2022-08-15T03:38:11.513Z"}
+{"level":"info","message":"{\"message\":\"You're already voted\",\"level\":\"info\"}","timestamp":"2022-08-15T03:38:11.515Z"}
+{"level":"info","message":{"answerId":"62f936392d1932870e020a2d"},"timestamp":"2022-08-15T03:39:03.251Z"}
+{"level":"info","message":{"answerId":"62f936392d1932870e020a2d"},"timestamp":"2022-08-15T03:39:31.353Z"}
+{"level":"info","message":"You're already voted","timestamp":"2022-08-15T03:39:33.491Z"}
+{"level":"info","message":"{\"message\":\"You're already voted\",\"level\":\"info\"}","timestamp":"2022-08-15T03:39:33.493Z"}
+{"level":"info","message":{"answerId":"62f936392d1932870e020a2d"},"timestamp":"2022-08-15T03:41:06.398Z"}
+{"level":"info","message":{"answerId":"62f936392d1932870e020a2d"},"timestamp":"2022-08-15T03:42:51.215Z"}
+{"level":"info","message":"Added To Poll","timestamp":"2022-08-15T03:42:51.515Z","voteAtPoll":1}
+{"level":"info","message":"{\"message\":\"Added To Poll\",\"voteAtPoll\":1,\"level\":\"info\"}","timestamp":"2022-08-15T03:42:51.518Z"}
+{"level":"info","message":{"answerId":"62f936392d1932870e020a2d"},"timestamp":"2022-08-15T03:42:53.143Z"}
+{"level":"info","message":{"answerId":"62f936392d1932870e020a2d"},"timestamp":"2022-08-15T03:44:06.081Z"}
+{"level":"info","message":{"answerId":"62f936392d1932870e020a2d"},"timestamp":"2022-08-15T03:45:42.039Z"}
+{"level":"info","message":"Added To Poll","timestamp":"2022-08-15T03:45:43.273Z","voteAtPoll":1}
+{"level":"info","message":"{\"message\":\"Added To Poll\",\"voteAtPoll\":1,\"level\":\"info\"}","timestamp":"2022-08-15T03:45:43.275Z"}
+{"level":"info","message":{"answerId":"62f936392d1932870e020a2d"},"timestamp":"2022-08-15T03:45:47.041Z"}
+{"level":"info","message":"Added To Poll","timestamp":"2022-08-15T03:45:47.298Z","voteAtPoll":1}
+{"level":"info","message":"{\"message\":\"Added To Poll\",\"voteAtPoll\":1,\"level\":\"info\"}","timestamp":"2022-08-15T03:45:47.299Z"}
+{"level":"info","message":{"answerId":"62f936392d1932870e020a2d"},"timestamp":"2022-08-15T03:45:48.435Z"}
+{"level":"info","message":"Added To Poll","timestamp":"2022-08-15T03:45:48.672Z","voteAtPoll":1}
+{"level":"info","message":"{\"message\":\"Added To Poll\",\"voteAtPoll\":1,\"level\":\"info\"}","timestamp":"2022-08-15T03:45:48.673Z"}
+{"level":"info","message":{"answerId":"62f936392d1932870e020a2d"},"timestamp":"2022-08-15T03:45:52.083Z"}
+{"level":"info","message":"Added To Poll","timestamp":"2022-08-15T03:45:52.336Z","voteAtPoll":1}
+{"level":"info","message":"{\"message\":\"Added To Poll\",\"voteAtPoll\":1,\"level\":\"info\"}","timestamp":"2022-08-15T03:45:52.338Z"}
+{"level":"info","message":{"answerId":"62f936392d1932870e020a2d"},"timestamp":"2022-08-15T03:48:14.911Z"}
+{"level":"info","message":"Added To Poll","timestamp":"2022-08-15T03:48:15.195Z","voteAtPoll":1}
+{"level":"info","message":"{\"message\":\"Added To Poll\",\"voteAtPoll\":1,\"level\":\"info\"}","timestamp":"2022-08-15T03:48:15.197Z"}
+{"level":"info","message":{"answerId":"62f936392d1932870e020a2d"},"timestamp":"2022-08-15T03:48:17.974Z"}
+{"level":"info","message":"You're already voted","timestamp":"2022-08-15T03:48:18.061Z"}
+{"level":"info","message":"{\"message\":\"You're already voted\",\"level\":\"info\"}","timestamp":"2022-08-15T03:48:18.062Z"}
+{"level":"info","message":{"answerId":"62f936392d1932870e020a2d"},"timestamp":"2022-08-15T03:48:19.295Z"}
+{"level":"info","message":"You're already voted","timestamp":"2022-08-15T03:48:19.377Z"}
+{"level":"info","message":"{\"message\":\"You're already voted\",\"level\":\"info\"}","timestamp":"2022-08-15T03:48:19.377Z"}
+{"level":"info","message":{"answerId":"62f936392d1932870e020a2d"},"timestamp":"2022-08-15T03:51:05.034Z"}
+{"level":"info","message":"Added To Poll","timestamp":"2022-08-15T03:51:05.439Z","voteAtPoll":1}
+{"level":"info","message":"{\"message\":\"Added To Poll\",\"voteAtPoll\":1,\"level\":\"info\"}","timestamp":"2022-08-15T03:51:05.441Z"}
+{"level":"info","message":{"answerId":"62f936392d1932870e020a2d"},"timestamp":"2022-08-15T03:51:06.612Z"}
+{"level":"info","message":"You're already voted","timestamp":"2022-08-15T03:51:06.702Z"}
+{"level":"info","message":"{\"message\":\"You're already voted\",\"level\":\"info\"}","timestamp":"2022-08-15T03:51:06.703Z"}
+{"level":"info","message":{"answerId":"62f936392d1932870e020a2d"},"timestamp":"2022-08-15T03:51:07.652Z"}
+{"level":"info","message":"You're already voted","timestamp":"2022-08-15T03:51:07.763Z"}
+{"level":"info","message":"{\"message\":\"You're already voted\",\"level\":\"info\"}","timestamp":"2022-08-15T03:51:07.763Z"}

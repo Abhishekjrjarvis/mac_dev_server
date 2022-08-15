@@ -39,7 +39,12 @@ const answerSchema = new mongoose.Schema({
     },
   ],
   upVote: [],
+  downVote: [],
   upVoteCount: {
+    type: Number,
+    default: 0
+  },
+  downVoteCount: {
     type: Number,
     default: 0
   },

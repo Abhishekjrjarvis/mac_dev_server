@@ -96,5 +96,9 @@ router.get('/:fid/dashboard/reject/class', catchAsync(Finance.retrieveRejectAtFi
 
 router.get('/:fid/dashboard/reject/class/remaining', catchAsync(Finance.retrieveRemainingAmount))
 
+router.get('/:fid/dashboard/income/balance', catchAsync(Finance.retrieveIncomeBalance))
+
+router.get('/:fid/dashboard/expense/balance', catchAsync(Finance.retrieveExpenseBalance))
+
 
 module.exports = router

@@ -675,6 +675,31 @@ exports.retrieveRemainingAmount = async(req, res) =>{
   }
 }
 
+
+exports.retrieveIncomeBalance = async(req, res) =>{
+  try{
+    const { fid } = req.params
+    const finance = await Finance.findById({_id: fid})
+    .select('financeIncomeCashBalance financeIncomeBankBalance')
+    res.status(200).send({ message: 'Income Balance', incomeBalance: finance})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.retrieveExpenseBalance = async(req, res) =>{
+  try{
+    const { fid } = req.params
+    const finance = await Finance.findById({_id: fid})
+    .select('financeExpenseCashBalance financeExpenseBankBalance')
+    res.status(200).send({ message: 'Expense Balance', expenseBalance: finance})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
 // exports.uploadIncomeACK = async(req, res) =>{
 //   try {
 //     const sid = req.params.id;

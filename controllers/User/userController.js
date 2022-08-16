@@ -7,6 +7,7 @@ const Staff = require('../../models/Staff')
 const Student = require('../../models/Student')
 const InsAnnouncement = require('../../models/InsAnnouncement')
 const bcrypt = require('bcryptjs')
+const Answer = require('../../models/Question/Answer')
 const Post = require('../../models/Post')
 const Chat = require('../../models/Chat/Chat')
 
@@ -1100,13 +1101,24 @@ exports.retrieveUserKnowQuery = async(req, res) =>{
   try{
     const { uid } = req.params
     var totalUpVote = 0
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
     const user = await User.findById({_id: uid})
-    .select('questionCount answerQuestionCount')
+    .select('questionCount answerQuestionCount answered_query')
+    const answer = await Answer.find({_id: { $in: user.answered_query }})
+    .sort("-createdAt")
+    .limit(limit)
+    .skip(skip)
+    .populate({
+      path: 'post',
+      select: 'postQuestion postImage imageId isUser postType trend_category'
+    })
     const questionUpVote = await Post.find({ author: uid })
     for(let up of questionUpVote){
       totalUpVote += up.answerUpVoteCount
     }
-    res.status(200).send({ message: "Know's ", user, upVote: totalUpVote})
+    res.status(200).send({ message: "Know's ", user, upVote: totalUpVote, answer: answer})
   }
   catch{
 

@@ -11,6 +11,6 @@ router.post("/:id/text", isLoggedIn, upload.array("file"), catchAsync(Question.p
 
 router.delete("/:id/deleted/:pid", isLoggedIn, catchAsync(Question.postQuestionDelete));
 
-router.post("/question/poll/:id", isLoggedIn, catchAsync(Question.retrievePollQuestionText));
+router.post("/poll/:id", isLoggedIn, catchAsync(Question.retrievePollQuestionText));
 
 module.exports = router;

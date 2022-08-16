@@ -8,6 +8,7 @@ const {
 const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
+const end_poll = require('../../../Service/close')
 
 exports.postQuestionText = async (req, res) => {
     try {
@@ -133,6 +134,7 @@ exports.retrievePollQuestionText = async (req, res) => {
         post.isInstitute = 'institute'
         post.postType = "Poll"
         post.poll_query = poll._id
+        poll.duration_date = end_poll(req.body.day)
         await Promise.all([institute.save(), post.save(), poll.save()]);
         res.status(201).send({ message: "poll is create", poll });
         if (institute.isUniversal === "Not Assigned") {
@@ -185,4 +187,3 @@ exports.retrievePollQuestionText = async (req, res) => {
     }
   };
 
-  

@@ -237,3 +237,14 @@
 //       console.log(e);
 //     }
 //   };
+
+
+
+// poll.poll_answer[i].users.pull(user_session);
+                    // poll.userPollCount -= 1
+                    // poll.poll_answer[i].percent_vote = (poll.poll_answer[i].users.length / poll.userPollCount) * 100
+                    // if (poll.total_votes >= 1) {
+                    //     poll.total_votes -= 1;
+                    // }
+                    // await poll.save();
+                    // res.status(200).send({ message: "Removed from Poll", voteAtPoll: poll.total_votes });

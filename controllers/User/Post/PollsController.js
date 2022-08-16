@@ -1,6 +1,7 @@
 const User = require("../../../models/User");
 const Post = require("../../../models/Post");
 const Poll = require('../../../models/Question/Poll')
+const end_poll = require('../../../Service/close')
 
 exports.retrievePollQuestionText = async (req, res) => {
   try {
@@ -27,6 +28,7 @@ exports.retrievePollQuestionText = async (req, res) => {
       post.isUser = 'user'
       post.postType = "Poll"
       post.poll_query = poll._id
+      poll.duration_date = end_poll(req.body.day)
       await Promise.all([user.save(), post.save(), poll.save()]);
       res.status(201).send({ message: "Poll is create", poll });
       if(user.userFollowers.length >= 1){
@@ -89,12 +91,3 @@ exports.pollLike = async (req, res) => {
 };
 
 
-
-// poll.poll_answer[i].users.pull(user_session);
-                    // poll.userPollCount -= 1
-                    // poll.poll_answer[i].percent_vote = (poll.poll_answer[i].users.length / poll.userPollCount) * 100
-                    // if (poll.total_votes >= 1) {
-                    //     poll.total_votes -= 1;
-                    // }
-                    // await poll.save();
-                    // res.status(200).send({ message: "Removed from Poll", voteAtPoll: poll.total_votes });

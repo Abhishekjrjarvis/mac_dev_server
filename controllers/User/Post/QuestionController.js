@@ -184,6 +184,7 @@ exports.postQuestionAnswer = async (req, res) => {
     } else {
       res.status(401).send({ message: 'Unauthorized'});
     }
+    user.answered_query.push(answers._id)
     post.answer.push(answers._id);
     post.answerCount += 1;
     answers.post = post._id;

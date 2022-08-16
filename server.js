@@ -12,7 +12,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const helmet = require('helmet');
 
 //======================== All Routes ========================
-
+const { check_poll_status } = require('./Service/AutoRefreshBackend')
 const uploadRoute = require("./routes/UploadContent/index");
 const elearningRoute = require("./routes/Elearning/index");
 const libraryRoute = require("./routes/Library/index");
@@ -160,6 +160,9 @@ app.use("/api/v1/ins/post/question", iQuestionNew);
 
 
 // ============================================================================
+setInterval(() => {
+  check_poll_status()
+}, 30000)
 
 app.get("*", (req, res) => {
   res.status(404).send("Page Not Found...");

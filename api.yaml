@@ -9754,6 +9754,16 @@ paths:
           schema:
             type: string
           description: This is User id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
       responses:
         "200":
           description: OK
@@ -9848,8 +9858,11 @@ paths:
                 type: string
                 description: Enter Poll Close Duration Time
               trend_category:
-                type: array
-                description: Enter Category as mentioned in Qviple User Figma & enter array of strings
+                type: string
+                description: Enter Category as mentioned in Qviple User Figma
+              day:
+                type: string
+                description: Enter Number of Days
               pollAnswer:
                 type: array
                 description: Enter min. two options & max four options
@@ -9861,9 +9874,6 @@ paths:
                       type: string
                       required: true 
                       description: Enter Answer Content
-              trend_category:
-                type: string
-                description: Enter category type of trends
       responses:
         "200":
           description: OK
@@ -10111,8 +10121,11 @@ paths:
                 type: string
                 description: Enter Poll Close Duration Time
               trend_category:
-                type: array
-                description: Enter Category as mentioned in Qviple User Figma & enter array of strings
+                type: string
+                description: Enter Category as mentioned in Qviple User Figma
+              day:
+                type: number
+                description: Enter Number of days
               pollAnswer:
                 type: array
                 description: Enter min. two options & max four options
@@ -10124,9 +10137,6 @@ paths:
                       type: string
                       required: true 
                       description: Enter Answer Content
-              trend_category:
-                type: string
-                description: Enter category type of trends
       responses:
         "200":
           description: OK

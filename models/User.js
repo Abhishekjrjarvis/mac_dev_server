@@ -292,6 +292,12 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0 
   },
+  answered_query: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Answer'
+    }
+  ],
   user_birth_privacy: {
     type: String,
   },

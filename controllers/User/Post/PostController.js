@@ -306,7 +306,7 @@ exports.retrieveAllUserPosts = async(req, res) =>{
           .sort("-createdAt")
           .limit(limit)
           .skip(skip)
-          .select("postTitle postText postQuestion answerCount answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType")
+          .select("postTitle postText postQuestion answerCount isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType")
           .populate({
             path: 'tagPeople',
             select: 'userLegalName username photoId profilePhoto'

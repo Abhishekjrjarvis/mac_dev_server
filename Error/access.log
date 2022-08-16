@@ -575,3 +575,8 @@
 {"level":"info","message":{"allclasses":["62f1041cdcbfb0525c02b0a8","62f13356361460b05f4465f6"],"allsubject":[{"_id":"62f102d7dcbfb0525c02b048","date":"16/08/2022","duration":"60","endTime":"08:00 Pm","startTime":"03:00 Pm","subjectIds":["62f132cfdcbfb0525c02bc4e","62f13356361460b05f4465ef","62f134eddcbfb0525c02be33"],"subjectName":"Chemistry","testSetId":"62f1542ef20aaa9ab60efe19","totalMarks":33}],"examMode":"Other","examName":"Third Unit Mcq Exam","examType":"Online","examWeight":10},"timestamp":"2022-08-10T03:55:32.703Z"}
 {"level":"info","message":"Exam is created","timestamp":"2022-08-10T03:55:37.882Z"}
 {"level":"info","message":"{\"message\":\"Exam is created\",\"level\":\"info\"}","timestamp":"2022-08-10T03:55:37.882Z"}
+{"level":"info","message":{"classStatus":"Completed"},"timestamp":"2022-08-16T00:30:30.112Z"}
+{"level":"info","message":{"classStatus":"Completed"},"timestamp":"2022-08-16T00:31:58.080Z"}
+{"level":"info","message":{"classStatus":"Completed"},"timestamp":"2022-08-16T00:32:50.025Z"}
+{"level":"info","message":"already class is completed","timestamp":"2022-08-16T00:32:53.502Z"}
+{"level":"info","message":"{\"message\":\"already class is completed\",\"level\":\"info\"}","timestamp":"2022-08-16T00:32:53.506Z"}

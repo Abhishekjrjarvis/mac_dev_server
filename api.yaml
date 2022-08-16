@@ -9831,6 +9831,17 @@ paths:
                       type: string
                       required: true 
                       description: Enter Answer Content
+              trend_category:
+                type: array
+                description: Enter category type of trends
+                required: true 
+                items:
+                  type: object
+                  properties:
+                    categoryType:
+                      type: string
+                      required: true 
+                      description: Enter Category Type 
       responses:
         "200":
           description: OK

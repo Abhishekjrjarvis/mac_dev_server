@@ -173,6 +173,9 @@ exports.postQuestionAnswer = async (req, res) => {
     }
     if (req.tokenData && req.tokenData.userId) {
       var user = await User.findById({_id: req.tokenData.userId})
+      if(user.staff.length >= 1){
+        answers.isMentor = 'yes'
+      }
       answers.author = user._id;
       answers.authorName = user.userLegalName
       answers.authorUserName = user.username
@@ -206,7 +209,7 @@ exports.getQuestionAnswer = async (req, res) => {
       .sort("-createdAt")
       .limit(limit)
       .skip(skip)
-      .select("answerContent createdAt answerImageId answerImage upVote upVoteCount downVote downVoteCount answerReplyCount author answerSave authorName authorUserName authorPhotoId authorProfilePhoto");
+      .select("answerContent createdAt answerImageId answerImage upVote upVoteCount downVote downVoteCount isMentor answerReplyCount author answerSave authorName authorUserName authorPhotoId authorProfilePhoto");
     res.status(200).send({ message: "All answer's of one Question", answer });
   } catch {}
 };

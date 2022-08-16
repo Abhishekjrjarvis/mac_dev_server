@@ -29,68 +29,6 @@ exports.retrieveProfileData = async (req, res) => {
       .select(
         "userLegalName photoId recentChat profilePhoto user_birth_privacy user_address_privacy user_circle_privacy userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
       )
-    
-      // const chat = await Chat.find({ _id: {$in: user.recentChat}})
-      // .select('chatName chatProfilePhoto chatDescription updatedAt isGroupChat createdAt groupAdmin')
-      // .populate({
-      //   path: 'latestMessage',
-      //   select: 'content updatedAt',
-      //   populate: {
-      //     path: 'sender',
-      //     populate: 'username'
-      //   }
-      // })
-      // .populate({
-      //     path: 'latestMessage',
-      //     select: 'content updatedAt',
-      //     populate: {
-      //       path: 'document',
-      //       populate: 'documentName documentType documentKey documentSize'
-      //     }
-      // })
-      // .populate({
-      //     path: 'message',
-      //     select: 'content updatedAt',
-      //     populate: {
-      //       path: 'sender',
-      //       select: 'username'
-      //     }
-      // })
-      // .populate({
-      //     path: 'message',
-      //     select: 'content updatedAt',
-      //     populate: {
-      //       path: 'replyMessage',
-      //       select: 'reply replyContent replyIndex',
-      //       populate: {
-      //         path: 'replySender',
-      //         select: 'username'
-      //       }
-      //     }
-      // })
-      // .populate({
-      //     path: 'message',
-      //     select: 'content updatedAt',
-      //     populate: {
-      //       path: 'forwardMessage',
-      //       select: 'isForward'
-      //     }
-      // })
-      // .populate({
-      //     path: 'message',
-      //     select: 'content updatedAt',
-      //     populate: {
-      //       path: 'document',
-      //       select: 'documentName documentType documentSize document documentKey'
-      //     }
-      // })
-      // .populate({
-      //     path: 'users',
-      //     select: 'username userLegalName photoId profilePhoto',
-      // })
-      // .sort("-updatedAt")
-      // .lean()
-      // .exec();
     res.status(200).send({ message: "Limit User Profile Data ", user });
   } catch (e) {
     console.log(e);
@@ -832,7 +770,7 @@ exports.followersArray = async (req, res) => {
     });
 
     const followers = await User.find({ _id: { $in: user.userFollowers } })
-      .select("userLegalName username photoId profilePhoto")
+      .select("userLegalName username photoId profilePhoto user_birth_privacy user_address_privacy user_circle_privacy")
       .limit(limit)
       .skip(skip);
     if (user) {
@@ -856,7 +794,7 @@ exports.followingArray = async (req, res) => {
       .populate({ path: "userInstituteFollowing" });
 
     const uFollowing = await User.find({ _id: { $in: user.userFollowing } })
-      .select("userLegalName username photoId profilePhoto")
+      .select("userLegalName username photoId profilePhoto user_birth_privacy user_address_privacy user_circle_privacy")
       .limit(limit)
       .skip(skip);
 
@@ -886,7 +824,7 @@ exports.circleArray = async (req, res) => {
     });
 
     const circle = await User.find({ _id: { $in: user.userCircle } })
-      .select("userLegalName username photoId profilePhoto")
+      .select("userLegalName username photoId profilePhoto user_birth_privacy user_address_privacy user_circle_privacy")
       .limit(limit)
       .skip(skip);
 

@@ -615,6 +615,9 @@ exports.retrieveAllUserSavedPosts = async(req, res) =>{
     }
     res.status(200).send({ message: "Success", post, postCount: postCount.length, totalPage: totalPage, });
     }
+    else{
+      res.status(200).send({ message: 'No Post Found'})
+    }
   } catch(e) {
     console.log(e)
   }

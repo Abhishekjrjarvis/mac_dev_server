@@ -36,8 +36,9 @@ exports.postQuestionText = async (req, res) => {
     post.postType = 'Question'
     if(req.body.trend_category.length >=1 ){
       for(let i=0; i< req.body.trend_category.length; i++){
-        post.trend_category.push(req.body.trend_category[i])
-        await post.save()
+        post.trend_category.push({
+          categoryType: req.body.trend_category[i].categoryType
+        })
       }
     }
     await Promise.all([user.save(), post.save()]);

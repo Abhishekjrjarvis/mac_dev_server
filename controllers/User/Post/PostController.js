@@ -290,7 +290,7 @@ exports.retrieveAllUserPosts = async(req, res) =>{
         .sort("-createdAt")
         .limit(limit)
         .skip(skip)
-        .select("postTitle postText postQuestion answerCount answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType")
+        .select("postTitle postText postQuestion answerCount answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType")
         .populate({
           path: 'tagPeople',
           select: 'userLegalName username photoId profilePhoto'
@@ -347,7 +347,7 @@ exports.retrieveAllUserProfilePosts = async(req, res) =>{
         .sort("-createdAt")
         .limit(limit)
         .skip(skip)
-        .select("postTitle postText postDescription endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postQuestion answerCount answerUpVoteCount trend_category postType")
+        .select("postTitle postText postDescription endUserSave isUser isInstitute createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postQuestion answerCount answerUpVoteCount trend_category postType")
         .populate({
             path: 'tagPeople',
             select: 'userLegalName username photoId profilePhoto'
@@ -361,7 +361,7 @@ exports.retrieveAllUserProfilePosts = async(req, res) =>{
         .sort("-createdAt")
         .limit(limit)
         .skip(skip)
-        .select("postTitle postText postDescription endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postQuestion answerCount answerUpVoteCount trend_category postType")
+        .select("postTitle postText postDescription endUserSave isUser isInstitute createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postQuestion answerCount answerUpVoteCount trend_category postType")
         .populate({
             path: 'tagPeople',
             select: 'userLegalName username photoId profilePhoto'
@@ -603,7 +603,7 @@ exports.retrieveAllUserSavedPosts = async(req, res) =>{
         .sort("-createdAt")
         .limit(limit)
         .skip(skip)
-        .select("postTitle postText postQuestion answerCount answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType")
+        .select("postTitle postText postQuestion answerCount isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType")
         .populate({
           path: 'poll_query'
         })

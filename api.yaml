@@ -4450,6 +4450,36 @@ paths:
         "200":
           description: OK
 
+
+  /api/v1/ins/post/{id}/saved/all/posts:
+    get:
+      tags:
+        - Institute DashBoard API (including Notification, Post, Announcement)
+      summary: Institute All Saved Posts - (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
+      responses:
+        "200":
+          description: OK
+
   
   #THis is for universal search of institute
 
@@ -9832,16 +9862,8 @@ paths:
                       required: true 
                       description: Enter Answer Content
               trend_category:
-                type: array
+                type: string
                 description: Enter category type of trends
-                required: true 
-                items:
-                  type: object
-                  properties:
-                    categoryType:
-                      type: string
-                      required: true 
-                      description: Enter Category Type 
       responses:
         "200":
           description: OK
@@ -10058,6 +10080,117 @@ paths:
         "200":
           description: OK
 
+
+  /api/v1/ins/post/question/poll/{id}:
+    post:
+      tags:
+        - Add Institute Poll Module
+      summary: Create Poll Question
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              poll_question:
+                type: string
+                description: Enter Poll Question 
+              duration_date:
+                type: string
+                description: Enter Poll Close Duration Date
+              duration_time:
+                type: string
+                description: Enter Poll Close Duration Time
+              trend_category:
+                type: array
+                description: Enter Category as mentioned in Qviple User Figma & enter array of strings
+              pollAnswer:
+                type: array
+                description: Enter min. two options & max four options
+                required: true 
+                items:
+                  type: object
+                  properties:
+                    content:
+                      type: string
+                      required: true 
+                      description: Enter Answer Content
+              trend_category:
+                type: string
+                description: Enter category type of trends
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/post/question/{id}/text:
+    post:
+      tags:
+        - Add Institute Poll Module
+      summary: Create Post Question -(verified)
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Institute Id
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload Question Image (Optional)
+        - in: formData
+          name: postQuestion
+          type: string
+          required: true
+          description: Enter Question Text
+        - in: formData
+          name: trend_category
+          type: string
+          required: true
+          description: Choose category as mentioned in User Figma
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/post/question/{id}/deleted/{pid}:
+    delete:
+      tags:
+        - Add Institute Poll Module
+      summary: Delete Post Question -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Institute Id
+        - in: path
+          name: pid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Post Id
+      responses:
+        "200":
+          description: OK
 
 #FOR THE MCQ ALL API
   # /api/v1/mcq/{smid}/question/{cmid}:

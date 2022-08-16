@@ -43,6 +43,7 @@ const complaintLeaveRoute = require("./routes/ComplaintLeave/complaintLeaveRoute
 const questionNew = require("./routes/User/Post/QuestionRoute");
 const admissionNew = require('./routes/Admission/admissionRoute')
 const pollNew = require('./routes/User/Post/PollsRoute')
+const iQuestionNew = require("./routes/InstituteAdmin/Post/QuestionRoute");
 
 
 // ============================= DB Configuration ==============================
@@ -155,6 +156,7 @@ app.use("/api/v1/fees", feesNew);
 app.use("/api/v1/extra", extraNew);
 app.use("/api/v1/post/question", questionNew);
 app.use("/api/v1/poll", pollNew)
+app.use("/api/v1/ins/post/question", iQuestionNew);
 
 
 // ============================================================================

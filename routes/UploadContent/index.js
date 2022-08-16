@@ -6,6 +6,7 @@ const router = app.Router();
 const { isLoggedIn } = require("../../middleware");
 const {
   getImage,
+  uploadOneImage,
   patchInstituteImagePhoto,
   patchInstituteImageCover,
   // patchInstituteDoc,
@@ -35,6 +36,7 @@ const {
 } = require("../../controllers/UploadContent/index");
 
 router.route("/:key").get(getImage);
+router.route("/onefile").patch(upload.single("file"), uploadOneImage);
 router
   .route("/:id/institute/photo")
   .patch(isLoggedIn, upload.single("file"), patchInstituteImagePhoto);

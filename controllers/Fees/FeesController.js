@@ -233,7 +233,11 @@ exports.retrieveStudentCountQuery = async(req, res) =>{
     .select('studentFirstName')
     .populate({
       path: 'department',
-      select: 'fees checklists'
+      select: 'id',
+      populate: {
+        path: 'fees',
+        select: 'feeAmount onlineList offlineStudentsList'
+      }
     })
     .populate({
       path: 'onlineFeeList',
@@ -247,14 +251,20 @@ exports.retrieveStudentCountQuery = async(req, res) =>{
       path: 'offlineFeeList',
       select: 'feeAmount'
     })
+    .populate({
+      path: 'department',
+      select: 'id',
+      populate: {
+        path: 'checklists',
+        select: 'checklistAmount studentsList'
+      }
+    })
     if(student.offlineFeeList.length >=1){
       student.offlineFeeList.forEach((off) => {
         if(student.department.fees.length >= 1 && student.department.fees.includes(`${off._id}`)){
           paid += off.feeAmount
         }
-        else{
-          unpaid += off.feeAmount
-        }
+        else{}
       })
     }
     if(student.onlineFeeList.length >=1){
@@ -262,9 +272,7 @@ exports.retrieveStudentCountQuery = async(req, res) =>{
         if(student.department.fees.length >= 1 && student.department.fees.includes(`${on._id}`)){
           paid += on.feeAmount
         }
-        else{
-          unpaid += on.feeAmount
-        }
+        else{}
       })
     }
     if(student.onlineCheckList.length >=1){
@@ -272,11 +280,30 @@ exports.retrieveStudentCountQuery = async(req, res) =>{
         if(student.department.checklists.length >= 1 && student.department.checklists.includes(`${onc._id}`)){
           paid += onc.checklistAmount
         }
-        else{
-          unpaid += onc.checklistAmount
-        }
+        else{}
       })
     }
+    student.department.fees.forEach((fee) => {
+      if(fee.onlineList.length >= 1 && fee.onlineList.includes(`${student._id}`)){
+      }
+      else{
+        unpaid += fee.feeAmount
+      }
+    })
+    student.department.fees.forEach((fee) => {
+      if(fee.offlineStudentsList.length >= 1 && fee.offlineStudentsList.includes(`${student._id}`)){
+      }
+      else{
+        unpaid += fee.feeAmount
+      }
+    })
+    student.department.checklists.forEach((check) => {
+      if(check.studentsList.length >= 1 && check.studentsList.includes(`${student._id}`)){
+      }
+      else{
+      unpaid += check.checklistAmount
+      }
+    })
     res.status(200).send({ message: 'Total Paid Fee & Remaining Fee', paid: paid, unpaid: unpaid})
   }
   catch(e){

@@ -34,7 +34,11 @@ exports.postQuestionText = async (req, res) => {
     post.authorProfilePhoto = user.profilePhoto
     post.isUser = 'user'
     post.postType = 'Question'
-    post.trend_category.push(...req.body.trend_category)
+    if(req.body.trend_category.length >= 1){
+      req.body.trend_category.forEach((trend) => {
+        post.trend_category.push(trend)
+      })
+    }else{}
     await Promise.all([user.save(), post.save()]);
     res.status(201).send({ message: "post question is create", post });
     if(user.userFollowers.length >= 1){

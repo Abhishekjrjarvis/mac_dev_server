@@ -27,7 +27,11 @@ exports.retrievePollQuestionText = async (req, res) => {
       post.isUser = 'user'
       post.postType = "Poll"
       post.poll_query = poll._id
-      post.trend_category.push(...req.body.trend_category)
+      if(req.body.trend_category.length >= 1){
+        req.body.trend_category.forEach((trend) => {
+          post.trend_category.push(trend)
+        })
+      }else{}
       await Promise.all([user.save(), post.save(), poll.save()]);
       res.status(201).send({ message: "Poll is create", poll });
       if(user.userFollowers.length >= 1){

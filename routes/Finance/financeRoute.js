@@ -72,18 +72,6 @@ router.post('/admin/:aid/ins/:id/repay', isLoggedIn, catchAsync(Finance.RepayByS
 // Payment Detail
 router.get('/:id/ins/bank/query', isLoggedIn, catchAsync(Finance.retrievePaymentDetail))
 
-// // Upload ACK for Income
-// router.post('/income/:id', isLoggedIn, upload.single("file"), catchAsync(Finance.uploadIncomeACK))
-
-// // Retrieve ACK for Income
-// router.get('/income/ack/:key', isLoggedIn, catchAsync(Finance.RetrieveIncomeACK))
-
-// // Upload ACK for Expense
-// router.post('/expense/:id', isLoggedIn, upload.single("file"), catchAsync(Finance.uploadExpenseACK))
-
-// // Retrieve ACK for Expense
-// router.get('/expense/ack/:key', isLoggedIn, catchAsync(Finance.RetrieveExpenseACK))
-
 router.get('/:fid/dashboard/income', catchAsync(Finance.retrieveIncomeQuery))
 
 router.get('/:fid/dashboard/expense', catchAsync(Finance.retrieveExpenseQuery))

@@ -652,3 +652,74 @@
 {"level":"info","message":{},"timestamp":"2022-08-16T03:01:18.144Z"}
 {"level":"info","message":"Success","post":[{"_id":"62f631f9793d2e356d9e5535","answerCount":0,"answerUpVoteCount":0,"author":"62f62b9e637d3c1fb76326b2","authorName":"Shubham Mule","authorPhotoId":"0","authorProfilePhoto":"c19d831aa6d6fd64a9f94433bb0cd6ce","authorUserName":"Shubhammule","commentCount":0,"createdAt":"2022-08-12T10:56:57.272Z","endUserLike":[],"endUserSave":["62ecb603c5d17b3581a2caec"],"imageId":"0","likeCount":0,"postImage":["3c10f19e77a106cd255ec1eb770475b0"],"postStatus":"Anyone","postTitle":"harishchandra gad","postType":"Post","trend_category":[]}],"postCount":1,"timestamp":"2022-08-16T03:01:18.497Z"}
 {"level":"info","message":"{\"message\":\"Success\",\"post\":[{\"_id\":\"62f631f9793d2e356d9e5535\",\"postTitle\":\"harishchandra gad\",\"postImage\":[\"3c10f19e77a106cd255ec1eb770475b0\"],\"postStatus\":\"Anyone\",\"likeCount\":0,\"commentCount\":0,\"endUserLike\":[],\"endUserSave\":[\"62ecb603c5d17b3581a2caec\"],\"answerCount\":0,\"answerUpVoteCount\":0,\"postType\":\"Post\",\"createdAt\":\"2022-08-12T10:56:57.272Z\",\"imageId\":\"0\",\"author\":\"62f62b9e637d3c1fb76326b2\",\"authorName\":\"Shubham Mule\",\"authorUserName\":\"Shubhammule\",\"authorPhotoId\":\"0\",\"authorProfilePhoto\":\"c19d831aa6d6fd64a9f94433bb0cd6ce\",\"trend_category\":[]}],\"postCount\":1,\"level\":\"info\"}","timestamp":"2022-08-16T03:01:18.500Z"}
+{"level":"info","message":{},"timestamp":"2022-08-16T03:33:54.177Z"}
+{"level":"info","message":{},"timestamp":"2022-08-16T03:36:11.795Z"}
+{"answer":[{"_id":"62fad276a36b967bcd974596","answerContent":"dsfdsfsdfdsfsdfdf","answerImage":["fb13935380d090e2bf61058214366ffe"],"answerImageId":"0","answerReplyCount":0,"answerSave":[],"author":"62ecc0d8c5d17b3581a2cbf0","authorName":"Chanchal Singh","authorPhotoId":"0","authorProfilePhoto":"f6703b8fa2c0bae3ec24e372553ca5fb","authorUserName":"chanchal123","createdAt":"2022-08-15T23:10:46.982Z","downVote":[],"downVoteCount":0,"isMentor":"No","upVote":[],"upVoteCount":0},{"_id":"62fa80c7a36b967bcd974243","answerContent":"non - volatile","answerImage":[],"answerImageId":"0","answerReplyCount":0,"answerSave":["62ecc0d8c5d17b3581a2cbf0"],"author":"62ecc0d8c5d17b3581a2cbf0","authorName":"Chanchal Singh","authorPhotoId":"0","authorProfilePhoto":"f6703b8fa2c0bae3ec24e372553ca5fb","authorUserName":"chanchal123","createdAt":"2022-08-15T17:22:15.576Z","downVote":[],"downVoteCount":0,"isMentor":"No","upVote":["62ecc0d8c5d17b3581a2cbf0"],"upVoteCount":1}],"level":"info","message":"All answer's of one Question","timestamp":"2022-08-16T03:36:12.229Z"}
+{"level":"info","message":"{\"message\":\"All answer's of one Question\",\"answer\":[{\"isMentor\":\"No\",\"_id\":\"62fad276a36b967bcd974596\",\"answerContent\":\"dsfdsfsdfdsfsdfdf\",\"answerImage\":[\"fb13935380d090e2bf61058214366ffe\"],\"upVote\":[],\"downVote\":[],\"upVoteCount\":0,\"downVoteCount\":0,\"answerReplyCount\":0,\"answerSave\":[],\"createdAt\":\"2022-08-15T23:10:46.982Z\",\"answerImageId\":\"0\",\"author\":\"62ecc0d8c5d17b3581a2cbf0\",\"authorName\":\"Chanchal Singh\",\"authorUserName\":\"chanchal123\",\"authorPhotoId\":\"0\",\"authorProfilePhoto\":\"f6703b8fa2c0bae3ec24e372553ca5fb\"},{\"isMentor\":\"No\",\"_id\":\"62fa80c7a36b967bcd974243\",\"answerContent\":\"non - volatile\",\"answerImage\":[],\"upVote\":[\"62ecc0d8c5d17b3581a2cbf0\"],\"downVote\":[],\"upVoteCount\":1,\"downVoteCount\":0,\"answerReplyCount\":0,\"answerSave\":[\"62ecc0d8c5d17b3581a2cbf0\"],\"createdAt\":\"2022-08-15T17:22:15.576Z\",\"answerImageId\":\"0\",\"author\":\"62ecc0d8c5d17b3581a2cbf0\",\"authorName\":\"Chanchal Singh\",\"authorUserName\":\"chanchal123\",\"authorPhotoId\":\"0\",\"authorProfilePhoto\":\"f6703b8fa2c0bae3ec24e372553ca5fb\"}],\"level\":\"info\"}","timestamp":"2022-08-16T03:36:12.237Z"}
+{"level":"info","message":{},"timestamp":"2022-08-16T05:01:26.547Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-16T05:01:27.311Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-16T05:01:27.315Z"}
+{"level":"info","message":{},"timestamp":"2022-08-16T05:01:31.820Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-16T05:01:33.649Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-16T05:01:33.651Z"}
+{"level":"info","message":{},"timestamp":"2022-08-16T05:05:42.092Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-16T05:05:44.625Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-16T05:05:44.628Z"}
+{"level":"info","message":{},"timestamp":"2022-08-16T05:05:46.499Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-16T05:05:46.663Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-16T05:05:46.665Z"}
+{"level":"info","message":{},"timestamp":"2022-08-16T05:08:47.802Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-16T05:08:49.443Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-16T05:08:49.446Z"}
+{"level":"info","message":{},"timestamp":"2022-08-16T05:08:50.884Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-16T05:08:51.026Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-16T05:08:51.027Z"}
+{"level":"info","message":{},"timestamp":"2022-08-16T05:08:51.984Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-16T05:08:52.121Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-16T05:08:52.122Z"}
+{"level":"info","message":{},"timestamp":"2022-08-16T05:10:26.606Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-16T05:10:28.880Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-16T05:10:28.883Z"}
+{"level":"info","message":{},"timestamp":"2022-08-16T05:10:30.180Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-16T05:10:30.317Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-16T05:10:30.318Z"}
+{"level":"info","message":{},"timestamp":"2022-08-16T05:10:31.240Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-16T05:10:31.370Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-16T05:10:31.371Z"}
+{"level":"info","message":{},"timestamp":"2022-08-16T05:21:18.193Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-16T05:21:18.406Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-16T05:21:18.411Z"}
+{"level":"info","message":{},"timestamp":"2022-08-16T05:21:19.500Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-16T05:21:19.646Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-16T05:21:19.648Z"}
+{"level":"info","message":{},"timestamp":"2022-08-16T05:21:20.500Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-16T05:21:20.620Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-16T05:21:20.621Z"}
+{"level":"info","message":{},"timestamp":"2022-08-16T05:22:07.828Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-16T05:22:11.014Z","unpaid":100}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":100,\"level\":\"info\"}","timestamp":"2022-08-16T05:22:11.017Z"}
+{"level":"info","message":{},"timestamp":"2022-08-16T05:22:15.280Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-16T05:22:15.426Z","unpaid":100}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":100,\"level\":\"info\"}","timestamp":"2022-08-16T05:22:15.428Z"}
+{"level":"info","message":{},"timestamp":"2022-08-16T05:23:02.505Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-16T05:23:04.424Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-16T05:23:04.427Z"}
+{"level":"info","message":{},"timestamp":"2022-08-16T05:23:06.499Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-16T05:23:06.643Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-16T05:23:06.644Z"}
+{"level":"info","message":{},"timestamp":"2022-08-16T05:24:13.279Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-16T05:24:13.504Z","unpaid":322}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":322,\"level\":\"info\"}","timestamp":"2022-08-16T05:24:13.507Z"}
+{"level":"info","message":{},"timestamp":"2022-08-16T05:24:14.870Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-16T05:24:15.007Z","unpaid":322}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":322,\"level\":\"info\"}","timestamp":"2022-08-16T05:24:15.009Z"}
+{"level":"info","message":{},"timestamp":"2022-08-16T05:31:25.877Z"}
+{"level":"info","message":{},"timestamp":"2022-08-16T05:31:57.867Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-16T05:31:59.376Z","unpaid":322}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":322,\"level\":\"info\"}","timestamp":"2022-08-16T05:31:59.379Z"}
+{"level":"info","message":{},"timestamp":"2022-08-16T05:32:02.243Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-16T05:32:02.385Z","unpaid":322}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":322,\"level\":\"info\"}","timestamp":"2022-08-16T05:32:02.386Z"}
+{"level":"info","message":{},"timestamp":"2022-08-16T05:32:03.656Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-16T05:32:03.797Z","unpaid":322}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":322,\"level\":\"info\"}","timestamp":"2022-08-16T05:32:03.798Z"}

@@ -44,20 +44,20 @@ exports.getDashOneQuery = async (req, res) => {
       .select(
         "insName name insAbout photoId status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart unlockAmount accessFeature activateStatus"
       )
-      .populate({
-        path: "supportChat",
-        populate: {
-          path: "latestMessage",
-        },
-      })
-      .populate({
-        path: "supportChat",
-        populate: {
-          path: "message",
-        },
-      })
-      .lean()
-      .exec();
+      // .populate({
+      //   path: "supportChat",
+      //   populate: {
+      //     path: "latestMessage",
+      //   },
+      // })
+      // .populate({
+      //   path: "supportChat",
+      //   populate: {
+      //     path: "message",
+      //   },
+      // })
+      // .lean()
+      // .exec();
     const encrypt = await encryptionPayload(institute);
     res.status(200).send({
       message: "limit Ins Data",

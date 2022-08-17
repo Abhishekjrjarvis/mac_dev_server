@@ -48,11 +48,11 @@ const iQuestionNew = require("./routes/InstituteAdmin/Post/QuestionRoute");
 
 // ============================= DB Configuration ==============================
 
-const dburl = `${process.env.DB_URL2}`; // Development
-// const dburl = `${process.env.DB_URL}`; // Production
+// const dburl = `${process.env.DB_URL2}`; // Development
+const dburl = `${process.env.DB_URL}`; // Production
 
 // 62e155ce168e4858c7ca8c00 - Development
-// 62e157224cc3f4c4d1b859b5 - Production
+// 62fccc59c63eec5b7f8ee894 - Production
 
 mongoose
   .connect(dburl, {

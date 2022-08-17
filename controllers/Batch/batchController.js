@@ -252,6 +252,7 @@ exports.promoteStudent = async (req, res) => {
 
       previousclasses?.promoteStudent?.push(stu);
       previousclasses?.ApproveStudent?.pull(stu);
+      classes.studentCount += 1;
       await student.save();
     }
 

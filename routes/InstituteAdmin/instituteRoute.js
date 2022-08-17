@@ -626,11 +626,24 @@ router.get(
   catchAsync(Institute.retrieveInsFollowersArray)
 );
 
+// Institute Followers List With ID
+router.get(
+  "/:id/followers-idlist",
+  isLoggedIn,
+  catchAsync(Institute.retrieveInsFollowersArrayWithId)
+);
 // Institute Following List
 router.get(
   "/:id/following-array",
   isLoggedIn,
   catchAsync(Institute.retrieveInsFollowingArray)
+);
+
+// Institute Following List With ID
+router.get(
+  "/:id/following-idlist",
+  isLoggedIn,
+  catchAsync(Institute.retrieveInsFollowingArrayWithId)
 );
 
 // Get One Department All Batches

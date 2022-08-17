@@ -6,249 +6,86 @@ const { isLoggedIn } = require("../../middleware");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 
-// ========= ADDED TO SWAGGER =======================
 
-// Get User Profile Data
 router.get("/:id/profile", isLoggedIn, catchAsync(User.retrieveProfileData));
 
-// ========= ADDED TO SWAGGER =======================
+router.get("/:id/ins-announcement", isLoggedIn, catchAsync(User.retrieveFIAnnouncement));
 
-// Get Announcement Detail When Follow Institute
-router.get(
-  "/:id/ins-announcement",
-  // isLoggedIn,
-  catchAsync(User.retrieveFIAnnouncement)
-);
+router.get("/one-announcement/:aid", isLoggedIn, catchAsync(User.retrieveFIOneAnnouncement));
 
-router.get(
-  "/one-announcement/:aid",
-  // isLoggedIn,
-  catchAsync(User.retrieveFIOneAnnouncement)
-);
-// ========= ADDED TO SWAGGER =======================
+router.get("/:id/setting/personal", isLoggedIn, catchAsync(User.getPersonalSetting));
 
-// Limit Setting Data
-router.get(
-  "/:id/setting/personal",
-  isLoggedIn,
-  catchAsync(User.getPersonalSetting)
-);
+router.get("/:id/switch/account", isLoggedIn, catchAsync(User.getSwitchAccounts));
 
-// ========= ADDED TO SWAGGER =======================
-
-// Limit Switch Data
-router.get(
-  "/:id/switch/account",
-  isLoggedIn,
-  catchAsync(User.getSwitchAccounts)
-);
-
-// ========= ADDED TO SWAGGER =======================
-
-// Limit Q-Coins Data
 router.get("/:id/referals/q-coins", isLoggedIn, catchAsync(User.getQCoins));
 
-// ========= ADDED TO SWAGGER =======================
-
-// Limit UserDashBoard Data
 router.get("/:id/dash/query", isLoggedIn, catchAsync(User.getDashDataQuery));
 
-// User DashBoard Limited Data
-router.get("/:uid/dash", catchAsync(User.getUserData));
+router.patch("/follow/institute", isLoggedIn, catchAsync(User.updateUserFollowIns));
 
-// Update Info At User
-router.post("profileabout/:id", isLoggedIn, catchAsync(User.updateUserInfo));
+router.patch("/unfollow/institute", isLoggedIn, catchAsync(User.removeUserFollowIns));
 
-// User Follow Institute
-router.patch(
-  "/follow/institute",
-  isLoggedIn,
-  catchAsync(User.updateUserFollowIns)
-);
-
-// User Unfollow Institute
-router.patch(
-  "/unfollow/institute",
-  isLoggedIn,
-  catchAsync(User.removeUserFollowIns)
-);
-
-// User Search Profile By User
-router.post("-search-profile", isLoggedIn, catchAsync(User.querySearchUser));
-
-// User Follow User
 router.patch("/follow/user", isLoggedIn, catchAsync(User.updateUserFollow));
 
-// User UnFollow User
 router.patch("/unfollow/user", isLoggedIn, catchAsync(User.updateUserUnFollow));
 
-// Add User To Circle
 router.patch("/circle/user", isLoggedIn, catchAsync(User.updateUserCircle));
 
-// Remove User From Circle
 router.patch("/uncircle/user", isLoggedIn, catchAsync(User.removeUserCircle));
 
-// Update Phone Number By User
 router.post("/phone/info/:id", isLoggedIn, catchAsync(User.updateUserPhone));
 
-// Update Personal Info By User
-router.patch(
-  "/personal/info/:id",
-  isLoggedIn,
-  catchAsync(User.updateUserPersonal)
-);
+router.patch("/personal/info/:id", isLoggedIn, catchAsync(User.updateUserPersonal));
 
-// Add Account At User As Institute
-router.post(
-  "/:id/add/ins/:iid",
-  isLoggedIn,
-  catchAsync(User.addUserAccountInstitute)
-);
+router.post("/:id/add/ins/:iid", isLoggedIn, catchAsync(User.addUserAccountInstitute));
 
-// Add Account At User As User
-router.post(
-  "/:id/add/user/:iid",
-  isLoggedIn,
-  catchAsync(User.addUserAccountUser)
-);
-// Account Deactivated By User
-router.post(
-  "/:id/deactivate/account",
-  isLoggedIn,
-  catchAsync(User.deactivateUserAccount)
-);
+router.post("/:id/add/user/:iid", isLoggedIn, catchAsync(User.addUserAccountUser));
 
-// Feedback By User
+router.post("/:id/deactivate/account", isLoggedIn, catchAsync(User.deactivateUserAccount));
+
 router.post("/feedback/:id", isLoggedIn, catchAsync(User.feedbackUser));
 
-// Feedback Remind By User
-router.post(
-  "/feedback/remind/:id",
-  isLoggedIn,
-  catchAsync(User.feedbackRemindLater)
-);
+router.post("/feedback/remind/:id", isLoggedIn, catchAsync(User.feedbackRemindLater));
 
-// Credit Transfer By User
-router.post(
-  "/:id/credit/transfer",
-  isLoggedIn,
-  catchAsync(User.getCreditTransfer)
-);
+router.post("/:id/credit/transfer", isLoggedIn, catchAsync(User.getCreditTransfer));
 
-// Report User Post By User
-router.post(
-  "/:id/user-post/:uid/report",
-  isLoggedIn,
-  catchAsync(User.getReportPostUser)
-);
+router.post("/:id/user-post/:uid/report", isLoggedIn, catchAsync(User.getReportPostUser));
 
-// All Notification For User
-router.get(
-  "/dashboard/:id/notify",
-  isLoggedIn,
-  catchAsync(User.getNotifications)
-);
+router.get("/dashboard/:id/notify", isLoggedIn, catchAsync(User.getNotifications));
 
-// Mark As Read By User
-router.post(
-  "/read/notify/user/:rid",
-  isLoggedIn,
-  catchAsync(User.updateReadNotifications)
-);
+router.post("/read/notify/user/:rid", isLoggedIn, catchAsync(User.updateReadNotifications));
 
-// Hide Notifications From User
-router.post(
-  "/:id/notify/:nid/hide",
-  isLoggedIn,
-  catchAsync(User.getHideNotifications)
-);
+router.post("/:id/notify/:nid/hide", isLoggedIn, catchAsync(User.getHideNotifications));
 
-// Delete Notifications
-router.delete(
-  "/:id/notify/:nid/delete",
-  isLoggedIn,
-  catchAsync(User.getDeleteNotifications)
-);
+router.delete("/:id/notify/:nid/delete", isLoggedIn, catchAsync(User.getDeleteNotifications));
 
-// Followers List
-router.get(
-  "/:uid/followers-array",
-  isLoggedIn,
-  catchAsync(User.followersArray)
-);
+router.get("/:uid/followers-array", isLoggedIn, catchAsync(User.followersArray));
 
-// Following List
-router.get(
-  "/:uid/following-array",
-  isLoggedIn,
-  catchAsync(User.followingArray)
-);
+router.get("/:uid/following-array", isLoggedIn, catchAsync(User.followingArray));
 
-// Following List Institute
-router.get(
-  "/:uid/following/ins-array",
-  isLoggedIn,
-  catchAsync(User.followingInsArray)
-);
+router.get("/:uid/following/ins-array", isLoggedIn, catchAsync(User.followingInsArray));
 
-// Circle List
 router.get("/:uid/circle-array", isLoggedIn, catchAsync(User.circleArray));
 
-// Get Star Announcement User
-router.get(
-  "/:id/all/star-announcement",
-  isLoggedIn,
-  catchAsync(User.retrieveAllStarAnnouncementUser)
-);
+router.get("/:id/all/star-announcement", isLoggedIn, catchAsync(User.retrieveAllStarAnnouncementUser));
 
-// Recovery Mail
-router.post(
-  "/:id/recovery-mail",
-  isLoggedIn,
-  catchAsync(User.retrieveRecoveryMailUser)
-);
+router.post("/:id/recovery-mail", isLoggedIn, catchAsync(User.retrieveRecoveryMailUser));
 
-// User Staff Array
-router.get(
-  "/:uid/staff-role",
-  isLoggedIn,
-  catchAsync(User.retrieveUserStaffArray)
-);
+router.get("/:uid/staff-role", isLoggedIn, catchAsync(User.retrieveUserStaffArray));
 
-// User Staff Array
-router.get(
-  "/:uid/student-role",
-  isLoggedIn,
-  catchAsync(User.retrieveUserStudentArray)
-);
+router.get("/:uid/student-role", isLoggedIn, catchAsync(User.retrieveUserStudentArray));
 
-// Staff Designation Data
-router.get(
-  "/staffdesignationdata/:sid",
-  isLoggedIn,
-  catchAsync(User.retrieveStaffDesignationArray)
-);
+router.get("/staffdesignationdata/:sid", catchAsync(User.retrieveStaffDesignationArray));
 
-// Student Designation Data
-router.get(
-  "/studentdesignationdata/:sid",
-  isLoggedIn,
-  catchAsync(User.retrieveStudentDesignationArray)
-);
+router.get("/studentdesignationdata/:sid", catchAsync(User.retrieveStudentDesignationArray));
 
-// User 3-Follow System Array
-router.get(
-  "/:id/all-three-array",
-  isLoggedIn,
-  catchAsync(User.retrieveUserThreeArray)
-);
+router.get("/:id/all-three-array", isLoggedIn, catchAsync(User.retrieveUserThreeArray));
 
 router.get('/:uid/know/query', isLoggedIn, catchAsync(User.retrieveUserKnowQuery))
 
 router.get("/:uid/circle/array/query", catchAsync(User.circleArrayQuery));
 
 router.get("/circle/user", isLoggedIn, catchAsync(User.allCircleUsers));
-
 
 
 module.exports = router;

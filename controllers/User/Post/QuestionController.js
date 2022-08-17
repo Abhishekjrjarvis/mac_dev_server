@@ -48,7 +48,9 @@ exports.postQuestionText = async (req, res) => {
           await ele.save()
         })
     }
-  } catch {}
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 exports.postQuestionDelete = async (req, res) => {
@@ -102,6 +104,37 @@ exports.answerLike = async (req, res) => {
   }
 };
 
+
+exports.answerDisLike = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const answer = await Answer.findById({ _id: aid });
+    const user_session = req.tokenData && req.tokenData.userId ? req.tokenData.userId : ''
+    if (user_session) {
+      if (
+        answer.downVote.length >= 1 &&
+        answer.downVote.includes(String(user_session))
+      ) {
+        answer.downVote.pull(user_session);
+        if (answer.downVoteCount >= 1) {
+          answer.downVoteCount -= 1;
+        }
+        await Promise.all([ answer.save() ])
+        res.status(200).send({ message: "Removed from DownVote 👎", downVoteCount: answer.downVoteCount, });
+      } else {
+        answer.downVote.push(user_session);
+        answer.downVoteCount += 1;
+        await Promise.all([ answer.save() ])
+        res.status(200).send({ message: "Added To DownVote 👍", downVoteCount: answer.downVoteCount, });
+      }
+    } else {
+      res.status(401).send();
+    }
+  } catch(e) {
+    console.log(e)
+  }
+};
+
 exports.postQuestionSave = async (req, res) => {
   try {
     const { pid } = req.params;
@@ -139,6 +172,9 @@ exports.postQuestionAnswer = async (req, res) => {
     }
     if (req.tokenData && req.tokenData.userId) {
       var user = await User.findById({_id: req.tokenData.userId})
+      if(user.staff.length >= 1){
+        answers.isMentor = 'yes'
+      }
       answers.author = user._id;
       answers.authorName = user.userLegalName
       answers.authorUserName = user.username
@@ -148,6 +184,7 @@ exports.postQuestionAnswer = async (req, res) => {
     } else {
       res.status(401).send({ message: 'Unauthorized'});
     }
+    user.answered_query.push(answers._id)
     post.answer.push(answers._id);
     post.answerCount += 1;
     answers.post = post._id;
@@ -172,7 +209,7 @@ exports.getQuestionAnswer = async (req, res) => {
       .sort("-createdAt")
       .limit(limit)
       .skip(skip)
-      .select("answerContent createdAt answerImageId answerImage upVote upVoteCount answerReplyCount author authorName authorUserName authorPhotoId authorProfilePhoto");
+      .select("answerContent createdAt answerImageId answerImage upVote upVoteCount downVote downVoteCount isMentor answerReplyCount author answerSave authorName authorUserName authorPhotoId authorProfilePhoto");
     res.status(200).send({ message: "All answer's of one Question", answer });
   } catch {}
 };
@@ -262,3 +299,18 @@ exports.questionAnswerSave = async (req, res) => {
     } catch {}
   };
 
+
+
+  exports.postQuestionDeleteAnswer = async (req, res) => {
+    try {
+      const { pid, aid } = req.params;
+      const post = await Post.findById({ _id: pid})
+      await Post.findByIdAndUpdate(id, { $pull: { answer: aid } });
+      await Answer.findByIdAndDelete({ _id: aid });
+      post.answerCount -= 1
+      await post.save()
+      res.status(200).send({ message: "post question answer deleted" });
+    } catch(e) {
+      console.log(e)
+    }
+  };

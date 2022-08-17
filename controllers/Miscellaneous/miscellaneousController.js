@@ -71,6 +71,7 @@ exports.getAllUser = async(req, res) =>{
 exports.getAllPaymentFee = async(req, res) =>{
     try {
         const payment = await Payment.find({})
+        .select('txnDate createdAt txnId feeType')
         .populate({
           path: 'student',
           select: 'studentFirstName studentMiddleName studentLastName',
@@ -80,11 +81,7 @@ exports.getAllPaymentFee = async(req, res) =>{
           }
         })
         res.status(200).send({ message: "Data", payment });
-      } catch(e) {
-        console.log(
-          `Error`, e.message
-        );
-      }
+      } catch{}
 }
 
 exports.getAllPlaylistPayment = async(req, res) =>{

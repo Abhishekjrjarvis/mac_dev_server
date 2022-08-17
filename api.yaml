@@ -5,8 +5,8 @@ info:
   version: one
 
 
-# host: 18.205.27.165
-# basePath: /api
+host: 18.205.27.165
+basePath: /api
 # schemes: [http, https]
 schemes: 
   - http
@@ -369,6 +369,11 @@ paths:
           schema:
             type: integer
           description: The numbers of items to return
+        - in: query
+          name: p_type
+          schema:
+            type: integer
+          description: Categorisation module by (Post, Question, Poll) default - Post
       responses:
         "200":
           description: OK
@@ -1080,6 +1085,68 @@ paths:
               behaviour:
                 type: string
                 description: Enter student behaviour
+              remark:
+                type: string
+                description: Enter student Remark
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/extra/{gr}/status/{type}:
+    get:
+      tags:
+        - Setting Control API
+      summary: Check Download Status -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: gr
+          required: true
+          type: string
+          description: Enter Student GRNO
+        - in: path
+          name: type
+          required: true
+          type: string
+          description: Enter Certificate Type ("Bona" || "Leaving")
+      responses:
+        "200":
+          description: OK
+
+
+  
+  /api/v1/extra/{uid}/privacy/feature:
+    patch:
+      tags:
+        - Setting Control API
+      summary: User Privacy Control API -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: Enter User Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              birthStatus:
+                type: number
+                description: Enter Birth Day Privacy Content
+              addressStatus:
+                type: string
+                description: Enter Address Privacy Content
+              circleStatus:
+                type: string
+                description: Enter Circle Privacy Content
       responses:
         "200":
           description: OK
@@ -1145,6 +1212,11 @@ paths:
           schema:
             type: integer
           description: The numbers of items to return
+        - in: query
+          name: p_type
+          schema:
+            type: integer
+          description: Categorisation module by (Post, Question, Poll) default - Post
       responses:
         "200":
           description: OK
@@ -1754,6 +1826,36 @@ paths:
           description: OK
 
 
+  /api/v1/user/post/{id}/all/user/saved/posts:
+    get:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: User All Saved Posts -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is User id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
+      responses:
+        "200":
+          description: OK
+
+
   #This is for universal search of user
 
   /api/v1/search/user/{id}/allsearch:
@@ -2286,7 +2388,25 @@ paths:
         "200":
           description: OK
 
-  
+  /api/v1/fees/student/{sid}/count:
+    get:
+      tags:
+        - Student-Member-Tab
+      summary: Get Total Fee & Remaining Fee -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
+      responses:
+        "200":
+          description: OK
+
   /api/v1/fees/student/{sid}:
     get:
       tags:
@@ -2617,6 +2737,30 @@ paths:
           required: true
           type: string
           description: This is class id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/staffclass/{cid}/fee/{fid}/query:
+    get:
+      tags:
+        - Staff-Class-Teacher
+      summary: One class one fee -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class id
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Fee id
       responses:
         "200":
           description: OK
@@ -4302,6 +4446,36 @@ paths:
               reportStatus:
                 type: string
                 description: Enter Report Content
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/ins/post/{id}/saved/all/posts:
+    get:
+      tags:
+        - Institute DashBoard API (including Notification, Post, Announcement)
+      summary: Institute All Saved Posts - (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
       responses:
         "200":
           description: OK
@@ -9018,7 +9192,15 @@ paths:
           name: id
           required: true
           type: string
-          description: This is Fee id 
+          description: This is Fee id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                description: Enter fee in Amount
       responses:
         "200":
           description: OK
@@ -9048,12 +9230,20 @@ paths:
           required: true
           type: string
           description: This is Fee id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                description: Enter fee in Amount
       responses:
         "200":
           description: OK
 
 
-  /api/v1/finance/{fid}/class/{cid}/fee/incorrect:
+  /api/v1/finance/{fid}/class/{cid}/fee/{id}/incorrect:
     post:
       tags:
         - Finance Module Query
@@ -9073,6 +9263,19 @@ paths:
           required: true
           type: string
           description: This is Class id 
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Fee id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                description: Enter fee in Amount
       responses:
         "200":
           description: OK
@@ -9157,7 +9360,552 @@ paths:
       responses:
         "200":
           description: OK
+          
+  /api/v1/finance/{fid}/dashboard/income:
+    get:
+      tags:
+        - Finance Module Query
+      summary: Get All Incomes of Finance
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance Id
+      responses:
+        "200":
+          description: OK
 
+  /api/v1/finance/{fid}/dashboard/expense:
+    get:
+      tags:
+        - Finance Module Query
+      summary: Get All Expenses of Finance
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/dashboard/request/class:
+    get:
+      tags:
+        - Finance Module Query
+      summary: Get All Request At Finance
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/dashboard/submit/class:
+    get:
+      tags:
+        - Finance Module Query
+      summary: Get All Submit
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/dashboard/reject/class:
+    get:
+      tags:
+        - Finance Module Query
+      summary: Get All Rejects
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{id}/ins/bank/query:
+    get:
+      tags:
+        - Finance Module Query
+      summary: Get Bank Detail of Institute - (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute Id
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/finance/{fid}/dashboard/income/balance:
+    get:
+      tags:
+        - Finance Module Query
+      summary: Get Income Balance
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance Id
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/finance/{fid}/dashboard/expense/balance:
+    get:
+      tags:
+        - Finance Module Query
+      summary: Get Expense Balance
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/post/question/{id}/text:
+    post:
+      tags:
+        - Add Question Module
+      summary: Create Post Question -(verified)
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is User Id
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload Question Image (Optional)
+        - in: formData
+          name: postQuestion
+          type: string
+          required: true
+          description: Enter Question Text
+        - in: formData
+          name: trend_category
+          type: array
+          required: true
+          description: Choose category as mentioned in User Figma and enter array of strings
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/post/question/{id}/deleted/{pid}:
+    delete:
+      tags:
+        - Add Question Module
+      summary: Delete Post Question -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is User Id
+        - in: path
+          name: pid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Post Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/post/question/like/{aid}:
+    get:
+      tags:
+        - Add Question Module
+      summary: Upvote and Downvote Answer -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Answer id
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/post/question/dislike/{aid}:
+    get:
+      tags:
+        - Add Question Module
+      summary: Upvote and Downvote Answer -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Answer id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/post/question/save/{pid}:
+    get:
+      tags:
+        - Add Question Module
+      summary: Question Save  -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Post id
+      responses:
+        "200":
+          description: OK
+
+          
+
+  /api/v1/post/question/answer/save/{aid}:
+    get:
+      tags:
+        - Add Question Module
+      summary: Answer Save  -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Answer id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/post/question/answer/new/{id}:
+    post:
+      tags:
+        - Add Question Module
+      summary: Create Answer at Question -(verified)
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Post Id
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload Answer Image (Optional)
+        - in: formData
+          name: answerContent
+          type: string
+          required: true
+          description: Enter Answer Content
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/post/question/answer/reply/{rid}:
+    get:
+      tags:
+        - Add Question Module
+      summary: Get All Reply of One Answer -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: rid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Answer id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/post/question/answer/reply/new/{rid}:
+    post:
+      tags:
+        - Add Question Module
+      summary: Add Reply To Answer (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: This is Parent Answer id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              reply:
+                type: string
+                description: Enter Answer Reply
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/user/{uid}/know/query:
+    get:
+      tags:
+        - Add Question Module
+      summary: Get User Profile Answer, Question & Upvote -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is User id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/post/question/answer/{id}:
+    get:
+      tags:
+        - Add Question Module
+      summary: Get All Answers - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Post id
+        - in: path
+          name: page # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is page 
+        - in: path
+          name: limit # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Limit
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/post/question/{pid}/deleted/{aid}/answer:
+    delete:
+      tags:
+        - Add Question Module
+      summary: Delete Post Question Answer -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Post Id
+        - in: path
+          name: aid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Answer Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/poll/question/{id}:
+    post:
+      tags:
+        - Add Poll Module
+      summary: Create Poll Question
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is User id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              poll_question:
+                type: string
+                description: Enter Poll Question 
+              duration_date:
+                type: string
+                description: Enter Poll Close Duration Date
+              duration_time:
+                type: string
+                description: Enter Poll Close Duration Time
+              trend_category:
+                type: string
+                description: Enter Category as mentioned in Qviple User Figma
+              day:
+                type: string
+                description: Enter Number of Days
+              pollAnswer:
+                type: array
+                description: Enter min. two options & max four options
+                required: true 
+                items:
+                  type: object
+                  properties:
+                    content:
+                      type: string
+                      required: true 
+                      description: Enter Answer Content
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/poll/question/vote/{pid}:
+    patch:
+      tags:
+        - Add Poll Module
+      summary: Add Vote To Poll Answer
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          type: string
+          description: This is Post id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              answerId:
+                type: string
+                description: Enter Answer id which we are voting 
+      responses:
+        "200":
+          description: OK
+          
 #FOR THE BATCH AND CLASS COMPLETEION ALL API
   /api/v1/batch/{bid}:
     get:
@@ -9342,6 +10090,117 @@ paths:
         "200":
           description: OK
 
+
+  /api/v1/ins/post/question/poll/{id}:
+    post:
+      tags:
+        - Add Institute Poll Module
+      summary: Create Poll Question
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              poll_question:
+                type: string
+                description: Enter Poll Question 
+              duration_date:
+                type: string
+                description: Enter Poll Close Duration Date
+              duration_time:
+                type: string
+                description: Enter Poll Close Duration Time
+              trend_category:
+                type: string
+                description: Enter Category as mentioned in Qviple User Figma
+              day:
+                type: number
+                description: Enter Number of days
+              pollAnswer:
+                type: array
+                description: Enter min. two options & max four options
+                required: true 
+                items:
+                  type: object
+                  properties:
+                    content:
+                      type: string
+                      required: true 
+                      description: Enter Answer Content
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/post/question/{id}/text:
+    post:
+      tags:
+        - Add Institute Poll Module
+      summary: Create Post Question -(verified)
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Institute Id
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload Question Image (Optional)
+        - in: formData
+          name: postQuestion
+          type: string
+          required: true
+          description: Enter Question Text
+        - in: formData
+          name: trend_category
+          type: string
+          required: true
+          description: Choose category as mentioned in User Figma
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/post/question/{id}/deleted/{pid}:
+    delete:
+      tags:
+        - Add Institute Poll Module
+      summary: Delete Post Question -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Institute Id
+        - in: path
+          name: pid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Post Id
+      responses:
+        "200":
+          description: OK
 
 #FOR THE MCQ ALL API
   # /api/v1/all-images/onefile:

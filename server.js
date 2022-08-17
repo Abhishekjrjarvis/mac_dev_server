@@ -12,7 +12,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const helmet = require('helmet');
 
 //======================== All Routes ========================
-
+const { check_poll_status } = require('./Service/AutoRefreshBackend')
 const uploadRoute = require("./routes/UploadContent/index");
 const elearningRoute = require("./routes/Elearning/index");
 const libraryRoute = require("./routes/Library/index");
@@ -41,6 +41,9 @@ const mcqRoute = require("./routes/MCQ/mcqRoute");
 const batchRoute = require("./routes/Batch/batchRoute");
 const complaintLeaveRoute = require("./routes/ComplaintLeave/complaintLeaveRoute");
 const questionNew = require("./routes/User/Post/QuestionRoute");
+const admissionNew = require('./routes/Admission/admissionRoute')
+const pollNew = require('./routes/User/Post/PollsRoute')
+const iQuestionNew = require("./routes/InstituteAdmin/Post/QuestionRoute");
 
 
 // ============================= DB Configuration ==============================
@@ -152,9 +155,14 @@ app.use("/api/v1/message", messageNew);
 app.use("/api/v1/fees", feesNew);
 app.use("/api/v1/extra", extraNew);
 app.use("/api/v1/post/question", questionNew);
+app.use("/api/v1/poll", pollNew)
+app.use("/api/v1/ins/post/question", iQuestionNew);
 
 
 // ============================================================================
+setInterval(() => {
+  check_poll_status()
+}, 30000)
 
 app.get("*", (req, res) => {
   res.status(404).send("Page Not Found...");

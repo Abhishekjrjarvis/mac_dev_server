@@ -125,7 +125,7 @@ exports.retrieveFinanceQuery = async(req, res) =>{
   try{
     const { fid } = req.params
     const finance = await Finance.findById({ _id: fid })
-    .select('financeName financeEmail financePhoneNumber financeAbout photoId photo cover coverId financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance')
+    .select('financeName financeEmail financePhoneNumber financeAbout photoId photo cover coverId financeExemptBalance financeCollectedSBalance financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance')
     .populate({
       path: 'institute',
       select: 'id adminRepayAmount'
@@ -388,56 +388,140 @@ exports.collectClassFee = async(req, res) =>{
 exports.requestClassOfflineFee = async(req, res) =>{
     try {
         const { fid, cid, id } = req.params;
-        const { amount } = req.body;
-        const finance = await Finance.findById({ _id: fid });
-        const classes = await Class.findById({ _id: cid });
+        const { amount } = req.body
+        const finance = await Finance.findById({ _id: fid })
+        const classes = await Class.findById({ _id: cid })
+        .populate({ path: 'classTeacher', select: 'staffFirstName staffMiddleName staffLastName'})
         const fee = await Fees.findById({ _id: id });
-        finance.classRoom.push(classes._id);
-        classes.receieveFee.push(fee._id);
-        await Promise.all([
-         finance.save(),
-         classes.save()
-        ])
-        res.status(200).send({ message: "class submitted Data", classOfflineFee: finance });
+        if(finance.requestArray.length >= 1 && finance.requestArray.includes(String(classes._id))){
+          res.status(200).send({ message: 'Already Requested wait for further process'})
+        }
+        else{
+            finance.classRoom.push({
+              classId: classes._id,
+              className: classes.className,
+              photoId: classes.photoId,
+              photo: classes.photo,
+              staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
+              feeId: fee._id,
+              feeName: fee.feeName,
+              feeAmount: amount,
+              status: 'Pending',
+              createdAt: new Date()
+            });
+            finance.financeCollectedSBalance += amount
+            finance.requestArray.push(classes._id)
+            classes.receieveFee.push(fee._id);
+            classes.requestFeeStatus.feeId = fee._id
+            classes.requestFeeStatus.status = 'Requested'
+            await Promise.all([
+              finance.save(),
+              classes.save()
+            ])
+            res.status(200).send({ message: "class Request At Finance ", request: true });
+          }
       } catch(e) {
+        console.log(e)
       }
 }
 
 exports.submitClassOfflineFee = async(req, res) =>{
     try {
         const { fid, cid, id } = req.params;
-        const { fee } = req.body;
+        const { amount } = req.body
         const finance = await Finance.findById({ _id: fid });
         const classes = await Class.findById({ _id: cid })
-        // .populate(
-        //   "ApproveStudent"
-        // );
+        .populate({ path: 'classTeacher', select: 'staffFirstName staffMiddleName staffLastName'})
         const fees = await Fees.findById({ _id: id });
-        finance.classRoom.pull(classes._id);
-        finance.submitClassRoom.push(classes._id);
+        finance.classRoom.splice({
+          classId: classes._id,
+          className: classes.className,
+          photoId: classes.photoId,
+          photo: classes.photo,
+          staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
+          feeId: fees._id,
+          feeName: fees.feeName,
+          feeAmount: amount,
+          status: 'Pending',
+          createdAt: new Date()
+        }, 1);
+        finance.submitClassRoom.push({
+          classId: classes._id,
+          className: classes.className,
+          photoId: classes.photoId,
+          photo: classes.photo,
+          staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
+          feeId: fees._id,
+          feeName: fees.feeName,
+          feeAmount: amount,
+          status: "Accepted",
+          createdAt: new Date()
+        });
         classes.receieveFee.pull(fees._id);
         classes.submitFee.push(fees._id);
-        finance.financeSubmitBalance += fees.offlineFee;
+        finance.requestArray.pull(classes._id)
+        finance.financeSubmitBalance += amount
+        finance.financeCollectedSBalance -= amount
+        // finance.financeSubmitBalance += fees.offlineFee;
         fees.offlineFee = 0;
+        classes.requestFeeStatus.feeId = fees._id
+        classes.requestFeeStatus.status = 'Accepted'
+        for(let i=0; i< classes.offlineFeeCollection.length; i++){
+          if(classes.offlineFeeCollection[i].feeId === `${fees._id}`){
+              classes.offlineFeeCollection[i].fee = 0
+          }
+          else{}
+        }
         await Promise.all([
-         classes.save(),
-         finance.save(),
-         fees.save()
-        ])
-        res.status(200).send({ message: "finance class submitted Data", submitClassOfflineFee: finance });
+          classes.save(),
+          finance.save(),
+          fees.save()
+         ])
+        res.status(200).send({ message: "Reuqest Accepted", accept: true, classLength: finance.classRoom.length });
       } catch(e) {
       }
 }
 
 exports.classOfflineFeeIncorrect = async(req, res) =>{
     try {
-        const { fid, cid } = req.params;
+        const { fid, cid, id } = req.params;
+        const { amount } = req.body
         const finance = await Finance.findById({ _id: fid });
-        const classes = await Class.findById({ _id: cid });
-        finance.classRoom.pull(classes._id);
-        finance.pendingClassRoom.push(classes._id);
-        await finance.save();
-        res.status(200).send({ message: "class submitted Data", offlineIncorrectFee: finance.pendingClassRoom });
+        const classes = await Class.findById({ _id: cid })
+        .populate({ path: 'classTeacher', select: 'staffFirstName staffMiddleName staffLastName'})
+        const fees = await Fees.findById({ _id: id });
+        finance.classRoom.splice({
+          classId: classes._id,
+          className: classes.className,
+          photoId: classes.photoId,
+          photo: classes.photo,
+          staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
+          feeId: fees._id,
+          feeName: fees.feeName,
+          feeAmount: amount,
+          status: 'Pending',
+          createdAt: new Date()
+        }, 1);
+        finance.pendingClassroom.push({
+          classId: classes._id,
+          className: classes.className,
+          photoId: classes.photoId,
+          photo: classes.photo,
+          staff: `${classes.classTeacher.staffFirstName} ${classes.classTeacher.staffMiddleName ? classes.classTeacher.staffMiddleName : ''} ${classes.classTeacher.staffLastName}`,
+          feeId: fees._id,
+          feeName: fees.feeName,
+          feeAmount: amount,
+          status: 'Rejected',
+          createdAt: new Date()
+        });
+        finance.requestArray.pull(classes._id)
+        classes.requestFeeStatus.feeId = fees._id
+        classes.requestFeeStatus.status = 'Rejected'
+        await Promise.all([
+          finance.save(),
+          classes.save()
+        ])
+        res.status(200).send({ message: "Request Reject", reject: true });
       } catch {
       }
 }
@@ -492,50 +576,127 @@ exports.retrievePaymentDetail = async(req, res) => {
   }
 }
 
-// exports.uploadIncomeACK = async(req, res) =>{
-//   try {
-//     const sid = req.params.id;
-//     const file = req.file;
-//     const results = await uploadDocFile(file);
-//     const incomes = await Income.findById({ _id: sid });
-//     incomes.incomeAck = results.key;
-//     await incomes.save();
-//     await unlinkFile(file.path);
-//     res.status(200).send({ message: "Uploaded" });
-//   } catch(e) {
-//   }
-// }
+exports.retrieveIncomeQuery = async(req, res) =>{
+  try{
+    const { fid } = req.params
+    const finance = await Finance.findById({_id: fid})
+    .select('financeName incomeDepartment')
+    const incomes = await Income.find({ _id: { $in: finance.incomeDepartment}})
+    .sort("-createdAt")
+    res.status(200).send({ message: 'All Incomes', allIncome: incomes})
+  }
+  catch{
 
-// exports.RetrieveIncomeACK = async(req, res) =>{
-//   try {
-//     const key = req.params.key;
-//     const readStream = getFileStream(key);
-//     readStream.pipe(res);
-//   } catch(e) {
-//   }
-// }
+  }
+}
 
-// exports.uploadExpenseACK = async(req, res) =>{
-//   try {
-//     const sid = req.params.id;
-//     const file = req.file;
-//     const results = await uploadDocFile(file);
-//     const expenses = await Expense.findById({ _id: sid });
-//     expenses.expenseAck = results.key;
-//     await expenses.save();
-//     await unlinkFile(file.path);
-//     res.status(200).send({ message: "Uploaded" });
-//   } catch(e) {
-//   }
-// }
+exports.retrieveExpenseQuery = async(req, res) =>{
+  try{
+    const { fid } = req.params
+    const finance = await Finance.findById({_id: fid})
+    .select('financeName expenseDepartment')
+    const expenses = await Expense.find({ _id: { $in: finance.expenseDepartment}})
+    .sort("-createdAt")
+    res.status(200).send({ message: 'All Expenses', allIncome: expenses})
+  }
+  catch{
 
-// exports.RetrieveExpenseACK = async(req, res) =>{
-//   try {
-//     const key = req.params.key;
-//     const readStream = getFileStream(key);
-//     readStream.pipe(res);
-//   } catch(e) {
-//   }
-// }
+  }
+}
 
+exports.retrieveRequestAtFinance = async(req, res) =>{
+  try{
+    const { fid } = req.params
+    const finance = await Finance.findById({_id: fid})
+    .select('financeName')
+    .populate({
+      path: 'classRoom'
+    })
+    res.status(200).send({ message: 'Get Request', request: finance.classRoom, requestCount: finance.classRoom.length})
+  }
+  catch{
+
+  }
+}
+
+exports.retrieveSubmitAtFinance = async(req, res) =>{
+  try{
+    const { fid } = req.params
+    const finance = await Finance.findById({_id: fid})
+    .select('financeName')
+    .populate({
+      path: 'submitClassRoom'
+    })
+    res.status(200).send({ message: 'Get Submit', submit: finance.submitClassRoom, submitCount: finance.submitClassRoom.length})
+  }
+  catch{
+
+  }
+}
+
+exports.retrieveRejectAtFinance = async(req, res) =>{
+  try{
+    const { fid } = req.params
+    const finance = await Finance.findById({_id: fid})
+    .select('financeName')
+    .populate({
+      path: 'pendingClassroom'
+    })
+    res.status(200).send({ message: 'Get Reject', reject: finance.pendingClassroom, rejectCount: finance.pendingClassroom.length})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.retrieveRemainingAmount = async(req, res) =>{
+  try{
+    const { fid } = req.params
+    const finance = await Finance.findById({_id: fid})
+    const institute = await InstituteAdmin.findById({_id: `${finance.institute}`})
+    .populate({
+      path: 'ApproveStudent',
+      select: 'studentGRNO studentFirstName studentMiddleName studentLastName',
+      populate: {
+        path: 'department',
+        select: 'dName'
+      }
+    })
+    .populate({
+      path: 'ApproveStudent',
+      select: 'studentGRNO studentFirstName studentMiddleName studentLastName onlineFeeList offlineFeeList onlineCheckList',
+    })
+    institute.ApproveStudent.forEach(async (ele) => {
+      const fees = await Fees.find({_id: { $in: ele.onlineFeeList}})
+    })
+  }
+  catch{
+
+  }
+}
+
+
+exports.retrieveIncomeBalance = async(req, res) =>{
+  try{
+    const { fid } = req.params
+    const finance = await Finance.findById({_id: fid})
+    .select('financeIncomeCashBalance financeIncomeBankBalance')
+    res.status(200).send({ message: 'Income Balance', incomeBalance: finance})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.retrieveExpenseBalance = async(req, res) =>{
+  try{
+    const { fid } = req.params
+    const finance = await Finance.findById({_id: fid})
+    .select('financeExpenseCashBalance financeExpenseBankBalance')
+    res.status(200).send({ message: 'Expense Balance', expenseBalance: finance})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
 

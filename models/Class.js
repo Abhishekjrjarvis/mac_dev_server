@@ -177,6 +177,28 @@ const classSchema = new mongoose.Schema({
       ref: "DisplayPerson",
     },
   ],
+  offlineFeeCollection: [
+    {
+      fee: { type: Number, default: 0 },
+      feeId: { type: String }
+    },
+  ],
+  requestFeeStatus: {
+      feeId: { type: String },
+      status: { type: String, default: 'Pending'}
+  },
+  exemptFeeCollection: [
+    {
+      fee: { type: Number, default: 0 },
+      feeId: { type: String }
+    },
+  ],
+  onlineFeeCollection: [
+    {
+      fee: { type: Number, default: 0 },
+      feeId: { type: String }
+    },
+  ],
 });
 
 const Class = mongoose.model("Class", classSchema);

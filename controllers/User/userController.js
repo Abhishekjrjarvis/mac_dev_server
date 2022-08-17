@@ -7,6 +7,7 @@ const Staff = require('../../models/Staff')
 const Student = require('../../models/Student')
 const InsAnnouncement = require('../../models/InsAnnouncement')
 const bcrypt = require('bcryptjs')
+const Answer = require('../../models/Question/Answer')
 const Post = require('../../models/Post')
 const Chat = require('../../models/Chat/Chat')
 
@@ -21,89 +22,20 @@ const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 const { dateTimeSort } = require("../../Utilities/timeComparison");
 
-exports.getUserData = async (req, res) => {
-  try {
-    const { uid } = req.params;
-    const user = await User.findById({ _id: uid })
-      .select("userLegalName photoId profilePhoto username userEmail")
-      .lean()
-      .exec();
-    res.status(200).send({ message: "Limit User Data", user });
-  } catch (e) {
-    console.log("Error", e.message);
-  }
-};
 
 exports.retrieveProfileData = async (req, res) => {
   try {
     const { id } = req.params;
+    var totalUpVote = 0
     const user = await User.findById({ _id: id })
       .select(
-        "userLegalName photoId recentChat profilePhoto userBio userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
+        "userLegalName photoId questionCount answerQuestionCount recentChat profilePhoto user_birth_privacy user_address_privacy user_circle_privacy userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
       )
-    
-      const chat = await Chat.find({ _id: {$in: user.recentChat}})
-      .select('chatName chatProfilePhoto chatDescription updatedAt isGroupChat createdAt groupAdmin')
-      .populate({
-        path: 'latestMessage',
-        select: 'content updatedAt',
-        populate: {
-          path: 'sender',
-          populate: 'username'
-        }
-      })
-      .populate({
-          path: 'latestMessage',
-          select: 'content updatedAt',
-          populate: {
-            path: 'document',
-            populate: 'documentName documentType documentKey documentSize'
-          }
-      })
-      .populate({
-          path: 'message',
-          select: 'content updatedAt',
-          populate: {
-            path: 'sender',
-            select: 'username'
-          }
-      })
-      .populate({
-          path: 'message',
-          select: 'content updatedAt',
-          populate: {
-            path: 'replyMessage',
-            select: 'reply replyContent replyIndex',
-            populate: {
-              path: 'replySender',
-              select: 'username'
-            }
-          }
-      })
-      .populate({
-          path: 'message',
-          select: 'content updatedAt',
-          populate: {
-            path: 'forwardMessage',
-            select: 'isForward'
-          }
-      })
-      .populate({
-          path: 'message',
-          select: 'content updatedAt',
-          populate: {
-            path: 'document',
-            select: 'documentName documentType documentSize document documentKey'
-          }
-      })
-      .populate({
-          path: 'users',
-          select: 'username userLegalName photoId profilePhoto',
-      })
-      .sort("-updatedAt")
-      .lean()
-      .exec();
-    res.status(200).send({ message: "Limit User Profile Data ", user });
+      const questionUpVote = await Post.find({ author: id })
+      for(let up of questionUpVote){
+        totalUpVote += up.answerUpVoteCount
+      }
+    res.status(200).send({ message: "Limit User Profile Data ", user, upVote: totalUpVote });
   } catch (e) {
     console.log(e);
   }
@@ -258,23 +190,6 @@ exports.retrieveFIOneAnnouncement = async (req, res) => {
   }
 };
 
-exports.updateUserInfo = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const user = await User.findById({ _id: id });
-    user.userAbout = req.body.userAbout;
-    user.userCity = req.body.userCity;
-    user.userState = req.body.userState;
-    user.userCountry = req.body.userCountry;
-    user.userHobbies = req.body.userHobbies;
-    user.userEducation = req.body.userEducation;
-    await user.save();
-    res.status(200).send({ message: "About Updated", user });
-  } catch (e) {
-    console.log(`Error`, e.message);
-  }
-};
-
 exports.updateUserFollowIns = async (req, res) => {
   try {
     var user_session = req.tokenData && req.tokenData.userId;
@@ -364,17 +279,6 @@ exports.removeUserFollowIns = async (req, res) => {
     }
   } catch (e) {
     console.log(`Error`, e);
-  }
-};
-
-exports.querySearchUser = async (req, res) => {
-  try {
-    const user = await User.findOne({
-      userLegalName: req.body.userSearchProfile,
-    });
-    res.status(200).send({ message: "Search User Here", user });
-  } catch (e) {
-    console.log(`Error`, e.message);
   }
 };
 
@@ -872,7 +776,7 @@ exports.followersArray = async (req, res) => {
     });
 
     const followers = await User.find({ _id: { $in: user.userFollowers } })
-      .select("userLegalName username photoId profilePhoto")
+      .select("userLegalName username photoId profilePhoto user_birth_privacy user_address_privacy user_circle_privacy")
       .limit(limit)
       .skip(skip);
     if (user) {
@@ -896,7 +800,7 @@ exports.followingArray = async (req, res) => {
       .populate({ path: "userInstituteFollowing" });
 
     const uFollowing = await User.find({ _id: { $in: user.userFollowing } })
-      .select("userLegalName username photoId profilePhoto")
+      .select("userLegalName username photoId profilePhoto user_birth_privacy user_address_privacy user_circle_privacy")
       .limit(limit)
       .skip(skip);
 
@@ -926,7 +830,7 @@ exports.circleArray = async (req, res) => {
     });
 
     const circle = await User.find({ _id: { $in: user.userCircle } })
-      .select("userLegalName username photoId profilePhoto")
+      .select("userLegalName username photoId profilePhoto user_birth_privacy user_address_privacy user_circle_privacy")
       .limit(limit)
       .skip(skip);
 
@@ -1037,7 +941,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
     const { sid } = req.params;
     const staff = await Staff.findById({ _id: sid })
       .select(
-        "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffGender staffNationality staffMTongue staffCast staffCastCategory staffBirthPlace staffState staffDistrict staffReligion staffAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharCard staffDOB staffStatus staffROLLNO"
+        "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffMotherName staffGender staffNationality staffMTongue staffCast staffCastCategory staffBirthPlace staffState staffDistrict staffReligion staffAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharCard staffDOB staffStatus staffROLLNO"
       )
       .populate({
         path: "staffDepartment",
@@ -1049,7 +953,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
       })
       .populate({
         path: "staffClass",
-        select: "className classTitle classStatus",
+        select: "className classTitle classStatus classHeadTitle",
         populate: {
           path: "batch",
           select: "batchName batchStatus",
@@ -1060,7 +964,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         select: "subjectName subjectTitle subjectStatus",
         populate: {
           path: "class",
-          select: "className classTitle classStatus",
+          select: "className classTitle classStatus classHeadTitle",
           populate: {
             path: "batch",
             select: "batchName batchStatus",
@@ -1134,7 +1038,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
       )
       .populate({
         path: "studentClass",
-        select: "className classTitle classStatus",
+        select: "className classTitle classStatus classHeadTitle",
         populate: {
           path: "batch",
           select: "batchName batchStatus",
@@ -1202,13 +1106,20 @@ exports.retrieveUserKnowQuery = async(req, res) =>{
   try{
     const { uid } = req.params
     var totalUpVote = 0
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
     const user = await User.findById({_id: uid})
-    .select('questionCount answerQuestionCount')
-    const questionUpVote = await Post.find({ author: uid })
-    for(let up of questionUpVote){
-      totalUpVote += up.answerUpVoteCount
-    }
-    res.status(200).send({ message: "Know's ", user, upVote: totalUpVote})
+    .select('questionCount answerQuestionCount answered_query')
+    const answer = await Answer.find({_id: { $in: user.answered_query }})
+    .sort("-createdAt")
+    .limit(limit)
+    .skip(skip)
+    .populate({
+      path: 'post',
+      select: 'postQuestion postImage imageId isUser postType trend_category'
+    })
+    res.status(200).send({ message: "Know's ", user, upVote: totalUpVote, answer: answer})
   }
   catch{
 

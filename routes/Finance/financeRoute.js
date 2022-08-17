@@ -55,13 +55,13 @@ router.post('/class/:cid/total/collected/fee', isLoggedIn, catchAsync(Finance.ge
 router.get('/:fid/class/collect', isLoggedIn, catchAsync(Finance.collectClassFee))
 
 // Class Offline Fee Request
-router.post('/:fid/class/:cid/fee/:id/receieve', isLoggedIn, catchAsync(Finance.requestClassOfflineFee))
+router.post('/:fid/class/:cid/fee/:id/receieve', catchAsync(Finance.requestClassOfflineFee))
 
 // Class Offline Fee Submitted
-router.post('/:fid/class/:cid/fee/:id/submit', isLoggedIn, catchAsync(Finance.submitClassOfflineFee))
+router.post('/:fid/class/:cid/fee/:id/submit', catchAsync(Finance.submitClassOfflineFee))
 
 // Class Offline Fee Incorrect
-router.post('/:fid/class/:cid/fee/incorrect', isLoggedIn, catchAsync(Finance.classOfflineFeeIncorrect))
+router.post('/:fid/class/:cid/fee/:id/incorrect', catchAsync(Finance.classOfflineFeeIncorrect))
 
 // Finance Online Payment Updated
 router.post('/:fid/online/payment/updated', isLoggedIn, catchAsync(Finance.updatePaymenFinance))
@@ -72,21 +72,21 @@ router.post('/admin/:aid/ins/:id/repay', isLoggedIn, catchAsync(Finance.RepayByS
 // Payment Detail
 router.get('/:id/ins/bank/query', isLoggedIn, catchAsync(Finance.retrievePaymentDetail))
 
-// // Upload ACK for Income
-// router.post('/income/:id', isLoggedIn, upload.single("file"), catchAsync(Finance.uploadIncomeACK))
+router.get('/:fid/dashboard/income', catchAsync(Finance.retrieveIncomeQuery))
 
-// // Retrieve ACK for Income
-// router.get('/income/ack/:key', isLoggedIn, catchAsync(Finance.RetrieveIncomeACK))
+router.get('/:fid/dashboard/expense', catchAsync(Finance.retrieveExpenseQuery))
 
-// // Upload ACK for Expense
-// router.post('/expense/:id', isLoggedIn, upload.single("file"), catchAsync(Finance.uploadExpenseACK))
+router.get('/:fid/dashboard/request/class', catchAsync(Finance.retrieveRequestAtFinance))
 
-// // Retrieve ACK for Expense
-// router.get('/expense/ack/:key', isLoggedIn, catchAsync(Finance.RetrieveExpenseACK))
+router.get('/:fid/dashboard/submit/class', catchAsync(Finance.retrieveSubmitAtFinance))
 
+router.get('/:fid/dashboard/reject/class', catchAsync(Finance.retrieveRejectAtFinance))
 
+router.get('/:fid/dashboard/reject/class/remaining', catchAsync(Finance.retrieveRemainingAmount))
 
+router.get('/:fid/dashboard/income/balance', catchAsync(Finance.retrieveIncomeBalance))
 
+router.get('/:fid/dashboard/expense/balance', catchAsync(Finance.retrieveExpenseBalance))
 
 
 module.exports = router

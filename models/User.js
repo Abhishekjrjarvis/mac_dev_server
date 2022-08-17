@@ -287,7 +287,44 @@ const userSchema = new mongoose.Schema({
   answerQuestionCount: {
     type: Number,
     default: 0
-  }
+  },
+  poll_Count: {
+    type: Number,
+    default: 0 
+  },
+  answered_query: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Answer'
+    }
+  ],
+  user_birth_privacy: {
+    type: String,
+  },
+  user_address_privacy: {
+    type: String,
+  },
+  user_circle_privacy: {
+    type: String,
+  },
+  user_saved_post: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Post'
+    }
+  ],
+  applicationStatus: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Status'
+    }
+  ],
+  applyApplication: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'NewApplication'
+    }
+  ]
 });
 
 userSchema.post("findOneAndDelete", async function (doc) {

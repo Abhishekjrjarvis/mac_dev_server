@@ -69,4 +69,6 @@ router.get(
   catchAsync(Post.likeCommentChild)
 );
 
+router.get('/:id/saved/all/posts', isLoggedIn, catchAsync(Post.retrieveSavedAllPosts))
+
 module.exports = router;

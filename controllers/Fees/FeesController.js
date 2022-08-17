@@ -4,6 +4,9 @@ const User = require("../../models/User");
 const Class = require("../../models/Class");
 const Fees = require("../../models/Fees");
 const Notification = require("../../models/notification");
+const Finance = require('../../models/Finance')
+const Checklist = require('../../models/Checklist')
+const InstituteAdmin = require('../../models/InstituteAdmin')
 
 exports.createFess = async (req, res) => {
   try {
@@ -53,53 +56,59 @@ exports.getOneFeesDetail = async (req, res) => {
   try {
     const { feesId } = req.params;
     const feeData = await Fees.findById({ _id: feesId })
-      .populate({
-        path: "feeStudent",
-        select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO'
-      })
-      .populate({
-        path: "studentsList",
-        select: 'id'
-      })
-      .populate({
-        path: "feeDepartment",
-        select: 'dName dTitle'
-      })
-      .populate({
-        path: "offlineStudentsList",
-        select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO'
-      })
-      .populate({
-        path: "studentExemptList",
-        select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO'
-      });
+    .select('feeName feeAmount exemptList offlineStudentsList onlineList createdAt feeDate')
+      // .populate({
+      //   path: "feeDepartment",
+      //   select: 'dName dTitle'
+      // })
+      // .populate({
+      //   path: "feeStudent",
+      //   select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO'
+      // })
+      // .populate({
+      //   path: "offlineStudentsList",
+      //   select: 'id'
+      // })
+      // .populate({
+      //   path: "studentExemptList",
+      //   select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO'
+      // });
+      // .populate({
+      //   path: "studentsList",
+      //   select: 'id'
+      // })
     res.status(200).send({ message: "Fees Data", feeData });
   } catch {}
 };
 
 exports.feesPaidByStudent = async (req, res) => {
   try {
-    const { sid, id } = req.params;
+    const { cid, sid, id } = req.params;
     const student = await Student.findById({ _id: sid });
+    const classes = await Class.findById({_id: cid})
     const fData = await Fees.findById({ _id: id });
     if (
       fData.studentsList.length >= 1 &&
       fData.studentsList.includes(String(student._id))
     ) {
       res.status(200).send({
-        message: `${student.studentFirstName} paid the ${fData.feeName}`,
+        message: `${student.studentFirstName} paid the ${fData.feeName} fee`,
       });
     } else {
       student.studentFee.push(fData._id);
       fData.feeStatus = "Paid";
-      fData.studentsList.push(student._id);
-      fData.feeStudent = student;
+      // fData.studentsList.push(student._id);
+      // fData.feeStudent = student;
       student.offlineFeeList.push(fData._id);
       fData.offlineStudentsList.push(student._id);
       fData.offlineFee += fData.feeAmount;
-      await Promise.all([ student.save(), fData.save()])
+      classes.offlineFeeCollection.push({
+        fee: fData.feeAmount,
+        feeId: fData._id
+      })
+      await Promise.all([ student.save(), fData.save(), classes.save()])
       res.status(200).send({
-        message: `${fData.feeName} received by ${student.studentFirstName}`,
+        message: `${fData.feeName} fee received by ${student.studentFirstName}`,
       });
     }
   } catch (e){
@@ -112,6 +121,8 @@ exports.exemptFeesPaidByStudent = async (req, res) => {
     const { cid, sid, id } = req.params;
     const { status } = req.body;
     const classes = await Class.findById({ _id: cid });
+    const institute = await InstituteAdmin.findById({_id: `${classes.institute}`})
+    const finance = await Finance.findById({_id: `${institute.financeDepart[0]}`})
     const student = await Student.findById({ _id: sid });
     const fData = await Fees.findById({ _id: id });
     if (
@@ -119,7 +130,7 @@ exports.exemptFeesPaidByStudent = async (req, res) => {
       fData.studentExemptList.includes(String(student._id))
     ) {
       res.status(200).send({
-        message: `${student.studentFirstName} paid the ${fData.feeName}`,
+        message: `${student.studentFirstName} paid the ${fData.feeName} fee (Exempted)`,
       });
     } else {
       try {
@@ -130,17 +141,25 @@ exports.exemptFeesPaidByStudent = async (req, res) => {
         student.exemptFeeList.push(fData._id);
         fData.exemptList.push(student._id);
         classes.exemptFee += fData.feeAmount;
+        finance.financeExemptBalance += fData.feeAmount
+        classes.exemptFeeCollection.push({
+          fee: fData.feeAmount,
+          feeId: fData._id
+        })
         await Promise.all([
           student.save(),
           fData.save(),
-          classes.save()
+          classes.save(),
+          finance.save()
         ])
         res.status(200).send({
-          message: `${fData.feeName} received by ${student.studentFirstName}`,
+          message: `${fData.feeName} fee received by ${student.studentFirstName} (Exempted)`,
         });
       } catch {}
     }
-  } catch {}
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 
@@ -204,6 +223,95 @@ exports.retrieveClassFeeArray = async(req, res) =>{
   }
 }
 
+
+exports.retrieveStudentCountQuery = async(req, res) =>{
+  try{
+    const { sid } = req.params
+    var paid = 0
+    var unpaid = 0
+    const student = await Student.findById({_id: sid})
+    .select('studentFirstName')
+    .populate({
+      path: 'department',
+      select: 'id',
+      populate: {
+        path: 'fees',
+        select: 'feeAmount onlineList offlineStudentsList'
+      }
+    })
+    .populate({
+      path: 'onlineFeeList',
+      select: 'feeAmount'
+    })
+    .populate({
+      path: 'onlineCheckList',
+      select: 'checklistAmount'
+    })
+    .populate({
+      path: 'offlineFeeList',
+      select: 'feeAmount'
+    })
+    .populate({
+      path: 'department',
+      select: 'id',
+      populate: {
+        path: 'checklists',
+        select: 'checklistAmount studentsList'
+      }
+    })
+    if(student.offlineFeeList.length >=1){
+      student.offlineFeeList.forEach((off) => {
+        if(student.department.fees.length >= 1 && student.department.fees.includes(`${off._id}`)){
+          paid += off.feeAmount
+        }
+        else{}
+      })
+    }
+    if(student.onlineFeeList.length >=1){
+      student.onlineFeeList.forEach((on) => {
+        if(student.department.fees.length >= 1 && student.department.fees.includes(`${on._id}`)){
+          paid += on.feeAmount
+        }
+        else{}
+      })
+    }
+    if(student.onlineCheckList.length >=1){
+      student.onlineCheckList.forEach((onc) => {
+        if(student.department.checklists.length >= 1 && student.department.checklists.includes(`${onc._id}`)){
+          paid += onc.checklistAmount
+        }
+        else{}
+      })
+    }
+    student.department.fees.forEach((fee) => {
+      if(fee.onlineList.length >= 1 && fee.onlineList.includes(`${student._id}`)){
+      }
+      else{
+        unpaid += fee.feeAmount
+      }
+    })
+    student.department.fees.forEach((fee) => {
+      if(fee.offlineStudentsList.length >= 1 && fee.offlineStudentsList.includes(`${student._id}`)){
+      }
+      else{
+        unpaid += fee.feeAmount
+      }
+    })
+    student.department.checklists.forEach((check) => {
+      if(check.studentsList.length >= 1 && check.studentsList.includes(`${student._id}`)){
+      }
+      else{
+      unpaid += check.checklistAmount
+      }
+    })
+    res.status(200).send({ message: 'Total Paid Fee & Remaining Fee', paid: paid, unpaid: unpaid})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+
 exports.retrieveStudentQuery = async(req, res) => {
   try{
     const { sid } = req.params
@@ -215,23 +323,16 @@ exports.retrieveStudentQuery = async(req, res) => {
     })
     .populate({
       path: 'department',
-      select: 'dName',
-      populate: {
-        path: 'fees',
-        select: 'feeName feeAmount createdAt feeDate'
-      }
+      select: 'fees checklists'
     })
-    .populate({
-      path: 'department',
-      select: 'dName',
-      populate: {
-        path: 'checklists',
-        select: 'checklistName checklistFees checklistAmount createdAt '
-      }
-    })
-    res.status(200).send({ message: 'Student Fee and Checklist', student})
+    const fees = await Fees.find({ _id: { $in: student.department.fees}})
+    .sort("-createdAt")
+    const check = await Checklist.find({_id: { $in: student.department.checklists}})
+    .sort("-createdAt")
+    var mergePay = [...fees, ...check]
+    res.status(200).send({ message: 'Student Fee and Checklist', student, mergePay: mergePay, fee: fees, check: check})
   }
-  catch{
-
+  catch(e){
+    console.log(e)
   }
 }

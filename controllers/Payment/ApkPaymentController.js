@@ -12,7 +12,7 @@ paytmParams.body = {
  "mid"   : process.env.PAYTM_MID,
  "websiteName"  : process.env.PAYTM_MERCHANT_KEY,
  "orderId"   : "oid" + uuidv4(),
- "callbackUrl"  : "https://localhost:8080/api/v1/payment/verify/status",
+ "callbackUrl"  : "http://18.205.27.165/api/api/v1/verify/status",
  "txnAmount"  : {
  "value"  : req.body.amount,
  "currency" : "INR",

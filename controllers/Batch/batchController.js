@@ -252,6 +252,7 @@ exports.promoteStudent = async (req, res) => {
 
       previousclasses?.promoteStudent?.push(stu);
       previousclasses?.ApproveStudent?.pull(stu);
+      classes.studentCount += 1;
       await student.save();
     }
 
@@ -314,7 +315,7 @@ exports.classComplete = async (req, res) => {
         path: "subject",
         select: "subjectStatus",
       })
-      .select("ApproveStudent subject classTeacher");
+      .select("ApproveStudent subject classTeacher classStatus");
     if (classes.classStatus !== "Completed") {
       let flag = false;
 
@@ -331,7 +332,9 @@ exports.classComplete = async (req, res) => {
         const staff = await Staff.findById(classes?.classTeacher).select(
           "staffClass previousStaffClass"
         );
-        staff.staffDesignationCount -= 1;
+        if (staff.staffDesignationCount >= 1) {
+          staff.staffDesignationCount -= 1;
+        }
         staff.previousStaffClass?.push(req.params.cid);
         staff.staffClass.pull(req.params.cid);
         await Promise.all([staff.save(), classes.save()]);

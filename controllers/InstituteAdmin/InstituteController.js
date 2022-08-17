@@ -59,13 +59,11 @@ exports.getDashOneQuery = async (req, res) => {
       .lean()
       .exec();
     const encrypt = await encryptionPayload(institute);
-    res
-      .status(200)
-      .send({
-        message: "limit Ins Data",
-        institute: institute,
-        eData: encrypt,
-      });
+    res.status(200).send({
+      message: "limit Ins Data",
+      institute: institute,
+      eData: encrypt,
+    });
   } catch {}
 };
 
@@ -1914,13 +1912,11 @@ exports.retrieveRecoveryMailIns = async (req, res) => {
     const institute = await InstituteAdmin.findById({ _id: id });
     institute.recoveryMail = recoveryMail;
     await Promise.all([institute.save()]);
-    res
-      .status(200)
-      .send({
-        message: "Recovery Mail updated",
-        mail: institute.recoveryMail,
-        status: true,
-      });
+    res.status(200).send({
+      message: "Recovery Mail updated",
+      mail: institute.recoveryMail,
+      status: true,
+    });
   } catch {}
 };
 
@@ -1957,6 +1953,22 @@ exports.retrieveInsFollowersArray = async (req, res) => {
   }
 };
 
+exports.retrieveInsFollowersArrayWithId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const institute = await InstituteAdmin.findById({ _id: id })
+      .select("followers")
+      .lean()
+      .exec();
+
+    res.status(200).send({
+      message: "Followers List",
+      iFollowers: institute?.followers ? institute?.followers : [],
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
 exports.retrieveInsFollowingArray = async (req, res) => {
   try {
     const page = req.query.page ? parseInt(req.query.page) : 1;
@@ -1979,6 +1991,22 @@ exports.retrieveInsFollowingArray = async (req, res) => {
   } catch {}
 };
 
+exports.retrieveInsFollowingArrayWithId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const institute = await InstituteAdmin.findById({ _id: id })
+      .select("following")
+      .lean()
+      .exec();
+
+    res
+      .status(200)
+      .send({
+        message: "Following List",
+        following: institute?.following ? institute?.following : [],
+      });
+  } catch {}
+};
 exports.retrieveDepartmentAllBatch = async (req, res) => {
   try {
     const { did } = req.params;

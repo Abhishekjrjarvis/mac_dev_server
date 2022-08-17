@@ -10203,6 +10203,26 @@ paths:
           description: OK
 
 #FOR THE MCQ ALL API
+  # /api/v1/all-images/onefile:
+  #   patch:
+  #     tags:
+  #       - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+  #     summary:
+  #       - To upload one file at a time for the add question
+  #     consumes:
+  #       - application/json
+  #     produces:
+  #       - application/json'
+  #     parameters:
+  #       - in: formData
+  #         name: file
+  #         type: file
+  #         required: true
+  #         description: upload your file
+  #     responses:
+  #       "200":
+  #         description: OK
+
   # /api/v1/mcq/{smid}/question/{cmid}:
   #   get:
   #     tags:

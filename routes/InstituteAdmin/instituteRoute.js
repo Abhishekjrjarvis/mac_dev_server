@@ -165,4 +165,5 @@ router.post("/:cid/class/display-person", isLoggedIn, catchAsync(Institute.updat
 
 router.patch("/:id/leaving/editable", catchAsync(Institute.updateLeavingCertificateQuery));
 
+
 module.exports = router;

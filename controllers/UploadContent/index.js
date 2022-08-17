@@ -15,9 +15,9 @@ const Student = require("../../models/Student");
 const InsAnnouncement = require("../../models/InsAnnouncement");
 const ResourcesKey = require("../../models/ResourcesKey");
 const Video = require("../../models/Video");
-const Post = require('../../models/Post')
-const Comment = require('../../models/Comment')
-const ReplyComment = require('../../models/ReplyComment/ReplyComment')
+const Post = require("../../models/Post");
+const Comment = require("../../models/Comment");
+const ReplyComment = require("../../models/ReplyComment/ReplyComment");
 
 const {
   getFileStream,
@@ -36,6 +36,17 @@ exports.getImage = async (req, res) => {
   }
 };
 
+exports.uploadOneImage = async (req, res) => {
+  try {
+    const file = req.file;
+    const results = await uploadDocFile(file);
+    const imageKey = results.Key;
+    res.status(200).send({ message: "Uploaded file Successfully", imageKey });
+    await unlinkFile(file.path);
+  } catch (err) {
+    console.log(err);
+  }
+};
 exports.patchInstituteImagePhoto = async (req, res) => {
   try {
     const { id } = req.params;
@@ -50,24 +61,24 @@ exports.patchInstituteImagePhoto = async (req, res) => {
     await institute.save();
     await unlinkFile(file.path);
     res.status(201).send({ message: "Successfully photo change" });
-    const post = await Post.find({author: institute._id})
-    post.forEach(async (ele) =>{
-      ele.authorPhotoId = "0"
-      ele.authorProfilePhoto = institute.insProfilePhoto
-      await ele.save()
-    })
-    const comment = await Comment.find({ author: institute._id})
+    const post = await Post.find({ author: institute._id });
+    post.forEach(async (ele) => {
+      ele.authorPhotoId = "0";
+      ele.authorProfilePhoto = institute.insProfilePhoto;
+      await ele.save();
+    });
+    const comment = await Comment.find({ author: institute._id });
     comment.forEach(async (com) => {
-      com.authorPhotoId = "0"
-      com.authorProfilePhoto = institute.insProfilePhoto
-      await com.save()
-    })
-    const replyComment = await ReplyComment.find({ author: institute._id})
+      com.authorPhotoId = "0";
+      com.authorProfilePhoto = institute.insProfilePhoto;
+      await com.save();
+    });
+    const replyComment = await ReplyComment.find({ author: institute._id });
     replyComment.forEach(async (reply) => {
-      reply.authorPhotoId = "0"
-      reply.authorProfilePhoto = institute.insProfilePhoto
-      await reply.save()
-    })
+      reply.authorPhotoId = "0";
+      reply.authorProfilePhoto = institute.insProfilePhoto;
+      await reply.save();
+    });
   } catch (err) {
     console.log(err.message);
   }
@@ -152,24 +163,24 @@ exports.patchUserImagePhoto = async (req, res) => {
     await user.save();
     await unlinkFile(file.path);
     res.status(201).send({ message: "Successfully photo change" });
-    const post = await Post.find({author: user._id})
-    post.forEach(async (ele) =>{
-      ele.authorPhotoId = "0"
-      ele.authorProfilePhoto = user.profilePhoto
-      await ele.save()
-    })
-    const comment = await Comment.find({ author: user._id})
+    const post = await Post.find({ author: user._id });
+    post.forEach(async (ele) => {
+      ele.authorPhotoId = "0";
+      ele.authorProfilePhoto = user.profilePhoto;
+      await ele.save();
+    });
+    const comment = await Comment.find({ author: user._id });
     comment.forEach(async (com) => {
-      com.authorPhotoId = "0"
-      com.authorProfilePhoto = user.profilePhoto
-      await com.save()
-    })
-    const replyComment = await ReplyComment.find({ author: user._id})
+      com.authorPhotoId = "0";
+      com.authorProfilePhoto = user.profilePhoto;
+      await com.save();
+    });
+    const replyComment = await ReplyComment.find({ author: user._id });
     replyComment.forEach(async (reply) => {
-      reply.authorPhotoId = "0"
-      reply.authorProfilePhoto = user.profilePhoto
-      await reply.save()
-    })
+      reply.authorPhotoId = "0";
+      reply.authorProfilePhoto = user.profilePhoto;
+      await reply.save();
+    });
   } catch (err) {
     console.log(err.message);
   }

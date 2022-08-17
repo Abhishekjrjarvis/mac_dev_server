@@ -26,11 +26,16 @@ const { dateTimeSort } = require("../../Utilities/timeComparison");
 exports.retrieveProfileData = async (req, res) => {
   try {
     const { id } = req.params;
+    var totalUpVote = 0
     const user = await User.findById({ _id: id })
       .select(
-        "userLegalName photoId recentChat profilePhoto user_birth_privacy user_address_privacy user_circle_privacy userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
+        "userLegalName photoId questionCount answerQuestionCount recentChat profilePhoto user_birth_privacy user_address_privacy user_circle_privacy userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
       )
-    res.status(200).send({ message: "Limit User Profile Data ", user });
+      const questionUpVote = await Post.find({ author: id })
+      for(let up of questionUpVote){
+        totalUpVote += up.answerUpVoteCount
+      }
+    res.status(200).send({ message: "Limit User Profile Data ", user, upVote: totalUpVote });
   } catch (e) {
     console.log(e);
   }
@@ -1114,10 +1119,6 @@ exports.retrieveUserKnowQuery = async(req, res) =>{
       path: 'post',
       select: 'postQuestion postImage imageId isUser postType trend_category'
     })
-    const questionUpVote = await Post.find({ author: uid })
-    for(let up of questionUpVote){
-      totalUpVote += up.answerUpVoteCount
-    }
     res.status(200).send({ message: "Know's ", user, upVote: totalUpVote, answer: answer})
   }
   catch{

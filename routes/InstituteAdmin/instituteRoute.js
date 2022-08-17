@@ -165,5 +165,8 @@ router.post("/:cid/class/display-person", isLoggedIn, catchAsync(Institute.updat
 
 router.patch("/:id/leaving/editable", catchAsync(Institute.updateLeavingCertificateQuery));
 
+router.get("/:id/following-idlist", isLoggedIn, catchAsync(Institute.retrieveInsFollowingArrayWithId));
+
+router.get("/:id/followers-idlist", isLoggedIn, catchAsync(Institute.retrieveInsFollowersArrayWithId));
 
 module.exports = router;

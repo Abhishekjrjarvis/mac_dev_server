@@ -1159,5 +1159,18 @@ exports.allCircleUsers = async (req, res) => {
 }
 
 
+exports.retrieveUserApplicationStatus = async(req, res) =>{
+  try{
+    const { uid } = req.params
+    const user = await User.findById({_id: uid})
+    .select('id')
+    .populate({
+      path: 'applicationStatus'
+    })
+    res.status(200).send({ message: 'user Application Status', status: user.applicationStatus})
+  }
+  catch{
 
+  }
+}
 

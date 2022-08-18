@@ -23,3 +23,12 @@
 {"level":"info","message":{"adminAadharCard":"wall17.jpg","adminAddress":"Udyog Bhavan Sinnar","adminBio":"Founder & Promoter","adminCity":"Nashik","adminCountry":"India","adminDateOfBirth":"2022-08-02","adminEmail":"pankajphad.stuff@gmail.com","adminGender":"Male","adminName":"Pankaj Phad","adminPassword":"Hello12@#","adminPhoneNumber":"8329911939","adminState":"Maharashtra","adminUserName":"pankaj_121"},"timestamp":"2022-08-17T12:00:52.569Z"}
 {"level":"info","message":{},"timestamp":"2022-08-17T12:00:53.924Z"}
 {"level":"info","message":"Page Not Found...","timestamp":"2022-08-17T12:00:53.927Z"}
+{"level":"info","message":{},"timestamp":"2022-08-18T05:15:44.596Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-18T05:15:44.992Z","unpaid":1000}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":1000,\"level\":\"info\"}","timestamp":"2022-08-18T05:15:44.998Z"}
+{"level":"info","message":{},"timestamp":"2022-08-18T05:18:06.442Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-18T05:18:06.778Z","unpaid":500}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":500,\"level\":\"info\"}","timestamp":"2022-08-18T05:18:06.781Z"}
+{"level":"info","message":{},"timestamp":"2022-08-18T05:18:08.229Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-18T05:18:08.577Z","unpaid":500}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":500,\"level\":\"info\"}","timestamp":"2022-08-18T05:18:08.578Z"}

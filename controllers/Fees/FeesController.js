@@ -284,19 +284,19 @@ exports.retrieveStudentCountQuery = async(req, res) =>{
       })
     }
     student.department.fees.forEach((fee) => {
-      if(fee.onlineList.length >= 1 && fee.onlineList.includes(`${student._id}`)){
+      if((fee.onlineList.length >= 1 && fee.onlineList.includes(`${student._id}`)) || (fee.offlineStudentsList.length >= 1 && fee.offlineStudentsList.includes(`${student._id}`))){
       }
       else{
         unpaid += fee.feeAmount
       }
     })
-    student.department.fees.forEach((fee) => {
-      if(fee.offlineStudentsList.length >= 1 && fee.offlineStudentsList.includes(`${student._id}`)){
-      }
-      else{
-        unpaid += fee.feeAmount
-      }
-    })
+    // student.department.fees.forEach((fee) => {
+    //   if(){
+    //   }
+    //   else{
+    //     unpaid += fee.feeAmount
+    //   }
+    // })
     student.department.checklists.forEach((check) => {
       if(check.studentsList.length >= 1 && check.studentsList.includes(`${student._id}`)){
       }

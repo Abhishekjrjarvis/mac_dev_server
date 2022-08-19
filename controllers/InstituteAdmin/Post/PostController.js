@@ -857,7 +857,7 @@ exports.retrieveSavedAllPosts = async (req, res) => {
       const post = await Post.find({
         _id: { $in: institute.institute_saved_post },
       })
-        .sort("-createdAt")
+        // .sort("-createdAt")
         .limit(limit)
         .skip(skip)
         .select(

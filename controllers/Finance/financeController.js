@@ -1,5 +1,6 @@
 const InstituteAdmin = require('../../models/InstituteAdmin')
 const Finance = require('../../models/Finance')
+const Student = require('../../models/Student')
 const Staff = require('../../models/Staff')
 const User = require('../../models/User')
 const Notification = require('../../models/notification')
@@ -694,6 +695,25 @@ exports.retrieveExpenseBalance = async(req, res) =>{
     const finance = await Finance.findById({_id: fid})
     .select('financeExpenseCashBalance financeExpenseBankBalance')
     res.status(200).send({ message: 'Expense Balance', expenseBalance: finance})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+
+exports.retrieveRemainFeeBalance = async(req, res) =>{
+  try{
+    const { fid } = req.params
+    var remain = 0
+    const finance = await Finance.findById({_id: fid})
+    .select('id institute')
+    const student = await Student.find({ institute: `${finance.institute}`})
+    .select('id studentRemainingFeeCount ')
+    student.forEach((stu) => {
+      remain += stu.studentRemainingFeeCount
+    })
+    res.status(200).send({ message: 'Remaining Balance', remain: remain})
   }
   catch(e){
     console.log(e)

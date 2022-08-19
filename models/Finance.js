@@ -38,6 +38,7 @@ const financeSchema = new mongoose.Schema({
       photoId: { type: String },
       photo: { type: String },
       staff: { type: String },
+      feeId: { type: String },
       feeName: { type: String },
       feeAmount: { type: Number },
       status: { type: String }
@@ -50,6 +51,7 @@ const financeSchema = new mongoose.Schema({
       photoId: { type: String },
       photo: { type: String },
       staff: { type: String },
+      feeId: { type: String },
       feeName: { type: String },
       feeAmount: { type: Number },
       status: { type: String }
@@ -62,6 +64,7 @@ const financeSchema = new mongoose.Schema({
       photoId: { type: String },
       photo: { type: String },
       staff: { type: String },
+      feeId: { type: String },
       feeName: { type: String },
       feeAmount: { type: Number },
       status: { type: String }

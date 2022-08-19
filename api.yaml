@@ -8736,7 +8736,7 @@ paths:
           description: OK
 
   
-  /api/v1/fees/class/student/{sid}/fee/{id}:
+  /api/v1/fees/class/{cid}/student/{sid}/fee/{id}:
     post:
       tags:
         - Fees Module Query
@@ -8746,6 +8746,11 @@ paths:
       produces:
         - application/json
       parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Class id 
         - in: path
           name: sid
           required: true

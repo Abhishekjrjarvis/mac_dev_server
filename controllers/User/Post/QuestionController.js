@@ -88,13 +88,22 @@ exports.answerLike = async (req, res) => {
           .status(200)
           .send({ message: "Removed from Upvote 👎", upVoteCount: answer.upVoteCount, });
       } else {
+        if (
+          answer.downVote.length >= 1 &&
+          answer.downVote.includes(String(user_session))
+        ) {
+          answer.downVote.pull(user_session);
+          if (answer.downVoteCount >= 1) {
+            answer.downVoteCount -= 1;
+          }
+        }
         answer.upVote.push(user_session);
         answer.upVoteCount += 1;
         question.answerUpVoteCount += 1
         await Promise.all([ answer.save(), question.save()])
         res
           .status(200)
-          .send({ message: "Added To Upvote 👍", upVoteCount: answer.upVoteCount, });
+          .send({ message: "Added To Upvote 👍", upVoteCount: answer.upVoteCount, downVoteCount: answer.downVoteCount });
       }
     } else {
       res.status(401).send();
@@ -109,6 +118,7 @@ exports.answerDisLike = async (req, res) => {
   try {
     const { aid } = req.params;
     const answer = await Answer.findById({ _id: aid });
+    const question = await Post.findById({_id: `${answer.post}`})
     const user_session = req.tokenData && req.tokenData.userId ? req.tokenData.userId : ''
     if (user_session) {
       if (
@@ -122,10 +132,20 @@ exports.answerDisLike = async (req, res) => {
         await Promise.all([ answer.save() ])
         res.status(200).send({ message: "Removed from DownVote 👎", downVoteCount: answer.downVoteCount, });
       } else {
+        if (
+          answer.upVote.length >= 1 &&
+          answer.upVote.includes(String(user_session))
+        ) {
+          answer.upVote.pull(user_session);
+          if (answer.upVoteCount >= 1) {
+            answer.upVoteCount -= 1;
+            question.answerUpVoteCount -= 1
+          }
+        }
         answer.downVote.push(user_session);
         answer.downVoteCount += 1;
-        await Promise.all([ answer.save() ])
-        res.status(200).send({ message: "Added To DownVote 👍", downVoteCount: answer.downVoteCount, });
+        await Promise.all([ answer.save(), question.save() ])
+        res.status(200).send({ message: "Added To DownVote 👍", downVoteCount: answer.downVoteCount, upVoteCount: answer.upVoteCount });
       }
     } else {
       res.status(401).send();

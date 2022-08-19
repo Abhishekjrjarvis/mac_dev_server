@@ -27,6 +27,13 @@ const subjectSchema = new mongoose.Schema({
       ref: "Exam",
     },
   ],
+
+  assignments: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Assignment",
+    },
+  ],
   class: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Class",

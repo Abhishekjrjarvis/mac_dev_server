@@ -2,6 +2,8 @@ const SubjectMaster = require("../../models/SubjectMaster");
 const SubjectMasterQuestion = require("../../models/MCQ/SubjectMasterQuestion");
 const SubjectMasterTestSet = require("../../models/MCQ/SubjectMasterTestSet");
 const StudentTestSet = require("../../models/MCQ/StudentTestSet");
+const Assignment = require("../../models/MCQ/Assignment");
+const StudentAssignment = require("../../models/MCQ/StudentAssignment");
 const Subject = require("../../models/Subject");
 const Student = require("../../models/Student");
 const Department = require("../../models/Department");
@@ -12,13 +14,14 @@ const SubjectMarks = require("../../models/Marks/SubjectMarks");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const Exam = require("../../models/Exam");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
-
-// const StudentNotification = require("../../models/StudentNotification");
-
 const {
   dateTimeComparison,
   timeComparison,
 } = require("../../Utilities/timeComparison");
+const { uploadDocFile } = require("../../S3Configuration");
+const fs = require("fs");
+const util = require("util");
+const unlinkFile = util.promisify(fs.unlink);
 
 exports.getQuestion = async (req, res) => {
   try {
@@ -267,6 +270,7 @@ exports.takeTestSet = async (req, res) => {
     const obj = {
       subjectMaster: testSet?.subjectMaster,
       classMaster: testSet?.classMaster,
+      subjectMasterTestSet: testSet._id,
       testName: testSet?.testName,
       testSubject: testSet?.testSubject,
       testTotalQuestion: testSet?.testTotalQuestion,
@@ -288,7 +292,7 @@ exports.takeTestSet = async (req, res) => {
       notify.notifySender = subject._id;
       notify.notifyReceiever = student._id;
       student.notification.push(notify._id);
-      notify.notifyByDepartPhoto = subject._id;
+      notify.notifyBySubjectPhoto = subject._id;
       invokeFirebaseNotification(
         "Student Member Activity",
         notify,
@@ -566,6 +570,7 @@ exports.createExam = async (req, res) => {
         const obj = {
           subjectMaster: testSet?.subjectMaster,
           classMaster: testSet?.classMaster,
+          subjectMasterTestSet: testSet._id,
           testName: testSet?.testName,
           testSubject: testSet?.testSubject,
           testTotalQuestion: testSet?.testTotalQuestion,
@@ -702,6 +707,365 @@ exports.createExam = async (req, res) => {
     }
     await Promise.all([exam.save(), batch.save(), department.save()]);
     res.status(201).send({ message: "Exam is created" });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// ========== for the Assignment related api====================
+
+exports.getAssignment = async (req, res) => {
+  try {
+    const subject = await Subject.findById(req.params.sid)
+      .populate({
+        path: "assignments",
+        select: "assignmentName dueDate totalCount submittedCount",
+      })
+      .select("assignments")
+      .lean()
+      .exec();
+
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const startItem = (getPage - 1) * itemPerPage;
+    const endItem = startItem + itemPerPage;
+
+    const filterFunction = (assignments, startItem, endItem) => {
+      const assignment = assignments.slice(startItem, endItem);
+      return assignment;
+    };
+
+    if (subject?.assignments) {
+      const assignments = filterFunction(
+        subject?.assignments,
+        startItem,
+        endItem
+      );
+      res.status(200).send({
+        message: "all assignment",
+        assignments,
+      });
+    } else {
+      res.status(200).send({
+        message: "not any assignment",
+        assignments: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.createAssignment = async (req, res) => {
+  try {
+    const subject = await Subject.findById(req.params.sid);
+    const assignment = new Assignment(req.body);
+    assignment.subject = req.params.sid;
+    for (let file of req?.files) {
+      const obj = {
+        documentType: "",
+        documentName: "",
+        documentSize: "",
+        documentKey: "",
+        documentEncoding: "",
+      };
+      obj.documentType = file.mimetype;
+      obj.documentName = file.originalname;
+      obj.documentEncoding = file.encoding;
+      obj.documentSize = file.size;
+      const results = await uploadDocFile(file);
+      obj.documentKey = results.Key;
+      assignment.files.push(obj);
+      await unlinkFile(file.path);
+    }
+    subject?.assignments?.push(assignment._id);
+    await Promise.all([assignment.save(), subject.save()]);
+    res.status(201).send({ message: "Assignment is created" });
+
+    for (let stud of req.body?.students) {
+      const stu = await Student.findById(stud);
+      stu.totalAssigment += 1;
+      const studentAssignment = new StudentAssignment({
+        assignmentName: assignment?.assignmentName,
+        student: stu._id,
+        assignment: assignment?._id,
+        subject: assignment?.subject,
+        dueDate: assignment?.dueDate,
+        descritpion: assignment?.descritpion,
+        files: assignment?.files,
+      });
+      for (let test of assignment?.testSet) {
+        const testSet = await SubjectMasterTestSet.findById(test);
+        const obj = {
+          student: stu._id,
+          subjectMaster: testSet?.subjectMaster,
+          classMaster: testSet?.classMaster,
+          subjectMasterTestSet: testSet._id,
+          testName: testSet?.testName,
+          testSubject: testSet?.testSubject,
+          testTotalQuestion: testSet?.testTotalQuestion,
+          testTotalNumber: testSet?.testTotalNumber,
+          questions: testSet?.questions,
+        };
+        const studentTestSet = new StudentTestSet(obj);
+        studentAssignment.testSet.push(studentTestSet._id);
+        await studentTestSet.save();
+      }
+
+      stu.assignments.push(studentAssignment._id);
+      const notify = new StudentNotification({});
+      notify.notifyContent = `New ${studentAssignment.assignmentName} is created for ${sub.subjectName} , check your members tab`;
+      notify.notifySender = subject._id;
+      notify.notifyReceiever = stu._id;
+      stu.notification.push(notify._id);
+      notify.notifyBySubjectPhoto = subject._id;
+      await Promise.all([studentAssignment.save(), stu.save(), notify.save()]);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.getOneAssignment = async (req, res) => {
+  try {
+    const assignment = await Assignment.findById(req.params.aid)
+      .populate({
+        path: "submittedStudent",
+        populate: {
+          path: "assignments",
+          match: { assignment: { $eq: `${req.params.aid}` } },
+          select: "submmittedDate",
+        },
+        select:
+          "studentFirstName studentMiddleName studentLastName studentROLLNO photoId studentProfilePhoto assignments",
+      })
+      .select("dueDate totalCount submittedCount submittedStudent")
+      .lean()
+      .exec();
+
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const startItem = (getPage - 1) * itemPerPage;
+    const endItem = startItem + itemPerPage;
+
+    const filterFunction = (students, startItem, endItem) => {
+      const submitStudent = students.slice(startItem, endItem);
+      const stud = [];
+
+      for (oneStudent of submitStudent) {
+        const obj = {
+          studentFirstName: "",
+          studentMiddleName: "",
+          studentLastName: "",
+          studentROLLNO: "",
+          photoId: "",
+          studentProfilePhoto: "",
+          assignmentSubmittedDate: "",
+        };
+        obj.studentFirstName = oneStudent.studentFirstName;
+        obj.studentMiddleName = oneStudent?.studentMiddleName;
+        obj.studentLastName = oneStudent.studentLastName;
+        obj.studentROLLNO = oneStudent.studentROLLNO;
+        obj.photoId = oneStudent.photoId;
+        obj.studentProfilePhoto = oneStudent.studentProfilePhoto;
+        obj.assignmentSubmittedDate =
+          oneStudent?.assignments?.[0]?.submmittedDate;
+        stud.push(obj);
+      }
+      return stud;
+    };
+
+    const oneAssignmentStudents = [];
+    if (assignment?.submittedStudent) {
+      oneAssignmentStudents.push(
+        ...filterFunction(assignment?.submittedStudent, startItem, endItem)
+      );
+    }
+    const submittedStudent = {
+      dueDate: assignment?.dueDate,
+      totalCount: assignment?.totalCount,
+      submittedCount: assignment?.submittedCount,
+      submittedStudent: oneAssignmentStudents,
+    };
+    res.status(200).send({
+      message: "All Submitted Student",
+      submittedStudent,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.getOneAssignmentOneStudentDetail = async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.sid)
+      .populate({
+        path: "assignments",
+        match: { assignment: { $eq: `${req.params.aid}` } },
+        populate: {
+          path: "testSet",
+          select: "testTotalQuestion testTotalNumber testName",
+        },
+        select:
+          "assignmentName dueDate studentDescritpion studentFiles submmittedDate testSet assignmentSubmit",
+      })
+      .select(
+        "studentFirstName studentMiddleName studentLastName studentROLLNO assignments"
+      );
+    res.status(200).send({
+      message: "All Submitted Student",
+      studentAssignment: student,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.getOneAssignmentOneStudentCompleteAssignment = async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.sid)
+      .populate({
+        path: "assignments",
+        match: { assignment: { $eq: `${req.params.aid}` } },
+      })
+      .select("assignments");
+
+    const assignment = await StudentAssignment.findById(
+      student?.assignments[0]._id
+    );
+    assignment.assignmentSubmit = req.body.assignmentSubmit;
+    await assignment.save();
+    res.status(200).send({
+      message: "Assignment complete successfully",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+//=============for the Student Side===================
+
+exports.getStudentAssignment = async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.sid)
+      .populate({
+        path: "assignments",
+        populate: {
+          path: "subject",
+          select: "subjectName",
+        },
+        select:
+          "assignmentName dueDate assignmentSubmitRequest assignmentSubmit",
+      })
+      .select("assignments totalAssigment submittedAssigment")
+      .lean()
+      .exec();
+
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const startItem = (getPage - 1) * itemPerPage;
+    const endItem = startItem + itemPerPage;
+
+    const filterFunction = (assignments, startItem, endItem) => {
+      const assignment = assignments.slice(startItem, endItem);
+      return assignment;
+    };
+
+    if (student?.assignments) {
+      const assignments = filterFunction(
+        student?.assignments,
+        startItem,
+        endItem
+      );
+      res.status(200).send({
+        message: "all assignment",
+        assignmentList: {
+          totalAssigment: student?.totalAssigment,
+          submittedAssigment: student?.submittedAssigment,
+          assignments: assignments,
+        },
+      });
+    } else {
+      res.status(200).send({
+        message: "not any assignment",
+        assignmentList: {
+          totalAssigment: student?.totalAssigment,
+          submittedAssigment: student?.submittedAssigment,
+          assignments: [],
+        },
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.getStudentOneAssignmentDetail = async (req, res) => {
+  try {
+    const assignment = await StudentAssignment.findById(req.params.aid)
+      .populate({
+        path: "testSet",
+        select: "testTotalQuestion testTotalNumber testName",
+      })
+      .populate({
+        path: "subject",
+        select: "subjectName",
+      })
+      .select(
+        "assignmentName dueDate descritpion testSet files assignmentSubmitRequest studentDescritpion studentFiles submmittedDate"
+      )
+      .lean()
+      .exec();
+    res.status(200).send({
+      message: "All Submitted Student",
+      assignment,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.getStudentOneAssignmentSubmit = async (req, res) => {
+  try {
+    const assignment = await StudentAssignment.findById(req.params.aid);
+    assignment.assignmentSubmitRequest = req.body?.assignmentSubmitRequest;
+    assignment.studentDescritpion = req.body?.studentDescritpion;
+    assignment.submmittedDate = req.body?.submmittedDate;
+    assignment.assignmentSubmitRequest = req.body?.assignmentSubmitRequest;
+    for (let file of req?.files) {
+      const obj = {
+        documentType: "",
+        documentName: "",
+        documentSize: "",
+        documentKey: "",
+        documentEncoding: "",
+      };
+      obj.documentType = file.mimetype;
+      obj.documentName = file.originalname;
+      obj.documentEncoding = file.encoding;
+      obj.documentSize = file.size;
+      const results = await uploadDocFile(file);
+      obj.documentKey = results.Key;
+      assignment.studentFiles.push(obj);
+      await unlinkFile(file.path);
+    }
+    const student = await Student.findById(assignment.student);
+    student.submittedAssigment += 1;
+    const subjectAssignment = await Assignment.findById(assignment.assignment);
+    subjectAssignment.submittedStudent.push(student._id);
+    if (req.body?.testSet) {
+      const studentTestset = await StudentTestSet.findById(req.body?.testSet);
+      studentTestset.testSetComplete = true;
+      await studentTestset.save();
+    }
+    await Promise.all([
+      assignment.save(),
+      student.save(),
+      subjectAssignment.save(),
+    ]);
+    res.status(200).send({
+      message: "Assignment is submitted",
+    });
   } catch (e) {
     console.log(e);
   }

@@ -1034,7 +1034,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
     const { sid } = req.params;
     const student = await Student.findById({ _id: sid })
       .select(
-        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentDOB studentNationality studentMTongue studentCast studentCastCategory studentBirthPlace studentState studentDistrict studentAddress studentPhoneNumber studentParentsName studentParentsPhoneNumber studentAadharCard studentAadharNumber studentDocuments studentGRNO studentStatus studentROLLNO"
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentReligion studentMotherName studentDOB studentNationality studentMTongue studentCast studentCastCategory studentBirthPlace studentState studentDistrict studentAddress studentPhoneNumber studentParentsName studentParentsPhoneNumber studentAadharCard studentAadharNumber studentDocuments studentGRNO studentStatus studentROLLNO"
       )
       .populate({
         path: "studentClass",

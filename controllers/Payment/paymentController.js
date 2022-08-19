@@ -205,6 +205,8 @@ const studentPaymentUpdated = async (
           student.studentFee.push(fData._id);
           fData.onlineList.push(student._id);
           student.onlineFeeList.push(fData._id);
+          student.studentPaidFeeCount += fData.feeAmount
+          student.studentRemainingFeeCount -= fData.feeAmount
           finance.financeBankBalance =
             finance.financeBankBalance + parseInt(tx_amount);
           finance.institute.insBankBalance =
@@ -249,6 +251,8 @@ const studentPaymentUpdated = async (
       } else {
         try {
           student.studentChecklist.push(checklistData._id);
+          student.studentPaidFeeCount += fData.feeAmount
+          student.studentRemainingFeeCount -= fData.feeAmount
           checklistData.checklistFeeStatus = statusType;
           checklistData.studentsList.push(student._id);
           checklistData.checklistStudent = student._id;

@@ -68,6 +68,16 @@ exports.createChecklist = async (req, res) => {
       await Promise.all([user.save(), notify.save()]);
     }
     res.status(201).send({ message: "Checklist Created", checklist: check });
+    //
+    for (let i = 0; i < ClassId.length; i++) {
+      const classes = await Class.findById({ _id: ClassId[i] });
+      const student = await Student.find({ studentClass: `${classes._id}`})
+      student.forEach(async (st) => {
+        st.studentRemainingFeeCount += check.checklistAmount
+        await st.save()
+      })
+    }
+    //
   } catch {}
 };
 

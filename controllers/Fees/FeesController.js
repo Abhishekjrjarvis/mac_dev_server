@@ -47,6 +47,16 @@ exports.createFess = async (req, res) => {
       await Promise.all([user.save(), notify.save()]);
     }
     res.status(201).send({ message: `${feeData.feeName} Fees Raised` });
+    //
+    for (let i = 0; i < ClassId.length; i++) {
+      const classes = await Class.findById({ _id: ClassId[i] });
+      const student = await Student.find({ studentClass: `${classes._id}`})
+      student.forEach(async (st) => {
+        st.studentRemainingFeeCount += feeData.feeAmount
+        await st.save()
+      })
+    }
+    //
   } catch (e){
     console.log(e)
   }
@@ -97,6 +107,8 @@ exports.feesPaidByStudent = async (req, res) => {
     } else {
       student.studentFee.push(fData._id);
       fData.feeStatus = "Paid";
+      student.studentPaidFeeCount += fData.feeAmount
+      student.studentRemainingFeeCount -= fData.feeAmount
       // fData.studentsList.push(student._id);
       // fData.feeStudent = student;
       student.offlineFeeList.push(fData._id);
@@ -136,6 +148,8 @@ exports.exemptFeesPaidByStudent = async (req, res) => {
       try {
         student.studentExemptFee.push(fData._id);
         fData.feeStatus = status;
+        student.studentPaidFeeCount += fData.feeAmount
+        student.studentRemainingFeeCount -= fData.feeAmount
         fData.studentExemptList.push(student._id);
         fData.feeStudent = student;
         student.exemptFeeList.push(fData._id);
@@ -317,7 +331,7 @@ exports.retrieveStudentQuery = async(req, res) => {
   try{
     const { sid } = req.params
     const student = await Student.findById({_id: sid})
-    .select('id onlineFeeList offlineFeeList exemptFeeList onlineCheckList offlineCheckList')
+    .select('id onlineFeeList offlineFeeList exemptFeeList onlineCheckList offlineCheckList studentRemainingFeeCount studentPaidFeeCount')
     .populate({
       path: 'institute',
       select: 'insName'

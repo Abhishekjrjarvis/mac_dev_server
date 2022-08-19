@@ -41,7 +41,8 @@ const financeSchema = new mongoose.Schema({
       feeId: { type: String },
       feeName: { type: String },
       feeAmount: { type: Number },
-      status: { type: String }
+      status: { type: String },
+      createdAt: { type: Date, default: Date.now },
     },
   ],
   submitClassRoom: [
@@ -54,7 +55,8 @@ const financeSchema = new mongoose.Schema({
       feeId: { type: String },
       feeName: { type: String },
       feeAmount: { type: Number },
-      status: { type: String }
+      status: { type: String },
+      createdAt: { type: Date, default: Date.now },
     },
   ],
   pendingClassroom: [
@@ -67,7 +69,8 @@ const financeSchema = new mongoose.Schema({
       feeId: { type: String },
       feeName: { type: String },
       feeAmount: { type: Number },
-      status: { type: String }
+      status: { type: String },
+      createdAt: { type: Date, default: Date.now },
     },
   ],
   financeProfilePhoto: {

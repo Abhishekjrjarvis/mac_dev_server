@@ -407,7 +407,7 @@ exports.requestClassOfflineFee = async(req, res) =>{
               feeName: fee.feeName,
               feeAmount: amount,
               status: 'Pending',
-              createdAt: new Date()
+              
             });
             finance.financeCollectedSBalance += amount
             finance.requestArray.push(classes._id)
@@ -443,7 +443,7 @@ exports.submitClassOfflineFee = async(req, res) =>{
           feeName: fees.feeName,
           feeAmount: amount,
           status: 'Pending',
-          createdAt: new Date()
+          
         }, 1);
         finance.submitClassRoom.push({
           classId: classes._id,
@@ -455,7 +455,7 @@ exports.submitClassOfflineFee = async(req, res) =>{
           feeName: fees.feeName,
           feeAmount: amount,
           status: "Accepted",
-          createdAt: new Date()
+          
         });
         classes.receieveFee.pull(fees._id);
         classes.submitFee.push(fees._id);
@@ -500,7 +500,7 @@ exports.classOfflineFeeIncorrect = async(req, res) =>{
           feeName: fees.feeName,
           feeAmount: amount,
           status: 'Pending',
-          createdAt: new Date()
+          
         }, 1);
         finance.pendingClassroom.push({
           classId: classes._id,
@@ -512,7 +512,7 @@ exports.classOfflineFeeIncorrect = async(req, res) =>{
           feeName: fees.feeName,
           feeAmount: amount,
           status: 'Rejected',
-          createdAt: new Date()
+          
         });
         finance.requestArray.pull(classes._id)
         classes.requestFeeStatus.feeId = fees._id

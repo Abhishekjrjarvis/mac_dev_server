@@ -177,7 +177,7 @@ exports.promoteStudent = async (req, res) => {
     const classes = await Class.findById(classId);
     const batch = await Batch.findById(batchId);
     const department = await Department.findById(departmentId);
-    let roll = classes.ApproveStudent?.length;
+    let roll = classes.ApproveStudent?.length + 1;
     for (let stu of req.body?.students) {
       const student = await Student.findById(stu);
       const previousData = new StudentPreviousData({

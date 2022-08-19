@@ -32,3 +32,9 @@
 {"level":"info","message":{},"timestamp":"2022-08-18T05:18:08.229Z"}
 {"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-18T05:18:08.577Z","unpaid":500}
 {"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":500,\"level\":\"info\"}","timestamp":"2022-08-18T05:18:08.578Z"}
+{"level":"info","message":{"amount":500},"timestamp":"2022-08-19T03:37:07.987Z"}
+{"level":"info","message":"Already Requested wait for further process","timestamp":"2022-08-19T03:37:08.253Z"}
+{"level":"info","message":"{\"message\":\"Already Requested wait for further process\",\"level\":\"info\"}","timestamp":"2022-08-19T03:37:08.255Z"}
+{"level":"info","message":{"amount":500},"timestamp":"2022-08-19T03:37:23.362Z"}
+{"accept":true,"classLength":0,"level":"info","message":"Reuqest Accepted","timestamp":"2022-08-19T03:37:23.677Z"}
+{"level":"info","message":"{\"message\":\"Reuqest Accepted\",\"accept\":true,\"classLength\":0,\"level\":\"info\"}","timestamp":"2022-08-19T03:37:23.678Z"}

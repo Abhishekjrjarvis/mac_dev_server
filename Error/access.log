@@ -101,3 +101,6 @@
 {"level":"info","message":{},"timestamp":"2022-08-19T06:01:28.650Z"}
 {"level":"info","message":"Total Paid Fee & Remaining Fee","paid":500,"timestamp":"2022-08-19T06:01:29.301Z","unpaid":0}
 {"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":500,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-19T06:01:29.302Z"}
+{"level":"info","message":{"amount":1000},"timestamp":"2022-08-19T06:08:19.002Z"}
+{"accept":true,"classLength":0,"level":"info","message":"Reuqest Accepted","timestamp":"2022-08-19T06:08:19.749Z"}
+{"level":"info","message":"{\"message\":\"Reuqest Accepted\",\"accept\":true,\"classLength\":0,\"level\":\"info\"}","timestamp":"2022-08-19T06:08:19.751Z"}

@@ -38,3 +38,66 @@
 {"level":"info","message":{"amount":500},"timestamp":"2022-08-19T03:37:23.362Z"}
 {"accept":true,"classLength":0,"level":"info","message":"Reuqest Accepted","timestamp":"2022-08-19T03:37:23.677Z"}
 {"level":"info","message":"{\"message\":\"Reuqest Accepted\",\"accept\":true,\"classLength\":0,\"level\":\"info\"}","timestamp":"2022-08-19T03:37:23.678Z"}
+{"level":"info","message":{},"timestamp":"2022-08-19T05:53:46.496Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-19T05:53:47.057Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-19T05:53:47.061Z"}
+{"level":"info","message":{},"timestamp":"2022-08-19T05:55:14.446Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-19T05:55:25.246Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-19T05:55:25.250Z"}
+{"level":"info","message":{},"timestamp":"2022-08-19T05:55:30.250Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":0,"timestamp":"2022-08-19T05:55:31.137Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":0,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-19T05:55:31.139Z"}
+{"level":"info","message":{},"timestamp":"2022-08-19T05:59:14.645Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":500,"timestamp":"2022-08-19T05:59:21.542Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":500,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-19T05:59:21.545Z"}
+{"level":"info","message":{},"timestamp":"2022-08-19T05:59:25.085Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":500,"timestamp":"2022-08-19T05:59:25.689Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":500,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-19T05:59:25.690Z"}
+{"level":"info","message":{},"timestamp":"2022-08-19T05:59:27.448Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":500,"timestamp":"2022-08-19T05:59:28.006Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":500,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-19T05:59:28.007Z"}
+{"level":"info","message":{},"timestamp":"2022-08-19T05:59:29.177Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":500,"timestamp":"2022-08-19T05:59:29.815Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":500,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-19T05:59:29.816Z"}
+{"level":"info","message":{},"timestamp":"2022-08-19T05:59:30.987Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":500,"timestamp":"2022-08-19T05:59:31.567Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":500,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-19T05:59:31.568Z"}
+{"level":"info","message":{},"timestamp":"2022-08-19T05:59:32.731Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":500,"timestamp":"2022-08-19T05:59:33.305Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":500,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-19T05:59:33.306Z"}
+{"level":"info","message":{},"timestamp":"2022-08-19T05:59:35.795Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":500,"timestamp":"2022-08-19T05:59:37.493Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":500,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-19T05:59:37.496Z"}
+{"level":"info","message":{},"timestamp":"2022-08-19T05:59:40.212Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":500,"timestamp":"2022-08-19T05:59:41.233Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":500,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-19T05:59:41.235Z"}
+{"level":"info","message":{},"timestamp":"2022-08-19T06:01:05.921Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":500,"timestamp":"2022-08-19T06:01:14.529Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":500,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-19T06:01:14.532Z"}
+{"level":"info","message":{},"timestamp":"2022-08-19T06:01:16.739Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":500,"timestamp":"2022-08-19T06:01:17.386Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":500,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-19T06:01:17.388Z"}
+{"level":"info","message":{},"timestamp":"2022-08-19T06:01:18.486Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":500,"timestamp":"2022-08-19T06:01:19.110Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":500,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-19T06:01:19.111Z"}
+{"level":"info","message":{},"timestamp":"2022-08-19T06:01:19.992Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":500,"timestamp":"2022-08-19T06:01:20.621Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":500,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-19T06:01:20.622Z"}
+{"level":"info","message":{},"timestamp":"2022-08-19T06:01:21.408Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":500,"timestamp":"2022-08-19T06:01:21.997Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":500,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-19T06:01:21.998Z"}
+{"level":"info","message":{},"timestamp":"2022-08-19T06:01:22.819Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":500,"timestamp":"2022-08-19T06:01:23.396Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":500,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-19T06:01:23.397Z"}
+{"level":"info","message":{},"timestamp":"2022-08-19T06:01:24.279Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":500,"timestamp":"2022-08-19T06:01:25.019Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":500,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-19T06:01:25.021Z"}
+{"level":"info","message":{},"timestamp":"2022-08-19T06:01:25.849Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":500,"timestamp":"2022-08-19T06:01:26.404Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":500,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-19T06:01:26.405Z"}
+{"level":"info","message":{},"timestamp":"2022-08-19T06:01:27.250Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":500,"timestamp":"2022-08-19T06:01:27.820Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":500,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-19T06:01:27.823Z"}
+{"level":"info","message":{},"timestamp":"2022-08-19T06:01:28.650Z"}
+{"level":"info","message":"Total Paid Fee & Remaining Fee","paid":500,"timestamp":"2022-08-19T06:01:29.301Z","unpaid":0}
+{"level":"info","message":"{\"message\":\"Total Paid Fee & Remaining Fee\",\"paid\":500,\"unpaid\":0,\"level\":\"info\"}","timestamp":"2022-08-19T06:01:29.302Z"}

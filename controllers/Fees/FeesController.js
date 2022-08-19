@@ -240,6 +240,32 @@ exports.retrieveStudentCountQuery = async(req, res) =>{
       }
     })
     .populate({
+      path: 'department',
+      select: 'id',
+      populate: {
+        path: 'checklists',
+        select: 'checklistAmount studentsList'
+      }
+    })
+    
+    student.department.fees.forEach((fee) => {
+      if((fee.onlineList.length >= 1 && fee.onlineList.includes(`${student._id}`)) || (fee.offlineStudentsList.length >= 1 && fee.offlineStudentsList.includes(`${student._id}`))){
+      }
+      else{
+        unpaid += fee.feeAmount
+      }
+    })
+    student.department.checklists.forEach((check) => {
+      if(check.studentsList.length >= 1 && check.studentsList.includes(`${student._id}`)){
+      }
+      else{
+      unpaid += check.checklistAmount
+      }
+    })
+
+    var students = await Student.findById({_id: sid})
+    .select('id')
+    .populate({
       path: 'onlineFeeList',
       select: 'feeAmount'
     })
@@ -253,57 +279,32 @@ exports.retrieveStudentCountQuery = async(req, res) =>{
     })
     .populate({
       path: 'department',
-      select: 'id',
-      populate: {
-        path: 'checklists',
-        select: 'checklistAmount studentsList'
-      }
+      select: 'fees checklists'
     })
-    if(student.offlineFeeList.length >=1){
-      student.offlineFeeList.forEach((off) => {
-        if(student.department.fees.length >= 1 && student.department.fees.includes(`${off._id}`)){
+    if(students.offlineFeeList.length >=1){
+      students.offlineFeeList.forEach((off) => {
+        if(students.department.fees.length >= 1 && students.department.fees.includes(`${off._id}`)){
           paid += off.feeAmount
         }
         else{}
       })
     }
-    if(student.onlineFeeList.length >=1){
-      student.onlineFeeList.forEach((on) => {
-        if(student.department.fees.length >= 1 && student.department.fees.includes(`${on._id}`)){
+    if(students.onlineFeeList.length >=1){
+      students.onlineFeeList.forEach((on) => {
+        if(students.department.fees.length >= 1 && students.department.fees.includes(`${on._id}`)){
           paid += on.feeAmount
         }
         else{}
       })
     }
-    if(student.onlineCheckList.length >=1){
-      student.onlineCheckList.forEach((onc) => {
-        if(student.department.checklists.length >= 1 && student.department.checklists.includes(`${onc._id}`)){
+    if(students.onlineCheckList.length >=1){
+      students.onlineCheckList.forEach((onc) => {
+        if(students.department.checklists.length >= 1 && students.department.checklists.includes(`${onc._id}`)){
           paid += onc.checklistAmount
         }
         else{}
       })
     }
-    student.department.fees.forEach((fee) => {
-      if((fee.onlineList.length >= 1 && fee.onlineList.includes(`${student._id}`)) || (fee.offlineStudentsList.length >= 1 && fee.offlineStudentsList.includes(`${student._id}`))){
-      }
-      else{
-        unpaid += fee.feeAmount
-      }
-    })
-    // student.department.fees.forEach((fee) => {
-    //   if(){
-    //   }
-    //   else{
-    //     unpaid += fee.feeAmount
-    //   }
-    // })
-    student.department.checklists.forEach((check) => {
-      if(check.studentsList.length >= 1 && check.studentsList.includes(`${student._id}`)){
-      }
-      else{
-      unpaid += check.checklistAmount
-      }
-    })
     res.status(200).send({ message: 'Total Paid Fee & Remaining Fee', paid: paid, unpaid: unpaid})
   }
   catch(e){

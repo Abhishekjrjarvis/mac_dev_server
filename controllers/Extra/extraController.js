@@ -217,3 +217,26 @@ exports.retrieveUserBirthPrivacy = async(req, res) =>{
     console.log(e)
   }
 }
+
+
+exports.retrieveInstituteBirthPrivacy = async(req, res) =>{
+  try{
+    const { id } = req.params
+    const { staffStatus, contactStatus, emailStatus } = req.body
+    const institute = await InstituteAdmin.findById({_id: id})
+    if(staffStatus !== ''){
+      institute.staff_privacy = staffStatus
+    }
+    if(contactStatus !== ''){
+      institute.contact_privacy = contactStatus
+    }
+    if(emailStatus !== ''){
+      institute.email_privacy = emailStatus
+    }
+    await institute.save()
+    res.status(200).send({ message: `Privacy Updated Institute`})
+  }
+  catch(e){
+    console.log(e)
+  }
+}

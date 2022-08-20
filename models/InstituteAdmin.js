@@ -398,6 +398,15 @@ const instituteAdminSchema = new mongoose.Schema({
   pollCount: {
     type: Number,
     default: 0
+  },
+  staff_privacy: {
+    type: String
+  },
+  email_privacy: {
+    type: String
+  },
+  contact_privacy: {
+    type: String
   }
 });
 

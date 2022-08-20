@@ -685,7 +685,7 @@ exports.retrieveIncomeBalance = async(req, res) =>{
     res.status(200).send({ message: 'Income Balance', incomeBalance: finance})
   }
   catch(e){
-    console.log(e)
+    // console.log(e)
   }
 }
 
@@ -697,7 +697,7 @@ exports.retrieveExpenseBalance = async(req, res) =>{
     res.status(200).send({ message: 'Expense Balance', expenseBalance: finance})
   }
   catch(e){
-    console.log(e)
+    // console.log(e)
   }
 }
 
@@ -716,7 +716,7 @@ exports.retrieveRemainFeeBalance = async(req, res) =>{
     res.status(200).send({ message: 'Remaining Balance', remain: remain})
   }
   catch(e){
-    console.log(e)
+    // console.log(e)
   }
 }
 

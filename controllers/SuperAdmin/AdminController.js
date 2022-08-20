@@ -327,7 +327,7 @@ exports.getApproveIns = async(req, res) =>{
         const institute = await InstituteAdmin.findById({ _id: id });
         if(institute.initialReferral){
         var user = await User.findOne({ _id: `${institute.initialReferral}`})
-        user.userCommission += (charges * 40) / 100
+        user.userCommission += (charges * 0.4)
         await user.save()
         }
         const notify = await new Notification({});

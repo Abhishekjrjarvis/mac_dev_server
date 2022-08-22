@@ -544,12 +544,12 @@ module.exports.authentication = async (req, res) => {
 
 module.exports.authenticationGoogle = async (req, res) =>{
   try{
-    const { email } = req.body
+    const { email, googleAuthToken } = req.body
     const user = await User.findOne({ userEmail: email})
     .select('userLegalName username userEmail deviceToken profilePhoto photoId')
     if(user){
       const token = generateAccessToken(user?.username, user?._id);
-      res.status(200).send({ message: 'successfully signed In', sign_in: true, user: user, token: token})
+      res.status(200).send({ message: 'successfully signed In', sign_in: true, user: user, jwtToken: token, g_AuthToken: googleAuthToken})
     }
     else{
       res.status(200).send({ message: 'Failed to signed In', sign_in: false})

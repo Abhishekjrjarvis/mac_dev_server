@@ -96,8 +96,11 @@ paths:
             type: object
             required:
               - email
+              - googleAuthToken
             properties:
               email:
+                type: string
+              googleAuthToken:
                 type: string
       responses:
         "200":

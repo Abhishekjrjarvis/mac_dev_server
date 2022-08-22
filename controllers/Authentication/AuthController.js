@@ -547,7 +547,7 @@ module.exports.authenticationGoogle = async (req, res) =>{
     const { email } = req.body
     const user = await User.findOne({ userEmail: email})
     if(user){
-      res.status(200).send({ message: 'successfully signed In', sign_in: true})
+      res.status(200).send({ message: 'successfully signed In', sign_in: true, user: user})
     }
     else{
       res.status(400).send({ message: 'Failed to signed In', sign_in: false})

@@ -558,7 +558,7 @@ module.exports.authenticationGoogle = async (req, res) =>{
     .select('userLegalName username userEmail deviceToken profilePhoto photoId google_avatar')
     if(user){
       const token = generateAccessToken(user?.username, user?._id);
-      res.status(200).send({ message: 'successfully signed In', sign_in: true, user: user, jwtToken: `Bearer ${token}`, g_AuthToken: googleAuthToken})
+      res.status(200).send({ message: 'successfully signed In', sign_in: true, user: user, token: `Bearer ${token}`, g_AuthToken: googleAuthToken})
     }
     else{
       res.status(200).send({ message: 'Failed to signed In', sign_in: false})

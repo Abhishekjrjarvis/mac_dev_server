@@ -430,7 +430,7 @@ const instituteAdminSchema = new mongoose.Schema({
     type: String
   },
   ins_isMock: {
-    type: String
+    type: Boolean
   },
 });
 

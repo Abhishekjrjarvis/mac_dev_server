@@ -400,13 +400,16 @@ const instituteAdminSchema = new mongoose.Schema({
     default: 0
   },
   staff_privacy: {
-    type: String
+    type: String,
+    default: 'Every one'
   },
   email_privacy: {
-    type: String
+    type: String,
+    default: 'Every one'
   },
   contact_privacy: {
-    type: String
+    type: String,
+    default: 'Every one'
   },
   ins_latitude: {
     type: Number

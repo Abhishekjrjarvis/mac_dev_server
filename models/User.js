@@ -301,12 +301,15 @@ const userSchema = new mongoose.Schema({
   ],
   user_birth_privacy: {
     type: String,
+    default: 'Every one'
   },
   user_address_privacy: {
     type: String,
+    default: 'Every one'
   },
   user_circle_privacy: {
     type: String,
+    default: 'Every one'
   },
   user_saved_post: [
     {

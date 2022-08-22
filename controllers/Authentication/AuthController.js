@@ -314,7 +314,8 @@ exports.profileByUser = async (req, res) => {
         admins.userCount += 1
         await Promise.all([admins.save(), user.save()]);
         await unlinkFile(file.path);
-        res.status(200).send({ message: "Profile Successfully Created...", user });
+        const token = generateAccessToken(user?.username, user?._id);
+        res.status(200).send({ message: "Profile Successfully Created...", user, token: token });
         const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
         .populate({ path: 'posts' })
         if(uInstitute && uInstitute.posts && uInstitute.posts.length >=1){

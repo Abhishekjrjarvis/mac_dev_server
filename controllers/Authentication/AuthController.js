@@ -550,7 +550,7 @@ module.exports.authenticationGoogle = async (req, res) =>{
       res.status(200).send({ message: 'successfully signed In', sign_in: true, user: user})
     }
     else{
-      res.status(400).send({ message: 'Failed to signed In', sign_in: false})
+      res.status(200).send({ message: 'Failed to signed In', sign_in: false})
     }
   }
   catch(e){

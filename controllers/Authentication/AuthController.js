@@ -275,7 +275,7 @@ exports.profileByUser = async (req, res) => {
   try {
     const { id } = req.params;
     const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-    const { userLegalName, userGender, userDateOfBirth, username, userEmail } = req.body;
+    const { userLegalName, userGender, userDateOfBirth, username, userEmail, pic_url } = req.body;
     const existAdmin = await Admin.findOne({ adminUserName: username });
     const existInstitute = await InstituteAdmin.findOne({ name: username });
     const existUser = await User.findOne({ username: username });
@@ -287,10 +287,12 @@ exports.profileByUser = async (req, res) => {
       if (existUser) {
         res.send({ message: "Username already exists" });
       } else {
-        const width = 200;
-        const height = 200;
-        const file = req.file;
-        const results = await uploadFile(file, width, height);
+        var width = 200;
+        var height = 200;
+        var file = req.file;
+        if(file){
+        var results = await uploadFile(file, width, height);
+        }
         const user = new User({
           userLegalName: userLegalName,
           userGender: userGender,
@@ -298,13 +300,16 @@ exports.profileByUser = async (req, res) => {
           username: username,
           userStatus: "Approved",
           userEmail: userEmail,
+          google_avatar: pic_url,
           userPhoneNumber: id,
           photoId: "0",
           coverId: "2",
           createdAt: c_date,
           remindLater: rDate,
         });
+        if(results){
         user.profilePhoto = results.key;
+        }
         admins.users.push(user);
         admins.userCount += 1
         await Promise.all([admins.save(), user.save()]);
@@ -547,7 +552,7 @@ module.exports.authenticationGoogle = async (req, res) =>{
   try{
     const { email, googleAuthToken } = req.body
     const user = await User.findOne({ userEmail: email})
-    .select('userLegalName username userEmail deviceToken profilePhoto photoId')
+    .select('userLegalName username userEmail deviceToken profilePhoto photoId google_avatar')
     if(user){
       const token = generateAccessToken(user?.username, user?._id);
       res.status(200).send({ message: 'successfully signed In', sign_in: true, user: user, jwtToken: token, g_AuthToken: googleAuthToken})

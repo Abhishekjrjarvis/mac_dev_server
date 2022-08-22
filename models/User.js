@@ -20,6 +20,7 @@ const userSchema = new mongoose.Schema({
   userEducation: { type: String },
   referalPercentage: { type: Number, default: 0 },
   profilePhoto: { type: String },
+  google_avatar: { type: String },
   profileCoverPhoto: { type: String },
   photoId: { type: String },
   coverId: { type: String },

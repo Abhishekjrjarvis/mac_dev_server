@@ -1295,6 +1295,25 @@ paths:
 
   #User Dashboard API
 
+  /api/v1/user/{uid}/subject/chat:
+    get:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: User Subject Teacher Chat -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: Enter User Id
+      responses:
+        "200":
+          description: OK
+
   /api/v1/user/post/{id}/all/user/posts:
     get:
       tags:

@@ -1158,6 +1158,25 @@ exports.allCircleUsers = async (req, res) => {
   res.send(user);
 }
 
+exports.retrieveUserSubjectChat = async(req, res) =>{
+  try{
+    const { uid } = req.params
+    const user = await User.findById({_id: uid})
+    .select('isSubjectTeacher')
+    .populate({
+      path: 'isSubjectChat',
+      select: 'subjectName',
+      populate: {
+        path: 'class',
+        select: 'className classTitle'
+      }
+    })
+    res.status(200).send({ message: 'As a Subject Teacher', chat: user})
+  }
+  catch{
+
+  }
+}
 
 exports.retrieveUserApplicationStatus = async(req, res) =>{
   try{

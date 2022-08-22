@@ -317,7 +317,7 @@ exports.profileByUser = async (req, res) => {
         await unlinkFile(file.path);
         }
         const token = generateAccessToken(user?.username, user?._id);
-        res.status(200).send({ message: "Profile Successfully Created...", user, token: token });
+        res.status(200).send({ message: "Profile Successfully Created...", user, token: `Bearer ${token}` });
         const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
         .populate({ path: 'posts' })
         if(uInstitute && uInstitute.posts && uInstitute.posts.length >=1){
@@ -558,7 +558,7 @@ module.exports.authenticationGoogle = async (req, res) =>{
     .select('userLegalName username userEmail deviceToken profilePhoto photoId google_avatar')
     if(user){
       const token = generateAccessToken(user?.username, user?._id);
-      res.status(200).send({ message: 'successfully signed In', sign_in: true, user: user, jwtToken: token, g_AuthToken: googleAuthToken})
+      res.status(200).send({ message: 'successfully signed In', sign_in: true, user: user, jwtToken: `Bearer ${token}`, g_AuthToken: googleAuthToken})
     }
     else{
       res.status(200).send({ message: 'Failed to signed In', sign_in: false})

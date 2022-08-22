@@ -546,6 +546,7 @@ module.exports.authenticationGoogle = async (req, res) =>{
   try{
     const { email } = req.body
     const user = await User.findOne({ userEmail: email})
+    .select('userLegalName username userEmail deviceToken profilePhoto photoId')
     if(user){
       res.status(200).send({ message: 'successfully signed In', sign_in: true, user: user})
     }

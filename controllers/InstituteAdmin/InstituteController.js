@@ -2362,3 +2362,15 @@ exports.updateLeavingCertificateQuery = async (req, res) => {
     res.status(200).send({ message: "Editable Leaving Info Updated" });
   } catch {}
 };
+
+exports.retrieveLocationPermission = async(req, res) =>{
+  try{
+    const { id } = req.params
+    const institute = await InstituteAdmin.findByIdAndUpdate(id, req.body)
+    await institute.save()
+    res.status(200).send({ message: 'Location Permission Updated'})
+  }
+  catch(e){
+    console.log(e)
+  }
+}

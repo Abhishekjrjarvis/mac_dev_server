@@ -407,7 +407,31 @@ const instituteAdminSchema = new mongoose.Schema({
   },
   contact_privacy: {
     type: String
-  }
+  },
+  ins_latitude: {
+    type: Number
+  },
+  ins_longitude: {
+    type: Number
+  },
+  ins_accuracy: {
+    type: Number
+  },
+  ins_altitude: {
+    type: Number
+  },
+  ins_speed: {
+    type: Number
+  },
+  ins_heading: {
+    type: Number
+  },
+  ins_time: {
+    type: String
+  },
+  ins_isMock: {
+    type: String
+  },
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

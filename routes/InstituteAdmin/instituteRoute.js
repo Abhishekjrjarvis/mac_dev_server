@@ -169,4 +169,6 @@ router.get("/:id/following-idlist", isLoggedIn, catchAsync(Institute.retrieveIns
 
 router.get("/:id/followers-idlist", isLoggedIn, catchAsync(Institute.retrieveInsFollowersArrayWithId));
 
+router.patch('/:id/location/permission', catchAsync(Institute.retrieveLocationPermission))
+
 module.exports = router;

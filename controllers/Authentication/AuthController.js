@@ -542,6 +542,22 @@ module.exports.authentication = async (req, res) => {
   }
 };
 
+module.exports.authenticationGoogle = async (req, res) =>{
+  try{
+    const { email } = req.body
+    const user = await User.findOne({ userEmail: email})
+    if(user){
+      res.status(200).send({ message: 'successfully signed In', sign_in: true})
+    }
+    else{
+      res.status(400).send({ message: 'Failed to signed In', sign_in: false})
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
 module.exports.getLogout = async (req, res) => {
   try {
     res.clearCookie("SessionID", { path: "/" });

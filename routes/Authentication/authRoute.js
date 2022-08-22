@@ -46,6 +46,9 @@ router.get('/login', catchAsync(Auth.getLogin))
 // Fetch Logged In by Which (End User, Institute Admin, Super Admin)
 router.post('/login', isLimit, catchAsync(Auth.authentication))
 
+// Fetch Logged In by GOOGLE
+router.post('/login/google', catchAsync(Auth.authenticationGoogle))
+
 // Logout By End User
 router.get('/logout', catchAsync(Auth.getLogout))
     

@@ -7,12 +7,12 @@ const mongoose = require("mongoose");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const MongoStore = require("connect-mongo");
-const loggers = require('./Utilities/Logs/resLogs')
-const mongoSanitize = require('express-mongo-sanitize');
-const helmet = require('helmet');
+const loggers = require("./Utilities/Logs/resLogs");
+const mongoSanitize = require("express-mongo-sanitize");
+const helmet = require("helmet");
 
 //======================== All Routes ========================
-const { check_poll_status } = require('./Service/AutoRefreshBackend')
+const { check_poll_status } = require("./Service/AutoRefreshBackend");
 const uploadRoute = require("./routes/UploadContent/index");
 const elearningRoute = require("./routes/Elearning/index");
 const libraryRoute = require("./routes/Library/index");
@@ -41,10 +41,9 @@ const mcqRoute = require("./routes/MCQ/mcqRoute");
 const batchRoute = require("./routes/Batch/batchRoute");
 const complaintLeaveRoute = require("./routes/ComplaintLeave/complaintLeaveRoute");
 const questionNew = require("./routes/User/Post/QuestionRoute");
-const admissionNew = require('./routes/Admission/admissionRoute')
-const pollNew = require('./routes/User/Post/PollsRoute')
+const admissionNew = require("./routes/Admission/admissionRoute");
+const pollNew = require("./routes/User/Post/PollsRoute");
 const iQuestionNew = require("./routes/InstituteAdmin/Post/QuestionRoute");
-
 
 // ============================= DB Configuration ==============================
 
@@ -121,9 +120,9 @@ app.use((req, res, next) => {
   res.send = function (data) {
     loggers.info(data);
     oldSend.apply(res, arguments);
-  }
+  };
   next();
-})
+});
 
 // ================================ API Endpoints =============================
 
@@ -155,14 +154,13 @@ app.use("/api/v1/message", messageNew);
 app.use("/api/v1/fees", feesNew);
 app.use("/api/v1/extra", extraNew);
 app.use("/api/v1/post/question", questionNew);
-app.use("/api/v1/poll", pollNew)
+app.use("/api/v1/poll", pollNew);
 app.use("/api/v1/ins/post/question", iQuestionNew);
-
 
 // ============================================================================
 setInterval(async () => {
-  await check_poll_status()
-}, 20000)
+  await check_poll_status();
+}, 20000);
 
 app.get("*", (req, res) => {
   res.status(404).send("Page Not Found...");
@@ -190,9 +188,8 @@ io.on("connection", (socket) => {
     socket.emit("connected");
   });
 
-
-  socket.on('online', (userId) => {
-    console.log('a user ' + userId + ' connected');
+  socket.on("online", (userId) => {
+    console.log("a user " + userId + " connected");
     users[socket.id] = userId;
   });
   socket.on("join chat", (room) => {
@@ -221,8 +218,8 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.on('offline', (userId) => {
-    console.log('a user ' + userId + ' disconnected');
+  socket.on("offline", (userId) => {
+    console.log("a user " + userId + " disconnected");
     delete users[socket.id];
   });
 
@@ -234,4 +231,3 @@ io.on("connection", (socket) => {
   //     socket.broadcast.to(room).emit('user_leave', userId);
   // });
 });
-

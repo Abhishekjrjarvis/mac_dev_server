@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
   userPhoneNumber: { type: Number, required: true, maxlength: 10 },
-  userEmail: { type: String },
+  userEmail: { type: String, unique: true },
   userPassword: { type: String, minlength: 10 },
   userStatus: { type: String, default: "Not Verified" },
   username: { type: String, required: true, unique: true },

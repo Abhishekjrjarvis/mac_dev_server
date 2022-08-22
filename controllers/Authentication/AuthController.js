@@ -290,7 +290,7 @@ exports.profileByUser = async (req, res) => {
         var width = 200;
         var height = 200;
         var file = req.file;
-        if(file !== ''){
+        if(file){
         var results = await uploadFile(file, width, height);
         }
         const user = new User({
@@ -307,13 +307,15 @@ exports.profileByUser = async (req, res) => {
           createdAt: c_date,
           remindLater: rDate,
         });
-        if(results !== ''){
+        if(results){
         user.profilePhoto = results.key;
         }
         admins.users.push(user);
         admins.userCount += 1
         await Promise.all([admins.save(), user.save()]);
+        if(file){
         await unlinkFile(file.path);
+        }
         const token = generateAccessToken(user?.username, user?._id);
         res.status(200).send({ message: "Profile Successfully Created...", user, token: token });
         const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})

@@ -35,7 +35,10 @@ exports.retrieveProfileData = async (req, res) => {
       for(let up of questionUpVote){
         totalUpVote += up.answerUpVoteCount
       }
-    res.status(200).send({ message: "Limit User Profile Data ", user, upVote: totalUpVote });
+      if(user.userPosts && user.userPosts.length < 1){
+        var post = []
+      }
+    res.status(200).send({ message: "Limit User Profile Data ", user, upVote: totalUpVote, post });
   } catch (e) {
     console.log(e);
   }
@@ -743,22 +746,25 @@ exports.getDashDataQuery = async (req, res) => {
       .select(
         "userLegalName username ageRestrict photoId profilePhoto "
       )
-      .populate({
-        path: 'supportChat',
-        populate: {
-          path: 'latestMessage'
-        }
-      })
-      .populate({
-        path: 'supportChat',
-        populate: {
-          path: 'message'
-        }
-      })
-      .lean()
-      .exec();
+      if(user.userPosts && user.userPosts.length < 1){
+        var post = []
+      }
+      // .populate({
+      //   path: 'supportChat',
+      //   populate: {
+      //     path: 'latestMessage'
+      //   }
+      // })
+      // .populate({
+      //   path: 'supportChat',
+      //   populate: {
+      //     path: 'message'
+      //   }
+      // })
+      // .lean()
+      // .exec();
     if (user) {
-      res.status(200).send({ message: "Success", user });
+      res.status(200).send({ message: "Success", user, post });
     } else {
       res.status(404).send({ message: "Failure" });
     }

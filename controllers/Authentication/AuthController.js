@@ -275,7 +275,7 @@ exports.profileByUser = async (req, res) => {
   try {
     const { id } = req.params;
     const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-    const { userLegalName, userGender, userDateOfBirth, username } = req.body;
+    const { userLegalName, userGender, userDateOfBirth, username, userEmail } = req.body;
     const existAdmin = await Admin.findOne({ adminUserName: username });
     const existInstitute = await InstituteAdmin.findOne({ name: username });
     const existUser = await User.findOne({ username: username });
@@ -297,6 +297,7 @@ exports.profileByUser = async (req, res) => {
           userDateOfBirth: userDateOfBirth,
           username: username,
           userStatus: "Approved",
+          userEmail: userEmail,
           userPhoneNumber: id,
           photoId: "0",
           coverId: "2",

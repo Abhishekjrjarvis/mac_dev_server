@@ -43,8 +43,8 @@ const studentSchema = new mongoose.Schema({
   studentLeavingStudy: { type: String },
   studentLeavingReason: { type: String },
   studentLeavingPrevious: { type: String },
-  studentLeavingStatus: { type: String, default: 'Not Ready'},
-  studentBonaStatus: { type: String, default: 'Not Ready'},
+  studentLeavingStatus: { type: String, default: "Not Ready" },
+  studentBonaStatus: { type: String, default: "Not Ready" },
   studentClass: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Class",
@@ -94,6 +94,21 @@ const studentSchema = new mongoose.Schema({
       ref: "StudentTestSet",
     },
   ],
+
+  assignments: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "StudentAssignment",
+    },
+  ],
+  totalAssigment: {
+    type: Number,
+    default: 0,
+  },
+  submittedAssigment: {
+    type: Number,
+    default: 0,
+  },
 
   previousYearData: [
     {

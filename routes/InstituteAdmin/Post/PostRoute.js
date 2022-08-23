@@ -6,10 +6,18 @@ const { isLoggedIn, isApproved } = require("../../../middleware");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 
-router.get('/:id/all/posts', isLoggedIn, catchAsync(Post.retrieveAllPosts))
-router.get('/:id/all/profile/posts', isLoggedIn, catchAsync(Post.retreiveAllProfilePosts))
+router.get("/:id/all/posts", isLoggedIn, catchAsync(Post.retrieveAllPosts));
+router.get(
+  "/:id/all/profile/posts",
+  isLoggedIn,
+  catchAsync(Post.retreiveAllProfilePosts)
+);
 
-router.post("/:id", isLoggedIn, isApproved, catchAsync(Post.postWithText));
+router.post(
+  "/:id",
+  // isLoggedIn, isApproved,
+  catchAsync(Post.postWithText)
+);
 
 router.post(
   "/:id/image",
@@ -39,7 +47,11 @@ router.delete(
   catchAsync(Post.postWithDeleted)
 );
 
-router.get("/tag/:uid", isLoggedIn, catchAsync(Post.circleList));
+router.get(
+  "/tag",
+  // isLoggedIn,
+  catchAsync(Post.circleList)
+);
 
 router.get("/reaction/:pid", isLoggedIn, catchAsync(Post.reactionPost));
 
@@ -69,6 +81,10 @@ router.get(
   catchAsync(Post.likeCommentChild)
 );
 
-router.get('/:id/saved/all/posts', isLoggedIn, catchAsync(Post.retrieveSavedAllPosts))
+router.get(
+  "/:id/saved/all/posts",
+  isLoggedIn,
+  catchAsync(Post.retrieveSavedAllPosts)
+);
 
 module.exports = router;

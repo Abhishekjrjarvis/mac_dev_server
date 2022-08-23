@@ -158,9 +158,11 @@ app.use("/api/v1/poll", pollNew);
 app.use("/api/v1/ins/post/question", iQuestionNew);
 
 // ============================================================================
+
 setInterval(async () => {
   await check_poll_status();
 }, 20000);
+
 
 app.get("*", (req, res) => {
   res.status(404).send("Page Not Found...");

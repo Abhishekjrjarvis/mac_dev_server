@@ -3,13 +3,13 @@ const Admin = require("../../models/superAdmin");
 const User = require("../../models/User");
 const Notification = require("../../models/notification");
 const Report = require("../../models/Report");
-const Staff = require('../../models/Staff')
-const Student = require('../../models/Student')
-const InsAnnouncement = require('../../models/InsAnnouncement')
-const bcrypt = require('bcryptjs')
-const Answer = require('../../models/Question/Answer')
-const Post = require('../../models/Post')
-const Chat = require('../../models/Chat/Chat')
+const Staff = require("../../models/Staff");
+const Student = require("../../models/Student");
+const InsAnnouncement = require("../../models/InsAnnouncement");
+const bcrypt = require("bcryptjs");
+const Answer = require("../../models/Question/Answer");
+const Post = require("../../models/Post");
+const Chat = require("../../models/Chat/Chat");
 
 const {
   getFileStream,
@@ -21,7 +21,6 @@ const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 const { dateTimeSort } = require("../../Utilities/timeComparison");
-
 
 exports.retrieveProfileData = async (req, res) => {
   try {
@@ -123,7 +122,6 @@ exports.retrieveFIAnnouncement = async (req, res) => {
         message: "Success",
         announcements: announcementArray(user?.userInstituteFollowing),
       });
-
     } else {
       res.status(404).send({ message: "Failure" });
     }
@@ -154,7 +152,6 @@ exports.retrieveFIOneAnnouncement = async (req, res) => {
         message: "Success",
         announcementDetail,
       });
-
     } else {
       res.status(404).send({ message: "Failure" });
     }
@@ -204,40 +201,46 @@ exports.updateUserFollowIns = async (req, res) => {
     if (sinstitute.userFollowersList.includes(user_session)) {
       res.status(200).send({ message: "You Already Following This Institute" });
     } else {
-
-      if(sinstitute.status === 'Approved'){
-      const notify = await new Notification({});
-      sinstitute.userFollowersList.push(user_session);
-      user.userInstituteFollowing.push(req.body.InsfollowId);
-      user.followingUICount += 1;
-      sinstitute.followersCount += 1
-      notify.notifyContent = `${user.userLegalName} started to following you`;
-      notify.notifySender = user._id;
-      notify.notifyReceiever = sinstitute._id;
-      sinstitute.iNotify.push(notify._id);
-      notify.institute = sinstitute._id;
-      notify.notifyByPhoto = user._id;
-      invokeFirebaseNotification('Followers', notify, user.userLegalName, user._id, user.deviceToken)
-      await user.save();
-      await sinstitute.save();
-      await notify.save();
-      res.status(200).send({ message: "Following This Institute" });
-      if(sinstitute.isUniversal === 'Not Assigned'){
-        const post = await Post.find({ $and: [{ author: sinstitute._id, postStatus: 'Anyone' }]})
-        post.forEach(async (ele) => {
-        user.userPosts.push(ele)
-        })
-        await user.save()
-      }
-      else{}
-      }
-      else{
-        res.status(200).send({ message: 'Institute is Not Approved, you will not follow'})
-
+      if (sinstitute.status === "Approved") {
+        const notify = await new Notification({});
+        sinstitute.userFollowersList.push(user_session);
+        user.userInstituteFollowing.push(req.body.InsfollowId);
+        user.followingUICount += 1;
+        sinstitute.followersCount += 1;
+        notify.notifyContent = `${user.userLegalName} started to following you`;
+        notify.notifySender = user._id;
+        notify.notifyReceiever = sinstitute._id;
+        sinstitute.iNotify.push(notify._id);
+        notify.institute = sinstitute._id;
+        notify.notifyByPhoto = user._id;
+        invokeFirebaseNotification(
+          "Followers",
+          notify,
+          user.userLegalName,
+          user._id,
+          user.deviceToken
+        );
+        await user.save();
+        await sinstitute.save();
+        await notify.save();
+        res.status(200).send({ message: "Following This Institute" });
+        if (sinstitute.isUniversal === "Not Assigned") {
+          const post = await Post.find({
+            $and: [{ author: sinstitute._id, postStatus: "Anyone" }],
+          });
+          post.forEach(async (ele) => {
+            user.userPosts.push(ele);
+          });
+          await user.save();
+        } else {
+        }
+      } else {
+        res
+          .status(200)
+          .send({ message: "Institute is Not Approved, you will not follow" });
       }
     }
-  } catch (e) {
-  }
+  } catch (e) {}
 };
 
 exports.removeUserFollowIns = async (req, res) => {
@@ -306,7 +309,13 @@ exports.updateUserFollow = async (req, res) => {
       notify.user = suser;
       notify.notifyByPhoto = user;
 
-      invokeFirebaseNotification('Followers', notify, user.userLegalName, user._id, user.deviceToken)
+      invokeFirebaseNotification(
+        "Followers",
+        notify,
+        user.userLegalName,
+        user._id,
+        user.deviceToken
+      );
 
       await user.save();
       await suser.save();
@@ -320,8 +329,7 @@ exports.updateUserFollow = async (req, res) => {
       });
       await user.save();
     }
-  } catch (e) {
-  }
+  } catch (e) {}
 };
 
 exports.updateUserUnFollow = async (req, res) => {
@@ -370,9 +378,9 @@ exports.updateUserCircle = async (req, res) => {
       try {
         const notify = await new Notification({});
         suser.userFollowing.pull(user_session);
-        suser.followingUICount -= 1
+        suser.followingUICount -= 1;
         user.userFollowers.pull(req.body.followId);
-        user.followerCount -= 1
+        user.followerCount -= 1;
         suser.userCircle.push(user_session);
         user.userCircle.push(req.body.followId);
         suser.circleCount += 1;
@@ -383,7 +391,13 @@ exports.updateUserCircle = async (req, res) => {
         suser.uNotify.push(notify);
         notify.user = suser;
         notify.notifyByPhoto = user;
-        invokeFirebaseNotification('Circle', notify, user.userLegalName, user._id, user.deviceToken)
+        invokeFirebaseNotification(
+          "Circle",
+          notify,
+          user.userLegalName,
+          user._id,
+          user.deviceToken
+        );
 
         await user.save();
         await suser.save();
@@ -407,8 +421,7 @@ exports.updateUserCircle = async (req, res) => {
         res.status(500).send({ error: "error" });
       }
     }
-  } catch (e) {
-  }
+  } catch (e) {}
 };
 
 exports.removeUserCircle = async (req, res) => {
@@ -428,11 +441,11 @@ exports.removeUserCircle = async (req, res) => {
         user.circleCount -= 1;
         user.userFollowers.push(req.body.followId);
         suser.userFollowing.push(user_session);
-        user.followerCount += 1
-        suser.followingUICount += 1
+        user.followerCount += 1;
+        suser.followingUICount += 1;
         await user.save();
         await suser.save();
-        res.status(200).send({ message: 'Uncircled'})
+        res.status(200).send({ message: "Uncircled" });
       } catch {
         res.status(500).send({ error: "error" });
       }
@@ -580,7 +593,6 @@ exports.getCreditTransfer = async (req, res) => {
   }
 };
 
-
 exports.getReportPostUser = async (req, res) => {
   try {
     const { id, uid } = req.params;
@@ -607,33 +619,34 @@ exports.getNotifications = async (req, res) => {
     const id = req.params.id;
     const skip = (page - 1) * limit;
 
-    const user = await User.findById({ _id: id })
-    .populate({ path: 'uNotify' })
-    
-    const notify = await Notification.find({ _id: { $in: user.uNotify }})
-    .populate({
-      path: "notifyByInsPhoto",
-      select: 'photoId insProfilePhoto name insName'
-    })
-    .populate({
-      path: "notifyByPhoto",
-      select: 'photoId profilePhoto username userLegalName'
-    })
-    .populate({
-      path: "notifyByStaffPhoto",
-      select: 'photoId staffProfilePhoto staffFirstName staffMiddleName staffLastName'
-    })
-    .populate({
-      path: "notifyByStudentPhoto",
-      select: 'photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName'
-    })
-    .populate({
-      path: "notifyByDepartPhoto",
-      select: 'photoId photo dName'
-    })
-    .sort("-notifyTime")
-    .limit(limit)
-    .skip(skip)
+    const user = await User.findById({ _id: id }).populate({ path: "uNotify" });
+
+    const notify = await Notification.find({ _id: { $in: user.uNotify } })
+      .populate({
+        path: "notifyByInsPhoto",
+        select: "photoId insProfilePhoto name insName",
+      })
+      .populate({
+        path: "notifyByPhoto",
+        select: "photoId profilePhoto username userLegalName",
+      })
+      .populate({
+        path: "notifyByStaffPhoto",
+        select:
+          "photoId staffProfilePhoto staffFirstName staffMiddleName staffLastName",
+      })
+      .populate({
+        path: "notifyByStudentPhoto",
+        select:
+          "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName",
+      })
+      .populate({
+        path: "notifyByDepartPhoto",
+        select: "photoId photo dName",
+      })
+      .sort("-notifyTime")
+      .limit(limit)
+      .skip(skip);
 
     res.status(200).send({ message: "Notification send", notify });
   } catch (e) {
@@ -782,7 +795,9 @@ exports.followersArray = async (req, res) => {
     });
 
     const followers = await User.find({ _id: { $in: user.userFollowers } })
-      .select("userLegalName username photoId profilePhoto user_birth_privacy user_address_privacy user_circle_privacy")
+      .select(
+        "userLegalName username photoId profilePhoto user_birth_privacy user_address_privacy user_circle_privacy"
+      )
       .limit(limit)
       .skip(skip);
     if (user) {
@@ -806,7 +821,9 @@ exports.followingArray = async (req, res) => {
       .populate({ path: "userInstituteFollowing" });
 
     const uFollowing = await User.find({ _id: { $in: user.userFollowing } })
-      .select("userLegalName username photoId profilePhoto user_birth_privacy user_address_privacy user_circle_privacy")
+      .select(
+        "userLegalName username photoId profilePhoto user_birth_privacy user_address_privacy user_circle_privacy"
+      )
       .limit(limit)
       .skip(skip);
 
@@ -836,7 +853,9 @@ exports.circleArray = async (req, res) => {
     });
 
     const circle = await User.find({ _id: { $in: user.userCircle } })
-      .select("userLegalName username photoId profilePhoto user_birth_privacy user_address_privacy user_circle_privacy")
+      .select(
+        "userLegalName username photoId profilePhoto user_birth_privacy user_address_privacy user_circle_privacy"
+      )
       .limit(limit)
       .skip(skip);
 
@@ -1106,32 +1125,29 @@ exports.retrieveUserThreeArray = async (req, res) => {
   } catch {}
 };
 
-
-
-exports.retrieveUserKnowQuery = async(req, res) =>{
-  try{
-    const { uid } = req.params
-    var totalUpVote = 0
+exports.retrieveUserKnowQuery = async (req, res) => {
+  try {
+    const { uid } = req.params;
+    var totalUpVote = 0;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const user = await User.findById({_id: uid})
-    .select('questionCount answerQuestionCount answered_query')
-    const answer = await Answer.find({_id: { $in: user.answered_query }})
-    .sort("-createdAt")
-    .limit(limit)
-    .skip(skip)
-    .populate({
-      path: 'post',
-      select: 'postQuestion postImage imageId isUser postType trend_category'
-    })
-    res.status(200).send({ message: "Know's ", user, upVote: totalUpVote, answer: answer})
-  }
-  catch{
-
-  }
-} 
-
+    const user = await User.findById({ _id: uid }).select(
+      "questionCount answerQuestionCount answered_query"
+    );
+    const answer = await Answer.find({ _id: { $in: user.answered_query } })
+      .sort("-createdAt")
+      .limit(limit)
+      .skip(skip)
+      .populate({
+        path: "post",
+        select: "postQuestion postImage imageId isUser postType trend_category",
+      });
+    res
+      .status(200)
+      .send({ message: "Know's ", user, upVote: totalUpVote, answer: answer });
+  } catch {}
+};
 
 exports.circleArrayQuery = async (req, res) => {
   try {
@@ -1199,3 +1215,21 @@ exports.retrieveUserApplicationStatus = async(req, res) =>{
   }
 }
 
+
+exports.retrieveProfileDataUsername = async (req, res) => {
+  try {
+    var totalUpVote = 0;
+    const user = await User.findOne({ userLegalName: username }).select(
+      "userLegalName photoId questionCount answerQuestionCount recentChat profilePhoto user_birth_privacy user_address_privacy user_circle_privacy userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
+    );
+    const questionUpVote = await Post.find({ author: user._id });
+    for (let up of questionUpVote) {
+      totalUpVote += up.answerUpVoteCount;
+    }
+    res
+      .status(200)
+      .send({ message: "Limit User Profile Data ", user, upVote: totalUpVote });
+  } catch (e) {
+    console.log(e);
+  }
+};

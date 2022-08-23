@@ -8,7 +8,7 @@ const Student = require("../../models/Student");
 const Department = require("../../models/Department");
 const InsDocument = require("../../models/Document/InsDocument");
 const Admin = require("../../models/superAdmin");
-const Fees = require('../../models/Fees')
+const Fees = require("../../models/Fees");
 const Report = require("../../models/Report");
 const Batch = require("../../models/Batch");
 const Complaint = require("../../models/Complaint");
@@ -36,7 +36,6 @@ const util = require("util");
 const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const { todayDate } = require("../../Utilities/timeComparison");
 const unlinkFile = util.promisify(fs.unlink);
-
 
 exports.getDashOneQuery = async (req, res) => {
   try {
@@ -1583,8 +1582,8 @@ exports.retrieveClass = async (req, res) => {
         },
       })
       .populate({
-        path: 'institute',
-        select: 'insName'
+        path: "institute",
+        select: "insName",
       })
       .lean()
       .exec();
@@ -1598,37 +1597,42 @@ exports.retrieveClass = async (req, res) => {
   }
 };
 
-
-exports.retrieveClassRequestArray = async(req, res) =>{
-  try{
-    const { cid, fid } = req.params
-    var offline = 0
-    var online = 0
-    var exempt = 0
-    const fee = await Fees.findById({_id: fid})
-    const classes = await Class.findById({_id: cid})
-    .select('offlineFeeCollection requestFeeStatus onlineFeeCollection exemptFeeCollection')
+exports.retrieveClassRequestArray = async (req, res) => {
+  try {
+    const { cid, fid } = req.params;
+    var offline = 0;
+    var online = 0;
+    var exempt = 0;
+    const fee = await Fees.findById({ _id: fid });
+    const classes = await Class.findById({ _id: cid }).select(
+      "offlineFeeCollection requestFeeStatus onlineFeeCollection exemptFeeCollection"
+    );
     classes.offlineFeeCollection.forEach((off) => {
-      if(off.feeId === `${fee._id}`){
-        offline += off.fee
+      if (off.feeId === `${fee._id}`) {
+        offline += off.fee;
       }
-    })
+    });
     classes.onlineFeeCollection.forEach((on) => {
-      if(on.feeId === `${fee._id}`){
-        online += on.fee
+      if (on.feeId === `${fee._id}`) {
+        online += on.fee;
       }
-    })
+    });
     classes.exemptFeeCollection.forEach((exe) => {
-      if(exe.feeId === `${fee._id}`){
-        exempt += exe.fee
+      if (exe.feeId === `${fee._id}`) {
+        exempt += exe.fee;
       }
-    })
-    res.status(200).send({ message: 'Class One Fee Amount Details', oneFeeRequestStatus: classes.requestFeeStatus, on: online, off: offline, exe: exempt})
+    });
+    res.status(200).send({
+      message: "Class One Fee Amount Details",
+      oneFeeRequestStatus: classes.requestFeeStatus,
+      on: online,
+      off: offline,
+      exe: exempt,
+    });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
 exports.retrieveSubject = async (req, res) => {
   try {
@@ -2018,12 +2022,10 @@ exports.retrieveInsFollowingArrayWithId = async (req, res) => {
       .lean()
       .exec();
 
-    res
-      .status(200)
-      .send({
-        message: "Following List",
-        following: institute?.following ? institute?.following : [],
-      });
+    res.status(200).send({
+      message: "Following List",
+      following: institute?.following ? institute?.following : [],
+    });
   } catch {}
 };
 exports.retrieveDepartmentAllBatch = async (req, res) => {
@@ -2363,6 +2365,7 @@ exports.updateLeavingCertificateQuery = async (req, res) => {
   } catch {}
 };
 
+
 exports.retrieveLocationPermission = async(req, res) =>{
   try{
     const { id } = req.params
@@ -2374,3 +2377,17 @@ exports.retrieveLocationPermission = async(req, res) =>{
     console.log(e)
   }
 }
+
+exports.getProfileOneQueryUsername = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const institute = await InstituteAdmin.findOne({ name: username })
+      .select(
+        "insName status photoId insProfilePhoto questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement "
+      )
+      .lean()
+      .exec();
+    res.status(200).send({ message: "Limit Post Ins", institute });
+  } catch {}
+};
+

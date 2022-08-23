@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const mcqController = require("../../controllers/MCQ/mcqController");
 const catchAsync = require("../../Utilities/catchAsync");
+const multer = require("multer");
+const upload = multer({ dest: "uploads/" });
 
 router
   .route("/:smid/question/:cmid")
@@ -50,4 +52,34 @@ router
 router
   .route("/exam/create/batch/:bid")
   .post(catchAsync(mcqController.createExam));
+
+//=========for the assignment related ================
+router
+  .route("/subject/:sid/assignment")
+  .get(catchAsync(mcqController.getAssignment))
+  .post(upload.array("file"), catchAsync(mcqController.createAssignment));
+
+router
+  .route("/subject/assignment/:aid")
+  .get(catchAsync(mcqController.getOneAssignment));
+
+router
+  .route("/subject/assignment/:aid/student/:sid")
+  .get(catchAsync(mcqController.getOneAssignmentOneStudentDetail))
+  .patch(
+    catchAsync(mcqController.getOneAssignmentOneStudentCompleteAssignment)
+  );
+
+router
+  .route("/student/:sid/assignment")
+  .get(catchAsync(mcqController.getStudentAssignment));
+
+router
+  .route("/student/assignment/:aid")
+  .get(catchAsync(mcqController.getStudentOneAssignmentDetail))
+  .patch(
+    upload.array("file"),
+    catchAsync(mcqController.getStudentOneAssignmentSubmit)
+  );
+
 module.exports = router;

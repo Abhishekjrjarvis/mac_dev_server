@@ -16,6 +16,14 @@ const studentTestSetShcema = new mongoose.Schema({
     ref: "ClassMaster",
     required: true,
   },
+  subjectMasterTestSet: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "SubjectMasterTestSet",
+    required: true,
+  },
+  testName: {
+    type: String,
+  },
   testExamName: {
     type: String,
   },
@@ -95,6 +103,10 @@ const studentTestSetShcema = new mongoose.Schema({
   testSetComplete: {
     type: Boolean,
     default: false,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
   },
 });
 

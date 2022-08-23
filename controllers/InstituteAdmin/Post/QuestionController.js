@@ -20,7 +20,7 @@ exports.postQuestionText = async (req, res) => {
         
         const post = new Post({ ...req.body });
         post.imageId = "1";
-        if(req.files.length >= 1){
+        if(req.files && req.files.length >= 1){
             for (let file of req.files) {
                 const results = await uploadPostImageFile(file);
                 post.postImage.push(results.Key);

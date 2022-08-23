@@ -2,12 +2,14 @@ const User = require("../../../models/User");
 const Post = require("../../../models/Post");
 const Answer = require('../../../models/Question/Answer')
 const AnswerReply = require('../../../models/Question/AnswerReply')
+const Notification = require('../../../models/notification')
 const {
   uploadPostImageFile,
 } = require("../../../S3Configuration");
 const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
+const invokeFirebaseNotification = require('../../../Firebase/firebase')
 
 exports.postQuestionText = async (req, res) => {
   try {
@@ -180,6 +182,7 @@ exports.postQuestionAnswer = async (req, res) => {
   try {
     const { id } = req.params;
     const post = await Post.findById({ _id: id });
+    const post_user = await User.findById({_id: `${post.author}`})
     const answers = new Answer({ ...req.body });
     answers.answerImageId = "1"
     if(req.files){
@@ -192,6 +195,7 @@ exports.postQuestionAnswer = async (req, res) => {
     }
     if (req.tokenData && req.tokenData.userId) {
       var user = await User.findById({_id: req.tokenData.userId})
+      const notify = new Notification({})
       if(user.staff.length >= 1){
         answers.isMentor = 'yes'
       }
@@ -200,7 +204,13 @@ exports.postQuestionAnswer = async (req, res) => {
       answers.authorUserName = user.username
       answers.authorPhotoId = user.photoId
       answers.authorProfilePhoto = user.profilePhoto
-      
+      notify.notifyContent = `${answer.authorUserName} have added answers on ${post.authorUserName} questions`;
+      notify.notifySender = answer.author;
+      notify.notifyReceiever = post.author;
+      post_user.uNotify.push(notify._id);
+      notify.user = post_user._id;
+      notify.notifyByPhoto = user._id;
+      invokeFirebaseNotification("Answer", notify, 'New Answer', post_user._id, post_user.deviceToken, post._id);
     } else {
       res.status(401).send({ message: 'Unauthorized'});
     }
@@ -209,7 +219,7 @@ exports.postQuestionAnswer = async (req, res) => {
     post.answerCount += 1;
     answers.post = post._id;
     user.answerQuestionCount += 1
-    await Promise.all([post.save(), answers.save(), user.save()]);
+    await Promise.all([post.save(), answers.save(), user.save(), notify.save(), post_user.save() ]);
     res.status(201).send({ message: "answer created", answers });
   } catch(e) {
     console.log(e)

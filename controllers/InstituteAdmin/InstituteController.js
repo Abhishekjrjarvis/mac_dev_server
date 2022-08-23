@@ -1224,8 +1224,8 @@ exports.retrieveNewSubject = async (req, res) => {
     const depart = await Department.findById({ _id: did }).populate({
       path: "dHead",
     });
-    const notify = await new Notification({});
-    const subject = await new Subject({
+    const notify = new Notification({});
+    const subject = new Subject({
       subjectTitle: subjectTitle,
       subjectName: subjectMaster.subjectName,
       subjectMasterName: subjectMaster._id,

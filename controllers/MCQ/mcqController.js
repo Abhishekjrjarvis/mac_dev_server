@@ -1028,10 +1028,10 @@ exports.getStudentOneAssignmentDetail = async (req, res) => {
 exports.getStudentOneAssignmentSubmit = async (req, res) => {
   try {
     const assignment = await StudentAssignment.findById(req.params.aid);
-    assignment.assignmentSubmitRequest = req.body?.assignmentSubmitRequest;
     assignment.studentDescritpion = req.body?.studentDescritpion;
     assignment.submmittedDate = req.body?.submmittedDate;
     assignment.assignmentSubmitRequest = req.body?.assignmentSubmitRequest;
+
     for (let file of req?.files) {
       const obj = {
         documentType: "",

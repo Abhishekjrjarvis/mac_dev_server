@@ -22,12 +22,22 @@ const postSchema = new mongoose.Schema({
     type: String,
   },
   isInstitute: {
-    type: String
+    type: String,
   },
   tagPeople: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      author: {
+        type: String,
+      },
+      authorName: {
+        type: String,
+      },
+      authorUserName: {
+        type: String,
+      },
+      authorType: {
+        type: String,
+      },
     },
   ],
   likeCount: {
@@ -48,16 +58,16 @@ const postSchema = new mongoose.Schema({
     type: String,
   },
   authorName: {
-    type: String
+    type: String,
   },
   authorUserName: {
-    type: String
+    type: String,
   },
   authorPhotoId: {
-    type: String
+    type: String,
   },
   authorProfilePhoto: {
-    type: String
+    type: String,
   },
   comment: [
     {
@@ -66,33 +76,33 @@ const postSchema = new mongoose.Schema({
     },
   ],
   postQuestion: {
-    type: String
+    type: String,
   },
   answerCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   answer: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Answer'
-    }
+      ref: "Answer",
+    },
   ],
   answerUpVoteCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   postType: {
     type: String,
-    default: 'Post'
+    default: "Post",
   },
   trend_category: {
-    type: String 
+    type: String,
   },
-  poll_query:{
+  poll_query: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Poll'
-  }
+    ref: "Poll",
+  },
 });
 
 postSchema.post("findOneAndDelete", async function (doc) {

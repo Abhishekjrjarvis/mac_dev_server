@@ -382,23 +382,29 @@ const instituteAdminSchema = new mongoose.Schema({
   getReturn: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'RePay'
-    }
+      ref: "RePay",
+    },
   ],
   institute_saved_post: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Post'
-    }
+      ref: "Post",
+    },
+  ],
+  tag_post: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Post",
+    },
   ],
   questionCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   pollCount: {
     type: Number,
-    default: 0
-  }
+    default: 0,
+  },
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

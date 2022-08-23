@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
   profileCoverPhoto: { type: String },
   photoId: { type: String },
   coverId: { type: String },
-  isSubjectTeacher: { type: String, default: 'No'},
+  isSubjectTeacher: { type: String, default: "No" },
   userPosts: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -103,19 +103,19 @@ const userSchema = new mongoose.Schema({
   },
   followerCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   followingUICount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   circleCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   postCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   videoLike: [
     {
@@ -156,14 +156,14 @@ const userSchema = new mongoose.Schema({
   applicationPaymentList: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'DepartmentApplication'
-    }
+      ref: "DepartmentApplication",
+    },
   ],
   admissionPaymentList: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'DepartmentApplication'
-    }
+      ref: "DepartmentApplication",
+    },
   ],
   transferInstitute: [
     {
@@ -208,33 +208,33 @@ const userSchema = new mongoose.Schema({
   uNotify: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Notification'
-    }
+      ref: "Notification",
+    },
   ],
   displayPersonArray: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'DisplayPerson'
-    }
+      ref: "DisplayPerson",
+    },
   ],
   starAnnouncement: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'InsAnnouncement'
-    }
+      ref: "InsAnnouncement",
+    },
   ],
   recoveryMail: {
-    type: String
+    type: String,
   },
   qvipleAccount: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Admin'
+    ref: "Admin",
   },
   isSubjectChat: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Subject'
-    }
+      ref: "Subject",
+    },
   ],
   isAdmin: {
     type: Boolean,
@@ -244,59 +244,59 @@ const userSchema = new mongoose.Schema({
   recentChat: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Chat'
-    }
+      ref: "Chat",
+    },
   ],
   deviceToken: {
-    type: String
+    type: String,
   },
   referralArray: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Referral'
-    }
+      ref: "Referral",
+    },
   ],
   userCommission: {
     type: Number,
-    default: 0
+    default: 0,
   },
   userEarned: {
     type: Number,
-    default: 0
+    default: 0,
   },
   referralStatus: {
     type: String,
-    default: 'Not Granted'
+    default: "Not Granted",
   },
   ageRestrict: {
     type: String,
-    default: 'No'
+    default: "No",
   },
   paymentStatus: {
     type: String,
-    default: 'Not Paid'
+    default: "Not Paid",
   },
   supportChat: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'SupportChat'
+    ref: "SupportChat",
   },
   questionCount: {
-    type: Number, 
-    default: 0
+    type: Number,
+    default: 0,
   },
   answerQuestionCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   poll_Count: {
     type: Number,
-    default: 0 
+    default: 0,
   },
   answered_query: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Answer'
-    }
+      ref: "Answer",
+    },
   ],
   user_birth_privacy: {
     type: String,
@@ -310,21 +310,27 @@ const userSchema = new mongoose.Schema({
   user_saved_post: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Post'
-    }
+      ref: "Post",
+    },
+  ],
+  tag_post: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Post",
+    },
   ],
   applicationStatus: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Status'
-    }
+      ref: "Status",
+    },
   ],
   applyApplication: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'NewApplication'
-    }
-  ]
+      ref: "NewApplication",
+    },
+  ],
 });
 
 userSchema.post("findOneAndDelete", async function (doc) {

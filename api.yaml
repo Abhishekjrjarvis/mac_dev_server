@@ -80,6 +80,32 @@ paths:
         "200":
           description: OK
 
+  /api/v1/auth/login/google:
+    post:
+      tags:
+        - Login And Logout Api
+      summary: Login user with GOOGLE -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - email
+              - googleAuthToken
+            properties:
+              email:
+                type: string
+              googleAuthToken:
+                type: string
+      responses:
+        "200":
+          description: OK
+
   /api/v1/auth/logout:
     get:
       tags:
@@ -1139,7 +1165,7 @@ paths:
             type: object
             properties:
               birthStatus:
-                type: number
+                type: string
                 description: Enter Birth Day Privacy Content
               addressStatus:
                 type: string
@@ -1151,6 +1177,88 @@ paths:
         "200":
           description: OK
 
+  
+  /api/v1/extra/{id}/privacy/institute/feature:
+    patch:
+      tags:
+        - Setting Control API
+      summary: Institute Privacy Control API -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: Enter Institute Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              staffStatus:
+                type: number
+                description: Enter Staff Privacy Content
+              emailStatus:
+                type: string
+                description: Enter Email Privacy Content
+              contactStatus:
+                type: string
+                description: Enter Contact Privacy Content
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/ins/{id}/location/permission:
+    patch:
+      tags:
+        - Setting Control API
+      summary: Institute Location Permission -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: Enter Institute Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              ins_latitude:
+                type: number
+                description: Enter Latitude
+              ins_longitude:
+                type: number
+                description: Enter Longitude
+              ins_accuracy:
+                type: number
+                description: Enter Accuracy
+              ins_speed:
+                type: number
+                description: Enter Speed
+              ins_heading:
+                type: number
+                description: Enter Heading
+              ins_altitude:
+                type: number
+                description: Enter Altitude
+              ins_time:
+                type: string
+                description: Enter Time Stamp
+              ins_isMock:
+                type: boolean
+                description: Enter Mocked Content (Boolean)
+      responses:
+        "200":
+          description: OK
 
   /api/v1/ins/{id}/leaving/editable:
     patch:
@@ -1186,6 +1294,25 @@ paths:
           description: OK
 
   #User Dashboard API
+
+  /api/v1/user/{uid}/subject/chat:
+    get:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: User Subject Teacher Chat -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: Enter User Id
+      responses:
+        "200":
+          description: OK
 
   /api/v1/user/post/{id}/all/user/posts:
     get:
@@ -8736,7 +8863,7 @@ paths:
           description: OK
 
   
-  /api/v1/fees/class/student/{sid}/fee/{id}:
+  /api/v1/fees/class/{cid}/student/{sid}/fee/{id}:
     post:
       tags:
         - Fees Module Query
@@ -8746,6 +8873,11 @@ paths:
       produces:
         - application/json
       parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Class id 
         - in: path
           name: sid
           required: true

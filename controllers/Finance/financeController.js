@@ -1,5 +1,6 @@
 const InstituteAdmin = require('../../models/InstituteAdmin')
 const Finance = require('../../models/Finance')
+const Student = require('../../models/Student')
 const Staff = require('../../models/Staff')
 const User = require('../../models/User')
 const Notification = require('../../models/notification')
@@ -407,7 +408,7 @@ exports.requestClassOfflineFee = async(req, res) =>{
               feeName: fee.feeName,
               feeAmount: amount,
               status: 'Pending',
-              createdAt: new Date()
+              
             });
             finance.financeCollectedSBalance += amount
             finance.requestArray.push(classes._id)
@@ -443,7 +444,7 @@ exports.submitClassOfflineFee = async(req, res) =>{
           feeName: fees.feeName,
           feeAmount: amount,
           status: 'Pending',
-          createdAt: new Date()
+          
         }, 1);
         finance.submitClassRoom.push({
           classId: classes._id,
@@ -455,7 +456,7 @@ exports.submitClassOfflineFee = async(req, res) =>{
           feeName: fees.feeName,
           feeAmount: amount,
           status: "Accepted",
-          createdAt: new Date()
+          
         });
         classes.receieveFee.pull(fees._id);
         classes.submitFee.push(fees._id);
@@ -500,7 +501,7 @@ exports.classOfflineFeeIncorrect = async(req, res) =>{
           feeName: fees.feeName,
           feeAmount: amount,
           status: 'Pending',
-          createdAt: new Date()
+          
         }, 1);
         finance.pendingClassroom.push({
           classId: classes._id,
@@ -512,7 +513,7 @@ exports.classOfflineFeeIncorrect = async(req, res) =>{
           feeName: fees.feeName,
           feeAmount: amount,
           status: 'Rejected',
-          createdAt: new Date()
+          
         });
         finance.requestArray.pull(classes._id)
         classes.requestFeeStatus.feeId = fees._id
@@ -684,7 +685,7 @@ exports.retrieveIncomeBalance = async(req, res) =>{
     res.status(200).send({ message: 'Income Balance', incomeBalance: finance})
   }
   catch(e){
-    console.log(e)
+    // console.log(e)
   }
 }
 
@@ -696,7 +697,26 @@ exports.retrieveExpenseBalance = async(req, res) =>{
     res.status(200).send({ message: 'Expense Balance', expenseBalance: finance})
   }
   catch(e){
-    console.log(e)
+    // console.log(e)
+  }
+}
+
+
+exports.retrieveRemainFeeBalance = async(req, res) =>{
+  try{
+    const { fid } = req.params
+    var remain = 0
+    const finance = await Finance.findById({_id: fid})
+    .select('id institute')
+    const student = await Student.find({ institute: `${finance.institute}`})
+    .select('id studentRemainingFeeCount ')
+    student.forEach((stu) => {
+      remain += stu.studentRemainingFeeCount
+    })
+    res.status(200).send({ message: 'Remaining Balance', remain: remain})
+  }
+  catch(e){
+    // console.log(e)
   }
 }
 

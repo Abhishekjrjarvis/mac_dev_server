@@ -101,8 +101,23 @@ const postSchema = new mongoose.Schema({
   },
   poll_query: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Poll",
+    ref: 'Poll'
   },
+  funCount: {
+    type: Number,
+    default: 0
+  },
+  factCount: {
+    type: Number,
+    default: 0
+  },
+  supportCount: {
+    type: Number,
+    default: 0
+  },
+  endUserFun: [],
+  endUserFact: [],
+  endUserSupport: []
 });
 
 postSchema.post("findOneAndDelete", async function (doc) {

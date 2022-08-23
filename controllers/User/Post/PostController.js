@@ -3,6 +3,7 @@ const Post = require("../../../models/Post");
 const Comment = require("../../../models/Comment");
 const InstituteAdmin = require("../../../models/InstituteAdmin");
 const ReplyComment = require("../../../models/ReplyComment/ReplyComment");
+const Notification = require('../../../models/notification')
 const {
   uploadPostImageFile,
   uploadVideo,
@@ -11,6 +12,7 @@ const fs = require("fs");
 const util = require("util");
 const { suffle_search_list } = require("../../../Utilities/randomFunction");
 const unlinkFile = util.promisify(fs.unlink);
+const invokeFirebaseNotification = require('../../../Firebase/firebase')
 
 exports.postWithText = async (req, res) => {
   try {
@@ -250,6 +252,7 @@ exports.postComment = async (req, res) => {
   try {
     const { id } = req.params;
     const post = await Post.findById({ _id: id });
+    const post_user = await User.findById({_id: `${post.author}`})
     const comment = new Comment({ ...req.body });
     if (req.tokenData && req.tokenData.insId) {
       const institute = await InstituteAdmin.findById({
@@ -261,19 +264,28 @@ exports.postComment = async (req, res) => {
       comment.authorPhotoId = institute.photoId;
       comment.authorProfilePhoto = institute.insProfilePhoto;
     } else if (req.tokenData && req.tokenData.userId) {
-      const user = await User.findById({ _id: req.tokenData.userId });
+      const user = await User.findById({_id: req.tokenData.userId})
+      const notify = new Notification({})
       comment.author = user._id;
-      comment.authorName = user.userLegalName;
-      comment.authorUserName = user.username;
-      comment.authorPhotoId = user.photoId;
-      comment.authorProfilePhoto = user.profilePhoto;
+      comment.authorName = user.userLegalName
+      comment.authorUserName = user.username
+      comment.authorPhotoId = user.photoId
+      comment.authorProfilePhoto = user.profilePhoto
+      notify.notifyContent = `${comment.authorUserName} have added comments on ${post.authorUserName} posts`;
+      notify.notifySender = comment.author;
+      notify.notifyReceiever = post.author;
+      post_user.uNotify.push(notify._id);
+      notify.user = post_user._id;
+      notify.notifyByPhoto = user._id;
+      invokeFirebaseNotification("Comment", notify, 'New Comment', post_user._id, post_user.deviceToken, post._id);
+
     } else {
       res.status(401).send({ message: "Unauthorized" });
     }
     post.comment.push(comment._id);
     post.commentCount += 1;
     comment.post = post._id;
-    await Promise.all([post.save(), comment.save()]);
+    await Promise.all([post.save(), comment.save(), notify.save(), post_user.save()]);
     res.status(201).send({ message: "comment created", comment });
   } catch (e) {
     console.log(e);

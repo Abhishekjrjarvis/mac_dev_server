@@ -24,6 +24,7 @@ const ClassMaster = require("../../models/ClassMaster");
 const SubjectMaster = require("../../models/SubjectMaster");
 const ReplyAnnouncement = require("../../models/ReplyAnnouncement");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
+const Status = require('../../models/Admission/status')
 const {
   getFileStream,
   uploadDocFile,
@@ -41,22 +42,22 @@ exports.getDashOneQuery = async (req, res) => {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName name insAbout photoId status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart unlockAmount accessFeature activateStatus"
+        "insName name insAbout photoId staff_privacy email_privacy contact_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart unlockAmount accessFeature activateStatus"
       )
-      .populate({
-        path: "supportChat",
-        populate: {
-          path: "latestMessage",
-        },
-      })
-      .populate({
-        path: "supportChat",
-        populate: {
-          path: "message",
-        },
-      })
-      .lean()
-      .exec();
+      // .populate({
+      //   path: "supportChat",
+      //   populate: {
+      //     path: "latestMessage",
+      //   },
+      // })
+      // .populate({
+      //   path: "supportChat",
+      //   populate: {
+      //     path: "message",
+      //   },
+      // })
+      // .lean()
+      // .exec();
     const encrypt = await encryptionPayload(institute);
     res.status(200).send({
       message: "limit Ins Data",
@@ -431,7 +432,8 @@ exports.updateApproveStaff = async (req, res) => {
     const { id, sid, uid } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id });
     const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-    const notify = await new Notification({});
+    const notify = new Notification({});
+    const aStatus = new Status({})
     const staffs = await Staff.findById({ _id: sid });
     const user = await User.findById({ _id: uid });
     staffs.staffStatus = req.body.status;
@@ -453,6 +455,8 @@ exports.updateApproveStaff = async (req, res) => {
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByStaffPhoto = staffs._id;
+    aStatus.content = `Welcome to ${institute.insName}.Your application for joining as staff  has been accepted by ${institute.insName}.`
+    user.applicationStatus.push(aStatus._id)
     invokeFirebaseNotification(
       "Staff Approval",
       notify,
@@ -466,6 +470,7 @@ exports.updateApproveStaff = async (req, res) => {
       admins.save(),
       user.save(),
       notify.save(),
+      aStatus.save()
     ]);
     res.status(200).send({
       message: `Welcome To The Institute ${staffs.staffFirstName} ${staffs.staffLastName}`,
@@ -491,6 +496,7 @@ exports.updateRejectStaff = async (req, res) => {
     const institute = await InstituteAdmin.findById({ _id: id });
     const staffs = await Staff.findById({ _id: sid });
     const user = await User.findById({ _id: uid });
+    const aStatus = new Status({})
     staffs.staffStatus = req.body.status;
     institute.staff.pull(sid);
     notify.notifyContent = `your request for the role of staff is rejected contact at connect@qviple.com`;
@@ -500,10 +506,15 @@ exports.updateRejectStaff = async (req, res) => {
     notify.user = user;
     notify.notifyPid = "1";
     notify.notifyPhoto = institute.insProfilePhoto;
-    await institute.save();
-    await staffs.save();
-    await user.save();
-    await notify.save();
+    aStatus.content = `Your application for joining as staff in ${institute.insName} is being rejected. Please follow up with institute for any queries.`
+    user.applicationStatus.push(aStatus._id)
+    await Promise.all([
+      institute.save(),
+      staffs.save(),
+      user.save(),
+      notify.save(),
+      aStatus.save()
+    ])
     res.status(200).send({
       message: `Application Rejected ${staffs.staffFirstName} ${staffs.staffLastName}`,
       institute,
@@ -743,7 +754,8 @@ exports.fillStaffForm = async (req, res) => {
       }
       await unlinkFile(file.path);
     }
-    const notify = await new Notification({});
+    const notify = new Notification({});
+    const aStatus = new Status({})
     institute.staff.push(staff._id);
     user.staff.push(staff._id);
     institute.joinedPost.push(user._id);
@@ -765,11 +777,14 @@ exports.fillStaffForm = async (req, res) => {
     institute.iNotify.push(notify._id);
     notify.institute = institute._id;
     notify.notifyByStaffPhoto = staff._id;
+    aStatus.content = `Your application for joining as staff in ${institute.insName} is filled successfully..`
+    user.applicationStatus.push(aStatus._id)
     await Promise.all([
       staff.save(),
       institute.save(),
       user.save(),
       notify.save(),
+      aStatus.save()
     ]);
     res.status(201).send({ message: "Staff form is applied", staff });
   } catch (e) {
@@ -804,6 +819,7 @@ exports.fillStudentForm = async (req, res) => {
       await unlinkFile(file.path);
     }
     const notify = await new Notification({});
+    const aStatus = new Status({})
     institute.student.push(student._id);
     user.student.push(student._id);
     institute.joinedPost.push(user._id);
@@ -826,12 +842,15 @@ exports.fillStudentForm = async (req, res) => {
     institute.iNotify.push(notify._id);
     notify.institute = institute._id;
     notify.notifyByStudentPhoto = student._id;
+    aStatus.content = `Your application for joining as student in ${institute.insName} is filled successfully. Stay updated to check status of your application.`
+    user.applicationStatus.push(aStatus._id)
     await Promise.all([
       student.save(),
       institute.save(),
       user.save(),
       classes.save(),
       notify.save(),
+      aStatus.save()
     ]);
     res.status(201).send({ message: "student form is applied", student });
   } catch (e) {
@@ -1007,7 +1026,7 @@ exports.getOneDepartment = async (req, res) => {
     } else {
       const department = await Department.findById({ _id: did })
         .select(
-          "dName dAbout dTitle dEmail staffCount studentCount classCount dPhoneNumber photoId photo dSpeaker dVicePrinciple dAdminClerk dOperatingAdmin dStudentPresident"
+          "dName dAbout dTitle dEmail staffCount studentCount classCount dPhoneNumber photoId photo coverId cover dSpeaker dVicePrinciple dAdminClerk dOperatingAdmin dStudentPresident"
         )
         .populate({
           path: "dHead",
@@ -1204,8 +1223,8 @@ exports.retrieveNewSubject = async (req, res) => {
     const depart = await Department.findById({ _id: did }).populate({
       path: "dHead",
     });
-    const notify = await new Notification({});
-    const subject = await new Subject({
+    const notify = new Notification({});
+    const subject = new Subject({
       subjectTitle: subjectTitle,
       subjectName: subjectMaster.subjectName,
       subjectMasterName: subjectMaster._id,
@@ -2058,7 +2077,8 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     const classes = await Class.findById({ _id: cid });
     const depart = await Department.findById({ _id: did });
     const batch = await Batch.findById({ _id: bid });
-    const notify = await new Notification({});
+    const notify = new Notification({});
+    const aStatus = new Status({})
     student.studentStatus = req.body.status;
     institute.ApproveStudent.push(student._id);
     admins.studentArray.push(student._id);
@@ -2092,6 +2112,8 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByStudentPhoto = student._id;
+    aStatus.content = `Welcome to ${institute.insName}. Your application for joining as student  has been accepted by ${institute.insName}. Enjoy your learning in ${classes.className} - ${classes.classTitle}.`
+    user.applicationStatus.push(aStatus._id)
     invokeFirebaseNotification(
       "Student Approval",
       notify,
@@ -2108,6 +2130,7 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
       institute.save(),
       user.save(),
       notify.save(),
+      aStatus.save()
     ]);
     res.status(200).send({
       message: `Welcome To The Institute ${student.studentFirstName} ${student.studentLastName}`,
@@ -2121,11 +2144,21 @@ exports.retrieveRejectStudentRequest = async (req, res) => {
     const { id, sid, cid } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id });
     const student = await Student.findById({ _id: sid });
+    const user = await User.findById({_id: `${student.user}`})
     const classes = await Class.findById({ _id: cid });
+    const aStatus = new Status({})
     student.studentStatus = req.body.status;
     institute.student.pull(sid);
     classes.student.pull(sid);
-    await Promise.all([institute.save(), classes.save(), student.save()]);
+    aStatus.content = `Your application for joining as student in ${institute.insName} is being rejected. Please follow up with institute for any queries.`
+    user.applicationStatus.push(aStatus._id)
+    await Promise.all([
+      institute.save(),
+      classes.save(), 
+      student.save(), 
+      user.save(), 
+      aStatus.save()
+    ]);
     res.status(200).send({
       message: `Application Rejected ${student.studentFirstName} ${student.studentLastName}`,
       classes: classes._id,
@@ -2332,6 +2365,19 @@ exports.updateLeavingCertificateQuery = async (req, res) => {
   } catch {}
 };
 
+
+exports.retrieveLocationPermission = async(req, res) =>{
+  try{
+    const { id } = req.params
+    const institute = await InstituteAdmin.findByIdAndUpdate(id, req.body)
+    await institute.save()
+    res.status(200).send({ message: 'Location Permission Updated'})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
 exports.getProfileOneQueryUsername = async (req, res) => {
   try {
     const { username } = req.params;
@@ -2344,3 +2390,4 @@ exports.getProfileOneQueryUsername = async (req, res) => {
     res.status(200).send({ message: "Limit Post Ins", institute });
   } catch {}
 };
+

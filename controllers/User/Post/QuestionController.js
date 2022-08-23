@@ -2,12 +2,14 @@ const User = require("../../../models/User");
 const Post = require("../../../models/Post");
 const Answer = require('../../../models/Question/Answer')
 const AnswerReply = require('../../../models/Question/AnswerReply')
+const Notification = require('../../../models/notification')
 const {
   uploadPostImageFile,
 } = require("../../../S3Configuration");
 const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
+const invokeFirebaseNotification = require('../../../Firebase/firebase')
 
 exports.postQuestionText = async (req, res) => {
   try {
@@ -88,13 +90,22 @@ exports.answerLike = async (req, res) => {
           .status(200)
           .send({ message: "Removed from Upvote 👎", upVoteCount: answer.upVoteCount, });
       } else {
+        if (
+          answer.downVote.length >= 1 &&
+          answer.downVote.includes(String(user_session))
+        ) {
+          answer.downVote.pull(user_session);
+          if (answer.downVoteCount >= 1) {
+            answer.downVoteCount -= 1;
+          }
+        }
         answer.upVote.push(user_session);
         answer.upVoteCount += 1;
         question.answerUpVoteCount += 1
         await Promise.all([ answer.save(), question.save()])
         res
           .status(200)
-          .send({ message: "Added To Upvote 👍", upVoteCount: answer.upVoteCount, });
+          .send({ message: "Added To Upvote 👍", upVoteCount: answer.upVoteCount, downVoteCount: answer.downVoteCount });
       }
     } else {
       res.status(401).send();
@@ -109,6 +120,7 @@ exports.answerDisLike = async (req, res) => {
   try {
     const { aid } = req.params;
     const answer = await Answer.findById({ _id: aid });
+    const question = await Post.findById({_id: `${answer.post}`})
     const user_session = req.tokenData && req.tokenData.userId ? req.tokenData.userId : ''
     if (user_session) {
       if (
@@ -122,10 +134,20 @@ exports.answerDisLike = async (req, res) => {
         await Promise.all([ answer.save() ])
         res.status(200).send({ message: "Removed from DownVote 👎", downVoteCount: answer.downVoteCount, });
       } else {
+        if (
+          answer.upVote.length >= 1 &&
+          answer.upVote.includes(String(user_session))
+        ) {
+          answer.upVote.pull(user_session);
+          if (answer.upVoteCount >= 1) {
+            answer.upVoteCount -= 1;
+            question.answerUpVoteCount -= 1
+          }
+        }
         answer.downVote.push(user_session);
         answer.downVoteCount += 1;
-        await Promise.all([ answer.save() ])
-        res.status(200).send({ message: "Added To DownVote 👍", downVoteCount: answer.downVoteCount, });
+        await Promise.all([ answer.save(), question.save() ])
+        res.status(200).send({ message: "Added To DownVote 👍", downVoteCount: answer.downVoteCount, upVoteCount: answer.upVoteCount });
       }
     } else {
       res.status(401).send();
@@ -160,6 +182,7 @@ exports.postQuestionAnswer = async (req, res) => {
   try {
     const { id } = req.params;
     const post = await Post.findById({ _id: id });
+    const post_user = await User.findById({_id: `${post.author}`})
     const answers = new Answer({ ...req.body });
     answers.answerImageId = "1"
     if(req.files){
@@ -172,6 +195,7 @@ exports.postQuestionAnswer = async (req, res) => {
     }
     if (req.tokenData && req.tokenData.userId) {
       var user = await User.findById({_id: req.tokenData.userId})
+      const notify = new Notification({})
       if(user.staff.length >= 1){
         answers.isMentor = 'yes'
       }
@@ -180,7 +204,13 @@ exports.postQuestionAnswer = async (req, res) => {
       answers.authorUserName = user.username
       answers.authorPhotoId = user.photoId
       answers.authorProfilePhoto = user.profilePhoto
-      
+      notify.notifyContent = `${answer.authorUserName} have added answers on ${post.authorUserName} questions`;
+      notify.notifySender = answer.author;
+      notify.notifyReceiever = post.author;
+      post_user.uNotify.push(notify._id);
+      notify.user = post_user._id;
+      notify.notifyByPhoto = user._id;
+      invokeFirebaseNotification("Answer", notify, 'New Answer', post_user._id, post_user.deviceToken, post._id);
     } else {
       res.status(401).send({ message: 'Unauthorized'});
     }
@@ -189,7 +219,7 @@ exports.postQuestionAnswer = async (req, res) => {
     post.answerCount += 1;
     answers.post = post._id;
     user.answerQuestionCount += 1
-    await Promise.all([post.save(), answers.save(), user.save()]);
+    await Promise.all([post.save(), answers.save(), user.save(), notify.save(), post_user.save() ]);
     res.status(201).send({ message: "answer created", answers });
   } catch(e) {
     console.log(e)

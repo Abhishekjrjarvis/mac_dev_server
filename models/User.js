@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
   userPhoneNumber: { type: Number, required: true, maxlength: 10 },
-  userEmail: { type: String },
+  userEmail: { type: String, unique: true },
   userPassword: { type: String, minlength: 10 },
   userStatus: { type: String, default: "Not Verified" },
   username: { type: String, required: true, unique: true },
@@ -20,6 +20,7 @@ const userSchema = new mongoose.Schema({
   userEducation: { type: String },
   referalPercentage: { type: Number, default: 0 },
   profilePhoto: { type: String },
+  google_avatar: { type: String },
   profileCoverPhoto: { type: String },
   photoId: { type: String },
   coverId: { type: String },
@@ -300,12 +301,15 @@ const userSchema = new mongoose.Schema({
   ],
   user_birth_privacy: {
     type: String,
+    default: 'Every one'
   },
   user_address_privacy: {
     type: String,
+    default: 'Every one'
   },
   user_circle_privacy: {
     type: String,
+    default: 'Every one'
   },
   user_saved_post: [
     {

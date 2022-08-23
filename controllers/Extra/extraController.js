@@ -5,48 +5,48 @@ const FeedBack = require('../../models/Feedbacks/Feedback')
 const Student = require('../../models/Student')
 
 exports.validateUserAge = async(req, res) =>{
-    // try{
-    //     const { uid } = req.params
-    //     const user = await User.findById({_id: uid})
-    //     if(user.ageRestrict === 'Yes'){
-    //     var date = new Date()
-    //     var p_date = date.getDate();
-    //     var p_month = date.getMonth() + 1;
-    //     if (p_month < 10) {
-    //         p_month = parseInt(`0${p_month}`);
-    //     }
-    //     var p_year = date.getFullYear();
-    //     var month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-    //     var b_date = user.userDateOfBirth.slice(8, 10)
-    //     var b_month = user.userDateOfBirth.slice(5, 7)
-    //     var b_year = user.userDateOfBirth.slice(0, 4)
+    try{
+        const { uid } = req.params
+        const user = await User.findById({_id: uid})
+        if(user.ageRestrict === 'Yes'){
+        var date = new Date()
+        var p_date = date.getDate();
+        var p_month = date.getMonth() + 1;
+        if (p_month < 10) {
+            p_month = parseInt(`0${p_month}`);
+        }
+        var p_year = date.getFullYear();
+        var month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+        var b_date = user.userDateOfBirth.slice(8, 10)
+        var b_month = user.userDateOfBirth.slice(5, 7)
+        var b_year = user.userDateOfBirth.slice(0, 4)
 
-    //     if (b_date > p_date) {
-    //         p_date = p_date + month[b_month - 1];
-    //         p_month = p_month - 1;
-    //     }
+        if (b_date > p_date) {
+            p_date = p_date + month[b_month - 1];
+            p_month = p_month - 1;
+        }
 
-    //     if (b_month > p_month) {
-    //         p_year = p_year - 1;
-    //         p_month = p_month + 12;
-    //     }
+        if (b_month > p_month) {
+            p_year = p_year - 1;
+            p_month = p_month + 12;
+        }
 
-    //     var get_cal_year = p_year - b_year;
-    //         if(get_cal_year > 13){
-    //             user.ageRestrict = 'No'
-    //             await user.save()
-    //         }
-    //     res.status(200).send({ message: 'Age Restriction Disabled ', restrict: user.ageRestrict})
-    //     }else if(user.ageRestrict === 'No'){
-    //         user.ageRestrict = 'Yes'
-    //         await user.save()
-    //         res.status(200).send({ message: 'Age Restriction Enabled', restrict: user.ageRestrict})
-    //     }
+        var get_cal_year = p_year - b_year;
+            if(get_cal_year > 13){
+                user.ageRestrict = 'No'
+                await user.save()
+            }
+        res.status(200).send({ message: 'Age Restriction Disabled ', restrict: user.ageRestrict})
+        }else if(user.ageRestrict === 'No'){
+            user.ageRestrict = 'Yes'
+            await user.save()
+            res.status(200).send({ message: 'Age Restriction Enabled', restrict: user.ageRestrict})
+        }
         
-    // }
-    // catch(e){
-    //     console.log(e)
-    // }
+    }
+    catch(e){
+        console.log(e)
+    }
 }
 
 
@@ -212,6 +212,29 @@ exports.retrieveUserBirthPrivacy = async(req, res) =>{
     }
     await user.save()
     res.status(200).send({ message: `Privacy Updated`})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+
+exports.retrieveInstituteBirthPrivacy = async(req, res) =>{
+  try{
+    const { id } = req.params
+    const { staffStatus, contactStatus, emailStatus } = req.body
+    const institute = await InstituteAdmin.findById({_id: id})
+    if(staffStatus !== ''){
+      institute.staff_privacy = staffStatus
+    }
+    if(contactStatus !== ''){
+      institute.contact_privacy = contactStatus
+    }
+    if(emailStatus !== ''){
+      institute.email_privacy = emailStatus
+    }
+    await institute.save()
+    res.status(200).send({ message: `Privacy Updated Institute`})
   }
   catch(e){
     console.log(e)

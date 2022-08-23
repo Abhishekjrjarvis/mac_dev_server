@@ -50,8 +50,8 @@ const iQuestionNew = require("./routes/InstituteAdmin/Post/QuestionRoute");
 // const dburl = `${process.env.DB_URL2}`; // Development
 const dburl = `${process.env.DB_URL}`; // Production
 
-// 62e155ce168e4858c7ca8c00 - Development
-// 62e157224cc3f4c4d1b859b5 - Production
+// 62fcd875d6082088847019a5 - Development
+// 62fccc59c63eec5b7f8ee894 - Production
 
 mongoose
   .connect(dburl, {
@@ -158,9 +158,11 @@ app.use("/api/v1/poll", pollNew);
 app.use("/api/v1/ins/post/question", iQuestionNew);
 
 // ============================================================================
-setInterval(() => {
-  check_poll_status();
-}, 30000);
+
+setInterval(async () => {
+  await check_poll_status();
+}, 20000);
+
 
 app.get("*", (req, res) => {
   res.status(404).send("Page Not Found...");

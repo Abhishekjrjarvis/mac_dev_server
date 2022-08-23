@@ -248,3 +248,37 @@
                     // }
                     // await poll.save();
                     // res.status(200).send({ message: "Removed from Poll", voteAtPoll: poll.total_votes });
+
+
+
+                    // exports.postLike = async (req, res) => {
+                    //     try {
+                    //       const { pid } = req.params;
+                    //       const { reaction_type } = req.query
+                    //       const post = await Post.findById({ _id: pid });
+                    //       const user_session = req.tokenData && req.tokenData.userId ? req.tokenData.userId : ''
+                    //       if (user_session) {
+                    //         if ((post.endUserLike.length >= 1 && post.endUserLike.includes(String(user_session))) || 
+                    //               (post.endUserFun.length >= 1 && post.endUserFun.includes(String(user_session))) || 
+                    //               (post.endUserFact.length >= 1 && post.endUserFact.includes(String(user_session))) || 
+                    //               (post.endUserSupport.length >= 1 && post.endUserSupport.includes(String(user_session)))
+                    //             ) {
+                    //             post.endUserLike.pull(user_session);
+                    //             if (post.likeCount >= 1) {
+                    //               post.likeCount -= 1;
+                    //             }
+                    //             await post.save();
+                    //             res.status(200).send({ message: "Removed from Likes", likeCount: post.likeCount });
+                    //           } else {
+                    //             post.endUserLike.push(user_session);
+                    //             post.likeCount += 1;
+                    //             await post.save();
+                    //             res.status(200).send({ message: "Added To Likes", likeCount: post.likeCount });
+                    //           }
+                    //       } else {
+                    //         res.status(401).send();
+                    //       }
+                    //     } catch(e) {
+                    //       console.log(e)
+                    //     }
+                    //   };

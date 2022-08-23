@@ -196,10 +196,16 @@ router.get("/:uid/circle/array/query", catchAsync(User.circleArrayQuery));
 
 router.get("/circle/user", isLoggedIn, catchAsync(User.allCircleUsers));
 
+
+router.get("/:uid/subject/chat", catchAsync(User.retrieveUserSubjectChat))
+
+router.get("/:uid/application/status", catchAsync(User.retrieveUserApplicationStatus))
+
 router.get(
   "/profile/:username",
   isLoggedIn,
   catchAsync(User.retrieveProfileDataUsername)
 );
+
 
 module.exports = router;

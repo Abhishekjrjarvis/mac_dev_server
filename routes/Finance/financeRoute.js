@@ -88,5 +88,7 @@ router.get('/:fid/dashboard/income/balance', catchAsync(Finance.retrieveIncomeBa
 
 router.get('/:fid/dashboard/expense/balance', catchAsync(Finance.retrieveExpenseBalance))
 
+router.get('/:fid/dashboard/remain', catchAsync(Finance.retrieveRemainFeeBalance))
+
 
 module.exports = router

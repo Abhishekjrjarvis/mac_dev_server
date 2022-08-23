@@ -249,6 +249,14 @@ const studentSchema = new mongoose.Schema({
       ref: "Fees",
     },
   ],
+  studentRemainingFeeCount: {
+    type: Number,
+    default: 0
+  },
+  studentPaidFeeCount: {
+    type: Number,
+    default: 0
+  },
   library: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Library",

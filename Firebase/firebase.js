@@ -176,29 +176,6 @@ const invokeFirebaseNotification = (type, info, title, id, token, pid, aid) => {
 
     firebase.messaging().sendToDevice(firebaseToken, payload, options);
   }
-  else if (type === "Like") {
-    const firebaseToken = `${token && token}`;
-
-    const payload = {
-      notification: {
-        title: `${title}`,
-        body: `${info.notifyContent}`,
-      },
-      data: {
-        type: `${type}`,
-        userId: `${id}`,
-        postId: `${pid}`,
-        click_action: "FLUTTER_NOTIFICATION_CLICK",
-        sound: "default",
-      },
-    };
-    const options = {
-      priority: "high",
-      timeToLive: 60 * 60 * 24,
-    };
-
-    firebase.messaging().sendToDevice(firebaseToken, payload, options);
-  }
   else if (type === "Comment") {
     const firebaseToken = `${token && token}`;
 
@@ -234,30 +211,6 @@ const invokeFirebaseNotification = (type, info, title, id, token, pid, aid) => {
         type: `${type}`,
         userId: `${id}`,
         postId: `${pid}`,
-        click_action: "FLUTTER_NOTIFICATION_CLICK",
-        sound: "default",
-      },
-    };
-    const options = {
-      priority: "high",
-      timeToLive: 60 * 60 * 24,
-    };
-
-    firebase.messaging().sendToDevice(firebaseToken, payload, options);
-  }
-  else if (type === "UpVote") {
-    const firebaseToken = `${token && token}`;
-
-    const payload = {
-      notification: {
-        title: `${title}`,
-        body: `${info.notifyContent}`,
-      },
-      data: {
-        type: `${type}`,
-        userId: `${id}`,
-        postId: `${pid}`,
-        answerId: `${aid}`,
         click_action: "FLUTTER_NOTIFICATION_CLICK",
         sound: "default",
       },

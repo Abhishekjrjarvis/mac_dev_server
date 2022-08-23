@@ -21,4 +21,6 @@ router.get('/:gr/status/:type', catchAsync(Extra.retrieveCertificateStatus))
 
 router.patch('/:uid/privacy/feature', catchAsync(Extra.retrieveUserBirthPrivacy))
 
+router.patch('/:id/privacy/institute/feature', catchAsync(Extra.retrieveInstituteBirthPrivacy))
+
 module.exports = router

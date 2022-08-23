@@ -38,9 +38,11 @@ const financeSchema = new mongoose.Schema({
       photoId: { type: String },
       photo: { type: String },
       staff: { type: String },
+      feeId: { type: String },
       feeName: { type: String },
       feeAmount: { type: Number },
-      status: { type: String }
+      status: { type: String },
+      createdAt: { type: Date, default: Date.now },
     },
   ],
   submitClassRoom: [
@@ -50,9 +52,11 @@ const financeSchema = new mongoose.Schema({
       photoId: { type: String },
       photo: { type: String },
       staff: { type: String },
+      feeId: { type: String },
       feeName: { type: String },
       feeAmount: { type: Number },
-      status: { type: String }
+      status: { type: String },
+      createdAt: { type: Date, default: Date.now },
     },
   ],
   pendingClassroom: [
@@ -62,9 +66,11 @@ const financeSchema = new mongoose.Schema({
       photoId: { type: String },
       photo: { type: String },
       staff: { type: String },
+      feeId: { type: String },
       feeName: { type: String },
       feeAmount: { type: Number },
-      status: { type: String }
+      status: { type: String },
+      createdAt: { type: Date, default: Date.now },
     },
   ],
   financeProfilePhoto: {

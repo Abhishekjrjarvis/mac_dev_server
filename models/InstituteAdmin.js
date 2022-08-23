@@ -403,7 +403,43 @@ const instituteAdminSchema = new mongoose.Schema({
   },
   pollCount: {
     type: Number,
-    default: 0,
+    default: 0
+  },
+  staff_privacy: {
+    type: String,
+    default: 'Every one'
+  },
+  email_privacy: {
+    type: String,
+    default: 'Every one'
+  },
+  contact_privacy: {
+    type: String,
+    default: 'Every one'
+  },
+  ins_latitude: {
+    type: Number
+  },
+  ins_longitude: {
+    type: Number
+  },
+  ins_accuracy: {
+    type: Number
+  },
+  ins_altitude: {
+    type: Number
+  },
+  ins_speed: {
+    type: Number
+  },
+  ins_heading: {
+    type: Number
+  },
+  ins_time: {
+    type: String
+  },
+  ins_isMock: {
+    type: Boolean
   },
 });
 

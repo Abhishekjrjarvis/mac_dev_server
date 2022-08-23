@@ -275,7 +275,7 @@ exports.profileByUser = async (req, res) => {
   try {
     const { id } = req.params;
     const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-    const { userLegalName, userGender, userDateOfBirth, username } = req.body;
+    const { userLegalName, userGender, userDateOfBirth, username, userEmail, pic_url } = req.body;
     const existAdmin = await Admin.findOne({ adminUserName: username });
     const existInstitute = await InstituteAdmin.findOne({ name: username });
     const existUser = await User.findOne({ username: username });
@@ -287,32 +287,41 @@ exports.profileByUser = async (req, res) => {
       if (existUser) {
         res.send({ message: "Username already exists" });
       } else {
-        const width = 200;
-        const height = 200;
-        const file = req.file;
-        const results = await uploadFile(file, width, height);
+        var width = 200;
+        var height = 200;
+        var file = req.file;
+        if(file){
+        var results = await uploadFile(file, width, height);
+        }
         const user = new User({
           userLegalName: userLegalName,
           userGender: userGender,
           userDateOfBirth: userDateOfBirth,
           username: username,
           userStatus: "Approved",
+          userEmail: userEmail,
+          google_avatar: pic_url,
           userPhoneNumber: id,
           photoId: "0",
           coverId: "2",
           createdAt: c_date,
           remindLater: rDate,
         });
+        if(results){
         user.profilePhoto = results.key;
+        }
         admins.users.push(user);
         admins.userCount += 1
         await Promise.all([admins.save(), user.save()]);
+        if(file){
         await unlinkFile(file.path);
-        res.status(200).send({ message: "Profile Successfully Created...", user });
+        }
+        const token = generateAccessToken(user?.username, user?._id);
+        res.status(200).send({ message: "Profile Successfully Created...", user, token: `Bearer ${token}` });
         const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
         .populate({ path: 'posts' })
         if(uInstitute && uInstitute.posts && uInstitute.posts.length >=1){
-        const post = await Post.find({ _id: { $in: uInstitute.posts }, postVisibility: 'Anyone'})
+        const post = await Post.find({ _id: { $in: uInstitute.posts }, postStatus: 'Anyone'})
         post.forEach(async (ele) => {
           user.userPosts.push(ele)
         })
@@ -541,6 +550,24 @@ module.exports.authentication = async (req, res) => {
     console.log(`Error`, e.message);
   }
 };
+
+module.exports.authenticationGoogle = async (req, res) =>{
+  try{
+    const { email, googleAuthToken } = req.body
+    const user = await User.findOne({ userEmail: email})
+    .select('userLegalName username userEmail deviceToken profilePhoto photoId google_avatar')
+    if(user){
+      const token = generateAccessToken(user?.username, user?._id);
+      res.status(200).send({ message: 'successfully signed In', sign_in: true, user: user, token: `Bearer ${token}`, g_AuthToken: googleAuthToken})
+    }
+    else{
+      res.status(200).send({ message: 'Failed to signed In', sign_in: false})
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
 
 module.exports.getLogout = async (req, res) => {
   try {

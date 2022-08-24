@@ -311,6 +311,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'Every one'
   },
+  user_tag_privacy: {
+    type: String,
+    default: 'Every one'
+  },
   user_saved_post: [
     {
       type: mongoose.Schema.Types.ObjectId,

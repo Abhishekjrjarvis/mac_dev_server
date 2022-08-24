@@ -94,6 +94,6 @@ router.get('/getrecentchat/institute', isLoggedIn,  catchAsync(Admin.getRecentCh
 
 router.post('/:aid/repay/:uid/institute', isLoggedIn, catchAsync(Admin.retrieveRepayInstituteAmount))
 
-router.get('/repay/query/institute/:id', isLoggedIn, catchAsync(Admin.retrieveInstituteRepayQuery))
+router.get('/repay/query/institute/:id', catchAsync(Admin.retrieveInstituteRepayQuery))
 
 module.exports = router

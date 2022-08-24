@@ -417,6 +417,10 @@ const instituteAdminSchema = new mongoose.Schema({
     type: String,
     default: 'Every one'
   },
+  tag_privacy: {
+    type: String,
+    default: 'Every one'
+  },
   ins_latitude: {
     type: Number
   },

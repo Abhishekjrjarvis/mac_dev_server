@@ -199,7 +199,7 @@ exports.retrieveCertificateStatus = async(req, res) =>{
 exports.retrieveUserBirthPrivacy = async(req, res) =>{
   try{
     const { uid } = req.params
-    const { birthStatus, addressStatus, circleStatus } = req.body
+    const { birthStatus, addressStatus, circleStatus, tagStatus } = req.body
     const user = await User.findById({_id: uid})
     if(birthStatus !== ''){
       user.user_birth_privacy = birthStatus
@@ -209,6 +209,9 @@ exports.retrieveUserBirthPrivacy = async(req, res) =>{
     }
     if(circleStatus !== ''){
       user.user_circle_privacy = circleStatus
+    }
+    if(tagStatus !== ''){
+      user.user_tag_privacy = tagStatus
     }
     await user.save()
     res.status(200).send({ message: `Privacy Updated`})
@@ -222,7 +225,7 @@ exports.retrieveUserBirthPrivacy = async(req, res) =>{
 exports.retrieveInstituteBirthPrivacy = async(req, res) =>{
   try{
     const { id } = req.params
-    const { staffStatus, contactStatus, emailStatus } = req.body
+    const { staffStatus, contactStatus, emailStatus, tagStatus } = req.body
     const institute = await InstituteAdmin.findById({_id: id})
     if(staffStatus !== ''){
       institute.staff_privacy = staffStatus
@@ -232,6 +235,9 @@ exports.retrieveInstituteBirthPrivacy = async(req, res) =>{
     }
     if(emailStatus !== ''){
       institute.email_privacy = emailStatus
+    }
+    if(tagStatus !== ''){
+      institute.tag_privacy = tagStatus
     }
     await institute.save()
     res.status(200).send({ message: `Privacy Updated Institute`})

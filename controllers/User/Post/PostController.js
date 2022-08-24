@@ -61,9 +61,17 @@ exports.postWithText = async (req, res) => {
         if (instit.tagType === "User") {
           const userTag = await User.findById(instit.tagId);
           userTag.tag_post?.push(post._id);
+          if (userTag?.userPosts.includes(post._id)) {
+          } else {
+            userTag.userPosts?.push(post._id);
+          }
           await userTag.save();
         } else {
           const institTag = await InstituteAdmin.findById(instit.tagId);
+          if (institTag?.posts.includes(post._id)) {
+          } else {
+            institTag.posts?.push(post._id);
+          }
           institTag.tag_post?.push(post._id);
           await institTag.save();
         }
@@ -123,10 +131,18 @@ exports.postWithImage = async (req, res) => {
       for (let instit of req.body?.people) {
         if (instit.tagType === "User") {
           const userTag = await User.findById(instit.tagId);
+          if (userTag?.userPosts.includes(post._id)) {
+          } else {
+            userTag.userPosts?.push(post._id);
+          }
           userTag.tag_post?.push(post._id);
           await userTag.save();
         } else {
           const institTag = await InstituteAdmin.findById(instit.tagId);
+          if (institTag?.posts.includes(post._id)) {
+          } else {
+            institTag.posts?.push(post._id);
+          }
           institTag.tag_post?.push(post._id);
           await institTag.save();
         }
@@ -185,10 +201,18 @@ exports.postWithVideo = async (req, res) => {
       for (let instit of req.body?.people) {
         if (instit.tagType === "User") {
           const userTag = await User.findById(instit.tagId);
+          if (userTag?.userPosts.includes(post._id)) {
+          } else {
+            userTag.userPosts?.push(post._id);
+          }
           userTag.tag_post?.push(post._id);
           await userTag.save();
         } else {
           const institTag = await InstituteAdmin.findById(instit.tagId);
+          if (institTag?.posts.includes(post._id)) {
+          } else {
+            institTag.posts?.push(post._id);
+          }
           institTag.tag_post?.push(post._id);
           await institTag.save();
         }

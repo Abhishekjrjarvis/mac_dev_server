@@ -151,6 +151,10 @@ exports.postWithText = async (req, res) => {
     if (Array.isArray(req.body?.people)) {
       for (let instit of req.body?.people) {
         const institTag = await InstituteAdmin.findById(instit.tagId);
+        if (institTag?.posts.includes(post._id)) {
+        } else {
+          institTag.posts?.push(post._id);
+        }
         institTag.tag_post?.push(post._id);
         await institTag.save();
       }
@@ -244,6 +248,10 @@ exports.postWithImage = async (req, res) => {
     if (Array.isArray(req.body.people)) {
       for (let instit of req.body?.people) {
         const institTag = await InstituteAdmin.findById(instit.tagId);
+        if (institTag?.posts.includes(post._id)) {
+        } else {
+          institTag.posts?.push(post._id);
+        }
         institTag.tag_post?.push(post._id);
         await institTag.save();
       }
@@ -335,6 +343,10 @@ exports.postWithVideo = async (req, res) => {
     if (Array.isArray(req.body.people)) {
       for (let instit of req.body.people) {
         const institTag = await InstituteAdmin.findById(instit.tagId);
+        if (institTag?.posts.includes(post._id)) {
+        } else {
+          institTag.posts?.push(post._id);
+        }
         institTag.tag_post?.push(post._id);
         await institTag.save();
       }

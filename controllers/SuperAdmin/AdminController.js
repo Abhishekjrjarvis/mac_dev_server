@@ -63,7 +63,7 @@ exports.getAdmin = async(req, res) =>{
         const { aid } = req.params
         const post = await Post.find({}).select('id')
         const admins = await Admin.findById({ _id: aid})
-        .select('id postCount instituteCount userCount featureAmount idCardBalance staffCount studentCount playlistCount paymentCount adminName adminUserName photoId profilePhoto')
+        .select('id postCount instituteCount reportPostQueryCount careerCount getTouchCount userCount featureAmount idCardBalance staffCount studentCount playlistCount paymentCount adminName adminUserName photoId profilePhoto')
         .populate({
           path: 'staffArray',
           select: 'staffFirstName staffMiddleName staffJoinDate staffLastName photoId staffProfilePhoto',
@@ -338,8 +338,11 @@ exports.getApproveIns = async(req, res) =>{
         institute.status = "Approved";
         institute.unlockAmount = charges == null ? 1000 : charges 
         if(charges == 0){
-        institute.activateStatus = 'Activated'
+        admin.activateAccount += 1
+        institute.featurePaymentStatus = 'Paid'
         institute.accessFeature = 'UnLocked'
+        institute.activateStatus = 'Activated'
+        institute.activateDate = new Date()
         }
         notify.notifyContent = "Approval For Super Admin is successfull";
         notify.notifySender = aid;
@@ -523,6 +526,13 @@ exports.retrieveApproveInstituteActivateVolume = async(req, res) => {
     .select('activateAccount')
     const institute = await InstituteAdmin.find({ activateStatus: 'Activated'})
     .select('createdAt insName name photoId insProfilePhoto bankAccountHolderName paymentBankStatus bankAccountNumber bankIfscCode bankAccountPhoneNumber bankAccountType paymentBankStatus insBankBalance adminRepayAmount')
+    .populate({
+      path: 'getReturn',
+      populate:{
+        path: 'institute',
+        select: 'insName'
+      }
+    })
     res.status(200).send({ message: 'Activate Query ', institute, admin})
   }
   catch{
@@ -573,8 +583,7 @@ exports.retrieveReferralUserPayment = async(req, res) => {
 
 exports.retrieveGetInTouch = async(req, res) => {
   try{
-    const { aid } = req.params
-    const admin = await Admin.findById({_id: aid})
+    const admin = await Admin.findById({_id: `${process.env.S_ADMIN_ID}`})
     .select('id')
     .populate({
       path: 'getTouchUsers'
@@ -586,6 +595,78 @@ exports.retrieveGetInTouch = async(req, res) => {
   }
 }
 
+exports.retrieveCarrierQuery = async(req, res) => {
+  try{
+    const admin = await Admin.findById({_id: `${process.env.S_ADMIN_ID}`})
+    .select('id')
+    .populate({
+      path: 'careerUserArray'
+    })
+    res.status(200).send({ message: 'Career Data', admin})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.retrieveReportQuery = async(req, res) => {
+  try{
+    const admin = await Admin.findById({_id: `${process.env.S_ADMIN_ID}`})
+    .select('id')
+    .populate({
+      path: 'reportList',
+      select: 'createdAt reportStatus',
+      populate: {
+        path: 'reportBy',
+        select: 'username userLegalName photoId profilePhoto'
+      }
+    })
+    .populate({
+      path: 'reportList',
+      select: 'createdAt reportStatus',
+      populate: {
+        path: 'reportInsPost',
+        select: 'post_url'
+      }
+    })
+    .lean()
+    .exec()
+    res.status(200).send({ message: 'Report Post Data', admin})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+
+exports.retrieveNotificationQuery = async(req, res) => {
+  try{
+    const admin = await Admin.findById({_id: `${process.env.S_ADMIN_ID}`})
+    .select('id')
+    .populate({
+      path: 'aNotify',
+      populate: {
+        path: 'notifyByInsPhoto',
+        select: 'photoId insProfilePhoto'
+      }
+    })
+    res.status(200).send({ message: 'Notification Data', admin})
+  }
+  catch{
+
+  }
+}
+
+exports.retrieveNotificationCountQuery = async(req, res) => {
+  try{
+    const admin = await Admin.findById({_id: `${process.env.S_ADMIN_ID}`})
+    .select('id aNotify')
+    res.status(200).send({ message: 'Notification Count Data', notifyCount: admin.aNotify.length})
+  }
+  catch{
+
+  }
+}
 
 exports.getRecentChatUser = async(req, res) => {
   try{
@@ -676,6 +757,27 @@ exports.retrieveRepayInstituteAmount = async(req, res) => {
      repay.save()
     ])
     res.status(200).send({ message: "Amount Transferred", status: true });
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+
+
+exports.retrieveInstituteRepayQuery = async(req, res) =>{
+  try{
+    const { id } = req.params
+    const institute = await InstituteAdmin.findById({_id: id})
+    .select('id')
+    .populate({
+      path: 'getReturn',
+      populate: {
+        path: 'institute',
+        select: 'insName'
+      }
+    })
+    res.status(200).send({ message: 'Repay Array', repay: institute.getReturn})
   }
   catch{
 

@@ -117,7 +117,10 @@ const postSchema = new mongoose.Schema({
   },
   endUserFun: [],
   endUserFact: [],
-  endUserSupport: []
+  endUserSupport: [],
+  post_url: {
+    type: String
+  },
 });
 
 postSchema.post("findOneAndDelete", async function (doc) {

@@ -10,7 +10,7 @@ const { processVideoPayment, paytmVideoResponse } = require('../../controllers/P
 // const { processAdmissionPayment, paytmAdmissionResponse } = require('../../controllers/Payment/AdmissionController')
 
 const { processUnlockFeaturePayment, paytmUnlockFeatureResponse } = require('../../controllers/Payment/UnlockController')
-const { generateTxnToken, paytmVerifyResponseStatus } = require("../../controllers/Payment/ApkPaymentController")
+const { generateTxnToken, paytmVerifyResponseStatus, generateActivateTxnToken, paytmVerifyActivateResponseStatus } = require("../../controllers/Payment/ApkPaymentController")
 
 
 
@@ -60,6 +60,10 @@ router.route('/callback/ins/:id/user/:name').post(paytmUnlockFeatureResponse);
 
 // ============================= APK Token ==========================================
 router.route('/generateTxnToken').post(generateTxnToken);
-router.route('/verify/status').post(paytmVerifyResponseStatus);
+router.route('/verify/status/:fiid/:uid/student/:sid/fee/:fid').post(paytmVerifyResponseStatus);
+
+// ============================= Institute APK Token ==========================================
+router.route('/generateActivateTxnToken').post(generateActivateTxnToken);
+router.route('/verify/activate/status/:id/user/name').post(paytmVerifyActivateResponseStatus);
 
 module.exports = router;

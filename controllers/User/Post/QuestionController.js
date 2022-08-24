@@ -36,6 +36,7 @@ exports.postQuestionText = async (req, res) => {
     post.authorProfilePhoto = user.profilePhoto
     post.isUser = 'user'
     post.postType = 'Question'
+    post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`
     await Promise.all([user.save(), post.save()]);
     res.status(201).send({ message: "post question is create", post });
     if(user.userFollowers.length >= 1){

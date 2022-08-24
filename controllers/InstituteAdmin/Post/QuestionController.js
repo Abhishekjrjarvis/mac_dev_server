@@ -37,6 +37,7 @@ exports.postQuestionText = async (req, res) => {
         post.authorProfilePhoto = institute.insProfilePhoto;
         post.isInstitute = 'institute'
         post.postType = 'Question'
+        post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`
         await Promise.all([institute.save(), post.save()]);
         res.status(201).send({ message: "post is create", post });
         if (institute.isUniversal === "Not Assigned") {
@@ -133,6 +134,7 @@ exports.retrievePollQuestionText = async (req, res) => {
         post.authorProfilePhoto = institute.insProfilePhoto;
         post.isInstitute = 'institute'
         post.postType = "Poll"
+        post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`
         post.poll_query = poll._id
         poll.duration_date = end_poll(req.body.day)
         await Promise.all([institute.save(), post.save(), poll.save()]);

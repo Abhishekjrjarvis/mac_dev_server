@@ -98,6 +98,7 @@ exports.postWithText = async (req, res) => {
     post.authorPhotoId = institute.photoId;
     post.authorProfilePhoto = institute.insProfilePhoto;
     post.isInstitute = "institute";
+    post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`
     await Promise.all([institute.save(), post.save()]);
     res.status(201).send({ message: "post is create", post });
     if (institute.isUniversal === "Not Assigned") {
@@ -199,6 +200,7 @@ exports.postWithImage = async (req, res) => {
     post.authorPhotoId = institute.photoId;
     post.authorProfilePhoto = institute.insProfilePhoto;
     post.isInstitute = "institute";
+    post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`
     await Promise.all([institute.save(), post.save()]);
     res.status(201).send({ message: "post is create", post });
     if (institute.isUniversal === "Not Assigned") {
@@ -297,6 +299,7 @@ exports.postWithVideo = async (req, res) => {
     post.authorPhotoId = institute.photoId;
     post.authorProfilePhoto = institute.insProfilePhoto;
     post.isInstitute = "institute";
+    post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`
     await Promise.all([institute.save(), post.save()]);
     await unlinkFile(file.path);
     res.status(201).send({ message: "post created", post });

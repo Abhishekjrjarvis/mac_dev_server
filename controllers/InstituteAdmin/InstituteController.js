@@ -631,11 +631,14 @@ exports.reportPostByUser = async (req, res) => {
     const post = await Post.findById({ _id: uid });
     const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const report = new Report({ reportStatus: reportStatus });
-    admin.reportList.push(report);
-    report.reportInsPost = post;
-    report.reportBy = user;
-    await admin.save();
-    await report.save();
+    admin.reportList.push(report._id);
+    admin.reportPostQueryCount += 1
+    report.reportInsPost = post._id;
+    report.reportBy = user._id;
+    await Promise.all([
+      admin.save(),
+      report.save()  
+    ])
     res.status(200).send({ message: "reported", report: reportStatus });
   } catch (e) {
     console.log(`Error`, e.message);

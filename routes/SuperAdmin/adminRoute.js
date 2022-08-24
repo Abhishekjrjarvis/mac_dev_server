@@ -78,12 +78,22 @@ router.get('/referral/user/payment', isLoggedIn, catchAsync(Admin.retrieveReferr
 router.post('/:aid/referral/:uid/pay', isLoggedIn, catchAsync(Admin.retrieveReferralUserPayment))
 
 // Get In Touch Array
-router.get('/:aid/get/touch', isLoggedIn, catchAsync(Admin.retrieveGetInTouch))
+router.get('/get/touch', isLoggedIn, catchAsync(Admin.retrieveGetInTouch))
+
+router.get('/carrier/query', isLoggedIn, catchAsync(Admin.retrieveCarrierQuery))
+
+router.get('/report/query', isLoggedIn, catchAsync(Admin.retrieveReportQuery))
+
+router.get('/notification/query', isLoggedIn, catchAsync(Admin.retrieveNotificationQuery))
+
+router.get('/dashboard/notify/count', isLoggedIn, catchAsync(Admin.retrieveNotificationCountQuery))
 
 router.get('/getrecentchat/user', isLoggedIn,  catchAsync(Admin.getRecentChatUser));
 
 router.get('/getrecentchat/institute', isLoggedIn,  catchAsync(Admin.getRecentChatInstitute));
 
 router.post('/:aid/repay/:uid/institute', isLoggedIn, catchAsync(Admin.retrieveRepayInstituteAmount))
+
+router.get('/repay/query/institute/:id', isLoggedIn, catchAsync(Admin.retrieveInstituteRepayQuery))
 
 module.exports = router

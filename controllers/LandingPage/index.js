@@ -12,6 +12,7 @@ exports.uploadGetTouchDetail = async(req, res) =>{
         const admin = await Admin.findById({_id: `${process.env.S_ADMIN_ID}`})
         const touch = new GetTouch({...req.body})
         admin.getTouchUsers.push(touch._id)
+        admin.getTouchCount += 1
         await Promise.all([
             touch.save(),
             admin.save()
@@ -34,6 +35,7 @@ exports.uploadUserCareerDetail = async(req, res) =>{
         const career = new Career({...req.body})
         career.endUserResume = results.key;
         admin.careerUserArray.push(career._id)
+        admin.careerCount += 1
         await Promise.all([
             career.save(),
             admin.save()

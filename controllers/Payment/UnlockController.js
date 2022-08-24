@@ -106,7 +106,7 @@ exports.processUnlockFeaturePayment = async (req, res, next) => {
   
   const addUnlockPayment = async (data, insId ) => {
     try {
-      const unlock = await new IdCardPayment(data);
+      const unlock = new IdCardPayment(data);
       const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
       unlock.insId = insId;
       admin.exploreFeatureList.push(unlock._id);

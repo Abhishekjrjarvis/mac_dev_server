@@ -83,7 +83,7 @@ exports.postWithText = async (req, res) => {
       for (let val of req.body?.people) {
         post.tagPeople.push({
           tagId: val.tagId,
-          tagUserName: val.tagType,
+          tagUserName: val.tagUserName,
           tagType: val.tagType,
         });
       }
@@ -175,7 +175,7 @@ exports.postWithImage = async (req, res) => {
       for (let val of req.body?.people) {
         post.tagPeople.push({
           tagId: val.tagId,
-          tagUserName: val.tagType,
+          tagUserName: val.tagUserName,
           tagType: val.tagType,
         });
       }
@@ -271,7 +271,7 @@ exports.postWithVideo = async (req, res) => {
       for (let val of req.body?.people) {
         post.tagPeople.push({
           tagId: val.tagId,
-          tagUserName: val.tagType,
+          tagUserName: val.tagUserName,
           tagType: val.tagType,
         });
       }

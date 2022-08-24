@@ -1385,8 +1385,18 @@ paths:
                 type: array
                 description: This is all taged users ids
                 items:
-                  type: string
+                  type: object
                   description: one user id
+                  properties:
+                    tagId: 
+                      type: string
+                      description: this is tagged people id (institute Id)
+                    tagUserName:
+                      type: string
+                      description: this is tagged people username (institute username)
+                    tagType:
+                      type: string
+                      description: type here "Institute"
       responses:
         "200":
           description: OK
@@ -4042,8 +4052,19 @@ paths:
                 type: array
                 description: This is all taged users ids
                 items:
-                  type: string
+                  type: object
                   description: one user id
+                  properties:
+                    tagId: 
+                      type: string
+                      description: this is tagged people id (institute Id)
+                    tagUserName:
+                      type: string
+                      description: this is tagged people username (institute username)
+                    tagType:
+                      type: string
+                      description: type here "Institute"
+
       responses:
         "200":
           description: OK

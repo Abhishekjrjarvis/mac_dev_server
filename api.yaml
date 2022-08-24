@@ -1173,6 +1173,9 @@ paths:
               circleStatus:
                 type: string
                 description: Enter Circle Privacy Content
+              tagStatus:
+                type: string
+                description: Enter Tag Privacy Content
       responses:
         "200":
           description: OK
@@ -1207,6 +1210,9 @@ paths:
               contactStatus:
                 type: string
                 description: Enter Contact Privacy Content
+              tagStatus:
+                type: string
+                description: Enter Tag Privacy Content
       responses:
         "200":
           description: OK

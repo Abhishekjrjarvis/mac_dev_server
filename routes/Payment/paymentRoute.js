@@ -64,6 +64,6 @@ router.route('/verify/status/:fiid/:uid/student/:sid/fee/:fid').post(paytmVerify
 
 // ============================= Institute APK Token ==========================================
 router.route('/generateActivateTxnToken').post(generateActivateTxnToken);
-router.route('/verify/activate/status/:id/user/name').post(paytmVerifyActivateResponseStatus);
+router.route('/verify/activate/status/:id/user/:name').post(paytmVerifyActivateResponseStatus);
 
 module.exports = router;

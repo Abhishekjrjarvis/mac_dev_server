@@ -246,9 +246,9 @@ exports.postWithDeleted = async (req, res) => {
     await Post.findByIdAndDelete({ _id: pid });
     user.postCount -= 1;
     if(post.postType === 'Poll'){
+      post.poll_query = ''
       await Poll.findByIdAndDelete({_id: `${post.poll_query}`})
       user.poll_Count -= 1
-      post.poll_query = ''
       await post.save()
     }
     await user.save();

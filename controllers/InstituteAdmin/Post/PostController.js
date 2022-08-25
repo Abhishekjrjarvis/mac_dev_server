@@ -386,7 +386,9 @@ exports.postWithDeleted = async (req, res) => {
     }
     await institute.save();
     res.status(200).send({ message: "post deleted 🙄🙄" });
-  } catch {}
+  } catch(e){
+    console.log(e)
+  }
 };
 
 exports.postLike = async (req, res) => {

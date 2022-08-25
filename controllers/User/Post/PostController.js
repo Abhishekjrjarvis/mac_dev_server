@@ -253,7 +253,9 @@ exports.postWithDeleted = async (req, res) => {
     }
     await user.save();
     res.status(200).send({ message: "post deleted" });
-  } catch {}
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 exports.postLike = async (req, res) => {

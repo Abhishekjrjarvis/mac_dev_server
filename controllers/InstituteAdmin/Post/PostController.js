@@ -376,14 +376,14 @@ exports.postWithDeleted = async (req, res) => {
     const institute = await InstituteAdmin.findById({ _id: id });
     const post = await Post.findById({_id: pid})
     await InstituteAdmin.findByIdAndUpdate(id, { $pull: { posts: pid } });
-    await Post.findByIdAndDelete({ _id: pid });
     institute.postCount -= 1;
-    if(post.postType === 'Poll'){
+    if(post && post.postType === 'Poll'){
       post.poll_query = ''
       await Poll.findByIdAndDelete({_id: `${post.poll_query}`})
       institute.pollCount -= 1
       await post.save()
     }
+    await Post.findByIdAndDelete({ _id: pid });
     await institute.save();
     res.status(200).send({ message: "post deleted 🙄🙄" });
   } catch(e){

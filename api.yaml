@@ -1385,8 +1385,18 @@ paths:
                 type: array
                 description: This is all taged users ids
                 items:
-                  type: string
+                  type: object
                   description: one user id
+                  properties:
+                    tagId: 
+                      type: string
+                      description: this is tagged people id (institute Id)
+                    tagUserName:
+                      type: string
+                      description: this is tagged people username (institute username)
+                    tagType:
+                      type: string
+                      description: type here "Institute"
       responses:
         "200":
           description: OK
@@ -1545,7 +1555,7 @@ paths:
         "200":
           description: OK
 
-  /api/v1/user/post/tag/{uid}:
+  /api/v1/user/post/tag:
     get:
       tags:
         - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
@@ -1555,11 +1565,11 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: path
-          name: uid
-          required: true
-          type: string
-          description: This is user id
+        # - in: path
+        #   name: uid
+        #   required: true
+        #   type: string
+        #   description: This is user id
         - in: query
           name: page
           schema:
@@ -4042,8 +4052,19 @@ paths:
                 type: array
                 description: This is all taged users ids
                 items:
-                  type: string
+                  type: object
                   description: one user id
+                  properties:
+                    tagId: 
+                      type: string
+                      description: this is tagged people id (institute Id)
+                    tagUserName:
+                      type: string
+                      description: this is tagged people username (institute username)
+                    tagType:
+                      type: string
+                      description: type here "Institute"
+
       responses:
         "200":
           description: OK
@@ -4202,7 +4223,7 @@ paths:
         "200":
           description: OK
 
-  /api/v1/ins/post/tag/{uid}:
+  /api/v1/ins/post/tag:
     get:
       tags:
         - Institute DashBoard API (including Notification, Post, Announcement)
@@ -4212,11 +4233,11 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: path
-          name: uid
-          required: true
-          type: string
-          description: This is institute id
+        # - in: path
+        #   name: uid
+        #   required: true
+        #   type: string
+        #   description: This is institute id
         - in: query
           name: page
           schema:
@@ -11257,3 +11278,42 @@ paths:
 
 
 
+  /api/v1/ins/profile/{username}:
+    get:
+      tags:
+        - Institute Profile API
+      summary: Institute profile page Data
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: username # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The institute username
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/profile/{username}:
+    get:
+      tags:
+        - User Profile API
+      summary: User Profile page Data -(verified)
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: username # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The user username
+      responses:
+        "200":
+          description: OK

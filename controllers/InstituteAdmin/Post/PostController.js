@@ -80,13 +80,12 @@ exports.postWithText = async (req, res) => {
       .populate({ path: "joinedUserList" });
     const post = new Post({ ...req.body });
     if (Array.isArray(req.body.people)) {
-      for (let val of req.body.people) {
-        post.tagPeople.push(val);
-      }
-    } else {
-      const tag = req.body.people.split(",");
-      for (let val of tag) {
-        post.tagPeople.push(val);
+      for (let val of req.body?.people) {
+        post.tagPeople.push({
+          tagId: val.tagId,
+          tagUserName: val.tagUserName,
+          tagType: val.tagType,
+        });
       }
     }
     post.imageId = "1";
@@ -149,16 +148,13 @@ exports.postWithText = async (req, res) => {
         });
       }
     }
-    if (Array.isArray(req.body.people)) {
-      for (let instit of req.body.people) {
-        const institTag = await InstituteAdmin.findById(instit);
-        institTag.tag_post?.push(post._id);
-        await institTag.save();
-      }
-    } else {
-      const tag = req.body.people.split(",");
-      for (let instit of tag) {
-        const institTag = await InstituteAdmin.findById(instit);
+    if (Array.isArray(req.body?.people)) {
+      for (let instit of req.body?.people) {
+        const institTag = await InstituteAdmin.findById(instit.tagId);
+        if (institTag?.posts.includes(post._id)) {
+        } else {
+          institTag.posts?.push(post._id);
+        }
         institTag.tag_post?.push(post._id);
         await institTag.save();
       }
@@ -176,13 +172,12 @@ exports.postWithImage = async (req, res) => {
     const post = new Post({ ...req.body });
 
     if (Array.isArray(req.body.people)) {
-      for (let val of req.body.people) {
-        post.tagPeople.push(val);
-      }
-    } else {
-      const tag = req.body.people.split(",");
-      for (let val of tag) {
-        post.tagPeople.push(val);
+      for (let val of req.body?.people) {
+        post.tagPeople.push({
+          tagId: val.tagId,
+          tagUserName: val.tagUserName,
+          tagType: val.tagType,
+        });
       }
     }
     for (let file of req.files) {
@@ -251,15 +246,12 @@ exports.postWithImage = async (req, res) => {
       }
     }
     if (Array.isArray(req.body.people)) {
-      for (let instit of req.body.people) {
-        const institTag = await InstituteAdmin.findById(instit);
-        institTag.tag_post?.push(post._id);
-        await institTag.save();
-      }
-    } else {
-      const tag = req.body.people.split(",");
-      for (let val of tag) {
-        const institTag = await InstituteAdmin.findById(instit);
+      for (let instit of req.body?.people) {
+        const institTag = await InstituteAdmin.findById(instit.tagId);
+        if (institTag?.posts.includes(post._id)) {
+        } else {
+          institTag.posts?.push(post._id);
+        }
         institTag.tag_post?.push(post._id);
         await institTag.save();
       }
@@ -276,13 +268,12 @@ exports.postWithVideo = async (req, res) => {
       .populate({ path: "joinedUserList" });
     const post = new Post({ ...req.body });
     if (Array.isArray(req.body.people)) {
-      for (let val of req.body.people) {
-        post.tagPeople.push(val);
-      }
-    } else {
-      const tag = req.body.people.split(",");
-      for (let val of tag) {
-        post.tagPeople.push(val);
+      for (let val of req.body?.people) {
+        post.tagPeople.push({
+          tagId: val.tagId,
+          tagUserName: val.tagUserName,
+          tagType: val.tagType,
+        });
       }
     }
     const file = req.file;
@@ -351,14 +342,11 @@ exports.postWithVideo = async (req, res) => {
     }
     if (Array.isArray(req.body.people)) {
       for (let instit of req.body.people) {
-        const institTag = await InstituteAdmin.findById(instit);
-        institTag.tag_post?.push(post._id);
-        await institTag.save();
-      }
-    } else {
-      const tag = req.body.people.split(",");
-      for (let val of tag) {
-        const institTag = await InstituteAdmin.findById(instit);
+        const institTag = await InstituteAdmin.findById(instit.tagId);
+        if (institTag?.posts.includes(post._id)) {
+        } else {
+          institTag.posts?.push(post._id);
+        }
         institTag.tag_post?.push(post._id);
         await institTag.save();
       }
@@ -849,10 +837,16 @@ exports.circleList = async (req, res) => {
     const getPage = req.query.page ? parseInt(req.query.page) : 1;
     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
     const dropItem = (getPage - 1) * itemPerPage;
-    const tagUser = await InstituteAdmin.find({
+
+    const tagInstitute = await InstituteAdmin.find({
       $or: [
         { insName: { $regex: req.query.search, $options: "i" } },
         { name: { $regex: req.query.search, $options: "i" } },
+      ],
+      $and: [
+        {
+          tag_privacy: { $in: ["Every one"] },
+        },
       ],
     })
       .select("insName insProfilePhoto photoId name")
@@ -861,10 +855,9 @@ exports.circleList = async (req, res) => {
       .lean()
       .exec();
 
-    // console.log(tagUser);
-    // const tagInstituteList = random_list_generator(tagUser);
+    // const tagInstituteList = random_list_generator(tagInstitute);
     res.status(200).send({
-      tagInstituteList: tagUser,
+      tagInstituteList: tagInstitute,
     });
   } catch {}
 };

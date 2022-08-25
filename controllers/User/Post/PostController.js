@@ -3,7 +3,7 @@ const Post = require("../../../models/Post");
 const Comment = require("../../../models/Comment");
 const InstituteAdmin = require("../../../models/InstituteAdmin");
 const ReplyComment = require("../../../models/ReplyComment/ReplyComment");
-const Notification = require('../../../models/notification')
+const Notification = require("../../../models/notification");
 const {
   uploadPostImageFile,
   uploadVideo,
@@ -12,7 +12,7 @@ const fs = require("fs");
 const util = require("util");
 const { suffle_search_list } = require("../../../Utilities/randomFunction");
 const unlinkFile = util.promisify(fs.unlink);
-const invokeFirebaseNotification = require('../../../Firebase/firebase')
+const invokeFirebaseNotification = require("../../../Firebase/firebase");
 
 exports.postWithText = async (req, res) => {
   try {
@@ -21,14 +21,13 @@ exports.postWithText = async (req, res) => {
       .populate({ path: "userFollowers" })
       .populate({ path: "userCircle" });
     const post = new Post({ ...req.body });
-    if (Array.isArray(req.body.people)) {
-      for (let val of req.body.people) {
-        post.tagPeople.push(val);
-      }
-    } else {
-      const tag = req.body.people.split(",");
-      for (let val of tag) {
-        post.tagPeople.push(val);
+    if (Array.isArray(req.body?.people)) {
+      for (let val of req.body?.people) {
+        post.tagPeople.push({
+          tagId: val.tagId,
+          tagUserName: val.tagUserName,
+          tagType: val.tagType,
+        });
       }
     }
     post.imageId = "1";
@@ -57,6 +56,27 @@ exports.postWithText = async (req, res) => {
         await ele.save();
       });
     }
+    if (Array.isArray(req.body?.people)) {
+      for (let instit of req.body?.people) {
+        if (instit.tagType === "User") {
+          const userTag = await User.findById(instit.tagId);
+          userTag.tag_post?.push(post._id);
+          if (userTag?.userPosts.includes(post._id)) {
+          } else {
+            userTag.userPosts?.push(post._id);
+          }
+          await userTag.save();
+        } else {
+          const institTag = await InstituteAdmin.findById(instit.tagId);
+          if (institTag?.posts.includes(post._id)) {
+          } else {
+            institTag.posts?.push(post._id);
+          }
+          institTag.tag_post?.push(post._id);
+          await institTag.save();
+        }
+      }
+    }
   } catch {}
 };
 
@@ -67,14 +87,13 @@ exports.postWithImage = async (req, res) => {
     const user = await User.findById({ _id: id })
       .populate({ path: "userFollowers" })
       .populate({ path: "userCircle" });
-    if (Array.isArray(req.body.people)) {
-      for (let val of req.body.people) {
-        post.tagPeople.push(val);
-      }
-    } else {
-      const tag = req.body.people.split(",");
-      for (let val of tag) {
-        post.tagPeople.push(val);
+    if (Array.isArray(req.body?.people)) {
+      for (let val of req.body?.people) {
+        post.tagPeople.push({
+          tagId: val.tagId,
+          tagUserName: val.tagUserName,
+          tagType: val.tagType,
+        });
       }
     }
     for (let file of req.files) {
@@ -108,6 +127,27 @@ exports.postWithImage = async (req, res) => {
         await ele.save();
       });
     }
+    if (Array.isArray(req.body?.people)) {
+      for (let instit of req.body?.people) {
+        if (instit.tagType === "User") {
+          const userTag = await User.findById(instit.tagId);
+          if (userTag?.userPosts.includes(post._id)) {
+          } else {
+            userTag.userPosts?.push(post._id);
+          }
+          userTag.tag_post?.push(post._id);
+          await userTag.save();
+        } else {
+          const institTag = await InstituteAdmin.findById(instit.tagId);
+          if (institTag?.posts.includes(post._id)) {
+          } else {
+            institTag.posts?.push(post._id);
+          }
+          institTag.tag_post?.push(post._id);
+          await institTag.save();
+        }
+      }
+    }
   } catch {}
 };
 
@@ -118,14 +158,13 @@ exports.postWithVideo = async (req, res) => {
       .populate({ path: "userFollowers" })
       .populate({ path: "userCircle" });
     const post = new Post({ ...req.body });
-    if (Array.isArray(req.body.people)) {
-      for (let val of req.body.people) {
-        post.tagPeople.push(val);
-      }
-    } else {
-      const tag = req.body.people.split(",");
-      for (let val of tag) {
-        post.tagPeople.push(val);
+    if (Array.isArray(req.body?.people)) {
+      for (let val of req.body?.people) {
+        post.tagPeople.push({
+          tagId: val.tagId,
+          tagUserName: val.tagUserName,
+          tagType: val.tagType,
+        });
       }
     }
     const file = req.file;
@@ -157,6 +196,27 @@ exports.postWithVideo = async (req, res) => {
         ele.userPosts.push(post._id);
         await ele.save();
       });
+    }
+    if (Array.isArray(req.body?.people)) {
+      for (let instit of req.body?.people) {
+        if (instit.tagType === "User") {
+          const userTag = await User.findById(instit.tagId);
+          if (userTag?.userPosts.includes(post._id)) {
+          } else {
+            userTag.userPosts?.push(post._id);
+          }
+          userTag.tag_post?.push(post._id);
+          await userTag.save();
+        } else {
+          const institTag = await InstituteAdmin.findById(instit.tagId);
+          if (institTag?.posts.includes(post._id)) {
+          } else {
+            institTag.posts?.push(post._id);
+          }
+          institTag.tag_post?.push(post._id);
+          await institTag.save();
+        }
+      }
     }
   } catch {}
 };
@@ -252,7 +312,7 @@ exports.postComment = async (req, res) => {
   try {
     const { id } = req.params;
     const post = await Post.findById({ _id: id });
-    const post_user = await User.findById({_id: `${post.author}`})
+    const post_user = await User.findById({ _id: `${post.author}` });
     const comment = new Comment({ ...req.body });
     if (req.tokenData && req.tokenData.insId) {
       const institute = await InstituteAdmin.findById({
@@ -264,28 +324,39 @@ exports.postComment = async (req, res) => {
       comment.authorPhotoId = institute.photoId;
       comment.authorProfilePhoto = institute.insProfilePhoto;
     } else if (req.tokenData && req.tokenData.userId) {
-      const user = await User.findById({_id: req.tokenData.userId})
-      const notify = new Notification({})
+      const user = await User.findById({ _id: req.tokenData.userId });
+      const notify = new Notification({});
       comment.author = user._id;
-      comment.authorName = user.userLegalName
-      comment.authorUserName = user.username
-      comment.authorPhotoId = user.photoId
-      comment.authorProfilePhoto = user.profilePhoto
+      comment.authorName = user.userLegalName;
+      comment.authorUserName = user.username;
+      comment.authorPhotoId = user.photoId;
+      comment.authorProfilePhoto = user.profilePhoto;
       notify.notifyContent = `${comment.authorUserName} have added comments on ${post.authorUserName} posts`;
       notify.notifySender = comment.author;
       notify.notifyReceiever = post.author;
       post_user.uNotify.push(notify._id);
       notify.user = post_user._id;
       notify.notifyByPhoto = user._id;
-      invokeFirebaseNotification("Comment", notify, 'New Comment', post_user._id, post_user.deviceToken, post._id);
-
+      invokeFirebaseNotification(
+        "Comment",
+        notify,
+        "New Comment",
+        post_user._id,
+        post_user.deviceToken,
+        post._id
+      );
     } else {
       res.status(401).send({ message: "Unauthorized" });
     }
     post.comment.push(comment._id);
     post.commentCount += 1;
     comment.post = post._id;
-    await Promise.all([post.save(), comment.save(), notify.save(), post_user.save()]);
+    await Promise.all([
+      post.save(),
+      comment.save(),
+      notify.save(),
+      post_user.save(),
+    ]);
     res.status(201).send({ message: "comment created", comment });
   } catch (e) {
     console.log(e);
@@ -591,8 +662,13 @@ exports.circleList = async (req, res) => {
         { userLegalName: { $regex: req.query.search, $options: "i" } },
         { username: { $regex: req.query.search, $options: "i" } },
       ],
+      $and: [
+        {
+          tag_privacy: { $in: ["Every one", "circle"] },
+        },
+      ],
     })
-      .select("username userLegalName profilePhoto photoId")
+      .select("username userLegalName profilePhoto photoId userCircle")
       .limit(itemPerPageUser)
       .skip(dropItemUser)
       .lean()
@@ -602,8 +678,13 @@ exports.circleList = async (req, res) => {
         { insName: { $regex: req.query.search, $options: "i" } },
         { name: { $regex: req.query.search, $options: "i" } },
       ],
+      $and: [
+        {
+          tag_privacy: { $in: ["Every one", "Joined Users"] },
+        },
+      ],
     })
-      .select("insName insProfilePhoto photoId name")
+      .select("insName insProfilePhoto photoId name joinedUserList")
       .limit(itemPerPageInstitute)
       .skip(dropItemInstitute)
       .lean()

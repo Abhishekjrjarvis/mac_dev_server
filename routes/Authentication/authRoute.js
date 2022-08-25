@@ -28,6 +28,9 @@ router.post('/user-detail-verify/:id', catchAsync(Auth.verifyOtpByUser))
 // Profile Creation By User
 router.post('/profile-creation/:id', upload.single('file'), catchAsync(Auth.profileByUser))
 
+// Profile Creation By GOOGLE Auth
+router.post('/profile/google', catchAsync(Auth.profileByGoogle))
+
 // Password Creation By User
 router.post('/create-user-password/:id', catchAsync(Auth.getUserPassword))
 

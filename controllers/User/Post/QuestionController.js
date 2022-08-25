@@ -182,46 +182,52 @@ exports.postQuestionSave = async (req, res) => {
 exports.postQuestionAnswer = async (req, res) => {
   try {
     const { id } = req.params;
+    const { post_type } = req.query
     const post = await Post.findById({ _id: id });
     const post_user = await User.findById({_id: `${post.author}`})
-    const answers = new Answer({ ...req.body });
-    answers.answerImageId = "1"
-    if(req.files){
-        for (let file of req.files) {
-            const results = await uploadPostImageFile(file);
-            answers.answerImage.push(results.Key);
-            await unlinkFile(file.path);
-        }
-        answers.answerImageId = "0";
-    }
-    if (req.tokenData && req.tokenData.userId) {
-      var user = await User.findById({_id: req.tokenData.userId})
-      const notify = new Notification({})
-      if(user.staff.length >= 1){
-        answers.isMentor = 'yes'
+    if(post_type === 'Only Answer'){
+      const answers = new Answer({ ...req.body });
+      answers.answerImageId = "1"
+      if(req.files){
+          for (let file of req.files) {
+              const results = await uploadPostImageFile(file);
+              answers.answerImage.push(results.Key);
+              await unlinkFile(file.path);
+          }
+          answers.answerImageId = "0";
       }
-      answers.author = user._id;
-      answers.authorName = user.userLegalName
-      answers.authorUserName = user.username
-      answers.authorPhotoId = user.photoId
-      answers.authorProfilePhoto = user.profilePhoto
-      notify.notifyContent = `${answer.authorUserName} have added answers on ${post.authorUserName} questions`;
-      notify.notifySender = answer.author;
+      if (req.tokenData && req.tokenData.userId) {
+        var user = await User.findById({_id: req.tokenData.userId})
+        var notify = new Notification({})
+        if(user.staff.length >= 1){
+          answers.isMentor = 'yes'
+        }
+        answers.author = user._id;
+        answers.authorName = user.userLegalName
+        answers.authorUserName = user.username
+        answers.authorPhotoId = user.photoId
+        answers.authorProfilePhoto = user.profilePhoto
+      } else {
+        res.status(401).send({ message: 'Unauthorized'});
+      }
+      user.answered_query.push(answers._id)
+      post.answer.push(answers._id);
+      post.answerCount += 1;
+      answers.post = post._id;
+      user.answerQuestionCount += 1
+      notify.notifyContent = `${answers.authorUserName} have added answers on ${post.authorUserName} questions`;
+      notify.notifySender = answers.author;
       notify.notifyReceiever = post.author;
       post_user.uNotify.push(notify._id);
       notify.user = post_user._id;
       notify.notifyByPhoto = user._id;
       invokeFirebaseNotification("Answer", notify, 'New Answer', post_user._id, post_user.deviceToken, post._id);
-    } else {
-      res.status(401).send({ message: 'Unauthorized'});
+      await Promise.all([post.save(), answers.save(), user.save(), notify.save(), post_user.save() ]);
+      res.status(201).send({ message: "answer created", answers });
     }
-    user.answered_query.push(answers._id)
-    post.answer.push(answers._id);
-    post.answerCount += 1;
-    answers.post = post._id;
-    user.answerQuestionCount += 1
-    await Promise.all([post.save(), answers.save(), user.save(), notify.save(), post_user.save() ]);
-    res.status(201).send({ message: "answer created", answers });
+    else{
+      res.status(200).send({ message: 'Access Denied By Post Type'})
+    }
   } catch(e) {
     console.log(e)
   }
@@ -341,6 +347,87 @@ exports.questionAnswerSave = async (req, res) => {
       post.answerCount -= 1
       await post.save()
       res.status(200).send({ message: "post question answer deleted" });
+    } catch(e) {
+      console.log(e)
+    }
+  };
+
+
+
+
+  exports.rePostQuestionAnswer = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { post_type } = req.query
+      const post = await Post.findById({ _id: id });
+      const post_user = await User.findById({_id: `${post.author}`})
+      if(post_type === 'Repost'){
+        var answers = new Answer({ ...req.body });
+        answers.answerImageId = "1"
+        if(req.files.length >=1 ){
+          for(let file of req.files) {
+              const results = await uploadPostImageFile(file);
+              answers.answerImage.push(results.Key);
+              await unlinkFile(file.path);
+          }
+          answers.answerImageId = "0";
+        }
+        if (req.tokenData && req.tokenData.userId) {
+          var user = await User.findById({_id: req.tokenData.userId})
+          .populate({ path: 'userFollowers'})
+          .populate({ path: 'userCircle'})
+          if(user.staff.length >= 1){
+            answers.isMentor = 'yes'
+          }
+          answers.author = user._id;
+          answers.authorName = user.userLegalName
+          answers.authorUserName = user.username
+          answers.authorPhotoId = user.photoId
+          answers.authorProfilePhoto = user.profilePhoto
+        }
+        const rePost = new Post({})
+        var reNotify = new Notification({})
+        rePost.author = user._id;
+        rePost.authorName = user.userLegalName
+        rePost.authorUserName = user.username
+        rePost.authorPhotoId = user.photoId
+        rePost.authorProfilePhoto = user.profilePhoto
+        user.answered_query.push(answers._id)
+        post.answer.push(answers._id);
+        post.answerCount += 1;
+        answers.post = post;
+        user.answerQuestionCount += 1
+        user.userPosts.push(rePost._id);
+        user.postCount += 1
+        rePost.isUser = 'user'
+        rePost.postType = 'Repost'
+        rePost.rePostAnswer = answers
+        rePost.post_url = `https://qviple.com/q/${rePost.authorUserName}/profile`
+        reNotify.notifyContent = `${answers.authorUserName} have added answers on ${post.authorUserName} questions`;
+        reNotify.notifySender = answers.author;
+        reNotify.notifyReceiever = post.author;
+        post_user.uNotify.push(reNotify._id);
+        reNotify.user = post_user._id;
+        reNotify.notifyByPhoto = user._id
+        invokeFirebaseNotification("Answer", reNotify, 'New Answer', post_user._id, post_user.deviceToken, post._id);
+        await Promise.all([rePost.save(), answers.save(), user.save(), reNotify.save(), post_user.save(), post.save() ]);
+        res.status(200).send({ message: 'RePosted Answer', rePost}) 
+        if(user.userFollowers.length >= 1){
+          user.userFollowers.forEach(async (ele) => {
+            ele.userPosts.push(post._id)
+            await ele.save()
+          })
+        }
+        if(user.userCircle.length >= 1){
+            user.userCircle.forEach(async (ele) => {
+              ele.userPosts.push(post._id)
+              await ele.save()
+            })
+        }
+      }
+      else{
+        res.status(203).send({ message: 'Access Denied By Post Type'})
+      }
     } catch(e) {
       console.log(e)
     }

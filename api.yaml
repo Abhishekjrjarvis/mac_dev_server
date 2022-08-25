@@ -9918,6 +9918,11 @@ paths:
           schema:
             type: string
           description: This is Post Id
+        - in: query
+          name: post_type
+          schema:
+            type: integer
+          description: for Only Answer Keyword
         - in: formData
           name: file
           type: file
@@ -10070,6 +10075,43 @@ paths:
       responses:
         "200":
           description: OK
+
+
+  /api/v1/post/question/answer/new/repost/{id}:
+    post:
+      tags:
+        - Add Question Module
+      summary: Re Post Answer -(verified)
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Post Id
+        - in: query
+          name: post_type
+          schema:
+            type: integer
+          description: for Repost keyword
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload Answer Image (Optional)
+        - in: formData
+          name: answerContent
+          type: string
+          required: true
+          description: Enter Answer Content
+      responses:
+        "200":
+          description: OK
+  
 
   /api/v1/poll/question/{id}:
     post:

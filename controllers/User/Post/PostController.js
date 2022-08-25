@@ -407,6 +407,13 @@ exports.retrieveAllUserPosts = async (req, res) => {
           })
           .populate({
             path: "poll_query",
+          })
+          .populate({
+            path: "rePostAnswer",
+            populate: {
+              path: 'post',
+              select: 'postQuestion'
+            }
           });
       } else {
         var post = await Post.find({ $and: [{ _id: { $in: user.userPosts } }] })
@@ -422,6 +429,13 @@ exports.retrieveAllUserPosts = async (req, res) => {
           })
           .populate({
             path: "poll_query",
+          })
+          .populate({
+            path: "rePostAnswer",
+            populate: {
+              path: 'post',
+              select: 'postQuestion'
+            }
           });
       }
       const postCount = await Post.find({ _id: { $in: user.userPosts } });
@@ -466,6 +480,13 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
           })
           .populate({
             path: "poll_query",
+          })
+          .populate({
+            path: "rePostAnswer",
+            populate: {
+              path: 'post',
+              select: 'postQuestion'
+            }
           });
       } else {
         var post = await Post.find({ author: id })
@@ -481,6 +502,13 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
           })
           .populate({
             path: "poll_query",
+          })
+          .populate({
+            path: "rePostAnswer",
+            populate: {
+              path: 'post',
+              select: 'postQuestion'
+            }
           });
       }
       const postCount = await Post.find({ _id: { $in: user.userPosts } });
@@ -776,6 +804,13 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
         )
         .populate({
           path: "poll_query",
+        })
+        .populate({
+          path: "rePostAnswer",
+          populate: {
+            path: 'post',
+            select: 'postQuestion'
+          }
         });
       const postCount = await Post.find({ _id: { $in: user.user_saved_post } });
       if (page * limit >= postCount.length) {

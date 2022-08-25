@@ -39,7 +39,7 @@ exports.postQuestionText = async (req, res) => {
         post.postType = 'Question'
         post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`
         await Promise.all([institute.save(), post.save()]);
-        res.status(201).send({ message: "post is create", post });
+        res.status(201).send({ message: "post Question is created", post });
         if (institute.isUniversal === "Not Assigned") {
           if (institute.followers.length >= 1) {
             if (post.postStatus === "Anyone") {
@@ -138,7 +138,7 @@ exports.retrievePollQuestionText = async (req, res) => {
         post.poll_query = poll._id
         poll.duration_date = end_poll(req.body.day)
         await Promise.all([institute.save(), post.save(), poll.save()]);
-        res.status(201).send({ message: "poll is create", poll });
+        res.status(201).send({ message: "poll is created", poll, post });
         if (institute.isUniversal === "Not Assigned") {
           if (institute.followers.length >= 1) {
             if (post.postStatus === "Anyone") {

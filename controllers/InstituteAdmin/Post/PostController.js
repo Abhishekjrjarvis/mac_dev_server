@@ -2,6 +2,7 @@ const InstituteAdmin = require("../../../models/InstituteAdmin");
 const User = require("../../../models/User");
 const Post = require("../../../models/Post");
 const Comment = require("../../../models/Comment");
+const Poll = require('../../../models/Question/Poll')
 const ReplyComment = require("../../../models/ReplyComment/ReplyComment");
 const {
   uploadVideo,
@@ -13,7 +14,6 @@ const util = require("util");
 const { random_list_generator } = require("../../../Utilities/randomFunction");
 const unlinkFile = util.promisify(fs.unlink);
 
-// exports.getPost = async (req, res) => {
 //   try {
 //     const page = req.query.page ? parseInt(req.query.page) : 1;
 //     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
@@ -374,9 +374,16 @@ exports.postWithDeleted = async (req, res) => {
   try {
     const { id, pid } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id });
+    const post = await Post.findById({_id: pid})
     await InstituteAdmin.findByIdAndUpdate(id, { $pull: { posts: pid } });
     await Post.findByIdAndDelete({ _id: pid });
     institute.postCount -= 1;
+    if(post.postType === 'Poll'){
+      await Poll.findByIdAndDelete({_id: `${post.poll_query}`})
+      institute.pollCount -= 1
+      post.poll_query = ''
+      await post.save()
+    }
     await institute.save();
     res.status(200).send({ message: "post deleted 🙄🙄" });
   } catch {}

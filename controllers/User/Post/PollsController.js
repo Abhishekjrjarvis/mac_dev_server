@@ -31,7 +31,7 @@ exports.retrievePollQuestionText = async (req, res) => {
       post.poll_query = poll._id
       poll.duration_date = end_poll(req.body.day)
       await Promise.all([user.save(), post.save(), poll.save()]);
-      res.status(201).send({ message: "Poll is create", poll });
+      res.status(201).send({ message: "Poll is create", poll, post });
       if(user.userFollowers.length >= 1){
           user.userFollowers.forEach(async (ele) => {
             ele.userPosts.push(post._id)

@@ -3,6 +3,7 @@ const Post = require("../../../models/Post");
 const Comment = require("../../../models/Comment");
 const InstituteAdmin = require("../../../models/InstituteAdmin");
 const ReplyComment = require("../../../models/ReplyComment/ReplyComment");
+const Poll = require('../../../models/Question/Poll')
 const Notification = require("../../../models/notification");
 const {
   uploadPostImageFile,
@@ -239,10 +240,17 @@ exports.postWithDeleted = async (req, res) => {
   try {
     const { id, pid } = req.params;
     const user = await User.findById({ _id: id });
+    const post = await Post.findById({_id: pid})
     await User.findByIdAndUpdate(id, { $pull: { userPosts: pid } });
     await User.findByIdAndUpdate(id, { $pull: { user_saved_post: pid } });
     await Post.findByIdAndDelete({ _id: pid });
     user.postCount -= 1;
+    if(post.postType === 'Poll'){
+      await Poll.findByIdAndDelete({_id: `${post.poll_query}`})
+      user.poll_Count -= 1
+      post.poll_query = ''
+      await post.save()
+    }
     await user.save();
     res.status(200).send({ message: "post deleted" });
   } catch {}

@@ -26,16 +26,13 @@ const postSchema = new mongoose.Schema({
   },
   tagPeople: [
     {
-      author: {
+      tagId: {
         type: String,
       },
-      authorName: {
+      tagUserName: {
         type: String,
       },
-      authorUserName: {
-        type: String,
-      },
-      authorType: {
+      tagType: {
         type: String,
       },
     },
@@ -101,19 +98,19 @@ const postSchema = new mongoose.Schema({
   },
   poll_query: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Poll'
+    ref: "Poll",
   },
   funCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   factCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   supportCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   endUserFun: [],
   endUserFact: [],

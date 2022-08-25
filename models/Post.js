@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const Comment = require('./Comment')
+const Answer = require('./Question/Answer')
 
 const postSchema = new mongoose.Schema({
   postTitle: {

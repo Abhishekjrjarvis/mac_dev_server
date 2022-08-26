@@ -23,7 +23,7 @@ paytmParams.body = {
  "mid"   : process.env.PAYTM_MID,
  "websiteName"  : process.env.PAYTM_MERCHANT_KEY,
  "orderId"   : "oid" + uuidv4(),
- "callbackUrl"  : `http://18.205.27.165/api/api/v1/verify/status/${fiid}/${uid}/student/${sid}/fee/${fid}`,
+ "callbackUrl"  : `https://qviple.com/api/v1/verify/status/${fiid}/${uid}/student/${sid}/fee/${fid}`,
  "txnAmount"  : {
  "value"  : amount,
  "currency" : "INR",
@@ -307,7 +307,7 @@ paytmParams.body = {
  "mid"   : process.env.PAYTM_MID,
  "websiteName"  : process.env.PAYTM_MERCHANT_KEY,
  "orderId"   : "oid" + uuidv4(),
- "callbackUrl"  : `http://18.205.27.165/api/api/v1/verify/activate/status/${id}/user/${name}`,
+ "callbackUrl"  : `https://qviple.com/api/v1/verify/activate/status/${id}/user/${name}`,
  "txnAmount"  : {
  "value"  : amount,
  "currency" : "INR",

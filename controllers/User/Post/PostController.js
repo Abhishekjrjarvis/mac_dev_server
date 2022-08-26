@@ -330,6 +330,7 @@ exports.postComment = async (req, res) => {
     const { id } = req.params;
     const post = await Post.findById({ _id: id });
     const post_user = await User.findById({ _id: `${post.author}` });
+    console.log(post._id, post_user._id)
     const comment = new Comment({ ...req.body });
     if (req.tokenData && req.tokenData.insId) {
       const institute = await InstituteAdmin.findById({
@@ -341,8 +342,8 @@ exports.postComment = async (req, res) => {
       comment.authorPhotoId = institute.photoId;
       comment.authorProfilePhoto = institute.insProfilePhoto;
     } else if (req.tokenData && req.tokenData.userId) {
-      const user = await User.findById({ _id: req.tokenData.userId });
-      const notify = new Notification({});
+      var user = await User.findById({ _id: req.tokenData.userId });
+      var notify = new Notification({});
       comment.author = user._id;
       comment.authorName = user.userLegalName;
       comment.authorUserName = user.username;

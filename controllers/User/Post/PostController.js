@@ -402,10 +402,6 @@ exports.retrieveAllUserPosts = async (req, res) => {
             "postTitle postText postQuestion answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
           )
           .populate({
-            path: "tagPeople",
-            select: "userLegalName username photoId profilePhoto",
-          })
-          .populate({
             path: "poll_query",
           })
           .populate({
@@ -423,10 +419,6 @@ exports.retrieveAllUserPosts = async (req, res) => {
           .select(
             "postTitle postText postQuestion answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
           )
-          .populate({
-            path: "tagPeople",
-            select: "userLegalName username photoId profilePhoto",
-          })
           .populate({
             path: "poll_query",
           })
@@ -475,10 +467,6 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
             "postTitle postText postDescription endUserSave tagPeople isUser isInstitute createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postQuestion answerCount answerUpVoteCount trend_category postType"
           )
           .populate({
-            path: "tagPeople",
-            select: "userLegalName username photoId profilePhoto",
-          })
-          .populate({
             path: "poll_query",
           })
           .populate({
@@ -496,10 +484,6 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
           .select(
             "postTitle postText postDescription endUserSave tagPeople isUser isInstitute createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postQuestion answerCount answerUpVoteCount trend_category postType"
           )
-          .populate({
-            path: "tagPeople",
-            select: "userLegalName username photoId profilePhoto",
-          })
           .populate({
             path: "poll_query",
           })

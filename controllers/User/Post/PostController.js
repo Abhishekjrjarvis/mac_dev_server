@@ -358,15 +358,8 @@ exports.postComment = async (req, res) => {
       post_user.uNotify.push(notify._id);
       notify.user = post_user._id;
       notify.notifyByPhoto = user._id;
-      await post_user.save()
-      // invokeFirebaseNotification(
-      //   "Comment",
-      //   notify,
-      //   "New Comment",
-      //   post_user._id,
-      //   post_user.deviceToken,
-      //   post._id
-      // );
+      invokeFirebaseNotification( "Comment", notify, "New Comment", post_user._id, post_user.deviceToken, post._id);
+      await Promise.all([ notify.save(), post_user.save() ])
       }
     } else {
       res.status(401).send({ message: "Unauthorized" });
@@ -376,8 +369,7 @@ exports.postComment = async (req, res) => {
     comment.post = post._id;
     await Promise.all([
       post.save(),
-      comment.save(),
-      notify.save()
+      comment.save()
     ]);
     res.status(201).send({ message: "comment created", comment });
   } catch (e) {

@@ -1190,6 +1190,7 @@ exports.retrieveUserSubjectChat = async(req, res) =>{
     .select('isSubjectTeacher')
     .populate({
       path: 'isSubjectChat',
+      match:{subjectStatus:{$eq:`UnCompleted`}},
       select: 'subjectName',
       populate: {
         path: 'class',

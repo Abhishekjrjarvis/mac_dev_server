@@ -329,8 +329,10 @@ exports.postComment = async (req, res) => {
   try {
     const { id } = req.params;
     const post = await Post.findById({ _id: id });
+    if(post.isUser === 'User'){
     const post_user = await User.findById({ _id: `${post.author}` });
     console.log(post._id, post_user._id)
+    }
     const comment = new Comment({ ...req.body });
     if (req.tokenData && req.tokenData.insId) {
       const institute = await InstituteAdmin.findById({

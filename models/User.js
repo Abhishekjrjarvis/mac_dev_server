@@ -311,7 +311,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'Every one'
   },
-  user_tag_privacy: {
+  tag_privacy: {
     type: String,
     default: 'Every one'
   },

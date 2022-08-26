@@ -689,7 +689,7 @@ exports.circleList = async (req, res) => {
       ],
       $and: [
         {
-          tag_privacy: { $in: ["Every one", "circle"] },
+          tag_privacy: { $in: ["Every one", "Circle"] },
         },
       ],
     })

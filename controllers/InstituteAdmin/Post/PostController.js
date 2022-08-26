@@ -808,7 +808,7 @@ exports.circleList = async (req, res) => {
         },
       ],
     })
-      .select("insName insProfilePhoto photoId name")
+      .select("insName insProfilePhoto photoId name tag_privacy")
       .limit(itemPerPage)
       .skip(dropItem)
       .lean()

@@ -693,7 +693,7 @@ exports.circleList = async (req, res) => {
         },
       ],
     })
-      .select("username userLegalName profilePhoto photoId userCircle")
+      .select("username userLegalName profilePhoto photoId userCircle tag_privacy")
       .limit(itemPerPageUser)
       .skip(dropItemUser)
       .lean()
@@ -709,7 +709,7 @@ exports.circleList = async (req, res) => {
         },
       ],
     })
-      .select("insName insProfilePhoto photoId name joinedUserList")
+      .select("insName insProfilePhoto photoId name joinedUserList tag_privacy")
       .limit(itemPerPageInstitute)
       .skip(dropItemInstitute)
       .lean()

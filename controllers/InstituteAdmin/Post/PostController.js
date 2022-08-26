@@ -14,62 +14,6 @@ const util = require("util");
 const { random_list_generator } = require("../../../Utilities/randomFunction");
 const unlinkFile = util.promisify(fs.unlink);
 
-//   try {
-//     const page = req.query.page ? parseInt(req.query.page) : 1;
-//     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-//     const insId = req.params.id;
-//     const skip = (page - 1) * limit;
-//     const ins = await InstituteAdmin.findById(insId);
-//     const allPostId = [];
-//     allPostId.push(...ins.posts);
-//     if (ins.following.length) {
-//       for (let i = 0; i < ins.following.length; i++) {
-//         const element = ins.following[i];
-//         const postid = await InstituteAdmin.findById(element);
-//         allPostId.push(postid);
-//       }
-//     }
-//     // console.log("THIS IS all post after follower only institute", allPostId);
-
-//     const postdata = await post
-//       .find(
-//         { _id: { $in: allPostId } }
-//         // { createdAt: { $gte: Date.now.toISOString() } }
-//       )
-//       .sort({ createdAt: -1 })
-//       .limit(limit)
-//       .skip(skip)
-//       .populate({
-//         path: "comment",
-//         select: "commentDesc createdAt allLikeCount ",
-//         populate: {
-//           path: "institutes",
-//           select: "insName photoId  insProfilePhoto",
-//         },
-//       })
-//       .populate({
-//         path: "comment",
-//         select: "commentDesc createdAt allLikeCount",
-//         populate: {
-//           path: "instituteUser",
-//           select: "userLegalName photoId profilePhoto ",
-//         },
-//       })
-//       .populate({
-//         path: "insLike",
-//         select: "insName",
-//       })
-
-//       .populate({
-//         path: "insUserLike",
-//         select: "userLegalName",
-//       });
-
-//     res.status(200).send({ message: "staff data", postdata });
-//   } catch (e) {
-//     console.log(`Error`, e);
-//   }
-// };
 
 exports.postWithText = async (req, res) => {
   try {
@@ -171,9 +115,9 @@ exports.postWithImage = async (req, res) => {
       .populate({ path: "userFollowersList" })
       .populate({ path: "joinedUserList" });
     const post = new Post({ ...req.body });
-
-    if (Array.isArray(req.body.people)) {
-      for (let val of req.body?.people) {
+    const taggedPeople = JSON.parse(req.body.people);
+    if (Array.isArray(taggedPeople)) {
+      for (let val of taggedPeople) {
         post.tagPeople.push({
           tagId: val.tagId,
           tagUserName: val.tagUserName,
@@ -195,7 +139,7 @@ exports.postWithImage = async (req, res) => {
     post.authorPhotoId = institute.photoId;
     post.authorProfilePhoto = institute.insProfilePhoto;
     post.isInstitute = "institute";
-    post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`
+    post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([institute.save(), post.save()]);
     res.status(201).send({ message: "post is create", post });
     if (institute.isUniversal === "Not Assigned") {
@@ -247,8 +191,8 @@ exports.postWithImage = async (req, res) => {
         });
       }
     }
-    if (Array.isArray(req.body.people)) {
-      for (let instit of req.body?.people) {
+    if (Array.isArray(taggedPeople)) {
+      for (let instit of taggedPeople) {
         const institTag = await InstituteAdmin.findById(instit.tagId);
         if (institTag?.posts.includes(post._id)) {
         } else {
@@ -258,7 +202,9 @@ exports.postWithImage = async (req, res) => {
         await institTag.save();
       }
     }
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.postWithVideo = async (req, res) => {
@@ -269,8 +215,9 @@ exports.postWithVideo = async (req, res) => {
       .populate({ path: "userFollowersList" })
       .populate({ path: "joinedUserList" });
     const post = new Post({ ...req.body });
-    if (Array.isArray(req.body.people)) {
-      for (let val of req.body?.people) {
+    const taggedPeople = JSON.parse(req.body.people);
+    if (Array.isArray(taggedPeople)) {
+      for (let val of taggedPeople) {
         post.tagPeople.push({
           tagId: val.tagId,
           tagUserName: val.tagUserName,
@@ -290,7 +237,7 @@ exports.postWithVideo = async (req, res) => {
     post.authorPhotoId = institute.photoId;
     post.authorProfilePhoto = institute.insProfilePhoto;
     post.isInstitute = "institute";
-    post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`
+    post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([institute.save(), post.save()]);
     await unlinkFile(file.path);
     res.status(201).send({ message: "post created", post });
@@ -343,8 +290,8 @@ exports.postWithVideo = async (req, res) => {
         });
       }
     }
-    if (Array.isArray(req.body.people)) {
-      for (let instit of req.body.people) {
+    if (Array.isArray(taggedPeople)) {
+      for (let instit of taggedPeople) {
         const institTag = await InstituteAdmin.findById(instit.tagId);
         if (institTag?.posts.includes(post._id)) {
         } else {
@@ -891,7 +838,7 @@ exports.retrieveSavedAllPosts = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "postTitle postText postDescription endUserSave tagPeople createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
+          "postTitle postText postDescription endUserSave tagPeople createdAt postType postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
         )
         .populate({
           path: "tagPeople",

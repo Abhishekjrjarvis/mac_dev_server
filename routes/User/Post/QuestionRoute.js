@@ -29,4 +29,6 @@ router.get("/answer/save/:aid", isLoggedIn, catchAsync(Question.questionAnswerSa
 
 router.delete("/:pid/deleted/:aid/answer", isLoggedIn, catchAsync(Question.postQuestionDeleteAnswer));
 
+router.post("/answer/new/repost/:id", isLoggedIn, upload.array("file"), catchAsync(Question.rePostQuestionAnswer));
+
 module.exports = router;

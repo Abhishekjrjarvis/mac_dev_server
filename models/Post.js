@@ -102,24 +102,28 @@ const postSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Poll",
   },
-  funCount: {
-    type: Number,
-    default: 0,
-  },
-  factCount: {
-    type: Number,
-    default: 0,
-  },
-  supportCount: {
-    type: Number,
-    default: 0,
-  },
-  endUserFun: [],
-  endUserFact: [],
-  endUserSupport: [],
+  // funCount: {
+  //   type: Number,
+  //   default: 0,
+  // },
+  // factCount: {
+  //   type: Number,
+  //   default: 0,
+  // },
+  // supportCount: {
+  //   type: Number,
+  //   default: 0,
+  // },
+  // endUserFun: [],
+  // endUserFact: [],
+  // endUserSupport: [],
   post_url: {
     type: String
   },
+  rePostAnswer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Answer'
+  }
 });
 
 postSchema.post("findOneAndDelete", async function (doc) {

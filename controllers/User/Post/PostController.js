@@ -89,8 +89,10 @@ exports.postWithImage = async (req, res) => {
     const user = await User.findById({ _id: id })
       .populate({ path: "userFollowers" })
       .populate({ path: "userCircle" });
-    if (Array.isArray(req.body?.people)) {
-      for (let val of req.body?.people) {
+    const taggedPeople = JSON.parse(req.body.people);
+
+    if (Array.isArray(taggedPeople)) {
+      for (let val of taggedPeople) {
         post.tagPeople.push({
           tagId: val.tagId,
           tagUserName: val.tagUserName,
@@ -112,7 +114,7 @@ exports.postWithImage = async (req, res) => {
     post.authorPhotoId = user.photoId;
     post.authorProfilePhoto = user.profilePhoto;
     post.isUser = "user";
-    post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`
+    post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([user.save(), post.save()]);
     res.status(201).send({ message: "post is create" });
     if (user.userFollowers.length >= 1) {
@@ -130,8 +132,8 @@ exports.postWithImage = async (req, res) => {
         await ele.save();
       });
     }
-    if (Array.isArray(req.body?.people)) {
-      for (let instit of req.body?.people) {
+    if (Array.isArray(taggedPeople)) {
+      for (let instit of taggedPeople) {
         if (instit.tagType === "User") {
           const userTag = await User.findById(instit.tagId);
           if (userTag?.userPosts.includes(post._id)) {
@@ -161,8 +163,10 @@ exports.postWithVideo = async (req, res) => {
       .populate({ path: "userFollowers" })
       .populate({ path: "userCircle" });
     const post = new Post({ ...req.body });
-    if (Array.isArray(req.body?.people)) {
-      for (let val of req.body?.people) {
+    const taggedPeople = JSON.parse(req.body.people);
+
+    if (Array.isArray(taggedPeople)) {
+      for (let val of taggedPeople) {
         post.tagPeople.push({
           tagId: val.tagId,
           tagUserName: val.tagUserName,
@@ -182,7 +186,7 @@ exports.postWithVideo = async (req, res) => {
     post.authorPhotoId = user.photoId;
     post.authorProfilePhoto = user.profilePhoto;
     post.isUser = "user";
-    post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`
+    post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([user.save(), post.save()]);
     await unlinkFile(file.path);
     res.status(201).send({ message: "post created" });
@@ -201,8 +205,8 @@ exports.postWithVideo = async (req, res) => {
         await ele.save();
       });
     }
-    if (Array.isArray(req.body?.people)) {
-      for (let instit of req.body?.people) {
+    if (Array.isArray(taggedPeople)) {
+      for (let instit of taggedPeople) {
         if (instit.tagType === "User") {
           const userTag = await User.findById(instit.tagId);
           if (userTag?.userPosts.includes(post._id)) {
@@ -403,6 +407,13 @@ exports.retrieveAllUserPosts = async (req, res) => {
           })
           .populate({
             path: "poll_query",
+          })
+          .populate({
+            path: "rePostAnswer",
+            populate: {
+              path: 'post',
+              select: 'postQuestion'
+            }
           });
       } else {
         var post = await Post.find({ $and: [{ _id: { $in: user.userPosts } }] })
@@ -418,6 +429,13 @@ exports.retrieveAllUserPosts = async (req, res) => {
           })
           .populate({
             path: "poll_query",
+          })
+          .populate({
+            path: "rePostAnswer",
+            populate: {
+              path: 'post',
+              select: 'postQuestion'
+            }
           });
       }
       const postCount = await Post.find({ _id: { $in: user.userPosts } });
@@ -462,6 +480,13 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
           })
           .populate({
             path: "poll_query",
+          })
+          .populate({
+            path: "rePostAnswer",
+            populate: {
+              path: 'post',
+              select: 'postQuestion'
+            }
           });
       } else {
         var post = await Post.find({ author: id })
@@ -477,6 +502,13 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
           })
           .populate({
             path: "poll_query",
+          })
+          .populate({
+            path: "rePostAnswer",
+            populate: {
+              path: 'post',
+              select: 'postQuestion'
+            }
           });
       }
       const postCount = await Post.find({ _id: { $in: user.userPosts } });
@@ -772,6 +804,13 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
         )
         .populate({
           path: "poll_query",
+        })
+        .populate({
+          path: "rePostAnswer",
+          populate: {
+            path: 'post',
+            select: 'postQuestion'
+          }
         });
       const postCount = await Post.find({ _id: { $in: user.user_saved_post } });
       if (page * limit >= postCount.length) {

@@ -275,7 +275,7 @@ exports.profileByUser = async (req, res) => {
   try {
     const { id } = req.params;
     const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-    const { userLegalName, userGender, userDateOfBirth, username, userEmail, pic_url } = req.body;
+    const { userLegalName, userGender, userDateOfBirth, username } = req.body;
     const existAdmin = await Admin.findOne({ adminUserName: username });
     const existInstitute = await InstituteAdmin.findOne({ name: username });
     const existUser = await User.findOne({ username: username });
@@ -290,32 +290,24 @@ exports.profileByUser = async (req, res) => {
         var width = 200;
         var height = 200;
         var file = req.file;
-        if(file){
         var results = await uploadFile(file, width, height);
-        }
         const user = new User({
           userLegalName: userLegalName,
           userGender: userGender,
           userDateOfBirth: userDateOfBirth,
           username: username,
           userStatus: "Approved",
-          userEmail: userEmail,
-          google_avatar: pic_url,
           userPhoneNumber: id,
           photoId: "0",
           coverId: "2",
           createdAt: c_date,
           remindLater: rDate,
         });
-        if(results){
         user.profilePhoto = results.key;
-        }
         admins.users.push(user);
         admins.userCount += 1
         await Promise.all([admins.save(), user.save()]);
-        if(file){
         await unlinkFile(file.path);
-        }
         const token = generateAccessToken(user?.username, user?._id);
         res.status(200).send({ message: "Profile Successfully Created...", user, token: `Bearer ${token}` });
         const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
@@ -333,6 +325,53 @@ exports.profileByUser = async (req, res) => {
     console.log(`Error`, e);
   }
 };
+
+
+exports.profileByGoogle = async(req, res) =>{
+  var date = new Date();
+  var p_date = date.getDate();
+  var p_month = date.getMonth() + 1;
+  var p_year = date.getFullYear();
+  if (p_month <= 10) {
+    p_month = `0${p_month}`;
+  }
+  var c_date = `${p_year}-${p_month}-${p_date}`;
+  try{
+    const { userGender, userLegalName, username, userEmail, userDateOfBirth, pic_url } = req.body
+    const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const user = new User({
+      userLegalName: userLegalName,
+      userGender: userGender,
+      userDateOfBirth: userDateOfBirth,
+      username: username,
+      userStatus: "Approved",
+      userEmail: userEmail,
+      google_avatar: pic_url,
+      photoId: "0",
+      coverId: "2",
+      createdAt: c_date,
+      remindLater: rDate,
+    })
+    admins.users.push(user);
+    admins.userCount += 1
+    await Promise.all([admins.save(), user.save()]);
+    const token = generateAccessToken(user?.username, user?._id);
+    res.status(200).send({ message: "Profile Successfully Created...", user, token: `Bearer ${token}` });
+    const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
+    .populate({ path: 'posts' })
+    if(uInstitute && uInstitute.posts && uInstitute.posts.length >=1){
+    const post = await Post.find({ _id: { $in: uInstitute.posts }, postStatus: 'Anyone'})
+    post.forEach(async (ele) => {
+      user.userPosts.push(ele)
+    })
+    await user.save()
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
 
 exports.getUserPassword = async (req, res) => {
   try {

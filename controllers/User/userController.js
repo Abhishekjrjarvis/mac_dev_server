@@ -25,19 +25,25 @@ const { dateTimeSort } = require("../../Utilities/timeComparison");
 exports.retrieveProfileData = async (req, res) => {
   try {
     const { id } = req.params;
-    var totalUpVote = 0
-    const user = await User.findById({ _id: id })
-      .select(
-        "userLegalName photoId questionCount answerQuestionCount recentChat profilePhoto user_birth_privacy user_address_privacy user_circle_privacy user_tag_privacy userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
-      )
-      const questionUpVote = await Post.find({ author: id })
-      for(let up of questionUpVote){
-        totalUpVote += up.answerUpVoteCount
-      }
-      if(user.userPosts && user.userPosts.length < 1){
-        var post = []
-      }
-    res.status(200).send({ message: "Limit User Profile Data ", user, upVote: totalUpVote, post });
+    var totalUpVote = 0;
+    const user = await User.findById({ _id: id }).select(
+      "userLegalName photoId questionCount answerQuestionCount recentChat profilePhoto user_birth_privacy user_address_privacy user_circle_privacy user_tag_privacy userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
+    );
+    const questionUpVote = await Post.find({ author: id });
+    for (let up of questionUpVote) {
+      totalUpVote += up.answerUpVoteCount;
+    }
+    if (user.userPosts && user.userPosts.length < 1) {
+      var post = [];
+    }
+    res
+      .status(200)
+      .send({
+        message: "Limit User Profile Data ",
+        user,
+        upVote: totalUpVote,
+        post,
+      });
   } catch (e) {
     console.log(e);
   }
@@ -602,13 +608,10 @@ exports.getReportPostUser = async (req, res) => {
     const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const report = await new Report({ reportStatus: reportStatus });
     admin.reportList.push(report._id);
-    admin.reportPostQueryCount += 1
+    admin.reportPostQueryCount += 1;
     report.reportInsPost = post._id;
     report.reportBy = user._id;
-    await Promise.all([ 
-     admin.save(),
-     report.save()
-    ])
+    await Promise.all([admin.save(), report.save()]);
     res.status(200).send({ message: "reported", report: report.reportStatus });
   } catch (e) {
     console.log(`Error`, e.message);
@@ -758,27 +761,26 @@ exports.getQCoins = async (req, res) => {
 exports.getDashDataQuery = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await User.findById({ _id: id })
-      .select(
-        "userLegalName username ageRestrict photoId profilePhoto user_birth_privacy user_address_privacy user_circle_privacy user_tag_privacy"
-      )
-      if(user.userPosts && user.userPosts.length < 1){
-        var post = []
-      }
-      // .populate({
-      //   path: 'supportChat',
-      //   populate: {
-      //     path: 'latestMessage'
-      //   }
-      // })
-      // .populate({
-      //   path: 'supportChat',
-      //   populate: {
-      //     path: 'message'
-      //   }
-      // })
-      // .lean()
-      // .exec();
+    const user = await User.findById({ _id: id }).select(
+      "userLegalName username ageRestrict photoId profilePhoto user_birth_privacy user_address_privacy user_circle_privacy user_tag_privacy"
+    );
+    if (user.userPosts && user.userPosts.length < 1) {
+      var post = [];
+    }
+    // .populate({
+    //   path: 'supportChat',
+    //   populate: {
+    //     path: 'latestMessage'
+    //   }
+    // })
+    // .populate({
+    //   path: 'supportChat',
+    //   populate: {
+    //     path: 'message'
+    //   }
+    // })
+    // .lean()
+    // .exec();
     if (user) {
       res.status(200).send({ message: "Success", user, post });
     } else {
@@ -1181,43 +1183,40 @@ exports.allCircleUsers = async (req, res) => {
   }).populate({ path: "userCircle" });
   const user = users.userCircle.find(keyword);
   res.send(user);
-}
+};
 
-exports.retrieveUserSubjectChat = async(req, res) =>{
-  try{
-    const { uid } = req.params
-    const user = await User.findById({_id: uid})
-    .select('isSubjectTeacher')
-    .populate({
-      path: 'isSubjectChat',
-      select: 'subjectName',
-      populate: {
-        path: 'class',
-        select: 'className classTitle'
-      }
-    })
-    res.status(200).send({ message: 'As a Subject Teacher', chat: user})
-  }
-  catch{
+exports.retrieveUserSubjectChat = async (req, res) => {
+  try {
+    const { uid } = req.params;
+    const user = await User.findById({ _id: uid })
+      .select("isSubjectTeacher")
+      .populate({
+        path: "isSubjectChat",
+        match: { subjectStatus: { $eq: `UnCompleted` } },
+        select: "subjectName",
+        populate: {
+          path: "class",
+          select: "className classTitle",
+        },
+      });
+    res.status(200).send({ message: "As a Subject Teacher", chat: user });
+  } catch {}
+};
 
-  }
-}
-
-exports.retrieveUserApplicationStatus = async(req, res) =>{
-  try{
-    const { uid } = req.params
-    const user = await User.findById({_id: uid})
-    .select('id')
-    .populate({
-      path: 'applicationStatus'
-    })
-    res.status(200).send({ message: 'user Application Status', status: user.applicationStatus})
-  }
-  catch{
-
-  }
-}
-
+exports.retrieveUserApplicationStatus = async (req, res) => {
+  try {
+    const { uid } = req.params;
+    const user = await User.findById({ _id: uid }).select("id").populate({
+      path: "applicationStatus",
+    });
+    res
+      .status(200)
+      .send({
+        message: "user Application Status",
+        status: user.applicationStatus,
+      });
+  } catch {}
+};
 
 exports.retrieveProfileDataUsername = async (req, res) => {
   try {

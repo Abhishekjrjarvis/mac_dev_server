@@ -121,11 +121,13 @@ PaytmChecksum.generateSignature(JSON.stringify(paytmParams.body), process.env.PA
             if (status === "TXN_SUCCESS") {
                 addPayment(body, sid, fid, uid);
                 studentPaymentUpdated(fiid, sid, fid, status, price);
-                res.redirect(
-                  `http://localhost:3000/user/${uid}/studentdetail/${sid}`
-                );
+                res.status(200).send({ message: 'Payment Successfull 🎉✨🎉✨'})
+                // res.redirect(
+                //   `http://localhost:3000/user/${uid}/studentdetail/${sid}`
+                // );
               } else {
-                res.redirect(`http://localhost:3000/`);
+                res.status(402).send({ message: 'Payment Required'})
+                // res.redirect(`http://localhost:3000/`);
               }
         });
     });
@@ -405,9 +407,11 @@ PaytmChecksum.generateSignature(JSON.stringify(paytmParams.body), process.env.PA
             if (status === "TXN_SUCCESS") {
                 addUnlockPayment(body, id, name);
                 unlockInstitute(id, price);
-                res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+                res.status(200).send({ message: 'Payment Successfull 🎉✨🎉✨'})
+                // res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
               } else {
-                res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+                res.status(402).send({ message: 'Payment Required'})
+                // res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
               }
         });
     });

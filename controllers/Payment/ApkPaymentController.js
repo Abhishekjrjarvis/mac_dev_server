@@ -15,6 +15,7 @@ const Notification = require("../../models/notification");
 const { v4: uuidv4 } = require("uuid");
 
 exports.generateTxnToken = async(req, res) => {
+  console.log('token generated')
     const { amount, fiid, uid, sid, fid } = req.body;
 var paytmParams = {};
 
@@ -77,6 +78,7 @@ PaytmChecksum.generateSignature(JSON.stringify(paytmParams.body), process.env.PA
 
 
 exports.paytmVerifyResponseStatus = async(req, res) =>{
+  console.log('callback hit')
     const { fiid, uid, sid, fid } = req.params;
 var paytmParams = {};
 paytmParams.body = {
@@ -119,6 +121,7 @@ PaytmChecksum.generateSignature(JSON.stringify(paytmParams.body), process.env.PA
             let status = body.resultInfo.resultStatus;
             let price = body.txnAmount;
             if (status === "TXN_SUCCESS") {
+              console.log('txn success')
                 addPayment(body, sid, fid, uid);
                 studentPaymentUpdated(fiid, sid, fid, status, price);
                 res.status(200).send({ message: 'Payment Successfull 🎉✨🎉✨'})

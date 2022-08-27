@@ -15,7 +15,6 @@ const Notification = require("../../models/notification");
 const { v4: uuidv4 } = require("uuid");
 
 exports.generateTxnToken = async(req, res) => {
-  console.log('token generated')
     const { amount, fiid, uid, sid, fid } = req.body;
 var paytmParams = {};
 
@@ -67,6 +66,7 @@ PaytmChecksum.generateSignature(JSON.stringify(paytmParams.body), process.env.PA
  });
         
  post_res.on('end', function(){
+        console.log('token generated')
         res.send({signature: JSON.parse(response), oid: paytmParams.body.orderId, mid: paytmParams.body.mid})
  });
  });

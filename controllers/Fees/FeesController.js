@@ -345,7 +345,14 @@ exports.retrieveStudentQuery = async(req, res) => {
     const check = await Checklist.find({_id: { $in: student.department.checklists}})
     .sort("-createdAt")
     var mergePay = [...fees, ...check]
-    res.status(200).send({ message: 'Student Fee and Checklist', student, mergePay: mergePay, fee: fees, check: check})
+    const institute = await InstituteAdmin.findById({_id: `${student.institute._id}`})
+    if(institute && institute.financeDepart.length >=1){
+      var finance = await Finance.findById({_id: `${institute?.financeDepart[0]}`})
+    }
+    else{
+
+    }
+    res.status(200).send({ message: 'Student Fee and Checklist', student, mergePay: mergePay, financeId: finance._id})
   }
   catch(e){
     console.log(e)

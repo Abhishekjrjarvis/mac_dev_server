@@ -340,6 +340,10 @@ exports.retrieveStudentQuery = async(req, res) => {
       path: 'department',
       select: 'fees checklists'
     })
+    .populate({
+      path: 'user',
+      select: 'userLegalName'
+    })
     const fees = await Fees.find({ _id: { $in: student.department.fees}})
     .sort("-createdAt")
     const check = await Checklist.find({_id: { $in: student.department.checklists}})

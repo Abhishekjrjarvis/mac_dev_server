@@ -184,7 +184,6 @@ exports.postQuestionAnswer = async (req, res) => {
     const { id } = req.params;
     const { post_type } = req.query
     const post = await Post.findById({ _id: id });
-    const post_user = await User.findById({_id: `${post.author}`})
     if(post_type === 'Only Answer'){
       const answers = new Answer({ ...req.body });
       answers.answerImageId = "1"
@@ -210,6 +209,7 @@ exports.postQuestionAnswer = async (req, res) => {
       } else {
         res.status(401).send({ message: 'Unauthorized'});
       }
+      var post_user = await User.findById({_id: `${post.author}`})
       user.answered_query.push(answers._id)
       post.answer.push(answers._id);
       post.answerCount += 1;
@@ -221,9 +221,9 @@ exports.postQuestionAnswer = async (req, res) => {
       post_user.uNotify.push(notify._id);
       notify.user = post_user._id;
       notify.notifyByPhoto = user._id;
-      invokeFirebaseNotification("Answer", notify, 'New Answer', post_user._id, post_user.deviceToken, post._id);
       await Promise.all([post.save(), answers.save(), user.save(), notify.save(), post_user.save() ]);
       res.status(201).send({ message: "answer created", answers });
+      invokeFirebaseNotification("Answer", notify, 'New Answer', post_user._id, post_user.deviceToken, post._id);
     }
     else{
       res.status(200).send({ message: 'Access Denied By Post Type'})

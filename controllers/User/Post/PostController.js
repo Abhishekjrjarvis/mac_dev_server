@@ -555,7 +555,7 @@ exports.getCommentChild = async (req, res) => {
       return childComment;
     };
     if (!comment.childComment.length) {
-      res.status(204).send({ message: "no any child" });
+      res.status(200).send({ message: "no any child", replyComment:[]  });
     }
     const replyComment = userPagination(comment.childComment);
     res.status(200).send({ replyComment });
@@ -776,7 +776,7 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
       var post = await Post.find({
         $and: [{ _id: { $in: user.user_saved_post } }],
       })
-        .sort("-createdAt")
+        // .sort("-createdAt")
         .limit(limit)
         .skip(skip)
         .select(
@@ -799,6 +799,55 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
       }
       res.status(200).send({
         message: "Success",
+        post,
+        postCount: postCount.length,
+        totalPage: totalPage,
+      });
+    } else {
+      res.status(200).send({ message: "No Post Found" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
+exports.retrieveAllUserTagPosts = async (req, res) => {
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const id = req.params.id;
+    const skip = (page - 1) * limit;
+    const user = await User.findById(id).select("id").populate({
+      path: "tag_post",
+    });
+    if (user && user.tag_post.length >= 1) {
+      var post = await Post.find({
+        $and: [{ _id: { $in: user.tag_post } }],
+      })
+        .sort("-createdAt")
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "postTitle postText postQuestion answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+        )
+        .populate({
+          path: "poll_query",
+        })
+        .populate({
+          path: "rePostAnswer",
+          populate: {
+            path: 'post',
+            select: 'postQuestion'
+          }
+        });
+      const postCount = await Post.find({ _id: { $in: user.tag_post } });
+      if (page * limit >= postCount.length) {
+      } else {
+        var totalPage = page + 1;
+      }
+      res.status(200).send({
+        message: "Success Tag Post",
         post,
         postCount: postCount.length,
         totalPage: totalPage,

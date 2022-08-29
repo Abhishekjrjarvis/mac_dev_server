@@ -841,8 +841,7 @@ exports.retrieveSavedAllPosts = async (req, res) => {
           "postTitle postText postDescription endUserSave tagPeople createdAt postType postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
         )
         .populate({
-          path: "tagPeople",
-          select: "userLegalName username photoId profilePhoto",
+          path: "poll_query",
         });
       if (institute.institute_saved_post.length >= 1) {
         const postCount = await Post.find({
@@ -854,6 +853,52 @@ exports.retrieveSavedAllPosts = async (req, res) => {
         }
         res.status(200).send({
           message: "Success",
+          post,
+          postCount: postCount.length,
+          totalPage: totalPage,
+        });
+      }
+    } else {
+      res.status(204).send({ message: "No Posts Yet..." });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
+exports.retrieveTagAllPosts = async (req, res) => {
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const id = req.params.id;
+    const skip = (page - 1) * limit;
+    const institute = await InstituteAdmin.findById(id)
+      .select("id")
+      .populate({ path: "tag_post" });
+    if (institute && institute.tag_post.length >= 1) {
+      const post = await Post.find({
+        _id: { $in: institute.tag_post },
+      })
+        .sort("-createdAt")
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "postTitle postText postDescription endUserSave tagPeople createdAt postType postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
+        )
+        .populate({
+          path: "poll_query",
+        });
+      if (institute.tag_post.length >= 1) {
+        const postCount = await Post.find({
+          _id: { $in: institute.tag_post },
+        });
+        if (page * limit >= postCount.length) {
+        } else {
+          var totalPage = page + 1;
+        }
+        res.status(200).send({
+          message: "Success Tag Post",
           post,
           postCount: postCount.length,
           totalPage: totalPage,

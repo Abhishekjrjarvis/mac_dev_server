@@ -83,5 +83,10 @@ router.get(
   catchAsync(Post.retrieveAllUserSavedPosts)
 );
 
+router.get(
+  "/:id/all/user/tag/posts",
+  catchAsync(Post.retrieveAllUserTagPosts)
+);
+
 router.get("");
 module.exports = router;

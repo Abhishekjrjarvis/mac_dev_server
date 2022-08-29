@@ -66,7 +66,6 @@ PaytmChecksum.generateSignature(JSON.stringify(paytmParams.body), process.env.PA
  });
         
  post_res.on('end', function(){
-        console.log('token generated')
         res.send({signature: JSON.parse(response), oid: paytmParams.body.orderId, mid: paytmParams.body.mid})
  });
  });
@@ -78,7 +77,6 @@ PaytmChecksum.generateSignature(JSON.stringify(paytmParams.body), process.env.PA
 
 
 exports.paytmVerifyResponseStatus = async(req, res) =>{
-  console.log('callback hit')
     const { fiid, uid, sid, fid } = req.params;
 var paytmParams = {};
 paytmParams.body = {
@@ -116,21 +114,16 @@ PaytmChecksum.generateSignature(JSON.stringify(paytmParams.body), process.env.PA
             response += chunk;
         });
 
-        post_res.on('end', function(){
+        post_res.on('end', async function(){
             let { body } = JSON.parse(response);
             let status = body.resultInfo.resultStatus;
             let price = body.txnAmount;
             if (status === "TXN_SUCCESS") {
-              console.log('txn success')
-                addPayment(body, sid, fid, uid);
-                studentPaymentUpdated(fiid, sid, fid, status, price);
+                await addPayment(body, sid, fid, uid);
+                await studentPaymentUpdated(fiid, sid, fid, status, price);
                 res.status(200).send({ message: 'Payment Successfull 🎉✨🎉✨'})
-                // res.redirect(
-                //   `http://localhost:3000/user/${uid}/studentdetail/${sid}`
-                // );
               } else {
                 res.status(402).send({ message: 'Payment Required'})
-                // res.redirect(`http://localhost:3000/`);
               }
         });
     });
@@ -166,17 +159,10 @@ const addPayment = async (data, studentId, feeId, userId) => {
   };
 
 
-const studentPaymentUpdated = async (
-    financeId,
-    studentId,
-    feeId,
-    statusType,
-    tx_amount
-  ) => {
+const studentPaymentUpdated = async (financeId, studentId, feeId, statusType, tx_amount) => {
     try {
       const student = await Student.findById({ _id: studentId });
-      const finance = await Finance.findById({ _id: financeId })
-        .populate({
+      const finance = await Finance.findById({ _id: financeId }).populate({
           path: "institute",
         })
         .populate({
@@ -192,16 +178,12 @@ const studentPaymentUpdated = async (
       const fData = await Fees.findById({ _id: feeId });
       const checklistData = await Checklist.findById({ _id: feeId });
       const admin = await Admin.findById({_id: `${process.env.S_ADMIN_ID}`})
-      const notify = await new Notification({});
+      const notify = new Notification({});
       if (fData) {
-        if (
-          fData.studentsList.length >= 1 &&
-          fData.studentsList.includes(String(student._id))
-        ) {
-          res.status(200).send({
-            message: `${student.studentFirstName} paid the ${fData.feeName}`,
-          });
-        } else {
+        if (fData.studentsList.length >= 1 && fData.studentsList.includes(String(student._id))) {
+          res.status(200).send({ message: `${student.studentFirstName} paid the ${fData.feeName}`});
+        } 
+        else {
           try {
             student.studentFee.push(fData._id);
             fData.onlineList.push(student._id);
@@ -239,17 +221,15 @@ const studentPaymentUpdated = async (
               admin.save(),
               classes.save()
             ])
-          } catch {}
+          } catch(e){
+            console.log(e)
+          }
         }
       } else if (checklistData) {
-        if (
-          checklistData.studentsList.length >= 1 &&
-          checklistData.studentsList.includes(String(student._id))
-        ) {
-          res.status(200).send({
-            message: `${student.studentFirstName} paid the ${checklistData.checklistName}`,
-          });
-        } else {
+        if (checklistData.studentsList.length >= 1 && checklistData.studentsList.includes(String(student._id))) {
+          res.status(200).send({ message: `${student.studentFirstName} paid the ${checklistData.checklistName}`});
+        } 
+        else {
           try {
             student.studentChecklist.push(checklistData._id);
             student.studentPaidFeeCount += fData.feeAmount
@@ -284,10 +264,14 @@ const studentPaymentUpdated = async (
               notify.save(),
               admin.save()
             ])
-          } catch {}
+          } catch(e) {
+            console.log(e)
+          }
         }
       }
-    } catch {}
+    } catch(e) {
+      console.log(e)
+    }
   };
 
 
@@ -411,10 +395,8 @@ PaytmChecksum.generateSignature(JSON.stringify(paytmParams.body), process.env.PA
                 addUnlockPayment(body, id, name);
                 unlockInstitute(id, price);
                 res.status(200).send({ message: 'Payment Successfull 🎉✨🎉✨'})
-                // res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
               } else {
                 res.status(402).send({ message: 'Payment Required'})
-                // res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
               }
         });
     });

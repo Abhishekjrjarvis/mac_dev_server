@@ -183,8 +183,10 @@ exports.postQuestionAnswer = async (req, res) => {
   try {
     const { id } = req.params;
     const { post_type } = req.query
-    const post = await Post.findById({ _id: id });
-    const post_user = await User.findById({_id: `${post.author}`})
+    var post = await Post.findById({ _id: id });
+    if(post && post.isUser === 'User'){
+    var post_user = await User.findById({_id: `${post.author}`})
+    }
     if(post_type === 'Only Answer'){
       const answers = new Answer({ ...req.body });
       answers.answerImageId = "1"
@@ -198,7 +200,6 @@ exports.postQuestionAnswer = async (req, res) => {
       }
       if (req.tokenData && req.tokenData.userId) {
         var user = await User.findById({_id: req.tokenData.userId})
-        var notify = new Notification({})
         if(user.staff.length >= 1){
           answers.isMentor = 'yes'
         }
@@ -215,14 +216,18 @@ exports.postQuestionAnswer = async (req, res) => {
       post.answerCount += 1;
       answers.post = post._id;
       user.answerQuestionCount += 1
-      notify.notifyContent = `${answers.authorUserName} have added answers on ${post.authorUserName} questions`;
-      notify.notifySender = answers.author;
-      notify.notifyReceiever = post.author;
-      post_user.uNotify.push(notify._id);
-      notify.user = post_user._id;
-      notify.notifyByPhoto = user._id;
-      invokeFirebaseNotification("Answer", notify, 'New Answer', post_user._id, post_user.deviceToken, post._id);
-      await Promise.all([post.save(), answers.save(), user.save(), notify.save(), post_user.save() ]);
+      if(post_user){
+        var notify = new Notification({})
+        notify.notifyContent = `${answers.authorUserName} have added answers on ${post.authorUserName} questions`;
+        notify.notifySender = answers.author;
+        notify.notifyReceiever = post.author;
+        post_user.uNotify.push(notify._id);
+        notify.user = post_user._id;
+        notify.notifyByPhoto = user._id;
+        invokeFirebaseNotification("Answer", notify, 'New Answer', post_user._id, post_user.deviceToken, post._id);
+        await Promise.all([ post_user.save(), notify.save() ])
+      }
+      await Promise.all([post.save(), answers.save(), user.save() ]);
       res.status(201).send({ message: "answer created", answers });
     }
     else{
@@ -359,8 +364,10 @@ exports.questionAnswerSave = async (req, res) => {
     try {
       const { id } = req.params;
       const { post_type } = req.query
-      const post = await Post.findById({ _id: id });
-      const post_user = await User.findById({_id: `${post.author}`})
+      var post = await Post.findById({ _id: id });
+      if(post && post.isUser === 'isUser'){
+        var post_user = await User.findById({_id: `${post.author}`})
+      }
       if(post_type === 'Repost'){
         var answers = new Answer({ ...req.body });
         answers.answerImageId = "1"
@@ -386,7 +393,6 @@ exports.questionAnswerSave = async (req, res) => {
           answers.authorProfilePhoto = user.profilePhoto
         }
         const rePost = new Post({})
-        var reNotify = new Notification({})
         rePost.author = user._id;
         rePost.authorName = user.userLegalName
         rePost.authorUserName = user.username
@@ -403,15 +409,19 @@ exports.questionAnswerSave = async (req, res) => {
         rePost.postType = 'Repost'
         rePost.rePostAnswer = answers
         rePost.post_url = `https://qviple.com/q/${rePost.authorUserName}/profile`
-        reNotify.notifyContent = `${answers.authorUserName} have added answers on ${post.authorUserName} questions`;
-        reNotify.notifySender = answers.author;
-        reNotify.notifyReceiever = post.author;
-        post_user.uNotify.push(reNotify._id);
-        reNotify.user = post_user._id;
-        reNotify.notifyByPhoto = user._id
-        invokeFirebaseNotification("Answer", reNotify, 'New Answer', post_user._id, post_user.deviceToken, post._id);
-        await Promise.all([rePost.save(), answers.save(), user.save(), reNotify.save(), post_user.save(), post.save() ]);
-        res.status(200).send({ message: 'RePosted Answer', rePost}) 
+        if(post_user){
+          var reNotify = new Notification({})
+          reNotify.notifyContent = `${answers.authorUserName} have added answers on ${post.authorUserName} questions`;
+          reNotify.notifySender = answers.author;
+          reNotify.notifyReceiever = post.author;
+          post_user.uNotify.push(reNotify._id);
+          reNotify.user = post_user._id;
+          reNotify.notifyByPhoto = user._id
+          invokeFirebaseNotification("Answer", reNotify, 'New Answer', post_user._id, post_user.deviceToken, post._id);
+          await Promise.all([ reNotify.save(), post_user.save() ])
+        }
+        await Promise.all([rePost.save(), answers.save(), user.save(), post.save() ]);
+        res.status(200).send({ message: 'RePosted Answer', rePost})
         if(user.userFollowers.length >= 1){
           user.userFollowers.forEach(async (ele) => {
             ele.userPosts.push(post._id)

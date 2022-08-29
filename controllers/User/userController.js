@@ -28,7 +28,7 @@ exports.retrieveProfileData = async (req, res) => {
     var totalUpVote = 0
     const user = await User.findById({ _id: id })
       .select(
-        "userLegalName photoId questionCount answerQuestionCount recentChat profilePhoto user_birth_privacy user_address_privacy user_circle_privacy user_tag_privacy userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
+        "userLegalName photoId questionCount answerQuestionCount recentChat profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
       )
       const questionUpVote = await Post.find({ author: id })
       for(let up of questionUpVote){
@@ -760,7 +760,7 @@ exports.getDashDataQuery = async (req, res) => {
     const { id } = req.params;
     const user = await User.findById({ _id: id })
       .select(
-        "userLegalName username ageRestrict photoId profilePhoto user_birth_privacy user_address_privacy user_circle_privacy user_tag_privacy"
+        "userLegalName username ageRestrict photoId profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy"
       )
       if(user.userPosts && user.userPosts.length < 1){
         var post = []
@@ -1190,6 +1190,7 @@ exports.retrieveUserSubjectChat = async(req, res) =>{
     .select('isSubjectTeacher')
     .populate({
       path: 'isSubjectChat',
+      match:{subjectStatus:{$eq:`UnCompleted`}},
       select: 'subjectName',
       populate: {
         path: 'class',

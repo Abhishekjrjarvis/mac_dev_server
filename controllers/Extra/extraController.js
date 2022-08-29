@@ -211,7 +211,7 @@ exports.retrieveUserBirthPrivacy = async(req, res) =>{
       user.user_circle_privacy = circleStatus
     }
     if(tagStatus !== ''){
-      user.user_tag_privacy = tagStatus
+      user.tag_privacy = tagStatus
     }
     await user.save()
     res.status(200).send({ message: `Privacy Updated`})

@@ -39,7 +39,7 @@ exports.createChecklist = async (req, res) => {
       select: "_id",
     });
 
-    const check = new Checklist(req.body);
+    var check = new Checklist(req.body);
     department.checklists.push(check._id);
     check.checklistDepartment = department._id;
 

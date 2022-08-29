@@ -252,6 +252,10 @@ exports.getQuestionAnswer = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select("answerContent createdAt answerImageId answerImage upVote upVoteCount downVote downVoteCount isMentor answerReplyCount author answerSave authorName authorUserName authorPhotoId authorProfilePhoto");
+      .populate({
+        path: 'post',
+        select: 'postQuestion'
+      })
     res.status(200).send({ message: "All answer's of one Question", answer });
   } catch {}
 };

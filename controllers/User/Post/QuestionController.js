@@ -214,7 +214,7 @@ exports.postQuestionAnswer = async (req, res) => {
       user.answered_query.push(answers._id)
       post.answer.push(answers._id);
       post.answerCount += 1;
-      answers.post = post._id;
+      answers.post = post;
       user.answerQuestionCount += 1
       if(post_user){
         var notify = new Notification({})

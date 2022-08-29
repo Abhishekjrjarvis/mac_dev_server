@@ -859,3 +859,51 @@ exports.retrieveAllUserTagPosts = async (req, res) => {
     console.log(e);
   }
 };
+
+
+// exports.retrieveAllUserReposts = async (req, res) => {
+//   try {
+//     const page = req.query.page ? parseInt(req.query.page) : 1;
+//     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+//     const p_types = req.query.p_type ? req.query.p_type : "";
+//     const id = req.params.id;
+//     const skip = (page - 1) * limit;
+//     const user = await User.findById(id).select("id")
+//     if (user && user.userPosts.length >= 1) {
+//       if (p_types !== "") {
+//         var post = await Post.find({
+//           $and: [{ _id: { $in: user.userPosts } }, { postType: p_types }],
+//         })
+//           .sort("-createdAt")
+//           .limit(limit)
+//           .skip(skip)
+//           .select(
+//             "postTitle postText postQuestion answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+//           )
+//           .populate({
+//             path: "poll_query",
+//           })
+//           .populate({
+//             path: "rePostAnswer",
+//             populate: {
+//               path: 'post',
+//               select: 'postQuestion'
+//             }
+//           });
+//       } 
+//       const postCount = await Post.find({ _id: { $in: user.userPosts } });
+//       if (page * limit >= postCount.length) {
+//       } else {
+//         var totalPage = page + 1;
+//       }
+//       res.status(200).send({
+//         message: "Success",
+//         post,
+//         postCount: postCount.length,
+//         totalPage: totalPage,
+//       });
+//     }
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };

@@ -9,7 +9,7 @@ exports.retrievePollQuestionText = async (req, res) => {
     const user = await User.findById({ _id: id })
     .populate({ path: 'userFollowers'})
     .populate({ path: 'userCircle'})
-    if(req.body.pollAnswer.length >= 2 && req.body.pollAnswer.length <= 4){
+    if(req.body.pollAnswer.length >= 2 && req.body.pollAnswer.length <= 5){
       const post = new Post({ ...req.body });
       var poll = new Poll({ ...req.body })
       for(let i=0; i< req.body.pollAnswer.length; i++){

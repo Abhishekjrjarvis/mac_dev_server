@@ -88,11 +88,11 @@ router.get(
   catchAsync(Post.retrieveAllUserTagPosts)
 );
 
-// router.get(
-//   "/:id/all/user/re/posts",
-//   // isLoggedIn,
-//   catchAsync(Post.retrieveAllUserReposts)
-// );
+router.get(
+  "/:id/all/user/re/posts",
+  isLoggedIn,
+  catchAsync(Post.retrieveAllUserReposts)
+);
 
-router.get("");
+// router.get("");
 module.exports = router;

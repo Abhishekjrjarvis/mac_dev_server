@@ -329,7 +329,6 @@ exports.postComment = async (req, res) => {
   try {
     const { id } = req.params;
     const post = await Post.findById({ _id: id });
-    const post_user = await User.findById({ _id: `${post.author}` });
     const comment = new Comment({ ...req.body });
     if (req.tokenData && req.tokenData.insId) {
       const institute = await InstituteAdmin.findById({
@@ -341,27 +340,12 @@ exports.postComment = async (req, res) => {
       comment.authorPhotoId = institute.photoId;
       comment.authorProfilePhoto = institute.insProfilePhoto;
     } else if (req.tokenData && req.tokenData.userId) {
-      const user = await User.findById({ _id: req.tokenData.userId });
-      const notify = new Notification({});
+      var user = await User.findById({ _id: req.tokenData.userId });
       comment.author = user._id;
       comment.authorName = user.userLegalName;
       comment.authorUserName = user.username;
       comment.authorPhotoId = user.photoId;
       comment.authorProfilePhoto = user.profilePhoto;
-      notify.notifyContent = `${comment.authorUserName} have added comments on ${post.authorUserName} posts`;
-      notify.notifySender = comment.author;
-      notify.notifyReceiever = post.author;
-      post_user.uNotify.push(notify._id);
-      notify.user = post_user._id;
-      notify.notifyByPhoto = user._id;
-      invokeFirebaseNotification(
-        "Comment",
-        notify,
-        "New Comment",
-        post_user._id,
-        post_user.deviceToken,
-        post._id
-      );
     } else {
       res.status(401).send({ message: "Unauthorized" });
     }
@@ -370,11 +354,23 @@ exports.postComment = async (req, res) => {
     comment.post = post._id;
     await Promise.all([
       post.save(),
-      comment.save(),
-      notify.save(),
-      post_user.save(),
+      comment.save()
     ]);
     res.status(201).send({ message: "comment created", comment });
+    if(post.isUser === 'User'){
+      var post_user = await User.findById({ _id: `${post.author}` });
+    }
+    if(post_user){
+      var notify = new Notification({});
+      notify.notifyContent = `${comment.authorUserName} have added comments on ${post.authorUserName} posts`;
+      notify.notifySender = comment.author;
+      notify.notifyReceiever = post.author;
+      post_user.uNotify.push(notify._id);
+      notify.user = post_user._id;
+      notify.notifyByPhoto = user._id;
+      await Promise.all([ notify.save(), post_user.save() ])
+      invokeFirebaseNotification( "Comment", notify, "New Comment", post_user._id, post_user.deviceToken, post._id);
+    }
   } catch (e) {
     console.log(e);
   }
@@ -402,10 +398,6 @@ exports.retrieveAllUserPosts = async (req, res) => {
             "postTitle postText postQuestion answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
           )
           .populate({
-            path: "tagPeople",
-            select: "userLegalName username photoId profilePhoto",
-          })
-          .populate({
             path: "poll_query",
           })
           .populate({
@@ -423,10 +415,6 @@ exports.retrieveAllUserPosts = async (req, res) => {
           .select(
             "postTitle postText postQuestion answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
           )
-          .populate({
-            path: "tagPeople",
-            select: "userLegalName username photoId profilePhoto",
-          })
           .populate({
             path: "poll_query",
           })
@@ -475,10 +463,6 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
             "postTitle postText postDescription endUserSave tagPeople isUser isInstitute createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postQuestion answerCount answerUpVoteCount trend_category postType"
           )
           .populate({
-            path: "tagPeople",
-            select: "userLegalName username photoId profilePhoto",
-          })
-          .populate({
             path: "poll_query",
           })
           .populate({
@@ -496,10 +480,6 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
           .select(
             "postTitle postText postDescription endUserSave tagPeople isUser isInstitute createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postQuestion answerCount answerUpVoteCount trend_category postType"
           )
-          .populate({
-            path: "tagPeople",
-            select: "userLegalName username photoId profilePhoto",
-          })
           .populate({
             path: "poll_query",
           })
@@ -575,7 +555,7 @@ exports.getCommentChild = async (req, res) => {
       return childComment;
     };
     if (!comment.childComment.length) {
-      res.status(204).send({ message: "no any child" });
+      res.status(200).send({ message: "no any child", replyComment:[]  });
     }
     const replyComment = userPagination(comment.childComment);
     res.status(200).send({ replyComment });
@@ -709,11 +689,11 @@ exports.circleList = async (req, res) => {
       ],
       $and: [
         {
-          tag_privacy: { $in: ["Every one", "circle"] },
+          tag_privacy: { $in: ["Every one", "Circle"] },
         },
       ],
     })
-      .select("username userLegalName profilePhoto photoId userCircle")
+      .select("username userLegalName profilePhoto photoId userCircle tag_privacy")
       .limit(itemPerPageUser)
       .skip(dropItemUser)
       .lean()
@@ -729,7 +709,7 @@ exports.circleList = async (req, res) => {
         },
       ],
     })
-      .select("insName insProfilePhoto photoId name joinedUserList")
+      .select("insName insProfilePhoto photoId name joinedUserList tag_privacy")
       .limit(itemPerPageInstitute)
       .skip(dropItemInstitute)
       .lean()
@@ -796,7 +776,7 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
       var post = await Post.find({
         $and: [{ _id: { $in: user.user_saved_post } }],
       })
-        .sort("-createdAt")
+        // .sort("-createdAt")
         .limit(limit)
         .skip(skip)
         .select(
@@ -819,6 +799,55 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
       }
       res.status(200).send({
         message: "Success",
+        post,
+        postCount: postCount.length,
+        totalPage: totalPage,
+      });
+    } else {
+      res.status(200).send({ message: "No Post Found" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
+exports.retrieveAllUserTagPosts = async (req, res) => {
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const id = req.params.id;
+    const skip = (page - 1) * limit;
+    const user = await User.findById(id).select("id").populate({
+      path: "tag_post",
+    });
+    if (user && user.tag_post.length >= 1) {
+      var post = await Post.find({
+        $and: [{ _id: { $in: user.tag_post } }],
+      })
+        .sort("-createdAt")
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "postTitle postText postQuestion answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+        )
+        .populate({
+          path: "poll_query",
+        })
+        .populate({
+          path: "rePostAnswer",
+          populate: {
+            path: 'post',
+            select: 'postQuestion'
+          }
+        });
+      const postCount = await Post.find({ _id: { $in: user.tag_post } });
+      if (page * limit >= postCount.length) {
+      } else {
+        var totalPage = page + 1;
+      }
+      res.status(200).send({
+        message: "Success Tag Post",
         post,
         postCount: postCount.length,
         totalPage: totalPage,

@@ -2063,6 +2063,37 @@ paths:
           description: OK
 
 
+  
+  /api/v1/user/post/{id}/all/user/tag/posts:
+    get:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: User All Tag Posts -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is User id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
+      responses:
+        "200":
+          description: OK
+
+
   #This is for universal search of user
 
   /api/v1/search/user/{id}/allsearch:
@@ -4674,6 +4705,36 @@ paths:
       tags:
         - Institute DashBoard API (including Notification, Post, Announcement)
       summary: Institute All Saved Posts - (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/ins/post/{id}/tag/all/posts:
+    get:
+      tags:
+        - Institute DashBoard API (including Notification, Post, Announcement)
+      summary: Institute All Tag Posts - (Verified)
       consumes:
         - application/json
       produces:

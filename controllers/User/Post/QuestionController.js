@@ -360,7 +360,6 @@ exports.questionAnswerSave = async (req, res) => {
       const { id } = req.params;
       const { post_type } = req.query
       const post = await Post.findById({ _id: id });
-      const post_user = await User.findById({_id: `${post.author}`})
       if(post_type === 'Repost'){
         var answers = new Answer({ ...req.body });
         answers.answerImageId = "1"
@@ -387,6 +386,7 @@ exports.questionAnswerSave = async (req, res) => {
         }
         const rePost = new Post({})
         var reNotify = new Notification({})
+        var post_user = await User.findById({_id: `${post.author}`})
         rePost.author = user._id;
         rePost.authorName = user.userLegalName
         rePost.authorUserName = user.username
@@ -409,9 +409,9 @@ exports.questionAnswerSave = async (req, res) => {
         post_user.uNotify.push(reNotify._id);
         reNotify.user = post_user._id;
         reNotify.notifyByPhoto = user._id
-        invokeFirebaseNotification("Answer", reNotify, 'New Answer', post_user._id, post_user.deviceToken, post._id);
         await Promise.all([rePost.save(), answers.save(), user.save(), reNotify.save(), post_user.save(), post.save() ]);
-        res.status(200).send({ message: 'RePosted Answer', rePost}) 
+        res.status(200).send({ message: 'RePosted Answer', rePost})
+        invokeFirebaseNotification("Answer", reNotify, 'New Answer', post_user._id, post_user.deviceToken, post._id);
         if(user.userFollowers.length >= 1){
           user.userFollowers.forEach(async (ele) => {
             ele.userPosts.push(post._id)

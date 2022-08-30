@@ -25,6 +25,8 @@ exports.getFinanceDepart = async(req, res) =>{
         const finance = await new Finance({});
         const notify = await new Notification({})
         staff.financeDepartment.push(finance._id);
+        staff.staffDesignationCount += 1;
+        staff.recentDesignation = 'Finance Manager';
         finance.financeHead = staff._id;
         institute.financeDepart.push(finance._id);
         institute.financeStatus = 'Enable'

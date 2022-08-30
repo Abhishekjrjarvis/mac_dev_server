@@ -727,6 +727,7 @@ exports.getRecentChatInstitute = async(req, res) => {
 
 
 exports.retrieveRepayInstituteAmount = async(req, res) => {
+  console.log('repay Done')
   try{
     const { aid, uid } = req.params;
     const { amount, txnId, message } = req.body;

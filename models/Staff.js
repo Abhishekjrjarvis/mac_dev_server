@@ -169,6 +169,10 @@ const staffSchema = new mongoose.Schema({
       ref: "StaffComplaint",
     },
   ],
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

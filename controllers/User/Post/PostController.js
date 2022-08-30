@@ -804,7 +804,7 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
         totalPage: totalPage,
       });
     } else {
-      res.status(200).send({ message: "No Post Found" });
+      res.status(200).send({ message: "No Post Found", post: [] });
     }
   } catch (e) {
     console.log(e);
@@ -853,7 +853,7 @@ exports.retrieveAllUserTagPosts = async (req, res) => {
         totalPage: totalPage,
       });
     } else {
-      res.status(200).send({ message: "No Post Found" });
+      res.status(200).send({ message: "No Post Found", post: [] });
     }
   } catch (e) {
     console.log(e);
@@ -882,7 +882,12 @@ exports.retrieveAllUserReposts = async (req, res) => {
         select: 'postQuestion'
       }
     });
-    res.status(200).send({ message: "Success", repost, count: repost.length });
+    if(repost && repost.length >=1){
+      res.status(200).send({ message: "Success", repost, count: repost.length });
+    }
+    else{
+      res.status(200).send({ message: 'No Post found', repost: [] })
+    }
   } catch (e) {
     console.log(e);
   }

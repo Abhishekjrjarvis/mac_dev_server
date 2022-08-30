@@ -339,6 +339,10 @@ const userSchema = new mongoose.Schema({
       ref: "NewApplication",
     },
   ],
+  created_at: {
+    type: Date,
+    default: Date.now
+  }
 });
 
 userSchema.post("findOneAndDelete", async function (doc) {

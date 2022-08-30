@@ -248,7 +248,7 @@ exports.getQuestionAnswer = async (req, res) => {
     const answer = await Answer.find({
       _id: { $in: insPost.answer },
     })
-      .sort("-createdAt")
+      .sort("-upVoteCount")
       .limit(limit)
       .skip(skip)
       .select("answerContent createdAt answerImageId answerImage upVote upVoteCount downVote downVoteCount isMentor answerReplyCount author answerSave authorName authorUserName authorPhotoId authorProfilePhoto")

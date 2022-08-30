@@ -22,8 +22,8 @@ exports.getFinanceDepart = async(req, res) =>{
           path: "user",
         });
         const user = await User.findById({ _id: `${staff.user._id}` });
-        const finance = await new Finance({});
-        const notify = await new Notification({})
+        const finance = new Finance({});
+        const notify = new Notification({})
         staff.financeDepartment.push(finance._id);
         staff.staffDesignationCount += 1;
         staff.recentDesignation = 'Finance Manager';
@@ -75,7 +75,6 @@ exports.uploadBankDetail = async(req, res) =>{
         notify.notifySender = institute._id;
         notify.notifyReceiever = admin._id;
         admin.aNotify.push(notify._id);
-        notify.notifyPid = "1";
         notify.notifyByInsPhoto = institute._id;
         await Promise.all([institute.save(), admin.save(), notify.save()]);
         res.status(200).send({ message: "bank detail updated wait for verification", status: true });
@@ -114,7 +113,6 @@ exports.updateBankDetail = async(req, res) =>{
         notify.notifySender = institute._id;
         notify.notifyReceiever = admin._id;
         admin.aNotify.push(notify._id);
-        notify.notifyPid = "1";
         notify.notifyByInsPhoto = institute._id;
         await Promise.all([institute.save(), admin.save(), notify.save()]);
         res.status(200).send({ message: "bank detail updated wait for verification" });

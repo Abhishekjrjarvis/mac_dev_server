@@ -13,6 +13,9 @@ const end_poll = (val) => {
     if(r_l_min <= 9){
         r_l_min = `0${r_l_min}`
     }
+    if(r_l_day <=9){
+        r_l_day = `0${r_l_day}`
+    }
     return `${r_l_year}-${r_l_month}-${r_l_day}T${r_l_hrs}:${r_l_min}`;
 }
 

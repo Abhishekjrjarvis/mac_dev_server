@@ -120,6 +120,7 @@ PaytmChecksum.generateSignature(JSON.stringify(paytmParams.body), process.env.PA
             let status = body.resultInfo.resultStatus;
             let price = body.txnAmount;
             // TXN_SUCCESS
+            // PENDING
             if (status === "TXN_SUCCESS") {
                 await addPayment(body, sid, fid, uid);
                 await studentPaymentUpdated(fiid, sid, fid, status, price);

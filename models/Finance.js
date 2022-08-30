@@ -135,6 +135,10 @@ const financeSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  financeRaisedBalance: {
+    type: Number,
+    default: 0
+  },
   requestArray: []
 }, { timestamps: true});
 

@@ -1402,7 +1402,7 @@ exports.fetchOneStaffDepartmentInfo = async (req, res) => {
       })
       .populate({
         path: "institute",
-        select: "insName",
+        select: "insName financeStatus",
       })
       .populate({
         path: "userBatch",

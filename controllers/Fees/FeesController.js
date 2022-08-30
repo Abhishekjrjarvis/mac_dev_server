@@ -7,12 +7,13 @@ const Notification = require("../../models/notification");
 const Finance = require('../../models/Finance')
 const Checklist = require('../../models/Checklist')
 const InstituteAdmin = require('../../models/InstituteAdmin')
+const Finance = require('../../models/Finance')
 
 exports.createFess = async (req, res) => {
   try {
     const { ClassId, feeName, feeAmount, feeDate } = req.body;
     const department = await Department.findById(req.params.did).select(
-      "_id ApproveStudent fees"
+      "_id ApproveStudent fees institute"
     );
     var feeData = await new Fees({
       feeName: feeName,
@@ -56,6 +57,10 @@ exports.createFess = async (req, res) => {
         await st.save()
       })
     }
+    const institute = await InstituteAdmin.findById({_id: `${department.institute}`}).select('financeDepart')
+    const finance = await Finance.findById({_id: `${institute.financeDepart[0]}`})
+    finance.financeRaisedBalance += feeData.feeAmount
+    await finance.save()
     //
   } catch (e){
     console.log(e)
@@ -156,6 +161,7 @@ exports.exemptFeesPaidByStudent = async (req, res) => {
         fData.exemptList.push(student._id);
         classes.exemptFee += fData.feeAmount;
         finance.financeExemptBalance += fData.feeAmount
+        finance.financeTotalBalance += fData.feeAmount
         classes.exemptFeeCollection.push({
           fee: fData.feeAmount,
           feeId: fData._id

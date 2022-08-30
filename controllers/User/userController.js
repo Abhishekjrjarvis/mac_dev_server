@@ -34,7 +34,7 @@ exports.retrieveProfileData = async (req, res) => {
       for(let up of questionUpVote){
         totalUpVote += up.answerUpVoteCount
       }
-      if(user && user.userPosts.length < 1){
+      if(user && user?.userPosts?.length < 1){
         var post = []
       }
     res.status(200).send({ message: "Limit User Profile Data ", user, upVote: totalUpVote, post });

@@ -119,6 +119,7 @@ exports.updateBankDetail = async(req, res) =>{
         await Promise.all([institute.save(), admin.save(), notify.save()]);
         res.status(200).send({ message: "bank detail updated wait for verification" });
       } catch(e) {
+        console.log(e)
       }
 }
 

@@ -969,7 +969,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
     const { sid } = req.params;
     const staff = await Staff.findById({ _id: sid })
       .select(
-        "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffMotherName staffGender staffNationality staffMTongue staffCast staffCastCategory staffBirthPlace staffState staffDistrict staffReligion staffAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharCard staffDOB staffStatus staffROLLNO"
+        "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffMotherName staffGender staffNationality staffMTongue staffCast staffCastCategory staffBirthPlace staffState staffDistrict staffReligion staffAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffDesignationCount staffAadharCard staffDOB staffStatus staffROLLNO"
       )
       .populate({
         path: "staffDepartment",

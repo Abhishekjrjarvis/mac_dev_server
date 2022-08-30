@@ -7,7 +7,6 @@ const Notification = require("../../models/notification");
 const Finance = require('../../models/Finance')
 const Checklist = require('../../models/Checklist')
 const InstituteAdmin = require('../../models/InstituteAdmin')
-const Finance = require('../../models/Finance')
 
 exports.createFess = async (req, res) => {
   try {

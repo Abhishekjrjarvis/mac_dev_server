@@ -585,7 +585,7 @@ exports.getComment = async (req, res) => {
     const comment = await Comment.find({
       _id: { $in: insPost.comment },
     })
-      .sort("-createdAt")
+      .sort("createdAt")
       .limit(limit)
       .skip(skip)
       .select(

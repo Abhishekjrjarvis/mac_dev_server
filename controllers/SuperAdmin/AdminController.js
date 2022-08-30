@@ -739,7 +739,7 @@ exports.retrieveRepayInstituteAmount = async(req, res) => {
     admin.returnAmount -= amount
     notify.notifyContent = `Super Admin re-pay Rs. ${amount} to you`;
     notify.notifySender = aid;
-    notify.notifyReceiever = id;
+    notify.notifyReceiever = uid;
     institute.iNotify.push(notify._id);
     notify.institute = institute._id;
     notify.notifyBySuperAdminPhoto =

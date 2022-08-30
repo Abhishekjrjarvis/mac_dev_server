@@ -93,6 +93,7 @@ const financeSchema = new mongoose.Schema({
   },
   financeTotalBalance: {
     type: Number,
+    default: 0
   },
   financeEContentBalance: {
         type: Number,

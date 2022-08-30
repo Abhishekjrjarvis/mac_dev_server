@@ -12,6 +12,7 @@ const IdCardPayment = require("../../models/IdCardPayment");
 const Admin = require("../../models/superAdmin");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const Notification = require("../../models/notification");
+const Class = require('../../models/Class')
 const { v4: uuidv4 } = require("uuid");
 
 exports.generateTxnToken = async(req, res) => {
@@ -118,6 +119,7 @@ PaytmChecksum.generateSignature(JSON.stringify(paytmParams.body), process.env.PA
             let { body } = JSON.parse(response);
             let status = body.resultInfo.resultStatus;
             let price = body.txnAmount;
+            // TXN_SUCCESS
             if (status === "TXN_SUCCESS") {
                 await addPayment(body, sid, fid, uid);
                 await studentPaymentUpdated(fiid, sid, fid, status, price);
@@ -154,7 +156,7 @@ const addPayment = async (data, studentId, feeId, userId) => {
       else{}
       await Promise.all([ payment.save(), student.save()])
     } catch (error) {
-      console.log("Payment Failed!");
+      console.log("Payment Failed!", error);
     }
   };
 
@@ -190,10 +192,10 @@ const studentPaymentUpdated = async (financeId, studentId, feeId, statusType, tx
             student.onlineFeeList.push(fData._id);
             student.studentPaidFeeCount += fData.feeAmount
             student.studentRemainingFeeCount -= fData.feeAmount
-            finance.financeBankBalance =
-              finance.financeBankBalance + parseInt(tx_amount);
-            finance.institute.insBankBalance =
-              finance.institute.insBankBalance + parseInt(tx_amount);
+            finance.financeBankBalance = finance.financeBankBalance + parseInt(tx_amount);
+            finance.financeTotalBalance = finance.financeTotalBalance + parseInt(tx_amount)
+            finance.institute.insBankBalance = finance.institute.insBankBalance + parseInt(tx_amount);
+            finance.institute.adminRepayAmount = finance.institute.adminRepayAmount + parseInt(tx_amount);
             notify.notifyContent = `${student.studentFirstName}${
               student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
             } ${student.studentLastName} paid the ${
@@ -238,10 +240,10 @@ const studentPaymentUpdated = async (financeId, studentId, feeId, statusType, tx
             checklistData.studentsList.push(student._id);
             checklistData.checklistStudent = student._id;
             student.onlineCheckList.push(checklistData._id);
-            finance.financeBankBalance =
-              finance.financeBankBalance + parseInt(tx_amount);
-            finance.institute.insBankBalance =
-              finance.institute.insBankBalance + parseInt(tx_amount);
+            finance.financeBankBalance = finance.financeBankBalance + parseInt(tx_amount);
+            finance.financeTotalBalance = finance.financeTotalBalance + parseInt(tx_amount)
+            finance.institute.insBankBalance = finance.institute.insBankBalance + parseInt(tx_amount);
+            finance.institute.adminRepayAmount = finance.institute.adminRepayAmount + parseInt(tx_amount);
             notify.notifyContent = `${student.studentFirstName}${
               student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
             } ${student.studentLastName} paid the ${
@@ -410,7 +412,7 @@ PaytmChecksum.generateSignature(JSON.stringify(paytmParams.body), process.env.PA
 
 const addUnlockPayment = async (data, insId ) => {
     try {
-      const unlock = await new IdCardPayment(data);
+      const unlock = new IdCardPayment(data);
       const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
       unlock.insId = insId;
       admin.exploreFeatureList.push(unlock._id);
@@ -426,7 +428,7 @@ const addUnlockPayment = async (data, insId ) => {
     try {
       const institute = await InstituteAdmin.findById({ _id: insId });
       const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-      const notify = await new Notification({});
+      const notify = new Notification({});
       admin.featureAmount = admin.featureAmount + parseInt(tx_iAmounts);
       admin.activateAccount += 1
       institute.featurePaymentStatus = 'Paid'

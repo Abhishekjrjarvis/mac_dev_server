@@ -215,11 +215,11 @@ exports.getIncome = async(req, res) =>{
         incomes.incomeAck = results.key;
         incomes.finances = finance._id;
         if (req.body.incomeAccount === "By Cash") {
-          finance.financeIncomeCashBalance =
-            finance.financeIncomeCashBalance + incomes.incomeAmount;
+          finance.financeIncomeCashBalance = finance.financeIncomeCashBalance + incomes.incomeAmount;
+          finance.financeTotalBalance += incomes.incomeAmount
         } else if (req.body.incomeAccount === "By Bank") {
-          finance.financeIncomeBankBalance =
-            finance.financeIncomeBankBalance + incomes.incomeAmount;
+          finance.financeIncomeBankBalance = finance.financeIncomeBankBalance + incomes.incomeAmount;
+          finance.financeTotalBalance += incomes.incomeAmount
         }
         await Promise.all([
          finance.save(),
@@ -254,25 +254,30 @@ exports.getExpense = async(req, res) =>{
     try {
         const { fid } = req.params;
         const finance = await Finance.findById({ _id: fid });
-        const file = req.file;
-        const results = await uploadDocFile(file);
-        const expenses = await new Expense({ ...req.body });
-        finance.expenseDepartment.push(expenses._id);
-        expenses.expenseAck = results.key;
-        expenses.finances = finance._id;
-        if (req.body.expenseAccount === "By Cash") {
-          finance.financeExpenseCashBalance =
-            finance.financeExpenseCashBalance - expenses.expenseAmount;
-        } else if (req.body.expenseAccount === "By Bank") {
-          finance.financeExpenseBankBalance =
-            finance.financeExpenseBankBalance - expenses.expenseAmount;
+        if(finance.financeTotalBalance > 0 && req.body.expenseAmount <= finance.financeTotalBalance){
+          const file = req.file;
+          const results = await uploadDocFile(file);
+          const expenses = new Expense({ ...req.body });
+          finance.expenseDepartment.push(expenses._id);
+          expenses.expenseAck = results.key;
+          expenses.finances = finance._id;
+          if (req.body.expenseAccount === "By Cash") {
+            finance.financeExpenseCashBalance = finance.financeExpenseCashBalance + expenses.expenseAmount;
+            finance.financeTotalBalance -= expenses.expenseAmount
+          } else if (req.body.expenseAccount === "By Bank") {
+            finance.financeExpenseBankBalance = finance.financeExpenseBankBalance + expenses.expenseAmount;
+            finance.financeTotalBalance -= expenses.expenseAmount
+          }
+          await Promise.all([
+          finance.save(),
+          expenses.save()
+          ])
+          await unlinkFile(file.path);
+          res.status(200).send({ message: "Add New Expense", finance: finance._id, expenses: expenses._id });
         }
-        await Promise.all([
-         finance.save(),
-         expenses.save()
-        ])
-        await unlinkFile(file.path);
-        res.status(200).send({ message: "Add New Expense", finance: finance._id, expenses: expenses._id });
+        else{
+          res.status(200).send({ message: 'Expense Not Permitted'})
+        }
       } catch(e) {
       }
 }
@@ -463,6 +468,7 @@ exports.submitClassOfflineFee = async(req, res) =>{
         classes.submitFee.push(fees._id);
         finance.requestArray.pull(classes._id)
         finance.financeSubmitBalance += amount
+        finance.financeTotalBalance += amount
         finance.financeCollectedSBalance -= amount
         // finance.financeSubmitBalance += fees.offlineFee;
         fees.offlineFee = 0;

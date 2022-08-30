@@ -879,7 +879,7 @@ exports.retrieveAllUserReposts = async (req, res) => {
       path: "rePostAnswer",
       populate: {
         path: 'post',
-        select: 'postQuestion'
+        select: 'postQuestion author authorUserName authorPhotoId authorProfilePhoto'
       }
     });
     if(repost && repost.length >=1){

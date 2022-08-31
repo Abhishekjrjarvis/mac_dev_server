@@ -46,10 +46,10 @@ PaytmChecksum.generateSignature(JSON.stringify(paytmParams.body), process.env.PA
  var options = {
 
  /* for Staging */
- hostname: 'securegw-stage.paytm.in',
+//  hostname: 'securegw-stage.paytm.in',
 
  /* for Production */
- // hostname: 'securegw.paytm.in',
+ hostname: 'securegw.paytm.in',
 
  port: 443,
  path: `/theia/api/v1/initiateTransaction?mid=${process.env.PAYTM_MID}&orderId=${paytmParams.body.orderId}`,
@@ -95,10 +95,10 @@ PaytmChecksum.generateSignature(JSON.stringify(paytmParams.body), process.env.PA
     var options = {
 
         /* for Staging */
-        hostname: 'securegw-stage.paytm.in',
+        // hostname: 'securegw-stage.paytm.in',
 
         /* for Production */
-        // hostname: 'securegw.paytm.in',
+        hostname: 'securegw.paytm.in',
 
         port: 443,
         path: '/v3/order/status',
@@ -321,10 +321,10 @@ PaytmChecksum.generateSignature(JSON.stringify(paytmParams.body), process.env.PA
  var options = {
 
  /* for Staging */
- hostname: 'securegw-stage.paytm.in',
+//  hostname: 'securegw-stage.paytm.in',
 
  /* for Production */
- // hostname: 'securegw.paytm.in',
+ hostname: 'securegw.paytm.in',
 
  port: 443,
  path: `/theia/api/v1/initiateTransaction?mid=${process.env.PAYTM_MID}&orderId=${paytmParams.body.orderId}`,
@@ -370,10 +370,10 @@ PaytmChecksum.generateSignature(JSON.stringify(paytmParams.body), process.env.PA
     var options = {
 
         /* for Staging */
-        hostname: 'securegw-stage.paytm.in',
+        // hostname: 'securegw-stage.paytm.in',
 
         /* for Production */
-        // hostname: 'securegw.paytm.in',
+        hostname: 'securegw.paytm.in',
 
         port: 443,
         path: '/v3/order/status',

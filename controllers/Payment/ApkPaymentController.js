@@ -420,7 +420,7 @@ const addUnlockPayment = async (data, insId ) => {
       await unlock.save();
       await admin.save();
     } catch (error) {
-      console.log("Unlock Payment Failed!");
+      console.log("Unlock Payment Failed!", error);
     }
   };
   
@@ -442,5 +442,7 @@ const addUnlockPayment = async (data, insId ) => {
       admin.aNotify.push(notify._id);
       notify.notifyByInsPhoto = institute._id;
       await Promise.all([ institute.save(), admin.save(), notify.save()])
-    } catch {}
+    } catch(e) {
+      console.log(e)
+    }
   };

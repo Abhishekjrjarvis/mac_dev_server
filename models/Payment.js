@@ -21,7 +21,7 @@ const paymentSchema = new mongoose.Schema({
     },
     bankTxnId: {
         type: String,
-        // required: true
+        required: true
     },
     orderId: {
         type: String,
@@ -37,11 +37,11 @@ const paymentSchema = new mongoose.Schema({
     },
     gatewayName: {
         type: String,
-        // required: true
+        required: true
     },
     bankName: {
         type: String,
-        // required: true
+        required: true
     },
     mid: {
         type: String,
@@ -49,7 +49,7 @@ const paymentSchema = new mongoose.Schema({
     },
     paymentMode: {
         type: String,
-        // required: true
+        required: true
     },
     refundAmt: {
         type: String,

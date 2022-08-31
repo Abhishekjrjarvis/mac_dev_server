@@ -30,9 +30,9 @@ exports.retrieveProfileData = async (req, res) => {
       .select(
         "userLegalName photoId questionCount answerQuestionCount recentChat profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
       )
-      const questionUpVote = await Post.find({ author: id })
-      for(let up of questionUpVote){
-        totalUpVote += up.answerUpVoteCount
+      const answers = await Answer.find({ author: id })
+      for(let up of answers){
+        totalUpVote += up.upVoteCount
       }
       if(user && user?.userPosts?.length < 1){
         var post = []

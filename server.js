@@ -47,11 +47,9 @@ const iQuestionNew = require("./routes/InstituteAdmin/Post/QuestionRoute");
 
 // ============================= DB Configuration ==============================
 
-// const dburl = `${process.env.DB_URL2}`; // Development
 const dburl = `${process.env.DB_URL}`; // Production
 
-// 62fcd875d6082088847019a5 - Development
-// 630d8dd4e7a16150999b2c10 - Production
+// 630f3b68a5eb4786489045a1 - Production
 
 mongoose
   .connect(dburl, {
@@ -229,7 +227,4 @@ io.on("connection", (socket) => {
     console.log("USER DISCONNECTED");
     socket.leave(userData);
   });
-  //   socket.on('disconnect', (room, userId) =>{
-  //     socket.broadcast.to(room).emit('user_leave', userId);
-  // });
 });

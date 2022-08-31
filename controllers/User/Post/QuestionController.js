@@ -254,7 +254,7 @@ exports.getQuestionAnswer = async (req, res) => {
       .select("answerContent createdAt answerImageId answerImage upVote upVoteCount downVote downVoteCount isMentor answerReplyCount author answerSave authorName authorUserName authorPhotoId authorProfilePhoto")
       .populate({
         path: 'post',
-        select: 'postQuestion author authorProfilePhoto authorPhotoId authorUserName'
+        select: 'postQuestion author authorProfilePhoto authorPhotoId authorUserName isUser'
       })
     res.status(200).send({ message: "All answer's of one Question", answer });
   } catch {}

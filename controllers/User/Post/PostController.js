@@ -404,7 +404,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
             path: "rePostAnswer",
             populate: {
               path: 'post',
-              select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId'
+              select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
             }
           });
       } else {
@@ -422,7 +422,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
             path: "rePostAnswer",
             populate: {
               path: 'post',
-              select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId'
+              select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
             }
           });
       }
@@ -469,7 +469,7 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
             path: "rePostAnswer",
             populate: {
               path: 'post',
-              select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId'
+              select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
             }
           });
       } else {
@@ -487,7 +487,7 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
             path: "rePostAnswer",
             populate: {
               path: 'post',
-              select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId'
+              select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
             }
           });
       }
@@ -789,7 +789,7 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
           path: "rePostAnswer",
           populate: {
             path: 'post',
-            select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId'
+            select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
           }
         });
       const postCount = await Post.find({ _id: { $in: user.user_saved_post } });
@@ -838,7 +838,7 @@ exports.retrieveAllUserTagPosts = async (req, res) => {
           path: "rePostAnswer",
           populate: {
             path: 'post',
-            select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId'
+            select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
           }
         });
       const postCount = await Post.find({ _id: { $in: user.tag_post } });
@@ -879,7 +879,7 @@ exports.retrieveAllUserReposts = async (req, res) => {
       path: "rePostAnswer",
       populate: {
         path: 'post',
-        select: 'postQuestion author authorUserName authorPhotoId authorProfilePhoto'
+        select: 'postQuestion author authorUserName authorPhotoId authorProfilePhoto isUser'
       }
     });
     if(repost && repost.length >=1){

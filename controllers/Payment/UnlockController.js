@@ -66,8 +66,8 @@ exports.processUnlockFeaturePayment = async (req, res, next) => {
           };
           var post_data = JSON.stringify(paytmParams);
           var options = {
-            hostname: "securegw-stage.paytm.in",
-            // hostname: 'securegw.paytm.in',
+            // hostname: "securegw-stage.paytm.in",
+            hostname: 'securegw.paytm.in',
             port: 443,
             path: "/v3/order/status",
             method: "POST",

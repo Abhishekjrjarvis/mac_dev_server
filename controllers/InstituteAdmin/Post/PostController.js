@@ -585,7 +585,7 @@ exports.getComment = async (req, res) => {
     const comment = await Comment.find({
       _id: { $in: insPost.comment },
     })
-      .sort("-createdAt")
+      .sort("createdAt")
       .limit(limit)
       .skip(skip)
       .select(
@@ -859,7 +859,7 @@ exports.retrieveSavedAllPosts = async (req, res) => {
         });
       }
     } else {
-      res.status(204).send({ message: "No Posts Yet..." });
+      res.status(204).send({ message: "No Posts Yet...", post: [] });
     }
   } catch (e) {
     console.log(e);
@@ -905,7 +905,7 @@ exports.retrieveTagAllPosts = async (req, res) => {
         });
       }
     } else {
-      res.status(204).send({ message: "No Posts Yet..." });
+      res.status(204).send({ message: "No Posts Yet...", post: [] });
     }
   } catch (e) {
     console.log(e);

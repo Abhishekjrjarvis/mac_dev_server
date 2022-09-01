@@ -88,5 +88,11 @@ router.get(
   catchAsync(Post.retrieveAllUserTagPosts)
 );
 
-router.get("");
+router.get(
+  "/:id/all/user/re/posts",
+  isLoggedIn,
+  catchAsync(Post.retrieveAllUserReposts)
+);
+
+// router.get("");
 module.exports = router;

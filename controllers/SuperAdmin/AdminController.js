@@ -63,7 +63,7 @@ exports.getAdmin = async(req, res) =>{
         const { aid } = req.params
         const post = await Post.find({}).select('id')
         const admins = await Admin.findById({ _id: aid})
-        .select('id postCount instituteCount reportPostQueryCount careerCount getTouchCount userCount featureAmount idCardBalance staffCount studentCount playlistCount paymentCount adminName adminUserName photoId profilePhoto')
+        .select('id postCount instituteCount reportPostQueryCount returnAmount careerCount getTouchCount userCount featureAmount idCardBalance staffCount studentCount playlistCount paymentCount adminName adminUserName photoId profilePhoto')
         .populate({
           path: 'staffArray',
           select: 'staffFirstName staffMiddleName staffJoinDate staffLastName photoId staffProfilePhoto',
@@ -164,7 +164,7 @@ exports.retrieveUniversalInstitute = async(req, res) =>{
   try{
     const { aid } = req.params
     const { id } = req.body
-    const admin = await Admin.findById({ _id: aid})
+    const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}`})
     const institute = await InstituteAdmin.findById({_id: id})
     const notify = new Notification({})
     admin.assignUniversal = institute._id
@@ -323,14 +323,14 @@ exports.getApproveIns = async(req, res) =>{
     try {
         const { aid, id } = req.params;
         const { charges } = req.body
-        const admin = await Admin.findById({ _id: aid });
+        const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
         const institute = await InstituteAdmin.findById({ _id: id });
         if(institute.initialReferral){
         var user = await User.findOne({ _id: `${institute.initialReferral}`})
         user.userCommission += (charges * 0.4)
         await user.save()
         }
-        const notify = await new Notification({});
+        const notify = new Notification({});
         admin.ApproveInstitute.push(institute._id);
         admin.instituteCount += 1
         admin.requestInstituteCount -= 1
@@ -345,7 +345,7 @@ exports.getApproveIns = async(req, res) =>{
         institute.activateDate = new Date()
         }
         notify.notifyContent = "Approval For Super Admin is successfull";
-        notify.notifySender = aid;
+        notify.notifySender = admin._id;
         notify.notifyReceiever = id;
         institute.iNotify.push(notify._id);
         notify.institute = institute._id;
@@ -368,7 +368,7 @@ exports.getRejectIns = async(req, res) =>{
         const { aid, id } = req.params;
         const admin = await Admin.findById({ _id: aid });
         const institute = await InstituteAdmin.findById({ _id: id });
-        const notify = await new Notification({});
+        const notify = new Notification({});
 
         admin.RejectInstitute.push(institute._id);
         admin.instituteList.pull(id);
@@ -450,7 +450,7 @@ exports.retrieveOneInstitute = async(req, res) =>{
 exports.verifyInstituteBankDetail = async(req, res) =>{
   try{
     const { aid, id } = req.params
-    var admin = await Admin.findById({_id: aid})
+    var admin = await Admin.findById({_id: `${process.env.S_ADMIN_ID}`})
     var regExp = "^[A-Z]{4}[0][A-Z0-9]{6}$"
     var institute = await InstituteAdmin.findById({_id: id})
     // && institute.bankIfscCode.match(regExp)
@@ -730,15 +730,15 @@ exports.retrieveRepayInstituteAmount = async(req, res) => {
   try{
     const { aid, uid } = req.params;
     const { amount, txnId, message } = req.body;
-    const admin = await Admin.findById({ _id: aid });
+    const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const institute = await InstituteAdmin.findById({ _id: uid });
     const notify = new Notification({});
     const repay = new RePay({})
-    institute.adminRepayAmount += amount;
+    institute.adminRepayAmount -= amount;
     admin.returnAmount -= amount
     notify.notifyContent = `Super Admin re-pay Rs. ${amount} to you`;
-    notify.notifySender = aid;
-    notify.notifyReceiever = id;
+    notify.notifySender = admin._id;
+    notify.notifyReceiever = uid;
     institute.iNotify.push(notify._id);
     notify.institute = institute._id;
     notify.notifyBySuperAdminPhoto =

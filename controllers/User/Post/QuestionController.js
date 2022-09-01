@@ -214,7 +214,7 @@ exports.postQuestionAnswer = async (req, res) => {
       user.answered_query.push(answers._id)
       post.answer.push(answers._id);
       post.answerCount += 1;
-      answers.post = post._id;
+      answers.post = post;
       user.answerQuestionCount += 1
       if(post_user){
         var notify = new Notification({})
@@ -248,10 +248,14 @@ exports.getQuestionAnswer = async (req, res) => {
     const answer = await Answer.find({
       _id: { $in: insPost.answer },
     })
-      .sort("-createdAt")
+      .sort("-upVoteCount")
       .limit(limit)
       .skip(skip)
-      .select("answerContent createdAt answerImageId answerImage upVote upVoteCount downVote downVoteCount isMentor answerReplyCount author answerSave authorName authorUserName authorPhotoId authorProfilePhoto");
+      .select("answerContent createdAt answerImageId answerImage upVote upVoteCount downVote downVoteCount isMentor answerReplyCount author answerSave authorName authorUserName authorPhotoId authorProfilePhoto")
+      .populate({
+        path: 'post',
+        select: 'postQuestion author authorProfilePhoto authorPhotoId authorUserName isUser'
+      })
     res.status(200).send({ message: "All answer's of one Question", answer });
   } catch {}
 };

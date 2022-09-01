@@ -16,6 +16,9 @@ exports.check_poll_status = async(req, res) => {
     if(min <= 9){
         min = `0${r_date.getMinutes()}`
     }
+    if(day <=9){
+        day=`0${day}`
+    }
     const poll = await Poll.find({ duration_date: `${year}-${month}-${day}T${hrs}:${min}`})
     if(poll.length >=1 ){
         poll.forEach(async (pl) => {

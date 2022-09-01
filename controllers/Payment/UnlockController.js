@@ -66,8 +66,8 @@ exports.processUnlockFeaturePayment = async (req, res, next) => {
           };
           var post_data = JSON.stringify(paytmParams);
           var options = {
-            hostname: "securegw-stage.paytm.in",
-            // hostname: 'securegw.paytm.in',
+            // hostname: "securegw-stage.paytm.in",
+            hostname: 'securegw.paytm.in',
             port: 443,
             path: "/v3/order/status",
             method: "POST",
@@ -122,7 +122,7 @@ exports.processUnlockFeaturePayment = async (req, res, next) => {
     try {
       const institute = await InstituteAdmin.findById({ _id: insId });
       const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-      const notify = await new Notification({});
+      const notify = new Notification({});
       admin.featureAmount = admin.featureAmount + parseInt(tx_iAmounts);
       admin.activateAccount += 1
       institute.featurePaymentStatus = 'Paid'

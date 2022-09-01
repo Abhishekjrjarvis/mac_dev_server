@@ -279,7 +279,7 @@ exports.OneComplaint = async (req, res) => {
   try {
     const complaint = await Complaint.findById(req.params.cid)
       .select(
-        "complaintType complaintTo complaintContent complaintStatus reportAdmin createdAt"
+        "complaintType complaintTo complaintContent complaintStatus complaintInsStatus reportAdmin createdAt"
       )
       .populate({
         path: "student",

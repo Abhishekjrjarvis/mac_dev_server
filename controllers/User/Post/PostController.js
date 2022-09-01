@@ -404,7 +404,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
             path: "rePostAnswer",
             populate: {
               path: 'post',
-              select: 'postQuestion'
+              select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
             }
           });
       } else {
@@ -422,7 +422,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
             path: "rePostAnswer",
             populate: {
               path: 'post',
-              select: 'postQuestion'
+              select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
             }
           });
       }
@@ -469,7 +469,7 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
             path: "rePostAnswer",
             populate: {
               path: 'post',
-              select: 'postQuestion'
+              select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
             }
           });
       } else {
@@ -487,7 +487,7 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
             path: "rePostAnswer",
             populate: {
               path: 'post',
-              select: 'postQuestion'
+              select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
             }
           });
       }
@@ -519,7 +519,7 @@ exports.getComment = async (req, res) => {
     const comment = await Comment.find({
       _id: { $in: insPost.comment },
     })
-      .sort("-createdAt")
+      .sort("createdAt")
       .limit(limit)
       .skip(skip)
       .select(
@@ -789,7 +789,7 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
           path: "rePostAnswer",
           populate: {
             path: 'post',
-            select: 'postQuestion'
+            select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
           }
         });
       const postCount = await Post.find({ _id: { $in: user.user_saved_post } });
@@ -804,7 +804,7 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
         totalPage: totalPage,
       });
     } else {
-      res.status(200).send({ message: "No Post Found" });
+      res.status(200).send({ message: "No Post Found", post: [] });
     }
   } catch (e) {
     console.log(e);
@@ -838,7 +838,7 @@ exports.retrieveAllUserTagPosts = async (req, res) => {
           path: "rePostAnswer",
           populate: {
             path: 'post',
-            select: 'postQuestion'
+            select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
           }
         });
       const postCount = await Post.find({ _id: { $in: user.tag_post } });
@@ -853,7 +853,40 @@ exports.retrieveAllUserTagPosts = async (req, res) => {
         totalPage: totalPage,
       });
     } else {
-      res.status(200).send({ message: "No Post Found" });
+      res.status(200).send({ message: "No Post Found", post: [] });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
+exports.retrieveAllUserReposts = async (req, res) => {
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const id = req.params.id;
+    const skip = (page - 1) * limit;
+    const user = await User.findById(id).select("id")
+    var repost = await Post.find({
+      $and: [{ author: `${user._id}` }, { postType: 'Repost' }],
+    })
+    .sort("-createdAt")
+    .limit(limit)
+    .skip(skip)
+    .select("postTitle postText postQuestion answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType")
+    .populate({
+      path: "rePostAnswer",
+      populate: {
+        path: 'post',
+        select: 'postQuestion author authorUserName authorPhotoId authorProfilePhoto isUser'
+      }
+    });
+    if(repost && repost.length >=1){
+      res.status(200).send({ message: "Success", repost, count: repost.length });
+    }
+    else{
+      res.status(200).send({ message: 'No Post found', repost: [] })
     }
   } catch (e) {
     console.log(e);

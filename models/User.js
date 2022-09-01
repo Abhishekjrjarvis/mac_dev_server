@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
   userPhoneNumber: { type: Number, maxlength: 10 },
-  userEmail: { type: String, unique: true },
+  userEmail: { type: String },
   userPassword: { type: String, minlength: 10 },
   userStatus: { type: String, default: "Not Verified" },
   username: { type: String, required: true, unique: true },
@@ -339,6 +339,10 @@ const userSchema = new mongoose.Schema({
       ref: "NewApplication",
     },
   ],
+  created_at: {
+    type: Date,
+    default: Date.now
+  }
 });
 
 userSchema.post("findOneAndDelete", async function (doc) {

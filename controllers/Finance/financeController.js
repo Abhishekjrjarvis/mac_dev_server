@@ -22,9 +22,11 @@ exports.getFinanceDepart = async(req, res) =>{
           path: "user",
         });
         const user = await User.findById({ _id: `${staff.user._id}` });
-        const finance = await new Finance({});
-        const notify = await new Notification({})
+        const finance = new Finance({});
+        const notify = new Notification({})
         staff.financeDepartment.push(finance._id);
+        staff.staffDesignationCount += 1;
+        staff.recentDesignation = 'Finance Manager';
         finance.financeHead = staff._id;
         institute.financeDepart.push(finance._id);
         institute.financeStatus = 'Enable'
@@ -73,7 +75,6 @@ exports.uploadBankDetail = async(req, res) =>{
         notify.notifySender = institute._id;
         notify.notifyReceiever = admin._id;
         admin.aNotify.push(notify._id);
-        notify.notifyPid = "1";
         notify.notifyByInsPhoto = institute._id;
         await Promise.all([institute.save(), admin.save(), notify.save()]);
         res.status(200).send({ message: "bank detail updated wait for verification", status: true });
@@ -112,11 +113,11 @@ exports.updateBankDetail = async(req, res) =>{
         notify.notifySender = institute._id;
         notify.notifyReceiever = admin._id;
         admin.aNotify.push(notify._id);
-        notify.notifyPid = "1";
         notify.notifyByInsPhoto = institute._id;
         await Promise.all([institute.save(), admin.save(), notify.save()]);
         res.status(200).send({ message: "bank detail updated wait for verification" });
       } catch(e) {
+        console.log(e)
       }
 }
 
@@ -126,7 +127,7 @@ exports.retrieveFinanceQuery = async(req, res) =>{
   try{
     const { fid } = req.params
     const finance = await Finance.findById({ _id: fid })
-    .select('financeName financeEmail financePhoneNumber financeAbout photoId photo cover coverId financeExemptBalance financeCollectedSBalance financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance')
+    .select('financeName financeEmail financePhoneNumber financeAbout photoId photo cover coverId financeTotalBalance financeRaisedBalance financeExemptBalance financeCollectedSBalance financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance')
     .populate({
       path: 'institute',
       select: 'id adminRepayAmount'
@@ -209,16 +210,16 @@ exports.getIncome = async(req, res) =>{
         const finance = await Finance.findById({ _id: fid });
         const file = req.file;
         const results = await uploadDocFile(file);
-        const incomes = await new Income({ ...req.body });
+        const incomes = new Income({ ...req.body });
         finance.incomeDepartment.push(incomes._id);
         incomes.incomeAck = results.key;
         incomes.finances = finance._id;
         if (req.body.incomeAccount === "By Cash") {
-          finance.financeIncomeCashBalance =
-            finance.financeIncomeCashBalance + incomes.incomeAmount;
+          finance.financeIncomeCashBalance = finance.financeIncomeCashBalance + incomes.incomeAmount;
+          finance.financeTotalBalance += incomes.incomeAmount
         } else if (req.body.incomeAccount === "By Bank") {
-          finance.financeIncomeBankBalance =
-            finance.financeIncomeBankBalance + incomes.incomeAmount;
+          finance.financeIncomeBankBalance = finance.financeIncomeBankBalance + incomes.incomeAmount;
+          finance.financeTotalBalance += incomes.incomeAmount
         }
         await Promise.all([
          finance.save(),
@@ -253,25 +254,30 @@ exports.getExpense = async(req, res) =>{
     try {
         const { fid } = req.params;
         const finance = await Finance.findById({ _id: fid });
-        const file = req.file;
-        const results = await uploadDocFile(file);
-        const expenses = await new Expense({ ...req.body });
-        finance.expenseDepartment.push(expenses._id);
-        expenses.expenseAck = results.key;
-        expenses.finances = finance._id;
-        if (req.body.expenseAccount === "By Cash") {
-          finance.financeExpenseCashBalance =
-            finance.financeExpenseCashBalance - expenses.expenseAmount;
-        } else if (req.body.expenseAccount === "By Bank") {
-          finance.financeExpenseBankBalance =
-            finance.financeExpenseBankBalance - expenses.expenseAmount;
+        if(finance.financeTotalBalance > 0 && req.body.expenseAmount <= finance.financeTotalBalance){
+          const file = req.file;
+          const results = await uploadDocFile(file);
+          const expenses = new Expense({ ...req.body });
+          finance.expenseDepartment.push(expenses._id);
+          expenses.expenseAck = results.key;
+          expenses.finances = finance._id;
+          if (req.body.expenseAccount === "By Cash") {
+            finance.financeExpenseCashBalance = finance.financeExpenseCashBalance + expenses.expenseAmount;
+            finance.financeTotalBalance -= expenses.expenseAmount
+          } else if (req.body.expenseAccount === "By Bank") {
+            finance.financeExpenseBankBalance = finance.financeExpenseBankBalance + expenses.expenseAmount;
+            finance.financeTotalBalance -= expenses.expenseAmount
+          }
+          await Promise.all([
+          finance.save(),
+          expenses.save()
+          ])
+          await unlinkFile(file.path);
+          res.status(200).send({ message: "Add New Expense", finance: finance._id, expenses: expenses._id });
         }
-        await Promise.all([
-         finance.save(),
-         expenses.save()
-        ])
-        await unlinkFile(file.path);
-        res.status(200).send({ message: "Add New Expense", finance: finance._id, expenses: expenses._id });
+        else{
+          res.status(200).send({ message: 'Expense Not Permitted'})
+        }
       } catch(e) {
       }
 }
@@ -462,6 +468,7 @@ exports.submitClassOfflineFee = async(req, res) =>{
         classes.submitFee.push(fees._id);
         finance.requestArray.pull(classes._id)
         finance.financeSubmitBalance += amount
+        finance.financeTotalBalance += amount
         finance.financeCollectedSBalance -= amount
         // finance.financeSubmitBalance += fees.offlineFee;
         fees.offlineFee = 0;

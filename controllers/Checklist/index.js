@@ -4,6 +4,8 @@ const User = require("../../models/User");
 const Department = require("../../models/Department");
 const Class = require("../../models/Class");
 const Notification = require("../../models/notification");
+const InstituteAdmin = require('../../models/InstituteAdmin')
+const Finance = require('../../models/Finance')
 
 exports.viewDepartment = async (req, res) => {
   const department = await Department.findById(req.params.did);
@@ -34,7 +36,9 @@ exports.createChecklist = async (req, res) => {
   try {
     const { did } = req.params;
     const { ClassId } = req.body;
-    const department = await Department.findById({ _id: did }).populate({
+    const department = await Department.findById({ _id: did })
+    .select('institute')
+    .populate({
       path: "ApproveStudent",
       select: "_id",
     });
@@ -77,6 +81,10 @@ exports.createChecklist = async (req, res) => {
         await st.save()
       })
     }
+    const institute = await InstituteAdmin.findById({_id: `${department.institute}`}).select('financeDepart')
+    const finance = await Finance.findById({_id: `${institute.financeDepart[0]}`})
+    finance.financeRaisedBalance += feeData.feeAmount
+    await finance.save()
     //
   } catch {}
 };

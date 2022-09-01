@@ -19,6 +19,9 @@ exports.getAllStaff = async(req, res) =>{
         const limit = req.query.limit ? parseInt(req.query.limit) : 10;
         const skip = (page - 1) * limit;
         const staff = await Staff.find({})
+        .sort("-createdAt")
+        .limit(limit)
+        .skip(skip)
         .select('staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffStatus')
         .populate({
           path: 'user',
@@ -28,9 +31,6 @@ exports.getAllStaff = async(req, res) =>{
           path: 'institute',
           select: 'insName name photoId insProfilePhoto'
         })
-        .limit(limit)
-        .skip(skip)
-
         res.status(200).send({ message: "staff data", sRandom: staff });
       } catch(e) {
         console.log(`Error`, e.message);
@@ -59,9 +59,10 @@ exports.getAllUser = async(req, res) =>{
         const limit = req.query.limit ? parseInt(req.query.limit) : 10;
         const skip = (page - 1) * limit;
         const user = await User.find({})
-        .select('userLegalName username photoId profilePhoto userStatus')
+        .sort("-created_At")
         .limit(limit)
         .skip(skip)
+        .select('userLegalName username photoId profilePhoto userStatus')
         res.status(200).send({ message: "User data", uRandom: user });
       } catch(e) {
         console.log(`Error`, e.message);
@@ -162,9 +163,10 @@ exports.getAllInstitute = async(req, res) =>{
         const limit = req.query.limit ? parseInt(req.query.limit) : 10;
         const skip = (page - 1) * limit;
         const institute = await InstituteAdmin.find({})
-        .select('insName photoId insProfilePhoto name status isUniversal')
+        .sort('createdAt')
         .limit(limit)
         .skip(skip)
+        .select('insName photoId insProfilePhoto name status isUniversal')
         res.status(200).send({ message: "Institute data", iRandom: institute });
       } catch(e) {
         console.log(

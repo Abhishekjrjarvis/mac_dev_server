@@ -47,11 +47,10 @@ const iQuestionNew = require("./routes/InstituteAdmin/Post/QuestionRoute");
 
 // ============================= DB Configuration ==============================
 
-// const dburl = `${process.env.DB_URL2}`; // Development
-const dburl = `${process.env.DB_URL}`; // Production
+// const dburl = `${process.env.DB_URL}`; // Production
+const dburl = `${process.env.DB_URL2}`; // development
 
-// 62fcd875d6082088847019a5 - Development
-// 62fccc59c63eec5b7f8ee894 - Production
+// 630f3b68a5eb4786489045a1 - Production
 
 mongoose
   .connect(dburl, {
@@ -163,7 +162,6 @@ setInterval(async () => {
   await check_poll_status();
 }, 20000);
 
-
 app.get("*", (req, res) => {
   res.status(404).send("Page Not Found...");
 });
@@ -229,7 +227,4 @@ io.on("connection", (socket) => {
     console.log("USER DISCONNECTED");
     socket.leave(userData);
   });
-  //   socket.on('disconnect', (room, userId) =>{
-  //     socket.broadcast.to(room).emit('user_leave', userId);
-  // });
 });

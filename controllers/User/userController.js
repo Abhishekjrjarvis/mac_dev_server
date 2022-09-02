@@ -431,6 +431,7 @@ exports.updateUserCircle = async (req, res) => {
 };
 
 exports.removeUserCircle = async (req, res) => {
+  console.log('Uncircled hit')
   try {
     var user_session = req.tokenData && req.tokenData.userId;
     var user = await User.findById({ _id: user_session });
@@ -441,6 +442,7 @@ exports.removeUserCircle = async (req, res) => {
       suser.userCircle.includes(user_session)
     ) {
       try {
+        console.log('INC')
         user.userCircle.pull(req.body.followId);
         suser.userCircle.pull(user_session);
         if(suser.circleCount > 0){
@@ -484,6 +486,7 @@ exports.removeUserCircle = async (req, res) => {
         res.status(500).send({ error: "error" });
       }
     } else {
+      console.log('NOC')
       res.status(200).send({ message: "You are Not In a Circle" });
     }
   } catch (e) {

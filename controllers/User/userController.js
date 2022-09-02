@@ -430,69 +430,69 @@ exports.updateUserCircle = async (req, res) => {
   }
 };
 
-exports.removeUserCircle = async (req, res) => {
-  console.log('Uncircled hit')
-  try {
-    var user_session = req.tokenData && req.tokenData.userId;
-    var user = await User.findById({ _id: user_session });
-    var suser = await User.findById({ _id: req.body.followId });
+// exports.removeUserCircle = async (req, res) => {
+//   console.log('Uncircled hit')
+//   try {
+//     var user_session = req.tokenData && req.tokenData.userId;
+//     var user = await User.findById({ _id: user_session });
+//     var suser = await User.findById({ _id: req.body.followId });
 
-    if (
-      user.userCircle.includes(req.body.followId) &&
-      suser.userCircle.includes(user_session)
-    ) {
-      try {
-        console.log('INC')
-        user.userCircle.pull(req.body.followId);
-        suser.userCircle.pull(user_session);
-        if(suser.circleCount > 0){
-          suser.circleCount -= 1;
-        }
-        if(user.circleCount > 0){
-          user.circleCount -= 1;
-        }
-        user.userFollowers.push(req.body.followId);
-        suser.userFollowing.push(user_session);
-        user.followerCount += 1;
-        suser.followingUICount += 1;
-        await user.save();
-        await suser.save();
-        res.status(200).send({ message: "Uncircled" });
-        const post = await Post.find({
-          $and: [{ author: suser._id }],
-        });
-        post.forEach(async (ele) => {
-          if(user && user.userPosts?.includes(ele)){
-            console.log('true')
-            user.userPosts.pull(ele);
-          }
-          else{
-          }
-        });
-        await user.save();
-        const posts = await Post.find({
-          $and: [{ author: user._id }],
-        });
-        posts.forEach(async (ele) => {
-          if(suser && suser.userPosts?.includes(ele)){
-            console.log('true')
-            suser.userPosts.pull(ele);
-          }
-          else{
-          }
-        });
-        await suser.save();
-      } catch {
-        res.status(500).send({ error: "error" });
-      }
-    } else {
-      console.log('NOC')
-      res.status(200).send({ message: "You are Not In a Circle" });
-    }
-  } catch (e) {
-    console.log(`UUCU`, e);
-  }
-};
+//     if (
+//       user.userCircle.includes(req.body.followId) &&
+//       suser.userCircle.includes(user_session)
+//     ) {
+//       try {
+//         console.log('INC')
+//         user.userCircle.pull(req.body.followId);
+//         suser.userCircle.pull(user_session);
+//         if(suser.circleCount > 0){
+//           suser.circleCount -= 1;
+//         }
+//         if(user.circleCount > 0){
+//           user.circleCount -= 1;
+//         }
+//         user.userFollowers.push(req.body.followId);
+//         suser.userFollowing.push(user_session);
+//         user.followerCount += 1;
+//         suser.followingUICount += 1;
+//         await user.save();
+//         await suser.save();
+//         res.status(200).send({ message: "Uncircled" });
+//         const post = await Post.find({
+//           $and: [{ author: suser._id }],
+//         });
+//         post.forEach(async (ele) => {
+//           if(user && user.userPosts?.includes(`${ele._id}`)){
+//             console.log('true')
+//             user.userPosts.pull(`${ele._id}`);
+//           }
+//           else{
+//           }
+//         });
+//         await user.save();
+//         const posts = await Post.find({
+//           $and: [{ author: user._id }],
+//         });
+//         posts.forEach(async (ele) => {
+//           if(suser && suser.userPosts?.includes(`${ele._id}`)){
+//             console.log('true')
+//             suser.userPosts.pull(`${ele._id}`);
+//           }
+//           else{
+//           }
+//         });
+//         await suser.save();
+//       } catch {
+//         res.status(500).send({ error: "error" });
+//       }
+//     } else {
+//       console.log('NOC')
+//       res.status(200).send({ message: "You are Not In a Circle" });
+//     }
+//   } catch (e) {
+//     console.log(`UUCU`, e);
+//   }
+// };
 
 exports.updateUserPhone = async (req, res) => {
   try {

@@ -54,7 +54,7 @@ router.patch("/unfollow/user", isLoggedIn, catchAsync(User.updateUserUnFollow));
 
 router.patch("/circle/user", isLoggedIn, catchAsync(User.updateUserCircle));
 
-router.patch("/uncircle/user", isLoggedIn, catchAsync(User.removeUserCircle));
+// router.patch("/uncircle/user", isLoggedIn, catchAsync(User.removeUserCircle));
 
 router.post("/phone/info/:id", isLoggedIn, catchAsync(User.updateUserPhone));
 

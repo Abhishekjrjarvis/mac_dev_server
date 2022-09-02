@@ -202,7 +202,7 @@ exports.updateUserFollowIns = async (req, res) => {
       res.status(200).send({ message: "You Already Following This Institute" });
     } else {
       if (sinstitute.status === "Approved") {
-        const notify = await new Notification({});
+        const notify = new Notification({});
         sinstitute.userFollowersList.push(user_session);
         user.userInstituteFollowing.push(req.body.InsfollowId);
         user.followingUICount += 1;
@@ -213,16 +213,11 @@ exports.updateUserFollowIns = async (req, res) => {
         sinstitute.iNotify.push(notify._id);
         notify.institute = sinstitute._id;
         notify.notifyByPhoto = user._id;
-        invokeFirebaseNotification(
-          "Followers",
-          notify,
-          user.userLegalName,
-          user._id,
-          user.deviceToken
-        );
-        await user.save();
-        await sinstitute.save();
-        await notify.save();
+        await Promise.all([
+          user.save(),
+          sinstitute.save(),
+          notify.save()
+        ])
         res.status(200).send({ message: "Following This Institute" });
         if (sinstitute.isUniversal === "Not Assigned") {
           const post = await Post.find({
@@ -240,14 +235,16 @@ exports.updateUserFollowIns = async (req, res) => {
           .send({ message: "Institute is Not Approved, you will not follow" });
       }
     }
-  } catch (e) {}
+  } catch (e) {
+    console.log('UFOI', e)
+  }
 };
 
 exports.removeUserFollowIns = async (req, res) => {
   try {
     var user_session = req.tokenData && req.tokenData.userId;
-    const user = await User.findById({ _id: user_session });
-    const sinstitute = await InstituteAdmin.findById({
+    var user = await User.findById({ _id: user_session });
+    var sinstitute = await InstituteAdmin.findById({
       _id: req.body.InsfollowId,
     });
 
@@ -257,9 +254,13 @@ exports.removeUserFollowIns = async (req, res) => {
         sinstitute.userFollowersList.includes(`${user._id}`)
       ) {
         user.userInstituteFollowing.pull(sinstitute._id);
-        user.followingUICount -= 1;
+        if(user.followingUICount > 0){
+          user.followingUICount -= 1;
+        }
         sinstitute.userFollowersList.pull(user._id);
-        sinstitute.followersCount -= 1;
+        if(sinstitute.followersCount > 0){
+          sinstitute.followersCount -= 1;
+        }
         await user.save();
         await sinstitute.save();
         res.status(200).send({ message: "Unfollow Institute" });
@@ -284,7 +285,7 @@ exports.removeUserFollowIns = async (req, res) => {
         .send({ message: "Institute is Not Approved, you will not follow" });
     }
   } catch (e) {
-    console.log(`Error`, e);
+    console.log(`UUFOI`, e);
   }
 };
 
@@ -297,7 +298,7 @@ exports.updateUserFollow = async (req, res) => {
     if (user.userFollowing.includes(req.body.userFollowId)) {
       res.status(200).send({ message: "You Already Following This User" });
     } else {
-      const notify = await new Notification({});
+      const notify = new Notification({});
       suser.userFollowers.push(user_session);
       user.userFollowing.push(req.body.userFollowId);
       user.followingUICount += 1;
@@ -308,18 +309,12 @@ exports.updateUserFollow = async (req, res) => {
       suser.uNotify.push(notify);
       notify.user = suser;
       notify.notifyByPhoto = user;
-
-      invokeFirebaseNotification(
-        "Followers",
-        notify,
-        user.userLegalName,
-        user._id,
-        user.deviceToken
-      );
-
-      await user.save();
-      await suser.save();
-      await notify.save();
+      await Promise.all([
+        user.save(),
+        suser.save(),
+        notify.save()
+      ])
+      invokeFirebaseNotification("Followers", notify, suser.userLegalName, suser._id, suser.deviceToken);
       res.status(200).send({ message: " Following This User" });
       const post = await Post.find({
         $and: [{ author: suser._id, postStatus: "Anyone" }],
@@ -329,20 +324,26 @@ exports.updateUserFollow = async (req, res) => {
       });
       await user.save();
     }
-  } catch (e) {}
+  } catch (e) {
+    console.log('UFOU', e)
+  }
 };
 
 exports.updateUserUnFollow = async (req, res) => {
   try {
     var user_session = req.tokenData && req.tokenData.userId;
-    const user = await User.findById({ _id: user_session });
-    const suser = await User.findById({ _id: req.body.userFollowId });
+    var user = await User.findById({ _id: user_session });
+    var suser = await User.findById({ _id: req.body.userFollowId });
 
     if (user.userFollowing.includes(req.body.userFollowId)) {
       suser.userFollowers.pull(user_session);
       user.userFollowing.pull(req.body.userFollowId);
-      user.followingUICount -= 1;
-      suser.followerCount -= 1;
+      if(user.followingUICount > 0){
+        user.followingUICount -= 1;
+      }
+      if(suser.followerCount > 0){
+        suser.followerCount -= 1;
+      }
       await user.save();
       await suser.save();
       res.status(200).send({ message: " UnFollowing This User" });
@@ -359,15 +360,15 @@ exports.updateUserUnFollow = async (req, res) => {
         .send({ message: "You Are no Longer Following This User" });
     }
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(`UUFOU`, e);
   }
 };
 
 exports.updateUserCircle = async (req, res) => {
   try {
     var user_session = req.tokenData && req.tokenData.userId;
-    const user = await User.findById({ _id: user_session });
-    const suser = await User.findById({ _id: req.body.followId });
+    var user = await User.findById({ _id: user_session });
+    var suser = await User.findById({ _id: req.body.followId });
 
     if (
       user.userCircle.includes(req.body.followId) &&
@@ -376,11 +377,15 @@ exports.updateUserCircle = async (req, res) => {
       res.status(200).send({ message: "You are Already In a Circle" });
     } else {
       try {
-        const notify = await new Notification({});
+        const notify = new Notification({});
         suser.userFollowing.pull(user_session);
-        suser.followingUICount -= 1;
+        if(suser.followingUICount > 0){
+          suser.followingUICount -= 1;
+        }
         user.userFollowers.pull(req.body.followId);
-        user.followerCount -= 1;
+        if(user.followerCount > 0){
+          user.followerCount -= 1;
+        }
         suser.userCircle.push(user_session);
         user.userCircle.push(req.body.followId);
         suser.circleCount += 1;
@@ -391,44 +396,45 @@ exports.updateUserCircle = async (req, res) => {
         suser.uNotify.push(notify);
         notify.user = suser;
         notify.notifyByPhoto = user;
-        invokeFirebaseNotification(
-          "Circle",
-          notify,
-          user.userLegalName,
-          user._id,
-          user.deviceToken
-        );
-
-        await user.save();
-        await suser.save();
-        await notify.save();
+        await Promise.all([ user.save(), suser.save(), notify.save() ])
+        invokeFirebaseNotification("Circle", notify, user.userLegalName, user._id, user.deviceToken);
         res.status(200).send({ message: "😀 Added to circle" });
         const post = await Post.find({
-          $and: [{ author: suser._id, postStatus: "Private" }],
+          $and: [{ author: suser._id }],
         });
         post.forEach(async (ele) => {
-          user.userPosts.push(ele);
+          if(user && user.userPosts?.includes(`${ele}`)){
+          }
+          else{
+            user.userPosts.push(ele);
+          }
         });
         await user.save();
         const posts = await Post.find({
-          $and: [{ author: user._id, postStatus: "Private" }],
+          $and: [{ author: user._id }],
         });
         posts.forEach(async (ele) => {
-          suser.userPosts.push(ele);
+          if(suser && suser.userPosts?.includes(`${ele}`)){
+          }
+          else{
+            suser.userPosts.push(ele);
+          }
         });
         await suser.save();
       } catch {
         res.status(500).send({ error: "error" });
       }
     }
-  } catch (e) {}
+  } catch (e) {
+    console.log('UCU', e)
+  }
 };
 
 exports.removeUserCircle = async (req, res) => {
   try {
     var user_session = req.tokenData && req.tokenData.userId;
-    const user = await User.findById({ _id: user_session });
-    const suser = await User.findById({ _id: req.body.followId });
+    var user = await User.findById({ _id: user_session });
+    var suser = await User.findById({ _id: req.body.followId });
 
     if (
       user.userCircle.includes(req.body.followId) &&
@@ -437,8 +443,12 @@ exports.removeUserCircle = async (req, res) => {
       try {
         user.userCircle.pull(req.body.followId);
         suser.userCircle.pull(user_session);
-        suser.circleCount -= 1;
-        user.circleCount -= 1;
+        if(suser.circleCount > 0){
+          suser.circleCount -= 1;
+        }
+        if(user.circleCount > 0){
+          user.circleCount -= 1;
+        }
         user.userFollowers.push(req.body.followId);
         suser.userFollowing.push(user_session);
         user.followerCount += 1;
@@ -446,6 +456,28 @@ exports.removeUserCircle = async (req, res) => {
         await user.save();
         await suser.save();
         res.status(200).send({ message: "Uncircled" });
+        const post = await Post.find({
+          $and: [{ author: suser._id }],
+        });
+        post.forEach(async (ele) => {
+          if(user && user.userPosts?.includes(`${ele}`)){
+            user.userPosts.pull(ele);
+          }
+          else{
+          }
+        });
+        await user.save();
+        const posts = await Post.find({
+          $and: [{ author: user._id }],
+        });
+        posts.forEach(async (ele) => {
+          if(suser && suser.userPosts?.includes(`${ele}`)){
+            suser.userPosts.pull(ele);
+          }
+          else{
+          }
+        });
+        await suser.save();
       } catch {
         res.status(500).send({ error: "error" });
       }
@@ -453,7 +485,7 @@ exports.removeUserCircle = async (req, res) => {
       res.status(200).send({ message: "You are Not In a Circle" });
     }
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(`UUCU`, e);
   }
 };
 

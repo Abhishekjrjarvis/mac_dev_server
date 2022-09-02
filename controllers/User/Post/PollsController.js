@@ -19,7 +19,7 @@ exports.retrievePollQuestionText = async (req, res) => {
       }
       post.imageId = "1";
       user.userPosts.push(post._id);
-      user.pollCount += 1
+      user.poll_Count += 1
       post.author = user._id;
       post.authorName = user.userLegalName
       post.authorUserName = user.username

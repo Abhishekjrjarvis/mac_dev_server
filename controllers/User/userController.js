@@ -457,7 +457,7 @@ exports.removeUserCircle = async (req, res) => {
         await suser.save();
         res.status(200).send({ message: "Uncircled" });
         const post = await Post.find({
-          $and: [{ author: suser._id }],
+          $and: [{ author: suser._id , postStatus: "Private" }],
         });
         post.forEach(async (ele) => {
           if(user && user.userPosts?.includes(`${ele}`)){
@@ -468,7 +468,7 @@ exports.removeUserCircle = async (req, res) => {
         });
         await user.save();
         const posts = await Post.find({
-          $and: [{ author: user._id }],
+          $and: [{ author: user._id, postStatus: "Private" } ],
         });
         posts.forEach(async (ele) => {
           if(suser && suser.userPosts?.includes(`${ele}`)){

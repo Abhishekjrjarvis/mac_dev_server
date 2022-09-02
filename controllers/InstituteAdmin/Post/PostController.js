@@ -13,6 +13,8 @@ const fs = require("fs");
 const util = require("util");
 const { random_list_generator } = require("../../../Utilities/randomFunction");
 const unlinkFile = util.promisify(fs.unlink);
+const invokeFirebaseNotification = require("../../../Firebase/firebase");
+const Notification = require('../../../models/notification')
 
 
 exports.postWithText = async (req, res) => {
@@ -472,9 +474,29 @@ exports.postComment = async (req, res) => {
     post.commentCount += 1;
     comment.post = post._id;
     await Promise.all([post.save(), comment.save()]);
+    var notify = new Notification({})
+    var author_ins = await InstituteAdmin.findById({_id: `${post.author}`})
+    if(`${comment.author}` === `${author_ins._id}`){
+      notify.notifyContent = `you shared a new comment`;
+    }
+    else{
+      notify.notifyContent = `${comment.authorName} commented on your post`;
+    }
+    notify.notifySender = req.tokenData?.userId ? req.tokenData.userId : req.tokenData?.insId ? req.tokenData.insId : ''
+    notify.notifyReceiever = author_ins._id;
+    author_ins.iNotify.push(notify._id);
+    notify.institute = author_ins._id;
+    if(req?.tokenData?.userId){
+      notify.notifyByPhoto = req?.tokenData?.userId
+    }
+    else if(req?.tokenData?.insId){
+      notify.notifyByInsPhoto = req?.tokenData?.insId
+    }
+    await Promise.all([ notify.save(), author_ins.save() ])
+    invokeFirebaseNotification("Comment", notify, "New Comment", comment.author, author_ins.deviceToken, post._id)
     res.status(201).send({ message: "comment created", comment });
   } catch (e) {
-    console.log(e);
+    console.log('ICN', e);
   }
 };
 

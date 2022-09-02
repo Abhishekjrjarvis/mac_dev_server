@@ -10,6 +10,7 @@ const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require('../../../Firebase/firebase')
+const InstituteAdmin = require('../../../models/InstituteAdmin')
 
 exports.postQuestionText = async (req, res) => {
   try {
@@ -184,9 +185,10 @@ exports.postQuestionAnswer = async (req, res) => {
     const { id } = req.params;
     const { post_type } = req.query
     var post = await Post.findById({ _id: id });
-    if(post && post.isUser === 'User'){
-    var post_user = await User.findById({_id: `${post.author}`})
-    }
+    //
+    var post_user = await User.findOne({_id: `${post.author}`})
+    var post_ins = await InstituteAdmin.findOne({_id: `${post.author}`})
+    //
     if(post_type === 'Only Answer'){
       const answers = new Answer({ ...req.body });
       answers.answerImageId = "1"
@@ -216,25 +218,34 @@ exports.postQuestionAnswer = async (req, res) => {
       post.answerCount += 1;
       answers.post = post;
       user.answerQuestionCount += 1
+      await Promise.all([post.save(), answers.save(), user.save() ]);
+      //
+      var notify = new Notification({})
+      notify.notifyContent = `${answers.authorName} answered your question`;
+      notify.notifySender = answers.author;
+      notify.notifyByPhoto = answers.author;
       if(post_user){
-        var notify = new Notification({})
-        notify.notifyContent = `${answers.authorUserName} have added answers on ${post.authorUserName} questions`;
-        notify.notifySender = answers.author;
-        notify.notifyReceiever = post.author;
+        notify.notifyReceiever = post_user._id;
         post_user.uNotify.push(notify._id);
         notify.user = post_user._id;
-        notify.notifyByPhoto = user._id;
-        invokeFirebaseNotification("Answer", notify, 'New Answer', post_user._id, post_user.deviceToken, post._id);
         await Promise.all([ post_user.save(), notify.save() ])
+        invokeFirebaseNotification("Answer", notify, 'New Answer', answers.author, post_user.deviceToken, post._id);
       }
-      await Promise.all([post.save(), answers.save(), user.save() ]);
+      else if(post_ins){
+        notify.notifyReceiever = post_ins._id;
+        post_ins.iNotify.push(notify._id);
+        notify.institute = post_ins._id
+        await Promise.all([ post_ins.save(), notify.save() ])
+        invokeFirebaseNotification("Answer", notify, 'New Answer', answers.author, post_ins.deviceToken, post._id);
+      }
       res.status(201).send({ message: "answer created", answers });
+      //
     }
     else{
       res.status(200).send({ message: 'Access Denied By Post Type'})
     }
   } catch(e) {
-    console.log(e)
+    console.log('AN', e)
   }
 };
 
@@ -369,9 +380,10 @@ exports.questionAnswerSave = async (req, res) => {
       const { id } = req.params;
       const { post_type } = req.query
       var post = await Post.findById({ _id: id });
-      if(post && post.isUser === 'isUser'){
-        var post_user = await User.findById({_id: `${post.author}`})
-      }
+      //
+      var post_user = await User.findOne({_id: `${post.author}`})
+      var post_ins = await InstituteAdmin.findOne({_id: `${post.author}`})
+      //
       if(post_type === 'Repost'){
         var answers = new Answer({ ...req.body });
         answers.answerImageId = "1"
@@ -413,18 +425,27 @@ exports.questionAnswerSave = async (req, res) => {
         rePost.postType = 'Repost'
         rePost.rePostAnswer = answers
         rePost.post_url = `https://qviple.com/q/${rePost.authorUserName}/profile`
-        if(post_user){
-          var reNotify = new Notification({})
-          reNotify.notifyContent = `${answers.authorUserName} have added answers on ${post.authorUserName} questions`;
-          reNotify.notifySender = answers.author;
-          reNotify.notifyReceiever = post.author;
-          post_user.uNotify.push(reNotify._id);
-          reNotify.user = post_user._id;
-          reNotify.notifyByPhoto = user._id
-          invokeFirebaseNotification("Answer", reNotify, 'New Answer', post_user._id, post_user.deviceToken, post._id);
-          await Promise.all([ reNotify.save(), post_user.save() ])
-        }
         await Promise.all([rePost.save(), answers.save(), user.save(), post.save() ]);
+        //
+        var notify = new Notification({})
+        notify.notifyContent = `${answers.authorName} answered your question with repost.`;
+        notify.notifySender = answers.author;
+        notify.notifyByPhoto = answers.author;
+        if(post_user){
+          notify.notifyReceiever = post_user._id;
+          post_user.uNotify.push(notify._id);
+          notify.user = post_user._id;
+          await Promise.all([ post_user.save(), notify.save() ])
+          invokeFirebaseNotification("Answer", notify, 'New Repost Answer', answers.author, post_user.deviceToken, post._id);
+        }
+        else if(post_ins){
+          notify.notifyReceiever = post_ins._id;
+          post_ins.iNotify.push(notify._id);
+          notify.institute = post_ins._id
+          await Promise.all([ post_ins.save(), notify.save() ])
+          invokeFirebaseNotification("Answer", notify, 'New Repost Answer', answers.author, post_ins.deviceToken, post._id);
+        }
+        //
         res.status(200).send({ message: 'RePosted Answer', rePost})
         if(user.userFollowers.length >= 1){
           user.userFollowers.forEach(async (ele) => {
@@ -443,6 +464,6 @@ exports.questionAnswerSave = async (req, res) => {
         res.status(203).send({ message: 'Access Denied By Post Type'})
       }
     } catch(e) {
-      console.log(e)
+      console.log('REAN', e)
     }
   };

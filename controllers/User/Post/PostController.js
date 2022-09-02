@@ -356,23 +356,29 @@ exports.postComment = async (req, res) => {
       post.save(),
       comment.save()
     ]);
+    var notify = new Notification({})
+    var author_user = await User.findById({_id: `${post.author}`})
+    if(`${comment.author}` === `${author_user._id}`){
+      notify.notifyContent = `you shared a new comment`;
+    }
+    else{
+      notify.notifyContent = `${comment.authorName} commented on your post`;
+    }
+    notify.notifySender = req.tokenData?.userId ? req.tokenData.userId : req.tokenData?.insId ? req.tokenData.insId : ''
+    notify.notifyReceiever = author_user._id;
+    author_user.uNotify.push(notify._id);
+    notify.user = author_user._id;
+    if(req?.tokenData?.userId){
+      notify.notifyByPhoto = req?.tokenData?.userId
+    }
+    else if(req?.tokenData?.insId){
+      notify.notifyByInsPhoto = req?.tokenData?.insId
+    }
+    await Promise.all([ notify.save(), author_user.save() ])
+    invokeFirebaseNotification("Comment", notify, "New Comment", comment.author, author_user.deviceToken, post._id)
     res.status(201).send({ message: "comment created", comment });
-    if(post.isUser === 'User'){
-      var post_user = await User.findById({ _id: `${post.author}` });
-    }
-    if(post_user){
-      var notify = new Notification({});
-      notify.notifyContent = `${comment.authorUserName} have added comments on ${post.authorUserName} posts`;
-      notify.notifySender = comment.author;
-      notify.notifyReceiever = post.author;
-      post_user.uNotify.push(notify._id);
-      notify.user = post_user._id;
-      notify.notifyByPhoto = user._id;
-      await Promise.all([ notify.save(), post_user.save() ])
-      invokeFirebaseNotification( "Comment", notify, "New Comment", post_user._id, post_user.deviceToken, post._id);
-    }
   } catch (e) {
-    console.log(e);
+    console.log('UCN', e);
   }
 };
 

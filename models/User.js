@@ -342,7 +342,22 @@ const userSchema = new mongoose.Schema({
   created_at: {
     type: Date,
     default: Date.now
-  }
+  },
+  one_line_about: {
+    type: String
+  },
+  user_follower_notify: {
+    type: String,
+    default: 'Enable'
+  },
+  user_comment_notify: {
+    type: String,
+    default: 'Enable'
+  },
+  user_answer_notify: {
+    type: String,
+    default: 'Enable'
+  },
 });
 
 userSchema.post("findOneAndDelete", async function (doc) {

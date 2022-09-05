@@ -15,10 +15,14 @@ const studentNotificationSchema = new mongoose.Schema({
     ref: "Department",
   },
   notifyBySubjectPhoto: {
-    // type: mongoose.Schema.Types.ObjectId,
-    // ref: "Department",
     type: String,
   },
+  notifyType: {
+    type: String
+  },
+  notifyPublisher: {
+    type: String
+  }
 });
 
 module.exports = mongoose.model(

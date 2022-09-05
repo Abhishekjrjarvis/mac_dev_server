@@ -207,5 +207,7 @@ router.get(
   catchAsync(User.retrieveProfileDataUsername)
 );
 
+router.get('/staff/:sid/sal/history', catchAsync(User.retrieveStaffSalaryHistory))
+
 
 module.exports = router;

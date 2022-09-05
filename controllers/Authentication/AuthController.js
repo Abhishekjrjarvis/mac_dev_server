@@ -270,6 +270,9 @@ if (p_month <= 10) {
   p_month = `0${p_month}`;
 }
 var c_date = `${p_year}-${p_month}-${p_date}`;
+//
+var month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+//
 
 exports.profileByUser = async (req, res) => {
   try {
@@ -319,6 +322,27 @@ exports.profileByUser = async (req, res) => {
         })
         await user.save()
         }
+        //
+        var b_date = user.userDateOfBirth.slice(8, 10)
+        var b_month = user.userDateOfBirth.slice(5, 7)
+        var b_year = user.userDateOfBirth.slice(0, 4)
+        if (b_date > p_date) {
+            p_date = p_date + month[b_month - 1];
+            p_month = p_month - 1;
+        }
+        if (b_month > p_month) {
+            p_year = p_year - 1;
+            p_month = p_month + 12;
+        }
+        var get_cal_year = p_year - b_year;
+        if(get_cal_year > 13){
+          user.ageRestrict = 'No'
+        }
+        else{
+          user.ageRestrict = 'Yes'
+        }
+        await user.save()
+        //
       }
     }
   } catch (e) {

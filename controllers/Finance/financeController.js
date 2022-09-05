@@ -13,6 +13,7 @@ const { uploadDocFile, getFileStream } = require('../../S3Configuration')
 const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
+const Payroll = require('../../models/Finance/Payroll')
 
 exports.getFinanceDepart = async(req, res) =>{
     try {
@@ -727,3 +728,164 @@ exports.retrieveRemainFeeBalance = async(req, res) =>{
   }
 }
 
+
+
+exports.addEmpToFinance = async(req, res) =>{
+  try{
+    const { fid, sid } = req.params
+    const finance = await Finance.findById({_id: fid})
+    const pay_scale = new Payroll({...req.body})
+    pay_scale.staff = sid
+    finance.staff_pay_list.push(pay_scale._id)
+    await Promise.all([ pay_scale.save(), finance.save() ])
+    res.status(200).send({ message: 'Employee Added for Payroll'})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.allEmpToFinance = async(req, res) =>{
+  try{
+    const { fid } = req.params
+    const finance = await Finance.findById({_id: fid})
+    .select('_id')
+    .populate({
+      path: 'staff_pay_list',
+      populate: {
+        path: 'staff',
+        select: 'staffFirstName'
+      }
+    })
+    res.status(200).send({ message: 'All Employee ', allEmp: finance.staff_pay_list})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+
+exports.addFieldToPayroll = async(req, res) =>{
+  try{
+    const { fid, eid } = req.params
+    const { month, attendence, paid_leaves, payment_mode, purpose, amount, paid_to, message, is_paid, gross_salary, net_total, hra, tds, epf } = req.body
+    const finance = await Finance.findById({_id: fid})
+    var emp = await Payroll.findById({_id: eid})
+    var staff = await Staff.findById({_id: `${emp.staff}`})
+    if(net_total < finance.financeTotalBalance){
+      emp.pay_slip.push({
+        month: month,
+        attendence: attendence,
+        paid_leaves: paid_leaves,
+        payment_mode: payment_mode,
+        purpose: purpose,
+        amount: amount,
+        paid_to: paid_to,
+        message: message,
+        is_paid: is_paid,
+        gross_salary: gross_salary,
+        net_total: net_total,
+        hra: hra,
+        tds: tds,
+        epf: epf
+      })
+      emp.h_r_a = hra
+      emp.t_d_s = tds
+      emp.e_p_f = epf
+      finance.salary_history.push({
+        salary: net_total,
+        month: month,
+        pay_mode: payment_mode,
+        emp_pay: emp._id
+      })
+      staff.salary_history.push({
+        salary: net_total,
+        month: month,
+        pay_mode: payment_mode,
+        emp_pay: emp._id
+      })
+      if(net_total < finance.financeSubmitBalance && payment_mode === 'By Cash'){
+        finance.financeTotalBalance -= net_total
+        finance.financeSubmitBalance -= net_total
+        await Promise.all([ emp.save(), finance.save(), staff.save() ])
+        res.status(200).send({ message: 'pay & generate payroll', payroll: emp})
+      }
+      else if(net_total < finance.financeBankBalance && payment_mode === 'By Bank'){
+        finance.financeTotalBalance -= net_total
+        finance.financeBankBalance -= net_total
+        await Promise.all([ emp.save(), finance.save(), staff.save() ])
+        res.status(200).send({ message: 'pay & generate payroll', payroll: emp})
+      }
+      else{
+        res.status(200).send({ message: `${payment_mode} out of volume`})
+      }
+    }
+    else{
+      res.status(200).send({ message: 'No payment volume at finance'})
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+
+exports.retrieveAllSalaryHistory = async(req, res) =>{
+  try{
+    const { fid } = req.params
+    const finance = await Finance.findById({_id: fid})
+    .select('_id')
+    .populate({
+      path: 'salary_history',
+      populate: {
+        path: 'emp_pay'
+      }
+    })
+    res.status(200).send({ message: 'All Employee ', salary: finance.salary_history})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.retrieveOneEmpQuery = async(req, res) =>{
+  try{
+    const { eid } = req.params
+    const { type, month } = req.query
+    if(type === 'Detail'){
+      const emp = await Payroll.findById({_id: eid})
+      .populate({
+        path: 'staff',
+        select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto'
+      })
+      res.status(200).send({ message: 'One Employee Detail ', detail: emp})
+    }
+    else if(type === 'History'){
+      const emp = await Payroll.findById({_id: eid})
+      .populate({
+        path: 'staff',
+        select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto'
+      })
+      var filtered = emp.pay_slip.filter((ele) =>{
+        if(`${ele.month}` === `${month}`) return ele 
+      })
+      var detail = {
+        staff_salary_month: emp.staff_salary_month,
+        staff_total_paid_leaves: emp.staff_total_paid_leaves,
+        d_a: emp.d_a,
+        h_r_a: emp.h_r_a,
+        t_d_s: emp.t_d_s,
+        e_p_f: emp.e_p_f,
+        staff: emp.staff
+      }
+      res.status(200).send({ message: 'One Employee Salary History ', detail: detail, filter: filtered})
+    }
+    else{
+
+    }
+    
+  }
+  catch(e){
+    console.log(e)
+  }
+}

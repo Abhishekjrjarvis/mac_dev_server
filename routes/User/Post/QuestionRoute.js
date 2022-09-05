@@ -31,4 +31,11 @@ router.delete("/:pid/deleted/:aid/answer", isLoggedIn, catchAsync(Question.postQ
 
 router.post("/answer/new/repost/:id", isLoggedIn, upload.array("file"), catchAsync(Question.rePostQuestionAnswer));
 
+//
+router.get("/repost/:pid/like/:aid", isLoggedIn, catchAsync(Question.rePostAnswerLike));
+
+router.get("/help/to/other/:pid", isLoggedIn, catchAsync(Question.retrieveHelpQuestion));
+
+//
+
 module.exports = router;

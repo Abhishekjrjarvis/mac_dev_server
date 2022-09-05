@@ -229,7 +229,9 @@ exports.postQuestionAnswer = async (req, res) => {
         post_user.uNotify.push(notify._id);
         notify.user = post_user._id;
         await Promise.all([ post_user.save(), notify.save() ])
-        invokeFirebaseNotification("Answer", notify, 'New Answer', answers.author, post_user.deviceToken, post._id);
+        if(post_user?.user_answer_notify === 'Enable'){
+          invokeFirebaseNotification("Answer", notify, 'New Answer', answers.author, post_user.deviceToken, post._id);
+        }
       }
       else if(post_ins){
         notify.notifyReceiever = post_ins._id;
@@ -467,3 +469,135 @@ exports.questionAnswerSave = async (req, res) => {
       console.log('REAN', e)
     }
   };
+
+
+
+  exports.rePostAnswerLike = async (req, res) => {
+    try {
+      const { pid, aid } = req.params;
+      const answer = await Answer.findById({ _id: aid });
+      const rePost = await Post.findById({_id: pid})
+      const question = await Post.findById({_id: `${answer.post}`})
+      const user_session = req.tokenData && req.tokenData.userId ? req.tokenData.userId : ''
+      if (user_session) {
+        if (
+          answer.upVote.length >= 1 &&
+          answer.upVote.includes(String(user_session))
+        ) {
+          answer.upVote.pull(user_session);
+          if (answer.upVoteCount >= 1) {
+            answer.upVoteCount -= 1;
+            question.answerUpVoteCount -= 1
+          }
+          await Promise.all([ answer.save(), question.save()])
+          res
+            .status(200)
+            .send({ message: "Removed from Upvote 👎", upVoteCount: answer.upVoteCount, });
+        } else {
+          if (
+            answer.downVote.length >= 1 &&
+            answer.downVote.includes(String(user_session))
+          ) {
+            answer.downVote.pull(user_session);
+            if (answer.downVoteCount >= 1) {
+              answer.downVoteCount -= 1;
+            }
+          }
+          answer.upVote.push(user_session);
+          answer.upVoteCount += 1;
+          question.answerUpVoteCount += 1
+          rePost.isHelpful = 'Yes'
+          await Promise.all([ answer.save(), question.save(), rePost.save() ])
+          res
+            .status(200)
+            .send({ message: "Added To Upvote 👍", upVoteCount: answer.upVoteCount, downVoteCount: answer.downVoteCount });
+          
+          if(rePost?.postType === 'Repost'){
+            const upVoteUser = await User.findById({_id: `${user_session}`})
+            .populate('userFollowers')
+            .populate('userCircle')
+            if(`${rePost.author}` === `${upVoteUser._id}`){
+
+            }
+            else{
+              upVoteUser.userFollowers.forEach(async (ele) => {
+                if(ele?.userPosts?.includes(rePost._id)){}
+                else{
+                  ele.userPosts.push(rePost._id)
+                  await ele.save()
+                }
+              })
+
+              upVoteUser.userCircle.forEach(async (ele) => {
+                if(ele?.userPosts?.includes(rePost._id)){}
+                else{
+                  ele.userPosts.push(rePost._id)
+                  await ele.save()
+                }
+              })
+            }
+          }
+        }
+      } else {
+        res.status(401).send();
+      }
+    } catch(e) {
+      console.log(e)
+    }
+  };
+
+
+exports.retrieveHelpQuestion = async(req, res) =>{
+  try{
+    const { pid } = req.params
+    var user_session = req.tokenData && req.tokenData.userId ? req.tokenData.userId : ''
+    const post_ques = await Post.findById({_id: pid})
+    const user = await User.findById({_id: `${user_session}`})
+    if(user){
+      if (post_ques.needUser.length >= 1 && post_ques.needUser.includes(String(user._id))){
+        post_ques.needUser.pull(user._id)
+        if(post_ques?.needCount > 0){
+          post_ques.needCount -= 1
+        }
+        await post_ques.save()
+        res.status(200).send({ message: 'Removed from isNeed', need: post_ques.needCount })
+      }
+      else{
+        post_ques.needUser.push(user._id)
+        post_ques.needCount += 1
+        post_ques.isNeed = 'Yes'
+        await post_ques.save()
+        res.status(200).send({ message: 'Added to isNeed', need: post_ques.needCount })
+
+      if(post_ques?.postType === 'Question'){
+        const isNeedUser = await User.findById({_id: `${user_session}`})
+        .populate('userFollowers')
+        .populate('userCircle')
+        if(`${post_ques.author}` === `${isNeedUser._id}`){
+
+        }
+        else{
+          isNeedUser.userFollowers.forEach(async (ele) => {
+            if(ele?.userPosts?.includes(post_ques._id)){}
+            else{
+              ele.userPosts.push(post_ques._id)
+              await ele.save()
+            }
+          })
+
+          isNeedUser.userCircle.forEach(async (ele) => {
+            if(ele?.userPosts?.includes(post_ques._id)){}
+            else{
+              ele.userPosts.push(post_ques._id)
+              await ele.save()
+            }
+          })
+        }
+      }
+      }
+    }
+  }
+  catch{
+
+  }
+}

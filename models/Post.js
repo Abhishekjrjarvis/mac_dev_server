@@ -123,7 +123,20 @@ const postSchema = new mongoose.Schema({
   rePostAnswer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Answer'
-  }
+  },
+  //
+  isHelpful: {
+    type: String
+  },
+  isNeed: {
+    type: String
+  },
+  needCount: {
+    type: Number,
+    default: 0
+  },
+  needUser: []
+  //
 });
 
 postSchema.post("findOneAndDelete", async function (doc) {

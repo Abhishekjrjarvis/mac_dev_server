@@ -752,7 +752,7 @@ exports.getPersonalSetting = async (req, res) => {
     const { id } = req.params;
     const user = await User.findById({ _id: id })
       .select(
-        "userLegalName userEmail userDateOfBirth userPhoneNumber userStatus userGender userAddress userBio username photoId profilePhoto userHobbies userEducation "
+        "userLegalName userEmail userDateOfBirth one_line_about userPhoneNumber userStatus userGender userAddress userBio username photoId profilePhoto userHobbies userEducation "
       )
       .populate({
         path: "InstituteReferals",

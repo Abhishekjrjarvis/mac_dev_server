@@ -14025,3 +14025,39 @@
 {"level":"info","message":{"adminAadharCard":"wall18.jpg","adminAddress":"177 A Bleeker Street","adminBio":"Founder & Promoter","adminCity":"Nashik","adminCountry":"India","adminDateOfBirth":"2022-08-30","adminEmail":"pankajphad.stuff@gmail.com","adminGender":"Male","adminName":"Pankaj Phad","adminPassword":"Hello12@#","adminPhoneNumber":"8329911939","adminState":"Karnātaka","adminUserName":"pankaj_121"},"timestamp":"2022-09-06T07:16:30.166Z"}
 {"level":"info","message":{},"timestamp":"2022-09-06T07:16:31.415Z"}
 {"level":"info","message":"Page Not Found...","timestamp":"2022-09-06T07:16:31.418Z"}
+{"level":"info","message":{},"timestamp":"2022-09-06T07:59:47.008Z"}
+{"level":"info","message":"Get Age Rstrict","status":"Yes","timestamp":"2022-09-06T07:59:47.170Z"}
+{"level":"info","message":"{\"message\":\"Get Age Rstrict\",\"status\":\"Yes\",\"level\":\"info\"}","timestamp":"2022-09-06T07:59:47.174Z"}
+{"level":"info","message":{},"timestamp":"2022-09-06T07:59:50.291Z"}
+{"level":"info","message":"Get Age Rstrict","status":"Yes","timestamp":"2022-09-06T07:59:50.369Z"}
+{"level":"info","message":"{\"message\":\"Get Age Rstrict\",\"status\":\"Yes\",\"level\":\"info\"}","timestamp":"2022-09-06T07:59:50.370Z"}
+{"level":"info","message":{},"timestamp":"2022-09-06T08:00:05.304Z"}
+{"level":"info","message":"Age Restriction Disabled ","restrict":"No","timestamp":"2022-09-06T08:00:05.439Z"}
+{"level":"info","message":"{\"message\":\"Age Restriction Disabled \",\"restrict\":\"No\",\"level\":\"info\"}","timestamp":"2022-09-06T08:00:05.439Z"}
+{"level":"info","message":{},"timestamp":"2022-09-06T08:00:07.792Z"}
+{"level":"info","message":"Age Restriction Enabled","restrict":"Yes","timestamp":"2022-09-06T08:00:07.898Z"}
+{"level":"info","message":"{\"message\":\"Age Restriction Enabled\",\"restrict\":\"Yes\",\"level\":\"info\"}","timestamp":"2022-09-06T08:00:07.899Z"}
+{"level":"info","message":{},"timestamp":"2022-09-06T08:00:09.107Z"}
+{"level":"info","message":"Age Restriction Disabled ","restrict":"No","timestamp":"2022-09-06T08:00:09.216Z"}
+{"level":"info","message":"{\"message\":\"Age Restriction Disabled \",\"restrict\":\"No\",\"level\":\"info\"}","timestamp":"2022-09-06T08:00:09.217Z"}
+{"level":"info","message":{},"timestamp":"2022-09-06T08:00:20.256Z"}
+{"level":"info","message":"Age Restriction Enabled","restrict":"Yes","timestamp":"2022-09-06T08:00:20.359Z"}
+{"level":"info","message":"{\"message\":\"Age Restriction Enabled\",\"restrict\":\"Yes\",\"level\":\"info\"}","timestamp":"2022-09-06T08:00:20.360Z"}
+{"level":"info","message":{},"timestamp":"2022-09-06T08:00:21.533Z"}
+{"level":"info","message":"Age Restriction Disabled ","restrict":"No","timestamp":"2022-09-06T08:00:21.633Z"}
+{"level":"info","message":"{\"message\":\"Age Restriction Disabled \",\"restrict\":\"No\",\"level\":\"info\"}","timestamp":"2022-09-06T08:00:21.634Z"}
+{"level":"info","message":{},"timestamp":"2022-09-06T08:00:49.791Z"}
+{"level":"info","message":"Age Restriction Enabled","restrict":"Yes","timestamp":"2022-09-06T08:00:49.889Z"}
+{"level":"info","message":"{\"message\":\"Age Restriction Enabled\",\"restrict\":\"Yes\",\"level\":\"info\"}","timestamp":"2022-09-06T08:00:49.890Z"}
+{"level":"info","message":{},"timestamp":"2022-09-06T08:00:51.507Z"}
+{"level":"info","message":"Age Restriction Disabled ","restrict":"No","timestamp":"2022-09-06T08:00:51.631Z"}
+{"level":"info","message":"{\"message\":\"Age Restriction Disabled \",\"restrict\":\"No\",\"level\":\"info\"}","timestamp":"2022-09-06T08:00:51.631Z"}
+{"level":"info","message":{},"timestamp":"2022-09-06T08:00:53.702Z"}
+{"level":"info","message":"Age Restriction Enabled","restrict":"Yes","timestamp":"2022-09-06T08:00:53.798Z"}
+{"level":"info","message":"{\"message\":\"Age Restriction Enabled\",\"restrict\":\"Yes\",\"level\":\"info\"}","timestamp":"2022-09-06T08:00:53.799Z"}
+{"level":"info","message":{},"timestamp":"2022-09-06T08:00:57.537Z"}
+{"level":"info","message":"Age Restriction Disabled ","restrict":"No","timestamp":"2022-09-06T08:00:57.630Z"}
+{"level":"info","message":"{\"message\":\"Age Restriction Disabled \",\"restrict\":\"No\",\"level\":\"info\"}","timestamp":"2022-09-06T08:00:57.630Z"}
+{"level":"info","message":{},"timestamp":"2022-09-06T08:02:20.434Z"}
+{"level":"info","message":"Age Restriction Enabled","restrict":"Yes","timestamp":"2022-09-06T08:02:20.532Z"}
+{"level":"info","message":"{\"message\":\"Age Restriction Enabled\",\"restrict\":\"Yes\",\"level\":\"info\"}","timestamp":"2022-09-06T08:02:20.532Z"}

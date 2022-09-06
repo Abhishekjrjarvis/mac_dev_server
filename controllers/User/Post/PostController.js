@@ -718,10 +718,10 @@ exports.circleList = async (req, res) => {
   try {
     const getPage = req.query.page ? parseInt(req.query.page) : 1;
     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
-    const itemPerPageUser = itemPerPage ? itemPerPage - 5 : 5;
-    const itemPerPageInstitute = itemPerPage ? itemPerPage - 5 : 5;
-    const dropItemUser = (getPage - 1) * itemPerPageUser;
-    const dropItemInstitute = (getPage - 1) * itemPerPageInstitute;
+    // const itemPerPageUser = itemPerPage ? itemPerPage - 5 : 5;
+    // const itemPerPageInstitute = itemPerPage ? itemPerPage - 5 : 5;
+    const dropItemUser = (getPage - 1) * itemPerPage;
+    // const dropItemInstitute = (getPage - 1) * itemPerPageInstitute;
     const tagUser = await User.find({
       $or: [
         { userLegalName: { $regex: req.query.search, $options: "i" } },
@@ -733,31 +733,33 @@ exports.circleList = async (req, res) => {
         },
       ],
     })
-      .select("username userLegalName profilePhoto photoId userCircle tag_privacy")
+      .select(
+        "username userLegalName profilePhoto photoId userCircle tag_privacy"
+      )
       .limit(itemPerPageUser)
       .skip(dropItemUser)
       .lean()
       .exec();
-    const tagInstitute = await InstituteAdmin.find({
-      $or: [
-        { insName: { $regex: req.query.search, $options: "i" } },
-        { name: { $regex: req.query.search, $options: "i" } },
-      ],
-      $and: [
-        {
-          tag_privacy: { $in: ["Every one", "Joined Users"] },
-        },
-      ],
-    })
-      .select("insName insProfilePhoto photoId name joinedUserList tag_privacy")
-      .limit(itemPerPageInstitute)
-      .skip(dropItemInstitute)
-      .lean()
-      .exec();
+    // const tagInstitute = await InstituteAdmin.find({
+    //   $or: [
+    //     { insName: { $regex: req.query.search, $options: "i" } },
+    //     { name: { $regex: req.query.search, $options: "i" } },
+    //   ],
+    //   $and: [
+    //     {
+    //       tag_privacy: { $in: ["Every one", "Joined Users"] },
+    //     },
+    //   ],
+    // })
+    // .select("insName insProfilePhoto photoId name joinedUserList tag_privacy")
+    // .limit(itemPerPageInstitute)
+    // .skip(dropItemInstitute)
+    // .lean()
+    // .exec();
     // console.log(tagUser);
-    const tagInstituteList = suffle_search_list(tagUser, tagInstitute);
+    // const tagInstituteList = suffle_search_list(tagUser, tagInstitute);
     res.status(200).send({
-      tagUserList: tagInstituteList,
+      tagUserList: tagUser,
       // tagUser,
       // tagInstitute,
     });

@@ -14,6 +14,18 @@ const studentNotificationSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department",
   },
+  notifyByInsPhoto: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'InstituteAdmin'
+  },
+  notifyByStaffPhoto: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Staff'
+  },
+  notifyByStudentPhoto: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Student'
+  },
   notifyBySubjectPhoto: {
     type: String,
   },
@@ -22,7 +34,13 @@ const studentNotificationSchema = new mongoose.Schema({
   },
   notifyPublisher: {
     type: String
-  }
+  },
+  examId: { type: String },
+  checklistId: { type: String },
+  feesId: { type: String },
+  mcqId: { type: String },
+  assignmentId: { type: String },
+  financeId: { type: String }
 });
 
 module.exports = mongoose.model(

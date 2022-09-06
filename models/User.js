@@ -358,6 +358,16 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'Enable'
   },
+  user_institute_notify: {
+    type: String,
+    default: 'Enable'
+  },
+  activity_tab: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'StudentNotification'
+    }
+  ]
 });
 
 userSchema.post("findOneAndDelete", async function (doc) {

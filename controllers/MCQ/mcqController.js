@@ -13,7 +13,7 @@ const ClassMaster = require("../../models/ClassMaster");
 const SubjectMarks = require("../../models/Marks/SubjectMarks");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const Exam = require("../../models/Exam");
-const invokeFirebaseNotification = require("../../Firebase/firebase");
+const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const {
   dateTimeComparison,
   timeComparison,
@@ -22,6 +22,7 @@ const { uploadDocFile } = require("../../S3Configuration");
 const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
+const User = require('../../models/User')
 
 exports.getQuestion = async (req, res) => {
   try {
@@ -284,23 +285,29 @@ exports.takeTestSet = async (req, res) => {
     };
     for (stId of subject?.class?.ApproveStudent) {
       const student = await Student.findById(stId);
+      const user = await User.findById({_id: `${student.user}`})
       const studentTestSet = new StudentTestSet(obj);
       studentTestSet.student = stId;
       student.testSet.push(studentTestSet._id);
       const notify = new StudentNotification({});
       notify.notifyContent = `New ${testSet.testExamName} Test is created for ${testSet.testSubject}`;
       notify.notifySender = subject._id;
-      notify.notifyReceiever = student._id;
+      notify.notifyReceiever = user._id;
+      user.activity_tab.push(notify._id)
       student.notification.push(notify._id);
       notify.notifyBySubjectPhoto = subject._id;
-      invokeFirebaseNotification(
-        "Student Member Activity",
+      //
+      invokeMemberTabNotification(
+        "Student Activity",
         notify,
-        student.studentFirstName,
-        student._id,
-        "token"
+        'New MCQ Test Set',
+        user._id,
+        user.deviceToken,
+        'Student',
+        notify
       );
-      await Promise.all([studentTestSet.save(), student.save(), notify.save()]);
+      //
+      await Promise.all([studentTestSet.save(), student.save(), notify.save(), user.save()]);
     }
     res
       .status(200)
@@ -596,6 +603,7 @@ exports.createExam = async (req, res) => {
             }
             for (let stu of classes.ApproveStudent) {
               const student = await Student.findById(stu);
+              const user = await User.findById({_id: `${student.user}`})
               const studentTestSet = new StudentTestSet(obj);
               studentTestSet.student = student._id;
               if (student.exams.includes(exam._id)) {
@@ -669,20 +677,26 @@ exports.createExam = async (req, res) => {
               const notify = new StudentNotification({});
               notify.notifyContent = `New ${exam.examName} Exam is created for ${sub.subjectName} , check your members tab`;
               notify.notifySender = department._id;
-              notify.notifyReceiever = student._id;
+              notify.notifyReceiever = user._id;
+              user.activity_tab.push(notify._id)
               student.notification.push(notify._id);
               notify.notifyByDepartPhoto = department._id;
-              // invokeFirebaseNotification(
-              //   "Student Member Activity",
-              //   notify,
-              //   student.studentFirstName,
-              //   student._id,
-              //   "token"
-              // );
+              //
+              invokeMemberTabNotification(
+                "Student Activity",
+                notify,
+                'New Online Exam',
+                user._id,
+                user.deviceToken,
+                'Student',
+                notify
+              );
+              //
               await Promise.all([
                 studentTestSet.save(),
                 student.save(),
                 notify.save(),
+                user.save()
               ]);
             }
             if (subject?.exams?.includes(exam._id)) {
@@ -784,6 +798,7 @@ exports.createAssignment = async (req, res) => {
 
     for (let stud of req.body?.students) {
       const stu = await Student.findById(stud);
+      const user = await User.findById(`${stu.user}`)
       stu.totalAssigment += 1;
       const studentAssignment = new StudentAssignment({
         assignmentName: assignment?.assignmentName,
@@ -816,10 +831,22 @@ exports.createAssignment = async (req, res) => {
       const notify = new StudentNotification({});
       notify.notifyContent = `New ${studentAssignment.assignmentName} is created for ${sub.subjectName} , check your members tab`;
       notify.notifySender = subject._id;
-      notify.notifyReceiever = stu._id;
+      notify.notifyReceiever = user._id;
+      user.activity_tab.push(notify._id)
       stu.notification.push(notify._id);
       notify.notifyBySubjectPhoto = subject._id;
-      await Promise.all([studentAssignment.save(), stu.save(), notify.save()]);
+      //
+      invokeMemberTabNotification(
+        "Student Activity",
+        notify,
+        'New Assignment',
+        user._id,
+        user.deviceToken,
+        'Student',
+        notify
+      );
+      //
+      await Promise.all([studentAssignment.save(), stu.save(), notify.save(), user.save()]);
     }
   } catch (e) {
     console.log(e);

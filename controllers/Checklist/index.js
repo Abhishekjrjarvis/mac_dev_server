@@ -4,8 +4,10 @@ const User = require("../../models/User");
 const Department = require("../../models/Department");
 const Class = require("../../models/Class");
 const Notification = require("../../models/notification");
+const StudentNotification = require('../../models/Marks/StudentNotification')
 const InstituteAdmin = require('../../models/InstituteAdmin')
 const Finance = require('../../models/Finance')
+const invokeMemberTabNotification = require('../../Firebase/MemberTab')
 
 exports.viewDepartment = async (req, res) => {
   const department = await Department.findById(req.params.did);
@@ -62,13 +64,24 @@ exports.createChecklist = async (req, res) => {
         select: "_id",
       });
       const user = await User.findById({ _id: `${student.user._id}` });
-      const notify = new Notification({});
+      const notify = new StudentNotification({});
       notify.notifyContent = `New ${check.checklistName} (checklist) has been created. check your member's Tab`;
       notify.notifySender = did;
       notify.notifyReceiever = user._id;
-      user.uNotify.push(notify._id);
-      notify.user = user._id;
+      notify.checklistId = check._id
+      user.activity_tab.push(notify._id);
       notify.notifyByDepartPhoto = department._id;
+      //
+      invokeMemberTabNotification(
+        "Student Activity",
+        notify,
+        'New Checklist',
+        user._id,
+        user.deviceToken,
+        'Student',
+        notify
+      );
+      //
       await Promise.all([user.save(), notify.save()]);
     }
     res.status(201).send({ message: "Checklist Created", checklist: check });

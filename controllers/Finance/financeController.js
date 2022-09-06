@@ -14,6 +14,8 @@ const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const Payroll = require('../../models/Finance/Payroll')
+const StudentNotification = require('../../models/Marks/StudentNotification')
+const invokeMemberTabNotification = require('../../Firebase/MemberTab')
 
 exports.getFinanceDepart = async(req, res) =>{
     try {
@@ -398,6 +400,10 @@ exports.requestClassOfflineFee = async(req, res) =>{
         const { fid, cid, id } = req.params;
         const { amount } = req.body
         const finance = await Finance.findById({ _id: fid })
+        //
+        const financeStaff = await Staff.findById({_id: `${finance.financeHead}`})
+        const user = await User.findById({_id: `${financeStaff.user}`})
+        //
         const classes = await Class.findById({ _id: cid })
         .populate({ path: 'classTeacher', select: 'staffFirstName staffMiddleName staffLastName'})
         const fee = await Fees.findById({ _id: id });
@@ -422,9 +428,30 @@ exports.requestClassOfflineFee = async(req, res) =>{
             classes.receieveFee.push(fee._id);
             classes.requestFeeStatus.feeId = fee._id
             classes.requestFeeStatus.status = 'Requested'
+            //
+            const notify = new StudentNotification({});
+            notify.notifyContent = `Rs.${amount} Offline Payment Request for submission`;
+            notify.notifySender = classes._id;
+            notify.notifyReceiever = user._id;
+            notify.financeId = finance._id
+            user.activity_tab.push(notify._id);
+            notify.notifyByClassPhoto = classe._id;
+            //
+            invokeMemberTabNotification(
+              "Staff Activity",
+              notify,
+              'Offline Payment Request',
+              user._id,
+              user.deviceToken,
+              'Staff',
+              notify
+            );
+            //
             await Promise.all([
               finance.save(),
-              classes.save()
+              classes.save(),
+              user.save(),
+              notify.save()
             ])
             res.status(200).send({ message: "class Request At Finance ", request: true });
           }

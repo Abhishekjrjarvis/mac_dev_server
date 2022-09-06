@@ -8,8 +8,9 @@ const StaffAttendenceDate = require("../../models/StaffAttendenceDate");
 const Staff = require("../../models/Staff");
 const Notification = require("../../models/notification");
 const StudentNotification = require("../../models/Marks/StudentNotification");
-const invokeFirebaseNotification = require("../../Firebase/firebase");
+const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const User = require("../../models/User");
+
 
 //THis is route with tested OF STUDENT
 exports.viewClassStudent = async (req, res) => {
@@ -123,19 +124,24 @@ exports.markAttendenceClassStudent = async (req, res) => {
           const notify = new StudentNotification({});
           notify.notifyContent = `you're present today`;
           notify.notifySender = classes._id;
-          notify.notifyReceiever = student._id;
+          notify.notifyReceiever = user._id;
           notify.notifyByClassPhoto = classes._id;
+          user.activity_tab.push(notify._id)
           student.notification.push(notify._id);
           student.attendDate.push(attendence._id);
           attendence.presentStudent.push(student._id);
-          invokeFirebaseNotification(
-            "Student Member Activity",
+          //
+          invokeMemberTabNotification(
+            "Student Activity",
             notify,
-            student.studentFirstName,
+            'Mark Attendence',
             user._id,
-            user.deviceToken
+            user.deviceToken,
+            'Student',
+            notify
           );
-          await Promise.all([student.save(), notify.save()]);
+          //
+          await Promise.all([student.save(), notify.save(), user.save()]);
         }
 
         for (let i = 0; i < req.body.absent.length; i++) {
@@ -146,19 +152,24 @@ exports.markAttendenceClassStudent = async (req, res) => {
           const notify = new StudentNotification({});
           notify.notifyContent = `you're absent today`;
           notify.notifySender = classes._id;
-          notify.notifyReceiever = student._id;
+          notify.notifyReceiever = user._id;
           notify.notifyByClassPhoto = classes._id;
+          user.activity_tab.push(notify._id)
           student.notification.push(notify._id);
           student.attendDate.push(attendence._id);
           attendence.absentStudent.push(student._id);
-          invokeFirebaseNotification(
-            "Student Member Activity",
+          //
+          invokeMemberTabNotification(
+            "Student Activity",
             notify,
-            student.studentFirstName,
+            'Mark Attendence',
             user._id,
-            user.deviceToken
+            user.deviceToken,
+            'Student',
+            notify
           );
-          await Promise.all([student.save(), notify.save()]);
+          //
+          await Promise.all([student.save(), notify.save(), user.save()]);
         }
         classes.attendenceDate.push(attendence._id);
         attendence.presentTotal = req.body.present.length;
@@ -367,22 +378,25 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
             select: "_id uNotify userLegalName deviceToken",
           });
           staff.attendDates.push(staffAttendence._id);
-          const notify = new Notification({});
+          const notify = new StudentNotification({});
           notify.notifyContent = `you're present today`;
           notify.notifySender = id;
           notify.notifyReceiever = staff.user._id;
-          staff.user.uNotify.push(notify._id);
-          notify.user = staff.user._id;
+          staff.user.activity_tab.push(notify._id)
           notify.notifyByInsPhoto = id;
           staffAttendence.presentStaff.push(staff._id);
           staffAttendence.presentTotal = req.body.present.length;
-          invokeFirebaseNotification(
-            "Staff Member Activity",
+          //
+          invokeMemberTabNotification(
+            "Staff Activity",
             notify,
-            staff.user.userLegalName,
+            'Mark Attendence',
             staff.user._id,
-            staff.user.deviceToken
+            staff.user.deviceToken,
+            'Staff',
+            notify
           );
+          //
           await Promise.all([
             staff.save(),
             staffAttendence.save(),
@@ -400,21 +414,24 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
           });
           staff.attendDates.push(staffAttendence._id);
           staffAttendence.absentStaff.push(staff._id);
-          const notify = new Notification({});
+          const notify = new StudentNotification({});
           notify.notifyContent = `you're absent today`;
           notify.notifySender = id;
           notify.notifyReceiever = staff.user._id;
-          staff.user.uNotify.push(notify._id);
-          notify.user = staff.user._id;
+          staff.user.activity_tab.push(notify._id)
           notify.notifyByInsPhoto = id;
           staffAttendence.absentTotal = req.body.absent.length;
-          invokeFirebaseNotification(
-            "Staff Member Activity",
+          //
+          invokeMemberTabNotification(
+            "Staff Activity",
             notify,
-            staff.user.userLegalName,
+            'Mark Attendence',
             staff.user._id,
-            staff.user.deviceToken
+            staff.user.deviceToken,
+            'Staff',
+            notify
           );
+          //
           await Promise.all([
             staff.save(),
             staffAttendence.save(),
@@ -653,6 +670,34 @@ exports.holidayCalendar = async (req, res) => {
     });
     depart.holiday.push(leave._id);
     leave.department = depart._id;
+    //
+    for (let i = 0; i < depart.ApproveStudent.length; i++) {
+      const student = await Student.findById({
+        _id: depart.ApproveStudent[i]._id,
+      }).populate({
+        path: "user",
+        select: "_id",
+      });
+      const user = await User.findById({ _id: `${student.user._id}` });
+      const notify = new StudentNotification({});
+      notify.notifyContent = `New Holiday Marked`;
+      notify.notifySender = depart._id;
+      notify.notifyReceiever = user._id;
+      user.activity_tab.push(notify._id)
+      notify.notifyByDepartPhoto = depart._id;
+      //
+      invokeMemberTabNotification(
+        "Student Activity",
+        notify,
+        'New Holiday',
+        user._id,
+        user.deviceToken,
+        'Student',
+        notify
+      );
+      await Promise.all([user.save(), notify.save()]);
+    }
+    //
     await Promise.all([depart.save(), leave.save()]);
     res.status(200).send({ message: "Holiday Marked ", leave });
   } catch {

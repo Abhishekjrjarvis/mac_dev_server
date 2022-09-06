@@ -1362,6 +1362,9 @@ paths:
               answer_notify:
                 type: string
                 description: Enter Answer Notification Content
+              institute_notify:
+                type: string
+                description: Enter Institute Related Notification Content
       responses:
         "200":
           description: OK

@@ -135,7 +135,19 @@ const postSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  needUser: []
+  needUser: [],
+  needMultiple: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }
+  ],
+  repostMultiple: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }
+  ]
   //
 });
 

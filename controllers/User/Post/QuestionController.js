@@ -480,6 +480,14 @@ exports.questionAnswerSave = async (req, res) => {
       const question = await Post.findById({_id: `${answer.post}`})
       const user_session = req.tokenData && req.tokenData.userId ? req.tokenData.userId : ''
       if (user_session) {
+        //
+        if (rePost.repostMultiple.length >= 1 && rePost.repostMultiple.includes(String(user_session))){
+          rePost.repostMultiple.pull(user_session)
+        }
+        else{
+          rePost.repostMultiple.push(user_session)
+        }
+        //
         if (
           answer.upVote.length >= 1 &&
           answer.upVote.includes(String(user_session))
@@ -554,6 +562,14 @@ exports.retrieveHelpQuestion = async(req, res) =>{
     const post_ques = await Post.findById({_id: pid})
     const user = await User.findById({_id: `${user_session}`})
     if(user){
+      //
+      if (post_ques.needMultiple.length >= 1 && post_ques.needMultiple.includes(String(user._id))){
+        post_ques.needMultiple.pull(user._id)
+      }
+      else{
+        post_ques.needMultiple.push(user._id)
+      }
+      //
       if (post_ques.needUser.length >= 1 && post_ques.needUser.includes(String(user._id))){
         post_ques.needUser.pull(user._id)
         if(post_ques?.needCount > 0){

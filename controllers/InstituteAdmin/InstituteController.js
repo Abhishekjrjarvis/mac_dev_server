@@ -24,6 +24,7 @@ const ClassMaster = require("../../models/ClassMaster");
 const SubjectMaster = require("../../models/SubjectMaster");
 const ReplyAnnouncement = require("../../models/ReplyAnnouncement");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
+const invokeMemberTabNotification = require('../../Firebase/MemberTab')
 const Status = require('../../models/Admission/status')
 const {
   getFileStream,
@@ -802,6 +803,8 @@ exports.fillStudentForm = async (req, res) => {
     const user = await User.findById({ _id: uid });
     const student = new Student({ ...req.body });
     const classes = await Class.findOne({ classCode: req.body.studentCode });
+    const classStaff = await Staff.findById({_id: `${classes.classTeacher}`})
+    const classUser = await User.findById({_id: `${classStaff.user}`})
     for (let file of req.files) {
       let count = 1;
       if (count === 1) {
@@ -821,7 +824,7 @@ exports.fillStudentForm = async (req, res) => {
       }
       await unlinkFile(file.path);
     }
-    const notify = await new Notification({});
+    const notify = new Notification({});
     const aStatus = new Status({})
     institute.student.push(student._id);
     user.student.push(student._id);
@@ -841,19 +844,32 @@ exports.fillStudentForm = async (req, res) => {
       student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
     } ${student.studentLastName} has been applied for role of student`;
     notify.notifySender = student._id;
-    notify.notifyReceiever = institute._id;
+    notify.notifyReceiever = classUser._id;
     institute.iNotify.push(notify._id);
     notify.institute = institute._id;
+    classUser.activity_tab.push(notify._id)
     notify.notifyByStudentPhoto = student._id;
     aStatus.content = `Your application for joining as student in ${institute.insName} is filled successfully. Stay updated to check status of your application.`
     user.applicationStatus.push(aStatus._id)
+    //
+    invokeMemberTabNotification(
+      "Staff Activity",
+      notify,
+      'Request for Joining',
+      classUser._id,
+      classUser.deviceToken,
+      'Staff',
+      notify
+    );
+    //
     await Promise.all([
       student.save(),
       institute.save(),
       user.save(),
       classes.save(),
       notify.save(),
-      aStatus.save()
+      aStatus.save(),
+      classUser.save()
     ]);
     res.status(201).send({ message: "student form is applied", student });
   } catch (e) {

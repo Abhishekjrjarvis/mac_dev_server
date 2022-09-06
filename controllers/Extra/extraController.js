@@ -252,7 +252,7 @@ exports.retrieveInstituteBirthPrivacy = async(req, res) =>{
 exports.retrieveUserUpdateNotification = async(req, res) =>{
   try{
     const { uid } = req.params
-    const { follower_notify, comment_notify, answer_notify } = req.body
+    const { follower_notify, comment_notify, answer_notify, institute_notify } = req.body
     const user = await User.findById({_id: uid})
     if(follower_notify !== ''){
       user.user_follower_notify = follower_notify
@@ -262,6 +262,9 @@ exports.retrieveUserUpdateNotification = async(req, res) =>{
     }
     if(answer_notify !== ''){
       user.user_answer_notify = answer_notify
+    }
+    if(institute_notify !== ''){
+      user.user_institute_notify = institute_notify
     }
     await user.save()
     res.status(200).send({ message: `Update Notification Updated`})

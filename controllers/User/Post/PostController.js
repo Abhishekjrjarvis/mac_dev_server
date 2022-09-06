@@ -414,7 +414,15 @@ exports.retrieveAllUserPosts = async (req, res) => {
               path: 'post',
               select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
             }
-          });
+          })
+          .populate({
+            path: 'needMultiple',
+            select: 'username photoId profilePhoto'
+          })
+          .populate({
+            path: 'repostMultiple',
+            select: 'username photoId profilePhoto'
+          })
       } else {
         var post = await Post.find({ $and: [{ _id: { $in: user.userPosts } }] })
           .sort("-createdAt")
@@ -432,7 +440,15 @@ exports.retrieveAllUserPosts = async (req, res) => {
               path: 'post',
               select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
             }
-          });
+          })
+          .populate({
+            path: 'needMultiple',
+            select: 'username photoId profilePhoto'
+          })
+          .populate({
+            path: 'repostMultiple',
+            select: 'username photoId profilePhoto'
+          })
       }
       const postCount = await Post.find({ _id: { $in: user.userPosts } });
       if (page * limit >= postCount.length) {
@@ -479,7 +495,15 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
               path: 'post',
               select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
             }
-          });
+          })
+          .populate({
+            path: 'needMultiple',
+            select: 'username photoId profilePhoto'
+          })
+          .populate({
+            path: 'repostMultiple',
+            select: 'username photoId profilePhoto'
+          })
       } else {
         var post = await Post.find({ author: id })
           .sort("-createdAt")
@@ -497,7 +521,15 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
               path: 'post',
               select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
             }
-          });
+          })
+          .populate({
+            path: 'needMultiple',
+            select: 'username photoId profilePhoto'
+          })
+          .populate({
+            path: 'repostMultiple',
+            select: 'username photoId profilePhoto'
+          })
       }
       const postCount = await Post.find({ _id: { $in: user.userPosts } });
       if (page * limit >= postCount.length) {
@@ -799,7 +831,15 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
             path: 'post',
             select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
           }
-        });
+        })
+        .populate({
+          path: 'needMultiple',
+          select: 'username photoId profilePhoto'
+        })
+        .populate({
+          path: 'repostMultiple',
+          select: 'username photoId profilePhoto'
+        })
       const postCount = await Post.find({ _id: { $in: user.user_saved_post } });
       if (page * limit >= postCount.length) {
       } else {
@@ -848,7 +888,15 @@ exports.retrieveAllUserTagPosts = async (req, res) => {
             path: 'post',
             select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
           }
-        });
+        })
+        .populate({
+          path: 'needMultiple',
+          select: 'username photoId profilePhoto'
+        })
+        .populate({
+          path: 'repostMultiple',
+          select: 'username photoId profilePhoto'
+        })
       const postCount = await Post.find({ _id: { $in: user.tag_post } });
       if (page * limit >= postCount.length) {
       } else {
@@ -889,7 +937,15 @@ exports.retrieveAllUserReposts = async (req, res) => {
         path: 'post',
         select: 'postQuestion author authorUserName authorPhotoId authorProfilePhoto isUser'
       }
-    });
+    })
+    .populate({
+      path: 'needMultiple',
+      select: 'username photoId profilePhoto'
+    })
+    .populate({
+      path: 'repostMultiple',
+      select: 'username photoId profilePhoto'
+    })
     if(repost && repost.length >=1){
       res.status(200).send({ message: "Success", repost, count: repost.length });
     }

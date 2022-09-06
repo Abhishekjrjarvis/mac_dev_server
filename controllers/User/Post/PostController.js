@@ -736,7 +736,7 @@ exports.circleList = async (req, res) => {
       .select(
         "username userLegalName profilePhoto photoId userCircle tag_privacy"
       )
-      .limit(itemPerPageUser)
+      .limit(itemPerPage)
       .skip(dropItemUser)
       .lean()
       .exec();

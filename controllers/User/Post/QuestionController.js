@@ -35,6 +35,7 @@ exports.postQuestionText = async (req, res) => {
     post.authorUserName = user.username
     post.authorPhotoId = user.photoId
     post.authorProfilePhoto = user.profilePhoto
+    post.authorOneLine = user.one_line_about
     post.isUser = 'user'
     post.postType = 'Question'
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`
@@ -210,6 +211,7 @@ exports.postQuestionAnswer = async (req, res) => {
         answers.authorUserName = user.username
         answers.authorPhotoId = user.photoId
         answers.authorProfilePhoto = user.profilePhoto
+        answers.authorOneLine = user.one_line_about
       } else {
         res.status(401).send({ message: 'Unauthorized'});
       }
@@ -264,7 +266,7 @@ exports.getQuestionAnswer = async (req, res) => {
       .sort("-upVoteCount")
       .limit(limit)
       .skip(skip)
-      .select("answerContent createdAt answerImageId answerImage upVote upVoteCount downVote downVoteCount isMentor answerReplyCount author answerSave authorName authorUserName authorPhotoId authorProfilePhoto")
+      .select("answerContent createdAt answerImageId answerImage upVote upVoteCount authorOneLine downVote downVoteCount isMentor answerReplyCount author answerSave authorName authorUserName authorPhotoId authorProfilePhoto")
       .populate({
         path: 'post',
         select: 'postQuestion author authorProfilePhoto authorPhotoId authorUserName isUser'
@@ -286,7 +288,7 @@ exports.getAnswerReply = async (req, res) => {
     .sort("-createdAt")
     .limit(limit)
     .skip(skip)
-    .select("answerReplyContent createdAt author authorName authorUserName authorPhotoId authorProfilePhoto")
+    .select("answerReplyContent createdAt author authorName authorUserName authorOneLine authorPhotoId authorProfilePhoto")
     .populate({
         path: 'parentAnswer',
         select: 'id'
@@ -308,6 +310,7 @@ exports.postAnswerReply = async (req, res) => {
         authorUserName: users.username,
         authorPhotoId: users.photoId,
         authorProfilePhoto: users.profilePhoto,
+        authorOneLine: users.one_line_about,
         parentAnswer: rid,
       });
       const p_answer = await Answer.findById(rid);
@@ -324,6 +327,7 @@ exports.postAnswerReply = async (req, res) => {
         authorUserName: user.username,
         authorPhotoId: user.photoId,
         authorProfilePhoto: user.profilePhoto,
+        authorOneLine: user.one_line_about
       };
       res.status(201).send({
         replyAnswer,
@@ -409,6 +413,7 @@ exports.questionAnswerSave = async (req, res) => {
           answers.authorUserName = user.username
           answers.authorPhotoId = user.photoId
           answers.authorProfilePhoto = user.profilePhoto
+          answers.authorOneLine = user.one_line_about
         }
         const rePost = new Post({})
         rePost.author = user._id;
@@ -416,6 +421,7 @@ exports.questionAnswerSave = async (req, res) => {
         rePost.authorUserName = user.username
         rePost.authorPhotoId = user.photoId
         rePost.authorProfilePhoto = user.profilePhoto
+        rePost.authorOneLine = user.one_line_about
         user.answered_query.push(answers._id)
         post.answer.push(answers._id);
         post.answerCount += 1;

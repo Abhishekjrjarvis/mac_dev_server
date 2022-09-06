@@ -1,7 +1,6 @@
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const User = require("../../models/User");
 const Staff = require("../../models/Staff");
-const Post = require("../../models/Post");
 const Notification = require("../../models/notification");
 const InsAnnouncement = require("../../models/InsAnnouncement");
 const Student = require("../../models/Student");
@@ -26,6 +25,9 @@ const ReplyAnnouncement = require("../../models/ReplyAnnouncement");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 const invokeMemberTabNotification = require('../../Firebase/MemberTab')
 const Status = require('../../models/Admission/status')
+const Post = require('../../models/Post')
+const Comment = require('../../models/Comment')
+const ReplyComment = require('../../models/ReplyComment/ReplyComment')
 const {
   getFileStream,
   uploadDocFile,
@@ -275,9 +277,30 @@ exports.getUpdatePhone = async (req, res) => {
 exports.getUpdatePersonalIns = async (req, res) => {
   try {
     const { id } = req.params;
-    const institute = await InstituteAdmin.findByIdAndUpdate(id, req.body);
+    // const institutes = await InstituteAdmin.findById({_id: id}).select('one_line_about')
+    // var oneLine = institutes.one_line_about
+    var institute = await InstituteAdmin.findByIdAndUpdate(id, req.body);
     await institute.save();
     res.status(200).send({ message: "Personal Info Updated" });
+    //
+    // if(`${oneLine}` !== `${institute.one_line_about}`){
+      const post = await Post.find({ author: institute._id });
+      post.forEach(async (ele) => {
+        ele.authorOneLine = institute.one_line_about;
+        await ele.save();
+      });
+      const comment = await Comment.find({ author: institute._id });
+      comment.forEach(async (com) => {
+        com.authorOneLine = institute.one_line_about;
+        await com.save();
+      });
+      const replyComment = await ReplyComment.find({ author: institute._id });
+      replyComment.forEach(async (reply) => {
+        reply.authorOneLine = institute.one_line_about;
+        await reply.save();
+      });
+    // }
+    //
   } catch {}
 };
 

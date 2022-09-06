@@ -28,6 +28,9 @@ const answerReplySchema = new mongoose.Schema({
   },
   authorProfilePhoto: {
     type: String
+  },
+  authorOneLine: {
+    type: String
   }
 });
 

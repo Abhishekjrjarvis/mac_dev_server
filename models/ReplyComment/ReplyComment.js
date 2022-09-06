@@ -29,6 +29,9 @@ const replySchema = new mongoose.Schema({
   authorProfilePhoto: {
     type: String
   },
+  authorOneLine: {
+    type: String
+  },
 });
 
 module.exports = mongoose.model("ReplyComment", replySchema);

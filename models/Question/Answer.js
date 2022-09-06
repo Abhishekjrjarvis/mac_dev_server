@@ -32,6 +32,9 @@ const answerSchema = new mongoose.Schema({
   authorProfilePhoto: {
     type: String
   },
+  authorOneLine: {
+    type: String
+  },
   answerReply: [
     {
       type: mongoose.Schema.Types.ObjectId,

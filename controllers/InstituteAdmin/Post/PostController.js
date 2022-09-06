@@ -42,6 +42,7 @@ exports.postWithText = async (req, res) => {
     post.authorUserName = institute.name;
     post.authorPhotoId = institute.photoId;
     post.authorProfilePhoto = institute.insProfilePhoto;
+    post.authorOneLine = institute.one_line_about;
     post.isInstitute = "institute";
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`
     await Promise.all([institute.save(), post.save()]);
@@ -140,6 +141,7 @@ exports.postWithImage = async (req, res) => {
     post.authorUserName = institute.name;
     post.authorPhotoId = institute.photoId;
     post.authorProfilePhoto = institute.insProfilePhoto;
+    post.authorOneLine = institute.one_line_about;
     post.isInstitute = "institute";
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([institute.save(), post.save()]);
@@ -238,6 +240,7 @@ exports.postWithVideo = async (req, res) => {
     post.authorUserName = institute.name;
     post.authorPhotoId = institute.photoId;
     post.authorProfilePhoto = institute.insProfilePhoto;
+    post.authorOneLine = institute.one_line_about;
     post.isInstitute = "institute";
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([institute.save(), post.save()]);
@@ -460,6 +463,7 @@ exports.postComment = async (req, res) => {
       comment.authorUserName = institute.name;
       comment.authorPhotoId = institute.photoId;
       comment.authorProfilePhoto = institute.insProfilePhoto;
+      comment.authorOneLine = institute.one_line_about;
     } else if (req.tokenData && req.tokenData.userId) {
       const user = await User.findById({ _id: req.tokenData.userId });
       comment.author = user._id;
@@ -467,6 +471,7 @@ exports.postComment = async (req, res) => {
       comment.authorUserName = user.username;
       comment.authorPhotoId = user.photoId;
       comment.authorProfilePhoto = user.profilePhoto;
+      comment.authorOneLine = user.one_line_about;
     } else {
       res.status(401).send({ message: "Unauthorized" });
     }
@@ -519,7 +524,7 @@ exports.retrieveAllPosts = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "postTitle postText postDescription postQuestion tagPeople answerCount answerUpVoteCount isUser isInstitute postType trend_category endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
+            "postTitle postText postDescription postQuestion authorOneLine tagPeople answerCount answerUpVoteCount isUser isInstitute postType trend_category endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
           )
           .populate({
             path: "poll_query",
@@ -532,7 +537,7 @@ exports.retrieveAllPosts = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "postTitle postText postDescription postQuestion tagPeople answerCount answerUpVoteCount isUser isInstitute postType trend_category endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
+            "postTitle postText postDescription postQuestion authorOneLine tagPeople answerCount answerUpVoteCount isUser isInstitute postType trend_category endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
           )
           .populate({
             path: "poll_query",
@@ -573,7 +578,7 @@ exports.retreiveAllProfilePosts = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "postTitle postText postDescription postQuestion tagPeople answerCount answerUpVoteCount isUser isInstitute postType trend_category endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
+        "postTitle postText postDescription postQuestion authorOneLine tagPeople answerCount answerUpVoteCount isUser isInstitute postType trend_category endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
       )
       .populate({
         path: "poll_query",
@@ -611,7 +616,7 @@ exports.getComment = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "commentDescription createdAt allLikeCount allChildCommentCount author authorName authorUserName authorPhotoId authorProfilePhoto"
+        "commentDescription createdAt allLikeCount allChildCommentCount authorOneLine author authorName authorUserName authorPhotoId authorProfilePhoto"
       );
     res.status(200).send({ message: "Sucess", comment });
   } catch (e) {
@@ -631,7 +636,7 @@ exports.getCommentChild = async (req, res) => {
       .populate({
         path: "childComment",
         select:
-          "repliedComment createdAt author authorName authorUserName authorPhotoId authorProfilePhoto",
+          "repliedComment createdAt author authorName authorUserName authorOneLine authorPhotoId authorProfilePhoto",
       })
       .select("allChildCommentCount allLikeCount")
       .lean()
@@ -666,6 +671,7 @@ exports.postCommentChild = async (req, res) => {
         authorUserName: institute.name,
         authorPhotoId: institute.photoId,
         authorProfilePhoto: institute.insProfilePhoto,
+        authorOneLine: institute.one_line_about,
         parentComment: pcid,
       });
       const parentComment = await Comment.findById(pcid);
@@ -684,6 +690,7 @@ exports.postCommentChild = async (req, res) => {
         authorUserName: institutes.name,
         authorPhotoId: institutes.photoId,
         authorProfilePhoto: institutes.insProfilePhoto,
+        authorOneLine: institutes.one_line_about,
       };
       res.status(201).send({
         childReplyComment,
@@ -698,6 +705,7 @@ exports.postCommentChild = async (req, res) => {
         authorUserName: users.username,
         authorPhotoId: users.photoId,
         authorProfilePhoto: users.profilePhoto,
+        authorOneLine: users.one_line_about,
         parentComment: pcid,
       });
       const parentComment = await Comment.findById(pcid);
@@ -716,6 +724,7 @@ exports.postCommentChild = async (req, res) => {
         authorUserName: user.username,
         authorPhotoId: user.photoId,
         authorProfilePhoto: user.profilePhoto,
+        authorOneLine: user.one_line_about,
       };
       res.status(201).send({
         childReplyComment,
@@ -860,7 +869,7 @@ exports.retrieveSavedAllPosts = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "postTitle postText postDescription endUserSave tagPeople createdAt postType postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
+          "postTitle postText postDescription endUserSave authorOneLine tagPeople createdAt postType postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
         )
         .populate({
           path: "poll_query",
@@ -906,7 +915,7 @@ exports.retrieveTagAllPosts = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "postTitle postText postDescription endUserSave tagPeople createdAt postType postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
+          "postTitle postText postDescription endUserSave tagPeople authorOneLine createdAt postType postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
         )
         .populate({
           path: "poll_query",

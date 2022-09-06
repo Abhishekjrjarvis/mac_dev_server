@@ -9,6 +9,9 @@ const InsAnnouncement = require("../../models/InsAnnouncement");
 const bcrypt = require("bcryptjs");
 const Answer = require("../../models/Question/Answer");
 const Post = require("../../models/Post");
+const Comment = require('../../models/Comment')
+const ReplyComment = require('../../models/ReplyComment/ReplyComment')
+const AnswerReply = require('../../models/Question/AnswerReply')
 const Chat = require("../../models/Chat/Chat");
 
 const {
@@ -528,9 +531,40 @@ exports.updateUserPhone = async (req, res) => {
 exports.updateUserPersonal = async (req, res) => {
   try {
     const { id } = req.params;
+    // const users = await User.findById({_id: id}).select('one_line_about')
+    // var oneLine = user.one_line_about
     const user = await User.findByIdAndUpdate(id, req.body);
     await user.save();
     res.status(200).send({ message: "Personal Info Updated" });
+    //
+    // if(`${oneLine}` !== `${user.one_line_about}`){
+      const post = await Post.find({ author: user._id });
+      post.forEach(async (ele) => {
+        ele.authorOneLine = user.one_line_about;
+        await ele.save();
+      });
+      const comment = await Comment.find({ author: user._id });
+      comment.forEach(async (com) => {
+        com.authorOneLine = user.one_line_about;
+        await com.save();
+      });
+      const replyComment = await ReplyComment.find({ author: user._id });
+      replyComment.forEach(async (reply) => {
+        reply.authorOneLine = user.one_line_about;
+        await reply.save();
+      });
+      const answers = await Answer.find({ author: user._id });
+      answers.forEach(async (ans) => {
+        ans.authorOneLine = user.one_line_about;
+        await ans.save();
+      });
+      const answerReply = await AnswerReply.find({ author: user._id });
+      answerReply.forEach(async (ansRep) => {
+        ansRep.authorOneLine = user.one_line_about;
+        await ansRep.save();
+      });
+    // }
+    //
   } catch (e) {
     console.log(`Error`, e.message);
   }
@@ -815,7 +849,7 @@ exports.getDashDataQuery = async (req, res) => {
     const { id } = req.params;
     const user = await User.findById({ _id: id })
       .select(
-        "userLegalName username ageRestrict photoId profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify"
+        "userLegalName username ageRestrict photoId one_line_about profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify"
       )
       if(user.userPosts && user.userPosts.length < 1){
         var post = []

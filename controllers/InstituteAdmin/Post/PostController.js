@@ -117,7 +117,7 @@ exports.postWithImage = async (req, res) => {
       .populate({ path: "userFollowersList" })
       .populate({ path: "joinedUserList" });
     const post = new Post({ ...req.body });
-    const taggedPeople = JSON.parse(req.body.people);
+    const taggedPeople = JSON?.parse(req.body.people);
     if (Array.isArray(taggedPeople)) {
       for (let val of taggedPeople) {
         post.tagPeople.push({

@@ -413,8 +413,8 @@ exports.updateUserCircle = async (req, res) => {
         notify.user = suser;
         notify.notifyByPhoto = user;
         await Promise.all([ user.save(), suser.save(), notify.save() ])
-        if(user?.user_follower_notify === 'Enable'){
-          invokeFirebaseNotification("Circle", notify, user.userLegalName, user._id, user.deviceToken);
+        if(suser?.user_follower_notify === 'Enable'){
+          invokeFirebaseNotification("Circle", notify, 'Circled', suser._id, suser.deviceToken);
         }
         res.status(200).send({ message: "😀 Added to circle" });
         const post = await Post.find({

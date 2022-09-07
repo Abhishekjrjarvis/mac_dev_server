@@ -44,12 +44,14 @@ const questionNew = require("./routes/User/Post/QuestionRoute");
 const admissionNew = require("./routes/Admission/admissionRoute");
 const pollNew = require("./routes/User/Post/PollsRoute");
 const iQuestionNew = require("./routes/InstituteAdmin/Post/QuestionRoute");
+const filterNew = require('./routes/Filterization/filterRoute')
 
 // ============================= DB Configuration ==============================
 
+const dburl = `${process.env.DB_URL2}`; // Development
 // const dburl = `${process.env.DB_URL}`; // Production
-const dburl = `${process.env.DB_URL2}`; // development
 
+// 6316f3cf8ae18d300d11641e - Development
 // 630f3b68a5eb4786489045a1 - Production
 
 mongoose
@@ -155,6 +157,7 @@ app.use("/api/v1/extra", extraNew);
 app.use("/api/v1/post/question", questionNew);
 app.use("/api/v1/poll", pollNew);
 app.use("/api/v1/ins/post/question", iQuestionNew);
+app.use("/api/v1/feed/filter", filterNew)
 
 // ============================================================================
 

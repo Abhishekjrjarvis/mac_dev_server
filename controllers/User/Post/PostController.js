@@ -39,6 +39,7 @@ exports.postWithText = async (req, res) => {
     post.authorUserName = user.username;
     post.authorPhotoId = user.photoId;
     post.authorProfilePhoto = user.profilePhoto;
+    post.authorOneLine = user.one_line_about;
     post.isUser = "user";
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`
     await Promise.all([user.save(), post.save()]);
@@ -113,6 +114,7 @@ exports.postWithImage = async (req, res) => {
     post.authorUserName = user.username;
     post.authorPhotoId = user.photoId;
     post.authorProfilePhoto = user.profilePhoto;
+    post.authorOneLine = user.one_line_about;
     post.isUser = "user";
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([user.save(), post.save()]);
@@ -185,6 +187,7 @@ exports.postWithVideo = async (req, res) => {
     post.authorUserName = user.username;
     post.authorPhotoId = user.photoId;
     post.authorProfilePhoto = user.profilePhoto;
+    post.authorOneLine = user.one_line_about;
     post.isUser = "user";
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([user.save(), post.save()]);
@@ -265,8 +268,8 @@ exports.postWithDeleted = async (req, res) => {
 exports.postLike = async (req, res) => {
   try {
     const { pid } = req.params;
-    const post = await Post.findById({ _id: pid });
-    const user_session =
+    var post = await Post.findById({ _id: pid });
+    var user_session =
       req.tokenData && req.tokenData.userId ? req.tokenData.userId : "";
     if (user_session) {
       if (
@@ -339,6 +342,7 @@ exports.postComment = async (req, res) => {
       comment.authorUserName = institute.name;
       comment.authorPhotoId = institute.photoId;
       comment.authorProfilePhoto = institute.insProfilePhoto;
+      comment.authorOneLine = institute.one_line_about;
     } else if (req.tokenData && req.tokenData.userId) {
       var user = await User.findById({ _id: req.tokenData.userId });
       comment.author = user._id;
@@ -346,6 +350,7 @@ exports.postComment = async (req, res) => {
       comment.authorUserName = user.username;
       comment.authorPhotoId = user.photoId;
       comment.authorProfilePhoto = user.profilePhoto;
+      comment.authorOneLine = user.one_line_about;
     } else {
       res.status(401).send({ message: "Unauthorized" });
     }
@@ -356,23 +361,31 @@ exports.postComment = async (req, res) => {
       post.save(),
       comment.save()
     ]);
+    var notify = new Notification({})
+    var author_user = await User.findById({_id: `${post.author}`})
+    if(`${comment.author}` === `${author_user._id}`){
+      notify.notifyContent = `you shared a new comment`;
+    }
+    else{
+      notify.notifyContent = `${comment.authorName} commented on your post`;
+    }
+    notify.notifySender = req.tokenData?.userId ? req.tokenData.userId : req.tokenData?.insId ? req.tokenData.insId : ''
+    notify.notifyReceiever = author_user._id;
+    author_user.uNotify.push(notify._id);
+    notify.user = author_user._id;
+    if(req?.tokenData?.userId){
+      notify.notifyByPhoto = req?.tokenData?.userId
+    }
+    else if(req?.tokenData?.insId){
+      notify.notifyByInsPhoto = req?.tokenData?.insId
+    }
+    await Promise.all([ notify.save(), author_user.save() ])
+    if(author_user?.user_comment_notify === 'Enable'){
+      invokeFirebaseNotification("Comment", notify, "New Comment", comment.author, author_user.deviceToken, post._id)
+    }
     res.status(201).send({ message: "comment created", comment });
-    if(post.isUser === 'User'){
-      var post_user = await User.findById({ _id: `${post.author}` });
-    }
-    if(post_user){
-      var notify = new Notification({});
-      notify.notifyContent = `${comment.authorUserName} have added comments on ${post.authorUserName} posts`;
-      notify.notifySender = comment.author;
-      notify.notifyReceiever = post.author;
-      post_user.uNotify.push(notify._id);
-      notify.user = post_user._id;
-      notify.notifyByPhoto = user._id;
-      await Promise.all([ notify.save(), post_user.save() ])
-      invokeFirebaseNotification( "Comment", notify, "New Comment", post_user._id, post_user.deviceToken, post._id);
-    }
   } catch (e) {
-    console.log(e);
+    console.log('UCN', e);
   }
 };
 
@@ -395,7 +408,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "postTitle postText postQuestion answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+            "postTitle postText postQuestion isHelpful needCount needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType"
           )
           .populate({
             path: "poll_query",
@@ -406,14 +419,22 @@ exports.retrieveAllUserPosts = async (req, res) => {
               path: 'post',
               select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
             }
-          });
+          })
+          .populate({
+            path: 'needMultiple',
+            select: 'username photoId profilePhoto'
+          })
+          .populate({
+            path: 'repostMultiple',
+            select: 'username photoId profilePhoto'
+          })
       } else {
         var post = await Post.find({ $and: [{ _id: { $in: user.userPosts } }] })
           .sort("-createdAt")
           .limit(limit)
           .skip(skip)
           .select(
-            "postTitle postText postQuestion answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+            "postTitle postText postQuestion isHelpful needCount authorOneLine needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
           )
           .populate({
             path: "poll_query",
@@ -424,7 +445,15 @@ exports.retrieveAllUserPosts = async (req, res) => {
               path: 'post',
               select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
             }
-          });
+          })
+          .populate({
+            path: 'needMultiple',
+            select: 'username photoId profilePhoto'
+          })
+          .populate({
+            path: 'repostMultiple',
+            select: 'username photoId profilePhoto'
+          })
       }
       const postCount = await Post.find({ _id: { $in: user.userPosts } });
       if (page * limit >= postCount.length) {
@@ -460,7 +489,7 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "postTitle postText postDescription endUserSave tagPeople isUser isInstitute createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postQuestion answerCount answerUpVoteCount trend_category postType"
+            "postTitle postText postDescription isHelpful authorOneLine needCount needUser isNeed endUserSave tagPeople isUser isInstitute createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postQuestion answerCount answerUpVoteCount trend_category postType"
           )
           .populate({
             path: "poll_query",
@@ -471,14 +500,22 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
               path: 'post',
               select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
             }
-          });
+          })
+          .populate({
+            path: 'needMultiple',
+            select: 'username photoId profilePhoto'
+          })
+          .populate({
+            path: 'repostMultiple',
+            select: 'username photoId profilePhoto'
+          })
       } else {
         var post = await Post.find({ author: id })
           .sort("-createdAt")
           .limit(limit)
           .skip(skip)
           .select(
-            "postTitle postText postDescription endUserSave tagPeople isUser isInstitute createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postQuestion answerCount answerUpVoteCount trend_category postType"
+            "postTitle postText postDescription isHelpful authorOneLine needCount needUser isNeed endUserSave tagPeople isUser isInstitute createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postQuestion answerCount answerUpVoteCount trend_category postType"
           )
           .populate({
             path: "poll_query",
@@ -489,7 +526,15 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
               path: 'post',
               select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
             }
-          });
+          })
+          .populate({
+            path: 'needMultiple',
+            select: 'username photoId profilePhoto'
+          })
+          .populate({
+            path: 'repostMultiple',
+            select: 'username photoId profilePhoto'
+          })
       }
       const postCount = await Post.find({ _id: { $in: user.userPosts } });
       if (page * limit >= postCount.length) {
@@ -523,7 +568,7 @@ exports.getComment = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "commentDescription createdAt allLikeCount allChildCommentCount author authorName authorUserName authorPhotoId authorProfilePhoto"
+        "commentDescription createdAt allLikeCount allChildCommentCount authorOneLine author authorName authorUserName authorPhotoId authorProfilePhoto"
       );
     // .populate({
     //   path: "users",
@@ -544,7 +589,7 @@ exports.getCommentChild = async (req, res) => {
       .populate({
         path: "childComment",
         select:
-          "repliedComment createdAt author authorName authorUserName authorPhotoId authorProfilePhoto",
+          "repliedComment createdAt author authorName authorUserName authorOneLine authorPhotoId authorProfilePhoto",
       })
       .select("allChildCommentCount allLikeCount")
       .lean()
@@ -575,6 +620,7 @@ exports.postCommentChild = async (req, res) => {
         authorUserName: users.username,
         authorPhotoId: users.photoId,
         authorProfilePhoto: users.profilePhoto,
+        authorOneLine: users.one_line_about,
         parentComment: pcid,
       });
       const parentComment = await Comment.findById(pcid);
@@ -593,6 +639,7 @@ exports.postCommentChild = async (req, res) => {
         authorUserName: user.username,
         authorPhotoId: user.photoId,
         authorProfilePhoto: user.profilePhoto,
+        authorOneLine: user.one_line_about,
       };
       res.status(201).send({
         childReplyComment,
@@ -678,10 +725,10 @@ exports.circleList = async (req, res) => {
   try {
     const getPage = req.query.page ? parseInt(req.query.page) : 1;
     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
-    const itemPerPageUser = itemPerPage ? itemPerPage - 5 : 5;
-    const itemPerPageInstitute = itemPerPage ? itemPerPage - 5 : 5;
-    const dropItemUser = (getPage - 1) * itemPerPageUser;
-    const dropItemInstitute = (getPage - 1) * itemPerPageInstitute;
+    // const itemPerPageUser = itemPerPage ? itemPerPage - 5 : 5;
+    // const itemPerPageInstitute = itemPerPage ? itemPerPage - 5 : 5;
+    const dropItemUser = (getPage - 1) * itemPerPage;
+    // const dropItemInstitute = (getPage - 1) * itemPerPageInstitute;
     const tagUser = await User.find({
       $or: [
         { userLegalName: { $regex: req.query.search, $options: "i" } },
@@ -693,31 +740,33 @@ exports.circleList = async (req, res) => {
         },
       ],
     })
-      .select("username userLegalName profilePhoto photoId userCircle tag_privacy")
-      .limit(itemPerPageUser)
+      .select(
+        "username userLegalName profilePhoto photoId userCircle tag_privacy"
+      )
+      .limit(itemPerPage)
       .skip(dropItemUser)
       .lean()
       .exec();
-    const tagInstitute = await InstituteAdmin.find({
-      $or: [
-        { insName: { $regex: req.query.search, $options: "i" } },
-        { name: { $regex: req.query.search, $options: "i" } },
-      ],
-      $and: [
-        {
-          tag_privacy: { $in: ["Every one", "Joined Users"] },
-        },
-      ],
-    })
-      .select("insName insProfilePhoto photoId name joinedUserList tag_privacy")
-      .limit(itemPerPageInstitute)
-      .skip(dropItemInstitute)
-      .lean()
-      .exec();
+    // const tagInstitute = await InstituteAdmin.find({
+    //   $or: [
+    //     { insName: { $regex: req.query.search, $options: "i" } },
+    //     { name: { $regex: req.query.search, $options: "i" } },
+    //   ],
+    //   $and: [
+    //     {
+    //       tag_privacy: { $in: ["Every one", "Joined Users"] },
+    //     },
+    //   ],
+    // })
+    // .select("insName insProfilePhoto photoId name joinedUserList tag_privacy")
+    // .limit(itemPerPageInstitute)
+    // .skip(dropItemInstitute)
+    // .lean()
+    // .exec();
     // console.log(tagUser);
-    const tagInstituteList = suffle_search_list(tagUser, tagInstitute);
+    // const tagInstituteList = suffle_search_list(tagUser, tagInstitute);
     res.status(200).send({
-      tagUserList: tagInstituteList,
+      tagUserList: tagUser,
       // tagUser,
       // tagInstitute,
     });
@@ -780,7 +829,7 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "postTitle postText postQuestion answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+          "postTitle postText postQuestion isHelpful needCount authorOneLine needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
         )
         .populate({
           path: "poll_query",
@@ -791,7 +840,15 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
             path: 'post',
             select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
           }
-        });
+        })
+        .populate({
+          path: 'needMultiple',
+          select: 'username photoId profilePhoto'
+        })
+        .populate({
+          path: 'repostMultiple',
+          select: 'username photoId profilePhoto'
+        })
       const postCount = await Post.find({ _id: { $in: user.user_saved_post } });
       if (page * limit >= postCount.length) {
       } else {
@@ -829,7 +886,7 @@ exports.retrieveAllUserTagPosts = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "postTitle postText postQuestion answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+          "postTitle postText postQuestion isHelpful needCount authorOneLine needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
         )
         .populate({
           path: "poll_query",
@@ -840,7 +897,15 @@ exports.retrieveAllUserTagPosts = async (req, res) => {
             path: 'post',
             select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
           }
-        });
+        })
+        .populate({
+          path: 'needMultiple',
+          select: 'username photoId profilePhoto'
+        })
+        .populate({
+          path: 'repostMultiple',
+          select: 'username photoId profilePhoto'
+        })
       const postCount = await Post.find({ _id: { $in: user.tag_post } });
       if (page * limit >= postCount.length) {
       } else {
@@ -874,14 +939,24 @@ exports.retrieveAllUserReposts = async (req, res) => {
     .sort("-createdAt")
     .limit(limit)
     .skip(skip)
-    .select("postTitle postText postQuestion answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType")
+    .select("postTitle postText postQuestion isHelpful needCount authorOneLine needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType")
+
     .populate({
       path: "rePostAnswer",
       populate: {
         path: 'post',
         select: 'postQuestion author authorUserName authorPhotoId authorProfilePhoto isUser'
       }
-    });
+    })
+    .populate({
+      path: 'needMultiple',
+      select: 'username photoId profilePhoto'
+    })
+    .populate({
+      path: 'repostMultiple',
+      select: 'username photoId profilePhoto'
+    })
+
     if(repost && repost.length >=1){
       res.status(200).send({ message: "Success", repost, count: repost.length });
     }

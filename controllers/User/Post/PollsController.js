@@ -19,12 +19,13 @@ exports.retrievePollQuestionText = async (req, res) => {
       }
       post.imageId = "1";
       user.userPosts.push(post._id);
-      user.pollCount += 1
+      user.poll_Count += 1
       post.author = user._id;
       post.authorName = user.userLegalName
       post.authorUserName = user.username
       post.authorPhotoId = user.photoId
       post.authorProfilePhoto = user.profilePhoto
+      post.authorOneLine = user.one_line_about;
       post.isUser = 'user'
       post.postType = "Poll"
       post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`
@@ -55,8 +56,8 @@ exports.pollLike = async (req, res) => {
   try {
     const { pid } = req.params;
     const { answerId } = req.body
-    const user_session = req.tokenData && req.tokenData.userId ? req.tokenData.userId : ''
-    const post = await Post.findById({ _id: pid });
+    var user_session = req.tokenData && req.tokenData.userId ? req.tokenData.userId : ''
+    var post = await Post.findById({ _id: pid });
     const poll = await Poll.findById({ _id: `${post.poll_query}`})
     if(user_session){
       if(poll.answeredUser.length >=1 && poll.answeredUser.includes(String(user_session))){
@@ -81,6 +82,33 @@ exports.pollLike = async (req, res) => {
           await poll.save()
         }
         res.status(200).send({ message: "Added To Poll", voteAtPoll: poll.total_votes });
+        //
+        if(post?.postType === 'Poll'){
+          const poll_user = await User.findById({_id: `${user_session}`})
+          .populate('userFollowers')
+          .populate('userCircle')
+          if(`${post.author}` === `${poll_user._id}`){
+  
+          }
+          else{
+            poll_user.userFollowers.forEach(async (ele) => {
+              if(ele?.userPosts?.includes(post._id)){}
+              else{
+                ele.userPosts.push(post._id)
+                await ele.save()
+              }
+            })
+  
+            poll_user.userCircle.forEach(async (ele) => {
+              if(ele?.userPosts?.includes(post._id)){}
+              else{
+                ele.userPosts.push(post._id)
+                await ele.save()
+              }
+            })
+          }
+        }
+        //
       }
     }
     else {

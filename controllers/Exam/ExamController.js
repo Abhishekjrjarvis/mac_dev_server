@@ -11,7 +11,7 @@ const SubjectMarks = require("../../models/Marks/SubjectMarks");
 const Behaviour = require("../../models/Behaviour");
 const FinalReport = require("../../models/Marks/FinalReport");
 const StudentNotification = require("../../models/Marks/StudentNotification");
-const invokeFirebaseNotification = require("../../Firebase/firebase");
+const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 
 exports.getClassMaster = async (req, res) => {
   try {
@@ -175,17 +175,25 @@ exports.createExam = async (req, res) => {
               const notify = new StudentNotification({});
               notify.notifyContent = `New ${exam.examName} Exam is created for ${sub.subjectName} , check your members tab`;
               notify.notifySender = department._id;
-              notify.notifyReceiever = student._id;
+              notify.notifyReceiever = user._id;
+              notify.examId = exam._id
+              notify.notifyType = 'Student'
+              notify.notifyPublisher = student._id
+              user.activity_tab.push(notify._id);
               student.notification.push(notify._id);
               notify.notifyByDepartPhoto = department._id;
-              invokeFirebaseNotification(
-                "Student Member Activity",
+              //
+              invokeMemberTabNotification(
+                "Student Activity",
                 notify,
-                student.studentFirstName,
+                'New Exam',
                 user._id,
-                user.deviceToken
+                user.deviceToken,
+                'Student',
+                notify
               );
-              await Promise.all([student.save(), notify.save()]);
+              //
+              await Promise.all([student.save(), notify.save(), user.save()]);
             }
             if (subject?.exams?.includes(exam._id)) {
             } else {

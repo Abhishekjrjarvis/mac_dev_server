@@ -10,6 +10,7 @@ const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require('../../../Firebase/firebase')
+const InstituteAdmin = require('../../../models/InstituteAdmin')
 
 exports.postQuestionText = async (req, res) => {
   try {
@@ -34,6 +35,7 @@ exports.postQuestionText = async (req, res) => {
     post.authorUserName = user.username
     post.authorPhotoId = user.photoId
     post.authorProfilePhoto = user.profilePhoto
+    post.authorOneLine = user.one_line_about
     post.isUser = 'user'
     post.postType = 'Question'
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`
@@ -184,9 +186,10 @@ exports.postQuestionAnswer = async (req, res) => {
     const { id } = req.params;
     const { post_type } = req.query
     var post = await Post.findById({ _id: id });
-    if(post && post.isUser === 'User'){
-    var post_user = await User.findById({_id: `${post.author}`})
-    }
+    //
+    var post_user = await User.findOne({_id: `${post.author}`})
+    var post_ins = await InstituteAdmin.findOne({_id: `${post.author}`})
+    //
     if(post_type === 'Only Answer'){
       const answers = new Answer({ ...req.body });
       answers.answerImageId = "1"
@@ -208,6 +211,7 @@ exports.postQuestionAnswer = async (req, res) => {
         answers.authorUserName = user.username
         answers.authorPhotoId = user.photoId
         answers.authorProfilePhoto = user.profilePhoto
+        answers.authorOneLine = user.one_line_about
       } else {
         res.status(401).send({ message: 'Unauthorized'});
       }
@@ -216,25 +220,36 @@ exports.postQuestionAnswer = async (req, res) => {
       post.answerCount += 1;
       answers.post = post;
       user.answerQuestionCount += 1
+      await Promise.all([post.save(), answers.save(), user.save() ]);
+      //
+      var notify = new Notification({})
+      notify.notifyContent = `${answers.authorName} answered your question`;
+      notify.notifySender = answers.author;
+      notify.notifyByPhoto = answers.author;
       if(post_user){
-        var notify = new Notification({})
-        notify.notifyContent = `${answers.authorUserName} have added answers on ${post.authorUserName} questions`;
-        notify.notifySender = answers.author;
-        notify.notifyReceiever = post.author;
+        notify.notifyReceiever = post_user._id;
         post_user.uNotify.push(notify._id);
         notify.user = post_user._id;
-        notify.notifyByPhoto = user._id;
-        invokeFirebaseNotification("Answer", notify, 'New Answer', post_user._id, post_user.deviceToken, post._id);
         await Promise.all([ post_user.save(), notify.save() ])
+        if(post_user?.user_answer_notify === 'Enable'){
+          invokeFirebaseNotification("Answer", notify, 'New Answer', answers.author, post_user.deviceToken, post._id);
+        }
       }
-      await Promise.all([post.save(), answers.save(), user.save() ]);
+      else if(post_ins){
+        notify.notifyReceiever = post_ins._id;
+        post_ins.iNotify.push(notify._id);
+        notify.institute = post_ins._id
+        await Promise.all([ post_ins.save(), notify.save() ])
+        invokeFirebaseNotification("Answer", notify, 'New Answer', answers.author, post_ins.deviceToken, post._id);
+      }
       res.status(201).send({ message: "answer created", answers });
+      //
     }
     else{
       res.status(200).send({ message: 'Access Denied By Post Type'})
     }
   } catch(e) {
-    console.log(e)
+    console.log('AN', e)
   }
 };
 
@@ -251,7 +266,7 @@ exports.getQuestionAnswer = async (req, res) => {
       .sort("-upVoteCount")
       .limit(limit)
       .skip(skip)
-      .select("answerContent createdAt answerImageId answerImage upVote upVoteCount downVote downVoteCount isMentor answerReplyCount author answerSave authorName authorUserName authorPhotoId authorProfilePhoto")
+      .select("answerContent createdAt answerImageId answerImage upVote upVoteCount authorOneLine downVote downVoteCount isMentor answerReplyCount author answerSave authorName authorUserName authorPhotoId authorProfilePhoto")
       .populate({
         path: 'post',
         select: 'postQuestion author authorProfilePhoto authorPhotoId authorUserName isUser'
@@ -273,7 +288,7 @@ exports.getAnswerReply = async (req, res) => {
     .sort("-createdAt")
     .limit(limit)
     .skip(skip)
-    .select("answerReplyContent createdAt author authorName authorUserName authorPhotoId authorProfilePhoto")
+    .select("answerReplyContent createdAt author authorName authorUserName authorOneLine authorPhotoId authorProfilePhoto")
     .populate({
         path: 'parentAnswer',
         select: 'id'
@@ -295,6 +310,7 @@ exports.postAnswerReply = async (req, res) => {
         authorUserName: users.username,
         authorPhotoId: users.photoId,
         authorProfilePhoto: users.profilePhoto,
+        authorOneLine: users.one_line_about,
         parentAnswer: rid,
       });
       const p_answer = await Answer.findById(rid);
@@ -311,6 +327,7 @@ exports.postAnswerReply = async (req, res) => {
         authorUserName: user.username,
         authorPhotoId: user.photoId,
         authorProfilePhoto: user.profilePhoto,
+        authorOneLine: user.one_line_about
       };
       res.status(201).send({
         replyAnswer,
@@ -369,9 +386,10 @@ exports.questionAnswerSave = async (req, res) => {
       const { id } = req.params;
       const { post_type } = req.query
       var post = await Post.findById({ _id: id });
-      if(post && post.isUser === 'isUser'){
-        var post_user = await User.findById({_id: `${post.author}`})
-      }
+      //
+      var post_user = await User.findOne({_id: `${post.author}`})
+      var post_ins = await InstituteAdmin.findOne({_id: `${post.author}`})
+      //
       if(post_type === 'Repost'){
         var answers = new Answer({ ...req.body });
         answers.answerImageId = "1"
@@ -395,6 +413,7 @@ exports.questionAnswerSave = async (req, res) => {
           answers.authorUserName = user.username
           answers.authorPhotoId = user.photoId
           answers.authorProfilePhoto = user.profilePhoto
+          answers.authorOneLine = user.one_line_about
         }
         const rePost = new Post({})
         rePost.author = user._id;
@@ -402,6 +421,7 @@ exports.questionAnswerSave = async (req, res) => {
         rePost.authorUserName = user.username
         rePost.authorPhotoId = user.photoId
         rePost.authorProfilePhoto = user.profilePhoto
+        rePost.authorOneLine = user.one_line_about
         user.answered_query.push(answers._id)
         post.answer.push(answers._id);
         post.answerCount += 1;
@@ -413,18 +433,27 @@ exports.questionAnswerSave = async (req, res) => {
         rePost.postType = 'Repost'
         rePost.rePostAnswer = answers
         rePost.post_url = `https://qviple.com/q/${rePost.authorUserName}/profile`
-        if(post_user){
-          var reNotify = new Notification({})
-          reNotify.notifyContent = `${answers.authorUserName} have added answers on ${post.authorUserName} questions`;
-          reNotify.notifySender = answers.author;
-          reNotify.notifyReceiever = post.author;
-          post_user.uNotify.push(reNotify._id);
-          reNotify.user = post_user._id;
-          reNotify.notifyByPhoto = user._id
-          invokeFirebaseNotification("Answer", reNotify, 'New Answer', post_user._id, post_user.deviceToken, post._id);
-          await Promise.all([ reNotify.save(), post_user.save() ])
-        }
         await Promise.all([rePost.save(), answers.save(), user.save(), post.save() ]);
+        //
+        var notify = new Notification({})
+        notify.notifyContent = `${answers.authorName} answered your question with repost.`;
+        notify.notifySender = answers.author;
+        notify.notifyByPhoto = answers.author;
+        if(post_user){
+          notify.notifyReceiever = post_user._id;
+          post_user.uNotify.push(notify._id);
+          notify.user = post_user._id;
+          await Promise.all([ post_user.save(), notify.save() ])
+          invokeFirebaseNotification("Answer", notify, 'New Repost Answer', answers.author, post_user.deviceToken, post._id);
+        }
+        else if(post_ins){
+          notify.notifyReceiever = post_ins._id;
+          post_ins.iNotify.push(notify._id);
+          notify.institute = post_ins._id
+          await Promise.all([ post_ins.save(), notify.save() ])
+          invokeFirebaseNotification("Answer", notify, 'New Repost Answer', answers.author, post_ins.deviceToken, post._id);
+        }
+        //
         res.status(200).send({ message: 'RePosted Answer', rePost})
         if(user.userFollowers.length >= 1){
           user.userFollowers.forEach(async (ele) => {
@@ -443,6 +472,154 @@ exports.questionAnswerSave = async (req, res) => {
         res.status(203).send({ message: 'Access Denied By Post Type'})
       }
     } catch(e) {
+      console.log('REAN', e)
+    }
+  };
+
+
+
+  exports.rePostAnswerLike = async (req, res) => {
+    try {
+      const { pid, aid } = req.params;
+      const answer = await Answer.findById({ _id: aid });
+      const rePost = await Post.findById({_id: pid})
+      const question = await Post.findById({_id: `${answer.post}`})
+      const user_session = req.tokenData && req.tokenData.userId ? req.tokenData.userId : ''
+      if (user_session) {
+        //
+        if (rePost.repostMultiple.length >= 1 && rePost.repostMultiple.includes(String(user_session))){
+          rePost.repostMultiple.pull(user_session)
+        }
+        else{
+          rePost.repostMultiple.push(user_session)
+        }
+        //
+        if (
+          answer.upVote.length >= 1 &&
+          answer.upVote.includes(String(user_session))
+        ) {
+          answer.upVote.pull(user_session);
+          if (answer.upVoteCount >= 1) {
+            answer.upVoteCount -= 1;
+            question.answerUpVoteCount -= 1
+          }
+          await Promise.all([ answer.save(), question.save()])
+          res
+            .status(200)
+            .send({ message: "Removed from Upvote 👎", upVoteCount: answer.upVoteCount, });
+        } else {
+          if (
+            answer.downVote.length >= 1 &&
+            answer.downVote.includes(String(user_session))
+          ) {
+            answer.downVote.pull(user_session);
+            if (answer.downVoteCount >= 1) {
+              answer.downVoteCount -= 1;
+            }
+          }
+          answer.upVote.push(user_session);
+          answer.upVoteCount += 1;
+          question.answerUpVoteCount += 1
+          rePost.isHelpful = 'Yes'
+          await Promise.all([ answer.save(), question.save(), rePost.save() ])
+          res
+            .status(200)
+            .send({ message: "Added To Upvote 👍", upVoteCount: answer.upVoteCount, downVoteCount: answer.downVoteCount });
+          
+          if(rePost?.postType === 'Repost'){
+            const upVoteUser = await User.findById({_id: `${user_session}`})
+            .populate('userFollowers')
+            .populate('userCircle')
+            if(`${rePost.author}` === `${upVoteUser._id}`){
+
+            }
+            else{
+              upVoteUser.userFollowers.forEach(async (ele) => {
+                if(ele?.userPosts?.includes(rePost._id)){}
+                else{
+                  ele.userPosts.push(rePost._id)
+                  await ele.save()
+                }
+              })
+
+              upVoteUser.userCircle.forEach(async (ele) => {
+                if(ele?.userPosts?.includes(rePost._id)){}
+                else{
+                  ele.userPosts.push(rePost._id)
+                  await ele.save()
+                }
+              })
+            }
+          }
+        }
+      } else {
+        res.status(401).send();
+      }
+    } catch(e) {
       console.log(e)
     }
   };
+
+
+exports.retrieveHelpQuestion = async(req, res) =>{
+  try{
+    const { pid } = req.params
+    var user_session = req.tokenData && req.tokenData.userId ? req.tokenData.userId : ''
+    const post_ques = await Post.findById({_id: pid})
+    const user = await User.findById({_id: `${user_session}`})
+    if(user){
+      //
+      if (post_ques.needMultiple.length >= 1 && post_ques.needMultiple.includes(String(user._id))){
+        post_ques.needMultiple.pull(user._id)
+      }
+      else{
+        post_ques.needMultiple.push(user._id)
+      }
+      //
+      if (post_ques.needUser.length >= 1 && post_ques.needUser.includes(String(user._id))){
+        post_ques.needUser.pull(user._id)
+        if(post_ques?.needCount > 0){
+          post_ques.needCount -= 1
+        }
+        await post_ques.save()
+        res.status(200).send({ message: 'Removed from isNeed', need: post_ques.needCount })
+      }
+      else{
+        post_ques.needUser.push(user._id)
+        post_ques.needCount += 1
+        post_ques.isNeed = 'Yes'
+        await post_ques.save()
+        res.status(200).send({ message: 'Added to isNeed', need: post_ques.needCount })
+
+      if(post_ques?.postType === 'Question'){
+        const isNeedUser = await User.findById({_id: `${user_session}`})
+        .populate('userFollowers')
+        .populate('userCircle')
+        if(`${post_ques.author}` === `${isNeedUser._id}`){
+
+        }
+        else{
+          isNeedUser.userFollowers.forEach(async (ele) => {
+            if(ele?.userPosts?.includes(post_ques._id)){}
+            else{
+              ele.userPosts.push(post_ques._id)
+              await ele.save()
+            }
+          })
+
+          isNeedUser.userCircle.forEach(async (ele) => {
+            if(ele?.userPosts?.includes(post_ques._id)){}
+            else{
+              ele.userPosts.push(post_ques._id)
+              await ele.save()
+            }
+          })
+        }
+      }
+      }
+    }
+  }
+  catch{
+
+  }
+}

@@ -7,6 +7,7 @@ const notificationSchema = new mongoose.Schema({
   notifyReceiever: { type: String, required: true },
   notifyReadStatus: { type: String, default: "Unread" },
   notifyVisibility: { type: String, default: "Unhide" },
+  notifyViewStatus: { type: String, default: 'Not View'},
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",

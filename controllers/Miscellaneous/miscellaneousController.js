@@ -59,7 +59,7 @@ exports.getAllUser = async(req, res) =>{
         const limit = req.query.limit ? parseInt(req.query.limit) : 10;
         const skip = (page - 1) * limit;
         const user = await User.find({})
-        .sort("-created_At")
+        .sort("-created_at")
         .limit(limit)
         .skip(skip)
         .select('userLegalName username photoId profilePhoto userStatus')

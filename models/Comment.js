@@ -28,6 +28,9 @@ const commentSchema = new mongoose.Schema({
   authorProfilePhoto: {
     type: String
   },
+  authorOneLine: {
+    type: String
+  },
   // modelId: {
   //   type: mongoose.Schema.Types.ObjectId,
   //   required: true,

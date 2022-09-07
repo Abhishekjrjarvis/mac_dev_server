@@ -9,7 +9,11 @@ const InsAnnouncement = require("../../models/InsAnnouncement");
 const bcrypt = require("bcryptjs");
 const Answer = require("../../models/Question/Answer");
 const Post = require("../../models/Post");
+const Comment = require('../../models/Comment')
+const ReplyComment = require('../../models/ReplyComment/ReplyComment')
+const AnswerReply = require('../../models/Question/AnswerReply')
 const Chat = require("../../models/Chat/Chat");
+const StudentNotification = require('../../models/Marks/StudentNotification')
 
 const {
   getFileStream,
@@ -28,7 +32,7 @@ exports.retrieveProfileData = async (req, res) => {
     var totalUpVote = 0
     const user = await User.findById({ _id: id })
       .select(
-        "userLegalName photoId questionCount answerQuestionCount recentChat profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
+        "userLegalName photoId questionCount one_line_about recoveryMail answerQuestionCount recentChat profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
       )
       const answers = await Answer.find({ author: id })
       for(let up of answers){
@@ -202,7 +206,7 @@ exports.updateUserFollowIns = async (req, res) => {
       res.status(200).send({ message: "You Already Following This Institute" });
     } else {
       if (sinstitute.status === "Approved") {
-        const notify = await new Notification({});
+        const notify = new Notification({});
         sinstitute.userFollowersList.push(user_session);
         user.userInstituteFollowing.push(req.body.InsfollowId);
         user.followingUICount += 1;
@@ -213,16 +217,11 @@ exports.updateUserFollowIns = async (req, res) => {
         sinstitute.iNotify.push(notify._id);
         notify.institute = sinstitute._id;
         notify.notifyByPhoto = user._id;
-        invokeFirebaseNotification(
-          "Followers",
-          notify,
-          user.userLegalName,
-          user._id,
-          user.deviceToken
-        );
-        await user.save();
-        await sinstitute.save();
-        await notify.save();
+        await Promise.all([
+          user.save(),
+          sinstitute.save(),
+          notify.save()
+        ])
         res.status(200).send({ message: "Following This Institute" });
         if (sinstitute.isUniversal === "Not Assigned") {
           const post = await Post.find({
@@ -240,14 +239,16 @@ exports.updateUserFollowIns = async (req, res) => {
           .send({ message: "Institute is Not Approved, you will not follow" });
       }
     }
-  } catch (e) {}
+  } catch (e) {
+    console.log('UFOI', e)
+  }
 };
 
 exports.removeUserFollowIns = async (req, res) => {
   try {
     var user_session = req.tokenData && req.tokenData.userId;
-    const user = await User.findById({ _id: user_session });
-    const sinstitute = await InstituteAdmin.findById({
+    var user = await User.findById({ _id: user_session });
+    var sinstitute = await InstituteAdmin.findById({
       _id: req.body.InsfollowId,
     });
 
@@ -257,9 +258,13 @@ exports.removeUserFollowIns = async (req, res) => {
         sinstitute.userFollowersList.includes(`${user._id}`)
       ) {
         user.userInstituteFollowing.pull(sinstitute._id);
-        user.followingUICount -= 1;
+        if(user.followingUICount > 0){
+          user.followingUICount -= 1;
+        }
         sinstitute.userFollowersList.pull(user._id);
-        sinstitute.followersCount -= 1;
+        if(sinstitute.followersCount > 0){
+          sinstitute.followersCount -= 1;
+        }
         await user.save();
         await sinstitute.save();
         res.status(200).send({ message: "Unfollow Institute" });
@@ -284,7 +289,7 @@ exports.removeUserFollowIns = async (req, res) => {
         .send({ message: "Institute is Not Approved, you will not follow" });
     }
   } catch (e) {
-    console.log(`Error`, e);
+    console.log(`UUFOI`, e);
   }
 };
 
@@ -297,7 +302,7 @@ exports.updateUserFollow = async (req, res) => {
     if (user.userFollowing.includes(req.body.userFollowId)) {
       res.status(200).send({ message: "You Already Following This User" });
     } else {
-      const notify = await new Notification({});
+      const notify = new Notification({});
       suser.userFollowers.push(user_session);
       user.userFollowing.push(req.body.userFollowId);
       user.followingUICount += 1;
@@ -308,41 +313,50 @@ exports.updateUserFollow = async (req, res) => {
       suser.uNotify.push(notify);
       notify.user = suser;
       notify.notifyByPhoto = user;
-
-      invokeFirebaseNotification(
-        "Followers",
-        notify,
-        user.userLegalName,
-        user._id,
-        user.deviceToken
-      );
-
-      await user.save();
-      await suser.save();
-      await notify.save();
+      await Promise.all([
+        user.save(),
+        suser.save(),
+        notify.save()
+      ])
+      if(suser?.user_follower_notify === 'Enable'){
+        invokeFirebaseNotification("Followers", notify, suser.userLegalName, suser._id, suser.deviceToken);
+      }
       res.status(200).send({ message: " Following This User" });
       const post = await Post.find({
         $and: [{ author: suser._id, postStatus: "Anyone" }],
       });
       post.forEach(async (ele) => {
-        user.userPosts.push(ele);
+        //
+        if(user?.userPosts?.includes(ele)){
+
+        }
+        else{
+          user.userPosts.push(ele);
+        }
+        //
       });
       await user.save();
     }
-  } catch (e) {}
+  } catch (e) {
+    console.log('UFOU', e)
+  }
 };
 
 exports.updateUserUnFollow = async (req, res) => {
   try {
     var user_session = req.tokenData && req.tokenData.userId;
-    const user = await User.findById({ _id: user_session });
-    const suser = await User.findById({ _id: req.body.userFollowId });
+    var user = await User.findById({ _id: user_session });
+    var suser = await User.findById({ _id: req.body.userFollowId });
 
     if (user.userFollowing.includes(req.body.userFollowId)) {
       suser.userFollowers.pull(user_session);
       user.userFollowing.pull(req.body.userFollowId);
-      user.followingUICount -= 1;
-      suser.followerCount -= 1;
+      if(user.followingUICount > 0){
+        user.followingUICount -= 1;
+      }
+      if(suser.followerCount > 0){
+        suser.followerCount -= 1;
+      }
       await user.save();
       await suser.save();
       res.status(200).send({ message: " UnFollowing This User" });
@@ -350,7 +364,14 @@ exports.updateUserUnFollow = async (req, res) => {
         $and: [{ author: suser._id, postStatus: "Anyone" }],
       });
       post.forEach(async (ele) => {
-        user.userPosts.pull(ele);
+        //
+        if(user?.userPosts?.includes(ele)){
+          user.userPosts.pull(ele);
+        }
+        else{
+
+        }
+        //
       });
       await user.save();
     } else {
@@ -359,15 +380,15 @@ exports.updateUserUnFollow = async (req, res) => {
         .send({ message: "You Are no Longer Following This User" });
     }
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(`UUFOU`, e);
   }
 };
 
 exports.updateUserCircle = async (req, res) => {
   try {
     var user_session = req.tokenData && req.tokenData.userId;
-    const user = await User.findById({ _id: user_session });
-    const suser = await User.findById({ _id: req.body.followId });
+    var user = await User.findById({ _id: user_session });
+    var suser = await User.findById({ _id: req.body.followId });
 
     if (
       user.userCircle.includes(req.body.followId) &&
@@ -376,11 +397,15 @@ exports.updateUserCircle = async (req, res) => {
       res.status(200).send({ message: "You are Already In a Circle" });
     } else {
       try {
-        const notify = await new Notification({});
+        const notify = new Notification({});
         suser.userFollowing.pull(user_session);
-        suser.followingUICount -= 1;
+        if(suser.followingUICount > 0){
+          suser.followingUICount -= 1;
+        }
         user.userFollowers.pull(req.body.followId);
-        user.followerCount -= 1;
+        if(user.followerCount > 0){
+          user.followerCount -= 1;
+        }
         suser.userCircle.push(user_session);
         user.userCircle.push(req.body.followId);
         suser.circleCount += 1;
@@ -391,71 +416,105 @@ exports.updateUserCircle = async (req, res) => {
         suser.uNotify.push(notify);
         notify.user = suser;
         notify.notifyByPhoto = user;
-        invokeFirebaseNotification(
-          "Circle",
-          notify,
-          user.userLegalName,
-          user._id,
-          user.deviceToken
-        );
-
-        await user.save();
-        await suser.save();
-        await notify.save();
+        await Promise.all([ user.save(), suser.save(), notify.save() ])
+        if(suser?.user_follower_notify === 'Enable'){
+          invokeFirebaseNotification("Circle", notify, 'Circled', suser._id, suser.deviceToken);
+        }
         res.status(200).send({ message: "😀 Added to circle" });
         const post = await Post.find({
-          $and: [{ author: suser._id, postStatus: "Private" }],
+          $and: [{ author: suser._id }],
         });
         post.forEach(async (ele) => {
-          user.userPosts.push(ele);
+          if(user && user.userPosts?.includes(`${ele}`)){
+          }
+          else{
+            user.userPosts.push(ele);
+          }
         });
         await user.save();
         const posts = await Post.find({
-          $and: [{ author: user._id, postStatus: "Private" }],
+          $and: [{ author: user._id }],
         });
         posts.forEach(async (ele) => {
-          suser.userPosts.push(ele);
+          if(suser && suser.userPosts?.includes(`${ele}`)){
+          }
+          else{
+            suser.userPosts.push(ele);
+          }
         });
         await suser.save();
       } catch {
         res.status(500).send({ error: "error" });
       }
     }
-  } catch (e) {}
-};
-
-exports.removeUserCircle = async (req, res) => {
-  try {
-    var user_session = req.tokenData && req.tokenData.userId;
-    const user = await User.findById({ _id: user_session });
-    const suser = await User.findById({ _id: req.body.followId });
-
-    if (
-      user.userCircle.includes(req.body.followId) &&
-      suser.userCircle.includes(user_session)
-    ) {
-      try {
-        user.userCircle.pull(req.body.followId);
-        suser.userCircle.pull(user_session);
-        suser.circleCount -= 1;
-        user.circleCount -= 1;
-        user.userFollowers.push(req.body.followId);
-        suser.userFollowing.push(user_session);
-        user.followerCount += 1;
-        suser.followingUICount += 1;
-        await user.save();
-        await suser.save();
-        res.status(200).send({ message: "Uncircled" });
-      } catch {
-        res.status(500).send({ error: "error" });
-      }
-    } else {
-      res.status(200).send({ message: "You are Not In a Circle" });
-    }
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log('UCU', e)
   }
 };
+
+// exports.removeUserCircle = async (req, res) => {
+//   console.log('Uncircled hit')
+//   try {
+//     var user_session = req.tokenData && req.tokenData.userId;
+//     var user = await User.findById({ _id: user_session });
+//     var suser = await User.findById({ _id: req.body.followId });
+
+//     if (
+//       user.userCircle.includes(req.body.followId) &&
+//       suser.userCircle.includes(user_session)
+//     ) {
+//       try {
+//         console.log('INC')
+//         user.userCircle.pull(req.body.followId);
+//         suser.userCircle.pull(user_session);
+//         if(suser.circleCount > 0){
+//           suser.circleCount -= 1;
+//         }
+//         if(user.circleCount > 0){
+//           user.circleCount -= 1;
+//         }
+//         user.userFollowers.push(req.body.followId);
+//         suser.userFollowing.push(user_session);
+//         user.followerCount += 1;
+//         suser.followingUICount += 1;
+//         await user.save();
+//         await suser.save();
+//         res.status(200).send({ message: "Uncircled" });
+//         const post = await Post.find({
+//           $and: [{ author: suser._id }],
+//         });
+//         post.forEach(async (ele) => {
+//           if(user && user.userPosts?.includes(`${ele._id}`)){
+//             console.log('true')
+//             user.userPosts.pull(`${ele._id}`);
+//           }
+//           else{
+//           }
+//         });
+//         await user.save();
+//         const posts = await Post.find({
+//           $and: [{ author: user._id }],
+//         });
+//         posts.forEach(async (ele) => {
+//           if(suser && suser.userPosts?.includes(`${ele._id}`)){
+//             console.log('true')
+//             suser.userPosts.pull(`${ele._id}`);
+//           }
+//           else{
+//           }
+//         });
+//         await suser.save();
+//       } catch {
+//         res.status(500).send({ error: "error" });
+//       }
+//     } else {
+//       console.log('NOC')
+//       res.status(200).send({ message: "You are Not In a Circle" });
+//     }
+//   } catch (e) {
+//     console.log(`UUCU`, e);
+//   }
+// };
 
 exports.updateUserPhone = async (req, res) => {
   try {
@@ -476,6 +535,31 @@ exports.updateUserPersonal = async (req, res) => {
     const user = await User.findByIdAndUpdate(id, req.body);
     await user.save();
     res.status(200).send({ message: "Personal Info Updated" });
+      const post = await Post.find({ author: user._id });
+      post.forEach(async (ele) => {
+        ele.authorOneLine = user.one_line_about;
+        await ele.save();
+      });
+      const comment = await Comment.find({ author: user._id });
+      comment.forEach(async (com) => {
+        com.authorOneLine = user.one_line_about;
+        await com.save();
+      });
+      const replyComment = await ReplyComment.find({ author: user._id });
+      replyComment.forEach(async (reply) => {
+        reply.authorOneLine = user.one_line_about;
+        await reply.save();
+      });
+      const answers = await Answer.find({ author: user._id });
+      answers.forEach(async (ans) => {
+        ans.authorOneLine = user.one_line_about;
+        await ans.save();
+      });
+      const answerReply = await AnswerReply.find({ author: user._id });
+      answerReply.forEach(async (ansRep) => {
+        ansRep.authorOneLine = user.one_line_about;
+        await ansRep.save();
+      });
   } catch (e) {
     console.log(`Error`, e.message);
   }
@@ -521,10 +605,10 @@ exports.deactivateUserAccount = async (req, res) => {
       user.activeStatus = status;
       user.activeDate = ddate;
       await user.save();
-      res.clearCookie("SessionID", { path: "/" });
-      res
-        .status(200)
-        .send({ message: "Deactivated Account", status: user.activeStatus });
+      //
+      // res.clearCookie("SessionID", { path: "/" });
+      //
+      res.status(200).send({ message: "Deactivated Account", status: user.activeStatus });
     } else {
       res.status(404).send({ message: "Bad Request" });
     }
@@ -653,42 +737,158 @@ exports.getNotifications = async (req, res) => {
 
     res.status(200).send({ message: "Notification send", notify });
   } catch (e) {
-    console.log("Error", e.message);
+    console.log(e);
   }
 };
 
-exports.updateReadNotifications = async (Req, res) => {
+
+exports.getAllUserActivity = async (req, res) => {
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const id = req.params.id;
+    const skip = (page - 1) * limit;
+
+    const user = await User.findById({ _id: id }).populate({ path: "activity_tab" });
+
+    const notify = await StudentNotification.find({ _id: { $in: user.activity_tab } })
+      .populate({
+        path: "notifyByInsPhoto",
+        select: "photoId insProfilePhoto name insName",
+      })
+      .populate({
+        path: "notifyByStaffPhoto",
+        select:
+          "photoId staffProfilePhoto staffFirstName staffMiddleName staffLastName",
+      })
+      .populate({
+        path: "notifyByStudentPhoto",
+        select:
+          "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName",
+      })
+      .populate({
+        path: "notifyByDepartPhoto",
+        select: "photoId photo dName",
+      })
+      .populate({
+        path: "notifyByClassPhoto",
+        select: "photoId photo className",
+      })
+      .sort("-notifyTime")
+      .limit(limit)
+      .skip(skip);
+
+    res.status(200).send({ message: "All Activity", activity: notify });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
+
+exports.getAllTotalCount = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = await User.findById({ _id: id })
+    .select('_id')
+    .populate({ path: "activity_tab uNotify" });
+    var total = 0
+    const notify = await Notification.find({
+      $and: [{ _id: { $in: user.uNotify } }, { notifyViewStatus: 'Not View' }],
+    })
+    const activity = await StudentNotification.find({
+      $and: [{ _id: { $in: user.activity_tab } }, { notifyViewStatus: 'Not View' }],
+    })
+    total = total + notify?.length + activity?.length
+
+    res.status(200).send({ message: "Not Viewed Notification & Activity", count: total });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
+
+exports.retrieveMarkAllView = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = await User.findById({ _id: id })
+    .select('_id')
+    .populate({ path: "activity_tab uNotify" });
+    const notify = await Notification.find({
+      $and: [{ _id: { $in: user.uNotify } }, { notifyViewStatus: 'Not View' }],
+    })
+    const activity = await StudentNotification.find({
+      $and: [{ _id: { $in: user.activity_tab } }, { notifyViewStatus: 'Not View' }],
+    })
+    if(notify?.length >=1){
+      notify.forEach( async(ele) =>{
+        ele.notifyViewStatus = 'View'
+        await ele.save()
+      })
+    }
+    if(activity?.length >=1){
+      activity.forEach( async(ele) =>{
+        ele.notifyViewStatus = 'View'
+        await ele.save()
+      })
+    }
+
+    res.status(200).send({ message: "Mark All To Be Viewed" });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
+exports.updateReadNotifications = async (req, res) => {
   try {
     const { rid } = req.params;
-    const read = await Notification.findById({ _id: rid });
-    read.notifyReadStatus = "Read";
-    await read.save();
-    res.status(200).send({ message: "updated" });
+    const read = await Notification.findOne({ _id: rid });
+    const activity = await StudentNotification.findOne({_id: rid})
+    if(read){
+      read.notifyReadStatus = "Read";
+      await read.save();
+    }
+    else if(activity){
+      activity.notifyReadStatus = "Read";
+      await activity.save();
+    }
+    else{}
+    res.status(200).send({ message: "Mark As Read" });
   } catch (e) {
-    console.log("Error", e.message);
+    console.log(e);
   }
 };
 
 exports.getHideNotifications = async (req, res) => {
   try {
-    const { id, nid } = req.params;
-    const notify = await Notification.findById({ _id: nid });
-    notify.notifyVisibility = "hide";
-    await notify.save();
+    const { nid } = req.params;
+    const notify = await Notification.findOne({ _id: nid });
+    const activity = await StudentNotification.findOne({_id: nid})
+    if(notify){
+      notify.notifyVisibility = "hide";
+      await notify.save();
+    }
+    else if(activity){
+      activity.notifyVisibility = "hide";
+      await activity.save();
+    }
+    else{}
     res.status(200).send({ message: "Hide" });
   } catch (e) {
-    console.log("Error", e.message);
+    console.log(e);
   }
 };
 
 exports.getDeleteNotifications = async (req, res) => {
   try {
     const { id, nid } = req.params;
-    const user = await User.findByIdAndUpdate(id, { $pull: { uNotify: nid } });
-    const notify = await Notification.findByIdAndDelete({ _id: nid });
+    await User.findByIdAndUpdate(id, { $pull: { uNotify: nid } });
+    await Notification.findByIdAndDelete({ _id: nid });
     res.status(200).send({ message: "Deleted" });
   } catch (e) {
-    console.log("Error", e.message);
+    console.log(e);
   }
 };
 
@@ -697,7 +897,7 @@ exports.getPersonalSetting = async (req, res) => {
     const { id } = req.params;
     const user = await User.findById({ _id: id })
       .select(
-        "userLegalName userEmail userDateOfBirth userPhoneNumber userStatus userGender userAddress userBio username photoId profilePhoto userHobbies userEducation "
+        "userLegalName userEmail userDateOfBirth one_line_about userPhoneNumber userStatus userGender userAddress userBio username photoId profilePhoto userHobbies userEducation "
       )
       .populate({
         path: "InstituteReferals",
@@ -760,7 +960,7 @@ exports.getDashDataQuery = async (req, res) => {
     const { id } = req.params;
     const user = await User.findById({ _id: id })
       .select(
-        "userLegalName username ageRestrict photoId profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy"
+        "userLegalName username ageRestrict photoId one_line_about profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify"
       )
       if(user.userPosts && user.userPosts.length < 1){
         var post = []
@@ -1237,3 +1437,22 @@ exports.retrieveProfileDataUsername = async (req, res) => {
     console.log(e);
   }
 };
+
+
+exports.retrieveStaffSalaryHistory = async(req, res) =>{
+  try{
+    const { sid } = req.params
+    const staff = await Staff.findById({_id: sid})
+    .select('_id')
+    .populate({
+      path: 'salary_history',
+      populate: {
+        path: 'emp_pay'
+      }
+    })
+    res.status(200).send({ message: 'All Salary History ', salary: staff.salary_history})
+  }
+  catch(e){
+    console.log(e)
+  }
+}

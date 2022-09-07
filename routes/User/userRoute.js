@@ -54,7 +54,7 @@ router.patch("/unfollow/user", isLoggedIn, catchAsync(User.updateUserUnFollow));
 
 router.patch("/circle/user", isLoggedIn, catchAsync(User.updateUserCircle));
 
-router.patch("/uncircle/user", isLoggedIn, catchAsync(User.removeUserCircle));
+// router.patch("/uncircle/user", isLoggedIn, catchAsync(User.removeUserCircle));
 
 router.post("/phone/info/:id", isLoggedIn, catchAsync(User.updateUserPhone));
 
@@ -104,13 +104,26 @@ router.post(
 
 router.get(
   "/dashboard/:id/notify",
-  isLoggedIn,
   catchAsync(User.getNotifications)
 );
+//
+router.get(
+  "/:id/activity",
+  catchAsync(User.getAllUserActivity)
+);
 
-router.post(
+router.get(
+  "/:id/activity/total/notify",
+  catchAsync(User.getAllTotalCount)
+);
+
+router.patch(
+  "/:id/mark/viewed",
+  catchAsync(User.retrieveMarkAllView)
+);
+
+router.patch(
   "/read/notify/user/:rid",
-  isLoggedIn,
   catchAsync(User.updateReadNotifications)
 );
 
@@ -125,7 +138,7 @@ router.delete(
   isLoggedIn,
   catchAsync(User.getDeleteNotifications)
 );
-
+//
 router.get(
   "/:uid/followers-array",
   isLoggedIn,
@@ -206,6 +219,8 @@ router.get(
   isLoggedIn,
   catchAsync(User.retrieveProfileDataUsername)
 );
+
+router.get('/staff/:sid/sal/history', catchAsync(User.retrieveStaffSalaryHistory))
 
 
 module.exports = router;

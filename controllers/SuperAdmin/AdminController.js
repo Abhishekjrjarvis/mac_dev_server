@@ -5,6 +5,7 @@ const User = require('../../models/User')
 const Notification = require('../../models/notification')
 const axios = require("axios");
 const Post = require('../../models/Post')
+const Answer = require('../../models/Question/Answer')
 const RePay = require('../../models/Return/RePay')
 const {
   uploadDocFile,
@@ -778,6 +779,139 @@ exports.retrieveInstituteRepayQuery = async(req, res) =>{
       }
     })
     res.status(200).send({ message: 'Repay Array', repay: institute.getReturn})
+  }
+  catch{
+
+  }
+}
+
+
+exports.retrieveSocialPostCount = async(req, res) =>{
+  try{
+    const postCount = await Post.find({ postType: 'Post'}).select('id')
+
+    const questionCount = await Post.find({ postType: 'Question'}).select('id')
+
+    const pollCount = await Post.find({ postType: 'Poll'}).select('id')
+
+    const repostCount = await Post.find({ postType: 'Repost'}).select('id')
+    
+    res.status(200).send({ message: 'Total Posts', postCount: postCount?.length, questionCount: questionCount?.length, pollCount: pollCount?.length, repostCount: repostCount?.length })
+  }
+  catch{
+
+  }
+}
+
+exports.retrieveSocialLikeCount = async(req, res) =>{
+  try{
+    var total = 0
+    const postCount = await Post.find({}).select('id endUserLike')
+
+    const answerCount = await Answer.find({}).select('id upVote')
+
+    if(postCount?.length >=1){
+      postCount.forEach(async (post) =>{
+        total += post?.endUserLike?.length
+      })
+    }
+    
+    if(answerCount?.length >=1){
+      answerCount.forEach(async (answer) =>{
+        total += answer?.upVote?.length
+      })
+    }
+    res.status(200).send({ message: 'Total Likes', likeCount: total})
+  }
+  catch{
+
+  }
+}
+
+
+exports.retrievePlatformAllPosts = async (req, res) => {
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    var post = await Post.find({})
+      .sort("-createdAt")
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "postTitle postText postQuestion isHelpful needCount needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType"
+      )
+      .populate({
+        path: "poll_query",
+      })
+      .populate({
+        path: "rePostAnswer",
+        populate: {
+          path: 'post',
+          select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
+        }
+      })
+    res.status(200).send({ message: 'All Platform Posts', all: post})
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
+
+exports.retrieveOneUserQuery = async(req, res) =>{
+  try{
+    const { uid } = req.params;
+    var totalUpVote = 0
+    const user = await User.findById({ _id: uid })
+      .select(
+        "userLegalName photoId questionCount one_line_about userCommission userEarned referralArray answerQuestionCount profilePhoto userBio coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout "
+      )
+      const answers = await Answer.find({ author: uid })
+      for(let up of answers){
+        totalUpVote += up.upVoteCount
+      }
+    res.status(200).send({ message: "One User Profile Data ", user, upVote: totalUpVote });
+  }
+  catch{
+
+  }
+}
+
+
+
+exports.retrieveOneInstituteQuery = async(req, res) => {
+  try{
+    const { id } = req.params;
+    const institute = await InstituteAdmin.findById({ _id: id })
+      .select(
+        "insName photoId insProfilePhoto one_line_about bankAccountNumber bankAccountHolderName bankIfscCode bankAccountType bankAccountPhoneNumber paymentBankStatus questionCount pollCount insEditableText insEditableTexts coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAchievement "
+      )
+      .populate({
+        path: 'displayPersonList',
+        populate: {
+          path: 'displayUser',
+          select: 'username userLegalName photoId profilePhoto'
+        }
+      })
+      .lean()
+      .exec();
+    res.status(200).send({ message: "One Institute Profile Data", institute });
+  }
+  catch{
+
+  }
+}
+
+
+
+exports.retrieveOnePostBlock = async(req, res) =>{
+  try{
+    const { pid } = req.params
+    const post = await Post.findById({_id: pid})
+    post.postBlockStatus = 'Blocked'
+    await post.save()
+    res.status(200).send({ message: 'Post Blocked By Super Admin'})
   }
   catch{
 

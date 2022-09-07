@@ -3,10 +3,12 @@ const Student = require("../../models/Student");
 const User = require("../../models/User");
 const Class = require("../../models/Class");
 const Fees = require("../../models/Fees");
-const Notification = require("../../models/notification");
+const StudentNotification = require("../../models/Marks/StudentNotification");
 const Finance = require('../../models/Finance')
 const Checklist = require('../../models/Checklist')
 const InstituteAdmin = require('../../models/InstituteAdmin')
+const invokeMemberTabNotification = require('../../Firebase/MemberTab')
+
 
 exports.createFess = async (req, res) => {
   try {
@@ -37,13 +39,26 @@ exports.createFess = async (req, res) => {
         })
         .select("_id");
       const user = await User.findById({ _id: `${student.user._id}` });
-      const notify = new Notification({});
+      const notify = new StudentNotification({});
       notify.notifyContent = `New ${feeData.feeName} (fee) has been created. check your member's Tab`;
       notify.notifySender = department._id;
       notify.notifyReceiever = user._id;
-      user.uNotify.push(notify._id);
-      notify.user = user._id;
+      notify.notifyType = 'Student'
+      notify.notifyPublisher = student._id
+      notify.feesId = feeData._id
+      user.activity_tab.push(notify._id);
       notify.notifyByDepartPhoto = department._id;
+      //
+      invokeMemberTabNotification(
+        "Student Activity",
+        notify,
+        'New Fees',
+        user._id,
+        user.deviceToken,
+        'Student',
+        notify
+      );
+      //
       await Promise.all([user.save(), notify.save()]);
     }
     res.status(201).send({ message: `${feeData.feeName} Fees Raised` });

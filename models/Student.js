@@ -251,11 +251,11 @@ const studentSchema = new mongoose.Schema({
   ],
   studentRemainingFeeCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   studentPaidFeeCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   library: {
     type: mongoose.Schema.Types.ObjectId,

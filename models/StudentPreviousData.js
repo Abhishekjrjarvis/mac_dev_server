@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const previousSchema = new mongoose.Schema({
+  studentCode: { type: String },
   class: { type: mongoose.Schema.Types.ObjectId, ref: "Class" },
   student: { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
   batch: {
@@ -16,6 +17,13 @@ const previousSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteAdmin",
   },
+  notification: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "StudentNotification",
+    },
+  ],
+
   subjectMarks: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -28,6 +36,7 @@ const previousSchema = new mongoose.Schema({
       ref: "Exam",
     },
   ],
+  finalReportStatus: { type: String, default: "No" },
   finalReport: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -40,6 +49,22 @@ const previousSchema = new mongoose.Schema({
       ref: "StudentTestSet",
     },
   ],
+  assignments: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "StudentAssignment",
+    },
+  ],
+
+  totalAssigment: {
+    type: Number,
+    default: 0,
+  },
+  submittedAssigment: {
+    type: Number,
+    default: 0,
+  },
+
   studentFee: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -113,6 +138,12 @@ const previousSchema = new mongoose.Schema({
       ref: "Payment",
     },
   ],
+  applyList: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ApplyPayment",
+    },
+  ],
   studentExemptFee: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -125,6 +156,21 @@ const previousSchema = new mongoose.Schema({
       ref: "Fees",
     },
   ],
+  studentRemainingFeeCount: {
+    type: Number,
+    default: 0,
+  },
+  studentPaidFeeCount: {
+    type: Number,
+    default: 0,
+  },
+  library: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Library",
+  },
+  studentAdmissionDate: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.model("StudentPreviousData", previousSchema);

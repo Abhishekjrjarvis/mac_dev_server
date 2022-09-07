@@ -16,6 +16,7 @@ const DisplayPerson = require("../../models/DisplayPerson");
 const Finance = require("../../models/Finance");
 const Library = require("../../models/Library");
 const Subject = require("../../models/Subject");
+const StudentNotification = require("../../models/Marks/StudentNotification")
 const AdmissionAdmin = require("../../models/AdmissionAdmin");
 const Class = require("../../models/Class");
 const Leave = require("../../models/Leave");
@@ -277,13 +278,9 @@ exports.getUpdatePhone = async (req, res) => {
 exports.getUpdatePersonalIns = async (req, res) => {
   try {
     const { id } = req.params;
-    // const institutes = await InstituteAdmin.findById({_id: id}).select('one_line_about')
-    // var oneLine = institutes.one_line_about
     var institute = await InstituteAdmin.findByIdAndUpdate(id, req.body);
     await institute.save();
     res.status(200).send({ message: "Personal Info Updated" });
-    //
-    // if(`${oneLine}` !== `${institute.one_line_about}`){
       const post = await Post.find({ author: institute._id });
       post.forEach(async (ele) => {
         ele.authorOneLine = institute.one_line_about;
@@ -299,8 +296,6 @@ exports.getUpdatePersonalIns = async (req, res) => {
         reply.authorOneLine = institute.one_line_about;
         await reply.save();
       });
-    // }
-    //
   } catch {}
 };
 
@@ -847,7 +842,7 @@ exports.fillStudentForm = async (req, res) => {
       }
       await unlinkFile(file.path);
     }
-    const notify = new Notification({});
+    const notify = new StudentNotification({});
     const aStatus = new Status({})
     institute.student.push(student._id);
     user.student.push(student._id);
@@ -869,7 +864,8 @@ exports.fillStudentForm = async (req, res) => {
     notify.notifySender = student._id;
     notify.notifyReceiever = classUser._id;
     institute.iNotify.push(notify._id);
-    notify.institute = institute._id;
+    notify.notifyType = 'Staff'
+    notify.notifyPublisher = classStaff._id
     classUser.activity_tab.push(notify._id)
     notify.notifyByStudentPhoto = student._id;
     aStatus.content = `Your application for joining as student in ${institute.insName} is filled successfully. Stay updated to check status of your application.`

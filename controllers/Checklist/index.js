@@ -68,6 +68,8 @@ exports.createChecklist = async (req, res) => {
       notify.notifyContent = `New ${check.checklistName} (checklist) has been created. check your member's Tab`;
       notify.notifySender = did;
       notify.notifyReceiever = user._id;
+      notify.notifyType = 'Student'
+      notify.notifyPublisher = student._id
       notify.checklistId = check._id
       user.activity_tab.push(notify._id);
       notify.notifyByDepartPhoto = department._id;

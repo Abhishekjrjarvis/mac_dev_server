@@ -139,6 +139,10 @@ const postSchema = new mongoose.Schema({
     default: 0
   },
   needUser: [],
+  postBlockStatus: {
+    type: String,
+    default: 'Not Block'
+  },
   needMultiple: [
     {
       type: mongoose.Schema.Types.ObjectId,

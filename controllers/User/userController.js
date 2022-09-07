@@ -13,6 +13,7 @@ const Comment = require('../../models/Comment')
 const ReplyComment = require('../../models/ReplyComment/ReplyComment')
 const AnswerReply = require('../../models/Question/AnswerReply')
 const Chat = require("../../models/Chat/Chat");
+const StudentNotification = require('../../models/Marks/StudentNotification')
 
 const {
   getFileStream,
@@ -531,13 +532,9 @@ exports.updateUserPhone = async (req, res) => {
 exports.updateUserPersonal = async (req, res) => {
   try {
     const { id } = req.params;
-    // const users = await User.findById({_id: id}).select('one_line_about')
-    // var oneLine = user.one_line_about
     const user = await User.findByIdAndUpdate(id, req.body);
     await user.save();
     res.status(200).send({ message: "Personal Info Updated" });
-    //
-    // if(`${oneLine}` !== `${user.one_line_about}`){
       const post = await Post.find({ author: user._id });
       post.forEach(async (ele) => {
         ele.authorOneLine = user.one_line_about;
@@ -563,8 +560,6 @@ exports.updateUserPersonal = async (req, res) => {
         ansRep.authorOneLine = user.one_line_about;
         await ansRep.save();
       });
-    // }
-    //
   } catch (e) {
     console.log(`Error`, e.message);
   }
@@ -742,42 +737,158 @@ exports.getNotifications = async (req, res) => {
 
     res.status(200).send({ message: "Notification send", notify });
   } catch (e) {
-    console.log("Error", e.message);
+    console.log(e);
   }
 };
 
-exports.updateReadNotifications = async (Req, res) => {
+
+exports.getAllUserActivity = async (req, res) => {
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const id = req.params.id;
+    const skip = (page - 1) * limit;
+
+    const user = await User.findById({ _id: id }).populate({ path: "activity_tab" });
+
+    const notify = await StudentNotification.find({ _id: { $in: user.activity_tab } })
+      .populate({
+        path: "notifyByInsPhoto",
+        select: "photoId insProfilePhoto name insName",
+      })
+      .populate({
+        path: "notifyByStaffPhoto",
+        select:
+          "photoId staffProfilePhoto staffFirstName staffMiddleName staffLastName",
+      })
+      .populate({
+        path: "notifyByStudentPhoto",
+        select:
+          "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName",
+      })
+      .populate({
+        path: "notifyByDepartPhoto",
+        select: "photoId photo dName",
+      })
+      .populate({
+        path: "notifyByClassPhoto",
+        select: "photoId photo className",
+      })
+      .sort("-notifyTime")
+      .limit(limit)
+      .skip(skip);
+
+    res.status(200).send({ message: "All Activity", activity: notify });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
+
+exports.getAllTotalCount = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = await User.findById({ _id: id })
+    .select('_id')
+    .populate({ path: "activity_tab uNotify" });
+    var total = 0
+    const notify = await Notification.find({
+      $and: [{ _id: { $in: user.uNotify } }, { notifyViewStatus: 'Not View' }],
+    })
+    const activity = await StudentNotification.find({
+      $and: [{ _id: { $in: user.activity_tab } }, { notifyViewStatus: 'Not View' }],
+    })
+    total = total + notify?.length + activity?.length
+
+    res.status(200).send({ message: "Not Viewed Notification & Activity", count: total });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
+
+exports.retrieveMarkAllView = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = await User.findById({ _id: id })
+    .select('_id')
+    .populate({ path: "activity_tab uNotify" });
+    const notify = await Notification.find({
+      $and: [{ _id: { $in: user.uNotify } }, { notifyViewStatus: 'Not View' }],
+    })
+    const activity = await StudentNotification.find({
+      $and: [{ _id: { $in: user.activity_tab } }, { notifyViewStatus: 'Not View' }],
+    })
+    if(notify?.length >=1){
+      notify.forEach( async(ele) =>{
+        ele.notifyViewStatus = 'View'
+        await ele.save()
+      })
+    }
+    if(activity?.length >=1){
+      activity.forEach( async(ele) =>{
+        ele.notifyViewStatus = 'View'
+        await ele.save()
+      })
+    }
+
+    res.status(200).send({ message: "Mark All To Be Viewed" });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+
+exports.updateReadNotifications = async (req, res) => {
   try {
     const { rid } = req.params;
-    const read = await Notification.findById({ _id: rid });
-    read.notifyReadStatus = "Read";
-    await read.save();
-    res.status(200).send({ message: "updated" });
+    const read = await Notification.findOne({ _id: rid });
+    const activity = await StudentNotification.findOne({_id: rid})
+    if(read){
+      read.notifyReadStatus = "Read";
+      await read.save();
+    }
+    else if(activity){
+      activity.notifyReadStatus = "Read";
+      await activity.save();
+    }
+    else{}
+    res.status(200).send({ message: "Mark As Read" });
   } catch (e) {
-    console.log("Error", e.message);
+    console.log(e);
   }
 };
 
 exports.getHideNotifications = async (req, res) => {
   try {
-    const { id, nid } = req.params;
-    const notify = await Notification.findById({ _id: nid });
-    notify.notifyVisibility = "hide";
-    await notify.save();
+    const { nid } = req.params;
+    const notify = await Notification.findOne({ _id: nid });
+    const activity = await StudentNotification.findOne({_id: nid})
+    if(notify){
+      notify.notifyVisibility = "hide";
+      await notify.save();
+    }
+    else if(activity){
+      activity.notifyVisibility = "hide";
+      await activity.save();
+    }
+    else{}
     res.status(200).send({ message: "Hide" });
   } catch (e) {
-    console.log("Error", e.message);
+    console.log(e);
   }
 };
 
 exports.getDeleteNotifications = async (req, res) => {
   try {
     const { id, nid } = req.params;
-    const user = await User.findByIdAndUpdate(id, { $pull: { uNotify: nid } });
-    const notify = await Notification.findByIdAndDelete({ _id: nid });
+    await User.findByIdAndUpdate(id, { $pull: { uNotify: nid } });
+    await Notification.findByIdAndDelete({ _id: nid });
     res.status(200).send({ message: "Deleted" });
   } catch (e) {
-    console.log("Error", e.message);
+    console.log(e);
   }
 };
 

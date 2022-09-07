@@ -293,6 +293,8 @@ exports.takeTestSet = async (req, res) => {
       notify.notifyContent = `New ${testSet.testExamName} Test is created for ${testSet.testSubject}`;
       notify.notifySender = subject._id;
       notify.notifyReceiever = user._id;
+      notify.notifyType = 'Student'
+      notify.notifyPublisher = student._id
       user.activity_tab.push(notify._id)
       student.notification.push(notify._id);
       notify.notifyBySubjectPhoto = subject._id;
@@ -678,6 +680,8 @@ exports.createExam = async (req, res) => {
               notify.notifyContent = `New ${exam.examName} Exam is created for ${sub.subjectName} , check your members tab`;
               notify.notifySender = department._id;
               notify.notifyReceiever = user._id;
+              notify.notifyType = 'Student'
+              notify.notifyPublisher = student._id
               user.activity_tab.push(notify._id)
               student.notification.push(notify._id);
               notify.notifyByDepartPhoto = department._id;
@@ -832,6 +836,8 @@ exports.createAssignment = async (req, res) => {
       notify.notifyContent = `New ${studentAssignment.assignmentName} is created for ${sub.subjectName} , check your members tab`;
       notify.notifySender = subject._id;
       notify.notifyReceiever = user._id;
+      notify.notifyType = 'Student'
+      notify.notifyPublisher = stu._id
       user.activity_tab.push(notify._id)
       stu.notification.push(notify._id);
       notify.notifyBySubjectPhoto = subject._id;

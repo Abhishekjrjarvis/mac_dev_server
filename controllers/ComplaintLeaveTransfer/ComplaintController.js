@@ -97,6 +97,8 @@ exports.postStudentLeave = async (req, res) => {
     } ${student.studentLastName} requested for a leave check application`;
     notify.notifySender = req.params.sid;
     notify.notifyReceiever = user._id;
+    notify.notifyType = 'Staff'
+    notify.notifyPublisher = classes.classTeacher._id
     user.activity_tab.push(notify._id)
     notify.notifyByStudentPhoto = student._id;
     //
@@ -199,6 +201,8 @@ exports.oneStudentLeaveProcess = async (req, res) => {
     notify.notifyContent = `Your Leave request has been ${req.body.status} by ${leave.classes.className}`;
     notify.notifySender = leave.classes._id;
     notify.notifyReceiever = user._id;
+    notify.notifyType = 'Student'
+    notify.notifyPublisher = leave.student._id
     user.activity_tab.push(notify._id)
     notify.notifyByClassPhoto = leave.classes._id;
     //
@@ -484,6 +488,8 @@ exports.studentTransferRequested = async (req, res) => {
     } ${student.studentLastName} requested for a Transfer. check application status`;
     notify.notifySender = student._id;
     notify.notifyReceiever = user._id;
+    notify.notifyType = 'Staff'
+    notify.notifyPublisher = classes.classTeacher._id
     user.activity_tab.push(notify._id)
     notify.notifyByStudentPhoto = student._id;
     //
@@ -532,6 +538,8 @@ exports.studentTransferApproved = async (req, res) => {
     notify.notifyContent = `Your Transfer request has been Approved by ${institute.insName} from ${classes.className}`;
     notify.notifySender = classes._id;
     notify.notifyReceiever = user._id;
+    notify.notifyType = 'Student'
+    notify.notifyPublisher = student._id
     user.activity_tab.push(notify._id)
     notify.notifyByClassPhoto = classes._id;
     //
@@ -574,6 +582,8 @@ exports.studentTransferRejected = async (req, res) => {
     notify.notifyContent = `Your Transfer request has been Rejected by ${classes.className}`;
     notify.notifySender = classes._id;
     notify.notifyReceiever = user._id;
+    notify.notifyType = 'Student'
+    notify.notifyPublisher = student._id
     user.activity_tab.push(notify._id)
     notify.notifyByClassPhoto = classes._id;
     //
@@ -794,6 +804,8 @@ exports.oneStaffLeaveProcess = async (req, res) => {
     notify.notifyContent = `Your Leave request has been ${req.body.status} by ${leave.institute.insName}`;
     notify.notifySender = leave.institute._id;
     notify.notifyReceiever = user._id;
+    notify.notifyType = 'Staff'
+    notify.notifyPublisher = leave.staff._id
     user.activity_tab.push(notify._id)
     notify.notifyByInsPhoto = leave.institute._id;
     //

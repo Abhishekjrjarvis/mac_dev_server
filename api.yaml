@@ -10665,6 +10665,100 @@ paths:
         "200":
           description: OK
 
+  
+  /api/v1/user/{id}/activity:
+    get:
+      tags:
+        - Notification WIO Socket 
+      summary: Get All Activity Notification - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is User id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/user/{id}/activity/total/notify:
+    get:
+      tags:
+        - Notification WIO Socket 
+      summary: Get Count of Not Viewed Activity + Notification - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is User id
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/user/{id}/mark/viewed:
+    patch:
+      tags:
+        - Notification WIO Socket 
+      summary: Mark All View When Click on Notification Icon - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is User id
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/user/read/notify/user/{rid}:
+    patch:
+      tags:
+        - Notification WIO Socket 
+      summary: Mark One Notifcation as Read - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: rid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Notification id
+      responses:
+        "200":
+          description: OK
+
 #FOR THE MCQ ALL API
   # /api/v1/all-images/onefile:
   #   patch:

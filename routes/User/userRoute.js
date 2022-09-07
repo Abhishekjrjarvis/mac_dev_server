@@ -104,13 +104,26 @@ router.post(
 
 router.get(
   "/dashboard/:id/notify",
-  isLoggedIn,
   catchAsync(User.getNotifications)
 );
+//
+router.get(
+  "/:id/activity",
+  catchAsync(User.getAllUserActivity)
+);
 
-router.post(
+router.get(
+  "/:id/activity/total/notify",
+  catchAsync(User.getAllTotalCount)
+);
+
+router.patch(
+  "/:id/mark/viewed",
+  catchAsync(User.retrieveMarkAllView)
+);
+
+router.patch(
   "/read/notify/user/:rid",
-  isLoggedIn,
   catchAsync(User.updateReadNotifications)
 );
 
@@ -125,7 +138,7 @@ router.delete(
   isLoggedIn,
   catchAsync(User.getDeleteNotifications)
 );
-
+//
 router.get(
   "/:uid/followers-array",
   isLoggedIn,

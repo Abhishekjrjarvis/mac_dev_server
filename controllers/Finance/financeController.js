@@ -433,6 +433,8 @@ exports.requestClassOfflineFee = async(req, res) =>{
             notify.notifyContent = `Rs.${amount} Offline Payment Request for submission`;
             notify.notifySender = classes._id;
             notify.notifyReceiever = user._id;
+            notify.notifyType = 'Staff'
+            notify.notifyPublisher = financeStaff._id
             notify.financeId = finance._id
             user.activity_tab.push(notify._id);
             notify.notifyByClassPhoto = classe._id;

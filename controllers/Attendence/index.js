@@ -125,6 +125,8 @@ exports.markAttendenceClassStudent = async (req, res) => {
           notify.notifyContent = `you're present today`;
           notify.notifySender = classes._id;
           notify.notifyReceiever = user._id;
+          notify.notifyType = 'Student'
+          notify.notifyPublisher = student._id
           notify.notifyByClassPhoto = classes._id;
           user.activity_tab.push(notify._id)
           student.notification.push(notify._id);
@@ -153,6 +155,8 @@ exports.markAttendenceClassStudent = async (req, res) => {
           notify.notifyContent = `you're absent today`;
           notify.notifySender = classes._id;
           notify.notifyReceiever = user._id;
+          notify.notifyType = 'Student'
+          notify.notifyPublisher = student._id
           notify.notifyByClassPhoto = classes._id;
           user.activity_tab.push(notify._id)
           student.notification.push(notify._id);
@@ -382,6 +386,8 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
           notify.notifyContent = `you're present today`;
           notify.notifySender = id;
           notify.notifyReceiever = staff.user._id;
+          notify.notifyType = 'Staff'
+          notify.notifyPublisher = staff._id
           staff.user.activity_tab.push(notify._id)
           notify.notifyByInsPhoto = id;
           staffAttendence.presentStaff.push(staff._id);
@@ -418,6 +424,8 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
           notify.notifyContent = `you're absent today`;
           notify.notifySender = id;
           notify.notifyReceiever = staff.user._id;
+          notify.notifyType = 'Staff'
+          notify.notifyPublisher = staff._id
           staff.user.activity_tab.push(notify._id)
           notify.notifyByInsPhoto = id;
           staffAttendence.absentTotal = req.body.absent.length;
@@ -682,6 +690,8 @@ exports.holidayCalendar = async (req, res) => {
       const notify = new StudentNotification({});
       notify.notifyContent = `New Holiday Marked`;
       notify.notifySender = depart._id;
+      notify.notifyType = 'Student'
+      notify.notifyPublisher = student._id
       notify.notifyReceiever = user._id;
       user.activity_tab.push(notify._id)
       notify.notifyByDepartPhoto = depart._id;

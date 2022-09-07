@@ -43,6 +43,8 @@ exports.createFess = async (req, res) => {
       notify.notifyContent = `New ${feeData.feeName} (fee) has been created. check your member's Tab`;
       notify.notifySender = department._id;
       notify.notifyReceiever = user._id;
+      notify.notifyType = 'Student'
+      notify.notifyPublisher = student._id
       notify.feesId = feeData._id
       user.activity_tab.push(notify._id);
       notify.notifyByDepartPhoto = department._id;

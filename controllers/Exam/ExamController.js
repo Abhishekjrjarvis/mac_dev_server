@@ -177,6 +177,8 @@ exports.createExam = async (req, res) => {
               notify.notifySender = department._id;
               notify.notifyReceiever = user._id;
               notify.examId = exam._id
+              notify.notifyType = 'Student'
+              notify.notifyPublisher = student._id
               user.activity_tab.push(notify._id);
               student.notification.push(notify._id);
               notify.notifyByDepartPhoto = department._id;

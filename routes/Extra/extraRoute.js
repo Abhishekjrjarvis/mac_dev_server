@@ -23,4 +23,8 @@ router.patch('/:uid/privacy/feature', catchAsync(Extra.retrieveUserBirthPrivacy)
 
 router.patch('/:id/privacy/institute/feature', catchAsync(Extra.retrieveInstituteBirthPrivacy))
 
+router.patch('/:uid/update/notification/user', catchAsync(Extra.retrieveUserUpdateNotification))
+
+// router.patch('/:uid/update/notification/ins', catchAsync(Extra.retrieveUserUpdateNotification))
+
 module.exports = router

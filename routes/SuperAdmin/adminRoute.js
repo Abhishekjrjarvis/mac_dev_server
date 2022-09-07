@@ -94,6 +94,18 @@ router.get('/getrecentchat/institute', isLoggedIn,  catchAsync(Admin.getRecentCh
 
 router.post('/:aid/repay/:uid/institute', isLoggedIn, catchAsync(Admin.retrieveRepayInstituteAmount))
 
-router.get('/repay/query/institute/:id', catchAsync(Admin.retrieveInstituteRepayQuery))
+router.get('/repay/query/institute/:id', isLoggedIn, catchAsync(Admin.retrieveInstituteRepayQuery))
+//
+router.get('/social/post/count', isLoggedIn, catchAsync(Admin.retrieveSocialPostCount))
+
+router.get('/social/like/count', isLoggedIn, catchAsync(Admin.retrieveSocialLikeCount))
+
+router.get('/social/platform/all/posts', isLoggedIn, catchAsync(Admin.retrievePlatformAllPosts))
+
+router.get('/one/user/:uid', isLoggedIn, catchAsync(Admin.retrieveOneUserQuery))
+
+router.get('/one/institute/:id/profile', isLoggedIn, catchAsync(Admin.retrieveOneInstituteQuery))
+
+router.patch('/one/post/:pid/block', isLoggedIn, catchAsync(Admin.retrieveOnePostBlock))
 
 module.exports = router

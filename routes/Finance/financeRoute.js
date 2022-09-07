@@ -90,5 +90,17 @@ router.get('/:fid/dashboard/expense/balance', catchAsync(Finance.retrieveExpense
 
 router.get('/:fid/dashboard/remain', catchAsync(Finance.retrieveRemainFeeBalance))
 
+//
+
+router.post('/:fid/add/emp/:sid', catchAsync(Finance.addEmpToFinance))
+
+router.get('/:fid/emp/all', catchAsync(Finance.allEmpToFinance))
+
+router.post('/:fid/add/payroll/:eid', catchAsync(Finance.addFieldToPayroll))
+
+router.get('/:fid/sal/history', catchAsync(Finance.retrieveAllSalaryHistory))
+
+router.get('/:eid/one/emp/detail', catchAsync(Finance.retrieveOneEmpQuery))
+//
 
 module.exports = router

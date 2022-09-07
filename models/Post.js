@@ -68,6 +68,9 @@ const postSchema = new mongoose.Schema({
   authorProfilePhoto: {
     type: String,
   },
+  authorOneLine: {
+    type: String
+  },
   comment: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -123,7 +126,36 @@ const postSchema = new mongoose.Schema({
   rePostAnswer: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Answer'
-  }
+  },
+  //
+  isHelpful: {
+    type: String
+  },
+  isNeed: {
+    type: String
+  },
+  needCount: {
+    type: Number,
+    default: 0
+  },
+  needUser: [],
+  postBlockStatus: {
+    type: String,
+    default: 'Not Block'
+  },
+  needMultiple: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }
+  ],
+  repostMultiple: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }
+  ]
+  //
 });
 
 postSchema.post("findOneAndDelete", async function (doc) {

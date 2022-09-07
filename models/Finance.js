@@ -139,7 +139,24 @@ const financeSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  requestArray: []
+  requestArray: [],
+  staff_pay_list: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Payroll'
+    }
+  ],
+  salary_history: [
+    {
+      salary: { type: Number, default: 0},
+      month: { type: String },
+      pay_mode: { type: String },
+      emp_pay: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Payroll'
+      }
+    },
+  ]
 }, { timestamps: true});
 
 const Finance = mongoose.model("Finance", financeSchema);

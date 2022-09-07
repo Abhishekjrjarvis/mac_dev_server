@@ -1,7 +1,6 @@
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const User = require("../../models/User");
 const Staff = require("../../models/Staff");
-const Post = require("../../models/Post");
 const Notification = require("../../models/notification");
 const InsAnnouncement = require("../../models/InsAnnouncement");
 const Student = require("../../models/Student");
@@ -17,6 +16,7 @@ const DisplayPerson = require("../../models/DisplayPerson");
 const Finance = require("../../models/Finance");
 const Library = require("../../models/Library");
 const Subject = require("../../models/Subject");
+const StudentNotification = require("../../models/Marks/StudentNotification")
 const AdmissionAdmin = require("../../models/AdmissionAdmin");
 const Class = require("../../models/Class");
 const Leave = require("../../models/Leave");
@@ -24,7 +24,11 @@ const ClassMaster = require("../../models/ClassMaster");
 const SubjectMaster = require("../../models/SubjectMaster");
 const ReplyAnnouncement = require("../../models/ReplyAnnouncement");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
-const Status = require("../../models/Admission/status");
+const invokeMemberTabNotification = require('../../Firebase/MemberTab')
+const Status = require('../../models/Admission/status')
+const Post = require('../../models/Post')
+const Comment = require('../../models/Comment')
+const ReplyComment = require('../../models/ReplyComment/ReplyComment')
 const {
   getFileStream,
   uploadDocFile,
@@ -71,7 +75,7 @@ exports.getProfileOneQuery = async (req, res) => {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName status photoId insProfilePhoto staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement "
+        "insName status photoId insProfilePhoto one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement "
       )
       .lean()
       .exec();
@@ -273,9 +277,24 @@ exports.getUpdatePhone = async (req, res) => {
 exports.getUpdatePersonalIns = async (req, res) => {
   try {
     const { id } = req.params;
-    const institute = await InstituteAdmin.findByIdAndUpdate(id, req.body);
+    var institute = await InstituteAdmin.findByIdAndUpdate(id, req.body);
     await institute.save();
     res.status(200).send({ message: "Personal Info Updated" });
+      const post = await Post.find({ author: institute._id });
+      post.forEach(async (ele) => {
+        ele.authorOneLine = institute.one_line_about;
+        await ele.save();
+      });
+      const comment = await Comment.find({ author: institute._id });
+      comment.forEach(async (com) => {
+        com.authorOneLine = institute.one_line_about;
+        await com.save();
+      });
+      const replyComment = await ReplyComment.find({ author: institute._id });
+      replyComment.forEach(async (reply) => {
+        reply.authorOneLine = institute.one_line_about;
+        await reply.save();
+      });
   } catch {}
 };
 
@@ -798,6 +817,8 @@ exports.fillStudentForm = async (req, res) => {
     const user = await User.findById({ _id: uid });
     const student = new Student({ ...req.body });
     const classes = await Class.findOne({ classCode: req.body.studentCode });
+    const classStaff = await Staff.findById({_id: `${classes.classTeacher}`})
+    const classUser = await User.findById({_id: `${classStaff.user}`})
     for (let file of req.files) {
       let count = 1;
       if (count === 1) {
@@ -817,8 +838,9 @@ exports.fillStudentForm = async (req, res) => {
       }
       await unlinkFile(file.path);
     }
-    const notify = await new Notification({});
-    const aStatus = new Status({});
+
+    const notify = new StudentNotification({});
+    const aStatus = new Status({})
     institute.student.push(student._id);
     user.student.push(student._id);
     institute.joinedPost.push(user._id);
@@ -837,12 +859,25 @@ exports.fillStudentForm = async (req, res) => {
       student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
     } ${student.studentLastName} has been applied for role of student`;
     notify.notifySender = student._id;
-    notify.notifyReceiever = institute._id;
+    notify.notifyReceiever = classUser._id;
     institute.iNotify.push(notify._id);
-    notify.institute = institute._id;
+    notify.notifyType = 'Staff'
+    notify.notifyPublisher = classStaff._id
+    classUser.activity_tab.push(notify._id)
     notify.notifyByStudentPhoto = student._id;
-    aStatus.content = `Your application for joining as student in ${institute.insName} is filled successfully. Stay updated to check status of your application.`;
-    user.applicationStatus.push(aStatus._id);
+    aStatus.content = `Your application for joining as student in ${institute.insName} is filled successfully. Stay updated to check status of your application.`
+    user.applicationStatus.push(aStatus._id)
+    //
+    invokeMemberTabNotification(
+      "Staff Activity",
+      notify,
+      'Request for Joining',
+      classUser._id,
+      classUser.deviceToken,
+      'Staff',
+      notify
+    );
+    //
     await Promise.all([
       student.save(),
       institute.save(),
@@ -850,6 +885,7 @@ exports.fillStudentForm = async (req, res) => {
       classes.save(),
       notify.save(),
       aStatus.save(),
+      classUser.save()
     ]);
     res.status(201).send({ message: "student form is applied", student });
   } catch (e) {

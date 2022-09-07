@@ -486,6 +486,8 @@ paths:
                 type: string
               userAddress:
                 type: string
+              one_line_about:
+                type: string
       responses:
         "200":
           description: OK
@@ -1326,6 +1328,43 @@ paths:
           required: true
           type: string
           description: Enter Institute Id
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/extra/{uid}/update/notification/user:
+    patch:
+      tags:
+        - Setting Control API
+      summary: User Notification API -(verified) ----> (On-> Enable, Off-> Disable)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: Enter User Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              follower_notify:
+                type: string
+                description: Enter Follower, Circle Notification Content
+              comment_notify:
+                type: string
+                description: Enter Comment Notification Content
+              answer_notify:
+                type: string
+                description: Enter Answer Notification Content
+              institute_notify:
+                type: string
+                description: Enter Institute Related Notification Content
       responses:
         "200":
           description: OK
@@ -3589,6 +3628,8 @@ paths:
               insEstdDate:
                 type: string
               insRegDate:
+                type: string
+              one_line_about:
                 type: string
       responses:
         "200":
@@ -10200,7 +10241,55 @@ paths:
       responses:
         "200":
           description: OK
+
   
+  /api/v1/post/question/repost/{pid}/like/{aid}:
+    get:
+      tags:
+        - Add Question Module
+      summary: Upvote and Downvote Answer as Repost (Go To Followers, circle) -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Repost id
+        - in: path
+          name: aid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Answer id
+      responses:
+        "200":
+          description: OK
+  
+
+  /api/v1/post/question/help/to/other/{pid}:
+    get:
+      tags:
+        - Add Question Module
+      summary: Mark The Question for the need (Go To Followers, circle) -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Post Question id
+      responses:
+        "200":
+          description: OK
+
 
   /api/v1/poll/question/{id}:
     post:
@@ -10572,6 +10661,100 @@ paths:
           schema:
             type: string
           description: This is Post Id
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/user/{id}/activity:
+    get:
+      tags:
+        - Notification WIO Socket 
+      summary: Get All Activity Notification - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is User id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/user/{id}/activity/total/notify:
+    get:
+      tags:
+        - Notification WIO Socket 
+      summary: Get Count of Not Viewed Activity + Notification - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is User id
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/user/{id}/mark/viewed:
+    patch:
+      tags:
+        - Notification WIO Socket 
+      summary: Mark All View When Click on Notification Icon - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is User id
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/user/read/notify/user/{rid}:
+    patch:
+      tags:
+        - Notification WIO Socket 
+      summary: Mark One Notifcation as Read - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: rid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Notification id
       responses:
         "200":
           description: OK

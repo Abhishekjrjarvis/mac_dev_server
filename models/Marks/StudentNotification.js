@@ -6,6 +6,7 @@ const studentNotificationSchema = new mongoose.Schema({
   notifyReceiever: { type: String, required: true },
   notifyReadStatus: { type: String, default: "Unread" },
   notifyVisibility: { type: String, default: "Unhide" },
+  notifyViewStatus: { type: String, default: 'Not View'},
   notifyByClassPhoto: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Class",
@@ -14,11 +15,33 @@ const studentNotificationSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department",
   },
+  notifyByInsPhoto: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'InstituteAdmin'
+  },
+  notifyByStaffPhoto: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Staff'
+  },
+  notifyByStudentPhoto: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Student'
+  },
   notifyBySubjectPhoto: {
-    // type: mongoose.Schema.Types.ObjectId,
-    // ref: "Department",
     type: String,
   },
+  notifyType: {
+    type: String
+  },
+  notifyPublisher: {
+    type: String
+  },
+  examId: { type: String },
+  checklistId: { type: String },
+  feesId: { type: String },
+  mcqId: { type: String },
+  assignmentId: { type: String },
+  financeId: { type: String }
 });
 
 module.exports = mongoose.model(

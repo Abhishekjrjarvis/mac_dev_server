@@ -445,6 +445,9 @@ const instituteAdminSchema = new mongoose.Schema({
   ins_isMock: {
     type: Boolean
   },
+  one_line_about: {
+    type: String
+  }
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

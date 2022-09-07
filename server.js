@@ -69,8 +69,10 @@ mongoose
     console.log("Something Went Wrong...", e);
   });
 
+// crossOriginResourcePolicy: false 
+
 app.use(mongoSanitize());
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false }));
 
 const swaggerUI = require("swagger-ui-express");
 const YAML = require("yamljs");

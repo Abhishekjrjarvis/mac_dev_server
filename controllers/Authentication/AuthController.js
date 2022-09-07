@@ -610,7 +610,7 @@ module.exports.authentication = async (req, res) => {
       }
     }
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(`Error`, e);
   }
 };
 

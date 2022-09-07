@@ -2,7 +2,7 @@ const InstituteAdmin = require("../../../models/InstituteAdmin");
 const User = require("../../../models/User");
 const Post = require("../../../models/Post");
 const Comment = require("../../../models/Comment");
-const Poll = require('../../../models/Question/Poll')
+const Poll = require("../../../models/Question/Poll");
 const ReplyComment = require("../../../models/ReplyComment/ReplyComment");
 const {
   uploadVideo,
@@ -11,11 +11,10 @@ const {
 
 const fs = require("fs");
 const util = require("util");
-const { random_list_generator } = require("../../../Utilities/randomFunction");
+// const { random_list_generator } = require("../../../Utilities/randomFunction");
 const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require("../../../Firebase/firebase");
 const Notification = require('../../../models/notification')
-
 
 exports.postWithText = async (req, res) => {
   try {
@@ -25,7 +24,7 @@ exports.postWithText = async (req, res) => {
       .populate({ path: "userFollowersList" })
       .populate({ path: "joinedUserList" });
     const post = new Post({ ...req.body });
-    if (Array.isArray(req.body.people)) {
+    if (Array.isArray(req.body?.people)) {
       for (let val of req.body?.people) {
         post.tagPeople.push({
           tagId: val.tagId,
@@ -44,7 +43,7 @@ exports.postWithText = async (req, res) => {
     post.authorProfilePhoto = institute.insProfilePhoto;
     post.authorOneLine = institute.one_line_about;
     post.isInstitute = "institute";
-    post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`
+    post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([institute.save(), post.save()]);
     res.status(201).send({ message: "post is create", post });
     if (institute.isUniversal === "Not Assigned") {
@@ -97,14 +96,29 @@ exports.postWithText = async (req, res) => {
       }
     }
     if (Array.isArray(req.body?.people)) {
-      for (let instit of req.body?.people) {
-        const institTag = await InstituteAdmin.findById(instit.tagId);
-        if (institTag?.posts.includes(post._id)) {
-        } else {
-          institTag.posts?.push(post._id);
+      if (post?.tagPeople?.length) {
+        for (let instit of req.body?.people) {
+          const institTag = await InstituteAdmin.findById(instit.tagId)
+            .populate({ path: "followers" })
+            .populate({ path: "userFollowersList" });
+          // .populate({ path: "joinedUserList" });
+          if (institTag?.posts.includes(post._id)) {
+          } else {
+            institTag.posts?.push(post._id);
+          }
+          institTag.tag_post?.push(post._id);
+          if (post.postStatus === "Anyone") {
+            institTag?.followers?.forEach(async (ele) => {
+              ele.posts.push(post._id);
+              await ele.save();
+            });
+            institTag?.userFollowersList?.forEach(async (ele) => {
+              ele.userPosts.push(post._id);
+              await ele.save();
+            });
+          }
+          await institTag.save();
         }
-        institTag.tag_post?.push(post._id);
-        await institTag.save();
       }
     }
   } catch {}
@@ -118,7 +132,7 @@ exports.postWithImage = async (req, res) => {
       .populate({ path: "userFollowersList" })
       .populate({ path: "joinedUserList" });
     const post = new Post({ ...req.body });
-    const taggedPeople = JSON?.parse(req.body.people);
+    const taggedPeople = JSON.parse(req.body?.people);
     if (Array.isArray(taggedPeople)) {
       for (let val of taggedPeople) {
         post.tagPeople.push({
@@ -196,14 +210,28 @@ exports.postWithImage = async (req, res) => {
       }
     }
     if (Array.isArray(taggedPeople)) {
-      for (let instit of taggedPeople) {
-        const institTag = await InstituteAdmin.findById(instit.tagId);
-        if (institTag?.posts.includes(post._id)) {
-        } else {
-          institTag.posts?.push(post._id);
+      if (post?.tagPeople?.length) {
+        for (let instit of taggedPeople) {
+          const institTag = await InstituteAdmin.findById(instit.tagId)
+            .populate({ path: "followers" })
+            .populate({ path: "userFollowersList" });
+          if (institTag?.posts.includes(post._id)) {
+          } else {
+            institTag.posts?.push(post._id);
+          }
+          institTag.tag_post?.push(post._id);
+          if (post.postStatus === "Anyone") {
+            institTag?.followers?.forEach(async (ele) => {
+              ele.posts.push(post._id);
+              await ele.save();
+            });
+            institTag?.userFollowersList?.forEach(async (ele) => {
+              ele.userPosts.push(post._id);
+              await ele.save();
+            });
+          }
+          await institTag.save();
         }
-        institTag.tag_post?.push(post._id);
-        await institTag.save();
       }
     }
   } catch (e) {
@@ -219,7 +247,7 @@ exports.postWithVideo = async (req, res) => {
       .populate({ path: "userFollowersList" })
       .populate({ path: "joinedUserList" });
     const post = new Post({ ...req.body });
-    const taggedPeople = JSON.parse(req.body.people);
+    const taggedPeople = JSON.parse(req.body?.people);
     if (Array.isArray(taggedPeople)) {
       for (let val of taggedPeople) {
         post.tagPeople.push({
@@ -296,14 +324,28 @@ exports.postWithVideo = async (req, res) => {
       }
     }
     if (Array.isArray(taggedPeople)) {
-      for (let instit of taggedPeople) {
-        const institTag = await InstituteAdmin.findById(instit.tagId);
-        if (institTag?.posts.includes(post._id)) {
-        } else {
-          institTag.posts?.push(post._id);
+      if (post?.tagPeople?.length) {
+        for (let instit of taggedPeople) {
+          const institTag = await InstituteAdmin.findById(instit.tagId)
+            .populate({ path: "followers" })
+            .populate({ path: "userFollowersList" });
+          if (institTag?.posts.includes(post._id)) {
+          } else {
+            institTag.posts?.push(post._id);
+          }
+          institTag.tag_post?.push(post._id);
+          if (post.postStatus === "Anyone") {
+            institTag?.followers?.forEach(async (ele) => {
+              ele.posts.push(post._id);
+              await ele.save();
+            });
+            institTag?.userFollowersList?.forEach(async (ele) => {
+              ele.userPosts.push(post._id);
+              await ele.save();
+            });
+          }
+          await institTag.save();
         }
-        institTag.tag_post?.push(post._id);
-        await institTag.save();
       }
     }
   } catch {}
@@ -326,20 +368,20 @@ exports.postWithDeleted = async (req, res) => {
   try {
     const { id, pid } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id });
-    const post = await Post.findById({_id: pid})
+    const post = await Post.findById({ _id: pid });
     await InstituteAdmin.findByIdAndUpdate(id, { $pull: { posts: pid } });
     institute.postCount -= 1;
-    if(post && post.postType === 'Poll' && post.poll_query !== ''){
-      post.poll_query = ''
-      await Poll.findByIdAndDelete(`${post.poll_query}`)
-      institute.pollCount -= 1
-      await post.save()
+    if (post && post.postType === "Poll" && post.poll_query !== "") {
+      post.poll_query = "";
+      await Poll.findByIdAndDelete(`${post.poll_query}`);
+      institute.pollCount -= 1;
+      await post.save();
     }
     await Post.findByIdAndDelete({ _id: pid });
     await institute.save();
     res.status(200).send({ message: "post deleted 🙄🙄" });
-  } catch(e){
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
 };
 
@@ -896,7 +938,6 @@ exports.retrieveSavedAllPosts = async (req, res) => {
     console.log(e);
   }
 };
-
 
 exports.retrieveTagAllPosts = async (req, res) => {
   try {

@@ -44,8 +44,11 @@ const questionNew = require("./routes/User/Post/QuestionRoute");
 const admissionNew = require("./routes/Admission/admissionRoute");
 const pollNew = require("./routes/User/Post/PollsRoute");
 const iQuestionNew = require("./routes/InstituteAdmin/Post/QuestionRoute");
+const instituteMemberRoute = require("./routes/Edit/instituteMemberRoute");
+const staffMemberRoute = require("./routes/Edit/staffMemberRoute");
+const studentMemberRoute = require("./routes/Edit/studentMemberRoute");
+const userMemberRoute = require("./routes/Edit/userMemberRoute");
 const filterNew = require('./routes/Filterization/filterRoute')
-
 // ============================= DB Configuration ==============================
 
 const dburl = `${process.env.DB_URL2}`; // Development
@@ -158,7 +161,10 @@ app.use("/api/v1/post/question", questionNew);
 app.use("/api/v1/poll", pollNew);
 app.use("/api/v1/ins/post/question", iQuestionNew);
 app.use("/api/v1/feed/filter", filterNew)
-
+app.use("/api/v1/edit/institute", instituteMemberRoute);
+app.use("/api/v1/edit/staff", staffMemberRoute);
+app.use("/api/v1/edit/student", studentMemberRoute);
+app.use("/api/v1/edit/user", userMemberRoute);
 // ============================================================================
 
 setInterval(async () => {

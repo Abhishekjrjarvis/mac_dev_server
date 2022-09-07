@@ -5,8 +5,8 @@ info:
   version: one
 
 
-host: 18.205.27.165
-basePath: /api
+# host: 18.205.27.165
+# basePath: /api
 # schemes: [http, https]
 schemes: 
   - http
@@ -11721,3 +11721,558 @@ paths:
       responses:
         "200":
           description: OK
+
+  /api/v1/edit/institute/department/{did}:
+    get:
+      tags:
+        - Edit and Delete (Institute Department, Staff, student and user member )
+      summary: give department details of edit department
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: did 
+          required: true
+          schema:
+            type: string
+          description: The department ID
+      responses:
+        "200":
+          description: OK  
+    patch:
+      tags:
+        - Edit and Delete (Institute Department, Staff, student and user member )
+      summary: Edit department of department name, department title and staff change
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: did 
+          required: true
+          schema:
+            type: string
+          description: The department ID
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              dName:
+                type: string
+                description: if want to change department name then pass this parameter only
+              dTitle:
+                type: string
+                description: if want to change department title then pass this parameter only
+              sid:
+                type: string
+                description: if want to change department head (new staff id) then pass this parameter only
+      responses:
+        "200":
+          description: OK
+
+    delete:
+      tags:
+        - Edit and Delete (Institute Department, Staff, student and user member )
+      summary: Delete department if no student in particular department
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: did 
+          required: true
+          schema:
+            type: string
+          description: The department ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/edit/institute/batch/{bid}:
+    patch:
+      tags:
+        - Edit and Delete (Institute Department, Staff, student and user member )
+      summary: Edit batch of batch name only
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: bid 
+          required: true
+          schema:
+            type: string
+          description: The batch ID
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              batchName:
+                type: string
+                description: if want to change batch name then pass this parameter only  
+      responses:
+        "200":
+          description: OK
+
+    delete:
+      tags:
+        - Edit and Delete (Institute Department, Staff, student and user member )
+      summary: Delete batch if no students in particular batch
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: bid 
+          required: true
+          schema:
+            type: string
+          description: The batch ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/edit/institute/classmaster/{cmid}:
+    delete:
+      tags:
+        - Edit and Delete (Institute Department, Staff, student and user member )
+      summary: Edit class master of className if no any subject is created by this class master
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: cmid 
+          required: true
+          schema:
+            type: string
+          description: The class master ID         
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/edit/institute/class/{cid}:
+    get:
+      tags:
+        - Edit and Delete (Institute Department, Staff, student and user member )
+      summary: Give details of class for edit class 
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: cid 
+          required: true
+          schema:
+            type: string
+          description: The class ID
+      responses:
+        "200":
+          description: OK  
+    patch:
+      tags:
+        - Edit and Delete (Institute Department, Staff, student and user member )
+      summary: Edit class like classTitle, class master and class teacher etc
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: cid 
+          required: true
+          schema:
+            type: string
+          description: The class ID
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              classTitle:
+                type: string
+                description: if want to change department name then pass this parameter only
+              mCName:
+                type: string
+                description: if want to change class Master for that class, pass this parameter only
+              mcId:
+                type: string
+                description: It is change class Master Id (if change the class master for edit class)                              
+              classHeadTitle:
+                type: string
+                description: if want to change department title then pass this parameter only
+              classTeacher:
+                type: string
+                description: if want to change class Teacher head (new staff id) then pass this parameter only
+      responses:
+        "200":
+          description: OK
+
+    delete:
+      tags:
+        - Edit and Delete (Institute Department, Staff, student and user member )
+      summary: Delete class if no students in class
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: cid 
+          required: true
+          schema:
+            type: string
+          description: The class ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/edit/institute/subjectmaster/{smid}:
+    delete:
+      tags:
+        - Edit and Delete (Institute Department, Staff, student and user member )
+      summary: Edit subject master of subjectName if no subject associated with this
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: smid 
+          required: true
+          schema:
+            type: string
+          description: The subject master ID     
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/edit/institute/subject/{sid}:
+    get:
+      tags:
+        - Edit and Delete (Institute Department, Staff, student and user member )
+      summary: Give subject details for edit subject
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: sid 
+          required: true
+          schema:
+            type: string
+          description: The subject  ID
+      responses:
+        "200":
+          description: OK  
+    patch:
+      tags:
+        - Edit and Delete (Institute Department, Staff, student and user member )
+      summary: Edit subject with subjectTitle, subject teacher and subject master etc
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: sid 
+          required: true
+          schema:
+            type: string
+          description: The subject  ID
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              subjectTitle:
+                type: string
+                description: if want to change subject title name then pass this parameter only
+              subjectName:
+                type: string
+                description: if want to change subject Master for that class, pass this parameter only
+              smId:
+                type: string
+                description: It is change subject Master Id (if change the subject master for edit subject)                              
+              sid:
+                type: string
+                description: if want to change subject Teacher head (new staff id) then pass this parameter only          
+      responses:
+        "200":
+          description: OK
+
+    delete:
+      tags:
+        - Edit and Delete (Institute Department, Staff, student and user member )
+      summary: Delete subject if no students associated with this
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: sid 
+          required: true
+          schema:
+            type: string
+          description: The subject  ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/edit/staff/form/photo/{sid}:
+    patch:
+      tags:
+        - Edit and Delete (Institute Department, Staff, student and user member )
+      summary: Edit staff form photo only who applied form to institute by staff Side
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: sid 
+          required: true
+          schema:
+            type: string
+          description: The staff  ID
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload form profile photo          
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/edit/staff/form/detail/{sid}:
+    patch:
+      tags:
+        - Edit and Delete (Institute Department, Staff, student and user member )
+      summary: Edit staff form details by intitute Admin side
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: sid 
+          required: true
+          schema:
+            type: string
+          description: The staff  ID
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              staffFirstName:
+                type: string
+                description: if want to change staffFirstName then pass this parameter only
+              staffMiddleName:
+                type: string
+                description: if want to change staffMiddleName then pass this parameter only
+              staffLastName:
+                type: string
+                description: if want to change staffLastName then pass this parameter only                          
+              staffDOB:
+                type: string
+                description: if want to change staffDOB then pass this parameter only
+              staffGender:
+                type: string
+                description: if want to change staffGender then pass this parameter only
+              staffNationality:
+                type: string
+                description: if want to change staffNationality then pass this parameter only
+              staffMTongue:
+                type: string
+                description: if want to change staffMTongue then pass this parameter only
+              staffMotherName:
+                type: string
+                description: if want to change staffMotherName then pass this parameter only                             
+              staffCast:
+                type: string
+                description: if want to change staffCast then pass this parameter only
+              staffCastCategory:
+                type: string
+                description: if want to change staffCastCategory then pass this parameter only                
+              staffReligion:
+                type: string
+                description: if want to change staffReligion then pass this parameter only
+              staffBirthPlace:
+                type: string
+                description: if want to change staffBirthPlace then pass this parameter only
+              staffDistrict:
+                type: string
+                description: if want to change staffDistrict then pass this parameter only
+              staffState:
+                type: string
+                description: if want to change staffState then pass this parameter only                             
+              staffAddress:
+                type: string
+                description: if want to change staffAddress then pass this parameter only
+              staffPhoneNumber:
+                type: string
+                description: if want to change staffPhoneNumber then pass this parameter only 
+              staffAadharNumber:
+                type: string
+                description: if want to change staffAadharNumber then pass this parameter only
+              staffQualification:
+                type: string
+                description: if want to change staffQualification then pass this parameter only
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/edit/student/form/photo/{sid}:
+    patch:
+      tags:
+        - Edit and Delete (Institute Department, Staff, student and user member )
+      summary: Edit form photo of student form by student Side
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: sid 
+          required: true
+          schema:
+            type: string
+          description: The student  ID
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload form profile photo          
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/edit/student/form/detail/{sid}:
+    patch:
+      tags:
+        - Edit and Delete (Institute Department, Staff, student and user member )
+      summary: Edit student form details by Class Teacher
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: sid 
+          required: true
+          schema:
+            type: string
+          description: The student  ID
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              studentFirstName:
+                type: string
+                description: if want to change studentFirstName then pass this parameter only
+              studentMiddleName:
+                type: string
+                description: if want to change studentMiddleName then pass this parameter only
+              studentLastName:
+                type: string
+                description: if want to change studentLastName then pass this parameter only                          
+              studentDOB:
+                type: string
+                description: if want to change studentDOB then pass this parameter only
+              studentGender:
+                type: string
+                description: if want to change studentGender then pass this parameter only
+              studentNationality:
+                type: string
+                description: if want to change studentNationality then pass this parameter only
+              studentMTongue:
+                type: string
+                description: if want to change studentMTongue then pass this parameter only
+              studentMothersName:
+                type: string
+                description: if want to change studentMothersName then pass this parameter only                             
+              studentCast:
+                type: string
+                description: if want to change studentCast then pass this parameter only
+              studentCastCategory:
+                type: string
+                description: if want to change studentCastCategory then pass this parameter only                
+              studentReligion:
+                type: string
+                description: if want to change studentReligion then pass this parameter only
+              studentBirthPlace:
+                type: string
+                description: if want to change studentBirthPlace then pass this parameter only
+              studentBirthPlace:
+                type: string
+                description: if want to change studentBirthPlace then pass this parameter only
+              studentState:
+                type: string
+                description: if want to change studentState then pass this parameter only                             
+              studentAddress:
+                type: string
+                description: if want to change studentAddress then pass this parameter only
+              studentPhoneNumber:
+                type: string
+                description: if want to change studentPhoneNumber then pass this parameter only 
+              studentAadharNumber:
+                type: string
+                description: if want to change studentAadharNumber then pass this parameter only
+              studentParentsName:
+                type: string
+                description: if want to change studentParentsName then pass this parameter only  
+              studentParentsPhoneNumber:
+                type: string
+                description: if want to change studentParentsPhoneNumber then pass this parameter only                          
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/edit/student/remove/{sid}:
+    patch:
+      tags:
+        - Edit and Delete (Institute Department, Staff, student and user member )
+      summary: Remove student from class by Class Teacher
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: sid 
+          required: true
+          schema:
+            type: string
+          description: The student  ID
+      responses:
+        "200":
+          description: OK
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

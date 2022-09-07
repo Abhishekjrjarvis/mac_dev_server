@@ -3,7 +3,7 @@ const Post = require("../../../models/Post");
 const Comment = require("../../../models/Comment");
 const InstituteAdmin = require("../../../models/InstituteAdmin");
 const ReplyComment = require("../../../models/ReplyComment/ReplyComment");
-const Poll = require('../../../models/Question/Poll')
+const Poll = require("../../../models/Question/Poll");
 const Notification = require("../../../models/notification");
 const {
   uploadPostImageFile,
@@ -41,7 +41,7 @@ exports.postWithText = async (req, res) => {
     post.authorProfilePhoto = user.profilePhoto;
     post.authorOneLine = user.one_line_about;
     post.isUser = "user";
-    post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`
+    post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([user.save(), post.save()]);
     res.status(201).send({ message: "post is create" });
     if (user.userFollowers.length >= 1) {
@@ -60,23 +60,37 @@ exports.postWithText = async (req, res) => {
       });
     }
     if (Array.isArray(req.body?.people)) {
-      for (let instit of req.body?.people) {
-        if (instit.tagType === "User") {
-          const userTag = await User.findById(instit.tagId);
-          userTag.tag_post?.push(post._id);
-          if (userTag?.userPosts.includes(post._id)) {
+      if (post?.tagPeople?.length) {
+        for (let instit of req.body?.people) {
+          if (instit.tagType === "User") {
+            const userTag = await User.findById(instit.tagId)
+              .populate({ path: "userFollowers" })
+              .populate({ path: "userCircle" });
+            userTag.tag_post?.push(post._id);
+            if (userTag?.userPosts.includes(post._id)) {
+            } else {
+              userTag.userPosts?.push(post._id);
+            }
+            if (post.postStatus === "Anyone") {
+              userTag?.userFollowers?.forEach(async (ele) => {
+                ele.userPosts.push(post._id);
+                await ele.save();
+              });
+              userTag?.userCircle?.forEach(async (ele) => {
+                ele.userPosts.push(post._id);
+                await ele.save();
+              });
+            }
+            await userTag.save();
           } else {
-            userTag.userPosts?.push(post._id);
+            const institTag = await InstituteAdmin.findById(instit.tagId);
+            if (institTag?.posts.includes(post._id)) {
+            } else {
+              institTag.posts?.push(post._id);
+            }
+            institTag.tag_post?.push(post._id);
+            await institTag.save();
           }
-          await userTag.save();
-        } else {
-          const institTag = await InstituteAdmin.findById(instit.tagId);
-          if (institTag?.posts.includes(post._id)) {
-          } else {
-            institTag.posts?.push(post._id);
-          }
-          institTag.tag_post?.push(post._id);
-          await institTag.save();
         }
       }
     }
@@ -90,7 +104,7 @@ exports.postWithImage = async (req, res) => {
     const user = await User.findById({ _id: id })
       .populate({ path: "userFollowers" })
       .populate({ path: "userCircle" });
-    const taggedPeople = JSON.parse(req.body.people);
+    const taggedPeople = JSON.parse(req.body?.people);
 
     if (Array.isArray(taggedPeople)) {
       for (let val of taggedPeople) {
@@ -135,23 +149,37 @@ exports.postWithImage = async (req, res) => {
       });
     }
     if (Array.isArray(taggedPeople)) {
-      for (let instit of taggedPeople) {
-        if (instit.tagType === "User") {
-          const userTag = await User.findById(instit.tagId);
-          if (userTag?.userPosts.includes(post._id)) {
+      if (post?.tagPeople?.length) {
+        for (let instit of taggedPeople) {
+          if (instit.tagType === "User") {
+            const userTag = await User.findById(instit.tagId)
+              .populate({ path: "userFollowers" })
+              .populate({ path: "userCircle" });
+            if (userTag?.userPosts.includes(post._id)) {
+            } else {
+              userTag.userPosts?.push(post._id);
+            }
+            userTag.tag_post?.push(post._id);
+            if (post.postStatus === "Anyone") {
+              userTag?.userFollowers?.forEach(async (ele) => {
+                ele.userPosts.push(post._id);
+                await ele.save();
+              });
+              userTag?.userCircle?.forEach(async (ele) => {
+                ele.userPosts.push(post._id);
+                await ele.save();
+              });
+            }
+            await userTag.save();
           } else {
-            userTag.userPosts?.push(post._id);
+            const institTag = await InstituteAdmin.findById(instit.tagId);
+            if (institTag?.posts.includes(post._id)) {
+            } else {
+              institTag.posts?.push(post._id);
+            }
+            institTag.tag_post?.push(post._id);
+            await institTag.save();
           }
-          userTag.tag_post?.push(post._id);
-          await userTag.save();
-        } else {
-          const institTag = await InstituteAdmin.findById(instit.tagId);
-          if (institTag?.posts.includes(post._id)) {
-          } else {
-            institTag.posts?.push(post._id);
-          }
-          institTag.tag_post?.push(post._id);
-          await institTag.save();
         }
       }
     }
@@ -165,7 +193,7 @@ exports.postWithVideo = async (req, res) => {
       .populate({ path: "userFollowers" })
       .populate({ path: "userCircle" });
     const post = new Post({ ...req.body });
-    const taggedPeople = JSON.parse(req.body.people);
+    const taggedPeople = JSON.parse(req.body?.people);
 
     if (Array.isArray(taggedPeople)) {
       for (let val of taggedPeople) {
@@ -209,23 +237,37 @@ exports.postWithVideo = async (req, res) => {
       });
     }
     if (Array.isArray(taggedPeople)) {
-      for (let instit of taggedPeople) {
-        if (instit.tagType === "User") {
-          const userTag = await User.findById(instit.tagId);
-          if (userTag?.userPosts.includes(post._id)) {
+      if (post?.tagPeople?.length) {
+        for (let instit of taggedPeople) {
+          if (instit.tagType === "User") {
+            const userTag = await User.findById(instit.tagId)
+              .populate({ path: "userFollowers" })
+              .populate({ path: "userCircle" });
+            if (userTag?.userPosts.includes(post._id)) {
+            } else {
+              userTag.userPosts?.push(post._id);
+            }
+            userTag.tag_post?.push(post._id);
+            if (post.postStatus === "Anyone") {
+              userTag?.userFollowers?.forEach(async (ele) => {
+                ele.userPosts.push(post._id);
+                await ele.save();
+              });
+              userTag?.userCircle?.forEach(async (ele) => {
+                ele.userPosts.push(post._id);
+                await ele.save();
+              });
+            }
+            await userTag.save();
           } else {
-            userTag.userPosts?.push(post._id);
+            const institTag = await InstituteAdmin.findById(instit.tagId);
+            if (institTag?.posts.includes(post._id)) {
+            } else {
+              institTag.posts?.push(post._id);
+            }
+            institTag.tag_post?.push(post._id);
+            await institTag.save();
           }
-          userTag.tag_post?.push(post._id);
-          await userTag.save();
-        } else {
-          const institTag = await InstituteAdmin.findById(instit.tagId);
-          if (institTag?.posts.includes(post._id)) {
-          } else {
-            institTag.posts?.push(post._id);
-          }
-          institTag.tag_post?.push(post._id);
-          await institTag.save();
         }
       }
     }
@@ -247,21 +289,21 @@ exports.postWithDeleted = async (req, res) => {
   try {
     const { id, pid } = req.params;
     const user = await User.findById({ _id: id });
-    const post = await Post.findById({_id: pid})
+    const post = await Post.findById({ _id: pid });
     await User.findByIdAndUpdate(id, { $pull: { userPosts: pid } });
     await User.findByIdAndUpdate(id, { $pull: { user_saved_post: pid } });
     user.postCount -= 1;
-    if(post && post.postType === 'Poll' && post.poll_query !== ''){
-      post.poll_query = ''
-      await Poll.findByIdAndDelete(`${post.poll_query}`)
-      user.poll_Count -= 1
-      await post.save()
+    if (post && post.postType === "Poll" && post.poll_query !== "") {
+      post.poll_query = "";
+      await Poll.findByIdAndDelete(`${post.poll_query}`);
+      user.poll_Count -= 1;
+      await post.save();
     }
     await Post.findByIdAndDelete({ _id: pid });
     await user.save();
     res.status(200).send({ message: "post deleted" });
-  } catch(e) {
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
 };
 
@@ -600,7 +642,7 @@ exports.getCommentChild = async (req, res) => {
       return childComment;
     };
     if (!comment.childComment.length) {
-      res.status(200).send({ message: "no any child", replyComment:[]  });
+      res.status(200).send({ message: "no any child", replyComment: [] });
     }
     const replyComment = userPagination(comment.childComment);
     res.status(200).send({ replyComment });
@@ -774,43 +816,6 @@ exports.circleList = async (req, res) => {
     console.log(e);
   }
 };
-// exports.circleList = async (req, res) => {
-//   try {
-//     const { uid } = req.params;
-//     const getPage = req.query.page ? parseInt(req.query.page) : 1;
-//     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
-//     const dropItem = (getPage - 1) * itemPerPage;
-//     const tagUser = await User.findById(uid)
-//       .populate({
-//         path: "userCircle",
-//         select: "username userLegalName profilePhoto photoId",
-//       })
-//       .select("_id")
-//       .lean()
-//       .exec();
-//     const circleFilter =
-//       tagUser.userCircle &&
-//       tagUser.userCircle.filter((user) => {
-//         if (
-//           user.username.toLowerCase().includes(req.query.search.trim()) ||
-//           user.userLegalName.toLowerCase().includes(req.query.search.trim())
-//         ) {
-//           return user;
-//         } else {
-//           return "";
-//         }
-//       });
-//     const userPagination = (circleFilter) => {
-//       const endIndex = dropItem + itemPerPage;
-//       const user = circleFilter.slice(dropItem, endIndex);
-//       return user;
-//     };
-//     const tagList = userPagination(circleFilter);
-//     res.status(200).send({
-//       tagList,
-//     });
-//   } catch {}
-// };
 
 exports.retrieveAllUserSavedPosts = async (req, res) => {
   try {
@@ -868,7 +873,6 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
   }
 };
 
-
 exports.retrieveAllUserTagPosts = async (req, res) => {
   try {
     const page = req.query.page ? parseInt(req.query.page) : 1;
@@ -925,16 +929,15 @@ exports.retrieveAllUserTagPosts = async (req, res) => {
   }
 };
 
-
 exports.retrieveAllUserReposts = async (req, res) => {
   try {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const id = req.params.id;
     const skip = (page - 1) * limit;
-    const user = await User.findById(id).select("id")
+    const user = await User.findById(id).select("id");
     var repost = await Post.find({
-      $and: [{ author: `${user._id}` }, { postType: 'Repost' }],
+      $and: [{ author: `${user._id}` }, { postType: "Repost" }],
     })
     .sort("-createdAt")
     .limit(limit)

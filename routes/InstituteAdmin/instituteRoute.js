@@ -478,6 +478,9 @@ router.get(
   catchAsync(Institute.getProfileOneQueryUsername)
 );
 
-router.patch('/:id/location/permission', catchAsync(Institute.retrieveLocationPermission))
+router.patch(
+  "/:id/location/permission",
+  catchAsync(Institute.retrieveLocationPermission)
+);
 
 module.exports = router;

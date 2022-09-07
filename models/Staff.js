@@ -184,6 +184,7 @@ const staffSchema = new mongoose.Schema({
       }
     },
   ]
+
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

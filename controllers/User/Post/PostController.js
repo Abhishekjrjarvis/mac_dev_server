@@ -940,6 +940,7 @@ exports.retrieveAllUserReposts = async (req, res) => {
     .limit(limit)
     .skip(skip)
     .select("postTitle postText postQuestion isHelpful needCount authorOneLine needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType")
+
     .populate({
       path: "rePostAnswer",
       populate: {
@@ -955,6 +956,7 @@ exports.retrieveAllUserReposts = async (req, res) => {
       path: 'repostMultiple',
       select: 'username photoId profilePhoto'
     })
+
     if(repost && repost.length >=1){
       res.status(200).send({ message: "Success", repost, count: repost.length });
     }

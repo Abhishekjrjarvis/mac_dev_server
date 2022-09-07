@@ -368,6 +368,7 @@ const userSchema = new mongoose.Schema({
       ref: 'StudentNotification'
     }
   ]
+
 });
 
 userSchema.post("findOneAndDelete", async function (doc) {

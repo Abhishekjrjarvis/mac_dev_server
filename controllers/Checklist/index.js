@@ -9,6 +9,7 @@ const InstituteAdmin = require('../../models/InstituteAdmin')
 const Finance = require('../../models/Finance')
 const invokeMemberTabNotification = require('../../Firebase/MemberTab')
 
+
 exports.viewDepartment = async (req, res) => {
   const department = await Department.findById(req.params.did);
   res.status(200).send({ department });

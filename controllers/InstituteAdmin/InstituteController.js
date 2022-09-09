@@ -887,7 +887,7 @@ exports.fillStudentForm = async (req, res) => {
       aStatus.save(),
       classUser.save()
     ]);
-    res.status(201).send({ message: "student form is applied", student });
+    res.status(201).send({ message: "student form is applied", student, status: true });
   } catch (e) {
     console.log(e);
   }

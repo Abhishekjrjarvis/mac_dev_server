@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const ReplyComment = require('./ReplyComment/ReplyComment')
 
 const commentSchema = new mongoose.Schema({
   commentDescription: {
@@ -56,6 +57,16 @@ const commentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+});
+
+commentSchema.post("findOneAndDelete", async function (doc) {
+  if (doc) {
+    await ReplyComment.deleteMany({
+      _id: {
+        $in: doc.childComment,
+      },
+    });
+  }
 });
 
 const Comment = mongoose.model("Comment", commentSchema);

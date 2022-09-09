@@ -103,4 +103,6 @@ router.get('/:fid/sal/history', catchAsync(Finance.retrieveAllSalaryHistory))
 router.get('/:eid/one/emp/detail', catchAsync(Finance.retrieveOneEmpQuery))
 //
 
+router.get('/:fid/remaining/fee/list', catchAsync(Finance.retrieveRemainFeeList))
+
 module.exports = router

@@ -763,8 +763,9 @@ exports.addEmpToFinance = async(req, res) =>{
   try{
     const { fid, sid } = req.params
     const finance = await Finance.findById({_id: fid})
+    const staff = await Staff.findById({_id: sid}).select('id')
     const pay_scale = new Payroll({...req.body})
-    pay_scale.staff = sid
+    pay_scale.staff = staff._id
     finance.staff_pay_list.push(pay_scale._id)
     await Promise.all([ pay_scale.save(), finance.save() ])
     res.status(200).send({ message: 'Employee Added for Payroll'})
@@ -777,16 +778,21 @@ exports.addEmpToFinance = async(req, res) =>{
 exports.allEmpToFinance = async(req, res) =>{
   try{
     const { fid } = req.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+
     const finance = await Finance.findById({_id: fid})
-    .select('_id')
+    .select('_id staff_pay_list')
+
+    const allEmp = await Payroll.find({_id: { $in: finance.staff_pay_list }})
+    .limit(limit)
+    .skip(skip)
     .populate({
-      path: 'staff_pay_list',
-      populate: {
-        path: 'staff',
-        select: 'staffFirstName'
-      }
+      path: 'staff',
+      select: 'staffFirstName staffMiddleName staffLastName staffROLLNO staffProfilePhoto photoId'
     })
-    res.status(200).send({ message: 'All Employee ', allEmp: finance.staff_pay_list})
+    res.status(200).send({ message: 'All Employee List', allEmp: allEmp})
   }
   catch(e){
     console.log(e)
@@ -797,7 +803,7 @@ exports.allEmpToFinance = async(req, res) =>{
 exports.addFieldToPayroll = async(req, res) =>{
   try{
     const { fid, eid } = req.params
-    const { month, attendence, paid_leaves, payment_mode, purpose, amount, paid_to, message, is_paid, gross_salary, net_total, hra, tds, epf } = req.body
+    const { month, attendence, paid_leaves, payment_mode, purpose, amount, paid_to, message, gross_salary, net_total, hra, tds, epf, da, ma, ta, epc, pqs } = req.body
     const finance = await Finance.findById({_id: fid})
     var emp = await Payroll.findById({_id: eid})
     var staff = await Staff.findById({_id: `${emp.staff}`})
@@ -811,16 +817,26 @@ exports.addFieldToPayroll = async(req, res) =>{
         amount: amount,
         paid_to: paid_to,
         message: message,
-        is_paid: is_paid,
+        is_paid: "Paid",
         gross_salary: gross_salary,
         net_total: net_total,
         hra: hra,
         tds: tds,
-        epf: epf
+        epf: epf,
+        da: da,
+        medical_allowance: ma,
+        travel_allowance: ta,
+        perquisites: pqs,
+        employer_contribution: epc
       })
       emp.h_r_a = hra
       emp.t_d_s = tds
       emp.e_p_f = epf
+      emp.d_a = da
+      emp.medical_allowance = ma
+      emp.travel_allowance = ta
+      emp.perquisites = pqs
+      emp.employer_contribution = epc
       finance.salary_history.push({
         salary: net_total,
         month: month,
@@ -913,6 +929,33 @@ exports.retrieveOneEmpQuery = async(req, res) =>{
 
     }
     
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+
+
+exports.retrieveRemainFeeList = async(req, res) => {
+  try{
+    const { fid } = req.params
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const finance = await Finance.findById({_id: fid})
+    const studentList = await InstituteAdmin.findById({_id: `${finance.institute}`})
+    .select('_id ApproveStudent')
+
+    const student = await Student.find({ _id: { $in: studentList.ApproveStudent }})
+    .limit(limit)
+    .skip(skip)
+    .select('studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentFeeRemainingCount studentPaidFeeCount studentGRNO')
+    .populate({
+      path: 'department',
+      select: 'dName'
+    })
+    res.status(200).send({ message: 'Remaining Fee List', list: student})
   }
   catch(e){
     console.log(e)

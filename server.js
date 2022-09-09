@@ -6,6 +6,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
+const compression = require('compression')
 const MongoStore = require("connect-mongo");
 const loggers = require("./Utilities/Logs/resLogs");
 const mongoSanitize = require("express-mongo-sanitize");
@@ -73,6 +74,7 @@ mongoose
 
 app.use(mongoSanitize());
 app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false }));
+// app.use(compression())
 
 const swaggerUI = require("swagger-ui-express");
 const YAML = require("yamljs");

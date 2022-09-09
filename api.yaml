@@ -10943,7 +10943,7 @@ paths:
             type: integer
           description: The number of items to skip before starting to collect the result set
         - in: query
-          name: page
+          name: limit
           schema:
             type: integer
           description: The number of items to skip before starting to collect the result set

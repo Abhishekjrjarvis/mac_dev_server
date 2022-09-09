@@ -804,7 +804,7 @@ exports.fillStaffForm = async (req, res) => {
       notify.save(),
       aStatus.save(),
     ]);
-    res.status(201).send({ message: "Staff form is applied", staff });
+    res.status(201).send({ message: "Staff form is applied", staff, status: true });
   } catch (e) {
     console.log(e);
   }

@@ -62,7 +62,7 @@ exports.getAllUser = async(req, res) =>{
         .sort("-created_at")
         .limit(limit)
         .skip(skip)
-        .select('userLegalName username photoId profilePhoto userStatus')
+        .select('userLegalName username photoId profilePhoto userStatus one_line_about')
         res.status(200).send({ message: "User data", uRandom: user });
       } catch(e) {
         console.log(`Error`, e.message);
@@ -163,10 +163,10 @@ exports.getAllInstitute = async(req, res) =>{
         const limit = req.query.limit ? parseInt(req.query.limit) : 10;
         const skip = (page - 1) * limit;
         const institute = await InstituteAdmin.find({})
-        .sort('createdAt')
+        .sort('-createdAt')
         .limit(limit)
         .skip(skip)
-        .select('insName photoId insProfilePhoto name status isUniversal')
+        .select('insName photoId insProfilePhoto name status isUniversal one_line_about')
         res.status(200).send({ message: "Institute data", iRandom: institute });
       } catch(e) {
         console.log(

@@ -15,9 +15,10 @@ const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const axios = require("axios");
 const jwt = require("jsonwebtoken");
-const usernameGenerator = require('./AuthFunction')
+const payment_modal_activate = require('./AuthFunction')
 const Referral = require('../../models/QCoins/Referral')
 const SupportChat = require('../../models/Chat/SupportChat')
+const QRCode = require('qrcode');
 
 
 
@@ -31,6 +32,17 @@ function generateAccessInsToken(name, insId, insPassword) {
 
 function generateAccessAdminToken(adminUserName, adminId, adminPassword) {
   return jwt.sign({ adminUserName, adminId, adminPassword }, process.env.TOKEN_SECRET, { expiresIn: "1y", });
+}
+
+const generateQR = async (encodeData, Id) => {
+	try {
+    const institute = await InstituteAdmin.findById({_id: Id})
+		var data = await QRCode.toDataURL(encodeData);
+    institute.profileQRCode = data
+    await institute.save()
+	} catch(e){
+		console.log(e);
+	}
 }
 
 
@@ -68,6 +80,8 @@ exports.getRegisterIns = async (req, res) => {
         }
         institute.photoId = "1";
         institute.coverId = "2";
+        institute.profileURL = `https://qviple.com/q/${institute.name}/profile`
+        institute.modal_activate = payment_modal_activate()
         admins.instituteList.push(institute);
         admins.requestInstituteCount += 1
         await Promise.all([admins.save(), institute.save()]);
@@ -79,6 +93,7 @@ exports.getRegisterIns = async (req, res) => {
         })
         await institute.save()
         }
+        generateQR(`https://qviple.com/q/${institute.name}/profile`, institute._id)
       }
     }
   } catch (e) {
@@ -543,7 +558,10 @@ module.exports.authentication = async (req, res) => {
   var d_a_date = d_date.getDate();
   var d_a_month = d_date.getMonth() + 1;
   var d_a_year = d_date.getFullYear();
-  if (d_a_month <= 10) {
+  if(d_a_date <= 9){
+    d_a_date = `0${d_a_date}`
+  }
+  if (d_a_month < 10) {
     d_a_month = `0${d_a_month}`;
   }
   var deactivate_date = `${d_a_year}-${d_a_month}-${d_a_date}`;

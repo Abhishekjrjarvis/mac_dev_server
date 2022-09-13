@@ -156,6 +156,15 @@ const financeSchema = new mongoose.Schema({
         ref: 'Payroll'
       }
     },
+  ],
+  payment_gateway_charges: [
+    {
+      original_amount: { type: Number, default: 0 },
+      payment_mode: { type: String },
+      percent: { type: String },
+      deduct_charge_gateway_amount: { type: Number, default: 0 },
+      return_amount: { type: Number, default: 0},
+    },
   ]
 }, { timestamps: true});
 

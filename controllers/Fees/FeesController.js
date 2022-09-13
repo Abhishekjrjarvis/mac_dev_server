@@ -363,15 +363,17 @@ exports.retrieveStudentQuery = async(req, res) => {
     .populate({
       path: 'user',
       select: 'userLegalName'
-    })
+    }).lean()
     const fees = await Fees.find({ _id: { $in: student.department.fees}})
     .sort("-createdAt")
+    .lean()
     const check = await Checklist.find({_id: { $in: student.department.checklists}})
     .sort("-createdAt")
+    .lean()
     var mergePay = [...fees, ...check]
-    const institute = await InstituteAdmin.findById({_id: `${student.institute._id}`})
+    const institute = await InstituteAdmin.findById({_id: `${student.institute._id}`}).select('financeDepart').lean()
     if(institute && institute.financeDepart.length >=1){
-      var finance = await Finance.findById({_id: `${institute?.financeDepart[0]}`})
+      var finance = await Finance.findById({_id: `${institute?.financeDepart[0]}`}).select('_id').lean()
       res.status(200).send({ message: 'Student Fee and Checklist', student, mergePay: mergePay, financeId: finance?._id})
     }
     else{

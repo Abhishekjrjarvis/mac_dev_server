@@ -13,7 +13,7 @@ const mongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
 
 //======================== All Routes ========================
-const { check_poll_status } = require("./Service/AutoRefreshBackend");
+const { check_poll_status, payment_modal_initiated } = require("./Service/AutoRefreshBackend");
 const uploadRoute = require("./routes/UploadContent/index");
 const elearningRoute = require("./routes/Elearning/index");
 const libraryRoute = require("./routes/Library/index");
@@ -74,7 +74,7 @@ mongoose
 
 app.use(mongoSanitize());
 app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false }));
-// app.use(compression())
+app.use(compression())
 
 const swaggerUI = require("swagger-ui-express");
 const YAML = require("yamljs");
@@ -174,6 +174,10 @@ app.use("/api/v1/edit/user", userMemberRoute);
 setInterval(async () => {
   await check_poll_status();
 }, 20000);
+
+setInterval(async () => {
+  await payment_modal_initiated();
+}, 30000)
 
 app.get("*", (req, res) => {
   res.status(404).send("Page Not Found...");

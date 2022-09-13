@@ -17,7 +17,6 @@ const Finance = require("../../models/Finance");
 const Library = require("../../models/Library");
 const Subject = require("../../models/Subject");
 const StudentNotification = require("../../models/Marks/StudentNotification")
-const AdmissionAdmin = require("../../models/AdmissionAdmin");
 const Class = require("../../models/Class");
 const Leave = require("../../models/Leave");
 const ClassMaster = require("../../models/ClassMaster");
@@ -45,22 +44,8 @@ exports.getDashOneQuery = async (req, res) => {
   try {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id }).select(
-      "insName name insAbout photoId staff_privacy email_privacy contact_privacy tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart unlockAmount accessFeature activateStatus"
+      "insName name insAbout photoId staff_privacy modal_activate email_privacy followers_critiria initial_Unlock_Amount contact_privacy followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart unlockAmount accessFeature activateStatus"
     );
-    // .populate({
-    //   path: "supportChat",
-    //   populate: {
-    //     path: "latestMessage",
-    //   },
-    // })
-    // .populate({
-    //   path: "supportChat",
-    //   populate: {
-    //     path: "message",
-    //   },
-    // })
-    // .lean()
-    // .exec();
     const encrypt = await encryptionPayload(institute);
     res.status(200).send({
       message: "limit Ins Data",

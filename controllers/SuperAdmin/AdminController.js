@@ -62,7 +62,7 @@ exports.retrieveAdminQuery = async(req, res) =>{
 exports.getAdmin = async(req, res) =>{
     try {
         const { aid } = req.params
-        const post = await Post.find({}).select('id')
+        const post = await Post.find({}).select('id').lean()
         const admins = await Admin.findById({ _id: aid})
         .select('id postCount instituteCount reportPostQueryCount returnAmount careerCount getTouchCount userCount featureAmount idCardBalance staffCount studentCount playlistCount paymentCount adminName adminUserName photoId profilePhoto')
         .populate({
@@ -97,6 +97,7 @@ exports.getAdmin = async(req, res) =>{
             select: 'userLegalName username'
           }
         })
+        .lean()
         res.status(200).send({ message: 'Success', admins, postCount: post.length });
     } catch(e) {
         console.log(`Error`, e.message);
@@ -106,18 +107,22 @@ exports.getAdmin = async(req, res) =>{
 
 exports.retrieveApproveInstituteArray = async(req, res) =>{
   try{
-    const { aid } = req.params
-    const admin = await Admin.findById({ _id: aid})
-    .select('adminName assignUniversalStatus')
-    .populate({
-      path: 'ApproveInstitute',
-      select: 'insName name photoId insProfilePhoto status staffCount studentCount isUniversal'
-    })
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}`})
+    .select('adminName assignUniversalStatus ApproveInstitute')
     .populate({
       path: 'assignUniversal',
       select: 'id'
     })
-    res.status(200).send({ message: 'Approve Array', admin})
+
+    const institutes = await InstituteAdmin.find({_id: { $in: admin.ApproveInstitute }})
+    .sort('-createdAt')
+    .limit(limit)
+    .skip(skip)
+    .select('insName name photoId insProfilePhoto status staffCount studentCount isUniversal')
+    res.status(200).send({ message: 'Approve Array', admin: admin, institutes: institutes})
   }
   catch{
 
@@ -134,6 +139,7 @@ exports.retrievePendingInstituteArray = async(req, res) =>{
       path: 'instituteList',
       select: 'insName name photoId insProfilePhoto status insEmail insPhoneNumber insType insApplyDate'
     })
+    .lean()
     res.status(200).send({ message: 'Pending Array', admin})
   }
   catch{
@@ -145,17 +151,21 @@ exports.retrievePendingInstituteArray = async(req, res) =>{
 
 exports.retrieveUserArray = async(req, res) =>{
   try{
-    const { aid } = req.params
-    const admin = await Admin.findById({ _id: aid})
-    .select('adminName')
-    .populate({
-      path: 'users',
-      select: 'userLegalName username photoId profilePhoto userAddress userDateOfBirth userGender userEmail userPhoneNumber '
-    })
-    res.status(200).send({ message: 'Pending Array', admin})
-  }
-  catch{
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}`})
+    .select('adminName users')
 
+    const users = await User.find({ _id: { $in: admin.users }})
+    .sort('-created_at')
+    .limit(limit)
+    .skip(skip)
+    .select('userLegalName username photoId profilePhoto userAddress userDateOfBirth userGender userEmail userPhoneNumber ')
+    res.status(200).send({ message: 'Users Array', users: users})
+  }
+  catch(e){
+    console.log(e)
   }
 }
 
@@ -323,12 +333,15 @@ exports.getAll = async(req, res) =>{
 exports.getApproveIns = async(req, res) =>{
     try {
         const { aid, id } = req.params;
-        const { charges } = req.body
+        const { charges, initialAmount, followersAmount } = req.body
+        var c_amount = parseInt(charges)
+        var i_amount = parseInt(initialAmount)
+        var f_amount = parseInt(followersAmount)
         const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
         const institute = await InstituteAdmin.findById({ _id: id });
         if(institute.initialReferral){
         var user = await User.findOne({ _id: `${institute.initialReferral}`})
-        user.userCommission += (charges * 0.4)
+        user.userCommission += (c_amount * 0.4)
         await user.save()
         }
         const notify = new Notification({});
@@ -337,8 +350,10 @@ exports.getApproveIns = async(req, res) =>{
         admin.requestInstituteCount -= 1
         admin.instituteList.pull(id);
         institute.status = "Approved";
-        institute.unlockAmount = charges == null ? 1000 : charges 
-        if(charges == 0){
+        institute.unlockAmount = c_amount == null ? 1000 : c_amount
+        institute.initial_Unlock_Amount = i_amount
+        institute.followers_critiria = f_amount
+        if(c_amount == 0){
         admin.activateAccount += 1
         institute.featurePaymentStatus = 'Paid'
         institute.accessFeature = 'UnLocked'
@@ -347,6 +362,12 @@ exports.getApproveIns = async(req, res) =>{
         }
         notify.notifyContent = "Approval For Super Admin is successfull";
         notify.notifySender = admin._id;
+        //
+        admin.activateAccount += 1
+        institute.accessFeature = 'UnLocked'
+        institute.activateStatus = 'Activated'
+        institute.activateDate = new Date()
+        //
         notify.notifyReceiever = id;
         institute.iNotify.push(notify._id);
         notify.institute = institute._id;
@@ -422,7 +443,7 @@ exports.getReferralUser = async(req, res) =>{
 exports.retrieveLandingPageCount = async(req, res) =>{
   try{
     const admin = await Admin.findById({_id: `${process.env.S_ADMIN_ID}`})
-    .select('instituteCount userCount studentCount staffCount')
+    .select('instituteCount userCount studentCount staffCount').lean()
     res.status(200).send({ message: 'Success', admin})
   }
   catch(e){
@@ -440,6 +461,7 @@ exports.retrieveOneInstitute = async(req, res) =>{
       path: 'initialReferral',
       select: 'userLegalName username photoId profilePhoto'
     })
+    .lean()
     res.status(200).send({ message: 'One Institute', institute})
   }
   catch(e){
@@ -506,12 +528,14 @@ exports.retrieveApproveInstituteActivate = async(req, res) => {
     const { aid } = req.params
     const admin = await Admin.findById({_id: aid})
     .select('activateAccount')
+    .lean()
     const institute = await InstituteAdmin.find({ activateStatus: 'Activated'})
     .select('createdAt activateDate insName name unlockAmount photoId insProfilePhoto')
     .populate({
       path: 'initialReferral',
       select: 'username userLegalName photoId profilePhoto'
     })
+    .lean()
     res.status(200).send({ message: 'Activate Query ', institute, admin})
   }
   catch{
@@ -546,6 +570,7 @@ exports.retrieveReferralUserArray = async(req, res) => {
   try{
     const user = await User.find({ referralStatus: 'Granted'})
     .select('createdAt userLegalName username photoId profilePhoto referralArray userCommission paymentStatus')
+    .lean()
     res.status(200).send({ message: 'Referral Query ', user})
   }
   catch{
@@ -589,6 +614,7 @@ exports.retrieveGetInTouch = async(req, res) => {
     .populate({
       path: 'getTouchUsers'
     })
+    .lean()
     res.status(200).send({ message: 'Get In Touch Data', admin})
   }
   catch{
@@ -603,6 +629,7 @@ exports.retrieveCarrierQuery = async(req, res) => {
     .populate({
       path: 'careerUserArray'
     })
+    .lean()
     res.status(200).send({ message: 'Career Data', admin})
   }
   catch(e){
@@ -651,6 +678,7 @@ exports.retrieveNotificationQuery = async(req, res) => {
         select: 'photoId insProfilePhoto'
       }
     })
+    .lean()
     res.status(200).send({ message: 'Notification Data', admin})
   }
   catch{
@@ -662,6 +690,7 @@ exports.retrieveNotificationCountQuery = async(req, res) => {
   try{
     const admin = await Admin.findById({_id: `${process.env.S_ADMIN_ID}`})
     .select('id aNotify')
+    .lean()
     res.status(200).send({ message: 'Notification Count Data', notifyCount: admin.aNotify.length})
   }
   catch{
@@ -778,6 +807,7 @@ exports.retrieveInstituteRepayQuery = async(req, res) =>{
         select: 'insName'
       }
     })
+    .lean()
     res.status(200).send({ message: 'Repay Array', repay: institute.getReturn})
   }
   catch{
@@ -788,13 +818,13 @@ exports.retrieveInstituteRepayQuery = async(req, res) =>{
 
 exports.retrieveSocialPostCount = async(req, res) =>{
   try{
-    const postCount = await Post.find({ postType: 'Post'}).select('id')
+    const postCount = await Post.find({ postType: 'Post'}).select('id').lean()
 
-    const questionCount = await Post.find({ postType: 'Question'}).select('id')
+    const questionCount = await Post.find({ postType: 'Question'}).select('id').lean()
 
-    const pollCount = await Post.find({ postType: 'Poll'}).select('id')
+    const pollCount = await Post.find({ postType: 'Poll'}).select('id').lean()
 
-    const repostCount = await Post.find({ postType: 'Repost'}).select('id')
+    const repostCount = await Post.find({ postType: 'Repost'}).select('id').lean()
     
     res.status(200).send({ message: 'Total Posts', postCount: postCount?.length, questionCount: questionCount?.length, pollCount: pollCount?.length, repostCount: repostCount?.length })
   }
@@ -806,9 +836,9 @@ exports.retrieveSocialPostCount = async(req, res) =>{
 exports.retrieveSocialLikeCount = async(req, res) =>{
   try{
     var total = 0
-    const postCount = await Post.find({}).select('id endUserLike')
+    const postCount = await Post.find({}).select('id endUserLike').lean()
 
-    const answerCount = await Answer.find({}).select('id upVote')
+    const answerCount = await Answer.find({}).select('id upVote').lean()
 
     if(postCount?.length >=1){
       postCount.forEach(async (post) =>{
@@ -821,7 +851,7 @@ exports.retrieveSocialLikeCount = async(req, res) =>{
         total += answer?.upVote?.length
       })
     }
-    res.status(200).send({ message: 'Total Likes', likeCount: total})
+    res.status(200).send({ message: 'Total Likes', likeCount: total, postCount: postCount?.length})
   }
   catch{
 
@@ -839,7 +869,7 @@ exports.retrievePlatformAllPosts = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "postTitle postText postQuestion isHelpful needCount needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType"
+        "postTitle postText postQuestion isHelpful postBlockStatus needCount needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType"
       )
       .populate({
         path: "poll_query",
@@ -865,8 +895,9 @@ exports.retrieveOneUserQuery = async(req, res) =>{
     var totalUpVote = 0
     const user = await User.findById({ _id: uid })
       .select(
-        "userLegalName photoId questionCount one_line_about userCommission userEarned referralArray answerQuestionCount profilePhoto userBio coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout "
+        "userLegalName photoId questionCount userStatus blockStatus one_line_about userCommission userEarned referralArray answerQuestionCount profilePhoto userBio coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout "
       )
+      .lean()
       const answers = await Answer.find({ author: uid })
       for(let up of answers){
         totalUpVote += up.upVoteCount
@@ -885,7 +916,7 @@ exports.retrieveOneInstituteQuery = async(req, res) => {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName photoId insProfilePhoto one_line_about bankAccountNumber bankAccountHolderName bankIfscCode bankAccountType bankAccountPhoneNumber paymentBankStatus questionCount pollCount insEditableText insEditableTexts coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAchievement "
+        "insName photoId insProfilePhoto status blockStatus one_line_about bankAccountNumber bankAccountHolderName bankIfscCode bankAccountType bankAccountPhoneNumber paymentBankStatus questionCount pollCount insEditableText insEditableTexts coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAchievement "
       )
       .populate({
         path: 'displayPersonList',
@@ -909,11 +940,67 @@ exports.retrieveOnePostBlock = async(req, res) =>{
   try{
     const { pid } = req.params
     const post = await Post.findById({_id: pid})
-    post.postBlockStatus = 'Blocked'
+    if(post.postBlockStatus === 'Not Block'){
+      post.postBlockStatus = 'Blocked'
+    }
+    else if(post?.postBlockStatus === 'Blocked'){
+      post.postBlockStatus = 'Not Block'
+    }
+    else{}
     await post.save()
-    res.status(200).send({ message: 'Post Blocked By Super Admin'})
+    res.status(200).send({ message: 'Post Blocked By Super Admin', status: true})
   }
   catch{
 
   }
 }
+
+
+exports.retrieveOneInstituteBlock = async(req, res) =>{
+  try{
+    const { id } = req.params
+    const institute = await InstituteAdmin.findById({_id: id})
+    if(institute.blockStatus === 'UnBlocked'){
+      institute.blockStatus = 'Blocked'
+    }
+    else if(institute.blockStatus === 'Blocked'){
+      institute.blockStatus = 'UnBlocked'
+    }
+    await institute.save()
+    res.status(200).send({ message: 'Institute Blocked By Super Admin', status: true})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+
+exports.retrieveOneUserBlock = async(req, res) =>{
+  try{
+    const { uid } = req.params
+    const user = await User.findById({_id: uid})
+    if(user.blockStatus === 'UnBlocked'){
+      user.blockStatus = 'Blocked'
+    }
+    else if(user.blockStatus === 'Blocked'){
+      user.blockStatus = 'UnBlocked'
+    }
+    await user.save()
+    res.status(200).send({ message: 'User Blocked By Super Admin', status: true})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+
+// exports.filterByYear = async(req, res) =>{
+//   try{
+//     const { year } = req.query
+//     const users = await User.find({ createdAt: '2022-09-09'})
+//     res.status(200).send({ message: 'Dataset of User Activity', users: users.length})
+//   }
+//   catch(e){
+//     console.log(e)
+//   }
+// }

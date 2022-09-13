@@ -961,3 +961,23 @@ exports.retrieveRemainFeeList = async(req, res) => {
     console.log(e)
   }
 }
+
+
+
+exports.retrievePaymentChargesQuery = async(req, res) => {
+  try{
+    const { fid } = req.params
+    const finance = await Finance.findById({_id: fid})
+    .select('id payment_gateway_charges')
+    .lean()
+    if(finance?.payment_gateway_charges?.length >= 1){
+      res.status(200).send({ message: 'charges', charges: finance})
+    }
+    else{
+      res.status(200).send({ message: 'charges', charges: [] })
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}

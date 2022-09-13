@@ -90,7 +90,10 @@ exports.searchInstituteUniversal = async (req, res) => {
       const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
       const dropItem = (getPage - 1) * itemPerPage;
       const allInstitutes = await InstituteAdmin.find({
-        $and: [{ _id: { $ne: [req.params.id] } }],
+        $and: [
+          { _id: { $ne: [req.params.id] } },
+          { status: { $eq: "Approved" } },
+        ],
         $or: [
           { insName: { $regex: req.query.search, $options: "i" } },
           { name: { $regex: req.query.search, $options: "i" } },

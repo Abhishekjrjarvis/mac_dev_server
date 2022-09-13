@@ -15,7 +15,7 @@ const helmet = require("helmet");
 const { check_poll_status } = require("./Service/AutoRefreshBackend");
 const uploadRoute = require("./routes/UploadContent/index");
 const elearningRoute = require("./routes/Elearning/index");
-const libraryRoute = require("./routes/Library/index");
+const libraryRoute = require("./routes/Library/libraryRoute");
 const searchRoute = require("./routes/Search/index");
 const paymentNew = require("./routes/Payment/paymentRoute");
 const adminNew = require("./routes/SuperAdmin/adminRoute");
@@ -48,7 +48,7 @@ const instituteMemberRoute = require("./routes/Edit/instituteMemberRoute");
 const staffMemberRoute = require("./routes/Edit/staffMemberRoute");
 const studentMemberRoute = require("./routes/Edit/studentMemberRoute");
 const userMemberRoute = require("./routes/Edit/userMemberRoute");
-const filterNew = require('./routes/Filterization/filterRoute')
+const filterNew = require("./routes/Filterization/filterRoute");
 // ============================= DB Configuration ==============================
 
 const dburl = `${process.env.DB_URL2}`; // Development
@@ -70,7 +70,9 @@ mongoose
   });
 
 app.use(mongoSanitize());
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use(
+  helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false })
+);
 
 const swaggerUI = require("swagger-ui-express");
 const YAML = require("yamljs");
@@ -160,7 +162,7 @@ app.use("/api/v1/extra", extraNew);
 app.use("/api/v1/post/question", questionNew);
 app.use("/api/v1/poll", pollNew);
 app.use("/api/v1/ins/post/question", iQuestionNew);
-app.use("/api/v1/feed/filter", filterNew)
+app.use("/api/v1/feed/filter", filterNew);
 app.use("/api/v1/edit/institute", instituteMemberRoute);
 app.use("/api/v1/edit/staff", staffMemberRoute);
 app.use("/api/v1/edit/student", studentMemberRoute);

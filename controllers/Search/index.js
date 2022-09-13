@@ -13,7 +13,7 @@ const SportClass = require("../../models/SportClass");
 const Checklist = require("../../models/Checklist");
 const Fees = require("../../models/Fees");
 const Batch = require("../../models/Batch");
-const Library = require("../../models/Library");
+const Library = require("../../models/Library/Library");
 
 exports.searchUserUniversal = async (req, res) => {
   try {

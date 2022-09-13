@@ -93,4 +93,25 @@ router.get(
   catchAsync(Post.retrieveTagAllPosts)
 );
 
+router.patch(
+  "/edit/comment/:cid",
+  // isLoggedIn,
+  catchAsync(Post.commentEdit)
+);
+router.delete(
+  "/edit/comment/:cid",
+  // isLoggedIn,
+  catchAsync(Post.commentDelete)
+);
+
+router.patch(
+  "/edit/comment/relpy/:cid",
+  // isLoggedIn,
+  catchAsync(Post.commentReplyEdit)
+);
+router.delete(
+  "/edit/comment/reply/:cid",
+  // isLoggedIn,
+  catchAsync(Post.commentReplyDelete)
+);
 module.exports = router;

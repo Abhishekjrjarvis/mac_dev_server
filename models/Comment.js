@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+const ReplyComment = require("./ReplyComment/ReplyComment");
 const commentSchema = new mongoose.Schema({
   commentDescription: {
     type: String,
@@ -17,19 +17,19 @@ const commentSchema = new mongoose.Schema({
     type: String,
   },
   authorName: {
-    type: String
+    type: String,
   },
   authorUserName: {
-    type: String
+    type: String,
   },
   authorPhotoId: {
-    type: String
+    type: String,
   },
   authorProfilePhoto: {
-    type: String
+    type: String,
   },
   authorOneLine: {
-    type: String
+    type: String,
   },
   // modelId: {
   //   type: mongoose.Schema.Types.ObjectId,
@@ -56,6 +56,16 @@ const commentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+});
+
+commentSchema.post("findOneAndDelete", async function (doc) {
+  if (doc) {
+    await ReplyComment.deleteMany({
+      _id: {
+        $in: doc.childComment,
+      },
+    });
+  }
 });
 
 const Comment = mongoose.model("Comment", commentSchema);

@@ -14,7 +14,7 @@ const util = require("util");
 // const { random_list_generator } = require("../../../Utilities/randomFunction");
 const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require("../../../Firebase/firebase");
-const Notification = require('../../../models/notification')
+const Notification = require("../../../models/notification");
 
 exports.postWithText = async (req, res) => {
   try {
@@ -109,12 +109,18 @@ exports.postWithText = async (req, res) => {
           institTag.tag_post?.push(post._id);
           if (post.postStatus === "Anyone") {
             institTag?.followers?.forEach(async (ele) => {
-              ele.posts.push(post._id);
-              await ele.save();
+              if (ele?.posts?.includes(post._id)) {
+              } else {
+                ele.posts.push(post._id);
+                await ele.save();
+              }
             });
             institTag?.userFollowersList?.forEach(async (ele) => {
-              ele.userPosts.push(post._id);
-              await ele.save();
+              if (ele?.userPosts?.includes(post._id)) {
+              } else {
+                ele.userPosts.push(post._id);
+                await ele.save();
+              }
             });
           }
           await institTag.save();
@@ -222,12 +228,18 @@ exports.postWithImage = async (req, res) => {
           institTag.tag_post?.push(post._id);
           if (post.postStatus === "Anyone") {
             institTag?.followers?.forEach(async (ele) => {
-              ele.posts.push(post._id);
-              await ele.save();
+              if (ele?.posts?.includes(post._id)) {
+              } else {
+                ele.posts.push(post._id);
+                await ele.save();
+              }
             });
             institTag?.userFollowersList?.forEach(async (ele) => {
-              ele.userPosts.push(post._id);
-              await ele.save();
+              if (ele?.userPosts?.includes(post._id)) {
+              } else {
+                ele.userPosts.push(post._id);
+                await ele.save();
+              }
             });
           }
           await institTag.save();
@@ -336,12 +348,18 @@ exports.postWithVideo = async (req, res) => {
           institTag.tag_post?.push(post._id);
           if (post.postStatus === "Anyone") {
             institTag?.followers?.forEach(async (ele) => {
-              ele.posts.push(post._id);
-              await ele.save();
+              if (ele?.posts?.includes(post._id)) {
+              } else {
+                ele.posts.push(post._id);
+                await ele.save();
+              }
             });
             institTag?.userFollowersList?.forEach(async (ele) => {
-              ele.userPosts.push(post._id);
-              await ele.save();
+              if (ele?.userPosts?.includes(post._id)) {
+              } else {
+                ele.userPosts.push(post._id);
+                await ele.save();
+              }
             });
           }
           await institTag.save();
@@ -521,29 +539,38 @@ exports.postComment = async (req, res) => {
     post.commentCount += 1;
     comment.post = post._id;
     await Promise.all([post.save(), comment.save()]);
-    var notify = new Notification({})
-    var author_ins = await InstituteAdmin.findById({_id: `${post.author}`})
-    if(`${comment.author}` === `${author_ins._id}`){
+    var notify = new Notification({});
+    var author_ins = await InstituteAdmin.findById({ _id: `${post.author}` });
+    if (`${comment.author}` === `${author_ins._id}`) {
       notify.notifyContent = `you shared a new comment`;
-    }
-    else{
+    } else {
       notify.notifyContent = `${comment.authorName} commented on your post`;
     }
-    notify.notifySender = req.tokenData?.userId ? req.tokenData.userId : req.tokenData?.insId ? req.tokenData.insId : ''
+    notify.notifySender = req.tokenData?.userId
+      ? req.tokenData.userId
+      : req.tokenData?.insId
+      ? req.tokenData.insId
+      : "";
     notify.notifyReceiever = author_ins._id;
     author_ins.iNotify.push(notify._id);
     notify.institute = author_ins._id;
-    if(req?.tokenData?.userId){
-      notify.notifyByPhoto = req?.tokenData?.userId
+    if (req?.tokenData?.userId) {
+      notify.notifyByPhoto = req?.tokenData?.userId;
+    } else if (req?.tokenData?.insId) {
+      notify.notifyByInsPhoto = req?.tokenData?.insId;
     }
-    else if(req?.tokenData?.insId){
-      notify.notifyByInsPhoto = req?.tokenData?.insId
-    }
-    await Promise.all([ notify.save(), author_ins.save() ])
-    invokeFirebaseNotification("Comment", notify, "New Comment", comment.author, author_ins.deviceToken, post._id)
+    await Promise.all([notify.save(), author_ins.save()]);
+    invokeFirebaseNotification(
+      "Comment",
+      notify,
+      "New Comment",
+      comment.author,
+      author_ins.deviceToken,
+      post._id
+    );
     res.status(201).send({ message: "comment created", comment });
   } catch (e) {
-    console.log('ICN', e);
+    console.log("ICN", e);
   }
 };
 
@@ -981,5 +1008,63 @@ exports.retrieveTagAllPosts = async (req, res) => {
     }
   } catch (e) {
     console.log(e);
+  }
+};
+
+//for  Edit  functionality
+
+exports.commentEdit = async (req, res) => {
+  try {
+    if (!req.params.cid) throw "Please send comment id to perform task";
+    await Comment.findByIdAndUpdate(req.params.cid, req.body);
+    res.status(200).send({ message: "Comment Edited successfully👍" });
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
+  }
+};
+
+exports.commentDelete = async (req, res) => {
+  try {
+    if (!req.params.cid) throw "Please send comment id to perform task";
+    const comment = await Comment.findById(req.params.cid);
+    const post = await Post.findById(comment.post);
+    post.commentCount -= 1;
+    await post.save();
+    await Comment.findByIdAndDelete(req.params.cid);
+    res.status(200).send({ message: "Comment Deleted successfully👍" });
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
+  }
+};
+
+exports.commentReplyEdit = async (req, res) => {
+  try {
+    if (!req.params.cid) throw "Please send reply comment id to perform task";
+    await ReplyComment.findByIdAndUpdate(req.params.cid, req.body);
+    res.status(200).send({ message: "Reply comment Edited successfully👍" });
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
+  }
+};
+
+exports.commentReplyDelete = async (req, res) => {
+  try {
+    if (!req.params.cid) throw "Please send reply comment id to perform task";
+    const rcommeny = await ReplyComment.findById(req.params.cid);
+    const comment = await Comment.findById(rcommeny.parentComment);
+    comment.allChildCommentCount -= 1;
+    await comment.save();
+    await ReplyComment.findByIdAndDelete(req.params.cid);
+    res.status(200).send({ message: "Reply comment Deleted successfully👍" });
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
   }
 };

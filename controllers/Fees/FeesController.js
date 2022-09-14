@@ -16,7 +16,7 @@ exports.createFess = async (req, res) => {
     const department = await Department.findById(req.params.did).select(
       "_id ApproveStudent fees institute"
     );
-    var feeData = await new Fees({
+    var feeData = new Fees({
       feeName: feeName,
       feeAmount: feeAmount,
       feeDate: feeDate,

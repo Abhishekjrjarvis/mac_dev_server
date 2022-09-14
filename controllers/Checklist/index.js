@@ -40,11 +40,7 @@ exports.createChecklist = async (req, res) => {
     const { did } = req.params;
     const { ClassId } = req.body;
     const department = await Department.findById({ _id: did })
-    .select('institute')
-    .populate({
-      path: "ApproveStudent",
-      select: "_id",
-    });
+    .select('institute checklists ApproveStudent')
 
     var check = new Checklist(req.body);
     department.checklists.push(check._id);

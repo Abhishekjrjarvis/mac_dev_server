@@ -25,11 +25,11 @@ exports.getAllStaff = async(req, res) =>{
         .select('staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffStatus')
         .populate({
           path: 'user',
-          select: 'userLegalName photoId profilePhoto userStatus'
+          select: 'userLegalName photoId profilePhoto userStatus one_line_about'
         })
         .populate({
           path: 'institute',
-          select: 'insName name photoId insProfilePhoto'
+          select: 'insName name photoId insProfilePhoto one_line_about'
         })
         res.status(200).send({ message: "staff data", sRandom: staff });
       } catch(e) {

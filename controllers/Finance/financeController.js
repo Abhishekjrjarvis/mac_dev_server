@@ -950,7 +950,7 @@ exports.retrieveRemainFeeList = async(req, res) => {
     const student = await Student.find({ _id: { $in: studentList.ApproveStudent }})
     .limit(limit)
     .skip(skip)
-    .select('studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentFeeRemainingCount studentPaidFeeCount studentGRNO')
+    .select('studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentRemainingFeeCount studentPaidFeeCount studentGRNO')
     .populate({
       path: 'department',
       select: 'dName'

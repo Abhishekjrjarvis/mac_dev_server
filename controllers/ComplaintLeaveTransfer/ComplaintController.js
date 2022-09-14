@@ -80,7 +80,7 @@ exports.postStudentLeave = async (req, res) => {
 
     const user = await User.findById({
       _id: `${classes.classTeacher.user._id}`,
-    }).select("uNotify");
+    }).select("uNotify activity_tab");
 
     const leave = new StudentLeave({
       reason: req.body.reason,
@@ -189,7 +189,7 @@ exports.oneStudentLeaveProcess = async (req, res) => {
         path: "student",
         populate: {
           path: "user",
-          select: "uNotify",
+          select: "uNotify activity_tab",
         },
         select: "user",
       })
@@ -689,7 +689,7 @@ exports.postStaffLeave = async (req, res) => {
     const user = await User.findById(staff.user).select("uNotify");
 
     const institute = await InstituteAdmin.findById(staff.institute).select(
-      "leave"
+      "leave iNotify"
     );
     const leave = new Leave({
       reason: req.body.reason,
@@ -700,7 +700,7 @@ exports.postStaffLeave = async (req, res) => {
     institute.leave.push(leave._id);
     staff.staffLeave.push(leave._id);
 
-    const notify = new StudentNotification({});
+    const notify = new Notification({});
     notify.notifyContent = `${staff.staffFirstName}${
       staff.staffMiddleName ? ` ${staff.staffMiddleName}` : ""
     } ${staff.staffLastName} requested for a leave check application`;
@@ -792,7 +792,7 @@ exports.oneStaffLeaveProcess = async (req, res) => {
         path: "staff",
         populate: {
           path: "user",
-          select: "uNotify",
+          select: "uNotify activity_tab",
         },
         select: "user",
       })

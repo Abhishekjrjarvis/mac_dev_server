@@ -937,7 +937,7 @@ exports.retrieveApproveStudentList = async (req, res) => {
           "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate",
         populate: {
           path: "user",
-          select: "userLegalName userEmail",
+          select: "userLegalName userEmail userPhoneNumber",
         },
       })
       .populate({
@@ -2082,6 +2082,9 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
   var p_date = date.getDate();
   var p_month = date.getMonth() + 1;
   var p_year = date.getFullYear();
+  if(p_date < 10){
+    p_date = `0${p_date}`
+  }
   if (p_month <= 10) {
     p_month = `0${p_month}`;
   }

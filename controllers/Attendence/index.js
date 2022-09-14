@@ -186,7 +186,9 @@ exports.markAttendenceClassStudent = async (req, res) => {
         });
       }
     }
-  } catch (e) {}
+  } catch (e) {
+    console.log(e)
+  }
 };
 
 exports.markAttendenceClassStudentUpdate = async (req, res) => {
@@ -379,7 +381,7 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
             _id: `${req.body.present[i]}`,
           }).populate({
             path: "user",
-            select: "_id uNotify userLegalName deviceToken",
+            select: "_id uNotify userLegalName deviceToken activity_tab",
           });
           staff.attendDates.push(staffAttendence._id);
           const notify = new StudentNotification({});
@@ -416,7 +418,7 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
             _id: `${req.body.absent[i]}`,
           }).populate({
             path: "user",
-            select: "_id uNotify userLegalName deviceToken",
+            select: "_id uNotify userLegalName deviceToken activity_tab",
           });
           staff.attendDates.push(staffAttendence._id);
           staffAttendence.absentStaff.push(staff._id);

@@ -95,7 +95,7 @@ exports.createChecklist = async (req, res) => {
     }
     const institute = await InstituteAdmin.findById({_id: `${department.institute}`}).select('financeDepart')
     const finance = await Finance.findById({_id: `${institute.financeDepart[0]}`})
-    finance.financeRaisedBalance += feeData.feeAmount
+    finance.financeRaisedBalance += check.checklistAmount
     await finance.save()
     //
   } catch(e) {

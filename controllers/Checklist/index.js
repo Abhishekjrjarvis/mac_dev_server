@@ -102,7 +102,9 @@ exports.createChecklist = async (req, res) => {
     finance.financeRaisedBalance += feeData.feeAmount
     await finance.save()
     //
-  } catch {}
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 exports.getOneChecklist = async (req, res) => {

@@ -11,7 +11,6 @@ const StudentNotification = require("../../models/Marks/StudentNotification");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const User = require("../../models/User");
 
-
 //THis is route with tested OF STUDENT
 exports.viewClassStudent = async (req, res) => {
   const institute = await Student.findById(req.params.sid);
@@ -60,19 +59,21 @@ exports.getAttendClassStudent = async (req, res) => {
 exports.markAttendenceClassStudent = async (req, res) => {
   try {
     const { cid } = req.params;
+    const classes = await Class.findById({ _id: cid });
     const dLeave = await Holiday.findOne({
+      department: { $eq: `${classes.department}` },
       dDate: { $eq: `${req.body.date}` },
     });
     const attendanceone = await AttendenceDate.findOne({
+      className: { $eq: `${cid}` },
       attendDate: { $eq: `${req.body.date}` },
     });
     if (dLeave || attendanceone) {
-      res.status(424).send({
+      res.status(200).send({
         message:
           "Today will be holiday  Provided by department Admin or already marked attendance",
       });
     } else {
-      const classes = await Class.findById({ _id: cid });
       const startDateClass = classes?.classStartDate?.split("/");
       var currentDate = new Date();
       currentDate.setHours(currentDate.getHours() + 5);
@@ -125,10 +126,10 @@ exports.markAttendenceClassStudent = async (req, res) => {
           notify.notifyContent = `you're present today`;
           notify.notifySender = classes._id;
           notify.notifyReceiever = user._id;
-          notify.notifyType = 'Student'
-          notify.notifyPublisher = student._id
+          notify.notifyType = "Student";
+          notify.notifyPublisher = student._id;
           notify.notifyByClassPhoto = classes._id;
-          user.activity_tab.push(notify._id)
+          user.activity_tab.push(notify._id);
           student.notification.push(notify._id);
           student.attendDate.push(attendence._id);
           attendence.presentStudent.push(student._id);
@@ -136,10 +137,10 @@ exports.markAttendenceClassStudent = async (req, res) => {
           invokeMemberTabNotification(
             "Student Activity",
             notify,
-            'Mark Attendence',
+            "Mark Attendence",
             user._id,
             user.deviceToken,
-            'Student',
+            "Student",
             notify
           );
           //
@@ -155,10 +156,10 @@ exports.markAttendenceClassStudent = async (req, res) => {
           notify.notifyContent = `you're absent today`;
           notify.notifySender = classes._id;
           notify.notifyReceiever = user._id;
-          notify.notifyType = 'Student'
-          notify.notifyPublisher = student._id
+          notify.notifyType = "Student";
+          notify.notifyPublisher = student._id;
           notify.notifyByClassPhoto = classes._id;
-          user.activity_tab.push(notify._id)
+          user.activity_tab.push(notify._id);
           student.notification.push(notify._id);
           student.attendDate.push(attendence._id);
           attendence.absentStudent.push(student._id);
@@ -166,10 +167,10 @@ exports.markAttendenceClassStudent = async (req, res) => {
           invokeMemberTabNotification(
             "Student Activity",
             notify,
-            'Mark Attendence',
+            "Mark Attendence",
             user._id,
             user.deviceToken,
-            'Student',
+            "Student",
             notify
           );
           //
@@ -193,9 +194,9 @@ exports.markAttendenceClassStudentUpdate = async (req, res) => {
   try {
     const { said } = req.params;
     const attendance = await AttendenceDate.findOne({
+      _id: { $eq: `${said}` },
       attendDate: { $eq: `${req.body.date}` },
     });
-
     if (!attendance) {
       res.status(200).send({
         message: "Attendance not Updated, first make a attendance",
@@ -351,12 +352,13 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
     //   dDate: { $eq: `${req.body.date}` },
     // });
     const attend = await StaffAttendenceDate.findOne({
+      institute: { $eq: `${id}` },
       staffAttendDate: { $eq: `${req.body.date}` },
     });
     if (attend) {
       res.status(200).send({
         message:
-          "Attendance not mark Current Date due to Holiday or Already marked attendance",
+          "Attendance not mark Current Date due to already marked attendance",
       });
     } else {
       var currentDate = new Date();
@@ -386,9 +388,9 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
           notify.notifyContent = `you're present today`;
           notify.notifySender = id;
           notify.notifyReceiever = staff.user._id;
-          notify.notifyType = 'Staff'
-          notify.notifyPublisher = staff._id
-          staff.user.activity_tab.push(notify._id)
+          notify.notifyType = "Staff";
+          notify.notifyPublisher = staff._id;
+          staff.user.activity_tab.push(notify._id);
           notify.notifyByInsPhoto = id;
           staffAttendence.presentStaff.push(staff._id);
           staffAttendence.presentTotal = req.body.present.length;
@@ -396,10 +398,10 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
           invokeMemberTabNotification(
             "Staff Activity",
             notify,
-            'Mark Attendence',
+            "Mark Attendence",
             staff.user._id,
             staff.user.deviceToken,
-            'Staff',
+            "Staff",
             notify
           );
           //
@@ -424,19 +426,19 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
           notify.notifyContent = `you're absent today`;
           notify.notifySender = id;
           notify.notifyReceiever = staff.user._id;
-          notify.notifyType = 'Staff'
-          notify.notifyPublisher = staff._id
-          staff.user.activity_tab.push(notify._id)
+          notify.notifyType = "Staff";
+          notify.notifyPublisher = staff._id;
+          staff.user.activity_tab.push(notify._id);
           notify.notifyByInsPhoto = id;
           staffAttendence.absentTotal = req.body.absent.length;
           //
           invokeMemberTabNotification(
             "Staff Activity",
             notify,
-            'Mark Attendence',
+            "Mark Attendence",
             staff.user._id,
             staff.user.deviceToken,
-            'Staff',
+            "Staff",
             notify
           );
           //
@@ -533,9 +535,17 @@ exports.markAttendenceDepartmentStaffUpdate = async (req, res) => {
           ) {
             staffAttendence.presentStaff?.push(req.body.present[i]);
             staffAttendence.absentStaff?.pull(req.body.present[i]);
-            staffAttendence.presentTotal = ++staffAttendence.presentTotal;
-            staffAttendence.absentTotal = --staffAttendence.absentTotal;
+            staffAttendence.presentTotal += 1;
+            staffAttendence.absentTotal -= 1;
           } else {
+            if (req.body.present.includes(req.body.present[i])) {
+              staffAttendence.presentStaff?.push(req.body.present[i]);
+              staffAttendence.presentTotal += 1;
+            } else if (req.body.absent.includes(req.body.absent[i])) {
+              staffAttendence.absentStaff?.push(req.body.absent[i]);
+              staffAttendence.absentTotal += 1;
+            } else {
+            }
           }
         }
         for (let i = 0; i < req.body.absent?.length; i++) {
@@ -545,8 +555,8 @@ exports.markAttendenceDepartmentStaffUpdate = async (req, res) => {
           ) {
             staffAttendence.absentStaff?.push(req.body.absent[i]);
             staffAttendence.presentStaff?.pull(req.body.absent[i]);
-            staffAttendence.presentTotal = --staffAttendence.presentTotal;
-            staffAttendence.absentTotal = ++staffAttendence.absentTotal;
+            staffAttendence.presentTotal -= 1;
+            staffAttendence.absentTotal += 1;
           } else {
           }
         }
@@ -690,19 +700,19 @@ exports.holidayCalendar = async (req, res) => {
       const notify = new StudentNotification({});
       notify.notifyContent = `New Holiday Marked`;
       notify.notifySender = depart._id;
-      notify.notifyType = 'Student'
-      notify.notifyPublisher = student._id
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student._id;
       notify.notifyReceiever = user._id;
-      user.activity_tab.push(notify._id)
+      user.activity_tab.push(notify._id);
       notify.notifyByDepartPhoto = depart._id;
       //
       invokeMemberTabNotification(
         "Student Activity",
         notify,
-        'New Holiday',
+        "New Holiday",
         user._id,
         user.deviceToken,
-        'Student',
+        "Student",
         notify
       );
       await Promise.all([user.save(), notify.save()]);

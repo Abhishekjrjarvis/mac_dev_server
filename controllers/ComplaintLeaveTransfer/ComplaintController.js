@@ -97,18 +97,18 @@ exports.postStudentLeave = async (req, res) => {
     } ${student.studentLastName} requested for a leave check application`;
     notify.notifySender = req.params.sid;
     notify.notifyReceiever = user._id;
-    notify.notifyType = 'Staff'
-    notify.notifyPublisher = classes.classTeacher._id
-    user.activity_tab.push(notify._id)
+    notify.notifyType = "Staff";
+    notify.notifyPublisher = classes.classTeacher._id;
+    user.activity_tab.push(notify._id);
     notify.notifyByStudentPhoto = student._id;
     //
     invokeMemberTabNotification(
       "Staff Activity",
       notify,
-      'Leave Application',
+      "Leave Application",
       user._id,
       user.deviceToken,
-      'Staff',
+      "Staff",
       notify
     );
     //
@@ -201,9 +201,9 @@ exports.oneStudentLeaveProcess = async (req, res) => {
     notify.notifyContent = `Your Leave request has been ${req.body.status} by ${leave.classes.className}`;
     notify.notifySender = leave.classes._id;
     notify.notifyReceiever = user._id;
-    notify.notifyType = 'Student'
-    notify.notifyPublisher = leave.student._id
-    user.activity_tab.push(notify._id)
+    notify.notifyType = "Student";
+    notify.notifyPublisher = leave.student._id;
+    user.activity_tab.push(notify._id);
     notify.notifyByClassPhoto = leave.classes._id;
     //
     invokeMemberTabNotification(
@@ -212,7 +212,7 @@ exports.oneStudentLeaveProcess = async (req, res) => {
       `Leave Application ${req.body.status}`,
       user._id,
       user.deviceToken,
-      'Student',
+      "Student",
       notify
     );
     //
@@ -485,21 +485,23 @@ exports.studentTransferRequested = async (req, res) => {
     const notify = new StudentNotification({});
     notify.notifyContent = `${student.studentFirstName}${
       student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
-    } ${student.studentLastName} requested for a Transfer. check application status`;
+    } ${
+      student.studentLastName
+    } requested for a Transfer. check application status`;
     notify.notifySender = student._id;
     notify.notifyReceiever = user._id;
-    notify.notifyType = 'Staff'
-    notify.notifyPublisher = classes.classTeacher._id
-    user.activity_tab.push(notify._id)
+    notify.notifyType = "Staff";
+    notify.notifyPublisher = classes.classTeacher._id;
+    user.activity_tab.push(notify._id);
     notify.notifyByStudentPhoto = student._id;
     //
     invokeMemberTabNotification(
       "Staff Activity",
       notify,
-      'Request for Transfer',
+      "Request for Transfer",
       user._id,
       user.deviceToken,
-      'Staff',
+      "Staff",
       notify
     );
     //
@@ -538,9 +540,9 @@ exports.studentTransferApproved = async (req, res) => {
     notify.notifyContent = `Your Transfer request has been Approved by ${institute.insName} from ${classes.className}`;
     notify.notifySender = classes._id;
     notify.notifyReceiever = user._id;
-    notify.notifyType = 'Student'
-    notify.notifyPublisher = student._id
-    user.activity_tab.push(notify._id)
+    notify.notifyType = "Student";
+    notify.notifyPublisher = student._id;
+    user.activity_tab.push(notify._id);
     notify.notifyByClassPhoto = classes._id;
     //
     invokeMemberTabNotification(
@@ -549,7 +551,7 @@ exports.studentTransferApproved = async (req, res) => {
       `Transfer Request Approved`,
       user._id,
       user.deviceToken,
-      'Student',
+      "Student",
       notify
     );
     //
@@ -582,18 +584,18 @@ exports.studentTransferRejected = async (req, res) => {
     notify.notifyContent = `Your Transfer request has been Rejected by ${classes.className}`;
     notify.notifySender = classes._id;
     notify.notifyReceiever = user._id;
-    notify.notifyType = 'Student'
-    notify.notifyPublisher = student._id
-    user.activity_tab.push(notify._id)
+    notify.notifyType = "Student";
+    notify.notifyPublisher = student._id;
+    user.activity_tab.push(notify._id);
     notify.notifyByClassPhoto = classes._id;
     //
     invokeMemberTabNotification(
       "Student Activity",
       notify,
-      'Transfer Request Rejected',
+      "Transfer Request Rejected",
       user._id,
       user.deviceToken,
-      'Student',
+      "Student",
       notify
     );
     //
@@ -689,7 +691,7 @@ exports.postStaffLeave = async (req, res) => {
     const user = await User.findById(staff.user).select("uNotify");
 
     const institute = await InstituteAdmin.findById(staff.institute).select(
-      "leave"
+      "leave iNotify"
     );
     const leave = new Leave({
       reason: req.body.reason,
@@ -700,22 +702,22 @@ exports.postStaffLeave = async (req, res) => {
     institute.leave.push(leave._id);
     staff.staffLeave.push(leave._id);
 
-    const notify = new StudentNotification({});
+    const notify = new Notification({});
     notify.notifyContent = `${staff.staffFirstName}${
       staff.staffMiddleName ? ` ${staff.staffMiddleName}` : ""
     } ${staff.staffLastName} requested for a leave check application`;
     notify.notifySender = req.params.sid;
     notify.notifyReceiever = institute._id;
-    institute.iNotify.push(notify._id)
+    institute.iNotify.push(notify._id);
     notify.notifyByStaffPhoto = staff._id;
     //
     invokeMemberTabNotification(
       "Institute Activity",
       notify,
-      'Request for Leave',
+      "Request for Leave",
       institute._id,
       institute.deviceToken,
-      'Institute',
+      "Institute",
       notify
     );
     //
@@ -804,9 +806,9 @@ exports.oneStaffLeaveProcess = async (req, res) => {
     notify.notifyContent = `Your Leave request has been ${req.body.status} by ${leave.institute.insName}`;
     notify.notifySender = leave.institute._id;
     notify.notifyReceiever = user._id;
-    notify.notifyType = 'Staff'
-    notify.notifyPublisher = leave.staff._id
-    user.activity_tab.push(notify._id)
+    notify.notifyType = "Staff";
+    notify.notifyPublisher = leave.staff._id;
+    user.activity_tab.push(notify._id);
     notify.notifyByInsPhoto = leave.institute._id;
     //
     invokeMemberTabNotification(
@@ -815,7 +817,7 @@ exports.oneStaffLeaveProcess = async (req, res) => {
       `Leave Application ${req.body.status}`,
       user._id,
       user.deviceToken,
-      'Staff',
+      "Staff",
       notify
     );
     //

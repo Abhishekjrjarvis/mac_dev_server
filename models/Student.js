@@ -257,15 +257,15 @@ const studentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  library: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Library",
-  },
+  // library: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: "Library",
+  // },
   studentAdmissionDate: {
     type: String,
   },
-  borrow: [{ type: mongoose.Schema.Types.ObjectId, ref: "Issue" }],
-  deposite: [{ type: mongoose.Schema.Types.ObjectId, ref: "Collect" }],
+  borrow: [{ type: mongoose.Schema.Types.ObjectId, ref: "IssueBook" }],
+  deposite: [{ type: mongoose.Schema.Types.ObjectId, ref: "CollectBook" }],
   deptElections: [
     {
       electionStatus: {

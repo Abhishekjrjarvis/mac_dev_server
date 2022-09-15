@@ -11,7 +11,7 @@ const {
 } = require("../../../S3Configuration");
 const fs = require("fs");
 const util = require("util");
-const { suffle_search_list } = require("../../../Utilities/randomFunction");
+// const { suffle_search_list } = require("../../../Utilities/randomFunction");
 const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require("../../../Firebase/firebase");
 
@@ -73,12 +73,18 @@ exports.postWithText = async (req, res) => {
             }
             if (post.postStatus === "Anyone") {
               userTag?.userFollowers?.forEach(async (ele) => {
-                ele.userPosts.push(post._id);
-                await ele.save();
+                if (ele?.userPosts?.includes(post._id)) {
+                } else {
+                  ele.userPosts.push(post._id);
+                  await ele.save();
+                }
               });
               userTag?.userCircle?.forEach(async (ele) => {
-                ele.userPosts.push(post._id);
-                await ele.save();
+                if (ele?.userPosts?.includes(post._id)) {
+                } else {
+                  ele.userPosts.push(post._id);
+                  await ele.save();
+                }
               });
             }
             await userTag.save();
@@ -162,12 +168,18 @@ exports.postWithImage = async (req, res) => {
             userTag.tag_post?.push(post._id);
             if (post.postStatus === "Anyone") {
               userTag?.userFollowers?.forEach(async (ele) => {
-                ele.userPosts.push(post._id);
-                await ele.save();
+                if (ele?.userPosts?.includes(post._id)) {
+                } else {
+                  ele.userPosts.push(post._id);
+                  await ele.save();
+                }
               });
               userTag?.userCircle?.forEach(async (ele) => {
-                ele.userPosts.push(post._id);
-                await ele.save();
+                if (ele?.userPosts?.includes(post._id)) {
+                } else {
+                  ele.userPosts.push(post._id);
+                  await ele.save();
+                }
               });
             }
             await userTag.save();
@@ -250,12 +262,18 @@ exports.postWithVideo = async (req, res) => {
             userTag.tag_post?.push(post._id);
             if (post.postStatus === "Anyone") {
               userTag?.userFollowers?.forEach(async (ele) => {
-                ele.userPosts.push(post._id);
-                await ele.save();
+                if (ele?.userPosts?.includes(post._id)) {
+                } else {
+                  ele.userPosts.push(post._id);
+                  await ele.save();
+                }
               });
               userTag?.userCircle?.forEach(async (ele) => {
-                ele.userPosts.push(post._id);
-                await ele.save();
+                if (ele?.userPosts?.includes(post._id)) {
+                } else {
+                  ele.userPosts.push(post._id);
+                  await ele.save();
+                }
               });
             }
             await userTag.save();
@@ -399,35 +417,41 @@ exports.postComment = async (req, res) => {
     post.comment.push(comment._id);
     post.commentCount += 1;
     comment.post = post._id;
-    await Promise.all([
-      post.save(),
-      comment.save()
-    ]);
-    var notify = new Notification({})
-    var author_user = await User.findById({_id: `${post.author}`})
-    if(`${comment.author}` === `${author_user._id}`){
+    await Promise.all([post.save(), comment.save()]);
+    var notify = new Notification({});
+    var author_user = await User.findById({ _id: `${post.author}` });
+    if (`${comment.author}` === `${author_user._id}`) {
       notify.notifyContent = `you shared a new comment`;
-    }
-    else{
+    } else {
       notify.notifyContent = `${comment.authorName} commented on your post`;
     }
-    notify.notifySender = req.tokenData?.userId ? req.tokenData.userId : req.tokenData?.insId ? req.tokenData.insId : ''
+    notify.notifySender = req.tokenData?.userId
+      ? req.tokenData.userId
+      : req.tokenData?.insId
+      ? req.tokenData.insId
+      : "";
     notify.notifyReceiever = author_user._id;
     author_user.uNotify.push(notify._id);
     notify.user = author_user._id;
-    if(req?.tokenData?.userId){
-      notify.notifyByPhoto = req?.tokenData?.userId
+    if (req?.tokenData?.userId) {
+      notify.notifyByPhoto = req?.tokenData?.userId;
+    } else if (req?.tokenData?.insId) {
+      notify.notifyByInsPhoto = req?.tokenData?.insId;
     }
-    else if(req?.tokenData?.insId){
-      notify.notifyByInsPhoto = req?.tokenData?.insId
-    }
-    await Promise.all([ notify.save(), author_user.save() ])
-    if(author_user?.user_comment_notify === 'Enable'){
-      invokeFirebaseNotification("Comment", notify, "New Comment", comment.author, author_user.deviceToken, post._id)
+    await Promise.all([notify.save(), author_user.save()]);
+    if (author_user?.user_comment_notify === "Enable") {
+      invokeFirebaseNotification(
+        "Comment",
+        notify,
+        "New Comment",
+        comment.author,
+        author_user.deviceToken,
+        post._id
+      );
     }
     res.status(201).send({ message: "comment created", comment });
   } catch (e) {
-    console.log('UCN', e);
+    console.log("UCN", e);
   }
 };
 
@@ -458,18 +482,19 @@ exports.retrieveAllUserPosts = async (req, res) => {
           .populate({
             path: "rePostAnswer",
             populate: {
-              path: 'post',
-              select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
-            }
+              path: "post",
+              select:
+                "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser",
+            },
           })
           .populate({
-            path: 'needMultiple',
-            select: 'username photoId profilePhoto'
+            path: "needMultiple",
+            select: "username photoId profilePhoto",
           })
           .populate({
-            path: 'repostMultiple',
-            select: 'username photoId profilePhoto'
-          })
+            path: "repostMultiple",
+            select: "username photoId profilePhoto",
+          });
       } else {
         var post = await Post.find({ $and: [{ _id: { $in: user.userPosts } }] })
           .sort("-createdAt")
@@ -484,18 +509,19 @@ exports.retrieveAllUserPosts = async (req, res) => {
           .populate({
             path: "rePostAnswer",
             populate: {
-              path: 'post',
-              select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
-            }
+              path: "post",
+              select:
+                "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser",
+            },
           })
           .populate({
-            path: 'needMultiple',
-            select: 'username photoId profilePhoto'
+            path: "needMultiple",
+            select: "username photoId profilePhoto",
           })
           .populate({
-            path: 'repostMultiple',
-            select: 'username photoId profilePhoto'
-          })
+            path: "repostMultiple",
+            select: "username photoId profilePhoto",
+          });
       }
       const postCount = await Post.find({ _id: { $in: user.userPosts } });
       if (page * limit >= postCount.length) {
@@ -539,18 +565,19 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
           .populate({
             path: "rePostAnswer",
             populate: {
-              path: 'post',
-              select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
-            }
+              path: "post",
+              select:
+                "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser",
+            },
           })
           .populate({
-            path: 'needMultiple',
-            select: 'username photoId profilePhoto'
+            path: "needMultiple",
+            select: "username photoId profilePhoto",
           })
           .populate({
-            path: 'repostMultiple',
-            select: 'username photoId profilePhoto'
-          })
+            path: "repostMultiple",
+            select: "username photoId profilePhoto",
+          });
       } else {
         var post = await Post.find({ author: id })
           .sort("-createdAt")
@@ -565,18 +592,19 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
           .populate({
             path: "rePostAnswer",
             populate: {
-              path: 'post',
-              select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
-            }
+              path: "post",
+              select:
+                "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser",
+            },
           })
           .populate({
-            path: 'needMultiple',
-            select: 'username photoId profilePhoto'
+            path: "needMultiple",
+            select: "username photoId profilePhoto",
           })
           .populate({
-            path: 'repostMultiple',
-            select: 'username photoId profilePhoto'
-          })
+            path: "repostMultiple",
+            select: "username photoId profilePhoto",
+          });
       }
       const postCount = await Post.find({ _id: { $in: user.userPosts } });
       if (page * limit >= postCount.length) {
@@ -842,18 +870,19 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
         .populate({
           path: "rePostAnswer",
           populate: {
-            path: 'post',
-            select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
-          }
+            path: "post",
+            select:
+              "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser",
+          },
         })
         .populate({
-          path: 'needMultiple',
-          select: 'username photoId profilePhoto'
+          path: "needMultiple",
+          select: "username photoId profilePhoto",
         })
         .populate({
-          path: 'repostMultiple',
-          select: 'username photoId profilePhoto'
-        })
+          path: "repostMultiple",
+          select: "username photoId profilePhoto",
+        });
       const postCount = await Post.find({ _id: { $in: user.user_saved_post } });
       if (page * limit >= postCount.length) {
       } else {
@@ -898,18 +927,19 @@ exports.retrieveAllUserTagPosts = async (req, res) => {
         .populate({
           path: "rePostAnswer",
           populate: {
-            path: 'post',
-            select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
-          }
+            path: "post",
+            select:
+              "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser",
+          },
         })
         .populate({
-          path: 'needMultiple',
-          select: 'username photoId profilePhoto'
+          path: "needMultiple",
+          select: "username photoId profilePhoto",
         })
         .populate({
-          path: 'repostMultiple',
-          select: 'username photoId profilePhoto'
-        })
+          path: "repostMultiple",
+          select: "username photoId profilePhoto",
+        });
       const postCount = await Post.find({ _id: { $in: user.tag_post } });
       if (page * limit >= postCount.length) {
       } else {
@@ -939,34 +969,96 @@ exports.retrieveAllUserReposts = async (req, res) => {
     var repost = await Post.find({
       $and: [{ author: `${user._id}` }, { postType: "Repost" }],
     })
-    .sort("-createdAt")
-    .limit(limit)
-    .skip(skip)
-    .select("postTitle postText postQuestion isHelpful needCount authorOneLine needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType")
+      .sort("-createdAt")
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "postTitle postText postQuestion isHelpful needCount authorOneLine needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+      )
 
-    .populate({
-      path: "rePostAnswer",
-      populate: {
-        path: 'post',
-        select: 'postQuestion author authorUserName authorPhotoId authorProfilePhoto isUser'
-      }
-    })
-    .populate({
-      path: 'needMultiple',
-      select: 'username photoId profilePhoto'
-    })
-    .populate({
-      path: 'repostMultiple',
-      select: 'username photoId profilePhoto'
-    })
+      .populate({
+        path: "rePostAnswer",
+        populate: {
+          path: "post",
+          select:
+            "postQuestion author authorUserName authorPhotoId authorProfilePhoto isUser",
+        },
+      })
+      .populate({
+        path: "needMultiple",
+        select: "username photoId profilePhoto",
+      })
+      .populate({
+        path: "repostMultiple",
+        select: "username photoId profilePhoto",
+      });
 
-    if(repost && repost.length >=1){
-      res.status(200).send({ message: "Success", repost, count: repost.length });
-    }
-    else{
-      res.status(200).send({ message: 'No Post found', repost: [] })
+    if (repost && repost.length >= 1) {
+      res
+        .status(200)
+        .send({ message: "Success", repost, count: repost.length });
+    } else {
+      res.status(200).send({ message: "No Post found", repost: [] });
     }
   } catch (e) {
     console.log(e);
+  }
+};
+
+//for  Edit  functionality
+
+exports.commentEdit = async (req, res) => {
+  try {
+    if (!req.params.cid) throw "Please send comment id to perform task";
+    await Comment.findByIdAndUpdate(req.params.cid, req.body);
+    res.status(200).send({ message: "Comment Edited successfully👍" });
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
+  }
+};
+
+exports.commentDelete = async (req, res) => {
+  try {
+    if (!req.params.cid) throw "Please send comment id to perform task";
+    const comment = await Comment.findById(req.params.cid);
+    const post = await Post.findById(comment.post);
+    post.commentCount -= 1;
+    await post.save();
+    await Comment.findByIdAndDelete(req.params.cid);
+    res.status(200).send({ message: "Comment Deleted successfully👍" });
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
+  }
+};
+
+exports.commentReplyEdit = async (req, res) => {
+  try {
+    if (!req.params.cid) throw "Please send reply comment id to perform task";
+    await ReplyComment.findByIdAndUpdate(req.params.cid, req.body);
+    res.status(200).send({ message: "Reply comment Edited successfully👍" });
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
+  }
+};
+
+exports.commentReplyDelete = async (req, res) => {
+  try {
+    if (!req.params.cid) throw "Please send reply comment id to perform task";
+    const rcommeny = await ReplyComment.findById(req.params.cid);
+    const comment = await Comment.findById(rcommeny.parentComment);
+    comment.allChildCommentCount -= 1;
+    await comment.save();
+    await ReplyComment.findByIdAndDelete(req.params.cid);
+    res.status(200).send({ message: "Reply comment Deleted successfully👍" });
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
   }
 };

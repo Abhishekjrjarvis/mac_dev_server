@@ -12254,9 +12254,6 @@ paths:
               subjectTitle:
                 type: string
                 description: if want to change subject title name then pass this parameter only
-              subjectName:
-                type: string
-                description: if want to change subject Master for that class, pass this parameter only
               smId:
                 type: string
                 description: It is change subject Master Id (if change the subject master for edit subject)                              
@@ -12518,13 +12515,265 @@ paths:
           description: OK
 
 
+  /api/v1/user/post/edit/comment/{cid}:
+    patch:
+      tags:
+        - Comment Edit and Delete (API)
+      summary: One Comment edit -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is comment id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - commentDescription
+            properties:
+              commentDescription:
+                type: string
+                description: Type here comments
+      responses:
+        "200":
+          description: OK
+    delete:
+      tags:
+        - Comment Edit and Delete (API)
+      summary:  One Comment delete -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Comment id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/post/edit/comment/relpy/{cid}:
+    patch:
+      tags:
+        - Comment Edit and Delete (API)
+      summary: One Reply Comment edit -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Reply comment id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - repliedComment
+            properties:
+              repliedComment:
+                type: string
+                description: Type here comments
+      responses:
+        "200":
+          description: OK
+    delete:
+      tags:
+        - Comment Edit and Delete (API)
+      summary:  One Reply Comment delete -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Comment id
+      responses:
+        "200":
+          description: OK
 
 
+  /api/v1/ins/post/edit/comment/{cid}:
+    patch:
+      tags:
+        - Comment Edit and Delete (API)
+      summary: One Comment edit -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is comment id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - commentDescription
+            properties:
+              commentDescription:
+                type: string
+                description: Type here comments
+      responses:
+        "200":
+          description: OK
+    delete:
+      tags:
+        - Comment Edit and Delete (API)
+      summary:  One Comment delete -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Comment id
+      responses:
+        "200":
+          description: OK
 
+  /api/v1/ins/post/edit/comment/relpy/{cid}:
+    patch:
+      tags:
+        - Comment Edit and Delete (API)
+      summary: One Reply Comment edit -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Reply comment id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - repliedComment
+            properties:
+              repliedComment:
+                type: string
+                description: Type here comments
+      responses:
+        "200":
+          description: OK
+    delete:
+      tags:
+        - Comment Edit and Delete (API)
+      summary:  One Reply Comment delete -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Comment id
+      responses:
+        "200":
+          description: OK
 
+  /api/v1/post/question/edit/answer/{aid}:
+    patch:
+      tags:
+        - Comment Edit and Delete (API)
+      summary: One Answer edit -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is  answer id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - answerContent
+            properties:
+              answerContent:
+                type: string
+                description: Type here answer
+      responses:
+        "200":
+          description: OK
 
-
-
+  /api/v1/post/question/edit/answer/reply/{aid}:
+    patch:
+      tags:
+        - Comment Edit and Delete (API)
+      summary: One Answer Reply edit -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Reply answer id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - answerReplyContent
+            properties:
+              answerReplyContent:
+                type: string
+                description: Type here reply answer
+      responses:
+        "200":
+          description: OK
+    delete:
+      tags:
+        - Comment Edit and Delete (API)
+      summary:  One Reply Answer delete -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Reply answer id
+      responses:
+        "200":
+          description: OK
 
 
 

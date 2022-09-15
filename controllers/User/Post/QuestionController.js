@@ -1,74 +1,72 @@
 const User = require("../../../models/User");
 const Post = require("../../../models/Post");
-const Answer = require('../../../models/Question/Answer')
-const AnswerReply = require('../../../models/Question/AnswerReply')
-const Notification = require('../../../models/notification')
-const {
-  uploadPostImageFile,
-} = require("../../../S3Configuration");
+const Answer = require("../../../models/Question/Answer");
+const AnswerReply = require("../../../models/Question/AnswerReply");
+const Notification = require("../../../models/notification");
+const { uploadPostImageFile, deleteFile } = require("../../../S3Configuration");
 const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
-const invokeFirebaseNotification = require('../../../Firebase/firebase')
-const InstituteAdmin = require('../../../models/InstituteAdmin')
+const invokeFirebaseNotification = require("../../../Firebase/firebase");
+const InstituteAdmin = require("../../../models/InstituteAdmin");
 
 exports.postQuestionText = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findById({ _id: id })
-    .populate({ path: 'userFollowers'})
-    .populate({ path: 'userCircle'})
+      .populate({ path: "userFollowers" })
+      .populate({ path: "userCircle" });
     const post = new Post({ ...req.body });
     post.imageId = "1";
-    if(req.files.length >= 1){
-        for (let file of req.files) {
-            const results = await uploadPostImageFile(file);
-            post.postImage.push(results.Key);
-            await unlinkFile(file.path);
-        }
-        post.imageId = "0";
+    if (req.files.length >= 1) {
+      for (let file of req.files) {
+        const results = await uploadPostImageFile(file);
+        post.postImage.push(results.Key);
+        await unlinkFile(file.path);
+      }
+      post.imageId = "0";
     }
     user.userPosts.push(post._id);
-    user.questionCount += 1
+    user.questionCount += 1;
     post.author = user._id;
-    post.authorName = user.userLegalName
-    post.authorUserName = user.username
-    post.authorPhotoId = user.photoId
-    post.authorProfilePhoto = user.profilePhoto
-    post.authorOneLine = user.one_line_about
-    post.isUser = 'user'
-    post.postType = 'Question'
-    post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`
+    post.authorName = user.userLegalName;
+    post.authorUserName = user.username;
+    post.authorPhotoId = user.photoId;
+    post.authorProfilePhoto = user.profilePhoto;
+    post.authorOneLine = user.one_line_about;
+    post.isUser = "user";
+    post.postType = "Question";
+    post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([user.save(), post.save()]);
     res.status(201).send({ message: "post question is create", post });
-    if(user.userFollowers.length >= 1){
-        user.userFollowers.forEach(async (ele) => {
-          ele.userPosts.push(post._id)
-          await ele.save()
-        })
+    if (user.userFollowers.length >= 1) {
+      user.userFollowers.forEach(async (ele) => {
+        ele.userPosts.push(post._id);
+        await ele.save();
+      });
     }
-    if(user.userCircle.length >= 1){
-        user.userCircle.forEach(async (ele) => {
-          ele.userPosts.push(post._id)
-          await ele.save()
-        })
+    if (user.userCircle.length >= 1) {
+      user.userCircle.forEach(async (ele) => {
+        ele.userPosts.push(post._id);
+        await ele.save();
+      });
     }
-  } catch(e) {
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
 };
 
 exports.postQuestionDelete = async (req, res) => {
   try {
     const { id, pid } = req.params;
-    const user = await User.findById({ _id: id})
+    const user = await User.findById({ _id: id });
     await User.findByIdAndUpdate(id, { $pull: { userPosts: pid } });
     await Post.findByIdAndDelete({ _id: pid });
-    user.questionCount -= 1
-    await user.save()
+    user.questionCount -= 1;
+    await user.save();
     res.status(200).send({ message: "post question deleted" });
-  } catch(e) {
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
 };
 
@@ -76,8 +74,9 @@ exports.answerLike = async (req, res) => {
   try {
     const { aid } = req.params;
     const answer = await Answer.findById({ _id: aid });
-    const question = await Post.findById({_id: `${answer.post}`})
-    const user_session = req.tokenData && req.tokenData.userId ? req.tokenData.userId : ''
+    const question = await Post.findById({ _id: `${answer.post}` });
+    const user_session =
+      req.tokenData && req.tokenData.userId ? req.tokenData.userId : "";
     if (user_session) {
       if (
         answer.upVote.length >= 1 &&
@@ -86,12 +85,13 @@ exports.answerLike = async (req, res) => {
         answer.upVote.pull(user_session);
         if (answer.upVoteCount >= 1) {
           answer.upVoteCount -= 1;
-          question.answerUpVoteCount -= 1
+          question.answerUpVoteCount -= 1;
         }
-        await Promise.all([ answer.save(), question.save()])
-        res
-          .status(200)
-          .send({ message: "Removed from Upvote 👎", upVoteCount: answer.upVoteCount, });
+        await Promise.all([answer.save(), question.save()]);
+        res.status(200).send({
+          message: "Removed from Upvote 👎",
+          upVoteCount: answer.upVoteCount,
+        });
       } else {
         if (
           answer.downVote.length >= 1 &&
@@ -104,27 +104,29 @@ exports.answerLike = async (req, res) => {
         }
         answer.upVote.push(user_session);
         answer.upVoteCount += 1;
-        question.answerUpVoteCount += 1
-        await Promise.all([ answer.save(), question.save()])
-        res
-          .status(200)
-          .send({ message: "Added To Upvote 👍", upVoteCount: answer.upVoteCount, downVoteCount: answer.downVoteCount });
+        question.answerUpVoteCount += 1;
+        await Promise.all([answer.save(), question.save()]);
+        res.status(200).send({
+          message: "Added To Upvote 👍",
+          upVoteCount: answer.upVoteCount,
+          downVoteCount: answer.downVoteCount,
+        });
       }
     } else {
       res.status(401).send();
     }
-  } catch(e) {
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
 };
-
 
 exports.answerDisLike = async (req, res) => {
   try {
     const { aid } = req.params;
     const answer = await Answer.findById({ _id: aid });
-    const question = await Post.findById({_id: `${answer.post}`})
-    const user_session = req.tokenData && req.tokenData.userId ? req.tokenData.userId : ''
+    const question = await Post.findById({ _id: `${answer.post}` });
+    const user_session =
+      req.tokenData && req.tokenData.userId ? req.tokenData.userId : "";
     if (user_session) {
       if (
         answer.downVote.length >= 1 &&
@@ -134,8 +136,11 @@ exports.answerDisLike = async (req, res) => {
         if (answer.downVoteCount >= 1) {
           answer.downVoteCount -= 1;
         }
-        await Promise.all([ answer.save() ])
-        res.status(200).send({ message: "Removed from DownVote 👎", downVoteCount: answer.downVoteCount, });
+        await Promise.all([answer.save()]);
+        res.status(200).send({
+          message: "Removed from DownVote 👎",
+          downVoteCount: answer.downVoteCount,
+        });
       } else {
         if (
           answer.upVote.length >= 1 &&
@@ -144,29 +149,37 @@ exports.answerDisLike = async (req, res) => {
           answer.upVote.pull(user_session);
           if (answer.upVoteCount >= 1) {
             answer.upVoteCount -= 1;
-            question.answerUpVoteCount -= 1
+            question.answerUpVoteCount -= 1;
           }
         }
         answer.downVote.push(user_session);
         answer.downVoteCount += 1;
-        await Promise.all([ answer.save(), question.save() ])
-        res.status(200).send({ message: "Added To DownVote 👍", downVoteCount: answer.downVoteCount, upVoteCount: answer.upVoteCount });
+        await Promise.all([answer.save(), question.save()]);
+        res.status(200).send({
+          message: "Added To DownVote 👍",
+          downVoteCount: answer.downVoteCount,
+          upVoteCount: answer.upVoteCount,
+        });
       }
     } else {
       res.status(401).send();
     }
-  } catch(e) {
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
 };
 
 exports.postQuestionSave = async (req, res) => {
   try {
     const { pid } = req.params;
-    const user_session = req.tokenData && req.tokenData.userId ? req.tokenData.userId : ''
+    const user_session =
+      req.tokenData && req.tokenData.userId ? req.tokenData.userId : "";
     if (user_session) {
-      const post = await Post.findById({_id: pid})
-      if (post.endUserSave.length >= 1 && post.endUserSave.includes(user_session)) {
+      const post = await Post.findById({ _id: pid });
+      if (
+        post.endUserSave.length >= 1 &&
+        post.endUserSave.includes(user_session)
+      ) {
         post.endUserSave.pull(user_session);
         await post.save();
         res.status(200).send({ message: "Remove To Favourites 👎" });
@@ -176,7 +189,7 @@ exports.postQuestionSave = async (req, res) => {
         res.status(200).send({ message: "Added To Favourites 👍" });
       }
     } else {
-      res.status(401).send({ message: 'Unauthorized access'});
+      res.status(401).send({ message: "Unauthorized access" });
     }
   } catch {}
 };
@@ -184,72 +197,84 @@ exports.postQuestionSave = async (req, res) => {
 exports.postQuestionAnswer = async (req, res) => {
   try {
     const { id } = req.params;
-    const { post_type } = req.query
+    const { post_type } = req.query;
     var post = await Post.findById({ _id: id });
     //
-    var post_user = await User.findOne({_id: `${post.author}`})
-    var post_ins = await InstituteAdmin.findOne({_id: `${post.author}`})
+    var post_user = await User.findOne({ _id: `${post.author}` });
+    var post_ins = await InstituteAdmin.findOne({ _id: `${post.author}` });
     //
-    if(post_type === 'Only Answer'){
+    if (post_type === "Only Answer") {
       const answers = new Answer({ ...req.body });
-      answers.answerImageId = "1"
-      if(req.files){
-          for (let file of req.files) {
-              const results = await uploadPostImageFile(file);
-              answers.answerImage.push(results.Key);
-              await unlinkFile(file.path);
-          }
-          answers.answerImageId = "0";
+      answers.answerImageId = "1";
+      if (req.files) {
+        for (let file of req.files) {
+          const results = await uploadPostImageFile(file);
+          answers.answerImage.push(results.Key);
+          await unlinkFile(file.path);
+        }
+        answers.answerImageId = "0";
       }
       if (req.tokenData && req.tokenData.userId) {
-        var user = await User.findById({_id: req.tokenData.userId})
-        if(user.staff.length >= 1){
-          answers.isMentor = 'yes'
+        var user = await User.findById({ _id: req.tokenData.userId });
+        if (user.staff.length >= 1) {
+          answers.isMentor = "yes";
         }
         answers.author = user._id;
-        answers.authorName = user.userLegalName
-        answers.authorUserName = user.username
-        answers.authorPhotoId = user.photoId
-        answers.authorProfilePhoto = user.profilePhoto
-        answers.authorOneLine = user.one_line_about
+        answers.authorName = user.userLegalName;
+        answers.authorUserName = user.username;
+        answers.authorPhotoId = user.photoId;
+        answers.authorProfilePhoto = user.profilePhoto;
+        answers.authorOneLine = user.one_line_about;
       } else {
-        res.status(401).send({ message: 'Unauthorized'});
+        res.status(401).send({ message: "Unauthorized" });
       }
-      user.answered_query.push(answers._id)
+      user.answered_query.push(answers._id);
       post.answer.push(answers._id);
       post.answerCount += 1;
       answers.post = post;
-      user.answerQuestionCount += 1
-      await Promise.all([post.save(), answers.save(), user.save() ]);
+      user.answerQuestionCount += 1;
+      await Promise.all([post.save(), answers.save(), user.save()]);
       //
-      var notify = new Notification({})
+      var notify = new Notification({});
       notify.notifyContent = `${answers.authorName} answered your question`;
       notify.notifySender = answers.author;
       notify.notifyByPhoto = answers.author;
-      if(post_user){
+      if (post_user) {
         notify.notifyReceiever = post_user._id;
         post_user.uNotify.push(notify._id);
         notify.user = post_user._id;
-        await Promise.all([ post_user.save(), notify.save() ])
-        if(post_user?.user_answer_notify === 'Enable'){
-          invokeFirebaseNotification("Answer", notify, 'New Answer', answers.author, post_user.deviceToken, post._id);
+        await Promise.all([post_user.save(), notify.save()]);
+        if (post_user?.user_answer_notify === "Enable") {
+          invokeFirebaseNotification(
+            "Answer",
+            notify,
+            "New Answer",
+            answers.author,
+            post_user.deviceToken,
+            post._id
+          );
         }
-      }
-      else if(post_ins){
+      } else if (post_ins) {
         notify.notifyReceiever = post_ins._id;
         post_ins.iNotify.push(notify._id);
-        notify.institute = post_ins._id
-        await Promise.all([ post_ins.save(), notify.save() ])
-        invokeFirebaseNotification("Answer", notify, 'New Answer', answers.author, post_ins.deviceToken, post._id);
+        notify.institute = post_ins._id;
+        await Promise.all([post_ins.save(), notify.save()]);
+        invokeFirebaseNotification(
+          "Answer",
+          notify,
+          "New Answer",
+          answers.author,
+          post_ins.deviceToken,
+          post._id
+        );
       }
       res.status(201).send({ message: "answer created", answers });
       //
+    } else {
+      res.status(200).send({ message: "Access Denied By Post Type" });
     }
-    else{
-      res.status(200).send({ message: 'Access Denied By Post Type'})
-    }
-  } catch(e) {
-    console.log('AN', e)
+  } catch (e) {
+    console.log("AN", e);
   }
 };
 
@@ -266,11 +291,14 @@ exports.getQuestionAnswer = async (req, res) => {
       .sort("-upVoteCount")
       .limit(limit)
       .skip(skip)
-      .select("answerContent createdAt answerImageId answerImage upVote upVoteCount authorOneLine downVote downVoteCount isMentor answerReplyCount author answerSave authorName authorUserName authorPhotoId authorProfilePhoto")
+      .select(
+        "answerContent createdAt answerImageId answerImage upVote upVoteCount authorOneLine downVote downVoteCount isMentor answerReplyCount author answerSave authorName authorUserName authorPhotoId authorProfilePhoto"
+      )
       .populate({
-        path: 'post',
-        select: 'postQuestion author authorProfilePhoto authorPhotoId authorUserName isUser'
-      })
+        path: "post",
+        select:
+          "postQuestion author authorProfilePhoto authorPhotoId authorUserName isUser",
+      });
     res.status(200).send({ message: "All answer's of one Question", answer });
   } catch {}
 };
@@ -285,15 +313,17 @@ exports.getAnswerReply = async (req, res) => {
     const reply = await AnswerReply.find({
       _id: { $in: answer.answerReply },
     })
-    .sort("-createdAt")
-    .limit(limit)
-    .skip(skip)
-    .select("answerReplyContent createdAt author authorName authorUserName authorOneLine authorPhotoId authorProfilePhoto")
-    .populate({
-        path: 'parentAnswer',
-        select: 'id'
-    })
-    res.status(200).send({ message: "All Answer's reply", reply })
+      .sort("-createdAt")
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "answerReplyContent createdAt author authorName authorUserName authorOneLine authorPhotoId authorProfilePhoto"
+      )
+      .populate({
+        path: "parentAnswer",
+        select: "id",
+      });
+    res.status(200).send({ message: "All Answer's reply", reply });
   } catch {}
 };
 
@@ -302,7 +332,7 @@ exports.postAnswerReply = async (req, res) => {
     const { rid } = req.params;
     const { reply, uid } = req.body;
     if (req.tokenData && req.tokenData.userId) {
-      const users = await User.findById({_id: req.tokenData.userId}) 
+      const users = await User.findById({ _id: req.tokenData.userId });
       const answerReply = new AnswerReply({
         answerReplyContent: reply,
         author: users._id,
@@ -317,7 +347,9 @@ exports.postAnswerReply = async (req, res) => {
       p_answer.answerReply.unshift(answerReply._id);
       p_answer.answerReplyCount += 1;
       await Promise.all([p_answer.save(), answerReply.save()]);
-      const user = await User.findById(users._id).select("photoId profilePhoto username userLegalName")
+      const user = await User.findById(users._id).select(
+        "photoId profilePhoto username userLegalName"
+      );
       const replyAnswer = {
         _id: answerReply._id,
         answerReplyContent: answerReply.answerReplyContent,
@@ -327,14 +359,14 @@ exports.postAnswerReply = async (req, res) => {
         authorUserName: user.username,
         authorPhotoId: user.photoId,
         authorProfilePhoto: user.profilePhoto,
-        authorOneLine: user.one_line_about
+        authorOneLine: user.one_line_about,
       };
       res.status(201).send({
         replyAnswer,
         allAnswerReply: p_answer.answerReplyCount,
       });
     } else {
-      res.status(401).send({ message: 'Unauthorized'});
+      res.status(401).send({ message: "Unauthorized" });
     }
   } catch (e) {
     console.log(e);
@@ -342,284 +374,365 @@ exports.postAnswerReply = async (req, res) => {
 };
 
 exports.questionAnswerSave = async (req, res) => {
-    try {
-      const { aid } = req.params;
-      const user_session = req.tokenData && req.tokenData.userId ? req.tokenData.userId : ''
-      if (user_session) {
-        const answer = await Answer.findById({_id: aid})
-        if (answer.answerSave.length >= 1 && answer.answerSave.includes(user_session)) {
-          answer.answerSave.pull(user_session);
-          await answer.save();
-          res.status(200).send({ message: "Remove Answer To Favourites 👎" });
-        } else {
-          answer.answerSave.push(user_session);
-          await answer.save();
-          res.status(200).send({ message: "Added Answer To Favourites 👍" });
-        }
-      } else {
-        res.status(401).send({ message: 'Unauthorized access'});
-      }
-    } catch {}
-  };
-
-
-
-  exports.postQuestionDeleteAnswer = async (req, res) => {
-    try {
-      const { pid, aid } = req.params;
-      const post = await Post.findById({ _id: pid})
-      await Post.findByIdAndUpdate(id, { $pull: { answer: aid } });
-      await Answer.findByIdAndDelete({ _id: aid });
-      post.answerCount -= 1
-      await post.save()
-      res.status(200).send({ message: "post question answer deleted" });
-    } catch(e) {
-      console.log(e)
-    }
-  };
-
-
-
-
-  exports.rePostQuestionAnswer = async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { post_type } = req.query
-      var post = await Post.findById({ _id: id });
-      //
-      var post_user = await User.findOne({_id: `${post.author}`})
-      var post_ins = await InstituteAdmin.findOne({_id: `${post.author}`})
-      //
-      if(post_type === 'Repost'){
-        var answers = new Answer({ ...req.body });
-        answers.answerImageId = "1"
-        if(req.files.length >=1 ){
-          for(let file of req.files) {
-              const results = await uploadPostImageFile(file);
-              answers.answerImage.push(results.Key);
-              await unlinkFile(file.path);
-          }
-          answers.answerImageId = "0";
-        }
-        if (req.tokenData && req.tokenData.userId) {
-          var user = await User.findById({_id: req.tokenData.userId})
-          .populate({ path: 'userFollowers'})
-          .populate({ path: 'userCircle'})
-          if(user.staff.length >= 1){
-            answers.isMentor = 'yes'
-          }
-          answers.author = user._id;
-          answers.authorName = user.userLegalName
-          answers.authorUserName = user.username
-          answers.authorPhotoId = user.photoId
-          answers.authorProfilePhoto = user.profilePhoto
-          answers.authorOneLine = user.one_line_about
-        }
-        const rePost = new Post({})
-        rePost.author = user._id;
-        rePost.authorName = user.userLegalName
-        rePost.authorUserName = user.username
-        rePost.authorPhotoId = user.photoId
-        rePost.authorProfilePhoto = user.profilePhoto
-        rePost.authorOneLine = user.one_line_about
-        user.answered_query.push(answers._id)
-        post.answer.push(answers._id);
-        post.answerCount += 1;
-        answers.post = post;
-        user.answerQuestionCount += 1
-        user.userPosts.push(rePost._id);
-        user.postCount += 1
-        rePost.isUser = 'user'
-        rePost.postType = 'Repost'
-        rePost.rePostAnswer = answers
-        rePost.post_url = `https://qviple.com/q/${rePost.authorUserName}/profile`
-        await Promise.all([rePost.save(), answers.save(), user.save(), post.save() ]);
-        //
-        var notify = new Notification({})
-        notify.notifyContent = `${answers.authorName} answered your question with repost.`;
-        notify.notifySender = answers.author;
-        notify.notifyByPhoto = answers.author;
-        if(post_user){
-          notify.notifyReceiever = post_user._id;
-          post_user.uNotify.push(notify._id);
-          notify.user = post_user._id;
-          await Promise.all([ post_user.save(), notify.save() ])
-          invokeFirebaseNotification("Answer", notify, 'New Repost Answer', answers.author, post_user.deviceToken, post._id);
-        }
-        else if(post_ins){
-          notify.notifyReceiever = post_ins._id;
-          post_ins.iNotify.push(notify._id);
-          notify.institute = post_ins._id
-          await Promise.all([ post_ins.save(), notify.save() ])
-          invokeFirebaseNotification("Answer", notify, 'New Repost Answer', answers.author, post_ins.deviceToken, post._id);
-        }
-        //
-        res.status(200).send({ message: 'RePosted Answer', rePost})
-        if(user.userFollowers.length >= 1){
-          user.userFollowers.forEach(async (ele) => {
-            ele.userPosts.push(post._id)
-            await ele.save()
-          })
-        }
-        if(user.userCircle.length >= 1){
-            user.userCircle.forEach(async (ele) => {
-              ele.userPosts.push(post._id)
-              await ele.save()
-            })
-        }
-      }
-      else{
-        res.status(203).send({ message: 'Access Denied By Post Type'})
-      }
-    } catch(e) {
-      console.log('REAN', e)
-    }
-  };
-
-
-
-  exports.rePostAnswerLike = async (req, res) => {
-    try {
-      const { pid, aid } = req.params;
+  try {
+    const { aid } = req.params;
+    const user_session =
+      req.tokenData && req.tokenData.userId ? req.tokenData.userId : "";
+    if (user_session) {
       const answer = await Answer.findById({ _id: aid });
-      const rePost = await Post.findById({_id: pid})
-      const question = await Post.findById({_id: `${answer.post}`})
-      const user_session = req.tokenData && req.tokenData.userId ? req.tokenData.userId : ''
-      if (user_session) {
-        //
-        if (rePost.repostMultiple.length >= 1 && rePost.repostMultiple.includes(String(user_session))){
-          rePost.repostMultiple.pull(user_session)
-        }
-        else{
-          rePost.repostMultiple.push(user_session)
-        }
-        //
-        if (
-          answer.upVote.length >= 1 &&
-          answer.upVote.includes(String(user_session))
-        ) {
-          answer.upVote.pull(user_session);
-          if (answer.upVoteCount >= 1) {
-            answer.upVoteCount -= 1;
-            question.answerUpVoteCount -= 1
-          }
-          await Promise.all([ answer.save(), question.save()])
-          res
-            .status(200)
-            .send({ message: "Removed from Upvote 👎", upVoteCount: answer.upVoteCount, });
-        } else {
-          if (
-            answer.downVote.length >= 1 &&
-            answer.downVote.includes(String(user_session))
-          ) {
-            answer.downVote.pull(user_session);
-            if (answer.downVoteCount >= 1) {
-              answer.downVoteCount -= 1;
-            }
-          }
-          answer.upVote.push(user_session);
-          answer.upVoteCount += 1;
-          question.answerUpVoteCount += 1
-          rePost.isHelpful = 'Yes'
-          await Promise.all([ answer.save(), question.save(), rePost.save() ])
-          res
-            .status(200)
-            .send({ message: "Added To Upvote 👍", upVoteCount: answer.upVoteCount, downVoteCount: answer.downVoteCount });
-          
-          if(rePost?.postType === 'Repost'){
-            const upVoteUser = await User.findById({_id: `${user_session}`})
-            .populate('userFollowers')
-            .populate('userCircle')
-            if(`${rePost.author}` === `${upVoteUser._id}`){
-
-            }
-            else{
-              upVoteUser.userFollowers.forEach(async (ele) => {
-                if(ele?.userPosts?.includes(rePost._id)){}
-                else{
-                  ele.userPosts.push(rePost._id)
-                  await ele.save()
-                }
-              })
-
-              upVoteUser.userCircle.forEach(async (ele) => {
-                if(ele?.userPosts?.includes(rePost._id)){}
-                else{
-                  ele.userPosts.push(rePost._id)
-                  await ele.save()
-                }
-              })
-            }
-          }
-        }
+      if (
+        answer.answerSave.length >= 1 &&
+        answer.answerSave.includes(user_session)
+      ) {
+        answer.answerSave.pull(user_session);
+        await answer.save();
+        res.status(200).send({ message: "Remove Answer To Favourites 👎" });
       } else {
-        res.status(401).send();
+        answer.answerSave.push(user_session);
+        await answer.save();
+        res.status(200).send({ message: "Added Answer To Favourites 👍" });
       }
-    } catch(e) {
-      console.log(e)
+    } else {
+      res.status(401).send({ message: "Unauthorized access" });
     }
-  };
+  } catch {}
+};
 
+exports.postQuestionDeleteAnswer = async (req, res) => {
+  try {
+    const { pid, aid } = req.params;
+    const post = await Post.findById({ _id: pid });
+    await Post.findByIdAndUpdate(id, { $pull: { answer: aid } });
+    await Answer.findByIdAndDelete({ _id: aid });
+    post.answerCount -= 1;
+    await post.save();
+    res.status(200).send({ message: "post question answer deleted" });
+  } catch (e) {
+    console.log(e);
+  }
+};
 
-exports.retrieveHelpQuestion = async(req, res) =>{
-  try{
-    const { pid } = req.params
-    var user_session = req.tokenData && req.tokenData.userId ? req.tokenData.userId : ''
-    const post_ques = await Post.findById({_id: pid})
-    const user = await User.findById({_id: `${user_session}`})
-    if(user){
+exports.rePostQuestionAnswer = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { post_type } = req.query;
+    var post = await Post.findById({ _id: id });
+    //
+    var post_user = await User.findOne({ _id: `${post.author}` });
+    var post_ins = await InstituteAdmin.findOne({ _id: `${post.author}` });
+    //
+    if (post_type === "Repost") {
+      var answers = new Answer({ ...req.body });
+      answers.answerImageId = "1";
+      if (req.files.length >= 1) {
+        for (let file of req.files) {
+          const results = await uploadPostImageFile(file);
+          answers.answerImage.push(results.Key);
+          await unlinkFile(file.path);
+        }
+        answers.answerImageId = "0";
+      }
+      if (req.tokenData && req.tokenData.userId) {
+        var user = await User.findById({ _id: req.tokenData.userId })
+          .populate({ path: "userFollowers" })
+          .populate({ path: "userCircle" });
+        if (user.staff.length >= 1) {
+          answers.isMentor = "yes";
+        }
+        answers.author = user._id;
+        answers.authorName = user.userLegalName;
+        answers.authorUserName = user.username;
+        answers.authorPhotoId = user.photoId;
+        answers.authorProfilePhoto = user.profilePhoto;
+        answers.authorOneLine = user.one_line_about;
+      }
+      const rePost = new Post({});
+      rePost.author = user._id;
+      rePost.authorName = user.userLegalName;
+      rePost.authorUserName = user.username;
+      rePost.authorPhotoId = user.photoId;
+      rePost.authorProfilePhoto = user.profilePhoto;
+      rePost.authorOneLine = user.one_line_about;
+      user.answered_query.push(answers._id);
+      post.answer.push(answers._id);
+      post.answerCount += 1;
+      answers.post = post;
+      user.answerQuestionCount += 1;
+      user.userPosts.push(rePost._id);
+      user.postCount += 1;
+      rePost.isUser = "user";
+      rePost.postType = "Repost";
+      rePost.rePostAnswer = answers;
+      rePost.post_url = `https://qviple.com/q/${rePost.authorUserName}/profile`;
+      await Promise.all([
+        rePost.save(),
+        answers.save(),
+        user.save(),
+        post.save(),
+      ]);
       //
-      if (post_ques.needMultiple.length >= 1 && post_ques.needMultiple.includes(String(user._id))){
-        post_ques.needMultiple.pull(user._id)
-      }
-      else{
-        post_ques.needMultiple.push(user._id)
+      var notify = new Notification({});
+      notify.notifyContent = `${answers.authorName} answered your question with repost.`;
+      notify.notifySender = answers.author;
+      notify.notifyByPhoto = answers.author;
+      if (post_user) {
+        notify.notifyReceiever = post_user._id;
+        post_user.uNotify.push(notify._id);
+        notify.user = post_user._id;
+        await Promise.all([post_user.save(), notify.save()]);
+        invokeFirebaseNotification(
+          "Answer",
+          notify,
+          "New Repost Answer",
+          answers.author,
+          post_user.deviceToken,
+          post._id
+        );
+      } else if (post_ins) {
+        notify.notifyReceiever = post_ins._id;
+        post_ins.iNotify.push(notify._id);
+        notify.institute = post_ins._id;
+        await Promise.all([post_ins.save(), notify.save()]);
+        invokeFirebaseNotification(
+          "Answer",
+          notify,
+          "New Repost Answer",
+          answers.author,
+          post_ins.deviceToken,
+          post._id
+        );
       }
       //
-      if (post_ques.needUser.length >= 1 && post_ques.needUser.includes(String(user._id))){
-        post_ques.needUser.pull(user._id)
-        if(post_ques?.needCount > 0){
-          post_ques.needCount -= 1
-        }
-        await post_ques.save()
-        res.status(200).send({ message: 'Removed from isNeed', need: post_ques.needCount })
+      res.status(200).send({ message: "RePosted Answer", rePost });
+      if (user.userFollowers.length >= 1) {
+        user.userFollowers.forEach(async (ele) => {
+          ele.userPosts.push(post._id);
+          await ele.save();
+        });
       }
-      else{
-        post_ques.needUser.push(user._id)
-        post_ques.needCount += 1
-        post_ques.isNeed = 'Yes'
-        await post_ques.save()
-        res.status(200).send({ message: 'Added to isNeed', need: post_ques.needCount })
+      if (user.userCircle.length >= 1) {
+        user.userCircle.forEach(async (ele) => {
+          ele.userPosts.push(post._id);
+          await ele.save();
+        });
+      }
+    } else {
+      res.status(203).send({ message: "Access Denied By Post Type" });
+    }
+  } catch (e) {
+    console.log("REAN", e);
+  }
+};
 
-      if(post_ques?.postType === 'Question'){
-        const isNeedUser = await User.findById({_id: `${user_session}`})
-        .populate('userFollowers')
-        .populate('userCircle')
-        if(`${post_ques.author}` === `${isNeedUser._id}`){
-
+exports.rePostAnswerLike = async (req, res) => {
+  try {
+    const { pid, aid } = req.params;
+    const answer = await Answer.findById({ _id: aid });
+    const rePost = await Post.findById({ _id: pid });
+    const question = await Post.findById({ _id: `${answer.post}` });
+    const user_session =
+      req.tokenData && req.tokenData.userId ? req.tokenData.userId : "";
+    if (user_session) {
+      //
+      if (
+        rePost.repostMultiple.length >= 1 &&
+        rePost.repostMultiple.includes(String(user_session))
+      ) {
+        rePost.repostMultiple.pull(user_session);
+      } else {
+        rePost.repostMultiple.push(user_session);
+      }
+      //
+      if (
+        answer.upVote.length >= 1 &&
+        answer.upVote.includes(String(user_session))
+      ) {
+        answer.upVote.pull(user_session);
+        if (answer.upVoteCount >= 1) {
+          answer.upVoteCount -= 1;
+          question.answerUpVoteCount -= 1;
         }
-        else{
-          isNeedUser.userFollowers.forEach(async (ele) => {
-            if(ele?.userPosts?.includes(post_ques._id)){}
-            else{
-              ele.userPosts.push(post_ques._id)
-              await ele.save()
-            }
-          })
+        await Promise.all([answer.save(), question.save()]);
+        res.status(200).send({
+          message: "Removed from Upvote 👎",
+          upVoteCount: answer.upVoteCount,
+        });
+      } else {
+        if (
+          answer.downVote.length >= 1 &&
+          answer.downVote.includes(String(user_session))
+        ) {
+          answer.downVote.pull(user_session);
+          if (answer.downVoteCount >= 1) {
+            answer.downVoteCount -= 1;
+          }
+        }
+        answer.upVote.push(user_session);
+        answer.upVoteCount += 1;
+        question.answerUpVoteCount += 1;
+        rePost.isHelpful = "Yes";
+        await Promise.all([answer.save(), question.save(), rePost.save()]);
+        res.status(200).send({
+          message: "Added To Upvote 👍",
+          upVoteCount: answer.upVoteCount,
+          downVoteCount: answer.downVoteCount,
+        });
 
-          isNeedUser.userCircle.forEach(async (ele) => {
-            if(ele?.userPosts?.includes(post_ques._id)){}
-            else{
-              ele.userPosts.push(post_ques._id)
-              await ele.save()
-            }
-          })
+        if (rePost?.postType === "Repost") {
+          const upVoteUser = await User.findById({ _id: `${user_session}` })
+            .populate("userFollowers")
+            .populate("userCircle");
+          if (`${rePost.author}` === `${upVoteUser._id}`) {
+          } else {
+            upVoteUser.userFollowers.forEach(async (ele) => {
+              if (ele?.userPosts?.includes(rePost._id)) {
+              } else {
+                ele.userPosts.push(rePost._id);
+                await ele.save();
+              }
+            });
+
+            upVoteUser.userCircle.forEach(async (ele) => {
+              if (ele?.userPosts?.includes(rePost._id)) {
+              } else {
+                ele.userPosts.push(rePost._id);
+                await ele.save();
+              }
+            });
+          }
         }
       }
+    } else {
+      res.status(401).send();
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveHelpQuestion = async (req, res) => {
+  try {
+    const { pid } = req.params;
+    var user_session =
+      req.tokenData && req.tokenData.userId ? req.tokenData.userId : "";
+    const post_ques = await Post.findById({ _id: pid });
+    const user = await User.findById({ _id: `${user_session}` });
+    if (user) {
+      //
+      if (
+        post_ques.needMultiple.length >= 1 &&
+        post_ques.needMultiple.includes(String(user._id))
+      ) {
+        post_ques.needMultiple.pull(user._id);
+      } else {
+        post_ques.needMultiple.push(user._id);
+      }
+      //
+      if (
+        post_ques.needUser.length >= 1 &&
+        post_ques.needUser.includes(String(user._id))
+      ) {
+        post_ques.needUser.pull(user._id);
+        if (post_ques?.needCount > 0) {
+          post_ques.needCount -= 1;
+        }
+        await post_ques.save();
+        res
+          .status(200)
+          .send({ message: "Removed from isNeed", need: post_ques.needCount });
+      } else {
+        post_ques.needUser.push(user._id);
+        post_ques.needCount += 1;
+        post_ques.isNeed = "Yes";
+        await post_ques.save();
+        res
+          .status(200)
+          .send({ message: "Added to isNeed", need: post_ques.needCount });
+
+        if (post_ques?.postType === "Question") {
+          const isNeedUser = await User.findById({ _id: `${user_session}` })
+            .populate("userFollowers")
+            .populate("userCircle");
+          if (`${post_ques.author}` === `${isNeedUser._id}`) {
+          } else {
+            isNeedUser.userFollowers.forEach(async (ele) => {
+              if (ele?.userPosts?.includes(post_ques._id)) {
+              } else {
+                ele.userPosts.push(post_ques._id);
+                await ele.save();
+              }
+            });
+
+            isNeedUser.userCircle.forEach(async (ele) => {
+              if (ele?.userPosts?.includes(post_ques._id)) {
+              } else {
+                ele.userPosts.push(post_ques._id);
+                await ele.save();
+              }
+            });
+          }
+        }
       }
     }
-  }
-  catch{
+  } catch {}
+};
 
+//FOR EDIT AND DELETE
+
+exports.answerEdit = async (req, res) => {
+  try {
+    if (!req.params.aid) throw "Please send answer id to perform task";
+    const answer = await Answer.findById(req.params.aid);
+    if (req.body?.answerContent) {
+      answer.answerContent = req.body?.answerContent;
+    }
+    if (req.body?.deleteImage?.length) {
+      for (let dimage of req.body?.deleteImage) {
+        answer?.answerImage?.pull(dimage);
+        await deleteFile(dimage);
+      }
+    }
+    if (req?.files) {
+      for (let file of req.files) {
+        const results = await uploadPostImageFile(file);
+        answer.answerImage.push(results.Key);
+        await unlinkFile(file.path);
+      }
+      answer.answerImageId = "0";
+    }
+    await answer.save();
+    res.status(200).send({ message: "Comment Edited successfully👍" });
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
   }
-}
+};
+
+exports.answerReplyEdit = async (req, res) => {
+  try {
+    if (!req.params.aid) throw "Please send reply answer id to perform task";
+    await AnswerReply.findByIdAndUpdate(req.params.aid, req.body);
+    res.status(200).send({ message: "Reply answer Edited successfully👍" });
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
+  }
+};
+
+exports.answerReplyDelete = async (req, res) => {
+  try {
+    if (!req.params.aid) throw "Please send reply answer id to perform task";
+    const ranswer = await AnswerReply.findById(req.params.aid);
+    const answer = await Answer.findById(ranswer.parentAnswer);
+    answer.answerReplyCount -= 1;
+    await answer.save();
+    await AnswerReply.findByIdAndDelete(req.params.cid);
+    res.status(200).send({ message: "Reply Answer Deleted successfully👍" });
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
+  }
+};

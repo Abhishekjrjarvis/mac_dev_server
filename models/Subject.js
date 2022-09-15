@@ -42,6 +42,12 @@ const subjectSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteAdmin",
   },
+  dailyUpdate: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubjectTeacherUpdate",
+    },
+  ],
 });
 
 const Subject = mongoose.model("Subject", subjectSchema);

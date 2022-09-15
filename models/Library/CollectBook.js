@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const collectSchema = new mongoose.Schema({
+const collectBookSchema = new mongoose.Schema({
   book: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Book",
@@ -13,7 +13,16 @@ const collectSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Library",
   },
+  chargeBy: {
+    type: String,
+  },
+  fineCharge: {
+    type: Number,
+  },
+  issuedDate: {
+    type: Date,
+  },
   createdAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model("Collect", collectSchema);
+module.exports = mongoose.model("CollectBook", collectBookSchema);

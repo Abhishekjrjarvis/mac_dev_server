@@ -89,7 +89,7 @@ exports.departmentDelete = async (req, res) => {
       throw "You can't delete department because students existence";
 
     for (let display of department?.displayPersonList) {
-      const displayPerson = await DisplayPerson.findById(display).popoulate({
+      const displayPerson = await DisplayPerson.findById(display).populate({
         path: "displayUser",
       });
       displayPerson.displayUser.displayPersonArray?.pull(display);
@@ -104,11 +104,9 @@ exports.departmentDelete = async (req, res) => {
       for (let cls of batch?.classroom) {
         const classes = await Class.findById(cls);
         for (let display of classes?.displayPersonList) {
-          const displayPerson = await DisplayPerson.findById(display).popoulate(
-            {
-              path: "displayUser",
-            }
-          );
+          const displayPerson = await DisplayPerson.findById(display).populate({
+            path: "displayUser",
+          });
           displayPerson.displayUser.displayPersonArray?.pull(display);
           await displayPerson.displayUser.save();
           await DisplayPerson.findByIdAndDelete(display);
@@ -128,9 +126,9 @@ exports.departmentDelete = async (req, res) => {
         classTeacher.staffDesignationCount -= 1;
         institute?.classRooms?.pull(classes._id);
         await classTeacher.save();
-        await classes.findByIdAndDelete(cls);
+        await Class.findByIdAndDelete(cls);
       }
-      await batch.findByIdAndDelete(req.params.bid);
+      await Batch.findByIdAndDelete(btId);
     }
 
     for (let classMas of department?.departmentClassMasters) {
@@ -144,7 +142,7 @@ exports.departmentDelete = async (req, res) => {
     dHead?.staffDepartment?.pull(department._id);
     dHead.staffDesignationCount -= 1;
     await Promise.all([institute.save(), dHead.save()]);
-    await department.findByIdAndDelete(req.params.did);
+    await Department.findByIdAndDelete(req.params.did);
     res.status(200).send({
       message: "Department deleted successfully👍",
       deleted: "Yes",
@@ -178,20 +176,20 @@ exports.batchDelete = async (req, res) => {
     const batch = await Batch.findById(req.params.bid);
     if (batch?.ApproveStudent?.length)
       throw "You can't delete batch because students existence";
-
     const institute = await InstituteAdmin.findById(batch.institute);
     institute?.idCardBatch?.pull(batch._id);
     const department = await Department.findById(batch.department);
     department?.batches?.pull(batch._id);
     department.batchCount -= 1;
-    if (department.departmentSelectBatch === batch._id)
-      department.departmentSelectBatch = "";
-    if (department.userBatch === batch._id) department.userBatch = "";
-
+    if (String(department.departmentSelectBatch) === String(batch._id)) {
+      department.departmentSelectBatch = null;
+    }
+    if (String(department.userBatch) === String(batch._id))
+      department.userBatch = null;
     for (let cls of batch?.classroom) {
       const classes = await Class.findById(cls);
       for (let display of classes?.displayPersonList) {
-        const displayPerson = await DisplayPerson.findById(display).popoulate({
+        const displayPerson = await DisplayPerson.findById(display).populate({
           path: "displayUser",
         });
         displayPerson.displayUser.displayPersonArray?.pull(display);
@@ -225,7 +223,6 @@ exports.batchDelete = async (req, res) => {
       const department = await Department.findById(classes.department);
       department?.class?.pull(classes._id);
       department.classCount -= 1;
-
       await Promise.all([
         classMaster.save(),
         classTeacher.save(),
@@ -233,10 +230,10 @@ exports.batchDelete = async (req, res) => {
         department.save(),
       ]);
 
-      await classes.findByIdAndDelete(cls);
+      await Class.findByIdAndDelete(cls);
     }
     await Promise.all([institute.save(), department.save()]);
-    await batch.findByIdAndDelete(req.params.bid);
+    await Batch.findByIdAndDelete(req.params.bid);
     res.status(200).send({
       message: "batch deleted successfully👍",
       deleted: "Yes",
@@ -364,7 +361,7 @@ exports.classDelete = async (req, res) => {
       throw "You can't delete class because students existence";
 
     for (let display of classes?.displayPersonList) {
-      const displayPerson = await DisplayPerson.findById(display).popoulate({
+      const displayPerson = await DisplayPerson.findById(display).populate({
         path: "displayUser",
       });
       displayPerson.displayUser.displayPersonArray?.pull(display);
@@ -409,7 +406,7 @@ exports.classDelete = async (req, res) => {
       batch.save(),
       department.save(),
     ]);
-    await classes.findByIdAndDelete(req.params.cid);
+    await Class.findByIdAndDelete(req.params.cid);
     res
       .status(200)
       .send({ message: "Class deleted successfully👍", deleted: "Yes" });

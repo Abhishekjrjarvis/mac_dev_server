@@ -14,7 +14,7 @@ const Complaint = require("../../models/Complaint");
 const Transfer = require("../../models/Transfer");
 const DisplayPerson = require("../../models/DisplayPerson");
 const Finance = require("../../models/Finance");
-const Library = require("../../models/Library");
+// const Library = require("../../models/Library/Library");
 const Subject = require("../../models/Subject");
 const StudentNotification = require("../../models/Marks/StudentNotification")
 const Class = require("../../models/Class");
@@ -23,11 +23,11 @@ const ClassMaster = require("../../models/ClassMaster");
 const SubjectMaster = require("../../models/SubjectMaster");
 const ReplyAnnouncement = require("../../models/ReplyAnnouncement");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
-const invokeMemberTabNotification = require('../../Firebase/MemberTab')
-const Status = require('../../models/Admission/status')
-const Post = require('../../models/Post')
-const Comment = require('../../models/Comment')
-const ReplyComment = require('../../models/ReplyComment/ReplyComment')
+const invokeMemberTabNotification = require("../../Firebase/MemberTab");
+const Status = require("../../models/Admission/status");
+const Post = require("../../models/Post");
+const Comment = require("../../models/Comment");
+const ReplyComment = require("../../models/ReplyComment/ReplyComment");
 const {
   getFileStream,
   uploadDocFile,
@@ -265,21 +265,21 @@ exports.getUpdatePersonalIns = async (req, res) => {
     var institute = await InstituteAdmin.findByIdAndUpdate(id, req.body);
     await institute.save();
     res.status(200).send({ message: "Personal Info Updated" });
-      const post = await Post.find({ author: institute._id });
-      post.forEach(async (ele) => {
-        ele.authorOneLine = institute.one_line_about;
-        await ele.save();
-      });
-      const comment = await Comment.find({ author: institute._id });
-      comment.forEach(async (com) => {
-        com.authorOneLine = institute.one_line_about;
-        await com.save();
-      });
-      const replyComment = await ReplyComment.find({ author: institute._id });
-      replyComment.forEach(async (reply) => {
-        reply.authorOneLine = institute.one_line_about;
-        await reply.save();
-      });
+    const post = await Post.find({ author: institute._id });
+    post.forEach(async (ele) => {
+      ele.authorOneLine = institute.one_line_about;
+      await ele.save();
+    });
+    const comment = await Comment.find({ author: institute._id });
+    comment.forEach(async (com) => {
+      com.authorOneLine = institute.one_line_about;
+      await com.save();
+    });
+    const replyComment = await ReplyComment.find({ author: institute._id });
+    replyComment.forEach(async (reply) => {
+      reply.authorOneLine = institute.one_line_about;
+      await reply.save();
+    });
   } catch {}
 };
 
@@ -802,8 +802,8 @@ exports.fillStudentForm = async (req, res) => {
     const user = await User.findById({ _id: uid });
     const student = new Student({ ...req.body });
     const classes = await Class.findOne({ classCode: req.body.studentCode });
-    const classStaff = await Staff.findById({_id: `${classes.classTeacher}`})
-    const classUser = await User.findById({_id: `${classStaff.user}`})
+    const classStaff = await Staff.findById({ _id: `${classes.classTeacher}` });
+    const classUser = await User.findById({ _id: `${classStaff.user}` });
     for (let file of req.files) {
       let count = 1;
       if (count === 1) {
@@ -825,7 +825,7 @@ exports.fillStudentForm = async (req, res) => {
     }
 
     const notify = new StudentNotification({});
-    const aStatus = new Status({})
+    const aStatus = new Status({});
     institute.student.push(student._id);
     user.student.push(student._id);
     institute.joinedPost.push(user._id);
@@ -846,20 +846,20 @@ exports.fillStudentForm = async (req, res) => {
     notify.notifySender = student._id;
     notify.notifyReceiever = classUser._id;
     institute.iNotify.push(notify._id);
-    notify.notifyType = 'Staff'
-    notify.notifyPublisher = classStaff._id
-    classUser.activity_tab.push(notify._id)
+    notify.notifyType = "Staff";
+    notify.notifyPublisher = classStaff._id;
+    classUser.activity_tab.push(notify._id);
     notify.notifyByStudentPhoto = student._id;
-    aStatus.content = `Your application for joining as student in ${institute.insName} is filled successfully. Stay updated to check status of your application.`
-    user.applicationStatus.push(aStatus._id)
+    aStatus.content = `Your application for joining as student in ${institute.insName} is filled successfully. Stay updated to check status of your application.`;
+    user.applicationStatus.push(aStatus._id);
     //
     invokeMemberTabNotification(
       "Staff Activity",
       notify,
-      'Request for Joining',
+      "Request for Joining",
       classUser._id,
       classUser.deviceToken,
-      'Staff',
+      "Staff",
       notify
     );
     //
@@ -870,7 +870,7 @@ exports.fillStudentForm = async (req, res) => {
       classes.save(),
       notify.save(),
       aStatus.save(),
-      classUser.save()
+      classUser.save(),
     ]);
     res.status(201).send({ message: "student form is applied", student, status: true });
   } catch (e) {

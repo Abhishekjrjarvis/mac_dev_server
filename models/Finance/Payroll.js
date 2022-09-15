@@ -28,7 +28,12 @@ const payrollSchema = new mongoose.Schema({
           net_total: { type: Number, default: 0},
           hra: { type: Number, default: 0},
           tds: { type: Number, default: 0},
-          epf: { type: Number, default: 0}
+          epf: { type: Number, default: 0},
+          da: { type: Number, default: 0},
+          medical_allowance: { type: Number, default: 0},
+          travel_allowance: { type: Number, default: 0},
+          perquisites: { type: Number, default: 0},
+          employer_contribution: { type: Number, default: 0},
         },
     ],
     h_r_a: {
@@ -47,6 +52,22 @@ const payrollSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    medical_allowance: {
+        type: Number,
+        default: 0
+    },
+    travel_allowance: {
+        type: Number,
+        default: 0
+    },
+    perquisites: {
+        type: Number,
+        default: 0
+    },
+    employer_contribution: {
+        type: Number,
+        default: 0
+    }
 
 })
 

@@ -5,8 +5,8 @@ info:
   version: one
 
 
-# host: 18.205.27.165
-# basePath: /api
+host: 18.205.27.165
+basePath: /api
 # schemes: [http, https]
 schemes: 
   - http
@@ -2623,6 +2623,25 @@ paths:
         "200":
           description: OK
 
+  /api/v1/user/staff/{sid}/sal/history:
+    get:
+      tags:
+        - Staff-Member-Tab
+      summary: Get All Salary History of Staff - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Staff id
+      responses:
+        "200":
+          description: OK
 
   # Student Member's Tab
 
@@ -9888,6 +9907,242 @@ paths:
         "200":
           description: OK
 
+
+  /api/v1/finance/{fid}/emp/all:
+    get:
+      tags:
+        - Finance Module Query
+      summary: Get All Employee List - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is finance id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/finance/{fid}/add/emp/{sid}:
+    post:
+      tags:
+        - Finance Module Query
+      summary: Add Employee for payroll -(Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Staff id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              staff_salary_month:
+                type: number
+                description: Enter Staff Basic Salary Per Month
+              staff_total_paid_leaves:
+                type: number
+                description: Enter Staff Total Paid Leaves given in a month
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/finance/{eid}/one/emp/detail:
+    get:
+      tags:
+        - Finance Module Query
+      summary: Get One Employee - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Employee id
+        - in: query
+          name: type
+          schema:
+            type: integer
+          description: (for Info --> "Detail"), (for History --> "History")
+        - in: query
+          name: month
+          schema:
+            type: integer
+          description: for type --> "History" then pass this query
+      responses:
+        "200":
+          description: OK
+
+  
+
+  /api/v1/finance/{fid}/add/payroll/{eid}:
+    post:
+      tags:
+        - Finance Module Query
+      summary: For Creating Payroll of One Employee -(Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: This is Employee id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              month:
+                type: string
+                description: Enter Month (2022-09-05)
+              attendence:
+                type: number
+                description: Enter Attendence Days in Number
+              paid_leaves:
+                type: number
+                description: Enter Paid Leaves in Number
+              payment_mode:
+                type: string
+                description: Enter Payment mode (By Cash, By Bank)
+              purpose:
+                type: string
+                description: Enter Purpose (Like Monthly Salary, Refund)
+              amount:
+                type: number
+                description: Enter Basic Salary in Number
+              paid_to:
+                type: string
+                description: Enter Name of Payee
+              message:
+                type: string
+                description: Enter Message regarding for payroll
+              gross_salary:
+                type: number
+                description: Enter Gross Salary in Number
+              net_total:
+                type: number
+                description: Enter Net Total in Number
+              hra:
+                type: number
+                description: Enter HRA in Number
+              tds:
+                type: number
+                description: Enter TDS in Number
+              da:
+                type: number
+                description: Enter DA in Number
+              epf:
+                type: number
+                description: Enter EPF in Number
+              ma:
+                type: number
+                description: Enter Medical Allowance in Number
+              ta:
+                type: number
+                description: Enter Travel Allowance in Number
+              epc:
+                type: number
+                description: Enter Employer Contribution in Number
+              pqs:
+                type: number
+                description: Enter perquisites in Number
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/finance/{fid}/sal/history:
+    get:
+      tags:
+        - Finance Module Query
+      summary: Get All Salary History - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Finance id
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/finance/{fid}/remaining/fee/list:
+    get:
+      tags:
+        - Finance Module Query
+      summary: Get All List of Student Remaining Fees - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Finance id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+      responses:
+        "200":
+          description: OK
+  
+
   /api/v1/post/question/{id}/text:
     post:
       tags:
@@ -10688,7 +10943,7 @@ paths:
             type: integer
           description: The number of items to skip before starting to collect the result set
         - in: query
-          name: page
+          name: limit
           schema:
             type: integer
           description: The number of items to skip before starting to collect the result set

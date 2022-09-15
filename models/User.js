@@ -67,18 +67,6 @@ const userSchema = new mongoose.Schema({
       ref: "InstituteAdmin",
     },
   ],
-  InstituteReferals: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "InstituteAdmin",
-    },
-  ],
-  announcement: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "UserAnnouncement",
-    },
-  ],
   role: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Role",
@@ -154,28 +142,10 @@ const userSchema = new mongoose.Schema({
       ref: "Video",
     },
   ],
-  applicationPaymentList: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "DepartmentApplication",
-    },
-  ],
-  admissionPaymentList: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "DepartmentApplication",
-    },
-  ],
   transferInstitute: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "InstituteAdmin",
-    },
-  ],
-  support: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "UserSupport",
     },
   ],
   createdAt: {
@@ -184,28 +154,6 @@ const userSchema = new mongoose.Schema({
   remindLater: {
     type: String,
   },
-  appliedForApplication: [
-    {
-      appName: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "DepartmentApplication",
-      },
-      appUpdates: [
-        {
-          notificationType: { type: Number },
-          notification: { type: String },
-          actonBtnText: { type: String },
-          deActBtnText: { type: String },
-        },
-      ],
-    },
-  ],
-  preAppliedStudent: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "PreAppliedStudent",
-    },
-  ],
   uNotify: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -367,7 +315,11 @@ const userSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'StudentNotification'
     }
-  ]
+  ],
+  blockStatus: {
+    type: String,
+    default: 'UnBlocked'
+  }
 
 });
 

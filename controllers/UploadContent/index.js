@@ -8,7 +8,7 @@ const Class = require("../../models/Class");
 const Finance = require("../../models/Finance");
 const ELearning = require("../../models/ELearning");
 const Library = require("../../models/Library/Library");
-const AdmissionAdmin = require("../../models/AdmissionAdmin");
+const Admission = require('../../models/Admission/Admission')
 const Sport = require("../../models/Sport");
 const Staff = require("../../models/Staff");
 const Student = require("../../models/Student");
@@ -416,15 +416,15 @@ exports.patchLibraryImageCover = async (req, res) => {
 exports.patchAdmissionImagePhoto = async (req, res) => {
   try {
     const { aid } = req.params;
-    const admissionAdmin = await AdmissionAdmin.findById({ _id: aid });
-    if (admissionAdmin.photo) await deleteFile(admissionAdmin.photo);
+    const admission = await Admission.findById({ _id: aid });
+    if (admission.photo) await deleteFile(admission.photo);
     const width = 112;
     const height = 112;
     const file = req.file;
     const results = await uploadFile(file, width, height);
-    admissionAdmin.photo = results.key;
-    admissionAdmin.photoId = "0";
-    await admissionAdmin.save();
+    admission.photo = results.key;
+    admission.photoId = "0";
+    await admission.save();
     await unlinkFile(file.path);
     res.status(201).send({ message: "updated photo" });
   } catch (err) {
@@ -435,15 +435,15 @@ exports.patchAdmissionImagePhoto = async (req, res) => {
 exports.patchAdmissionImageCover = async (req, res) => {
   try {
     const { aid } = req.params;
-    const admissionAdmin = await AdmissionAdmin.findById({ _id: aid });
-    if (admissionAdmin.cover) await deleteFile(admissionAdmin.cover);
+    const admission = await Admission.findById({ _id: aid });
+    if (admission.cover) await deleteFile(admission.cover);
     const width = 375;
     const height = 245;
     const file = req.file;
     const results = await uploadFile(file, width, height);
-    admissionAdmin.cover = results.key;
-    admissionAdmin.coverId = "0";
-    await admissionAdmin.save();
+    admission.cover = results.key;
+    admission.coverId = "0";
+    await admission.save();
     await unlinkFile(file.path);
     res.status(201).send({ message: "updated photo" });
   } catch (err) {

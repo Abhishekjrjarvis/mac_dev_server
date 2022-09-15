@@ -16,8 +16,7 @@ const DisplayPerson = require("../../models/DisplayPerson");
 const Finance = require("../../models/Finance");
 // const Library = require("../../models/Library/Library");
 const Subject = require("../../models/Subject");
-const StudentNotification = require("../../models/Marks/StudentNotification");
-const AdmissionAdmin = require("../../models/AdmissionAdmin");
+const StudentNotification = require("../../models/Marks/StudentNotification")
 const Class = require("../../models/Class");
 const Leave = require("../../models/Leave");
 const ClassMaster = require("../../models/ClassMaster");
@@ -45,22 +44,8 @@ exports.getDashOneQuery = async (req, res) => {
   try {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id }).select(
-      "insName name insAbout photoId staff_privacy email_privacy contact_privacy tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart unlockAmount accessFeature activateStatus"
+      "insName name insAbout photoId staff_privacy modal_activate email_privacy followers_critiria initial_Unlock_Amount contact_privacy followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart unlockAmount accessFeature activateStatus"
     );
-    // .populate({
-    //   path: "supportChat",
-    //   populate: {
-    //     path: "latestMessage",
-    //   },
-    // })
-    // .populate({
-    //   path: "supportChat",
-    //   populate: {
-    //     path: "message",
-    //   },
-    // })
-    // .lean()
-    // .exec();
     const encrypt = await encryptionPayload(institute);
     res.status(200).send({
       message: "limit Ins Data",
@@ -804,7 +789,7 @@ exports.fillStaffForm = async (req, res) => {
       notify.save(),
       aStatus.save(),
     ]);
-    res.status(201).send({ message: "Staff form is applied", staff });
+    res.status(201).send({ message: "Staff form is applied", staff, status: true });
   } catch (e) {
     console.log(e);
   }
@@ -887,7 +872,7 @@ exports.fillStudentForm = async (req, res) => {
       aStatus.save(),
       classUser.save(),
     ]);
-    res.status(201).send({ message: "student form is applied", student });
+    res.status(201).send({ message: "student form is applied", student, status: true });
   } catch (e) {
     console.log(e);
   }
@@ -952,7 +937,7 @@ exports.retrieveApproveStudentList = async (req, res) => {
           "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate",
         populate: {
           path: "user",
-          select: "userLegalName userEmail",
+          select: "userLegalName userEmail userPhoneNumber",
         },
       })
       .populate({
@@ -2097,6 +2082,9 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
   var p_date = date.getDate();
   var p_month = date.getMonth() + 1;
   var p_year = date.getFullYear();
+  if(p_date < 10){
+    p_date = `0${p_date}`
+  }
   if (p_month <= 10) {
     p_month = `0${p_month}`;
   }

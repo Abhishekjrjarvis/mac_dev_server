@@ -40,11 +40,7 @@ exports.createChecklist = async (req, res) => {
     const { did } = req.params;
     const { ClassId } = req.body;
     const department = await Department.findById({ _id: did })
-    .select('institute')
-    .populate({
-      path: "ApproveStudent",
-      select: "_id",
-    });
+    .select('institute checklists ApproveStudent')
 
     var check = new Checklist(req.body);
     department.checklists.push(check._id);
@@ -99,10 +95,12 @@ exports.createChecklist = async (req, res) => {
     }
     const institute = await InstituteAdmin.findById({_id: `${department.institute}`}).select('financeDepart')
     const finance = await Finance.findById({_id: `${institute.financeDepart[0]}`})
-    finance.financeRaisedBalance += feeData.feeAmount
+    finance.financeRaisedBalance += check.checklistAmount
     await finance.save()
     //
-  } catch {}
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 exports.getOneChecklist = async (req, res) => {

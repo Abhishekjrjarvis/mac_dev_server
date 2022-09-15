@@ -7,6 +7,7 @@ const studentNotificationSchema = new mongoose.Schema({
   notifyReadStatus: { type: String, default: "Unread" },
   notifyVisibility: { type: String, default: "Unhide" },
   notifyViewStatus: { type: String, default: 'Not View'},
+  redirectIndex: { type: Number },
   notifyByClassPhoto: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Class",

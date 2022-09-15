@@ -21,7 +21,6 @@ const instituteAdminSchema = new mongoose.Schema({
   insRegDate: { type: String },
   insAchievement: { type: String },
   insAffiliated: { type: String },
-  // referalPercentage: { type: String },
   rejectReason: { type: String },
   insEditableText: { type: String },
   insEditableTexts: { type: String },
@@ -192,40 +191,10 @@ const instituteAdminSchema = new mongoose.Schema({
       ref: "Field",
     },
   ],
-  AllInstituteReferral: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "InstituteAdmin",
-    },
-  ],
-  AllUserReferral: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
-  ],
-  instituteReferral: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "InstituteAdmin",
-    },
-  ],
-  userReferral: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
-  ],
   joinedPost: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-    },
-  ],
-  supportIns: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "InstituteSupport",
     },
   ],
   insBankBalance: {
@@ -446,6 +415,27 @@ const instituteAdminSchema = new mongoose.Schema({
     type: Boolean
   },
   one_line_about: {
+    type: String
+  },
+  blockStatus: {
+    type: String,
+    default: 'UnBlocked'
+  },
+  initial_Unlock_Amount: {
+    type: Number,
+    default: 0
+  },
+  followers_critiria: {
+    type: Number,
+    default: 0
+  },
+  profileQRCode: {
+    type: String
+  },
+  profileURL: {
+    type: String
+  },
+  modal_activate: {
     type: String
   }
 });

@@ -527,27 +527,27 @@ exports.updateUserPersonal = async (req, res) => {
     const { id } = req.params;
     var user = await User.findByIdAndUpdate(id, req.body);
     res.status(200).send({ message: "Personal Info Updated" });
-      const post = await Post.find({ author: user._id });
+      const post = await Post.find({ author: `${user._id}` });
       post.forEach(async (ele) => {
         ele.authorOneLine = user.one_line_about;
         await ele.save();
       });
-      const comment = await Comment.find({ author: user._id });
+      const comment = await Comment.find({ author: `${user._id}` });
       comment.forEach(async (com) => {
         com.authorOneLine = user.one_line_about;
         await com.save();
       });
-      const replyComment = await ReplyComment.find({ author: user._id });
+      const replyComment = await ReplyComment.find({ author: `${user._id}` });
       replyComment.forEach(async (reply) => {
         reply.authorOneLine = user.one_line_about;
         await reply.save();
       });
-      const answers = await Answer.find({ author: user._id });
+      const answers = await Answer.find({ author: `${user._id}` });
       answers.forEach(async (ans) => {
         ans.authorOneLine = user.one_line_about;
         await ans.save();
       });
-      const answerReply = await AnswerReply.find({ author: user._id });
+      const answerReply = await AnswerReply.find({ author: `${user._id}` });
       answerReply.forEach(async (ansRep) => {
         ansRep.authorOneLine = user.one_line_about;
         await ansRep.save();

@@ -265,17 +265,17 @@ exports.getUpdatePersonalIns = async (req, res) => {
     var institute = await InstituteAdmin.findByIdAndUpdate(id, req.body);
     // await institute.save();
     res.status(200).send({ message: "Personal Info Updated" });
-    const post = await Post.find({ author: institute._id });
+    const post = await Post.find({ author: `${institute._id}` });
     post.forEach(async (ele) => {
       ele.authorOneLine = institute.one_line_about;
       await ele.save();
     });
-    const comment = await Comment.find({ author: institute._id });
+    const comment = await Comment.find({ author: `${institute._id}` });
     comment.forEach(async (com) => {
       com.authorOneLine = institute.one_line_about;
       await com.save();
     });
-    const replyComment = await ReplyComment.find({ author: institute._id });
+    const replyComment = await ReplyComment.find({ author: `${institute._id}` });
     replyComment.forEach(async (reply) => {
       reply.authorOneLine = institute.one_line_about;
       await reply.save();

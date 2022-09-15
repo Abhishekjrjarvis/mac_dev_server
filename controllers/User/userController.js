@@ -525,8 +525,7 @@ exports.updateUserPhone = async (req, res) => {
 exports.updateUserPersonal = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await User.findByIdAndUpdate(id, req.body);
-    await user.save();
+    var user = await User.findByIdAndUpdate(id, req.body);
     res.status(200).send({ message: "Personal Info Updated" });
       const post = await Post.find({ author: user._id });
       post.forEach(async (ele) => {

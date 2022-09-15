@@ -263,7 +263,7 @@ exports.getUpdatePersonalIns = async (req, res) => {
   try {
     const { id } = req.params;
     var institute = await InstituteAdmin.findByIdAndUpdate(id, req.body);
-    await institute.save();
+    // await institute.save();
     res.status(200).send({ message: "Personal Info Updated" });
     const post = await Post.find({ author: institute._id });
     post.forEach(async (ele) => {
@@ -1661,7 +1661,7 @@ exports.retrieveSubject = async (req, res) => {
       .select("subjectName subjectStatus subjectTitle")
       .populate({
         path: "class",
-        select: "className classStatus",
+        select: "className classStatus classTitle",
         populate: {
           path: "ApproveStudent",
           select:

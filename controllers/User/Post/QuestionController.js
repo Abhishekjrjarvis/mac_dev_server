@@ -616,7 +616,7 @@ exports.retrieveHelpQuestion = async (req, res) => {
     var user_session =
       req.tokenData && req.tokenData.userId ? req.tokenData.userId : "";
     const post_ques = await Post.findById({ _id: pid });
-    const user = await User.findById({ _id: `${user_session}` });
+    var user = await User.findById({ _id: `${user_session}` });
     if (user) {
       //
       if (
@@ -674,7 +674,9 @@ exports.retrieveHelpQuestion = async (req, res) => {
         }
       }
     }
-  } catch {}
+  } catch (e){
+    console.log(e)
+  }
 };
 
 //FOR EDIT AND DELETE

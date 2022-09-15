@@ -350,7 +350,7 @@ exports.getApproveIns = async(req, res) =>{
         admin.requestInstituteCount -= 1
         admin.instituteList.pull(id);
         institute.status = "Approved";
-        institute.unlockAmount = c_amount == null ? 1000 : c_amount
+        institute.unlockAmount = (c_amount == null ? 1000 : c_amount)
         institute.initial_Unlock_Amount = i_amount
         institute.followers_critiria = f_amount
         if(c_amount == 0){
@@ -381,7 +381,7 @@ exports.getApproveIns = async(req, res) =>{
           message: `Congrats for Approval ${institute.insName}`,
           admin: admin._id
         });
-      } catch (e) {console.log('Error', e.message)}
+      } catch (e) {console.log('Error', e)}
 }
 
 

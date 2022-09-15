@@ -15,6 +15,7 @@ const Subject = require("../../models/Subject");
 const Transfer = require("../../models/Transfer");
 const StudentTransfer = require("../../models/StudentTransfer");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
+const StudentNotification = require('../../models/Marks/StudentNotification')
 
 //=======================================For the students related controller=========================================
 
@@ -121,7 +122,7 @@ exports.postStudentLeave = async (req, res) => {
     ]);
     res.status(201).send({ message: "request to leave" });
   } catch (e) {
-    res.status(424).send(e);
+    console.log(e);
   }
 };
 
@@ -396,7 +397,7 @@ exports.classComplaintSolve = async (req, res) => {
     await complaint.save();
     res.status(200).send({ message: "Complaint Resolevd" });
   } catch (e) {
-    res.send(424).send({ e });
+    console.log(e)
   }
 };
 
@@ -728,7 +729,7 @@ exports.postStaffLeave = async (req, res) => {
     ]);
     res.status(201).send({ message: "request to leave" });
   } catch (e) {
-    res.status(424).send(e);
+    console.log(e);
   }
 };
 
@@ -883,7 +884,7 @@ exports.staffComplaintSolve = async (req, res) => {
     await complaint.save();
     res.status(200).send({ message: "Complaint Resolevd" });
   } catch (e) {
-    res.send(424).send({ e });
+    console.log(e);
   }
 };
 

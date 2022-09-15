@@ -437,7 +437,7 @@ exports.requestClassOfflineFee = async(req, res) =>{
             notify.notifyPublisher = financeStaff._id
             notify.financeId = finance._id
             user.activity_tab.push(notify._id);
-            notify.notifyByClassPhoto = classe._id;
+            notify.notifyByClassPhoto = classes._id;
             //
             invokeMemberTabNotification(
               "Staff Activity",

@@ -466,7 +466,7 @@ exports.submitClassOfflineFee = async(req, res) =>{
     try {
         const { fid, cid, id } = req.params;
         const { amount } = req.body
-        const finance = await Finance.findById({ _id: fid });
+        var finance = await Finance.findById({ _id: fid });
         const classes = await Class.findById({ _id: cid })
         .populate({ path: 'classTeacher', select: 'staffFirstName staffMiddleName staffLastName'})
         const fees = await Fees.findById({ _id: id });
@@ -499,7 +499,9 @@ exports.submitClassOfflineFee = async(req, res) =>{
         finance.requestArray.pull(classes._id)
         finance.financeSubmitBalance += amount
         finance.financeTotalBalance += amount
-        finance.financeCollectedSBalance -= amount
+        if(finance.financeCollectedSBalance > 0){
+          finance.financeCollectedSBalance -= amount
+        }
         // finance.financeSubmitBalance += fees.offlineFee;
         fees.offlineFee = 0;
         classes.requestFeeStatus.feeId = fees._id
@@ -582,9 +584,11 @@ exports.RepayBySuperAdmin = async(req, res) =>{
     const { aid, id } = req.params;
     const { amount } = req.body;
     const admin = await Admin.findById({ _id: aid });
-    const institute = await InstituteAdmin.findById({ _id: id });
+    var institute = await InstituteAdmin.findById({ _id: id });
     const notify = new Notification({});
-    institute.insBankBalance = institute.insBankBalance - amount;
+    if(institute.insBankBalance > 0){
+      institute.insBankBalance = institute.insBankBalance - amount;
+    }
     institute.adminRepayAmount = institute.adminRepayAmount + amount;
     notify.notifyContent = `Super Admin re-pay Rs. ${amount} to you`;
     notify.notifySender = aid;

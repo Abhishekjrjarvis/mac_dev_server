@@ -127,7 +127,9 @@ exports.feesPaidByStudent = async (req, res) => {
       student.studentFee.push(fData._id);
       fData.feeStatus = "Paid";
       student.studentPaidFeeCount += fData.feeAmount
-      student.studentRemainingFeeCount -= fData.feeAmount
+      if(student.studentRemainingFeeCount > 0){
+        student.studentRemainingFeeCount -= fData.feeAmount
+      }
       // fData.studentsList.push(student._id);
       // fData.feeStudent = student;
       student.offlineFeeList.push(fData._id);
@@ -168,7 +170,9 @@ exports.exemptFeesPaidByStudent = async (req, res) => {
         student.studentExemptFee.push(fData._id);
         fData.feeStatus = status;
         student.studentPaidFeeCount += fData.feeAmount
-        student.studentRemainingFeeCount -= fData.feeAmount
+        if(student.studentRemainingFeeCount > 0){
+          student.studentRemainingFeeCount -= fData.feeAmount
+        }
         fData.studentExemptList.push(student._id);
         fData.feeStudent = student;
         student.exemptFeeList.push(fData._id);

@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const ReplyComment = require("./ReplyComment/ReplyComment");
+const ReplyComment = require('./ReplyComment/ReplyComment')
 const commentSchema = new mongoose.Schema({
   commentDescription: {
     type: String,

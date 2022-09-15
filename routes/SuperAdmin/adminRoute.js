@@ -15,13 +15,13 @@ router.post("/super", catchAsync(Admin.retrieveAdminQuery));
 router.get('/:aid', isLoggedIn, catchAsync(Admin.getAdmin))
 
 // Get Approve Institute Array
-router.get('/:aid/approve-array', isLoggedIn, catchAsync(Admin.retrieveApproveInstituteArray))
+router.get('/approve/array', isLoggedIn, catchAsync(Admin.retrieveApproveInstituteArray))
 
 // Get Pending Institute Array
 router.get('/:aid/pending-array', isLoggedIn, catchAsync(Admin.retrievePendingInstituteArray))
 
 // Get User Array
-router.get('/:aid/user-array', isLoggedIn, catchAsync(Admin.retrieveUserArray))
+router.get('/user/array', isLoggedIn, catchAsync(Admin.retrieveUserArray))
 
 // Assign One Institute to be Universal Following
 router.post('/:aid/ins/universal', isLoggedIn, catchAsync(Admin.retrieveUniversalInstitute))
@@ -106,6 +106,12 @@ router.get('/one/user/:uid', isLoggedIn, catchAsync(Admin.retrieveOneUserQuery))
 
 router.get('/one/institute/:id/profile', isLoggedIn, catchAsync(Admin.retrieveOneInstituteQuery))
 
-router.patch('/one/post/:pid/block', isLoggedIn, catchAsync(Admin.retrieveOnePostBlock))
+router.patch('/post/:pid/block', isLoggedIn, catchAsync(Admin.retrieveOnePostBlock))
+
+router.patch('/institute/:id/block', isLoggedIn, catchAsync(Admin.retrieveOneInstituteBlock))
+
+router.patch('/user/:uid/block', isLoggedIn, catchAsync(Admin.retrieveOneUserBlock))
+
+// router.get('/filter/user/data', catchAsync(Admin.filterByYear))
 
 module.exports = router

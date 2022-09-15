@@ -16,7 +16,7 @@ exports.createFess = async (req, res) => {
     const department = await Department.findById(req.params.did).select(
       "_id ApproveStudent fees institute"
     );
-    var feeData = await new Fees({
+    var feeData = new Fees({
       feeName: feeName,
       feeAmount: feeAmount,
       feeDate: feeDate,
@@ -127,7 +127,9 @@ exports.feesPaidByStudent = async (req, res) => {
       student.studentFee.push(fData._id);
       fData.feeStatus = "Paid";
       student.studentPaidFeeCount += fData.feeAmount
-      student.studentRemainingFeeCount -= fData.feeAmount
+      if(student.studentRemainingFeeCount > 0){
+        student.studentRemainingFeeCount -= fData.feeAmount
+      }
       // fData.studentsList.push(student._id);
       // fData.feeStudent = student;
       student.offlineFeeList.push(fData._id);
@@ -168,7 +170,9 @@ exports.exemptFeesPaidByStudent = async (req, res) => {
         student.studentExemptFee.push(fData._id);
         fData.feeStatus = status;
         student.studentPaidFeeCount += fData.feeAmount
-        student.studentRemainingFeeCount -= fData.feeAmount
+        if(student.studentRemainingFeeCount > 0){
+          student.studentRemainingFeeCount -= fData.feeAmount
+        }
         fData.studentExemptList.push(student._id);
         fData.feeStudent = student;
         student.exemptFeeList.push(fData._id);
@@ -363,15 +367,17 @@ exports.retrieveStudentQuery = async(req, res) => {
     .populate({
       path: 'user',
       select: 'userLegalName'
-    })
+    }).lean()
     const fees = await Fees.find({ _id: { $in: student.department.fees}})
     .sort("-createdAt")
+    .lean()
     const check = await Checklist.find({_id: { $in: student.department.checklists}})
     .sort("-createdAt")
+    .lean()
     var mergePay = [...fees, ...check]
-    const institute = await InstituteAdmin.findById({_id: `${student.institute._id}`})
+    const institute = await InstituteAdmin.findById({_id: `${student.institute._id}`}).select('financeDepart').lean()
     if(institute && institute.financeDepart.length >=1){
-      var finance = await Finance.findById({_id: `${institute?.financeDepart[0]}`})
+      var finance = await Finance.findById({_id: `${institute?.financeDepart[0]}`}).select('_id').lean()
       res.status(200).send({ message: 'Student Fee and Checklist', student, mergePay: mergePay, financeId: finance?._id})
     }
     else{

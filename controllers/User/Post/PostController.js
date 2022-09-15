@@ -110,7 +110,7 @@ exports.postWithImage = async (req, res) => {
     const user = await User.findById({ _id: id })
       .populate({ path: "userFollowers" })
       .populate({ path: "userCircle" });
-    const taggedPeople = JSON.parse(req.body?.people);
+    const taggedPeople = req.body?.people ? JSON.parse(req.body?.people) : "";
 
     if (Array.isArray(taggedPeople)) {
       for (let val of taggedPeople) {
@@ -205,7 +205,7 @@ exports.postWithVideo = async (req, res) => {
       .populate({ path: "userFollowers" })
       .populate({ path: "userCircle" });
     const post = new Post({ ...req.body });
-    const taggedPeople = JSON.parse(req.body?.people);
+    const taggedPeople = req.body?.people ? JSON.parse(req.body?.people) : "";
 
     if (Array.isArray(taggedPeople)) {
       for (let val of taggedPeople) {

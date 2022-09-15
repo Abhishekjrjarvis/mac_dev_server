@@ -233,6 +233,13 @@ exports.updateUserFollowIns = async (req, res) => {
           await user.save();
         } else {
         }
+        //
+        const post = await Post.find({ author: `${sinstitute._id}` });
+        post.forEach(async (ele) => {
+          ele.authorFollowersCount = sinstitute.followersCount;
+          await ele.save();
+        });
+        //
       } else {
         res
           .status(200)
@@ -278,6 +285,13 @@ exports.removeUserFollowIns = async (req, res) => {
           await user.save();
         } else {
         }
+        //
+        const post = await Post.find({ author: `${sinstitute._id}` });
+        post.forEach(async (ele) => {
+          ele.authorFollowersCount = sinstitute.followersCount;
+          await ele.save();
+        });
+        //
       } else {
         res
           .status(200)
@@ -336,6 +350,13 @@ exports.updateUserFollow = async (req, res) => {
         //
       });
       await user.save();
+      //
+      const posts = await Post.find({ author: `${suser._id}` });
+        posts.forEach(async (ele) => {
+          ele.authorFollowersCount = suser.followerCount;
+          await ele.save();
+      });
+      //
     }
   } catch (e) {
     console.log('UFOU', e)
@@ -367,6 +388,13 @@ exports.updateUserUnFollow = async (req, res) => {
         user.userPosts.pull(ele);
       });
       await user.save();
+      //
+      const posts = await Post.find({ author: `${suser._id}` });
+        posts.forEach(async (ele) => {
+          ele.authorFollowersCount = suser.followerCount;
+          await ele.save();
+      });
+      //
     } else {
       res
         .status(200)
@@ -436,6 +464,18 @@ exports.updateUserCircle = async (req, res) => {
           }
         });
         await suser.save();
+        //
+        const post_count = await Post.find({ author: `${suser._id}` });
+        post_count.forEach(async (ele) => {
+          ele.authorFollowersCount = suser.followerCount;
+          await ele.save();
+        });
+        const post_counts = await Post.find({ author: `${user._id}` });
+        post_counts.forEach(async (ele) => {
+          ele.authorFollowersCount = user.followerCount;
+          await ele.save();
+        });
+        //
       } catch {
         res.status(500).send({ error: "error" });
       }

@@ -71,6 +71,10 @@ const postSchema = new mongoose.Schema({
   authorOneLine: {
     type: String
   },
+  authorFollowersCount: {
+    type: Number,
+    default: 0
+  },
   comment: [
     {
       type: mongoose.Schema.Types.ObjectId,

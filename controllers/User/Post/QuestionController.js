@@ -34,6 +34,7 @@ exports.postQuestionText = async (req, res) => {
     post.authorPhotoId = user.photoId;
     post.authorProfilePhoto = user.profilePhoto;
     post.authorOneLine = user.one_line_about;
+    post.authorFollowersCount = user.followerCount
     post.isUser = "user";
     post.postType = "Question";
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
@@ -453,6 +454,7 @@ exports.rePostQuestionAnswer = async (req, res) => {
       rePost.authorPhotoId = user.photoId;
       rePost.authorProfilePhoto = user.profilePhoto;
       rePost.authorOneLine = user.one_line_about;
+      rePost.authorFollowersCount = user.followerCount
       user.answered_query.push(answers._id);
       post.answer.push(answers._id);
       post.answerCount += 1;

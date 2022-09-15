@@ -14,11 +14,13 @@ const staffAttendenceDateSchema = new mongoose.Schema({
   },
 
   presentTotal: {
-    type: String,
+    type: Number,
+    default: 0,
   },
 
   absentTotal: {
-    type: String,
+    type: Number,
+    default: 0,
   },
 
   institute: {

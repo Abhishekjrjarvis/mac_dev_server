@@ -1073,9 +1073,7 @@ exports.followingArray = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const { uid } = req.params;
     const skip = (page - 1) * limit;
-    const user = await User.findById({ _id: uid })
-      .populate({ path: "userFollowing" })
-      .populate({ path: "userInstituteFollowing" });
+    const user = await User.findById({ _id: uid }).select('id userFollowing userInstituteFollowing')
 
     const uFollowing = await User.find({ _id: { $in: user.userFollowing } })
       .select(
@@ -1090,11 +1088,12 @@ exports.followingArray = async (req, res) => {
       .select("insName name photoId insProfilePhoto")
       .limit(limit)
       .skip(skip);
-
+    var mergeArray = [...uFollowing, ...uInsFollowing]
     res.status(200).send({
       message: "Success",
       uFollowing: uFollowing,
       uInsFollowing: uInsFollowing,
+      mergeArray: mergeArray
     });
   } catch {}
 };
@@ -1510,3 +1509,42 @@ exports.retrieveStaffSalaryHistory = async(req, res) =>{
     console.log(e)
   }
 }
+
+
+// exports.updateUserBlock = async (req, res) => {
+//   try {
+//     var user_session = req.tokenData && req.tokenData.userId;
+//     var user = await User.findById({ _id: user_session });
+//     var suser = await User.findById({ _id: req.body.followId });
+
+//     if (
+//       user.userCircle.includes(req.body.followId) &&
+//       suser.userCircle.includes(user_session)
+//     ) {
+//       res.status(200).send({ message: "You are Already In a Circle" });
+//     } else {
+//       try {
+//         const notify = new Notification({});
+//         suser.userFollowing.pull(user_session);
+//         user.userFollowers.pull(req.body.followId);
+//         suser.userCircle.push(user_session);
+//         user.userCircle.push(req.body.followId);
+//         notify.notifyContent = `${user.userLegalName} has been added to your circle`;
+//         notify.notifySender = user._id;
+//         notify.notifyReceiever = suser._id;
+//         suser.uNotify.push(notify);
+//         notify.user = suser;
+//         notify.notifyByPhoto = user;
+//         await Promise.all([ user.save(), suser.save(), notify.save() ])
+//         if(suser?.user_follower_notify === 'Enable'){
+//           invokeFirebaseNotification("Circle", notify, 'Circled', suser._id, suser.deviceToken);
+//         }
+//         res.status(200).send({ message: "😀 Added to circle" });
+//       } catch {
+//         res.status(500).send({ error: "error" });
+//       }
+//     }
+//   } catch (e) {
+//     console.log('UCU', e)
+//   }
+// };

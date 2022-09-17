@@ -541,8 +541,10 @@ exports.rePostAnswerLike = async (req, res) => {
         rePost.repostMultiple.includes(String(user_session))
       ) {
         rePost.repostMultiple.pull(user_session);
+        await rePost.save()
       } else {
         rePost.repostMultiple.push(user_session);
+        await rePost.save()
       }
       //
       if (
@@ -553,8 +555,9 @@ exports.rePostAnswerLike = async (req, res) => {
         if (answer.upVoteCount >= 1) {
           answer.upVoteCount -= 1;
           question.answerUpVoteCount -= 1;
+          rePost.isHelpful = "No";
         }
-        await Promise.all([answer.save(), question.save()]);
+        await Promise.all([answer.save(), question.save(), rePost.save()]);
         res.status(200).send({
           message: "Removed from Upvote 👎",
           upVoteCount: answer.upVoteCount,
@@ -626,8 +629,10 @@ exports.retrieveHelpQuestion = async (req, res) => {
         post_ques.needMultiple.includes(String(user._id))
       ) {
         post_ques.needMultiple.pull(user._id);
+        await post_ques.save()
       } else {
         post_ques.needMultiple.push(user._id);
+        await post_ques.save()
       }
       //
       if (
@@ -637,6 +642,7 @@ exports.retrieveHelpQuestion = async (req, res) => {
         post_ques.needUser.pull(user._id);
         if (post_ques?.needCount > 0) {
           post_ques.needCount -= 1;
+          post_ques.isNeed = "No";
         }
         await post_ques.save();
         res

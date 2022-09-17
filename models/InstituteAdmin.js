@@ -437,7 +437,14 @@ const instituteAdminSchema = new mongoose.Schema({
   },
   modal_activate: {
     type: String
-  }
+  },
+  activeStatus: {
+    type: String,
+    default: "Activated",
+  },
+  activeDate: {
+    type: String,
+  },
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

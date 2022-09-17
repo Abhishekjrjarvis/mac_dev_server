@@ -187,7 +187,7 @@ exports.exemptFeesPaidByStudent = async (req, res) => {
         fData.exemptList.push(student._id);
         classes.exemptFee += fData.feeAmount;
         finance.financeExemptBalance += fData.feeAmount
-        finance.financeTotalBalance += fData.feeAmount
+        // finance.financeTotalBalance += fData.feeAmount
         classes.exemptFeeCollection.push({
           fee: fData.feeAmount,
           feeId: fData._id

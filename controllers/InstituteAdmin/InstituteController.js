@@ -2411,3 +2411,23 @@ exports.getProfileOneQueryUsername = async (req, res) => {
     res.status(200).send({ message: "Limit Post Ins", institute });
   } catch {}
 };
+
+
+exports.deactivateInstituteAccount = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, ddate, password } = req.body;
+    const institute = await InstituteAdmin.findById({ _id: id });
+    const comparePassword = bcrypt.compareSync(password, institute.insPassword);
+    if (comparePassword) {
+      institute.activeStatus = status;
+      institute.activeDate = ddate;
+      await institute.save();
+      res.status(200).send({ message: "Deactivated Account", status: institute.activeStatus });
+    } else {
+      res.status(404).send({ message: "Bad Request" });
+    }
+  } catch (e) {
+    console.log(`Error`, e);
+  }
+};

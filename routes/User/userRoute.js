@@ -222,5 +222,7 @@ router.get(
 
 router.get('/staff/:sid/sal/history', catchAsync(User.retrieveStaffSalaryHistory))
 
+// router.patch("/block/user", catchAsync(User.updateUserBlock));
+
 
 module.exports = router;

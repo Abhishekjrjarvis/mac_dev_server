@@ -263,19 +263,19 @@ exports.getUpdatePersonalIns = async (req, res) => {
   try {
     const { id } = req.params;
     var institute = await InstituteAdmin.findByIdAndUpdate(id, req.body);
-    await institute.save();
+    // await institute.save();
     res.status(200).send({ message: "Personal Info Updated" });
-    const post = await Post.find({ author: institute._id });
+    const post = await Post.find({ author: `${institute._id}` });
     post.forEach(async (ele) => {
       ele.authorOneLine = institute.one_line_about;
       await ele.save();
     });
-    const comment = await Comment.find({ author: institute._id });
+    const comment = await Comment.find({ author: `${institute._id}` });
     comment.forEach(async (com) => {
       com.authorOneLine = institute.one_line_about;
       await com.save();
     });
-    const replyComment = await ReplyComment.find({ author: institute._id });
+    const replyComment = await ReplyComment.find({ author: `${institute._id}` });
     replyComment.forEach(async (reply) => {
       reply.authorOneLine = institute.one_line_about;
       await reply.save();
@@ -1661,7 +1661,7 @@ exports.retrieveSubject = async (req, res) => {
       .select("subjectName subjectStatus subjectTitle")
       .populate({
         path: "class",
-        select: "className classStatus",
+        select: "className classStatus classTitle",
         populate: {
           path: "ApproveStudent",
           select:
@@ -2410,4 +2410,24 @@ exports.getProfileOneQueryUsername = async (req, res) => {
       .exec();
     res.status(200).send({ message: "Limit Post Ins", institute });
   } catch {}
+};
+
+
+exports.deactivateInstituteAccount = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, ddate, password } = req.body;
+    const institute = await InstituteAdmin.findById({ _id: id });
+    const comparePassword = bcrypt.compareSync(password, institute.insPassword);
+    if (comparePassword) {
+      institute.activeStatus = status;
+      institute.activeDate = ddate;
+      await institute.save();
+      res.status(200).send({ message: "Deactivated Account", status: institute.activeStatus });
+    } else {
+      res.status(404).send({ message: "Bad Request" });
+    }
+  } catch (e) {
+    console.log(`Error`, e);
+  }
 };

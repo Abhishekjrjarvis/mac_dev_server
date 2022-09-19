@@ -233,6 +233,13 @@ exports.updateUserFollowIns = async (req, res) => {
           await user.save();
         } else {
         }
+        //
+        const post = await Post.find({ author: `${sinstitute._id}` });
+        post.forEach(async (ele) => {
+          ele.authorFollowersCount = sinstitute.followersCount;
+          await ele.save();
+        });
+        //
       } else {
         res
           .status(200)
@@ -278,6 +285,13 @@ exports.removeUserFollowIns = async (req, res) => {
           await user.save();
         } else {
         }
+        //
+        const post = await Post.find({ author: `${sinstitute._id}` });
+        post.forEach(async (ele) => {
+          ele.authorFollowersCount = sinstitute.followersCount;
+          await ele.save();
+        });
+        //
       } else {
         res
           .status(200)
@@ -336,6 +350,13 @@ exports.updateUserFollow = async (req, res) => {
         //
       });
       await user.save();
+      //
+      const posts = await Post.find({ author: `${suser._id}` });
+        posts.forEach(async (ele) => {
+          ele.authorFollowersCount = suser.followerCount;
+          await ele.save();
+      });
+      //
     }
   } catch (e) {
     console.log('UFOU', e)
@@ -367,6 +388,13 @@ exports.updateUserUnFollow = async (req, res) => {
         user.userPosts.pull(ele);
       });
       await user.save();
+      //
+      const posts = await Post.find({ author: `${suser._id}` });
+        posts.forEach(async (ele) => {
+          ele.authorFollowersCount = suser.followerCount;
+          await ele.save();
+      });
+      //
     } else {
       res
         .status(200)
@@ -436,6 +464,18 @@ exports.updateUserCircle = async (req, res) => {
           }
         });
         await suser.save();
+        //
+        const post_count = await Post.find({ author: `${suser._id}` });
+        post_count.forEach(async (ele) => {
+          ele.authorFollowersCount = suser.followerCount;
+          await ele.save();
+        });
+        const post_counts = await Post.find({ author: `${user._id}` });
+        post_counts.forEach(async (ele) => {
+          ele.authorFollowersCount = user.followerCount;
+          await ele.save();
+        });
+        //
       } catch {
         res.status(500).send({ error: "error" });
       }
@@ -525,30 +565,29 @@ exports.updateUserPhone = async (req, res) => {
 exports.updateUserPersonal = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await User.findByIdAndUpdate(id, req.body);
-    await user.save();
+    var user = await User.findByIdAndUpdate(id, req.body);
     res.status(200).send({ message: "Personal Info Updated" });
-      const post = await Post.find({ author: user._id });
+      const post = await Post.find({ author: `${user._id}` });
       post.forEach(async (ele) => {
         ele.authorOneLine = user.one_line_about;
         await ele.save();
       });
-      const comment = await Comment.find({ author: user._id });
+      const comment = await Comment.find({ author: `${user._id}` });
       comment.forEach(async (com) => {
         com.authorOneLine = user.one_line_about;
         await com.save();
       });
-      const replyComment = await ReplyComment.find({ author: user._id });
+      const replyComment = await ReplyComment.find({ author: `${user._id}` });
       replyComment.forEach(async (reply) => {
         reply.authorOneLine = user.one_line_about;
         await reply.save();
       });
-      const answers = await Answer.find({ author: user._id });
+      const answers = await Answer.find({ author: `${user._id}` });
       answers.forEach(async (ans) => {
         ans.authorOneLine = user.one_line_about;
         await ans.save();
       });
-      const answerReply = await AnswerReply.find({ author: user._id });
+      const answerReply = await AnswerReply.find({ author: `${user._id}` });
       answerReply.forEach(async (ansRep) => {
         ansRep.authorOneLine = user.one_line_about;
         await ansRep.save();
@@ -1034,9 +1073,7 @@ exports.followingArray = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const { uid } = req.params;
     const skip = (page - 1) * limit;
-    const user = await User.findById({ _id: uid })
-      .populate({ path: "userFollowing" })
-      .populate({ path: "userInstituteFollowing" });
+    const user = await User.findById({ _id: uid }).select('id userFollowing userInstituteFollowing')
 
     const uFollowing = await User.find({ _id: { $in: user.userFollowing } })
       .select(
@@ -1051,11 +1088,12 @@ exports.followingArray = async (req, res) => {
       .select("insName name photoId insProfilePhoto")
       .limit(limit)
       .skip(skip);
-
+    var mergeArray = [...uFollowing, ...uInsFollowing]
     res.status(200).send({
       message: "Success",
       uFollowing: uFollowing,
       uInsFollowing: uInsFollowing,
+      mergeArray: mergeArray
     });
   } catch {}
 };
@@ -1471,3 +1509,42 @@ exports.retrieveStaffSalaryHistory = async(req, res) =>{
     console.log(e)
   }
 }
+
+
+// exports.updateUserBlock = async (req, res) => {
+//   try {
+//     var user_session = req.tokenData && req.tokenData.userId;
+//     var user = await User.findById({ _id: user_session });
+//     var suser = await User.findById({ _id: req.body.followId });
+
+//     if (
+//       user.userCircle.includes(req.body.followId) &&
+//       suser.userCircle.includes(user_session)
+//     ) {
+//       res.status(200).send({ message: "You are Already In a Circle" });
+//     } else {
+//       try {
+//         const notify = new Notification({});
+//         suser.userFollowing.pull(user_session);
+//         user.userFollowers.pull(req.body.followId);
+//         suser.userCircle.push(user_session);
+//         user.userCircle.push(req.body.followId);
+//         notify.notifyContent = `${user.userLegalName} has been added to your circle`;
+//         notify.notifySender = user._id;
+//         notify.notifyReceiever = suser._id;
+//         suser.uNotify.push(notify);
+//         notify.user = suser;
+//         notify.notifyByPhoto = user;
+//         await Promise.all([ user.save(), suser.save(), notify.save() ])
+//         if(suser?.user_follower_notify === 'Enable'){
+//           invokeFirebaseNotification("Circle", notify, 'Circled', suser._id, suser.deviceToken);
+//         }
+//         res.status(200).send({ message: "😀 Added to circle" });
+//       } catch {
+//         res.status(500).send({ error: "error" });
+//       }
+//     }
+//   } catch (e) {
+//     console.log('UCU', e)
+//   }
+// };

@@ -84,8 +84,16 @@ exports.createFess = async (req, res) => {
 exports.getOneFeesDetail = async (req, res) => {
   try {
     const { feesId } = req.params;
+    var total = 0
     const feeData = await Fees.findById({ _id: feesId })
     .select('feeName feeAmount exemptList offlineStudentsList onlineList createdAt feeDate')
+
+    if(feeData?.offlineStudentsList?.length >= 1){
+      total += (feeData?.offlineStudentsList?.length * feeData.feeAmount)
+    }
+    if(feeData?.onlineList?.length >= 1){
+      total += (feeData?.onlineList?.length * feeData.feeAmount)
+    }
       // .populate({
       //   path: "feeDepartment",
       //   select: 'dName dTitle'
@@ -106,7 +114,7 @@ exports.getOneFeesDetail = async (req, res) => {
       //   path: "studentsList",
       //   select: 'id'
       // })
-    res.status(200).send({ message: "Fees Data", feeData });
+    res.status(200).send({ message: "Fees Data", feeData, onlineOffline: total });
   } catch {}
 };
 
@@ -179,7 +187,7 @@ exports.exemptFeesPaidByStudent = async (req, res) => {
         fData.exemptList.push(student._id);
         classes.exemptFee += fData.feeAmount;
         finance.financeExemptBalance += fData.feeAmount
-        finance.financeTotalBalance += fData.feeAmount
+        // finance.financeTotalBalance += fData.feeAmount
         classes.exemptFeeCollection.push({
           fee: fData.feeAmount,
           feeId: fData._id

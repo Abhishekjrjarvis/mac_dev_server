@@ -188,7 +188,7 @@ exports.markAttendenceClassStudent = async (req, res) => {
       }
     }
   } catch (e) {
-    console.log(e)
+    console.log(e);
   }
 };
 
@@ -607,7 +607,9 @@ exports.getAttendStaffById = async (req, res) => {
           status: { $eq: "Accepted" },
         },
         select: "date",
-      });
+      })
+      .lean()
+      .exec();
 
     if (staff) {
       if (staff.attendDates) {
@@ -633,6 +635,50 @@ exports.getAttendStaffById = async (req, res) => {
         present: presentPercentage,
         absent: absentPercentage,
         leaves: staff.staffLeave,
+      });
+    } else {
+      res.status(404).send({ message: "Failure" });
+    }
+  } catch {}
+};
+
+exports.getAttendStaffByIdForMonth = async (req, res) => {
+  try {
+    const month = req.query.month;
+    let absentCount = 0;
+    let regularexp = "";
+    if (month) regularexp = new RegExp(`\/${month}\/${year}$`);
+
+    const staff = await Staff.findById(req.params.sid)
+      .select("_id attendDates")
+      .populate({
+        path: "attendDates",
+        match: {
+          staffAttendDate: { $regex: regularexp },
+        },
+
+        select: "staffAttendDate absentStaff",
+      })
+      .lean()
+      .exec();
+    // .populate({
+    //   path: "staffLeave",
+    //   match: {
+    //     date: { $regex: regularexp },
+    //     status: { $eq: "Accepted" },
+    //   },
+    //   select: "date",
+    // });
+
+    if (staff) {
+      if (staff.attendDates) {
+        staff.attendDates.forEach((day) => {
+          if (day.absentStaff?.includes(req.params.sid)) absentCount += 1;
+        });
+      }
+      res.status(200).send({
+        message: "Success",
+        absentCount,
       });
     } else {
       res.status(404).send({ message: "Failure" });

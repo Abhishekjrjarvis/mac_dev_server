@@ -33,6 +33,10 @@ router.get("/staff-calender/:sid", catchAsync(Avail.getAttendStaffById));
 
 router.get("/institute/:id", catchAsync(Avail.viewInstitute));
 router.get("/staff/:sid", catchAsync(Avail.viewInstituteStaff));
+router.get(
+  "/staff/onemonth/:sid",
+  catchAsync(Avail.getAttendStaffByIdForMonth)
+);
 
 //=========HOLIDAY OF DEPARTMENT CREATED================================
 

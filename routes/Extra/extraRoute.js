@@ -27,4 +27,6 @@ router.patch('/:uid/update/notification/user', catchAsync(Extra.retrieveUserUpda
 
 // router.patch('/:uid/update/notification/ins', catchAsync(Extra.retrieveUserUpdateNotification))
 
+router.get('/:id/merge/staff/student', catchAsync(Extra.retrieveMergeStaffStudent))
+
 module.exports = router

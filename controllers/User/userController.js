@@ -844,8 +844,7 @@ exports.getAllTotalCount = async (req, res) => {
   try {
     const id = req.params.id;
     const user = await User.findById({ _id: id })
-    .select('_id')
-    .populate({ path: "activity_tab uNotify" });
+    .select('_id activity_tab uNotify')
     var total = 0
     const notify = await Notification.find({
       $and: [{ _id: { $in: user.uNotify } }, { notifyViewStatus: 'Not View' }],

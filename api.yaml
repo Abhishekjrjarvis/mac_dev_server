@@ -1369,6 +1369,35 @@ paths:
         "200":
           description: OK
 
+  /api/v1/extra/{id}/merge/staff/student:
+    get:
+      tags:
+        - Setting Control API
+      summary: Shuffle Staff & Student for Display Person -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Enter Page Index
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Enter Limit Index
+      responses:
+        "200":
+          description: OK
+
   /api/v1/ins/{id}/leaving/editable:
     patch:
       tags:

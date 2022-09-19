@@ -1,6 +1,7 @@
 const InstituteAdmin = require('../../models/InstituteAdmin')
 const Staff = require('../../models/Staff')
 const Admission = require('../../models/Admission/Admission')
+const Inquiry = require('../../models/Admission/Inquiry')
 const User = require('../../models/User')
 const Notification = require('../../models/notification')
 const NewApplication = require('../../models/Admission/NewApplication')
@@ -27,6 +28,8 @@ exports.retrieveAdmissionAdminHead = async(req, res) =>{
         const admission = new Admission({});
         const notify = new Notification({})
         staff.admissionDepartment.push(admission._id);
+        staff.staffDesignationCount += 1;
+        staff.recentDesignation = 'Admission Admin';
         admission.admissionAdminHead = staff._id;
         institute.admissionDepart.push(admission._id);
         institute.admissionStatus = 'Enable'
@@ -38,6 +41,13 @@ exports.retrieveAdmissionAdminHead = async(req, res) =>{
         notify.user = user._id;
         notify.notifyPid = "1";
         notify.notifyByInsPhoto = institute._id;
+        invokeFirebaseNotification(
+          "Designation Allocation",
+          notify,
+          institute.insName,
+          user._id,
+          user.deviceToken
+        );
         await Promise.all([
         institute.save(),
         staff.save(),
@@ -51,8 +61,8 @@ exports.retrieveAdmissionAdminHead = async(req, res) =>{
           status: true
         });
     }
-    catch{
-
+    catch(e){
+      console.log(e)
     }
 }
 
@@ -60,7 +70,7 @@ exports.retrieveAdmissionDetailInfo = async(req, res) =>{
     try{
         const { aid } = req.params
         const admission = await Admission.findById({_id: aid})
-        .select('admissionAdminEmail admissionAdminPhoneNumber admissionAdminAbout photoId coverId admissionProfilePhoto admissionCoverPhoto')
+        .select('admissionAdminEmail admissionAdminPhoneNumber admissionAdminAbout photoId coverId admissionProfilePhoto admissionCoverPhoto queryCount')
         .populate({
             path: 'admissionAdminHead',
             select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto'
@@ -426,5 +436,83 @@ exports.retrieveOneApplicationQuery = async(req, res) =>{
   }
   catch{
 
+  }
+}
+
+exports.retrieveUserInquiryProcess = async(req, res) =>{
+  try{
+    const { aid, uid } = req.params
+    const app = await Admission.findById({_id: aid})
+    const user = await User.findById({_id: uid})
+    const ask = new Inquiry({...req.body})
+    ask.user = user._id
+    ask.reasonExplanation.push({
+      content: req.body?.content,
+      replyBy: req.body?.replyBy
+    })
+    app.inquiryList.push(ask._id)
+    app.queryCount += 1
+    user.inquiryList.push(ask._id)
+    await Promise.all([ app.save(), user.save(), ask.save() ])
+    res.status(200).send({ message: 'Raised an inquiry '})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.retrieveUserInquiryArray = async(req, res) =>{
+  try{
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const { aid } = req.params
+    const skip = (page - 1) * limit;
+    const app = await Admission.findById({_id: aid})
+    .select('id inquiryList')
+    
+    const ask = await Inquiry.find({ _id: { $in: app.inquiryList }})
+    .sort('-createdAt')
+    .limit(limit)
+    .skip(skip)
+
+    if(ask?.length >= 1){
+      res.status(200).send({ message: 'Get List of Inquiry', i_list: ask })
+    }
+    else{
+      res.status(200).send({ message: 'Looking for a inquiry List', i_list: [] })
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.retrieveInquiryReplyQuery = async(req, res) => {
+  try{
+    const { qid } = req.params
+    const { author } = req.query
+    const ask_query = await Inquiry.findById({_id: qid })
+    if(`${author}` === 'User'){
+      ask_query.reasonExplanation.push({
+        content: req.body?.content,
+        replyBy: `${author}`
+      })
+      await ask_query.save()
+      res.status(200).send({ message: `Ask By ${author}` })
+    }
+    else if(`${author}` === 'Admin'){
+      ask_query.reasonExplanation.push({
+        content: req.body?.content,
+        replyBy: `${author}`
+      })
+      await ask_query.save()
+      res.status(200).send({ message: `Reply By ${author}` })
+    }
+    else{
+      res.status(200).send({ message: 'Lost in space'})
+    }
+  }
+  catch(e){
+    console.log(e)
   }
 }

@@ -16,6 +16,7 @@ const unlinkFile = util.promisify(fs.unlink);
 const Payroll = require('../../models/Finance/Payroll')
 const StudentNotification = require('../../models/Marks/StudentNotification')
 const invokeMemberTabNotification = require('../../Firebase/MemberTab')
+const invokeFirebaseNotification = require("../../Firebase/firebase")
 
 exports.getFinanceDepart = async(req, res) =>{
     try {
@@ -34,13 +35,20 @@ exports.getFinanceDepart = async(req, res) =>{
         institute.financeDepart.push(finance._id);
         institute.financeStatus = 'Enable'
         finance.institute = institute._id;
-        notify.notifyContent = `you got the designation of ${finance.financeName} as Finance Manager`;
+        notify.notifyContent = `you got the designation of as Finance Manager`;
         notify.notifySender = id;
         notify.notifyReceiever = user._id;
         user.uNotify.push(notify._id);
         notify.user = user._id;
         notify.notifyPid = "1";
         notify.notifyByInsPhoto = institute._id;
+        invokeFirebaseNotification(
+          "Designation Allocation",
+          notify,
+          institute.insName,
+          user._id,
+          user.deviceToken
+        );
         await Promise.all([
         institute.save(),
         staff.save(),
@@ -749,7 +757,9 @@ exports.retrieveRemainFeeBalance = async(req, res) =>{
     var remain = 0
     const finance = await Finance.findById({_id: fid})
     .select('id institute')
-    const student = await Student.find({ institute: `${finance.institute}`})
+    const student = await Student.find({ 
+      $and: [{ institute: `${finance.institute}` }, { studentStatus: 'Approved' }]
+      })
     .select('id studentRemainingFeeCount ')
     student.forEach((stu) => {
       remain += stu.studentRemainingFeeCount

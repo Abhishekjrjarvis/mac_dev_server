@@ -131,6 +131,12 @@ const instituteAdminSchema = new mongoose.Schema({
       ref: "Finance",
     },
   ],
+  admissionDepart: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Admission",
+    },
+  ],
   sportDepart: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -226,11 +232,6 @@ const instituteAdminSchema = new mongoose.Schema({
   library: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Library",
-  },
-  insAdmissionAdminStatus: { type: String, default: "Not Alloted" },
-  insAdmissionAdmin: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "AdmissionAdmin",
   },
   adminRepayAmount: {
     type: Number,
@@ -342,6 +343,10 @@ const instituteAdminSchema = new mongoose.Schema({
   financeStatus: {
     type: String,
     default: "Disable",
+  },
+  admissionStatus: {
+    type: String,
+    default: 'Disable'
   },
   deviceToken: {
     type: String,

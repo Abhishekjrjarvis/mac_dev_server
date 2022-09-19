@@ -2623,6 +2623,25 @@ paths:
         "200":
           description: OK
 
+  /api/v1/avail/staff/onemonth/{sid}:
+    get:
+      tags:
+        - Staff-Member-Tab
+      summary: Staff Attendence Absent Count -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is staff id
+      responses:
+        "200":
+          description: OK
+
   /api/v1/user/staff/{sid}/sal/history:
     get:
       tags:

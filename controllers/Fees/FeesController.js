@@ -73,8 +73,20 @@ exports.createFess = async (req, res) => {
     }
     const institute = await InstituteAdmin.findById({_id: `${department.institute}`}).select('financeDepart')
     const finance = await Finance.findById({_id: `${institute.financeDepart[0]}`})
-    finance.financeRaisedBalance += feeData.feeAmount
-    await finance.save()
+    //
+    var strength = 0
+    for (let i = 0; i < ClassId.length; i++) {
+      const classes = await Class.findById({ _id: ClassId[i] }).select('ApproveStudent')
+      strength += classes.ApproveStudent?.length
+    }
+    if(strength > 0){
+      finance.financeRaisedBalance += (feeData.feeAmount * strength)
+      await finance.save()
+    }
+    else{
+      finance.financeRaisedBalance += (feeData.feeAmount * strength)
+      await finance.save()
+    }
     //
   } catch (e){
     console.log(e)

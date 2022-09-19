@@ -1511,40 +1511,34 @@ exports.retrieveStaffSalaryHistory = async(req, res) =>{
 }
 
 
-// exports.updateUserBlock = async (req, res) => {
-//   try {
-//     var user_session = req.tokenData && req.tokenData.userId;
-//     var user = await User.findById({ _id: user_session });
-//     var suser = await User.findById({ _id: req.body.followId });
+exports.updateUserBlock = async (req, res) => {
+  try {
+    var user_session = req.tokenData && req.tokenData.userId;
+    var user = await User.findById({ _id: user_session });
+    var suser = await User.findById({ _id: req.body.followId });
 
-//     if (
-//       user.userCircle.includes(req.body.followId) &&
-//       suser.userCircle.includes(user_session)
-//     ) {
-//       res.status(200).send({ message: "You are Already In a Circle" });
-//     } else {
-//       try {
-//         const notify = new Notification({});
-//         suser.userFollowing.pull(user_session);
-//         user.userFollowers.pull(req.body.followId);
-//         suser.userCircle.push(user_session);
-//         user.userCircle.push(req.body.followId);
-//         notify.notifyContent = `${user.userLegalName} has been added to your circle`;
-//         notify.notifySender = user._id;
-//         notify.notifyReceiever = suser._id;
-//         suser.uNotify.push(notify);
-//         notify.user = suser;
-//         notify.notifyByPhoto = user;
-//         await Promise.all([ user.save(), suser.save(), notify.save() ])
-//         if(suser?.user_follower_notify === 'Enable'){
-//           invokeFirebaseNotification("Circle", notify, 'Circled', suser._id, suser.deviceToken);
-//         }
-//         res.status(200).send({ message: "😀 Added to circle" });
-//       } catch {
-//         res.status(500).send({ error: "error" });
-//       }
-//     }
-//   } catch (e) {
-//     console.log('UCU', e)
-//   }
-// };
+    if (
+      user.userCircle.includes(req.body.followId) &&
+      suser.userCircle.includes(user_session)
+    ) {
+      if(user?.userBlock?.includes(`${suser._id}`)){
+        user.userBlock.pull(suser._id)
+        if(user.blockCount >=1 ){
+          user.blockCount -= 1
+        }
+        await user.save()
+        res.status(200).send({ message: "You are UnBlocked able to chat" });
+      }
+      else{
+        user.userBlock.push(suser._id)
+        user.blockCount += 1
+        await user.save()
+        res.status(200).send({ message: "You are Blocked not able to chat" });
+      }
+    } else {
+      res.status(200).send({ message: "Engage Network" });
+    }
+  } catch (e) {
+    console.log('UBU', e)
+  }
+};

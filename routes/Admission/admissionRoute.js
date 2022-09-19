@@ -34,4 +34,10 @@ router.get('/application', catchAsync(Admission.retrieveAdmissionApplicationStat
 
 router.get('/:aid/application/query', catchAsync(Admission.retrieveOneApplicationQuery))
 
+router.post('/:aid/student/:uid/inquiry', catchAsync(Admission.retrieveUserInquiryProcess))
+
+router.get('/:aid/student/inquiry/array', catchAsync(Admission.retrieveUserInquiryArray))
+
+router.patch('/inquiry/reply/:qid', catchAsync(Admission.retrieveInquiryReplyQuery))
+
 module.exports = router

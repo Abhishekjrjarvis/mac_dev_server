@@ -197,17 +197,18 @@ const studentPaymentUpdated = async (financeId, studentId, feeId, statusType, tx
             student.studentRemainingFeeCount -= fData.feeAmount
             if(payment_modes?.includes(`${mode}`)){
               let charged_amount = (parseInt(tx_amount) * 1.99 )/100
-              finance.financeBankBalance = finance.financeBankBalance + charged_amount;
-              finance.financeTotalBalance = finance.financeTotalBalance + charged_amount
-              finance.institute.insBankBalance = finance.institute.insBankBalance + charged_amount;
-              finance.institute.adminRepayAmount = finance.institute.adminRepayAmount + charged_amount;
-              admin.returnAmount += charged_amount
+              let add_amount = (parseInt(tx_amount) - charged_amount)
+              finance.financeBankBalance = finance.financeBankBalance + add_amount;
+              finance.financeTotalBalance = finance.financeTotalBalance + add_amount
+              finance.institute.insBankBalance = finance.institute.insBankBalance + add_amount;
+              finance.institute.adminRepayAmount = finance.institute.adminRepayAmount + add_amount;
+              admin.returnAmount += add_amount
               finance.payment_gateway_charges.push({
                 original_amount: parseInt(tx_amount),
                 payment_mode: mode,
                 percent: '1.99 %',
-                deduct_charge_gateway_amount: parseInt(tx_amount) - charged_amount,
-                return_amount: charged_amount
+                deduct_charge_gateway_amount: charged_amount,
+                return_amount: add_amount
               })
             }
             else{
@@ -269,17 +270,18 @@ const studentPaymentUpdated = async (financeId, studentId, feeId, statusType, tx
             student.onlineCheckList.push(checklistData._id);
             if(payment_modes?.includes(`${mode}`)){
               let charged_amounts = (parseInt(tx_amount) * 1.99 )/100
-              finance.financeBankBalance = finance.financeBankBalance + charged_amounts;
-              finance.financeTotalBalance = finance.financeTotalBalance + charged_amounts
-              finance.institute.insBankBalance = finance.institute.insBankBalance + charged_amounts;
-              finance.institute.adminRepayAmount = finance.institute.adminRepayAmount + charged_amounts;
-              admin.returnAmount += charged_amounts
+              let add_amounts = (parseInt(tx_amount) - charged_amounts)
+              finance.financeBankBalance = finance.financeBankBalance + add_amounts;
+              finance.financeTotalBalance = finance.financeTotalBalance + add_amounts
+              finance.institute.insBankBalance = finance.institute.insBankBalance + add_amounts;
+              finance.institute.adminRepayAmount = finance.institute.adminRepayAmount + add_amounts;
+              admin.returnAmount += add_amounts
               finance.payment_gateway_charges.push({
                 original_amount: parseInt(tx_amount),
                 payment_mode: mode,
                 percent: '1.99 %',
-                deduct_charge_gateway_amount: parseInt(tx_amount) - charged_amounts,
-                return_amount: charged_amounts
+                deduct_charge_gateway_amount: charged_amounts,
+                return_amount: add_amounts
               })
             }
             else{

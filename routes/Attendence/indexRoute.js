@@ -41,6 +41,11 @@ router.get("/class/:cid/holiday", catchAsync(Avail.holidayInClassSide));
 router.route("/holiday/:did").get(catchAsync(Avail.fetchHoliday));
 
 router.route("/holiday/:hid/delete").get(catchAsync(Avail.delHoliday));
+
+router.get(
+  "/staff/onemonth/:sid",
+  catchAsync(Avail.getAttendStaffByIdForMonth)
+);
 //==============================================================
 
 // // Class Attendence Student Data

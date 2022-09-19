@@ -169,6 +169,7 @@ app.use("/api/v1/edit/institute", instituteMemberRoute);
 app.use("/api/v1/edit/staff", staffMemberRoute);
 app.use("/api/v1/edit/student", studentMemberRoute);
 app.use("/api/v1/edit/user", userMemberRoute);
+app.use("/api/v1/admission", admissionNew)
 // ============================================================================
 
 setInterval(async () => {

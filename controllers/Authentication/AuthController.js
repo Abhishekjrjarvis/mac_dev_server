@@ -368,6 +368,11 @@ exports.profileByUser = async (req, res) => {
           user.userInstituteFollowing.push(uInstitute._id)
           user.followingUICount += 1
           await Promise.all([ uInstitute.save(), user.save()])
+          const posts = await Post.find({ author: `${uInstitute._id}` });
+            posts.forEach(async (ele) => {
+              ele.authorFollowersCount = uInstitute.followersCount;
+              await ele.save();
+          });
         }
         //
       }

@@ -319,6 +319,22 @@ const userSchema = new mongoose.Schema({
   blockStatus: {
     type: String,
     default: 'UnBlocked'
+  },
+  inquiryList: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Inquiry'
+    }
+  ],
+  userBlock: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }
+  ],
+  blockCount: {
+    type: Number,
+    default: 0
   }
 
 });

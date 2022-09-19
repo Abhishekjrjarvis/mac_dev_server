@@ -788,3 +788,42 @@ exports.delHoliday = async (req, res) => {
     });
   } catch (error) {}
 };
+
+
+exports.getAttendStaffByIdForMonth = async (req, res) => {
+  try {
+    const month = req.query.month;
+    let absentCount = 0;
+    let regularexp = "";
+    if (month) regularexp = new RegExp(`\/${month}\/${year}$`);
+
+    const staff = await Staff.findById(req.params.sid)
+      .select("_id attendDates")
+      .populate({
+        path: "attendDates",
+        match: {
+          staffAttendDate: { $regex: regularexp },
+        },
+
+        select: "staffAttendDate absentStaff",
+      })
+      .lean()
+      .exec();
+
+    if (staff) {
+      if (staff.attendDates) {
+        staff.attendDates.forEach((day) => {
+          if (day.absentStaff?.includes(req.params.sid)) absentCount += 1;
+        });
+      }
+      res.status(200).send({
+        message: "Success",
+        absentCount,
+      });
+    } else {
+      res.status(404).send({ message: "Failure" });
+    }
+  } catch(e) {
+    console.log(e)
+  }
+};

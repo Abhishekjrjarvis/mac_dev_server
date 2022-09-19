@@ -309,7 +309,7 @@ exports.profileByUser = async (req, res) => {
         var height = 200;
         var file = req.file;
         var results = await uploadFile(file, width, height);
-        const user = new User({
+        var user = new User({
           userLegalName: userLegalName,
           userGender: userGender,
           userDateOfBirth: userDateOfBirth,
@@ -328,7 +328,8 @@ exports.profileByUser = async (req, res) => {
         await unlinkFile(file.path);
         const token = generateAccessToken(user?.username, user?._id);
         res.status(200).send({ message: "Profile Successfully Created...", user, token: `Bearer ${token}` });
-        const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
+        var uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
+        .select('id userFollowersList followersCount')
         .populate({ path: 'posts' })
         if(uInstitute && uInstitute.posts && uInstitute.posts.length >=1){
         const post = await Post.find({ _id: { $in: uInstitute.posts }, postStatus: 'Anyone'})
@@ -357,6 +358,17 @@ exports.profileByUser = async (req, res) => {
           user.ageRestrict = 'Yes'
         }
         await user.save()
+        //
+        if(uInstitute?.userFollowersList?.includes(`${user._id}`)){
+
+        }
+        else{
+          uInstitute.userFollowersList.push(user._id)
+          uInstitute.followersCount += 1
+          user.userInstituteFollowing.push(uInstitute._id)
+          user.followingUICount += 1
+          await Promise.all([ uInstitute.save(), user.save()])
+        }
         //
       }
     }
@@ -574,8 +586,31 @@ module.exports.authentication = async (req, res) => {
     if (institute) {
       const checkPass = bcrypt.compareSync(insPassword, institute.insPassword);
       if (checkPass) {
-        const token = generateAccessInsToken(institute?.name, institute?._id, institute?.insPassword);
-        res.json({ token: `Bearer ${token}`, institute: institute, login: true});
+        //
+        if (
+          institute.activeStatus === "Deactivated" &&
+          institute.activeDate <= deactivate_date
+        ) {
+          institute.activeStatus = "Activated";
+          institute.activeDate = "";
+          await institute.save();
+          const token = generateAccessInsToken(institute?.name, institute?._id, institute?.insPassword);
+          res.json({ 
+            token: `Bearer ${token}`,
+            institute: institute,
+            login: true
+          });
+        } else if (institute.activeStatus === "Activated") {
+          const token = generateAccessInsToken(institute?.name, institute?._id, institute?.insPassword);
+          res.json({ 
+            token: `Bearer ${token}`,
+            institute: institute,
+            login: true
+          });
+        } else {
+          res.status(401).send({ message: 'Unauthorized', login: false})
+        }
+        //
       } else {
         res.send({ message: "Invalid Credentials", login: false });
       }

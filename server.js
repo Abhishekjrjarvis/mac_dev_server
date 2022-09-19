@@ -55,7 +55,7 @@ const filterNew = require("./routes/Filterization/filterRoute");
 const dburl = `${process.env.DB_URL2}`; // Development
 // const dburl = `${process.env.DB_URL}`; // Production
 
-// 6316f3cf8ae18d300d11641e - Development
+// 6322d41f510a26993fe95bc5 - Development
 // 630f3b68a5eb4786489045a1 - Production
 
 mongoose
@@ -70,10 +70,10 @@ mongoose
     console.log("Something Went Wrong...", e);
   });
 
-// crossOriginResourcePolicy: false 
 
 app.use(mongoSanitize());
-app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false }));
+// app.use(helmet({ contentSecurityPolicy: false }));
+app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false}));
 app.use(compression())
 
 const swaggerUI = require("swagger-ui-express");

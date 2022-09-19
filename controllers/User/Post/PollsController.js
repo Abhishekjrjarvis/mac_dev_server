@@ -26,6 +26,7 @@ exports.retrievePollQuestionText = async (req, res) => {
       post.authorPhotoId = user.photoId
       post.authorProfilePhoto = user.profilePhoto
       post.authorOneLine = user.one_line_about;
+      post.authorFollowersCount = user.followerCount
       post.isUser = 'user'
       post.postType = "Poll"
       post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`

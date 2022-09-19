@@ -42,6 +42,7 @@ exports.postWithText = async (req, res) => {
     post.authorPhotoId = institute.photoId;
     post.authorProfilePhoto = institute.insProfilePhoto;
     post.authorOneLine = institute.one_line_about;
+    post.authorFollowersCount = institute.followersCount
     post.isInstitute = "institute";
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([institute.save(), post.save()]);
@@ -162,6 +163,7 @@ exports.postWithImage = async (req, res) => {
     post.authorPhotoId = institute.photoId;
     post.authorProfilePhoto = institute.insProfilePhoto;
     post.authorOneLine = institute.one_line_about;
+    post.authorFollowersCount = institute.followersCount
     post.isInstitute = "institute";
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([institute.save(), post.save()]);
@@ -281,6 +283,7 @@ exports.postWithVideo = async (req, res) => {
     post.authorPhotoId = institute.photoId;
     post.authorProfilePhoto = institute.insProfilePhoto;
     post.authorOneLine = institute.one_line_about;
+    post.authorFollowersCount = institute.followersCount
     post.isInstitute = "institute";
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([institute.save(), post.save()]);
@@ -593,7 +596,7 @@ exports.retrieveAllPosts = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "postTitle postText postDescription postQuestion authorOneLine tagPeople answerCount answerUpVoteCount isUser isInstitute postType trend_category endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
+            "postTitle postText postDescription postQuestion authorFollowersCount authorOneLine tagPeople answerCount answerUpVoteCount isUser isInstitute postType trend_category endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
           )
           .populate({
             path: "poll_query",
@@ -606,7 +609,7 @@ exports.retrieveAllPosts = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "postTitle postText postDescription postQuestion authorOneLine tagPeople answerCount answerUpVoteCount isUser isInstitute postType trend_category endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
+            "postTitle postText postDescription postQuestion authorOneLine authorFollowersCount tagPeople answerCount answerUpVoteCount isUser isInstitute postType trend_category endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
           )
           .populate({
             path: "poll_query",
@@ -647,7 +650,7 @@ exports.retreiveAllProfilePosts = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "postTitle postText postDescription postQuestion authorOneLine tagPeople answerCount answerUpVoteCount isUser isInstitute postType trend_category endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
+        "postTitle postText postDescription postQuestion authorOneLine authorFollowersCount tagPeople answerCount answerUpVoteCount isUser isInstitute postType trend_category endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
       )
       .populate({
         path: "poll_query",
@@ -938,7 +941,7 @@ exports.retrieveSavedAllPosts = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "postTitle postText postDescription endUserSave authorOneLine tagPeople createdAt postType postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
+          "postTitle postText postDescription endUserSave authorOneLine authorFollowersCount tagPeople createdAt postType postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
         )
         .populate({
           path: "poll_query",
@@ -983,7 +986,7 @@ exports.retrieveTagAllPosts = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "postTitle postText postDescription endUserSave tagPeople authorOneLine createdAt postType postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
+          "postTitle postText postDescription endUserSave tagPeople authorFollowersCount authorOneLine createdAt postType postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
         )
         .populate({
           path: "poll_query",

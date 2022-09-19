@@ -36,6 +36,7 @@ exports.postQuestionText = async (req, res) => {
         post.authorPhotoId = institute.photoId;
         post.authorProfilePhoto = institute.insProfilePhoto;
         post.authorOneLine = institute.one_line_about;
+        post.authorFollowersCount = institute.followersCount
         post.isInstitute = 'institute'
         post.postType = 'Question'
         post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`
@@ -134,6 +135,7 @@ exports.retrievePollQuestionText = async (req, res) => {
         post.authorPhotoId = institute.photoId;
         post.authorProfilePhoto = institute.insProfilePhoto;
         post.authorOneLine = institute.one_line_about;
+        post.authorFollowersCount = institute.followersCount
         post.isInstitute = 'institute'
         post.postType = "Poll"
         post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`

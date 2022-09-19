@@ -483,4 +483,10 @@ router.patch(
   catchAsync(Institute.retrieveLocationPermission)
 );
 
+router.post(
+  "/:id/deactivate/account",
+  isLoggedIn,
+  catchAsync(Institute.deactivateInstituteAccount)
+);
+
 module.exports = router;

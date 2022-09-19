@@ -600,6 +600,14 @@ exports.retrieveAllPosts = async (req, res) => {
           )
           .populate({
             path: "poll_query",
+          })
+          .populate({
+            path: "new_application",
+            select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+            populate: {
+              path: 'applicationDepartment',
+              select: 'dName'
+            }
           });
       } else {
         var post = await Post.find({
@@ -613,6 +621,14 @@ exports.retrieveAllPosts = async (req, res) => {
           )
           .populate({
             path: "poll_query",
+          })
+          .populate({
+            path: "new_application",
+            select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+            populate: {
+              path: 'applicationDepartment',
+              select: 'dName'
+            }
           });
       }
       if (institute.posts.length >= 1) {
@@ -654,6 +670,14 @@ exports.retreiveAllProfilePosts = async (req, res) => {
       )
       .populate({
         path: "poll_query",
+      })
+      .populate({
+        path: "new_application",
+        select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+        populate: {
+          path: 'applicationDepartment',
+          select: 'dName'
+        }
       });
     if (institute && institute.posts.length >= 1) {
       const postCount = await Post.find({ _id: { $in: institute.posts } });
@@ -945,6 +969,14 @@ exports.retrieveSavedAllPosts = async (req, res) => {
         )
         .populate({
           path: "poll_query",
+        })
+        .populate({
+          path: "new_application",
+          select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+          populate: {
+            path: 'applicationDepartment',
+            select: 'dName'
+          }
         });
       if (institute.institute_saved_post.length >= 1) {
         const postCount = await Post.find({
@@ -990,6 +1022,14 @@ exports.retrieveTagAllPosts = async (req, res) => {
         )
         .populate({
           path: "poll_query",
+        })
+        .populate({
+          path: "new_application",
+          select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+          populate: {
+            path: 'applicationDepartment',
+            select: 'dName'
+          }
         });
       if (institute.tag_post.length >= 1) {
         const postCount = await Post.find({

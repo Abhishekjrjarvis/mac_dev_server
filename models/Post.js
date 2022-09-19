@@ -158,7 +158,11 @@ const postSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'
     }
-  ]
+  ],
+  new_application: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'NewApplication'
+  }
   //
 });
 

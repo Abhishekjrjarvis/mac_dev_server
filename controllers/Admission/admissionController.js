@@ -17,6 +17,7 @@ const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require('../../Firebase/firebase')
+const Post = require('../../models/Post')
 
 
 exports.retrieveAdmissionAdminHead = async(req, res) =>{
@@ -100,14 +101,80 @@ exports.retrieveAdmissionNewApplication = async(req, res) =>{
     try{
         const { aid } = req.params
         const admission = await Admission.findById({_id: aid })
+        const institute = await InstituteAdmin.findById({_id: `${admission.institute}`})
         const newApply = new NewApplication({...req.body})
         admission.newApplication.push(newApply._id)
         newApply.admissionAdmin = admission._id
         await Promise.all([ admission.save(), newApply.save() ])
         res.status(200).send({ message: 'New Application is ongoing'})
+        const post = new Post({})
+        post.imageId = "1";
+        institute.posts.push(post._id);
+        institute.postCount += 1;
+        post.author = institute._id;
+        post.authorName = institute.insName;
+        post.authorUserName = institute.name;
+        post.authorPhotoId = institute.photoId;
+        post.authorProfilePhoto = institute.insProfilePhoto;
+        post.authorOneLine = institute.one_line_about;
+        post.authorFollowersCount = institute.followersCount
+        post.isInstitute = "institute";
+        post.postType = 'Application'
+        post.new_application = newApply._id
+        post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
+        await Promise.all([ post.save(), institute.save() ])
+        if (institute.isUniversal === "Not Assigned") {
+          if (institute.followers.length >= 1) {
+            if (post.postStatus === "Anyone") {
+              institute.followers.forEach(async (ele) => {
+                ele.posts.push(post._id);
+                await ele.save();
+              });
+            } else {
+            }
+          }
+          if (institute.userFollowersList.length >= 1) {
+            if (post.postStatus === "Anyone") {
+              institute.userFollowersList.forEach(async (ele) => {
+                ele.userPosts.push(post._id);
+                await ele.save();
+              });
+            } else {
+              if (institute.joinedUserList.length >= 1) {
+                institute.joinedUserList.forEach(async (ele) => {
+                  ele.userPosts.push(post._id);
+                  await ele.save();
+                });
+              }
+            }
+          }
+        } else if (institute.isUniversal === "Universal") {
+          const all = await InstituteAdmin.find({ status: "Approved" });
+          const user = await User.find({ userStatus: "Approved" });
+          if (post.postStatus === "Anyone") {
+            all.forEach(async (el) => {
+              if (el._id !== institute._id) {
+                el.posts.push(post._id);
+                await el.save();
+              }
+            });
+            user.forEach(async (el) => {
+              el.userPosts.push(post._id);
+              await el.save();
+            });
+          }
+          if (post.postStatus === "Private") {
+            all.forEach(async (el) => {
+              if (el._id !== institute._id) {
+                el.posts.push(post._id);
+                await el.save();
+              }
+            });
+          }
+        }
     }
-    catch{
-
+    catch(e){
+      console.log(e)
     }
 }
 

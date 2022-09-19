@@ -498,6 +498,14 @@ exports.retrieveAllUserPosts = async (req, res) => {
           .populate({
             path: "repostMultiple",
             select: "username photoId profilePhoto",
+          })
+          .populate({
+            path: "new_application",
+            select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+            populate: {
+              path: 'applicationDepartment',
+              select: 'dName'
+            }
           });
       } else {
         //
@@ -527,6 +535,14 @@ exports.retrieveAllUserPosts = async (req, res) => {
           .populate({
             path: "repostMultiple",
             select: "username photoId profilePhoto",
+          })
+          .populate({
+            path: "new_application",
+            select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+            populate: {
+              path: 'applicationDepartment',
+              select: 'dName'
+            }
           });
         }
         //
@@ -556,6 +572,14 @@ exports.retrieveAllUserPosts = async (req, res) => {
           .populate({
             path: "repostMultiple",
             select: "username photoId profilePhoto",
+          })
+          .populate({
+            path: "new_application",
+            select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+            populate: {
+              path: 'applicationDepartment',
+              select: 'dName'
+            }
           });
         }
       }
@@ -613,6 +637,14 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
           .populate({
             path: "repostMultiple",
             select: "username photoId profilePhoto",
+          })
+          .populate({
+            path: "new_application",
+            select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+            populate: {
+              path: 'applicationDepartment',
+              select: 'dName'
+            }
           });
       } else {
         var post = await Post.find({ author: id })
@@ -640,6 +672,14 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
           .populate({
             path: "repostMultiple",
             select: "username photoId profilePhoto",
+          })
+          .populate({
+            path: "new_application",
+            select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+            populate: {
+              path: 'applicationDepartment',
+              select: 'dName'
+            }
           });
       }
       const postCount = await Post.find({ _id: { $in: user.userPosts } });
@@ -918,6 +958,14 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
         .populate({
           path: "repostMultiple",
           select: "username photoId profilePhoto",
+        })
+        .populate({
+          path: "new_application",
+          select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+          populate: {
+            path: 'applicationDepartment',
+            select: 'dName'
+          }
         });
       const postCount = await Post.find({ _id: { $in: user.user_saved_post } });
       if (page * limit >= postCount.length) {
@@ -975,6 +1023,14 @@ exports.retrieveAllUserTagPosts = async (req, res) => {
         .populate({
           path: "repostMultiple",
           select: "username photoId profilePhoto",
+        })
+        .populate({
+          path: "new_application",
+          select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+          populate: {
+            path: 'applicationDepartment',
+            select: 'dName'
+          }
         });
       const postCount = await Post.find({ _id: { $in: user.tag_post } });
       if (page * limit >= postCount.length) {
@@ -1027,6 +1083,14 @@ exports.retrieveAllUserReposts = async (req, res) => {
       .populate({
         path: "repostMultiple",
         select: "username photoId profilePhoto",
+      })
+      .populate({
+        path: "new_application",
+        select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+        populate: {
+          path: 'applicationDepartment',
+          select: 'dName'
+        }
       });
 
     if (repost && repost.length >= 1) {

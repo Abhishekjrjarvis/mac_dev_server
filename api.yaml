@@ -2638,6 +2638,11 @@ paths:
           required: true
           type: string
           description: This is staff id
+        - in: query
+          name: month
+          schema:
+            type: integer
+          description: Enter Month with Year
       responses:
         "200":
           description: OK

@@ -1452,6 +1452,44 @@ paths:
         "200":
           description: OK
 
+  /api/v1/user/{uid}/department/chat:
+    get:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: User Department Head Chat -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: Enter User Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/{uid}/class/chat:
+    get:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: User Class Teacher Chat -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: Enter User Id
+      responses:
+        "200":
+          description: OK
+
   /api/v1/user/post/{id}/all/user/posts:
     get:
       tags:
@@ -12006,6 +12044,44 @@ paths:
           schema:
             type: string
           description: The institute username
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/ins/{id}/deactivate/account:
+    post:
+      tags:
+        - Institute Profile API
+      summary: Deactivate User A/c for atleast 2  -(verified)
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Institute id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - password
+              - status
+              - ddate
+            properties:
+              password:
+                type: string
+                description: Enter your A/c password
+              status:
+                type: string
+                description: Enter Deactivated Text
+              ddate:
+                type: string
+                description: Enter Date after 2 days
       responses:
         "200":
           description: OK

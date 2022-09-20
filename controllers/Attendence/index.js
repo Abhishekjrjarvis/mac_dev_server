@@ -222,8 +222,8 @@ exports.markAttendenceClassStudentUpdate = async (req, res) => {
           ) {
             studentAttendance.presentStudent?.push(req.body.present[i]);
             studentAttendance.absentStudent?.pull(req.body.present[i]);
-            studentAttendance.presentTotal = ++studentAttendance.presentTotal;
-            studentAttendance.absentTotal = --studentAttendance.absentTotal;
+            studentAttendance.presentTotal += 1;
+            studentAttendance.absentTotal -= 1;
             // const student=await Student.findById(req.body.present[i])
             // const notify = new StudentNotification({});
             // notify.notifyContent = `Today is present`;
@@ -242,8 +242,8 @@ exports.markAttendenceClassStudentUpdate = async (req, res) => {
           ) {
             studentAttendance.absentStudent?.push(req.body.absent[i]);
             studentAttendance.presentStudent?.pull(req.body.absent[i]);
-            studentAttendance.presentTotal = --studentAttendance.presentTotal;
-            studentAttendance.absentTotal = ++studentAttendance.absentTotal;
+            studentAttendance.presentTotal -= 1;
+            studentAttendance.absentTotal += 1;
             // const student=await Student.findById(req.body.absent[i])
             // const notify = new StudentNotification({});
             // notify.notifyContent = `Today is absent`;

@@ -172,9 +172,9 @@ app.use("/api/v1/edit/user", userMemberRoute);
 app.use("/api/v1/admission", admissionNew)
 // ============================================================================
 
-setInterval(async () => {
-  await check_poll_status();
-}, 20000);
+// setInterval(async () => {
+//   await check_poll_status();
+// }, 20000);
 
 setInterval(async () => {
   await payment_modal_initiated();

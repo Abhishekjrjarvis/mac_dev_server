@@ -335,7 +335,25 @@ const userSchema = new mongoose.Schema({
   blockCount: {
     type: Number,
     default: 0
-  }
+  },
+  departmentChat: [
+    {
+      isDepartmentHead: { type: String },
+      department: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Department'
+      }
+    }
+  ],
+  classChat: [
+    {
+      isClassTeacher: { type: String },
+      classes: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Class'
+      }
+    }
+  ]
 
 });
 

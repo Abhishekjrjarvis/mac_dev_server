@@ -1456,6 +1456,49 @@ exports.retrieveUserSubjectChat = async(req, res) =>{
   }
 }
 
+exports.retrieveUserClassChat = async(req, res) =>{
+  try{
+    const { uid } = req.params
+    const user = await User.findById({_id: uid})
+    .select('id classChat')
+    // .populate({
+    //   path: 'isSubjectChat',
+    //   match:{subjectStatus:{$eq:`UnCompleted`}},
+    //   select: 'subjectName',
+    //   populate: {
+    //     path: 'class',
+    //     select: 'className classTitle'
+    //   }
+    // })
+    res.status(200).send({ message: 'As a Class Teacher', class_chat: user})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.retrieveUserDepartmentChat = async(req, res) =>{
+  try{
+    const { uid } = req.params
+    const user = await User.findById({_id: uid})
+    .select('id departmentChat')
+    // .populate({
+    //   path: 'isSubjectChat',
+    //   match:{subjectStatus:{$eq:`UnCompleted`}},
+    //   select: 'subjectName',
+    //   populate: {
+    //     path: 'class',
+    //     select: 'className classTitle'
+    //   }
+    // })
+    res.status(200).send({ message: 'As a Department Head', depart_chat: user})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+
 exports.retrieveUserApplicationStatus = async(req, res) =>{
   try{
     const { uid } = req.params

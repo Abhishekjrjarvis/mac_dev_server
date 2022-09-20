@@ -212,6 +212,10 @@ router.get("/circle/user", isLoggedIn, catchAsync(User.allCircleUsers));
 
 router.get("/:uid/subject/chat", catchAsync(User.retrieveUserSubjectChat))
 
+router.get("/:uid/class/chat", catchAsync(User.retrieveUserClassChat))
+
+router.get("/:uid/department/chat", catchAsync(User.retrieveUserDepartmentChat))
+
 router.get("/:uid/application/status", catchAsync(User.retrieveUserApplicationStatus))
 
 router.get(

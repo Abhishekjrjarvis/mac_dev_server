@@ -969,6 +969,29 @@ paths:
         "200":
           description: OK
 
+  /api/v1/user/block/user/:
+    patch:
+      tags:
+        - User Profile API
+      summary: Block User to User Api -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - followId
+            properties:
+              followId:
+                type: string
+                description: Block User Id
+      responses:
+        "200":
+          description: OK
   
   /api/v1/user/one-announcement/{aid}:
     get:

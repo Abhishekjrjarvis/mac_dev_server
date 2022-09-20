@@ -847,10 +847,10 @@ exports.getAllTotalCount = async (req, res) => {
     .select('_id activity_tab uNotify')
     var total = 0
     const notify = await Notification.find({
-      $and: [{ _id: { $in: user.uNotify } }, { notifyViewStatus: 'Not View' }],
+      $and: [{ _id: { $in: user?.uNotify } }, { notifyViewStatus: 'Not View' }],
     })
     const activity = await StudentNotification.find({
-      $and: [{ _id: { $in: user.activity_tab } }, { notifyViewStatus: 'Not View' }],
+      $and: [{ _id: { $in: user?.activity_tab } }, { notifyViewStatus: 'Not View' }],
     })
     total = total + notify?.length + activity?.length
 

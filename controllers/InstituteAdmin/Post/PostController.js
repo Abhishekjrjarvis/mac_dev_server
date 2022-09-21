@@ -480,7 +480,7 @@ exports.postWithVsibilityUpdate = async (req, res) => {
           }
         });
         user.forEach(async (el) => {
-          if(author?.joinedUserList?.includes(`${el._id}`)){
+          if(author?.joinedUserList?.includes(`${el}`)){
             if(el?.userPosts?.includes(`${post_visible._id}`)){
               
             }

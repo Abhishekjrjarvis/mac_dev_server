@@ -580,9 +580,11 @@ var month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 exports.updateUserPersonal = async (req, res) => {
   try {
     const { id } = req.params;
-    var user = await User.findByIdAndUpdate(id, req.body);
-    res.status(200).send({ message: "Personal Info Updated", user: user });
+    var users = await User.findByIdAndUpdate(id, req.body)
+    await users.save()
+    res.status(200).send({ message: "Personal Info Updated" });
     //
+    var user = await User.findById({_id: id})
     var b_date = user.userDateOfBirth.slice(8, 10)
     var b_month = user.userDateOfBirth.slice(5, 7)
     var b_year = user.userDateOfBirth.slice(0, 4)
@@ -629,7 +631,7 @@ exports.updateUserPersonal = async (req, res) => {
         await ansRep.save();
       });
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(`Error`, e);
   }
 };
 

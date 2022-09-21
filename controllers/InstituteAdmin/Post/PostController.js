@@ -380,6 +380,114 @@ exports.postWithVsibilityUpdate = async (req, res) => {
     post.postStatus = postStatus;
     await post.save();
     res.status(200).send({ message: "visibility change 👓" });
+    //
+    const post_visible = await Post.findById({_id: pid}).select('postStatus')
+    const author = await InstituteAdmin.findById({_id: `${post.author}`})
+    .select('id isUniversal')
+    .populate({ path: 'followers', select: 'posts' })
+    .populate({ path: 'userFollowersList', select: 'userPosts' })
+    .populate({ path: 'joinedUserList', select: 'userPosts' })
+    if (author.isUniversal === "Not Assigned") {
+      if (author.followers.length >= 1) {
+        if (post_visible.postStatus === "Anyone") {
+          author.followers.forEach(async (ele) => {
+            if(ele?.posts?.includes(`${post_visible._id}`)){
+
+            }
+            else{
+              ele.posts.push(post_visible._id);
+              await ele.save();
+            }
+          });
+        } else if(post_visible.postStatus === 'Private') {
+          author.followers.forEach(async (ele) => {
+            if(ele?.posts?.includes(`${post_visible._id}`)){
+              ele.posts.pull(post_visible._id);
+              await ele.save();
+            }
+            else{}
+          });
+        }
+      }
+      if (author.userFollowersList.length >= 1) {
+        if (post_visible.postStatus === "Anyone") {
+          author.userFollowersList.forEach(async (ele) => {
+            if(ele?.userPosts?.includes(`${post_visible._id}`)){
+
+            }
+            else{
+              ele.userPosts.push(post_visible._id);
+              await ele.save();
+            }
+          });
+        } else if(post_visible.postStatus === 'Private') {
+          if (author.joinedUserList.length >= 1) {
+            author.joinedUserList.forEach(async (ele) => {
+              if(ele?.userPosts?.includes(`${post_visible._id}`)){
+
+              }
+              else{
+                ele.userPosts.push(post_visible._id);
+                await ele.save();
+              }
+            });
+          }
+          author.userFollowersList.forEach(async (ele) => {
+            if(ele?.userPosts?.includes(`${post_visible._id}`)){
+              ele.userPosts.pull(post_visible._id);
+              await ele.save();
+            }
+            else{}
+          });
+        }
+      }
+    }
+    else if (author.isUniversal === "Universal") {
+      const all = await InstituteAdmin.find({ status: "Approved" }).select('posts')
+      const user = await User.find({ userStatus: "Approved" }).select('userPosts')
+      if (post_visible.postStatus === "Anyone") {
+        all.forEach(async (el) => {
+          if (el._id !== institute._id) {
+            if(el?.posts?.includes(`${post_visible._id}`)){
+
+            }
+            else{
+              el.posts.push(post_visible._id);
+              await el.save();
+            }
+          }
+        });
+        user.forEach(async (el) => {
+          if(el?.userPosts?.includes(`${post_visible._id}`)){
+
+          }
+          else{
+            el.userPosts.push(post_visible._id);
+            await el.save();
+          }
+        });
+      }
+      if (post_visible.postStatus === "Private") {
+        all.forEach(async (el) => {
+          if (el._id !== institute._id) {
+            if(el?.posts?.includes(`${post_visible._id}`)){
+
+            }
+            else{
+              el.posts.push(post_visible._id);
+              await el.save();
+            }
+          }
+        });
+        user.forEach(async (el) => {
+          if(el?.userPosts?.includes(`${post_visible._id}`)){
+            el.userPosts.pull(post_visible._id);
+            await el.save();
+          }
+        });
+      }
+    }
+    //
   } catch (e) {
     console.log(e);
   }

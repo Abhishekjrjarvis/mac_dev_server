@@ -263,9 +263,10 @@ exports.getUpdatePhone = async (req, res) => {
 exports.getUpdatePersonalIns = async (req, res) => {
   try {
     const { id } = req.params;
-    var institute = await InstituteAdmin.findByIdAndUpdate(id, req.body);
+    await InstituteAdmin.findByIdAndUpdate(id, req.body);
     // await institute.save();
     res.status(200).send({ message: "Personal Info Updated" });
+    var institute = await InstituteAdmin.findById({_id: id})
     const post = await Post.find({ author: `${institute._id}` });
     post.forEach(async (ele) => {
       ele.authorOneLine = institute.one_line_about;
@@ -281,7 +282,9 @@ exports.getUpdatePersonalIns = async (req, res) => {
       reply.authorOneLine = institute.one_line_about;
       await reply.save();
     });
-  } catch {}
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 exports.getUpdateAnnouncement = async (req, res) => {

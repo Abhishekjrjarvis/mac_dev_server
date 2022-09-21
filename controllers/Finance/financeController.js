@@ -935,6 +935,10 @@ exports.retrieveOneEmpQuery = async(req, res) =>{
         h_r_a: emp.h_r_a,
         t_d_s: emp.t_d_s,
         e_p_f: emp.e_p_f,
+        medical_allowance: emp.ma,
+        travel_allowance: emp.ta,
+        perquisites: emp.pqs,
+        employer_contribution: emp.epc,
         staff: emp.staff
       }
       res.status(200).send({ message: 'One Employee Salary History ', detail: detail, filter: filtered})

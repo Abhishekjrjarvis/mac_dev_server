@@ -480,9 +480,21 @@ exports.postWithVsibilityUpdate = async (req, res) => {
           }
         });
         user.forEach(async (el) => {
-          if(el?.userPosts?.includes(`${post_visible._id}`)){
-            el.userPosts.pull(post_visible._id);
-            await el.save();
+          if(author?.joinedUserList?.includes(`${el._id}`)){
+            if(el?.userPosts?.includes(`${post_visible._id}`)){
+              
+            }
+            else{
+              el.userPosts.push(post_visible._id);
+              await el.save();
+            }
+          }
+          else{
+            if(el?.userPosts?.includes(`${post_visible._id}`)){
+              el.userPosts.pull(post_visible._id);
+              await el.save();
+            }
+            else{}
           }
         });
       }

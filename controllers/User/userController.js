@@ -562,11 +562,47 @@ exports.updateUserPhone = async (req, res) => {
   }
 };
 
+//
+var date = new Date();
+var p_date = date.getDate();
+var p_month = date.getMonth() + 1;
+var p_year = date.getFullYear();
+if (p_date < 9){
+  p_date = `0${p_date}`
+}
+if (p_month < 10) {
+  p_month = `0${p_month}`;
+}
+//
+var month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+//
+
 exports.updateUserPersonal = async (req, res) => {
   try {
     const { id } = req.params;
     var user = await User.findByIdAndUpdate(id, req.body);
     res.status(200).send({ message: "Personal Info Updated" });
+    //
+    var b_date = user.userDateOfBirth.slice(8, 10)
+    var b_month = user.userDateOfBirth.slice(5, 7)
+    var b_year = user.userDateOfBirth.slice(0, 4)
+    if (b_date > p_date) {
+        p_date = p_date + month[b_month - 1];
+        p_month = p_month - 1;
+    }
+    if (b_month > p_month) {
+        p_year = p_year - 1;
+        p_month = p_month + 12;
+    }
+    var get_cal_year = p_year - b_year;
+    if(get_cal_year > 13){
+      user.ageRestrict = 'No'
+    }
+    else{
+      user.ageRestrict = 'Yes'
+    }
+    await user.save()
+    //
       const post = await Post.find({ author: `${user._id}` });
       post.forEach(async (ele) => {
         ele.authorOneLine = user.one_line_about;

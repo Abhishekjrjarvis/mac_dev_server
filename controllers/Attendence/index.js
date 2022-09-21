@@ -793,6 +793,7 @@ exports.delHoliday = async (req, res) => {
 exports.getAttendStaffByIdForMonth = async (req, res) => {
   try {
     const month = req.query.month;
+    const year = req.query.year;
     let absentCount = 0;
     let regularexp = "";
     if (month) regularexp = new RegExp(`\/${month}\/${year}$`);

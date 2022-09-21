@@ -1052,7 +1052,7 @@ exports.followersArray = async (req, res) => {
 
     const followers = await User.find({ _id: { $in: user.userFollowers } })
       .select(
-        "userLegalName username photoId profilePhoto user_birth_privacy user_address_privacy user_circle_privacy"
+        "userLegalName username photoId profilePhoto blockStatus user_birth_privacy user_address_privacy user_circle_privacy"
       )
       .limit(limit)
       .skip(skip);
@@ -1076,7 +1076,7 @@ exports.followingArray = async (req, res) => {
 
     const uFollowing = await User.find({ _id: { $in: user.userFollowing } })
       .select(
-        "userLegalName username photoId profilePhoto user_birth_privacy user_address_privacy user_circle_privacy"
+        "userLegalName username photoId profilePhoto blockStatus user_birth_privacy user_address_privacy user_circle_privacy"
       )
       .limit(limit)
       .skip(skip);
@@ -1084,7 +1084,7 @@ exports.followingArray = async (req, res) => {
     const uInsFollowing = await InstituteAdmin.find({
       _id: { $in: user.userInstituteFollowing },
     })
-      .select("insName name photoId insProfilePhoto")
+      .select("insName name photoId insProfilePhoto blockStatus")
       .limit(limit)
       .skip(skip);
     var mergeArray = [...uFollowing, ...uInsFollowing]
@@ -1109,7 +1109,7 @@ exports.circleArray = async (req, res) => {
 
     const circle = await User.find({ _id: { $in: user.userCircle } })
       .select(
-        "userLegalName username photoId profilePhoto user_birth_privacy user_address_privacy user_circle_privacy"
+        "userLegalName username photoId profilePhoto blockStatus user_birth_privacy user_address_privacy user_circle_privacy"
       )
       .limit(limit)
       .skip(skip);
@@ -1125,7 +1125,7 @@ exports.followingInsArray = async (req, res) => {
       .select("id")
       .populate({
         path: "userInstituteFollowing",
-        select: "insName name photoId insProfilePhoto",
+        select: "insName name photoId insProfilePhoto blockStatus",
       })
       .lean()
       .exec();

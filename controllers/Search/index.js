@@ -29,7 +29,7 @@ exports.searchUserUniversal = async (req, res) => {
           { name: { $regex: req.query.search, $options: "i" } },
         ],
       })
-        .select("insName insProfilePhoto photoId name")
+        .select("insName insProfilePhoto photoId name blockStatus")
         .limit(itemPerPage)
         .skip(dropItem)
         .lean()
@@ -44,7 +44,7 @@ exports.searchUserUniversal = async (req, res) => {
       })
         .limit(itemPerPage)
         .skip(dropItem)
-        .select("userLegalName profilePhoto photoId username")
+        .select("userLegalName profilePhoto photoId username blockStatus")
         .lean()
         .exec();
 
@@ -99,7 +99,7 @@ exports.searchInstituteUniversal = async (req, res) => {
           { name: { $regex: req.query.search, $options: "i" } },
         ],
       })
-        .select("insName insProfilePhoto photoId name ")
+        .select("insName insProfilePhoto photoId name blockStatus")
         .limit(itemPerPage)
         .skip(dropItem)
         .lean()

@@ -66,7 +66,7 @@ exports.retrieveAgeRestrict = async(req, res) =>{
 exports.retrieveRandomInstituteQuery = async(req, res) => {
     try{
         const institute = await InstituteAdmin.find({status: 'Approved'})
-        .select('insName name photoId insProfilePhoto status')
+        .select('insName name photoId insProfilePhoto status blockStatus')
         var random = Math.floor(Math.random() * institute.length)
         var r_Ins = institute[random]
         res.status(200).send({ message: 'Random Institute', r_Ins})

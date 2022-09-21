@@ -1984,14 +1984,14 @@ exports.retrieveInsFollowersArray = async (req, res) => {
     const followers = await InstituteAdmin.find({
       _id: { $in: institute.followers },
     })
-      .select("insName photoId insProfilePhoto name")
+      .select("insName photoId insProfilePhoto name blockStatus")
       .limit(limit)
       .skip(skip);
 
     const uFollowers = await User.find({
       _id: { $in: institute.userFollowersList },
     })
-      .select("userLegalName photoId profilePhoto username")
+      .select("userLegalName photoId profilePhoto username blockStatus")
       .limit(limit)
       .skip(skip);
     res.status(200).send({
@@ -2034,7 +2034,7 @@ exports.retrieveInsFollowingArray = async (req, res) => {
     const following = await InstituteAdmin.find({
       _id: { $in: institute.following },
     })
-      .select("insName photoId insProfilePhoto name")
+      .select("insName photoId insProfilePhoto name blockStatus")
       .limit(limit)
       .skip(skip);
 

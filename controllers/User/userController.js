@@ -581,7 +581,7 @@ exports.updateUserPersonal = async (req, res) => {
   try {
     const { id } = req.params;
     var user = await User.findByIdAndUpdate(id, req.body);
-    res.status(200).send({ message: "Personal Info Updated" });
+    res.status(200).send({ message: "Personal Info Updated", user: user });
     //
     var b_date = user.userDateOfBirth.slice(8, 10)
     var b_month = user.userDateOfBirth.slice(5, 7)

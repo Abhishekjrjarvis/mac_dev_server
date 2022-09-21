@@ -14,6 +14,7 @@ const Complaint = require("../../models/Complaint");
 const Transfer = require("../../models/Transfer");
 const DisplayPerson = require("../../models/DisplayPerson");
 const Finance = require("../../models/Finance");
+const bcrypt = require("bcryptjs");
 // const Library = require("../../models/Library/Library");
 const Subject = require("../../models/Subject");
 const StudentNotification = require("../../models/Marks/StudentNotification")

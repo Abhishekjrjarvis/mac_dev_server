@@ -2713,7 +2713,7 @@ paths:
         "200":
           description: OK
 
-  /api/v1/attendence/staff/onemonth/{sid}:
+  /api/v1/attendance/staff/onemonth/{sid}:
     get:
       tags:
         - Staff-Member-Tab

@@ -817,7 +817,7 @@ exports.allEmpToFinance = async(req, res) =>{
 exports.addFieldToPayroll = async(req, res) =>{
   try{
     const { fid, eid } = req.params
-    const { month, attendence, paid_leaves, payment_mode, purpose, amount, paid_to, message, gross_salary, net_total, hra, tds, epf, da, ma, ta, epc, pqs } = req.body
+    const { month, attendence, paid_leaves, payment_mode, amount, paid_to, message, gross_salary, net_total, hra, tds, epf, da, ma, ta, epc, pqs } = req.body
     const finance = await Finance.findById({_id: fid})
     var emp = await Payroll.findById({_id: eid})
     var staff = await Staff.findById({_id: `${emp.staff}`})
@@ -827,7 +827,6 @@ exports.addFieldToPayroll = async(req, res) =>{
         attendence: attendence,
         paid_leaves: paid_leaves,
         payment_mode: payment_mode,
-        purpose: purpose,
         amount: amount,
         paid_to: paid_to,
         message: message,

@@ -447,7 +447,7 @@ exports.postWithVsibilityUpdate = async (req, res) => {
       const user = await User.find({ userStatus: "Approved" }).select('userPosts')
       if (post_visible.postStatus === "Anyone") {
         all.forEach(async (el) => {
-          if (el._id !== institute._id) {
+          if (el._id !== author._id) {
             if(el?.posts?.includes(`${post_visible._id}`)){
 
             }
@@ -469,7 +469,7 @@ exports.postWithVsibilityUpdate = async (req, res) => {
       }
       if (post_visible.postStatus === "Private") {
         all.forEach(async (el) => {
-          if (el._id !== institute._id) {
+          if (el._id !== author._id) {
             if(el?.posts?.includes(`${post_visible._id}`)){
 
             }

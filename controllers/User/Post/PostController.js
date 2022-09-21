@@ -303,7 +303,47 @@ exports.postWithVsibilityUpdate = async (req, res) => {
     post.postStatus = postStatus;
     await post.save();
     res.status(200).send({ message: "visibility change" });
-  } catch {}
+    //
+    var post_visible = await Post.findById({_id: pid}).select('postStatus')
+    var user = await User.findById({_id: `${post.author}`}).select('id')
+    .populate({ path: 'userFollowers', select: 'userPosts'})
+    .populate({ path: 'userCircle', select: 'userPosts'})
+    if (user.userFollowers.length >= 1) {
+      if (post_visible.postStatus === "Anyone") {
+        user.userFollowers.forEach(async (ele) => {
+          if(ele?.userPosts?.includes(`${post_visible._id}`)){
+
+          }
+          else{
+            ele.userPosts.push(post_visible._id);
+            await ele.save(); 
+          }
+        });
+      } else if(post_visible.postStatus === 'Private') {
+        user.userFollowers.forEach(async (ele) => {
+          if(ele?.userPosts?.includes(`${post_visible._id}`)){
+            ele.userPosts.pull(post_visible._id);
+            await ele.save(); 
+          }
+          else{}
+        });
+      }
+    }
+    if (user.userCircle.length >= 1) {
+      user.userCircle.forEach(async (ele) => {
+        if(ele?.userPosts?.includes(`${post_visible._id}`)){
+
+        }
+        else{
+          ele.userPosts.push(post_visible._id);
+          await ele.save();
+        }
+      });
+    }
+    //
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 exports.postWithDeleted = async (req, res) => {

@@ -113,3 +113,19 @@ exports.retrieveByParticipateQuery = async (req, res) => {
       console.log(e);
     }
 };
+
+exports.filterByDate = async(req, res) => {
+  try{
+    const { g_month, year, l_month } = req.query
+    const user = await User.find({
+      created_at: {
+          $gte: new Date(`${year}-${g_month}-01T00:00:00.000Z`),
+          $lt: new Date(`${year}-${l_month}-01T00:00:00.000Z`)
+      }
+    }).select('userLegalName username')
+  res.status(200).send({ message: 'user', filter: user})
+  }
+  catch(e){
+    console.log(e)
+  }
+}

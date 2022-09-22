@@ -896,7 +896,12 @@ exports.retrieveAllSalaryHistory = async(req, res) =>{
     .populate({
       path: 'salary_history',
       populate: {
-        path: 'emp_pay'
+        path: 'emp_pay',
+        select: 'salary pay_mode month',
+        populate: {
+          path: 'staff',
+          select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto'
+        }
       }
     })
     res.status(200).send({ message: 'All Employee ', salary: finance.salary_history})
@@ -930,14 +935,6 @@ exports.retrieveOneEmpQuery = async(req, res) =>{
       var detail = {
         staff_salary_month: emp.staff_salary_month,
         staff_total_paid_leaves: emp.staff_total_paid_leaves,
-        d_a: emp.d_a,
-        h_r_a: emp.h_r_a,
-        t_d_s: emp.t_d_s,
-        e_p_f: emp.e_p_f,
-        medical_allowance: emp.ma,
-        travel_allowance: emp.ta,
-        perquisites: emp.pqs,
-        employer_contribution: emp.epc,
         staff: emp.staff
       }
       res.status(200).send({ message: 'One Employee Salary History ', detail: detail, filter: filtered})
@@ -998,3 +995,26 @@ exports.retrievePaymentChargesQuery = async(req, res) => {
     console.log(e)
   }
 }
+
+
+// ,
+//   filter_finance: [
+//     {
+//       year: { type: String },
+//       data: [
+//         {
+//           month: { type: String },
+//           financeTotal: { type: Number, default: 0 },
+//           financeSubmit: { type: Number, default: 0 },
+//           financeCollected: { type: Number, default: 0 },
+//           financeBank: { type: Number, default: 0 },
+//           financeRaised: { type: Number, default: 0 },
+//           financeIncomeCash: { type: Number, default: 0 },
+//           financeExpenseCash: { type: Number, default: 0 },
+//           financeIncomeBank: { type: Number, default: 0 },
+//           financeExpenseBank: { type: Number, default: 0 },
+//           financeExempt: { type: Number, default: 0 },
+//         }
+//       ]
+//     }
+//   ]

@@ -360,7 +360,7 @@ exports.getApproveIns = async(req, res) =>{
         institute.activateStatus = 'Activated'
         institute.activateDate = new Date()
         }
-        notify.notifyContent = "Approval For Super Admin is successfull";
+        notify.notifyContent = "Your institute is verified and approved for further managing operations";
         notify.notifySender = admin._id;
         //
         admin.activateAccount += 1

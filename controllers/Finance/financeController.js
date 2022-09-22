@@ -802,6 +802,7 @@ exports.allEmpToFinance = async(req, res) =>{
     const allEmp = await Payroll.find({_id: { $in: finance.staff_pay_list }})
     .limit(limit)
     .skip(skip)
+    .select('id')
     .populate({
       path: 'staff',
       select: 'staffFirstName staffMiddleName staffLastName staffROLLNO staffProfilePhoto photoId'
@@ -935,6 +936,14 @@ exports.retrieveOneEmpQuery = async(req, res) =>{
       var detail = {
         staff_salary_month: emp.staff_salary_month,
         staff_total_paid_leaves: emp.staff_total_paid_leaves,
+        // d_a: emp.d_a,
+        // h_r_a: emp.h_r_a,
+        // t_d_s: emp.t_d_s,
+        // e_p_f: emp.e_p_f,
+        // medical_allowance: emp.ma,
+        // travel_allowance: emp.ta,
+        // perquisites: emp.pqs,
+        // employer_contribution: emp.epc,
         staff: emp.staff
       }
       res.status(200).send({ message: 'One Employee Salary History ', detail: detail, filter: filtered})

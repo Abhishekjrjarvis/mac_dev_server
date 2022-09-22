@@ -1592,7 +1592,12 @@ exports.retrieveStaffSalaryHistory = async(req, res) =>{
     .populate({
       path: 'salary_history',
       populate: {
-        path: 'emp_pay'
+        path: 'emp_pay',
+        select: 'salary pay_mode month',
+        populate: {
+          path: 'staff',
+          select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto'
+        }
       }
     })
     res.status(200).send({ message: 'All Salary History ', salary: staff.salary_history})

@@ -119,12 +119,11 @@ PaytmChecksum.generateSignature(JSON.stringify(paytmParams.body), process.env.PA
             let { body } = JSON.parse(response);
             let status = body.resultInfo.resultStatus;
             let price = body.txnAmount;
-            let pay_mode = body.paymentMode
             // TXN_SUCCESS
             // PENDING
             if (status === "TXN_SUCCESS") {
                 await addPayment(body, sid, fid, uid);
-                await studentPaymentUpdated(fiid, sid, fid, status, price, pay_mode);
+                await studentPaymentUpdated(fiid, sid, fid, status, price);
                 res.status(200).send({ message: 'Payment Successfull 🎉✨🎉✨'})
               } else {
                 res.status(402).send({ message: 'Payment Required'})
@@ -163,9 +162,9 @@ const addPayment = async (data, studentId, feeId, userId) => {
   };
 
 
-const studentPaymentUpdated = async (financeId, studentId, feeId, statusType, tx_amount, mode) => {
+const studentPaymentUpdated = async (financeId, studentId, feeId, statusType, tx_amount) => {
     try {
-      var payment_modes = ['CC', 'DC', 'NB', 'PPI']
+      var original_amount = parseInt(tx_amount) - ((parseInt(tx_amount) * 2) / 100)
       const student = await Student.findById({ _id: studentId });
       const finance = await Finance.findById({ _id: financeId }).populate({
           path: "institute",
@@ -195,41 +194,16 @@ const studentPaymentUpdated = async (financeId, studentId, feeId, statusType, tx
             student.onlineFeeList.push(fData._id);
             student.studentPaidFeeCount += fData.feeAmount
             student.studentRemainingFeeCount -= fData.feeAmount
-            if(payment_modes?.includes(`${mode}`)){
-              let charged_amount = (parseInt(tx_amount) * 1.99 )/100
-              let add_amount = (parseInt(tx_amount) - charged_amount)
-              finance.financeBankBalance = finance.financeBankBalance + add_amount;
-              finance.financeTotalBalance = finance.financeTotalBalance + add_amount
-              finance.institute.insBankBalance = finance.institute.insBankBalance + add_amount;
-              finance.institute.adminRepayAmount = finance.institute.adminRepayAmount + add_amount;
-              admin.returnAmount += add_amount
-              finance.payment_gateway_charges.push({
-                original_amount: parseInt(tx_amount),
-                payment_mode: mode,
-                percent: '1.99 %',
-                deduct_charge_gateway_amount: charged_amount,
-                return_amount: add_amount
-              })
-            }
-            else{
-              finance.financeBankBalance = finance.financeBankBalance + parseInt(tx_amount);
-              finance.financeTotalBalance = finance.financeTotalBalance + parseInt(tx_amount)
-              finance.institute.insBankBalance = finance.institute.insBankBalance + parseInt(tx_amount);
-              finance.institute.adminRepayAmount = finance.institute.adminRepayAmount + parseInt(tx_amount);
-              admin.returnAmount += parseInt(tx_amount)
-              finance.payment_gateway_charges.push({
-                original_amount: parseInt(tx_amount),
-                payment_mode: mode,
-                percent: '0 %',
-                deduct_charge_gateway_amount: 0,
-                return_amount: 0
-              })
-            }
+            finance.financeBankBalance = finance.financeBankBalance + original_amount;
+            finance.financeTotalBalance = finance.financeTotalBalance + original_amount
+            // finance.institute.insBankBalance = finance.institute.insBankBalance + original_amount;
+            finance.institute.adminRepayAmount = finance.institute.adminRepayAmount + original_amount;
+            admin.returnAmount += parseInt(tx_amount)
             notify.notifyContent = `${student.studentFirstName}${
               student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
             } ${student.studentLastName} paid the ${
               fData.feeName
-            }/ (Rs.${tx_amount}) successfully`;
+            }/ (Rs.${original_amount}) successfully`;
             notify.notifySender = student._id;
             notify.notifyReceiever = user._id;
             finance.institute.iNotify.push(notify._id);
@@ -238,7 +212,7 @@ const studentPaymentUpdated = async (financeId, studentId, feeId, statusType, tx
             notify.user = user._id;
             notify.notifyByStudentPhoto = student._id;
             classes.onlineFeeCollection.push({
-              fee: parseInt(tx_amount),
+              fee: parseInt(original_amount),
               feeId: fData._id
             })
             await Promise.all([
@@ -268,41 +242,16 @@ const studentPaymentUpdated = async (financeId, studentId, feeId, statusType, tx
             checklistData.studentsList.push(student._id);
             checklistData.checklistStudent = student._id;
             student.onlineCheckList.push(checklistData._id);
-            if(payment_modes?.includes(`${mode}`)){
-              let charged_amounts = (parseInt(tx_amount) * 1.99 )/100
-              let add_amounts = (parseInt(tx_amount) - charged_amounts)
-              finance.financeBankBalance = finance.financeBankBalance + add_amounts;
-              finance.financeTotalBalance = finance.financeTotalBalance + add_amounts
-              finance.institute.insBankBalance = finance.institute.insBankBalance + add_amounts;
-              finance.institute.adminRepayAmount = finance.institute.adminRepayAmount + add_amounts;
-              admin.returnAmount += add_amounts
-              finance.payment_gateway_charges.push({
-                original_amount: parseInt(tx_amount),
-                payment_mode: mode,
-                percent: '1.99 %',
-                deduct_charge_gateway_amount: charged_amounts,
-                return_amount: add_amounts
-              })
-            }
-            else{
-              finance.financeBankBalance = finance.financeBankBalance + parseInt(tx_amount);
-              finance.financeTotalBalance = finance.financeTotalBalance + parseInt(tx_amount)
-              finance.institute.insBankBalance = finance.institute.insBankBalance + parseInt(tx_amount);
-              finance.institute.adminRepayAmount = finance.institute.adminRepayAmount + parseInt(tx_amount);
-              admin.returnAmount += parseInt(tx_amount)
-              finance.payment_gateway_charges.push({
-                original_amount: parseInt(tx_amount),
-                payment_mode: mode,
-                percent: '0 %',
-                deduct_charge_gateway_amount: 0,
-                return_amount: 0
-              })
-            }
+            finance.financeBankBalance = finance.financeBankBalance + original_amount;
+            finance.financeTotalBalance = finance.financeTotalBalance + original_amount
+            // finance.institute.insBankBalance = finance.institute.insBankBalance + original_amount;
+            finance.institute.adminRepayAmount = finance.institute.adminRepayAmount + original_amount;
+            admin.returnAmount += parseInt(tx_amount)
             notify.notifyContent = `${student.studentFirstName}${
               student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
             } ${student.studentLastName} paid the ${
               checklistData.checklistName
-            }/ (Rs.${tx_amount}) successfully`;
+            }/ (Rs.${original_amount}) successfully`;
             notify.notifySender = student._id;
             notify.notifyReceiever = user._id;
             finance.institute.iNotify.push(notify._id);

@@ -765,6 +765,7 @@ exports.retrieveRepayInstituteAmount = async(req, res) => {
     const notify = new Notification({});
     const repay = new RePay({})
     institute.adminRepayAmount -= amount;
+    institute.insBankBalance += amount
     admin.returnAmount -= amount
     notify.notifyContent = `Super Admin re-pay Rs. ${amount} to you`;
     notify.notifySender = admin._id;

@@ -2277,6 +2277,10 @@ exports.retrieveDepartmentStaffArray = async (req, res) => {
         path: "departmentChatGroup",
         select:
           "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        populate: {
+          path: 'user',
+          select: 'username userLegalName photoId profilePhoto'
+        }
       });
     res.status(200).send({ message: "Department Staff List", department });
   } catch {}

@@ -519,7 +519,7 @@ exports.removeUserCircle = async (req, res) => {
 
         post.forEach(async (ele) => {
           if(user && user.userPosts?.includes(`${ele}`)){
-            user.userPosts.pull(`${ele}`);
+            user.userPosts.pull(ele);
           }
           else{}
         });
@@ -531,7 +531,7 @@ exports.removeUserCircle = async (req, res) => {
 
         posts.forEach(async (ele) => {
           if(suser && suser.userPosts?.includes(`${ele}`)){
-            suser.userPosts.pull(`${ele}`);
+            suser.userPosts.pull(ele);
           }
           else{}
         });

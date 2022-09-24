@@ -2449,3 +2449,39 @@ exports.deactivateInstituteAccount = async (req, res) => {
     console.log(`Error`, e);
   }
 };
+
+exports.retrieveMergeStaffStudent = async(req, res) =>{
+  try{
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const { did } = req.params;
+    const skip = (page - 1) * limit;
+    const depart = await Department.findById({_id: did})
+    .select('id departmentChatGroup ApproveStudent')
+
+    const staff = await Staff.find({ _id: { $in: depart.departmentChatGroup }})
+    .limit(limit)
+    .skip(skip)
+    .select('staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO')
+    .populate({
+      path: 'user',
+      select: 'username userLegalName photoId profilePhoto'
+    })
+
+    const student = await Student.find({ _id: { $in: depart.ApproveStudent }})
+    .limit(limit)
+    .skip(skip)
+    .select('studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO')
+    .populate({
+      path: 'user',
+      select: 'username userLegalName photoId profilePhoto'
+    })
+
+    var mergeDepart = [...staff, ...student]
+
+    res.status(200).send({ message: 'Merge Staff and Student', merge: mergeDepart })
+  }
+  catch(e){
+    console.log(e)
+  }
+}

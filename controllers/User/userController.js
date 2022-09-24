@@ -1490,14 +1490,17 @@ exports.retrieveUserSubjectChat = async(req, res) =>{
   try{
     const { uid } = req.params
     const user = await User.findById({_id: uid})
-    .select('isSubjectTeacher')
+    .select('id')
     .populate({
-      path: 'isSubjectChat',
-      match:{subjectStatus:{$eq:`UnCompleted`}},
-      select: 'subjectName',
+      path: 'subjectChat',
       populate: {
-        path: 'class',
-        select: 'className classTitle'
+        path: 'subjects',
+        match: { subjectStatus: { $eq: 'UnCompleted'}},
+        select: 'subjectName subjectStatus',
+        populate: {
+          path: 'classes',
+          select: 'className classTitle'
+        }
       }
     })
     res.status(200).send({ message: 'As a Subject Teacher', chat: user})

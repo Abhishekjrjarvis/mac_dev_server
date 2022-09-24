@@ -1283,8 +1283,10 @@ exports.retrieveNewSubject = async (req, res) => {
     staff.staffSubject.push(subject._id);
     staff.staffDesignationCount += 1;
     staff.recentDesignation = subjectTitle;
-    user.isSubjectTeacher = "Yes";
-    user.isSubjectChat.push(subject._id);
+    user.subjectChat.push({
+      isSubjectTeacher: 'Yes',
+      subjects: subject._id
+    })
     subject.subjectTeacherName = staff._id;
     notify.notifyContent = `you got the designation of ${subject.subjectName} as Subject Teacher`;
     notify.notifySender = id;

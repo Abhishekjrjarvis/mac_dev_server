@@ -826,6 +826,7 @@ exports.addFieldToPayroll = async(req, res) =>{
       emp.pay_slip.push({
         month: month,
         attendence: attendence,
+        total_leaves: emp.staff_total_paid_leaves,
         paid_leaves: paid_leaves,
         payment_mode: payment_mode,
         amount: amount,
@@ -928,7 +929,7 @@ exports.retrieveOneEmpQuery = async(req, res) =>{
       const emp = await Payroll.findById({_id: eid})
       .populate({
         path: 'staff',
-        select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto'
+        select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO'
       })
       var filtered = emp.pay_slip.filter((ele) =>{
         if(`${ele.month}` === `${month}`) return ele 

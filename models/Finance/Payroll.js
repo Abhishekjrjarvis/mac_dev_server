@@ -17,6 +17,7 @@ const payrollSchema = new mongoose.Schema({
         {
           month: { type: String },
           attendence: { type: Number, default: 0},
+          total_leaves: { type: Number, default: 0},
           paid_leaves: { type: Number, default: 0},
           payment_mode: { type: String },
           purpose: { type: String, default: 'Monthly Salary' },

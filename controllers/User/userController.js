@@ -514,7 +514,7 @@ exports.removeUserCircle = async (req, res) => {
         ])
         res.status(200).send({ message: "Uncircled" });
         const post = await Post.find({
-          $and: [{ author: suser._id }],
+          $and: [{ author: `${suser._id}` }],
         });
 
         post.forEach(async (ele) => {
@@ -526,7 +526,7 @@ exports.removeUserCircle = async (req, res) => {
         await user.save();
 
         const posts = await Post.find({
-          $and: [{ author: user._id }],
+          $and: [{ author: `${user._id}` }],
         });
 
         posts.forEach(async (ele) => {

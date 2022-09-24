@@ -1498,15 +1498,15 @@ exports.retrieveUserSubjectChat = async(req, res) =>{
         match: { subjectStatus: { $eq: 'UnCompleted'}},
         select: 'subjectName subjectStatus',
         populate: {
-          path: 'classes',
+          path: 'class',
           select: 'className classTitle'
         }
       }
     })
     res.status(200).send({ message: 'As a Subject Teacher', chat: user})
   }
-  catch{
-
+  catch(e){
+    console.log(e)
   }
 }
 

@@ -519,9 +519,10 @@ exports.removeUserCircle = async (req, res) => {
 
         post.forEach(async (ele) => {
           if(user && user.userPosts?.includes(`${ele}`)){
+          }
+          else{
             user.userPosts.pull(ele);
           }
-          else{}
         });
         await user.save();
 
@@ -531,11 +532,28 @@ exports.removeUserCircle = async (req, res) => {
 
         posts.forEach(async (ele) => {
           if(suser && suser.userPosts?.includes(`${ele}`)){
+          }
+          else{
             suser.userPosts.pull(ele);
           }
-          else{}
         });
         await suser.save();
+        //
+        const post_follow = await Post.find({
+          $and: [{ author: suser._id, postStatus: "Anyone" }],
+        });
+        post_follow.forEach(async (ele) => {
+          //
+          if(user?.userPosts?.includes(ele)){
+  
+          }
+          else{
+            user.userPosts.push(ele);
+          }
+          //
+        });
+        await user.save()
+        //
         //
         const post_count = await Post.find({ author: `${suser._id}` });
         post_count.forEach(async (ele) => {

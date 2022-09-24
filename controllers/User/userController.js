@@ -540,19 +540,19 @@ exports.removeUserCircle = async (req, res) => {
         await suser.save();
         //
         const post_follow = await Post.find({
-          $and: [{ author: suser._id, postStatus: "Anyone" }],
+          $and: [{ author: user._id, postStatus: "Anyone" }],
         });
         post_follow.forEach(async (ele) => {
           //
-          if(user?.userPosts?.includes(ele)){
+          if(suser?.userPosts?.includes(ele)){
   
           }
           else{
-            user.userPosts.push(ele);
+            suser.userPosts.push(ele);
           }
           //
         });
-        await user.save()
+        await suser.save()
         //
         //
         const post_count = await Post.find({ author: `${suser._id}` });

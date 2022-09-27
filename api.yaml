@@ -11685,255 +11685,255 @@ paths:
   #         description: OK
 
 # fot the assignment side
-  # /api/v1/mcq/subject/{sid}/assignment:
-  #   get:
-  #     tags:
-  #       - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-  #     summary: It is give all assignment in Subject Teacher side
-  #     consumes:
-  #       - application/json
-  #     produces:
-  #       - application/json
-  #     parameters:
-  #       - in: path
-  #         name: sid
-  #         required: true
-  #         type: string
-  #         description: It is particular subject id    
-  #       - in: query
-  #         name: page
-  #         type: integer
-  #         description: pass the page number
-  #       - in: query
-  #         name: limit
-  #         type: integer
-  #         description: pass the limit one time how many item you want             
-  #     responses:
-  #       "200":
-  #         description: OK
+  /api/v1/mcq/subject/{sid}/assignment:
+    get:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary: It is give all assignment in Subject Teacher side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular subject id    
+        - in: query
+          name: page
+          type: integer
+          description: pass the page number
+        - in: query
+          name: limit
+          type: integer
+          description: pass the limit one time how many item you want             
+      responses:
+        "200":
+          description: OK
 
-  #   post:
-  #     tags:
-  #       - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-  #     summary: It is Cretae Assignment by the Subject teacher side for the students
-  #     consumes:
-  #       - application/json
-  #     produces:
-  #       - application/json
-  #     parameters:
-  #       - in: path
-  #         name: sid
-  #         required: true
-  #         type: string
-  #         description: It is particular subject id      
-  #       - in: body
-  #         name: body
-  #         schema:
-  #           type: object
-  #           properties:
-  #             assignmentName:
-  #               type: string
-  #               required:  true
-  #               description: here type the assignment Name
-  #             dueDate:
-  #               type: string
-  #               required:  true
-  #               description: here give the last date of the assignment
-  #             descritpion:
-  #               type: string
-  #               required:  true
-  #               description: here type the description the the assingmnet
-  #             testSet:
-  #               type: array
-  #               description: here list of the all test set ids
-  #               items:
-  #                 type: string
-  #                 description: this is the test set id
-  #             files:
-  #               type: array
-  #               description: here list of all files
-  #               items:
-  #                 type: file
-  #                 description: this is one file
-  #     responses:
-  #       "200":
-  #         description: OK
+    post:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary: It is Cretae Assignment by the Subject teacher side for the students
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular subject id      
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              assignmentName:
+                type: string
+                required:  true
+                description: here type the assignment Name
+              dueDate:
+                type: string
+                required:  true
+                description: here give the last date of the assignment
+              descritpion:
+                type: string
+                required:  true
+                description: here type the description the the assingmnet
+              testSet:
+                type: array
+                description: here list of the all test set ids
+                items:
+                  type: string
+                  description: this is the test set id
+              files:
+                type: array
+                description: here list of all files
+                items:
+                  type: file
+                  description: this is one file
+      responses:
+        "200":
+          description: OK
 
-  # /api/v1/mcq/subject/assignment/{aid}:
-  #   get:
-  #     tags:
-  #       - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-  #     summary: It is give some details of assignment like (all assignment submitted student list with the submitted date) in Subject Teacher side
-  #     consumes:
-  #       - application/json
-  #     produces:
-  #       - application/json
-  #     parameters:
-  #       - in: path
-  #         name: aid
-  #         required: true
-  #         type: string
-  #         description: It is particular Assignment id    
-  #       - in: query
-  #         name: page
-  #         type: integer
-  #         description: pass the page number
-  #       - in: query
-  #         name: limit
-  #         type: integer
-  #         description: pass the limit one time how many item you want             
-  #     responses:
-  #       "200":
-  #         description: OK
+  /api/v1/mcq/subject/assignment/{aid}:
+    get:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary: It is give some details of assignment like (all assignment submitted student list with the submitted date) in Subject Teacher side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: It is particular Assignment id    
+        - in: query
+          name: page
+          type: integer
+          description: pass the page number
+        - in: query
+          name: limit
+          type: integer
+          description: pass the limit one time how many item you want             
+      responses:
+        "200":
+          description: OK
 
-  # /api/v1/mcq/subject/assignment/{aid}/student/{sid}:
-  #   get:
-  #     tags:
-  #       - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-  #     summary: It is give one student with his assignment submit details in Subject Teacher side
-  #     consumes:
-  #       - application/json
-  #     produces:
-  #       - application/json
-  #     parameters:
-  #       - in: path
-  #         name: aid
-  #         required: true
-  #         type: string
-  #         description: It is particular Assigment id    
-  #       - in: path
-  #         name: sid
-  #         required: true
-  #         type: string
-  #         description: It is particular Student id           
-  #     responses:
-  #       "200":
-  #         description: OK
+  /api/v1/mcq/subject/assignment/{aid}/student/{sid}:
+    get:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary: It is give one student with his assignment submit details in Subject Teacher side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: It is particular Assigment id    
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular Student id           
+      responses:
+        "200":
+          description: OK
 
-  #   patch:
-  #     tags:
-  #       - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-  #     summary: It is complete the status of student assignment by the Subject Teacher Side
-  #     consumes:
-  #       - application/json
-  #     produces:
-  #       - application/json
-  #     parameters:
-  #       - in: path
-  #         name: aid
-  #         required: true
-  #         type: string
-  #         description: It is particular Assigment id    
-  #       - in: path
-  #         name: sid
-  #         required: true
-  #         type: string
-  #         description: It is particular Student id     
-  #       - in: body
-  #         name: body
-  #         schema:
-  #           type: object
-  #           properties:
-  #             assignmentSubmit:
-  #               type: boolean
-  #               required:  true
-  #               description: here type the assignmentSubmit (true or false only)
-  #     responses:
-  #       "200":
-  #         description: OK
+    patch:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary: It is complete the status of student assignment by the Subject Teacher Side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: It is particular Assigment id    
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular Student id     
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              assignmentSubmit:
+                type: boolean
+                required:  true
+                description: here type the assignmentSubmit (true or false only)
+      responses:
+        "200":
+          description: OK
 
-  # /api/v1/mcq/student/{sid}/assignment:
-  #   get:
-  #     tags:
-  #       - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-  #     summary: It is give list of the all assignment in Student side
-  #     consumes:
-  #       - application/json
-  #     produces:
-  #       - application/json
-  #     parameters:
-  #       - in: path
-  #         name: sid
-  #         required: true
-  #         type: string
-  #         description: It is particular Student id    
-  #       - in: query
-  #         name: page
-  #         type: integer
-  #         description: pass the page number
-  #       - in: query
-  #         name: limit
-  #         type: integer
-  #         description: pass the limit one time how many item you want             
-  #     responses:
-  #       "200":
-  #         description: OK
+  /api/v1/mcq/student/{sid}/assignment:
+    get:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary: It is give list of the all assignment in Student side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular Student id    
+        - in: query
+          name: page
+          type: integer
+          description: pass the page number
+        - in: query
+          name: limit
+          type: integer
+          description: pass the limit one time how many item you want             
+      responses:
+        "200":
+          description: OK
 
-  # /api/v1/mcq/student/assignment/{aid}:
-  #   get:
-  #     tags:
-  #       - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-  #     summary: It is give one assignment details in student side
-  #     consumes:
-  #       - application/json
-  #     produces:
-  #       - application/json
-  #     parameters:
-  #       - in: path
-  #         name: aid
-  #         required: true
-  #         type: string
-  #         description: It is particular Assigment id    
-  #     responses:
-  #       "200":
-  #         description: OK
+  /api/v1/mcq/student/assignment/{aid}:
+    get:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary: It is give one assignment details in student side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: It is particular Assigment id    
+      responses:
+        "200":
+          description: OK
 
-  #   patch:
-  #     tags:
-  #       - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-  #     summary: It is submitted the student assignment to the Subject teacher in Student side
-  #     consumes:
-  #       - application/json
-  #     produces:
-  #       - application/json
-  #     parameters:
-  #       - in: path
-  #         name: aid
-  #         required: true
-  #         type: string
-  #         description: It is particular Assigment id    
-  #       - in: path
-  #         name: sid
-  #         required: true
-  #         type: string
-  #         description: It is particular Student id     
-  #       - in: body
-  #         name: body
-  #         schema:
-  #           type: object
-  #           properties:
-  #             studentDescritpion:
-  #               type: string
-  #               description: here type the description the the assignment by the student
-  #             submmittedDate:
-  #               type: string
-  #               description: here type the submmittedDate of assingnment date
-  #             assignmentSubmitRequest:
-  #               type: boolean
-  #               required:  true
-  #               description: here type assignmentSubmitRequest (true or false)
-  #             testSet:
-  #               type: string
-  #               description: It is the testset id
-  #             files:
-  #               type: array
-  #               description: here list of all files
-  #               items:
-  #                 type: file
-  #                 description: this is one file
-  #     responses:
-  #       "200":
-  #         description: OK
+    patch:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary: It is submitted the student assignment to the Subject teacher in Student side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: It is particular Assigment id    
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular Student id     
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              studentDescritpion:
+                type: string
+                description: here type the description the the assignment by the student
+              submmittedDate:
+                type: string
+                description: here type the submmittedDate of assingnment date
+              assignmentSubmitRequest:
+                type: boolean
+                required:  true
+                description: here type assignmentSubmitRequest (true or false)
+              testSet:
+                type: string
+                description: It is the testset id
+              files:
+                type: array
+                description: here list of all files
+                items:
+                  type: file
+                  description: this is one file
+      responses:
+        "200":
+          description: OK
 
 
 
@@ -12777,6 +12777,109 @@ paths:
 
 
 
-
+# fot the daily subject side update
+  /api/v1/dailyupdate/subject/{sid}:
+    get:
+      tags:
+        - Daily Update Related ALL Api (Subject Teacher)
+      summary: It is give all daily updates in Subject Teacher side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular subject id    
+        - in: query
+          name: page
+          type: integer
+          description: pass the page number
+        - in: query
+          name: limit
+          type: integer
+          description: pass the limit one time how many item you want             
+      responses:
+        "200":
+          description: OK
+    post:
+      tags:
+        - Daily Update Related ALL Api (Subject Teacher)
+      summary: It is Cretae daily update by the Subject teacher side for the students
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular subject id      
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              updateDate:
+                type: string
+                required:  true
+                description: here type the daily update date
+              updateDescription:
+                type: string
+                required:  true
+                description: here give the daily update updateDescription
+              files:
+                type: array
+                required:  true
+                description: here list of all files
+                items:
+                  type: file
+                  description: this is one file
+      responses:
+        "200":
+          description: OK
+    patch:
+      tags:
+        - Daily Update Related ALL Api (Subject Teacher)
+      summary: It is Cretae daily update by the Subject teacher side for the students
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular daily update id      
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              updateDescription:
+                type: string
+                required:  true
+                description: here give the daily update updateDescription
+              deleteImage:
+                type: array
+                required:  true
+                description: here list of all files
+                items:
+                  type: string
+                  description: this is one file aws key
+              files:
+                type: array
+                required:  true
+                description: here list of all files
+                items:
+                  type: file
+                  description: this is one file                  
+      responses:
+        "200":
+          description: OK
 
 

@@ -360,8 +360,8 @@ exports.postWithDeleted = async (req, res) => {
     if (post && post.postType === "Poll" && post.poll_query !== "") {
       await Poll.findByIdAndDelete(post.poll_query?._id);
       user.poll_Count -= 1;
-      post.poll_query = "";
-      await post.save();
+      // post.poll_query = "";
+      // await post.save();
     }
     await Post.findByIdAndDelete({ _id: pid });
     await user.save();

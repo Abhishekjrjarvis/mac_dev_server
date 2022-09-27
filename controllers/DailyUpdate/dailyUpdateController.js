@@ -1,7 +1,9 @@
 const Subject = require("../../models/Subject");
 const SubjectUpdate = require("../../models/SubjectUpdate");
-const { uploadPostImageFile, deleteFile } = require("../../S3Configuration");
-
+const { uploadDocFile, deleteFile } = require("../../S3Configuration");
+const fs = require("fs");
+const util = require("util");
+const unlinkFile = util.promisify(fs.unlink);
 exports.getAlldailyUpdate = async (req, res) => {
   try {
     if (!req.params.sid) throw "Please send subject id to perform task";
@@ -23,9 +25,10 @@ exports.getAlldailyUpdate = async (req, res) => {
       dailyUpdate: subject?.dailyUpdate,
     });
   } catch (e) {
-    res.status(200).send({
-      message: e,
-    });
+    console.log(e);
+    // res.status(202).send({
+    //   message: e,
+    // });
   }
 };
 
@@ -35,7 +38,6 @@ exports.createDailyUpdate = async (req, res) => {
     const subject = await Subject.findById(req.params.sid);
     const dailyUpdate = new SubjectUpdate({
       subject: req.params.sid,
-      updateDate: req.body?.updateDate,
       updateDescription: req.body?.updateDescription,
     });
 
@@ -69,6 +71,7 @@ exports.createDailyUpdate = async (req, res) => {
       dailyUpdate,
     });
   } catch (e) {
+    // console.log(e);
     res.status(200).send({
       message: e,
     });

@@ -5,10 +5,6 @@ const subjectUpdateSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Subject",
   },
-  updateDate: {
-    type: Date,
-    required: true,
-  },
   updateDescription: {
     type: String,
     required: true,

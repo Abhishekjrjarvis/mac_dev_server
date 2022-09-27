@@ -35,7 +35,6 @@ exports.createDailyUpdate = async (req, res) => {
     const subject = await Subject.findById(req.params.sid);
     const dailyUpdate = new SubjectUpdate({
       subject: req.params.sid,
-      updateDate: req.body?.updateDate,
       updateDescription: req.body?.updateDescription,
     });
 

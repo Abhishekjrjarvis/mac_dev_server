@@ -6,14 +6,17 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
-const compression = require('compression')
+const compression = require("compression");
 const MongoStore = require("connect-mongo");
 const loggers = require("./Utilities/Logs/resLogs");
 const mongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
 
 //======================== All Routes ========================
-const { check_poll_status, payment_modal_initiated } = require("./Service/AutoRefreshBackend");
+const {
+  check_poll_status,
+  payment_modal_initiated,
+} = require("./Service/AutoRefreshBackend");
 const uploadRoute = require("./routes/UploadContent/index");
 const elearningRoute = require("./routes/Elearning/index");
 const libraryRoute = require("./routes/Library/libraryRoute");
@@ -50,6 +53,8 @@ const staffMemberRoute = require("./routes/Edit/staffMemberRoute");
 const studentMemberRoute = require("./routes/Edit/studentMemberRoute");
 const userMemberRoute = require("./routes/Edit/userMemberRoute");
 const filterNew = require("./routes/Filterization/filterRoute");
+const dailyUpdateRoute = require("./routes/dailyUpdate/dailyUpdateRoute");
+
 // ============================= DB Configuration ==============================
 
 const dburl = `${process.env.DB_URL2}`; // Development
@@ -70,11 +75,12 @@ mongoose
     console.log("Something Went Wrong...", e);
   });
 
-
 app.use(mongoSanitize());
 // app.use(helmet({ contentSecurityPolicy: false }));
-app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false}));
-app.use(compression())
+app.use(
+  helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false })
+);
+app.use(compression());
 
 const swaggerUI = require("swagger-ui-express");
 const YAML = require("yamljs");
@@ -169,6 +175,7 @@ app.use("/api/v1/edit/institute", instituteMemberRoute);
 app.use("/api/v1/edit/staff", staffMemberRoute);
 app.use("/api/v1/edit/student", studentMemberRoute);
 app.use("/api/v1/edit/user", userMemberRoute);
+app.use("/api/v1/dailyupdate", dailyUpdateRoute);
 // ============================================================================
 
 setInterval(async () => {
@@ -177,7 +184,7 @@ setInterval(async () => {
 
 setInterval(async () => {
   await payment_modal_initiated();
-}, 30000)
+}, 30000);
 
 app.get("*", (req, res) => {
   res.status(404).send("Page Not Found...");

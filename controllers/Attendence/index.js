@@ -222,8 +222,8 @@ exports.markAttendenceClassStudentUpdate = async (req, res) => {
           ) {
             studentAttendance.presentStudent?.push(req.body.present[i]);
             studentAttendance.absentStudent?.pull(req.body.present[i]);
-            studentAttendance.presentTotal = ++studentAttendance.presentTotal;
-            studentAttendance.absentTotal = --studentAttendance.absentTotal;
+            studentAttendance.presentTotal += 1;
+            studentAttendance.absentTotal -= 1;
             // const student=await Student.findById(req.body.present[i])
             // const notify = new StudentNotification({});
             // notify.notifyContent = `Today is present`;
@@ -242,8 +242,8 @@ exports.markAttendenceClassStudentUpdate = async (req, res) => {
           ) {
             studentAttendance.absentStudent?.push(req.body.absent[i]);
             studentAttendance.presentStudent?.pull(req.body.absent[i]);
-            studentAttendance.presentTotal = --studentAttendance.presentTotal;
-            studentAttendance.absentTotal = ++studentAttendance.absentTotal;
+            studentAttendance.presentTotal -= 1;
+            studentAttendance.absentTotal += 1;
             // const student=await Student.findById(req.body.absent[i])
             // const notify = new StudentNotification({});
             // notify.notifyContent = `Today is absent`;
@@ -645,12 +645,14 @@ exports.getAttendStaffById = async (req, res) => {
 exports.getAttendStaffByIdForMonth = async (req, res) => {
   try {
     const month = req.query.month;
+    const year = req.query.year;
     let absentCount = 0;
+    let leaveCount = 0;
     let regularexp = "";
     if (month) regularexp = new RegExp(`\/${month}\/${year}$`);
 
     const staff = await Staff.findById(req.params.sid)
-      .select("_id attendDates")
+      .select("_id attendDates staffLeave")
       .populate({
         path: "attendDates",
         match: {
@@ -659,26 +661,32 @@ exports.getAttendStaffByIdForMonth = async (req, res) => {
 
         select: "staffAttendDate absentStaff",
       })
+      .populate({
+        path: "staffLeave",
+        match: {
+          date: { $regex: regularexp },
+          status: { $eq: "Accepted" },
+        },
+        select: "date",
+      })
       .lean()
       .exec();
-    // .populate({
-    //   path: "staffLeave",
-    //   match: {
-    //     date: { $regex: regularexp },
-    //     status: { $eq: "Accepted" },
-    //   },
-    //   select: "date",
-    // });
 
     if (staff) {
       if (staff.attendDates) {
-        staff.attendDates.forEach((day) => {
+        staff.attendDates?.forEach((day) => {
           if (day.absentStaff?.includes(req.params.sid)) absentCount += 1;
+        });
+      }
+      if (staff.staffLeave) {
+        staff?.staffLeave?.forEach((leave) => {
+          leaveCount = leaveCount + leave?.date?.length;
         });
       }
       res.status(200).send({
         message: "Success",
         absentCount,
+        leaveCount,
       });
     } else {
       res.status(404).send({ message: "Failure" });

@@ -1,4 +1,4 @@
-const mongoose = require(mongoose);
+const mongoose = require("mongoose");
 
 const subjectUpdateSchema = new mongoose.Schema({
   subject: {
@@ -13,7 +13,25 @@ const subjectUpdateSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  upadateImage: [],
+  upadateImage: [
+    {
+      documentType: {
+        type: String,
+      },
+      documentName: {
+        type: String,
+      },
+      documentSize: {
+        type: String,
+      },
+      documentKey: {
+        type: String,
+      },
+      documentEncoding: {
+        type: String,
+      },
+    },
+  ],
   createdAt: {
     type: Date,
     default: Date.now,

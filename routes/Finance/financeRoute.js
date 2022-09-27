@@ -105,6 +105,10 @@ router.get('/:eid/one/emp/detail', catchAsync(Finance.retrieveOneEmpQuery))
 
 router.get('/:fid/remaining/fee/list', catchAsync(Finance.retrieveRemainFeeList))
 
-router.get('/:fid/gateway/charges', catchAsync(Finance.retrievePaymentChargesQuery))
+router.get('/:iid/income/detail', catchAsync(Finance.retrieveOneIncomeQuery))
+
+router.get('/:eid/expense/detail', catchAsync(Finance.retrieveOneExpenseQuery))
+
+// router.get('/:fid/gateway/charges', catchAsync(Finance.retrievePaymentChargesQuery))
 
 module.exports = router

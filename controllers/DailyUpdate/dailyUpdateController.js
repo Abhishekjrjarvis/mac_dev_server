@@ -1,5 +1,5 @@
-const Subject = require("../../../models/Subject");
-const SubjectUpdate = require("../../../models/SubjectUpdate");
+const Subject = require("../../models/Subject");
+const SubjectUpdate = require("../../models/SubjectUpdate");
 const { uploadPostImageFile, deleteFile } = require("../../S3Configuration");
 
 exports.getAlldailyUpdate = async (req, res) => {
@@ -38,10 +38,28 @@ exports.createDailyUpdate = async (req, res) => {
       updateDate: req.body?.updateDate,
       updateDescription: req.body?.updateDescription,
     });
+
     if (req?.files) {
+      // for (let file of req?.files) {
+      //   const results = await uploadPostImageFile(file);
+      //   dailyUpdate?.upadateImage?.push(results.Key);
+      // }
       for (let file of req?.files) {
-        const results = await uploadPostImageFile(file);
-        dailyUpdate?.upadateImage?.push(results.Key);
+        const obj = {
+          documentType: "",
+          documentName: "",
+          documentSize: "",
+          documentKey: "",
+          documentEncoding: "",
+        };
+        obj.documentType = file.mimetype;
+        obj.documentName = file.originalname;
+        obj.documentEncoding = file.encoding;
+        obj.documentSize = file.size;
+        const results = await uploadDocFile(file);
+        obj.documentKey = results.Key;
+        dailyUpdate?.upadateImage.push(obj);
+        await unlinkFile(file.path);
       }
     }
     subject.dailyUpdate?.push(dailyUpdate._id);
@@ -59,8 +77,8 @@ exports.createDailyUpdate = async (req, res) => {
 
 exports.editDailyUpdate = async (req, res) => {
   try {
-    if (!req.params.uid) throw "Please send daily update id to perform task";
-    const dailyUpdate = await SubjectUpdate.findById(req.params.uid);
+    if (!req.params.sid) throw "Please send daily update id to perform task";
+    const dailyUpdate = await SubjectUpdate.findById(req.params.sid);
     if (req.body?.updateDescription) {
       dailyUpdate.updateDescription = req.body?.updateDescription;
     }

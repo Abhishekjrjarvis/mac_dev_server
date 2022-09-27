@@ -237,7 +237,7 @@ exports.getIncome = async(req, res) =>{
          incomes.save()
         ])
         await unlinkFile(file.path);
-        res.status(200).send({ message: "Add New Income", finance: finance._id, incomes: incomes._id });
+        res.status(200).send({ message: "Add New Income", finance: finance._id, incomes: incomes._id, status: true });
       } catch(e) {
       }
 }
@@ -284,7 +284,7 @@ exports.getExpense = async(req, res) =>{
           expenses.save()
           ])
           await unlinkFile(file.path);
-          res.status(200).send({ message: "Add New Expense", finance: finance._id, expenses: expenses._id });
+          res.status(200).send({ message: "Add New Expense", finance: finance._id, expenses: expenses._id, status: true });
         }
         else{
           res.status(200).send({ message: 'Expense Not Permitted'})
@@ -829,6 +829,7 @@ exports.addFieldToPayroll = async(req, res) =>{
         total_leaves: emp.staff_total_paid_leaves,
         paid_leaves: paid_leaves,
         payment_mode: payment_mode,
+        purpose: "Monthly Salary",
         amount: amount,
         paid_to: paid_to,
         message: message,
@@ -864,9 +865,19 @@ exports.addFieldToPayroll = async(req, res) =>{
         pay_mode: payment_mode,
         emp_pay: emp._id
       })
-      if(net_total < finance.financeSubmitBalance && payment_mode === 'By Cash'){
+      if(payment_mode === 'By Cash'){
         finance.financeTotalBalance -= net_total
-        finance.financeSubmitBalance -= net_total
+        if(net_total < finance.financeSubmitBalance && net_total < finance.financeIncomeCashBalance){
+          finance.financeIncomeCashBalance -= net_total
+        }
+        else if(net_total < finance.financeSubmitBalance && net_total > finance.financeIncomeCashBalance){
+          finance.financeSubmitBalance -= net_total
+        }
+        else if(net_total > finance.financeSubmitBalance && net_total < finance.financeIncomeCashBalance){
+          finance.financeIncomeCashBalance -= net_total
+        }
+        else{}
+        // finance.financeSubmitBalance -= net_total
         await Promise.all([ emp.save(), finance.save(), staff.save() ])
         res.status(200).send({ message: 'pay & generate payroll', payroll: emp})
       }
@@ -979,6 +990,10 @@ exports.retrieveRemainFeeList = async(req, res) => {
       path: 'department',
       select: 'dName'
     })
+    .populate({
+      path: 'studentClass',
+      select: 'className classTitle'
+    })
     res.status(200).send({ message: 'Remaining Fee List', list: student})
   }
   catch(e){
@@ -987,21 +1002,43 @@ exports.retrieveRemainFeeList = async(req, res) => {
 }
 
 
-
-exports.retrievePaymentChargesQuery = async(req, res) => {
+exports.retrieveOneIncomeQuery = async(req, res) => {
   try{
-    const { fid } = req.params
-    const finance = await Finance.findById({_id: fid})
-    .select('id payment_gateway_charges')
-    .lean()
-    if(finance?.payment_gateway_charges?.length >= 1){
-      res.status(200).send({ message: 'charges', charges: finance})
-    }
-    else{
-      res.status(200).send({ message: 'charges', charges: [] })
-    }
+    const { iid } = req.params
+    const i_detail = await Income.findById({_id: iid})
+    res.status(200).send({ message: 'One Income Detail', oneIncome: i_detail})
   }
-  catch(e){
-    console.log(e)
+  catch{
+
   }
 }
+
+exports.retrieveOneExpenseQuery = async(req, res) => {
+  try{
+    const { eid } = req.params
+    const e_detail = await Expense.findById({_id: eid})
+    res.status(200).send({ message: 'One Expense Detail', oneExpense: e_detail})
+  }
+  catch{
+
+  }
+}
+
+
+// exports.retrievePaymentChargesQuery = async(req, res) => {
+//   try{
+//     const { fid } = req.params
+//     const finance = await Finance.findById({_id: fid})
+//     .select('id payment_gateway_charges')
+//     .lean()
+//     if(finance?.payment_gateway_charges?.length >= 1){
+//       res.status(200).send({ message: 'charges', charges: finance})
+//     }
+//     else{
+//       res.status(200).send({ message: 'charges', charges: [] })
+//     }
+//   }
+//   catch(e){
+//     console.log(e)
+//   }
+// }

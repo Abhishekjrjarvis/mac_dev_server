@@ -20,7 +20,7 @@ const payrollSchema = new mongoose.Schema({
           total_leaves: { type: Number, default: 0},
           paid_leaves: { type: Number, default: 0},
           payment_mode: { type: String },
-          purpose: { type: String, default: 'Monthly Salary' },
+          purpose: { type: String },
           amount: { type: Number, default: 0},
           paid_to: { type: String },
           message: { type: String },

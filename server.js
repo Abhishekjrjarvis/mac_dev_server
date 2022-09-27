@@ -51,6 +51,7 @@ const studentMemberRoute = require("./routes/Edit/studentMemberRoute");
 const userMemberRoute = require("./routes/Edit/userMemberRoute");
 const filterNew = require("./routes/Filterization/filterRoute");
 const dailyUpdateRoute = require("./routes/dailyUpdate/dailyUpdateRoute");
+const prod = require('./routes/ProdAPI/prodRoute')
 // ============================= DB Configuration ==============================
 
 const dburl = `${process.env.DB_URL2}`; // Development
@@ -172,6 +173,7 @@ app.use("/api/v1/edit/student", studentMemberRoute);
 app.use("/api/v1/edit/user", userMemberRoute);
 app.use("/api/v1/admission", admissionNew)
 app.use("/api/v1/dailyupdate", dailyUpdateRoute);
+app.use("/api/v1/prod/access", prod)
 // ============================================================================
 
 // setInterval(async () => {

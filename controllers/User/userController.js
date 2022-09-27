@@ -1381,6 +1381,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
 exports.retrieveStudentDesignationArray = async (req, res) => {
   try {
     const { sid } = req.params;
+    if(sid !== ''){
     const student = await Student.findById({ _id: sid })
       .select(
         "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentReligion studentMotherName studentDOB studentNationality studentMTongue studentCast studentCastCategory studentBirthPlace studentState studentDistrict studentAddress studentPhoneNumber studentParentsName studentParentsPhoneNumber studentAadharCard studentAadharNumber studentDocuments studentGRNO studentStatus studentROLLNO"
@@ -1436,6 +1437,10 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
     // .populate("complaints");
     // .populate('studentAttendence')
     res.status(200).send({ message: "Student Designation Data", student });
+    }
+    else {
+      res.status(200).send({ message: 'Need a valid Key Id'})
+    }
   } catch {}
 };
 
@@ -1631,7 +1636,7 @@ exports.retrieveStaffSalaryHistory = async(req, res) =>{
         }
       }
     })
-    res.status(200).send({ message: 'All Salary History ', salary: staff.salary_history})
+    res.status(200).send({ message: 'All Salary History ', salary: staff?.salary_history})
   }
   catch(e){
     console.log(e)

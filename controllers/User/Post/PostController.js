@@ -349,20 +349,57 @@ exports.postWithVsibilityUpdate = async (req, res) => {
 exports.postWithDeleted = async (req, res) => {
   try {
     const { id, pid } = req.params;
-    const user = await User.findById({ _id: id });
-    const post = await Post.findById({ _id: pid });
+    const user = await User.findById({ _id: id }).select('postCount poll_Count')
+    const post = await Post.findById({ _id: pid })
+    .select('postType')
+    .populate({ path: 'poll_query', select: 'id'})
     await User.findByIdAndUpdate(id, { $pull: { userPosts: pid } });
     await User.findByIdAndUpdate(id, { $pull: { user_saved_post: pid } });
+    await User.findByIdAndUpdate(id, { $pull: { tag_post: pid } });
     user.postCount -= 1;
     if (post && post.postType === "Poll" && post.poll_query !== "") {
-      post.poll_query = "";
-      await Poll.findByIdAndDelete(`${post.poll_query}`);
+      await Poll.findByIdAndDelete(post.poll_query?._id);
       user.poll_Count -= 1;
+      post.poll_query = "";
       await post.save();
     }
     await Post.findByIdAndDelete({ _id: pid });
     await user.save();
-    res.status(200).send({ message: "post deleted" });
+    res.status(200).send({ message: "Deleted Operation Completed" });
+    //
+    const deleted_user_post = await User.findById({_id: user?._id})
+    .select('id')
+    .populate({ path: 'userFollowers', select: 'userPosts user_saved_post tag_post'})
+    .populate({ path: 'userCircle', select: 'userPosts user_saved_post tag_post'})
+    deleted_user_post?.userFollowers?.forEach(async (del_user) => {
+      if(del_user?.userPosts?.includes(`${post?._id}`)){
+        del_user?.userPosts?.pull(post._id)
+        await del_user.save()
+      }
+      if(del_user?.user_saved_post?.includes(`${post?._id}`)){
+        del_user?.user_saved_post?.pull(post._id)
+        await del_user.save()
+      }
+      if(del_user?.tag_post?.includes(`${post?._id}`)){
+        del_user?.tag_post?.pull(post._id)
+        await del_user.save()
+      }
+    })
+    deleted_user_post?.userCircle?.forEach(async (del_user) => {
+      if(del_user?.userPosts?.includes(`${post?._id}`)){
+        del_user?.userPosts?.pull(post._id)
+        await del_user.save()
+      }
+      if(del_user?.user_saved_post?.includes(`${post?._id}`)){
+        del_user?.user_saved_post?.pull(post._id)
+        await del_user.save()
+      }
+      if(del_user?.tag_post?.includes(`${post?._id}`)){
+        del_user?.tag_post?.pull(post._id)
+        await del_user.save()
+      }
+    })
+    //
   } catch (e) {
     console.log(e);
   }

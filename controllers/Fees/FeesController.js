@@ -378,7 +378,11 @@ exports.retrieveStudentQuery = async(req, res) => {
     .select('id onlineFeeList offlineFeeList exemptFeeList onlineCheckList offlineCheckList studentRemainingFeeCount studentPaidFeeCount')
     .populate({
       path: 'institute',
-      select: 'insName'
+      select: 'insName',
+      populate: {
+        path: 'financeDepart',
+        select: 'id'
+      }
     })
     .populate({
       path: 'department',

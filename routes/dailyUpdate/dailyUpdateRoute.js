@@ -16,3 +16,4 @@ router
   .patch(catchAsync(dailyUpdateController.editDailyUpdate));
 
 module.exports = router;
+

@@ -17,7 +17,7 @@ const Finance = require("../../models/Finance");
 const bcrypt = require("bcryptjs");
 // const Library = require("../../models/Library/Library");
 const Subject = require("../../models/Subject");
-const StudentNotification = require("../../models/Marks/StudentNotification")
+const StudentNotification = require("../../models/Marks/StudentNotification");
 const Class = require("../../models/Class");
 const Leave = require("../../models/Leave");
 const ClassMaster = require("../../models/ClassMaster");
@@ -277,7 +277,9 @@ exports.getUpdatePersonalIns = async (req, res) => {
       com.authorOneLine = institute.one_line_about;
       await com.save();
     });
-    const replyComment = await ReplyComment.find({ author: `${institute._id}` });
+    const replyComment = await ReplyComment.find({
+      author: `${institute._id}`,
+    });
     replyComment.forEach(async (reply) => {
       reply.authorOneLine = institute.one_line_about;
       await reply.save();
@@ -801,7 +803,9 @@ exports.fillStaffForm = async (req, res) => {
       notify.save(),
       aStatus.save(),
     ]);
-    res.status(201).send({ message: "Staff form is applied", staff, status: true });
+    res
+      .status(201)
+      .send({ message: "Staff form is applied", staff, status: true });
   } catch (e) {
     console.log(e);
   }
@@ -884,7 +888,9 @@ exports.fillStudentForm = async (req, res) => {
       aStatus.save(),
       classUser.save(),
     ]);
-    res.status(201).send({ message: "student form is applied", student, status: true });
+    res
+      .status(201)
+      .send({ message: "student form is applied", student, status: true });
   } catch (e) {
     console.log(e);
   }
@@ -2100,8 +2106,8 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
   var p_date = date.getDate();
   var p_month = date.getMonth() + 1;
   var p_year = date.getFullYear();
-  if(p_date < 10){
-    p_date = `0${p_date}`
+  if (p_date < 10) {
+    p_date = `0${p_date}`;
   }
   if (p_month <= 10) {
     p_month = `0${p_month}`;
@@ -2258,7 +2264,7 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
       .populate({
         path: "ApproveStudent",
         select:
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour",
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus",
         populate: {
           path: "user",
           select: "userLegalName username",
@@ -2434,7 +2440,6 @@ exports.getProfileOneQueryUsername = async (req, res) => {
   } catch {}
 };
 
-
 exports.deactivateInstituteAccount = async (req, res) => {
   try {
     const { id } = req.params;
@@ -2445,7 +2450,10 @@ exports.deactivateInstituteAccount = async (req, res) => {
       institute.activeStatus = status;
       institute.activeDate = ddate;
       await institute.save();
-      res.status(200).send({ message: "Deactivated Account", status: institute.activeStatus });
+      res.status(200).send({
+        message: "Deactivated Account",
+        status: institute.activeStatus,
+      });
     } else {
       res.status(404).send({ message: "Bad Request" });
     }
@@ -2489,3 +2497,4 @@ exports.retrieveMergeStaffStudent = async(req, res) =>{
     console.log(e)
   }
 }
+

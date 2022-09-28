@@ -22,7 +22,7 @@ exports.getClassMaster = async (req, res) => {
       .populate({
         path: "classDivision",
         match: { batch: { $eq: `${req.params.bid}` } },
-        select: "_id",
+        select: "_id classTitle",
       })
       .lean()
       .exec();
@@ -176,9 +176,9 @@ exports.createExam = async (req, res) => {
               notify.notifyContent = `New ${exam.examName} Exam is created for ${sub.subjectName} , check your members tab`;
               notify.notifySender = department._id;
               notify.notifyReceiever = user._id;
-              notify.examId = exam._id
-              notify.notifyType = 'Student'
-              notify.notifyPublisher = student._id
+              notify.examId = exam._id;
+              notify.notifyType = "Student";
+              notify.notifyPublisher = student._id;
               user.activity_tab.push(notify._id);
               student.notification.push(notify._id);
               notify.notifyByDepartPhoto = department._id;
@@ -186,10 +186,10 @@ exports.createExam = async (req, res) => {
               invokeMemberTabNotification(
                 "Student Activity",
                 notify,
-                'New Exam',
+                "New Exam",
                 user._id,
                 user.deviceToken,
-                'Student',
+                "Student",
                 notify
               );
               //
@@ -697,7 +697,7 @@ exports.oneStudentReportCardFinalize = async (req, res) => {
     await Promise.all([finalize.save(), student.save()]);
     res.status(201).send({ message: "Finalize successfully" });
   } catch (e) {
-    res.status(424).send({ message: e });
+    res.status(200).send({ message: e });
   }
 };
 

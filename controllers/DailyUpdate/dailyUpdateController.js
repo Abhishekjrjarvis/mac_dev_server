@@ -4,12 +4,14 @@ const { uploadDocFile, deleteFile } = require("../../S3Configuration");
 const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
+const { customMergeSort } = require("../../Utilities/Sort/custom_sort");
 exports.getAlldailyUpdate = async (req, res) => {
   try {
     if (!req.params.sid) throw "Please send subject id to perform task";
     const getPage = req.query.page ? parseInt(req.query.page) : 1;
     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
     const dropItem = (getPage - 1) * itemPerPage;
+    // const options = { sort: [["dailyUpdate.createdAt", "des"]] };
     const subject = await Subject.findById(req.params.sid)
       .populate({
         path: "dailyUpdate",
@@ -22,13 +24,13 @@ exports.getAlldailyUpdate = async (req, res) => {
       .exec();
     res.status(200).send({
       message: "all daily subject update list",
-      dailyUpdate: subject?.dailyUpdate,
+      dailyUpdate: customMergeSort(subject?.dailyUpdate),
     });
   } catch (e) {
     console.log(e);
-    // res.status(202).send({
-    //   message: e,
-    // });
+    res.status(200).send({
+      message: e,
+    });
   }
 };
 

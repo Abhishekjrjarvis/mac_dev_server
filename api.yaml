@@ -11868,7 +11868,7 @@ paths:
                 items:
                   type: string
                   description: this is the test set id
-              files:
+              file:
                 type: array
                 description: here list of all files
                 items:
@@ -12044,7 +12044,7 @@ paths:
               testSet:
                 type: string
                 description: It is the testset id
-              files:
+              file:
                 type: array
                 description: here list of all files
                 items:
@@ -12934,7 +12934,110 @@ paths:
 
 
 
-
+# fot the daily subject side update
+  /api/v1/dailyupdate/subject/{sid}:
+    get:
+      tags:
+        - Daily Update Related ALL Api (Subject Teacher)
+      summary: It is give all daily updates in Subject Teacher side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular subject id    
+        - in: query
+          name: page
+          type: integer
+          description: pass the page number
+        - in: query
+          name: limit
+          type: integer
+          description: pass the limit one time how many item you want             
+      responses:
+        "200":
+          description: OK
+    post:
+      tags:
+        - Daily Update Related ALL Api (Subject Teacher)
+      summary: It is Cretae daily update by the Subject teacher side for the students
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular subject id      
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              updateDate:
+                type: string
+                required:  true
+                description: here type the daily update date
+              updateDescription:
+                type: string
+                required:  true
+                description: here give the daily update updateDescription
+              file:
+                type: array
+                required:  true
+                description: here list of all files
+                items:
+                  type: file
+                  description: this is one file
+      responses:
+        "200":
+          description: OK
+    patch:
+      tags:
+        - Daily Update Related ALL Api (Subject Teacher)
+      summary: It is Cretae daily update by the Subject teacher side for the students
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular daily update id      
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              updateDescription:
+                type: string
+                required:  true
+                description: here give the daily update updateDescription
+              deleteImage:
+                type: array
+                required:  true
+                description: here list of all files
+                items:
+                  type: string
+                  description: this is one file aws key
+              file:
+                type: array
+                required:  true
+                description: here list of all files
+                items:
+                  type: file
+                  description: this is one file                  
+      responses:
+        "200":
+          description: OK
 
 
 # fot the daily subject side update

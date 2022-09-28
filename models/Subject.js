@@ -45,7 +45,7 @@ const subjectSchema = new mongoose.Schema({
   dailyUpdate: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "SubjectTeacherUpdate",
+      ref: "SubjectUpdate",
     },
   ],
 });

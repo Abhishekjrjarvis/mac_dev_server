@@ -1,13 +1,17 @@
 const Subject = require("../../models/Subject");
 const SubjectUpdate = require("../../models/SubjectUpdate");
-const { uploadPostImageFile, deleteFile } = require("../../S3Configuration");
-
+const { uploadDocFile, deleteFile } = require("../../S3Configuration");
+const fs = require("fs");
+const util = require("util");
+const unlinkFile = util.promisify(fs.unlink);
+const { customMergeSort } = require("../../Utilities/Sort/custom_sort");
 exports.getAlldailyUpdate = async (req, res) => {
   try {
     if (!req.params.sid) throw "Please send subject id to perform task";
     const getPage = req.query.page ? parseInt(req.query.page) : 1;
     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
     const dropItem = (getPage - 1) * itemPerPage;
+    // const options = { sort: [["dailyUpdate.createdAt", "des"]] };
     const subject = await Subject.findById(req.params.sid)
       .populate({
         path: "dailyUpdate",
@@ -20,9 +24,10 @@ exports.getAlldailyUpdate = async (req, res) => {
       .exec();
     res.status(200).send({
       message: "all daily subject update list",
-      dailyUpdate: subject?.dailyUpdate,
+      dailyUpdate: customMergeSort(subject?.dailyUpdate),
     });
   } catch (e) {
+    console.log(e);
     res.status(200).send({
       message: e,
     });
@@ -35,7 +40,6 @@ exports.createDailyUpdate = async (req, res) => {
     const subject = await Subject.findById(req.params.sid);
     const dailyUpdate = new SubjectUpdate({
       subject: req.params.sid,
-      updateDate: req.body?.updateDate,
       updateDescription: req.body?.updateDescription,
     });
 
@@ -69,6 +73,7 @@ exports.createDailyUpdate = async (req, res) => {
       dailyUpdate,
     });
   } catch (e) {
+    // console.log(e);
     res.status(200).send({
       message: e,
     });

@@ -14,6 +14,7 @@ const Complaint = require("../../models/Complaint");
 const Transfer = require("../../models/Transfer");
 const DisplayPerson = require("../../models/DisplayPerson");
 const Finance = require("../../models/Finance");
+const bcrypt = require("bcryptjs");
 // const Library = require("../../models/Library/Library");
 const Subject = require("../../models/Subject");
 const StudentNotification = require("../../models/Marks/StudentNotification");
@@ -44,7 +45,7 @@ exports.getDashOneQuery = async (req, res) => {
   try {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id }).select(
-      "insName name insAbout photoId staff_privacy modal_activate email_privacy followers_critiria initial_Unlock_Amount contact_privacy followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart unlockAmount accessFeature activateStatus"
+      "insName name insAbout photoId blockStatus staff_privacy modal_activate email_privacy followers_critiria initial_Unlock_Amount contact_privacy followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart unlockAmount accessFeature activateStatus"
     );
     const encrypt = await encryptionPayload(institute);
     res.status(200).send({
@@ -60,7 +61,7 @@ exports.getProfileOneQuery = async (req, res) => {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName status photoId insProfilePhoto one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement "
+        "insName status photoId insProfilePhoto blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement "
       )
       .lean()
       .exec();
@@ -262,9 +263,10 @@ exports.getUpdatePhone = async (req, res) => {
 exports.getUpdatePersonalIns = async (req, res) => {
   try {
     const { id } = req.params;
-    var institute = await InstituteAdmin.findByIdAndUpdate(id, req.body);
+    await InstituteAdmin.findByIdAndUpdate(id, req.body);
     // await institute.save();
     res.status(200).send({ message: "Personal Info Updated" });
+    var institute = await InstituteAdmin.findById({_id: id})
     const post = await Post.find({ author: `${institute._id}` });
     post.forEach(async (ele) => {
       ele.authorOneLine = institute.one_line_about;
@@ -282,7 +284,9 @@ exports.getUpdatePersonalIns = async (req, res) => {
       reply.authorOneLine = institute.one_line_about;
       await reply.save();
     });
-  } catch {}
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 exports.getUpdateAnnouncement = async (req, res) => {
@@ -395,8 +399,12 @@ exports.removeFollowIns = async (req, res) => {
       if (institutes.following.includes(req.body.followId)) {
         sinstitute.followers.pull(institute_session);
         institutes.following.pull(req.body.followId);
-        institutes.followingCount -= 1;
-        sinstitute.followersCount -= 1;
+        if(institutes.followingCount >=1){
+          institutes.followingCount -= 1;
+        }
+        if(sinstitute.followersCount >= 1){
+          sinstitute.followersCount -= 1;
+        }
         await Promise.all([sinstitute.save(), institutes.save()]);
         res.status(200).send({ message: "UnFollow This Institute" });
         if (sinstitute.isUniversal === "Not Assigned") {
@@ -538,8 +546,8 @@ exports.getNewDepartment = async (req, res) => {
     });
     const user = await User.findById({ _id: `${staff.user._id}` });
     const institute = await InstituteAdmin.findById({ _id: id });
-    const department = await new Department({ ...req.body });
-    const notify = await new Notification({});
+    const department = new Department({ ...req.body });
+    const notify = new Notification({});
     institute.depart.push(department._id);
     institute.departmentCount += 1;
     department.institute = institute._id;
@@ -548,6 +556,10 @@ exports.getNewDepartment = async (req, res) => {
     staff.recentDesignation = req.body.dTitle;
     department.dHead = staff._id;
     department.staffCount += 1;
+    user.departmentChat.push({
+      isDepartmentHead: 'Yes',
+      department: department._id
+    })
     if (
       department.departmentChatGroup.length >= 1 &&
       department.departmentChatGroup.includes(`${staff._id}`)
@@ -1164,9 +1176,9 @@ exports.retrieveNewClass = async (req, res) => {
     if (institute.classCodeList.includes(`${result}`)) {
       // res.status(404).send({ message: 'Something wrong with autogenerated code'})
     } else {
-      const notify = await new Notification({});
+      const notify = new Notification({});
       const date = await todayDate();
-      const classRoom = await new Class({
+      const classRoom = new Class({
         masterClassName: mcId,
         className: mCName,
         classTitle: classTitle,
@@ -1198,6 +1210,10 @@ exports.retrieveNewClass = async (req, res) => {
       classRoom.classTeacher = staff._id;
       depart.class.push(classRoom._id);
       depart.classCount += 1;
+      user.classChat.push({
+        isClassTeacher: 'Yes',
+        classes: classRoom._id
+      })
       classRoom.department = depart._id;
       notify.notifyContent = `you got the designation of ${classRoom.className} as Class Teacher`;
       notify.notifySender = id;
@@ -1277,8 +1293,10 @@ exports.retrieveNewSubject = async (req, res) => {
     staff.staffSubject.push(subject._id);
     staff.staffDesignationCount += 1;
     staff.recentDesignation = subjectTitle;
-    user.isSubjectTeacher = "Yes";
-    user.isSubjectChat.push(subject._id);
+    user.subjectChat.push({
+      isSubjectTeacher: 'Yes',
+      subjects: subject._id
+    })
     subject.subjectTeacherName = staff._id;
     notify.notifyContent = `you got the designation of ${subject.subjectName} as Subject Teacher`;
     notify.notifySender = id;
@@ -1505,7 +1523,7 @@ exports.retrieveNewBatch = async (req, res) => {
     const { did, id } = req.params;
     const department = await Department.findById({ _id: did });
     const institute = await InstituteAdmin.findById({ _id: id });
-    const batch = await new Batch({ ...req.body });
+    const batch = new Batch({ ...req.body });
     department.batches.push(batch);
     department.batchCount += 1;
     batch.department = department;
@@ -1521,7 +1539,7 @@ exports.retrieveNewClassMaster = async (req, res) => {
     const { className } = req.body;
     const institute = await InstituteAdmin.findById({ _id: id });
     const department = await Department.findById({ _id: did });
-    const classroomMaster = await new ClassMaster({
+    const classroomMaster = new ClassMaster({
       className: className,
       institute: institute._id,
       department: did,
@@ -1542,7 +1560,7 @@ exports.retrieveNewSubjectMaster = async (req, res) => {
     const { subjectName } = req.body;
     const institute = await InstituteAdmin.findById({ _id: id });
     const departmentData = await Department.findById({ _id: did });
-    const subjectMaster = await new SubjectMaster({
+    const subjectMaster = new SubjectMaster({
       subjectName: subjectName,
       institute: institute._id,
       department: did,
@@ -1982,14 +2000,14 @@ exports.retrieveInsFollowersArray = async (req, res) => {
     const followers = await InstituteAdmin.find({
       _id: { $in: institute.followers },
     })
-      .select("insName photoId insProfilePhoto name")
+      .select("insName photoId insProfilePhoto name blockStatus")
       .limit(limit)
       .skip(skip);
 
     const uFollowers = await User.find({
       _id: { $in: institute.userFollowersList },
     })
-      .select("userLegalName photoId profilePhoto username")
+      .select("userLegalName photoId profilePhoto username blockStatus")
       .limit(limit)
       .skip(skip);
     res.status(200).send({
@@ -2032,7 +2050,7 @@ exports.retrieveInsFollowingArray = async (req, res) => {
     const following = await InstituteAdmin.find({
       _id: { $in: institute.following },
     })
-      .select("insName photoId insProfilePhoto name")
+      .select("insName photoId insProfilePhoto name blockStatus")
       .limit(limit)
       .skip(skip);
 
@@ -2269,6 +2287,10 @@ exports.retrieveDepartmentStaffArray = async (req, res) => {
         path: "departmentChatGroup",
         select:
           "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        populate: {
+          path: 'user',
+          select: 'username userLegalName photoId profilePhoto'
+        }
       });
     res.status(200).send({ message: "Department Staff List", department });
   } catch {}
@@ -2439,3 +2461,40 @@ exports.deactivateInstituteAccount = async (req, res) => {
     console.log(`Error`, e);
   }
 };
+
+exports.retrieveMergeStaffStudent = async(req, res) =>{
+  try{
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const { did } = req.params;
+    const skip = (page - 1) * limit;
+    const depart = await Department.findById({_id: did})
+    .select('id departmentChatGroup ApproveStudent')
+
+    const staff = await Staff.find({ _id: { $in: depart.departmentChatGroup }})
+    .limit(limit)
+    .skip(skip)
+    .select('staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO')
+    .populate({
+      path: 'user',
+      select: 'username userLegalName photoId profilePhoto'
+    })
+
+    const student = await Student.find({ _id: { $in: depart.ApproveStudent }})
+    .limit(limit)
+    .skip(skip)
+    .select('studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO')
+    .populate({
+      path: 'user',
+      select: 'username userLegalName photoId profilePhoto'
+    })
+
+    var mergeDepart = [...staff, ...student]
+
+    res.status(200).send({ message: 'Merge Staff and Student', merge: mergeDepart })
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+

@@ -3,6 +3,8 @@ const InstituteAdmin = require('../../models/InstituteAdmin')
 const Admin = require('../../models/superAdmin')
 const FeedBack = require('../../models/Feedbacks/Feedback')
 const Student = require('../../models/Student')
+const Staff = require('../../models/Staff')
+const { shuffleArray } = require('../../Utilities/Shuffle')
 
 exports.validateUserAge = async(req, res) =>{
     try{
@@ -64,7 +66,7 @@ exports.retrieveAgeRestrict = async(req, res) =>{
 exports.retrieveRandomInstituteQuery = async(req, res) => {
     try{
         const institute = await InstituteAdmin.find({status: 'Approved'})
-        .select('insName name photoId insProfilePhoto status')
+        .select('insName name photoId insProfilePhoto status blockStatus')
         var random = Math.floor(Math.random() * institute.length)
         var r_Ins = institute[random]
         res.status(200).send({ message: 'Random Institute', r_Ins})
@@ -273,3 +275,41 @@ exports.retrieveUserUpdateNotification = async(req, res) =>{
     console.log(e)
   }
 }
+
+exports.retrieveMergeStaffStudent = async(req, res) => {
+  try{
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { id } = req.params
+    const merge_ins = await InstituteAdmin.findById({_id: id})
+    .select('id ApproveStaff ApproveStudent')
+
+    const staff = await Staff.find({ _id: { $in: merge_ins.ApproveStaff }})
+    .sort('-createdAt')
+    .limit(limit)
+    .skip(skip)
+    .select('id')
+    .populate({
+      path: 'user',
+      select: 'userLegalName username photoId profilePhoto'
+    })
+
+    const student = await Student.find({ _id: { $in: merge_ins.ApproveStudent }})
+    .limit(limit)
+    .skip(skip)
+    .select('id')
+    .populate({
+      path: 'user',
+      select: 'userLegalName username photoId profilePhoto'
+    })
+
+    var mergeArray = [...staff, ...student]
+    var get_array = shuffleArray(mergeArray)
+    res.status(200).send({ message: 'Shuffle Staff Student Collection', get_array})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+

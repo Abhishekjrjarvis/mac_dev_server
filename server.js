@@ -54,6 +54,7 @@ const studentMemberRoute = require("./routes/Edit/studentMemberRoute");
 const userMemberRoute = require("./routes/Edit/userMemberRoute");
 const filterNew = require("./routes/Filterization/filterRoute");
 const dailyUpdateRoute = require("./routes/dailyUpdate/dailyUpdateRoute");
+const prod = require('./routes/ProdAPI/prodRoute')
 
 // ============================= DB Configuration ==============================
 
@@ -175,12 +176,15 @@ app.use("/api/v1/edit/institute", instituteMemberRoute);
 app.use("/api/v1/edit/staff", staffMemberRoute);
 app.use("/api/v1/edit/student", studentMemberRoute);
 app.use("/api/v1/edit/user", userMemberRoute);
+app.use("/api/v1/admission", admissionNew)
 app.use("/api/v1/dailyupdate", dailyUpdateRoute);
+app.use("/api/v1/prod/access", prod)
+
 // ============================================================================
 
-setInterval(async () => {
-  await check_poll_status();
-}, 20000);
+// setInterval(async () => {
+//   await check_poll_status();
+// }, 20000);
 
 setInterval(async () => {
   await payment_modal_initiated();

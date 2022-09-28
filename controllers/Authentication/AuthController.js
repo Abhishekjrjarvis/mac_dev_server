@@ -368,6 +368,11 @@ exports.profileByUser = async (req, res) => {
           user.userInstituteFollowing.push(uInstitute._id)
           user.followingUICount += 1
           await Promise.all([ uInstitute.save(), user.save()])
+          const posts = await Post.find({ author: `${uInstitute._id}` });
+            posts.forEach(async (ele) => {
+              ele.authorFollowersCount = uInstitute.followersCount;
+              await ele.save();
+          });
         }
         //
       }
@@ -693,3 +698,32 @@ module.exports.getLogout = async (req, res) => {
     console.log(`Error`, e.message);
   }
 };
+
+
+exports.retrieveEmailRedundantQuery = async(req, res) => {
+  try{
+    const { email } = req.body
+    const check_ins = await InstituteAdmin.findOne({ insEmail: email }).select('id')
+    const check_user = await User.findOne({ userEmail: email }).select('id')
+    const check_admin = await Admin.findOne({ adminEmail: email }).select('id')
+    var flag_email = false
+    if(check_ins){
+      flag_email = true
+      res.status(200).send({ message: 'Email Already Registered', flag: flag_email})
+    }
+    else if(check_user){
+      flag_email = true
+      res.status(200).send({ message: 'Email Already Registered', flag: flag_email})
+    }
+    else if(check_admin){
+      flag_email = true
+      res.status(200).send({ message: 'Email Already Registered', flag: flag_email})
+    }
+    else{
+      res.status(200).send({ message: 'Valid Email', flag: flag_email})
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+} 

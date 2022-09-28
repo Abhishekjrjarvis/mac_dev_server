@@ -842,3 +842,56 @@ exports.delHoliday = async (req, res) => {
     });
   } catch (error) {}
 };
+
+
+exports.getAttendStaffByIdForMonth = async (req, res) => {
+  try {
+    const month = req.query.month;
+    const year = req.query.year;
+    let absentCount = 0;
+    let leaveCount = 0;
+    let regularexp = "";
+    if (month) regularexp = new RegExp(`\/${month}\/${year}$`);
+
+    const staff = await Staff.findById(req.params.sid)
+      .select("_id attendDates staffLeave")
+      .populate({
+        path: "attendDates",
+        match: {
+          staffAttendDate: { $regex: regularexp },
+        },
+
+        select: "staffAttendDate absentStaff",
+      })
+      .populate({
+        path: "staffLeave",
+        match: {
+          date: { $regex: regularexp },
+          status: { $eq: "Accepted" },
+        },
+        select: "date",
+      })
+      .lean()
+      .exec();
+
+    if (staff) {
+      if (staff.attendDates) {
+        staff.attendDates?.forEach((day) => {
+          if (day.absentStaff?.includes(req.params.sid)) absentCount += 1;
+        });
+      }
+      if (staff.staffLeave) {
+        staff?.staffLeave?.forEach((leave) => {
+          leaveCount = leaveCount + leave?.date?.length;
+        });
+      }
+      res.status(200).send({
+        message: "Success",
+        absentCount,
+        leaveCount,
+      });
+    } else {
+      res.status(404).send({ message: "Failure" });
+    }
+  } catch {}
+};

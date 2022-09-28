@@ -380,6 +380,126 @@ exports.postWithVsibilityUpdate = async (req, res) => {
     post.postStatus = postStatus;
     await post.save();
     res.status(200).send({ message: "visibility change 👓" });
+    //
+    const post_visible = await Post.findById({_id: pid}).select('postStatus')
+    const author = await InstituteAdmin.findById({_id: `${post.author}`})
+    .select('id isUniversal')
+    .populate({ path: 'followers', select: 'posts' })
+    .populate({ path: 'userFollowersList', select: 'userPosts' })
+    .populate({ path: 'joinedUserList', select: 'userPosts' })
+    if (author.isUniversal === "Not Assigned") {
+      if (author.followers.length >= 1) {
+        if (post_visible.postStatus === "Anyone") {
+          author.followers.forEach(async (ele) => {
+            if(ele?.posts?.includes(`${post_visible._id}`)){
+
+            }
+            else{
+              ele.posts.push(post_visible._id);
+              await ele.save();
+            }
+          });
+        } else if(post_visible.postStatus === 'Private') {
+          author.followers.forEach(async (ele) => {
+            if(ele?.posts?.includes(`${post_visible._id}`)){
+              ele.posts.pull(post_visible._id);
+              await ele.save();
+            }
+            else{}
+          });
+        }
+      }
+      if (author.userFollowersList.length >= 1) {
+        if (post_visible.postStatus === "Anyone") {
+          author.userFollowersList.forEach(async (ele) => {
+            if(ele?.userPosts?.includes(`${post_visible._id}`)){
+
+            }
+            else{
+              ele.userPosts.push(post_visible._id);
+              await ele.save();
+            }
+          });
+        } else if(post_visible.postStatus === 'Private') {
+          if (author.joinedUserList.length >= 1) {
+            author.joinedUserList.forEach(async (ele) => {
+              if(ele?.userPosts?.includes(`${post_visible._id}`)){
+
+              }
+              else{
+                ele.userPosts.push(post_visible._id);
+                await ele.save();
+              }
+            });
+          }
+          author.userFollowersList.forEach(async (ele) => {
+            if(ele?.userPosts?.includes(`${post_visible._id}`)){
+              ele.userPosts.pull(post_visible._id);
+              await ele.save();
+            }
+            else{}
+          });
+        }
+      }
+    }
+    else if (author.isUniversal === "Universal") {
+      const all = await InstituteAdmin.find({ status: "Approved" }).select('posts')
+      const user = await User.find({ userStatus: "Approved" }).select('userPosts')
+      if (post_visible.postStatus === "Anyone") {
+        all.forEach(async (el) => {
+          if (el._id !== author._id) {
+            if(el?.posts?.includes(`${post_visible._id}`)){
+
+            }
+            else{
+              el.posts.push(post_visible._id);
+              await el.save();
+            }
+          }
+        });
+        user.forEach(async (el) => {
+          if(el?.userPosts?.includes(`${post_visible._id}`)){
+
+          }
+          else{
+            el.userPosts.push(post_visible._id);
+            await el.save();
+          }
+        });
+      }
+      if (post_visible.postStatus === "Private") {
+        all.forEach(async (el) => {
+          if (el._id !== author._id) {
+            if(el?.posts?.includes(`${post_visible._id}`)){
+
+            }
+            else{
+              el.posts.push(post_visible._id);
+              await el.save();
+            }
+          }
+        });
+        user.forEach(async (el) => {
+          if(author?.joinedUserList?.includes(`${el}`)){
+            if(el?.userPosts?.includes(`${post_visible._id}`)){
+              
+            }
+            else{
+              el.userPosts.push(post_visible._id);
+              await el.save();
+            }
+          }
+          else{
+            if(el?.userPosts?.includes(`${post_visible._id}`)){
+              el.userPosts.pull(post_visible._id);
+              await el.save();
+            }
+            else{}
+          }
+        });
+      }
+    }
+    //
   } catch (e) {
     console.log(e);
   }
@@ -388,19 +508,110 @@ exports.postWithVsibilityUpdate = async (req, res) => {
 exports.postWithDeleted = async (req, res) => {
   try {
     const { id, pid } = req.params;
-    const institute = await InstituteAdmin.findById({ _id: id });
-    const post = await Post.findById({ _id: pid });
+    const institute = await InstituteAdmin.findById({ _id: id }).select('postCount pollCount isUniversal')
+    const post = await Post.findById({ _id: pid })
+    .select('postType')
+    .populate({ path: 'poll_query', select: 'id'})
     await InstituteAdmin.findByIdAndUpdate(id, { $pull: { posts: pid } });
-    institute.postCount -= 1;
+    await InstituteAdmin.findByIdAndUpdate(id, { $pull: { institute_saved_post: pid } });
+    await InstituteAdmin.findByIdAndUpdate(id, { $pull: { tag_post: pid } });
+    if(institute.postCount >= 1){
+      institute.postCount -= 1;
+    }
     if (post && post.postType === "Poll" && post.poll_query !== "") {
-      post.poll_query = "";
-      await Poll.findByIdAndDelete(`${post.poll_query}`);
-      institute.pollCount -= 1;
-      await post.save();
+      await Poll.findByIdAndDelete(post?.poll_query?._id);
+      if(institute.pollCount >= 1){
+        institute.pollCount -= 1;
+      }
     }
     await Post.findByIdAndDelete({ _id: pid });
     await institute.save();
-    res.status(200).send({ message: "post deleted 🙄🙄" });
+    res.status(200).send({ message: "Deletion Operation Completed 🙄🙄" });
+    //
+    const deleted_ins_post = await InstituteAdmin.findById({_id: institute?._id})
+    .select('isUniversal')
+    .populate({ path: 'followers', select: 'posts institute_saved_post tag_post'})
+    .populate({ path: 'userFollowersList', select: 'userPosts user_saved_post tag_post'})
+    .populate({ path: 'joinedUserList', select: 'userPosts user_saved_post tag_post'})
+
+    if(deleted_ins_post?.isUniversal === 'Universal'){
+      const all_ins = await InstituteAdmin.find({}).select('posts institute_saved_post tag_post')
+      const all_user = await User.find({}).select('userPosts user_saved_post tag_post')
+      all_ins?.forEach(async (ins) => {
+        if(ins?.posts?.includes(`${post._id}`)){
+          ins?.posts?.pull(post._id)
+          await ins.save()
+        }
+        if(ins?.institute_saved_post?.includes(`${post._id}`)){
+          ins?.institute_saved_post?.pull(post._id)
+          await ins.save()
+        }
+        if(ins?.tag_post?.includes(`${post._id}`)){
+          ins?.tag_post?.pull(post._id)
+          await ins.save()
+        }
+      })
+      all_user?.forEach(async (user) => {
+        if(user?.userPosts?.includes(`${post._id}`)){
+          user?.userPosts?.pull(post._id)
+          await user.save()
+        }
+        if(user?.user_saved_post?.includes(`${post._id}`)){
+          user?.user_saved_post?.pull(post._id)
+          await user.save()
+        }
+        if(user?.tag_post?.includes(`${post._id}`)){
+          user?.tag_post?.pull(post._id)
+          await user.save()
+        }
+      })
+    } 
+    else if(deleted_ins_post?.isUniversal === 'Not Assigned'){
+      deleted_ins_post?.followers?.forEach(async (del_ins) => {
+        if(del_ins?.posts?.includes(`${post?._id}`)){
+          del_ins?.posts?.pull(post._id)
+          await del_ins.save()
+        }
+        if(del_ins?.institute_saved_post?.includes(`${post?._id}`)){
+          del_ins?.institute_saved_post?.pull(post._id)
+          await del_ins.save()
+        }
+        if(del_ins?.tag_post?.includes(`${post?._id}`)){
+          del_ins?.tag_post?.pull(post._id)
+          await del_ins.save()
+        }
+      })
+      deleted_ins_post?.userFollowersList?.forEach(async (del_user) => {
+        if(del_user?.userPosts?.includes(`${post?._id}`)){
+          del_user?.userPosts?.pull(post._id)
+          await del_user.save()
+        }
+        if(del_user?.user_saved_post?.includes(`${post?._id}`)){
+          del_user?.user_saved_post?.pull(post._id)
+          await del_user.save()
+        }
+        if(del_user?.tag_post?.includes(`${post?._id}`)){
+          del_user?.tag_post?.pull(post._id)
+          await del_user.save()
+        }
+      })
+      deleted_ins_post?.joinedUserList?.forEach(async (del_suser) => {
+        if(del_suser?.userPosts?.includes(`${post?._id}`)){
+          del_suser?.userPosts?.pull(post._id)
+          await del_suser.save()
+        }
+        if(del_suser?.user_saved_post?.includes(`${post?._id}`)){
+          del_suser?.user_saved_post?.pull(post._id)
+          await del_suser.save()
+        }
+        if(del_suser?.tag_post?.includes(`${post?._id}`)){
+          del_suser?.tag_post?.pull(post._id)
+          await del_suser.save()
+        }
+      })
+    }
+    else{}
+    //
   } catch (e) {
     console.log(e);
   }
@@ -600,6 +811,14 @@ exports.retrieveAllPosts = async (req, res) => {
           )
           .populate({
             path: "poll_query",
+          })
+          .populate({
+            path: "new_application",
+            select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+            populate: {
+              path: 'applicationDepartment',
+              select: 'dName'
+            }
           });
       } else {
         var post = await Post.find({
@@ -613,6 +832,14 @@ exports.retrieveAllPosts = async (req, res) => {
           )
           .populate({
             path: "poll_query",
+          })
+          .populate({
+            path: "new_application",
+            select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+            populate: {
+              path: 'applicationDepartment',
+              select: 'dName'
+            }
           });
       }
       if (institute.posts.length >= 1) {
@@ -654,6 +881,14 @@ exports.retreiveAllProfilePosts = async (req, res) => {
       )
       .populate({
         path: "poll_query",
+      })
+      .populate({
+        path: "new_application",
+        select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+        populate: {
+          path: 'applicationDepartment',
+          select: 'dName'
+        }
       });
     if (institute && institute.posts.length >= 1) {
       const postCount = await Post.find({ _id: { $in: institute.posts } });
@@ -826,7 +1061,9 @@ exports.likeCommentChild = async (req, res) => {
           .send({ message: "liked by Institute", count: comment.allLikeCount });
       } else {
         comment.parentCommentLike.pull(id);
-        comment.allLikeCount -= 1;
+        if(comment.allLikeCount >= 1){
+          comment.allLikeCount -= 1;
+        }
         await comment.save();
 
         res.status(200).send({
@@ -844,7 +1081,9 @@ exports.likeCommentChild = async (req, res) => {
           .send({ message: "liked by User", count: comment.allLikeCount });
       } else {
         comment.parentCommentLike.pull(id);
-        comment.allLikeCount -= 1;
+        if(comment.allLikeCount >= 1){
+          comment.allLikeCount -= 1;
+        }
         await comment.save();
         res
           .status(200)
@@ -945,6 +1184,14 @@ exports.retrieveSavedAllPosts = async (req, res) => {
         )
         .populate({
           path: "poll_query",
+        })
+        .populate({
+          path: "new_application",
+          select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+          populate: {
+            path: 'applicationDepartment',
+            select: 'dName'
+          }
         });
       if (institute.institute_saved_post.length >= 1) {
         const postCount = await Post.find({
@@ -990,6 +1237,14 @@ exports.retrieveTagAllPosts = async (req, res) => {
         )
         .populate({
           path: "poll_query",
+        })
+        .populate({
+          path: "new_application",
+          select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+          populate: {
+            path: 'applicationDepartment',
+            select: 'dName'
+          }
         });
       if (institute.tag_post.length >= 1) {
         const postCount = await Post.find({
@@ -1033,7 +1288,9 @@ exports.commentDelete = async (req, res) => {
     if (!req.params.cid) throw "Please send comment id to perform task";
     const comment = await Comment.findById(req.params.cid);
     const post = await Post.findById(comment.post);
-    post.commentCount -= 1;
+    if(post.commentCount >= 1){
+      post.commentCount -= 1;
+    }
     await post.save();
     await Comment.findByIdAndDelete(req.params.cid);
     res.status(200).send({ message: "Comment Deleted successfully👍" });
@@ -1061,7 +1318,9 @@ exports.commentReplyDelete = async (req, res) => {
     if (!req.params.cid) throw "Please send reply comment id to perform task";
     const rcommeny = await ReplyComment.findById(req.params.cid);
     const comment = await Comment.findById(rcommeny.parentComment);
-    comment.allChildCommentCount -= 1;
+    if(comment.allChildCommentCount >= 1){
+      comment.allChildCommentCount -= 1;
+    }
     await comment.save();
     await ReplyComment.findByIdAndDelete(req.params.cid);
     res.status(200).send({ message: "Reply comment Deleted successfully👍" });

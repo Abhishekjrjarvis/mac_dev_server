@@ -54,7 +54,7 @@ router.patch("/unfollow/user", isLoggedIn, catchAsync(User.updateUserUnFollow));
 
 router.patch("/circle/user", isLoggedIn, catchAsync(User.updateUserCircle));
 
-// router.patch("/uncircle/user", isLoggedIn, catchAsync(User.removeUserCircle));
+router.patch("/uncircle/user", isLoggedIn, catchAsync(User.removeUserCircle));
 
 router.post("/phone/info/:id", isLoggedIn, catchAsync(User.updateUserPhone));
 
@@ -212,6 +212,10 @@ router.get("/circle/user", isLoggedIn, catchAsync(User.allCircleUsers));
 
 router.get("/:uid/subject/chat", catchAsync(User.retrieveUserSubjectChat))
 
+router.get("/:uid/class/chat", catchAsync(User.retrieveUserClassChat))
+
+router.get("/:uid/department/chat", catchAsync(User.retrieveUserDepartmentChat))
+
 router.get("/:uid/application/status", catchAsync(User.retrieveUserApplicationStatus))
 
 router.get(
@@ -222,7 +226,7 @@ router.get(
 
 router.get('/staff/:sid/sal/history', catchAsync(User.retrieveStaffSalaryHistory))
 
-// router.patch("/block/user", catchAsync(User.updateUserBlock));
+router.patch("/block/user", isLoggedIn, catchAsync(User.updateUserBlock));
 
 
 module.exports = router;

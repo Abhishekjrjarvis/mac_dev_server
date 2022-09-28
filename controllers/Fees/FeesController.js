@@ -73,8 +73,20 @@ exports.createFess = async (req, res) => {
     }
     const institute = await InstituteAdmin.findById({_id: `${department.institute}`}).select('financeDepart')
     const finance = await Finance.findById({_id: `${institute.financeDepart[0]}`})
-    finance.financeRaisedBalance += feeData.feeAmount
-    await finance.save()
+    //
+    var strength = 0
+    for (let i = 0; i < ClassId.length; i++) {
+      const classes = await Class.findById({ _id: ClassId[i] }).select('ApproveStudent')
+      strength += classes.ApproveStudent?.length
+    }
+    if(strength > 0){
+      finance.financeRaisedBalance += (feeData.feeAmount * strength)
+      await finance.save()
+    }
+    else{
+      finance.financeRaisedBalance += (feeData.feeAmount * strength)
+      await finance.save()
+    }
     //
   } catch (e){
     console.log(e)
@@ -366,7 +378,11 @@ exports.retrieveStudentQuery = async(req, res) => {
     .select('id onlineFeeList offlineFeeList exemptFeeList onlineCheckList offlineCheckList studentRemainingFeeCount studentPaidFeeCount')
     .populate({
       path: 'institute',
-      select: 'insName'
+      select: 'insName',
+      populate: {
+        path: 'financeDepart',
+        select: 'id'
+      }
     })
     .populate({
       path: 'department',
@@ -374,12 +390,12 @@ exports.retrieveStudentQuery = async(req, res) => {
     })
     .populate({
       path: 'user',
-      select: 'userLegalName'
+      select: 'userLegalName username'
     }).lean()
-    const fees = await Fees.find({ _id: { $in: student.department.fees}})
+    const fees = await Fees.find({ _id: { $in: student?.department?.fees}})
     .sort("-createdAt")
     .lean()
-    const check = await Checklist.find({_id: { $in: student.department.checklists}})
+    const check = await Checklist.find({_id: { $in: student?.department?.checklists}})
     .sort("-createdAt")
     .lean()
     var mergePay = [...fees, ...check]

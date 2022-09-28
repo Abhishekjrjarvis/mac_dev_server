@@ -969,6 +969,29 @@ paths:
         "200":
           description: OK
 
+  /api/v1/user/block/user/:
+    patch:
+      tags:
+        - User Profile API
+      summary: Block User to User Api -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - followId
+            properties:
+              followId:
+                type: string
+                description: Block User Id
+      responses:
+        "200":
+          description: OK
   
   /api/v1/user/one-announcement/{aid}:
     get:
@@ -1369,6 +1392,35 @@ paths:
         "200":
           description: OK
 
+  /api/v1/extra/{id}/merge/staff/student:
+    get:
+      tags:
+        - Setting Control API
+      summary: Shuffle Staff & Student for Display Person -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Enter Page Index
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: Enter Limit Index
+      responses:
+        "200":
+          description: OK
+
   /api/v1/ins/{id}/leaving/editable:
     patch:
       tags:
@@ -1409,6 +1461,44 @@ paths:
       tags:
         - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
       summary: User Subject Teacher Chat -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: Enter User Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/{uid}/department/chat:
+    get:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: User Department Head Chat -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: Enter User Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/{uid}/class/chat:
+    get:
+      tags:
+        - User DashBoard API (including Post, Explore Tab, Notification, Announcement)
+      summary: User Class Teacher Chat -(verified)
       consumes:
         - application/json
       produces:
@@ -2619,6 +2709,35 @@ paths:
               dateStatus:
                 type: string
                 description: Enter Date for finding present or absent         
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/attendance/staff/onemonth/{sid}:
+    get:
+      tags:
+        - Staff-Member-Tab
+      summary: Staff Attendence Absent Count -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is staff id
+        - in: query
+          name: month
+          schema:
+            type: integer
+          description: Enter Month
+        - in: query
+          name: year
+          schema:
+            type: integer
+          description: Enter Year
       responses:
         "200":
           description: OK
@@ -11957,6 +12076,44 @@ paths:
         "200":
           description: OK
 
+  /api/v1/ins/{id}/deactivate/account:
+    post:
+      tags:
+        - Institute Profile API
+      summary: Deactivate User A/c for atleast 2  -(verified)
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: id # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: This is Institute id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - password
+              - status
+              - ddate
+            properties:
+              password:
+                type: string
+                description: Enter your A/c password
+              status:
+                type: string
+                description: Enter Deactivated Text
+              ddate:
+                type: string
+                description: Enter Date after 2 days
+      responses:
+        "200":
+          description: OK
+
   /api/v1/user/profile/{username}:
     get:
       tags:
@@ -12883,3 +13040,107 @@ paths:
           description: OK
 
 
+# fot the daily subject side update
+  /api/v1/dailyupdate/subject/{sid}:
+    get:
+      tags:
+        - Daily Update Related ALL Api (Subject Teacher)
+      summary: It is give all daily updates in Subject Teacher side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular subject id    
+        - in: query
+          name: page
+          type: integer
+          description: pass the page number
+        - in: query
+          name: limit
+          type: integer
+          description: pass the limit one time how many item you want             
+      responses:
+        "200":
+          description: OK
+    post:
+      tags:
+        - Daily Update Related ALL Api (Subject Teacher)
+      summary: It is Cretae daily update by the Subject teacher side for the students
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular subject id      
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              updateDate:
+                type: string
+                required:  true
+                description: here type the daily update date
+              updateDescription:
+                type: string
+                required:  true
+                description: here give the daily update updateDescription
+              files:
+                type: array
+                required:  true
+                description: here list of all files
+                items:
+                  type: file
+                  description: this is one file
+      responses:
+        "200":
+          description: OK
+    patch:
+      tags:
+        - Daily Update Related ALL Api (Subject Teacher)
+      summary: It is Cretae daily update by the Subject teacher side for the students
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular daily update id      
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              updateDescription:
+                type: string
+                required:  true
+                description: here give the daily update updateDescription
+              deleteImage:
+                type: array
+                required:  true
+                description: here list of all files
+                items:
+                  type: string
+                  description: this is one file aws key
+              files:
+                type: array
+                required:  true
+                description: here list of all files
+                items:
+                  type: file
+                  description: this is one file                  
+      responses:
+        "200":
+          description: OK

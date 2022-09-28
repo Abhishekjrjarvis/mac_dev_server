@@ -166,6 +166,27 @@ const financeSchema = new mongoose.Schema({
       return_amount: { type: Number, default: 0},
     },
   ]
+  // ,
+  // filter_finance: [
+  //   {
+  //     year: { type: String },
+  //     data: [
+  //       {
+  //         month: { type: String },
+  //         financeTotal: { type: Number, default: 0 },
+  //         financeSubmit: { type: Number, default: 0 },
+  //         financeCollected: { type: Number, default: 0 },
+  //         financeBank: { type: Number, default: 0 },
+  //         financeRaised: { type: Number, default: 0 },
+  //         financeIncomeCash: { type: Number, default: 0 },
+  //         financeExpenseCash: { type: Number, default: 0 },
+  //         financeIncomeBank: { type: Number, default: 0 },
+  //         financeExpenseBank: { type: Number, default: 0 },
+  //         financeExempt: { type: Number, default: 0 },
+  //       }
+  //     ]
+  //   }
+  // ]
 }, { timestamps: true});
 
 const Finance = mongoose.model("Finance", financeSchema);

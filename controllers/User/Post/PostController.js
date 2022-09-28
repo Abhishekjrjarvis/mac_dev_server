@@ -303,26 +303,107 @@ exports.postWithVsibilityUpdate = async (req, res) => {
     post.postStatus = postStatus;
     await post.save();
     res.status(200).send({ message: "visibility change" });
-  } catch {}
+    //
+    var post_visible = await Post.findById({_id: pid}).select('postStatus')
+    var user = await User.findById({_id: `${post.author}`}).select('id')
+    .populate({ path: 'userFollowers', select: 'userPosts'})
+    .populate({ path: 'userCircle', select: 'userPosts'})
+    if (user.userFollowers.length >= 1) {
+      if (post_visible.postStatus === "Anyone") {
+        user.userFollowers.forEach(async (ele) => {
+          if(ele?.userPosts?.includes(`${post_visible._id}`)){
+
+          }
+          else{
+            ele.userPosts.push(post_visible._id);
+            await ele.save(); 
+          }
+        });
+      } else if(post_visible.postStatus === 'Private') {
+        user.userFollowers.forEach(async (ele) => {
+          if(ele?.userPosts?.includes(`${post_visible._id}`)){
+            ele.userPosts.pull(post_visible._id);
+            await ele.save(); 
+          }
+          else{}
+        });
+      }
+    }
+    if (user.userCircle.length >= 1) {
+      user.userCircle.forEach(async (ele) => {
+        if(ele?.userPosts?.includes(`${post_visible._id}`)){
+
+        }
+        else{
+          ele.userPosts.push(post_visible._id);
+          await ele.save();
+        }
+      });
+    }
+    //
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 exports.postWithDeleted = async (req, res) => {
   try {
     const { id, pid } = req.params;
-    const user = await User.findById({ _id: id });
-    const post = await Post.findById({ _id: pid });
+    const user = await User.findById({ _id: id }).select('postCount poll_Count')
+    const post = await Post.findById({ _id: pid })
+    .select('postType')
+    .populate({ path: 'poll_query', select: 'id'})
     await User.findByIdAndUpdate(id, { $pull: { userPosts: pid } });
     await User.findByIdAndUpdate(id, { $pull: { user_saved_post: pid } });
-    user.postCount -= 1;
+    await User.findByIdAndUpdate(id, { $pull: { tag_post: pid } });
+    if(user.postCount >= 1){
+      user.postCount -= 1;
+    }
     if (post && post.postType === "Poll" && post.poll_query !== "") {
-      post.poll_query = "";
-      await Poll.findByIdAndDelete(`${post.poll_query}`);
-      user.poll_Count -= 1;
-      await post.save();
+      await Poll.findByIdAndDelete(post.poll_query?._id);
+      if(user.poll_Count >= 1){
+        user.poll_Count -= 1;
+      }
+      // post.poll_query = "";
+      // await post.save();
     }
     await Post.findByIdAndDelete({ _id: pid });
     await user.save();
-    res.status(200).send({ message: "post deleted" });
+    res.status(200).send({ message: "Deleted Operation Completed" });
+    //
+    const deleted_user_post = await User.findById({_id: user?._id})
+    .select('id')
+    .populate({ path: 'userFollowers', select: 'userPosts user_saved_post tag_post'})
+    .populate({ path: 'userCircle', select: 'userPosts user_saved_post tag_post'})
+    deleted_user_post?.userFollowers?.forEach(async (del_user) => {
+      if(del_user?.userPosts?.includes(`${post?._id}`)){
+        del_user?.userPosts?.pull(post._id)
+        await del_user.save()
+      }
+      if(del_user?.user_saved_post?.includes(`${post?._id}`)){
+        del_user?.user_saved_post?.pull(post._id)
+        await del_user.save()
+      }
+      if(del_user?.tag_post?.includes(`${post?._id}`)){
+        del_user?.tag_post?.pull(post._id)
+        await del_user.save()
+      }
+    })
+    deleted_user_post?.userCircle?.forEach(async (del_user) => {
+      if(del_user?.userPosts?.includes(`${post?._id}`)){
+        del_user?.userPosts?.pull(post._id)
+        await del_user.save()
+      }
+      if(del_user?.user_saved_post?.includes(`${post?._id}`)){
+        del_user?.user_saved_post?.pull(post._id)
+        await del_user.save()
+      }
+      if(del_user?.tag_post?.includes(`${post?._id}`)){
+        del_user?.tag_post?.pull(post._id)
+        await del_user.save()
+      }
+    })
+    //
   } catch (e) {
     console.log(e);
   }
@@ -498,6 +579,14 @@ exports.retrieveAllUserPosts = async (req, res) => {
           .populate({
             path: "repostMultiple",
             select: "username photoId profilePhoto",
+          })
+          .populate({
+            path: "new_application",
+            select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+            populate: {
+              path: 'applicationDepartment',
+              select: 'dName'
+            }
           });
       } else {
         //
@@ -527,6 +616,14 @@ exports.retrieveAllUserPosts = async (req, res) => {
           .populate({
             path: "repostMultiple",
             select: "username photoId profilePhoto",
+          })
+          .populate({
+            path: "new_application",
+            select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+            populate: {
+              path: 'applicationDepartment',
+              select: 'dName'
+            }
           });
         }
         //
@@ -556,6 +653,14 @@ exports.retrieveAllUserPosts = async (req, res) => {
           .populate({
             path: "repostMultiple",
             select: "username photoId profilePhoto",
+          })
+          .populate({
+            path: "new_application",
+            select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+            populate: {
+              path: 'applicationDepartment',
+              select: 'dName'
+            }
           });
         }
       }
@@ -613,6 +718,14 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
           .populate({
             path: "repostMultiple",
             select: "username photoId profilePhoto",
+          })
+          .populate({
+            path: "new_application",
+            select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+            populate: {
+              path: 'applicationDepartment',
+              select: 'dName'
+            }
           });
       } else {
         var post = await Post.find({ author: id })
@@ -640,6 +753,14 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
           .populate({
             path: "repostMultiple",
             select: "username photoId profilePhoto",
+          })
+          .populate({
+            path: "new_application",
+            select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+            populate: {
+              path: 'applicationDepartment',
+              select: 'dName'
+            }
           });
       }
       const postCount = await Post.find({ _id: { $in: user.userPosts } });
@@ -918,6 +1039,14 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
         .populate({
           path: "repostMultiple",
           select: "username photoId profilePhoto",
+        })
+        .populate({
+          path: "new_application",
+          select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+          populate: {
+            path: 'applicationDepartment',
+            select: 'dName'
+          }
         });
       const postCount = await Post.find({ _id: { $in: user.user_saved_post } });
       if (page * limit >= postCount.length) {
@@ -975,6 +1104,14 @@ exports.retrieveAllUserTagPosts = async (req, res) => {
         .populate({
           path: "repostMultiple",
           select: "username photoId profilePhoto",
+        })
+        .populate({
+          path: "new_application",
+          select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+          populate: {
+            path: 'applicationDepartment',
+            select: 'dName'
+          }
         });
       const postCount = await Post.find({ _id: { $in: user.tag_post } });
       if (page * limit >= postCount.length) {
@@ -1027,6 +1164,14 @@ exports.retrieveAllUserReposts = async (req, res) => {
       .populate({
         path: "repostMultiple",
         select: "username photoId profilePhoto",
+      })
+      .populate({
+        path: "new_application",
+        select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+        populate: {
+          path: 'applicationDepartment',
+          select: 'dName'
+        }
       });
 
     if (repost && repost.length >= 1) {
@@ -1060,7 +1205,9 @@ exports.commentDelete = async (req, res) => {
     if (!req.params.cid) throw "Please send comment id to perform task";
     const comment = await Comment.findById(req.params.cid);
     const post = await Post.findById(comment.post);
-    post.commentCount -= 1;
+    if(post.commentCount >= 1){
+      post.commentCount -= 1;
+    }
     await post.save();
     await Comment.findByIdAndDelete(req.params.cid);
     res.status(200).send({ message: "Comment Deleted successfully👍" });
@@ -1088,7 +1235,9 @@ exports.commentReplyDelete = async (req, res) => {
     if (!req.params.cid) throw "Please send reply comment id to perform task";
     const rcommeny = await ReplyComment.findById(req.params.cid);
     const comment = await Comment.findById(rcommeny.parentComment);
-    comment.allChildCommentCount -= 1;
+    if(comment.allChildCommentCount >= 1){
+      comment.allChildCommentCount -= 1;
+    }
     await comment.save();
     await ReplyComment.findByIdAndDelete(req.params.cid);
     res.status(200).send({ message: "Reply comment Deleted successfully👍" });

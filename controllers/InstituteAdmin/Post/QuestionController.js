@@ -102,7 +102,9 @@ exports.postQuestionDelete = async (req, res) => {
       const institute = await InstituteAdmin.findById({ _id: id})
       await InstituteAdmin.findByIdAndUpdate(id, { $pull: { posts: pid } });
       await Post.findByIdAndDelete({ _id: pid });
-      institute.questionCount -= 1
+      if(institute.questionCount >= 1){
+        institute.questionCount -= 1
+      }
       await institute.save()
       res.status(200).send({ message: "post question deleted" });
     } catch(e) {

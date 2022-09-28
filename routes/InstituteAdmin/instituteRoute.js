@@ -489,4 +489,6 @@ router.post(
   catchAsync(Institute.deactivateInstituteAccount)
 );
 
+router.get('/:did/staff/merge/student', catchAsync(Institute.retrieveMergeStaffStudent))
+
 module.exports = router;

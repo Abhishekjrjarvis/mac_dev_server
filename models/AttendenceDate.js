@@ -14,12 +14,12 @@ const attendenceDateSchema = new mongoose.Schema({
   },
   presentTotal: {
     type: Number,
-    default: 0,
+    default: 0
   },
 
   absentTotal: {
     type: Number,
-    default: 0,
+    default: 0
   },
   className: {
     type: mongoose.Schema.Types.ObjectId,

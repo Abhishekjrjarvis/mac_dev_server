@@ -1,6 +1,7 @@
 const InstituteAdmin = require('../../models/InstituteAdmin')
 const Staff = require('../../models/Staff')
 const Admission = require('../../models/Admission/Admission')
+const Inquiry = require('../../models/Admission/Inquiry')
 const User = require('../../models/User')
 const Notification = require('../../models/notification')
 const NewApplication = require('../../models/Admission/NewApplication')
@@ -16,6 +17,7 @@ const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require('../../Firebase/firebase')
+const Post = require('../../models/Post')
 
 
 exports.retrieveAdmissionAdminHead = async(req, res) =>{
@@ -27,6 +29,8 @@ exports.retrieveAdmissionAdminHead = async(req, res) =>{
         const admission = new Admission({});
         const notify = new Notification({})
         staff.admissionDepartment.push(admission._id);
+        staff.staffDesignationCount += 1;
+        staff.recentDesignation = 'Admission Admin';
         admission.admissionAdminHead = staff._id;
         institute.admissionDepart.push(admission._id);
         institute.admissionStatus = 'Enable'
@@ -38,6 +42,13 @@ exports.retrieveAdmissionAdminHead = async(req, res) =>{
         notify.user = user._id;
         notify.notifyPid = "1";
         notify.notifyByInsPhoto = institute._id;
+        invokeFirebaseNotification(
+          "Designation Allocation",
+          notify,
+          institute.insName,
+          user._id,
+          user.deviceToken
+        );
         await Promise.all([
         institute.save(),
         staff.save(),
@@ -51,8 +62,8 @@ exports.retrieveAdmissionAdminHead = async(req, res) =>{
           status: true
         });
     }
-    catch{
-
+    catch(e){
+      console.log(e)
     }
 }
 
@@ -60,7 +71,7 @@ exports.retrieveAdmissionDetailInfo = async(req, res) =>{
     try{
         const { aid } = req.params
         const admission = await Admission.findById({_id: aid})
-        .select('admissionAdminEmail admissionAdminPhoneNumber admissionAdminAbout photoId coverId admissionProfilePhoto admissionCoverPhoto')
+        .select('admissionAdminEmail admissionAdminPhoneNumber admissionAdminAbout photoId coverId admissionProfilePhoto admissionCoverPhoto queryCount')
         .populate({
             path: 'admissionAdminHead',
             select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto'
@@ -90,14 +101,80 @@ exports.retrieveAdmissionNewApplication = async(req, res) =>{
     try{
         const { aid } = req.params
         const admission = await Admission.findById({_id: aid })
+        const institute = await InstituteAdmin.findById({_id: `${admission.institute}`})
         const newApply = new NewApplication({...req.body})
         admission.newApplication.push(newApply._id)
         newApply.admissionAdmin = admission._id
         await Promise.all([ admission.save(), newApply.save() ])
         res.status(200).send({ message: 'New Application is ongoing'})
+        const post = new Post({})
+        post.imageId = "1";
+        institute.posts.push(post._id);
+        institute.postCount += 1;
+        post.author = institute._id;
+        post.authorName = institute.insName;
+        post.authorUserName = institute.name;
+        post.authorPhotoId = institute.photoId;
+        post.authorProfilePhoto = institute.insProfilePhoto;
+        post.authorOneLine = institute.one_line_about;
+        post.authorFollowersCount = institute.followersCount
+        post.isInstitute = "institute";
+        post.postType = 'Application'
+        post.new_application = newApply._id
+        post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
+        await Promise.all([ post.save(), institute.save() ])
+        if (institute.isUniversal === "Not Assigned") {
+          if (institute.followers.length >= 1) {
+            if (post.postStatus === "Anyone") {
+              institute.followers.forEach(async (ele) => {
+                ele.posts.push(post._id);
+                await ele.save();
+              });
+            } else {
+            }
+          }
+          if (institute.userFollowersList.length >= 1) {
+            if (post.postStatus === "Anyone") {
+              institute.userFollowersList.forEach(async (ele) => {
+                ele.userPosts.push(post._id);
+                await ele.save();
+              });
+            } else {
+              if (institute.joinedUserList.length >= 1) {
+                institute.joinedUserList.forEach(async (ele) => {
+                  ele.userPosts.push(post._id);
+                  await ele.save();
+                });
+              }
+            }
+          }
+        } else if (institute.isUniversal === "Universal") {
+          const all = await InstituteAdmin.find({ status: "Approved" });
+          const user = await User.find({ userStatus: "Approved" });
+          if (post.postStatus === "Anyone") {
+            all.forEach(async (el) => {
+              if (el._id !== institute._id) {
+                el.posts.push(post._id);
+                await el.save();
+              }
+            });
+            user.forEach(async (el) => {
+              el.userPosts.push(post._id);
+              await el.save();
+            });
+          }
+          if (post.postStatus === "Private") {
+            all.forEach(async (el) => {
+              if (el._id !== institute._id) {
+                el.posts.push(post._id);
+                await el.save();
+              }
+            });
+          }
+        }
     }
-    catch{
-
+    catch(e){
+      console.log(e)
     }
 }
 
@@ -426,5 +503,83 @@ exports.retrieveOneApplicationQuery = async(req, res) =>{
   }
   catch{
 
+  }
+}
+
+exports.retrieveUserInquiryProcess = async(req, res) =>{
+  try{
+    const { aid, uid } = req.params
+    const app = await Admission.findById({_id: aid})
+    const user = await User.findById({_id: uid})
+    const ask = new Inquiry({...req.body})
+    ask.user = user._id
+    ask.reasonExplanation.push({
+      content: req.body?.content,
+      replyBy: req.body?.replyBy
+    })
+    app.inquiryList.push(ask._id)
+    app.queryCount += 1
+    user.inquiryList.push(ask._id)
+    await Promise.all([ app.save(), user.save(), ask.save() ])
+    res.status(200).send({ message: 'Raised an inquiry '})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.retrieveUserInquiryArray = async(req, res) =>{
+  try{
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const { aid } = req.params
+    const skip = (page - 1) * limit;
+    const app = await Admission.findById({_id: aid})
+    .select('id inquiryList')
+    
+    const ask = await Inquiry.find({ _id: { $in: app.inquiryList }})
+    .sort('-createdAt')
+    .limit(limit)
+    .skip(skip)
+
+    if(ask?.length >= 1){
+      res.status(200).send({ message: 'Get List of Inquiry', i_list: ask })
+    }
+    else{
+      res.status(200).send({ message: 'Looking for a inquiry List', i_list: [] })
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.retrieveInquiryReplyQuery = async(req, res) => {
+  try{
+    const { qid } = req.params
+    const { author } = req.query
+    const ask_query = await Inquiry.findById({_id: qid })
+    if(`${author}` === 'User'){
+      ask_query.reasonExplanation.push({
+        content: req.body?.content,
+        replyBy: `${author}`
+      })
+      await ask_query.save()
+      res.status(200).send({ message: `Ask By ${author}` })
+    }
+    else if(`${author}` === 'Admin'){
+      ask_query.reasonExplanation.push({
+        content: req.body?.content,
+        replyBy: `${author}`
+      })
+      await ask_query.save()
+      res.status(200).send({ message: `Reply By ${author}` })
+    }
+    else{
+      res.status(200).send({ message: 'Lost in space'})
+    }
+  }
+  catch(e){
+    console.log(e)
   }
 }

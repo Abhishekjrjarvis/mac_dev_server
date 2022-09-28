@@ -24,7 +24,6 @@ const userSchema = new mongoose.Schema({
   profileCoverPhoto: { type: String },
   photoId: { type: String },
   coverId: { type: String },
-  isSubjectTeacher: { type: String, default: "No" },
   userPosts: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -179,12 +178,6 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Admin",
   },
-  isSubjectChat: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Subject",
-    },
-  ],
   isAdmin: {
     type: Boolean,
     required: true,
@@ -319,7 +312,50 @@ const userSchema = new mongoose.Schema({
   blockStatus: {
     type: String,
     default: 'UnBlocked'
-  }
+  },
+  inquiryList: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Inquiry'
+    }
+  ],
+  userBlock: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }
+  ],
+  blockCount: {
+    type: Number,
+    default: 0
+  },
+  departmentChat: [
+    {
+      isDepartmentHead: { type: String },
+      department: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Department'
+      }
+    },
+  ],
+  classChat: [
+    {
+      isClassTeacher: { type: String },
+      classes: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Class'
+      }
+    },
+  ],
+  subjectChat: [
+    {
+      isSubjectTeacher: { type: String },
+      subjects: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Subject",
+      }
+    },
+  ],
 
 });
 

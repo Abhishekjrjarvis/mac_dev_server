@@ -129,10 +129,10 @@ const staffSchema = new mongoose.Schema({
       ref: "Library",
     },
   ],
-  staffAdmissionAdmin: [
+  admissionDepartment: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "AdmissionAdmin",
+      ref: "Admission",
     },
   ],
   isAdmin: {

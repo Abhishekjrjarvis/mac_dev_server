@@ -32,7 +32,7 @@ exports.retrieveProfileData = async (req, res) => {
     var totalUpVote = 0
     const user = await User.findById({ _id: id })
       .select(
-        "userLegalName photoId questionCount one_line_about recoveryMail answerQuestionCount recentChat profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
+        "userLegalName photoId questionCount blockCount userBlock blockStatus user one_line_about recoveryMail answerQuestionCount recentChat profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
       )
       const answers = await Answer.find({ author: id })
       for(let up of answers){
@@ -485,69 +485,97 @@ exports.updateUserCircle = async (req, res) => {
   }
 };
 
-// exports.removeUserCircle = async (req, res) => {
-//   console.log('Uncircled hit')
-//   try {
-//     var user_session = req.tokenData && req.tokenData.userId;
-//     var user = await User.findById({ _id: user_session });
-//     var suser = await User.findById({ _id: req.body.followId });
+exports.removeUserCircle = async (req, res) => {
+  try {
+    var user_session = req.tokenData && req.tokenData.userId;
+    var user = await User.findById({ _id: user_session });
+    var suser = await User.findById({ _id: req.body.followId });
 
-//     if (
-//       user.userCircle.includes(req.body.followId) &&
-//       suser.userCircle.includes(user_session)
-//     ) {
-//       try {
-//         console.log('INC')
-//         user.userCircle.pull(req.body.followId);
-//         suser.userCircle.pull(user_session);
-//         if(suser.circleCount > 0){
-//           suser.circleCount -= 1;
-//         }
-//         if(user.circleCount > 0){
-//           user.circleCount -= 1;
-//         }
-//         user.userFollowers.push(req.body.followId);
-//         suser.userFollowing.push(user_session);
-//         user.followerCount += 1;
-//         suser.followingUICount += 1;
-//         await user.save();
-//         await suser.save();
-//         res.status(200).send({ message: "Uncircled" });
-//         const post = await Post.find({
-//           $and: [{ author: suser._id }],
-//         });
-//         post.forEach(async (ele) => {
-//           if(user && user.userPosts?.includes(`${ele._id}`)){
-//             console.log('true')
-//             user.userPosts.pull(`${ele._id}`);
-//           }
-//           else{
-//           }
-//         });
-//         await user.save();
-//         const posts = await Post.find({
-//           $and: [{ author: user._id }],
-//         });
-//         posts.forEach(async (ele) => {
-//           if(suser && suser.userPosts?.includes(`${ele._id}`)){
-//             console.log('true')
-//             suser.userPosts.pull(`${ele._id}`);
-//           }
-//           else{
-//           }
-//         });
-//         await suser.save();
-//       } catch {
-//         res.status(500).send({ error: "error" });
-//       }
-//     } else {
-//       console.log('NOC')
-//       res.status(200).send({ message: "You are Not In a Circle" });
-//     }
-//   } catch (e) {
-//     console.log(`UUCU`, e);
-//   }
-// };
+    if (
+      user.userCircle.includes(req.body.followId) &&
+      suser.userCircle.includes(user_session)
+    ) {
+      try {
+        user.userCircle.pull(req.body.followId);
+        suser.userCircle.pull(user_session);
+        if(suser.circleCount > 0){
+          suser.circleCount -= 1;
+        }
+        if(user.circleCount > 0){
+          user.circleCount -= 1;
+        }
+        user.userFollowers.push(req.body.followId);
+        suser.userFollowing.push(user_session);
+        user.followerCount += 1;
+        suser.followingUICount += 1;
+        await Promise.all([ 
+          user.save(),
+          suser.save()
+        ])
+        res.status(200).send({ message: "Uncircled" });
+        const post = await Post.find({
+          $and: [{ author: `${suser._id}` }],
+        });
+
+        post.forEach(async (ele) => {
+          if(user && user.userPosts?.includes(`${ele}`)){
+          }
+          else{
+            user.userPosts.pull(ele);
+          }
+        });
+        await user.save();
+
+        const posts = await Post.find({
+          $and: [{ author: `${user._id}` }],
+        });
+
+        posts.forEach(async (ele) => {
+          if(suser && suser.userPosts?.includes(`${ele}`)){
+          }
+          else{
+            suser.userPosts.pull(ele);
+          }
+        });
+        await suser.save();
+        //
+        const post_follow = await Post.find({
+          $and: [{ author: user._id, postStatus: "Anyone" }],
+        });
+        post_follow.forEach(async (ele) => {
+          //
+          if(suser?.userPosts?.includes(ele)){
+  
+          }
+          else{
+            suser.userPosts.push(ele);
+          }
+          //
+        });
+        await suser.save()
+        //
+        //
+        const post_count = await Post.find({ author: `${suser._id}` });
+        post_count.forEach(async (ele) => {
+          ele.authorFollowersCount = suser.followerCount;
+          await ele.save();
+        });
+        const post_counts = await Post.find({ author: `${user._id}` });
+        post_counts.forEach(async (ele) => {
+          ele.authorFollowersCount = user.followerCount;
+          await ele.save();
+        });
+        //
+      } catch {
+        res.status(500).send({ error: "error" });
+      }
+    } else {
+      res.status(200).send({ message: "You are Not In a Circle" });
+    }
+  } catch (e) {
+    console.log(`UUCU`, e);
+  }
+};
 
 exports.updateUserPhone = async (req, res) => {
   try {
@@ -562,11 +590,49 @@ exports.updateUserPhone = async (req, res) => {
   }
 };
 
+//
+var date = new Date();
+var p_date = date.getDate();
+var p_month = date.getMonth() + 1;
+var p_year = date.getFullYear();
+if (p_date < 9){
+  p_date = `0${p_date}`
+}
+if (p_month < 10) {
+  p_month = `0${p_month}`;
+}
+//
+var month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+//
+
 exports.updateUserPersonal = async (req, res) => {
   try {
     const { id } = req.params;
-    var user = await User.findByIdAndUpdate(id, req.body);
+    var users = await User.findByIdAndUpdate(id, req.body)
+    await users.save()
     res.status(200).send({ message: "Personal Info Updated" });
+    //
+    var user = await User.findById({_id: id})
+    var b_date = user.userDateOfBirth.slice(8, 10)
+    var b_month = user.userDateOfBirth.slice(5, 7)
+    var b_year = user.userDateOfBirth.slice(0, 4)
+    if (b_date > p_date) {
+        p_date = p_date + month[b_month - 1];
+        p_month = p_month - 1;
+    }
+    if (b_month > p_month) {
+        p_year = p_year - 1;
+        p_month = p_month + 12;
+    }
+    var get_cal_year = p_year - b_year;
+    if(get_cal_year > 13){
+      user.ageRestrict = 'No'
+    }
+    else{
+      user.ageRestrict = 'Yes'
+    }
+    await user.save()
+    //
       const post = await Post.find({ author: `${user._id}` });
       post.forEach(async (ele) => {
         ele.authorOneLine = user.one_line_about;
@@ -593,7 +659,7 @@ exports.updateUserPersonal = async (req, res) => {
         await ansRep.save();
       });
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(`Error`, e);
   }
 };
 
@@ -844,14 +910,16 @@ exports.getAllTotalCount = async (req, res) => {
   try {
     const id = req.params.id;
     const user = await User.findById({ _id: id })
-    .select('_id')
-    .populate({ path: "activity_tab uNotify" });
+    .select('_id activity_tab uNotify')
+    .populate({
+      path: 'uNotify'
+    })
     var total = 0
     const notify = await Notification.find({
-      $and: [{ _id: { $in: user.uNotify } }, { notifyViewStatus: 'Not View' }],
+      $and: [{ _id: { $in: user?.uNotify } }, { notifyViewStatus: 'Not View' }],
     })
     const activity = await StudentNotification.find({
-      $and: [{ _id: { $in: user.activity_tab } }, { notifyViewStatus: 'Not View' }],
+      $and: [{ _id: { $in: user?.activity_tab } }, { notifyViewStatus: 'Not View' }],
     })
     total = total + notify?.length + activity?.length
 
@@ -1014,7 +1082,7 @@ exports.getDashDataQuery = async (req, res) => {
     const { id } = req.params;
     const user = await User.findById({ _id: id })
       .select(
-        "userLegalName username ageRestrict photoId one_line_about profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify"
+        "userLegalName username ageRestrict photoId blockStatus one_line_about profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify"
       )
       if(user.userPosts && user.userPosts.length < 1){
         var post = []
@@ -1053,7 +1121,7 @@ exports.followersArray = async (req, res) => {
 
     const followers = await User.find({ _id: { $in: user.userFollowers } })
       .select(
-        "userLegalName username photoId profilePhoto user_birth_privacy user_address_privacy user_circle_privacy"
+        "userLegalName username photoId profilePhoto blockStatus user_birth_privacy user_address_privacy user_circle_privacy"
       )
       .limit(limit)
       .skip(skip);
@@ -1077,7 +1145,7 @@ exports.followingArray = async (req, res) => {
 
     const uFollowing = await User.find({ _id: { $in: user.userFollowing } })
       .select(
-        "userLegalName username photoId profilePhoto user_birth_privacy user_address_privacy user_circle_privacy"
+        "userLegalName username photoId profilePhoto blockStatus user_birth_privacy user_address_privacy user_circle_privacy"
       )
       .limit(limit)
       .skip(skip);
@@ -1085,7 +1153,7 @@ exports.followingArray = async (req, res) => {
     const uInsFollowing = await InstituteAdmin.find({
       _id: { $in: user.userInstituteFollowing },
     })
-      .select("insName name photoId insProfilePhoto")
+      .select("insName name photoId insProfilePhoto blockStatus")
       .limit(limit)
       .skip(skip);
     var mergeArray = [...uFollowing, ...uInsFollowing]
@@ -1110,7 +1178,7 @@ exports.circleArray = async (req, res) => {
 
     const circle = await User.find({ _id: { $in: user.userCircle } })
       .select(
-        "userLegalName username photoId profilePhoto user_birth_privacy user_address_privacy user_circle_privacy"
+        "userLegalName username photoId profilePhoto blockStatus user_birth_privacy user_address_privacy user_circle_privacy"
       )
       .limit(limit)
       .skip(skip);
@@ -1126,7 +1194,7 @@ exports.followingInsArray = async (req, res) => {
       .select("id")
       .populate({
         path: "userInstituteFollowing",
-        select: "insName name photoId insProfilePhoto",
+        select: "insName name photoId insProfilePhoto blockStatus",
       })
       .lean()
       .exec();
@@ -1313,6 +1381,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
 exports.retrieveStudentDesignationArray = async (req, res) => {
   try {
     const { sid } = req.params;
+    if(sid !== ''){
     const student = await Student.findById({ _id: sid })
       .select(
         "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentReligion studentMotherName studentDOB studentNationality studentMTongue studentCast studentCastCategory studentBirthPlace studentState studentDistrict studentAddress studentPhoneNumber studentParentsName studentParentsPhoneNumber studentAadharCard studentAadharNumber studentDocuments studentGRNO studentStatus studentROLLNO"
@@ -1368,6 +1437,10 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
     // .populate("complaints");
     // .populate('studentAttendence')
     res.status(200).send({ message: "Student Designation Data", student });
+    }
+    else {
+      res.status(200).send({ message: 'Need a valid Key Id'})
+    }
   } catch {}
 };
 
@@ -1440,22 +1513,77 @@ exports.retrieveUserSubjectChat = async(req, res) =>{
   try{
     const { uid } = req.params
     const user = await User.findById({_id: uid})
-    .select('isSubjectTeacher')
+    .select('id')
     .populate({
-      path: 'isSubjectChat',
-      match:{subjectStatus:{$eq:`UnCompleted`}},
-      select: 'subjectName',
+      path: 'subjectChat',
       populate: {
-        path: 'class',
-        select: 'className classTitle'
+        path: 'subjects',
+        match: { subjectStatus: { $eq: 'UnCompleted'}},
+        select: 'subjectName subjectStatus',
+        populate: {
+          path: 'class',
+          select: 'className classTitle'
+        }
       }
     })
     res.status(200).send({ message: 'As a Subject Teacher', chat: user})
   }
-  catch{
-
+  catch(e){
+    console.log(e)
   }
 }
+
+exports.retrieveUserClassChat = async(req, res) =>{
+  try{
+    const { uid } = req.params
+    const user = await User.findById({_id: uid})
+    .select('id')
+    .populate({
+      path: 'classChat',
+      populate: {
+        path: 'classes',
+        match: { classStatus: { $eq: 'UnCompleted'}},
+        select: 'className classStatus classTitle',
+        populate: {
+          path: 'batch',
+          select: 'batchName'
+        }
+      }
+    })
+    .lean()
+    .exec()
+    res.status(200).send({ message: 'As a Class Teacher', class_chat: user})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.retrieveUserDepartmentChat = async(req, res) =>{
+  try{
+    const { uid } = req.params
+    const user = await User.findById({_id: uid})
+    .select('id')
+    .populate({
+      path: 'departmentChat',
+      populate: {
+        path: 'department',
+        select: 'dName dTitle',
+        populate: {
+          path: 'departmentSelectBatch',
+          select: 'batchName'
+        }
+      }
+    })
+    .lean()
+    .exec()
+    res.status(200).send({ message: 'As a Department Head', depart_chat: user})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
 
 exports.retrieveUserApplicationStatus = async(req, res) =>{
   try{
@@ -1500,51 +1628,125 @@ exports.retrieveStaffSalaryHistory = async(req, res) =>{
     .populate({
       path: 'salary_history',
       populate: {
-        path: 'emp_pay'
+        path: 'emp_pay',
+        select: 'salary pay_mode month',
+        populate: {
+          path: 'staff',
+          select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto'
+        }
       }
     })
-    res.status(200).send({ message: 'All Salary History ', salary: staff.salary_history})
+    res.status(200).send({ message: 'All Salary History ', salary: staff?.salary_history})
   }
   catch(e){
     console.log(e)
   }
 }
 
+//
+exports.updateUserBlock = async (req, res) => {
+  try {
+    var user_session = req.tokenData && req.tokenData.userId;
+    var user = await User.findById({ _id: user_session });
+    var suser = await User.findById({ _id: req.body.followId });
 
-// exports.updateUserBlock = async (req, res) => {
-//   try {
-//     var user_session = req.tokenData && req.tokenData.userId;
-//     var user = await User.findById({ _id: user_session });
-//     var suser = await User.findById({ _id: req.body.followId });
-
-//     if (
-//       user.userCircle.includes(req.body.followId) &&
-//       suser.userCircle.includes(user_session)
-//     ) {
-//       res.status(200).send({ message: "You are Already In a Circle" });
-//     } else {
-//       try {
-//         const notify = new Notification({});
-//         suser.userFollowing.pull(user_session);
-//         user.userFollowers.pull(req.body.followId);
-//         suser.userCircle.push(user_session);
-//         user.userCircle.push(req.body.followId);
-//         notify.notifyContent = `${user.userLegalName} has been added to your circle`;
-//         notify.notifySender = user._id;
-//         notify.notifyReceiever = suser._id;
-//         suser.uNotify.push(notify);
-//         notify.user = suser;
-//         notify.notifyByPhoto = user;
-//         await Promise.all([ user.save(), suser.save(), notify.save() ])
-//         if(suser?.user_follower_notify === 'Enable'){
-//           invokeFirebaseNotification("Circle", notify, 'Circled', suser._id, suser.deviceToken);
-//         }
-//         res.status(200).send({ message: "😀 Added to circle" });
-//       } catch {
-//         res.status(500).send({ error: "error" });
-//       }
-//     }
-//   } catch (e) {
-//     console.log('UCU', e)
-//   }
-// };
+    if (
+      user.userCircle.includes(req.body.followId) &&
+      suser.userCircle.includes(user_session)
+    ) {
+      if(user?.userBlock?.includes(`${suser._id}`)){
+        user.userBlock.pull(suser._id)
+        if(user.blockCount >=1 ){
+          user.blockCount -= 1
+        }
+        await user.save()
+        res.status(200).send({ message: "You are UnBlocked able to chat" });
+      }
+      else{
+        user.userBlock.push(suser._id)
+        user.blockCount += 1
+        await user.save()
+        res.status(200).send({ message: "You are Blocked not able to chat" });
+        try {
+          user.userCircle.pull(req.body.followId);
+          suser.userCircle.pull(user_session);
+          if(suser.circleCount > 0){
+            suser.circleCount -= 1;
+          }
+          if(user.circleCount > 0){
+            user.circleCount -= 1;
+          }
+          user.userFollowers.push(req.body.followId);
+          suser.userFollowing.push(user_session);
+          user.followerCount += 1;
+          suser.followingUICount += 1;
+          await Promise.all([ 
+            user.save(),
+            suser.save()
+          ])
+          res.status(200).send({ message: "Uncircled" });
+          const post = await Post.find({
+            $and: [{ author: `${suser._id}` }],
+          });
+  
+          post.forEach(async (ele) => {
+            if(user && user.userPosts?.includes(`${ele}`)){
+            }
+            else{
+              user.userPosts.pull(ele);
+            }
+          });
+          await user.save();
+  
+          const posts = await Post.find({
+            $and: [{ author: `${user._id}` }],
+          });
+  
+          posts.forEach(async (ele) => {
+            if(suser && suser.userPosts?.includes(`${ele}`)){
+            }
+            else{
+              suser.userPosts.pull(ele);
+            }
+          });
+          await suser.save();
+          //
+          const post_follow = await Post.find({
+            $and: [{ author: user._id, postStatus: "Anyone" }],
+          });
+          post_follow.forEach(async (ele) => {
+            //
+            if(suser?.userPosts?.includes(ele)){
+    
+            }
+            else{
+              suser.userPosts.push(ele);
+            }
+            //
+          });
+          await suser.save()
+          //
+          //
+          const post_count = await Post.find({ author: `${suser._id}` });
+          post_count.forEach(async (ele) => {
+            ele.authorFollowersCount = suser.followerCount;
+            await ele.save();
+          });
+          const post_counts = await Post.find({ author: `${user._id}` });
+          post_counts.forEach(async (ele) => {
+            ele.authorFollowersCount = user.followerCount;
+            await ele.save();
+          });
+          //
+        } catch {
+          res.status(500).send({ error: "error" });
+        }
+      }
+    } else {
+      res.status(200).send({ message: "Engage Network" });
+    }
+  } catch (e) {
+    console.log('UBU', e)
+  }
+};
+//

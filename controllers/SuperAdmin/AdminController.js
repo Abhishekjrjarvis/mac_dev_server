@@ -360,7 +360,7 @@ exports.getApproveIns = async(req, res) =>{
         institute.activateStatus = 'Activated'
         institute.activateDate = new Date()
         }
-        notify.notifyContent = "Approval For Super Admin is successfull";
+        notify.notifyContent = "Your institute is verified and approved for further managing operations";
         notify.notifySender = admin._id;
         //
         admin.activateAccount += 1
@@ -765,6 +765,7 @@ exports.retrieveRepayInstituteAmount = async(req, res) => {
     const notify = new Notification({});
     const repay = new RePay({})
     institute.adminRepayAmount -= amount;
+    institute.insBankBalance += amount
     admin.returnAmount -= amount
     notify.notifyContent = `Super Admin re-pay Rs. ${amount} to you`;
     notify.notifySender = admin._id;

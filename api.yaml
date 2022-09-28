@@ -11749,7 +11749,7 @@ paths:
                 items:
                   type: string
                   description: this is the test set id
-              files:
+              file:
                 type: array
                 description: here list of all files
                 items:
@@ -11925,7 +11925,7 @@ paths:
               testSet:
                 type: string
                 description: It is the testset id
-              files:
+              file:
                 type: array
                 description: here list of all files
                 items:
@@ -12831,7 +12831,7 @@ paths:
                 type: string
                 required:  true
                 description: here give the daily update updateDescription
-              files:
+              file:
                 type: array
                 required:  true
                 description: here list of all files
@@ -12871,7 +12871,7 @@ paths:
                 items:
                   type: string
                   description: this is one file aws key
-              files:
+              file:
                 type: array
                 required:  true
                 description: here list of all files

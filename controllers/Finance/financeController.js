@@ -274,10 +274,14 @@ exports.getExpense = async(req, res) =>{
           expenses.finances = finance._id;
           if (req.body.expenseAccount === "By Cash") {
             finance.financeExpenseCashBalance = finance.financeExpenseCashBalance + expenses.expenseAmount;
-            finance.financeTotalBalance -= expenses.expenseAmount
+            if(finance.financeTotalBalance >= expenses.expenseAmount){
+              finance.financeTotalBalance -= expenses.expenseAmount
+            }
           } else if (req.body.expenseAccount === "By Bank") {
             finance.financeExpenseBankBalance = finance.financeExpenseBankBalance + expenses.expenseAmount;
-            finance.financeTotalBalance -= expenses.expenseAmount
+            if(finance.financeTotalBalance >= expenses.expenseAmount){
+              finance.financeTotalBalance -= expenses.expenseAmount
+            }
           }
           await Promise.all([
           finance.save(),

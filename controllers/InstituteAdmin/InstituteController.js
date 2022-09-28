@@ -397,8 +397,12 @@ exports.removeFollowIns = async (req, res) => {
       if (institutes.following.includes(req.body.followId)) {
         sinstitute.followers.pull(institute_session);
         institutes.following.pull(req.body.followId);
-        institutes.followingCount -= 1;
-        sinstitute.followersCount -= 1;
+        if(institutes.followingCount >=1){
+          institutes.followingCount -= 1;
+        }
+        if(sinstitute.followersCount >= 1){
+          sinstitute.followersCount -= 1;
+        }
         await Promise.all([sinstitute.save(), institutes.save()]);
         res.status(200).send({ message: "UnFollow This Institute" });
         if (sinstitute.isUniversal === "Not Assigned") {
@@ -1513,7 +1517,7 @@ exports.retrieveNewBatch = async (req, res) => {
     const { did, id } = req.params;
     const department = await Department.findById({ _id: did });
     const institute = await InstituteAdmin.findById({ _id: id });
-    const batch = await new Batch({ ...req.body });
+    const batch = new Batch({ ...req.body });
     department.batches.push(batch);
     department.batchCount += 1;
     batch.department = department;
@@ -1529,7 +1533,7 @@ exports.retrieveNewClassMaster = async (req, res) => {
     const { className } = req.body;
     const institute = await InstituteAdmin.findById({ _id: id });
     const department = await Department.findById({ _id: did });
-    const classroomMaster = await new ClassMaster({
+    const classroomMaster = new ClassMaster({
       className: className,
       institute: institute._id,
       department: did,
@@ -1550,7 +1554,7 @@ exports.retrieveNewSubjectMaster = async (req, res) => {
     const { subjectName } = req.body;
     const institute = await InstituteAdmin.findById({ _id: id });
     const departmentData = await Department.findById({ _id: did });
-    const subjectMaster = await new SubjectMaster({
+    const subjectMaster = new SubjectMaster({
       subjectName: subjectName,
       institute: institute._id,
       department: did,

@@ -356,10 +356,14 @@ exports.postWithDeleted = async (req, res) => {
     await User.findByIdAndUpdate(id, { $pull: { userPosts: pid } });
     await User.findByIdAndUpdate(id, { $pull: { user_saved_post: pid } });
     await User.findByIdAndUpdate(id, { $pull: { tag_post: pid } });
-    user.postCount -= 1;
+    if(user.postCount >= 1){
+      user.postCount -= 1;
+    }
     if (post && post.postType === "Poll" && post.poll_query !== "") {
       await Poll.findByIdAndDelete(post.poll_query?._id);
-      user.poll_Count -= 1;
+      if(user.poll_Count >= 1){
+        user.poll_Count -= 1;
+      }
       // post.poll_query = "";
       // await post.save();
     }
@@ -1201,7 +1205,9 @@ exports.commentDelete = async (req, res) => {
     if (!req.params.cid) throw "Please send comment id to perform task";
     const comment = await Comment.findById(req.params.cid);
     const post = await Post.findById(comment.post);
-    post.commentCount -= 1;
+    if(post.commentCount >= 1){
+      post.commentCount -= 1;
+    }
     await post.save();
     await Comment.findByIdAndDelete(req.params.cid);
     res.status(200).send({ message: "Comment Deleted successfully👍" });
@@ -1229,7 +1235,9 @@ exports.commentReplyDelete = async (req, res) => {
     if (!req.params.cid) throw "Please send reply comment id to perform task";
     const rcommeny = await ReplyComment.findById(req.params.cid);
     const comment = await Comment.findById(rcommeny.parentComment);
-    comment.allChildCommentCount -= 1;
+    if(comment.allChildCommentCount >= 1){
+      comment.allChildCommentCount -= 1;
+    }
     await comment.save();
     await ReplyComment.findByIdAndDelete(req.params.cid);
     res.status(200).send({ message: "Reply comment Deleted successfully👍" });

@@ -1643,7 +1643,7 @@ exports.retrieveStaffSalaryHistory = async(req, res) =>{
   }
 }
 
-
+//
 exports.updateUserBlock = async (req, res) => {
   try {
     var user_session = req.tokenData && req.tokenData.userId;
@@ -1667,6 +1667,80 @@ exports.updateUserBlock = async (req, res) => {
         user.blockCount += 1
         await user.save()
         res.status(200).send({ message: "You are Blocked not able to chat" });
+        try {
+          user.userCircle.pull(req.body.followId);
+          suser.userCircle.pull(user_session);
+          if(suser.circleCount > 0){
+            suser.circleCount -= 1;
+          }
+          if(user.circleCount > 0){
+            user.circleCount -= 1;
+          }
+          user.userFollowers.push(req.body.followId);
+          suser.userFollowing.push(user_session);
+          user.followerCount += 1;
+          suser.followingUICount += 1;
+          await Promise.all([ 
+            user.save(),
+            suser.save()
+          ])
+          res.status(200).send({ message: "Uncircled" });
+          const post = await Post.find({
+            $and: [{ author: `${suser._id}` }],
+          });
+  
+          post.forEach(async (ele) => {
+            if(user && user.userPosts?.includes(`${ele}`)){
+            }
+            else{
+              user.userPosts.pull(ele);
+            }
+          });
+          await user.save();
+  
+          const posts = await Post.find({
+            $and: [{ author: `${user._id}` }],
+          });
+  
+          posts.forEach(async (ele) => {
+            if(suser && suser.userPosts?.includes(`${ele}`)){
+            }
+            else{
+              suser.userPosts.pull(ele);
+            }
+          });
+          await suser.save();
+          //
+          const post_follow = await Post.find({
+            $and: [{ author: user._id, postStatus: "Anyone" }],
+          });
+          post_follow.forEach(async (ele) => {
+            //
+            if(suser?.userPosts?.includes(ele)){
+    
+            }
+            else{
+              suser.userPosts.push(ele);
+            }
+            //
+          });
+          await suser.save()
+          //
+          //
+          const post_count = await Post.find({ author: `${suser._id}` });
+          post_count.forEach(async (ele) => {
+            ele.authorFollowersCount = suser.followerCount;
+            await ele.save();
+          });
+          const post_counts = await Post.find({ author: `${user._id}` });
+          post_counts.forEach(async (ele) => {
+            ele.authorFollowersCount = user.followerCount;
+            await ele.save();
+          });
+          //
+        } catch {
+          res.status(500).send({ error: "error" });
+        }
       }
     } else {
       res.status(200).send({ message: "Engage Network" });
@@ -1675,3 +1749,4 @@ exports.updateUserBlock = async (req, res) => {
     console.log('UBU', e)
   }
 };
+//

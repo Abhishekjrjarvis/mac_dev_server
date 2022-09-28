@@ -63,7 +63,9 @@ exports.postQuestionDelete = async (req, res) => {
     const user = await User.findById({ _id: id });
     await User.findByIdAndUpdate(id, { $pull: { userPosts: pid } });
     await Post.findByIdAndDelete({ _id: pid });
-    user.questionCount -= 1;
+    if(user.questionCount >= 1){
+      user.questionCount -= 1;
+    }
     await user.save();
     res.status(200).send({ message: "post question deleted" });
   } catch (e) {
@@ -405,7 +407,9 @@ exports.postQuestionDeleteAnswer = async (req, res) => {
     const post = await Post.findById({ _id: pid });
     await Post.findByIdAndUpdate(id, { $pull: { answer: aid } });
     await Answer.findByIdAndDelete({ _id: aid });
-    post.answerCount -= 1;
+    if(post.answerCount >=1){
+      post.answerCount -= 1;
+    }
     await post.save();
     res.status(200).send({ message: "post question answer deleted" });
   } catch (e) {
@@ -736,7 +740,9 @@ exports.answerReplyDelete = async (req, res) => {
     if (!req.params.aid) throw "Please send reply answer id to perform task";
     const ranswer = await AnswerReply.findById(req.params.aid);
     const answer = await Answer.findById(ranswer.parentAnswer);
-    answer.answerReplyCount -= 1;
+    if(answer.answerReplyCount >= 1){
+      answer.answerReplyCount -= 1;
+    }
     await answer.save();
     await AnswerReply.findByIdAndDelete(req.params.cid);
     res.status(200).send({ message: "Reply Answer Deleted successfully👍" });

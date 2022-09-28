@@ -515,10 +515,14 @@ exports.postWithDeleted = async (req, res) => {
     await InstituteAdmin.findByIdAndUpdate(id, { $pull: { posts: pid } });
     await InstituteAdmin.findByIdAndUpdate(id, { $pull: { institute_saved_post: pid } });
     await InstituteAdmin.findByIdAndUpdate(id, { $pull: { tag_post: pid } });
-    institute.postCount -= 1;
+    if(institute.postCount >= 1){
+      institute.postCount -= 1;
+    }
     if (post && post.postType === "Poll" && post.poll_query !== "") {
       await Poll.findByIdAndDelete(post?.poll_query?._id);
-      institute.pollCount -= 1;
+      if(institute.pollCount >= 1){
+        institute.pollCount -= 1;
+      }
     }
     await Post.findByIdAndDelete({ _id: pid });
     await institute.save();
@@ -1057,7 +1061,9 @@ exports.likeCommentChild = async (req, res) => {
           .send({ message: "liked by Institute", count: comment.allLikeCount });
       } else {
         comment.parentCommentLike.pull(id);
-        comment.allLikeCount -= 1;
+        if(comment.allLikeCount >= 1){
+          comment.allLikeCount -= 1;
+        }
         await comment.save();
 
         res.status(200).send({
@@ -1075,7 +1081,9 @@ exports.likeCommentChild = async (req, res) => {
           .send({ message: "liked by User", count: comment.allLikeCount });
       } else {
         comment.parentCommentLike.pull(id);
-        comment.allLikeCount -= 1;
+        if(comment.allLikeCount >= 1){
+          comment.allLikeCount -= 1;
+        }
         await comment.save();
         res
           .status(200)
@@ -1280,7 +1288,9 @@ exports.commentDelete = async (req, res) => {
     if (!req.params.cid) throw "Please send comment id to perform task";
     const comment = await Comment.findById(req.params.cid);
     const post = await Post.findById(comment.post);
-    post.commentCount -= 1;
+    if(post.commentCount >= 1){
+      post.commentCount -= 1;
+    }
     await post.save();
     await Comment.findByIdAndDelete(req.params.cid);
     res.status(200).send({ message: "Comment Deleted successfully👍" });
@@ -1308,7 +1318,9 @@ exports.commentReplyDelete = async (req, res) => {
     if (!req.params.cid) throw "Please send reply comment id to perform task";
     const rcommeny = await ReplyComment.findById(req.params.cid);
     const comment = await Comment.findById(rcommeny.parentComment);
-    comment.allChildCommentCount -= 1;
+    if(comment.allChildCommentCount >= 1){
+      comment.allChildCommentCount -= 1;
+    }
     await comment.save();
     await ReplyComment.findByIdAndDelete(req.params.cid);
     res.status(200).send({ message: "Reply comment Deleted successfully👍" });

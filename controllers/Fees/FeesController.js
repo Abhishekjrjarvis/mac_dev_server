@@ -390,12 +390,12 @@ exports.retrieveStudentQuery = async(req, res) => {
     })
     .populate({
       path: 'user',
-      select: 'userLegalName'
+      select: 'userLegalName username'
     }).lean()
-    const fees = await Fees.find({ _id: { $in: student.department.fees}})
+    const fees = await Fees.find({ _id: { $in: student?.department?.fees}})
     .sort("-createdAt")
     .lean()
-    const check = await Checklist.find({_id: { $in: student.department.checklists}})
+    const check = await Checklist.find({_id: { $in: student?.department?.checklists}})
     .sort("-createdAt")
     .lean()
     var mergePay = [...fees, ...check]

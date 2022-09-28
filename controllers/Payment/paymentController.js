@@ -16,11 +16,12 @@ const InstituteAdmin = require("../../models/InstituteAdmin");
 const Batch = require("../../models/Batch");
 const Notification = require("../../models/notification");
 // const ErrorHandler = require('../../utils/errorHandler');
+const Class = require('../../models/Class')
 const { v4: uuidv4 } = require("uuid");
 
 // Process Payment
 exports.processPayment = async (req, res, next) => {
-  const { amount, fiid, uid, sid, fid } = req.body;
+  const { amount, fiid, uid, sid, fid, name, value } = req.body;
 
   var params = {};
 
@@ -34,7 +35,7 @@ exports.processPayment = async (req, res, next) => {
   params["TXN_AMOUNT"] = amount;
   params[
     "CALLBACK_URL"
-  ] = `http://18.205.27.165/api/v1/callback/pay/${fiid}/${uid}/student/${sid}/fee/${fid}`;
+  ] = `${process.env.CALLBACK_URLS}/v1/callback/pay/${fiid}/${uid}/student/${sid}/fee/${fid}/${name}/${value}`;
 
   let paytmChecksum = paytm.generateSignature(
     params,
@@ -58,9 +59,7 @@ exports.processPayment = async (req, res, next) => {
 
 // Paytm Callback
 exports.paytmResponse = (req, res, next) => {
-  const { fiid, uid, sid, fid } = req.params;
-
-  // console.log(req.body, req.params);
+  const { fiid, uid, sid, fid, name, value } = req.params;
 
   let paytmChecksum = req.body.CHECKSUMHASH;
   delete req.body.CHECKSUMHASH;
@@ -71,8 +70,6 @@ exports.paytmResponse = (req, res, next) => {
     paytmChecksum
   );
   if (isVerifySignature) {
-    // console.log("Checksum Matched");
-
     var paytmParams = {};
 
     paytmParams.body = {
@@ -89,15 +86,13 @@ exports.paytmResponse = (req, res, next) => {
         paytmParams.head = {
           signature: checksum,
         };
-
-        /* prepare JSON string for request */
         var post_data = JSON.stringify(paytmParams);
 
         var options = {
           /* for Staging */
-          hostname: "securegw-stage.paytm.in",
+          // hostname: "securegw-stage.paytm.in",
           /* for Production */
-          // hostname: 'securegw.paytm.in',
+          hostname: 'securegw.paytm.in',
           port: 443,
           path: "/v3/order/status",
           method: "POST",
@@ -106,8 +101,6 @@ exports.paytmResponse = (req, res, next) => {
             "Content-Length": post_data.length,
           },
         };
-
-        // Set up the request
         var response = "";
         var post_req = https.request(options, function (post_res) {
           post_res.on("data", function (chunk) {
@@ -117,23 +110,17 @@ exports.paytmResponse = (req, res, next) => {
           post_res.on("end", function () {
             let { body } = JSON.parse(response);
             let status = body.resultInfo.resultStatus;
-            // res.json(body);
             let price = body.txnAmount;
-
             if (status === "TXN_SUCCESS") {
               addPayment(body, sid, fid, uid);
-              studentPaymentUpdated(fiid, sid, fid, status, price);
-              res.redirect(
-                `http://localhost:3000/user/${uid}/studentdetail/${sid}`
-              );
+              studentPaymentUpdated(fiid, sid, fid, status, price, value);
+              res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/memberstab`);
             } else {
-              res.redirect(`http://localhost:3000/`);
+              res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
             }
             // res.redirect(`${req.protocol}://${req.get("host")}/order/${body.orderId}`)
           });
         });
-
-        // post the data
         post_req.write(post_data);
         post_req.end();
       });
@@ -147,7 +134,7 @@ const addPayment = async (data, studentId, feeId, userId) => {
     const student = await Student.findById({ _id: studentId });
     const fee = await Fees.findOne({_id: feeId})
     const checklist = await Checklist.findOne({_id: feeId})
-    const payment = await new Payment(data);
+    const payment = new Payment(data);
     payment.studentId = student._id;
     payment.feeId = feeId;
     payment.userId = userId;
@@ -161,21 +148,15 @@ const addPayment = async (data, studentId, feeId, userId) => {
     else{}
     await Promise.all([ payment.save(), student.save()])
   } catch (error) {
-    console.log("Payment Failed!");
+    console.log("Payment Failed!", error);
   }
 };
 
-const studentPaymentUpdated = async (
-  financeId,
-  studentId,
-  feeId,
-  statusType,
-  tx_amount
-) => {
+const studentPaymentUpdated = async (financeId, studentId, feeId, statusType, tx_amount, value) => {
   try {
+    // var original_amount = parseInt(tx_amount) - ((parseInt(tx_amount) * 2) / 100)
     const student = await Student.findById({ _id: studentId });
-    const finance = await Finance.findById({ _id: financeId })
-      .populate({
+    const finance = await Finance.findById({ _id: financeId }).populate({
         path: "institute",
       })
       .populate({
@@ -191,32 +172,30 @@ const studentPaymentUpdated = async (
     const fData = await Fees.findById({ _id: feeId });
     const checklistData = await Checklist.findById({ _id: feeId });
     const admin = await Admin.findById({_id: `${process.env.S_ADMIN_ID}`})
-    const notify = await new Notification({});
+    const notify = new Notification({});
     if (fData) {
-      if (
-        fData.studentsList.length >= 1 &&
-        fData.studentsList.includes(String(student._id))
-      ) {
-        res.status(200).send({
-          message: `${student.studentFirstName} paid the ${fData.feeName}`,
-        });
-      } else {
+      if (fData.studentsList.length >= 1 && fData.studentsList.includes(String(student._id))) {
+        res.status(200).send({ message: `${student.studentFirstName} paid the ${fData.feeName}`});
+      } 
+      else {
         try {
           student.studentFee.push(fData._id);
           fData.onlineList.push(student._id);
           student.onlineFeeList.push(fData._id);
           student.studentPaidFeeCount += fData.feeAmount
-          student.studentRemainingFeeCount -= fData.feeAmount
-          finance.financeBankBalance =
-            finance.financeBankBalance + parseInt(tx_amount);
-          finance.institute.insBankBalance =
-            finance.institute.insBankBalance + parseInt(tx_amount);
+          if(student.studentRemainingFeeCount >= fData.feeAmount){
+            student.studentRemainingFeeCount -= fData.feeAmount
+          }
+          finance.financeBankBalance = finance.financeBankBalance + parseInt(value);
+          finance.financeTotalBalance = finance.financeTotalBalance + parseInt(value)
+          // finance.institute.insBankBalance = finance.institute.insBankBalance + parseInt(value);
+          finance.institute.adminRepayAmount = finance.institute.adminRepayAmount + parseInt(value);
+          admin.returnAmount += parseInt(tx_amount)
           notify.notifyContent = `${student.studentFirstName}${
             student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
           } ${student.studentLastName} paid the ${
             fData.feeName
-          }/ (Rs.${tx_amount}) successfully`;
-          admin.returnAmount += parseInt(tx_amount)
+          }/ (Rs.${parseInt(value)}) successfully`;
           notify.notifySender = student._id;
           notify.notifyReceiever = user._id;
           finance.institute.iNotify.push(notify._id);
@@ -225,7 +204,7 @@ const studentPaymentUpdated = async (
           notify.user = user._id;
           notify.notifyByStudentPhoto = student._id;
           classes.onlineFeeCollection.push({
-            fee: parseInt(tx_amount),
+            fee: parseInt(parseInt(value)),
             feeId: fData._id
           })
           await Promise.all([
@@ -238,35 +217,35 @@ const studentPaymentUpdated = async (
             admin.save(),
             classes.save()
           ])
-        } catch {}
+        } catch(e){
+          console.log(e)
+        }
       }
     } else if (checklistData) {
-      if (
-        checklistData.studentsList.length >= 1 &&
-        checklistData.studentsList.includes(String(student._id))
-      ) {
-        res.status(200).send({
-          message: `${student.studentFirstName} paid the ${checklistData.checklistName}`,
-        });
-      } else {
+      if (checklistData.studentsList.length >= 1 && checklistData.studentsList.includes(String(student._id))) {
+        res.status(200).send({ message: `${student.studentFirstName} paid the ${checklistData.checklistName}`});
+      } 
+      else {
         try {
           student.studentChecklist.push(checklistData._id);
-          student.studentPaidFeeCount += fData.feeAmount
-          student.studentRemainingFeeCount -= fData.feeAmount
+          student.studentPaidFeeCount += checklistData.checklistAmount
+          if(student.studentRemainingFeeCount >= checklistData.checklistAmount){
+            student.studentRemainingFeeCount -= checklistData.checklistAmount
+          }
           checklistData.checklistFeeStatus = statusType;
           checklistData.studentsList.push(student._id);
           checklistData.checklistStudent = student._id;
           student.onlineCheckList.push(checklistData._id);
-          finance.financeBankBalance =
-            finance.financeBankBalance + parseInt(tx_amount);
-          finance.institute.insBankBalance =
-            finance.institute.insBankBalance + parseInt(tx_amount);
+          finance.financeBankBalance = finance.financeBankBalance + parseInt(value);
+          finance.financeTotalBalance = finance.financeTotalBalance + parseInt(value)
+          // finance.institute.insBankBalance = finance.institute.insBankBalance + parseInt(value);
+          finance.institute.adminRepayAmount = finance.institute.adminRepayAmount + parseInt(value);
+          admin.returnAmount += parseInt(tx_amount)
           notify.notifyContent = `${student.studentFirstName}${
             student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
           } ${student.studentLastName} paid the ${
             checklistData.checklistName
-          }/ (Rs.${tx_amount}) successfully`;
-          admin.returnAmount += parseInt(tx_amount)
+          }/ (Rs.${parseInt(value)}) successfully`;
           notify.notifySender = student._id;
           notify.notifyReceiever = user._id;
           finance.institute.iNotify.push(notify._id);
@@ -283,10 +262,14 @@ const studentPaymentUpdated = async (
             notify.save(),
             admin.save()
           ])
-        } catch {}
+        } catch(e) {
+          console.log(e)
+        }
       }
     }
-  } catch {}
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 exports.getPaymentStatus = async (req, res, next) => {

@@ -17,7 +17,7 @@ const { generateTxnToken, paytmVerifyResponseStatus, generateActivateTxnToken, p
 // ================= Student Fee And Checklist Payment ====================
 
 router.route('/payment/process').post(processPayment);
-router.route('/callback/pay/:fiid/:uid/student/:sid/fee/:fid').post(paytmResponse);
+router.route('/callback/pay/:fiid/:uid/student/:sid/fee/:fid/:name/:value').post(paytmResponse);
 router.route('/payment/status/:id').get(getPaymentStatus);
 
 
@@ -60,7 +60,7 @@ router.route('/callback/ins/:id/user/:name').post(paytmUnlockFeatureResponse);
 
 // ============================= APK Token ==========================================
 router.route('/generateTxnToken').post(generateTxnToken);
-router.route('/verify/status/:fiid/:uid/student/:sid/fee/:fid').post(paytmVerifyResponseStatus);
+router.route('/verify/status/:fiid/:uid/student/:sid/fee/:fid/:value').post(paytmVerifyResponseStatus);
 
 // ============================= Institute APK Token ==========================================
 router.route('/generateActivateTxnToken').post(generateActivateTxnToken);

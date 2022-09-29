@@ -266,7 +266,7 @@ exports.getUpdatePersonalIns = async (req, res) => {
     await InstituteAdmin.findByIdAndUpdate(id, req.body);
     // await institute.save();
     res.status(200).send({ message: "Personal Info Updated" });
-    var institute = await InstituteAdmin.findById({_id: id})
+    var institute = await InstituteAdmin.findById({ _id: id });
     const post = await Post.find({ author: `${institute._id}` });
     post.forEach(async (ele) => {
       ele.authorOneLine = institute.one_line_about;
@@ -284,8 +284,8 @@ exports.getUpdatePersonalIns = async (req, res) => {
       reply.authorOneLine = institute.one_line_about;
       await reply.save();
     });
-  } catch(e) {
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
 };
 
@@ -399,10 +399,10 @@ exports.removeFollowIns = async (req, res) => {
       if (institutes.following.includes(req.body.followId)) {
         sinstitute.followers.pull(institute_session);
         institutes.following.pull(req.body.followId);
-        if(institutes.followingCount >=1){
+        if (institutes.followingCount >= 1) {
           institutes.followingCount -= 1;
         }
-        if(sinstitute.followersCount >= 1){
+        if (sinstitute.followersCount >= 1) {
           sinstitute.followersCount -= 1;
         }
         await Promise.all([sinstitute.save(), institutes.save()]);
@@ -557,9 +557,9 @@ exports.getNewDepartment = async (req, res) => {
     department.dHead = staff._id;
     department.staffCount += 1;
     user.departmentChat.push({
-      isDepartmentHead: 'Yes',
-      department: department._id
-    })
+      isDepartmentHead: "Yes",
+      department: department._id,
+    });
     if (
       department.departmentChatGroup.length >= 1 &&
       department.departmentChatGroup.includes(`${staff._id}`)
@@ -1211,9 +1211,9 @@ exports.retrieveNewClass = async (req, res) => {
       depart.class.push(classRoom._id);
       depart.classCount += 1;
       user.classChat.push({
-        isClassTeacher: 'Yes',
-        classes: classRoom._id
-      })
+        isClassTeacher: "Yes",
+        classes: classRoom._id,
+      });
       classRoom.department = depart._id;
       notify.notifyContent = `you got the designation of ${classRoom.className} as Class Teacher`;
       notify.notifySender = id;
@@ -1294,9 +1294,9 @@ exports.retrieveNewSubject = async (req, res) => {
     staff.staffDesignationCount += 1;
     staff.recentDesignation = subjectTitle;
     user.subjectChat.push({
-      isSubjectTeacher: 'Yes',
-      subjects: subject._id
-    })
+      isSubjectTeacher: "Yes",
+      subjects: subject._id,
+    });
     subject.subjectTeacherName = staff._id;
     notify.notifyContent = `you got the designation of ${subject.subjectName} as Subject Teacher`;
     notify.notifySender = id;
@@ -1598,7 +1598,7 @@ exports.retrieveClass = async (req, res) => {
     const { cid } = req.params;
     const classes = await Class.findById({ _id: cid })
       .select(
-        "className classTitle classCode classStartDate classStatus studentCount photoId photo coverId cover subjectCount classAbout classDisplayPerson classStudentTotal"
+        "className classTitle classCode classStartDate classStatus classHeadTitle studentCount photoId photo coverId cover subjectCount classAbout classDisplayPerson classStudentTotal"
       )
       .populate({
         path: "subject",
@@ -1611,7 +1611,7 @@ exports.retrieveClass = async (req, res) => {
       .populate({
         path: "classTeacher",
         select:
-          "staffFirstName staffMiddleName staffLastName photoId studentProfilePhoto",
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
       })
       .populate({
         path: "department",
@@ -2288,9 +2288,9 @@ exports.retrieveDepartmentStaffArray = async (req, res) => {
         select:
           "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
         populate: {
-          path: 'user',
-          select: 'username userLegalName photoId profilePhoto'
-        }
+          path: "user",
+          select: "username userLegalName photoId profilePhoto",
+        },
       });
     res.status(200).send({ message: "Department Staff List", department });
   } catch {}
@@ -2462,39 +2462,44 @@ exports.deactivateInstituteAccount = async (req, res) => {
   }
 };
 
-exports.retrieveMergeStaffStudent = async(req, res) =>{
-  try{
+exports.retrieveMergeStaffStudent = async (req, res) => {
+  try {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const { did } = req.params;
     const skip = (page - 1) * limit;
-    const depart = await Department.findById({_id: did})
-    .select('id departmentChatGroup ApproveStudent')
+    const depart = await Department.findById({ _id: did }).select(
+      "id departmentChatGroup ApproveStudent"
+    );
 
-    const staff = await Staff.find({ _id: { $in: depart.departmentChatGroup }})
-    .limit(limit)
-    .skip(skip)
-    .select('staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO')
-    .populate({
-      path: 'user',
-      select: 'username userLegalName photoId profilePhoto'
-    })
+    const staff = await Staff.find({ _id: { $in: depart.departmentChatGroup } })
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+      )
+      .populate({
+        path: "user",
+        select: "username userLegalName photoId profilePhoto",
+      });
 
-    const student = await Student.find({ _id: { $in: depart.ApproveStudent }})
-    .limit(limit)
-    .skip(skip)
-    .select('studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO')
-    .populate({
-      path: 'user',
-      select: 'username userLegalName photoId profilePhoto'
-    })
+    const student = await Student.find({ _id: { $in: depart.ApproveStudent } })
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO"
+      )
+      .populate({
+        path: "user",
+        select: "username userLegalName photoId profilePhoto",
+      });
 
-    var mergeDepart = [...staff, ...student]
+    var mergeDepart = [...staff, ...student];
 
-    res.status(200).send({ message: 'Merge Staff and Student', merge: mergeDepart })
+    res
+      .status(200)
+      .send({ message: "Merge Staff and Student", merge: mergeDepart });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
-
+};

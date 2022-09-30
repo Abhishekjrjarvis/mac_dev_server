@@ -48,6 +48,8 @@ exports.createFess = async (req, res) => {
       notify.feesId = feeData._id
       user.activity_tab.push(notify._id);
       notify.notifyByDepartPhoto = department._id;
+      notify.notifyCategory = "Fee";
+      notify.redirectIndex = 5;
       //
       invokeMemberTabNotification(
         "Student Activity",

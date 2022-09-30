@@ -70,6 +70,8 @@ exports.createChecklist = async (req, res) => {
       notify.checklistId = check._id
       user.activity_tab.push(notify._id);
       notify.notifyByDepartPhoto = department._id;
+      notify.notifyCategory = "Checklist";
+      notify.redirectIndex = 2;
       //
       invokeMemberTabNotification(
         "Student Activity",

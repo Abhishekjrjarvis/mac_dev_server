@@ -450,6 +450,8 @@ exports.requestClassOfflineFee = async(req, res) =>{
             notify.financeId = finance._id
             user.activity_tab.push(notify._id);
             notify.notifyByClassPhoto = classes._id;
+            notify.notifyCategory = "Finance";
+            notify.redirectIndex = 8;
             //
             invokeMemberTabNotification(
               "Staff Activity",
@@ -481,6 +483,9 @@ exports.submitClassOfflineFee = async(req, res) =>{
         var finance = await Finance.findById({ _id: fid });
         const classes = await Class.findById({ _id: cid })
         .populate({ path: 'classTeacher', select: 'staffFirstName staffMiddleName staffLastName'})
+        const classStaff = await Staff.findById({_id: `${classes?.classTeacher?._id}`})
+        .select('id user')
+        const user = await User.findById({_id: `${classStaff?.user}`})
         const fees = await Fees.findById({ _id: id });
         finance.classRoom.splice({
           classId: classes._id,
@@ -524,10 +529,34 @@ exports.submitClassOfflineFee = async(req, res) =>{
           }
           else{}
         }
+        //
+        const notify = new StudentNotification({});
+        notify.notifyContent = `Your Rs.${amount} Offline Payment Request has been processed and approved`;
+        notify.notifySender = finance?._id;
+        notify.notifyReceiever = user._id;
+        notify.notifyType = 'Staff'
+        notify.notifyPublisher = classStaff?._id
+        user.activity_tab.push(notify._id);
+        notify.notifyByFinancePhoto = finance?._id;
+        notify.notifyCategory = "Finance";
+        notify.redirectIndex = 8;
+        //
+         invokeMemberTabNotification(
+          "Staff Activity",
+          notify,
+          'Payment Approval',
+          user._id,
+          user.deviceToken,
+          'Staff',
+           notify
+        );
+        //
         await Promise.all([
           classes.save(),
           finance.save(),
-          fees.save()
+          fees.save(),
+          user.save(),
+          notify.save()
          ])
         res.status(200).send({ message: "Reuqest Accepted", accept: true, classLength: finance.classRoom.length });
       } catch(e) {
@@ -541,6 +570,9 @@ exports.classOfflineFeeIncorrect = async(req, res) =>{
         const finance = await Finance.findById({ _id: fid });
         const classes = await Class.findById({ _id: cid })
         .populate({ path: 'classTeacher', select: 'staffFirstName staffMiddleName staffLastName'})
+        const classStaff = await Staff.findById({_id: `${classes?.classTeacher?._id}`})
+        .select('id user')
+        const user = await User.findById({_id: `${classStaff?.user}`})
         const fees = await Fees.findById({ _id: id });
         finance.classRoom.splice({
           classId: classes._id,
@@ -569,9 +601,33 @@ exports.classOfflineFeeIncorrect = async(req, res) =>{
         finance.requestArray.pull(classes._id)
         classes.requestFeeStatus.feeId = fees._id
         classes.requestFeeStatus.status = 'Rejected'
+        //
+        const notify = new StudentNotification({});
+        notify.notifyContent = `Your Rs.${amount} Offline Payment Request has been rejected`;
+        notify.notifySender = finance?._id;
+        notify.notifyReceiever = user._id;
+        notify.notifyType = 'Staff'
+        notify.notifyPublisher = classStaff?._id
+        user.activity_tab.push(notify._id);
+        notify.notifyByFinancePhoto = finance?._id;
+        notify.notifyCategory = "Finance";
+        notify.redirectIndex = 8;
+        //
+         invokeMemberTabNotification(
+          "Staff Activity",
+          notify,
+          'Payment Rejection',
+          user._id,
+          user.deviceToken,
+          'Staff',
+          notify
+        );
+        //
         await Promise.all([
           finance.save(),
-          classes.save()
+          classes.save(),
+          user.save(),
+          notify.save()
         ])
         res.status(200).send({ message: "Request Reject", reject: true });
       } catch {
@@ -786,7 +842,7 @@ exports.addEmpToFinance = async(req, res) =>{
     pay_scale.staff = staff._id
     finance.staff_pay_list.push(pay_scale._id)
     await Promise.all([ pay_scale.save(), finance.save() ])
-    res.status(200).send({ message: 'Employee Added for Payroll'})
+    res.status(200).send({ message: 'Employee Added for Payroll', status: true})
   }
   catch(e){
     console.log(e)
@@ -1022,6 +1078,26 @@ exports.retrieveOneExpenseQuery = async(req, res) => {
     const { eid } = req.params
     const e_detail = await Expense.findById({_id: eid})
     res.status(200).send({ message: 'One Expense Detail', oneExpense: e_detail})
+  }
+  catch{}
+}
+
+exports.retrieveAllStaffArray = async(req, res) =>{
+  try{
+    const { fid } = req.params
+    const finance = await Finance.findById({_id: fid})
+    .select('institute')
+
+    const ins = await InstituteAdmin.findById({_id: `${finance.institute}`})
+    .select('id')
+    .populate({
+      path: 'ApproveStaff',
+      select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO'
+    })
+    .lean()
+    .exec()
+
+    res.status(200).send({ message: 'All Staff List', staff_array: ins?.ApproveStaff})
   }
   catch{
 

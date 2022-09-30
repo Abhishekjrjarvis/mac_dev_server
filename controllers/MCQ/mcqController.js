@@ -22,7 +22,7 @@ const { uploadDocFile } = require("../../S3Configuration");
 const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
-const User = require('../../models/User')
+const User = require("../../models/User");
 
 exports.getQuestion = async (req, res) => {
   try {
@@ -285,7 +285,7 @@ exports.takeTestSet = async (req, res) => {
     };
     for (stId of subject?.class?.ApproveStudent) {
       const student = await Student.findById(stId);
-      const user = await User.findById({_id: `${student.user}`})
+      const user = await User.findById({ _id: `${student.user}` });
       const studentTestSet = new StudentTestSet(obj);
       studentTestSet.student = stId;
       student.testSet.push(studentTestSet._id);
@@ -293,23 +293,28 @@ exports.takeTestSet = async (req, res) => {
       notify.notifyContent = `New ${testSet.testExamName} Test is created for ${testSet.testSubject}`;
       notify.notifySender = subject._id;
       notify.notifyReceiever = user._id;
-      notify.notifyType = 'Student'
-      notify.notifyPublisher = student._id
-      user.activity_tab.push(notify._id)
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student._id;
+      user.activity_tab.push(notify._id);
       student.notification.push(notify._id);
       notify.notifyBySubjectPhoto = subject._id;
       //
       invokeMemberTabNotification(
         "Student Activity",
         notify,
-        'New MCQ Test Set',
+        "New MCQ Test Set",
         user._id,
         user.deviceToken,
-        'Student',
+        "Student",
         notify
       );
       //
-      await Promise.all([studentTestSet.save(), student.save(), notify.save(), user.save()]);
+      await Promise.all([
+        studentTestSet.save(),
+        student.save(),
+        notify.save(),
+        user.save(),
+      ]);
     }
     res
       .status(200)
@@ -605,7 +610,7 @@ exports.createExam = async (req, res) => {
             }
             for (let stu of classes.ApproveStudent) {
               const student = await Student.findById(stu);
-              const user = await User.findById({_id: `${student.user}`})
+              const user = await User.findById({ _id: `${student.user}` });
               const studentTestSet = new StudentTestSet(obj);
               studentTestSet.student = student._id;
               if (student.exams.includes(exam._id)) {
@@ -680,19 +685,19 @@ exports.createExam = async (req, res) => {
               notify.notifyContent = `New ${exam.examName} Exam is created for ${sub.subjectName} , check your members tab`;
               notify.notifySender = department._id;
               notify.notifyReceiever = user._id;
-              notify.notifyType = 'Student'
-              notify.notifyPublisher = student._id
-              user.activity_tab.push(notify._id)
+              notify.notifyType = "Student";
+              notify.notifyPublisher = student._id;
+              user.activity_tab.push(notify._id);
               student.notification.push(notify._id);
               notify.notifyByDepartPhoto = department._id;
               //
               invokeMemberTabNotification(
                 "Student Activity",
                 notify,
-                'New Online Exam',
+                "New Online Exam",
                 user._id,
                 user.deviceToken,
-                'Student',
+                "Student",
                 notify
               );
               //
@@ -700,7 +705,7 @@ exports.createExam = async (req, res) => {
                 studentTestSet.save(),
                 student.save(),
                 notify.save(),
-                user.save()
+                user.save(),
               ]);
             }
             if (subject?.exams?.includes(exam._id)) {
@@ -779,30 +784,34 @@ exports.createAssignment = async (req, res) => {
     const subject = await Subject.findById(req.params.sid);
     const assignment = new Assignment(req.body);
     assignment.subject = req.params.sid;
-    for (let file of req?.files) {
-      const obj = {
-        documentType: "",
-        documentName: "",
-        documentSize: "",
-        documentKey: "",
-        documentEncoding: "",
-      };
-      obj.documentType = file.mimetype;
-      obj.documentName = file.originalname;
-      obj.documentEncoding = file.encoding;
-      obj.documentSize = file.size;
-      const results = await uploadDocFile(file);
-      obj.documentKey = results.Key;
-      assignment.files.push(obj);
-      await unlinkFile(file.path);
+    if (req?.files) {
+      for (let file of req?.files) {
+        const obj = {
+          documentType: "",
+          documentName: "",
+          documentSize: "",
+          documentKey: "",
+          documentEncoding: "",
+        };
+        obj.documentType = file.mimetype;
+        obj.documentName = file.originalname;
+        obj.documentEncoding = file.encoding;
+        obj.documentSize = file.size;
+        const results = await uploadDocFile(file);
+        obj.documentKey = results.Key;
+        assignment.files.push(obj);
+        await unlinkFile(file.path);
+      }
     }
     subject?.assignments?.push(assignment._id);
+    assignment.totalCount = req.body?.students?.length;
+    assignment.student?.push(...req.body?.students);
     await Promise.all([assignment.save(), subject.save()]);
     res.status(201).send({ message: "Assignment is created" });
 
     for (let stud of req.body?.students) {
       const stu = await Student.findById(stud);
-      const user = await User.findById(`${stu.user}`)
+      const user = await User.findById(`${stu.user}`);
       stu.totalAssigment += 1;
       const studentAssignment = new StudentAssignment({
         assignmentName: assignment?.assignmentName,
@@ -833,27 +842,52 @@ exports.createAssignment = async (req, res) => {
 
       stu.assignments.push(studentAssignment._id);
       const notify = new StudentNotification({});
-      notify.notifyContent = `New ${studentAssignment.assignmentName} is created for ${sub.subjectName} , check your members tab`;
+      notify.notifyContent = `New ${studentAssignment.assignmentName} is created for ${subject.subjectName} , check your members tab`;
       notify.notifySender = subject._id;
       notify.notifyReceiever = user._id;
-      notify.notifyType = 'Student'
-      notify.notifyPublisher = stu._id
-      user.activity_tab.push(notify._id)
+      notify.notifyType = "Student";
+      notify.notifyPublisher = stu._id;
+      user.activity_tab.push(notify._id);
       stu.notification.push(notify._id);
       notify.notifyBySubjectPhoto = subject._id;
       //
       invokeMemberTabNotification(
         "Student Activity",
         notify,
-        'New Assignment',
+        "New Assignment",
         user._id,
         user.deviceToken,
-        'Student',
+        "Student",
         notify
       );
       //
-      await Promise.all([studentAssignment.save(), stu.save(), notify.save(), user.save()]);
+      await Promise.all([
+        studentAssignment.save(),
+        stu.save(),
+        notify.save(),
+        user.save(),
+      ]);
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.getOneAssignmentCount = async (req, res) => {
+  try {
+    const assignment = await Assignment.findById(req.params.aid)
+      .select("dueDate totalCount submittedCount")
+      .lean()
+      .exec();
+    const submittedStudent = {
+      dueDate: assignment?.dueDate,
+      totalCount: assignment?.totalCount,
+      submittedCount: assignment?.submittedCount,
+    };
+    res.status(200).send({
+      message: "All Submitted Student count",
+      submittedStudent,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -894,12 +928,14 @@ exports.getOneAssignment = async (req, res) => {
           photoId: "",
           studentProfilePhoto: "",
           assignmentSubmittedDate: "",
+          _id: "",
         };
         obj.studentFirstName = oneStudent.studentFirstName;
         obj.studentMiddleName = oneStudent?.studentMiddleName;
         obj.studentLastName = oneStudent.studentLastName;
         obj.studentROLLNO = oneStudent.studentROLLNO;
         obj.photoId = oneStudent.photoId;
+        obj._id = oneStudent._id;
         obj.studentProfilePhoto = oneStudent.studentProfilePhoto;
         obj.assignmentSubmittedDate =
           oneStudent?.assignments?.[0]?.submmittedDate;
@@ -978,6 +1014,21 @@ exports.getOneAssignmentOneStudentCompleteAssignment = async (req, res) => {
 
 //=============for the Student Side===================
 
+exports.getStudentAssignmentCount = async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.sid)
+      .select("totalAssigment submittedAssigment")
+      .lean()
+      .exec();
+    res.status(200).send({
+      message: "assignment count",
+      totalAssigment: student.totalAssigment,
+      submittedAssigment: student.submittedAssigment,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
 exports.getStudentAssignment = async (req, res) => {
   try {
     const student = await Student.findById(req.params.sid)
@@ -990,7 +1041,7 @@ exports.getStudentAssignment = async (req, res) => {
         select:
           "assignmentName dueDate assignmentSubmitRequest assignmentSubmit",
       })
-      .select("assignments totalAssigment submittedAssigment")
+      .select("assignments")
       .lean()
       .exec();
 
@@ -1012,20 +1063,12 @@ exports.getStudentAssignment = async (req, res) => {
       );
       res.status(200).send({
         message: "all assignment",
-        assignmentList: {
-          totalAssigment: student?.totalAssigment,
-          submittedAssigment: student?.submittedAssigment,
-          assignments: assignments,
-        },
+        assignments: assignments,
       });
     } else {
       res.status(200).send({
         message: "not any assignment",
-        assignmentList: {
-          totalAssigment: student?.totalAssigment,
-          submittedAssigment: student?.submittedAssigment,
-          assignments: [],
-        },
+        assignments: [],
       });
     }
   } catch (e) {
@@ -1064,28 +1107,30 @@ exports.getStudentOneAssignmentSubmit = async (req, res) => {
     assignment.studentDescritpion = req.body?.studentDescritpion;
     assignment.submmittedDate = req.body?.submmittedDate;
     assignment.assignmentSubmitRequest = req.body?.assignmentSubmitRequest;
-
-    for (let file of req?.files) {
-      const obj = {
-        documentType: "",
-        documentName: "",
-        documentSize: "",
-        documentKey: "",
-        documentEncoding: "",
-      };
-      obj.documentType = file.mimetype;
-      obj.documentName = file.originalname;
-      obj.documentEncoding = file.encoding;
-      obj.documentSize = file.size;
-      const results = await uploadDocFile(file);
-      obj.documentKey = results.Key;
-      assignment.studentFiles.push(obj);
-      await unlinkFile(file.path);
+    if (req?.files) {
+      for (let file of req?.files) {
+        const obj = {
+          documentType: "",
+          documentName: "",
+          documentSize: "",
+          documentKey: "",
+          documentEncoding: "",
+        };
+        obj.documentType = file.mimetype;
+        obj.documentName = file.originalname;
+        obj.documentEncoding = file.encoding;
+        obj.documentSize = file.size;
+        const results = await uploadDocFile(file);
+        obj.documentKey = results.Key;
+        assignment.studentFiles.push(obj);
+        await unlinkFile(file.path);
+      }
     }
     const student = await Student.findById(assignment.student);
     student.submittedAssigment += 1;
     const subjectAssignment = await Assignment.findById(assignment.assignment);
     subjectAssignment.submittedStudent.push(student._id);
+    subjectAssignment.submittedCount += 1;
     if (req.body?.testSet) {
       const studentTestset = await StudentTestSet.findById(req.body?.testSet);
       studentTestset.testSetComplete = true;

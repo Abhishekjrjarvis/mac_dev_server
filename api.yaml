@@ -11862,6 +11862,12 @@ paths:
                 type: string
                 required:  true
                 description: here type the description the the assingmnet
+              students:
+                type: array
+                description: here list of the all student ids
+                items:
+                  type: string
+                  description: this is the student id
               testSet:
                 type: array
                 description: here list of the all test set ids
@@ -12021,11 +12027,6 @@ paths:
           required: true
           type: string
           description: It is particular Assigment id    
-        - in: path
-          name: sid
-          required: true
-          type: string
-          description: It is particular Student id     
         - in: body
           name: body
           schema:

@@ -60,6 +60,9 @@ router
   .post(upload.array("file"), catchAsync(mcqController.createAssignment));
 
 router
+  .route("/subject/count/assignment/:aid")
+  .get(catchAsync(mcqController.getOneAssignmentCount));
+router
   .route("/subject/assignment/:aid")
   .get(catchAsync(mcqController.getOneAssignment));
 
@@ -69,6 +72,10 @@ router
   .patch(
     catchAsync(mcqController.getOneAssignmentOneStudentCompleteAssignment)
   );
+
+router
+  .route("/student/:sid/count/assignment")
+  .get(catchAsync(mcqController.getStudentAssignmentCount));
 
 router
   .route("/student/:sid/assignment")

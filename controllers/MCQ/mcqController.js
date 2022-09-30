@@ -298,6 +298,8 @@ exports.takeTestSet = async (req, res) => {
       user.activity_tab.push(notify._id);
       student.notification.push(notify._id);
       notify.notifyBySubjectPhoto = subject._id;
+      notify.notifyCategory = "MCQ";
+      notify.redirectIndex = 6;
       //
       invokeMemberTabNotification(
         "Student Activity",
@@ -690,6 +692,8 @@ exports.createExam = async (req, res) => {
               user.activity_tab.push(notify._id);
               student.notification.push(notify._id);
               notify.notifyByDepartPhoto = department._id;
+              notify.notifyCategory = "Exam";
+              notify.redirectIndex = 1;
               //
               invokeMemberTabNotification(
                 "Student Activity",
@@ -850,6 +854,8 @@ exports.createAssignment = async (req, res) => {
       user.activity_tab.push(notify._id);
       stu.notification.push(notify._id);
       notify.notifyBySubjectPhoto = subject._id;
+      notify.notifyCategory = "Assignment";
+      notify.redirectIndex = 7;
       //
       invokeMemberTabNotification(
         "Student Activity",
@@ -1103,7 +1109,20 @@ exports.getStudentOneAssignmentDetail = async (req, res) => {
 
 exports.getStudentOneAssignmentSubmit = async (req, res) => {
   try {
-    const assignment = await StudentAssignment.findById(req.params.aid);
+    const assignment = await StudentAssignment.findById(req.params.aid)
+    .populate({
+      path: 'subject',
+      select: 'subjectName',
+      populate: {
+        path: 'subjectTeacherName',
+        select: 'id',
+        populate: {
+          path: 'user',
+          select: "id"
+        }
+      }
+    })
+    const user = await User.findById({_id: assignment?.subject?.subjectTeacherName?.user?._id})
     assignment.studentDescritpion = req.body?.studentDescritpion;
     assignment.submmittedDate = req.body?.submmittedDate;
     assignment.assignmentSubmitRequest = req.body?.assignmentSubmitRequest;
@@ -1136,10 +1155,36 @@ exports.getStudentOneAssignmentSubmit = async (req, res) => {
       studentTestset.testSetComplete = true;
       await studentTestset.save();
     }
+    //
+    const notify = new StudentNotification({});
+    notify.notifyContent = `${student?.studentFirstName} submit ${assignment?.assignmentName} Assignment Successfully`;
+    notify.notifySender = student._id;
+    notify.notifyReceiever = user._id;
+    notify.assignmentId = assignment?._id;
+    notify.notifyType = "Student";
+    notify.notifyPublisher = student._id;
+    user.activity_tab.push(notify._id);
+    student.notification.push(notify._id);
+    notify.notifyByStudentPhoto = student?._id;
+    notify.notifyCategory = "Assignment";
+    notify.redirectIndex = 7;
+    //
+    invokeMemberTabNotification(
+      "Student Activity",
+      notify,
+      "Submit Assignment",
+      user._id,
+      user.deviceToken,
+      "Student",
+      notify
+    );
+    //
     await Promise.all([
       assignment.save(),
       student.save(),
       subjectAssignment.save(),
+      notify.save(),
+      user.save()
     ]);
     res.status(200).send({
       message: "Assignment is submitted",

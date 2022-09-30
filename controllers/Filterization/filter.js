@@ -1,6 +1,7 @@
 const Post = require('../../models/Post')
 const Poll = require('../../models/Question/Poll')
-
+const Income = require('../../models/Income')
+const Expense = require('../../models/Expense')
 
 exports.retrieveByLearnQuery = async (req, res) => {
     try {
@@ -129,3 +130,86 @@ exports.filterByDate = async(req, res) => {
     console.log(e)
   }
 }
+
+exports.filterByDateIncomes = async(req, res) => {
+  try{
+    const { g_month, year, l_month, fid } = req.query
+    var cash = 0
+    var bank = 0
+    const incomes = await Income.find({
+      $and: [{
+        createdAt: {
+          $gte: new Date(`${year}-${g_month}-01T00:00:00.000Z`),
+          $lt: new Date(`${year}-${l_month}-01T00:00:00.000Z`)
+      }},
+      {finances: fid}
+      ]
+    })
+    if(incomes?.length >=1 ){
+      incomes.forEach((val) => {
+        if(`${val?.incomeAccount}` === 'By Cash'){
+          cash += val?.incomeAmount
+        }
+        if(`${val?.incomeAccount}` === 'By Bank'){
+          bank += val?.incomeAmount
+        }
+      })
+    }
+    var stats = {
+      cash: cash,
+      bank: bank,
+      total: cash + bank
+    }
+    if(incomes?.length >= 1){
+      res.status(200).send({ message: 'Filter Incomes', f_incomes: incomes, stats: stats})
+    }
+    else{
+      res.status(200).send({ message: 'user', f_incomes: [], stats: { cash: 0, bank: 0, total: 0}})
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.filterByDateExpenses = async(req, res) => {
+  try{
+    const { g_month, year, l_month, fid } = req.query
+    var cash = 0
+    var bank = 0
+    const expenses = await Expense.find({
+      $and: [{
+        createdAt: {
+          $gte: new Date(`${year}-${g_month}-01T00:00:00.000Z`),
+          $lt: new Date(`${year}-${l_month}-01T00:00:00.000Z`)
+      }},
+      {finances: fid}
+      ]
+    })
+    if(expenses?.length >=1 ){
+      expenses.forEach((val) => {
+        if(`${val?.expenseAccount}` === 'By Cash'){
+          cash += val?.expenseAmount
+        }
+        if(`${val?.expenseAccount}` === 'By Bank'){
+          bank += val?.expenseAmount
+        }
+      })
+    }
+    var stats = {
+      cash: cash,
+      bank: bank,
+      total: cash + bank
+    }
+    if(expenses?.length >= 1){
+      res.status(200).send({ message: 'Filter Expenses', f_expenses: expenses, stats: stats})
+    }
+    else{
+      res.status(200).send({ message: 'user', f_expenses: [], stats: { cash: 0, bank: 0, total: 0}})
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+

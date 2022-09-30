@@ -10,6 +10,11 @@ router.get('/by/answer', catchAsync(Filter.retrieveByAnswerQuery))
 
 router.get('/by/participate', catchAsync(Filter.retrieveByParticipateQuery))
 
-router.get('/filter/by/date', catchAsync(Filter.filterByDate))
+router.get('/by/date', catchAsync(Filter.filterByDate))
 
+router.get('/by/date/incomes', catchAsync(Filter.filterByDateIncomes))
+
+router.get('/by/date/expenses', catchAsync(Filter.filterByDateExpenses))
+
+// router.get('/filter/by/date/funds', catchAsync(Filter.filterByDateFunds))
 module.exports = router;

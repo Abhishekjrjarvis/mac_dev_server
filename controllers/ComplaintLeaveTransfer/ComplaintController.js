@@ -102,6 +102,8 @@ exports.postStudentLeave = async (req, res) => {
     notify.notifyPublisher = classes.classTeacher._id;
     user.activity_tab.push(notify._id);
     notify.notifyByStudentPhoto = student._id;
+    notify.notifyCategory = "Leave";
+    notify.redirectIndex = 10
     //
     invokeMemberTabNotification(
       "Staff Activity",
@@ -206,6 +208,8 @@ exports.oneStudentLeaveProcess = async (req, res) => {
     notify.notifyPublisher = leave.student._id;
     user.activity_tab.push(notify._id);
     notify.notifyByClassPhoto = leave.classes._id;
+    notify.notifyCategory = "Leave";
+    notify.redirectIndex = 10
     //
     invokeMemberTabNotification(
       "Student Activity",
@@ -495,6 +499,8 @@ exports.studentTransferRequested = async (req, res) => {
     notify.notifyPublisher = classes.classTeacher._id;
     user.activity_tab.push(notify._id);
     notify.notifyByStudentPhoto = student._id;
+    notify.notifyCategory = "Transfer";
+    notify.redirectIndex = 11
     //
     invokeMemberTabNotification(
       "Staff Activity",
@@ -545,6 +551,8 @@ exports.studentTransferApproved = async (req, res) => {
     notify.notifyPublisher = student._id;
     user.activity_tab.push(notify._id);
     notify.notifyByClassPhoto = classes._id;
+    notify.notifyCategory = "Transfer";
+    notify.redirectIndex = 11
     //
     invokeMemberTabNotification(
       "Student Activity",
@@ -589,6 +597,8 @@ exports.studentTransferRejected = async (req, res) => {
     notify.notifyPublisher = student._id;
     user.activity_tab.push(notify._id);
     notify.notifyByClassPhoto = classes._id;
+    notify.notifyCategory = "Transfer";
+    notify.redirectIndex = 11
     //
     invokeMemberTabNotification(
       "Student Activity",
@@ -711,6 +721,8 @@ exports.postStaffLeave = async (req, res) => {
     notify.notifyReceiever = institute._id;
     institute.iNotify.push(notify._id);
     notify.notifyByStaffPhoto = staff._id;
+    notify.notifyCategory = "Leave";
+    notify.redirectIndex = 10
     //
     invokeMemberTabNotification(
       "Institute Activity",
@@ -811,6 +823,8 @@ exports.oneStaffLeaveProcess = async (req, res) => {
     notify.notifyPublisher = leave.staff._id;
     user.activity_tab.push(notify._id);
     notify.notifyByInsPhoto = leave.institute._id;
+    notify.notifyCategory = "Leave";
+    notify.redirectIndex = 10
     //
     invokeMemberTabNotification(
       "Staff Activity",

@@ -43,6 +43,10 @@ const notificationSchema = new mongoose.Schema({
   notifyBySuperAdminPhoto: {
     type: String,
   },
+  reminderIndex: {
+    type: Number
+  },
+  notifyCategory: { type: String },
 });
 
 module.exports = mongoose.model("Notification", notificationSchema);

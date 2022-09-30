@@ -133,6 +133,8 @@ exports.markAttendenceClassStudent = async (req, res) => {
           student.notification.push(notify._id);
           student.attendDate.push(attendence._id);
           attendence.presentStudent.push(student._id);
+          notify.notifyCategory = "Attendence";
+          notify.redirectIndex = 3;
           //
           invokeMemberTabNotification(
             "Student Activity",
@@ -163,6 +165,8 @@ exports.markAttendenceClassStudent = async (req, res) => {
           student.notification.push(notify._id);
           student.attendDate.push(attendence._id);
           attendence.absentStudent.push(student._id);
+          notify.notifyCategory = "Attendence";
+          notify.redirectIndex = 3;
           //
           invokeMemberTabNotification(
             "Student Activity",
@@ -396,6 +400,8 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
           notify.notifyByInsPhoto = id;
           staffAttendence.presentStaff.push(staff._id);
           staffAttendence.presentTotal = req.body.present.length;
+          notify.notifyCategory = "Attendence";
+          notify.redirectIndex = 3;
           //
           invokeMemberTabNotification(
             "Staff Activity",
@@ -433,6 +439,8 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
           staff.user.activity_tab.push(notify._id);
           notify.notifyByInsPhoto = id;
           staffAttendence.absentTotal = req.body.absent.length;
+          notify.notifyCategory = "Attendence";
+          notify.redirectIndex = 3;
           //
           invokeMemberTabNotification(
             "Staff Activity",
@@ -761,6 +769,8 @@ exports.holidayCalendar = async (req, res) => {
       notify.notifyReceiever = user._id;
       user.activity_tab.push(notify._id);
       notify.notifyByDepartPhoto = depart._id;
+      notify.notifyCategory = "Holiday";
+      notify.redirectIndex = 4;
       //
       invokeMemberTabNotification(
         "Student Activity",

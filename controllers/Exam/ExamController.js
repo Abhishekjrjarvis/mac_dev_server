@@ -182,6 +182,8 @@ exports.createExam = async (req, res) => {
               user.activity_tab.push(notify._id);
               student.notification.push(notify._id);
               notify.notifyByDepartPhoto = department._id;
+              notify.notifyCategory = "Exam";
+              notify.redirectIndex = 1;
               //
               invokeMemberTabNotification(
                 "Student Activity",

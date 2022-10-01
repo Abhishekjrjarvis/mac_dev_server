@@ -104,6 +104,7 @@ exports.postStudentLeave = async (req, res) => {
     notify.notifyByStudentPhoto = student._id;
     notify.notifyCategory = "Leave";
     notify.redirectIndex = 10
+    notify.classId = classes?._id
     //
     invokeMemberTabNotification(
       "Staff Activity",

@@ -744,30 +744,40 @@ exports.createExam = async (req, res) => {
 exports.getAssignment = async (req, res) => {
   try {
     const subject = await Subject.findById(req.params.sid)
-      .populate({
-        path: "assignments",
-        select: "assignmentName dueDate totalCount submittedCount",
-      })
       .select("assignments")
       .lean()
       .exec();
 
     const getPage = req.query.page ? parseInt(req.query.page) : 1;
     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
-    const startItem = (getPage - 1) * itemPerPage;
+    const startItem =
+      subject.assignments?.length - itemPerPage - (getPage - 1) * itemPerPage;
     const endItem = startItem + itemPerPage;
-
-    const filterFunction = (assignments, startItem, endItem) => {
-      const assignment = assignments.slice(startItem, endItem);
-      return assignment;
+    const assign = subject.assignments;
+    const filterFunction = (assgn, startItem, endItem) => {
+      if (startItem <= 0) {
+        if (endItem < 1) {
+          const assignment = assgn.slice(0, 0);
+          return assignment;
+        } else {
+          const assignment = assgn.slice(0, endItem);
+          return assignment;
+        }
+      } else {
+        const assignment = assgn.slice(startItem, endItem);
+        return assignment;
+      }
     };
 
-    if (subject?.assignments) {
-      const assignments = filterFunction(
-        subject?.assignments,
-        startItem,
-        endItem
-      );
+    const assignments = await Assignment.find({
+      _id: { $in: filterFunction(assign, startItem, endItem) },
+    })
+      .select("assignmentName dueDate totalCount submittedCount")
+      .sort({ createdAt: -1 })
+      .lean()
+      .exec();
+
+    if (assignments) {
       res.status(200).send({
         message: "all assignment",
         assignments,
@@ -1038,38 +1048,52 @@ exports.getStudentAssignmentCount = async (req, res) => {
 exports.getStudentAssignment = async (req, res) => {
   try {
     const student = await Student.findById(req.params.sid)
-      .populate({
-        path: "assignments",
-        populate: {
-          path: "subject",
-          select: "subjectName",
-        },
-        select:
-          "assignmentName dueDate assignmentSubmitRequest assignmentSubmit",
-      })
+      // .populate({
+      //   path: "assignments",
+      //   populate: {
+      //     path: "subject",
+      //     select: "subjectName",
+      //   },
+      //   select:
+      //     "assignmentName dueDate assignmentSubmitRequest assignmentSubmit",
+      // })
       .select("assignments")
       .lean()
       .exec();
 
     const getPage = req.query.page ? parseInt(req.query.page) : 1;
     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
-    const startItem = (getPage - 1) * itemPerPage;
+    const startItem =
+      student.assignments?.length - itemPerPage - (getPage - 1) * itemPerPage;
     const endItem = startItem + itemPerPage;
 
     const filterFunction = (assignments, startItem, endItem) => {
-      const assignment = assignments.slice(startItem, endItem);
-      return assignment;
+      if (startItem <= 0) {
+        if (endItem < 1) {
+          const assignment = assignments.slice(0, 0);
+          return assignment;
+        } else {
+          const assignment = assignments.slice(0, endItem);
+          return assignment;
+        }
+      } else {
+        const assignment = assignments.slice(startItem, endItem);
+        return assignment;
+      }
     };
 
-    if (student?.assignments) {
-      const assignments = filterFunction(
-        student?.assignments,
-        startItem,
-        endItem
-      );
+    const assignments = await StudentAssignment.find({
+      _id: { $in: filterFunction(student.assignments, startItem, endItem) },
+    })
+      .select("assignmentName dueDate assignmentSubmitRequest assignmentSubmit")
+      .sort({ createdAt: -1 })
+      .lean()
+      .exec();
+
+    if (assignments) {
       res.status(200).send({
         message: "all assignment",
-        assignments: assignments,
+        assignments,
       });
     } else {
       res.status(200).send({
@@ -1109,20 +1133,23 @@ exports.getStudentOneAssignmentDetail = async (req, res) => {
 
 exports.getStudentOneAssignmentSubmit = async (req, res) => {
   try {
-    const assignment = await StudentAssignment.findById(req.params.aid)
-    .populate({
-      path: 'subject',
-      select: 'subjectName',
+    const assignment = await StudentAssignment.findById(
+      req.params.aid
+    ).populate({
+      path: "subject",
+      select: "subjectName",
       populate: {
-        path: 'subjectTeacherName',
-        select: 'id',
+        path: "subjectTeacherName",
+        select: "id",
         populate: {
-          path: 'user',
-          select: "id"
-        }
-      }
-    })
-    const user = await User.findById({_id: assignment?.subject?.subjectTeacherName?.user?._id})
+          path: "user",
+          select: "id",
+        },
+      },
+    });
+    const user = await User.findById({
+      _id: assignment?.subject?.subjectTeacherName?.user?._id,
+    });
     assignment.studentDescritpion = req.body?.studentDescritpion;
     assignment.submmittedDate = req.body?.submmittedDate;
     assignment.assignmentSubmitRequest = req.body?.assignmentSubmitRequest;
@@ -1184,7 +1211,7 @@ exports.getStudentOneAssignmentSubmit = async (req, res) => {
       student.save(),
       subjectAssignment.save(),
       notify.save(),
-      user.save()
+      user.save(),
     ]);
     res.status(200).send({
       message: "Assignment is submitted",

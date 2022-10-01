@@ -13,18 +13,29 @@ exports.getAlldailyUpdate = async (req, res) => {
     const dropItem = (getPage - 1) * itemPerPage;
     // const options = { sort: [["dailyUpdate.createdAt", "des"]] };
     const subject = await Subject.findById(req.params.sid)
-      .populate({
-        path: "dailyUpdate",
-        select: "updateDate updateDescription upadateImage createdAt",
-        skip: dropItem,
-        limit: itemPerPage,
-      })
+      // .populate({
+      //   path: "dailyUpdate",
+      //   select: "updateDate updateDescription upadateImage createdAt",
+      //   skip: dropItem,
+      //   limit: itemPerPage,
+      // })
       .select("dailyUpdate")
+      .lean()
+      .exec();
+
+    const dailyUpdate = await SubjectUpdate.find({
+      _id: { $in: subject.dailyUpdate },
+    })
+      .select("updateDate updateDescription upadateImage createdAt")
+      .skip(dropItem)
+      .limit(itemPerPage)
+      .sort({ createdAt: -1 })
       .lean()
       .exec();
     res.status(200).send({
       message: "all daily subject update list",
-      dailyUpdate: customMergeSort(subject?.dailyUpdate),
+      // dailyUpdate: customMergeSort(subject?.dailyUpdate),
+      dailyUpdate,
     });
   } catch (e) {
     console.log(e);

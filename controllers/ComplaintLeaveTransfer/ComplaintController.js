@@ -502,6 +502,7 @@ exports.studentTransferRequested = async (req, res) => {
     notify.notifyByStudentPhoto = student._id;
     notify.notifyCategory = "Transfer";
     notify.redirectIndex = 11
+    notify.classId = classes?._id
     //
     invokeMemberTabNotification(
       "Staff Activity",
@@ -724,6 +725,7 @@ exports.postStaffLeave = async (req, res) => {
     notify.notifyByStaffPhoto = staff._id;
     notify.notifyCategory = "Leave";
     notify.redirectIndex = 10
+    notify.instituteId = institute?._id
     //
     invokeMemberTabNotification(
       "Institute Activity",

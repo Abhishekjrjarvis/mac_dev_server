@@ -617,11 +617,17 @@ exports.oneStudentAllYearAttendance = async (req, res) => {
         },
         select: "_id presentStudent attendDate",
       })
-      .select("_id attendDate");
+      .populate({
+        path: "institute",
+        select:
+          "_id insName insDistrict insPincode insPhoneNumber insEmail insProfilePhoto",
+      })
+      .select("_id attendDate institute");
     const attendance = {
       totalPresent: 0,
       totalAttendance: student?.attendDate?.length,
       attendancePercentage: 0,
+      institute: student.institute,
     };
     student?.attendDate?.forEach((attend) => {
       if (attend.presentStudent.includes(req.params.sid)) {
@@ -633,6 +639,34 @@ exports.oneStudentAllYearAttendance = async (req, res) => {
       attendance.totalAttendance
     ).toFixed(2);
     res.status(200).send({ attendance });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.oneStudentReletedNecessaryData = async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.sid)
+      .select("_id studentClass institute batches studentGRNO")
+      .populate({
+        path: "institute",
+        select:
+          "_id insName insDistrict insPincode insPhoneNumber insEmail insProfilePhoto",
+      })
+      .populate({
+        path: "studentClass",
+        populate: {
+          path: "classTeacher",
+          select: "staffFirstName staffLastName staffMiddleName",
+        },
+        select: "_id className classTitle classTeacher ",
+      })
+      .populate({
+        path: "batches",
+        select: "_id batchName",
+      });
+
+    res.status(200).send({ student });
   } catch (e) {
     console.log(e);
   }

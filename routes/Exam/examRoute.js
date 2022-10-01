@@ -52,6 +52,9 @@ router
   .get(catchAsync(examController.oneStudentAllYearAttendance));
 
 router
+  .route("/class/student/:sid/report/necessary")
+  .get(catchAsync(examController.oneStudentReletedNecessaryData));
+router
   .route("/class/student/:sid/report/finalize")
   .post(catchAsync(examController.oneStudentReportCardFinalize));
 

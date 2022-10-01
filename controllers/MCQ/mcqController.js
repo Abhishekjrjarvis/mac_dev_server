@@ -1048,38 +1048,52 @@ exports.getStudentAssignmentCount = async (req, res) => {
 exports.getStudentAssignment = async (req, res) => {
   try {
     const student = await Student.findById(req.params.sid)
-      .populate({
-        path: "assignments",
-        populate: {
-          path: "subject",
-          select: "subjectName",
-        },
-        select:
-          "assignmentName dueDate assignmentSubmitRequest assignmentSubmit",
-      })
+      // .populate({
+      //   path: "assignments",
+      //   populate: {
+      //     path: "subject",
+      //     select: "subjectName",
+      //   },
+      //   select:
+      //     "assignmentName dueDate assignmentSubmitRequest assignmentSubmit",
+      // })
       .select("assignments")
       .lean()
       .exec();
 
     const getPage = req.query.page ? parseInt(req.query.page) : 1;
     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
-    const startItem = (getPage - 1) * itemPerPage;
+    const startItem =
+      student.assignments?.length - itemPerPage - (getPage - 1) * itemPerPage;
     const endItem = startItem + itemPerPage;
 
     const filterFunction = (assignments, startItem, endItem) => {
-      const assignment = assignments.slice(startItem, endItem);
-      return assignment;
+      if (startItem <= 0) {
+        if (endItem < 1) {
+          const assignment = assignments.slice(0, 0);
+          return assignment;
+        } else {
+          const assignment = assignments.slice(0, endItem);
+          return assignment;
+        }
+      } else {
+        const assignment = assignments.slice(startItem, endItem);
+        return assignment;
+      }
     };
 
-    if (student?.assignments) {
-      const assignments = filterFunction(
-        student?.assignments,
-        startItem,
-        endItem
-      );
+    const assignments = await StudentAssignment.find({
+      _id: { $in: filterFunction(student.assignments, startItem, endItem) },
+    })
+      .select("assignmentName dueDate assignmentSubmitRequest assignmentSubmit")
+      .sort({ createdAt: -1 })
+      .lean()
+      .exec();
+
+    if (assignments) {
       res.status(200).send({
         message: "all assignment",
-        assignments: assignments,
+        assignments,
       });
     } else {
       res.status(200).send({

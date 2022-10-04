@@ -503,8 +503,8 @@ exports.postComment = async (req, res) => {
     comment.post = post._id;
     await Promise.all([post.save(), comment.save()]);
     var notify = new Notification({});
-    var author_user = await User.findById({ _id: `${post.author}` });
-    if (`${comment.author}` === `${author_user._id}`) {
+    var author_user = await User.findById({ _id: `${post?.author}` });
+    if (`${comment.author}` === `${author_user?._id}`) {
       notify.notifyContent = `you shared a new comment`;
     } else {
       notify.notifyContent = `${comment.authorName} commented on your post`;
@@ -514,9 +514,9 @@ exports.postComment = async (req, res) => {
       : req.tokenData?.insId
       ? req.tokenData.insId
       : "";
-    notify.notifyReceiever = author_user._id;
+    notify.notifyReceiever = author_user?._id;
     author_user.uNotify.push(notify._id);
-    notify.user = author_user._id;
+    notify.user = author_user?._id;
     if (req?.tokenData?.userId) {
       notify.notifyByPhoto = req?.tokenData?.userId;
     } else if (req?.tokenData?.insId) {

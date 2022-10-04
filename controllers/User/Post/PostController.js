@@ -40,7 +40,7 @@ exports.postWithText = async (req, res) => {
     post.authorPhotoId = user.photoId;
     post.authorProfilePhoto = user.profilePhoto;
     post.authorOneLine = user.one_line_about;
-    post.authorFollowersCount = user.followerCount
+    post.authorFollowersCount = user.followerCount;
     post.isUser = "user";
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([user.save(), post.save()]);
@@ -136,7 +136,7 @@ exports.postWithImage = async (req, res) => {
     post.authorPhotoId = user.photoId;
     post.authorProfilePhoto = user.profilePhoto;
     post.authorOneLine = user.one_line_about;
-    post.authorFollowersCount = user.followerCount
+    post.authorFollowersCount = user.followerCount;
     post.isUser = "user";
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([user.save(), post.save()]);
@@ -230,7 +230,7 @@ exports.postWithVideo = async (req, res) => {
     post.authorPhotoId = user.photoId;
     post.authorProfilePhoto = user.profilePhoto;
     post.authorOneLine = user.one_line_about;
-    post.authorFollowersCount = user.followerCount
+    post.authorFollowersCount = user.followerCount;
     post.isUser = "user";
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([user.save(), post.save()]);
@@ -304,64 +304,63 @@ exports.postWithVsibilityUpdate = async (req, res) => {
     await post.save();
     res.status(200).send({ message: "visibility change" });
     //
-    var post_visible = await Post.findById({_id: pid}).select('postStatus')
-    var user = await User.findById({_id: `${post.author}`}).select('id')
-    .populate({ path: 'userFollowers', select: 'userPosts'})
-    .populate({ path: 'userCircle', select: 'userPosts'})
+    var post_visible = await Post.findById({ _id: pid }).select("postStatus");
+    var user = await User.findById({ _id: `${post.author}` })
+      .select("id")
+      .populate({ path: "userFollowers", select: "userPosts" })
+      .populate({ path: "userCircle", select: "userPosts" });
     if (user.userFollowers.length >= 1) {
       if (post_visible.postStatus === "Anyone") {
         user.userFollowers.forEach(async (ele) => {
-          if(ele?.userPosts?.includes(`${post_visible._id}`)){
-
-          }
-          else{
+          if (ele?.userPosts?.includes(`${post_visible._id}`)) {
+          } else {
             ele.userPosts.push(post_visible._id);
-            await ele.save(); 
+            await ele.save();
           }
         });
-      } else if(post_visible.postStatus === 'Private') {
+      } else if (post_visible.postStatus === "Private") {
         user.userFollowers.forEach(async (ele) => {
-          if(ele?.userPosts?.includes(`${post_visible._id}`)){
+          if (ele?.userPosts?.includes(`${post_visible._id}`)) {
             ele.userPosts.pull(post_visible._id);
-            await ele.save(); 
+            await ele.save();
+          } else {
           }
-          else{}
         });
       }
     }
     if (user.userCircle.length >= 1) {
       user.userCircle.forEach(async (ele) => {
-        if(ele?.userPosts?.includes(`${post_visible._id}`)){
-
-        }
-        else{
+        if (ele?.userPosts?.includes(`${post_visible._id}`)) {
+        } else {
           ele.userPosts.push(post_visible._id);
           await ele.save();
         }
       });
     }
     //
-  } catch(e) {
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
 };
 
 exports.postWithDeleted = async (req, res) => {
   try {
     const { id, pid } = req.params;
-    const user = await User.findById({ _id: id }).select('postCount poll_Count')
+    const user = await User.findById({ _id: id }).select(
+      "postCount poll_Count"
+    );
     const post = await Post.findById({ _id: pid })
-    .select('postType')
-    .populate({ path: 'poll_query', select: 'id'})
+      .select("postType")
+      .populate({ path: "poll_query", select: "id" });
     await User.findByIdAndUpdate(id, { $pull: { userPosts: pid } });
     await User.findByIdAndUpdate(id, { $pull: { user_saved_post: pid } });
     await User.findByIdAndUpdate(id, { $pull: { tag_post: pid } });
-    if(user.postCount >= 1){
+    if (user.postCount >= 1) {
       user.postCount -= 1;
     }
     if (post && post.postType === "Poll" && post.poll_query !== "") {
       await Poll.findByIdAndDelete(post.poll_query?._id);
-      if(user.poll_Count >= 1){
+      if (user.poll_Count >= 1) {
         user.poll_Count -= 1;
       }
       // post.poll_query = "";
@@ -371,38 +370,44 @@ exports.postWithDeleted = async (req, res) => {
     await user.save();
     res.status(200).send({ message: "Deleted Operation Completed" });
     //
-    const deleted_user_post = await User.findById({_id: user?._id})
-    .select('id')
-    .populate({ path: 'userFollowers', select: 'userPosts user_saved_post tag_post'})
-    .populate({ path: 'userCircle', select: 'userPosts user_saved_post tag_post'})
+    const deleted_user_post = await User.findById({ _id: user?._id })
+      .select("id")
+      .populate({
+        path: "userFollowers",
+        select: "userPosts user_saved_post tag_post",
+      })
+      .populate({
+        path: "userCircle",
+        select: "userPosts user_saved_post tag_post",
+      });
     deleted_user_post?.userFollowers?.forEach(async (del_user) => {
-      if(del_user?.userPosts?.includes(`${post?._id}`)){
-        del_user?.userPosts?.pull(post._id)
-        await del_user.save()
+      if (del_user?.userPosts?.includes(`${post?._id}`)) {
+        del_user?.userPosts?.pull(post._id);
+        await del_user.save();
       }
-      if(del_user?.user_saved_post?.includes(`${post?._id}`)){
-        del_user?.user_saved_post?.pull(post._id)
-        await del_user.save()
+      if (del_user?.user_saved_post?.includes(`${post?._id}`)) {
+        del_user?.user_saved_post?.pull(post._id);
+        await del_user.save();
       }
-      if(del_user?.tag_post?.includes(`${post?._id}`)){
-        del_user?.tag_post?.pull(post._id)
-        await del_user.save()
+      if (del_user?.tag_post?.includes(`${post?._id}`)) {
+        del_user?.tag_post?.pull(post._id);
+        await del_user.save();
       }
-    })
+    });
     deleted_user_post?.userCircle?.forEach(async (del_user) => {
-      if(del_user?.userPosts?.includes(`${post?._id}`)){
-        del_user?.userPosts?.pull(post._id)
-        await del_user.save()
+      if (del_user?.userPosts?.includes(`${post?._id}`)) {
+        del_user?.userPosts?.pull(post._id);
+        await del_user.save();
       }
-      if(del_user?.user_saved_post?.includes(`${post?._id}`)){
-        del_user?.user_saved_post?.pull(post._id)
-        await del_user.save()
+      if (del_user?.user_saved_post?.includes(`${post?._id}`)) {
+        del_user?.user_saved_post?.pull(post._id);
+        await del_user.save();
       }
-      if(del_user?.tag_post?.includes(`${post?._id}`)){
-        del_user?.tag_post?.pull(post._id)
-        await del_user.save()
+      if (del_user?.tag_post?.includes(`${post?._id}`)) {
+        del_user?.tag_post?.pull(post._id);
+        await del_user.save();
       }
-    })
+    });
     //
   } catch (e) {
     console.log(e);
@@ -546,7 +551,9 @@ exports.retrieveAllUserPosts = async (req, res) => {
     const p_types = req.query.p_type ? req.query.p_type : "";
     const id = req.params.id;
     const skip = (page - 1) * limit;
-    const user = await User.findById(id).select("id ageRestrict userPosts userInstituteFollowing")
+    const user = await User.findById(id).select(
+      "id ageRestrict userPosts userInstituteFollowing"
+    );
     // .populate({
     //   path: "userPosts",
     // });
@@ -582,86 +589,93 @@ exports.retrieveAllUserPosts = async (req, res) => {
           })
           .populate({
             path: "new_application",
-            select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+            select:
+              "applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee",
             populate: {
-              path: 'applicationDepartment',
-              select: 'dName'
-            }
+              path: "applicationDepartment",
+              select: "dName",
+            },
           });
       } else {
         //
-        if(user.ageRestrict === 'Yes'){
-          var post = await Post.find({ $and: [{ author: { $in: user.userInstituteFollowing } }] })
-          .sort("-createdAt")
-          .limit(limit)
-          .skip(skip)
-          .select(
-            "postTitle postText postQuestion isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
-          )
-          .populate({
-            path: "poll_query",
+        if (user.ageRestrict === "Yes") {
+          var post = await Post.find({
+            $and: [{ author: { $in: user.userInstituteFollowing } }],
           })
-          .populate({
-            path: "rePostAnswer",
-            populate: {
-              path: "post",
+            .sort("-createdAt")
+            .limit(limit)
+            .skip(skip)
+            .select(
+              "postTitle postText postQuestion isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+            )
+            .populate({
+              path: "poll_query",
+            })
+            .populate({
+              path: "rePostAnswer",
+              populate: {
+                path: "post",
+                select:
+                  "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser",
+              },
+            })
+            .populate({
+              path: "needMultiple",
+              select: "username photoId profilePhoto",
+            })
+            .populate({
+              path: "repostMultiple",
+              select: "username photoId profilePhoto",
+            })
+            .populate({
+              path: "new_application",
               select:
-                "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser",
-            },
-          })
-          .populate({
-            path: "needMultiple",
-            select: "username photoId profilePhoto",
-          })
-          .populate({
-            path: "repostMultiple",
-            select: "username photoId profilePhoto",
-          })
-          .populate({
-            path: "new_application",
-            select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
-            populate: {
-              path: 'applicationDepartment',
-              select: 'dName'
-            }
-          });
+                "applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee",
+              populate: {
+                path: "applicationDepartment",
+                select: "dName",
+              },
+            });
         }
         //
         else {
-        var post = await Post.find({ $and: [{ _id: { $in: user.userPosts } }] })
-          .sort("-createdAt")
-          .limit(limit)
-          .skip(skip)
-          .select(
-            "postTitle postText postQuestion isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
-          )
-          .populate({
-            path: "poll_query",
+          var post = await Post.find({
+            $and: [{ _id: { $in: user.userPosts } }],
           })
-          .populate({
-            path: "rePostAnswer",
-            populate: {
-              path: "post",
+            .sort("-createdAt")
+            .limit(limit)
+            .skip(skip)
+            .select(
+              "postTitle postText postQuestion isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+            )
+            .populate({
+              path: "poll_query",
+            })
+            .populate({
+              path: "rePostAnswer",
+              populate: {
+                path: "post",
+                select:
+                  "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser",
+              },
+            })
+            .populate({
+              path: "needMultiple",
+              select: "username photoId profilePhoto",
+            })
+            .populate({
+              path: "repostMultiple",
+              select: "username photoId profilePhoto",
+            })
+            .populate({
+              path: "new_application",
               select:
-                "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser",
-            },
-          })
-          .populate({
-            path: "needMultiple",
-            select: "username photoId profilePhoto",
-          })
-          .populate({
-            path: "repostMultiple",
-            select: "username photoId profilePhoto",
-          })
-          .populate({
-            path: "new_application",
-            select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
-            populate: {
-              path: 'applicationDepartment',
-              select: 'dName'
-            }
-          });
+                "applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee",
+              populate: {
+                path: "applicationDepartment",
+                select: "dName",
+              },
+            });
         }
       }
       const postCount = await Post.find({ _id: { $in: user.userPosts } });
@@ -721,11 +735,12 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
           })
           .populate({
             path: "new_application",
-            select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+            select:
+              "applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee",
             populate: {
-              path: 'applicationDepartment',
-              select: 'dName'
-            }
+              path: "applicationDepartment",
+              select: "dName",
+            },
           });
       } else {
         var post = await Post.find({ author: id })
@@ -756,11 +771,12 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
           })
           .populate({
             path: "new_application",
-            select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+            select:
+              "applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee",
             populate: {
-              path: 'applicationDepartment',
-              select: 'dName'
-            }
+              path: "applicationDepartment",
+              select: "dName",
+            },
           });
       }
       const postCount = await Post.find({ _id: { $in: user.userPosts } });
@@ -795,14 +811,16 @@ exports.getComment = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "commentDescription createdAt allLikeCount allChildCommentCount authorOneLine author authorName authorUserName authorPhotoId authorProfilePhoto"
+        "commentDescription createdAt allLikeCount parentCommentLike allChildCommentCount authorOneLine author authorName authorUserName authorPhotoId authorProfilePhoto"
       );
     // .populate({
     //   path: "users",
     //   select: "userLegalName photoId profilePhoto ",
     // });
     res.status(200).send({ message: "Sucess", comment });
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 //Check this route for get all child comment that is reply
@@ -1042,11 +1060,12 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
         })
         .populate({
           path: "new_application",
-          select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+          select:
+            "applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee",
           populate: {
-            path: 'applicationDepartment',
-            select: 'dName'
-          }
+            path: "applicationDepartment",
+            select: "dName",
+          },
         });
       const postCount = await Post.find({ _id: { $in: user.user_saved_post } });
       if (page * limit >= postCount.length) {
@@ -1107,11 +1126,12 @@ exports.retrieveAllUserTagPosts = async (req, res) => {
         })
         .populate({
           path: "new_application",
-          select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+          select:
+            "applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee",
           populate: {
-            path: 'applicationDepartment',
-            select: 'dName'
-          }
+            path: "applicationDepartment",
+            select: "dName",
+          },
         });
       const postCount = await Post.find({ _id: { $in: user.tag_post } });
       if (page * limit >= postCount.length) {
@@ -1167,11 +1187,12 @@ exports.retrieveAllUserReposts = async (req, res) => {
       })
       .populate({
         path: "new_application",
-        select: 'applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee',
+        select:
+          "applicationSeats applicationStartDate applicationEndDate applicationAbout applicationFee",
         populate: {
-          path: 'applicationDepartment',
-          select: 'dName'
-        }
+          path: "applicationDepartment",
+          select: "dName",
+        },
       });
 
     if (repost && repost.length >= 1) {
@@ -1204,14 +1225,16 @@ exports.commentDelete = async (req, res) => {
   try {
     if (!req.params.cid) throw "Please send comment id to perform task";
     const comment = await Comment.findById(req.params.cid);
+    console.log(comment);
     const post = await Post.findById(comment.post);
-    if(post.commentCount >= 1){
+    if (post.commentCount >= 1) {
       post.commentCount -= 1;
     }
     await post.save();
     await Comment.findByIdAndDelete(req.params.cid);
     res.status(200).send({ message: "Comment Deleted successfully👍" });
   } catch (e) {
+    console.log(e);
     res.status(200).send({
       message: e,
     });
@@ -1235,7 +1258,7 @@ exports.commentReplyDelete = async (req, res) => {
     if (!req.params.cid) throw "Please send reply comment id to perform task";
     const rcommeny = await ReplyComment.findById(req.params.cid);
     const comment = await Comment.findById(rcommeny.parentComment);
-    if(comment.allChildCommentCount >= 1){
+    if (comment.allChildCommentCount >= 1) {
       comment.allChildCommentCount -= 1;
     }
     await comment.save();

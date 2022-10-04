@@ -225,13 +225,15 @@ exports.createExam = async (req, res) => {
 exports.allExam = async (req, res) => {
   const exam = await Exam.find({
     department: { $eq: `${req.params.did}` },
-  }).select("examName examWeight createdAt examType");
+  }).select("examName examWeight examMode createdAt examType");
   res.status(200).send({ exam });
 };
 
 exports.examById = async (req, res) => {
   try {
-    const exam = await Exam.findById(req.params.eid).select("class subjects");
+    const exam = await Exam.findById(req.params.eid).select(
+      "examName examType examMode examWeight createdAt class subjects"
+    );
     const masterids = [];
     for (let cid of exam.class) {
       const classes = await Class.findById(cid).select(
@@ -296,7 +298,16 @@ exports.examById = async (req, res) => {
       oneExamDetail.push(obj);
     }
 
-    res.status(200).send({ oneExamDetail });
+    res.status(200).send({
+      oneExamDetail,
+      exam: {
+        examName: exam.examName,
+        examType: exam.examType,
+        examMode: exam.examMode,
+        examWeight: exam.examWeight,
+        createdAt: exam.createdAt,
+      },
+    });
   } catch (e) {
     console.log(e);
   }

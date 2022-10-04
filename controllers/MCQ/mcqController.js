@@ -773,6 +773,8 @@ exports.getAssignment = async (req, res) => {
       _id: { $in: filterFunction(assign, startItem, endItem) },
     })
       .select("assignmentName dueDate totalCount submittedCount")
+      // .skip(40)
+      // .limit(100)
       .sort({ createdAt: -1 })
       .lean()
       .exec();
@@ -1066,25 +1068,29 @@ exports.getStudentAssignment = async (req, res) => {
     const startItem =
       student.assignments?.length - itemPerPage - (getPage - 1) * itemPerPage;
     const endItem = startItem + itemPerPage;
-
-    const filterFunction = (assignments, startItem, endItem) => {
+    const assign = student.assignments;
+    const filterFunction = (assign, startItem, endItem) => {
       if (startItem <= 0) {
         if (endItem < 1) {
-          const assignment = assignments.slice(0, 0);
+          const assignment = assign.slice(0, 0);
           return assignment;
         } else {
-          const assignment = assignments.slice(0, endItem);
+          const assignment = assign.slice(0, endItem);
           return assignment;
         }
       } else {
-        const assignment = assignments.slice(startItem, endItem);
+        const assignment = assign.slice(startItem, endItem);
         return assignment;
       }
     };
 
     const assignments = await StudentAssignment.find({
-      _id: { $in: filterFunction(student.assignments, startItem, endItem) },
+      _id: { $in: filterFunction(assign, startItem, endItem) },
     })
+      .populate({
+        path: "subject",
+        select: "subjectName",
+      })
       .select("assignmentName dueDate assignmentSubmitRequest assignmentSubmit")
       .sort({ createdAt: -1 })
       .lean()
@@ -1220,3 +1226,119 @@ exports.getStudentOneAssignmentSubmit = async (req, res) => {
     console.log(e);
   }
 };
+
+createAssignmentFunction = async () => {
+  const req = {
+    body: {
+      assignmentName: "Tushar asssingment new",
+      dueDate: "12/10/2022",
+      descritpion: "asfbsdhwemhw wervwe rwe r we rwe rwe",
+      students: [
+        "6322ed41aa93f2a1fe6eea1d",
+        "632313c7aa93f2a1fe6ef436",
+        "63308174a47f322f914962bf",
+      ],
+    },
+    params: {
+      sid: "63232393aa93f2a1fe6efa7e",
+    },
+  };
+  for (let i = 0; i < 385; i++) {
+    console.log("hi me", i);
+    try {
+      const subject = await Subject.findById(req.params.sid);
+      const assignment = new Assignment(req.body);
+      assignment.subject = req.params.sid;
+      // if (req?.files) {
+      //   for (let file of req?.files) {
+      //     const obj = {
+      //       documentType: "",
+      //       documentName: "",
+      //       documentSize: "",
+      //       documentKey: "",
+      //       documentEncoding: "",
+      //     };
+      //     obj.documentType = file.mimetype;
+      //     obj.documentName = file.originalname;
+      //     obj.documentEncoding = file.encoding;
+      //     obj.documentSize = file.size;
+      //     const results = await uploadDocFile(file);
+      //     obj.documentKey = results.Key;
+      //     assignment.files.push(obj);
+      //     await unlinkFile(file.path);
+      //   }
+      // }
+      subject?.assignments?.push(assignment._id);
+      assignment.totalCount = req.body?.students?.length;
+      assignment.student?.push(...req.body?.students);
+      await Promise.all([assignment.save(), subject.save()]);
+      // res.status(201).send({ message: "Assignment is created" });
+
+      for (let stud of req.body?.students) {
+        const stu = await Student.findById(stud);
+        const user = await User.findById(`${stu.user}`);
+        stu.totalAssigment += 1;
+        const studentAssignment = new StudentAssignment({
+          assignmentName: assignment?.assignmentName,
+          student: stu._id,
+          assignment: assignment?._id,
+          subject: assignment?.subject,
+          dueDate: assignment?.dueDate,
+          descritpion: assignment?.descritpion,
+          files: assignment?.files,
+        });
+        for (let test of assignment?.testSet) {
+          const testSet = await SubjectMasterTestSet.findById(test);
+          const obj = {
+            student: stu._id,
+            subjectMaster: testSet?.subjectMaster,
+            classMaster: testSet?.classMaster,
+            subjectMasterTestSet: testSet._id,
+            testName: testSet?.testName,
+            testSubject: testSet?.testSubject,
+            testTotalQuestion: testSet?.testTotalQuestion,
+            testTotalNumber: testSet?.testTotalNumber,
+            questions: testSet?.questions,
+          };
+          const studentTestSet = new StudentTestSet(obj);
+          studentAssignment.testSet.push(studentTestSet._id);
+          await studentTestSet.save();
+        }
+
+        stu.assignments.push(studentAssignment._id);
+        const notify = new StudentNotification({});
+        notify.notifyContent = `New ${studentAssignment.assignmentName} is created for ${subject.subjectName} , check your members tab`;
+        notify.notifySender = subject._id;
+        notify.notifyReceiever = user._id;
+        notify.notifyType = "Student";
+        notify.notifyPublisher = stu._id;
+        user.activity_tab.push(notify._id);
+        stu.notification.push(notify._id);
+        notify.notifyBySubjectPhoto = subject._id;
+        notify.notifyCategory = "Assignment";
+        notify.redirectIndex = 7;
+        //
+        // invokeMemberTabNotification(
+        //   "Student Activity",
+        //   notify,
+        //   "New Assignment",
+        //   user._id,
+        //   user.deviceToken,
+        //   "Student",
+        //   notify
+        // );
+        //
+        await Promise.all([
+          studentAssignment.save(),
+          stu.save(),
+          notify.save(),
+          user.save(),
+        ]);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+};
+
+// createAssignmentFunction();

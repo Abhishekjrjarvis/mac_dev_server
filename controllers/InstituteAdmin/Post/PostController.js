@@ -934,7 +934,7 @@ exports.getComment = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "commentDescription createdAt allLikeCount allChildCommentCount authorOneLine author authorName authorUserName authorPhotoId authorProfilePhoto"
+        "commentDescription createdAt allLikeCount parentCommentLike allChildCommentCount authorOneLine author authorName authorUserName authorPhotoId authorProfilePhoto"
       );
     res.status(200).send({ message: "Sucess", comment });
   } catch (e) {
@@ -1079,7 +1079,7 @@ exports.likeCommentChild = async (req, res) => {
 
         res.status(200).send({
           message: "diliked by Institute",
-          count: comment.allLikeCount,
+          allLikeCount: comment.allLikeCount,
         });
       }
     } else if (req.tokenData && req.tokenData.userId) {

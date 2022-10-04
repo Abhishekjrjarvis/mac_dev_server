@@ -1066,25 +1066,29 @@ exports.getStudentAssignment = async (req, res) => {
     const startItem =
       student.assignments?.length - itemPerPage - (getPage - 1) * itemPerPage;
     const endItem = startItem + itemPerPage;
-
-    const filterFunction = (assignments, startItem, endItem) => {
+    const assign = student.assignments;
+    const filterFunction = (assign, startItem, endItem) => {
       if (startItem <= 0) {
         if (endItem < 1) {
-          const assignment = assignments.slice(0, 0);
+          const assignment = assign.slice(0, 0);
           return assignment;
         } else {
-          const assignment = assignments.slice(0, endItem);
+          const assignment = assign.slice(0, endItem);
           return assignment;
         }
       } else {
-        const assignment = assignments.slice(startItem, endItem);
+        const assignment = assign.slice(startItem, endItem);
         return assignment;
       }
     };
 
     const assignments = await StudentAssignment.find({
-      _id: { $in: filterFunction(student.assignments, startItem, endItem) },
+      _id: { $in: filterFunction(assign, startItem, endItem) },
     })
+      .populate({
+        path: "subject",
+        select: "subjectName",
+      })
       .select("assignmentName dueDate assignmentSubmitRequest assignmentSubmit")
       .sort({ createdAt: -1 })
       .lean()
@@ -1220,3 +1224,5 @@ exports.getStudentOneAssignmentSubmit = async (req, res) => {
     console.log(e);
   }
 };
+
+

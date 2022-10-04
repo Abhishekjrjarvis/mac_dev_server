@@ -64,7 +64,7 @@ router.get("/save/:pid", isLoggedIn, catchAsync(Post.postSave));
 
 router
   .route("/comment/:id")
-  .get(isLoggedIn, catchAsync(Post.getComment))
+  .get(catchAsync(Post.getComment))
   .post(isLoggedIn, catchAsync(Post.postComment));
 
 router

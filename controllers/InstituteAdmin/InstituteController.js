@@ -868,6 +868,9 @@ exports.fillStudentForm = async (req, res) => {
     notify.notifyByStudentPhoto = student._id;
     notify.notifyCategory = 'Student Request'
     notify.redirectIndex = 9
+    notify.classId = classes?._id
+    notify.departmentId = classes?.department
+    notify.batchId = classes?.batch
     aStatus.content = `Your application for joining as student in ${institute.insName} is filled successfully. Stay updated to check status of your application.`;
     user.applicationStatus.push(aStatus._id);
     //

@@ -315,16 +315,13 @@ exports.examById = async (req, res) => {
 
 exports.allExamSubjectTeacher = async (req, res) => {
   try {
+    var options = { sort: { 'createdAt': '-1'}}
     const subjectTeacher = await Subject.findById(req.params.sid)
       .select("exams _id")
       .populate({
         path: "exams",
-        // match: {
-        //   subjects: {
-        //     subjectId: { $eq: mongoose.mongo.ObjectId(req.params.sid) },
-        //   },
-        // },
         select: "examName examType examWeight subjects",
+        options
       });
     const subject = [];
 

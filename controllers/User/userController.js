@@ -863,36 +863,14 @@ exports.getAllUserActivity = async (req, res) => {
         path: "notifyByStudentPhoto",
         select:
           "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName",
-        populate: {
-          path: 'studentClass',
-          select: 'className'
-        }
       })
       .populate({
         path: "notifyByDepartPhoto",
         select: "photoId photo dName",
       })
       .populate({
-        path: "notifyByStudentPhoto",
-        select:
-          "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName",
-        populate: {
-          path: 'batches',
-          select: 'batchName'
-        }
-      })
-      .populate({
         path: "notifyByClassPhoto",
         select: "photoId photo className",
-      })
-      .populate({
-        path: "notifyByStudentPhoto",
-        select:
-          "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName",
-        populate: {
-          path: 'department',
-          select: 'dName'
-        }
       })
       .populate({
         path: "notifyByFinancePhoto",

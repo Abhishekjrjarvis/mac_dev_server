@@ -47,6 +47,10 @@ const studentNotificationSchema = new mongoose.Schema({
   mcqId: { type: String },
   assignmentId: { type: String },
   financeId: { type: String },
+  classId: { type: String },
+  departmentId: { type: String },
+  batchId: { type: String },
+  instituteId: { type: String },
   notifyCategory: { type: String },
 });
 

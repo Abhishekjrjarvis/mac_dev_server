@@ -10,7 +10,7 @@ exports.dailyChatFirebaseQuery = async (des, docId, type, sender, text) => {
     const db = getFirestore();
     const snapshot = await db.collection('groups').get();
     snapshot.forEach(async (doc) => {
-    if(doc?.data()?.subjectId === `${des}`){
+    if(doc?.data()?.designationId === `${des}`){
         const shot = await db.collection(`groups/${doc?.id}/chats`).add({
         "text": `${docId}`,
         "message": `${text ? text : 'Text'}`,

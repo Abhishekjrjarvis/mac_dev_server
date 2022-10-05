@@ -530,6 +530,16 @@ exports.postComment = async (req, res) => {
       notify.notifyByInsPhoto = req?.tokenData?.insId;
     }
       await Promise.all([notify.save(), author_user.save()]);
+      if (author_user?.user_comment_notify === "Enable") {
+        invokeFirebaseNotification(
+          "Comment",
+          notify,
+          "New Comment",
+          comment.author,
+          author_user.deviceToken,
+          post._id
+        );
+      }
     }
     else if(author_ins){
       if (`${comment.author}` === `${author_ins?._id}`) {
@@ -551,17 +561,14 @@ exports.postComment = async (req, res) => {
         notify.notifyByInsPhoto = req?.tokenData?.insId;
       }
       await Promise.all([notify.save(), author_ins.save()]);
-    }
-
-    if (author_user?.user_comment_notify === "Enable") {
-      invokeFirebaseNotification(
-        "Comment",
-        notify,
-        "New Comment",
-        comment.author,
-        author_user.deviceToken,
-        post._id
-      );
+        invokeFirebaseNotification(
+          "Comment",
+          notify,
+          "New Comment",
+          comment.author,
+          author_ins.deviceToken,
+          post._id
+        );
     }
     res.status(201).send({ message: "comment created", comment });
   } catch (e) {

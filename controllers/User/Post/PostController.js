@@ -520,11 +520,12 @@ exports.postComment = async (req, res) => {
       ? req.tokenData.insId
       : "";
     notify.notifyReceiever = author_user?._id;
-    author_user.uNotify.push(notify._id);
     notify.user = author_user?._id;
     if (req?.tokenData?.userId) {
+      author_user.uNotify.push(notify._id);
       notify.notifyByPhoto = req?.tokenData?.userId;
     } else if (req?.tokenData?.insId) {
+      author_user.iNotify.push(notify._id);
       notify.notifyByInsPhoto = req?.tokenData?.insId;
     }
     await Promise.all([notify.save(), author_user.save()]);

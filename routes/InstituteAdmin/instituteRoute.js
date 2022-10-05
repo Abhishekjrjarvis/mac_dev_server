@@ -174,13 +174,13 @@ router.get(
 
 router.get(
   "/:id/approve-staff/list",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Institute.retrieveApproveStaffList)
 );
 
 router.get(
   "/:id/approve-student/list",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Institute.retrieveApproveStudentList)
 );
 
@@ -490,5 +490,9 @@ router.post(
 );
 
 router.get('/:did/staff/merge/student', catchAsync(Institute.retrieveMergeStaffStudent))
+
+router.get('/:id/certificate/editable/detail', catchAsync(Institute.retrieveCertificateEditableDetailQuery))
+
+router.patch('/:id/certificate/editable', catchAsync(Institute.retrieveCertificateEditableQuery))
 
 module.exports = router;

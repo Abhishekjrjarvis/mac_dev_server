@@ -927,53 +927,52 @@ exports.retrievePendingStaffList = async (req, res) => {
 
 exports.retrieveApproveStaffList = async (req, res) => {
   try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const { id } = req.params;
-    const staffIns = await InstituteAdmin.findById({ _id: id })
-      .select("insName")
+    const skip = (page - 1) * limit;
+    const staff_ins = await InstituteAdmin.findById({_id: id})
+    .select('ApproveStaff insName')
+    const staffIns = await Staff.find({ _id: { $in: staff_ins?.ApproveStaff }})
+      .sort('-createdAt')
+      .limit(limit)
+      .skip(skip)
+      .select("staffFirstName staffMiddleName recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO")
       .populate({
-        path: "ApproveStaff",
-        select:
-          "staffFirstName staffMiddleName recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO",
-        populate: {
-          path: "user",
-          select: "userLegalName userEmail",
-        },
+        path: "user",
+        select: "userLegalName userEmail",
       })
-      .lean()
-      .exec();
     if (staffIns) {
       res.status(200).send({ message: "Success", staffIns });
     } else {
       res.status(404).send({ message: "Failure" });
     }
-  } catch {}
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 exports.retrieveApproveStudentList = async (req, res) => {
   try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const { id } = req.params;
-    const studentIns = await InstituteAdmin.findById({ _id: id })
-      .select("insName")
+    const skip = (page - 1) * limit;
+    const student_ins = await InstituteAdmin.findById({_id: id})
+    .select('ApproveStudent insName')
+    const studentIns = await Student.find({ _id: { $in: student_ins?.ApproveStudent } })
+      .sort('-createdAt')
+      .limit(limit)
+      .skip(skip)
+      .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate")
       .populate({
-        path: "ApproveStudent",
-        select:
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate",
-        populate: {
-          path: "user",
-          select: "userLegalName userEmail userPhoneNumber",
-        },
+        path: "user",
+        select: "userLegalName userEmail userPhoneNumber",
       })
       .populate({
-        path: "ApproveStudent",
-        select:
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate",
-        populate: {
-          path: "studentClass",
-          select: "className classStatus",
-        },
+        path: "studentClass",
+        select: "className classStatus",
       })
-      .lean()
-      .exec();
     if (studentIns) {
       res.status(200).send({ message: "Success", studentIns });
     } else {
@@ -2508,3 +2507,28 @@ exports.retrieveMergeStaffStudent = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.retrieveCertificateEditableDetailQuery = async(req, res) => {
+  try{
+    const { id } = req.params
+    const detail = await InstituteAdmin.findById(id)
+    .select('insAffiliated insEditableText_one insEditableText_two')
+    .lean()
+    .exec()
+    res.status(200).send({ message: 'Editable Detail 👏', detail: detail})
+  }
+  catch(e){ 
+    console.log(e)
+  }
+}
+
+exports.retrieveCertificateEditableQuery = async(req, res) => {
+  try{
+    const { id } = req.params
+    await InstituteAdmin.findByIdAndUpdate(id, req.body)
+    res.status(200).send({ message: 'Thanks for Editable 👏', status: true})
+  }
+  catch(e){ 
+    console.log(e)
+  }
+}

@@ -1069,7 +1069,7 @@ exports.likeCommentChild = async (req, res) => {
 
         res
           .status(200)
-          .send({ message: "liked by Institute", count: comment.allLikeCount });
+          .send({ message: "liked by Institute", allLikeCount: comment.allLikeCount });
       } else {
         comment.parentCommentLike.pull(id);
         if (comment.allLikeCount >= 1) {
@@ -1089,7 +1089,7 @@ exports.likeCommentChild = async (req, res) => {
         await comment.save();
         res
           .status(200)
-          .send({ message: "liked by User", count: comment.allLikeCount });
+          .send({ message: "liked by User", allLikeCount: comment.allLikeCount });
       } else {
         comment.parentCommentLike.pull(id);
         if (comment.allLikeCount >= 1) {
@@ -1098,7 +1098,7 @@ exports.likeCommentChild = async (req, res) => {
         await comment.save();
         res
           .status(200)
-          .send({ message: "diliked by user", count: comment.allLikeCount });
+          .send({ message: "diliked by user", allLikeCount: comment.allLikeCount });
       }
     }
     res.status(401).send();

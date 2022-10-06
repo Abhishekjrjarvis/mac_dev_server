@@ -174,13 +174,13 @@ router.get(
 
 router.get(
   "/:id/approve-staff/list",
-  // isLoggedIn,
+  isLoggedIn,
   catchAsync(Institute.retrieveApproveStaffList)
 );
 
 router.get(
   "/:id/approve-student/list",
-  // isLoggedIn,
+  isLoggedIn,
   catchAsync(Institute.retrieveApproveStudentList)
 );
 

@@ -5,12 +5,13 @@ const Expense = require('../../models/Expense')
 
 exports.retrieveByLearnQuery = async (req, res) => {
     try {
+      var options = { sort: { "upVoteCount": "-1" } }
       const page = req.query.page ? parseInt(req.query.page) : 1;
       const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-      const category = req.query.filter_by ? req.query.filter_by : "";
+      // const category = req.query.filter_by ? req.query.filter_by : "";
       const skip = (page - 1) * limit;
       var post = await Post.find({ postType: 'Repost' })
-        .sort("-createdAt")
+        // .sort("-createdAt")
         .limit(limit)
         .skip(skip)
         .select(
@@ -21,7 +22,8 @@ exports.retrieveByLearnQuery = async (req, res) => {
           populate: {
             path: 'post',
             select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
-          }
+          },
+          options
         })
         if(post?.length < 1){
             res.status(200).send({ message: 'filter By Learn', filteredLearn: [] })
@@ -44,7 +46,7 @@ exports.retrieveByAnswerQuery = async (req, res) => {
       const skip = (page - 1) * limit;
       if(category !== ''){
         var post = await Post.find({ $and: [{ trend_category: `${category}` }, { postType: 'Question' }] })
-          .sort("-createdAt")
+          .sort("-needCount")
           .limit(limit)
           .skip(skip)
           .select(
@@ -53,7 +55,7 @@ exports.retrieveByAnswerQuery = async (req, res) => {
       }
       else{
         var post = await Post.find({ postType: 'Question' })
-          .sort("-createdAt")
+          .sort("-needCount")
           .limit(limit)
           .skip(skip)
           .select(
@@ -76,13 +78,14 @@ exports.retrieveByAnswerQuery = async (req, res) => {
 
 exports.retrieveByParticipateQuery = async (req, res) => {
     try {
+      var options = { sort: { "total_votes": "-1"}}
       const page = req.query.page ? parseInt(req.query.page) : 1;
       const limit = req.query.limit ? parseInt(req.query.limit) : 10;
       const category = req.query.filter_by ? req.query.filter_by : "";
       const skip = (page - 1) * limit;
       if(category !== ''){
         var post = await Post.find({ $and: [{ trend_category: `${category}` }, { postType: 'Poll' }] })
-          .sort("-createdAt")
+          // .sort("-createdAt")
           .limit(limit)
           .skip(skip)
           .select(
@@ -90,11 +93,12 @@ exports.retrieveByParticipateQuery = async (req, res) => {
           )
           .populate({
             path: "poll_query",
+            options
           })
       }
       else{
-        var post = await Post.find({ $and: [{ trend_category: `${category}` }, { postType: 'Poll' }] })
-        .sort("-createdAt")
+        var post = await Post.find({ postType: 'Poll' })
+        // .sort("-createdAt")
         .limit(limit)
         .skip(skip)
         .select(
@@ -102,6 +106,7 @@ exports.retrieveByParticipateQuery = async (req, res) => {
         )
         .populate({
           path: "poll_query",
+          options
         })
       }
       if(post?.length < 1){

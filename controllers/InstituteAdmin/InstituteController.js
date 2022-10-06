@@ -433,14 +433,14 @@ exports.removeFollowIns = async (req, res) => {
 };
 
 exports.updateApproveStaff = async (req, res) => {
-  var staffDate = new Date();
-  var joinDate = `${staffDate.getFullYear()}-${
-    staffDate.getMonth() < 10
-      ? `0${staffDate.getMonth() + 1}`
-      : staffDate.getMonth() + 1
-  }-${
-    staffDate.getDate() < 10 ? `0${staffDate.getDate()}` : staffDate.getDate()
-  }`;
+  // var staffDate = new Date();
+  // var joinDate = `${staffDate.getFullYear()}-${
+  //   staffDate.getMonth() < 10
+  //     ? `0${staffDate.getMonth() + 1}`
+  //     : staffDate.getMonth() + 1
+  // }-${
+  //   staffDate.getDate() < 10 ? `0${staffDate.getDate()}` : staffDate.getDate()
+  // }`;
   try {
     const { id, sid, uid } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id });
@@ -457,7 +457,7 @@ exports.updateApproveStaff = async (req, res) => {
     institute.staff.pull(sid);
     institute.joinedUserList.push(user._id);
     staffs.staffROLLNO = institute.ApproveStaff.length;
-    staffs.staffJoinDate = joinDate;
+    staffs.staffJoinDate = new Date().toISOString();
     notify.notifyContent = `Congrats ${staffs.staffFirstName} ${
       staffs.staffMiddleName ? `${staffs.staffMiddleName}` : ""
     } ${staffs.staffLastName} for joined as a staff at ${institute.insName}`;
@@ -739,14 +739,14 @@ exports.printedBySuperAdmin = async (req, res) => {
 };
 
 exports.fillStaffForm = async (req, res) => {
-  var staffDate = new Date();
-  var joinDate = `${staffDate.getFullYear()}-${
-    staffDate.getMonth() < 10
-      ? `0${staffDate.getMonth() + 1}`
-      : staffDate.getMonth() + 1
-  }-${
-    staffDate.getDate() < 10 ? `0${staffDate.getDate()}` : staffDate.getDate()
-  }`;
+  // var staffDate = new Date();
+  // var joinDate = `${staffDate.getFullYear()}-${
+  //   staffDate.getMonth() < 10
+  //     ? `0${staffDate.getMonth() + 1}`
+  //     : staffDate.getMonth() + 1
+  // }-${
+  //   staffDate.getDate() < 10 ? `0${staffDate.getDate()}` : staffDate.getDate()
+  // }`;
   try {
     const { uid, id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id });
@@ -784,7 +784,7 @@ exports.fillStaffForm = async (req, res) => {
       institute.followersCount += 1;
     }
     staff.institute = institute._id;
-    staff.staffApplyDate = joinDate;
+    staff.staffApplyDate = new Date().toISOString();
     staff.user = user._id;
     notify.notifyContent = `${staff.staffFirstName}${
       staff.staffMiddleName ? ` ${staff.staffMiddleName}` : ""
@@ -927,9 +927,10 @@ exports.retrievePendingStaffList = async (req, res) => {
 
 exports.retrieveApproveStaffList = async (req, res) => {
   try {
+    var { id } = req.params;
+    if(req.query.limit){
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const { id } = req.params;
     const skip = (page - 1) * limit;
     const staff_ins = await InstituteAdmin.findById({_id: id})
     .select('ApproveStaff insName')
@@ -943,9 +944,26 @@ exports.retrieveApproveStaffList = async (req, res) => {
         select: "userLegalName userEmail",
       })
     if (staffIns) {
-      res.status(200).send({ message: "Success", staffIns });
+      res.status(200).send({ message: "All Staff With Limit ", staffIns });
     } else {
-      res.status(404).send({ message: "Failure" });
+      res.status(404).send({ message: "Failure", staffIns: [] });
+    }
+    }
+    else {
+      const staff_ins = await InstituteAdmin.findById({_id: id})
+      .select('ApproveStaff insName')
+      const staffIns = await Staff.find({ _id: { $in: staff_ins?.ApproveStaff }})
+      .sort('-createdAt')
+      .select("staffFirstName staffMiddleName recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO")
+      .populate({
+        path: "user",
+        select: "userLegalName userEmail",
+      })
+      if (staffIns) {
+        res.status(200).send({ message: "Without Limit", staffIns });
+      } else {
+        res.status(404).send({ message: "Failure", staffIns: [] });
+      }
     }
   } catch(e) {
     console.log(e)
@@ -954,31 +972,55 @@ exports.retrieveApproveStaffList = async (req, res) => {
 
 exports.retrieveApproveStudentList = async (req, res) => {
   try {
-    const page = req.query.page ? parseInt(req.query.page) : 1;
-    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const { id } = req.params;
-    const skip = (page - 1) * limit;
-    const student_ins = await InstituteAdmin.findById({_id: id})
-    .select('ApproveStudent insName')
-    const studentIns = await Student.find({ _id: { $in: student_ins?.ApproveStudent } })
-      .sort('-createdAt')
-      .limit(limit)
-      .skip(skip)
-      .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate")
-      .populate({
-        path: "user",
-        select: "userLegalName userEmail userPhoneNumber",
-      })
-      .populate({
-        path: "studentClass",
-        select: "className classStatus",
-      })
-    if (studentIns) {
-      res.status(200).send({ message: "Success", studentIns });
-    } else {
-      res.status(404).send({ message: "Failure" });
+    var { id } = req.params;
+    if(req.query.limit){
+      const page = req.query.page ? parseInt(req.query.page) : 1;
+      const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+      const skip = (page - 1) * limit;
+      const student_ins = await InstituteAdmin.findById({_id: id})
+      .select('ApproveStudent insName')
+      const studentIns = await Student.find({ _id: { $in: student_ins?.ApproveStudent } })
+        .sort('-createdAt')
+        .limit(limit)
+        .skip(skip)
+        .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate")
+        .populate({
+          path: "user",
+          select: "userLegalName userEmail userPhoneNumber",
+        })
+        .populate({
+          path: "studentClass",
+          select: "className classStatus",
+        })
+      if (studentIns) {
+        res.status(200).send({ message: "All Student with limit", studentIns });
+      } else {
+        res.status(404).send({ message: "Failure", studentIns: [] });
+      }
     }
-  } catch {}
+    else{
+      const student_ins = await InstituteAdmin.findById({_id: id})
+      .select('ApproveStudent insName')
+      const studentIns = await Student.find({ _id: { $in: student_ins?.ApproveStudent } })
+        .sort('-createdAt')
+        .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate")
+        .populate({
+          path: "user",
+          select: "userLegalName userEmail userPhoneNumber",
+        })
+        .populate({
+          path: "studentClass",
+          select: "className classStatus",
+        })
+      if (studentIns) {
+        res.status(200).send({ message: "Without Limit", studentIns });
+      } else {
+        res.status(404).send({ message: "Failure", studentIns: [] });
+      }
+    }
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 exports.getFullStaffInfo = async (req, res) => {
@@ -2106,17 +2148,17 @@ exports.retrieveDepartmentAllBatch = async (req, res) => {
 };
 
 exports.retrieveApproveStudentRequest = async (req, res) => {
-  var date = new Date();
-  var p_date = date.getDate();
-  var p_month = date.getMonth() + 1;
-  var p_year = date.getFullYear();
-  if (p_date < 10) {
-    p_date = `0${p_date}`;
-  }
-  if (p_month <= 10) {
-    p_month = `0${p_month}`;
-  }
-  var c_date = `${p_year}-${p_month}-${p_date}`;
+  // var date = new Date();
+  // var p_date = date.getDate();
+  // var p_month = date.getMonth() + 1;
+  // var p_year = date.getFullYear();
+  // if (p_date < 10) {
+  //   p_date = `0${p_date}`;
+  // }
+  // if (p_month <= 10) {
+  //   p_month = `0${p_month}`;
+  // }
+  // var c_date = `${p_year}-${p_month}-${p_date}`;
   try {
     const { id, sid, cid, did, bid } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id });
@@ -2136,16 +2178,16 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     admins.studentCount += 1;
     institute.student.pull(sid);
     institute.studentCount += 1;
-    if (c_date <= institute.insFreeLastDate) {
-      institute.insFreeCredit = institute.insFreeCredit + 1;
-    }
+    // if (c_date <= institute.insFreeLastDate) {
+    //   institute.insFreeCredit = institute.insFreeCredit + 1;
+    // }
     classes.ApproveStudent.push(student._id);
     classes.studentCount += 1;
     classes.student.pull(sid);
     student.studentGRNO = classes.ApproveStudent.length;
     student.studentROLLNO = classes.ApproveStudent.length;
     student.studentClass = classes._id;
-    student.studentAdmissionDate = c_date;
+    student.studentAdmissionDate = new Date().toISOString();
     depart.ApproveStudent.push(student._id);
     depart.studentCount += 1;
     student.department = depart._id;

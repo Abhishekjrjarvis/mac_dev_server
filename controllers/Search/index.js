@@ -443,7 +443,22 @@ exports.searchSubject = async (req, res) => {
 exports.searchStudent = async (req, res) => {
   try {
     if (req.query.search.trim() === "") {
-      res.status(202).send({ message: "Please Provide a string to search" });
+      const student = await Student.find({ $and: [{institute: req.params.id},{studentStatus: "Approved" }]})
+        .sort('createdAt')
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO"
+        )
+        .populate({
+          path: "user",
+          select: "_id",
+        })
+        .populate({
+          path: "studentClass",
+          select: "className",
+        })
+        .lean()
+        .exec()
+      res.status(200).send({ message: "Without Query All Student", student: student });
     } else {
       const search = req.query.search
         ? {
@@ -499,7 +514,18 @@ exports.searchStudent = async (req, res) => {
 exports.searchStaff = async (req, res) => {
   try {
     if (req.query.search.trim() === "") {
-      res.status(202).send({ message: "Please Provide a string to search" });
+      const staff = await Staff.find({ $and: [{institute: req.params.id},{staffStatus: "Approved" }]})
+        .sort('-createdAt')
+        .select(
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        )
+        .populate({
+          path: "user",
+          select: "_id",
+        })
+        .lean()
+        .exec()
+      res.status(200).send({ message: "Without Query All Staff", staff: staff });
     } else {
       const search = req.query.search
         ? {

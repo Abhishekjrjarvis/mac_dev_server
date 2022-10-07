@@ -44,7 +44,7 @@ exports.postWithText = async (req, res) => {
     post.isUser = "user";
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([user.save(), post.save()]);
-    res.status(201).send({ message: "post is create" });
+    res.status(201).send({ message: "post is create", post });
     if (user.userFollowers.length >= 1) {
       if (post.postStatus === "Anyone") {
         user.userFollowers.forEach(async (ele) => {
@@ -140,7 +140,7 @@ exports.postWithImage = async (req, res) => {
     post.isUser = "user";
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([user.save(), post.save()]);
-    res.status(201).send({ message: "post is create" });
+    res.status(201).send({ message: "post is create", post });
     if (user.userFollowers.length >= 1) {
       if (post.postStatus === "Anyone") {
         user.userFollowers.forEach(async (ele) => {
@@ -235,7 +235,7 @@ exports.postWithVideo = async (req, res) => {
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([user.save(), post.save()]);
     await unlinkFile(file.path);
-    res.status(201).send({ message: "post created" });
+    res.status(201).send({ message: "post created", post });
     if (user.userFollowers.length >= 1) {
       if (post.postStatus === "Anyone") {
         user.userFollowers.forEach(async (ele) => {
@@ -522,7 +522,7 @@ exports.postComment = async (req, res) => {
       ? req.tokenData.insId
       : "";
     notify.notifyReceiever = author_user?._id;
-    author_user.uNotify.push(notify._id);
+    author_user?.uNotify.push(notify._id);
     notify.user = author_user?._id;
     if (req?.tokenData?.userId) {
       notify.notifyByPhoto = req?.tokenData?.userId;

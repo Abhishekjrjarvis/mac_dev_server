@@ -18,7 +18,7 @@ exports.postQuestionText = async (req, res) => {
       .populate({ path: "userCircle" });
     const post = new Post({ ...req.body });
     post.imageId = "1";
-    if (req.files.length >= 1) {
+    if (req.files?.length >= 1) {
       for (let file of req.files) {
         const results = await uploadPostImageFile(file);
         post.postImage.push(results.Key);
@@ -34,7 +34,7 @@ exports.postQuestionText = async (req, res) => {
     post.authorPhotoId = user.photoId;
     post.authorProfilePhoto = user.profilePhoto;
     post.authorOneLine = user.one_line_about;
-    post.authorFollowersCount = user.followerCount
+    post.authorFollowersCount = user.followerCount;
     post.isUser = "user";
     post.postType = "Question";
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
@@ -63,7 +63,7 @@ exports.postQuestionDelete = async (req, res) => {
     const user = await User.findById({ _id: id });
     await User.findByIdAndUpdate(id, { $pull: { userPosts: pid } });
     await Post.findByIdAndDelete({ _id: pid });
-    if(user.questionCount >= 1){
+    if (user.questionCount >= 1) {
       user.questionCount -= 1;
     }
     await user.save();
@@ -407,7 +407,7 @@ exports.postQuestionDeleteAnswer = async (req, res) => {
     const post = await Post.findById({ _id: pid });
     await Post.findByIdAndUpdate(id, { $pull: { answer: aid } });
     await Answer.findByIdAndDelete({ _id: aid });
-    if(post.answerCount >=1){
+    if (post.answerCount >= 1) {
       post.answerCount -= 1;
     }
     await post.save();
@@ -458,7 +458,7 @@ exports.rePostQuestionAnswer = async (req, res) => {
       rePost.authorPhotoId = user.photoId;
       rePost.authorProfilePhoto = user.profilePhoto;
       rePost.authorOneLine = user.one_line_about;
-      rePost.authorFollowersCount = user.followerCount
+      rePost.authorFollowersCount = user.followerCount;
       user.answered_query.push(answers._id);
       post.answer.push(answers._id);
       post.answerCount += 1;
@@ -545,10 +545,10 @@ exports.rePostAnswerLike = async (req, res) => {
         rePost.repostMultiple.includes(String(user_session))
       ) {
         rePost.repostMultiple.pull(user_session);
-        await rePost.save()
+        await rePost.save();
       } else {
         rePost.repostMultiple.push(user_session);
-        await rePost.save()
+        await rePost.save();
       }
       //
       if (
@@ -633,10 +633,10 @@ exports.retrieveHelpQuestion = async (req, res) => {
         post_ques.needMultiple.includes(String(user._id))
       ) {
         post_ques.needMultiple.pull(user._id);
-        await post_ques.save()
+        await post_ques.save();
       } else {
         post_ques.needMultiple.push(user._id);
-        await post_ques.save()
+        await post_ques.save();
       }
       //
       if (
@@ -686,8 +686,8 @@ exports.retrieveHelpQuestion = async (req, res) => {
         }
       }
     }
-  } catch (e){
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
 };
 
@@ -740,7 +740,7 @@ exports.answerReplyDelete = async (req, res) => {
     if (!req.params.aid) throw "Please send reply answer id to perform task";
     const ranswer = await AnswerReply.findById(req.params.aid);
     const answer = await Answer.findById(ranswer.parentAnswer);
-    if(answer.answerReplyCount >= 1){
+    if (answer.answerReplyCount >= 1) {
       answer.answerReplyCount -= 1;
     }
     await answer.save();

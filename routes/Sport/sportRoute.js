@@ -7,53 +7,39 @@ const multer = require('multer')
 const upload = multer({ dest: "uploads/" });
 
 
-// Assigning Head to Sport Department
 router.post('/ins/:id/staff/:sid', isLoggedIn, isApproved, catchAsync(Sport.getSportDepart))
 
-// Get Details of Sport Department
-router.get('/detail/:id', isLoggedIn, catchAsync(Sport.retrieveSportDetail))
+router.get('/detail/:id', catchAsync(Sport.retrieveSportDetail))
 
-// Assigning Head to Sport Class
-router.post('/ins/:id/sport/:sid/class', isLoggedIn, catchAsync(Sport.getSportClass))
+router.post('/ins/:id/sport/:sid/class', catchAsync(Sport.getSportClass))
 
-// Create Sport Event at Sport Department
-router.post('/:sid/event', isLoggedIn, catchAsync(Sport.getSportEvent))
+router.post('/:sid/event', upload.single('file'), catchAsync(Sport.getSportEvent))
 
-// Update Info At Sport Department
-router.post('/info/:sid', isLoggedIn, catchAsync(Sport.updateSportInfo))
+router.patch('/info/:sid', catchAsync(Sport.updateSportInfo))
 
-// Get All Details of Event At Sport
-router.get('/event/detail/:id', isLoggedIn, catchAsync(Sport.retrieveSportEventDetail))
+router.get('/event/detail/:id', catchAsync(Sport.retrieveSportEventDetail))
 
 // Add Intra Match to the Event
-router.post('/event/:eid/match', isLoggedIn, catchAsync(Sport.getIntraMatchEvent))
+router.post('/event/:eid/match', catchAsync(Sport.getIntraMatchEvent))
 
-// Add Inter Match to the Event
-router.post('/event/:eid/inter/match', isLoggedIn, catchAsync(Sport.getInterMatchEvent))
+router.post('/event/:eid/inter/match', catchAsync(Sport.getInterMatchEvent))
 
-// Get Details of Sport Class
-router.get('/class/detail/:cid', isLoggedIn, catchAsync(Sport.retrieveSportClassDetail))
+router.get('/class/detail/:cid', catchAsync(Sport.retrieveSportClassDetail))
 
-// Add Student to Sport Class
-router.post('/class/:cid/student/:sid', isLoggedIn, catchAsync(Sport.updateStudentSportClass))
+router.post('/class/:cid/student', catchAsync(Sport.updateStudentSportClass))
 
-// Update Info At Sport Class
-router.post('/class/info/:sid', isLoggedIn, catchAsync(Sport.updateSportClassInfo))
+router.patch('/class/info/:cid', catchAsync(Sport.updateSportClassInfo))
 
-// Add Student
-router.post('/class/:cid/student/:id/add', isLoggedIn, catchAsync(Sport.getStudentSportClass))
+// router.post('/class/:cid/student/:id/add', isLoggedIn, catchAsync(Sport.getStudentSportClass))
 
-// Remove Student
-router.post('/class/:cid/student/:id/remove', isLoggedIn, catchAsync(Sport.removeStudentSportClass))
+// router.post('/class/:cid/student/:id/remove', isLoggedIn, catchAsync(Sport.removeStudentSportClass))
 
-// Added Team At Sport Class
-router.post('/class/:cid/team', isLoggedIn, catchAsync(Sport.updateSportTeam))
+router.post('/class/:cid/team', upload.single('file'), catchAsync(Sport.updateSportTeam))
 
-// Get Details of Match
-router.get('/match/detail/:mid', isLoggedIn, catchAsync(Sport.retrieveMatchDetail))
+router.get('/match/detail/:mid', catchAsync(Sport.retrieveMatchDetail))
 
 // Update Score of Intra Match (Individual)
-router.post('/match/:mid/update/individual', isLoggedIn, catchAsync(Sport.updateIntraMatchIndividual))
+router.post('/match/:mid/update/individual', catchAsync(Sport.updateIntraMatchIndividual))
 
 // Update Score of Inter Match (Individual)
 router.post('/match/:mid/update/inter/individual', isLoggedIn, catchAsync(Sport.updateInterMatchIndividual))
@@ -70,14 +56,11 @@ router.post('/match/:mid/update/free', isLoggedIn, catchAsync(Sport.updateIntraM
 // Update Score of Inter Match (Free)
 router.post('/match/:mid/update/inter/free', isLoggedIn, catchAsync(Sport.updateInterMatchFree))
 
-// Update Event At Sport Department
-router.patch('/:sid/event/:eid/update', isLoggedIn, catchAsync(Sport.updateEvent))
+router.patch('event/:eid/update', catchAsync(Sport.updateEvent))
 
-// Delete Match At Sport Event
-router.delete('/event/:eid/match/:mid/delete', isLoggedIn, catchAsync(Sport.removeMatchEvent))
+router.delete('/event/:eid/match/:mid/delete', catchAsync(Sport.removeMatchEvent))
 
-// Delete Event At Sport Department
-router.delete('/:sid/event/:eid/delete', isLoggedIn, catchAsync(Sport.removeEvent))
+router.delete('/:sid/event/:eid/delete', catchAsync(Sport.removeEvent))
 
 
 

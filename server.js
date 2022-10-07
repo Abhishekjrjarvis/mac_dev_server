@@ -158,7 +158,7 @@ app.use("/api/v1/ins/post", institutePostRoute);
 app.use("/api/v1/admin/post", superAdminPostRoute);
 app.use("/api/v1/auth", authNew);
 app.use("/api/v1/finance", financeNew);
-app.use("/api/v1/sport", sportNew);
+app.use("/api/v1/sport/arts", sportNew);
 app.use("/api/v1/all", miscellaneousNew);
 app.use("/api/v1/user", userNew);
 app.use("/api/v1/user/post", userPostRoute);

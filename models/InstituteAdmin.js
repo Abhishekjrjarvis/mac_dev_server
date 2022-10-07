@@ -348,6 +348,14 @@ const instituteAdminSchema = new mongoose.Schema({
     type: String,
     default: 'Disable'
   },
+  sportStatus: {
+    type: String,
+    default: "Disable",
+  },
+  sportClassStatus: {
+    type: String,
+    default: "Disable",
+  },
   deviceToken: {
     type: String,
   },

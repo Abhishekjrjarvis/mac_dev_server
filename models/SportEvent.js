@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const SportEventMatch = require('./SportEventMatch')
 
 const sportEventSchema = new mongoose.Schema({
     sportEventName: { type: String, required: true },
@@ -7,7 +8,7 @@ const sportEventSchema = new mongoose.Schema({
     sportEventDate: { type: String, required: true },
     sportEventDescription: { type: String, required: true },
     sportEventProfilePhoto: { type: String },
-    sportEventCoverPhoto: { type: String },
+    photoId: { type: String, default: 0},
     sportDepartment: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Sport'
@@ -17,7 +18,11 @@ const sportEventSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'SportEventMatch'
         }
-    ]
+    ],
+    sportEventMatchCount: {
+        type: Number,
+        default: 0
+    }
 })
 
 sportEventSchema.post('findOneAndDelete', async function (doc) {

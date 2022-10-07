@@ -33,7 +33,11 @@ const pollSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    answeredUser: []
+    answeredUser: [],
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
 });
 
 const Poll = mongoose.model("Poll", pollSchema);

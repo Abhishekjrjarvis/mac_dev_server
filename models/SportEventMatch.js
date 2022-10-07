@@ -29,6 +29,10 @@ const sportEventMatchSchema = new mongoose.Schema({
             ref: 'Student'
         }
     ],
+    sportFreePlayerCount: {
+        type: Number,
+        default: 0
+    },
     sportTeam1: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'SportTeam'
@@ -74,6 +78,13 @@ const sportEventMatchSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Student'
         }
+    ],
+    sportInterPlayer1: { type: String },
+    sportInterTeam1: { type: String },
+    sportInterFreePlayer: [
+        { 
+            type: String 
+        },
     ],
 })
 

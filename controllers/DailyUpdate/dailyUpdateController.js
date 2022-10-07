@@ -84,7 +84,7 @@ exports.createDailyUpdate = async (req, res) => {
         var results = await uploadDocFile(file);
         obj.documentKey = results.Key;
         dailyUpdate?.upadateImage.push(obj);
-        await dailyChatFirebaseQuery(`${subject?.id}`, `${results.Key}`, 'image', `${subject.subjectTeacherName?.user._id}`, `${dailyUpdate.updateDescription}`)
+        await dailyChatFirebaseQuery(`${subject?.id}`, `${results.Key}`, 'dailyUpdate', `${subject.subjectTeacherName?.user._id}`, `${dailyUpdate.updateDescription}`)
         await unlinkFile(file.path);
       }
     }

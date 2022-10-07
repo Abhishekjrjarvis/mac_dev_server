@@ -162,7 +162,8 @@ const postSchema = new mongoose.Schema({
   new_application: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'NewApplication'
-  }
+  },
+  hash_trend: { type: String, default: 'Not on trending' },
   //
 });
 

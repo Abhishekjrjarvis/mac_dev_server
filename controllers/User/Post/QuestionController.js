@@ -381,6 +381,7 @@ exports.questionAnswerSave = async (req, res) => {
     const { aid } = req.params;
     const user_session =
       req.tokenData && req.tokenData.userId ? req.tokenData.userId : "";
+    var user = await User.findById({_id: `${user_session}`})
     if (user_session) {
       const answer = await Answer.findById({ _id: aid });
       if (
@@ -388,12 +389,20 @@ exports.questionAnswerSave = async (req, res) => {
         answer.answerSave.includes(user_session)
       ) {
         answer.answerSave.pull(user_session);
-        await answer.save();
-        res.status(200).send({ message: "Remove Answer To Favourites 👎" });
+        user.user_saved_answer.pull(answer._id)
+        await Promise.all([
+          answer.save(),
+          user.save()
+        ])
+        res.status(200).send({ message: "Remove Answer To Favourites 👎", status: false });
       } else {
         answer.answerSave.push(user_session);
-        await answer.save();
-        res.status(200).send({ message: "Added Answer To Favourites 👍" });
+        user.user_saved_answer.push(answer._id)
+        await Promise.all([
+          answer.save(),
+          user.save()
+        ])
+        res.status(200).send({ message: "Added Answer To Favourites 👍", status: true });
       }
     } else {
       res.status(401).send({ message: "Unauthorized access" });
@@ -750,5 +759,50 @@ exports.answerReplyDelete = async (req, res) => {
     res.status(200).send({
       message: e,
     });
+  }
+};
+
+exports.getAllSaveAnswerQuery = async (req, res) => {
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const uid = req.params.uid;
+    const skip = (page - 1) * limit;
+    const user = await User.findById(uid)
+    .select("id")
+    .populate({
+      path: "user_saved_answer",
+    });
+    if (user && user.user_saved_answer.length >= 1) {
+      var answer = await Answer.find({
+        $and: [{ _id: { $in: user.user_saved_answer } }],
+      })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "answerContent createdAt answerImageId answerImage upVote upVoteCount authorOneLine downVote downVoteCount isMentor answerReplyCount author answerSave authorName authorUserName authorPhotoId authorProfilePhoto"
+        )
+        .populate({
+          path: "post",
+          select:
+            "postQuestion author authorProfilePhoto authorPhotoId authorUserName isUser",
+        });
+        
+      const answerCount = await Answer.find({ _id: { $in: user.user_saved_answer } });
+      if (page * limit >= answerCount.length) {
+      } else {
+        var totalPage = page + 1;
+      }
+      res.status(200).send({
+        message: "Success",
+        answer,
+        answerCount: answerCount.length,
+        totalPage: totalPage,
+      });
+    } else {
+      res.status(200).send({ message: "No Answer Found", answer: [] });
+    }
+  } catch (e) {
+    console.log(e);
   }
 };

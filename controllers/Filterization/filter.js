@@ -3,6 +3,20 @@ const Poll = require('../../models/Question/Poll')
 const Income = require('../../models/Income')
 const Expense = require('../../models/Expense')
 
+var trendingQuery = (trends, cat) => {
+  if(cat !== ''){
+    trends.forEach((ele, index) => {
+      ele.hash_trend = `#${index + 1} on trending for ${ele.trend_category}`
+    })
+  }
+  else{
+    trends.forEach((ele, index) => {
+      ele.hash_trend = `#${index + 1} on trending`
+    })
+  }
+  return trends
+}
+
 exports.retrieveByLearnQuery = async (req, res) => {
     try {
       var options = { sort: { "upVoteCount": "-1" } }
@@ -50,8 +64,9 @@ exports.retrieveByAnswerQuery = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "postTitle postText postQuestion isHelpful needCount needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType"
+            "postTitle postText postQuestion isHelpful needCount needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType hash_trend"
           )
+          var data = trendingQuery(post, category)
       }
       else{
         var post = await Post.find({ postType: 'Question' })
@@ -59,14 +74,15 @@ exports.retrieveByAnswerQuery = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "postTitle postText postQuestion isHelpful needCount needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType"
+            "postTitle postText postQuestion isHelpful needCount needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType hash_trend"
           )
+        var data = trendingQuery(post, category)
       }
-      if(post?.length < 1){
+      if(data?.length < 1){
         res.status(200).send({ message: 'filter By Answer', filteredQuestion: [] })
       }
       else{
-          res.status(200).send({ message: 'filter By Answer', filteredQuestion: post })
+          res.status(200).send({ message: 'filter By Answer', filteredQuestion: data})
       }
         
     } catch (e) {

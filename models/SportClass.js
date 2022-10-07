@@ -24,12 +24,6 @@ const sportClassSchema = new mongoose.Schema({
   sportClassPhoneNumber: {
     type: String,
   },
-  sportClassProfilePhoto: {
-    type: String,
-  },
-  sportClassCoverPhoto: {
-    type: String,
-  },
   institute: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteAdmin",
@@ -50,6 +44,18 @@ const sportClassSchema = new mongoose.Schema({
       ref: "SportTeam",
     },
   ],
+  sportStudentCount: {
+    type: Number,
+    default: 0
+  },
+  sportTeamCount: {
+    type: Number,
+    default: 0
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
 });
 
 const SportClass = mongoose.model("SportClass", sportClassSchema);

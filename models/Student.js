@@ -278,6 +278,14 @@ const studentSchema = new mongoose.Schema({
       },
     },
   ],
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  sportEventCount: {
+    type: Number,
+    default: 0
+  }
 });
 
 const Student = mongoose.model("Student", studentSchema);

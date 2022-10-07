@@ -508,7 +508,9 @@ exports.postComment = async (req, res) => {
     comment.post = post._id;
     await Promise.all([post.save(), comment.save()]);
     var notify = new Notification({});
-    var author_user = await User.findById({ _id: `${post?.author}` });
+    var author_user = await User.findOne({ _id: `${post?.author}` });
+    var author_ins = await InstituteAdmin.findOne({_id: `${post.author}`})
+    if(author_user){
     if (`${comment.author}` === `${author_user?._id}`) {
       notify.notifyContent = `you shared a new comment`;
     } else {
@@ -527,16 +529,46 @@ exports.postComment = async (req, res) => {
     } else if (req?.tokenData?.insId) {
       notify.notifyByInsPhoto = req?.tokenData?.insId;
     }
-    await Promise.all([notify.save(), author_user.save()]);
-    if (author_user?.user_comment_notify === "Enable") {
-      invokeFirebaseNotification(
-        "Comment",
-        notify,
-        "New Comment",
-        comment.author,
-        author_user.deviceToken,
-        post._id
-      );
+      await Promise.all([notify.save(), author_user.save()]);
+      if (author_user?.user_comment_notify === "Enable") {
+        invokeFirebaseNotification(
+          "Comment",
+          notify,
+          "New Comment",
+          comment.author,
+          author_user.deviceToken,
+          post._id
+        );
+      }
+    }
+    else if(author_ins){
+      if (`${comment.author}` === `${author_ins?._id}`) {
+        notify.notifyContent = `you shared a new comment`;
+      } else {
+        notify.notifyContent = `${comment.authorName} commented on your post`;
+      }
+      notify.notifySender = req.tokenData?.userId
+        ? req.tokenData.userId
+        : req.tokenData?.insId
+        ? req.tokenData.insId
+        : "";
+      notify.notifyReceiever = author_ins?._id;
+      author_ins.iNotify.push(notify._id);
+      notify.institute = author_ins?._id;
+      if (req?.tokenData?.userId) {
+        notify.notifyByPhoto = req?.tokenData?.userId;
+      } else if (req?.tokenData?.insId) {
+        notify.notifyByInsPhoto = req?.tokenData?.insId;
+      }
+      await Promise.all([notify.save(), author_ins.save()]);
+        invokeFirebaseNotification(
+          "Comment",
+          notify,
+          "New Comment",
+          comment.author,
+          author_ins.deviceToken,
+          post._id
+        );
     }
     res.status(201).send({ message: "comment created", comment });
   } catch (e) {

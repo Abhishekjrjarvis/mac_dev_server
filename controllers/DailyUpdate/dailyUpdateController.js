@@ -5,32 +5,7 @@ const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const { customMergeSort } = require("../../Utilities/Sort/custom_sort");
-
-//
-// var firebase = require("firebase-admin");
-// const { getFirestore, Timestamp, FieldValue } = require('firebase-admin/firestore');
-// var serviceAccount = require("../../Firebase/qviple-user-firebase-adminsdk-4qvna-aca6cd00fb.json");
-
-// firebase.initializeApp({
-//   credential: firebase.credential.cert(serviceAccount)
-// });
-
-// const db = getFirestore();
-// const data = async () => {
-// const snapshot = await db.collection('groups').get();
-// snapshot.forEach(async (doc) => {
-//   if(doc?.data()?.subjectId === '63232393aa93f2a1fe6efa7e'){
-//     // console.log('This One', doc.id, '=>', doc.data());
-//     const snapshots = await db.collection('chats').get(`${doc?.id}`).listDocuments()
-//     snapshots.forEach((dta) => {
-//       console.log(dta.id)
-//     })
-//   }
-// });
-// }
-// console.log(data())
-
-// //
+const { dailyChatFirebaseQuery } = require('../../Firebase/dailyChat')
 
 exports.getAlldailyUpdate = async (req, res) => {
   try {
@@ -75,7 +50,15 @@ exports.getAlldailyUpdate = async (req, res) => {
 exports.createDailyUpdate = async (req, res) => {
   try {
     if (!req.params.sid) throw "Please send subject id to perform task";
-    const subject = await Subject.findById(req.params.sid);
+    const subject = await Subject.findById(req.params.sid)
+    .populate({
+      path: 'subjectTeacherName',
+      select: 'id',
+      populate: {
+        path: 'user',
+        select: 'id'
+      }
+    })
     const dailyUpdate = new SubjectUpdate({
       subject: req.params.sid,
       updateDescription: req.body?.updateDescription,
@@ -98,9 +81,10 @@ exports.createDailyUpdate = async (req, res) => {
         obj.documentName = file.originalname;
         obj.documentEncoding = file.encoding;
         obj.documentSize = file.size;
-        const results = await uploadDocFile(file);
+        var results = await uploadDocFile(file);
         obj.documentKey = results.Key;
         dailyUpdate?.upadateImage.push(obj);
+        await dailyChatFirebaseQuery(`${subject?.id}`, `${results.Key}`, 'dailyUpdate', `${subject.subjectTeacherName?.user._id}`, `${dailyUpdate.updateDescription}`)
         await unlinkFile(file.path);
       }
     }

@@ -491,4 +491,8 @@ router.post(
 
 router.get('/:did/staff/merge/student', catchAsync(Institute.retrieveMergeStaffStudent))
 
+router.get('/:id/certificate/editable/detail', catchAsync(Institute.retrieveCertificateEditableDetailQuery))
+
+router.patch('/:id/certificate/editable', catchAsync(Institute.retrieveCertificateEditableQuery))
+
 module.exports = router;

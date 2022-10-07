@@ -4,7 +4,7 @@ const Poll = require('../../models/Question/Poll')
 exports.allPosts = async(req, res) => {
     try{
         const post = await Post.find({})
-        .select('id authorUserName postType')
+        .select('id authorUserName postType trend_category')
         .sort('-createdAt')
         .lean()
         .exec()

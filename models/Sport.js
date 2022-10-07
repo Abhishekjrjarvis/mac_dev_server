@@ -31,12 +31,18 @@ const sportSchema = new mongoose.Schema({
       ref: "SportEvent",
     },
   ],
-  sportProfilePhoto: {
-    type: String,
+  createdAt: {
+    type: Date,
+    default: Date.now
   },
-  sportCoverPhoto: {
-    type: String,
+  sportClassCount: {
+    type: Number,
+    default: 0
   },
+  sportEventCount: {
+    type: Number,
+    default: 0
+  }
 });
 
 const Sport = mongoose.model("Sport", sportSchema);

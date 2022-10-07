@@ -90,4 +90,6 @@ router
   .patch(catchAsync(Question.answerReplyEdit))
   .delete(catchAsync(Question.answerReplyDelete));
 
+router.get('/:uid/all/save/answer', catchAsync(Question.getAllSaveAnswerQuery))
+
 module.exports = router;

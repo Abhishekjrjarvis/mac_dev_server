@@ -268,6 +268,12 @@ const userSchema = new mongoose.Schema({
       ref: "Post",
     },
   ],
+  user_saved_answer: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Answer",
+    },
+  ],
   applicationStatus: [
     {
       type: mongoose.Schema.Types.ObjectId,

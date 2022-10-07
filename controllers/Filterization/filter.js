@@ -3,14 +3,29 @@ const Poll = require('../../models/Question/Poll')
 const Income = require('../../models/Income')
 const Expense = require('../../models/Expense')
 
+var trendingQuery = (trends, cat) => {
+  if(cat !== ''){
+    trends.forEach((ele, index) => {
+      ele.hash_trend = `#${index + 1} on trending for ${ele.trend_category}`
+    })
+  }
+  else{
+    trends.forEach((ele, index) => {
+      ele.hash_trend = `#${index + 1} on trending`
+    })
+  }
+  return trends
+}
+
 exports.retrieveByLearnQuery = async (req, res) => {
     try {
+      var options = { sort: { "upVoteCount": "-1" } }
       const page = req.query.page ? parseInt(req.query.page) : 1;
       const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-      const category = req.query.filter_by ? req.query.filter_by : "";
+      // const category = req.query.filter_by ? req.query.filter_by : "";
       const skip = (page - 1) * limit;
       var post = await Post.find({ postType: 'Repost' })
-        .sort("-createdAt")
+        // .sort("-createdAt")
         .limit(limit)
         .skip(skip)
         .select(
@@ -21,7 +36,8 @@ exports.retrieveByLearnQuery = async (req, res) => {
           populate: {
             path: 'post',
             select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
-          }
+          },
+          options
         })
         if(post?.length < 1){
             res.status(200).send({ message: 'filter By Learn', filteredLearn: [] })
@@ -44,27 +60,29 @@ exports.retrieveByAnswerQuery = async (req, res) => {
       const skip = (page - 1) * limit;
       if(category !== ''){
         var post = await Post.find({ $and: [{ trend_category: `${category}` }, { postType: 'Question' }] })
-          .sort("-createdAt")
+          .sort("-needCount")
           .limit(limit)
           .skip(skip)
           .select(
-            "postTitle postText postQuestion isHelpful needCount needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType"
+            "postTitle postText postQuestion isHelpful needCount needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType hash_trend"
           )
+          var data = trendingQuery(post, category)
       }
       else{
         var post = await Post.find({ postType: 'Question' })
-          .sort("-createdAt")
+          .sort("-needCount")
           .limit(limit)
           .skip(skip)
           .select(
-            "postTitle postText postQuestion isHelpful needCount needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType"
+            "postTitle postText postQuestion isHelpful needCount needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType hash_trend"
           )
+        var data = trendingQuery(post, category)
       }
-      if(post?.length < 1){
+      if(data?.length < 1){
         res.status(200).send({ message: 'filter By Answer', filteredQuestion: [] })
       }
       else{
-          res.status(200).send({ message: 'filter By Answer', filteredQuestion: post })
+          res.status(200).send({ message: 'filter By Answer', filteredQuestion: data})
       }
         
     } catch (e) {
@@ -76,13 +94,14 @@ exports.retrieveByAnswerQuery = async (req, res) => {
 
 exports.retrieveByParticipateQuery = async (req, res) => {
     try {
+      var options = { sort: { "total_votes": "-1"}}
       const page = req.query.page ? parseInt(req.query.page) : 1;
       const limit = req.query.limit ? parseInt(req.query.limit) : 10;
       const category = req.query.filter_by ? req.query.filter_by : "";
       const skip = (page - 1) * limit;
       if(category !== ''){
         var post = await Post.find({ $and: [{ trend_category: `${category}` }, { postType: 'Poll' }] })
-          .sort("-createdAt")
+          // .sort("-createdAt")
           .limit(limit)
           .skip(skip)
           .select(
@@ -90,11 +109,12 @@ exports.retrieveByParticipateQuery = async (req, res) => {
           )
           .populate({
             path: "poll_query",
+            options
           })
       }
       else{
-        var post = await Post.find({ $and: [{ trend_category: `${category}` }, { postType: 'Poll' }] })
-        .sort("-createdAt")
+        var post = await Post.find({ postType: 'Poll' })
+        // .sort("-createdAt")
         .limit(limit)
         .skip(skip)
         .select(
@@ -102,6 +122,7 @@ exports.retrieveByParticipateQuery = async (req, res) => {
         )
         .populate({
           path: "poll_query",
+          options
         })
       }
       if(post?.length < 1){

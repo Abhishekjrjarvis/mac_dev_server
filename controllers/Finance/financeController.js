@@ -22,10 +22,8 @@ exports.getFinanceDepart = async(req, res) =>{
     try {
         const { id, sid } = req.params;
         const institute = await InstituteAdmin.findById({ _id: id });
-        const staff = await Staff.findById({ _id: sid }).populate({
-          path: "user",
-        });
-        const user = await User.findById({ _id: `${staff.user._id}` });
+        const staff = await Staff.findById({ _id: sid })
+        const user = await User.findById({ _id: `${staff.user}` });
         const finance = new Finance({});
         const notify = new Notification({})
         staff.financeDepartment.push(finance._id);
@@ -40,7 +38,6 @@ exports.getFinanceDepart = async(req, res) =>{
         notify.notifyReceiever = user._id;
         user.uNotify.push(notify._id);
         notify.user = user._id;
-        notify.notifyPid = "1";
         notify.notifyByInsPhoto = institute._id;
         invokeFirebaseNotification(
           "Designation Allocation",

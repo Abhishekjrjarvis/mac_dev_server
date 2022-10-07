@@ -22,8 +22,8 @@ const instituteAdminSchema = new mongoose.Schema({
   insAchievement: { type: String },
   insAffiliated: { type: String },
   rejectReason: { type: String },
-  insEditableText: { type: String },
-  insEditableTexts: { type: String },
+  insEditableText_one: { type: String },
+  insEditableText_two: { type: String },
   referalStatus: { type: String, default: "Pending" },
   insProfilePhoto: { type: String },
   insProfileCoverPhoto: { type: String },
@@ -347,6 +347,14 @@ const instituteAdminSchema = new mongoose.Schema({
   admissionStatus: {
     type: String,
     default: 'Disable'
+  },
+  sportStatus: {
+    type: String,
+    default: "Disable",
+  },
+  sportClassStatus: {
+    type: String,
+    default: "Disable",
   },
   deviceToken: {
     type: String,

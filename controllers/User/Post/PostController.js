@@ -48,16 +48,22 @@ exports.postWithText = async (req, res) => {
     if (user.userFollowers.length >= 1) {
       if (post.postStatus === "Anyone") {
         user.userFollowers.forEach(async (ele) => {
-          ele.userPosts.push(post._id);
-          await ele.save();
+          if(ele.userPosts.includes(post._id)){}
+          else{ 
+            ele.userPosts.push(post._id);
+            await ele.save();
+          }
         });
       } else {
       }
     }
     if (user.userCircle.length >= 1) {
       user.userCircle.forEach(async (ele) => {
-        ele.userPosts.push(post._id);
-        await ele.save();
+        if(ele.userPosts.includes(post._id)){}
+        else{
+          ele.userPosts.push(post._id);
+          await ele.save();
+        }
       });
     }
     if (Array.isArray(req.body?.people)) {
@@ -144,16 +150,22 @@ exports.postWithImage = async (req, res) => {
     if (user.userFollowers.length >= 1) {
       if (post.postStatus === "Anyone") {
         user.userFollowers.forEach(async (ele) => {
-          ele.userPosts.push(post._id);
-          await ele.save();
+          if(ele.userPosts.includes(post._id)){}
+          else{
+            ele.userPosts.push(post._id);
+            await ele.save();
+          }
         });
       } else {
       }
     }
     if (user.userCircle.length >= 1) {
       user.userCircle.forEach(async (ele) => {
-        ele.userPosts.push(post._id);
-        await ele.save();
+        if(ele.userPosts.includes(post._id)){}
+        else{
+          ele.userPosts.push(post._id);
+          await ele.save();
+        }
       });
     }
     if (Array.isArray(taggedPeople)) {
@@ -239,16 +251,22 @@ exports.postWithVideo = async (req, res) => {
     if (user.userFollowers.length >= 1) {
       if (post.postStatus === "Anyone") {
         user.userFollowers.forEach(async (ele) => {
-          ele.userPosts.push(post._id);
-          await ele.save();
+          if(ele.userPosts.includes(post._id)){}
+          else{
+            ele.userPosts.push(post._id);
+            await ele.save();
+          }
         });
       } else {
       }
     }
     if (user.userCircle.length >= 1) {
       user.userCircle.forEach(async (ele) => {
-        ele.userPosts.push(post._id);
-        await ele.save();
+        if(ele.userPosts.includes(post._id)){}
+        else{
+          ele.userPosts.push(post._id);
+          await ele.save();
+        }
       });
     }
     if (Array.isArray(taggedPeople)) {

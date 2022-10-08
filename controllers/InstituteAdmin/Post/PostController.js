@@ -51,8 +51,13 @@ exports.postWithText = async (req, res) => {
       if (institute.followers.length >= 1) {
         if (post.postStatus === "Anyone") {
           institute.followers.forEach(async (ele) => {
-            ele.posts.push(post._id);
-            await ele.save();
+            if(ele.posts.includes(post._id)){
+
+            }
+            else{
+              ele.posts.push(post._id);
+              await ele.save();
+            }
           });
         } else {
         }
@@ -60,14 +65,24 @@ exports.postWithText = async (req, res) => {
       if (institute.userFollowersList.length >= 1) {
         if (post.postStatus === "Anyone") {
           institute.userFollowersList.forEach(async (ele) => {
-            ele.userPosts.push(post._id);
-            await ele.save();
+            if(ele.userPosts.includes(post._id)){
+
+            }
+            else{
+              ele.userPosts.push(post._id);
+              await ele.save();
+            }
           });
         } else {
           if (institute.joinedUserList.length >= 1) {
             institute.joinedUserList.forEach(async (ele) => {
+              if(ele.userPosts.includes(post._id)){
+
+            }
+            else{
               ele.userPosts.push(post._id);
               await ele.save();
+            }
             });
           }
         }

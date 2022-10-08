@@ -521,14 +521,20 @@ exports.rePostQuestionAnswer = async (req, res) => {
       res.status(200).send({ message: "RePosted Answer", rePost });
       if (user.userFollowers.length >= 1) {
         user.userFollowers.forEach(async (ele) => {
-          ele.userPosts.push(post._id);
-          await ele.save();
+          if(ele.userPosts.includes(post._id)){}
+          else{ 
+            ele.userPosts.push(post._id);
+            await ele.save();
+          }
         });
       }
       if (user.userCircle.length >= 1) {
         user.userCircle.forEach(async (ele) => {
-          ele.userPosts.push(post._id);
-          await ele.save();
+          if(ele.userPosts.includes(post._id)){}
+          else{
+            ele.userPosts.push(post._id);
+            await ele.save();
+          }
         });
       }
     } else {
@@ -600,8 +606,10 @@ exports.rePostAnswerLike = async (req, res) => {
           const upVoteUser = await User.findById({ _id: `${user_session}` })
             .populate("userFollowers")
             .populate("userCircle");
-          if (`${rePost.author}` === `${upVoteUser._id}`) {
-          } else {
+          // if (`${rePost.author}` === `${upVoteUser._id}`) {
+          //   console.log('true')
+          // } else {
+            // console.log('rendered')
             upVoteUser.userFollowers.forEach(async (ele) => {
               if (ele?.userPosts?.includes(rePost._id)) {
               } else {
@@ -617,7 +625,7 @@ exports.rePostAnswerLike = async (req, res) => {
                 await ele.save();
               }
             });
-          }
+          // }
         }
       }
     } else {

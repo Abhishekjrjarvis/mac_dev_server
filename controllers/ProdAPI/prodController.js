@@ -3,7 +3,7 @@ const Poll = require('../../models/Question/Poll')
 
 exports.allPosts = async(req, res) => {
     try{
-        const post = await Post.find({})
+        const post = await Post.find({ $and: [{ postType: 'Repost'}, { authorUserName: 'ankush123'}]})
         .select('id authorUserName postType trend_category')
         .sort('-createdAt')
         .lean()

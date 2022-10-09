@@ -166,7 +166,15 @@ exports.getAllInstitute = async(req, res) =>{
         .sort('-createdAt')
         .limit(limit)
         .skip(skip)
-        .select('insName photoId insProfilePhoto name status isUniversal one_line_about')
+        .select('insName photoId insProfilePhoto name status isUniversal one_line_about insEmail insAddress')
+        .populate({
+          path: "displayPersonList",
+          select: "displayTitle createdAt",
+          populate: {
+            path: "displayUser",
+            select: "userLegalName username photoId profilePhoto",
+          },
+        })
         res.status(200).send({ message: "Institute data", iRandom: institute });
       } catch(e) {
         console.log(

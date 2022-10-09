@@ -138,7 +138,7 @@ exports.retrieveFinanceQuery = async(req, res) =>{
     .select('financeName financeEmail financePhoneNumber financeAbout photoId photo cover coverId financeTotalBalance financeRaisedBalance financeExemptBalance financeCollectedSBalance financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance')
     .populate({
       path: 'institute',
-      select: 'id adminRepayAmount'
+      select: 'id adminRepayAmount insBankBalance'
     })
     .populate({
       path: 'financeHead',

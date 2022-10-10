@@ -626,7 +626,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
             populate: {
               path: "post",
               select:
-                "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser",
+                "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser answerCount",
             },
           })
           .populate({
@@ -666,7 +666,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
               populate: {
                 path: "post",
                 select:
-                  "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser",
+                  "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser answerCount",
               },
             })
             .populate({
@@ -706,7 +706,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
               populate: {
                 path: "post",
                 select:
-                  "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser",
+                  "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser answerCount",
               },
             })
             .populate({
@@ -772,7 +772,7 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
             populate: {
               path: "post",
               select:
-                "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser",
+                "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser answerCount",
             },
           })
           .populate({
@@ -808,7 +808,7 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
             populate: {
               path: "post",
               select:
-                "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser",
+                "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser answerCount",
             },
           })
           .populate({
@@ -1097,7 +1097,7 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
           populate: {
             path: "post",
             select:
-              "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser",
+              "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser answerCount",
           },
         })
         .populate({
@@ -1163,7 +1163,7 @@ exports.retrieveAllUserTagPosts = async (req, res) => {
           populate: {
             path: "post",
             select:
-              "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser",
+              "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser answerCount",
           },
         })
         .populate({

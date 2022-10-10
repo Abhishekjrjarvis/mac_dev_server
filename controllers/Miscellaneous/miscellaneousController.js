@@ -62,7 +62,7 @@ exports.getAllUser = async(req, res) =>{
         .sort("-created_at")
         .limit(limit)
         .skip(skip)
-        .select('userLegalName username photoId profilePhoto userStatus one_line_about')
+        .select('userLegalName username photoId profilePhoto userStatus one_line_about followerCount')
         res.status(200).send({ message: "User data", uRandom: user });
       } catch(e) {
         console.log(`Error`, e.message);
@@ -166,7 +166,7 @@ exports.getAllInstitute = async(req, res) =>{
         .sort('-createdAt')
         .limit(limit)
         .skip(skip)
-        .select('insName photoId insProfilePhoto name status isUniversal one_line_about insEmail insAddress')
+        .select('insName photoId insProfilePhoto name status isUniversal one_line_about insEmail insAddress followersCount')
         .populate({
           path: "displayPersonList",
           select: "displayTitle createdAt",

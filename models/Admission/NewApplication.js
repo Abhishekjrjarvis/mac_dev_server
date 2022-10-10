@@ -25,6 +25,7 @@ const newApplicationSchema = new mongoose.Schema({
     confirmCount: { type: Number, default: 0 },
     cancelCount: { type: Number, default: 0 },
     allotCount: { type: Number, default: 0 },
+    collectedFeeCount: { type: Number, default: 0 },
     createdAt: {
         type: Date,
         default: Date.now

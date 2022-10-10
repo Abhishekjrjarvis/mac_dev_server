@@ -1326,6 +1326,14 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
           select: "financeStatus",
         },
       })
+      .populate({
+        path: "admissionDepartment",
+        select: "admissionAdminEmail admissionAdminPhoneNumber admissionAdminAbout",
+        populate: {
+          path: 'admissionAdminHead',
+          select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto'
+        },
+      })
       .lean()
       .exec();
     // .populate({

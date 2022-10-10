@@ -71,19 +71,80 @@ exports.retrieveAdmissionDetailInfo = async(req, res) =>{
     try{
         const { aid } = req.params
         const admission = await Admission.findById({_id: aid})
-        .select('admissionAdminEmail admissionAdminPhoneNumber admissionAdminAbout photoId coverId admissionProfilePhoto admissionCoverPhoto queryCount')
+        .select('admissionAdminEmail admissionAdminPhoneNumber admissionAdminAbout photoId coverId photo cover offlineFee onlineFee')
         .populate({
             path: 'admissionAdminHead',
             select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto'
         })
         .populate({
-            path: 'newApplication'
+          path: 'remainingFee',
+          select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto'
         })
         res.status(200).send({ message: 'Admission Detail', admission})
     }
     catch{
 
     }
+}
+
+exports.retieveAdmissionAdminAllApplication = async(req, res) => {
+  try{
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const { aid } = req.params
+    const skip = (page - 1) * limit;
+    const apply = await Admission.findById({_id: aid})
+    .select('newApplication')
+    const ongoing = await NewApplication.find({ $and: [{_id: { $in: apply.newApplication}}, {applicationStatus: 'Ongoing'}]})
+    .sort('-createdAt')
+    .limit(limit)
+    .skip(skip)
+    .select('applicationName applicationEndDate applicationStatus applicationSeats')
+    .populate({
+      path: 'applicationDepartment',
+      select: 'dName photoId photo'
+    })
+
+    if(ongoing?.length > 0){
+      res.status(200).send({ message: 'Ongoing Application Lets Explore', ongoing, ongoingCount: ongoing?.length})
+    }
+    else{
+      res.status(200).send({ message: 'Dark side in depth nothing to find', ongoing: []})
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.retieveAdmissionAdminAllCApplication = async(req, res) => {
+  try{
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const { aid } = req.params
+    const skip = (page - 1) * limit;
+    const apply = await Admission.findById({_id: aid})
+    .select('newApplication')
+    const completed = await NewApplication.find({ $and: [{_id: { $in: apply.newApplication}}, {applicationStatus: 'Completed'}]})
+    .sort('-createdAt')
+    .limit(limit)
+    .skip(skip)
+    .select('applicationName applicationEndDate applicationStatus applicationSeats')
+    .populate({
+      path: 'applicationDepartment',
+      select: 'dName photoId photo'
+    })
+
+    if(completed?.length > 0){
+      res.status(200).send({ message: 'Completed Application Lets Explore', completed, completedCount: completed?.length})
+    }
+    else{
+      res.status(200).send({ message: 'Dark side in depth nothing to find', completed: []})
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
 }
 
 exports.fetchAdmissionQuery = async(req, res) =>{
@@ -106,7 +167,7 @@ exports.retrieveAdmissionNewApplication = async(req, res) =>{
         admission.newApplication.push(newApply._id)
         newApply.admissionAdmin = admission._id
         await Promise.all([ admission.save(), newApply.save() ])
-        res.status(200).send({ message: 'New Application is ongoing'})
+        res.status(200).send({ message: 'New Application is ongoing 👍', status: true})
         const post = new Post({})
         post.imageId = "1";
         institute.posts.push(post._id);
@@ -490,7 +551,7 @@ exports.retrieveOneApplicationQuery = async(req, res) =>{
   try{
     const { aid } = req.params
     const oneApply = await NewApplication.findById({_id: aid})
-    .select('applicationName applicationStartDate applicationFee applicationSeats receievedCount selectCount confirmCount cancelCount allotCount onlineFee offlineFee remainingFee')
+    .select('applicationName applicationStartDate applicationFee applicationSeats receievedCount selectCount confirmCount cancelCount allotCount onlineFee offlineFee remainingFee collectedFeeCount')
     .populate({
       path: 'applicationDepartment',
       select: 'dName'
@@ -499,6 +560,8 @@ exports.retrieveOneApplicationQuery = async(req, res) =>{
       path: 'applicationBatch',
       select: 'batchName'
     })
+    .lean()
+    .exec()
     res.status(200).send({ message: 'One Application', oneApply})
   }
   catch{

@@ -12,8 +12,8 @@ const admissionAdminSchema = new mongoose.Schema({
     },
     photoId: { type: String, default: "1" },
     coverId: { type: String, default: "2" },
-    admissionProfilePhoto: { type: String },
-    admissionCoverPhoto: { type: String },
+    photo: { type: String },
+    cover: { type: String },
     createdAt: {
         type: Date,
         default: Date.now

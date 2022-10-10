@@ -10,6 +10,12 @@ router.post('/ins/:id/staff/:sid', isLoggedIn, isApproved, catchAsync(Admission.
 
 router.get('/:aid/dashboard/query', catchAsync(Admission.retrieveAdmissionDetailInfo))
 
+router.get('/:aid/all/ongoing/application', catchAsync(Admission.retieveAdmissionAdminAllApplication))
+
+router.get('/:aid/all/completed/application', catchAsync(Admission.retieveAdmissionAdminAllCApplication))
+
+router.get('/:aid/application/query', catchAsync(Admission.retrieveOneApplicationQuery))
+
 router.patch('/:aid/info/update', catchAsync(Admission.fetchAdmissionQuery))
 
 router.post('/:aid/new/application', catchAsync(Admission.retrieveAdmissionNewApplication))
@@ -31,8 +37,6 @@ router.post('/:sid/student/:aid/allot/class/:cid', catchAsync(Admission.retrieve
 router.patch('/:aid/application/complete', catchAsync(Admission.completeAdmissionApplication))
 
 router.get('/application', catchAsync(Admission.retrieveAdmissionApplicationStatus))
-
-router.get('/:aid/application/query', catchAsync(Admission.retrieveOneApplicationQuery))
 
 router.post('/:aid/student/:uid/inquiry', catchAsync(Admission.retrieveUserInquiryProcess))
 

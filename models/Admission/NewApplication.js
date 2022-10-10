@@ -16,7 +16,8 @@ const newApplicationSchema = new mongoose.Schema({
     applicationType: { type: String, required: true },
     applicationStartDate: { type: String, required: true },
     applicationEndDate: { type: String, required: true },
-    applicationFee: { type: Number, required: true },
+    admissionFee: { type: Number, required: true },
+    // applicationFee: { type: Number, required: true },
     remainingFee: { type: Number, default: 0 },
     applicationAbout: { type: String, required: true },
     applicationStatus: { type: String, default: 'Ongoing' },
@@ -36,21 +37,38 @@ const newApplicationSchema = new mongoose.Schema({
     },
     receievedApplication: [
         {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Student'
-        }
+            student: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Student'
+            },
+            apply_on: { type: Date, default: Date.now},
+            fee_remain: { type: Number, default: 0},
+        },
     ],
     selectedApplication: [
         {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Student'
-        }
+            student: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Student'
+            },
+            select_on: { type: Date, default: Date.now},
+            payment_status: { type: String, default: 'Pending'},
+            fee_remain: { type: Number, default: 0},
+        },
     ],
     confirmedApplication: [
         {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Student'
-        }
+            student: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Student'
+            },
+            apply_on: { type: Date, default: Date.now},
+            process_status: { type: String, default: 'Confirm'},
+            payment_status: { type: String, default: 'Pending'},
+            alloted_class: { type: String, default: 'Pending'},
+            alloted_status: { type: String, default: 'Not Alloted'},
+            fee_remain: { type: Number, default: 0},
+        },
     ]
 })
 

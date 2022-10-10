@@ -50,6 +50,10 @@ const admissionAdminSchema = new mongoose.Schema({
             ref: 'Student'
         }
     ],
+    remainingFeeCount: {
+        type: Number,
+        default: 0
+    },
     inquiryList: [
         {
             type: mongoose.Schema.Types.ObjectId,

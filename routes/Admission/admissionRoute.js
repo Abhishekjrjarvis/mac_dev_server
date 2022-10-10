@@ -33,24 +33,32 @@ router.get('/:id/application/list/array', catchAsync(Admission.fetchAdmissionApp
 // Apply By Student at New App
 router.post('/:uid/user/:aid/apply', upload.array('file'), catchAsync(Admission.retrieveAdmissionReceievedApplication))
 
+
 router.post('/:sid/student/:aid/select', catchAsync(Admission.retrieveAdmissionSelectedApplication))
 
 router.post('/:sid/student/:aid/pay/offline/confirm', catchAsync(Admission.payOfflineAdmissionFee))
 
 router.post('/:sid/student/:aid/pay/refund', catchAsync(Admission.cancelAdmissionApplication))
 
+// All Class For Allotment
 router.get('/:aid/application/class', catchAsync(Admission.retrieveAdmissionApplicationClass))
 
+// One Student Class Allot
 router.post('/:sid/student/:aid/allot/class/:cid', catchAsync(Admission.retrieveClassAllotQuery))
 
+// Mark App Complete
 router.patch('/:aid/application/complete', catchAsync(Admission.completeAdmissionApplication))
 
+// Fetch By App status
 router.get('/application', catchAsync(Admission.retrieveAdmissionApplicationStatus))
 
+// New Inquiry
 router.post('/:aid/student/:uid/inquiry', catchAsync(Admission.retrieveUserInquiryProcess))
 
+// All Inquiry
 router.get('/:aid/student/inquiry/array', catchAsync(Admission.retrieveUserInquiryArray))
 
+// One Inquiry Reply
 router.patch('/inquiry/reply/:qid', catchAsync(Admission.retrieveInquiryReplyQuery))
 
 // router.post('/:aid/featured/admission/post', catchAsync(Admission.retrieveFeaturedPostAdmission))

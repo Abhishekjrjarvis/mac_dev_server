@@ -2181,6 +2181,13 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     // if (c_date <= institute.insFreeLastDate) {
     //   institute.insFreeCredit = institute.insFreeCredit + 1;
     // }
+    if(student.studentGender === 'Male'){
+      classes.boyCount += 1
+    }
+    else if(student.studentGender === 'Female'){
+      classes.girlCount += 1
+    }
+    classes.strength += 1
     classes.ApproveStudent.push(student._id);
     classes.studentCount += 1;
     classes.student.pull(sid);

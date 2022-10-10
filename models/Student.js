@@ -285,7 +285,24 @@ const studentSchema = new mongoose.Schema({
   sportEventCount: {
     type: Number,
     default: 0
-  }
+  },
+  admissionRemainFeeCount: {
+    type: Number,
+    default: 0
+  },
+  admissionPaymentStatus: [
+    {
+      applicationId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'NewApplication'
+      },
+      status: { type: String, default: 'Pending'},
+      installment: { type: String, default: 'No Installment'},
+      firstInstallment: { type: Number, default: 0},
+      secondInstallment: { type: Number, default: 0},
+      fee: { type: Number, default: 0},
+    },
+  ]
 });
 
 const Student = mongoose.model("Student", studentSchema);

@@ -29,13 +29,13 @@ const {
   searchLibraryBookMember,
 } = require("../../controllers/Search/index");
 
-router.route("/institute").get(isLoggedIn, searchInstitute);
+router.route("/institute").get(searchInstitute);
 router
   .route("/institute/:id/allsearch")
   .get(isLoggedIn, searchInstituteUniversal);
-router.route("/user/institute").get(isLoggedIn, searchUserInstitute);
+router.route("/user/institute").get(searchUserInstitute);
 router.route("/user").get(isLoggedIn, searchUser);
-router.route("/user/:id/allsearch").get(isLoggedIn, searchUserUniversal);
+router.route("/user/:id/allsearch").get(searchUserUniversal);
 router.route("/:id/department").get(isLoggedIn, searchDepartment);
 router.route("/:did/class/:bid").get(isLoggedIn, searchClass);
 router.route("/:did/classmaster").get(isLoggedIn, searchClassMaster);

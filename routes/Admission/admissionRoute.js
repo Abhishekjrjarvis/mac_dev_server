@@ -6,22 +6,31 @@ const { isLoggedIn, isApproved } = require('../../middleware')
 const multer = require('multer')
 const upload = multer({ dest: "uploads/" });
 
+//Assign
 router.post('/ins/:id/staff/:sid', isLoggedIn, isApproved, catchAsync(Admission.retrieveAdmissionAdminHead))
 
+// All Detail
 router.get('/:aid/dashboard/query', catchAsync(Admission.retrieveAdmissionDetailInfo))
 
+// Ongoing App
 router.get('/:aid/all/ongoing/application', catchAsync(Admission.retieveAdmissionAdminAllApplication))
 
+// Completed App
 router.get('/:aid/all/completed/application', catchAsync(Admission.retieveAdmissionAdminAllCApplication))
 
+// One App Query
 router.get('/:aid/application/query', catchAsync(Admission.retrieveOneApplicationQuery))
 
+// Admission Info
 router.patch('/:aid/info/update', catchAsync(Admission.fetchAdmissionQuery))
 
+// Create New App
 router.post('/:aid/new/application', catchAsync(Admission.retrieveAdmissionNewApplication))
 
-// router.get('/:id/application', catchAsync(Admission.fetchAdmissionApplicationArray))
+// At Institute Search All New App
+router.get('/:id/application/list/array', catchAsync(Admission.fetchAdmissionApplicationArray))
 
+// Apply By Student at New App
 router.post('/:uid/user/:aid/apply', upload.array('file'), catchAsync(Admission.retrieveAdmissionReceievedApplication))
 
 router.post('/:sid/student/:aid/select', catchAsync(Admission.retrieveAdmissionSelectedApplication))

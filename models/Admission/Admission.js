@@ -28,6 +28,10 @@ const admissionAdminSchema = new mongoose.Schema({
             ref: 'NewApplication'
         }
     ],
+    newAppCount: {
+        type: Number,
+        default: 0
+    },
     offlineFee: {
         type: Number,
         default: 0

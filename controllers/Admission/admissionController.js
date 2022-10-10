@@ -71,7 +71,7 @@ exports.retrieveAdmissionDetailInfo = async(req, res) =>{
     try{
         const { aid } = req.params
         const admission = await Admission.findById({_id: aid})
-        .select('admissionAdminEmail admissionAdminPhoneNumber admissionAdminAbout photoId coverId photo cover offlineFee onlineFee')
+        .select('admissionAdminEmail admissionAdminPhoneNumber admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee')
         .populate({
             path: 'admissionAdminHead',
             select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto'
@@ -165,6 +165,7 @@ exports.retrieveAdmissionNewApplication = async(req, res) =>{
         const institute = await InstituteAdmin.findById({_id: `${admission.institute}`})
         const newApply = new NewApplication({...req.body})
         admission.newApplication.push(newApply._id)
+        admission.newAppCount += 1
         newApply.admissionAdmin = admission._id
         await Promise.all([ admission.save(), newApply.save() ])
         res.status(200).send({ message: 'New Application is ongoing 👍', status: true})
@@ -239,6 +240,38 @@ exports.retrieveAdmissionNewApplication = async(req, res) =>{
     }
 }
 
+
+exports.fetchAdmissionApplicationArray = async(req, res) =>{
+  try{
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const { id } = req.params
+    const skip = (page - 1) * limit;
+    const ins_apply = await InstituteAdmin.findById({_id: id})
+    .select('admissionDepart')
+    const apply = await Admission.findById({_id: `${ins_apply?.admissionDepart[0]}`})
+    const newApp = await NewApplication.find({ $and: [{_id: { $in: apply?.newApplication }}, {applicationStatus: 'Ongoing' }]})
+    .sort('-createdAt')
+    .limit(limit)
+    .skip(skip)
+    .select('applicationName applicationEndDate')
+    .populate({
+      path: 'applicationDepartment',
+      select: 'dName'
+    })
+
+    if(newApp?.length > 0){
+      res.status(200).send({ message: 'Lets begin new year journey', allApp: newApp, allAppCount: newApp?.length})
+    }
+    else{
+      res.status(404).send({ message: 'get a better lens to find what you need 🔍', allApp: []})
+    }
+  }
+  catch{
+
+  }
+}
+
 exports.retrieveAdmissionReceievedApplication = async (req, res) => {
     try {
       const { uid, aid } = req.params;
@@ -281,7 +314,7 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
         status.save(),
         apply.save()
       ]);
-      res.status(201).send({ message: "student form is applied", student });
+      res.status(201).send({ message: "Taste a bite of sweets till your application is selected", student });
     } catch (e) {
       console.log(e);
     }

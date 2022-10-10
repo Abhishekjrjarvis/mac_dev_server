@@ -13318,3 +13318,32 @@ paths:
       responses:
         "200":
           description: OK
+
+  /api/v1/admission/{id}/application/list/array:
+    get:
+      tags:
+        - Admission Admin Module Query
+      summary: Get At Institute Profile Search All New Ongoing Application (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: This is page count
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: This is limit count 
+      responses:
+        "200":
+          description: OK

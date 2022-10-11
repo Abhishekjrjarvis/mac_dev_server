@@ -300,7 +300,7 @@ exports.getQuestionAnswer = async (req, res) => {
       .populate({
         path: "post",
         select:
-          "postQuestion author authorProfilePhoto authorPhotoId authorUserName isUser",
+          "postQuestion author authorProfilePhoto authorPhotoId authorUserName isUser answerCount",
       });
     res.status(200).send({ message: "All answer's of one Question", answer });
   } catch {}
@@ -793,7 +793,7 @@ exports.getAllSaveAnswerQuery = async (req, res) => {
         .populate({
           path: "post",
           select:
-            "postQuestion author authorProfilePhoto authorPhotoId authorUserName isUser",
+            "postQuestion author authorProfilePhoto authorPhotoId authorUserName isUser answerCount",
         });
         
       const answerCount = await Answer.find({ _id: { $in: user.user_saved_answer } });

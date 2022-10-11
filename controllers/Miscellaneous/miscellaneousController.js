@@ -25,7 +25,7 @@ exports.getAllStaff = async(req, res) =>{
         .select('staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffStatus')
         .populate({
           path: 'user',
-          select: 'userLegalName photoId profilePhoto userStatus one_line_about followerCount'
+          select: 'userLegalName photoId profilePhoto userStatus one_line_about followerCount coverId profileCoverPhoto'
         })
         .populate({
           path: 'institute',
@@ -62,7 +62,7 @@ exports.getAllUser = async(req, res) =>{
         .sort("-created_at")
         .limit(limit)
         .skip(skip)
-        .select('userLegalName username photoId profilePhoto userStatus one_line_about followerCount')
+        .select('userLegalName username photoId profilePhoto userStatus one_line_about followerCount coverId profileCoverPhoto')
         res.status(200).send({ message: "User data", uRandom: user });
       } catch(e) {
         console.log(`Error`, e.message);
@@ -166,7 +166,7 @@ exports.getAllInstitute = async(req, res) =>{
         .sort('-createdAt')
         .limit(limit)
         .skip(skip)
-        .select('insName photoId insProfilePhoto name status isUniversal one_line_about insEmail insAddress followersCount')
+        .select('insName photoId insProfilePhoto name status isUniversal one_line_about insEmail insAddress followersCount coverId insProfileCoverPhoto')
         .populate({
           path: "displayPersonList",
           select: "displayTitle createdAt",

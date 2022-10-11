@@ -18,6 +18,8 @@ const Video = require("../../models/Video");
 const Post = require("../../models/Post");
 const Comment = require("../../models/Comment");
 const ReplyComment = require("../../models/ReplyComment/ReplyComment");
+const Answer = require('../../models/Question/Answer')
+const AnswerReply = require('../../models/Question/AnswerReply')
 
 const {
   getFileStream,
@@ -180,6 +182,18 @@ exports.patchUserImagePhoto = async (req, res) => {
       reply.authorPhotoId = "0";
       reply.authorProfilePhoto = user.profilePhoto;
       await reply.save();
+    });
+    const answers = await Answer.find({ author: user._id });
+    answers.forEach(async (ans) => {
+      ans.authorPhotoId = "0";
+      ans.authorProfilePhoto = user.profilePhoto;
+      await ans.save();
+    });
+    const answerReply = await AnswerReply.find({ author: user._id });
+    answerReply.forEach(async (ansRep) => {
+      ansRep.authorPhotoId = "0";
+      ansRep.authorProfilePhoto = user.profilePhoto;
+      await ansRep.save();
     });
   } catch (err) {
     console.log(err.message);

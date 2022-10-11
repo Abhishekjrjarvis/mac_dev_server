@@ -33,11 +33,22 @@ router.get('/:id/application/list/array', catchAsync(Admission.fetchAdmissionApp
 // Apply By Student at New App
 router.post('/:uid/user/:aid/apply', upload.array('file'), catchAsync(Admission.retrieveAdmissionReceievedApplication))
 
+// All Received Application
+router.get('/:aid/request/application', catchAsync(Admission.fetchAllRequestApplication))
 
+// All Selected Application
+router.get('/:aid/selected/application', catchAsync(Admission.fetchAllSelectApplication))
+
+// All Confirmed Application
+router.get('/:aid/confirmed/application', catchAsync(Admission.fetchAllConfirmApplication))
+
+// One Student Select at Selected
 router.post('/:sid/student/:aid/select', catchAsync(Admission.retrieveAdmissionSelectedApplication))
 
+// One Student Pay Offline Mark
 router.post('/:sid/student/:aid/pay/offline/confirm', catchAsync(Admission.payOfflineAdmissionFee))
 
+// Check At Last
 router.post('/:sid/student/:aid/pay/refund', catchAsync(Admission.cancelAdmissionApplication))
 
 // All Class For Allotment

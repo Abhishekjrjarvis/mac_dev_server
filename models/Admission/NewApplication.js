@@ -35,6 +35,8 @@ const newApplicationSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Admission'
     },
+    offlineFee: { type: Number, default: 0 },
+    onlineFee: { type: Number, default: 0 },
     receievedApplication: [
         {
             student: {
@@ -63,7 +65,6 @@ const newApplicationSchema = new mongoose.Schema({
                 ref: 'Student'
             },
             apply_on: { type: Date, default: Date.now},
-            process_status: { type: String, default: 'Confirm'},
             payment_status: { type: String, default: 'Pending'},
             alloted_class: { type: String, default: 'Pending'},
             alloted_status: { type: String, default: 'Not Alloted'},

@@ -8,6 +8,8 @@ const statusSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'NewApplication'
     },
+    payMode: { type: String },
+    isPaid: { type: String, default: 'Not Paid'},
     createdAt: {
         type: Date,
         default: Date.now

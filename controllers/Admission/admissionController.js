@@ -78,7 +78,11 @@ exports.retrieveAdmissionDetailInfo = async(req, res) =>{
         })
         .populate({
           path: 'remainingFee',
-          select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto'
+          select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionRemainFeeCount',
+          populate: {
+            path: 'department',
+            select: 'dName'
+          }
         })
         res.status(200).send({ message: 'Admission Detail', admission})
     }
@@ -129,7 +133,7 @@ exports.retieveAdmissionAdminAllCApplication = async(req, res) => {
     .sort('-createdAt')
     .limit(limit)
     .skip(skip)
-    .select('applicationName applicationEndDate applicationStatus applicationSeats')
+    .select('applicationName applicationEndDate applicationStatus applicationSeats allotCount')
     .populate({
       path: 'applicationDepartment',
       select: 'dName photoId photo'
@@ -316,12 +320,102 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
         status.save(),
         apply.save()
       ]);
-      res.status(201).send({ message: "Taste a bite of sweets till your application is selected", student });
+      res.status(201).send({ message: "Taste a bite of sweets till your application is selected", student: student._id, status: true });
     } catch (e) {
       console.log(e);
     }
   };
 
+  exports.fetchAllRequestApplication = async(req, res) => {
+    try{
+      const page = req.query.page ? parseInt(req.query.page) : 1;
+      const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+      const { aid } = req.params
+      const skip = (page - 1) * limit;
+      const apply = await NewApplication.findById({_id: aid})
+      .limit(limit)
+      .skip(skip)
+      .select('receievedCount')
+      .populate({
+        path: 'receievedApplication',
+        populate: {
+          path: 'student',
+          select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto'
+        }
+      })
+
+      if(apply?.receievedApplication?.length > 0){
+        res.status(200).send({ message: 'Lots of Request arrived make sure you come up with Tea and Snack', request: apply})
+      }
+      else{
+        res.status(200).send({ message: 'Go To Outside for Dinner', request: []})
+      }
+    }
+    catch(e){
+      console.log(e)
+    }
+  }
+
+
+  exports.fetchAllSelectApplication = async(req, res) => {
+    try{
+      const page = req.query.page ? parseInt(req.query.page) : 1;
+      const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+      const { aid } = req.params
+      const skip = (page - 1) * limit;
+      const apply = await NewApplication.findById({_id: aid})
+      .limit(limit)
+      .skip(skip)
+      .select('selectCount')
+      .populate({
+        path: 'selectedApplication',
+        populate: {
+          path: 'student',
+          select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto'
+        }
+      })
+
+      if(apply?.selectedApplication?.length > 0){
+        res.status(200).send({ message: 'Lots of Selection required make sure you come up with Tea and Snack', select: apply})
+      }
+      else{
+        res.status(200).send({ message: 'Go To Outside for Dinner', select: []})
+      }
+    }
+    catch(e){
+      console.log(e)
+    }
+  }
+
+  exports.fetchAllConfirmApplication = async(req, res) => {
+    try{
+      const page = req.query.page ? parseInt(req.query.page) : 1;
+      const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+      const { aid } = req.params
+      const skip = (page - 1) * limit;
+      const apply = await NewApplication.findById({_id: aid})
+      .limit(limit)
+      .skip(skip)
+      .select('confirmCount')
+      .populate({
+        path: 'confirmedApplication',
+        populate: {
+          path: 'student',
+          select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto'
+        }
+      })
+
+      if(apply?.confirmedApplication?.length > 0){
+        res.status(200).send({ message: 'Lots of Confirmation and class allot required make sure you come up with Tea and Snack', confirm: apply})
+      }
+      else{
+        res.status(200).send({ message: 'Go To Outside for Dinner', confirm: []})
+      }
+    }
+    catch(e){
+      console.log(e)
+    }
+  }
 
 exports.retrieveAdmissionSelectedApplication = async(req, res) =>{
   try{
@@ -335,15 +429,16 @@ exports.retrieveAdmissionSelectedApplication = async(req, res) =>{
       fee_remain: apply.admissionFee,
     })
     apply.selectCount += 1
-    apply.receievedApplication.pull({
+    apply.receievedApplication.splice({
       student: student._id,
       fee_remain: apply.admissionFee,
     })
+    student.admissionRemainFeeCount += apply.admissionFee
     status.content = `You have been selected for ${apply.applicationName}. Confirm your admission`
     status.applicationId = apply._id
     user.applicationStatus.push(status._id)
     await Promise.all([ apply.save(), student.save(), user.save(), status.save() ])
-    res.status(200).send({ message: `congrats ${student.studentFirstName} `, status})
+    res.status(200).send({ message: `congrats ${student.studentFirstName} `, select_status: true})
   }
   catch(e){
     console.log(e)
@@ -368,14 +463,17 @@ exports.payOfflineAdmissionFee = async(req, res) =>{
     else{
       if(amount < apply.admissionFee){
         admission.remainingFee.push(student._id)
-        student.admissionRemainFeeCount += (apply.admissionFee - amount)
+        if(student.admissionRemainFeeCount >= apply.admissionFee){
+          student.admissionRemainFeeCount -= apply.admissionFee
+        }
         apply.remainingFee += (apply.admissionFee - amount)
         student.admissionPaymentStatus.push({
           applicationId: apply._id,
           status: 'Pending',
           installment: 'Installment',
           firstInstallment: amount,
-          secondInstallment: apply.admissionFee - amount
+          secondInstallment: apply.admissionFee - amount,
+          fee: apply.admissionFee
         })
       }
       else if(amount == apply.admissionFee){
@@ -387,16 +485,18 @@ exports.payOfflineAdmissionFee = async(req, res) =>{
         })
       }
       admission.offlineFee += amount
+      apply.collectedFeeCount += amount
       apply.offlineFee += amount
       finance.financeAdmissionBalance += amount
       finance.financeTotalBalance += amount
-      apply.selectedApplication.pull({
+      apply.selectedApplication.splice({
         student: student._id,
         fee_remain: apply.admissionFee,
+        payment_status: 'Pending'
       })
       apply.confirmedApplication.push({
         student: student._id,
-        fee_remain: apply.admissionFee,
+        fee_remain: apply.admissionFee >= amount ? apply.admissionFee - amount : 0,
         payment_status: 'offline'
       })
       apply.confirmCount += 1
@@ -405,7 +505,7 @@ exports.payOfflineAdmissionFee = async(req, res) =>{
       status.applicationId = apply._id
       user.applicationStatus.push(status._id)
       await Promise.all([ admission.save(), apply.save(), student.save(), finance.save()])
-      res.status(200).send({ message: 'Paid Offline Fee and confirm', student: student.applicationPaymentStatus})
+      res.status(200).send({ message: 'Look like a party mood', confirm_status: true})
     }
   }
   catch(e){
@@ -418,33 +518,41 @@ exports.cancelAdmissionApplication = async(req, res) =>{
     const { sid, aid } = req.params
     const { amount } = req.body
     const student = await Student.findById({_id: sid})
+    const user = await User.findById({_id: `${student.user}`})
     const apply = await NewApplication.findById({_id: aid})
+    .populate({
+      path: 'applicationDepartment',
+      select: 'dName'
+    })
     const admission = await Admission.findById({_id: `${apply.admissionAdmin}`})
     const institute = await InstituteAdmin.findById({_id: `${admission.institute}`})
     const finance = await Finance.findById({_id: `${institute.financeDepart[0]}`})
+    const aStatus = new Status({})
     if(amount && amount > apply.admissionFee && amount < apply.offlineFee && amount < admission.offlineFee && amount < finance.financeAdmissionBalance){
       res.status(200).send({ message: 'Amount can not be greater than Admission Application'})
     }
     else{
-      apply.confirmedApplication.pull({
-        student: student._id,
-        fee_remain: apply.admissionFee,
-      })
       apply.cancelCount += 1
       apply.offlineFee -= amount
       admission.offlineFee -= amount
       finance.financeAdmissionBalance -= amount
-      student.refundApplication.push({
-        applicationId: apply._id,
-        status: 'Refunded',
-        amount: amount
-      })
-      await Promise.all([ apply.save(), student.save(), finance.save(), admission.save()])
-      res.status(200).send({ message: 'Refund of Admission', student: student.refundApplication })
+      aStatus.content = `Your application for ${apply?.applicationDepartment?.dName} has been rejected. Best Of Luck for next time`
+      aStatus.applicationId = apply._id
+      user.applicationStatus.push(aStatus._id)
+      await Promise.all([ apply.save(), student.save(), finance.save(), admission.save(), aStatus.save(), user.save()])
+      res.status(200).send({ message: 'Refund & Cancellation of Admission', refund_status: true })
+      if(apply.confirmedApplication?.length > 0){
+        apply.confirmedApplication.forEach((ele) => {
+          if(`${ele.student}` === `${student._id}`){
+            ele.alloted_status = 'Cancelled'
+          }
+        })
+        await apply.save()
+      }
     }
   }
-  catch{
-
+  catch(e){
+    console.log(e)
   }
 }
 
@@ -495,7 +603,10 @@ exports.retrieveClassAllotQuery = async(req, res) =>{
     const user = await User.findById({_id: `${student.user}`})
     const notify = new Notification({})
     const aStatus = new Status({})
-    apply.confirmedApplication.pull(student._id)
+    apply.confirmedApplication.splice({
+      student: student._id,
+      payment_status: 'offline'
+    })
     apply.allotCount += 1
     // student.confirmApplication.pull(apply._id)
     student.studentStatus = 'Approved'
@@ -515,7 +626,7 @@ exports.retrieveClassAllotQuery = async(req, res) =>{
     student.studentGRNO = classes.ApproveStudent.length;
     student.studentROLLNO = classes.ApproveStudent.length;
     student.studentClass = classes._id;
-    student.studentAdmissionDate = c_date;
+    student.studentAdmissionDate = new Date().toISOString();
     depart.ApproveStudent.push(student._id);
     depart.studentCount += 1;
     student.department = depart._id;
@@ -540,7 +651,7 @@ exports.retrieveClassAllotQuery = async(req, res) =>{
       user._id,
       user.deviceToken
     );
-    aStatus.content = `Class Alloted`
+    aStatus.content = `Welcome to ${depart.dName} ${classes.classTitle} Enjoy your Learning.`
     aStatus.applicationId = apply._id
     user.applicationStatus.push(aStatus._id)
     await Promise.all([ 
@@ -555,7 +666,7 @@ exports.retrieveClassAllotQuery = async(req, res) =>{
       batch.save(), 
       notify.save() 
     ])
-    res.status(200).send({ message: `congrats ${student.studentFirstName} `, aStatus, classes: student.studentClass})
+    res.status(200).send({ message: `congrats ${student.studentFirstName} `, allot_status: true})
   }
   catch(e){
     console.log(e)

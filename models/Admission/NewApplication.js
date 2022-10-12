@@ -20,6 +20,7 @@ const newApplicationSchema = new mongoose.Schema({
     // applicationFee: { type: Number, required: true },
     remainingFee: { type: Number, default: 0 },
     applicationAbout: { type: String, required: true },
+    admissionProcess: { type: String, required: true },
     applicationStatus: { type: String, default: 'Ongoing' },
     receievedCount: { type: Number, default: 0 },
     selectCount: { type: Number, default: 0 },
@@ -27,6 +28,8 @@ const newApplicationSchema = new mongoose.Schema({
     cancelCount: { type: Number, default: 0 },
     allotCount: { type: Number, default: 0 },
     collectedFeeCount: { type: Number, default: 0 },
+    applicationPhoto: { type: String },
+    photoId: { type: String, default: '1' },
     createdAt: {
         type: Date,
         default: Date.now

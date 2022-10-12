@@ -12,12 +12,13 @@ const Batch = require('../../models/Batch')
 const Department = require('../../models/Department')
 const Class = require('../../models/Class')
 const Admin = require('../../models/superAdmin')
-const { uploadDocFile, uploadFile } = require('../../S3Configuration')
+const { uploadDocFile, uploadFile, uploadPostImageFile } = require('../../S3Configuration')
 const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require('../../Firebase/firebase')
 const Post = require('../../models/Post')
+const invokeMemberTabNotification = require('../../Firebase/MemberTab')
 
 
 exports.retrieveAdmissionAdminHead = async(req, res) =>{
@@ -71,7 +72,7 @@ exports.retrieveAdmissionDetailInfo = async(req, res) =>{
     try{
         const { aid } = req.params
         const admission = await Admission.findById({_id: aid})
-        .select('admissionAdminEmail admissionAdminPhoneNumber admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee')
+        .select('admissionAdminEmail admissionAdminPhoneNumber admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount')
         .populate({
             path: 'admissionAdminHead',
             select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto'
@@ -151,6 +152,40 @@ exports.retieveAdmissionAdminAllCApplication = async(req, res) => {
   }
 }
 
+exports.retieveAdmissionAdminAllCDetailApplication = async(req, res) => {
+  try{
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const { aid } = req.params
+    const skip = (page - 1) * limit;
+    const apply = await Admission.findById({_id: aid})
+    .select('newApplication')
+    const completed = await NewApplication.find({ $and: [{_id: { $in: apply.newApplication}}, {applicationStatus: 'Completed'}]})
+    .sort('-createdAt')
+    .limit(limit)
+    .skip(skip)
+    .select('applicationName applicationStartDate admissionFee applicationSeats receievedCount selectCount confirmCount cancelCount allotCount onlineFee offlineFee remainingFee collectedFeeCount applicationStatus applicationEndDate')
+    .populate({
+      path: 'applicationDepartment',
+      select: 'dName'
+    })
+    .populate({
+      path: 'applicationBatch',
+      select: 'batchName'
+    })
+
+    if(completed?.length > 0){
+      res.status(200).send({ message: 'Completed Application Lets Explore', completed, completedCount: completed?.length})
+    }
+    else{
+      res.status(200).send({ message: 'Dark side in depth nothing to find', completed: []})
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
 exports.fetchAdmissionQuery = async(req, res) =>{
     try{
         const { aid } = req.params
@@ -168,10 +203,20 @@ exports.retrieveAdmissionNewApplication = async(req, res) =>{
         const admission = await Admission.findById({_id: aid })
         const institute = await InstituteAdmin.findById({_id: `${admission.institute}`})
         const newApply = new NewApplication({...req.body})
+        if(req.file){
+          const file = req.file;
+          const results = await uploadPostImageFile(file);
+          newApply.applicationPhoto = results.key;
+          newApply.photoId = '0'
+        }
         admission.newApplication.push(newApply._id)
         admission.newAppCount += 1
         newApply.admissionAdmin = admission._id
-        await Promise.all([ admission.save(), newApply.save() ])
+        institute.admissionCount += 1
+        await Promise.all([ admission.save(), newApply.save(), institute.save() ])
+        if(req.file){
+          await unlinkFile(req.file?.path);
+        }
         res.status(200).send({ message: 'New Application is ongoing 👍', status: true})
         const post = new Post({})
         post.imageId = "1";
@@ -321,6 +366,13 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
         apply.save()
       ]);
       res.status(201).send({ message: "Taste a bite of sweets till your application is selected", student: student._id, status: true });
+      invokeMemberTabNotification(
+        "Admission Status",
+        status.content,
+        'Application Status',
+        user._id,
+        user.deviceToken
+      );
     } catch (e) {
       console.log(e);
     }
@@ -436,9 +488,56 @@ exports.retrieveAdmissionSelectedApplication = async(req, res) =>{
     student.admissionRemainFeeCount += apply.admissionFee
     status.content = `You have been selected for ${apply.applicationName}. Confirm your admission`
     status.applicationId = apply._id
+    status.for_selection = 'Yes'
     user.applicationStatus.push(status._id)
     await Promise.all([ apply.save(), student.save(), user.save(), status.save() ])
     res.status(200).send({ message: `congrats ${student.studentFirstName} `, select_status: true})
+    invokeMemberTabNotification(
+      "Admission Status",
+      status.content,
+      'Application Status',
+      user._id,
+      user.deviceToken
+    );
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+
+exports.retrieveAdmissionPayMode = async(req, res) =>{
+  try{
+    const { sid, aid, statusId } = req.params
+    const student = await Student.findById({_id: sid})
+    const user = await User.findById({_id: `${student.user}`})
+    const status = await Status.findById({_id: statusId})
+    const aStatus = new Status({})
+    const apply = await NewApplication.findById({_id: aid}).select('selectedApplication admissionAdmin')
+    const admin_ins = await Admission.findById({_id: `${apply.admissionAdmin}`})
+    const institute = await InstituteAdmin.findById({_id: `${admin_ins.institute}`})
+    if(apply?.selectedApplication?.length > 0){
+      apply?.selectedApplication?.forEach((ele) => {
+        if(`${ele.student}` === `${student._id}`){
+          ele.payment_status = 'offline'
+        }
+      })
+      // await apply.save()
+    }
+    status.payMode = 'offline',
+    status.isPaid = 'Not Paid'
+    aStatus.content = `Your admission is on hold please visit ${institute.insName}, ${institute.insDistrict}. with required fees or contact institute if neccessory`
+    aStatus.applicationId = apply._id
+    user.applicationStatus.push(aStatus._id)
+    await Promise.all([ status.save(), aStatus.save(), user.save() ])
+    res.status(200).send({ message: 'Lets do some excercise visit institute', status: true})
+    invokeMemberTabNotification(
+      "Admission Status",
+      aStatus.content,
+      'Application Status',
+      user._id,
+      user.deviceToken
+    );
   }
   catch(e){
     console.log(e)
@@ -467,6 +566,7 @@ exports.payOfflineAdmissionFee = async(req, res) =>{
           student.admissionRemainFeeCount -= apply.admissionFee
         }
         apply.remainingFee += (apply.admissionFee - amount)
+        admission.remainingFeeCount += (apply.admissionFee - amount)
         student.admissionPaymentStatus.push({
           applicationId: apply._id,
           status: 'Pending',
@@ -492,7 +592,6 @@ exports.payOfflineAdmissionFee = async(req, res) =>{
       apply.selectedApplication.splice({
         student: student._id,
         fee_remain: apply.admissionFee,
-        payment_status: 'Pending'
       })
       apply.confirmedApplication.push({
         student: student._id,
@@ -504,8 +603,15 @@ exports.payOfflineAdmissionFee = async(req, res) =>{
       Your seat has been confirmed, You will be alloted your class shortly, Stay Update!`
       status.applicationId = apply._id
       user.applicationStatus.push(status._id)
-      await Promise.all([ admission.save(), apply.save(), student.save(), finance.save()])
+      await Promise.all([ admission.save(), apply.save(), student.save(), finance.save(), user.save()])
       res.status(200).send({ message: 'Look like a party mood', confirm_status: true})
+      invokeMemberTabNotification(
+        "Admission Status",
+        status.content,
+        'Application Status',
+        user._id,
+        user.deviceToken
+      );
     }
   }
   catch(e){
@@ -666,7 +772,7 @@ exports.retrieveClassAllotQuery = async(req, res) =>{
       batch.save(), 
       notify.save() 
     ])
-    res.status(200).send({ message: `congrats ${student.studentFirstName} `, allot_status: true})
+    res.status(200).send({ message: `Distribute sweets to all family members ${student.studentFirstName} `, allot_status: true})
   }
   catch(e){
     console.log(e)
@@ -679,12 +785,20 @@ exports.completeAdmissionApplication = async(req, res) =>{
   try{
     const { aid } = req.params
     const apply = await NewApplication.findById({_id: aid})
+    const admission = await Admission.findById({ _id: `${apply.admissionAdmin}`})
+    const admission_ins = await InstituteAdmin.findById({_id: `${admission.institute}`})
     apply.applicationStatus = 'Completed'
-    await Promise.all([ apply.save()])
-    res.status(200).send({ message: 'Completed Application'})
+    if(admission_ins?.admissionCount > 0){
+      admission_ins.admissionCount -= 1
+    }
+    if(admission?.newAppCount > 0){
+      admission.newAppCount -= 1
+    }
+    await Promise.all([ apply.save(), admission.save(), admission_ins.save()])
+    res.status(200).send({ message: 'Enjoy your work load is empty go for party', complete_status: true})
   }
-  catch{
-
+  catch(e){
+    console.log(e)
   }
 }
 
@@ -709,7 +823,7 @@ exports.retrieveOneApplicationQuery = async(req, res) =>{
   try{
     const { aid } = req.params
     const oneApply = await NewApplication.findById({_id: aid})
-    .select('applicationName applicationStartDate admissionFee applicationSeats receievedCount selectCount confirmCount cancelCount allotCount onlineFee offlineFee remainingFee collectedFeeCount')
+    .select('applicationName applicationAbout admissionProcess applicationEndDate applicationStartDate admissionFee applicationPhoto photoId applicationSeats receievedCount selectCount confirmCount cancelCount allotCount onlineFee offlineFee remainingFee collectedFeeCount')
     .populate({
       path: 'applicationDepartment',
       select: 'dName'
@@ -720,10 +834,10 @@ exports.retrieveOneApplicationQuery = async(req, res) =>{
     })
     .lean()
     .exec()
-    res.status(200).send({ message: 'One Application', oneApply})
+    res.status(200).send({ message: 'Sit with a paper and pen to note down all details carefully', oneApply})
   }
-  catch{
-
+  catch(e){
+    console.log(e)
   }
 }
 

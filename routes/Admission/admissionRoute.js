@@ -18,6 +18,9 @@ router.get('/:aid/all/ongoing/application', catchAsync(Admission.retieveAdmissio
 // Completed App
 router.get('/:aid/all/completed/application', catchAsync(Admission.retieveAdmissionAdminAllCApplication))
 
+// Completed App for Web
+router.get('/:aid/all/completed/application/detail', catchAsync(Admission.retieveAdmissionAdminAllCDetailApplication))
+
 // One App Query
 router.get('/:aid/application/query', catchAsync(Admission.retrieveOneApplicationQuery))
 
@@ -25,7 +28,7 @@ router.get('/:aid/application/query', catchAsync(Admission.retrieveOneApplicatio
 router.patch('/:aid/info/update', catchAsync(Admission.fetchAdmissionQuery))
 
 // Create New App
-router.post('/:aid/new/application', catchAsync(Admission.retrieveAdmissionNewApplication))
+router.post('/:aid/new/application', upload.single('file'), catchAsync(Admission.retrieveAdmissionNewApplication))
 
 // At Institute Search All New App
 router.get('/:id/application/list/array', catchAsync(Admission.fetchAdmissionApplicationArray))
@@ -44,6 +47,9 @@ router.get('/:aid/confirmed/application', catchAsync(Admission.fetchAllConfirmAp
 
 // One Student Select at Selected
 router.post('/:sid/student/:aid/select', catchAsync(Admission.retrieveAdmissionSelectedApplication))
+
+// Student Confirmation Select Pay Mode
+router.post('/:sid/student/pay/mode/:aid/apply/status/:statusId', catchAsync(Admission.retrieveAdmissionPayMode))
 
 // One Student Pay Offline Mark
 router.post('/:sid/student/:aid/pay/offline/confirm', catchAsync(Admission.payOfflineAdmissionFee))

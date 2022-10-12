@@ -10,6 +10,7 @@ const statusSchema = new mongoose.Schema({
     },
     payMode: { type: String },
     isPaid: { type: String, default: 'Not Paid'},
+    for_selection: { type: String },
     createdAt: {
         type: Date,
         default: Date.now

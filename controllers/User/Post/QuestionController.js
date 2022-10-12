@@ -521,18 +521,18 @@ exports.rePostQuestionAnswer = async (req, res) => {
       res.status(200).send({ message: "RePosted Answer", rePost });
       if (user.userFollowers.length >= 1) {
         user.userFollowers.forEach(async (ele) => {
-          if(ele.userPosts.includes(post._id)){}
+          if(ele.userPosts.includes(rePost._id)){}
           else{ 
-            ele.userPosts.push(post._id);
+            ele.userPosts.push(rePost._id);
             await ele.save();
           }
         });
       }
       if (user.userCircle.length >= 1) {
         user.userCircle.forEach(async (ele) => {
-          if(ele.userPosts.includes(post._id)){}
+          if(ele.userPosts.includes(rePost._id)){}
           else{
-            ele.userPosts.push(post._id);
+            ele.userPosts.push(rePost._id);
             await ele.save();
           }
         });

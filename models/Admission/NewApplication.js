@@ -69,9 +69,21 @@ const newApplicationSchema = new mongoose.Schema({
             },
             apply_on: { type: Date, default: Date.now},
             payment_status: { type: String, default: 'Pending'},
+            fee_remain: { type: Number, default: 0},
+        },
+    ],
+    allottedApplication: [
+        {
+            student: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Student'
+            },
+            allot_on: { type: Date, default: Date.now},
+            payment_status: { type: String, default: 'Pending'},
             alloted_class: { type: String, default: 'Pending'},
             alloted_status: { type: String, default: 'Not Alloted'},
             fee_remain: { type: Number, default: 0},
+            paid_status: { type: 'String' },
         },
     ]
 })

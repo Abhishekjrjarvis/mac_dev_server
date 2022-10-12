@@ -72,19 +72,19 @@ exports.retrieveAdmissionDetailInfo = async(req, res) =>{
     try{
         const { aid } = req.params
         const admission = await Admission.findById({_id: aid})
-        .select('admissionAdminEmail admissionAdminPhoneNumber admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount')
+        .select('admissionAdminEmail admissionAdminPhoneNumber remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount')
         .populate({
             path: 'admissionAdminHead',
             select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto'
         })
-        .populate({
-          path: 'remainingFee',
-          select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionRemainFeeCount',
-          populate: {
-            path: 'department',
-            select: 'dName'
-          }
-        })
+        // .populate({
+        //   path: 'remainingFee',
+        //   select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionRemainFeeCount',
+        //   populate: {
+        //     path: 'department',
+        //     select: 'dName'
+        //   }
+        // })
         res.status(200).send({ message: 'Admission Detail', admission})
     }
     catch{
@@ -713,10 +713,19 @@ exports.retrieveClassAllotQuery = async(req, res) =>{
       student: student._id,
       payment_status: 'offline'
     })
+    apply.allottedApplication.push({
+      student: student._id,
+      payment_status: 'offline',
+      alloted_class: `${classes.className} - ${classes.classTitle}`,
+      alloted_status: 'Alloted',
+      fee_remain: student.admissionRemainFeeCount,
+      paid_status: student.admissionRemainFeeCount == 0 ? 'Paid' : 'Not Paid'
+    })
     apply.allotCount += 1
     // student.confirmApplication.pull(apply._id)
     student.studentStatus = 'Approved'
     institute.ApproveStudent.push(student._id);
+    student.institute = institute._id
     admins.studentArray.push(student._id);
     admins.studentCount += 1;
     institute.studentCount += 1
@@ -796,6 +805,102 @@ exports.completeAdmissionApplication = async(req, res) =>{
     }
     await Promise.all([ apply.save(), admission.save(), admission_ins.save()])
     res.status(200).send({ message: 'Enjoy your work load is empty go for party', complete_status: true})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.retrieveAdmissionRemainingArray = async(req, res) => {
+  try{
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const { aid } = req.params
+    const skip = (page - 1) * limit;
+    const admin_ins = await Admission.findById({_id: aid})
+    .select('remainingFee')
+    const student = await Student.find({_id: { $in: admin_ins?.remainingFee}})
+    .sort('-admissionRemainFeeCount')
+    .limit(limit)
+    .skip(skip)
+    .select('studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionRemainFeeCount')
+    .populate({
+      path: 'department',
+      select: 'dName'
+    })
+    if(student?.length > 0){
+      res.status(200).send({ message: 'Its a party time', remain: student, remainCount: student?.length})
+    }
+    else{
+      res.status(200).send({ message: 'Account Running out of balance', remain: []})
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.oneStudentViewRemainingFee = async(req, res) =>{
+  try{
+    const { sid } = req.params
+    const student = await Student.findById({_id: sid})
+    .select('admissionPaymentStatus')
+
+    res.status(200).send({ message: 'Remaining fee view', remain_fee: student.admissionPaymentStatus})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.paidRemainingFeeStudent = async(req, res) =>{
+  try{
+    const { aid, sid, appId } = req.params
+    const { amount } = req.body
+    var admin_ins = await Admission.findById({_id: aid})
+    var student = await Student.findById({_id: sid}).select('admissionPaymentStatus institute user admissionRemainFeeCount')
+    var institute = await InstituteAdmin.findById({_id: `${student.institute}`}).select('insName')
+    var user = await User.findById({_id: `${student.user}`}).select('deviceToken')
+    if(student?.admissionPaymentStatus?.length > 0){
+      student?.admissionPaymentStatus.forEach(async (ele) => {
+        if(admin_ins?.newApplication?.includes(`${ele.applicationId}`)){
+          if(amount === (ele.fee - ele.firstInstallment)){
+            ele.status = 'Paid'
+            ele.secondInstallment = amount
+            ele.fee = ele.firstInstallment + ele.secondInstallment - ele.fee
+          }
+        }
+      })
+    }
+    if(admin_ins?.remainingFeeCount >= amount){
+      admin_ins.remainingFeeCount -= amount
+    }
+    if(student?.admissionRemainFeeCount >= amount){
+      student.admissionRemainFeeCount -= amount
+    }
+    admin_ins.remainingFee.pull(student._id)
+    await Promise.all([ admin_ins.save(), student.save() ])
+    res.status(200).send({ message: 'Balance Pool increasing with amount Operation complete', paid: true})
+    invokeMemberTabNotification(
+      "Admission Status",
+      `Collect No Dues receipt from the ${institute.insName}`,
+      'Application Status',
+      user._id,
+      user.deviceToken
+    );
+    var apply = await NewApplication.findById({_id: appId})
+    if(apply?.allottedApplication?.length > 0){
+      apply?.allottedApplication.forEach((ele) => {
+        if(`${ele.student}` === `${student._id}`){
+          ele.fee_remain = (ele.fee_remain >= amount) ? ele.fee_remain - amount : 0
+          ele.paid_status = 'Paid'
+          if(apply?.remainingFee >= amount){
+            apply.remainingFee -= amount
+          }
+        }
+      })
+      await apply.save()
+    }
   }
   catch(e){
     console.log(e)

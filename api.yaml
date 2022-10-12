@@ -13793,3 +13793,90 @@ paths:
       responses:
         "200":
           description: OK
+
+  /api/v1/admission/{aid}/all/remaining/array:
+    get:
+      tags:
+        - Admission Admin Module Query
+      summary: Get At Remaining Fee Array of Student (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: This is page count
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: This is limit count 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{sid}/student/view/fee:
+    get:
+      tags:
+        - Admission Admin Module Query
+      summary: View one student remaining fee (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id 
+      responses:
+        "200":
+          description: OK
+  
+  /api/v1/admission/{aid}/paid/remaining/fee/{sid}/student/{appId}:
+    post:
+      tags:
+        - Admission Admin Module Query
+      summary: Mark Remaining Fee paid by Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission id 
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
+        - in: path
+          name: appId
+          required: true
+          type: string
+          description: This is Application id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - amount
+            properties:
+              amount:
+                type: number
+                description: Enter amount
+      responses:
+        "200":
+          description: OK

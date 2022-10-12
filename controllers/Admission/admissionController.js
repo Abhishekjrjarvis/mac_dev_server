@@ -596,7 +596,8 @@ exports.payOfflineAdmissionFee = async(req, res) =>{
       apply.confirmedApplication.push({
         student: student._id,
         fee_remain: apply.admissionFee >= amount ? apply.admissionFee - amount : 0,
-        payment_status: 'offline'
+        payment_status: 'offline',
+        paid_status: ((apply.admissionFee - amount) == 0) ? 'Paid' : 'Not Paid'
       })
       apply.confirmCount += 1
       status.content = `Welcome to Institute ${institute.insName}, ${institute.insDistrict}.
@@ -891,6 +892,18 @@ exports.paidRemainingFeeStudent = async(req, res) =>{
     var apply = await NewApplication.findById({_id: appId})
     if(apply?.allottedApplication?.length > 0){
       apply?.allottedApplication.forEach((ele) => {
+        if(`${ele.student}` === `${student._id}`){
+          ele.fee_remain = (ele.fee_remain >= amount) ? ele.fee_remain - amount : 0
+          ele.paid_status = 'Paid'
+          if(apply?.remainingFee >= amount){
+            apply.remainingFee -= amount
+          }
+        }
+      })
+      await apply.save()
+    }
+    if(apply?.confirmedApplication?.length > 0){
+      apply?.confirmedApplication.forEach((ele) => {
         if(`${ele.student}` === `${student._id}`){
           ele.fee_remain = (ele.fee_remain >= amount) ? ele.fee_remain - amount : 0
           ele.paid_status = 'Paid'

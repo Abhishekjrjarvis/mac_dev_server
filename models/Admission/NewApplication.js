@@ -70,6 +70,7 @@ const newApplicationSchema = new mongoose.Schema({
             apply_on: { type: Date, default: Date.now},
             payment_status: { type: String, default: 'Pending'},
             fee_remain: { type: Number, default: 0},
+            paid_status: { type: 'String' },
         },
     ],
     allottedApplication: [

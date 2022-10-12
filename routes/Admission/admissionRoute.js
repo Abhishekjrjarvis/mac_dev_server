@@ -73,7 +73,7 @@ router.get('/:aid/all/remaining/array', catchAsync(Admission.retrieveAdmissionRe
 router.get('/:sid/student/view/fee', catchAsync(Admission.oneStudentViewRemainingFee))
 
 // Paid Remaining Fee By Student
-router.get('/:aid/paid/remaining/fee/:sid/student/:appId', catchAsync(Admission.paidRemainingFeeStudent))
+router.post('/:aid/paid/remaining/fee/:sid/student/:appId', catchAsync(Admission.paidRemainingFeeStudent))
 
 // Fetch By App status
 router.get('/application', catchAsync(Admission.retrieveAdmissionApplicationStatus))

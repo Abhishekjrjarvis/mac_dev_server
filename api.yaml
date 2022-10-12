@@ -13880,3 +13880,108 @@ paths:
       responses:
         "200":
           description: OK
+
+  /api/v1/admission/{aid}/student/{uid}/inquiry:
+    post:
+      tags:
+        - Admission Admin Module Query
+      summary: Ask your Query from Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission id 
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is User id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - reasonType
+              - content
+              - replyBy
+            properties:
+              reasonType:
+                type: string
+                description: Enter Reason
+              content:
+                type: string
+                description: Enter Detailed Content
+              replyBy:
+                type: string
+                description: Enter Reply By ("User" || "Admin")
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/student/inquiry/array:
+    get:
+      tags:
+        - Admission Admin Module Query
+      summary: Get All List of Inquiry (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: This is page count
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: This is limit count 
+      responses:
+        "200":
+          description: OK
+  
+  /api/v1/admission/inquiry/reply/{qid}:
+    patch:
+      tags:
+        - Admission Admin Module Query
+      summary: Chat with Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: qid
+          required: true
+          type: string
+          description: This is Inquiry id 
+        - in: query
+          name: author
+          required: true
+          type: string
+          description: Enter Author Query ("User" || "Admin")
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - content
+            properties:
+              content:
+                type: string
+                description: Enter Detailed Content
+      responses:
+        "200":
+          description: OK

@@ -87,6 +87,5 @@ router.get('/:aid/student/inquiry/array', catchAsync(Admission.retrieveUserInqui
 // One Inquiry Reply
 router.patch('/inquiry/reply/:qid', catchAsync(Admission.retrieveInquiryReplyQuery))
 
-// router.post('/:aid/featured/admission/post', catchAsync(Admission.retrieveFeaturedPostAdmission))
 
 module.exports = router

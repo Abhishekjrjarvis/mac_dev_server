@@ -626,7 +626,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
             populate: {
               path: "post",
               select:
-                "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser answerCount",
+                "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser answerCount createdAt",
             },
           })
           .populate({
@@ -640,7 +640,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
           .populate({
             path: "new_application",
             select:
-              "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee",
+              "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName",
             populate: {
               path: "applicationDepartment",
               select: "dName",
@@ -666,7 +666,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
               populate: {
                 path: "post",
                 select:
-                  "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser answerCount",
+                  "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser answerCount createdAt",
               },
             })
             .populate({
@@ -680,7 +680,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
             .populate({
               path: "new_application",
               select:
-                "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee",
+                "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName",
               populate: {
                 path: "applicationDepartment",
                 select: "dName",
@@ -706,7 +706,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
               populate: {
                 path: "post",
                 select:
-                  "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser answerCount",
+                  "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser answerCount createdAt",
               },
             })
             .populate({
@@ -720,7 +720,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
             .populate({
               path: "new_application",
               select:
-                "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee",
+                "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName",
               populate: {
                 path: "applicationDepartment",
                 select: "dName",
@@ -772,7 +772,7 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
             populate: {
               path: "post",
               select:
-                "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser answerCount",
+                "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser answerCount createdAt",
             },
           })
           .populate({
@@ -786,7 +786,7 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
           .populate({
             path: "new_application",
             select:
-              "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee",
+              "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName",
             populate: {
               path: "applicationDepartment",
               select: "dName",
@@ -808,7 +808,7 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
             populate: {
               path: "post",
               select:
-                "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser answerCount",
+                "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser answerCount createdAt",
             },
           })
           .populate({
@@ -822,7 +822,7 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
           .populate({
             path: "new_application",
             select:
-              "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee",
+              "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName",
             populate: {
               path: "applicationDepartment",
               select: "dName",
@@ -1097,7 +1097,7 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
           populate: {
             path: "post",
             select:
-              "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser answerCount",
+              "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser answerCount createdAt",
           },
         })
         .populate({
@@ -1111,7 +1111,7 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
         .populate({
           path: "new_application",
           select:
-            "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee",
+            "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName",
           populate: {
             path: "applicationDepartment",
             select: "dName",
@@ -1163,7 +1163,7 @@ exports.retrieveAllUserTagPosts = async (req, res) => {
           populate: {
             path: "post",
             select:
-              "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser answerCount",
+              "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser answerCount createdAt",
           },
         })
         .populate({
@@ -1177,7 +1177,7 @@ exports.retrieveAllUserTagPosts = async (req, res) => {
         .populate({
           path: "new_application",
           select:
-            "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee",
+            "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName",
           populate: {
             path: "applicationDepartment",
             select: "dName",
@@ -1224,7 +1224,7 @@ exports.retrieveAllUserReposts = async (req, res) => {
         populate: {
           path: "post",
           select:
-            "postQuestion author authorUserName authorPhotoId authorProfilePhoto isUser",
+            "postQuestion author authorUserName authorPhotoId authorProfilePhoto isUser answerCount createdAt",
         },
       })
       .populate({
@@ -1238,7 +1238,7 @@ exports.retrieveAllUserReposts = async (req, res) => {
       .populate({
         path: "new_application",
         select:
-          "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee",
+          "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName",
         populate: {
           path: "applicationDepartment",
           select: "dName",

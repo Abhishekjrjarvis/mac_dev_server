@@ -522,6 +522,7 @@ exports.retrieveAdmissionPayMode = async(req, res) =>{
     }
     status.payMode = 'offline',
     status.isPaid = 'Not Paid'
+    status.for_selection = 'No'
     aStatus.content = `Your admission is on hold please visit ${institute.insName}, ${institute.insDistrict}. with required fees or contact institute if neccessory`
     aStatus.applicationId = apply._id
     user.applicationStatus.push(aStatus._id)
@@ -579,6 +580,9 @@ exports.payOfflineAdmissionFee = async(req, res) =>{
           installment: 'No Installment',
           fee: amount
         })
+        if(student.admissionRemainFeeCount >= apply.admissionFee){
+          student.admissionRemainFeeCount -= apply.admissionFee
+        }
       }
       admission.offlineFee += amount
       apply.collectedFeeCount += amount
@@ -622,8 +626,7 @@ exports.cancelAdmissionApplication = async(req, res) =>{
     const { amount } = req.body
     const student = await Student.findById({_id: sid})
     const user = await User.findById({_id: `${student.user}`})
-    const apply = await NewApplication.findById({_id: aid})
-    .populate({
+    const apply = await NewApplication.findById({_id: aid}).populate({
       path: 'applicationDepartment',
       select: 'dName'
     })
@@ -631,26 +634,59 @@ exports.cancelAdmissionApplication = async(req, res) =>{
     const institute = await InstituteAdmin.findById({_id: `${admission.institute}`})
     const finance = await Finance.findById({_id: `${institute.financeDepart[0]}`})
     const aStatus = new Status({})
-    if(amount && amount > apply.admissionFee && amount < apply.offlineFee && amount < admission.offlineFee && amount < finance.financeAdmissionBalance){
-      res.status(200).send({ message: 'Amount can not be greater than Admission Application'})
+    if(amount && amount > apply.admissionFee && amount <= finance.financeTotalBalance && amount <= admission.offlineFee){
+      res.status(200).send({ message: 'insufficient Balance in Finance Department to make refund'})
     }
     else{
       apply.cancelCount += 1
-      apply.offlineFee -= amount
+      if(apply.offlineFee >= amount){
+        apply.offlineFee -= amount
+      }
       admission.offlineFee -= amount
       finance.financeAdmissionBalance -= amount
+      finance.financeTotalBalance -= amount
       aStatus.content = `Your application for ${apply?.applicationDepartment?.dName} has been rejected. Best Of Luck for next time`
       aStatus.applicationId = apply._id
       user.applicationStatus.push(aStatus._id)
+      student.admissionPaymentStatus.splice({
+        applicationId: apply._id
+      })
+      if(student.admissionRemainFeeCount >= amount){
+        student.admissionRemainFeeCount -= amount
+      }
+      student.refundAdmission.push({
+        refund_status: 'Refund',
+        refund_reason: 'Cancellation of Admission',
+        refund_amount: amount,
+      })
       await Promise.all([ apply.save(), student.save(), finance.save(), admission.save(), aStatus.save(), user.save()])
       res.status(200).send({ message: 'Refund & Cancellation of Admission', refund_status: true })
+      invokeMemberTabNotification(
+        "Admission Status",
+        aStatus.content,
+        'Application Status',
+        user._id,
+        user.deviceToken
+      );
       if(apply.confirmedApplication?.length > 0){
-        apply.confirmedApplication.forEach((ele) => {
-          if(`${ele.student}` === `${student._id}`){
-            ele.alloted_status = 'Cancelled'
-          }
+        apply.confirmedApplication.splice({
+          student: student._id
+        })
+        apply.cancelApplication.push({
+          student: student._id,
+          payment_status: 'Refund',
+          refund_amount: amount
         })
         await apply.save()
+      }
+      if(admission?.remainingFee?.length > 0){
+        if(admission.remainingFee?.includes(`${student._id}`)){
+          admission.remainingFee.pull(student._id)
+          if(admission.remainingFeeCount >= amount){
+            admission.remainingFeeCount -= amount
+          }
+        }
+        await admission.save()
       }
     }
   }

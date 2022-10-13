@@ -302,6 +302,14 @@ const studentSchema = new mongoose.Schema({
       secondInstallment: { type: Number, default: 0},
       fee: { type: Number, default: 0},
     },
+  ],
+  refundAdmission: [
+    {
+      refund_status: { type: String, default: 'No Refund' },
+      refund_reason: { type: String },
+      refund_amount: { type: Number, default: 0 },
+      refund_on: { type: Date, default: Date.now},  
+    },
   ]
 });
 

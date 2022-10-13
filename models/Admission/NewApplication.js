@@ -86,7 +86,18 @@ const newApplicationSchema = new mongoose.Schema({
             fee_remain: { type: Number, default: 0},
             paid_status: { type: 'String' },
         },
-    ]
+    ],
+    cancelApplication: [
+        {
+            student: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Student'
+            },
+            cancel_on: { type: Date, default: Date.now},
+            payment_status: { type: String, default: 'Pending'},
+            refund_amount: { type: Number, default: 0},
+        },
+    ],
 })
 
 module.exports = mongoose.model('NewApplication', newApplicationSchema)

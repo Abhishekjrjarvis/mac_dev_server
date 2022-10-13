@@ -792,13 +792,6 @@ exports.retrieveClassAllotQuery = async(req, res) =>{
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByStudentPhoto = student._id;
-    invokeFirebaseNotification(
-      "Student Approval",
-      notify,
-      institute.insName,
-      user._id,
-      user.deviceToken
-    );
     aStatus.content = `Welcome to ${depart.dName} ${classes.classTitle} Enjoy your Learning.`
     aStatus.applicationId = apply._id
     user.applicationStatus.push(aStatus._id)
@@ -815,6 +808,13 @@ exports.retrieveClassAllotQuery = async(req, res) =>{
       notify.save() 
     ])
     res.status(200).send({ message: `Distribute sweets to all family members ${student.studentFirstName} `, allot_status: true})
+    invokeMemberTabNotification(
+      "Admission Status",
+      aStatus.content,
+      'Application Status',
+      user._id,
+      user.deviceToken
+    );
   }
   catch(e){
     console.log(e)

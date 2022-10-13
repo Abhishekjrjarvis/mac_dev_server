@@ -67,13 +67,14 @@ const admissionPaymentSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    admissionId: {
-        type: String,
-        required: true
+    studentId: {
+        type: String
     },
-    insId: {
-        type: String,
-        required: true
+    applicationId: {
+        type: String
+    },
+    payName: {
+        type: String
     }
 });
 

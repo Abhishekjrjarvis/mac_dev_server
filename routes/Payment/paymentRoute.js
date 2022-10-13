@@ -7,7 +7,7 @@ const { processPayment, paytmResponse, processEContentPayment, paytmEContentResp
 
 const { processVideoPayment, paytmVideoResponse } = require('../../controllers/Payment/videoPaymentController')
 // const { processApplicationPayment, paytmApplicationResponse } = require('../../controllers/Payment/ApplicationController')
-// const { processAdmissionPayment, paytmAdmissionResponse } = require('../../controllers/Payment/AdmissionController')
+const { processAdmissionPayment, paytmAdmissionResponse } = require('../../controllers/Payment/admissionPaymentController')
 
 const { processUnlockFeaturePayment, paytmUnlockFeatureResponse } = require('../../controllers/Payment/UnlockController')
 const { generateTxnToken, paytmVerifyResponseStatus, generateActivateTxnToken, paytmVerifyActivateResponseStatus } = require("../../controllers/Payment/ApkPaymentController")
@@ -42,8 +42,8 @@ router.route('/e-content/video/callback/user/:uid/playlist/:pid/video/:vid/ins/:
 
 // ================== Admission Payment ========================
 
-// router.route('/payment/admission/process').post(processAdmissionPayment);
-// router.route('/admission/callback/:uid/apply/:aid/ins/:iid/finance/:fid').post(paytmAdmissionResponse);
+router.route('/payment/admission/process').post(processAdmissionPayment);
+router.route('/admission/callback/:uid/apply/:aid/student/:sid/status/:statusId/q/:name/value/:value').post(paytmAdmissionResponse);
 
 
 

@@ -77,14 +77,10 @@ exports.retrieveAdmissionDetailInfo = async(req, res) =>{
             path: 'admissionAdminHead',
             select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto'
         })
-        // .populate({
-        //   path: 'remainingFee',
-        //   select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionRemainFeeCount',
-        //   populate: {
-        //     path: 'department',
-        //     select: 'dName'
-        //   }
-        // })
+        .populate({
+          path: 'institute',
+          select: '_id'
+        })
         res.status(200).send({ message: 'Admission Detail', admission})
     }
     catch{

@@ -362,7 +362,12 @@ const userSchema = new mongoose.Schema({
       }
     },
   ],
-
+  admissionPayList: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "AdmissionPayment",
+    },
+  ],
 });
 
 userSchema.post("findOneAndDelete", async function (doc) {

@@ -13717,7 +13717,7 @@ paths:
         "200":
           description: OK
 
-  /api/v1/admission/{sid}/student/{aid}/pay/refund
+  /api/v1/admission/{sid}/student/{aid}/pay/refund:
     post:
       tags:
         - Admission Admin Module Query

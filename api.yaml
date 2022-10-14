@@ -13175,3 +13175,229 @@ paths:
       responses:
         "200":
           description: OK
+
+
+# fot the dynamic form api and previous year report
+  /api/v1/ins/{id}/student/form:
+    get:
+      tags:
+        - Dynamic form Related ALL Api (Institute Side)
+      summary: It is give student form boolean in (Institute Side side, where need use this)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: It is particular Institute id    
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/ins/{id}/staff/form:
+    get:
+      tags:
+        - Dynamic form Related ALL Api (Institute Side)
+      summary: It is give staff form boolean in (Institute Side side, where need use this)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: It is particular institute id    
+      responses:
+        "200":
+          description: OK
+  /api/v1/ins/{id}/form/setting/update:
+    patch:
+      tags:
+        - Dynamic form Related ALL Api (Institute Side)
+      summary: It is update form boolean of staff and student by institute side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: It is particular Institute id      
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              staffFormSetting:
+                type: object
+                required:  true
+                description: here pass all staff form setting boolean
+                properties:
+                  staffNationality:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffMTongue:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffMotherName:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffCast:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffCastCategory:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffReligion:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffBirthPlace:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffDistrict:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffState:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffAddress:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffPhoneNumber:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffAadharNumber:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffQualification:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffAadharFrontCard:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffAadharBackCard:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffPanNumber:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffBankDetails:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffUpiId:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffCasteCertificate:
+                    type: boolean
+                    description: here pass value "true" or "false"      
+              studentFormSetting:
+                type: object
+                required:  true
+                description: here pass all student form setting boolean
+                properties:
+                  studentNationality:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentMTongue:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentMotherName:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentCast:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentCastCategory:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentReligion:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentBirthPlace:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentDistrict:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentState:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentAddress:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentPhoneNumber:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentAadharNumber:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentAadharFrontCard:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentAadharBackCard:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentPanNumber:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentBankDetails:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentCasteCertificate:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentParentsName:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentParentsPhoneNumber:
+                    type: boolean
+                    description: here pass value "true" or "false"
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/edit/student/{sid}/previous:
+    get:
+      tags:
+        - Student Previous Year Related ALL Api (Student Side)
+      summary: It is give list of previous year of student records (Student Side, where need use this)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular Student id    
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/edit/student/{pid}/previous/report:
+    get:
+      tags:
+        - Student Previous Year Related ALL Api (Student Side)
+      summary: It is give student previous year report card (Student Side, where need use this)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          type: string
+          description: It is particular student previous year id    
+      responses:
+        "200":
+          description: OK

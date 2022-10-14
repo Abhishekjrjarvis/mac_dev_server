@@ -13,6 +13,11 @@ router
 router
   .route("/subject/:sid")
   .patch(catchAsync(batchController.subjectComplete));
+
+router
+  .route("/subject/:sid/setting")
+  .patch(catchAsync(batchController.subjectUpdateSetting));
+
 router.route("/class/:cid").get(catchAsync(batchController.allDepartment));
 router.route("/promote/:cid").post(catchAsync(batchController.promoteStudent));
 

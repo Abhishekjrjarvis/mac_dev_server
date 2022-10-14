@@ -8,6 +8,7 @@ const previousSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Batch",
   },
+  studentROLLNO: { type: String },
   behaviour: { type: mongoose.Schema.Types.ObjectId, ref: "Behaviour" },
   department: {
     type: mongoose.Schema.Types.ObjectId,
@@ -170,6 +171,10 @@ const previousSchema = new mongoose.Schema({
   },
   studentAdmissionDate: {
     type: String,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
   },
 });
 

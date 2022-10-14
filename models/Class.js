@@ -117,7 +117,6 @@ const classSchema = new mongoose.Schema({
     behaviour: { type: Boolean, default: false },
     graceMarks: { type: Boolean, default: false },
     gradeMarks: { type: Boolean, default: false },
-    subjectPassingMarks: { type: Number, default: 0 },
     aggregatePassingPercentage: { type: Number, default: 0 },
   },
   created_at: {
@@ -180,23 +179,23 @@ const classSchema = new mongoose.Schema({
   offlineFeeCollection: [
     {
       fee: { type: Number, default: 0 },
-      feeId: { type: String }
+      feeId: { type: String },
     },
   ],
   requestFeeStatus: {
-      feeId: { type: String },
-      status: { type: String, default: 'Pending'}
+    feeId: { type: String },
+    status: { type: String, default: "Pending" },
   },
   exemptFeeCollection: [
     {
       fee: { type: Number, default: 0 },
-      feeId: { type: String }
+      feeId: { type: String },
     },
   ],
   onlineFeeCollection: [
     {
       fee: { type: Number, default: 0 },
-      feeId: { type: String }
+      feeId: { type: String },
     },
   ],
 });

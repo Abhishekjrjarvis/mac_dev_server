@@ -44,8 +44,8 @@ exports.classRefreshCode = async (req, res) => {
 
 exports.classStartDate = async (req, res) => {
   try {
-    const classDetail = await Class.findByIdAndUpdate(req.params.cid, req.body);
-    await classDetail.save();
+    await Class.findByIdAndUpdate(req.params.cid, req.body);
+    // await classDetail.save();
     res.status(200).send({
       message: "start date of class and settings edited",
     });

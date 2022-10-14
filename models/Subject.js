@@ -48,6 +48,13 @@ const subjectSchema = new mongoose.Schema({
       ref: "SubjectUpdate",
     },
   ],
+  setting: {
+    subjectPassingMarks: { type: Number, default: 0 },
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 const Subject = mongoose.model("Subject", subjectSchema);

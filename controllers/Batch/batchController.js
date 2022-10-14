@@ -108,6 +108,17 @@ exports.preformedStructure = async (req, res) => {
   }
 };
 
+exports.subjectUpdateSetting = async (req, res) => {
+  try {
+    await Subject.findByIdAndUpdate(req.params.sid, req.body);
+    res
+      .status(200)
+      .send({ message: "Subject setting is changed successfully 👏🤞" });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.subjectComplete = async (req, res) => {
   try {
     const subject = await Subject.findById(req.params.sid);
@@ -185,6 +196,7 @@ exports.promoteStudent = async (req, res) => {
         batch: student?.batches,
         department: student?.department,
         institute: student?.institute,
+        studentROLLNO: student?.studentROLLNO,
         behaviour: student?.studentBehaviour,
         subjectMarks: student?.subjectMarks,
         exams: student?.exams,

@@ -25,6 +25,14 @@ const staffSchema = new mongoose.Schema({
   staffDocuments: { type: String },
   staffAadharFrontCard: { type: String },
   staffAadharBackCard: { type: String },
+  staffPanNumber: { type: String },
+  staffBankName: { type: String },
+  staffBankAccount: { type: String },
+  staffBankAccountHolderName: { type: String },
+  staffBankIfsc: { type: String },
+  staffBankAccountType: { type: String },
+  staffUpiId: { type: String },
+  staffCasteCertificate: [],
   staffStatus: { type: String, default: "Not Approved" },
   staffROLLNO: { type: String },
   staffDepartment: [
@@ -171,20 +179,19 @@ const staffSchema = new mongoose.Schema({
   ],
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   salary_history: [
     {
-      salary: { type: Number, default: 0},
+      salary: { type: Number, default: 0 },
       month: { type: String },
       pay_mode: { type: String },
       emp_pay: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Payroll'
-      }
+        ref: "Payroll",
+      },
     },
-  ]
-
+  ],
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

@@ -518,7 +518,7 @@ exports.retrieveAdmissionPayMode = async(req, res) =>{
           ele.payment_status = 'offline'
         }
       })
-      // await apply.save()
+      await apply.save()
     }
     status.payMode = 'offline',
     status.isPaid = 'Not Paid'
@@ -545,7 +545,7 @@ exports.retrieveAdmissionPayMode = async(req, res) =>{
 exports.payOfflineAdmissionFee = async(req, res) =>{
   try{
     const { sid, aid } = req.params
-    const { amount } = req.body
+    const { amount, tAmount } = req.body
     const apply = await NewApplication.findById({_id: aid})
     const admission = await Admission.findById({_id: `${apply.admissionAdmin}`})
     const institute = await InstituteAdmin.findById({_id: `${admission.institute}`})
@@ -569,7 +569,7 @@ exports.payOfflineAdmissionFee = async(req, res) =>{
           status: 'Pending',
           installment: 'Installment',
           firstInstallment: amount,
-          secondInstallment: apply.admissionFee - amount,
+          secondInstallment: tAmount,
           fee: apply.admissionFee
         })
       }
@@ -976,7 +976,7 @@ exports.retrieveOneApplicationQuery = async(req, res) =>{
   try{
     const { aid } = req.params
     const oneApply = await NewApplication.findById({_id: aid})
-    .select('applicationName applicationAbout admissionProcess applicationEndDate applicationStartDate admissionFee applicationPhoto photoId applicationSeats receievedCount selectCount confirmCount cancelCount allotCount onlineFee offlineFee remainingFee collectedFeeCount')
+    .select('applicationName applicationType applicationAbout admissionProcess applicationEndDate applicationStartDate admissionFee applicationPhoto photoId applicationSeats receievedCount selectCount confirmCount cancelCount allotCount onlineFee offlineFee remainingFee collectedFeeCount')
     .populate({
       path: 'applicationDepartment',
       select: 'dName'

@@ -13417,3 +13417,846 @@ paths:
       responses:
         "200":
           description: OK
+        
+# Admission Admin Module API Documentation
+
+  /api/v1/admission/ins/{id}/staff/{sid}:
+    post:
+      tags:
+        - Admission Admin Module Query
+      summary: Assign and Activate Admission Admin Module By The Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id 
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is staff id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/dashboard/query:
+    get:
+      tags:
+        - Admission Admin Module Query
+      summary: Get Admission All Details (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/all/ongoing/application:
+    get:
+      tags:
+        - Admission Admin Module Query
+      summary: Get All Ongoing Application (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit Count 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/all/completed/application:
+    get:
+      tags:
+        - Admission Admin Module Query
+      summary: Get All Completed Application (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit Count 
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/admission/{aid}/application/query:
+    get:
+      tags:
+        - Admission Admin Module Query
+      summary: Get One Application Detail Query (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application id  
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/new/application:
+    post:
+      tags:
+        - Admission Admin Module Query
+      summary: Create New Application in Admission Admin & Shared a post at all users (verified)
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission id 
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your application photo
+        - in: formData
+          name: applicationName
+          type: string
+          required: true
+          description: Enter Your Application Name
+        - in: formData
+          name: applicationDepartment
+          type: string
+          required: true
+          description: Enter Department Id
+        - in: formData
+          name: applicationBatch
+          type: string
+          required: true
+          description: Enter Batch Id
+        - in: formData
+          name: applicationSeats
+          type: string
+          required: true
+          description: Enter Application Seats Count
+        - in: formData
+          name: applicationType
+          type: string
+          required: true
+          description: Enter Application Type - (Plain Application)
+        - in: formData
+          name: applicationAbout
+          type: string
+          required: true
+          description: Enter Application Info
+        - in: formData
+          name: applicationStartDate
+          type: string
+          required: true
+          description: Enter Application Start Date
+        - in: formData
+          name: applicationEndDate
+          type: string
+          required: true
+          description: Enter Application End Date
+        - in: formData
+          name: admissionFee
+          type: number
+          required: true
+          description: Enter Admission Fee
+        - in: formData
+          name: admissionProcess
+          type: string
+          required: true
+          description: Enter Admission Process
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{id}/application/list/array:
+    get:
+      tags:
+        - Admission Admin Module Query
+      summary: Get At Institute Profile Search All New Ongoing Application (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: This is page count
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: This is limit count 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{uid}/user/{aid}/apply:
+    post:
+      tags:
+        - Admission Admin Module Query
+      summary: User as apply on New Application Student joining form -(verified )
+      produces:
+        - application/json
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is user id which apply to institute as student
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is application id which is choose by user to apply for as student
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your student profile photo
+        - in: formData
+          name: studentCode
+          type: string
+          required: true
+          description: This is student code to join class which provided by the class Teacher
+        - in: formData
+          name: studentFirstName
+          type: string
+          required: true
+          description: student first name
+        - in: formData
+          name: studentMiddleName
+          type: string
+          required: true
+          description: student middle name
+        - in: formData
+          name: studentLastName
+          type: string
+          required: true
+          description: student last name
+        - in: formData
+          name: studentDOB
+          type: string
+          required: true
+          description: student studentDOB
+        - in: formData
+          name: studentGender
+          type: string
+          required: true
+          description: student studentGender
+        - in: formData
+          name: studentNationality
+          type: string
+          required: true
+          description: student studentNationality
+        - in: formData
+          name: studentMTongue
+          type: string
+          required: true
+          description: student studentMTongue
+        - in: formData
+          name: studentMothersName
+          type: string
+          required: true
+          description: student studentMotherName
+        - in: formData
+          name: studentCast
+          type: string
+          required: true
+          description: student studentCast
+        - in: formData
+          name: studentCastCategory
+          type: string
+          required: true
+          description: student studentCastCategory
+        - in: formData
+          name: studentReligion
+          type: string
+          required: true
+          description: student studentReligion
+        - in: formData
+          name: studentBirthPlace
+          type: string
+          required: true
+          description: student studentBirthPlace
+        - in: formData
+          name: studentDistrict
+          type: string
+          required: true
+          description: student studentDistrict
+        - in: formData
+          name: studentState
+          type: string
+          required: true
+          description: student studentState
+        - in: formData
+          name: studentAddress
+          type: string
+          required: true
+          description: student studentAddress
+        - in: formData
+          name: studentPhoneNumber
+          type: string
+          required: true
+          description: student studentPhoneNumber
+        - in: formData
+          name: studentAadharNumber
+          type: string
+          required: true
+          description: student studentAadharNumber
+        - in: formData
+          name: studentParentsName
+          type: string
+          required: true
+          description: student studentParentsName
+        - in: formData
+          name: studentParentsPhoneNumber
+          type: string
+          required: true
+          description: student studentParentsPhoneNumber
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your addhar card front side photo  
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your addhar card back side photo     
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/request/application:
+    get:
+      tags:
+        - Admission Admin Module Query
+      summary: Get All Receieved Application (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: This is page count
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: This is limit count 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/selected/application:
+    get:
+      tags:
+        - Admission Admin Module Query
+      summary: Get All Selected Application (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: This is page count
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: This is limit count 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/confirmed/application:
+    get:
+      tags:
+        - Admission Admin Module Query
+      summary: Get All Confirmed Application (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: This is page count
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: This is limit count 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{sid}/student/{aid}/select:
+    post:
+      tags:
+        - Admission Admin Module Query
+      summary: Mark Application Select by the Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id 
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{sid}/student/pay/mode/{aid}/apply/status/{statusId}:
+    post:
+      tags:
+        - Admission Admin Module Query
+      summary: Student Confirm Admission on selecting payment mode either online || offline (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id 
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application id 
+        - in: path
+          name: statusId
+          required: true
+          type: string
+          description: This is Application Status Id where cancel and confirm buttons are visible
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/admission/{sid}/student/{aid}/pay/offline/confirm:
+    post:
+      tags:
+        - Admission Admin Module Query
+      summary: Mark confirm seats by Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id 
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - amount
+            properties:
+              amount:
+                type: number
+                description: Enter amount
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{sid}/student/{aid}/pay/refund:
+    post:
+      tags:
+        - Admission Admin Module Query
+      summary: Cancel One Student Admission seats by Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id 
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - amount
+            properties:
+              amount:
+                type: number
+                description: Enter amount
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/application/class:
+    get:
+      tags:
+        - Admission Admin Module Query
+      summary: Get All Classes of New Application Batch (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: This is page count
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: This is limit count 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{sid}/student/{aid}/allot/class/{cid}:
+    post:
+      tags:
+        - Admission Admin Module Query
+      summary: Class Allot to Student by Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id 
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application id
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/application/complete:
+    patch:
+      tags:
+        - Admission Admin Module Query
+      summary: Mark as New Ongoing Application to be Complete (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/all/remaining/array:
+    get:
+      tags:
+        - Admission Admin Module Query
+      summary: Get At Remaining Fee Array of Student (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: This is page count
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: This is limit count 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{sid}/student/view/fee:
+    get:
+      tags:
+        - Admission Admin Module Query
+      summary: View one student remaining fee (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id 
+      responses:
+        "200":
+          description: OK
+  
+  /api/v1/admission/{aid}/paid/remaining/fee/{sid}/student/{appId}:
+    post:
+      tags:
+        - Admission Admin Module Query
+      summary: Mark Remaining Fee paid by Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission id 
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
+        - in: path
+          name: appId
+          required: true
+          type: string
+          description: This is Application id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - amount
+            properties:
+              amount:
+                type: number
+                description: Enter amount
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/student/{uid}/inquiry:
+    post:
+      tags:
+        - Admission Admin Module Query
+      summary: Ask your Query from Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission id 
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is User id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - reasonType
+              - content
+              - replyBy
+            properties:
+              reasonType:
+                type: string
+                description: Enter Reason
+              content:
+                type: string
+                description: Enter Detailed Content
+              replyBy:
+                type: string
+                description: Enter Reply By ("User" || "Admin")
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/student/inquiry/array:
+    get:
+      tags:
+        - Admission Admin Module Query
+      summary: Get All List of Inquiry (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: This is page count
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: This is limit count 
+      responses:
+        "200":
+          description: OK
+  
+  /api/v1/admission/inquiry/reply/{qid}:
+    patch:
+      tags:
+        - Admission Admin Module Query
+      summary: Chat with Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: qid
+          required: true
+          type: string
+          description: This is Inquiry id 
+        - in: query
+          name: author
+          required: true
+          type: string
+          description: Enter Author Query ("User" || "Admin")
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - content
+            properties:
+              content:
+                type: string
+                description: Enter Detailed Content
+      responses:
+        "200":
+          description: OK

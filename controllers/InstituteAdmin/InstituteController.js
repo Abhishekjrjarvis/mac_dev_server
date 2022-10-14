@@ -866,11 +866,11 @@ exports.fillStudentForm = async (req, res) => {
     notify.notifyPublisher = classStaff._id;
     classUser.activity_tab.push(notify._id);
     notify.notifyByStudentPhoto = student._id;
-    notify.notifyCategory = 'Student Request'
-    notify.redirectIndex = 9
-    notify.classId = classes?._id
-    notify.departmentId = classes?.department
-    notify.batchId = classes?.batch
+    notify.notifyCategory = "Student Request";
+    notify.redirectIndex = 9;
+    notify.classId = classes?._id;
+    notify.departmentId = classes?.department;
+    notify.batchId = classes?.batch;
     aStatus.content = `Your application for joining as student in ${institute.insName} is filled successfully. Stay updated to check status of your application.`;
     user.applicationStatus.push(aStatus._id);
     //
@@ -928,62 +928,76 @@ exports.retrievePendingStaffList = async (req, res) => {
 exports.retrieveApproveStaffList = async (req, res) => {
   try {
     var { id } = req.params;
-    if(req.query.limit){
-    const page = req.query.page ? parseInt(req.query.page) : 1;
-    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const skip = (page - 1) * limit;
-    const staff_ins = await InstituteAdmin.findById({_id: id})
-    .select('ApproveStaff insName')
-    const staffIns = await Staff.find({ _id: { $in: staff_ins?.ApproveStaff }})
-      .sort('-createdAt')
-      .limit(limit)
-      .skip(skip)
-      .select("staffFirstName staffMiddleName recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO")
-      .populate({
-        path: "user",
-        select: "userLegalName userEmail",
+    if (req.query.limit) {
+      const page = req.query.page ? parseInt(req.query.page) : 1;
+      const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+      const skip = (page - 1) * limit;
+      const staff_ins = await InstituteAdmin.findById({ _id: id }).select(
+        "ApproveStaff insName"
+      );
+      const staffIns = await Staff.find({
+        _id: { $in: staff_ins?.ApproveStaff },
       })
-    if (staffIns) {
-      res.status(200).send({ message: "All Staff With Limit ", staffIns });
+        .sort("-createdAt")
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "staffFirstName staffMiddleName recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName userEmail",
+        });
+      if (staffIns) {
+        res.status(200).send({ message: "All Staff With Limit ", staffIns });
+      } else {
+        res.status(404).send({ message: "Failure", staffIns: [] });
+      }
     } else {
-      res.status(404).send({ message: "Failure", staffIns: [] });
-    }
-    }
-    else {
-      const staff_ins = await InstituteAdmin.findById({_id: id})
-      .select('ApproveStaff insName')
-      const staffIns = await Staff.find({ _id: { $in: staff_ins?.ApproveStaff }})
-      .sort('-createdAt')
-      .select("staffFirstName staffMiddleName recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO")
-      .populate({
-        path: "user",
-        select: "userLegalName userEmail",
+      const staff_ins = await InstituteAdmin.findById({ _id: id }).select(
+        "ApproveStaff insName"
+      );
+      const staffIns = await Staff.find({
+        _id: { $in: staff_ins?.ApproveStaff },
       })
+        .sort("-createdAt")
+        .select(
+          "staffFirstName staffMiddleName recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName userEmail",
+        });
       if (staffIns) {
         res.status(200).send({ message: "Without Limit", staffIns });
       } else {
         res.status(404).send({ message: "Failure", staffIns: [] });
       }
     }
-  } catch(e) {
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
 };
 
 exports.retrieveApproveStudentList = async (req, res) => {
   try {
     var { id } = req.params;
-    if(req.query.limit){
+    if (req.query.limit) {
       const page = req.query.page ? parseInt(req.query.page) : 1;
       const limit = req.query.limit ? parseInt(req.query.limit) : 10;
       const skip = (page - 1) * limit;
-      const student_ins = await InstituteAdmin.findById({_id: id})
-      .select('ApproveStudent insName')
-      const studentIns = await Student.find({ _id: { $in: student_ins?.ApproveStudent } })
-        .sort('-createdAt')
+      const student_ins = await InstituteAdmin.findById({ _id: id }).select(
+        "ApproveStudent insName"
+      );
+      const studentIns = await Student.find({
+        _id: { $in: student_ins?.ApproveStudent },
+      })
+        .sort("-createdAt")
         .limit(limit)
         .skip(skip)
-        .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate")
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate"
+        )
         .populate({
           path: "user",
           select: "userLegalName userEmail userPhoneNumber",
@@ -991,19 +1005,23 @@ exports.retrieveApproveStudentList = async (req, res) => {
         .populate({
           path: "studentClass",
           select: "className classStatus",
-        })
+        });
       if (studentIns) {
         res.status(200).send({ message: "All Student with limit", studentIns });
       } else {
         res.status(404).send({ message: "Failure", studentIns: [] });
       }
-    }
-    else{
-      const student_ins = await InstituteAdmin.findById({_id: id})
-      .select('ApproveStudent insName')
-      const studentIns = await Student.find({ _id: { $in: student_ins?.ApproveStudent } })
-        .sort('-createdAt')
-        .select("studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate")
+    } else {
+      const student_ins = await InstituteAdmin.findById({ _id: id }).select(
+        "ApproveStudent insName"
+      );
+      const studentIns = await Student.find({
+        _id: { $in: student_ins?.ApproveStudent },
+      })
+        .sort("-createdAt")
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate"
+        )
         .populate({
           path: "user",
           select: "userLegalName userEmail userPhoneNumber",
@@ -1011,15 +1029,15 @@ exports.retrieveApproveStudentList = async (req, res) => {
         .populate({
           path: "studentClass",
           select: "className classStatus",
-        })
+        });
       if (studentIns) {
         res.status(200).send({ message: "Without Limit", studentIns });
       } else {
         res.status(404).send({ message: "Failure", studentIns: [] });
       }
     }
-  } catch(e) {
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
 };
 
@@ -2317,7 +2335,7 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
       .populate({
         path: "ApproveStudent",
         select:
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus",
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO",
         populate: {
           path: "user",
           select: "userLegalName username",
@@ -2557,27 +2575,108 @@ exports.retrieveMergeStaffStudent = async (req, res) => {
   }
 };
 
-exports.retrieveCertificateEditableDetailQuery = async(req, res) => {
-  try{
-    const { id } = req.params
+exports.retrieveCertificateEditableDetailQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
     const detail = await InstituteAdmin.findById(id)
-    .select('insAffiliated insEditableText_one insEditableText_two')
-    .lean()
-    .exec()
-    res.status(200).send({ message: 'Editable Detail 👏', detail: detail})
+      .select("insAffiliated insEditableText_one insEditableText_two")
+      .lean()
+      .exec();
+    res.status(200).send({ message: "Editable Detail 👏", detail: detail });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){ 
-    console.log(e)
-  }
-}
+};
 
-exports.retrieveCertificateEditableQuery = async(req, res) => {
-  try{
-    const { id } = req.params
-    await InstituteAdmin.findByIdAndUpdate(id, req.body)
-    res.status(200).send({ message: 'Thanks for Editable 👏', status: true})
+exports.retrieveCertificateEditableQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await InstituteAdmin.findByIdAndUpdate(id, req.body);
+    res.status(200).send({ message: "Thanks for Editable 👏", status: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){ 
-    console.log(e)
+};
+
+exports.getStudentFormQuery = async (req, res) => {
+  try {
+    if (!req.params.id)
+      throw "Please send institute id to perform task of student form setting";
+    const { id } = req.params;
+    const institute = await InstituteAdmin.findById(id).select(
+      "studentFormSetting"
+    );
+    res.status(200).send({
+      message: "Student form setting details",
+      studentFormSetting: institute.studentFormSetting,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(400).send({
+      message: e,
+    });
   }
-}
+};
+
+exports.getStaffFormQuery = async (req, res) => {
+  try {
+    if (!req.params.id)
+      throw "Please send institute id to perform task of staff form setting";
+    const { id } = req.params;
+    const institute = await InstituteAdmin.findById(id).select(
+      "staffFormSetting"
+    );
+    res.status(200).send({
+      message: "Staff form setting details",
+      staffFormSetting: institute.staffFormSetting,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(400).send({
+      message: e,
+    });
+  }
+};
+
+exports.settingFormUpdate = async (req, res) => {
+  try {
+    if (!req.params.id) throw "Please send institute id to perform task";
+    await InstituteAdmin.findByIdAndUpdate(req.params.id, req.body);
+
+    // const institute = await InstituteAdmin.findById(req.params.id);
+
+    // institute.studentFormSetting.fullName = true;
+    // institute.studentFormSetting.studentDOB = true;
+    // institute.studentFormSetting.studentGender = true;
+    // institute.studentFormSetting.studentNationality = false;
+    // institute.studentFormSetting.studentMTongue = false;
+    // // studentMotherName: req.body.
+    // // studentCast: req.body.
+    // // studentCastCategory: req.body.
+    // // studentReligion: req.body.
+    // // studentBirthPlace: req.body.
+    // // studentBookNo: req.body.
+    // // studentDistrict: req.body.
+    // // studentState: req.body.
+    // // studentAddress: req.body.
+    // // studentPhoneNumber: req.body.
+    // // studentAadharNumber: req.body.
+    // // studentParentsName: req.body.
+    // // studentParentsPhoneNumber: req.body.
+    // // studentAadharFrontCard: req.body.
+    // // studentAadharBackCard: req.body.
+    // // studentPanNumber: req.body.
+    // // studentBankDetails: req.body.
+    // // studentCasteCertificate: req.body.
+    // institute.save();
+    res.status(200).send({
+      message: "form updated successfully 👏",
+      // institute: institute.studentFormSetting,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(400).send({
+      message: e,
+    });
+  }
+};

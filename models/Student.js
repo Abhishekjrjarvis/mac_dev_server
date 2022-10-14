@@ -27,6 +27,16 @@ const studentSchema = new mongoose.Schema({
   studentDocuments: { type: String },
   studentAadharFrontCard: { type: String },
   studentAadharBackCard: { type: String },
+  studentPanNumber: { type: String },
+  studentBankName: { type: String },
+  studentBankAccount: { type: String },
+  studentBankAccountHolderName: { type: String },
+  studentBankIfsc: { type: String },
+  studentBankAccountType: { type: String },
+  studentCasteCertificate: [],
+  studentHeight: { type: String },
+  studentWeight: { type: String },
+  studentBMI: { type: String },
   studentCertificateNo: { type: String },
   studentStatus: { type: String, default: "Not Approved" },
   studentPremoteStatus: { type: String, default: "Not Promoted" },
@@ -112,10 +122,8 @@ const studentSchema = new mongoose.Schema({
 
   previousYearData: [
     {
-      previoudData: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "StudentPreviousData",
-      },
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "StudentPreviousData",
     },
   ],
 
@@ -280,7 +288,7 @@ const studentSchema = new mongoose.Schema({
   ],
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   sportEventCount: {
     type: Number,

@@ -18,4 +18,11 @@ router
   .route("/remove/:sid")
   .patch(catchAsync(studentMember.removeByClassTeacher));
 
+router
+  .route("/:sid/previous")
+  .get(catchAsync(studentMember.getAllPreviousYear));
+router
+  .route("/:pid/previous/report")
+  .get(catchAsync(studentMember.previousYearReportCard));
+
 module.exports = router;

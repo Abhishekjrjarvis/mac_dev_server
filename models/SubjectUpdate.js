@@ -9,6 +9,9 @@ const subjectUpdateSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  date: {
+    type: Date,
+  },
   upadateImage: [
     {
       documentType: {

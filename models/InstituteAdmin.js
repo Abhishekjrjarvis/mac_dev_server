@@ -346,7 +346,7 @@ const instituteAdminSchema = new mongoose.Schema({
   },
   admissionStatus: {
     type: String,
-    default: 'Disable'
+    default: "Disable",
   },
   sportStatus: {
     type: String,
@@ -385,71 +385,71 @@ const instituteAdminSchema = new mongoose.Schema({
   },
   pollCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   staff_privacy: {
     type: String,
-    default: 'Every one'
+    default: "Every one",
   },
   email_privacy: {
     type: String,
-    default: 'Every one'
+    default: "Every one",
   },
   contact_privacy: {
     type: String,
-    default: 'Every one'
+    default: "Every one",
   },
   tag_privacy: {
     type: String,
-    default: 'Every one'
+    default: "Every one",
   },
   ins_latitude: {
-    type: Number
+    type: Number,
   },
   ins_longitude: {
-    type: Number
+    type: Number,
   },
   ins_accuracy: {
-    type: Number
+    type: Number,
   },
   ins_altitude: {
-    type: Number
+    type: Number,
   },
   ins_speed: {
-    type: Number
+    type: Number,
   },
   ins_heading: {
-    type: Number
+    type: Number,
   },
   ins_time: {
-    type: String
+    type: String,
   },
   ins_isMock: {
-    type: Boolean
+    type: Boolean,
   },
   one_line_about: {
-    type: String
+    type: String,
   },
   blockStatus: {
     type: String,
-    default: 'UnBlocked'
+    default: "UnBlocked",
   },
   initial_Unlock_Amount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   followers_critiria: {
     type: Number,
-    default: 0
+    default: 0,
   },
   profileQRCode: {
-    type: String
+    type: String,
   },
   profileURL: {
-    type: String
+    type: String,
   },
   modal_activate: {
-    type: String
+    type: String,
   },
   activeStatus: {
     type: String,
@@ -457,6 +457,60 @@ const instituteAdminSchema = new mongoose.Schema({
   },
   activeDate: {
     type: String,
+  },
+  staffFormSetting: {
+    fullName: { type: Boolean, defult: true },
+    staffDOB: { type: Boolean, defult: true },
+    staffGender: { type: Boolean, defult: true },
+    staffNationality: { type: Boolean, defult: false },
+    staffMTongue: { type: Boolean, defult: false },
+    staffMotherName: { type: Boolean, defult: false },
+    staffCast: { type: Boolean, defult: false },
+    staffCastCategory: { type: Boolean, defult: false },
+    staffReligion: { type: Boolean, defult: false },
+    staffBirthPlace: { type: Boolean, defult: false },
+    staffDistrict: { type: Boolean, defult: false },
+    staffState: { type: Boolean, defult: false },
+    staffAddress: { type: Boolean, defult: false },
+    staffPhoneNumber: { type: Boolean, defult: false },
+    staffAadharNumber: { type: Boolean, defult: false },
+    staffQualification: { type: Boolean, defult: false },
+    staffAadharFrontCard: { type: Boolean, defult: false },
+    staffAadharBackCard: { type: Boolean, defult: false },
+    staffPanNumber: { type: Boolean, defult: false },
+    staffBankDetails: { type: Boolean, defult: false },
+    staffUpiId: { type: Boolean, defult: false },
+    staffCasteCertificate: { type: Boolean, defult: false },
+    staffHeight: { type: Boolean, defult: false },
+    staffWeight: { type: Boolean, defult: false },
+    staffBMI: { type: Boolean, defult: false },
+  },
+  studentFormSetting: {
+    fullName: { type: Boolean, default: true },
+    studentDOB: { type: Boolean, default: true },
+    studentGender: { type: Boolean, default: true },
+    studentNationality: { type: Boolean, default: false },
+    studentMTongue: { type: Boolean, default: false },
+    studentMotherName: { type: Boolean, default: false },
+    studentCast: { type: Boolean, default: false },
+    studentCastCategory: { type: Boolean, default: false },
+    studentReligion: { type: Boolean, default: false },
+    studentBirthPlace: { type: Boolean, default: false },
+    studentDistrict: { type: Boolean, default: false },
+    studentState: { type: Boolean, default: false },
+    studentAddress: { type: Boolean, default: false },
+    studentPhoneNumber: { type: Boolean, default: false },
+    studentAadharNumber: { type: Boolean, default: false },
+    studentParentsName: { type: Boolean, default: false },
+    studentParentsPhoneNumber: { type: Boolean, default: false },
+    studentAadharFrontCard: { type: Boolean, default: false },
+    studentAadharBackCard: { type: Boolean, default: false },
+    studentPanNumber: { type: Boolean, default: false },
+    studentBankDetails: { type: Boolean, default: false },
+    studentCasteCertificate: { type: Boolean, default: false },
+    studentHeight: { type: Boolean, defult: false },
+    studentWeight: { type: Boolean, defult: false },
+    studentBMI: { type: Boolean, defult: false },
   },
 });
 

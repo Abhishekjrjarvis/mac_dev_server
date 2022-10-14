@@ -71,14 +71,14 @@ exports.markAttendenceClassStudent = async (req, res) => {
     if (dLeave || attendanceone) {
       res.status(200).send({
         message:
-          "Today will be holiday  Provided by department Admin or already marked attendance",
+          "Today will be holiday Provided by department Admin or already marked attendance",
       });
     } else {
       const startDateClass = classes?.classStartDate?.split("/");
-      var currentDate = new Date();
-      currentDate.setHours(currentDate.getHours() + 5);
-      currentDate.setMinutes(currentDate.getMinutes() + 30);
-      const currentDateLocalFormat = currentDate.toISOString().split("-");
+      // var currentDate = new Date();
+      // currentDate.setHours(currentDate.getHours() + 5);
+      // currentDate.setMinutes(currentDate.getMinutes() + 30);
+      // const currentDateLocalFormat = currentDate.toISOString().split("-");
       const markDate = req.body.date?.split("/");
       //this is logic
       // +markDate[0] === +currentDateLocalFormat[0] &&
@@ -108,9 +108,9 @@ exports.markAttendenceClassStudent = async (req, res) => {
         }
       };
       if (
-        +markDate[0] === +currentDateLocalFormat[2].split("T")[0] &&
-        +markDate[1] === +currentDateLocalFormat[1] &&
-        +markDate[2] === +currentDateLocalFormat[0] &&
+        // +markDate[0] === +currentDateLocalFormat[2].split("T")[0] &&
+        // +markDate[1] === +currentDateLocalFormat[1] &&
+        // +markDate[2] === +currentDateLocalFormat[0] &&
         fun()
       ) {
         const attendence = new AttendenceDate({});
@@ -208,64 +208,64 @@ exports.markAttendenceClassStudentUpdate = async (req, res) => {
         message: "Attendance not Updated, first make a attendance",
       });
     } else {
-      var currentDate = new Date();
-      currentDate.setHours(currentDate.getHours() + 5);
-      currentDate.setMinutes(currentDate.getMinutes() + 30);
-      const currentDateLocalFormat = currentDate.toISOString().split("-");
-      const markDate = req.body.date?.split("/");
-      if (
-        +markDate[0] === +currentDateLocalFormat[2].split("T")[0] &&
-        +markDate[1] === +currentDateLocalFormat[1] &&
-        +markDate[2] === +currentDateLocalFormat[0]
-      ) {
-        const studentAttendance = await AttendenceDate.findById(said);
-        for (let i = 0; i < req.body.present?.length; i++) {
-          if (studentAttendance.presentStudent?.includes(req.body.present[i])) {
-          } else if (
-            studentAttendance.absentStudent?.includes(req.body.present[i])
-          ) {
-            studentAttendance.presentStudent?.push(req.body.present[i]);
-            studentAttendance.absentStudent?.pull(req.body.present[i]);
-            studentAttendance.presentTotal += 1;
-            studentAttendance.absentTotal -= 1;
-            // const student=await Student.findById(req.body.present[i])
-            // const notify = new StudentNotification({});
-            // notify.notifyContent = `Today is present`;
-            // notify.notifySender = studentAttendance.className;
-            // notify.notifyReceiever = student._id;
-            // notify.notifyByClassPhoto = studentAttendance.className;
-            // student.notification.push(notify._id);
-            // await Promise.all([student.save(), notify.save()]);
-          } else {
-          }
+      // var currentDate = new Date();
+      // currentDate.setHours(currentDate.getHours() + 5);
+      // currentDate.setMinutes(currentDate.getMinutes() + 30);
+      // const currentDateLocalFormat = currentDate.toISOString().split("-");
+      // const markDate = req.body.date?.split("/");
+      // if (
+      //   +markDate[0] === +currentDateLocalFormat[2].split("T")[0] &&
+      //   +markDate[1] === +currentDateLocalFormat[1] &&
+      //   +markDate[2] === +currentDateLocalFormat[0]
+      // ) {
+      const studentAttendance = await AttendenceDate.findById(said);
+      for (let i = 0; i < req.body.present?.length; i++) {
+        if (studentAttendance.presentStudent?.includes(req.body.present[i])) {
+        } else if (
+          studentAttendance.absentStudent?.includes(req.body.present[i])
+        ) {
+          studentAttendance.presentStudent?.push(req.body.present[i]);
+          studentAttendance.absentStudent?.pull(req.body.present[i]);
+          studentAttendance.presentTotal += 1;
+          studentAttendance.absentTotal -= 1;
+          // const student=await Student.findById(req.body.present[i])
+          // const notify = new StudentNotification({});
+          // notify.notifyContent = `Today is present`;
+          // notify.notifySender = studentAttendance.className;
+          // notify.notifyReceiever = student._id;
+          // notify.notifyByClassPhoto = studentAttendance.className;
+          // student.notification.push(notify._id);
+          // await Promise.all([student.save(), notify.save()]);
+        } else {
         }
-        for (let i = 0; i < req.body.absent.length; i++) {
-          if (studentAttendance.absentStudent?.includes(req.body.absent[i])) {
-          } else if (
-            studentAttendance.presentStudent?.includes(req.body.absent[i])
-          ) {
-            studentAttendance.absentStudent?.push(req.body.absent[i]);
-            studentAttendance.presentStudent?.pull(req.body.absent[i]);
-            studentAttendance.presentTotal -= 1;
-            studentAttendance.absentTotal += 1;
-            // const student=await Student.findById(req.body.absent[i])
-            // const notify = new StudentNotification({});
-            // notify.notifyContent = `Today is absent`;
-            // notify.notifySender = studentAttendance.className;
-            // notify.notifyReceiever = student._id;
-            // notify.notifyByClassPhoto = studentAttendance.className;
-            // student.notification.push(notify._id);
-            // await Promise.all([student.save(), notify.save()]);
-          } else {
-          }
-        }
-        await studentAttendance.save();
-        res.status(200).send({ message: "Updated attendance" });
-      } else {
-        res
-          .status(200)
-          .send({ message: "You can not mark attendance this date" });
       }
+      for (let i = 0; i < req.body.absent.length; i++) {
+        if (studentAttendance.absentStudent?.includes(req.body.absent[i])) {
+        } else if (
+          studentAttendance.presentStudent?.includes(req.body.absent[i])
+        ) {
+          studentAttendance.absentStudent?.push(req.body.absent[i]);
+          studentAttendance.presentStudent?.pull(req.body.absent[i]);
+          studentAttendance.presentTotal -= 1;
+          studentAttendance.absentTotal += 1;
+          // const student=await Student.findById(req.body.absent[i])
+          // const notify = new StudentNotification({});
+          // notify.notifyContent = `Today is absent`;
+          // notify.notifySender = studentAttendance.className;
+          // notify.notifyReceiever = student._id;
+          // notify.notifyByClassPhoto = studentAttendance.className;
+          // student.notification.push(notify._id);
+          // await Promise.all([student.save(), notify.save()]);
+        } else {
+        }
+      }
+      await studentAttendance.save();
+      res.status(200).send({ message: "Updated attendance" });
+      // } else {
+      //   res
+      //     .status(200)
+      //     .send({ message: "You can not mark attendance this date" });
+      // }
     }
   } catch (e) {
     console.log(e);
@@ -367,106 +367,106 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
           "Attendance not mark Current Date due to already marked attendance",
       });
     } else {
-      var currentDate = new Date();
-      currentDate.setHours(currentDate.getHours() + 5);
-      currentDate.setMinutes(currentDate.getMinutes() + 30);
-      const currentDateLocalFormat = currentDate.toISOString().split("-");
-      const markDate = req.body.date?.split("/");
-      if (
-        +markDate[0] === +currentDateLocalFormat[2].split("T")[0] &&
-        +markDate[1] === +currentDateLocalFormat[1] &&
-        +markDate[2] === +currentDateLocalFormat[0]
-      ) {
-        const institute = await InstituteAdmin.findById({ _id: id });
-        const staffAttendence = new StaffAttendenceDate({});
-        staffAttendence.staffAttendDate = req.body.date;
-        staffAttendence.institute = institute._id;
-        staffAttendence.staffAttendTime = new Date();
-        for (let i = 0; i < req.body.present.length; i++) {
-          const staff = await Staff.findById({
-            _id: `${req.body.present[i]}`,
-          }).populate({
-            path: "user",
-            select: "_id uNotify userLegalName deviceToken activity_tab",
-          });
-          staff.attendDates.push(staffAttendence._id);
-          const notify = new StudentNotification({});
-          notify.notifyContent = `you're present today`;
-          notify.notifySender = id;
-          notify.notifyReceiever = staff.user._id;
-          notify.notifyType = "Staff";
-          notify.notifyPublisher = staff._id;
-          staff.user.activity_tab.push(notify._id);
-          notify.notifyByInsPhoto = id;
-          staffAttendence.presentStaff.push(staff._id);
-          staffAttendence.presentTotal = req.body.present.length;
-          notify.notifyCategory = "Attendence";
-          notify.redirectIndex = 3;
-          //
-          invokeMemberTabNotification(
-            "Staff Activity",
-            notify,
-            "Mark Attendence",
-            staff.user._id,
-            staff.user.deviceToken,
-            "Staff",
-            notify
-          );
-          //
-          await Promise.all([
-            staff.save(),
-            staffAttendence.save(),
-            notify.save(),
-            staff.user.save(),
-          ]);
-        }
-
-        for (let i = 0; i < req.body.absent.length; i++) {
-          const staff = await Staff.findById({
-            _id: `${req.body.absent[i]}`,
-          }).populate({
-            path: "user",
-            select: "_id uNotify userLegalName deviceToken activity_tab",
-          });
-          staff.attendDates.push(staffAttendence._id);
-          staffAttendence.absentStaff.push(staff._id);
-          const notify = new StudentNotification({});
-          notify.notifyContent = `you're absent today`;
-          notify.notifySender = id;
-          notify.notifyReceiever = staff.user._id;
-          notify.notifyType = "Staff";
-          notify.notifyPublisher = staff._id;
-          staff.user.activity_tab.push(notify._id);
-          notify.notifyByInsPhoto = id;
-          staffAttendence.absentTotal = req.body.absent.length;
-          notify.notifyCategory = "Attendence";
-          notify.redirectIndex = 3;
-          //
-          invokeMemberTabNotification(
-            "Staff Activity",
-            notify,
-            "Mark Attendence",
-            staff.user._id,
-            staff.user.deviceToken,
-            "Staff",
-            notify
-          );
-          //
-          await Promise.all([
-            staff.save(),
-            staffAttendence.save(),
-            notify.save(),
-            staff.user.save(),
-          ]);
-        }
-        institute.staffAttendance.push(staffAttendence._id);
-        await Promise.all([institute.save(), staffAttendence.save()]);
-        res.status(201).send({ message: "Success" });
-      } else {
-        res
-          .status(200)
-          .send({ message: "You can not mark attendance this date" });
+      // var currentDate = new Date();
+      // currentDate.setHours(currentDate.getHours() + 5);
+      // currentDate.setMinutes(currentDate.getMinutes() + 30);
+      // const currentDateLocalFormat = currentDate.toISOString().split("-");
+      // const markDate = req.body.date?.split("/");
+      // if (
+      //   +markDate[0] === +currentDateLocalFormat[2].split("T")[0] &&
+      //   +markDate[1] === +currentDateLocalFormat[1] &&
+      //   +markDate[2] === +currentDateLocalFormat[0]
+      // ) {
+      const institute = await InstituteAdmin.findById({ _id: id });
+      const staffAttendence = new StaffAttendenceDate({});
+      staffAttendence.staffAttendDate = req.body.date;
+      staffAttendence.institute = institute._id;
+      staffAttendence.staffAttendTime = new Date();
+      for (let i = 0; i < req.body.present.length; i++) {
+        const staff = await Staff.findById({
+          _id: `${req.body.present[i]}`,
+        }).populate({
+          path: "user",
+          select: "_id uNotify userLegalName deviceToken activity_tab",
+        });
+        staff.attendDates.push(staffAttendence._id);
+        const notify = new StudentNotification({});
+        notify.notifyContent = `you're present today`;
+        notify.notifySender = id;
+        notify.notifyReceiever = staff.user._id;
+        notify.notifyType = "Staff";
+        notify.notifyPublisher = staff._id;
+        staff.user.activity_tab.push(notify._id);
+        notify.notifyByInsPhoto = id;
+        staffAttendence.presentStaff.push(staff._id);
+        staffAttendence.presentTotal = req.body.present.length;
+        notify.notifyCategory = "Attendence";
+        notify.redirectIndex = 3;
+        //
+        invokeMemberTabNotification(
+          "Staff Activity",
+          notify,
+          "Mark Attendence",
+          staff.user._id,
+          staff.user.deviceToken,
+          "Staff",
+          notify
+        );
+        //
+        await Promise.all([
+          staff.save(),
+          staffAttendence.save(),
+          notify.save(),
+          staff.user.save(),
+        ]);
       }
+
+      for (let i = 0; i < req.body.absent.length; i++) {
+        const staff = await Staff.findById({
+          _id: `${req.body.absent[i]}`,
+        }).populate({
+          path: "user",
+          select: "_id uNotify userLegalName deviceToken activity_tab",
+        });
+        staff.attendDates.push(staffAttendence._id);
+        staffAttendence.absentStaff.push(staff._id);
+        const notify = new StudentNotification({});
+        notify.notifyContent = `you're absent today`;
+        notify.notifySender = id;
+        notify.notifyReceiever = staff.user._id;
+        notify.notifyType = "Staff";
+        notify.notifyPublisher = staff._id;
+        staff.user.activity_tab.push(notify._id);
+        notify.notifyByInsPhoto = id;
+        staffAttendence.absentTotal = req.body.absent.length;
+        notify.notifyCategory = "Attendence";
+        notify.redirectIndex = 3;
+        //
+        invokeMemberTabNotification(
+          "Staff Activity",
+          notify,
+          "Mark Attendence",
+          staff.user._id,
+          staff.user.deviceToken,
+          "Staff",
+          notify
+        );
+        //
+        await Promise.all([
+          staff.save(),
+          staffAttendence.save(),
+          notify.save(),
+          staff.user.save(),
+        ]);
+      }
+      institute.staffAttendance.push(staffAttendence._id);
+      await Promise.all([institute.save(), staffAttendence.save()]);
+      res.status(201).send({ message: "Success" });
+      // } else {
+      //   res
+      //     .status(200)
+      //     .send({ message: "You can not mark attendance this date" });
+      // }
     }
   } catch (e) {}
 };
@@ -527,56 +527,52 @@ exports.markAttendenceDepartmentStaffUpdate = async (req, res) => {
         message: "Attendance not Updated, first make a attendance",
       });
     } else {
-      var currentDate = new Date();
-      currentDate.setHours(currentDate.getHours() + 5);
-      currentDate.setMinutes(currentDate.getMinutes() + 30);
-      const currentDateLocalFormat = currentDate.toISOString().split("-");
-      const markDate = req.body.date?.split("/");
-      if (
-        +markDate[0] === +currentDateLocalFormat[2].split("T")[0] &&
-        +markDate[1] === +currentDateLocalFormat[1] &&
-        +markDate[2] === +currentDateLocalFormat[0]
-      ) {
-        const staffAttendence = await StaffAttendenceDate.findById(said);
-        for (let i = 0; i < req.body.present?.length; i++) {
-          if (staffAttendence.presentStaff?.includes(req.body.present[i])) {
-          } else if (
-            staffAttendence.absentStaff?.includes(req.body.present[i])
-          ) {
+      // var currentDate = new Date();
+      // currentDate.setHours(currentDate.getHours() + 5);
+      // currentDate.setMinutes(currentDate.getMinutes() + 30);
+      // const currentDateLocalFormat = currentDate.toISOString().split("-");
+      // const markDate = req.body.date?.split("/");
+      // if (
+      //   +markDate[0] === +currentDateLocalFormat[2].split("T")[0] &&
+      //   +markDate[1] === +currentDateLocalFormat[1] &&
+      //   +markDate[2] === +currentDateLocalFormat[0]
+      // ) {
+      const staffAttendence = await StaffAttendenceDate.findById(said);
+      for (let i = 0; i < req.body.present?.length; i++) {
+        if (staffAttendence.presentStaff?.includes(req.body.present[i])) {
+        } else if (staffAttendence.absentStaff?.includes(req.body.present[i])) {
+          staffAttendence.presentStaff?.push(req.body.present[i]);
+          staffAttendence.absentStaff?.pull(req.body.present[i]);
+          staffAttendence.presentTotal += 1;
+          staffAttendence.absentTotal -= 1;
+        } else {
+          if (req.body.present.includes(req.body.present[i])) {
             staffAttendence.presentStaff?.push(req.body.present[i]);
-            staffAttendence.absentStaff?.pull(req.body.present[i]);
             staffAttendence.presentTotal += 1;
-            staffAttendence.absentTotal -= 1;
-          } else {
-            if (req.body.present.includes(req.body.present[i])) {
-              staffAttendence.presentStaff?.push(req.body.present[i]);
-              staffAttendence.presentTotal += 1;
-            } else if (req.body.absent.includes(req.body.absent[i])) {
-              staffAttendence.absentStaff?.push(req.body.absent[i]);
-              staffAttendence.absentTotal += 1;
-            } else {
-            }
-          }
-        }
-        for (let i = 0; i < req.body.absent?.length; i++) {
-          if (staffAttendence.absentStaff?.includes(req.body.absent[i])) {
-          } else if (
-            staffAttendence.presentStaff?.includes(req.body.absent[i])
-          ) {
+          } else if (req.body.absent.includes(req.body.absent[i])) {
             staffAttendence.absentStaff?.push(req.body.absent[i]);
-            staffAttendence.presentStaff?.pull(req.body.absent[i]);
-            staffAttendence.presentTotal -= 1;
             staffAttendence.absentTotal += 1;
           } else {
           }
         }
-        await staffAttendence.save();
-        res.status(200).send({ message: "Updated attendance" });
-      } else {
-        res
-          .status(200)
-          .send({ message: "You can not mark attendance this date" });
       }
+      for (let i = 0; i < req.body.absent?.length; i++) {
+        if (staffAttendence.absentStaff?.includes(req.body.absent[i])) {
+        } else if (staffAttendence.presentStaff?.includes(req.body.absent[i])) {
+          staffAttendence.absentStaff?.push(req.body.absent[i]);
+          staffAttendence.presentStaff?.pull(req.body.absent[i]);
+          staffAttendence.presentTotal -= 1;
+          staffAttendence.absentTotal += 1;
+        } else {
+        }
+      }
+      await staffAttendence.save();
+      res.status(200).send({ message: "Updated attendance" });
+      // } else {
+      //   res
+      //     .status(200)
+      //     .send({ message: "You can not mark attendance this date" });
+      // }
     }
   } catch (e) {
     console.log(e);
@@ -852,7 +848,6 @@ exports.delHoliday = async (req, res) => {
     });
   } catch (error) {}
 };
-
 
 exports.getAttendStaffByIdForMonth = async (req, res) => {
   try {

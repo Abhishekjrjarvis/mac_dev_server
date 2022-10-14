@@ -47,6 +47,7 @@ exports.removeByClassTeacher = async (req, res) => {
   try {
     if (!req.params.sid) throw "Please send student id to perform task";
     const student = await Student.findById(req.params.sid);
+    const studentCurrentRollNumber = +student.studentROLLNO - 1;
     const classes = await Class.findById(student.studentClass)
       .populate({
         path: "batch",
@@ -70,6 +71,7 @@ exports.removeByClassTeacher = async (req, res) => {
       class: student?.studentClass,
       student: student?._id,
       batch: student?.batches,
+      studentROLLNO: student.studentROLLNO,
       behaviour: student?.studentBehaviour,
       department: student?.department,
       institute: student?.institute,
@@ -85,7 +87,7 @@ exports.removeByClassTeacher = async (req, res) => {
       studentFee: student?.studentFee,
       attendDate: student?.attendDate,
       checklist: student?.checklist,
-      onlineFeeList: onlineFeeList,
+      onlineFeeList: student?.onlineFeeList,
       onlineCheckList: student?.onlineCheckList,
       offlineFeeList: student?.offlineFeeList,
       offlineCheckList: student?.offlineCheckList,
@@ -139,10 +141,87 @@ exports.removeByClassTeacher = async (req, res) => {
     student.library = null;
     student.studentAdmissionDate = "";
     await Promise.all([previousData.save(), student.save()]);
+    // console.log("hi", studentCurrentRollNumber);
+    // console.log("hi", classes?.ApproveStudent?.slice(studentCurrentRollNumber));
+
+    classes?.ApproveStudent?.slice(studentCurrentRollNumber).forEach(
+      async (stu) => {
+        const changeStudent = await Student.findById(stu);
+        changeStudent.studentROLLNO = +changeStudent.studentROLLNO - 1;
+        // console.log(changeStudent.studentROLLNO);
+        await changeStudent.save();
+      }
+    );
     res.status(200).send({
       message: "student removed form class successfully👍",
     });
   } catch (e) {
     console.log(e);
+    res.status(200).send({
+      message: e,
+    });
+  }
+};
+
+exports.getAllPreviousYear = async (req, res) => {
+  try {
+    if (!req.params.sid) throw "Please send student id to perform task";
+    const student = await Student.findById(req.params.sid)
+      .select("previousYearData")
+      .lean()
+      .exec();
+
+    for (let prev of student?.previousYearData) {
+      var previousData = await StudentPreviousData.findById(prev)
+        .populate({
+          path: "class",
+          select: "className classTitle",
+        })
+        .populate({
+          path: "batch",
+          select: "batchName",
+        })
+        .sort("-createdAt")
+        .select("class batch")
+        .lean()
+        .exec();
+    }
+    res.status(200).send({
+      message: "Student previous year detail all list 👍",
+      previousData,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(424).send({
+      message: e,
+    });
+  }
+};
+
+exports.previousYearReportCard = async (req, res) => {
+  try {
+    if (!req.params.pid) throw "Please send previous year id to perform task";
+    const previousData = await StudentPreviousData.findById(req.params.pid)
+      .populate({
+        path: "finalReport",
+        populate: {
+          path: "student",
+          select: "studentFirstName studentMiddleName studentLastName",
+        },
+        // select: "className classTitle",
+      })
+      .select("finalReport studentROLLNO")
+      .lean()
+      .exec();
+    res.status(200).send({
+      message: "Student previous year detail all list 👍",
+      finalReport: previousData?.finalReport,
+      studentROLLNO: previousData?.studentROLLNO,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(424).send({
+      message: e,
+    });
   }
 };

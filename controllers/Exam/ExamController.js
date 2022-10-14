@@ -12,7 +12,10 @@ const Behaviour = require("../../models/Behaviour");
 const FinalReport = require("../../models/Marks/FinalReport");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
-
+const { uploadDocFile } = require("../../S3Configuration");
+const fs = require("fs");
+const util = require("util");
+const unlinkFile = util.promisify(fs.unlink);
 exports.getClassMaster = async (req, res) => {
   try {
     const classMaster = await ClassMaster.find({
@@ -315,13 +318,13 @@ exports.examById = async (req, res) => {
 
 exports.allExamSubjectTeacher = async (req, res) => {
   try {
-    var options = { sort: { 'createdAt': '-1'}}
+    var options = { sort: { createdAt: "-1" } };
     const subjectTeacher = await Subject.findById(req.params.sid)
       .select("exams _id")
       .populate({
         path: "exams",
         select: "examName examType examWeight subjects",
-        options
+        options,
       });
     const subject = [];
 
@@ -359,6 +362,7 @@ exports.allStudentInSubjectTeacher = async (req, res) => {
       .select("_id")
       .lean()
       .exec();
+    // const exams=await Exam.findById(req.params.eid)
     const students = [];
     for (let studentId of subject?.class?.ApproveStudent) {
       const student = await Student.findById(studentId)
@@ -372,8 +376,23 @@ exports.allStudentInSubjectTeacher = async (req, res) => {
         .lean()
         .exec();
 
-      student?.subjectMarks[0]?.marks.forEach((onemarks) => {
+      for (let onemarks of student?.subjectMarks[0]?.marks) {
         if (onemarks.examId === req.params.eid) {
+          // console.log(onemarks);
+          const stu = await Student.findById(studentId)
+            .populate({
+              path: "attendDate",
+              match: {
+                attendDate: { $eq: onemarks.date },
+                presentStudent: { $in: [studentId] },
+              },
+              select: "_id",
+            })
+            .select("-_id attendDate")
+            .lean()
+            .exec();
+          // console.log(stu);
+
           students.push({
             _id: student._id,
             studentFirstName: student.studentFirstName,
@@ -382,9 +401,10 @@ exports.allStudentInSubjectTeacher = async (req, res) => {
             studentProfilePhoto: student.studentProfilePhoto,
             studentROLLNO: student.studentROLLNO,
             obtainMarks: onemarks.obtainMarks,
+            present: stu?.attendDate?.length > 0 ? true : null,
           });
         }
-      });
+      }
     }
     res.status(200).send({ students });
   } catch (e) {
@@ -413,6 +433,54 @@ exports.allStudentMarksBySubjectTeacher = async (req, res) => {
           marks.obtainMarks = studt.obtainMarks;
           await subjectMarks1.save();
         }
+      }
+    }
+
+    res.status(200).send({ message: "updated" });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.oneStudentMarksBySubjectTeacher = async (req, res) => {
+  try {
+    const { examId, studentId, obtainMarks } = req.body;
+    const student = await Student.findById(studentId)
+      .populate({
+        path: "subjectMarks",
+        match: {
+          subject: { $eq: req.params.sid },
+        },
+      })
+      .select("subjectMarks _id")
+      .lean()
+      .exec();
+    const subjectMarks1 = await SubjectMarks.findById(
+      student?.subjectMarks[0]?._id
+    );
+    for (let marks of subjectMarks1.marks) {
+      if (marks.examId === examId) {
+        marks.obtainMarks = obtainMarks;
+        if (req?.files) {
+          for (let file of req?.files) {
+            const obj = {
+              documentType: "",
+              documentName: "",
+              documentSize: "",
+              documentKey: "",
+              documentEncoding: "",
+            };
+            obj.documentType = file.mimetype;
+            obj.documentName = file.originalname;
+            obj.documentEncoding = file.encoding;
+            obj.documentSize = file.size;
+            const results = await uploadDocFile(file);
+            obj.documentKey = results.Key;
+            marks.answerSheet.push(obj);
+            await unlinkFile(file.path);
+          }
+        }
+        await subjectMarks1.save();
       }
     }
 
@@ -741,6 +809,7 @@ exports.oneStudentReportCardFinalize = async (req, res) => {
     await Promise.all([finalize.save(), student.save()]);
     res.status(201).send({ message: "Finalize successfully" });
   } catch (e) {
+    console.log(e);
     res.status(200).send({ message: e });
   }
 };
@@ -791,6 +860,7 @@ exports.oneStudentReportCardFinalizeGraceUpdate = async (req, res) => {
     await Promise.all([finalize.save()]);
     res.status(200).send({ finalize });
   } catch (e) {
+    console.log(e);
     res.status(424).send({ message: e });
   }
 };

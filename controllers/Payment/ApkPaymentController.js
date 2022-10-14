@@ -1,18 +1,15 @@
 require("dotenv").config();
 const PaytmChecksum = require("paytmchecksum");
 const https = require("https");
-const Payment = require("../../models/Payment");
 const Student = require("../../models/Student");
-const Fees = require("../../models/Fees");
-const Checklist = require("../../models/Checklist");
 const Finance = require("../../models/Finance");
 const User = require("../../models/User");
-const ApplyPayment = require("../../models/ApplyPayment");
-const IdCardPayment = require("../../models/IdCardPayment");
 const Admin = require("../../models/superAdmin");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const Notification = require("../../models/notification");
-const Class = require('../../models/Class')
+const Status = require('../../models/Admission/status')
+const NewApplication = require('../../models/Admission/NewApplication')
+const Admission = require('../../models/Admission/Admission')
 const { v4: uuidv4 } = require("uuid");
 
 exports.generateTxnToken = async(req, res) => {

@@ -12,8 +12,8 @@ const admissionAdminSchema = new mongoose.Schema({
     },
     photoId: { type: String, default: "1" },
     coverId: { type: String, default: "2" },
-    admissionProfilePhoto: { type: String },
-    admissionCoverPhoto: { type: String },
+    photo: { type: String },
+    cover: { type: String },
     createdAt: {
         type: Date,
         default: Date.now
@@ -28,6 +28,10 @@ const admissionAdminSchema = new mongoose.Schema({
             ref: 'NewApplication'
         }
     ],
+    newAppCount: {
+        type: Number,
+        default: 0
+    },
     offlineFee: {
         type: Number,
         default: 0
@@ -46,6 +50,10 @@ const admissionAdminSchema = new mongoose.Schema({
             ref: 'Student'
         }
     ],
+    remainingFeeCount: {
+        type: Number,
+        default: 0
+    },
     inquiryList: [
         {
             type: mongoose.Schema.Types.ObjectId,

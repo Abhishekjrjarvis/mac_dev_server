@@ -16,15 +16,20 @@ const newApplicationSchema = new mongoose.Schema({
     applicationType: { type: String, required: true },
     applicationStartDate: { type: String, required: true },
     applicationEndDate: { type: String, required: true },
-    applicationFee: { type: Number, required: true },
+    admissionFee: { type: Number, required: true },
+    // applicationFee: { type: Number, required: true },
     remainingFee: { type: Number, default: 0 },
     applicationAbout: { type: String, required: true },
+    admissionProcess: { type: String, required: true },
     applicationStatus: { type: String, default: 'Ongoing' },
     receievedCount: { type: Number, default: 0 },
     selectCount: { type: Number, default: 0 },
     confirmCount: { type: Number, default: 0 },
     cancelCount: { type: Number, default: 0 },
     allotCount: { type: Number, default: 0 },
+    collectedFeeCount: { type: Number, default: 0 },
+    applicationPhoto: { type: String },
+    photoId: { type: String, default: '1' },
     createdAt: {
         type: Date,
         default: Date.now
@@ -33,24 +38,66 @@ const newApplicationSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Admission'
     },
+    offlineFee: { type: Number, default: 0 },
+    onlineFee: { type: Number, default: 0 },
     receievedApplication: [
         {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Student'
-        }
+            student: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Student'
+            },
+            apply_on: { type: Date, default: Date.now},
+            fee_remain: { type: Number, default: 0},
+        },
     ],
     selectedApplication: [
         {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Student'
-        }
+            student: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Student'
+            },
+            select_on: { type: Date, default: Date.now},
+            payment_status: { type: String, default: 'Pending'},
+            fee_remain: { type: Number, default: 0},
+        },
     ],
     confirmedApplication: [
         {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Student'
-        }
-    ]
+            student: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Student'
+            },
+            apply_on: { type: Date, default: Date.now},
+            payment_status: { type: String, default: 'Pending'},
+            fee_remain: { type: Number, default: 0},
+            paid_status: { type: 'String' },
+        },
+    ],
+    allottedApplication: [
+        {
+            student: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Student'
+            },
+            allot_on: { type: Date, default: Date.now},
+            payment_status: { type: String, default: 'Pending'},
+            alloted_class: { type: String, default: 'Pending'},
+            alloted_status: { type: String, default: 'Not Alloted'},
+            fee_remain: { type: Number, default: 0},
+            paid_status: { type: 'String' },
+        },
+    ],
+    cancelApplication: [
+        {
+            student: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Student'
+            },
+            cancel_on: { type: Date, default: Date.now},
+            payment_status: { type: String, default: 'Pending'},
+            refund_amount: { type: Number, default: 0},
+        },
+    ],
 })
 
 module.exports = mongoose.model('NewApplication', newApplicationSchema)

@@ -89,12 +89,6 @@ const classSchema = new mongoose.Schema({
   onlineTotalFee: {
     type: Number,
   },
-  classTotalCollected: {
-    type: Number,
-  },
-  classTotalSubmitted: {
-    type: Number,
-  },
   receieveFee: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -123,7 +117,18 @@ const classSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-
+  boyCount: {
+    type: Number,
+    default: 0
+  },
+  girlCount: {
+    type: Number,
+    default: 0
+  },
+  strength: {
+    type: Number,
+    default: 0
+  },
   classStatus: {
     type: String,
     default: "UnCompleted",

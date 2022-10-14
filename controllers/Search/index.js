@@ -24,12 +24,15 @@ exports.searchUserUniversal = async (req, res) => {
       const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
       const dropItem = (getPage - 1) * itemPerPage;
       const allInstitutes = await InstituteAdmin.find({
-        $or: [
-          { insName: { $regex: req.query.search, $options: "i" } },
-          { name: { $regex: req.query.search, $options: "i" } },
-        ],
+        $and: [{ status: 'Approved'},
+        {
+          $or: [
+            { insName: { $regex: req.query.search, $options: "i" } },
+            { name: { $regex: req.query.search, $options: "i" } }
+          ]
+        }]
       })
-        .select("insName insProfilePhoto photoId name blockStatus")
+        .select("insName insProfilePhoto photoId name blockStatus status")
         .limit(itemPerPage)
         .skip(dropItem)
         .lean()
@@ -44,7 +47,7 @@ exports.searchUserUniversal = async (req, res) => {
       })
         .limit(itemPerPage)
         .skip(dropItem)
-        .select("userLegalName profilePhoto photoId username blockStatus")
+        .select("userLegalName profilePhoto photoId username blockStatus userStatus")
         .lean()
         .exec();
 

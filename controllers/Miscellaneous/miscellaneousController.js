@@ -25,7 +25,7 @@ exports.getAllStaff = async(req, res) =>{
         .select('staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffStatus')
         .populate({
           path: 'user',
-          select: 'userLegalName photoId profilePhoto userStatus one_line_about'
+          select: 'userLegalName photoId profilePhoto userStatus one_line_about followerCount coverId profileCoverPhoto'
         })
         .populate({
           path: 'institute',
@@ -62,7 +62,7 @@ exports.getAllUser = async(req, res) =>{
         .sort("-created_at")
         .limit(limit)
         .skip(skip)
-        .select('userLegalName username photoId profilePhoto userStatus one_line_about')
+        .select('userLegalName username photoId profilePhoto userStatus one_line_about followerCount coverId profileCoverPhoto')
         res.status(200).send({ message: "User data", uRandom: user });
       } catch(e) {
         console.log(`Error`, e.message);
@@ -162,11 +162,19 @@ exports.getAllInstitute = async(req, res) =>{
         const page = req.query.page ? parseInt(req.query.page) : 1;
         const limit = req.query.limit ? parseInt(req.query.limit) : 10;
         const skip = (page - 1) * limit;
-        const institute = await InstituteAdmin.find({})
+        const institute = await InstituteAdmin.find({ status: 'Approved'})
         .sort('-createdAt')
         .limit(limit)
         .skip(skip)
-        .select('insName photoId insProfilePhoto name status isUniversal one_line_about')
+        .select('insName photoId insProfilePhoto name status isUniversal one_line_about insEmail insAddress followersCount coverId insProfileCoverPhoto')
+        .populate({
+          path: "displayPersonList",
+          select: "displayTitle createdAt",
+          populate: {
+            path: "displayUser",
+            select: "userLegalName username photoId profilePhoto",
+          },
+        })
         res.status(200).send({ message: "Institute data", iRandom: institute });
       } catch(e) {
         console.log(

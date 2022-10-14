@@ -37,7 +37,7 @@ router.get('/fee/list/payment', isLoggedIn, catchAsync(All.getAllFee))
 router.get('/checklist/list/payment', isLoggedIn, catchAsync(All.getAllChecklist))
 
 // All Institute Data
-router.get('/institute/list/data', isLoggedIn, catchAsync(All.getAllInstitute))
+router.get('/institute/list/data', catchAsync(All.getAllInstitute))
 
 // All Batch Data
 router.get('/batch/list/data', isLoggedIn, catchAsync(All.getAllBatch))

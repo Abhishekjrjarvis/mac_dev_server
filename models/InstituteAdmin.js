@@ -481,6 +481,9 @@ const instituteAdminSchema = new mongoose.Schema({
     staffBankDetails: { type: Boolean, defult: false },
     staffUpiId: { type: Boolean, defult: false },
     staffCasteCertificate: { type: Boolean, defult: false },
+    staffHeight: { type: Boolean, defult: false },
+    staffWeight: { type: Boolean, defult: false },
+    staffBMI: { type: Boolean, defult: false },
   },
   studentFormSetting: {
     fullName: { type: Boolean, default: true },
@@ -505,6 +508,9 @@ const instituteAdminSchema = new mongoose.Schema({
     studentPanNumber: { type: Boolean, default: false },
     studentBankDetails: { type: Boolean, default: false },
     studentCasteCertificate: { type: Boolean, default: false },
+    studentHeight: { type: Boolean, defult: false },
+    studentWeight: { type: Boolean, defult: false },
+    studentBMI: { type: Boolean, defult: false },
   },
 });
 

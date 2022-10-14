@@ -13295,6 +13295,15 @@ paths:
                   staffUpiId:
                     type: boolean
                     description: here pass value "true" or "false"
+                  staffHeight:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffWeight:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffBMI:
+                    type: boolean
+                    description: here pass value "true" or "false"                                                      
                   staffCasteCertificate:
                     type: boolean
                     description: here pass value "true" or "false"      
@@ -13360,6 +13369,15 @@ paths:
                   studentParentsPhoneNumber:
                     type: boolean
                     description: here pass value "true" or "false"
+                  studentHeight:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentWeight:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentBMI:
+                    type: boolean
+                    description: here pass value "true" or "false"                     
       responses:
         "200":
           description: OK

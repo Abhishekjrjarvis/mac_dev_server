@@ -642,6 +642,9 @@ exports.cancelAdmissionApplication = async(req, res) =>{
       if(apply.offlineFee >= amount){
         apply.offlineFee -= amount
       }
+      if(apply.collectedFeeCount >= amount){
+        apply.collectedFeeCount -= amount
+      }
       admission.offlineFee -= amount
       finance.financeAdmissionBalance -= amount
       finance.financeTotalBalance -= amount

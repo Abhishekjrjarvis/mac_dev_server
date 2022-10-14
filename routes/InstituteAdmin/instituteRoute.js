@@ -489,10 +489,24 @@ router.post(
   catchAsync(Institute.deactivateInstituteAccount)
 );
 
-router.get('/:did/staff/merge/student', catchAsync(Institute.retrieveMergeStaffStudent))
+router.get(
+  "/:did/staff/merge/student",
+  catchAsync(Institute.retrieveMergeStaffStudent)
+);
 
-router.get('/:id/certificate/editable/detail', catchAsync(Institute.retrieveCertificateEditableDetailQuery))
+router.get(
+  "/:id/certificate/editable/detail",
+  catchAsync(Institute.retrieveCertificateEditableDetailQuery)
+);
 
-router.patch('/:id/certificate/editable', catchAsync(Institute.retrieveCertificateEditableQuery))
-
+router.patch(
+  "/:id/certificate/editable",
+  catchAsync(Institute.retrieveCertificateEditableQuery)
+);
+router.get("/:id/student/form", catchAsync(Institute.getStudentFormQuery));
+router.get("/:id/staff/form", catchAsync(Institute.getStaffFormQuery));
+router.patch(
+  "/:id/form/setting/update",
+  catchAsync(Institute.settingFormUpdate)
+);
 module.exports = router;

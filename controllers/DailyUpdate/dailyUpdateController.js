@@ -4,8 +4,8 @@ const { uploadDocFile, deleteFile } = require("../../S3Configuration");
 const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
-const { customMergeSort } = require("../../Utilities/Sort/custom_sort");
-const { dailyChatFirebaseQuery } = require('../../Firebase/dailyChat')
+// const { customMergeSort } = require("../../Utilities/Sort/custom_sort");
+const { dailyChatFirebaseQuery } = require("../../Firebase/dailyChat");
 
 exports.getAlldailyUpdate = async (req, res) => {
   try {
@@ -28,7 +28,7 @@ exports.getAlldailyUpdate = async (req, res) => {
     const dailyUpdate = await SubjectUpdate.find({
       _id: { $in: subject.dailyUpdate },
     })
-      .select("updateDate updateDescription upadateImage createdAt")
+      .select("updateDate updateDescription date upadateImage createdAt")
       .skip(dropItem)
       .limit(itemPerPage)
       .sort({ createdAt: -1 })
@@ -50,18 +50,18 @@ exports.getAlldailyUpdate = async (req, res) => {
 exports.createDailyUpdate = async (req, res) => {
   try {
     if (!req.params.sid) throw "Please send subject id to perform task";
-    const subject = await Subject.findById(req.params.sid)
-    .populate({
-      path: 'subjectTeacherName',
-      select: 'id',
+    const subject = await Subject.findById(req.params.sid).populate({
+      path: "subjectTeacherName",
+      select: "id",
       populate: {
-        path: 'user',
-        select: 'id'
-      }
-    })
+        path: "user",
+        select: "id",
+      },
+    });
     const dailyUpdate = new SubjectUpdate({
       subject: req.params.sid,
       updateDescription: req.body?.updateDescription,
+      date: req.body?.date,
     });
 
     if (req?.files) {
@@ -84,7 +84,13 @@ exports.createDailyUpdate = async (req, res) => {
         var results = await uploadDocFile(file);
         obj.documentKey = results.Key;
         dailyUpdate?.upadateImage.push(obj);
-        await dailyChatFirebaseQuery(`${subject?.id}`, `${results.Key}`, 'dailyUpdate', `${subject.subjectTeacherName?.user._id}`, `${dailyUpdate.updateDescription}`)
+        await dailyChatFirebaseQuery(
+          `${subject?.id}`,
+          `${results.Key}`,
+          "dailyUpdate",
+          `${subject.subjectTeacherName?.user._id}`,
+          `${dailyUpdate.updateDescription}`
+        );
         await unlinkFile(file.path);
       }
     }

@@ -20,6 +20,25 @@ const subjectMarksSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "StudentTestSet",
       },
+      answerSheet: [
+        {
+          documentType: {
+            type: String,
+          },
+          documentName: {
+            type: String,
+          },
+          documentSize: {
+            type: String,
+          },
+          documentKey: {
+            type: String,
+          },
+          documentEncoding: {
+            type: String,
+          },
+        },
+      ],
     },
   ],
   graceMarks: { type: Number, default: 0 },

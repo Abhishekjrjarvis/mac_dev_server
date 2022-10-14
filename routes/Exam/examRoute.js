@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const examController = require("../../controllers/Exam/ExamController");
 const catchAsync = require("../../Utilities/catchAsync");
+const multer = require("multer");
+const upload = multer({ dest: "uploads/" });
 
 router
   .route("/:did/classmaster/:bid")
@@ -21,8 +23,11 @@ router
 
 router
   .route("/allstudents/marks/subjectteacher/:sid")
-  .post(catchAsync(examController.allStudentMarksBySubjectTeacher));
-
+  .post(catchAsync(examController.allStudentMarksBySubjectTeacher))
+  .patch(
+    upload.array("file"),
+    catchAsync(examController.oneStudentMarksBySubjectTeacher)
+  );
 router
   .route("/student/:sid/allexam")
   .get(catchAsync(examController.allExamInStudent));

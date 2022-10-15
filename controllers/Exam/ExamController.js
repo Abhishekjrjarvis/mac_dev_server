@@ -564,7 +564,9 @@ exports.oneClassSettings = async (req, res) => {
     const classes = await Class.findById(req.params.cid).select(
       "finalReportsSettings"
     );
-    res.status(200).send({ classes });
+    res
+      .status(200)
+      .send({ finalReportsSettings: classes.finalReportsSettings });
   } catch (e) {
     console.log(e);
   }

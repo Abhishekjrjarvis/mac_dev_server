@@ -787,3 +787,17 @@
                     //     }
                     //   };
                                        
+
+
+// Class Fee Student
+      // fData.studentsList.push(student._id);
+      // fData.feeStudent = student;
+    //   student.studentFee.push(fData._id);
+    //   fData.feeStatus = "Paid";
+
+// Class Exempt Fee
+// student.studentExemptFee.push(fData._id);
+// fData.feeStatus = status;
+// fData.studentExemptList.push(student._id);
+// fData.feeStudent = student;
+        // finance.financeTotalBalance += fData.feeAmount

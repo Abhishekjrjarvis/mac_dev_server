@@ -188,7 +188,7 @@ exports.feesPaidByStudent = async (req, res) => {
       })
       exe_status = 'Done'
     }
-    if(off_status === 'Done' && exe_status === 'Done'){
+    if(off_status === 'Done' || exe_status === 'Done'){
       res.status(200).send({ message: 'Wait for Operation Complete', fee_paid_status: true})
     }
     else{

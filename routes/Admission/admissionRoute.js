@@ -87,5 +87,10 @@ router.get('/:aid/student/inquiry/array', catchAsync(Admission.retrieveUserInqui
 // One Inquiry Reply
 router.patch('/inquiry/reply/:qid', catchAsync(Admission.retrieveInquiryReplyQuery))
 
+// Get All Department
+router.get('/:aid/all/department', catchAsync(Admission.retrieveAllDepartmentArray))
+
+// Cancel Select Mode
+router.patch('/:sid/status/cancel', catchAsync(Admission.retrieveStudentCancelAdmissionMode))
 
 module.exports = router

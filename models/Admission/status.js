@@ -11,6 +11,8 @@ const statusSchema = new mongoose.Schema({
     payMode: { type: String },
     isPaid: { type: String, default: 'Not Paid'},
     for_selection: { type: String },
+    studentId: { type: String },
+    admissionFee: { type: Number },
     createdAt: {
         type: Date,
         default: Date.now

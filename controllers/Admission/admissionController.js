@@ -196,6 +196,8 @@ exports.fetchAdmissionQuery = async(req, res) =>{
 exports.retrieveAdmissionNewApplication = async(req, res) =>{
     try{
         const { aid } = req.params
+        req.body.admissionFee = parseInt(req.body.admissionFee)
+        req.body.applicationSeats = parseInt(req.body.applicationSeats)
         const admission = await Admission.findById({_id: aid })
         const institute = await InstituteAdmin.findById({_id: `${admission.institute}`})
         const newApply = new NewApplication({...req.body})
@@ -303,6 +305,10 @@ exports.fetchAdmissionApplicationArray = async(req, res) =>{
     .populate({
       path: 'applicationDepartment',
       select: 'dName'
+    })
+    .populate({
+      path: 'applicationBatch',
+      select: 'batchName'
     })
 
     if(newApp?.length > 0){
@@ -485,6 +491,8 @@ exports.retrieveAdmissionSelectedApplication = async(req, res) =>{
     status.content = `You have been selected for ${apply.applicationName}. Confirm your admission`
     status.applicationId = apply._id
     status.for_selection = 'Yes'
+    status.studentId = student._id
+    status.admissionFee = apply.admissionFee
     user.applicationStatus.push(status._id)
     await Promise.all([ apply.save(), student.save(), user.save(), status.save() ])
     res.status(200).send({ message: `congrats ${student.studentFirstName} `, select_status: true})
@@ -893,30 +901,38 @@ exports.paidRemainingFeeStudent = async(req, res) =>{
   try{
     const { aid, sid, appId } = req.params
     const { amount } = req.body
+    var price = parseInt(amount)
     var admin_ins = await Admission.findById({_id: aid})
-    var student = await Student.findById({_id: sid}).select('admissionPaymentStatus institute user admissionRemainFeeCount')
-    var institute = await InstituteAdmin.findById({_id: `${student.institute}`}).select('insName')
+    var student = await Student.findById({_id: sid}).select('admissionPaymentStatus user admissionRemainFeeCount')
+    var institute = await InstituteAdmin.findById({_id: `${admin_ins.institute}`}).select('insName financeDepart')
+    const finance = await Finance.findById({_id: `${institute?.financeDepart[0]}`})
     var user = await User.findById({_id: `${student.user}`}).select('deviceToken')
+    var apply = await NewApplication.findById({_id: appId})
     if(student?.admissionPaymentStatus?.length > 0){
       student?.admissionPaymentStatus.forEach(async (ele) => {
         if(admin_ins?.newApplication?.includes(`${ele.applicationId}`)){
-          if(amount === (ele.fee - ele.firstInstallment)){
+          if(price === (ele.fee - ele.firstInstallment)){
             ele.status = 'Paid'
-            ele.secondInstallment = amount
+            ele.secondInstallment = price
             ele.fee = ele.firstInstallment + ele.secondInstallment - ele.fee
           }
         }
       })
     }
-    if(admin_ins?.remainingFeeCount >= amount){
-      admin_ins.remainingFeeCount -= amount
+    if(admin_ins?.remainingFeeCount >= price){
+      admin_ins.remainingFeeCount -= price
     }
-    if(student?.admissionRemainFeeCount >= amount){
-      student.admissionRemainFeeCount -= amount
+    if(student?.admissionRemainFeeCount >= price){
+      student.admissionRemainFeeCount -= price
     }
     admin_ins.remainingFee.pull(student._id)
-    await Promise.all([ admin_ins.save(), student.save() ])
-    res.status(200).send({ message: 'Balance Pool increasing with amount Operation complete', paid: true})
+    admin_ins.offlineFee += price
+    apply.offlineFee += price
+    apply.collectedFeeCount += price
+    finance.financeTotalBalance += price
+    finance.financeAdmissionBalance += price
+    await Promise.all([ admin_ins.save(), student.save(), apply.save(), finance.save() ])
+    res.status(200).send({ message: 'Balance Pool increasing with price Operation complete', paid: true})
     invokeMemberTabNotification(
       "Admission Status",
       `Collect No Dues receipt from the ${institute.insName}`,
@@ -924,14 +940,13 @@ exports.paidRemainingFeeStudent = async(req, res) =>{
       user._id,
       user.deviceToken
     );
-    var apply = await NewApplication.findById({_id: appId})
     if(apply?.allottedApplication?.length > 0){
       apply?.allottedApplication.forEach((ele) => {
         if(`${ele.student}` === `${student._id}`){
-          ele.fee_remain = (ele.fee_remain >= amount) ? ele.fee_remain - amount : 0
+          ele.fee_remain = (ele.fee_remain >= price) ? ele.fee_remain - price : 0
           ele.paid_status = 'Paid'
-          if(apply?.remainingFee >= amount){
-            apply.remainingFee -= amount
+          if(apply?.remainingFee >= price){
+            apply.remainingFee -= price
           }
         }
       })
@@ -940,10 +955,10 @@ exports.paidRemainingFeeStudent = async(req, res) =>{
     if(apply?.confirmedApplication?.length > 0){
       apply?.confirmedApplication.forEach((ele) => {
         if(`${ele.student}` === `${student._id}`){
-          ele.fee_remain = (ele.fee_remain >= amount) ? ele.fee_remain - amount : 0
+          ele.fee_remain = (ele.fee_remain >= price) ? ele.fee_remain - price : 0
           ele.paid_status = 'Paid'
-          if(apply?.remainingFee >= amount){
-            apply.remainingFee -= amount
+          if(apply?.remainingFee >= price){
+            apply.remainingFee -= price
           }
         }
       })
@@ -984,6 +999,10 @@ exports.retrieveOneApplicationQuery = async(req, res) =>{
     .populate({
       path: 'applicationBatch',
       select: 'batchName'
+    })
+    .populate({
+      path: 'admissionAdmin',
+      select: '_id'
     })
     .lean()
     .exec()
@@ -1066,6 +1085,46 @@ exports.retrieveInquiryReplyQuery = async(req, res) => {
     else{
       res.status(200).send({ message: 'Lost in space'})
     }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.retrieveAllDepartmentArray = async(req, res) =>{
+  try{
+    const { aid } = req.params
+    const admin_ins = await Admission.findById({_id: aid}).select('institute')
+    const ins_depart = await InstituteAdmin.findById({_id: `${admin_ins.institute}`}) 
+    .select('insName')
+    .populate({
+      path: 'depart',
+      select: 'dName',
+      populate: {
+        path: 'batches',
+        select: 'batchName'
+      }
+    })
+    
+    if(ins_depart?.depart?.length > 0){
+      res.status(200).send({ message: 'All Department with batch', allDB: ins_depart?.depart})
+    }
+    else{
+      res.status(404).send({ message: 'No Department with No batch', allDB: [] })
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.retrieveStudentCancelAdmissionMode = async(req, res) =>{
+  try{
+    const { sid } = req.params
+    const status = await Status.findById({_id: sid})
+    status.for_selection = 'No'
+    await status.save()
+    res.status(200).send({ message: 'Cancel Admission Selection', cancel_status: true})
   }
   catch(e){
     console.log(e)

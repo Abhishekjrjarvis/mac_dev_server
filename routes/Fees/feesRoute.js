@@ -6,7 +6,7 @@ router.route("/department-class/fee/:did").post(feesController.createFess);
 
 router.route("/:feesId").get(feesController.getOneFeesDetail);
 
-router.route("/class/:cid/student/:sid/fee/:id/all").post(feesController.feesPaidByStudent);
+router.route("/class/:cid/student/fee/:id/all").post(feesController.feesPaidByStudent);
 
 // router.route("/class/:cid/student/:sid/exempt/fee/:id").post(feesController.exemptFeesPaidByStudent);
 

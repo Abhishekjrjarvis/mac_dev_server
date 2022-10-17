@@ -1646,12 +1646,17 @@ exports.retrieveCurrentSelectBatch = async (req, res) => {
     const batches = await Batch.findById({ _id: bid });
     department.departmentSelectBatch = batches._id;
     department.userBatch = batches._id;
-    await department.save();
+    batches.activeBatch = "Active"
+    await Promise.all([
+      department.save(),
+      batches.save()
+    ])
     res.status(200).send({
       message: "Batch Detail Data",
       batches: batches._id,
       department: department.departmentSelectBatch,
     });
+
   } catch (e) {
     console.log(e);
   }

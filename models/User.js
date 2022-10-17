@@ -368,6 +368,30 @@ const userSchema = new mongoose.Schema({
       ref: "AdmissionPayment",
     },
   ],
+  user_latitude: {
+    type: Number,
+  },
+  user_longitude: {
+    type: Number,
+  },
+  user_accuracy: {
+    type: Number,
+  },
+  user_altitude: {
+    type: Number,
+  },
+  user_speed: {
+    type: Number,
+  },
+  user_heading: {
+    type: Number,
+  },
+  user_time: {
+    type: String,
+  },
+  user_isMock: {
+    type: Boolean,
+  },
 });
 
 userSchema.post("findOneAndDelete", async function (doc) {

@@ -185,7 +185,7 @@ exports.feesPaidByStudent = async (req, res) => {
           })
           await Promise.all([ student.save(), fData.save(), classes.save(), finance.save() ])
         }
-      })
+    })
       exe_status = 'Done'
     }
     if(off_status === 'Done' || exe_status === 'Done'){

@@ -27,6 +27,10 @@ const batchSchema = new mongoose.Schema({
       ref: "Class",
     },
   ],
+  activeBatch: { 
+    type: String, 
+    default: 'Not Active'
+  },
   exams: [
     {
       type: mongoose.Schema.Types.ObjectId,

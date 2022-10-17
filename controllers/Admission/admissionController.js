@@ -485,7 +485,7 @@ exports.retrieveAdmissionSelectedApplication = async(req, res) =>{
     apply.selectCount += 1
     apply.receievedApplication.splice({
       student: student._id,
-      fee_remain: apply.admissionFee,
+      // fee_remain: apply.admissionFee,
     })
     student.admissionRemainFeeCount += apply.admissionFee
     status.content = `You have been selected for ${apply.applicationName}. Confirm your admission`
@@ -599,7 +599,7 @@ exports.payOfflineAdmissionFee = async(req, res) =>{
       finance.financeTotalBalance += amount
       apply.selectedApplication.splice({
         student: student._id,
-        fee_remain: apply.admissionFee,
+        // fee_remain: apply.admissionFee,
       })
       apply.confirmedApplication.push({
         student: student._id,
@@ -755,7 +755,7 @@ exports.retrieveClassAllotQuery = async(req, res) =>{
     const aStatus = new Status({})
     apply.confirmedApplication.splice({
       student: student._id,
-      payment_status: 'offline'
+      // payment_status: 'offline'
     })
     apply.allottedApplication.push({
       student: student._id,

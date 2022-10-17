@@ -433,14 +433,6 @@ exports.removeFollowIns = async (req, res) => {
 };
 
 exports.updateApproveStaff = async (req, res) => {
-  // var staffDate = new Date();
-  // var joinDate = `${staffDate.getFullYear()}-${
-  //   staffDate.getMonth() < 10
-  //     ? `0${staffDate.getMonth() + 1}`
-  //     : staffDate.getMonth() + 1
-  // }-${
-  //   staffDate.getDate() < 10 ? `0${staffDate.getDate()}` : staffDate.getDate()
-  // }`;
   try {
     const { id, sid, uid } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id });
@@ -500,6 +492,38 @@ exports.updateApproveStaff = async (req, res) => {
       await user.save();
     } else {
     }
+    if(staff.staffGender === 'Male'){
+      institute.staff_category.boyCount += 1
+    }
+    else if(staff.staffGender === 'Female'){
+      institute.staff_category.girlCount += 1
+    }
+    else{
+      institute.staff_category.otherCount += 1
+    }
+    if(staff.staffCastCategory === 'General'){
+      institute.staff_category.generalCount += 1
+    }
+    else if(staff.staffCastCategory === 'OBC'){
+      institute.staff_category.obcCount += 1
+    }
+    else if(staff.staffCastCategory === 'SC'){
+      institute.staff_category.scCount += 1
+    }
+    else if(staff.staffCastCategory === 'ST'){
+      institute.staff_category.stCount += 1
+    }
+    else if(staff.staffCastCategory === 'NT-A'){
+      institute.staff_category.ntaCount += 1
+    }
+    else if(staff.staffCastCategory === 'NT-B'){
+      institute.staff_category.ntbCount += 1
+    }
+    else if(staff.staffCastCategory === 'NT-C'){
+      institute.staff_category.ntcCount += 1
+    }
+    else{}
+    await Promise.all([ institute.save() ])
   } catch (e) {}
 };
 
@@ -1591,8 +1615,9 @@ exports.retrieveNewBatch = async (req, res) => {
     department.batches.push(batch);
     department.batchCount += 1;
     batch.department = department;
+    institute.batches.push(batch._id)
     batch.institute = institute;
-    await Promise.all([department.save(), batch.save()]);
+    await Promise.all([department.save(), batch.save(), institute.save() ]);
     res.status(200).send({ message: "batch data", batch: batch._id });
   } catch {}
 };
@@ -2171,28 +2196,15 @@ exports.retrieveDepartmentAllBatch = async (req, res) => {
 };
 
 exports.retrieveApproveStudentRequest = async (req, res) => {
-  // var date = new Date();
-  // var p_date = date.getDate();
-  // var p_month = date.getMonth() + 1;
-  // var p_year = date.getFullYear();
-  // if (p_date < 10) {
-  //   p_date = `0${p_date}`;
-  // }
-  // if (p_month <= 10) {
-  //   p_month = `0${p_month}`;
-  // }
-  // var c_date = `${p_year}-${p_month}-${p_date}`;
   try {
     const { id, sid, cid, did, bid } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id });
     const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-    const student = await Student.findById({ _id: sid }).populate({
-      path: "user",
-    });
+    var student = await Student.findById({ _id: sid }).populate({ path: "user" });
     const user = await User.findById({ _id: `${student.user._id}` });
-    const classes = await Class.findById({ _id: cid });
+    var classes = await Class.findById({ _id: cid });
     const depart = await Department.findById({ _id: did });
-    const batch = await Batch.findById({ _id: bid });
+    var batch = await Batch.findById({ _id: bid });
     const notify = new Notification({});
     const aStatus = new Status({});
     student.studentStatus = req.body.status;
@@ -2201,15 +2213,6 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     admins.studentCount += 1;
     institute.student.pull(sid);
     institute.studentCount += 1;
-    // if (c_date <= institute.insFreeLastDate) {
-    //   institute.insFreeCredit = institute.insFreeCredit + 1;
-    // }
-    if(student.studentGender === 'Male'){
-      classes.boyCount += 1
-    }
-    else if(student.studentGender === 'Female'){
-      classes.girlCount += 1
-    }
     classes.strength += 1
     classes.ApproveStudent.push(student._id);
     classes.studentCount += 1;
@@ -2259,7 +2262,43 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
       message: `Welcome To The Institute ${student.studentFirstName} ${student.studentLastName}`,
       classes: classes._id,
     });
-  } catch (e) {}
+    if(student.studentGender === 'Male'){
+      classes.boyCount += 1
+      batch.student_category.boyCount += 1
+    }
+    else if(student.studentGender === 'Female'){
+      classes.girlCount += 1
+      batch.student_category.girlCount += 1
+    }
+    else{
+      batch.student_category.otherCount += 1
+    }
+    if(student.studentCastCategory === 'General'){
+      batch.student_category.generalCount += 1
+    }
+    else if(student.studentCastCategory === 'OBC'){
+      batch.student_category.obcCount += 1
+    }
+    else if(student.studentCastCategory === 'SC'){
+      batch.student_category.scCount += 1
+    }
+    else if(student.studentCastCategory === 'ST'){
+      batch.student_category.stCount += 1
+    }
+    else if(student.studentCastCategory === 'NT-A'){
+      batch.student_category.ntaCount += 1
+    }
+    else if(student.studentCastCategory === 'NT-B'){
+      batch.student_category.ntbCount += 1
+    }
+    else if(student.studentCastCategory === 'NT-C'){
+      batch.student_category.ntcCount += 1
+    }
+    else{}
+    await Promise.all([ classes.save(), batch.save()])
+  } catch (e) {
+    console.log(e)
+  }
 };
 
 exports.retrieveRejectStudentRequest = async (req, res) => {

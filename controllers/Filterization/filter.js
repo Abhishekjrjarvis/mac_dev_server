@@ -242,12 +242,14 @@ exports.filterByDateExpenses = async(req, res) => {
 exports.retrieveByActiveStudent = async(req, res) => {
   try{
     const { id } = req.params
-    const { type } = req.query
+    const { type, role } = req.query
     var total = 0
-    var filter_student = {
+    var filter_student_gender = {
       boyCount: 0,
       girlCount: 0,
-      otherCount: 0,
+      otherCount: 0
+    }
+    var filter_student_caste = {
       generalCount: 0,
       obcCount: 0,
       scCount: 0,
@@ -263,36 +265,48 @@ exports.retrieveByActiveStudent = async(req, res) => {
 
       filter_batch?.forEach((ele) => {
         total += ele?.ApproveStudent?.length
-        filter_student.boyCount += ele?.student_category?.boyCount
-        filter_student.girlCount += ele?.student_category?.girlCount
-        filter_student.otherCount += ele?.student_category?.otherCount
-        filter_student.generalCount += ele?.student_category?.generalCount
-        filter_student.obcCount += ele?.student_category?.obcCount
-        filter_student.scCount += ele?.student_category?.scCount
-        filter_student.stCount += ele?.student_category?.stCount
-        filter_student.ntaCount += ele?.student_category?.ntaCount
-        filter_student.ntbCount += ele?.student_category?.ntbCount
-        filter_student.ntcCount += ele?.student_category?.ntcCount
+        if(role === 'Gender'){
+          filter_student_gender.boyCount += ele?.student_category?.boyCount
+          filter_student_gender.girlCount += ele?.student_category?.girlCount
+          filter_student_gender.otherCount += ele?.student_category?.otherCount
+          res.status(200).send({ message: 'Filter Active Batch Student Chart gender', filter_student: filter_student_gender, total: total})
+        }
+        else if(role === 'Caste'){
+          filter_student_caste.generalCount += ele?.student_category?.generalCount
+          filter_student_caste.obcCount += ele?.student_category?.obcCount
+          filter_student_caste.scCount += ele?.student_category?.scCount
+          filter_student_caste.stCount += ele?.student_category?.stCount
+          filter_student_caste.ntaCount += ele?.student_category?.ntaCount
+          filter_student_caste.ntbCount += ele?.student_category?.ntbCount
+          filter_student_caste.ntcCount += ele?.student_category?.ntcCount
+          res.status(200).send({ message: 'Filter Active Batch Student Chart caste', filter_student: filter_student_caste, total: total})
+        }
+        else{}
       })
-      res.status(200).send({ message: 'Filter Active Batch Student Chart', filter_student: filter_student, total: total})
     }
     else if(type === 'All'){
       const filter_batch = await Batch.find({ _id: { $in: filter_ins.batches } })
       .select('ApproveStudent student_category')
       filter_batch?.forEach((ele) => {
         total += ele?.ApproveStudent?.length
-        filter_student.boyCount += ele?.student_category?.boyCount
-        filter_student.girlCount += ele?.student_category?.girlCount
-        filter_student.otherCount += ele?.student_category?.otherCount
-        filter_student.generalCount += ele?.student_category?.generalCount
-        filter_student.obcCount += ele?.student_category?.obcCount
-        filter_student.scCount += ele?.student_category?.scCount
-        filter_student.stCount += ele?.student_category?.stCount
-        filter_student.ntaCount += ele?.student_category?.ntaCount
-        filter_student.ntbCount += ele?.student_category?.ntbCount
-        filter_student.ntcCount += ele?.student_category?.ntcCount
+        if(role === 'Gender'){
+          filter_student_gender.boyCount += ele?.student_category?.boyCount
+          filter_student_gender.girlCount += ele?.student_category?.girlCount
+          filter_student_gender.otherCount += ele?.student_category?.otherCount
+          res.status(200).send({ message: 'Filter All Batch Student Chart gender', filter_student: filter_student_gender, total: total})
+        }
+        else if(role === 'Caste'){
+          filter_student_caste.generalCount += ele?.student_category?.generalCount
+          filter_student_caste.obcCount += ele?.student_category?.obcCount
+          filter_student_caste.scCount += ele?.student_category?.scCount
+          filter_student_caste.stCount += ele?.student_category?.stCount
+          filter_student_caste.ntaCount += ele?.student_category?.ntaCount
+          filter_student_caste.ntbCount += ele?.student_category?.ntbCount
+          filter_student_caste.ntcCount += ele?.student_category?.ntcCount
+          res.status(200).send({ message: 'Filter All Batch Student Chart caste', filter_student: filter_student_caste, total: total})
+        }
+        else{}
       })
-      res.status(200).send({ message: 'Filter All Batch Student Chart', filter_student: filter_student, total: total})
     }
     else{
       res.status(404).send({ message: 'Are you looking something else in Data'})

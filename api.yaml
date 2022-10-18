@@ -14413,6 +14413,11 @@ paths:
           required: true
           type: string
           description: Type ("All" || "Active") 
+        - in: query
+          name: role
+          required: true
+          type: string
+          description: Type ("Gender" || "Caste") 
       responses:
         "200":
           description: OK
@@ -14437,6 +14442,11 @@ paths:
           required: true
           type: string
           description: Type ("All") 
+        - in: query
+          name: role
+          required: true
+          type: string
+          description: Type ("Gender" || "Caste") 
       responses:
         "200":
           description: OK

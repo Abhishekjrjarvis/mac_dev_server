@@ -3206,3 +3206,21 @@
 {"level":"info","message":"{\"message\":\"Filter All Batch Student Chart gender\",\"filter_student\":{\"boyCount\":1,\"girlCount\":0,\"otherCount\":0},\"total\":1,\"level\":\"info\"}","timestamp":"2022-10-18T08:40:20.127Z"}
 {"filter_student":{"boyCount":2,"girlCount":0,"otherCount":0},"level":"info","message":"Filter All Batch Student Chart gender","timestamp":"2022-10-18T08:40:20.129Z","total":1}
 {"level":"info","message":"{\"message\":\"Filter All Batch Student Chart gender\",\"filter_student\":{\"boyCount\":2,\"girlCount\":0,\"otherCount\":0},\"total\":1,\"level\":\"info\"}","timestamp":"2022-10-18T08:40:20.129Z"}
+{"level":"info","message":{},"timestamp":"2022-10-18T08:48:23.064Z"}
+{"filter_student":{"boyCount":2,"girlCount":0,"otherCount":0},"level":"info","message":"Filter All Batch Student Chart gender","timestamp":"2022-10-18T08:48:23.185Z","total":1}
+{"level":"info","message":"{\"message\":\"Filter All Batch Student Chart gender\",\"filter_student\":{\"boyCount\":2,\"girlCount\":0,\"otherCount\":0},\"total\":1,\"level\":\"info\"}","timestamp":"2022-10-18T08:48:23.188Z"}
+{"level":"info","message":{},"timestamp":"2022-10-18T08:48:35.349Z"}
+{"filter_student":{"generalCount":0,"ntaCount":0,"ntbCount":0,"ntcCount":0,"obcCount":2,"scCount":0,"stCount":0},"level":"info","message":"Filter All Batch Student Chart caste","timestamp":"2022-10-18T08:48:35.443Z","total":1}
+{"level":"info","message":"{\"message\":\"Filter All Batch Student Chart caste\",\"filter_student\":{\"generalCount\":0,\"obcCount\":2,\"scCount\":0,\"stCount\":0,\"ntaCount\":0,\"ntbCount\":0,\"ntcCount\":0},\"total\":1,\"level\":\"info\"}","timestamp":"2022-10-18T08:48:35.445Z"}
+{"level":"info","message":{},"timestamp":"2022-10-18T08:48:58.041Z"}
+{"filter_student":{"generalCount":0,"ntaCount":0,"ntbCount":0,"ntcCount":0,"obcCount":1,"scCount":0,"stCount":0},"level":"info","message":"Filter Active Batch Student Chart caste","timestamp":"2022-10-18T08:48:58.120Z","total":1}
+{"level":"info","message":"{\"message\":\"Filter Active Batch Student Chart caste\",\"filter_student\":{\"generalCount\":0,\"obcCount\":1,\"scCount\":0,\"stCount\":0,\"ntaCount\":0,\"ntbCount\":0,\"ntcCount\":0},\"total\":1,\"level\":\"info\"}","timestamp":"2022-10-18T08:48:58.121Z"}
+{"level":"info","message":{},"timestamp":"2022-10-18T08:49:05.971Z"}
+{"filter_student":{"boyCount":1,"girlCount":0,"otherCount":0},"level":"info","message":"Filter Active Batch Student Chart gender","timestamp":"2022-10-18T08:49:06.050Z","total":1}
+{"level":"info","message":"{\"message\":\"Filter Active Batch Student Chart gender\",\"filter_student\":{\"boyCount\":1,\"girlCount\":0,\"otherCount\":0},\"total\":1,\"level\":\"info\"}","timestamp":"2022-10-18T08:49:06.051Z"}
+{"level":"info","message":{},"timestamp":"2022-10-18T08:55:16.575Z"}
+{"filter_staff":{"boyCount":2,"girlCount":1,"otherCount":0},"level":"info","message":"Filter All Staff Chart Gender","timestamp":"2022-10-18T08:55:16.678Z","total":3}
+{"level":"info","message":"{\"message\":\"Filter All Staff Chart Gender\",\"filter_staff\":{\"boyCount\":2,\"girlCount\":1,\"otherCount\":0},\"total\":3,\"level\":\"info\"}","timestamp":"2022-10-18T08:55:16.681Z"}
+{"level":"info","message":{},"timestamp":"2022-10-18T08:55:27.165Z"}
+{"filter_staff":{"generalCount":0,"ntaCount":0,"ntbCount":1,"ntcCount":0,"obcCount":2,"scCount":0,"stCount":0},"level":"info","message":"Filter All Staff Chart Caste","timestamp":"2022-10-18T08:55:27.223Z","total":3}
+{"level":"info","message":"{\"message\":\"Filter All Staff Chart Caste\",\"filter_staff\":{\"generalCount\":0,\"obcCount\":2,\"scCount\":0,\"stCount\":0,\"ntaCount\":0,\"ntbCount\":1,\"ntcCount\":0},\"total\":3,\"level\":\"info\"}","timestamp":"2022-10-18T08:55:27.224Z"}

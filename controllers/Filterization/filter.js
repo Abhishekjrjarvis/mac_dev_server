@@ -265,48 +265,46 @@ exports.retrieveByActiveStudent = async(req, res) => {
 
       filter_batch?.forEach((ele) => {
         total += ele?.ApproveStudent?.length
-        if(role === 'Gender'){
-          filter_student_gender.boyCount += ele?.student_category?.boyCount
-          filter_student_gender.girlCount += ele?.student_category?.girlCount
-          filter_student_gender.otherCount += ele?.student_category?.otherCount
-          res.status(200).send({ message: 'Filter Active Batch Student Chart gender', filter_student: filter_student_gender, total: total})
-        }
-        else if(role === 'Caste'){
-          filter_student_caste.generalCount += ele?.student_category?.generalCount
-          filter_student_caste.obcCount += ele?.student_category?.obcCount
-          filter_student_caste.scCount += ele?.student_category?.scCount
-          filter_student_caste.stCount += ele?.student_category?.stCount
-          filter_student_caste.ntaCount += ele?.student_category?.ntaCount
-          filter_student_caste.ntbCount += ele?.student_category?.ntbCount
-          filter_student_caste.ntcCount += ele?.student_category?.ntcCount
-          res.status(200).send({ message: 'Filter Active Batch Student Chart caste', filter_student: filter_student_caste, total: total})
-        }
-        else{}
+        filter_student_gender.boyCount += ele?.student_category?.boyCount
+        filter_student_gender.girlCount += ele?.student_category?.girlCount
+        filter_student_gender.otherCount += ele?.student_category?.otherCount
+        filter_student_caste.generalCount += ele?.student_category?.generalCount
+        filter_student_caste.obcCount += ele?.student_category?.obcCount
+        filter_student_caste.scCount += ele?.student_category?.scCount
+        filter_student_caste.stCount += ele?.student_category?.stCount
+        filter_student_caste.ntaCount += ele?.student_category?.ntaCount
+        filter_student_caste.ntbCount += ele?.student_category?.ntbCount
+        filter_student_caste.ntcCount += ele?.student_category?.ntcCount
       })
+      if(role === 'Gender'){
+        res.status(200).send({ message: 'Filter Active Batch Student Chart gender', filter_student: filter_student_gender, total: total})
+      }
+      else if(role === 'Caste'){
+        res.status(200).send({ message: 'Filter Active Batch Student Chart caste', filter_student: filter_student_caste, total: total})
+      }
     }
     else if(type === 'All'){
       const filter_batch = await Batch.find({ _id: { $in: filter_ins.batches } })
       .select('ApproveStudent student_category')
       filter_batch?.forEach((ele) => {
         total += ele?.ApproveStudent?.length
-        if(role === 'Gender'){
-          filter_student_gender.boyCount += ele?.student_category?.boyCount
-          filter_student_gender.girlCount += ele?.student_category?.girlCount
-          filter_student_gender.otherCount += ele?.student_category?.otherCount
-          res.status(200).send({ message: 'Filter All Batch Student Chart gender', filter_student: filter_student_gender, total: total})
-        }
-        else if(role === 'Caste'){
-          filter_student_caste.generalCount += ele?.student_category?.generalCount
-          filter_student_caste.obcCount += ele?.student_category?.obcCount
-          filter_student_caste.scCount += ele?.student_category?.scCount
-          filter_student_caste.stCount += ele?.student_category?.stCount
-          filter_student_caste.ntaCount += ele?.student_category?.ntaCount
-          filter_student_caste.ntbCount += ele?.student_category?.ntbCount
-          filter_student_caste.ntcCount += ele?.student_category?.ntcCount
-          res.status(200).send({ message: 'Filter All Batch Student Chart caste', filter_student: filter_student_caste, total: total})
-        }
-        else{}
+        filter_student_gender.boyCount += ele?.student_category?.boyCount
+        filter_student_gender.girlCount += ele?.student_category?.girlCount
+        filter_student_gender.otherCount += ele?.student_category?.otherCount
+        filter_student_caste.generalCount += ele?.student_category?.generalCount
+        filter_student_caste.obcCount += ele?.student_category?.obcCount
+        filter_student_caste.scCount += ele?.student_category?.scCount
+        filter_student_caste.stCount += ele?.student_category?.stCount
+        filter_student_caste.ntaCount += ele?.student_category?.ntaCount
+        filter_student_caste.ntbCount += ele?.student_category?.ntbCount
+        filter_student_caste.ntcCount += ele?.student_category?.ntcCount
       })
+      if(role === 'Gender'){
+        res.status(200).send({ message: 'Filter All Batch Student Chart gender', filter_student: filter_student_gender, total: total})
+      }
+      else if(role === 'Caste'){
+        res.status(200).send({ message: 'Filter All Batch Student Chart caste', filter_student: filter_student_caste, total: total})
+      }
     }
     else{
       res.status(404).send({ message: 'Are you looking something else in Data'})
@@ -320,12 +318,31 @@ exports.retrieveByActiveStudent = async(req, res) => {
 exports.retrieveByActiveStaff = async(req, res) => {
   try{
     const { id } = req.params
-    const { type } = req.query
+    const { type, role } = req.query
     var total = 0
     if(type === 'All'){
       const filter_ins = await InstituteAdmin.findById({_id: id}).select('ApproveStaff staff_category')
       total += filter_ins?.ApproveStaff?.length
-      res.status(200).send({ message: 'Filter All Staff Chart', filter_staff: filter_ins?.staff_category, total: total})
+      if(role === 'Gender'){
+        var gender = {
+          boyCount: filter_ins?.staff_category?.boyCount,
+          girlCount: filter_ins?.staff_category?.girlCount,
+          otherCount: filter_ins?.staff_category?.otherCount,
+        }
+        res.status(200).send({ message: 'Filter All Staff Chart Gender', filter_staff: gender, total: total})
+      }
+      else if(role === 'Caste'){
+        var caste = {
+          generalCount: filter_ins?.staff_category?.generalCount,
+          obcCount: filter_ins?.staff_category?.obcCount,
+          scCount: filter_ins?.staff_category?.scCount,
+          stCount: filter_ins?.staff_category?.stCount,
+          ntaCount: filter_ins?.staff_category?.ntaCount,
+          ntbCount: filter_ins?.staff_category?.ntbCount,
+          ntcCount: filter_ins?.staff_category?.ntcCount,
+        }
+        res.status(200).send({ message: 'Filter All Staff Chart Caste', filter_staff: caste, total: total})
+      }
     }
     else{
       res.status(404).send({ message: 'Are you looking something else in Data'})

@@ -10,11 +10,165 @@ const Notification = require("../../models/notification");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const User = require("../../models/User");
+const {
+  getOnlyTime,
+  // getOnlyTimeCompare,
+} = require("../../Utilities/timeComparison");
 
 //THis is route with tested OF STUDENT
 exports.viewClassStudent = async (req, res) => {
   const institute = await Student.findById(req.params.sid);
   res.status(200).send({ institute });
+};
+
+// const
+exports.addClassWeeklyTime = async (req, res) => {
+  try {
+    if (!req.params.cid) throw "Please send class id to perform task";
+    const classes = await Class.findById(req.params.cid);
+    let flag = false;
+    let index = 0;
+    for (let days of classes?.activeTimeDayWise) {
+      if (days.day === req.body.day) {
+        flag = true;
+        break;
+      }
+      ++index;
+    }
+    if (flag) {
+      classes.activeTimeDayWise[index].day = req.body?.day;
+      classes.activeTimeDayWise[index].from = req.body?.from;
+      classes.activeTimeDayWise[index].to = req.body?.to;
+      classes.activeTimeDayWise[index].half = req.body?.half;
+    } else {
+      classes.activeTimeDayWise?.push(req.body);
+    }
+    await classes.save();
+    res.status(200).send({
+      message: "Day wise attendance time edited successfully",
+      // activeTimeDayWise: classes.activeTimeDayWise,
+    });
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
+    console.log(e);
+  }
+};
+
+exports.getClassWeeklyTime = async (req, res) => {
+  try {
+    if (!req.params.cid) throw "Please send class id to perform task";
+    const classes = await Class.findById(req.params.cid)
+      .select("activeTimeDayWise")
+      .lean()
+      .exec();
+    const daysTime = {
+      day: "",
+      from: "",
+      to: "",
+      half: "",
+    };
+    for (let days of classes.activeTimeDayWise) {
+      if (days.day === req.query.status) {
+        daysTime.day = days.day;
+        daysTime.from = days.from;
+        daysTime.to = days.to;
+        daysTime.half = days.half;
+      }
+    }
+    res.status(200).send({
+      message: "Day wise get attendance time edited successfully",
+      daysTime,
+    });
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
+    console.log(e);
+  }
+};
+
+exports.addClassDateWiseTime = async (req, res) => {
+  try {
+    if (!req.params.cid) throw "Please send class id to perform task";
+    const classes = await Class.findById(req.params.cid);
+    let flag = false;
+    let index = 0;
+    for (let days of classes?.activeTimeDateWise) {
+      const serverDate = new Date(days.date);
+      const clientDate = new Date(req.body.date);
+      if (serverDate.getTime() === clientDate.getTime()) {
+        // console.log("THis is message", serverDate, " + ", clientDate);
+        flag = true;
+        break;
+      }
+      ++index;
+    }
+    if (flag) {
+      // classes.activeTimeDateWise[index].day = req.body?.day;
+      classes.activeTimeDateWise[index].from = req.body?.from;
+      classes.activeTimeDateWise[index].to = req.body?.to;
+      classes.activeTimeDateWise[index].half = req.body?.half;
+    } else {
+      classes.activeTimeDateWise?.push(req.body);
+    }
+    await classes.save();
+    res.status(200).send({
+      message: "Date wise attendance time edited successfully",
+      // activeTimeDateWise: classes.activeTimeDateWise,
+    });
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
+    console.log(e);
+  }
+};
+
+exports.getClassDateWiseTime = async (req, res) => {
+  try {
+    if (!req.params.cid) throw "Please send class id to perform task";
+    const classes = await Class.findById(req.params.cid)
+      .select("activeTimeDateWise activeTimeDayWise")
+      .lean()
+      .exec();
+    const daysTime = {
+      day: "",
+      from: "",
+      to: "",
+      half: "",
+    };
+    const clientDate = new Date(req.query.date);
+    for (let days of classes.activeTimeDateWise) {
+      const serverDate = new Date(days.date);
+      if (serverDate.getTime() === clientDate.getTime()) {
+        daysTime.day = days.day;
+        daysTime.from = days.from;
+        daysTime.to = days.to;
+        daysTime.half = days.half;
+      }
+    }
+    if (daysTime.day === "") {
+      for (let days of classes.activeTimeDayWise) {
+        if (days.day === req.query.status) {
+          daysTime.day = days.day;
+          daysTime.from = days.from;
+          daysTime.to = days.to;
+          daysTime.half = days.half;
+        }
+      }
+    }
+    res.status(200).send({
+      message: "Day wise get attendance time edited successfully",
+      daysTime,
+    });
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
+    console.log(e);
+  }
 };
 
 exports.getAttendClassStudent = async (req, res) => {
@@ -54,8 +208,33 @@ exports.getAttendClassStudent = async (req, res) => {
     .select("_id")
     .lean()
     .exec();
-  res.status(200).send({ classes });
+
+  if (classes.attendenceDate?.length > 0) {
+    const attend = classes.attendenceDate[0];
+    const present = [];
+    const absent = [];
+    attend?.presentStudent?.forEach((st) => present.push(st.student));
+    attend?.absentStudent?.forEach((st) => absent.push(st.student));
+    res.status(200).send({
+      classes: {
+        _id: classes._id,
+        attendenceDate: [
+          {
+            _id: attend?._id,
+            presentTotal: attend?.presentTotal,
+            absentTotal: attend?.absentTotal,
+            presentStudent: present,
+            absentStudent: absent,
+            attendDate: attend?.attendDate,
+          },
+        ],
+      },
+    });
+  } else {
+    res.status(200).send({ classes });
+  }
 };
+
 exports.markAttendenceClassStudent = async (req, res) => {
   try {
     const { cid } = req.params;
@@ -132,7 +311,13 @@ exports.markAttendenceClassStudent = async (req, res) => {
           user.activity_tab.push(notify._id);
           student.notification.push(notify._id);
           student.attendDate.push(attendence._id);
-          attendence.presentStudent.push(student._id);
+
+          attendence.presentStudent.push({
+            student: student._id,
+            inTime: getOnlyTime(),
+            // status: getOnlyTimeCompare(),
+            status: "Present",
+          });
           notify.notifyCategory = "Attendence";
           notify.redirectIndex = 3;
           //
@@ -164,7 +349,11 @@ exports.markAttendenceClassStudent = async (req, res) => {
           user.activity_tab.push(notify._id);
           student.notification.push(notify._id);
           student.attendDate.push(attendence._id);
-          attendence.absentStudent.push(student._id);
+          attendence.absentStudent.push({
+            student: student._id,
+            inTime: getOnlyTime(),
+            status: "Absent",
+          });
           notify.notifyCategory = "Attendence";
           notify.redirectIndex = 3;
           //
@@ -208,6 +397,7 @@ exports.markAttendenceClassStudentUpdate = async (req, res) => {
         message: "Attendance not Updated, first make a attendance",
       });
     } else {
+      // console.log(req.body);
       // var currentDate = new Date();
       // currentDate.setHours(currentDate.getHours() + 5);
       // currentDate.setMinutes(currentDate.getMinutes() + 30);
@@ -220,44 +410,78 @@ exports.markAttendenceClassStudentUpdate = async (req, res) => {
       // ) {
       const studentAttendance = await AttendenceDate.findById(said);
       for (let i = 0; i < req.body.present?.length; i++) {
-        if (studentAttendance.presentStudent?.includes(req.body.present[i])) {
-        } else if (
-          studentAttendance.absentStudent?.includes(req.body.present[i])
-        ) {
-          studentAttendance.presentStudent?.push(req.body.present[i]);
-          studentAttendance.absentStudent?.pull(req.body.present[i]);
-          studentAttendance.presentTotal += 1;
-          studentAttendance.absentTotal -= 1;
-          // const student=await Student.findById(req.body.present[i])
-          // const notify = new StudentNotification({});
-          // notify.notifyContent = `Today is present`;
-          // notify.notifySender = studentAttendance.className;
-          // notify.notifyReceiever = student._id;
-          // notify.notifyByClassPhoto = studentAttendance.className;
-          // student.notification.push(notify._id);
-          // await Promise.all([student.save(), notify.save()]);
-        } else {
+        let flag = false;
+        for (let pre of studentAttendance.presentStudent) {
+          if (String(pre.student) === req.body.present[i]) flag = true;
+          else flag = false;
         }
+        if (!flag) {
+          studentAttendance.presentStudent?.push({
+            student: req.body.present[i],
+            inTime: getOnlyTime(),
+            status: "Present",
+          });
+          let prevLength = studentAttendance.absentStudent.length;
+          studentAttendance.absentStudent =
+            studentAttendance.absentStudent?.filter(
+              (abs) => String(abs.student) !== req.body.present[i]
+            );
+          let nextLength = studentAttendance.absentStudent.length;
+
+          studentAttendance.presentTotal += 1;
+          if (prevLength > nextLength) studentAttendance.absentTotal -= 1;
+        }
+
+        // studentAttendance.absentStudent?.pull(req.body.present[i]);
+
+        // const student=await Student.findById(req.body.present[i])
+        // const notify = new StudentNotification({});
+        // notify.notifyContent = `Today is present`;
+        // notify.notifySender = studentAttendance.className;
+        // notify.notifyReceiever = student._id;
+        // notify.notifyByClassPhoto = studentAttendance.className;
+        // student.notification.push(notify._id);
+        // await Promise.all([student.save(), notify.save()]);
       }
       for (let i = 0; i < req.body.absent.length; i++) {
-        if (studentAttendance.absentStudent?.includes(req.body.absent[i])) {
-        } else if (
-          studentAttendance.presentStudent?.includes(req.body.absent[i])
-        ) {
-          studentAttendance.absentStudent?.push(req.body.absent[i]);
-          studentAttendance.presentStudent?.pull(req.body.absent[i]);
-          studentAttendance.presentTotal -= 1;
-          studentAttendance.absentTotal += 1;
-          // const student=await Student.findById(req.body.absent[i])
-          // const notify = new StudentNotification({});
-          // notify.notifyContent = `Today is absent`;
-          // notify.notifySender = studentAttendance.className;
-          // notify.notifyReceiever = student._id;
-          // notify.notifyByClassPhoto = studentAttendance.className;
-          // student.notification.push(notify._id);
-          // await Promise.all([student.save(), notify.save()]);
-        } else {
+        let flag = false;
+        for (let abs of studentAttendance.absentStudent) {
+          if (String(abs.student) === req.body.absent[i]) flag = true;
+          else flag = false;
         }
+        if (!flag) {
+          studentAttendance.absentStudent?.push({
+            student: req.body.absent[i],
+            inTime: getOnlyTime(),
+            status: "Absent",
+          });
+          let prevLength = studentAttendance.presentStudent.length;
+          studentAttendance.presentStudent =
+            studentAttendance.presentStudent?.filter(
+              (pre) => String(pre.student) !== req.body.absent[i]
+            );
+          let nextLength = studentAttendance.presentStudent.length;
+          if (prevLength > nextLength) studentAttendance.presentTotal -= 1;
+          studentAttendance.absentTotal += 1;
+        }
+        // if (studentAttendance.absentStudent?.includes(req.body.absent[i])) {
+        // } else if (
+        //   studentAttendance.presentStudent?.includes(req.body.absent[i])
+        // ) {
+        // studentAttendance.absentStudent?.push(req.body.absent[i]);
+        // studentAttendance.presentStudent?.pull(req.body.absent[i]);
+        // studentAttendance.presentTotal -= 1;
+        // studentAttendance.absentTotal += 1;
+        // const student=await Student.findById(req.body.absent[i])
+        // const notify = new StudentNotification({});
+        // notify.notifyContent = `Today is absent`;
+        // notify.notifySender = studentAttendance.className;
+        // notify.notifyReceiever = student._id;
+        // notify.notifyByClassPhoto = studentAttendance.className;
+        // student.notification.push(notify._id);
+        // await Promise.all([student.save(), notify.save()]);
+        // } else {
+        // }
       }
       await studentAttendance.save();
       res.status(200).send({ message: "Updated attendance" });
@@ -304,17 +528,20 @@ exports.getAttendStudentById = async (req, res) => {
         },
         select: "date",
       });
-
     if (student) {
       if (student.attendDate) {
         student.attendDate.forEach((day) => {
-          if (day.presentStudent.includes(req.params.sid)) {
-            present += 1;
-            presentArray.push(day.attendDate);
-          } else if (day.absentStudent.includes(req.params.sid)) {
-            absent += 1;
-            absentArray.push(day.attendDate);
-          } else {
+          for (let per of day?.presentStudent) {
+            if (String(per.student) === req.params.sid) {
+              present += 1;
+              presentArray.push(day.attendDate);
+            }
+          }
+          for (let abs of day?.absentStudent) {
+            if (String(abs.student) === req.params.sid) {
+              absent += 1;
+              absentArray.push(day.attendDate);
+            }
           }
         });
         days = student.attendDate.length;
@@ -351,6 +578,156 @@ exports.viewInstituteStaff = async (req, res) => {
   const institute = await Staff.findById(req.params.sid);
   res.status(200).send({ institute });
 };
+
+exports.addDepartmentWeeklyTime = async (req, res) => {
+  try {
+    if (!req.params.cid) throw "Please send class id to perform task";
+    const department = await Department.findById(req.params.did);
+    let flag = false;
+    let index = 0;
+    for (let days of department?.activeTimeDayWise) {
+      if (days.day === req.body.day) {
+        flag = true;
+        break;
+      }
+      ++index;
+    }
+    if (flag) {
+      department.activeTimeDayWise[index].day = req.body?.day;
+      department.activeTimeDayWise[index].from = req.body?.from;
+      department.activeTimeDayWise[index].to = req.body?.to;
+      department.activeTimeDayWise[index].half = req.body?.half;
+    } else {
+      department.activeTimeDayWise?.push(req.body);
+    }
+    await department.save();
+    res.status(200).send({
+      message: "Day wise attendance time edited successfully",
+      // activeTimeDayWise: department.activeTimeDayWise,
+    });
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
+    console.log(e);
+  }
+};
+
+exports.getDepartmentWeeklyTime = async (req, res) => {
+  try {
+    if (!req.params.cid) throw "Please send class id to perform task";
+    const department = await Department.findById(req.params.did)
+      .select("activeTimeDayWise")
+      .lean()
+      .exec();
+    const daysTime = {
+      day: "",
+      from: "",
+      to: "",
+      half: "",
+    };
+    for (let days of department.activeTimeDayWise) {
+      if (days.day === req.query.status) {
+        daysTime.day = days.day;
+        daysTime.from = days.from;
+        daysTime.to = days.to;
+        daysTime.half = days.half;
+      }
+    }
+    res.status(200).send({
+      message: "Day wise get attendance time edited successfully",
+      daysTime,
+    });
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
+    console.log(e);
+  }
+};
+
+exports.addDepartmentDateWiseTime = async (req, res) => {
+  try {
+    if (!req.params.cid) throw "Please send class id to perform task";
+    const department = await Department.findById(req.params.did);
+    let flag = false;
+    let index = 0;
+    for (let days of department?.activeTimeDateWise) {
+      const serverDate = new Date(days.date);
+      const clientDate = new Date(req.body.date);
+      if (serverDate.getTime() === clientDate.getTime()) {
+        // console.log("THis is message", serverDate, " + ", clientDate);
+        flag = true;
+        break;
+      }
+      ++index;
+    }
+    if (flag) {
+      // classes.activeTimeDateWise[index].day = req.body?.day;
+      department.activeTimeDateWise[index].from = req.body?.from;
+      department.activeTimeDateWise[index].to = req.body?.to;
+      department.activeTimeDateWise[index].half = req.body?.half;
+    } else {
+      department.activeTimeDateWise?.push(req.body);
+    }
+    await department.save();
+    res.status(200).send({
+      message: "Date wise attendance time edited successfully",
+      // activeTimeDateWise: classes.activeTimeDateWise,
+    });
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
+    console.log(e);
+  }
+};
+
+exports.getDepartmentDateWiseTime = async (req, res) => {
+  try {
+    if (!req.params.cid) throw "Please send Department id to perform task";
+    const department = await Department.findById(req.params.did)
+      .select("activeTimeDateWise activeTimeDayWise")
+      .lean()
+      .exec();
+    const daysTime = {
+      day: "",
+      from: "",
+      to: "",
+      half: "",
+    };
+    const clientDate = new Date(req.query.date);
+    for (let days of department.activeTimeDateWise) {
+      const serverDate = new Date(days.date);
+      if (serverDate.getTime() === clientDate.getTime()) {
+        daysTime.day = days.day;
+        daysTime.from = days.from;
+        daysTime.to = days.to;
+        daysTime.half = days.half;
+      }
+    }
+    if (daysTime.day === "") {
+      for (let days of department.activeTimeDayWise) {
+        if (days.day === req.query.status) {
+          daysTime.day = days.day;
+          daysTime.from = days.from;
+          daysTime.to = days.to;
+          daysTime.half = days.half;
+        }
+      }
+    }
+    res.status(200).send({
+      message: "Date wise get attendance time edited successfully",
+      daysTime,
+    });
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
+    console.log(e);
+  }
+};
+
 exports.markAttendenceDepartmentStaff = async (req, res) => {
   try {
     const { id } = req.params;
@@ -398,8 +775,11 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
         notify.notifyPublisher = staff._id;
         staff.user.activity_tab.push(notify._id);
         notify.notifyByInsPhoto = id;
-        staffAttendence.presentStaff.push(staff._id);
-        staffAttendence.presentTotal = req.body.present.length;
+        staffAttendence.presentStaff.push({
+          staff: staff._id,
+          inTime: getOnlyTime(),
+          status: "Present",
+        });
         notify.notifyCategory = "Attendence";
         notify.redirectIndex = 3;
         //
@@ -413,12 +793,7 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
           notify
         );
         //
-        await Promise.all([
-          staff.save(),
-          staffAttendence.save(),
-          notify.save(),
-          staff.user.save(),
-        ]);
+        await Promise.all([staff.save(), notify.save(), staff.user.save()]);
       }
 
       for (let i = 0; i < req.body.absent.length; i++) {
@@ -429,7 +804,11 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
           select: "_id uNotify userLegalName deviceToken activity_tab",
         });
         staff.attendDates.push(staffAttendence._id);
-        staffAttendence.absentStaff.push(staff._id);
+        staffAttendence.absentStaff.push({
+          staff: staff._id,
+          inTime: getOnlyTime(),
+          status: "Present",
+        });
         const notify = new StudentNotification({});
         notify.notifyContent = `you're absent today`;
         notify.notifySender = id;
@@ -438,7 +817,6 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
         notify.notifyPublisher = staff._id;
         staff.user.activity_tab.push(notify._id);
         notify.notifyByInsPhoto = id;
-        staffAttendence.absentTotal = req.body.absent.length;
         notify.notifyCategory = "Attendence";
         notify.redirectIndex = 3;
         //
@@ -452,14 +830,11 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
           notify
         );
         //
-        await Promise.all([
-          staff.save(),
-          staffAttendence.save(),
-          notify.save(),
-          staff.user.save(),
-        ]);
+        await Promise.all([staff.save(), notify.save(), staff.user.save()]);
       }
       institute.staffAttendance.push(staffAttendence._id);
+      staffAttendence.presentTotal = req.body.present.length;
+      staffAttendence.absentTotal = req.body.absent.length;
       await Promise.all([institute.save(), staffAttendence.save()]);
       res.status(201).send({ message: "Success" });
       // } else {
@@ -509,9 +884,34 @@ exports.getAttendInstituteStaff = async (req, res) => {
       })
       .lean()
       .exec();
-    if (institute) {
-      res.status(200).send({ message: "Success", institute });
+    if (institute.staffAttendance?.length > 0) {
+      const attend = institute.staffAttendance[0];
+      const present = [];
+      const absent = [];
+      attend?.presentStaff?.forEach((st) => present.push(st.staff));
+      attend?.absentStaff?.forEach((st) => absent.push(st.staff));
+      res.status(200).send({
+        message: "Success",
+        institute: {
+          _id: institute?._id,
+          staffAttendance: [
+            {
+              _id: attend?._id,
+              presentTotal: attend?.presentTotal,
+              absentTotal: attend?.absentTotal,
+              presentStaff: present,
+              absentStaff: absent,
+              staffAttendTime: attend?.staffAttendTime,
+              staffAttendDate: attend?.staffAttendDate,
+            },
+          ],
+        },
+      });
     } else {
+      res.status(200).send({ message: "Success", institute });
+      // res.status(403).send({ message: "Failure" });
+    }
+    if (!institute) {
       res.status(403).send({ message: "Failure" });
     }
   } catch {}
@@ -539,32 +939,71 @@ exports.markAttendenceDepartmentStaffUpdate = async (req, res) => {
       // ) {
       const staffAttendence = await StaffAttendenceDate.findById(said);
       for (let i = 0; i < req.body.present?.length; i++) {
-        if (staffAttendence.presentStaff?.includes(req.body.present[i])) {
-        } else if (staffAttendence.absentStaff?.includes(req.body.present[i])) {
-          staffAttendence.presentStaff?.push(req.body.present[i]);
-          staffAttendence.absentStaff?.pull(req.body.present[i]);
-          staffAttendence.presentTotal += 1;
-          staffAttendence.absentTotal -= 1;
-        } else {
-          if (req.body.present.includes(req.body.present[i])) {
-            staffAttendence.presentStaff?.push(req.body.present[i]);
-            staffAttendence.presentTotal += 1;
-          } else if (req.body.absent.includes(req.body.absent[i])) {
-            staffAttendence.absentStaff?.push(req.body.absent[i]);
-            staffAttendence.absentTotal += 1;
-          } else {
-          }
+        let flag = false;
+        for (let pre of staffAttendence.presentStaff) {
+          if (String(pre.staff) === req.body.present[i]) flag = true;
+          else flag = false;
         }
+        if (!flag) {
+          staffAttendence.presentStaff?.push({
+            staff: req.body.present[i],
+            inTime: getOnlyTime(),
+            status: "Present",
+          });
+          let prevLength = staffAttendence.absentStaff.length;
+          staffAttendence.absentStaff = staffAttendence.absentStaff?.filter(
+            (abs) => String(abs.staff) !== req.body.present[i]
+          );
+          let nextLength = staffAttendence.absentStaff.length;
+
+          staffAttendence.presentTotal += 1;
+          if (prevLength > nextLength) staffAttendence.absentTotal -= 1;
+        }
+        // if (staffAttendence.presentStaff?.includes(req.body.present[i])) {
+        // } else if (staffAttendence.absentStaff?.includes(req.body.present[i])) {
+        //   staffAttendence.presentStaff?.push(req.body.present[i]);
+        //   staffAttendence.absentStaff?.pull(req.body.present[i]);
+        //   staffAttendence.presentTotal += 1;
+        //   staffAttendence.absentTotal -= 1;
+        // } else {
+        //   if (req.body.present.includes(req.body.present[i])) {
+        //     staffAttendence.presentStaff?.push(req.body.present[i]);
+        //     staffAttendence.presentTotal += 1;
+        //   } else if (req.body.absent.includes(req.body.absent[i])) {
+        //     staffAttendence.absentStaff?.push(req.body.absent[i]);
+        //     staffAttendence.absentTotal += 1;
+        //   } else {
+        //   }
+        // }
       }
       for (let i = 0; i < req.body.absent?.length; i++) {
-        if (staffAttendence.absentStaff?.includes(req.body.absent[i])) {
-        } else if (staffAttendence.presentStaff?.includes(req.body.absent[i])) {
-          staffAttendence.absentStaff?.push(req.body.absent[i]);
-          staffAttendence.presentStaff?.pull(req.body.absent[i]);
-          staffAttendence.presentTotal -= 1;
-          staffAttendence.absentTotal += 1;
-        } else {
+        let flag = false;
+        for (let abs of staffAttendence.absentStaff) {
+          if (String(abs.staff) === req.body.absent[i]) flag = true;
+          else flag = false;
         }
+        if (!flag) {
+          staffAttendence.absentStaff?.push({
+            staff: req.body.absent[i],
+            inTime: getOnlyTime(),
+            status: "Absent",
+          });
+          let prevLength = staffAttendence.presentStaff.length;
+          staffAttendence.presentStaff = staffAttendence.presentStaff?.filter(
+            (pre) => String(pre.staff) !== req.body.absent[i]
+          );
+          let nextLength = staffAttendence.presentStaff.length;
+          if (prevLength > nextLength) staffAttendence.presentTotal -= 1;
+          staffAttendence.absentTotal += 1;
+        }
+        // if (staffAttendence.absentStaff?.includes(req.body.absent[i])) {
+        // } else if (staffAttendence.presentStaff?.includes(req.body.absent[i])) {
+        //   staffAttendence.absentStaff?.push(req.body.absent[i]);
+        //   staffAttendence.presentStaff?.pull(req.body.absent[i]);
+        //   staffAttendence.presentTotal -= 1;
+        //   staffAttendence.absentTotal += 1;
+        // } else {
+        // }
       }
       await staffAttendence.save();
       res.status(200).send({ message: "Updated attendance" });
@@ -618,14 +1057,26 @@ exports.getAttendStaffById = async (req, res) => {
     if (staff) {
       if (staff.attendDates) {
         staff.attendDates.forEach((day) => {
-          if (day.presentStaff?.includes(req.params.sid)) {
-            present += 1;
-            presentArray.push(day.staffAttendDate);
-          } else if (day.absentStaff?.includes(req.params.sid)) {
-            absent += 1;
-            absentArray.push(day.staffAttendDate);
-          } else {
+          for (let per of day?.presentStaff) {
+            if (String(per.staff) === req.params.sid) {
+              present += 1;
+              presentArray.push(day.staffAttendDate);
+            }
           }
+          for (let abs of day?.absentStaff) {
+            if (String(abs.staff) === req.params.sid) {
+              absent += 1;
+              absentArray.push(day.staffAttendDate);
+            }
+          }
+          // if (day.presentStaff?.includes(req.params.sid)) {
+          //   present += 1;
+          //   presentArray.push(day.staffAttendDate);
+          // } else if (day.absentStaff?.includes(req.params.sid)) {
+          //   absent += 1;
+          //   absentArray.push(day.staffAttendDate);
+          // } else {
+          // }
         });
         days = staff.attendDates.length;
       }
@@ -679,7 +1130,12 @@ exports.getAttendStaffByIdForMonth = async (req, res) => {
     if (staff) {
       if (staff.attendDates) {
         staff.attendDates?.forEach((day) => {
-          if (day.absentStaff?.includes(req.params.sid)) absentCount += 1;
+          for (let abs of day?.absentStaff) {
+            if (String(abs.staff) === req.params.sid) {
+              absentCount += 1;
+            }
+          }
+          // if (day.absentStaff?.includes(req.params.sid)) absentCount += 1;
         });
       }
       if (staff.staffLeave) {
@@ -847,56 +1303,4 @@ exports.delHoliday = async (req, res) => {
       message: "deleted",
     });
   } catch (error) {}
-};
-
-exports.getAttendStaffByIdForMonth = async (req, res) => {
-  try {
-    const month = req.query.month;
-    const year = req.query.year;
-    let absentCount = 0;
-    let leaveCount = 0;
-    let regularexp = "";
-    if (month) regularexp = new RegExp(`\/${month}\/${year}$`);
-
-    const staff = await Staff.findById(req.params.sid)
-      .select("_id attendDates staffLeave")
-      .populate({
-        path: "attendDates",
-        match: {
-          staffAttendDate: { $regex: regularexp },
-        },
-
-        select: "staffAttendDate absentStaff",
-      })
-      .populate({
-        path: "staffLeave",
-        match: {
-          date: { $regex: regularexp },
-          status: { $eq: "Accepted" },
-        },
-        select: "date",
-      })
-      .lean()
-      .exec();
-
-    if (staff) {
-      if (staff.attendDates) {
-        staff.attendDates?.forEach((day) => {
-          if (day.absentStaff?.includes(req.params.sid)) absentCount += 1;
-        });
-      }
-      if (staff.staffLeave) {
-        staff?.staffLeave?.forEach((leave) => {
-          leaveCount = leaveCount + leave?.date?.length;
-        });
-      }
-      res.status(200).send({
-        message: "Success",
-        absentCount,
-        leaveCount,
-      });
-    } else {
-      res.status(404).send({ message: "Failure" });
-    }
-  } catch {}
 };

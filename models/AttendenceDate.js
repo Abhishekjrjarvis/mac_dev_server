@@ -6,20 +6,16 @@ const attendenceDateSchema = new mongoose.Schema({
     required: true,
   },
   attendTime: {
-    type: String,
-    required: true,
-  },
-  outTime: {
-    type: String,
+    type: Date,
   },
   presentTotal: {
     type: Number,
-    default: 0
+    default: 0,
   },
 
   absentTotal: {
     type: Number,
-    default: 0
+    default: 0,
   },
   className: {
     type: mongoose.Schema.Types.ObjectId,
@@ -27,16 +23,32 @@ const attendenceDateSchema = new mongoose.Schema({
   },
   presentStudent: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Student",
+      student: { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
+      inTime: {
+        type: String,
+      },
+      outTime: {
+        type: String,
+      },
+      status: String,
     },
   ],
   absentStudent: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Student",
+      student: { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
+      inTime: {
+        type: String,
+      },
+      outTime: {
+        type: String,
+      },
+      status: String,
     },
   ],
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 const AttendenceDate = mongoose.model("AttendenceDate", attendenceDateSchema);

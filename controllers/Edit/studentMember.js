@@ -176,11 +176,15 @@ exports.getAllPreviousYear = async (req, res) => {
       })
         .populate({
           path: "class",
-          select: "className classTitle",
+          populate: {
+            path: "batch",
+            select: "batchName batchStatus",
+          },
+          select: "className classTitle classStatus batch",
         })
         .populate({
           path: "batch",
-          select: "batchName",
+          select: "batchName batchStatus",
         })
         .sort("-createdAt")
         .select("class batch")

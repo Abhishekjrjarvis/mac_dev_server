@@ -75,3 +75,39 @@ exports.classCodeFunction = async () => {
   var r_class_code = `${c_1}${c_2}${c_3}${c_4}`;
   return r_class_code;
 };
+
+exports.getOnlyTime = () => {
+  const actualTime = new Date();
+  const hour = actualTime.getHours();
+  const minute = actualTime.getMinutes();
+  const second = actualTime.getSeconds();
+  const hourC = hour > 9 ? hour : `0${hour}`;
+  const minuteC = minute > 9 ? minute : `0${minute}`;
+  const secondC = second > 9 ? second : `0${second}`;
+  return `${hourC}:${minuteC}:${secondC}`;
+};
+
+exports.getOnlyTimeCompare = (arg1) => {
+  let actualTime = new Date();
+  actualTime.setHours(actualTime.getHours() + 5);
+  actualTime.setMinutes(actualTime.setMinutes() + 30);
+  const hour = actualTime.getHours();
+
+  let arg1Hour = 0;
+  let arg1Minute = +arg1.slice(3, 5);
+  if (arg1.slice(-2) === "Am") {
+    arg1Hour = +arg1.slice(0, 2);
+  } else {
+    arg1Hour = +arg1.slice(0, 2) + 12;
+  }
+
+  if (arg1Hour >= hour) {
+    if (arg1Minute <= actualTime.setMinutes()) {
+      return "Half Present";
+    } else {
+      return "Present";
+    }
+  } else {
+    return "Half Present";
+  }
+};

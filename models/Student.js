@@ -292,33 +292,33 @@ const studentSchema = new mongoose.Schema({
   },
   sportEventCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   admissionRemainFeeCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   admissionPaymentStatus: [
     {
       applicationId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'NewApplication'
+        ref: "NewApplication",
       },
-      status: { type: String, default: 'Pending'},
-      installment: { type: String, default: 'No Installment'},
-      firstInstallment: { type: Number, default: 0},
-      secondInstallment: { type: Number, default: 0},
-      fee: { type: Number, default: 0},
+      status: { type: String, default: "Pending" },
+      installment: { type: String, default: "No Installment" },
+      firstInstallment: { type: Number, default: 0 },
+      secondInstallment: { type: Number, default: 0 },
+      fee: { type: Number, default: 0 },
     },
   ],
   refundAdmission: [
     {
-      refund_status: { type: String, default: 'No Refund' },
+      refund_status: { type: String, default: "No Refund" },
       refund_reason: { type: String },
       refund_amount: { type: Number, default: 0 },
-      refund_on: { type: Date, default: Date.now},  
+      refund_on: { type: Date, default: Date.now },
     },
-  ]
+  ],
 });
 
 const Student = mongoose.model("Student", studentSchema);

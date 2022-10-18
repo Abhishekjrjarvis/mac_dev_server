@@ -74,19 +74,15 @@ exports.classReportSetting = async (req, res) => {
     else
       classes.finalReportsSettings.behaviour =
         classes.finalReportsSettings.behaviour;
-
-    if (req.body?.graceMarks || req.body?.graceMarks === false)
-      classes.finalReportsSettings.graceMarks = req.body?.graceMarks;
-    else
-      classes.finalReportsSettings.graceMarks =
-        classes.finalReportsSettings.graceMarks;
     if (req.body?.gradeMarks || req.body?.gradeMarks === false)
       classes.finalReportsSettings.gradeMarks = req.body?.gradeMarks;
     else
       classes.finalReportsSettings.gradeMarks =
         classes.finalReportsSettings.gradeMarks;
-    classes.finalReportsSettings.aggregatePassingPercentage =
-      req.body?.aggregatePassingPercentage;
+    classes.finalReportsSettings.aggregatePassingPercentage = req.body
+      ?.aggregatePassingPercentage
+      ? req.body?.aggregatePassingPercentage
+      : classes.finalReportsSettings.aggregatePassingPercentage;
     await classes.save();
 
     res.status(200).send({

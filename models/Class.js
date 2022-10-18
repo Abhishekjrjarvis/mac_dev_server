@@ -109,7 +109,6 @@ const classSchema = new mongoose.Schema({
     finalReport: { type: Boolean, default: false },
     attendance: { type: Boolean, default: false },
     behaviour: { type: Boolean, default: false },
-    graceMarks: { type: Boolean, default: false },
     gradeMarks: { type: Boolean, default: false },
     aggregatePassingPercentage: { type: Number, default: 0 },
   },
@@ -119,15 +118,15 @@ const classSchema = new mongoose.Schema({
   },
   boyCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   girlCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   strength: {
     type: Number,
-    default: 0
+    default: 0,
   },
   classStatus: {
     type: String,
@@ -201,6 +200,34 @@ const classSchema = new mongoose.Schema({
     {
       fee: { type: Number, default: 0 },
       feeId: { type: String },
+    },
+  ],
+
+  activeTimeDayWise: [
+    {
+      day: String,
+      from: String,
+      to: String,
+      half: String,
+      createdAt: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
+  activeTimeDateWise: [
+    {
+      day: String,
+      date: {
+        type: Date,
+      },
+      from: String,
+      to: String,
+      half: String,
+      createdAt: {
+        type: Date,
+        default: Date.now,
+      },
     },
   ],
 });

@@ -16,6 +16,8 @@ const { uploadDocFile } = require("../../S3Configuration");
 const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
+const StudentPreviousData = require("../../models/StudentPreviousData");
+
 exports.getClassMaster = async (req, res) => {
   try {
     const classMaster = await ClassMaster.find({
@@ -507,7 +509,22 @@ exports.allExamInStudent = async (req, res) => {
         select: "exams subject",
       })
       .select("studentClass");
+    // if (student.studentClass === null && req.query.previousClass) {
+    //   var classes = await Class.findById(req.query.previousClass)
+    //     .populate({
+    //       path: "exams",
+    //       select: "examName examType examWeight subjects",
+    //     })
+    //     .select("exams subject")
+    //     .lean()
+    //     .exec();
+    // }
+    //   const detailExam =
+    //   student?.studentClass !== null ? student?.studentClass : classes;
+    // const detailSubject =
+    //   student?.studentClass !== null ? student?.studentClass : classes;
     const exams = [];
+
     student?.studentClass?.exams.forEach((exam) => {
       const examObj = {
         _id: exam._id,
@@ -517,7 +534,7 @@ exports.allExamInStudent = async (req, res) => {
         subject: 0,
       };
       exam.subjects?.forEach((sub) => {
-        if (student?.studentClass?.subject.includes(String(sub.subjectId))) {
+        if (detailSubject?.subject.includes(String(sub.subjectId))) {
           examObj.subject = examObj.subject + 1;
         }
       });
@@ -536,9 +553,25 @@ exports.oneExamAllSubjectInStudent = async (req, res) => {
         path: "subjectMarks",
       })
       .select("_id");
-
+    // console.log(student)/;
+    // if (student.subjectMarks?.length <= 0 && req.query.previousYearId)
+    //   var previousYear = await StudentPreviousData.findById(
+    //     req.query.previousYearId
+    //   )
+    //     .populate({
+    //       path: "subjectMarks",
+    //     })
+    //     .select("_id")
+    //     .lean()
+    //     .exec();
+    // console.log(previousYear);
+    // const subjectDeiatl =
+    // !req.query.previousYearId && student.subjectMarks?.length >= 0
+    //   ? student
+    //   : previousYear;
     const subjects = [];
-    student?.subjectMarks.forEach((submarks) => {
+
+    student?.subjectMarks?.forEach((submarks) => {
       submarks.marks.forEach((exammarks) => {
         if (exammarks.examId === req.params.eid) {
           subjects.push({
@@ -684,6 +717,7 @@ exports.oneStudentAllYearAttendance = async (req, res) => {
       path: "studentClass",
       select: "classStartDate",
     });
+    // console.log(student1.studentClass);
     const student = await Student.findById(req.params.sid)
       .populate({
         path: "attendDate",

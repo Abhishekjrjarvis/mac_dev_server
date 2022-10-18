@@ -48,8 +48,8 @@ exports.postWithText = async (req, res) => {
     if (user.userFollowers.length >= 1) {
       if (post.postStatus === "Anyone") {
         user.userFollowers.forEach(async (ele) => {
-          if(ele.userPosts.includes(post._id)){}
-          else{ 
+          if (ele.userPosts.includes(post._id)) {
+          } else {
             ele.userPosts.push(post._id);
             await ele.save();
           }
@@ -59,8 +59,8 @@ exports.postWithText = async (req, res) => {
     }
     if (user.userCircle.length >= 1) {
       user.userCircle.forEach(async (ele) => {
-        if(ele.userPosts.includes(post._id)){}
-        else{
+        if (ele.userPosts.includes(post._id)) {
+        } else {
           ele.userPosts.push(post._id);
           await ele.save();
         }
@@ -150,8 +150,8 @@ exports.postWithImage = async (req, res) => {
     if (user.userFollowers.length >= 1) {
       if (post.postStatus === "Anyone") {
         user.userFollowers.forEach(async (ele) => {
-          if(ele.userPosts.includes(post._id)){}
-          else{
+          if (ele.userPosts.includes(post._id)) {
+          } else {
             ele.userPosts.push(post._id);
             await ele.save();
           }
@@ -161,8 +161,8 @@ exports.postWithImage = async (req, res) => {
     }
     if (user.userCircle.length >= 1) {
       user.userCircle.forEach(async (ele) => {
-        if(ele.userPosts.includes(post._id)){}
-        else{
+        if (ele.userPosts.includes(post._id)) {
+        } else {
           ele.userPosts.push(post._id);
           await ele.save();
         }
@@ -251,8 +251,8 @@ exports.postWithVideo = async (req, res) => {
     if (user.userFollowers.length >= 1) {
       if (post.postStatus === "Anyone") {
         user.userFollowers.forEach(async (ele) => {
-          if(ele.userPosts.includes(post._id)){}
-          else{
+          if (ele.userPosts.includes(post._id)) {
+          } else {
             ele.userPosts.push(post._id);
             await ele.save();
           }
@@ -262,8 +262,8 @@ exports.postWithVideo = async (req, res) => {
     }
     if (user.userCircle.length >= 1) {
       user.userCircle.forEach(async (ele) => {
-        if(ele.userPosts.includes(post._id)){}
-        else{
+        if (ele.userPosts.includes(post._id)) {
+        } else {
           ele.userPosts.push(post._id);
           await ele.save();
         }
@@ -527,26 +527,26 @@ exports.postComment = async (req, res) => {
     await Promise.all([post.save(), comment.save()]);
     var notify = new Notification({});
     var author_user = await User.findOne({ _id: `${post?.author}` });
-    var author_ins = await InstituteAdmin.findOne({_id: `${post.author}`})
-    if(author_user){
-    if (`${comment.author}` === `${author_user?._id}`) {
-      notify.notifyContent = `you shared a new comment`;
-    } else {
-      notify.notifyContent = `${comment.authorName} commented on your post`;
-    }
-    notify.notifySender = req.tokenData?.userId
-      ? req.tokenData.userId
-      : req.tokenData?.insId
-      ? req.tokenData.insId
-      : "";
-    notify.notifyReceiever = author_user?._id;
-    author_user?.uNotify.push(notify._id);
-    notify.user = author_user?._id;
-    if (req?.tokenData?.userId) {
-      notify.notifyByPhoto = req?.tokenData?.userId;
-    } else if (req?.tokenData?.insId) {
-      notify.notifyByInsPhoto = req?.tokenData?.insId;
-    }
+    var author_ins = await InstituteAdmin.findOne({ _id: `${post.author}` });
+    if (author_user) {
+      if (`${comment.author}` === `${author_user?._id}`) {
+        notify.notifyContent = `you shared a new comment`;
+      } else {
+        notify.notifyContent = `${comment.authorName} commented on your post`;
+      }
+      notify.notifySender = req.tokenData?.userId
+        ? req.tokenData.userId
+        : req.tokenData?.insId
+        ? req.tokenData.insId
+        : "";
+      notify.notifyReceiever = author_user?._id;
+      author_user?.uNotify.push(notify._id);
+      notify.user = author_user?._id;
+      if (req?.tokenData?.userId) {
+        notify.notifyByPhoto = req?.tokenData?.userId;
+      } else if (req?.tokenData?.insId) {
+        notify.notifyByInsPhoto = req?.tokenData?.insId;
+      }
       await Promise.all([notify.save(), author_user.save()]);
       if (author_user?.user_comment_notify === "Enable") {
         invokeFirebaseNotification(
@@ -558,8 +558,7 @@ exports.postComment = async (req, res) => {
           post._id
         );
       }
-    }
-    else if(author_ins){
+    } else if (author_ins) {
       if (`${comment.author}` === `${author_ins?._id}`) {
         notify.notifyContent = `you shared a new comment`;
       } else {
@@ -579,14 +578,14 @@ exports.postComment = async (req, res) => {
         notify.notifyByInsPhoto = req?.tokenData?.insId;
       }
       await Promise.all([notify.save(), author_ins.save()]);
-        invokeFirebaseNotification(
-          "Comment",
-          notify,
-          "New Comment",
-          comment.author,
-          author_ins.deviceToken,
-          post._id
-        );
+      invokeFirebaseNotification(
+        "Comment",
+        notify,
+        "New Comment",
+        comment.author,
+        author_ins.deviceToken,
+        post._id
+      );
     }
     res.status(201).send({ message: "comment created", comment });
   } catch (e) {
@@ -640,7 +639,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
           .populate({
             path: "new_application",
             select:
-              "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName",
+              "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName applicationPhoto",
             populate: {
               path: "applicationDepartment",
               select: "dName",
@@ -680,7 +679,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
             .populate({
               path: "new_application",
               select:
-                "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName",
+                "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName applicationPhoto",
               populate: {
                 path: "applicationDepartment",
                 select: "dName",
@@ -720,7 +719,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
             .populate({
               path: "new_application",
               select:
-                "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName",
+                "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName applicationPhoto",
               populate: {
                 path: "applicationDepartment",
                 select: "dName",

@@ -81,10 +81,7 @@ const departmentSchema = new mongoose.Schema({
       ref: "Staff",
     },
   ],
-  staffAttendence: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "StaffAttendence",
-  },
+
   holiday: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -149,6 +146,33 @@ const departmentSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "DisplayPerson",
+    },
+  ],
+  activeTimeDayWise: [
+    {
+      day: String,
+      from: String,
+      to: String,
+      half: String,
+      createdAt: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
+  activeTimeDateWise: [
+    {
+      day: String,
+      date: {
+        type: Date,
+      },
+      from: String,
+      to: String,
+      half: String,
+      createdAt: {
+        type: Date,
+        default: Date.now,
+      },
     },
   ],
 });

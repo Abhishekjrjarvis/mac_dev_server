@@ -7434,7 +7434,42 @@ paths:
       responses:
         "200":
           description: OK
-
+    patch:
+      tags:
+        - Exam Related Api
+      summary: It is update one student marks with answer sheet by subject teacher (Verified)
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is subject Id
+        - in: formData
+          name: file
+          type: file
+          description: upload your user profile image
+        - in: formData
+          name: examId
+          type: string
+          required: true
+          description: Enter a exam id 
+        - in: formData
+          name: studentId
+          type: string
+          required: true
+          description: Enter a student id
+        - in: formData
+          name: obtainMarks
+          type: integer
+          required: true
+          description: Enter a obtain marks of student
+      responses:
+        "200":
+          description: OK
   /api/v1/exam/student/{sid}/allexam:
     get:
       tags:
@@ -14257,6 +14292,343 @@ paths:
               content:
                 type: string
                 description: Enter Detailed Content
+      responses:
+        "200":
+          description: OK
+
+# FOR NEW ATTENDANCE RELATED API
+
+  /api/v1/attendance/class/{cid}/daywise:
+    get:
+      tags:
+        - Student Attendance
+      summary: give day wise details of week (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Class id
+        - in: query
+          name: status
+          type: string
+          description: here pass all week day one by one "Monday"           
+      responses:
+        "200":
+          description: OK  
+    patch:
+      tags:
+        - Student Attendance
+      summary: give day wise details of week (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              day:
+                type: string
+                description: here pass day like "Monday" or "Tuesday"
+                required: true
+              from:
+                type: string
+                description: here pass time like "01:00 Pm"
+                required: true
+              to:
+                type: string
+                description: here pass time like "05:00 Pm"
+                required: true
+              half:
+                type: string
+                description: here pass time like "03:00 Pm"
+                required: true                                
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/attendance/class/{cid}/datewise:
+    get:
+      tags:
+        - Student Attendance
+      summary: give date wise details (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Class id
+        - in: query
+          name: status
+          type: string
+          description: here pass all week day one by one "Monday" 
+        - in: query
+          name: date
+          type: string
+          description: here pass date like 2022-09-23                   
+      responses:
+        "200":
+          description: OK  
+    patch:
+      tags:
+        - Student Attendance
+      summary: give date wise details of week (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              date:
+                type: string
+                description: here pass date like 2022-09-23
+                required: true            
+              day:
+                type: string
+                description: here pass day like "Monday" or "Tuesday"
+                required: true
+              from:
+                type: string
+                description: here pass time like "01:00 Pm"
+                required: true
+              to:
+                type: string
+                description: here pass time like "05:00 Pm"
+                required: true
+              half:
+                type: string
+                description: here pass time like "03:00 Pm"
+                required: true                                
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/attendance/departemnt/{did}/daywise:
+    get:
+      tags:
+        - Staff Attendance
+      summary: give day wise details of week (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is department id
+        - in: query
+          name: status
+          type: string
+          description: here pass all week day one by one "Monday"           
+      responses:
+        "200":
+          description: OK  
+    patch:
+      tags:
+        - Staff Attendance
+      summary: give day wise details of week (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is department Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              day:
+                type: string
+                description: here pass day like "Monday" or "Tuesday"
+                required: true
+              from:
+                type: string
+                description: here pass time like "01:00 Pm"
+                required: true
+              to:
+                type: string
+                description: here pass time like "05:00 Pm"
+                required: true
+              half:
+                type: string
+                description: here pass time like "03:00 Pm"
+                required: true                                
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/attendance/department/{did}/datewise:
+    get:
+      tags:
+        - Staff Attendance
+      summary: give date wise details (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is department id
+        - in: query
+          name: status
+          type: string
+          description: here pass all week day one by one "Monday" 
+        - in: query
+          name: date
+          type: string
+          description: here pass date like 2022-09-23                   
+      responses:
+        "200":
+          description: OK  
+    patch:
+      tags:
+        - Staff Attendance
+      summary: give date wise details of week (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is department Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              date:
+                type: string
+                description: here pass date like 2022-09-23
+                required: true            
+              day:
+                type: string
+                description: here pass day like "Monday" or "Tuesday"
+                required: true
+              from:
+                type: string
+                description: here pass time like "01:00 Pm"
+                required: true
+              to:
+                type: string
+                description: here pass time like "05:00 Pm"
+                required: true
+              half:
+                type: string
+                description: here pass time like "03:00 Pm"
+                required: true                                
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/class/setting/{cid}/report:
+    patch:
+      tags:
+        - Class Related Api
+      summary: give detail of report setting (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              finalReport:
+                type: boolean
+                description: boolean like true or false
+              attendance:
+                type: boolean
+                description: boolean like true or false
+              behaviour:
+                type: boolean
+                description: boolean like true or false
+              gradeMarks:
+                type: boolean
+                description: boolean like true or false
+              aggregatePassingPercentage:
+                type: integer
+                description: here passing percentage
+                                              
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/batch/subject/{sid}/setting:
+    patch:
+      tags:
+        - Subject Related Api
+      summary: It is update subject teacher setting (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is subject Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              setting:
+                type: object
+                description: It is contain all related setting
+                required: true
+                properties:
+                  subjectPassingMarks:
+                    type: integer
+                    description: here enter subject wise passing marks
+                    required: true
       responses:
         "200":
           description: OK

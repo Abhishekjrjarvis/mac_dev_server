@@ -485,7 +485,7 @@ exports.retrieveAdmissionSelectedApplication = async(req, res) =>{
     apply.selectCount += 1
     apply.receievedApplication.splice({
       student: student._id,
-      fee_remain: apply.admissionFee,
+      // fee_remain: apply.admissionFee,
     })
     student.admissionRemainFeeCount += apply.admissionFee
     status.content = `You have been selected for ${apply.applicationName}. Confirm your admission`
@@ -554,6 +554,8 @@ exports.payOfflineAdmissionFee = async(req, res) =>{
   try{
     const { sid, aid } = req.params
     const { amount, tAmount } = req.body
+    var price = parseInt(amount)
+    var tPrice = parseInt(tAmount)
     const apply = await NewApplication.findById({_id: aid})
     const admission = await Admission.findById({_id: `${apply.admissionAdmin}`})
     const institute = await InstituteAdmin.findById({_id: `${admission.institute}`})
@@ -561,51 +563,51 @@ exports.payOfflineAdmissionFee = async(req, res) =>{
     const student = await Student.findById({_id: sid})
     const user = await User.findById({_id: `${student.user}`})
     const status = new Status({})
-    if(amount && amount > apply.admissionFee && finance?._id !== ''){
-      res.status(404).send({ message: 'I think you are lost in this process take a break check finance Or Amount', status: false})
+    if(price && price > apply.admissionFee && finance?._id !== ''){
+      res.status(404).send({ message: 'I think you are lost in this process take a break check finance Or Price', status: false})
     }
     else{
-      if(amount < apply.admissionFee){
+      if(price < apply.admissionFee){
         admission.remainingFee.push(student._id)
         if(student.admissionRemainFeeCount >= apply.admissionFee){
           student.admissionRemainFeeCount -= apply.admissionFee
         }
-        apply.remainingFee += (apply.admissionFee - amount)
-        admission.remainingFeeCount += (apply.admissionFee - amount)
+        apply.remainingFee += (apply.admissionFee - price)
+        admission.remainingFeeCount += (apply.admissionFee - price)
         student.admissionPaymentStatus.push({
           applicationId: apply._id,
           status: 'Pending',
           installment: 'Installment',
-          firstInstallment: amount,
-          secondInstallment: tAmount,
+          firstInstallment: price,
+          secondInstallment: tPrice,
           fee: apply.admissionFee
         })
       }
-      else if(amount == apply.admissionFee){
+      else if(price == apply.admissionFee){
         student.admissionPaymentStatus.push({
           applicationId: apply._id,
           status: 'offline',
           installment: 'No Installment',
-          fee: amount
+          fee: price
         })
         if(student.admissionRemainFeeCount >= apply.admissionFee){
           student.admissionRemainFeeCount -= apply.admissionFee
         }
       }
-      admission.offlineFee += amount
-      apply.collectedFeeCount += amount
-      apply.offlineFee += amount
-      finance.financeAdmissionBalance += amount
-      finance.financeTotalBalance += amount
+      admission.offlineFee += price
+      apply.collectedFeeCount += price
+      apply.offlineFee += price
+      finance.financeAdmissionBalance += price
+      finance.financeTotalBalance += price
       apply.selectedApplication.splice({
         student: student._id,
-        fee_remain: apply.admissionFee,
-      })
+        // fee_remain: apply.admissionFee,
+      }, 1)
       apply.confirmedApplication.push({
         student: student._id,
-        fee_remain: apply.admissionFee >= amount ? apply.admissionFee - amount : 0,
+        fee_remain: apply.admissionFee >= price ? apply.admissionFee - price : 0,
         payment_status: 'offline',
-        paid_status: ((apply.admissionFee - amount) == 0) ? 'Paid' : 'Not Paid'
+        paid_status: ((apply.admissionFee - price) == 0) ? 'Paid' : 'Not Paid'
       })
       apply.confirmCount += 1
       status.content = `Welcome to Institute ${institute.insName}, ${institute.insDistrict}.
@@ -632,6 +634,7 @@ exports.cancelAdmissionApplication = async(req, res) =>{
   try{
     const { sid, aid } = req.params
     const { amount } = req.body
+    var price = parseInt(amount)
     const student = await Student.findById({_id: sid})
     const user = await User.findById({_id: `${student.user}`})
     const apply = await NewApplication.findById({_id: aid}).populate({
@@ -642,33 +645,33 @@ exports.cancelAdmissionApplication = async(req, res) =>{
     const institute = await InstituteAdmin.findById({_id: `${admission.institute}`})
     const finance = await Finance.findById({_id: `${institute.financeDepart[0]}`})
     const aStatus = new Status({})
-    if(amount && amount > apply.admissionFee && amount <= finance.financeTotalBalance && amount <= admission.offlineFee){
+    if(price && price > apply.admissionFee && price <= finance.financeTotalBalance && price <= admission.offlineFee){
       res.status(200).send({ message: 'insufficient Balance in Finance Department to make refund'})
     }
     else{
       apply.cancelCount += 1
-      if(apply.offlineFee >= amount){
-        apply.offlineFee -= amount
+      if(apply.offlineFee >= price){
+        apply.offlineFee -= price
       }
-      if(apply.collectedFeeCount >= amount){
-        apply.collectedFeeCount -= amount
+      if(apply.collectedFeeCount >= price){
+        apply.collectedFeeCount -= price
       }
-      admission.offlineFee -= amount
-      finance.financeAdmissionBalance -= amount
-      finance.financeTotalBalance -= amount
+      admission.offlineFee -= price
+      finance.financeAdmissionBalance -= price
+      finance.financeTotalBalance -= price
       aStatus.content = `Your application for ${apply?.applicationDepartment?.dName} has been rejected. Best Of Luck for next time`
       aStatus.applicationId = apply._id
       user.applicationStatus.push(aStatus._id)
       student.admissionPaymentStatus.splice({
         applicationId: apply._id
       })
-      if(student.admissionRemainFeeCount >= amount){
-        student.admissionRemainFeeCount -= amount
+      if(student.admissionRemainFeeCount >= price){
+        student.admissionRemainFeeCount -= price
       }
       student.refundAdmission.push({
         refund_status: 'Refund',
         refund_reason: 'Cancellation of Admission',
-        refund_amount: amount,
+        refund_amount: price,
       })
       await Promise.all([ apply.save(), student.save(), finance.save(), admission.save(), aStatus.save(), user.save()])
       res.status(200).send({ message: 'Refund & Cancellation of Admission', refund_status: true })
@@ -686,15 +689,15 @@ exports.cancelAdmissionApplication = async(req, res) =>{
         apply.cancelApplication.push({
           student: student._id,
           payment_status: 'Refund',
-          refund_amount: amount
+          refund_amount: price
         })
         await apply.save()
       }
       if(admission?.remainingFee?.length > 0){
         if(admission.remainingFee?.includes(`${student._id}`)){
           admission.remainingFee.pull(student._id)
-          if(admission.remainingFeeCount >= amount){
-            admission.remainingFeeCount -= amount
+          if(admission.remainingFeeCount >= price){
+            admission.remainingFeeCount -= price
           }
         }
         await admission.save()
@@ -755,7 +758,7 @@ exports.retrieveClassAllotQuery = async(req, res) =>{
     const aStatus = new Status({})
     apply.confirmedApplication.splice({
       student: student._id,
-      payment_status: 'offline'
+      // payment_status: 'offline'
     })
     apply.allottedApplication.push({
       student: student._id,
@@ -1002,7 +1005,11 @@ exports.retrieveOneApplicationQuery = async(req, res) =>{
     })
     .populate({
       path: 'admissionAdmin',
-      select: '_id'
+      select: '_id',
+      populate: {
+        path: 'institute',
+        select: 'id'
+      }
     })
     .lean()
     .exec()

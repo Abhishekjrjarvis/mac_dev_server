@@ -134,90 +134,67 @@ exports.getOneFeesDetail = async (req, res) => {
 
 exports.feesPaidByStudent = async (req, res) => {
   try {
-    const { cid, sid, id } = req.params;
-    const student = await Student.findById({ _id: sid });
-    const classes = await Class.findById({_id: cid})
-    const fData = await Fees.findById({ _id: id });
-    if (
-      fData.studentsList.length >= 1 &&
-      fData.studentsList.includes(String(student._id))
-    ) {
-      res.status(200).send({
-        message: `${student.studentFirstName} paid the ${fData.feeName} fee`,
-      });
-    } else {
-      student.studentFee.push(fData._id);
-      fData.feeStatus = "Paid";
-      student.studentPaidFeeCount += fData.feeAmount
-      if(student.studentRemainingFeeCount > 0){
-        student.studentRemainingFeeCount -= fData.feeAmount
-      }
-      // fData.studentsList.push(student._id);
-      // fData.feeStudent = student;
-      student.offlineFeeList.push(fData._id);
-      fData.offlineStudentsList.push(student._id);
-      fData.offlineFee += fData.feeAmount;
-      classes.offlineFeeCollection.push({
-        fee: fData.feeAmount,
-        feeId: fData._id
+    const { cid, id } = req.params;
+    var { offlineQuery, exemptQuery } = req.body
+    var off_status = 'Pending'
+    var exe_status = 'Pending'
+    var classes = await Class.findById({_id: cid})
+    var fData = await Fees.findById({ _id: id });
+    var institute = await InstituteAdmin.findById({_id: `${classes.institute}`})
+    var finance = await Finance.findById({_id: `${institute.financeDepart[0]}`})
+    if(offlineQuery?.length > 0){
+      offlineQuery.forEach(async (off) => {
+        const student = await Student.findById({ _id: `${off}` });
+        if (fData.studentsList.length >= 1 && fData.studentsList.includes(String(student._id))) {
+          
+        } 
+        else {
+          student.studentPaidFeeCount += fData.feeAmount
+          if(student.studentRemainingFeeCount > 0){
+            student.studentRemainingFeeCount -= fData.feeAmount
+          }
+          student.offlineFeeList.push(fData._id);
+          fData.offlineStudentsList.push(student._id);
+          fData.offlineFee += fData.feeAmount;
+          classes.offlineFeeCollection.push({
+            fee: fData.feeAmount,
+            feeId: fData._id
+          })
+          await Promise.all([ student.save(), fData.save(), classes.save()])
+        }
       })
-      await Promise.all([ student.save(), fData.save(), classes.save()])
-      res.status(200).send({
-        message: `${fData.feeName} fee received by ${student.studentFirstName}`,
-      });
+      off_status = 'Done'
+    }
+    if(exemptQuery?.length > 0){
+      exemptQuery.forEach(async (exe) => {
+        const student = await Student.findById({ _id: `${exe}` });
+        if (fData.studentExemptList.length >= 1 && fData.studentExemptList.includes(String(student._id))) {
+        
+        } else {
+          student.studentPaidFeeCount += fData.feeAmount
+          if(student.studentRemainingFeeCount > 0){
+            student.studentRemainingFeeCount -= fData.feeAmount
+          }
+          student.exemptFeeList.push(fData._id);
+          fData.exemptList.push(student._id);
+          classes.exemptFee += fData.feeAmount;
+          finance.financeExemptBalance += fData.feeAmount
+          classes.exemptFeeCollection.push({
+            fee: fData.feeAmount,
+            feeId: fData._id
+          })
+          await Promise.all([ student.save(), fData.save(), classes.save(), finance.save() ])
+        }
+    })
+      exe_status = 'Done'
+    }
+    if(off_status === 'Done' || exe_status === 'Done'){
+      res.status(200).send({ message: 'Wait for Operation Complete', fee_paid_status: true})
+    }
+    else{
+      res.status(404).send({ message: 'No Operation Complete', fee_paid_status: false})
     }
   } catch (e){
-    console.log(e)
-  }
-};
-
-exports.exemptFeesPaidByStudent = async (req, res) => {
-  try {
-    const { cid, sid, id } = req.params;
-    const { status } = req.body;
-    const classes = await Class.findById({ _id: cid });
-    const institute = await InstituteAdmin.findById({_id: `${classes.institute}`})
-    const finance = await Finance.findById({_id: `${institute.financeDepart[0]}`})
-    const student = await Student.findById({ _id: sid });
-    const fData = await Fees.findById({ _id: id });
-    if (
-      fData.studentExemptList.length >= 1 &&
-      fData.studentExemptList.includes(String(student._id))
-    ) {
-      res.status(200).send({
-        message: `${student.studentFirstName} paid the ${fData.feeName} fee (Exempted)`,
-      });
-    } else {
-      try {
-        student.studentExemptFee.push(fData._id);
-        fData.feeStatus = status;
-        student.studentPaidFeeCount += fData.feeAmount
-        if(student.studentRemainingFeeCount > 0){
-          student.studentRemainingFeeCount -= fData.feeAmount
-        }
-        fData.studentExemptList.push(student._id);
-        fData.feeStudent = student;
-        student.exemptFeeList.push(fData._id);
-        fData.exemptList.push(student._id);
-        classes.exemptFee += fData.feeAmount;
-        finance.financeExemptBalance += fData.feeAmount
-        // finance.financeTotalBalance += fData.feeAmount
-        classes.exemptFeeCollection.push({
-          fee: fData.feeAmount,
-          feeId: fData._id
-        })
-        await Promise.all([
-          student.save(),
-          fData.save(),
-          classes.save(),
-          finance.save()
-        ])
-        res.status(200).send({
-          message: `${fData.feeName} fee received by ${student.studentFirstName} (Exempted)`,
-        });
-      } catch {}
-    }
-  } catch(e) {
     console.log(e)
   }
 };

@@ -13,9 +13,9 @@ router.get('/:uid/referral', catchAsync(Extra.retrieveReferralQuery))
 
 router.post('/feedback/user', catchAsync(Extra.retrieveFeedBackUser))
 
-router.post('/bonafide/certificate/:gr', catchAsync(Extra.retrieveBonafideGRNO))
+router.post('/bonafide/certificate/:gr/ins/:id', catchAsync(Extra.retrieveBonafideGRNO))
 
-router.post('/leaving/certificate/:gr', catchAsync(Extra.retrieveLeavingGRNO))
+router.post('/leaving/certificate/:gr/ins/:id', catchAsync(Extra.retrieveLeavingGRNO))
 
 router.get('/:gr/status/:type', catchAsync(Extra.retrieveCertificateStatus))
 

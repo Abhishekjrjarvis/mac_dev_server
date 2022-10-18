@@ -319,6 +319,16 @@ const studentSchema = new mongoose.Schema({
       refund_on: { type: Date, default: Date.now },
     },
   ],
+  certificateBonaFideCopy: {
+    trueCopy: { type: Boolean, default: false},
+    secondCopy: { type: Boolean, default: false},
+    thirdCopy: { type: Boolean, default: false}
+  },
+  certificateLeavingCopy: {
+    trueCopy: { type: Boolean, default: false},
+    secondCopy: { type: Boolean, default: false},
+    thirdCopy: { type: Boolean, default: false}
+  }
 });
 
 const Student = mongoose.model("Student", studentSchema);

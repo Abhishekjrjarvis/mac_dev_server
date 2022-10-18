@@ -1421,6 +1421,54 @@ paths:
         "200":
           description: OK
 
+  /api/v1/user/{uid}/location/permission:
+    patch:
+      tags:
+        - Setting Control API
+      summary: User Location Permission -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: Enter User Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              user_latitude:
+                type: number
+                description: Enter Latitude
+              user_longitude:
+                type: number
+                description: Enter Longitude
+              user_accuracy:
+                type: number
+                description: Enter Accuracy
+              user_speed:
+                type: number
+                description: Enter Speed
+              user_heading:
+                type: number
+                description: Enter Heading
+              user_altitude:
+                type: number
+                description: Enter Altitude
+              user_time:
+                type: string
+                description: Enter Time Stamp
+              user_isMock:
+                type: boolean
+                description: Enter Mocked Content (Boolean)
+      responses:
+        "200":
+          description: OK
+
   /api/v1/ins/{id}/leaving/editable:
     patch:
       tags:

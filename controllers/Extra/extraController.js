@@ -109,10 +109,11 @@ exports.retrieveReferralQuery = async(req, res) => {
 
 exports.retrieveBonafideGRNO = async(req, res) => {
   try{
-    const { gr } = req.params
+    const { gr, id } = req.params
+    var download = true
     const { reason } = req.body
-    const student = await Student.findOne({ studentGRNO: `${gr}`})
-    .select('studentFirstName studentMiddleName studentAdmissionDate studentLastName photoId studentProfilePhoto studentDOB')
+    const student = await Student.findOne({ $and: [{ studentGRNO: `${gr}`}, { institute: id}]})
+    .select('studentFirstName studentMiddleName certificateBonaFideCopy studentAdmissionDate studentLastName photoId studentProfilePhoto studentDOB')
     .populate({
       path: 'studentClass',
       select: 'className'
@@ -128,19 +129,41 @@ exports.retrieveBonafideGRNO = async(req, res) => {
     // const institute = await InstituteAdmin.findById({_id: `${student.institute}`})
     student.studentReason = reason
     student.studentBonaStatus = 'Ready'
+    if(student.certificateBonaFideCopy.trueCopy){
+      if(student.certificateBonaFideCopy.secondCopy){
+        if(student.certificateBonaFideCopy.thirdCopy){
+          download = false
+        }
+        else{
+          student.certificateBonaFideCopy.thirdCopy = true
+          download = true
+        }
+      }
+      else{
+        student.certificateBonaFideCopy.secondCopy = true
+        download = true
+      }
+    }
+    else{
+      student.certificateBonaFideCopy.trueCopy = true
+      download = true
+    }
     await Promise.all([ student.save() ])
-    res.status(200).send({ message: 'Student Bonafide Certificate', student})
+    res.status(200).send({ message: 'Student Bonafide Certificate', student, download})
   }
-  catch{}
+  catch(e){
+    console.log(e)
+  }
 }
 
 
 exports.retrieveLeavingGRNO = async(req, res) => {
   try{
     const { gr } = req.params
+    var download = true
     const { reason, study, previous, behaviour, remark } = req.body
-    const student = await Student.findOne({ studentGRNO: `${gr}`})
-    .select('studentFirstName studentMiddleName studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB')
+    const student = await Student.findOne({ $and: [{ studentGRNO: `${gr}`}, { institute: id} ]})
+    .select('studentFirstName studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB')
     .populate({
       path: 'studentClass',
       select: 'className'
@@ -163,8 +186,27 @@ exports.retrieveLeavingGRNO = async(req, res) => {
     student.studentBookNo = institute.leavingArray.length + 1
     student.studentCertificateNo = institute.leavingArray.length + 1
     student.studentLeavingStatus = 'Ready'
+    if(student.certificateLeavingCopy.trueCopy){
+      if(student.certificateLeavingCopy.secondCopy){
+        if(student.certificateLeavingCopy.thirdCopy){
+          download = false
+        }
+        else{
+          student.certificateLeavingCopy.thirdCopy = true
+          download = true
+        }
+      }
+      else{
+        student.certificateLeavingCopy.secondCopy = true
+        download = true
+      }
+    }
+    else{
+      student.certificateLeavingCopy.trueCopy = true
+      download = true
+    }
     await Promise.all([ student.save(), institute.save() ])
-    res.status(200).send({ message: 'Student Leaving Certificate', student})
+    res.status(200).send({ message: 'Student Leaving Certificate', student, download: download})
   }
   catch(e){
     console.log(e)

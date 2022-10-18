@@ -27,6 +27,10 @@ const batchSchema = new mongoose.Schema({
       ref: "Class",
     },
   ],
+  activeBatch: { 
+    type: String, 
+    default: 'Not Active'
+  },
   exams: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -55,6 +59,18 @@ const batchSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  student_category: {
+    boyCount: { type: Number, default: 0},
+    girlCount: { type: Number, default: 0},
+    otherCount: { type: Number, default: 0},
+    generalCount: { type: Number, default: 0},
+    obcCount: { type: Number, default: 0},
+    scCount: { type: Number, default: 0},
+    stCount: { type: Number, default: 0},
+    ntaCount: { type: Number, default: 0},
+    ntbCount: { type: Number, default: 0},
+    ntcCount: { type: Number, default: 0},
+  }
 });
 
 const Batch = mongoose.model("Batch", batchSchema);

@@ -2,6 +2,8 @@ const Post = require('../../models/Post')
 const Poll = require('../../models/Question/Poll')
 const Income = require('../../models/Income')
 const Expense = require('../../models/Expense')
+const InstituteAdmin = require('../../models/InstituteAdmin')
+const Batch = require('../../models/Batch')
 
 var trendingQuery = (trends, cat) => {
   if(cat !== ''){
@@ -17,32 +19,39 @@ var trendingQuery = (trends, cat) => {
   return trends
 }
 
+var sortRepostUpvote = (rePost) => {
+  return function(f_Re, s_Re) {
+    return (f_Re[rePost]?.upVoteCount < s_Re[rePost]?.upVoteCount) - (f_Re[rePost]?.upVoteCount > s_Re[rePost]?.upVoteCount)
+  };
+}
+
+var sortPollVote = (poll) => {
+  return function(f_Po, s_Po) {
+    return (f_Po[poll]?.total_votes < s_Po[poll]?.total_votes) - (f_Po[poll]?.total_votes > s_Po[poll]?.total_votes)
+  };
+}
+
 exports.retrieveByLearnQuery = async (req, res) => {
     try {
-      var options = { sort: { "upVoteCount": "-1" } }
       const page = req.query.page ? parseInt(req.query.page) : 1;
       const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-      // const category = req.query.filter_by ? req.query.filter_by : "";
       const skip = (page - 1) * limit;
       var post = await Post.find({ postType: 'Repost' })
-        // .sort("-createdAt")
         .limit(limit)
         .skip(skip)
-        .select(
-          "postTitle postText postQuestion isHelpful needCount needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType"
-        )
+        .select("postTitle postText postQuestion isHelpful needCount needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType")
         .populate({
           path: "rePostAnswer",
           populate: {
             path: 'post',
             select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
           },
-          options
         })
         if(post?.length < 1){
             res.status(200).send({ message: 'filter By Learn', filteredLearn: [] })
         }
         else{
+            post.sort(sortRepostUpvote('rePostAnswer'))
             res.status(200).send({ message: 'filter By Learn', filteredLearn: post })
         }
     } catch (e) {
@@ -66,7 +75,6 @@ exports.retrieveByAnswerQuery = async (req, res) => {
           .select(
             "postTitle postText postQuestion isHelpful needCount needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType hash_trend"
           )
-          var data = trendingQuery(post, category)
       }
       else{
         var post = await Post.find({ postType: 'Question' })
@@ -76,12 +84,12 @@ exports.retrieveByAnswerQuery = async (req, res) => {
           .select(
             "postTitle postText postQuestion isHelpful needCount needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType hash_trend"
           )
-        var data = trendingQuery(post, category)
       }
       if(data?.length < 1){
         res.status(200).send({ message: 'filter By Answer', filteredQuestion: [] })
       }
       else{
+          var data = trendingQuery(post, category)
           res.status(200).send({ message: 'filter By Answer', filteredQuestion: data})
       }
         
@@ -94,42 +102,39 @@ exports.retrieveByAnswerQuery = async (req, res) => {
 
 exports.retrieveByParticipateQuery = async (req, res) => {
     try {
-      var options = { sort: { "total_votes": "-1"}}
       const page = req.query.page ? parseInt(req.query.page) : 1;
       const limit = req.query.limit ? parseInt(req.query.limit) : 10;
       const category = req.query.filter_by ? req.query.filter_by : "";
       const skip = (page - 1) * limit;
       if(category !== ''){
         var post = await Post.find({ $and: [{ trend_category: `${category}` }, { postType: 'Poll' }] })
-          // .sort("-createdAt")
           .limit(limit)
           .skip(skip)
           .select(
             "postTitle postText postQuestion isHelpful needCount needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType"
           )
           .populate({
-            path: "poll_query",
-            options
+            path: "poll_query"
           })
       }
       else{
         var post = await Post.find({ postType: 'Poll' })
-        // .sort("-createdAt")
         .limit(limit)
         .skip(skip)
         .select(
           "postTitle postText postQuestion isHelpful needCount needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType"
         )
         .populate({
-          path: "poll_query",
-          options
+          path: "poll_query"
         })
       }
       if(post?.length < 1){
         res.status(200).send({ message: 'filter By Participate', filteredPoll: [] })
       }
       else{
-          res.status(200).send({ message: 'filter By Participate', filteredPoll: post})
+          var order_by_poll = post.sort(sortPollVote('poll_query'))
+          var data = trendingQuery(order_by_poll, category)
+          res.status(200).send({ message: 'filter By Participate', filteredPoll: data})
       }
     } catch (e) {
       console.log(e);
@@ -234,3 +239,116 @@ exports.filterByDateExpenses = async(req, res) => {
   }
 }
 
+exports.retrieveByActiveStudent = async(req, res) => {
+  try{
+    const { id } = req.params
+    const { type, role } = req.query
+    var total = 0
+    var filter_student_gender = {
+      boyCount: 0,
+      girlCount: 0,
+      otherCount: 0
+    }
+    var filter_student_caste = {
+      generalCount: 0,
+      obcCount: 0,
+      scCount: 0,
+      stCount: 0,
+      ntaCount: 0,
+      ntbCount: 0,
+      ntcCount: 0
+    }
+    const filter_ins = await InstituteAdmin.findById({_id: id}).select('batches')
+    if(type === 'Active'){
+      const filter_batch = await Batch.find({ $and: [{ _id: { $in: filter_ins.batches }}, { activeBatch: 'Active' }]})
+      .select('ApproveStudent student_category')
+
+      filter_batch?.forEach((ele) => {
+        total += ele?.ApproveStudent?.length
+        filter_student_gender.boyCount += ele?.student_category?.boyCount
+        filter_student_gender.girlCount += ele?.student_category?.girlCount
+        filter_student_gender.otherCount += ele?.student_category?.otherCount
+        filter_student_caste.generalCount += ele?.student_category?.generalCount
+        filter_student_caste.obcCount += ele?.student_category?.obcCount
+        filter_student_caste.scCount += ele?.student_category?.scCount
+        filter_student_caste.stCount += ele?.student_category?.stCount
+        filter_student_caste.ntaCount += ele?.student_category?.ntaCount
+        filter_student_caste.ntbCount += ele?.student_category?.ntbCount
+        filter_student_caste.ntcCount += ele?.student_category?.ntcCount
+      })
+      if(role === 'Gender'){
+        res.status(200).send({ message: 'Filter Active Batch Student Chart gender', filter_student: filter_student_gender, total: total})
+      }
+      else if(role === 'Caste'){
+        res.status(200).send({ message: 'Filter Active Batch Student Chart caste', filter_student: filter_student_caste, total: total})
+      }
+    }
+    else if(type === 'All'){
+      const filter_batch = await Batch.find({ _id: { $in: filter_ins.batches } })
+      .select('ApproveStudent student_category')
+      filter_batch?.forEach((ele) => {
+        total += ele?.ApproveStudent?.length
+        filter_student_gender.boyCount += ele?.student_category?.boyCount
+        filter_student_gender.girlCount += ele?.student_category?.girlCount
+        filter_student_gender.otherCount += ele?.student_category?.otherCount
+        filter_student_caste.generalCount += ele?.student_category?.generalCount
+        filter_student_caste.obcCount += ele?.student_category?.obcCount
+        filter_student_caste.scCount += ele?.student_category?.scCount
+        filter_student_caste.stCount += ele?.student_category?.stCount
+        filter_student_caste.ntaCount += ele?.student_category?.ntaCount
+        filter_student_caste.ntbCount += ele?.student_category?.ntbCount
+        filter_student_caste.ntcCount += ele?.student_category?.ntcCount
+      })
+      if(role === 'Gender'){
+        res.status(200).send({ message: 'Filter All Batch Student Chart gender', filter_student: filter_student_gender, total: total})
+      }
+      else if(role === 'Caste'){
+        res.status(200).send({ message: 'Filter All Batch Student Chart caste', filter_student: filter_student_caste, total: total})
+      }
+    }
+    else{
+      res.status(404).send({ message: 'Are you looking something else in Data'})
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.retrieveByActiveStaff = async(req, res) => {
+  try{
+    const { id } = req.params
+    const { type, role } = req.query
+    var total = 0
+    if(type === 'All'){
+      const filter_ins = await InstituteAdmin.findById({_id: id}).select('ApproveStaff staff_category')
+      total += filter_ins?.ApproveStaff?.length
+      if(role === 'Gender'){
+        var gender = {
+          boyCount: filter_ins?.staff_category?.boyCount,
+          girlCount: filter_ins?.staff_category?.girlCount,
+          otherCount: filter_ins?.staff_category?.otherCount,
+        }
+        res.status(200).send({ message: 'Filter All Staff Chart Gender', filter_staff: gender, total: total})
+      }
+      else if(role === 'Caste'){
+        var caste = {
+          generalCount: filter_ins?.staff_category?.generalCount,
+          obcCount: filter_ins?.staff_category?.obcCount,
+          scCount: filter_ins?.staff_category?.scCount,
+          stCount: filter_ins?.staff_category?.stCount,
+          ntaCount: filter_ins?.staff_category?.ntaCount,
+          ntbCount: filter_ins?.staff_category?.ntbCount,
+          ntcCount: filter_ins?.staff_category?.ntcCount,
+        }
+        res.status(200).send({ message: 'Filter All Staff Chart Caste', filter_staff: caste, total: total})
+      }
+    }
+    else{
+      res.status(404).send({ message: 'Are you looking something else in Data'})
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}

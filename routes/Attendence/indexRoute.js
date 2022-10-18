@@ -5,7 +5,14 @@ const { isLoggedIn } = require("../../middleware");
 const catchAsync = require("../../Utilities/catchAsync");
 
 //=========ATTENDANCE OF STUDENT=============================
-
+router
+  .route("/class/:cid/daywise")
+  .get(catchAsync(Avail.getClassWeeklyTime))
+  .patch(catchAsync(Avail.addClassWeeklyTime));
+router
+  .route("/class/:cid/datewise")
+  .get(catchAsync(Avail.getClassDateWiseTime))
+  .patch(catchAsync(Avail.addClassDateWiseTime));
 router
   .route("/class/:cid/student/attendance")
   .get(catchAsync(Avail.getAttendClassStudent))
@@ -20,7 +27,14 @@ router.get("/student-calender/:sid", catchAsync(Avail.getAttendStudentById));
 router.get("/student/:sid", catchAsync(Avail.viewClassStudent));
 
 //=========ATTENDANCE OF STAFF================================
-
+router
+  .route("/department/:did/daywise")
+  .get(catchAsync(Avail.addDepartmentWeeklyTime))
+  .patch(catchAsync(Avail.getDepartmentWeeklyTime));
+router
+  .route("/department/:did/datewise")
+  .get(catchAsync(Avail.addDepartmentDateWiseTime))
+  .patch(catchAsync(Avail.getDepartmentDateWiseTime));
 router
   .route("/institute/:id/staff/attendance")
   .get(catchAsync(Avail.getAttendInstituteStaff))
@@ -46,10 +60,6 @@ router.route("/holiday/:did").get(catchAsync(Avail.fetchHoliday));
 
 router.route("/holiday/:hid/delete").get(catchAsync(Avail.delHoliday));
 
-router.get(
-  "/staff/onemonth/:sid",
-  catchAsync(Avail.getAttendStaffByIdForMonth)
-);
 //==============================================================
 
 // // Class Attendence Student Data

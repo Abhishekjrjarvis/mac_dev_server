@@ -45,9 +45,48 @@ exports.classRefreshCode = async (req, res) => {
 exports.classStartDate = async (req, res) => {
   try {
     await Class.findByIdAndUpdate(req.params.cid, req.body);
+    // const classes = await Class.findById(req.params.cid);
     // await classDetail.save();
     res.status(200).send({
       message: "start date of class and settings edited",
+    });
+  } catch {}
+};
+
+exports.classReportSetting = async (req, res) => {
+  try {
+    // await Class.findByIdAndUpdate(req.params.cid, req.body);
+    // console.log(req.body);
+    const classes = await Class.findById(req.params.cid);
+    // console.log(classes.finalReportsSettings);
+    if (req.body?.finalReport || req.body?.finalReport === false)
+      classes.finalReportsSettings.finalReport = req.body?.finalReport;
+    else
+      classes.finalReportsSettings.finalReport =
+        classes.finalReportsSettings.finalReport;
+    if (req.body?.attendance || req.body?.attendance === false)
+      classes.finalReportsSettings.attendance = req.body?.attendance;
+    else
+      classes.finalReportsSettings.attendance =
+        classes.finalReportsSettings.attendance;
+    if (req.body?.behaviour || req.body?.behaviour === false)
+      classes.finalReportsSettings.behaviour = req.body?.behaviour;
+    else
+      classes.finalReportsSettings.behaviour =
+        classes.finalReportsSettings.behaviour;
+    if (req.body?.gradeMarks || req.body?.gradeMarks === false)
+      classes.finalReportsSettings.gradeMarks = req.body?.gradeMarks;
+    else
+      classes.finalReportsSettings.gradeMarks =
+        classes.finalReportsSettings.gradeMarks;
+    classes.finalReportsSettings.aggregatePassingPercentage = req.body
+      ?.aggregatePassingPercentage
+      ? req.body?.aggregatePassingPercentage
+      : classes.finalReportsSettings.aggregatePassingPercentage;
+    await classes.save();
+
+    res.status(200).send({
+      message: "report settings edited",
     });
   } catch {}
 };

@@ -6,13 +6,8 @@ const staffAttendenceDateSchema = new mongoose.Schema({
     required: true,
   },
   staffAttendTime: {
-    type: String,
-    required: true,
+    type: Date,
   },
-  outTime: {
-    type: String,
-  },
-
   presentTotal: {
     type: Number,
     default: 0,
@@ -29,16 +24,32 @@ const staffAttendenceDateSchema = new mongoose.Schema({
   },
   presentStaff: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Staff",
+      staff: { type: mongoose.Schema.Types.ObjectId, ref: "Staff" },
+      inTime: {
+        type: String,
+      },
+      outTime: {
+        type: String,
+      },
+      status: String,
     },
   ],
   absentStaff: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Staff",
+      staff: { type: mongoose.Schema.Types.ObjectId, ref: "Staff" },
+      inTime: {
+        type: String,
+      },
+      outTime: {
+        type: String,
+      },
+      status: String,
     },
   ],
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 const StaffAttendenceDate = mongoose.model(

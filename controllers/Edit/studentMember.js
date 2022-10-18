@@ -170,26 +170,36 @@ exports.getAllPreviousYear = async (req, res) => {
       .select("previousYearData")
       .lean()
       .exec();
-
-    for (let prev of student?.previousYearData) {
-      var previousData = await StudentPreviousData.findById(prev)
+    if (student?.previousYearData?.length > 0) {
+      const previousData = await StudentPreviousData.find({
+        _id: { $in: student?.previousYearData },
+      })
         .populate({
           path: "class",
-          select: "className classTitle",
+          populate: {
+            path: "batch",
+            select: "batchName batchStatus",
+          },
+          select: "className classTitle classStatus batch",
         })
         .populate({
           path: "batch",
-          select: "batchName",
+          select: "batchName batchStatus",
         })
         .sort("-createdAt")
         .select("class batch")
         .lean()
         .exec();
+      res.status(200).send({
+        message: "Student previous year detail all list 👍",
+        previousData,
+      });
+    } else {
+      res.status(200).send({
+        message: "Student previous year detail all list 👍",
+        previousData: [],
+      });
     }
-    res.status(200).send({
-      message: "Student previous year detail all list 👍",
-      previousData,
-    });
   } catch (e) {
     console.log(e);
     res.status(424).send({

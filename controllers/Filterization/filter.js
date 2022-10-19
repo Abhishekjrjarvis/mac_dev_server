@@ -77,7 +77,7 @@ exports.retrieveByAnswerQuery = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "isHelpful needCount needUser isNeed answerCount authorFollowersCount tagPeople answerUpVoteCount isUser isInstitute endUserSave trend_category createdAt postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType hash_trend"
+            "needCount needUser answerCount authorFollowersCount answerUpVoteCount isUser isInstitute endUserSave trend_category createdAt postStatus commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine hash_trend"
           )
       }
       else{
@@ -86,7 +86,7 @@ exports.retrieveByAnswerQuery = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "isHelpful needCount needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute endUserSave trend_category createdAt postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType hash_trend"
+            "needCount needUser answerCount answerUpVoteCount isUser isInstitute endUserSave trend_category createdAt postStatus commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine hash_trend"
           )
       }
       if(data?.length < 1){
@@ -115,7 +115,7 @@ exports.retrieveByParticipateQuery = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "answerCount tagPeople isUser isInstitute authorFollowersCount endUserSave postType trend_category createdAt postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike"
+            "isUser isInstitute authorFollowersCount endUserSave trend_category createdAt postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike"
           )
           .populate({
             path: "poll_query"
@@ -126,7 +126,7 @@ exports.retrieveByParticipateQuery = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "answerCount tagPeople isUser isInstitute endUserSave postType trend_category createdAt postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike"
+          "isUser isInstitute endUserSave trend_category createdAt postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike"
         )
         .populate({
           path: "poll_query"

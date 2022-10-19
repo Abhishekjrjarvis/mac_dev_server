@@ -5,11 +5,12 @@ const InstituteAdmin = require('../../models/InstituteAdmin')
 const Batch = require('../../models/Batch')
 const User = require('../../models/User')
 
+// for ${ele.trend_category}
 var trendingQuery = (trends, cat) => {
   if(cat !== ''){
     trends.forEach((ele, index) => {
       if(index > 2) return 
-      ele.hash_trend = `#${index + 1} on trending for ${ele.trend_category}`
+      ele.hash_trend = `#${index + 1} on trending `
     })
   }
   else{

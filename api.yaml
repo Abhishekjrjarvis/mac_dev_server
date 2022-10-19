@@ -1490,7 +1490,7 @@ paths:
             type: object
             properties:
               comment_turned:
-                type: number
+                type: string
                 description: Enter ("On" || "Off")
       responses:
         "200":

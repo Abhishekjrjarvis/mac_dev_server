@@ -759,7 +759,7 @@ exports.retrieveClassAllotQuery = async(req, res) =>{
     apply.confirmedApplication.splice({
       student: student._id,
       // payment_status: 'offline'
-    })
+    }, 1)
     apply.allottedApplication.push({
       student: student._id,
       payment_status: 'offline',

@@ -134,7 +134,7 @@ exports.retrieveByParticipateQuery = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "isUser isInstitute answerCount endUserSave trend_category createdAt postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike"
+          "isUser isInstitute answerCount authorFollowersCount endUserSave trend_category createdAt postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike"
         )
         .populate({
           path: "poll_query"

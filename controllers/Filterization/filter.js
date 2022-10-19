@@ -5,8 +5,7 @@ const InstituteAdmin = require('../../models/InstituteAdmin')
 const Batch = require('../../models/Batch')
 const User = require('../../models/User')
 
-// for ${ele.trend_category}
-var trendingQuery = (trends, cat) => {
+var trendingQuery = (trends, cat, type) => {
   if(cat !== ''){
     trends.forEach((ele, index) => {
       if(index > 2) return 
@@ -14,10 +13,17 @@ var trendingQuery = (trends, cat) => {
     })
   }
   else{
-    trends.forEach((ele, index) => {
-      if(index > 2) return 
-      ele.hash_trend = `#${index + 1} on trending`
-    })
+    if(type === 'Repost'){
+      trends.forEach((ele, index) => {
+        if(index > 2) return 
+        ele.hash_trend = `#${index + 1} on trending`
+      })
+    }
+    else{
+      trends.forEach((ele, index) => {
+        ele.hash_trend = `#${index + 1} on trending for ${ele.trend_category}`
+      })
+    }
   }
   return trends
 }
@@ -33,6 +39,7 @@ var sortPollVote = (poll) => {
     return (f_Po[poll]?.total_votes < s_Po[poll]?.total_votes) - (f_Po[poll]?.total_votes > s_Po[poll]?.total_votes)
   };
 }
+
 
 exports.retrieveByLearnQuery = async (req, res) => {
     try {
@@ -56,7 +63,7 @@ exports.retrieveByLearnQuery = async (req, res) => {
         }
         else{
             var order_by_learn = post.sort(sortRepostUpvote('rePostAnswer'))
-            var learn_data = trendingQuery(order_by_learn, category)
+            var learn_data = trendingQuery(order_by_learn, category, 'Repost')
             res.status(200).send({ message: 'filter By Learn', filteredLearn: learn_data })
         }
     } catch (e) {
@@ -94,7 +101,7 @@ exports.retrieveByAnswerQuery = async (req, res) => {
         res.status(200).send({ message: 'filter By Answer', filteredQuestion: [] })
       }
       else{
-          var data = trendingQuery(post, category)
+          var data = trendingQuery(post, category, 'Question')
           res.status(200).send({ message: 'filter By Answer', filteredQuestion: data})
       }
         
@@ -116,7 +123,7 @@ exports.retrieveByParticipateQuery = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "isUser isInstitute authorFollowersCount endUserSave trend_category createdAt postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike"
+            "isUser isInstitute answerCount authorFollowersCount endUserSave trend_category createdAt postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike"
           )
           .populate({
             path: "poll_query"
@@ -127,7 +134,7 @@ exports.retrieveByParticipateQuery = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "isUser isInstitute endUserSave trend_category createdAt postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike"
+          "isUser isInstitute answerCount endUserSave trend_category createdAt postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike"
         )
         .populate({
           path: "poll_query"
@@ -138,7 +145,7 @@ exports.retrieveByParticipateQuery = async (req, res) => {
       }
       else{
           var order_by_poll = post.sort(sortPollVote('poll_query'))
-          var data = trendingQuery(order_by_poll, category)
+          var data = trendingQuery(order_by_poll, category, 'Poll')
           res.status(200).send({ message: 'filter By Participate', filteredPoll: data})
       }
     } catch (e) {

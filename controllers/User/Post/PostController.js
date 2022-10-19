@@ -644,10 +644,6 @@ exports.retrieveAllUserPosts = async (req, res) => {
             populate: {
               path: "applicationDepartment",
               select: "dName",
-              populate: {
-                path: 'institute',
-                select: '_id'
-              }
             },
           });
       } else {
@@ -688,10 +684,6 @@ exports.retrieveAllUserPosts = async (req, res) => {
               populate: {
                 path: "applicationDepartment",
                 select: "dName",
-                populate: {
-                  path: 'institute',
-                  select: '_id'
-                }
               },
             });
         }
@@ -732,10 +724,6 @@ exports.retrieveAllUserPosts = async (req, res) => {
               populate: {
                 path: "applicationDepartment",
                 select: "dName",
-                populate: {
-                  path: 'institute',
-                  select: '_id'
-                }
               },
             });
         }
@@ -802,10 +790,6 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
             populate: {
               path: "applicationDepartment",
               select: "dName",
-              populate: {
-                path: 'institute',
-                select: '_id'
-              }
             },
           });
       } else {
@@ -842,10 +826,6 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
             populate: {
               path: "applicationDepartment",
               select: "dName",
-              populate: {
-                path: 'institute',
-                select: '_id'
-              }
             },
           });
       }
@@ -1135,10 +1115,6 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
           populate: {
             path: "applicationDepartment",
             select: "dName",
-            populate: {
-              path: 'institute',
-              select: '_id'
-            }
           },
         });
       const postCount = await Post.find({ _id: { $in: user.user_saved_post } });
@@ -1205,10 +1181,6 @@ exports.retrieveAllUserTagPosts = async (req, res) => {
           populate: {
             path: "applicationDepartment",
             select: "dName",
-            populate: {
-              path: 'institute',
-              select: '_id'
-            }
           },
         });
       const postCount = await Post.find({ _id: { $in: user.tag_post } });
@@ -1270,10 +1242,6 @@ exports.retrieveAllUserReposts = async (req, res) => {
         populate: {
           path: "applicationDepartment",
           select: "dName",
-          populate: {
-            path: 'institute',
-            select: '_id'
-          }
         },
       });
 

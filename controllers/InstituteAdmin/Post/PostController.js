@@ -843,10 +843,6 @@ exports.retrieveAllPosts = async (req, res) => {
             populate: {
               path: "applicationDepartment",
               select: "dName",
-              populate: {
-                path: 'institute',
-                select: '_id'
-              }
             },
           });
       } else {
@@ -869,10 +865,6 @@ exports.retrieveAllPosts = async (req, res) => {
             populate: {
               path: "applicationDepartment",
               select: "dName",
-              populate: {
-                path: 'institute',
-                select: '_id'
-              }
             },
           });
       }
@@ -923,10 +915,6 @@ exports.retreiveAllProfilePosts = async (req, res) => {
         populate: {
           path: "applicationDepartment",
           select: "dName",
-          populate: {
-            path: 'institute',
-            select: '_id'
-          }
         },
       });
     if (institute && institute.posts.length >= 1) {
@@ -1231,10 +1219,6 @@ exports.retrieveSavedAllPosts = async (req, res) => {
           populate: {
             path: "applicationDepartment",
             select: "dName",
-            populate: {
-              path: 'institute',
-              select: '_id'
-            }
           },
         });
       if (institute.institute_saved_post.length >= 1) {
@@ -1289,10 +1273,6 @@ exports.retrieveTagAllPosts = async (req, res) => {
           populate: {
             path: "applicationDepartment",
             select: "dName",
-            populate: {
-              path: 'institute',
-              select: '_id'
-            }
           },
         });
       if (institute.tag_post.length >= 1) {

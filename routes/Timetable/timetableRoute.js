@@ -6,12 +6,12 @@ const catchAsync = require("../../Utilities/catchAsync");
 router
   .route("/:cid/day/timetable")
   .get(catchAsync(timetable.getDayWiseSchedule))
-  .post(catchAsync(timetable.addDayWiseSchedule));
+  .patch(catchAsync(timetable.addDayWiseSchedule));
 
 router
   .route("/:cid/date/timetable")
   .get(catchAsync(timetable.getDateWiseSchedule))
-  .post(catchAsync(timetable.addDateWiseSchedule));
+  .patch(catchAsync(timetable.addDateWiseSchedule));
 
 router
   .route("/staff/:sid/schedule")

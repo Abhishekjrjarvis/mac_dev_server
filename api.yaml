@@ -14429,7 +14429,7 @@ paths:
           description: OK
 
 
-  /api/v1/attendance/departemnt/{did}/daywise:
+  /api/v1/attendance/department/{did}/daywise:
     get:
       tags:
         - Staff Attendance
@@ -14632,3 +14632,301 @@ paths:
       responses:
         "200":
           description: OK
+
+
+# FOR TIMETABLE OF CLASS
+  /api/v1/timetable/{cid}/day/timetable:
+    get:
+      tags:
+        - Time Table Related API
+      summary: give day wise time table schedule (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class id
+        - in: query
+          name: status
+          type: string
+          description: here pass all week day one by one "Monday"           
+      responses:
+        "200":
+          description: OK  
+    patch:
+      tags:
+        - Time Table Related API
+      summary: Add day wise schedule of week (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              day:
+                type: string
+                description: here pass day like "Monday" or "Tuesday"
+                required: true
+              from:
+                type: string
+                description: here pass time like "01:00 Pm"
+                required: true
+              to:
+                type: string
+                description: here pass time like "05:00 Pm"
+                required: true
+              subjectId:
+                type: string
+                description: pass subject Id
+                required: true                                
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/timetable/{cid}/date/timetable:
+    get:
+      tags:
+        - Time Table Related API
+      summary: give date wise time table schedule (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class id
+        - in: query
+          name: status
+          type: string
+          description: here pass all week day one by one "Monday" 
+        - in: query
+          name: date
+          type: string
+          description: here pass date like 2022-09-19                   
+      responses:
+        "200":
+          description: OK  
+    patch:
+      tags:
+        - Time Table Related API
+      summary: Change date wise schedule of week (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              date:
+                type: string
+                description: here pass date like 2022-09-23
+                required: true            
+              day:
+                type: string
+                description: here pass day like "Monday" or "Tuesday"
+                required: true
+              from:
+                type: string
+                description: here pass time like "01:00 Pm"
+                required: true
+              to:
+                type: string
+                description: here pass time like "05:00 Pm"
+                required: true
+              subjectId:
+                type: string
+                description: pass subject Id
+                required: true                                
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/timetable/staff/{sid}/schedule:
+    get:
+      tags:
+        - Time Table Related API
+      summary: Give list of schedule in staff that seen by institute (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Staff id
+        - in: query
+          name: status
+          type: string
+          description: here pass all week day one by one "Monday" 
+        - in: query
+          name: date
+          type: string
+          description: here pass date like 2022-09-19                   
+      responses:
+        "200":
+          description: OK  
+    patch:
+      tags:
+        - Time Table Related API
+      summary: Change staff schedule by new staff if that staff is absent or leave (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is staff Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              date:
+                type: string
+                description: here pass date like 2022-09-23
+                required: true            
+              day:
+                type: string
+                description: here pass day like "Monday" or "Tuesday"
+                required: true
+              from:
+                type: string
+                description: here pass time like "01:00 Pm"
+                required: true
+              to:
+                type: string
+                description: here pass time like "05:00 Pm"
+                required: true
+              subjectId:
+                type: string
+                description: pass subject Id
+                required: true  
+              classId:
+                type: string
+                description: pass class Id
+                required: true 
+              replacedStaffId:
+                type: string
+                description: pass new staff Id that is present
+                required: true                                                
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/timetable/institute/{id}/allot/staff:
+    get:
+      tags:
+        - Time Table Related API
+      summary: Give list of staff that is free alloted time => by institute Side (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+        - in: query
+          name: status
+          type: string
+          description: here pass all week day one by one "Monday" 
+        - in: query
+          name: date
+          type: string
+          description: here pass date like 2022-09-19   
+        - in: query
+          name: from
+          type: string
+          description: here pass "04:00 Pm"
+        - in: query
+          name: to
+          type: string
+          description: here pass "05:00 Pm"                           
+      responses:
+        "200":
+          description: OK  
+
+  /api/v1/timetable/staff/{sid}/schedule/list:
+    get:
+      tags:
+        - Time Table Related API
+      summary: Give list of schedule in staff side (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is staff id
+        - in: query
+          name: status
+          type: string
+          description: here pass all week day one by one "Monday" 
+        - in: query
+          name: date
+          type: string
+          description: here pass date like 2022-09-19   
+      responses:
+        "200":
+          description: OK 
+
+  /api/v1/timetable/student/{cid}/schedule/list:
+    get:
+      tags:
+        - Time Table Related API
+      summary: Give list of schedule in student side (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class id
+        - in: query
+          name: status
+          type: string
+          description: here pass all week day one by one "Monday" 
+        - in: query
+          name: date
+          type: string
+          description: here pass date like 2022-09-19   
+      responses:
+        "200":
+          description: OK 

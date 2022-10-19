@@ -14849,3 +14849,141 @@ paths:
       responses:
         "200":
           description: OK
+
+
+# Sport & Arts Module API Documentation
+
+  /api/v1/sport/arts/ins/{id}/staff/{sid}:
+    post:
+      tags:
+        - Sport and Arts Module Query
+      summary: Assign and Activate Sport and Arts Module By The Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id 
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is staff id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/sport/arts/detail/{id}:
+    get:
+      tags:
+        - Sport and Arts Module Query
+      summary: Get Sport Details (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Sport & Arts id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/sport/arts/ins/{id}/sport/{sid}/class:
+    post:
+      tags:
+        - Sport and Arts Module Query
+      summary: Assign and Activate Sport and Arts Module Class By The Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id 
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is staff id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/sport/arts/{sid}/event:
+    post:
+      tags:
+        - Sport and Arts Module Query
+      summary: Create New Event at Sport and Arts (verified)
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Sport & Arts id 
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your event photo
+        - in: formData
+          name: sportEventName
+          type: string
+          required: true
+          description: Enter Your Sport Event Name
+        - in: formData
+          name: sportEventCategory
+          type: string
+          required: true
+          description: Enter Your Sport Event Category
+        - in: formData
+          name: sportEventPlace
+          type: string
+          required: true
+          description: Enter Sport Event Place
+        - in: formData
+          name: sportEventDate
+          type: string
+          required: true
+          description: Enter Sport Event Date
+        - in: formData
+          name: sportEventDescription
+          type: string
+          required: true
+          description: Enter Sport Event Description
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/sport/arts/event/detail/{id}:
+    get:
+      tags:
+        - Sport and Arts Module Query
+      summary: Get Sport Event Details (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Sport Event id 
+      responses:
+        "200":
+          description: OK

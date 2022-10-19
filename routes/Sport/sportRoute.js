@@ -34,8 +34,10 @@ router.patch('/class/info/:cid', catchAsync(Sport.updateSportClassInfo))
 
 // router.post('/class/:cid/student/:id/remove', isLoggedIn, catchAsync(Sport.removeStudentSportClass))
 
+// Create Class Team
 router.post('/class/:cid/team', upload.single('file'), catchAsync(Sport.updateSportTeam))
 
+// Match Detail
 router.get('/match/detail/:mid', catchAsync(Sport.retrieveMatchDetail))
 
 // Update Score of Intra Match (Individual)
@@ -56,10 +58,13 @@ router.post('/match/:mid/update/free', isLoggedIn, catchAsync(Sport.updateIntraM
 // Update Score of Inter Match (Free)
 router.post('/match/:mid/update/inter/free', isLoggedIn, catchAsync(Sport.updateInterMatchFree))
 
+// Event Update
 router.patch('event/:eid/update', catchAsync(Sport.updateEvent))
 
+// Event Match Delete
 router.delete('/event/:eid/match/:mid/delete', catchAsync(Sport.removeMatchEvent))
 
+// Event Delete
 router.delete('/:sid/event/:eid/delete', catchAsync(Sport.removeEvent))
 
 

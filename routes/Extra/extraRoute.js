@@ -25,6 +25,8 @@ router.patch('/:id/privacy/institute/feature', catchAsync(Extra.retrieveInstitut
 
 router.patch('/:uid/update/notification/user', catchAsync(Extra.retrieveUserUpdateNotification))
 
+router.patch('/:pid/comment/feature', catchAsync(Extra.retrieveCommentFeatureQuery))
+
 // router.patch('/:uid/update/notification/ins', catchAsync(Extra.retrieveUserUpdateNotification))
 
 router.get('/:id/merge/staff/student', catchAsync(Extra.retrieveMergeStaffStudent))

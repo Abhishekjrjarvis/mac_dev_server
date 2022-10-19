@@ -77,7 +77,7 @@ exports.retrieveByAnswerQuery = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "needCount needUser answerCount authorFollowersCount answerUpVoteCount isUser isInstitute endUserSave trend_category createdAt postStatus commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine hash_trend"
+            "needCount needUser answerCount postQuestion authorFollowersCount answerUpVoteCount isUser isInstitute endUserSave trend_category createdAt postStatus commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine hash_trend"
           )
       }
       else{
@@ -86,7 +86,7 @@ exports.retrieveByAnswerQuery = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "needCount needUser answerCount answerUpVoteCount isUser isInstitute endUserSave trend_category createdAt postStatus commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine hash_trend"
+            "needCount needUser answerCount postQuestion answerUpVoteCount isUser isInstitute endUserSave trend_category createdAt postStatus commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine hash_trend"
           )
       }
       if(data?.length < 1){

@@ -750,6 +750,7 @@ exports.postComment = async (req, res) => {
   try {
     const { id } = req.params;
     const post = await Post.findById({ _id: id });
+    if(post.comment_turned === 'Off') return res.status(200).send({ message: 'Comments are turned off', off: true})
     const comment = new Comment({ ...req.body });
     if (req.tokenData && req.tokenData.insId) {
       const institute = await InstituteAdmin.findById({

@@ -5,6 +5,7 @@ const FeedBack = require('../../models/Feedbacks/Feedback')
 const Student = require('../../models/Student')
 const Staff = require('../../models/Staff')
 const { shuffleArray } = require('../../Utilities/Shuffle')
+const Post = require('../../models/Post')
 
 exports.validateUserAge = async(req, res) =>{
     try{
@@ -318,6 +319,17 @@ exports.retrieveUserUpdateNotification = async(req, res) =>{
   }
 }
 
+exports.retrieveCommentFeatureQuery = async(req, res) => {
+  try{
+    const { pid } = req.params
+    await Post.findByIdAndUpdate(pid, req.body)
+    res.status(200).send({ message: 'Comments are turned on', on: true})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
 exports.retrieveMergeStaffStudent = async(req, res) => {
   try{
     const page = req.query.page ? parseInt(req.query.page) : 1;
@@ -354,4 +366,5 @@ exports.retrieveMergeStaffStudent = async(req, res) => {
     console.log(e)
   }
 }
+
 

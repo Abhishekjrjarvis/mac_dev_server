@@ -230,6 +230,18 @@ const classSchema = new mongoose.Schema({
       },
     },
   ],
+  timetableDayWise: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ClassTimetable",
+    },
+  ],
+  timetableDateWise: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ClassTimetable",
+    },
+  ],
 });
 
 const Class = mongoose.model("Class", classSchema);

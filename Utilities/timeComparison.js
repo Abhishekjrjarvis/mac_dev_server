@@ -111,3 +111,63 @@ exports.getOnlyTimeCompare = (arg1) => {
     return "Half Present";
   }
 };
+
+exports.offStaffTimetableTimeCompare = (arg1, arg2, arg3, arg4) => {
+  let arg1Hour = 0;
+  let arg1Minute = +arg1.slice(3, 5);
+  if (arg1.slice(-2) === "Am") {
+    arg1Hour = +arg1.slice(0, 2);
+  } else {
+    arg1Hour = +arg1.slice(0, 2) + 12;
+  }
+  let arg2Hour = 0;
+  let arg2Minute = +arg2.slice(3, 5);
+  if (arg2.slice(-2) === "Am") {
+    arg2Hour = +arg2.slice(0, 2);
+  } else {
+    arg2Hour = +arg2.slice(0, 2) + 12;
+  }
+
+  let arg3Hour = 0;
+  let arg3Minute = +arg3.slice(3, 5);
+  if (arg3.slice(-2) === "Am") {
+    arg3Hour = +arg3.slice(0, 2);
+  } else {
+    arg3Hour = +arg3.slice(0, 2) + 12;
+  }
+
+  // let arg4Hour = 0;
+  // // let arg4Minute = +arg4.slice(3, 5);
+  // if (arg4.slice(-2) === "Am") {
+  //   arg4Hour = +arg4.slice(0, 2);
+  // } else {
+  //   arg4Hour = +arg4.slice(0, 2) + 12;
+  // }
+  if (arg1Hour <= arg3Hour && arg3Hour <= arg2Hour) {
+    if (arg3Minute + 10 >= arg2Minute) return false;
+    // console.log("nothing", arg3Minute, arg2Minute);
+    else return true;
+    // console.log("hi", arg1, arg3, arg2);
+  } else {
+    if (arg3Minute - 10 === arg1Minute) return false;
+
+    // console.log("nothing", arg3Minute, arg1Minute);
+  }
+};
+
+exports.staffSideFromTimeComparison = (arg1, arg2) => {
+  let arg1Minute = 0;
+  if (arg1.slice(-2) === "Am") {
+    arg1Minute = +arg1.slice(0, 2) * 60 + +arg1.slice(3, 5);
+  } else {
+    arg1Minute = (+arg1.slice(0, 2) + 12) * 60 + +arg1.slice(3, 5);
+  }
+  let arg2Minute = 0;
+  if (arg1.slice(-2) === "Am") {
+    arg2Minute = +arg2.slice(0, 2) * 60 + +arg2.slice(3, 5);
+  } else {
+    arg2Minute = (+arg2.slice(0, 2) + 12) * 60 + +arg2.slice(3, 5);
+  }
+  if (arg1Minute > arg2Minute) return true;
+  else return false;
+};

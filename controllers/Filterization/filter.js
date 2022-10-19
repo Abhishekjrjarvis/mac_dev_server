@@ -21,7 +21,7 @@ var trendingQuery = (trends, cat, type) => {
     }
     else{
       trends.forEach((ele, index) => {
-        ele.hash_trend = `#${index + 1} on trending for ${ele.trend_category}`
+        ele.hash_trend = `#${index + 1} on trending for ${ele.trend_category?.split("")[0]}`
       })
     }
   }

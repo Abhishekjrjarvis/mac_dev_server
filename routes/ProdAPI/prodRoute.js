@@ -5,5 +5,7 @@ const catchAsync = require("../../Utilities/catchAsync");
 
 router.get('/all/postId', catchAsync(Prod.allPosts))
 router.get('/all/pollId', catchAsync(Prod.allPolls))
+router.get('/all/user', catchAsync(Prod.allUser))
+router.get('/all/institute', catchAsync(Prod.allIns))
 
 module.exports = router

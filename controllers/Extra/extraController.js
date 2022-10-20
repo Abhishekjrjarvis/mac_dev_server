@@ -323,7 +323,7 @@ exports.retrieveCommentFeatureQuery = async(req, res) => {
   try{
     const { pid } = req.params
     await Post.findByIdAndUpdate(pid, req.body)
-    res.status(200).send({ message: 'Comments are turned on', on: true})
+    res.status(200).send({ message: `Comments are turned ${post.comment_turned}`, turned: true})
   }
   catch(e){
     console.log(e)

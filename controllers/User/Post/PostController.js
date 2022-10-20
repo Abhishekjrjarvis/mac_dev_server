@@ -599,6 +599,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const p_types = req.query.p_type ? req.query.p_type : "";
+    const query_search = req.query.search_key ? req.query.search_key : ''
     const id = req.params.id;
     const skip = (page - 1) * limit;
     const user = await User.findById(id).select(
@@ -608,46 +609,8 @@ exports.retrieveAllUserPosts = async (req, res) => {
     //   path: "userPosts",
     // });
     if (user && user.userPosts.length >= 1) {
-      if (p_types !== "") {
-        var post = await Post.find({
-          $and: [{ _id: { $in: user.userPosts } }, { postType: p_types }],
-        })
-          .sort("-createdAt")
-          .limit(limit)
-          .skip(skip)
-          .select(
-            "postTitle postText postQuestion comment_turned isHelpful needCount authorFollowersCount needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType"
-          )
-          .populate({
-            path: "poll_query",
-          })
-          .populate({
-            path: "rePostAnswer",
-            populate: {
-              path: "post",
-              select:
-                "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser answerCount createdAt",
-            },
-          })
-          .populate({
-            path: "needMultiple",
-            select: "username photoId profilePhoto",
-          })
-          .populate({
-            path: "repostMultiple",
-            select: "username photoId profilePhoto",
-          })
-          .populate({
-            path: "new_application",
-            select:
-              "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName applicationPhoto photoId",
-            populate: {
-              path: "applicationDepartment",
-              select: "dName",
-            },
-          });
-      } else {
         //
+      if(query_search.trim() === ''){
         if (user.ageRestrict === "Yes") {
           var post = await Post.find({
             $and: [{ author: { $in: user.userInstituteFollowing } }],
@@ -728,17 +691,112 @@ exports.retrieveAllUserPosts = async (req, res) => {
             });
         }
       }
+      else{
+        if (user.ageRestrict === "Yes") {
+          var post = await Post.find({
+            $and: [{ author: { $in: user.userInstituteFollowing } },
+              { postQuestion: { $regex: query_search, $options: "i" } }
+            ],
+          })
+            .sort("-createdAt")
+            .limit(limit)
+            .skip(skip)
+            .select(
+              "postTitle postText postQuestion comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+            )
+            .populate({
+              path: "poll_query",
+            })
+            .populate({
+              path: "rePostAnswer",
+              populate: {
+                path: "post",
+                select:
+                  "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser answerCount createdAt",
+              },
+            })
+            .populate({
+              path: "needMultiple",
+              select: "username photoId profilePhoto",
+            })
+            .populate({
+              path: "repostMultiple",
+              select: "username photoId profilePhoto",
+            })
+            .populate({
+              path: "new_application",
+              select:
+                "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName applicationPhoto photoId",
+              populate: {
+                path: "applicationDepartment",
+                select: "dName",
+              },
+            });
+        }
+        //
+        else {
+          var post = await Post.find({
+            $and: [{ _id: { $in: user.userPosts } }, 
+              { postQuestion: { $regex: query_search, $options: "i" } }
+            ],
+          })
+            .sort("-createdAt")
+            .limit(limit)
+            .skip(skip)
+            .select(
+              "postTitle postText postQuestion comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+            )
+            .populate({
+              path: "poll_query",
+            })
+            .populate({
+              path: "rePostAnswer",
+              populate: {
+                path: "post",
+                select:
+                  "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser answerCount createdAt",
+              },
+            })
+            .populate({
+              path: "needMultiple",
+              select: "username photoId profilePhoto",
+            })
+            .populate({
+              path: "repostMultiple",
+              select: "username photoId profilePhoto",
+            })
+            .populate({
+              path: "new_application",
+              select:
+                "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName applicationPhoto photoId",
+              populate: {
+                path: "applicationDepartment",
+                select: "dName",
+              },
+            });
+        }
+      }
       const postCount = await Post.find({ _id: { $in: user.userPosts } });
       if (page * limit >= postCount.length) {
       } else {
         var totalPage = page + 1;
       }
+      if(post?.length > 0){
       res.status(200).send({
         message: "Success",
         post,
         postCount: postCount.length,
         totalPage: totalPage,
       });
+      }
+      else{
+        res.status(200).send({
+          message: "Failure",
+          post: [],
+          postCount: 0,
+          totalPage: 0,
+        });
+      }
     }
   } catch (e) {
     console.log(e);
@@ -1320,3 +1378,45 @@ exports.commentReplyDelete = async (req, res) => {
     });
   }
 };
+
+
+
+// if (p_types !== "") {
+//   var post = await Post.find({
+//     $and: [{ _id: { $in: user.userPosts } }, { postType: p_types }],
+//   })
+//     .sort("-createdAt")
+//     .limit(limit)
+//     .skip(skip)
+//     .select(
+//       "postTitle postText postQuestion comment_turned isHelpful needCount authorFollowersCount needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType"
+//     )
+//     .populate({
+//       path: "poll_query",
+//     })
+//     .populate({
+//       path: "rePostAnswer",
+//       populate: {
+//         path: "post",
+//         select:
+//           "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser answerCount createdAt",
+//       },
+//     })
+//     .populate({
+//       path: "needMultiple",
+//       select: "username photoId profilePhoto",
+//     })
+//     .populate({
+//       path: "repostMultiple",
+//       select: "username photoId profilePhoto",
+//     })
+//     .populate({
+//       path: "new_application",
+//       select:
+//         "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName applicationPhoto photoId",
+//       populate: {
+//         path: "applicationDepartment",
+//         select: "dName",
+//       },
+//     });
+// }

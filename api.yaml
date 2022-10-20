@@ -14851,6 +14851,31 @@ paths:
           description: OK
 
 
+# Recommendation API
+  /api/v1/prod/all/recommendation/ins/user/by/{uid}:
+    get:
+      tags:
+        - Recommendation API Query
+      summary: Get Recommended Institute and User (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is User id 
+        - in: query
+          name: expand_search
+          required: false
+          type: number
+          description: Enter a no. in km to expand your network
+      responses:
+        "200":
+          description: OK
+
 # Sport & Arts Module API Documentation
 
   /api/v1/sport/arts/ins/{id}/staff/{sid}:

@@ -164,7 +164,7 @@ const postSchema = new mongoose.Schema({
     ref: 'NewApplication'
   },
   hash_trend: { type: String, default: 'Not on trending' },
-  comment_turned: { type: String, default: 'On' }
+  comment_turned: { type: String, default: 'Off' }
   //
 });
 

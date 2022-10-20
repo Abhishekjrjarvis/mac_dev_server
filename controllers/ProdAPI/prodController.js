@@ -46,7 +46,7 @@ const replaceUser = (user) => {
 exports.allUser = async(req, res) => {
     try{
         const user = await User.find({})
-        .select('id user_latitude user_longitude')
+        .select('id user_latitude user_longitude userInstituteFollowing')
         .lean()
         .exec()
         if(user?.length > 0){

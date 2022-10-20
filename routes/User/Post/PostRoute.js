@@ -9,7 +9,7 @@ const upload = multer({ dest: "uploads/" });
 
 router.get(
   "/:id/all/user/posts",
-  // isLoggedIn,
+  isLoggedIn,
   catchAsync(Post.retrieveAllUserPosts)
 );
 router.get(

@@ -433,6 +433,10 @@ const instituteAdminSchema = new mongoose.Schema({
   ins_isMock: {
     type: Boolean,
   },
+  ins_distance: {
+    type: Number,
+    default: 0
+  },
   one_line_about: {
     type: String,
   },

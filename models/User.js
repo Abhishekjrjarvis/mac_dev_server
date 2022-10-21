@@ -395,6 +395,10 @@ const userSchema = new mongoose.Schema({
   profile_ads_count: {
     type: Number,
     default: 0
+  },
+  show_suggestion: {
+    type: String,
+    default: 'Enable'
   }
 });
 

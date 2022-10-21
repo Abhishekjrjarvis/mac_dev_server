@@ -14708,6 +14708,8 @@ paths:
         "200":
           description: OK
 
+
+
 # FOR TIMETABLE OF CLASS
   /api/v1/timetable/{cid}/day/timetable:
     get:

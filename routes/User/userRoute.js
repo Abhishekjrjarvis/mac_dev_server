@@ -228,5 +228,10 @@ router.get('/staff/:sid/sal/history', catchAsync(User.retrieveStaffSalaryHistory
 
 router.patch("/block/user", isLoggedIn, catchAsync(User.updateUserBlock));
 
+router.patch(
+  "/:uid/location/permission",
+  catchAsync(User.retrieveUserLocationPermission)
+);
+
 
 module.exports = router;

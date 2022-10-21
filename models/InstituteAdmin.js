@@ -131,6 +131,12 @@ const instituteAdminSchema = new mongoose.Schema({
       ref: "Finance",
     },
   ],
+  batches: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Batch'
+    }
+  ],
   admissionDepart: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -512,6 +518,18 @@ const instituteAdminSchema = new mongoose.Schema({
     studentWeight: { type: Boolean, defult: false },
     studentBMI: { type: Boolean, defult: false },
   },
+  staff_category: {
+    boyCount: { type: Number, default: 0},
+    girlCount: { type: Number, default: 0},
+    otherCount: { type: Number, default: 0},
+    generalCount: { type: Number, default: 0},
+    obcCount: { type: Number, default: 0},
+    scCount: { type: Number, default: 0},
+    stCount: { type: Number, default: 0},
+    ntaCount: { type: Number, default: 0},
+    ntbCount: { type: Number, default: 0},
+    ntcCount: { type: Number, default: 0},
+  }
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

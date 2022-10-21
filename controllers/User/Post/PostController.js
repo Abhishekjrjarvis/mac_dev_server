@@ -639,7 +639,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
           .populate({
             path: "new_application",
             select:
-              "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName applicationPhoto",
+              "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName applicationPhoto photoId",
             populate: {
               path: "applicationDepartment",
               select: "dName",
@@ -679,7 +679,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
             .populate({
               path: "new_application",
               select:
-                "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName applicationPhoto",
+                "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName applicationPhoto photoId",
               populate: {
                 path: "applicationDepartment",
                 select: "dName",
@@ -719,7 +719,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
             .populate({
               path: "new_application",
               select:
-                "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName applicationPhoto",
+                "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName applicationPhoto photoId",
               populate: {
                 path: "applicationDepartment",
                 select: "dName",
@@ -785,7 +785,7 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
           .populate({
             path: "new_application",
             select:
-              "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName",
+              "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName applicationPhoto photoId",
             populate: {
               path: "applicationDepartment",
               select: "dName",
@@ -821,7 +821,7 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
           .populate({
             path: "new_application",
             select:
-              "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName",
+              "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName applicationPhoto photoId",
             populate: {
               path: "applicationDepartment",
               select: "dName",
@@ -1110,7 +1110,7 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
         .populate({
           path: "new_application",
           select:
-            "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName",
+            "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName applicationPhoto photoId",
           populate: {
             path: "applicationDepartment",
             select: "dName",
@@ -1176,7 +1176,7 @@ exports.retrieveAllUserTagPosts = async (req, res) => {
         .populate({
           path: "new_application",
           select:
-            "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName",
+            "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName applicationPhoto photoId",
           populate: {
             path: "applicationDepartment",
             select: "dName",
@@ -1237,7 +1237,7 @@ exports.retrieveAllUserReposts = async (req, res) => {
       .populate({
         path: "new_application",
         select:
-          "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName",
+          "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName applicationPhoto photoId",
         populate: {
           path: "applicationDepartment",
           select: "dName",

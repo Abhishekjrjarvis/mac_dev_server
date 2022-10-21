@@ -25,6 +25,7 @@ const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 const { dateTimeSort } = require("../../Utilities/timeComparison");
+const { shuffleArray } = require("../../Utilities/Shuffle");
 
 exports.retrieveProfileData = async (req, res) => {
   try {
@@ -1749,6 +1750,36 @@ exports.retrieveUserLocationPermission = async (req, res) => {
     const user = await User.findByIdAndUpdate(uid, req.body);
     await user.save();
     res.status(200).send({ message: "User Location Permission Updated" });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveUserRoleQuery = async (req, res) => {
+  try {
+    const { uid } = req.params;
+    const user = await User.findById({_id: uid})
+    .select('staff student')
+
+    const staff = await Staff.find({_id: {$in: user?.staff}})
+    .sort('staffDesignationCount')
+    .select('staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto')
+    .populate({
+      path: 'institute',
+      select: 'insName'
+    })
+
+    const student = await Student.find({_id: { $in: user?.student}})
+    .sort('createdAt')
+    .select('studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto')
+    .populate({
+      path: 'institute',
+      select: 'insName'
+    })
+    
+    var mergeArray = [...staff, ...student]
+    var get_array = shuffleArray(mergeArray)
+    res.status(200).send({ message: "User Role for Staff & Student", role_query: get_array });
   } catch (e) {
     console.log(e);
   }

@@ -233,5 +233,7 @@ router.patch(
   catchAsync(User.retrieveUserLocationPermission)
 );
 
+// User Switch Staff & Student
+router.get('/:uid/staff/student/role', catchAsync(User.retrieveUserRoleQuery))
 
 module.exports = router;

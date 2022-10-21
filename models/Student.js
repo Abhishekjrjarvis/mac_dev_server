@@ -111,11 +111,19 @@ const studentSchema = new mongoose.Schema({
       ref: "StudentAssignment",
     },
   ],
-  totalAssigment: {
+  totalAssignment: {
     type: Number,
     default: 0,
   },
-  submittedAssigment: {
+  submittedAssignment: {
+    type: Number,
+    default: 0,
+  },
+  incompletedAssignment: {
+    type: Number,
+    default: 0,
+  },
+  completedAssignment: {
     type: Number,
     default: 0,
   },

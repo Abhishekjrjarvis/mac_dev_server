@@ -14910,7 +14910,7 @@ paths:
         - Time Table Related API
       summary: Give list of schedule in student side (Verified)
       consumes:
-        - application/json
+      - application/json
       produces:
         - application/json
       parameters:

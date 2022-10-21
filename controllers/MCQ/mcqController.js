@@ -826,7 +826,8 @@ exports.createAssignment = async (req, res) => {
     for (let stud of req.body?.students) {
       const stu = await Student.findById(stud);
       const user = await User.findById(`${stu.user}`);
-      stu.totalAssigment += 1;
+      stu.totalAssignment += 1;
+      stu.incompletedAssignment += 1;
       const studentAssignment = new StudentAssignment({
         assignmentName: assignment?.assignmentName,
         student: stu._id,
@@ -1013,13 +1014,27 @@ exports.getOneAssignmentOneStudentCompleteAssignment = async (req, res) => {
         path: "assignments",
         match: { assignment: { $eq: `${req.params.aid}` } },
       })
-      .select("assignments");
-
+      .select(
+        "assignments completedAssignment incompletedAssignment submittedAssignment"
+      );
     const assignment = await StudentAssignment.findById(
       student?.assignments[0]._id
     );
     assignment.assignmentSubmit = req.body.assignmentSubmit;
-    await assignment.save();
+    if (req.body.assignmentSubmit === true) {
+      student.completedAssignment += 1;
+    } else {
+      student.submittedAssignment -= 1;
+      student.incompletedAssignment += 1;
+      assignment.assignmentSubmitRequest = false;
+      const subjectAssignment = await Assignment.findById(
+        assignment.assignment
+      );
+      subjectAssignment.submittedCount -= 1;
+      subjectAssignment.submittedStudent.pull(req.params.sid);
+      await subjectAssignment.save();
+    }
+    await Promise.all([assignment.save(), student.save()]);
     res.status(200).send({
       message: "Assignment complete successfully",
     });
@@ -1033,13 +1048,17 @@ exports.getOneAssignmentOneStudentCompleteAssignment = async (req, res) => {
 exports.getStudentAssignmentCount = async (req, res) => {
   try {
     const student = await Student.findById(req.params.sid)
-      .select("totalAssigment submittedAssigment")
+      .select(
+        "totalAssigment submittedAssigment incompletedAssigment completedAssigment"
+      )
       .lean()
       .exec();
     res.status(200).send({
       message: "assignment count",
       totalAssigment: student.totalAssigment,
       submittedAssigment: student.submittedAssigment,
+      completedAssigment: student.completedAssigment,
+      incompletedAssigment: student.incompletedAssigment,
     });
   } catch (e) {
     console.log(e);
@@ -1177,7 +1196,8 @@ exports.getStudentOneAssignmentSubmit = async (req, res) => {
       }
     }
     const student = await Student.findById(assignment.student);
-    student.submittedAssigment += 1;
+    student.submittedAssignment += 1;
+    student.incompletedAssignment -= 1;
     const subjectAssignment = await Assignment.findById(assignment.assignment);
     subjectAssignment.submittedStudent.push(student._id);
     subjectAssignment.submittedCount += 1;
@@ -1224,5 +1244,3 @@ exports.getStudentOneAssignmentSubmit = async (req, res) => {
     console.log(e);
   }
 };
-
-

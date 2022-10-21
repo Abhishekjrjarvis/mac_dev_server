@@ -104,7 +104,7 @@ exports.recommendedAllIns = async(req, res) =>{
         .select('ins_latitude ins_longitude')
         if(ins?.length > 0){
             ins.forEach((rec) => {
-                if(user?.userInstituteFollowing?.includes(rec?._id)) return
+                // if(user?.userInstituteFollowing?.includes(rec?._id)) return
                 recommend.push(distanceRecommend(user?.user_latitude, user?.user_longitude, rec?.ins_latitude, rec?.ins_longitude, rec?._id, expand)) 
             })
         }
@@ -116,7 +116,6 @@ exports.recommendedAllIns = async(req, res) =>{
             .lean()
             .exec()
             
-            shuffleArray(recommend_ins)
             var refresh_recommend_user = []
             recommend_ins?.forEach((recommend) => {
                 if(recommend?.joinedUserList.includes(user?._id)) return
@@ -130,7 +129,13 @@ exports.recommendedAllIns = async(req, res) =>{
             .lean()
             .exec()
 
-            res.status(200).send({ message: 'Recommended Institute for follow and Joined', recommend_ins_array: recommend_ins, recommend: true, refresh_recommend_user: recommend_user})
+            var rec_user = []
+            recommend_ins?.forEach((rem_rec_red) =>{
+                if(user?.userInstituteFollowing?.includes(rem_rec_red?._id)) return
+                rec_user.push(rem_rec_red)
+            })
+            shuffleArray(rec_user)
+            res.status(200).send({ message: 'Recommended Institute for follow and Joined', recommend_ins_array: rec_user, recommend: true, refresh_recommend_user: recommend_user})
         }
         else{
             res.status(404).send({ message: 'No Recommendation / Suggestion', recommend_ins_array: [], recommend: false})

@@ -535,3 +535,87 @@
 {"level":"info","message":{},"timestamp":"2022-10-21T03:36:48.806Z"}
 {"level":"info","message":"Recommended Institute for follow and Joined","recommend":true,"recommend_ins_array":[{"_id":"6322fd87aa93f2a1fe6eef34","followersCount":0,"insName":"Demo Qviple Institute","joinedUserList":[],"name":"Qviple_demo","one_line_about":"","photoId":"1"},{"_id":"6322fc8daa93f2a1fe6eeeeb","followersCount":0,"insName":"tushar b","joinedUserList":[],"name":"innnss","photoId":"1"}],"refresh_recommend_user":[{"_id":"6322e87daa93f2a1fe6ee748","followerCount":0,"one_line_about":"","photoId":"0","profilePhoto":"2e5c99029b1af7465f9bf4089c046b78","userLegalName":"Roshan Mahato","username":"roshan22"}],"timestamp":"2022-10-21T03:36:49.008Z"}
 {"level":"info","message":"{\"message\":\"Recommended Institute for follow and Joined\",\"recommend_ins_array\":[{\"_id\":\"6322fd87aa93f2a1fe6eef34\",\"insName\":\"Demo Qviple Institute\",\"name\":\"Qviple_demo\",\"joinedUserList\":[],\"followersCount\":0,\"photoId\":\"1\",\"one_line_about\":\"\"},{\"_id\":\"6322fc8daa93f2a1fe6eeeeb\",\"insName\":\"tushar b\",\"name\":\"innnss\",\"joinedUserList\":[],\"followersCount\":0,\"photoId\":\"1\"}],\"recommend\":true,\"refresh_recommend_user\":[{\"_id\":\"6322e87daa93f2a1fe6ee748\",\"username\":\"roshan22\",\"userLegalName\":\"Roshan Mahato\",\"photoId\":\"0\",\"followerCount\":0,\"profilePhoto\":\"2e5c99029b1af7465f9bf4089c046b78\",\"one_line_about\":\"\"}],\"level\":\"info\"}","timestamp":"2022-10-21T03:36:49.010Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:05:24.902Z"}
+{"level":"info","message":"Page Not Found...","timestamp":"2022-10-21T08:05:24.916Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:06:10.827Z"}
+{"level":"info","message":"Page Not Found...","timestamp":"2022-10-21T08:06:10.839Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:07:01.231Z"}
+{"level":"info","message":"Page Not Found...","timestamp":"2022-10-21T08:07:01.242Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:08:43.332Z"}
+{"level":"info","message":"Page Not Found...","timestamp":"2022-10-21T08:08:43.334Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:08:44.487Z"}
+{"level":"info","message":"Page Not Found...","timestamp":"2022-10-21T08:08:44.488Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:08:45.276Z"}
+{"level":"info","message":"Page Not Found...","timestamp":"2022-10-21T08:08:45.277Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:08:45.877Z"}
+{"level":"info","message":"Page Not Found...","timestamp":"2022-10-21T08:08:45.878Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:09:25.184Z"}
+{"level":"info","message":"Page Not Found...","timestamp":"2022-10-21T08:09:25.185Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:10:19.325Z"}
+{"level":"info","message":"Page Not Found...","timestamp":"2022-10-21T08:10:19.327Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:10:35.993Z"}
+{"level":"info","message":"Page Not Found...","timestamp":"2022-10-21T08:10:35.994Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:11:11.784Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:11:26.330Z"}
+{"level":"info","message":"Page Not Found...","timestamp":"2022-10-21T08:11:26.331Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:12:20.783Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:13:34.705Z"}
+{"ads_view_count":0,"level":"info","message":"Get Ready for Reward Based Ads","timestamp":"2022-10-21T08:13:34.808Z"}
+{"level":"info","message":"{\"message\":\"Get Ready for Reward Based Ads\",\"ads_view_count\":0,\"level\":\"info\"}","timestamp":"2022-10-21T08:13:34.810Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:13:47.756Z"}
+{"ads_view_count":1,"level":"info","message":"Get Ready for Reward Based Ads","timestamp":"2022-10-21T08:13:48.026Z"}
+{"level":"info","message":"{\"message\":\"Get Ready for Reward Based Ads\",\"ads_view_count\":1,\"level\":\"info\"}","timestamp":"2022-10-21T08:13:48.027Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:13:52.787Z"}
+{"ads_view_count":12,"level":"info","message":"Get Ready for Reward Based Ads","timestamp":"2022-10-21T08:13:52.874Z"}
+{"level":"info","message":"{\"message\":\"Get Ready for Reward Based Ads\",\"ads_view_count\":12,\"level\":\"info\"}","timestamp":"2022-10-21T08:13:52.875Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:14:02.023Z"}
+{"ads_view_count":123,"level":"info","message":"Get Ready for Reward Based Ads","timestamp":"2022-10-21T08:14:02.252Z"}
+{"level":"info","message":"{\"message\":\"Get Ready for Reward Based Ads\",\"ads_view_count\":123,\"level\":\"info\"}","timestamp":"2022-10-21T08:14:02.254Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:14:37.585Z"}
+{"ads_view_count":126,"level":"info","message":"Get Ready for Reward Based Ads","timestamp":"2022-10-21T08:14:38.110Z"}
+{"level":"info","message":"{\"message\":\"Get Ready for Reward Based Ads\",\"ads_view_count\":126,\"level\":\"info\"}","timestamp":"2022-10-21T08:14:38.114Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:15:50.353Z"}
+{"ads_view_count":3,"level":"info","message":"Get Ready for Reward Based Ads","timestamp":"2022-10-21T08:15:50.464Z"}
+{"level":"info","message":"{\"message\":\"Get Ready for Reward Based Ads\",\"ads_view_count\":3,\"level\":\"info\"}","timestamp":"2022-10-21T08:15:50.466Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:15:57.351Z"}
+{"ads_view_count":4,"level":"info","message":"Get Ready for Reward Based Ads","timestamp":"2022-10-21T08:15:57.438Z"}
+{"level":"info","message":"{\"message\":\"Get Ready for Reward Based Ads\",\"ads_view_count\":4,\"level\":\"info\"}","timestamp":"2022-10-21T08:15:57.439Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:16:01.713Z"}
+{"ads_view_count":9,"level":"info","message":"Get Ready for Reward Based Ads","timestamp":"2022-10-21T08:16:01.797Z"}
+{"level":"info","message":"{\"message\":\"Get Ready for Reward Based Ads\",\"ads_view_count\":9,\"level\":\"info\"}","timestamp":"2022-10-21T08:16:01.798Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:17:00.744Z"}
+{"ads_view_count":1,"level":"info","message":"Get Ready for Reward Based Ads","timestamp":"2022-10-21T08:17:00.927Z"}
+{"level":"info","message":"{\"message\":\"Get Ready for Reward Based Ads\",\"ads_view_count\":1,\"level\":\"info\"}","timestamp":"2022-10-21T08:17:00.928Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:17:01.895Z"}
+{"ads_view_count":2,"level":"info","message":"Get Ready for Reward Based Ads","timestamp":"2022-10-21T08:17:01.978Z"}
+{"level":"info","message":"{\"message\":\"Get Ready for Reward Based Ads\",\"ads_view_count\":2,\"level\":\"info\"}","timestamp":"2022-10-21T08:17:01.979Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:17:02.812Z"}
+{"ads_view_count":3,"level":"info","message":"Get Ready for Reward Based Ads","timestamp":"2022-10-21T08:17:02.894Z"}
+{"level":"info","message":"{\"message\":\"Get Ready for Reward Based Ads\",\"ads_view_count\":3,\"level\":\"info\"}","timestamp":"2022-10-21T08:17:02.896Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:17:03.853Z"}
+{"ads_view_count":4,"level":"info","message":"Get Ready for Reward Based Ads","timestamp":"2022-10-21T08:17:03.941Z"}
+{"level":"info","message":"{\"message\":\"Get Ready for Reward Based Ads\",\"ads_view_count\":4,\"level\":\"info\"}","timestamp":"2022-10-21T08:17:03.942Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:17:04.814Z"}
+{"ads_view_count":5,"level":"info","message":"Get Ready for Reward Based Ads","timestamp":"2022-10-21T08:17:04.896Z"}
+{"level":"info","message":"{\"message\":\"Get Ready for Reward Based Ads\",\"ads_view_count\":5,\"level\":\"info\"}","timestamp":"2022-10-21T08:17:04.897Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:17:23.054Z"}
+{"ads_view_count":0,"level":"info","message":"Get Ready for Reward Based Ads","timestamp":"2022-10-21T08:17:23.244Z"}
+{"level":"info","message":"{\"message\":\"Get Ready for Reward Based Ads\",\"ads_view_count\":0,\"level\":\"info\"}","timestamp":"2022-10-21T08:17:23.245Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:17:32.798Z"}
+{"ads_view_count":1,"level":"info","message":"Get Ready for Reward Based Ads","timestamp":"2022-10-21T08:17:33.011Z"}
+{"level":"info","message":"{\"message\":\"Get Ready for Reward Based Ads\",\"ads_view_count\":1,\"level\":\"info\"}","timestamp":"2022-10-21T08:17:33.012Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:17:33.938Z"}
+{"ads_view_count":2,"level":"info","message":"Get Ready for Reward Based Ads","timestamp":"2022-10-21T08:17:34.020Z"}
+{"level":"info","message":"{\"message\":\"Get Ready for Reward Based Ads\",\"ads_view_count\":2,\"level\":\"info\"}","timestamp":"2022-10-21T08:17:34.022Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:17:34.838Z"}
+{"ads_view_count":3,"level":"info","message":"Get Ready for Reward Based Ads","timestamp":"2022-10-21T08:17:34.923Z"}
+{"level":"info","message":"{\"message\":\"Get Ready for Reward Based Ads\",\"ads_view_count\":3,\"level\":\"info\"}","timestamp":"2022-10-21T08:17:34.924Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:17:35.526Z"}
+{"ads_view_count":4,"level":"info","message":"Get Ready for Reward Based Ads","timestamp":"2022-10-21T08:17:35.609Z"}
+{"level":"info","message":"{\"message\":\"Get Ready for Reward Based Ads\",\"ads_view_count\":4,\"level\":\"info\"}","timestamp":"2022-10-21T08:17:35.610Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:17:36.256Z"}
+{"ads_view_count":5,"level":"info","message":"Get Ready for Reward Based Ads","timestamp":"2022-10-21T08:17:36.342Z"}
+{"level":"info","message":"{\"message\":\"Get Ready for Reward Based Ads\",\"ads_view_count\":5,\"level\":\"info\"}","timestamp":"2022-10-21T08:17:36.343Z"}
+{"level":"info","message":{},"timestamp":"2022-10-21T08:17:40.988Z"}
+{"ads_view_count":0,"level":"info","message":"Get Ready for Reward Based Ads","timestamp":"2022-10-21T08:17:41.187Z"}
+{"level":"info","message":"{\"message\":\"Get Ready for Reward Based Ads\",\"ads_view_count\":0,\"level\":\"info\"}","timestamp":"2022-10-21T08:17:41.189Z"}

@@ -10,5 +10,6 @@ router.get('/all/pollId', isValidKey, catchAsync(Prod.allPolls))
 router.get('/all/user', isValidKey, catchAsync(Prod.allUser))
 router.get('/all/institute', isValidKey, catchAsync(Prod.allIns))
 router.get('/all/recommendation/ins/user/by/:uid', catchAsync(Recommend.recommendedAllIns))
+router.get('/all/profile/:uid/reward/ads', catchAsync(Prod.rewardProfileAdsQuery))
 
 module.exports = router

@@ -472,6 +472,34 @@ exports.updateSportClassInfo = async(req, res) =>{
       }
 }
 
+
+exports.removeStudentSportClass = async(req, res) =>{
+  try {
+      const { cid } = req.params;
+      const { remove } = req.body
+      var classes = await SportClass.findById({ _id: cid });
+      if(remove?.length > 0){
+        for(let i=0; i< remove.length; i++){
+          const student = await Student.findById({ _id: remove[i] });
+          classes.sportStudent.pull(student._id);
+          if(classes?.sportStudentCount > 0){
+            classes.sportStudentCount -= 1
+          }
+          student.sportClass = '';
+          await student.save()
+        }
+        await classes.save()
+        res.status(200).send({ message: "Student Remove from sports class", classes: classes._id, remove: true });
+      }
+      else{
+        res.status(200).send({ message: "No Student from sports class", remove: false });
+      }
+    } catch(e) {
+      console.log(e);
+    }
+}
+
+
 // exports.getStudentSportClass = async(req, res) =>{
 //     try {
 //         const { cid, id } = req.params;

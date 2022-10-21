@@ -14852,7 +14852,7 @@ paths:
 
 
 # Recommendation API
-  /api/v1/prod/all/recommendation/ins/user/by/{uid}:
+  /api/v1/prod/access/all/recommendation/ins/user/by/{uid}:
     get:
       tags:
         - Recommendation API Query
@@ -14872,6 +14872,37 @@ paths:
           required: false
           type: number
           description: Enter a no. in km to expand your network
+      responses:
+        "200":
+          description: OK
+
+
+# Reward Based Ads API
+  /api/v1/prod/access/all/profile/{uid}/reward/ads:
+    get:
+      tags:
+        - Reward Ads API Query
+      summary: Get Ads Profile Count (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is User id 
+        - in: query
+          name: trigger_count
+          required: false
+          type: number
+          description: Enter a no. for profile View Ads
+        - in: query
+          name: ads_display
+          required: false
+          type: string
+          description: Enter a value for stop Ads "Trigger" before 6 times profile Open
       responses:
         "200":
           description: OK
@@ -15009,6 +15040,348 @@ paths:
           required: true
           type: string
           description: This is Sport Event id 
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/sport/arts/class/{cid}/student/add:
+    post:
+      tags:
+        - Sport and Arts Module Query
+      summary: Add Student by Sport class Admin (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              request:
+                type: array
+                description: give the arrays of the Student Id for Sports Class
+                required: true 
+                items:
+                  type: string
+                  description: It is Student Id                                              
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/sport/arts/class/{cid}/student/remove:
+    post:
+      tags:
+        - Sport and Arts Module Query
+      summary: Remove Student by Sport class Admin (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              remove:
+                type: array
+                description: give the arrays of the Student Id for Sports Class
+                required: true 
+                items:
+                  type: string
+                  description: It is Student Id                                              
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/sport/arts/class/detail/{cid}:
+    get:
+      tags:
+        - Sport and Arts Module Query
+      summary: Get Sport Class Details (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Sport Class id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/sport/arts/class/{cid}/team:
+    post:
+      tags:
+        - Sport and Arts Module Query
+      summary: Create New Team at Sport and Arts Class (verified)
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Sport & Arts Class Id
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your event photo
+        - in: formData
+          name: sportClassTeamName
+          type: string
+          required: true
+          description: Enter Sport Class Team Name
+        - in: formData
+          name: captain
+          type: string
+          required: true
+          description: Enter Student Id select captain
+        - in: formData
+          name: request
+          type: array
+          required: true
+          description: Enter Array of Student Id
+          items:
+            type: string
+            description: It is Student Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/sport/arts/event/{eid}/match/intra:
+    post:
+      tags:
+        - Sport and Arts Module Query
+      summary: Add Intra Match at Event (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: This is Sport Event Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              sportEventMatchName:
+                type: string
+                description: Enter Sport Event Match Name
+                required: true 
+              sportEventMatchCategory:
+                type: string
+                description: Enter Sport Event Match Category
+                required: true 
+              sportEventMatchDate:
+                type: string
+                description: Enter Sport Event Match Date
+                required: true 
+              sportEventMatchCategoryLevel:
+                type: string
+                description: Enter Sport Event Match Category Level
+                required: true  
+              sportEventMatchClass:
+                type: string
+                description: Enter Sport Event Match Class Id
+                required: true  
+              sportInPlayer1:
+                type: string
+                description: Enter Sport Event Match Student Id
+                required: false  
+              sportInPlayer2:
+                type: string
+                description: Enter Sport Event Match Student Id
+                required: false 
+              sportTPlayer1:
+                type: string
+                description: Enter Sport Event Match Team Id
+                required: false 
+              sportTPlayer2:
+                type: string
+                description: Enter Sport Event Match Team Id
+                required: false  
+              sportPlayerFree:
+                type: array
+                description: give the arrays of the Student Id for Sports Event
+                required: false
+                items:
+                  type: string
+                  description: It is Student Id                                       
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/sport/arts/event/{eid}/match/inter:
+    post:
+      tags:
+        - Sport and Arts Module Query
+      summary: Add Inter Match at Event (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: This is Sport Event Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              sportEventMatchName:
+                type: string
+                description: Enter Sport Event Match Name
+                required: true 
+              sportEventMatchCategory:
+                type: string
+                description: Enter Sport Event Match Category
+                required: true 
+              sportEventMatchDate:
+                type: string
+                description: Enter Sport Event Match Date
+                required: true 
+              sportEventMatchCategoryLevel:
+                type: string
+                description: Enter Sport Event Match Category Level
+                required: true  
+              sportEventMatchClass:
+                type: string
+                description: Enter Sport Event Match Class Id
+                required: true  
+              sportPlayer:
+                type: string
+                description: Enter Sport Event Match Student Name
+                required: false  
+              sportTeam:
+                type: string
+                description: Enter Sport Event Match Team Name
+                required: false 
+              sportPlayerFree:
+                type: array
+                description: give the arrays of the Student Id for Sports Event
+                required: false
+                items:
+                  type: string
+                  description: It is Student Name                                       
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/sport/arts/match/detail/{mid}:
+    get:
+      tags:
+        - Sport and Arts Module Query
+      summary: Get Sport Event Match Details (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: This is Sport Event Match id 
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/sport/arts/match/{mid}/update/intra/individual:
+    post:
+      tags:
+        - Sport and Arts Module Query
+      summary: Update Sport Event Intra Match Result Update (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: This is Sport Event Match id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              studentWinner:
+                type: string
+                description: This is Sport Winner Student id 
+                required: true 
+              studentRunner:
+                type: string
+                description: This is Sport Runner Student id 
+                required: true 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/sport/arts/match/{mid}/update/inter/individual:
+    post:
+      tags:
+        - Sport and Arts Module Query
+      summary: Update Sport Event Inter Match Result Update (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: This is Sport Event Match id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              studentPlayer:
+                type: string
+                description: This is Sport Student Player Name
+                required: true 
+              studentRankTitle:
+                type: string
+                description: Select "Winner" || "Runner"
+                required: true
+              studentOpponentPlayer:
+                type: string
+                description: This is Sport Student Opponent Player Name
+                required: true  
       responses:
         "200":
           description: OK

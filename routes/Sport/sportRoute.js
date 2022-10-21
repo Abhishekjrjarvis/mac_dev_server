@@ -20,19 +20,19 @@ router.patch('/info/:sid', catchAsync(Sport.updateSportInfo))
 router.get('/event/detail/:id', catchAsync(Sport.retrieveSportEventDetail))
 
 // Add Intra Match to the Event
-router.post('/event/:eid/match', catchAsync(Sport.getIntraMatchEvent))
+router.post('/event/:eid/match/intra', catchAsync(Sport.getIntraMatchEvent))
 
-router.post('/event/:eid/inter/match', catchAsync(Sport.getInterMatchEvent))
+router.post('/event/:eid/match/inter', catchAsync(Sport.getInterMatchEvent))
 
 router.get('/class/detail/:cid', catchAsync(Sport.retrieveSportClassDetail))
 
-router.post('/class/:cid/student', catchAsync(Sport.updateStudentSportClass))
+// Add Student
+router.post('/class/:cid/student/add', catchAsync(Sport.updateStudentSportClass))
+
+// Remove Student
+router.post('/class/:cid/student/remove', catchAsync(Sport.removeStudentSportClass))
 
 router.patch('/class/info/:cid', catchAsync(Sport.updateSportClassInfo))
-
-// router.post('/class/:cid/student/:id/add', isLoggedIn, catchAsync(Sport.getStudentSportClass))
-
-// router.post('/class/:cid/student/:id/remove', isLoggedIn, catchAsync(Sport.removeStudentSportClass))
 
 // Create Class Team
 router.post('/class/:cid/team', upload.single('file'), catchAsync(Sport.updateSportTeam))
@@ -41,19 +41,19 @@ router.post('/class/:cid/team', upload.single('file'), catchAsync(Sport.updateSp
 router.get('/match/detail/:mid', catchAsync(Sport.retrieveMatchDetail))
 
 // Update Score of Intra Match (Individual)
-router.post('/match/:mid/update/individual', catchAsync(Sport.updateIntraMatchIndividual))
+router.post('/match/:mid/update/intra/individual', catchAsync(Sport.updateIntraMatchIndividual))
 
 // Update Score of Inter Match (Individual)
 router.post('/match/:mid/update/inter/individual', isLoggedIn, catchAsync(Sport.updateInterMatchIndividual))
 
 // Update Score of Intra Match (Team)
-router.post('/match/:mid/update/team', isLoggedIn, catchAsync(Sport.updateIntraMatchTeam))
+router.post('/match/:mid/update/intra/team', isLoggedIn, catchAsync(Sport.updateIntraMatchTeam))
 
 // Update Score of Inter Match (Team)
 router.post('/match/:mid/update/inter/team', isLoggedIn, catchAsync(Sport.updateInterMatchTeam))
 
 // Update Score of Intra Match (Free)
-router.post('/match/:mid/update/free', isLoggedIn, catchAsync(Sport.updateIntraMatchFree))
+router.post('/match/:mid/update/intra/free', isLoggedIn, catchAsync(Sport.updateIntraMatchFree))
 
 // Update Score of Inter Match (Free)
 router.post('/match/:mid/update/inter/free', isLoggedIn, catchAsync(Sport.updateInterMatchFree))

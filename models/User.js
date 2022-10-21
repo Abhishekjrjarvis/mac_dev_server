@@ -392,6 +392,10 @@ const userSchema = new mongoose.Schema({
   user_isMock: {
     type: Boolean,
   },
+  profile_ads_count: {
+    type: Number,
+    default: 0
+  }
 });
 
 userSchema.post("findOneAndDelete", async function (doc) {

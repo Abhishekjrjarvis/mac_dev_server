@@ -14978,3 +14978,144 @@ paths:
         "200":
           description: OK 
 
+# Dashboard All Platform Filter API
+
+  /api/v1/feed/filter/by/learn:
+    get:
+      tags:
+        - Platform All Feed Query
+      summary: Get All Learn (Repost) (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: This is page count
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: This is limit count 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/feed/filter/by/answer:
+    get:
+      tags:
+        - Platform All Feed Query
+      summary: Get All Answer (Question) (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: This is page count
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: This is limit count 
+        - in: query
+          name: filter_by
+          required: true
+          type: string
+          description: Filter by Trending Category
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/feed/filter/by/participate:
+    get:
+      tags:
+        - Platform All Feed Query
+      summary: Get All Participate (Poll) (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: This is page count
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: This is limit count 
+        - in: query
+          name: filter_by
+          required: true
+          type: string
+          description: Filter by Trending Category
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/feed/filter/by/{id}/student:
+    get:
+      tags:
+        - Platform All Feed Query
+      summary: Get All Active Batch (Student Chart) - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute Id
+        - in: query
+          name: type
+          required: true
+          type: string
+          description: Type ("All" || "Active") 
+        - in: query
+          name: role
+          required: true
+          type: string
+          description: Type ("Gender" || "Caste") 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/feed/filter/by/{id}/staff:
+    get:
+      tags:
+        - Platform All Feed Query
+      summary: Get All (Staff Chart) - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute Id
+        - in: query
+          name: type
+          required: true
+          type: string
+          description: Type ("All") 
+        - in: query
+          name: role
+          required: true
+          type: string
+          description: Type ("Gender" || "Caste") 
+      responses:
+        "200":
+          description: OK

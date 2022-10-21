@@ -1,20 +1,29 @@
 const Post = require('../../models/Post')
-const Poll = require('../../models/Question/Poll')
 const Income = require('../../models/Income')
 const Expense = require('../../models/Expense')
 const InstituteAdmin = require('../../models/InstituteAdmin')
 const Batch = require('../../models/Batch')
+const User = require('../../models/User')
 
-var trendingQuery = (trends, cat) => {
+var trendingQuery = (trends, cat, type) => {
   if(cat !== ''){
     trends.forEach((ele, index) => {
-      ele.hash_trend = `#${index + 1} on trending for ${ele.trend_category}`
+      if(index > 2) return 
+      ele.hash_trend = `#${index + 1} on trending `
     })
   }
   else{
-    trends.forEach((ele, index) => {
-      ele.hash_trend = `#${index + 1} on trending`
-    })
+    if(type === 'Repost'){
+      trends.forEach((ele, index) => {
+        if(index > 2) return 
+        ele.hash_trend = `#${index + 1} on trending`
+      })
+    }
+    else{
+      trends.forEach((ele, index) => {
+        ele.hash_trend = `#${index + 1} on trending for ${ele.trend_category?.split(" ")[0]}`
+      })
+    }
   }
   return trends
 }
@@ -31,28 +40,31 @@ var sortPollVote = (poll) => {
   };
 }
 
+
 exports.retrieveByLearnQuery = async (req, res) => {
     try {
       const page = req.query.page ? parseInt(req.query.page) : 1;
       const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+      const category = req.query.filter_by ? req.query.filter_by : "";
       const skip = (page - 1) * limit;
       var post = await Post.find({ postType: 'Repost' })
         .limit(limit)
         .skip(skip)
-        .select("postTitle postText postQuestion isHelpful needCount needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType")
+        .select("postQuestion isHelpful answerCount answerUpVoteCount authorFollowersCount isUser isInstitute endUserSave trend_category createdAt postStatus commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine ")
         .populate({
           path: "rePostAnswer",
           populate: {
             path: 'post',
-            select: 'postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser'
+            select: 'postQuestion isUser answerCount'
           },
         })
         if(post?.length < 1){
             res.status(200).send({ message: 'filter By Learn', filteredLearn: [] })
         }
         else{
-            post.sort(sortRepostUpvote('rePostAnswer'))
-            res.status(200).send({ message: 'filter By Learn', filteredLearn: post })
+            var order_by_learn = post.sort(sortRepostUpvote('rePostAnswer'))
+            var learn_data = trendingQuery(order_by_learn, category, 'Repost')
+            res.status(200).send({ message: 'filter By Learn', filteredLearn: learn_data })
         }
     } catch (e) {
       console.log(e);
@@ -73,7 +85,7 @@ exports.retrieveByAnswerQuery = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "postTitle postText postQuestion isHelpful needCount needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType hash_trend"
+            "needCount needUser answerCount postQuestion authorFollowersCount answerUpVoteCount isUser isInstitute endUserSave trend_category createdAt postStatus commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine hash_trend"
           )
       }
       else{
@@ -82,14 +94,14 @@ exports.retrieveByAnswerQuery = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "postTitle postText postQuestion isHelpful needCount needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType hash_trend"
+            "needCount needUser answerCount postQuestion answerUpVoteCount isUser isInstitute endUserSave trend_category createdAt postStatus commentCount author authorName authorUserName authorFollowersCount authorPhotoId authorProfilePhoto authorOneLine hash_trend"
           )
       }
       if(data?.length < 1){
         res.status(200).send({ message: 'filter By Answer', filteredQuestion: [] })
       }
       else{
-          var data = trendingQuery(post, category)
+          var data = trendingQuery(post, category, 'Question')
           res.status(200).send({ message: 'filter By Answer', filteredQuestion: data})
       }
         
@@ -111,7 +123,7 @@ exports.retrieveByParticipateQuery = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "postTitle postText postQuestion isHelpful needCount needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType"
+            "isUser isInstitute answerCount authorFollowersCount postType endUserSave trend_category createdAt postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike"
           )
           .populate({
             path: "poll_query"
@@ -122,7 +134,7 @@ exports.retrieveByParticipateQuery = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "postTitle postText postQuestion isHelpful needCount needUser isNeed answerCount tagPeople answerUpVoteCount isUser isInstitute postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike postType"
+          "isUser isInstitute answerCount authorFollowersCount postType endUserSave trend_category createdAt postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto authorOneLine endUserLike"
         )
         .populate({
           path: "poll_query"
@@ -133,7 +145,7 @@ exports.retrieveByParticipateQuery = async (req, res) => {
       }
       else{
           var order_by_poll = post.sort(sortPollVote('poll_query'))
-          var data = trendingQuery(order_by_poll, category)
+          var data = trendingQuery(order_by_poll, category, 'Poll')
           res.status(200).send({ message: 'filter By Participate', filteredPoll: data})
       }
     } catch (e) {

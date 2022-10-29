@@ -1345,7 +1345,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
       })
       .populate({
         path: "staffSportClass",
-        select: "sportClassEmail sportClassPhoneNumber sportClassAbout",
+        select: "sportClassEmail sportClassPhoneNumber sportClassAbout sportClassName",
         populate: {
           path: 'sportClassHead',
           select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto'

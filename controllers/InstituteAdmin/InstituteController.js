@@ -2226,6 +2226,7 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     student.department = depart._id;
     batch.ApproveStudent.push(student._id);
     student.batches = batch._id;
+    student.batchCount += 1
     notify.notifyContent = `${student.studentFirstName}${
       student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
     } ${student.studentLastName} joined as a Student of Class ${

@@ -1389,9 +1389,10 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
   try {
     const { sid } = req.params;
     if(sid !== ''){
+    var average_points = 0
     const student = await Student.findById({ _id: sid })
       .select(
-        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentReligion studentMotherName studentDOB studentNationality studentMTongue studentCast studentCastCategory studentBirthPlace studentState studentDistrict studentAddress studentPhoneNumber studentParentsName studentParentsPhoneNumber studentAadharCard studentAadharNumber studentDocuments studentGRNO studentStatus studentROLLNO"
+        "studentFirstName studentMiddleName studentLastName batchCount extraPoints photoId studentProfilePhoto studentGender studentReligion studentMotherName studentDOB studentNationality studentMTongue studentCast studentCastCategory studentBirthPlace studentState studentDistrict studentAddress studentPhoneNumber studentParentsName studentParentsPhoneNumber studentAadharCard studentAadharNumber studentDocuments studentGRNO studentStatus studentROLLNO"
       )
       .populate({
         path: "studentClass",
@@ -1409,41 +1410,8 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
         path: "user",
         select: "userLegalName username photoId profilePhoto",
       });
-    // .populate("checklist")
-    // .populate({
-    //   path: "department",
-    //   populate: {
-    //     path: "fees",
-    //   },
-    // })
-    // .populate({
-    //   path: "studentMarks",
-    //   populate: {
-    //     path: "examId",
-    //   },
-    // })
-    // .populate("studentFee")
-    // .populate({
-    //   path: "department",
-    //   populate: {
-    //     path: "checklists",
-    //   },
-    // })
-    // .populate({
-    //   path: "sportEvent",
-    //   populate: {
-    //     path: "sportEventMatch",
-    //     populate: {
-    //       path: "sportEventMatchClass",
-    //       populate: {
-    //         path: "sportStudent",
-    //       },
-    //     },
-    //   },
-    // })
-    // .populate("complaints");
-    // .populate('studentAttendence')
-    res.status(200).send({ message: "Student Designation Data", student });
+    average_points += ((student.extraPoints) / student.batchCount)
+    res.status(200).send({ message: "Student Designation Data", student, average_points });
     }
     else {
       res.status(200).send({ message: 'Need a valid Key Id'})

@@ -67,8 +67,10 @@ router.delete('/event/:eid/match/:mid/delete', catchAsync(Sport.removeMatchEvent
 // Event Delete
 router.delete('/:sid/event/:eid/delete', catchAsync(Sport.removeEvent))
 
+// Student Side Event Rendering
+router.get('/student/event/query/:sid/all', catchAsync(Sport.renderStudentSideEvent))
 
-
-
+// Student Side Event Match Rendering
+router.get('/student/event/query/:sid/all/match/:eid', catchAsync(Sport.renderStudentSideMatch))
 
 module.exports = router

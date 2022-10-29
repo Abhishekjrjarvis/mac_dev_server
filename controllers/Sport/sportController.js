@@ -294,12 +294,30 @@ exports.getIntraMatchEvent = async(req, res) =>{
           const student2 = await Student.findById({ _id: `${sportInPlayer2}` });
           match.sportPlayer1 = student1._id;
           match.sportPlayer2 = student2._id;
-          await match.save();
+          student1.studentSportsEventMatch.push({
+            eventMatch: match._id
+          })
+          student2.studentSportsEventMatch.push({
+            eventMatch: match._id
+          })
+          await Promise.all([ match.save(), student1.save(), student2.save()]);
         } else if (sportTPlayer1 !== "" && sportTPlayer2 !== "") {
           const Team1 = await SportTeam.findById({ _id: `${sportTPlayer1}` });
           const Team2 = await SportTeam.findById({ _id: `${sportTPlayer2}` });
           match.sportTeam1 = Team1._id;
           match.sportTeam2 = Team2._id;
+          Team1.sportTeamStudent?.forEach(async (team_f) => {
+            team_f.studentSportsEventMatch.push({
+              eventMatch: match._id
+            })
+            await team_f.save()
+          })
+          Team2.sportTeamStudent?.forEach(async (team_s) => {
+            team_s.studentSportsEventMatch.push({
+              eventMatch: match._id
+            })
+            await team_s.save()
+          })
           await match.save();
         } else if (sportPlayerFree.length >= 1) {
           for (let i = 0; i < sportPlayerFree.length; i++) {
@@ -308,7 +326,10 @@ exports.getIntraMatchEvent = async(req, res) =>{
             });
             match.sportFreePlayer.push(student._id);
             match.sportFreePlayerCount += 1
-            await match.save();
+            student.studentSportsEventMatch.push({
+              eventMatch: match._id
+            })
+            await Promise.all([ match.save(), student.save() ]);
           }
         }
         const student = await Student.find({ $and: [{institute: `${sport.institute}`}, { studentStatus: 'Approved'}]})
@@ -624,9 +645,9 @@ exports.updateIntraMatchIndividual = async(req, res) =>{
     try {
         const { mid } = req.params;
         const { studentWinner, studentRunner } = req.body;
-        const match = await SportEventMatch.findById({ _id: mid });
-        const student1 = await Student.findById({ _id: `${studentWinner}` });
-        const student2 = await Student.findById({ _id: `${studentRunner}` });
+        var match = await SportEventMatch.findById({ _id: mid });
+        var student1 = await Student.findById({ _id: `${studentWinner}` });
+        var student2 = await Student.findById({ _id: `${studentRunner}` });
         match.sportWinner = student1._id;
         match.sportRunner = student2._id;
         match.matchStatus = "Completed";
@@ -639,7 +660,19 @@ exports.updateIntraMatchIndividual = async(req, res) =>{
           ])
         }
         await match.save();
-        res.status(200).send({ message: "Match Result Updated", match_status: true });
+        res.status(200).send({ message: "Its Party Time Everyone Enjoy...", match_status: true });
+        student1.studentSportsEventMatch?.forEach(async (res) => {
+          if(`${res.eventMatch}` === `${match._id}`){
+            res.rankTitle = 'Winner'
+          }
+        })
+        await student1.save()
+        student2.studentSportsEventMatch?.forEach(async (res) => {
+          if(`${res.eventMatch}` === `${match._id}`){
+            res.rankTitle = 'Runner'
+          }
+        })
+        await student2.save()
       } catch(e) {
         console.log(e);
       }
@@ -649,12 +682,11 @@ exports.updateInterMatchIndividual = async(req, res) =>{
     try {
         const { mid } = req.params;
         const { studentPlayer, studentRankTitle, studentOpponentPlayer } = req.body;
-        const match = await SportEventMatch.findById({ _id: mid });
-        const student = await Student.findById({ _id: `${studentPlayer}` });
+        var match = await SportEventMatch.findById({ _id: mid });
+        var student = await Student.findById({ _id: `${studentPlayer}` });
         match.sportOpponentPlayer = studentOpponentPlayer;
         match.matchStatus = "Completed";
         match.rankMatch = studentRankTitle;
-        student.rankTitle = studentRankTitle;
         if (match.sportEventMatchCategoryLevel === "Final Match") {
           if (studentRankTitle === "Winner") {
             student.extraPoints += 40;
@@ -667,6 +699,12 @@ exports.updateInterMatchIndividual = async(req, res) =>{
           student.save()
         ])
         res.status(200).send({ message: "Inter Match Result Updated", match_status: true });
+        student.studentSportsEventMatch?.forEach(async (res) => {
+          if(`${res.eventMatch}` === `${match._id}`){
+            res.rankTitle = studentRankTitle
+          }
+        })
+        await student.save()
       } catch(e) {
         console.log(e)
       }
@@ -676,11 +714,17 @@ exports.updateIntraMatchTeam = async(req, res) =>{
     try {
         const { mid } = req.params;
         const { teamWinner, teamRunner } = req.body;
-        const match = await SportEventMatch.findById({ _id: mid });
-        const team1 = await SportTeam.findById({ _id: `${teamWinner}` })
-        .populate("sportTeamStudent");
-        const team2 = await SportTeam.findById({ _id: `${teamRunner}` })
-        .populate("sportTeamStudent");
+        var match = await SportEventMatch.findById({ _id: mid });
+        var team1 = await SportTeam.findById({ _id: `${teamWinner}` })
+        .populate({
+          path: 'sportTeamStudent',
+          select: 'studentSportsEventMatch'
+        });
+        var team2 = await SportTeam.findById({ _id: `${teamRunner}` })
+        .populate({
+          path: 'sportTeamStudent',
+          select: 'studentSportsEventMatch'
+        });
         match.sportWinnerTeam = team1._id;
         match.sportRunnerTeam = team2._id;
         match.matchStatus = "Completed";
@@ -704,6 +748,22 @@ exports.updateIntraMatchTeam = async(req, res) =>{
           }
         }
         res.status(200).send({ message: "Intra Team Match Result Updated", match_status: true });
+        team1?.sportTeamStudent?.forEach(async (ele) => {
+          ele.studentSportsEventMatch?.forEach(async (res) => {
+            if(`${res.eventMatch}` === `${match._id}`){
+              res.rankTitle = 'Winner'
+            }
+          })
+          await ele.save()
+        })
+        team2?.sportTeamStudent?.forEach(async (ele) => {
+          ele.studentSportsEventMatch?.forEach(async (res) => {
+            if(`${res.eventMatch}` === `${match._id}`){
+              res.rankTitle = 'Runner'
+            }
+          })
+          await ele.save()
+        })
       } catch(e) {
         console.log(e);
       }
@@ -713,9 +773,12 @@ exports.updateInterMatchTeam = async(req, res) =>{
     try {
         const { mid } = req.params;
         const { teamPlayer, studentRankTitle, teamOpponentPlayer } = req.body;
-        const match = await SportEventMatch.findById({ _id: mid });
-        const team = await SportTeam.findById({ _id: `${teamPlayer}` })
-        .populate("sportTeamStudent");
+        var match = await SportEventMatch.findById({ _id: mid });
+        var team = await SportTeam.findById({ _id: `${teamPlayer}` })
+        .populate({
+          path: 'sportTeamStudent',
+          select: 'studentSportsEventMatch'
+        });
         match.sportOpponentPlayer = teamOpponentPlayer;
         match.matchStatus = "Completed";
         match.rankMatch = studentRankTitle;
@@ -742,6 +805,14 @@ exports.updateInterMatchTeam = async(req, res) =>{
           team.save()
         ])
         res.status(200).send({ message: "Inter Team Match Result Updated", match_status: true });
+        team?.sportTeamStudent?.forEach(async (ele) => {
+          ele.studentSportsEventMatch?.forEach(async (res) => {
+            if(`${res.eventMatch}` === `${match._id}`){
+              res.rankTitle = studentRankTitle
+            }
+          })
+          await ele.save()
+        })
       } catch(e) {
         console.log(e);
       }
@@ -752,8 +823,8 @@ exports.updateIntraMatchFree = async(req, res) =>{
         const { mid } = req.params;
         const { studentWinner, studentRunner, studentParticipants } = req.body;
         var match = await SportEventMatch.findById({ _id: mid });
-        const student1 = await Student.findById({ _id: `${studentWinner}` });
-        const student2 = await Student.findById({ _id: `${studentRunner}` });
+        var student1 = await Student.findById({ _id: `${studentWinner}` });
+        var student2 = await Student.findById({ _id: `${studentRunner}` });
         match.sportWinner = student1._id;
         match.sportRunner = student2._id;
         match.matchStatus = "Completed";
@@ -778,6 +849,28 @@ exports.updateIntraMatchFree = async(req, res) =>{
           }
         }
         res.status(200).send({ message: "Intra Match Free Updated", match_status: true });
+        student1.studentSportsEventMatch?.forEach(async (res) => {
+          if(`${res.eventMatch}` === `${match._id}`){
+            res.rankTitle = 'Winner'
+          }
+        })
+        await student1.save()
+        student2.studentSportsEventMatch?.forEach(async (res) => {
+          if(`${res.eventMatch}` === `${match._id}`){
+            res.rankTitle = 'Runner'
+          }
+        })
+        await student2.save()
+
+        studentParticipants?.forEach(async (ele) => {
+          const student = await Student.findById({_id: ele.studentId})
+          student.studentSportsEventMatch?.forEach(async (res) => {
+            if(`${res.eventMatch}` === `${match._id}`){
+              res.rankTitle = 'Participants'
+            }
+          })
+          await student.save()
+        })
       } catch(e) {
         console.log(e)
       }
@@ -788,11 +881,10 @@ exports.updateInterMatchFree = async(req, res) =>{
         const { mid } = req.params;
         const { studentPlayer, studentRankTitle, studentParticipants, studentOpponentPlayer } = req.body;
         var match = await SportEventMatch.findById({ _id: mid });
-        const student = await Student.findById({ _id: `${studentPlayer}` });
+        var student = await Student.findById({ _id: `${studentPlayer}` });
         match.sportOpponentPlayer = studentOpponentPlayer;
         match.rankMatch = studentRankTitle;
         match.matchStatus = "Completed";
-        student.rankTitle = studentRankTitle;
         if (match.sportEventMatchCategoryLevel === "Final Match") {
           if (studentRankTitle === "Winner") {
             student.extraPoints += 40;
@@ -816,6 +908,12 @@ exports.updateInterMatchFree = async(req, res) =>{
           }
         }
         res.status(200).send({ message: "Intra Match Free Updated", match_status: true });
+        student.studentSportsEventMatch?.forEach(async (res) => {
+          if(`${res.eventMatch}` === `${match._id}`){
+            res.rankTitle = studentRankTitle
+          }
+        })
+        await student.save()
       } catch(e) {
         console.log(e)
       }
@@ -865,5 +963,52 @@ exports.removeEvent = async(req, res) =>{
     //
   } catch(e) {
     console.log(e);
+  }
+}
+
+
+exports.renderStudentSideEvent = async(req, res) =>{
+  try{
+    const { sid } = req.params
+    const student = await Student.findById({_id: sid})
+    .select('_id')
+    .populate({
+      path: 'sportEvent',
+      select: 'sportEventName sportEventStatus sportEventProfilePhoto photoId sportEventDate sportEventCategory sportEventPlace'
+    })
+    .lean()
+    .exec()
+    res.status(200).send({ message: 'Event Detail Query', event_query: student})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.renderStudentSideMatch = async(req, res) =>{
+  try{
+    const { sid, eid } = req.params
+    const student = await Student.findById({_id: sid})
+    .select('_id')
+    .populate({
+      path: 'studentSportsEventMatch',
+      populate: {
+        path: 'eventMatch',
+        populate: {
+          path: 'sportEvent',
+          select: '_id'
+        }
+      }
+    })
+    .lean()
+    .exec()
+
+    var valid_match = student?.studentSportsEventMatch?.filter((val) =>{
+      if(`${val.eventMatch.sportEvent._id}` === `${eid}`) return val
+    })
+    res.status(200).send({ message: 'Match Detail Query', match_query: valid_match })
+  }
+  catch(e){
+    console.log(e)
   }
 }

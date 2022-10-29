@@ -186,12 +186,6 @@ const studentSchema = new mongoose.Schema({
       ref: "Checklist",
     },
   ],
-  sportEvent: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "SportEvent",
-    },
-  ],
   sportClass: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "SportClass",
@@ -200,19 +194,26 @@ const studentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "SportTeam",
   },
-  sportEventMatch: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "SportEventMatch",
-    },
-  ],
-  rankTitle: {
-    type: String,
-  },
   extraPoints: {
     type: Number,
     default: 0,
   },
+  sportEvent: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'SportEvent',
+    }
+  ],
+  studentSportsEventMatch: [
+    {
+      eventMatch: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'SportEventMatch',
+      },
+      rankTitle: { type: String, default: 'Announced to be soon' },
+      updatedAt: { type: Date, default: Date.now },
+    },
+  ],
   complaints: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -222,6 +223,10 @@ const studentSchema = new mongoose.Schema({
   batches: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Batch",
+  },
+  batchCount: {
+    type: Number,
+    default: 0
   },
   studentChecklist: [
     {

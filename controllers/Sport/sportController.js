@@ -443,15 +443,17 @@ exports.updateStudentSportClass = async(req, res) =>{
         const { cid } = req.params;
         const { request } = req.body
         var classes = await SportClass.findById({ _id: cid });
+        var sport_depart = await Sport.findById({_id: `${classes.sportDepartment}`})
         if(request?.length > 0){
           for(let i=0; i< request.length; i++){
             const student = await Student.findById({ _id: request[i] });
             classes.sportStudent.push(student._id);
             classes.sportStudentCount += 1
+            sport_depart.sportMemberCount += 1
             student.sportClass = classes._id;
             await student.save()
           }
-          await classes.save()
+          await Promise.all([ classes.save(), sport_depart.save()])
           res.status(200).send({ message: "Student added to sports class", classes: classes._id, status: true });
         }
         else{
@@ -478,6 +480,7 @@ exports.removeStudentSportClass = async(req, res) =>{
       const { cid } = req.params;
       const { remove } = req.body
       var classes = await SportClass.findById({ _id: cid });
+      var sport_depart = await Sport.findById({_id: `${classes.sportDepartment}`})
       if(remove?.length > 0){
         for(let i=0; i< remove.length; i++){
           const student = await Student.findById({ _id: remove[i] });
@@ -485,10 +488,13 @@ exports.removeStudentSportClass = async(req, res) =>{
           if(classes?.sportStudentCount > 0){
             classes.sportStudentCount -= 1
           }
+          if(sport_depart.sportMemberCount > 0){
+            sport_depart.sportMemberCount -= 1
+          }
           student.sportClass = '';
           await student.save()
         }
-        await classes.save()
+        await Promise.all([ classes.save(), sport_depart.save()])
         res.status(200).send({ message: "Student Remove from sports class", classes: classes._id, remove: true });
       }
       else{

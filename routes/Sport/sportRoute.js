@@ -1,30 +1,38 @@
-const express = require('express')
-const router = express.Router()
-const Sport = require('../../controllers/Sport/sportController')
-const catchAsync = require('../../Utilities/catchAsync')
-const { isLoggedIn, isApproved } = require('../../middleware')
-const multer = require('multer')
+const express = require("express");
+const router = express.Router();
+const Sport = require("../../controllers/Sport/sportController");
+const catchAsync = require("../../Utilities/catchAsync");
+const { isLoggedIn, isApproved } = require("../../middleware");
+const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 
+router.post(
+  "/ins/:id/staff/:sid",
+  isLoggedIn,
+  isApproved,
+  catchAsync(Sport.getSportDepart)
+);
 
-router.post('/ins/:id/staff/:sid', isLoggedIn, isApproved, catchAsync(Sport.getSportDepart))
+router.get("/detail/:id", catchAsync(Sport.retrieveSportDetail));
 
-router.get('/detail/:id', catchAsync(Sport.retrieveSportDetail))
+router.post("/ins/:id/sport/:sid/class", catchAsync(Sport.getSportClass));
 
-router.post('/ins/:id/sport/:sid/class', catchAsync(Sport.getSportClass))
+router.post(
+  "/:sid/event",
+  upload.single("file"),
+  catchAsync(Sport.getSportEvent)
+);
 
-router.post('/:sid/event', upload.single('file'), catchAsync(Sport.getSportEvent))
+router.patch("/info/:sid", catchAsync(Sport.updateSportInfo));
 
-router.patch('/info/:sid', catchAsync(Sport.updateSportInfo))
-
-router.get('/event/detail/:id', catchAsync(Sport.retrieveSportEventDetail))
+router.get("/event/detail/:id", catchAsync(Sport.retrieveSportEventDetail));
 
 // Add Intra Match to the Event
 router.post('/event/:eid/match/intra', catchAsync(Sport.getIntraMatchEvent))
 
 router.post('/event/:eid/match/inter', catchAsync(Sport.getInterMatchEvent))
 
-router.get('/class/detail/:cid', catchAsync(Sport.retrieveSportClassDetail))
+router.get("/class/detail/:cid", catchAsync(Sport.retrieveSportClassDetail));
 
 // Add Student
 router.post('/class/:cid/student/add', catchAsync(Sport.updateStudentSportClass))
@@ -33,6 +41,7 @@ router.post('/class/:cid/student/add', catchAsync(Sport.updateStudentSportClass)
 router.post('/class/:cid/student/remove', catchAsync(Sport.removeStudentSportClass))
 
 router.patch('/class/info/:cid', catchAsync(Sport.updateSportClassInfo))
+
 
 // Create Class Team
 router.post('/class/team', upload.single('file'), catchAsync(Sport.updateSportTeam))
@@ -44,13 +53,21 @@ router.get('/match/detail/:mid', catchAsync(Sport.retrieveMatchDetail))
 router.post('/match/:mid/update/intra/individual', catchAsync(Sport.updateIntraMatchIndividual))
 
 // Update Score of Inter Match (Individual)
-router.post('/match/:mid/update/inter/individual', isLoggedIn, catchAsync(Sport.updateInterMatchIndividual))
+router.post(
+  "/match/:mid/update/inter/individual",
+  isLoggedIn,
+  catchAsync(Sport.updateInterMatchIndividual)
+);
 
 // Update Score of Intra Match (Team)
 router.post('/match/:mid/update/intra/team', isLoggedIn, catchAsync(Sport.updateIntraMatchTeam))
 
 // Update Score of Inter Match (Team)
-router.post('/match/:mid/update/inter/team', isLoggedIn, catchAsync(Sport.updateInterMatchTeam))
+router.post(
+  "/match/:mid/update/inter/team",
+  isLoggedIn,
+  catchAsync(Sport.updateInterMatchTeam)
+);
 
 // Update Score of Intra Match (Free)
 router.post('/match/:mid/update/intra/free', isLoggedIn, catchAsync(Sport.updateIntraMatchFree))

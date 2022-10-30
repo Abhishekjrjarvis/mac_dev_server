@@ -429,7 +429,11 @@ exports.retrieveSportClassDetail = async(req, res) =>{
         const classes = await SportClass.findById({ _id: cid })
           .populate({
             path: "sportStudent",
-            select: 'studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId'
+            select: 'studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId',
+            populate: {
+              path: 'sportTeam',
+              select: 'sportClassTeamName'
+            }
           })
           .populate({
             path: "sportClassHead",

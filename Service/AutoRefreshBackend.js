@@ -79,6 +79,16 @@ const distanceRecommend = (lat1, lon1, lat2, lon2, distanceId, expand) => {
     }
 }
 
+const distanceCal = (lat1, lon1, lat2, lon2) => {
+    var p = 0.017453292519943295;
+    var c = Math.cos;
+    var a = 0.5 - c((lat2 - lat1) * p)/2 + 
+            c(lat1 * p) * c(lat2 * p) * 
+            (1 - c((lon2 - lon1) * p))/2;
+    
+    return (12742 * Math.asin(Math.sqrt(a))); 
+}
+
 const compareDistance = (rec_1, rec_2) => {
     return rec_1 - rec_2;
 }
@@ -97,7 +107,7 @@ exports.recommendedAllIns = async(req, res) =>{
         const { uid } = req.params
         const { expand_search } = req.query
         const expand = expand_search ? expand_search : 2
-        const user = await User.findById({_id: uid})
+        var user = await User.findById({_id: uid})
         .select('user_latitude user_longitude userInstituteFollowing userFollowers userCircle')
 
         const ins = await InstituteAdmin.find({})
@@ -112,7 +122,15 @@ exports.recommendedAllIns = async(req, res) =>{
         var refresh_recommend = recommend.filter(recomm => recomm != null);
         if(refresh_recommend?.length > 0){
             const recommend_ins = await InstituteAdmin.find({_id: { $in: refresh_recommend}})
-            .select('insName name photoId insProfilePhoto followersCount one_line_about joinedUserList')
+            .select('insName name photoId insProfilePhoto followersCount one_line_about joinedUserList insEmail insAddress ins_latitude ins_longitude')
+            .populate({
+                path: "displayPersonList",
+                select: "displayTitle createdAt",
+                populate: {
+                  path: "displayUser",
+                  select: "userLegalName username photoId profilePhoto",
+                },
+            })
             .lean()
             .exec()
             
@@ -132,6 +150,8 @@ exports.recommendedAllIns = async(req, res) =>{
             var rec_user = []
             recommend_ins?.forEach((rem_rec_red) =>{
                 if(user?.userInstituteFollowing?.includes(rem_rec_red?._id)) return
+                var data_cal = distanceCal(user?.user_latitude, user?.user_longitude, rem_rec_red?.ins_latitude, rem_rec_red?.ins_longitude)
+                rem_rec_red.ins_distance = data_cal.toFixed(2)
                 rec_user.push(rem_rec_red)
             })
             shuffleArray(rec_user)

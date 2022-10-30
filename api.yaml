@@ -573,6 +573,26 @@ paths:
         "200":
           description: OK
 
+  /api/v1/user/{uid}/staff/student/role:
+    get:
+      tags:
+        - User Profile API
+      summary: User Switch Staff & Student
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: uid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The user ID
+      responses:
+        "200":
+          description: OK
+
   /api/v1/user/{id}/switch/account:
     get:
       tags:

@@ -45,7 +45,7 @@ exports.getDashOneQuery = async (req, res) => {
   try {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id }).select(
-      "insName name insAbout photoId blockStatus staff_privacy modal_activate email_privacy followers_critiria initial_Unlock_Amount contact_privacy followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount accessFeature activateStatus sportStatus sportClassStatus sportDepart sportClassDepart"
+      "insName name insAbout photoId blockStatus sportStatus sportClassStatus staff_privacy modal_activate email_privacy followers_critiria initial_Unlock_Amount contact_privacy followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount accessFeature activateStatus"
     );
     const encrypt = await encryptionPayload(institute);
     res.status(200).send({
@@ -61,7 +61,7 @@ exports.getProfileOneQuery = async (req, res) => {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName status photoId insProfilePhoto blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement admissionCount"
+        "insName status photoId insProfilePhoto sportStatus sportClassStatus blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement admissionCount"
       )
       .lean()
       .exec();
@@ -2216,6 +2216,7 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     student.department = depart._id;
     batch.ApproveStudent.push(student._id);
     student.batches = batch._id;
+    student.batchCount += 1
     notify.notifyContent = `${student.studentFirstName}${
       student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
     } ${student.studentLastName} joined as a Student of Class ${

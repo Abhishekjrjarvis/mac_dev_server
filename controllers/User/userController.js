@@ -25,6 +25,7 @@ const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 const { dateTimeSort } = require("../../Utilities/timeComparison");
+const { shuffleArray } = require("../../Utilities/Shuffle");
 
 exports.retrieveProfileData = async (req, res) => {
   try {
@@ -32,7 +33,7 @@ exports.retrieveProfileData = async (req, res) => {
     var totalUpVote = 0
     const user = await User.findById({ _id: id })
       .select(
-        "userLegalName photoId questionCount blockCount userBlock blockStatus user one_line_about recoveryMail answerQuestionCount recentChat profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
+        "userLegalName photoId show_suggestion questionCount blockCount userBlock blockStatus user one_line_about recoveryMail answerQuestionCount recentChat profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
       )
       const answers = await Answer.find({ author: id })
       for(let up of answers){
@@ -1064,7 +1065,7 @@ exports.getDashDataQuery = async (req, res) => {
     const { id } = req.params;
     const user = await User.findById({ _id: id })
       .select(
-        "userLegalName username ageRestrict photoId blockStatus one_line_about profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify"
+        "userLegalName username ageRestrict show_suggestion photoId blockStatus one_line_about profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify"
       )
       if(user.userPosts && user.userPosts.length < 1){
         var post = []
@@ -1334,6 +1335,22 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
           select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto'
         },
       })
+      .populate({
+        path: "sportDepartment",
+        select: "sportEmail sportPhoneNumber sportAbout sportName",
+        populate: {
+          path: 'sportHead',
+          select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto'
+        },
+      })
+      .populate({
+        path: "staffSportClass",
+        select: "sportClassEmail sportClassPhoneNumber sportClassAbout sportClassName",
+        populate: {
+          path: 'sportClassHead',
+          select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto'
+        },
+      })
       .lean()
       .exec();
     // .populate({
@@ -1372,9 +1389,10 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
   try {
     const { sid } = req.params;
     if(sid !== ''){
+    var average_points = 0
     const student = await Student.findById({ _id: sid })
       .select(
-        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentReligion studentMotherName studentDOB studentNationality studentMTongue studentCast studentCastCategory studentBirthPlace studentState studentDistrict studentAddress studentPhoneNumber studentParentsName studentParentsPhoneNumber studentAadharCard studentAadharNumber studentDocuments studentGRNO studentStatus studentROLLNO"
+        "studentFirstName studentMiddleName studentLastName batchCount extraPoints photoId studentProfilePhoto studentGender studentReligion studentMotherName studentDOB studentNationality studentMTongue studentCast studentCastCategory studentBirthPlace studentState studentDistrict studentAddress studentPhoneNumber studentParentsName studentParentsPhoneNumber studentAadharCard studentAadharNumber studentDocuments studentGRNO studentStatus studentROLLNO"
       )
       .populate({
         path: "studentClass",
@@ -1392,41 +1410,8 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
         path: "user",
         select: "userLegalName username photoId profilePhoto",
       });
-    // .populate("checklist")
-    // .populate({
-    //   path: "department",
-    //   populate: {
-    //     path: "fees",
-    //   },
-    // })
-    // .populate({
-    //   path: "studentMarks",
-    //   populate: {
-    //     path: "examId",
-    //   },
-    // })
-    // .populate("studentFee")
-    // .populate({
-    //   path: "department",
-    //   populate: {
-    //     path: "checklists",
-    //   },
-    // })
-    // .populate({
-    //   path: "sportEvent",
-    //   populate: {
-    //     path: "sportEventMatch",
-    //     populate: {
-    //       path: "sportEventMatchClass",
-    //       populate: {
-    //         path: "sportStudent",
-    //       },
-    //     },
-    //   },
-    // })
-    // .populate("complaints");
-    // .populate('studentAttendence')
-    res.status(200).send({ message: "Student Designation Data", student });
+    average_points += ((student.extraPoints) / student.batchCount)
+    res.status(200).send({ message: "Student Designation Data", student, average_points });
     }
     else {
       res.status(200).send({ message: 'Need a valid Key Id'})
@@ -1749,6 +1734,36 @@ exports.retrieveUserLocationPermission = async (req, res) => {
     const user = await User.findByIdAndUpdate(uid, req.body);
     await user.save();
     res.status(200).send({ message: "User Location Permission Updated" });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveUserRoleQuery = async (req, res) => {
+  try {
+    const { uid } = req.params;
+    const user = await User.findById({_id: uid})
+    .select('staff student')
+
+    const staff = await Staff.find({_id: {$in: user?.staff}})
+    .sort('staffDesignationCount')
+    .select('staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto')
+    .populate({
+      path: 'institute',
+      select: 'insName'
+    })
+
+    const student = await Student.find({_id: { $in: user?.student}})
+    .sort('createdAt')
+    .select('studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto')
+    .populate({
+      path: 'institute',
+      select: 'insName'
+    })
+    
+    var mergeArray = [...staff, ...student]
+    var get_array = shuffleArray(mergeArray)
+    res.status(200).send({ message: "User Role for Staff & Student", role_query: get_array });
   } catch (e) {
     console.log(e);
   }

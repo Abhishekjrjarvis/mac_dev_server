@@ -42,6 +42,10 @@ const sportSchema = new mongoose.Schema({
   sportEventCount: {
     type: Number,
     default: 0
+  },
+  sportMemberCount: {
+    type: Number,
+    default: 0
   }
 });
 

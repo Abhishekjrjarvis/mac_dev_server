@@ -22,6 +22,10 @@ const sportEventSchema = new mongoose.Schema({
     sportEventMatchCount: {
         type: Number,
         default: 0
+    },
+    sportEventStatus: {
+        type: String,
+        default: 'Upcoming'
     }
 })
 

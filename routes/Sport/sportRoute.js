@@ -44,7 +44,7 @@ router.patch('/class/info/:cid', catchAsync(Sport.updateSportClassInfo))
 
 
 // Create Class Team
-router.post('/class/:cid/team', upload.single('file'), catchAsync(Sport.updateSportTeam))
+router.post('/class/team', upload.single('file'), catchAsync(Sport.updateSportTeam))
 
 // Match Detail
 router.get('/match/detail/:mid', catchAsync(Sport.retrieveMatchDetail))
@@ -84,13 +84,10 @@ router.delete('/event/:eid/match/:mid/delete', catchAsync(Sport.removeMatchEvent
 // Event Delete
 router.delete('/:sid/event/:eid/delete', catchAsync(Sport.removeEvent))
 
-router.patch("event/:eid/update", catchAsync(Sport.updateEvent));
+// Student Side Event Rendering
+router.get('/student/event/query/:sid/all', catchAsync(Sport.renderStudentSideEvent))
 
-router.delete(
-  "/event/:eid/match/:mid/delete",
-  catchAsync(Sport.removeMatchEvent)
-);
+// Student Side Event Match Rendering
+router.get('/student/event/query/:sid/all/match/:eid', catchAsync(Sport.renderStudentSideMatch))
 
-router.delete("/:sid/event/:eid/delete", catchAsync(Sport.removeEvent));
-
-module.exports = router;
+module.exports = router

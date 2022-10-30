@@ -89,18 +89,16 @@ exports.allIns = async(req, res) => {
 exports.rewardProfileAdsQuery = async(req, res) => {
     try{
         const { uid } = req.params
-        const { trigger_count, ads_display } = req.query
         var user_ads = await User.findById({_id: uid})
         .select('id profile_ads_count')
-        if(ads_display === 'Trigger'){
+        if(user_ads?.profile_ads_count === 5){
             user_ads.profile_ads_count = 0
             await user_ads.save()
         }
-        else if(parseInt(trigger_count) > 0){
-            user_ads.profile_ads_count += parseInt(trigger_count)
+        else{
+            user_ads.profile_ads_count += 1
             await user_ads.save()
         }
-        else{}
         res.status(200).send({ message: 'Get Ready for Reward Based Ads', ads_view_count: user_ads.profile_ads_count})
     }
     catch(e){

@@ -403,6 +403,7 @@ exports.allStudentInSubjectTeacher = async (req, res) => {
             studentProfilePhoto: student.studentProfilePhoto,
             studentROLLNO: student.studentROLLNO,
             obtainMarks: onemarks.obtainMarks,
+            answerSheet: onemarks?.answerSheet,
             present: stu?.attendDate?.length > 0 ? true : null,
           });
         }

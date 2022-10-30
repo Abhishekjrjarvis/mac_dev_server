@@ -172,16 +172,20 @@ exports.getDateWiseSchedule = async (req, res) => {
       .select("timetableDayWise")
       .lean()
       .exec();
-
-    for (let daywise of classesDay.timetableDayWise?.[0].schedule) {
-      for (let datewise of classes.timetableDateWise?.[0].schedule) {
-        if (String(daywise.subject) === String(datewise.subject)) {
-          daywise.from = datewise.from;
-          daywise.to = datewise.to;
-          daywise.assignStaff = datewise.assignStaff;
+    if (classesDay?.timetableDayWise?.length) {
+      for (let daywise of classesDay?.timetableDayWise[0]?.schedule) {
+        if (classes?.timetableDateWise?.length) {
+          for (let datewise of classes?.timetableDateWise[0]?.schedule) {
+            if (String(daywise.subject) === String(datewise.subject)) {
+              daywise.from = datewise.from;
+              daywise.to = datewise.to;
+              daywise.assignStaff = datewise.assignStaff;
+            }
+          }
         }
       }
     }
+
     res.status(200).send({
       message: "Day wise all schedule list",
       // dayList: classes.timetableDateWise?.[0]
@@ -245,13 +249,16 @@ exports.getOneStaffAllSchedule = async (req, res) => {
       .exec();
     const scheduleList = [];
     subjects?.forEach((sub) => {
-      if (sub?.class?.timetableDayWise || sub?.class?.timetableDateWise) {
-        const dayList = [...sub?.class?.timetableDayWise?.[0].schedule].filter(
+      if (
+        sub?.class?.timetableDayWise?.length ||
+        sub?.class?.timetableDateWise?.length
+      ) {
+        const dayList = [...sub?.class?.timetableDayWise[0].schedule].filter(
           (val) => req.params.sid === String(val.assignStaff)
         );
 
         dayList?.forEach((daywise) => {
-          sub?.class?.timetableDateWise?.[0]?.schedule?.forEach((datewise) => {
+          sub?.class?.timetableDateWise[0]?.schedule?.forEach((datewise) => {
             if (String(daywise.subject) === String(datewise.subject)) {
               daywise.from = datewise.from;
               daywise.to = datewise.to;

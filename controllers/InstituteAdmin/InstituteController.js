@@ -45,7 +45,7 @@ exports.getDashOneQuery = async (req, res) => {
   try {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id }).select(
-      "insName name insAbout photoId blockStatus staff_privacy modal_activate email_privacy followers_critiria initial_Unlock_Amount contact_privacy followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount accessFeature activateStatus"
+      "insName name insAbout photoId blockStatus staff_privacy modal_activate email_privacy followers_critiria initial_Unlock_Amount contact_privacy followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount accessFeature activateStatus sportStatus sportClassStatus sportDepart sportClassDepart"
     );
     const encrypt = await encryptionPayload(institute);
     res.status(200).send({
@@ -492,38 +492,30 @@ exports.updateApproveStaff = async (req, res) => {
       await user.save();
     } else {
     }
-    if(staff.staffGender === 'Male'){
-      institute.staff_category.boyCount += 1
+    if (staff.staffGender === "Male") {
+      institute.staff_category.boyCount += 1;
+    } else if (staff.staffGender === "Female") {
+      institute.staff_category.girlCount += 1;
+    } else {
+      institute.staff_category.otherCount += 1;
     }
-    else if(staff.staffGender === 'Female'){
-      institute.staff_category.girlCount += 1
+    if (staff.staffCastCategory === "General") {
+      institute.staff_category.generalCount += 1;
+    } else if (staff.staffCastCategory === "OBC") {
+      institute.staff_category.obcCount += 1;
+    } else if (staff.staffCastCategory === "SC") {
+      institute.staff_category.scCount += 1;
+    } else if (staff.staffCastCategory === "ST") {
+      institute.staff_category.stCount += 1;
+    } else if (staff.staffCastCategory === "NT-A") {
+      institute.staff_category.ntaCount += 1;
+    } else if (staff.staffCastCategory === "NT-B") {
+      institute.staff_category.ntbCount += 1;
+    } else if (staff.staffCastCategory === "NT-C") {
+      institute.staff_category.ntcCount += 1;
+    } else {
     }
-    else{
-      institute.staff_category.otherCount += 1
-    }
-    if(staff.staffCastCategory === 'General'){
-      institute.staff_category.generalCount += 1
-    }
-    else if(staff.staffCastCategory === 'OBC'){
-      institute.staff_category.obcCount += 1
-    }
-    else if(staff.staffCastCategory === 'SC'){
-      institute.staff_category.scCount += 1
-    }
-    else if(staff.staffCastCategory === 'ST'){
-      institute.staff_category.stCount += 1
-    }
-    else if(staff.staffCastCategory === 'NT-A'){
-      institute.staff_category.ntaCount += 1
-    }
-    else if(staff.staffCastCategory === 'NT-B'){
-      institute.staff_category.ntbCount += 1
-    }
-    else if(staff.staffCastCategory === 'NT-C'){
-      institute.staff_category.ntcCount += 1
-    }
-    else{}
-    await Promise.all([ institute.save() ])
+    await Promise.all([institute.save()]);
   } catch (e) {}
 };
 
@@ -1615,9 +1607,9 @@ exports.retrieveNewBatch = async (req, res) => {
     department.batches.push(batch);
     department.batchCount += 1;
     batch.department = department;
-    institute.batches.push(batch._id)
+    institute.batches.push(batch._id);
     batch.institute = institute;
-    await Promise.all([department.save(), batch.save(), institute.save() ]);
+    await Promise.all([department.save(), batch.save(), institute.save()]);
     res.status(200).send({ message: "batch data", batch: batch._id });
   } catch {}
 };
@@ -1671,17 +1663,13 @@ exports.retrieveCurrentSelectBatch = async (req, res) => {
     const batches = await Batch.findById({ _id: bid });
     department.departmentSelectBatch = batches._id;
     department.userBatch = batches._id;
-    batches.activeBatch = "Active"
-    await Promise.all([
-      department.save(),
-      batches.save()
-    ])
+    batches.activeBatch = "Active";
+    await Promise.all([department.save(), batches.save()]);
     res.status(200).send({
       message: "Batch Detail Data",
       batches: batches._id,
       department: department.departmentSelectBatch,
     });
-
   } catch (e) {
     console.log(e);
   }
@@ -2200,7 +2188,9 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     const { id, sid, cid, did, bid } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id });
     const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-    var student = await Student.findById({ _id: sid }).populate({ path: "user" });
+    var student = await Student.findById({ _id: sid }).populate({
+      path: "user",
+    });
     const user = await User.findById({ _id: `${student.user._id}` });
     var classes = await Class.findById({ _id: cid });
     const depart = await Department.findById({ _id: did });
@@ -2213,7 +2203,7 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     admins.studentCount += 1;
     institute.student.pull(sid);
     institute.studentCount += 1;
-    classes.strength += 1
+    classes.strength += 1;
     classes.ApproveStudent.push(student._id);
     classes.studentCount += 1;
     classes.student.pull(sid);
@@ -2262,42 +2252,34 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
       message: `Welcome To The Institute ${student.studentFirstName} ${student.studentLastName}`,
       classes: classes._id,
     });
-    if(student.studentGender === 'Male'){
-      classes.boyCount += 1
-      batch.student_category.boyCount += 1
+    if (student.studentGender === "Male") {
+      classes.boyCount += 1;
+      batch.student_category.boyCount += 1;
+    } else if (student.studentGender === "Female") {
+      classes.girlCount += 1;
+      batch.student_category.girlCount += 1;
+    } else {
+      batch.student_category.otherCount += 1;
     }
-    else if(student.studentGender === 'Female'){
-      classes.girlCount += 1
-      batch.student_category.girlCount += 1
+    if (student.studentCastCategory === "General") {
+      batch.student_category.generalCount += 1;
+    } else if (student.studentCastCategory === "OBC") {
+      batch.student_category.obcCount += 1;
+    } else if (student.studentCastCategory === "SC") {
+      batch.student_category.scCount += 1;
+    } else if (student.studentCastCategory === "ST") {
+      batch.student_category.stCount += 1;
+    } else if (student.studentCastCategory === "NT-A") {
+      batch.student_category.ntaCount += 1;
+    } else if (student.studentCastCategory === "NT-B") {
+      batch.student_category.ntbCount += 1;
+    } else if (student.studentCastCategory === "NT-C") {
+      batch.student_category.ntcCount += 1;
+    } else {
     }
-    else{
-      batch.student_category.otherCount += 1
-    }
-    if(student.studentCastCategory === 'General'){
-      batch.student_category.generalCount += 1
-    }
-    else if(student.studentCastCategory === 'OBC'){
-      batch.student_category.obcCount += 1
-    }
-    else if(student.studentCastCategory === 'SC'){
-      batch.student_category.scCount += 1
-    }
-    else if(student.studentCastCategory === 'ST'){
-      batch.student_category.stCount += 1
-    }
-    else if(student.studentCastCategory === 'NT-A'){
-      batch.student_category.ntaCount += 1
-    }
-    else if(student.studentCastCategory === 'NT-B'){
-      batch.student_category.ntbCount += 1
-    }
-    else if(student.studentCastCategory === 'NT-C'){
-      batch.student_category.ntcCount += 1
-    }
-    else{}
-    await Promise.all([ classes.save(), batch.save()])
+    await Promise.all([classes.save(), batch.save()]);
   } catch (e) {
-    console.log(e)
+    console.log(e);
   }
 };
 

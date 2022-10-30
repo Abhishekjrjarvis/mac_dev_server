@@ -35,7 +35,7 @@ router.post('/class/:cid/student/remove', catchAsync(Sport.removeStudentSportCla
 router.patch('/class/info/:cid', catchAsync(Sport.updateSportClassInfo))
 
 // Create Class Team
-router.post('/class/:cid/team', upload.single('file'), catchAsync(Sport.updateSportTeam))
+router.post('/class/team', upload.single('file'), catchAsync(Sport.updateSportTeam))
 
 // Match Detail
 router.get('/match/detail/:mid', catchAsync(Sport.retrieveMatchDetail))

@@ -567,8 +567,7 @@ exports.removeStudentSportClass = async(req, res) =>{
 
 exports.updateSportTeam = async(req, res) =>{
     try {
-        const { cid } = req.params;
-        const { request, captain } = req.body;
+        const { request, captain, cid } = req.body;
         const classes = await SportClass.findById({ _id: cid });
         if(request?.length > 0){
           var team = new SportTeam({ ...req.body });

@@ -750,6 +750,7 @@ exports.postComment = async (req, res) => {
   try {
     const { id } = req.params;
     const post = await Post.findById({ _id: id });
+    if(post.comment_turned === 'Off') return res.status(200).send({ message: 'Comments are turned off', off: true})
     const comment = new Comment({ ...req.body });
     if (req.tokenData && req.tokenData.insId) {
       const institute = await InstituteAdmin.findById({
@@ -830,7 +831,7 @@ exports.retrieveAllPosts = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "postTitle postText postDescription isHelpful needCount needUser isNeed needUser postQuestion authorFollowersCount authorOneLine tagPeople answerCount answerUpVoteCount isUser isInstitute postType trend_category endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
+            "postTitle postText postDescription comment_turned isHelpful needCount needUser isNeed needUser postQuestion authorFollowersCount authorOneLine tagPeople answerCount answerUpVoteCount isUser isInstitute postType trend_category endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
           )
           .populate({
             path: "poll_query",
@@ -852,7 +853,7 @@ exports.retrieveAllPosts = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "postTitle postText postDescription isHelpful needCount needUser isNeed postQuestion authorOneLine authorFollowersCount tagPeople answerCount answerUpVoteCount isUser isInstitute postType trend_category endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
+            "postTitle postText postDescription comment_turned isHelpful needCount needUser isNeed postQuestion authorOneLine authorFollowersCount tagPeople answerCount answerUpVoteCount isUser isInstitute postType trend_category endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
           )
           .populate({
             path: "poll_query",
@@ -902,7 +903,7 @@ exports.retreiveAllProfilePosts = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "postTitle postText postDescription isHelpful needCount needUser isNeed postQuestion authorOneLine authorFollowersCount tagPeople answerCount answerUpVoteCount isUser isInstitute postType trend_category endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
+        "postTitle postText postDescription comment_turned isHelpful needCount needUser isNeed postQuestion authorOneLine authorFollowersCount tagPeople answerCount answerUpVoteCount isUser isInstitute postType trend_category endUserSave createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike"
       )
       .populate({
         path: "poll_query",

@@ -685,7 +685,7 @@ exports.cancelAdmissionApplication = async(req, res) =>{
       if(apply.confirmedApplication?.length > 0){
         apply.confirmedApplication.splice({
           student: student._id
-        })
+        }, 1)
         apply.cancelApplication.push({
           student: student._id,
           payment_status: 'Refund',
@@ -759,7 +759,7 @@ exports.retrieveClassAllotQuery = async(req, res) =>{
     apply.confirmedApplication.splice({
       student: student._id,
       // payment_status: 'offline'
-    })
+    }, 1)
     apply.allottedApplication.push({
       student: student._id,
       payment_status: 'offline',

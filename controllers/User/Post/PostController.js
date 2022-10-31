@@ -795,6 +795,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
           authorName: '',
           authorUserName: '',
           tagPeople: [],
+          needUser: [],
           user: true
         }
         var data_i_s = {
@@ -811,6 +812,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
           authorName: '',
           authorUserName: '',
           tagPeople: [],
+          needUser: []
         }
         post.splice(3, 0, data_u_s)
         post.splice(5, 0, data_i_s)

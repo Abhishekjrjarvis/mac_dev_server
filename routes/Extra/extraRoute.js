@@ -31,4 +31,6 @@ router.patch('/:pid/comment/feature', catchAsync(Extra.retrieveCommentFeatureQue
 
 router.get('/:id/merge/staff/student', catchAsync(Extra.retrieveMergeStaffStudent))
 
+router.patch('/:pid/transcript/lang', catchAsync(Extra.fetchLangTranscriptPost))
+
 module.exports = router

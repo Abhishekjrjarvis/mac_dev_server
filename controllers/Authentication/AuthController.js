@@ -19,6 +19,7 @@ const payment_modal_activate = require('./AuthFunction')
 const Referral = require('../../models/QCoins/Referral')
 const SupportChat = require('../../models/Chat/SupportChat')
 const QRCode = require('qrcode');
+const invokeSpecificRegister = require('../../Firebase/specific')
 
 
 
@@ -45,7 +46,43 @@ const generateQR = async (encodeData, Id) => {
 	}
 }
 
+const show_specific_activity = async (query) => {
+  try{
+    var data = `Welcome ${query?.insName}/${query?.name} with contact ${query?.insEmail}/${query?.insPhoneNumber} with delievering content ${query?.insMode} as ${query?.insType} placed on ${query?.insAddress}
+     in ${query?.insDistrict} in ${query?.insState} with postal code ${query?.insPincode} at Qviple Platform.`
+    const users_query = ["630f4b86e5a48ad50a9617a1", "630f6d19a8d864c2234fe4cc"]
+    for(let i=0; i< users_query?.length; i++){
+      var user = await User.findById({_id: users_query[i]})
+      .select('deviceToken')
+      invokeSpecificRegister(
+        "Specific Notification",
+        data,
+        'New Institute Welcome',
+        user._id,
+        user.deviceToken,
+      );
+    }
+    return 'Done 👍'
+    
+  }
+  catch(e){
+    console.log(e)
+  }
+}
 
+// var de = {
+//   insName: "Team Hyderabad",
+//   name: 'team_hyd11',
+//   insEmail: 'hyd21@gmail.com',
+//   insPhoneNumber: 7007023972,
+//   insMode: 'Online',
+//   insType: 'College / Polytechnic',
+//   insAddress: '177 A Bleeker Street',
+//   insDistrict: 'Nashik',
+//   insState: 'Maharashtra',
+//   insPincode: 422410
+// }
+// console.log(show_specific_activity(de))
 
 exports.getRegisterIns = async (req, res) => {
   try {

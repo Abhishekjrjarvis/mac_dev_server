@@ -367,4 +367,13 @@ exports.retrieveMergeStaffStudent = async(req, res) => {
   }
 }
 
-
+exports.fetchLangTranscriptPost = async(req, res) =>{
+  try{
+    const { pid } = req.params
+    await Post.findByIdAndUpdate(pid, req.body)
+    res.status(200).send({ message: 'Language Transcription Processed ✨✨✨✨'})
+  }
+  catch(e){
+    console.log(e)
+  }
+}

@@ -782,6 +782,16 @@ exports.retrieveAllUserPosts = async (req, res) => {
         var totalPage = page + 1;
       }
       if(post?.length > 0){
+        var data_u_s = {
+          _id: 'Sywi84Id',
+          user: true
+        }
+        var data_i_s = {
+          _id: 'Sdh38hId',
+          user: false
+        }
+        post.splice(3, 0, data_u_s)
+        post.splice(5, 0, data_i_s)
       res.status(200).send({
         message: "Success",
         post,

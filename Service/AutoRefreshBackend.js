@@ -122,7 +122,7 @@ exports.recommendedAllIns = async(req, res) =>{
         var refresh_recommend = recommend.filter(recomm => recomm != null);
         if(refresh_recommend?.length > 0){
             const recommend_ins = await InstituteAdmin.find({_id: { $in: refresh_recommend}})
-            .select('insName name photoId insProfilePhoto followersCount one_line_about joinedUserList insEmail insAddress ins_latitude ins_longitude')
+            .select('insName name photoId insProfilePhoto isUniversal followersCount one_line_about coverId joinedUserList insEmail insAddress ins_latitude ins_longitude insProfileCoverPhoto')
             .populate({
                 path: "displayPersonList",
                 select: "displayTitle createdAt",

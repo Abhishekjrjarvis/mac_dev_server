@@ -121,7 +121,7 @@ exports.recommendedAllIns = async(req, res) =>{
         recommend = recommend.sort(compareDistance)
         var refresh_recommend = recommend.filter(recomm => recomm != null);
         if(refresh_recommend?.length > 0){
-            const recommend_ins = await InstituteAdmin.find({_id: { $in: refresh_recommend}})
+            const recommend_ins = await InstituteAdmin.find({ $and: [{_id: { $in: refresh_recommend}}, {status: 'Approved'}]})
             .select('insName name photoId insProfilePhoto status isUniversal followersCount one_line_about coverId joinedUserList insEmail insAddress ins_latitude ins_longitude insProfileCoverPhoto')
             .populate({
                 path: "displayPersonList",

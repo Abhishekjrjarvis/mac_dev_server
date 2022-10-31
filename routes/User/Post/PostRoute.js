@@ -12,6 +12,13 @@ router.get(
   isLoggedIn,
   catchAsync(Post.retrieveAllUserPosts)
 );
+
+router.get(
+  "/v2/:id/all/user/posts",
+  isLoggedIn,
+  catchAsync(Post.retrieveAllUserPostsWeb)
+);
+
 router.get(
   "/:id/all/user/profile/posts",
   isLoggedIn,

@@ -62,7 +62,7 @@ exports.uploadUserCareerDetail = async(req, res) =>{
 }
 
 // const axios = require("axios");
-// var dynamic_data = "I am I silverman man"
+// var dynamic_data = "I am man"
 // const options = {
 //   method: 'POST',
 //   url: 'https://microsoft-translator-text.p.rapidapi.com/translate',
@@ -77,11 +77,11 @@ exports.uploadUserCareerDetail = async(req, res) =>{
 //     'X-RapidAPI-Key': 'fc7ed05a15msh3985985ec5ef152p14a24cjsn91c90e91c1e9',
 //     'X-RapidAPI-Host': 'microsoft-translator-text.p.rapidapi.com'
 //   },
-//   data: `[{"Text": ${dynamic_data}}]`
+//   data: "[{${Text}: ${dynamic_data}}]`
 // };
 
 // axios.request(options).then(function (response) {
-// 	console.log(response?.data[0]?.translations[0]?.text);
+// 	console.log(response.data[0]?.translations[0]?.text);
 // }).catch(function (error) {
 // 	console.error(error.message);
 // });

@@ -784,11 +784,33 @@ exports.retrieveAllUserPosts = async (req, res) => {
       if(post?.length > 0){
         var data_u_s = {
           _id: 'Sywi84Id',
+          postImage: [],
+          postStatus: '',
+          likeCount: 0,
+          commentCount: 0,
+          endUserLike: [],
+          endUserSave: [],
+          createdAt: '',
+          author: '',
+          authorName: '',
+          authorUserName: '',
+          tagPeople: [],
           user: true
         }
         var data_i_s = {
           _id: 'Sdh38hId',
-          user: false
+          user: false,
+          postImage: [],
+          postStatus: '',
+          likeCount: 0,
+          commentCount: 0,
+          endUserLike: [],
+          endUserSave: [],
+          createdAt: '',
+          author: '',
+          authorName: '',
+          authorUserName: '',
+          tagPeople: [],
         }
         post.splice(3, 0, data_u_s)
         post.splice(5, 0, data_i_s)

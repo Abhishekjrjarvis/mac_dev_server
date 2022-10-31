@@ -62,26 +62,26 @@ exports.uploadUserCareerDetail = async(req, res) =>{
 }
 
 // const axios = require("axios");
-// var dynamic_data = "Bhaiya Dooj/Bhai Dooj, Bhau-Beej/Bhai Phonta is a festival which is celebrated among Hindus of India, Nepal and other countries on the second lunar day of the Shukla Paksha of the Kartika month of Vikram Samvat Hindu calendar. The occasion falls on the last day of the five day long celebrations of Diwali🪔✨. It is also celebrated as 'Yama Dwitiya'."
-// const encodedParams = new URLSearchParams();
-// encodedParams.append("q", `${dynamic_data}`);
-// encodedParams.append("target", "hi");
-// encodedParams.append("source", "en");
-
+// var dynamic_data = "I am I silverman man"
 // const options = {
 //   method: 'POST',
-//   url: 'https://google-translate1.p.rapidapi.com/language/translate/v2',
-//   headers: {
-//     'content-type': 'application/x-www-form-urlencoded',
-//     'Accept-Encoding': 'application/gzip',
-//     'X-RapidAPI-Key': 'fc7ed05a15msh3985985ec5ef152p14a24cjsn91c90e91c1e9',
-//     'X-RapidAPI-Host': 'google-translate1.p.rapidapi.com'
+//   url: 'https://microsoft-translator-text.p.rapidapi.com/translate',
+//   params: {
+//     'to[0]': 'hi',
+//     'api-version': '3.0',
+//     profanityAction: 'NoAction',
+//     textType: 'plain'
 //   },
-//   data: encodedParams
+//   headers: {
+//     'content-type': 'application/json',
+//     'X-RapidAPI-Key': 'fc7ed05a15msh3985985ec5ef152p14a24cjsn91c90e91c1e9',
+//     'X-RapidAPI-Host': 'microsoft-translator-text.p.rapidapi.com'
+//   },
+//   data: `[{"Text": ${dynamic_data}}]`
 // };
 
 // axios.request(options).then(function (response) {
-// 	console.log(response?.data?.data?.translations[0]?.translatedText);
+// 	console.log(response?.data[0]?.translations[0]?.text);
 // }).catch(function (error) {
-// 	console.error(error);
+// 	console.error(error.message);
 // });

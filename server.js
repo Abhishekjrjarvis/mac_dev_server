@@ -59,8 +59,8 @@ const prod = require("./routes/ProdAPI/prodRoute");
 
 // ============================= DB Configuration ==============================
 
-// const dburl = `${process.env.DB_URL2}`; // Development
-const dburl = `${process.env.DB_URL}`; // Production
+const dburl = `${process.env.DB_URL2}`; // Development
+// const dburl = `${process.env.DB_URL}`; // Production
 
 // 6360a7d565aca073d9f9e074 - Development
 // 630f3b68a5eb4786489045a1 - Production
@@ -78,10 +78,10 @@ mongoose
   });
 
 app.use(mongoSanitize());
-app.use(helmet({ contentSecurityPolicy: false }));
-// app.use(
-//   helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false })
-// );
+// app.use(helmet({ contentSecurityPolicy: false }));
+app.use(
+  helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false })
+);
 app.use(compression());
 
 const swaggerUI = require("swagger-ui-express");

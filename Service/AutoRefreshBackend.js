@@ -158,7 +158,7 @@ exports.recommendedAllIns = async(req, res) =>{
             res.status(200).send({ message: 'Recommended Institute for follow and Joined', recommend_ins_array: rec_user, recommend: true, refresh_recommend_user: recommend_user})
         }
         else{
-            res.status(404).send({ message: 'No Recommendation / Suggestion', recommend_ins_array: [], recommend: false})
+            res.status(200).send({ message: 'No Recommendation / Suggestion', recommend_ins_array: [], recommend: false})
         }
         
     }

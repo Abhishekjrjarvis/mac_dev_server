@@ -315,7 +315,7 @@ exports.fetchAdmissionApplicationArray = async(req, res) =>{
       res.status(200).send({ message: 'Lets begin new year journey', allApp: newApp, allAppCount: newApp?.length})
     }
     else{
-      res.status(404).send({ message: 'get a better lens to find what you need 🔍', allApp: []})
+      res.status(200).send({ message: 'get a better lens to find what you need 🔍', allApp: []})
     }
   }
   catch{

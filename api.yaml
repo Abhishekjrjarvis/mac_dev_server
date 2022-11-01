@@ -1547,6 +1547,31 @@ paths:
         "200":
           description: OK
 
+  
+  /api/v1/extra/{uid}/lang/mode:
+    patch:
+      tags:
+        - Setting Control API
+      summary: Language Selection Mode -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: Enter Id (User || Institute)
+        - in: query
+          name: mode
+          required: true
+          type: string
+          description: Enter Lang Mode ("en" || "hi" || "mr")
+      responses:
+        "200":
+          description: OK
+
   /api/v1/ins/{id}/leaving/editable:
     patch:
       tags:

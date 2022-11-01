@@ -196,6 +196,12 @@ const studentPaymentUpdated = async (financeId, studentId, feeId, statusType, tx
           } ${student.studentLastName} paid the ${
             fData.feeName
           }/ (Rs.${parseInt(value)}) successfully`;
+          notify.notify_hi_content = `${student.studentFirstName}${
+            student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+          } ${student.studentLastName} ने ${fData.feeName}/ (Rs.${parseInt(value)}) का सफलतापूर्वक पेमेंट किया |`
+          notify.notify_mr_content = `${student.studentFirstName}${
+            student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+          } ${student.studentLastName} ने ${fData.feeName}/ (रु.${parseInt(value)}) यशस्वीरित्या भरले`
           notify.notifySender = student._id;
           notify.notifyReceiever = user._id;
           finance.institute.iNotify.push(notify._id);
@@ -246,6 +252,12 @@ const studentPaymentUpdated = async (financeId, studentId, feeId, statusType, tx
           } ${student.studentLastName} paid the ${
             checklistData.checklistName
           }/ (Rs.${parseInt(value)}) successfully`;
+          notify.notify_hi_content = `${student.studentFirstName}${
+            student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+          } ${student.studentLastName} ने ${checklistData.checklistName}/ (Rs.${parseInt(value)}) का सफलतापूर्वक पेमेंट किया |`
+          notify.notify_mr_content = `${student.studentFirstName}${
+            student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+          } ${student.studentLastName} ने ${checklistData.checklistName}/ (रु.${parseInt(value)}) यशस्वीरित्या भरले`
           notify.notifySender = student._id;
           notify.notifyReceiever = user._id;
           finance.institute.iNotify.push(notify._id);

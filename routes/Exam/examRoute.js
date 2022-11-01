@@ -37,6 +37,10 @@ router
   .get(catchAsync(examController.oneExamAllSubjectInStudent));
 
 router
+  .route("/student/:sid/exam/:eid/answersheet")
+  .get(catchAsync(examController.oneExamOneSubjectAnswersheetInStudent));
+
+router
   .route("/class/student/:sid/grace")
   .patch(catchAsync(examController.oneStudentGraceMarksClassTeacher));
 

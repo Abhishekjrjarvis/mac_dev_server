@@ -158,17 +158,7 @@ exports.getAlldailyUpdateStudent = async (req, res) => {
     const getPage = req.query.page ? parseInt(req.query.page) : 1;
     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
     const dropItem = (getPage - 1) * itemPerPage;
-    // const options = { sort: [["dailyUpdate.createdAt", "des"]] };
     const student = await Student.findById(req.params.sid);
-    // .populate({
-    //   path: "dailyUpdate",
-    //   select: "updateDate updateDescription upadateImage createdAt",
-    //   skip: dropItem,
-    //   limit: itemPerPage,
-    // })
-    // .select("dailyUpdate")
-    // .lean()
-    // .exec();
     if (req.query?.subjectId) {
       const dailyUpdate = await SubjectUpdate.find({
         _id: { $in: student.dailyUpdate },
@@ -182,7 +172,6 @@ exports.getAlldailyUpdateStudent = async (req, res) => {
         .exec();
       res.status(200).send({
         message: "all daily subject update list in student side",
-        // dailyUpdate: customMergeSort(subject?.dailyUpdate),
         dailyUpdate,
       });
     } else {
@@ -197,7 +186,6 @@ exports.getAlldailyUpdateStudent = async (req, res) => {
         .exec();
       res.status(200).send({
         message: "all daily subject update list in student side",
-        // dailyUpdate: customMergeSort(subject?.dailyUpdate),
         dailyUpdate,
       });
     }

@@ -525,30 +525,49 @@ exports.searchStudent = async (req, res) => {
 exports.searchStaff = async (req, res) => {
   // change here this api add absent function
   try {
-    if (req.query.search.trim() === "") {
-      const staff = await Staff.find({
-        $and: [
-          { institute: req.params.id },
-          { staffStatus: "Approved" },
-
-          // {staffLeave:{
-          //   date:{$eq:}
-          // }}
-        ],
-      })
-        .sort("-createdAt")
-        .select(
-          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
-        )
-        .populate({
-          path: "user",
-          select: "_id",
+    if (!req.query.search?.trim()) {
+      if (req.query.date) {
+        const staff = await Staff.find({
+          $and: [{ institute: req.params.id }, { staffStatus: "Approved" }],
         })
-        .lean()
-        .exec();
-      res
-        .status(200)
-        .send({ message: "Without Query All Staff", staff: staff });
+          .sort("-createdAt")
+          .select(
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+          )
+          .populate({
+            path: "user",
+            select: "_id",
+          })
+          .populate({
+            path: "staffLeave",
+            match: {
+              date: { $eq: req.query?.date },
+            },
+            select: "_id date",
+          })
+          .lean()
+          .exec();
+        res
+          .status(200)
+          .send({ message: "Without Query All Staff", staff: staff });
+      } else {
+        const staff = await Staff.find({
+          $and: [{ institute: req.params.id }, { staffStatus: "Approved" }],
+        })
+          .sort("-createdAt")
+          .select(
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+          )
+          .populate({
+            path: "user",
+            select: "_id",
+          })
+          .lean()
+          .exec();
+        res
+          .status(200)
+          .send({ message: "Without Query All Staff", staff: staff });
+      }
     } else {
       const search = req.query.search
         ? {
@@ -593,7 +612,7 @@ exports.searchStaff = async (req, res) => {
       }
     }
   } catch (e) {
-    console.log(e.kind);
+    console.log(e);
   }
 };
 

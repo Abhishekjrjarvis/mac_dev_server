@@ -7608,6 +7608,34 @@ paths:
         "200":
           description: OK
 
+  /api/v1/exam/student/{sid}/exam/{eid}/answersheet:
+    get:
+      tags:
+        - Exam Related Api
+      summary: It is give details of one exam with their subjects list with all details (time, date etc) in student Side (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular Student id
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: It is particular Exam id
+        - in: query
+          name: subjectId
+          required: true
+          type: string
+          description: It is particular subject id                    
+      responses:
+        "200":
+          description: OK
   /api/v1/exam/class/student/{sid}/grace:
     patch:
       tags:
@@ -13093,8 +13121,6 @@ paths:
         "200":
           description: OK
 
-
-
 # fot the daily subject side update
   /api/v1/dailyupdate/subject/{sid}:
     get:
@@ -13141,114 +13167,8 @@ paths:
           schema:
             type: object
             properties:
-              updateDate:
-                type: string
-                required:  true
-                description: here type the daily update date
-              updateDescription:
-                type: string
-                required:  true
-                description: here give the daily update updateDescription
-              file:
-                type: array
-                required:  true
-                description: here list of all files
-                items:
-                  type: file
-                  description: this is one file
-      responses:
-        "200":
-          description: OK
-    patch:
-      tags:
-        - Daily Update Related ALL Api (Subject Teacher)
-      summary: It is Cretae daily update by the Subject teacher side for the students
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: sid
-          required: true
-          type: string
-          description: It is particular daily update id      
-        - in: body
-          name: body
-          schema:
-            type: object
-            properties:
-              updateDescription:
-                type: string
-                required:  true
-                description: here give the daily update updateDescription
-              deleteImage:
-                type: array
-                required:  true
-                description: here list of all files
-                items:
-                  type: string
-                  description: this is one file aws key
-              file:
-                type: array
-                required:  true
-                description: here list of all files
-                items:
-                  type: file
-                  description: this is one file                  
-      responses:
-        "200":
-          description: OK
-
-
-# fot the daily subject side update
-  /api/v1/dailyupdate/subject/{sid}:
-    get:
-      tags:
-        - Daily Update Related ALL Api (Subject Teacher)
-      summary: It is give all daily updates in Subject Teacher side
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: sid
-          required: true
-          type: string
-          description: It is particular subject id    
-        - in: query
-          name: page
-          type: integer
-          description: pass the page number
-        - in: query
-          name: limit
-          type: integer
-          description: pass the limit one time how many item you want             
-      responses:
-        "200":
-          description: OK
-    post:
-      tags:
-        - Daily Update Related ALL Api (Subject Teacher)
-      summary: It is Cretae daily update by the Subject teacher side for the students
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: sid
-          required: true
-          type: string
-          description: It is particular subject id      
-        - in: body
-          name: body
-          schema:
-            type: object
-            properties:
-              updateDate:
-                type: string
+              date:
+                type: date
                 required:  true
                 description: here type the daily update date
               updateDescription:
@@ -13306,6 +13226,36 @@ paths:
         "200":
           description: OK
 
+  /api/v1/dailyupdate/student/{sid}:
+    get:
+      tags:
+        - Daily Update Related ALL Api (Subject Teacher)
+      summary: It is give all daily updates in Student side
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular student id    
+        - in: query
+          name: page
+          type: integer
+          description: pass the page number
+        - in: query
+          name: limit
+          type: integer
+          description: pass the limit one time how many item you want  
+        - in: query
+          name: subjectId
+          type: string
+          description: pass here subject id to show daily update subject wise                       
+      responses:
+        "200":
+          description: OK
 # fot the dynamic form api and previous year report
   /api/v1/ins/{id}/student/form:
     get:

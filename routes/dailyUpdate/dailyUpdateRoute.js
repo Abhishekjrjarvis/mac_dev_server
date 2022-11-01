@@ -15,5 +15,7 @@ router
   )
   .patch(catchAsync(dailyUpdateController.editDailyUpdate));
 
+router
+  .route("/student/:sid")
+  .get(catchAsync(dailyUpdateController.getAlldailyUpdateStudent));
 module.exports = router;
-

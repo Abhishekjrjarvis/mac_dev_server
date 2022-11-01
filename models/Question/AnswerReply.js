@@ -31,7 +31,8 @@ const answerReplySchema = new mongoose.Schema({
   },
   authorOneLine: {
     type: String
-  }
+  },
+  answer_content_reply_transcript: { type: String }
 });
 
 module.exports = mongoose.model("AnswerReply", answerReplySchema);

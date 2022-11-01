@@ -189,6 +189,12 @@ const studentPaymentUpdated = async (userId, studentId, applyId, statusId, tx_am
     notify.notifyContent = `${student.studentFirstName} 
     ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} 
     ${student.studentLastName} your transaction is successfull for Admission Fee ${parseInt(value)}`;
+    notify.notify_hi_content = `${student.studentFirstName} 
+    ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} 
+    ${student.studentLastName} प्रवेश शुल्क ${parseInt(value)} के लिए आपका लेन-देन सफल है |`
+    notify.notify_mr_content = `प्रवेश शुल्कासाठी ${student.studentFirstName} 
+    ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} 
+    ${student.studentLastName} तुमचा व्यवहार यशस्वी झाला आहे ${parseInt(value)}`
     notify.notifySender = admission._id
     notify.notifyReceiever = user._id;
     ins.iNotify.push(notify._id);

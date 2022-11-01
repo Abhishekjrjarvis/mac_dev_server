@@ -296,6 +296,7 @@ exports.fetchAdmissionApplicationArray = async(req, res) =>{
     const skip = (page - 1) * limit;
     const ins_apply = await InstituteAdmin.findById({_id: id})
     .select('admissionDepart')
+    if(ins_apply?.admissionDepart?.length > 0){
     const apply = await Admission.findById({_id: `${ins_apply?.admissionDepart[0]}`})
     const newApp = await NewApplication.find({ $and: [{_id: { $in: apply?.newApplication }}, {applicationStatus: 'Ongoing' }]})
     .sort('-createdAt')
@@ -311,15 +312,16 @@ exports.fetchAdmissionApplicationArray = async(req, res) =>{
       select: 'batchName'
     })
 
-    if(newApp?.length > 0){
+    // if(newApp?.length > 0){
       res.status(200).send({ message: 'Lets begin new year journey', allApp: newApp, allAppCount: newApp?.length})
+    // }
     }
     else{
-      res.status(404).send({ message: 'get a better lens to find what you need 🔍', allApp: []})
+      res.status(200).send({ message: 'get a better lens to find what you need 🔍', allApp: []})
     }
   }
-  catch{
-
+  catch(e){
+    console.log(e)
   }
 }
 

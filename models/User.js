@@ -399,6 +399,10 @@ const userSchema = new mongoose.Schema({
   show_suggestion: {
     type: String,
     default: 'Enable'
+  },
+  lang_mode: {
+    type: String,
+    default: 'en'
   }
 });
 

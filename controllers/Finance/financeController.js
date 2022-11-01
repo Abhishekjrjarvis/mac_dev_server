@@ -34,6 +34,8 @@ exports.getFinanceDepart = async(req, res) =>{
         institute.financeStatus = 'Enable'
         finance.institute = institute._id;
         notify.notifyContent = `you got the designation of as Finance Manager`;
+        notify.notify_hi_content = `आपको वित्त व्यवस्थापक के रूप में पदनाम मिला है |`
+        notify.notify_mr_content = `तुम्हाला वित्त व्यवस्थापक म्हणून पद मिळाले आहे`
         notify.notifySender = id;
         notify.notifyReceiever = user._id;
         user.uNotify.push(notify._id);
@@ -440,6 +442,8 @@ exports.requestClassOfflineFee = async(req, res) =>{
             //
             const notify = new StudentNotification({});
             notify.notifyContent = `Rs.${amount} Offline Payment Request for submission`;
+            notify.notify_hi_content = `Rs.${amount} ऑफ़लाइन पेमेंट जमा करने के लिए अनुरोध |`
+            notify.notify_mr_content = `ऑफलाइन पेमेंट सबमिशनसाठी रु.${amount} ची विनंती आली आहे.`
             notify.notifySender = classes._id;
             notify.notifyReceiever = user._id;
             notify.notifyType = 'Staff'
@@ -529,6 +533,8 @@ exports.submitClassOfflineFee = async(req, res) =>{
         //
         const notify = new StudentNotification({});
         notify.notifyContent = `Your Rs.${amount} Offline Payment Request has been processed and approved`;
+        notify.notify_hi_content = `आपका रु.${amount} ऑफ़लाइन पेमेंट अनुरोध संसाधित और स्वीकृत हो गया है |`
+        notify.notify_mr_content = `तुमची रु.${amount} ऑफलाइन पेमेंट विनंती मंजूर झाली`
         notify.notifySender = finance?._id;
         notify.notifyReceiever = user._id;
         notify.notifyType = 'Staff'
@@ -601,6 +607,8 @@ exports.classOfflineFeeIncorrect = async(req, res) =>{
         //
         const notify = new StudentNotification({});
         notify.notifyContent = `Your Rs.${amount} Offline Payment Request has been rejected`;
+        notify.notify_hi_content = `आपका रु.${amount} ऑफ़लाइन भुगतान अनुरोध अस्वीकार कर दिया गया है |`
+        notify.notify_mr_content = `तुमची रु.${amount} ऑफलाइन पेमेंट विनंती नाकारण्यात आली आहे`
         notify.notifySender = finance?._id;
         notify.notifyReceiever = user._id;
         notify.notifyType = 'Staff'

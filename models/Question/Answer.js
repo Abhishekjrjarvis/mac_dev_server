@@ -59,7 +59,8 @@ const answerSchema = new mongoose.Schema({
   isMentor: {
     type: String,
     default: 'No'
-  }
+  },
+  answer_content_transcript: { type: String }
 });
 
 

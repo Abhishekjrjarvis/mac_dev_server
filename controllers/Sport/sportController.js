@@ -30,6 +30,8 @@ exports.getSportDepart = async(req, res) =>{
         institute.sportStatus = 'Enable'
         sport.institute = institute._id;
         notify.notifyContent = `you got the designation as Sport & Arts Head`;
+        notify.notify_hi_content = `आपको खेल और कला प्रमुख प्रशिक्षक के रूप में पदनाम मिला है |`
+        notify.notify_mr_content = `तुम्हाला क्रीडा आणि कला मुख्य प्रशिक्षक म्हणून पद मिळाले आहे.`
         notify.notifySender = id;
         notify.notifyReceiever = user._id;
         user.uNotify.push(notify._id);
@@ -109,6 +111,8 @@ exports.getSportClass = async(req, res) =>{
         staff.recentDesignation = 'Sport & Arts Class Head';
         sportClasses.sportDepartment = sport._id;
         notify.notifyContent = `you got the designation of ${sportClasses.sportClassName} as Class Head`;
+        notify.notify_hi_content = `आपको प्रशिक्षक के रूप में ${sportClasses.sportClassName} का पदनाम मिला है |`
+        notify.notify_mr_content = `तुम्हाला ${sportClasses.sportClassName} चे प्रशिक्षक म्हणून पद मिळाले आहे`
         notify.notifySender = id;
         notify.notifyReceiever = user._id;
         user.uNotify.push(notify._id);
@@ -166,6 +170,8 @@ exports.getSportEvent = async(req, res) =>{
         })
         const notify = new Notification({})
         notify.notifyContent = `Get Ready for Fun & Enjoy ${event.sportEventName} is held on ${event.sportEventDate} at ${event.sportEventPlace}`;
+        notify.notify_hi_content = `मौज-मस्ती और आनंद के लिए तैयार हो जाइए ${event.sportEventName} का आयोजन ${event.sportEventDate} को ${event.sportEventPlace} पर किया जाता है`
+        notify.notify_mr_content = `मनोरंजनासाठी सज्ज व्हा आणि आनंद घ्या ${event.sportEventName} ${event.sportEventDate} रोजी ${event.sportEventPlace} येथे आयोजित केले आहे`
         notify.notifySender = sport._id;
         notify.notifyByInsPhoto = institute._id;
         for (let i = 0; i < student.length; i++) {
@@ -340,6 +346,8 @@ exports.getIntraMatchEvent = async(req, res) =>{
         })
         var notify = new Notification({})
         notify.notifyContent = `${match.sportEventMatchName} (${match.sportEventMatchCategory}) is held on ${match.sportEventMatchDate} in ${event.sportEventName}`;
+        notify.notify_hi_content = `${match.sportEventMatchName} (${match.sportEventMatchCategory}) ${match.sportEventMatchDate} को ${event.sportEventName} में आयोजित किया जाता है`
+        notify.notify_mr_content = `${match.sportEventMatchName} (${match.sportEventMatchCategory}) ${event.sportEventName} मध्ये ${match.sportEventMatchDate} रोजी आयोजित केले आहे`
         notify.notifySender = sportStaff._id;
         notify.notifyByInsPhoto = sport.institute;
         student.forEach(async (ele) => {
@@ -401,6 +409,8 @@ exports.getInterMatchEvent = async(req, res) =>{
         })
         var notify = new Notification({})
         notify.notifyContent = `${match.sportEventMatchName} (${match.sportEventMatchCategory}) is held on ${match.sportEventMatchDate} in ${event.sportEventName}`;
+        notify.notify_hi_content = `${match.sportEventMatchName} (${match.sportEventMatchCategory}) ${match.sportEventMatchDate} को ${event.sportEventName} में आयोजित किया जाता है`
+        notify.notify_mr_content = `${match.sportEventMatchName} (${match.sportEventMatchCategory}) ${event.sportEventName} मध्ये ${match.sportEventMatchDate} रोजी आयोजित केले आहे`
         notify.notifySender = sportStaff._id;
         notify.notifyByInsPhoto = sport.institute;
         student.forEach(async (ele) => {

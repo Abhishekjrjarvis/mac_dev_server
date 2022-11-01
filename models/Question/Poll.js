@@ -37,7 +37,8 @@ const pollSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
-    }
+    },
+    poll_question_transcript: { type: String }
 });
 
 const Poll = mongoose.model("Poll", pollSchema);

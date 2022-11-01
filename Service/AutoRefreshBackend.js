@@ -121,8 +121,8 @@ exports.recommendedAllIns = async(req, res) =>{
         recommend = recommend.sort(compareDistance)
         var refresh_recommend = recommend.filter(recomm => recomm != null);
         if(refresh_recommend?.length > 0){
-            const recommend_ins = await InstituteAdmin.find({_id: { $in: refresh_recommend}})
-            .select('insName name photoId insProfilePhoto followersCount one_line_about joinedUserList insEmail insAddress ins_latitude ins_longitude')
+            const recommend_ins = await InstituteAdmin.find({ $and: [{_id: { $in: refresh_recommend}}, {status: 'Approved'}]})
+            .select('insName name photoId insProfilePhoto status isUniversal followersCount one_line_about coverId joinedUserList insEmail insAddress ins_latitude ins_longitude insProfileCoverPhoto')
             .populate({
                 path: "displayPersonList",
                 select: "displayTitle createdAt",
@@ -158,7 +158,7 @@ exports.recommendedAllIns = async(req, res) =>{
             res.status(200).send({ message: 'Recommended Institute for follow and Joined', recommend_ins_array: rec_user, recommend: true, refresh_recommend_user: recommend_user})
         }
         else{
-            res.status(404).send({ message: 'No Recommendation / Suggestion', recommend_ins_array: [], recommend: false})
+            res.status(200).send({ message: 'No Recommendation / Suggestion', recommend_ins_array: [], recommend: false, refresh_recommend_user: []})
         }
         
     }

@@ -203,6 +203,12 @@ const studentPaymentUpdated = async (financeId, studentId, feeId, statusType, tx
             } ${student.studentLastName} paid the ${
               fData.feeName
             }/ (Rs.${parseInt(value)}) successfully`;
+            notify.notify_hi_content = `${student.studentFirstName}${
+              student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+            } ${student.studentLastName} ने ${fData.feeName}/ (Rs.${parseInt(value)}) का सफलतापूर्वक पेमेंट किया |`
+            notify.notify_mr_content = `${student.studentFirstName}${
+              student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+            } ${student.studentLastName} ने ${fData.feeName}/ (रु.${parseInt(value)}) यशस्वीरित्या भरले`
             notify.notifySender = student._id;
             notify.notifyReceiever = user._id;
             finance.institute.iNotify.push(notify._id);
@@ -253,6 +259,12 @@ const studentPaymentUpdated = async (financeId, studentId, feeId, statusType, tx
             } ${student.studentLastName} paid the ${
               checklistData.checklistName
             }/ (Rs.${parseInt(value)}) successfully`;
+            notify.notify_hi_content = `${student.studentFirstName}${
+              student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+            } ${student.studentLastName} ने ${checklistData.checklistName}/ (Rs.${parseInt(value)}) का सफलतापूर्वक पेमेंट किया |`
+            notify.notify_mr_content = `${student.studentFirstName}${
+              student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+            } ${student.studentLastName} ने ${checklistData.checklistName}/ (रु.${parseInt(value)}) यशस्वीरित्या भरले`
             notify.notifySender = student._id;
             notify.notifyReceiever = user._id;
             finance.institute.iNotify.push(notify._id);
@@ -439,6 +451,8 @@ const addUnlockPayment = async (data, insId ) => {
       institute.activateStatus = 'Activated'
       institute.activateDate = new Date()
       notify.notifyContent = `Feature Unlock Amount ${institute.insName}/ (Rs.${tx_iAmounts})  has been paid successfully stay tuned...`;
+      notify.notify_hi_content = `फ़ीचर अनलॉक राशि ${institute.insName}/ (Rs.${tx_iAmounts}) का पेमेंट सफलतापूर्वक कर दिया गया है |`
+      notify.notify_mr_content = `वैशिष्ट्य अनलॉक रक्कम ${institute.insName}/ (रु.${tx_iAmounts}) यशस्वीरित्या भरली गेली आहे`
       notify.notifySender = institute._id
       notify.notifyReceiever = admin._id
       admin.aNotify.push(notify._id);

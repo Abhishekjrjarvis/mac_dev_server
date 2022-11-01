@@ -41,6 +41,8 @@ exports.createFess = async (req, res) => {
       const user = await User.findById({ _id: `${student.user._id}` });
       const notify = new StudentNotification({});
       notify.notifyContent = `New ${feeData.feeName} (fee) has been created. check your member's Tab`;
+      notify.notify_hi_content = `नवीन ${feeData.feeName} (fee) बनाई गई है। अपना सदस्य टैब देखे |`
+      notify.notify_mr_content = `नवीन ${feeData.feeName} (fee) तयार केली आहे. तुमच्या सदस्याचा टॅब तपासा.`
       notify.notifySender = department._id;
       notify.notifyReceiever = user._id;
       notify.notifyType = 'Student'

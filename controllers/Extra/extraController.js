@@ -367,4 +367,40 @@ exports.retrieveMergeStaffStudent = async(req, res) => {
   }
 }
 
+exports.fetchLangTranscriptPost = async(req, res) =>{
+  try{
+    const { pid } = req.params
+    await Post.findByIdAndUpdate(pid, req.body)
+    res.status(200).send({ message: 'Language Transcription Processed ✨✨✨✨'})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
 
+exports.retrieveLangModeQuery = async(req, res) => {
+  try{
+    const { uid } = req.params
+    const { mode } = req.query
+    const user = await User.findOne({_id: uid})
+    const institute = await InstituteAdmin.findOne({_id: uid})
+    if(mode !== ''){
+      if(user){
+        user.lang_mode = mode
+        await user.save()
+      }
+      else if(institute){
+        institute.lang_mode = mode
+        await institute.save()
+      }
+      else{}
+      res.status(200).send({ message: 'Better communication mode is selected', lang_status: true})
+    }
+    else{
+      res.status(200).send({ message: 'No Better communication mode is selected', lang_status: false})
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}

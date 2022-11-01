@@ -970,24 +970,53 @@ exports.retrieveApproveStaffList = async (req, res) => {
         res.status(404).send({ message: "Failure", staffIns: [] });
       }
     } else {
-      const staff_ins = await InstituteAdmin.findById({ _id: id }).select(
-        "ApproveStaff insName"
-      );
-      const staffIns = await Staff.find({
-        _id: { $in: staff_ins?.ApproveStaff },
-      })
-        .sort("-createdAt")
-        .select(
-          "staffFirstName staffMiddleName recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO"
-        )
-        .populate({
-          path: "user",
-          select: "userLegalName userEmail",
-        });
-      if (staffIns) {
-        res.status(200).send({ message: "Without Limit", staffIns });
+      if (req.query.date) {
+        const staff_ins = await InstituteAdmin.findById({ _id: id }).select(
+          "ApproveStaff insName"
+        );
+        const staffIns = await Staff.find({
+          _id: { $in: staff_ins?.ApproveStaff },
+        })
+          .sort("-createdAt")
+          .select(
+            "staffFirstName staffMiddleName recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO"
+          )
+          .populate({
+            path: "user",
+            select: "userLegalName userEmail",
+          })
+          .populate({
+            path: "staffLeave",
+            match: {
+              date: { $eq: req.query?.date },
+            },
+            select: "_id date",
+          });
+        if (staffIns) {
+          res.status(200).send({ message: "Without Limit", staffIns });
+        } else {
+          res.status(404).send({ message: "Failure", staffIns: [] });
+        }
       } else {
-        res.status(404).send({ message: "Failure", staffIns: [] });
+        const staff_ins = await InstituteAdmin.findById({ _id: id }).select(
+          "ApproveStaff insName"
+        );
+        const staffIns = await Staff.find({
+          _id: { $in: staff_ins?.ApproveStaff },
+        })
+          .sort("-createdAt")
+          .select(
+            "staffFirstName staffMiddleName recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO"
+          )
+          .populate({
+            path: "user",
+            select: "userLegalName userEmail",
+          });
+        if (staffIns) {
+          res.status(200).send({ message: "Without Limit", staffIns });
+        } else {
+          res.status(404).send({ message: "Failure", staffIns: [] });
+        }
       }
     }
   } catch (e) {
@@ -2216,7 +2245,7 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     student.department = depart._id;
     batch.ApproveStudent.push(student._id);
     student.batches = batch._id;
-    student.batchCount += 1
+    student.batchCount += 1;
     notify.notifyContent = `${student.studentFirstName}${
       student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
     } ${student.studentLastName} joined as a Student of Class ${

@@ -612,7 +612,7 @@ exports.oneExamOneSubjectAnswersheetInStudent = async (req, res) => {
         ) {
           const attend = await AttendenceDate.find({
             $and: [
-              { attendDate: { $eq: `${onemarks.date}` } },
+              { attendDate: { $eq: `${exammarks.date}` } },
               { className: { $eq: `${student.studentClass}` } },
             ],
           });

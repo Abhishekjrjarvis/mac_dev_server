@@ -42,3 +42,6 @@
 {"level":"info","message":{},"timestamp":"2022-11-01T06:14:13.199Z"}
 {"allApp":[],"level":"info","message":"get a better lens to find what you need 🔍","timestamp":"2022-11-01T06:14:14.014Z"}
 {"level":"info","message":"{\"message\":\"get a better lens to find what you need 🔍\",\"allApp\":[],\"level\":\"info\"}","timestamp":"2022-11-01T06:14:14.017Z"}
+{"level":"info","message":{},"timestamp":"2022-11-01T06:17:56.051Z"}
+{"level":"info","message":"No Recommendation / Suggestion","recommend":false,"recommend_ins_array":[],"timestamp":"2022-11-01T06:17:56.173Z"}
+{"level":"info","message":"{\"message\":\"No Recommendation / Suggestion\",\"recommend_ins_array\":[],\"recommend\":false,\"level\":\"info\"}","timestamp":"2022-11-01T06:17:56.176Z"}

@@ -45,3 +45,9 @@
 {"level":"info","message":{},"timestamp":"2022-11-01T06:17:56.051Z"}
 {"level":"info","message":"No Recommendation / Suggestion","recommend":false,"recommend_ins_array":[],"timestamp":"2022-11-01T06:17:56.173Z"}
 {"level":"info","message":"{\"message\":\"No Recommendation / Suggestion\",\"recommend_ins_array\":[],\"recommend\":false,\"level\":\"info\"}","timestamp":"2022-11-01T06:17:56.176Z"}
+{"level":"info","message":{},"timestamp":"2022-11-01T06:59:48.867Z"}
+{"level":"info","message":"No Recommendation / Suggestion","recommend":false,"recommend_ins_array":[],"refresh_recommend_user":[],"timestamp":"2022-11-01T06:59:49.397Z"}
+{"level":"info","message":"{\"message\":\"No Recommendation / Suggestion\",\"recommend_ins_array\":[],\"recommend\":false,\"refresh_recommend_user\":[],\"level\":\"info\"}","timestamp":"2022-11-01T06:59:49.400Z"}
+{"level":"info","message":{},"timestamp":"2022-11-01T14:31:02.374Z"}
+{"level":"info","message":"Question Query","one_query":{"_id":"6360b38b51d30672ae8d01a6","answerCount":1,"author":"6360aa8151d30672ae8cfc3e","authorPhotoId":"0","authorProfilePhoto":"08aca7972582f59ba55ac4709bcafa28","authorUserName":"Abhishekjr","commentCount":0,"createdAt":"2022-11-01T05:50:03.871Z","needCount":0,"needUser":[],"postQuestion":"Why do we call long distance races a \"Marathon\" ?"},"timestamp":"2022-11-01T14:31:02.460Z"}
+{"level":"info","message":"{\"message\":\"Question Query\",\"one_query\":{\"_id\":\"6360b38b51d30672ae8d01a6\",\"commentCount\":0,\"postQuestion\":\"Why do we call long distance races a \\\"Marathon\\\" ?\",\"answerCount\":1,\"needCount\":0,\"needUser\":[],\"createdAt\":\"2022-11-01T05:50:03.871Z\",\"author\":\"6360aa8151d30672ae8cfc3e\",\"authorUserName\":\"Abhishekjr\",\"authorPhotoId\":\"0\",\"authorProfilePhoto\":\"08aca7972582f59ba55ac4709bcafa28\"},\"level\":\"info\"}","timestamp":"2022-11-01T14:31:02.464Z"}

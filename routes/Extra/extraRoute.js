@@ -33,4 +33,6 @@ router.get('/:id/merge/staff/student', catchAsync(Extra.retrieveMergeStaffStuden
 
 router.patch('/:pid/transcript/lang', catchAsync(Extra.fetchLangTranscriptPost))
 
+router.patch('/:uid/lang/mode', catchAsync(Extra.retrieveLangModeQuery))
+
 module.exports = router

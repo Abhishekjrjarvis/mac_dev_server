@@ -240,6 +240,8 @@ exports.postQuestionAnswer = async (req, res) => {
       //
       var notify = new Notification({});
       notify.notifyContent = `${answers.authorName} answered your question`;
+      notify.notify_hi_content = `${answers.authorName} ने आपके प्रश्न का उत्तर दिया |`
+      notify.notify_mr_content = `${answers.authorName} ने तुमच्या प्रश्नाचे उत्तर दिले.`
       notify.notifySender = answers.author;
       notify.notifyByPhoto = answers.author;
       if (post_user) {
@@ -488,6 +490,8 @@ exports.rePostQuestionAnswer = async (req, res) => {
       //
       var notify = new Notification({});
       notify.notifyContent = `${answers.authorName} answered your question with repost.`;
+      notify.notify_hi_content = `${answers.authorName} ने आपके प्रश्न का उत्तर रिपोस्ट के साथ दिया।`
+      notify.notify_mr_content = `${answers.authorName} ने तुमच्या प्रश्नाचे उत्तर पुन्हा पोस्टसह दिले.`
       notify.notifySender = answers.author;
       notify.notifyByPhoto = answers.author;
       if (post_user) {
@@ -814,3 +818,15 @@ exports.getAllSaveAnswerQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.getOneQuestionQuery = async(req, res) => {
+  try{
+    const { qid } = req.params
+    const one_question = await Post.findById({_id: qid})
+    .select('postQuestion commentCount answerCount createdAt author authorUserName authorProfilePhoto authorPhotoId needCount needUser')
+    res.status(200).send({ message: 'Question Query', one_query: one_question})
+  }
+  catch( e){
+    console.log(e)
+  }
+}

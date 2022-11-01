@@ -303,6 +303,8 @@ exports.markAttendenceClassStudent = async (req, res) => {
           const user = await User.findById({ _id: `${student.user}` });
           const notify = new StudentNotification({});
           notify.notifyContent = `you're present today`;
+          notify.notify_hi_content = `आप आज उपस्थित हैं |`
+          notify.notify_mr_content = `तुम्ही आज हजर आहात.`
           notify.notifySender = classes._id;
           notify.notifyReceiever = user._id;
           notify.notifyType = "Student";
@@ -341,6 +343,8 @@ exports.markAttendenceClassStudent = async (req, res) => {
           const user = await User.findById({ _id: `${student.user}` });
           const notify = new StudentNotification({});
           notify.notifyContent = `you're absent today`;
+          notify.notify_hi_content = `आप आज अनुपस्थित हैं |`
+          notify.notify_mr_content = `तुम्ही आज गैरहजर आहात.`
           notify.notifySender = classes._id;
           notify.notifyReceiever = user._id;
           notify.notifyType = "Student";
@@ -769,6 +773,8 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
         staff.attendDates.push(staffAttendence._id);
         const notify = new StudentNotification({});
         notify.notifyContent = `you're present today`;
+        notify.notify_hi_content = `आप आज उपस्थित हैं |`
+        notify.notify_mr_content = `तुम्ही आज हजर आहात.`
         notify.notifySender = id;
         notify.notifyReceiever = staff.user._id;
         notify.notifyType = "Staff";
@@ -811,6 +817,8 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
         });
         const notify = new StudentNotification({});
         notify.notifyContent = `you're absent today`;
+        notify.notify_hi_content = `आप आज अनुपस्थित हैं |`
+        notify.notify_mr_content = `तुम्ही आज गैरहजर आहात.`
         notify.notifySender = id;
         notify.notifyReceiever = staff.user._id;
         notify.notifyType = "Staff";
@@ -1215,6 +1223,8 @@ exports.holidayCalendar = async (req, res) => {
       const user = await User.findById({ _id: `${student.user._id}` });
       const notify = new StudentNotification({});
       notify.notifyContent = `New Holiday Marked`;
+      notify.notify_hi_content = `नई छुट्टी मार्के की गई | `
+      notify.notify_mr_content = `नवीन सुट्टी मार्क केली.`
       notify.notifySender = depart._id;
       notify.notifyType = "Student";
       notify.notifyPublisher = student._id;

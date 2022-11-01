@@ -52,6 +52,8 @@ const studentNotificationSchema = new mongoose.Schema({
   batchId: { type: String },
   instituteId: { type: String },
   notifyCategory: { type: String },
+  notify_hi_content: { type: String },
+  notify_mr_content: { type: String }
 });
 
 module.exports = mongoose.model(

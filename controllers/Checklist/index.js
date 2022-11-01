@@ -63,6 +63,8 @@ exports.createChecklist = async (req, res) => {
       const user = await User.findById({ _id: `${student.user._id}` });
       const notify = new StudentNotification({});
       notify.notifyContent = `New ${check.checklistName} (checklist) has been created. check your member's Tab`;
+      notify.notify_hi_content = `नवीन ${check.checklistName} बनाई गई है। अपना सदस्य टैब देखे |`
+      notify.notify_mr_content = `नवीन ${check.checklistName} तयार केली आहे. तुमच्या सदस्याचा टॅब तपासा.`
       notify.notifySender = did;
       notify.notifyReceiever = user._id;
       notify.notifyType = 'Student'

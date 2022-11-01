@@ -323,6 +323,8 @@ exports.updateUserFollow = async (req, res) => {
       user.followingUICount += 1;
       suser.followerCount += 1;
       notify.notifyContent = `${user.userLegalName} started to following you`;
+      notify.notify_hi_content = `${user.userLegalName} आपको  फॉलो  कर  रहा है |`
+      notify.notify_mr_content = `${user.userLegalName} ने तुम्हाला फॉलो करायला सुरुवात केली`
       notify.notifySender = user._id;
       notify.notifyReceiever = suser._id;
       suser.uNotify.push(notify);
@@ -433,6 +435,8 @@ exports.updateUserCircle = async (req, res) => {
         suser.circleCount += 1;
         user.circleCount += 1;
         notify.notifyContent = `${user.userLegalName} has been added to your circle`;
+        notify.notify_hi_content = `${user.userLegalName} आपके सर्कल मे जुड गाय है |`
+        notify.notify_mr_content = `${user.userLegalName} तुमच्या सर्कल मध्ये जोडले गेले आहे`
         notify.notifySender = user._id;
         notify.notifyReceiever = suser._id;
         suser.uNotify.push(notify);

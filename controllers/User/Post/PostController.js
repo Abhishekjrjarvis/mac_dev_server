@@ -534,6 +534,8 @@ exports.postComment = async (req, res) => {
         notify.notifyContent = `you shared a new comment`;
       } else {
         notify.notifyContent = `${comment.authorName} commented on your post`;
+        notify.notify_hi_content = `${comment.authorName} ने आपकी पोस्ट पर कमेन्ट की |`
+        notify.notify_mr_content = `${comment.authorName} ने तुमच्या पोस्टवर कमेन्ट केली`
       }
       notify.notifySender = req.tokenData?.userId
         ? req.tokenData.userId
@@ -564,6 +566,8 @@ exports.postComment = async (req, res) => {
         notify.notifyContent = `you shared a new comment`;
       } else {
         notify.notifyContent = `${comment.authorName} commented on your post`;
+        notify.notify_hi_content = `${comment.authorName} ने आपकी पोस्ट पर कमेन्ट की |`
+        notify.notify_mr_content = `${comment.authorName} ने तुमच्या पोस्टवर कमेन्ट केली`
       }
       notify.notifySender = req.tokenData?.userId
         ? req.tokenData.userId

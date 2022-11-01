@@ -291,6 +291,8 @@ exports.takeTestSet = async (req, res) => {
       student.testSet.push(studentTestSet._id);
       const notify = new StudentNotification({});
       notify.notifyContent = `New ${testSet.testExamName} Test is created for ${testSet.testSubject}`;
+      notify.notify_hi_content = `नई ${testSet.testExamName} परीक्षा ${testSet.testSubject} के लिए बनाया गया है`
+      notify.notify_mr_content = `नई ${testSet.testSubject} साठी नवीन ${testSet.testExamName} चाचणी तयार केली आहे.`
       notify.notifySender = subject._id;
       notify.notifyReceiever = user._id;
       notify.notifyType = "Student";
@@ -685,6 +687,8 @@ exports.createExam = async (req, res) => {
               }
               const notify = new StudentNotification({});
               notify.notifyContent = `New ${exam.examName} Exam is created for ${sub.subjectName} , check your members tab`;
+              notify.notify_hi_content = `नई परीक्षा ${exam.examName} ${sub.subjectName} के लिए बनाई है | अपना सदस्य टैब देखे |`
+              notify.notify_mr_content = `${sub.subjectName} साठी नवीन ${exam.examName} परीक्षा तयार केली आहे, तुमचे सदस्य टॅब तपासा.`
               notify.notifySender = department._id;
               notify.notifyReceiever = user._id;
               notify.notifyType = "Student";
@@ -860,6 +864,8 @@ exports.createAssignment = async (req, res) => {
       stu.assignments.push(studentAssignment._id);
       const notify = new StudentNotification({});
       notify.notifyContent = `New ${studentAssignment.assignmentName} is created for ${subject.subjectName} , check your members tab`;
+      notify.notify_hi_content = `नई ${studentAssignment.assignmentName} ${subject.subjectName} के लिए बनाई है | अपना सदस्य टैब देखे |`
+      notify.notify_mr_content = `${subject.subjectName} साठी नवीन ${studentAssignment.assignmentName} तयार केले आहे, तुमचे सदस्य टॅब तपासा.`
       notify.notifySender = subject._id;
       notify.notifyReceiever = user._id;
       notify.notifyType = "Student";
@@ -1221,6 +1227,8 @@ exports.getStudentOneAssignmentSubmit = async (req, res) => {
     //
     const notify = new StudentNotification({});
     notify.notifyContent = `${student?.studentFirstName} submit ${assignment?.assignmentName} Assignment Successfully`;
+    notify.notify_hi_content = `${student?.studentFirstName} ने ${assignment?.assignmentName} असाइनमेंट सफलतापूर्वक सबमिट किया है |`
+    notify.notify_mr_content = `${student?.studentFirstName} ने ${assignment?.assignmentName} असाइनमेंट यशस्वीरित्या सबमिट केली.`
     notify.notifySender = student._id;
     notify.notifyReceiever = user._id;
     notify.assignmentId = assignment?._id;

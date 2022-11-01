@@ -201,16 +201,16 @@ const studentSchema = new mongoose.Schema({
   sportEvent: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'SportEvent',
-    }
+      ref: "SportEvent",
+    },
   ],
   studentSportsEventMatch: [
     {
       eventMatch: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'SportEventMatch',
+        ref: "SportEventMatch",
       },
-      rankTitle: { type: String, default: 'Announced to be soon' },
+      rankTitle: { type: String, default: "Announced to be soon" },
       updatedAt: { type: Date, default: Date.now },
     },
   ],
@@ -226,7 +226,7 @@ const studentSchema = new mongoose.Schema({
   },
   batchCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   studentChecklist: [
     {
@@ -333,15 +333,22 @@ const studentSchema = new mongoose.Schema({
     },
   ],
   certificateBonaFideCopy: {
-    trueCopy: { type: Boolean, default: false},
-    secondCopy: { type: Boolean, default: false},
-    thirdCopy: { type: Boolean, default: false}
+    trueCopy: { type: Boolean, default: false },
+    secondCopy: { type: Boolean, default: false },
+    thirdCopy: { type: Boolean, default: false },
   },
   certificateLeavingCopy: {
-    trueCopy: { type: Boolean, default: false},
-    secondCopy: { type: Boolean, default: false},
-    thirdCopy: { type: Boolean, default: false}
-  }
+    trueCopy: { type: Boolean, default: false },
+    secondCopy: { type: Boolean, default: false },
+    thirdCopy: { type: Boolean, default: false },
+  },
+
+  dailyUpdate: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubjectUpdate",
+    },
+  ],
 });
 
 const Student = mongoose.model("Student", studentSchema);

@@ -7,6 +7,7 @@ const Batch = require("../../models/Batch");
 const Exam = require("../../models/Exam");
 const Student = require("../../models/Student");
 const User = require("../../models/User");
+const AttendenceDate = require("../../models/AttendenceDate");
 const SubjectMarks = require("../../models/Marks/SubjectMarks");
 const Behaviour = require("../../models/Behaviour");
 const FinalReport = require("../../models/Marks/FinalReport");
@@ -373,28 +374,29 @@ exports.allStudentInSubjectTeacher = async (req, res) => {
           match: { subject: { $eq: req.params.sid } },
         })
         .select(
-          "studentFirstName studentMiddleName studentLastName studentROLLNO studentProfilePhoto subjectMarks"
+          "studentFirstName studentMiddleName studentLastName studentROLLNO studentProfilePhoto subjectMarks studentClass"
         )
         .lean()
         .exec();
 
       for (let onemarks of student?.subjectMarks[0]?.marks) {
         if (onemarks.examId === req.params.eid) {
-          // console.log(onemarks);
-          const stu = await Student.findById(studentId)
-            .populate({
-              path: "attendDate",
-              match: {
-                attendDate: { $eq: onemarks.date },
-                presentStudent: { $in: [studentId] },
-              },
-              select: "_id",
-            })
-            .select("-_id attendDate")
-            .lean()
-            .exec();
-          // console.log(stu);
-
+          const attend = await AttendenceDate.find({
+            $and: [
+              { attendDate: { $eq: `${onemarks.date}` } },
+              { className: { $eq: `${student.studentClass}` } },
+            ],
+          });
+          let flag = null;
+          if (attend?.length) {
+            attend[0]?.presentStudent?.forEach((ids) => {
+              if (String(ids?.student) === req.params.sid) return (flag = true);
+            });
+            attend[0]?.absentStudent?.forEach((ids) => {
+              if (String(ids?.student) === req.params.sid)
+                return (flag = false);
+            });
+          }
           students.push({
             _id: student._id,
             studentFirstName: student.studentFirstName,
@@ -404,7 +406,7 @@ exports.allStudentInSubjectTeacher = async (req, res) => {
             studentROLLNO: student.studentROLLNO,
             obtainMarks: onemarks.obtainMarks,
             answerSheet: onemarks?.answerSheet,
-            present: stu?.attendDate?.length > 0 ? true : null,
+            present: flag,
           });
         }
       }
@@ -535,7 +537,7 @@ exports.allExamInStudent = async (req, res) => {
         subject: 0,
       };
       exam.subjects?.forEach((sub) => {
-        if (detailSubject?.subject.includes(String(sub.subjectId))) {
+        if (student?.studentClass?.subject.includes(String(sub.subjectId))) {
           examObj.subject = examObj.subject + 1;
         }
       });
@@ -593,6 +595,52 @@ exports.oneExamAllSubjectInStudent = async (req, res) => {
   }
 };
 
+exports.oneExamOneSubjectAnswersheetInStudent = async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.sid)
+      .populate({
+        path: "subjectMarks",
+      })
+      .select("_id studentClass");
+    let subjects = "";
+
+    for (let submarks of student?.subjectMarks) {
+      for (let exammarks of submarks?.marks) {
+        if (
+          exammarks.examId === req.params.eid &&
+          String(submarks.subject) === req.query?.subjectId
+        ) {
+          const attend = await AttendenceDate.find({
+            $and: [
+              { attendDate: { $eq: `${onemarks.date}` } },
+              { className: { $eq: `${student.studentClass}` } },
+            ],
+          });
+          let flag = null;
+          if (attend?.length) {
+            attend[0]?.presentStudent?.forEach((ids) => {
+              if (String(ids?.student) === req.params.sid) return (flag = true);
+            });
+            attend[0]?.absentStudent?.forEach((ids) => {
+              if (String(ids?.student) === req.params.sid)
+                return (flag = false);
+            });
+          }
+          subjects = {
+            _id: submarks.subject,
+            obtainMarks: exammarks.obtainMarks,
+            totalMarks: exammarks.totalMarks,
+            answersheet: exammarks.answerSheet,
+            present: flag,
+          };
+        }
+      }
+    }
+    res.status(200).send({ subjects });
+  } catch (e) {
+    console.log(e);
+  }
+};
 exports.oneClassSettings = async (req, res) => {
   try {
     const classes = await Class.findById(req.params.cid).select(
@@ -688,7 +736,8 @@ exports.oneStudentReportCardClassTeacher = async (req, res) => {
 
           obj.subjectWiseTotal =
             obj.subjectWiseTotal +
-            (eachmarks.obtainMarks * eachmarks.examWeight) / 100;
+            (eachmarks.obtainMarks * eachmarks.examWeight) /
+              eachmarks.totalMarks;
         } else {
           obj.finalTotalMarks = eachmarks.totalMarks;
           obj.finalObtainMarks = eachmarks.obtainMarks;

@@ -9,7 +9,8 @@ const pollSchema = new mongoose.Schema({
             content: { type: String },
             percent_vote: { type: Number, default: 0 },
             color_type: { type: String, default: '#F0F0F0' },
-            users: []
+            users: [],
+            content_script: { type: String },
         }
     ],
     total_votes: {

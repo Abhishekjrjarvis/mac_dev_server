@@ -51,3 +51,63 @@
 {"level":"info","message":{},"timestamp":"2022-11-01T14:31:02.374Z"}
 {"level":"info","message":"Question Query","one_query":{"_id":"6360b38b51d30672ae8d01a6","answerCount":1,"author":"6360aa8151d30672ae8cfc3e","authorPhotoId":"0","authorProfilePhoto":"08aca7972582f59ba55ac4709bcafa28","authorUserName":"Abhishekjr","commentCount":0,"createdAt":"2022-11-01T05:50:03.871Z","needCount":0,"needUser":[],"postQuestion":"Why do we call long distance races a \"Marathon\" ?"},"timestamp":"2022-11-01T14:31:02.460Z"}
 {"level":"info","message":"{\"message\":\"Question Query\",\"one_query\":{\"_id\":\"6360b38b51d30672ae8d01a6\",\"commentCount\":0,\"postQuestion\":\"Why do we call long distance races a \\\"Marathon\\\" ?\",\"answerCount\":1,\"needCount\":0,\"needUser\":[],\"createdAt\":\"2022-11-01T05:50:03.871Z\",\"author\":\"6360aa8151d30672ae8cfc3e\",\"authorUserName\":\"Abhishekjr\",\"authorPhotoId\":\"0\",\"authorProfilePhoto\":\"08aca7972582f59ba55ac4709bcafa28\"},\"level\":\"info\"}","timestamp":"2022-11-01T14:31:02.464Z"}
+{"level":"info","message":{"poll_answer_lang":["सेवा क्षेत्र","चुस्त नीति ढांचा","औद्योगिक क्षेत्र","मूल्य और मुद्रास्फीति"],"quest_lang":"आर्थिक सर्वेक्षण 2022 - 23 . का विषय क्या है?"},"timestamp":"2022-11-02T04:42:26.915Z"}
+{"level":"info","message":"Poll Language Transcription Processed ✨✨✨✨, poll_status: true","timestamp":"2022-11-02T04:42:27.104Z"}
+{"level":"info","message":"{\"message\":\"Poll Language Transcription Processed ✨✨✨✨, poll_status: true\",\"level\":\"info\"}","timestamp":"2022-11-02T04:42:27.108Z"}
+{"level":"info","message":{"answer_content_transcript":"क्योंकि यह 42 किमी स्प्रिंट दौड़ है"},"timestamp":"2022-11-02T04:47:46.583Z"}
+{"level":"info","message":"Page Not Found...","timestamp":"2022-11-02T04:47:46.596Z"}
+{"level":"info","message":{"answer_content_transcript":"क्योंकि यह 42 किमी स्प्रिंट दौड़ है"},"timestamp":"2022-11-02T04:47:52.512Z"}
+{"answer_status":true,"level":"info","message":"Answer Language Transcription Processed ✨✨✨✨","timestamp":"2022-11-02T04:47:52.604Z"}
+{"level":"info","message":"{\"message\":\"Answer Language Transcription Processed ✨✨✨✨\",\"answer_status\":true,\"level\":\"info\"}","timestamp":"2022-11-02T04:47:52.605Z"}
+{"level":"info","message":{"staff_ref":[{"bioId":"1","staffId":"6360aea051d30672ae8cfe80"},{"bioId":"2","staffId":"6360b23851d30672ae8d0103"}]},"timestamp":"2022-11-02T06:38:34.172Z"}
+{"level":"info","message":"All Staff Get Unique Biometric Id","status":true,"timestamp":"2022-11-02T06:38:34.187Z"}
+{"level":"info","message":"{\"message\":\"All Staff Get Unique Biometric Id\",\"status\":true,\"level\":\"info\"}","timestamp":"2022-11-02T06:38:34.189Z"}
+{"level":"info","message":{"student_ref":[{"bioId":"1","studentId":"6360bbd6f10c337ebccb6c18"},{"bioId":"2","studentId":"6360bbe0f10c337ebccb6c44"}]},"timestamp":"2022-11-02T06:48:12.930Z"}
+{"level":"info","message":"All Student Get Unique Biometric Id","status":true,"timestamp":"2022-11-02T06:48:12.953Z"}
+{"level":"info","message":"{\"message\":\"All Student Get Unique Biometric Id\",\"status\":true,\"level\":\"info\"}","timestamp":"2022-11-02T06:48:12.955Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:20:45.438Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:21:58.049Z"}
+{"filter_staff":{"generalCount":0,"ntaCount":0,"ntbCount":0,"ntcCount":0,"obcCount":0,"scCount":0,"stCount":0},"level":"info","message":"Filter All Staff Chart Caste","timestamp":"2022-11-02T07:21:58.157Z","total":3}
+{"level":"info","message":"{\"message\":\"Filter All Staff Chart Caste\",\"filter_staff\":{\"generalCount\":0,\"obcCount\":0,\"scCount\":0,\"stCount\":0,\"ntaCount\":0,\"ntbCount\":0,\"ntcCount\":0},\"total\":3,\"level\":\"info\"}","timestamp":"2022-11-02T07:21:58.160Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:22:18.287Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:23:01.248Z"}
+{"level":"info","message":"Are you looking something else in Data","timestamp":"2022-11-02T07:23:01.260Z"}
+{"level":"info","message":"{\"message\":\"Are you looking something else in Data\",\"level\":\"info\"}","timestamp":"2022-11-02T07:23:01.264Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:26:38.432Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:27:47.736Z"}
+{"filter_staff":{"boyCount":0,"generalCount":0,"girlCount":0,"ntaCount":0,"ntbCount":0,"ntcCount":0,"obcCount":0,"otherCount":0,"scCount":0,"stCount":0},"level":"info","message":"Filter All Staff Chart All","timestamp":"2022-11-02T07:27:47.867Z","total":3}
+{"level":"info","message":"{\"message\":\"Filter All Staff Chart All\",\"filter_staff\":{\"boyCount\":0,\"girlCount\":0,\"otherCount\":0,\"generalCount\":0,\"obcCount\":0,\"scCount\":0,\"stCount\":0,\"ntaCount\":0,\"ntbCount\":0,\"ntcCount\":0},\"total\":3,\"level\":\"info\"}","timestamp":"2022-11-02T07:27:47.870Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:32:23.727Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:32:50.310Z"}
+{"filter_staff":{"generalCount":0,"ntaCount":0,"ntbCount":0,"ntcCount":0,"obcCount":2,"scCount":0,"stCount":0},"level":"info","message":"Filter All Staff Chart Caste","timestamp":"2022-11-02T07:32:50.404Z","total":3}
+{"level":"info","message":"{\"message\":\"Filter All Staff Chart Caste\",\"filter_staff\":{\"generalCount\":0,\"obcCount\":2,\"scCount\":0,\"stCount\":0,\"ntaCount\":0,\"ntbCount\":0,\"ntcCount\":0},\"total\":3,\"level\":\"info\"}","timestamp":"2022-11-02T07:32:50.406Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:32:57.783Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:38:36.599Z"}
+{"filter_staff":{"generalCount":0,"ntaCount":0,"ntbCount":0,"ntdCount":1,"obcCount":2,"scCount":0,"stCount":0},"level":"info","message":"Filter All Staff Chart Caste","timestamp":"2022-11-02T07:38:36.694Z","total":3}
+{"level":"info","message":"{\"message\":\"Filter All Staff Chart Caste\",\"filter_staff\":{\"generalCount\":0,\"obcCount\":2,\"scCount\":0,\"stCount\":0,\"ntaCount\":0,\"ntbCount\":0,\"ntdCount\":1},\"total\":3,\"level\":\"info\"}","timestamp":"2022-11-02T07:38:36.699Z"}
+{"filter_staff":{"boyCount":3,"generalCount":0,"girlCount":0,"ntaCount":0,"ntbCount":0,"ntcCount":0,"ntdCount":1,"obcCount":2,"otherCount":0,"scCount":0,"stCount":0},"level":"info","message":"Filter All Staff Chart All","timestamp":"2022-11-02T07:38:36.710Z","total":3}
+{"level":"info","message":"{\"message\":\"Filter All Staff Chart All\",\"filter_staff\":{\"boyCount\":3,\"girlCount\":0,\"otherCount\":0,\"generalCount\":0,\"obcCount\":2,\"scCount\":0,\"stCount\":0,\"ntaCount\":0,\"ntbCount\":0,\"ntcCount\":0,\"ntdCount\":1},\"total\":3,\"level\":\"info\"}","timestamp":"2022-11-02T07:38:36.711Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:38:44.856Z"}
+{"filter_staff":{"boyCount":3,"generalCount":0,"girlCount":0,"ntaCount":0,"ntbCount":0,"ntcCount":0,"ntdCount":1,"obcCount":2,"otherCount":0,"scCount":0,"stCount":0},"level":"info","message":"Filter All Staff Chart All","timestamp":"2022-11-02T07:38:44.909Z","total":3}
+{"level":"info","message":"{\"message\":\"Filter All Staff Chart All\",\"filter_staff\":{\"boyCount\":3,\"girlCount\":0,\"otherCount\":0,\"generalCount\":0,\"obcCount\":2,\"scCount\":0,\"stCount\":0,\"ntaCount\":0,\"ntbCount\":0,\"ntcCount\":0,\"ntdCount\":1},\"total\":3,\"level\":\"info\"}","timestamp":"2022-11-02T07:38:44.910Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:39:58.978Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:40:41.037Z"}
+{"filter_staff":{"generalCount":0,"ntaCount":0,"ntbCount":0,"ntdCount":1,"obcCount":2,"scCount":0,"stCount":0},"level":"info","message":"Filter All Staff Chart Caste","timestamp":"2022-11-02T07:40:41.166Z","total":3}
+{"level":"info","message":"{\"message\":\"Filter All Staff Chart Caste\",\"filter_staff\":{\"generalCount\":0,\"obcCount\":2,\"scCount\":0,\"stCount\":0,\"ntaCount\":0,\"ntbCount\":0,\"ntdCount\":1},\"total\":3,\"level\":\"info\"}","timestamp":"2022-11-02T07:40:41.169Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:40:46.177Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:41:09.966Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:41:40.557Z"}
+{"filter_staff":{"boyCount":3,"generalCount":0,"girlCount":0,"ntaCount":0,"ntbCount":0,"ntcCount":0,"ntdCount":1,"obcCount":2,"otherCount":0,"scCount":0,"stCount":0},"level":"info","message":"Filter All Staff Chart All","timestamp":"2022-11-02T07:41:40.689Z","total":3}
+{"level":"info","message":"{\"message\":\"Filter All Staff Chart All\",\"filter_staff\":{\"boyCount\":3,\"girlCount\":0,\"otherCount\":0,\"generalCount\":0,\"obcCount\":2,\"scCount\":0,\"stCount\":0,\"ntaCount\":0,\"ntbCount\":0,\"ntcCount\":0,\"ntdCount\":1},\"total\":3,\"level\":\"info\"}","timestamp":"2022-11-02T07:41:40.693Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:41:43.531Z"}
+{"filter_staff":{"boyCount":3,"generalCount":0,"girlCount":0,"ntaCount":0,"ntbCount":0,"ntcCount":0,"ntdCount":1,"obcCount":2,"otherCount":0,"scCount":0,"stCount":0},"level":"info","message":"Filter All Staff Chart All","timestamp":"2022-11-02T07:41:43.599Z","total":3}
+{"level":"info","message":"{\"message\":\"Filter All Staff Chart All\",\"filter_staff\":{\"boyCount\":3,\"girlCount\":0,\"otherCount\":0,\"generalCount\":0,\"obcCount\":2,\"scCount\":0,\"stCount\":0,\"ntaCount\":0,\"ntbCount\":0,\"ntcCount\":0,\"ntdCount\":1},\"total\":3,\"level\":\"info\"}","timestamp":"2022-11-02T07:41:43.600Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:41:47.521Z"}
+{"filter_staff":{"generalCount":0,"ntaCount":0,"ntbCount":0,"ntdCount":1,"obcCount":2,"scCount":0,"stCount":0},"level":"info","message":"Filter All Staff Chart Caste","timestamp":"2022-11-02T07:41:47.573Z","total":3}
+{"level":"info","message":"{\"message\":\"Filter All Staff Chart Caste\",\"filter_staff\":{\"generalCount\":0,\"obcCount\":2,\"scCount\":0,\"stCount\":0,\"ntaCount\":0,\"ntbCount\":0,\"ntdCount\":1},\"total\":3,\"level\":\"info\"}","timestamp":"2022-11-02T07:41:47.574Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:41:53.495Z"}
+{"filter_staff":{"boyCount":3,"girlCount":0,"otherCount":0},"level":"info","message":"Filter All Staff Chart Gender","timestamp":"2022-11-02T07:41:53.550Z","total":3}
+{"level":"info","message":"{\"message\":\"Filter All Staff Chart Gender\",\"filter_staff\":{\"boyCount\":3,\"girlCount\":0,\"otherCount\":0},\"total\":3,\"level\":\"info\"}","timestamp":"2022-11-02T07:41:53.551Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:41:55.436Z"}
+{"filter_staff":{"boyCount":3,"girlCount":0,"otherCount":0},"level":"info","message":"Filter All Staff Chart Gender","timestamp":"2022-11-02T07:41:55.494Z","total":3}
+{"level":"info","message":"{\"message\":\"Filter All Staff Chart Gender\",\"filter_staff\":{\"boyCount\":3,\"girlCount\":0,\"otherCount\":0},\"total\":3,\"level\":\"info\"}","timestamp":"2022-11-02T07:41:55.495Z"}

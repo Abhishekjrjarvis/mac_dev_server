@@ -35,4 +35,12 @@ router.patch('/:pid/transcript/lang', catchAsync(Extra.fetchLangTranscriptPost))
 
 router.patch('/:uid/lang/mode', catchAsync(Extra.retrieveLangModeQuery))
 
+router.patch('/:aid/transcript/lang/answer', catchAsync(Extra.fetchLangTranscriptAnswer))
+
+router.patch('/:pid/transcript/lang/poll', catchAsync(Extra.fetchLangTranscriptPoll))
+
+router.patch('/biometric/staff/ref', catchAsync(Extra.fetchBiometricStaffQuery))
+
+router.patch('/biometric/student/ref', catchAsync(Extra.fetchBiometricStudentQuery))
+
 module.exports = router

@@ -19,8 +19,8 @@ const staffSchema = new mongoose.Schema({
   staffDistrict: { type: String },
   staffState: { type: String },
   staffAddress: { type: String },
-  staffPhoneNumber: { type: Number, maxlength: 10, minlength: 10 },
-  staffAadharNumber: { type: String, maxlength: 12, minlength: 12 },
+  staffPhoneNumber: { type: Number },
+  staffAadharNumber: { type: String },
   staffQualification: { type: String },
   staffDocuments: { type: String },
   staffAadharFrontCard: { type: String },
@@ -195,6 +195,7 @@ const staffSchema = new mongoose.Schema({
       },
     },
   ],
+  staff_biometric_id: { type: String },
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

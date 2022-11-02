@@ -492,27 +492,31 @@ exports.updateApproveStaff = async (req, res) => {
       await user.save();
     } else {
     }
-    if (staff.staffGender === "Male") {
+    if (staffs.staffGender === "Male") {
       institute.staff_category.boyCount += 1;
-    } else if (staff.staffGender === "Female") {
+    } else if (staffs.staffGender === "Female") {
       institute.staff_category.girlCount += 1;
     } else {
       institute.staff_category.otherCount += 1;
     }
-    if (staff.staffCastCategory === "General") {
+    if (staffs.staffCastCategory === "General") {
       institute.staff_category.generalCount += 1;
-    } else if (staff.staffCastCategory === "OBC") {
+    } else if (staffs.staffCastCategory === "OBC") {
       institute.staff_category.obcCount += 1;
-    } else if (staff.staffCastCategory === "SC") {
+    } else if (staffs.staffCastCategory === "SC") {
       institute.staff_category.scCount += 1;
-    } else if (staff.staffCastCategory === "ST") {
+    } else if (staffs.staffCastCategory === "ST") {
       institute.staff_category.stCount += 1;
-    } else if (staff.staffCastCategory === "NT-A") {
+    } else if (staffs.staffCastCategory === "NT-A") {
       institute.staff_category.ntaCount += 1;
-    } else if (staff.staffCastCategory === "NT-B") {
+    } else if (staffs.staffCastCategory === "NT-B") {
       institute.staff_category.ntbCount += 1;
-    } else if (staff.staffCastCategory === "NT-C") {
+    } else if (staffs.staffCastCategory === "NT-C") {
       institute.staff_category.ntcCount += 1;
+    } else if (staffs.staffCastCategory === "NT-D") {
+      institute.staff_category.ntdCount += 1;
+    } else if (staffs.staffCastCategory === "VJ") {
+      institute.staff_category.vjCount += 1;
     } else {
     }
     await Promise.all([institute.save()]);
@@ -2305,6 +2309,10 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
       batch.student_category.ntbCount += 1;
     } else if (student.studentCastCategory === "NT-C") {
       batch.student_category.ntcCount += 1;
+    } else if (student.studentCastCategory === "NT-D") {
+      batch.student_category.ntdCount += 1;
+    } else if (student.studentCastCategory === "VJ") {
+      batch.student_category.vjCount += 1;
     } else {
     }
     await Promise.all([classes.save(), batch.save()]);

@@ -515,6 +515,8 @@ exports.updateApproveStaff = async (req, res) => {
       institute.staff_category.ntcCount += 1;
     } else if (staffs.staffCastCategory === "NT-D") {
       institute.staff_category.ntdCount += 1;
+    } else if (staffs.staffCastCategory === "VJ") {
+      institute.staff_category.vjCount += 1;
     } else {
     }
     await Promise.all([institute.save()]);
@@ -2280,6 +2282,8 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
       batch.student_category.ntcCount += 1;
     } else if (student.studentCastCategory === "NT-D") {
       batch.student_category.ntdCount += 1;
+    } else if (student.studentCastCategory === "VJ") {
+      batch.student_category.vjCount += 1;
     } else {
     }
     await Promise.all([classes.save(), batch.save()]);

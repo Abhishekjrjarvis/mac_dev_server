@@ -71,6 +71,7 @@ const batchSchema = new mongoose.Schema({
     ntbCount: { type: Number, default: 0},
     ntcCount: { type: Number, default: 0},
     ntdCount: { type: Number, default: 0},
+    vjCount: { type: Number, default: 0},
   }
 });
 

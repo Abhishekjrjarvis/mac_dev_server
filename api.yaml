@@ -1547,6 +1547,65 @@ paths:
         "200":
           description: OK
 
+  /api/v1/extra/{aid}/transcript/lang/answer:
+    patch:
+      tags:
+        - Setting Control API
+      summary: Answer Language Translation -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Answer Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              answer_content_transcript:
+                type: string
+                description: Enter Translated Text
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/extra/{pid}/transcript/lang/poll:
+    patch:
+      tags:
+        - Setting Control API
+      summary: Poll Language Translation -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          type: string
+          description: Enter Poll Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              quest_lang:
+                type: string
+                description: Enter Translated Question Text
+              poll_answer_lang:
+                type: array
+                description: Array of Translated String ["सेवा क्षेत्र", "चुस्त नीति ढांचा", "औद्योगिक क्षेत्र", "मूल्य और मुद]
+                items:
+                  type: string
+                  description: Translated Poll Answer
+      responses:
+        "200":
+          description: OK
   
   /api/v1/extra/{uid}/lang/mode:
     patch:

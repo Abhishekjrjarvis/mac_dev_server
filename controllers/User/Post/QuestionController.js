@@ -297,12 +297,12 @@ exports.getQuestionAnswer = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "answerContent createdAt answerImageId answerImage upVote upVoteCount authorOneLine downVote downVoteCount isMentor answerReplyCount author answerSave authorName authorUserName authorPhotoId authorProfilePhoto"
+        "answerContent answer_content_transcript createdAt answerImageId answerImage upVote upVoteCount authorOneLine downVote downVoteCount isMentor answerReplyCount author answerSave authorName authorUserName authorPhotoId authorProfilePhoto"
       )
       .populate({
         path: "post",
         select:
-          "postQuestion author authorProfilePhoto authorPhotoId authorUserName isUser answerCount createdAt",
+          "postQuestion author authorProfilePhoto authorPhotoId authorUserName isUser answerCount createdAt post_question_transcript",
       });
     res.status(200).send({ message: "All answer's of one Question", answer });
   } catch {}
@@ -792,12 +792,12 @@ exports.getAllSaveAnswerQuery = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "answerContent createdAt answerImageId answerImage upVote upVoteCount authorOneLine downVote downVoteCount isMentor answerReplyCount author answerSave authorName authorUserName authorPhotoId authorProfilePhoto"
+          "answerContent answer_content_transcript createdAt answerImageId answerImage upVote upVoteCount authorOneLine downVote downVoteCount isMentor answerReplyCount author answerSave authorName authorUserName authorPhotoId authorProfilePhoto"
         )
         .populate({
           path: "post",
           select:
-            "postQuestion author authorProfilePhoto authorPhotoId authorUserName isUser answerCount createdAt",
+            "postQuestion author authorProfilePhoto authorPhotoId authorUserName isUser answerCount createdAt post_question_transcript",
         });
         
       const answerCount = await Answer.find({ _id: { $in: user.user_saved_answer } });

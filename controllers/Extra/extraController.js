@@ -6,6 +6,8 @@ const Student = require('../../models/Student')
 const Staff = require('../../models/Staff')
 const { shuffleArray } = require('../../Utilities/Shuffle')
 const Post = require('../../models/Post')
+const Answer = require('../../models/Question/Answer')
+const Poll = require('../../models/Question/Poll')
 
 exports.validateUserAge = async(req, res) =>{
     try{
@@ -399,6 +401,34 @@ exports.retrieveLangModeQuery = async(req, res) => {
     else{
       res.status(200).send({ message: 'No Better communication mode is selected', lang_status: false})
     }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.fetchLangTranscriptAnswer = async(req, res) =>{
+  try{
+    const { aid } = req.params
+    await Answer.findByIdAndUpdate(aid, req.body)
+    res.status(200).send({ message: 'Answer Language Transcription Processed ✨✨✨✨', answer_status: true})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.fetchLangTranscriptPoll = async(req, res) =>{
+  try{
+    const { pid } = req.params
+    const { quest_lang, poll_answer_lang } = req.body
+    const poll = await Poll.findById({_id: pid})
+    poll.poll_question_transcript = quest_lang
+    poll.poll_answer?.forEach(async (ele, index) => {
+      ele.content_script = poll_answer_lang[index]
+    })
+    await poll.save()
+    res.status(200).send({ message: 'Poll Language Transcription Processed ✨✨✨✨, poll_status: true'})
   }
   catch(e){
     console.log(e)

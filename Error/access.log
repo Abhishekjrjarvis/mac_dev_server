@@ -51,3 +51,11 @@
 {"level":"info","message":{},"timestamp":"2022-11-01T14:31:02.374Z"}
 {"level":"info","message":"Question Query","one_query":{"_id":"6360b38b51d30672ae8d01a6","answerCount":1,"author":"6360aa8151d30672ae8cfc3e","authorPhotoId":"0","authorProfilePhoto":"08aca7972582f59ba55ac4709bcafa28","authorUserName":"Abhishekjr","commentCount":0,"createdAt":"2022-11-01T05:50:03.871Z","needCount":0,"needUser":[],"postQuestion":"Why do we call long distance races a \"Marathon\" ?"},"timestamp":"2022-11-01T14:31:02.460Z"}
 {"level":"info","message":"{\"message\":\"Question Query\",\"one_query\":{\"_id\":\"6360b38b51d30672ae8d01a6\",\"commentCount\":0,\"postQuestion\":\"Why do we call long distance races a \\\"Marathon\\\" ?\",\"answerCount\":1,\"needCount\":0,\"needUser\":[],\"createdAt\":\"2022-11-01T05:50:03.871Z\",\"author\":\"6360aa8151d30672ae8cfc3e\",\"authorUserName\":\"Abhishekjr\",\"authorPhotoId\":\"0\",\"authorProfilePhoto\":\"08aca7972582f59ba55ac4709bcafa28\"},\"level\":\"info\"}","timestamp":"2022-11-01T14:31:02.464Z"}
+{"level":"info","message":{"poll_answer_lang":["सेवा क्षेत्र","चुस्त नीति ढांचा","औद्योगिक क्षेत्र","मूल्य और मुद्रास्फीति"],"quest_lang":"आर्थिक सर्वेक्षण 2022 - 23 . का विषय क्या है?"},"timestamp":"2022-11-02T04:42:26.915Z"}
+{"level":"info","message":"Poll Language Transcription Processed ✨✨✨✨, poll_status: true","timestamp":"2022-11-02T04:42:27.104Z"}
+{"level":"info","message":"{\"message\":\"Poll Language Transcription Processed ✨✨✨✨, poll_status: true\",\"level\":\"info\"}","timestamp":"2022-11-02T04:42:27.108Z"}
+{"level":"info","message":{"answer_content_transcript":"क्योंकि यह 42 किमी स्प्रिंट दौड़ है"},"timestamp":"2022-11-02T04:47:46.583Z"}
+{"level":"info","message":"Page Not Found...","timestamp":"2022-11-02T04:47:46.596Z"}
+{"level":"info","message":{"answer_content_transcript":"क्योंकि यह 42 किमी स्प्रिंट दौड़ है"},"timestamp":"2022-11-02T04:47:52.512Z"}
+{"answer_status":true,"level":"info","message":"Answer Language Transcription Processed ✨✨✨✨","timestamp":"2022-11-02T04:47:52.604Z"}
+{"level":"info","message":"{\"message\":\"Answer Language Transcription Processed ✨✨✨✨\",\"answer_status\":true,\"level\":\"info\"}","timestamp":"2022-11-02T04:47:52.605Z"}

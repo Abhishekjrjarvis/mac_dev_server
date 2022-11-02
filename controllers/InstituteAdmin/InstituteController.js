@@ -513,6 +513,8 @@ exports.updateApproveStaff = async (req, res) => {
       institute.staff_category.ntbCount += 1;
     } else if (staffs.staffCastCategory === "NT-C") {
       institute.staff_category.ntcCount += 1;
+    } else if (staffs.staffCastCategory === "NT-D") {
+      institute.staff_category.ntdCount += 1;
     } else {
     }
     await Promise.all([institute.save()]);

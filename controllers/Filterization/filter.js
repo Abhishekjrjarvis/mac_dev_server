@@ -268,7 +268,8 @@ exports.retrieveByActiveStudent = async(req, res) => {
       stCount: 0,
       ntaCount: 0,
       ntbCount: 0,
-      ntcCount: 0
+      ntcCount: 0,
+      ntdCount: 0
     }
     const filter_ins = await InstituteAdmin.findById({_id: id}).select('batches')
     if(type === 'Active'){
@@ -287,6 +288,7 @@ exports.retrieveByActiveStudent = async(req, res) => {
         filter_student_caste.ntaCount += ele?.student_category?.ntaCount
         filter_student_caste.ntbCount += ele?.student_category?.ntbCount
         filter_student_caste.ntcCount += ele?.student_category?.ntcCount
+        filter_student_caste.ntdCount += ele?.student_category?.ntdCount
       })
       if(role === 'Gender'){
         res.status(200).send({ message: 'Filter Active Batch Student Chart gender', filter_student: filter_student_gender, total: total})
@@ -310,6 +312,7 @@ exports.retrieveByActiveStudent = async(req, res) => {
         filter_student_caste.ntaCount += ele?.student_category?.ntaCount
         filter_student_caste.ntbCount += ele?.student_category?.ntbCount
         filter_student_caste.ntcCount += ele?.student_category?.ntcCount
+        filter_student_caste.ntdCount += ele?.student_category?.ntdCount
       })
       if(role === 'Gender'){
         res.status(200).send({ message: 'Filter All Batch Student Chart gender', filter_student: filter_student_gender, total: total})
@@ -351,9 +354,25 @@ exports.retrieveByActiveStaff = async(req, res) => {
           stCount: filter_ins?.staff_category?.stCount,
           ntaCount: filter_ins?.staff_category?.ntaCount,
           ntbCount: filter_ins?.staff_category?.ntbCount,
-          ntcCount: filter_ins?.staff_category?.ntcCount,
+          ntdCount: filter_ins?.staff_category?.ntdCount,
         }
         res.status(200).send({ message: 'Filter All Staff Chart Caste', filter_staff: caste, total: total})
+      }
+      var all_filter = {
+        boyCount: filter_ins?.staff_category?.boyCount,
+        girlCount: filter_ins?.staff_category?.girlCount,
+        otherCount: filter_ins?.staff_category?.otherCount,
+        generalCount: filter_ins?.staff_category?.generalCount,
+        obcCount: filter_ins?.staff_category?.obcCount,
+        scCount: filter_ins?.staff_category?.scCount,
+        stCount: filter_ins?.staff_category?.stCount,
+        ntaCount: filter_ins?.staff_category?.ntaCount,
+        ntbCount: filter_ins?.staff_category?.ntbCount,
+        ntcCount: filter_ins?.staff_category?.ntcCount,
+        ntdCount: filter_ins?.staff_category?.ntdCount,
+      }
+      if(role == undefined){
+        res.status(200).send({ message: 'Filter All Staff Chart All', filter_staff: all_filter, total: total})
       }
     }
     else{

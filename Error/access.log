@@ -65,3 +65,49 @@
 {"level":"info","message":{"student_ref":[{"bioId":"1","studentId":"6360bbd6f10c337ebccb6c18"},{"bioId":"2","studentId":"6360bbe0f10c337ebccb6c44"}]},"timestamp":"2022-11-02T06:48:12.930Z"}
 {"level":"info","message":"All Student Get Unique Biometric Id","status":true,"timestamp":"2022-11-02T06:48:12.953Z"}
 {"level":"info","message":"{\"message\":\"All Student Get Unique Biometric Id\",\"status\":true,\"level\":\"info\"}","timestamp":"2022-11-02T06:48:12.955Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:20:45.438Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:21:58.049Z"}
+{"filter_staff":{"generalCount":0,"ntaCount":0,"ntbCount":0,"ntcCount":0,"obcCount":0,"scCount":0,"stCount":0},"level":"info","message":"Filter All Staff Chart Caste","timestamp":"2022-11-02T07:21:58.157Z","total":3}
+{"level":"info","message":"{\"message\":\"Filter All Staff Chart Caste\",\"filter_staff\":{\"generalCount\":0,\"obcCount\":0,\"scCount\":0,\"stCount\":0,\"ntaCount\":0,\"ntbCount\":0,\"ntcCount\":0},\"total\":3,\"level\":\"info\"}","timestamp":"2022-11-02T07:21:58.160Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:22:18.287Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:23:01.248Z"}
+{"level":"info","message":"Are you looking something else in Data","timestamp":"2022-11-02T07:23:01.260Z"}
+{"level":"info","message":"{\"message\":\"Are you looking something else in Data\",\"level\":\"info\"}","timestamp":"2022-11-02T07:23:01.264Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:26:38.432Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:27:47.736Z"}
+{"filter_staff":{"boyCount":0,"generalCount":0,"girlCount":0,"ntaCount":0,"ntbCount":0,"ntcCount":0,"obcCount":0,"otherCount":0,"scCount":0,"stCount":0},"level":"info","message":"Filter All Staff Chart All","timestamp":"2022-11-02T07:27:47.867Z","total":3}
+{"level":"info","message":"{\"message\":\"Filter All Staff Chart All\",\"filter_staff\":{\"boyCount\":0,\"girlCount\":0,\"otherCount\":0,\"generalCount\":0,\"obcCount\":0,\"scCount\":0,\"stCount\":0,\"ntaCount\":0,\"ntbCount\":0,\"ntcCount\":0},\"total\":3,\"level\":\"info\"}","timestamp":"2022-11-02T07:27:47.870Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:32:23.727Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:32:50.310Z"}
+{"filter_staff":{"generalCount":0,"ntaCount":0,"ntbCount":0,"ntcCount":0,"obcCount":2,"scCount":0,"stCount":0},"level":"info","message":"Filter All Staff Chart Caste","timestamp":"2022-11-02T07:32:50.404Z","total":3}
+{"level":"info","message":"{\"message\":\"Filter All Staff Chart Caste\",\"filter_staff\":{\"generalCount\":0,\"obcCount\":2,\"scCount\":0,\"stCount\":0,\"ntaCount\":0,\"ntbCount\":0,\"ntcCount\":0},\"total\":3,\"level\":\"info\"}","timestamp":"2022-11-02T07:32:50.406Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:32:57.783Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:38:36.599Z"}
+{"filter_staff":{"generalCount":0,"ntaCount":0,"ntbCount":0,"ntdCount":1,"obcCount":2,"scCount":0,"stCount":0},"level":"info","message":"Filter All Staff Chart Caste","timestamp":"2022-11-02T07:38:36.694Z","total":3}
+{"level":"info","message":"{\"message\":\"Filter All Staff Chart Caste\",\"filter_staff\":{\"generalCount\":0,\"obcCount\":2,\"scCount\":0,\"stCount\":0,\"ntaCount\":0,\"ntbCount\":0,\"ntdCount\":1},\"total\":3,\"level\":\"info\"}","timestamp":"2022-11-02T07:38:36.699Z"}
+{"filter_staff":{"boyCount":3,"generalCount":0,"girlCount":0,"ntaCount":0,"ntbCount":0,"ntcCount":0,"ntdCount":1,"obcCount":2,"otherCount":0,"scCount":0,"stCount":0},"level":"info","message":"Filter All Staff Chart All","timestamp":"2022-11-02T07:38:36.710Z","total":3}
+{"level":"info","message":"{\"message\":\"Filter All Staff Chart All\",\"filter_staff\":{\"boyCount\":3,\"girlCount\":0,\"otherCount\":0,\"generalCount\":0,\"obcCount\":2,\"scCount\":0,\"stCount\":0,\"ntaCount\":0,\"ntbCount\":0,\"ntcCount\":0,\"ntdCount\":1},\"total\":3,\"level\":\"info\"}","timestamp":"2022-11-02T07:38:36.711Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:38:44.856Z"}
+{"filter_staff":{"boyCount":3,"generalCount":0,"girlCount":0,"ntaCount":0,"ntbCount":0,"ntcCount":0,"ntdCount":1,"obcCount":2,"otherCount":0,"scCount":0,"stCount":0},"level":"info","message":"Filter All Staff Chart All","timestamp":"2022-11-02T07:38:44.909Z","total":3}
+{"level":"info","message":"{\"message\":\"Filter All Staff Chart All\",\"filter_staff\":{\"boyCount\":3,\"girlCount\":0,\"otherCount\":0,\"generalCount\":0,\"obcCount\":2,\"scCount\":0,\"stCount\":0,\"ntaCount\":0,\"ntbCount\":0,\"ntcCount\":0,\"ntdCount\":1},\"total\":3,\"level\":\"info\"}","timestamp":"2022-11-02T07:38:44.910Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:39:58.978Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:40:41.037Z"}
+{"filter_staff":{"generalCount":0,"ntaCount":0,"ntbCount":0,"ntdCount":1,"obcCount":2,"scCount":0,"stCount":0},"level":"info","message":"Filter All Staff Chart Caste","timestamp":"2022-11-02T07:40:41.166Z","total":3}
+{"level":"info","message":"{\"message\":\"Filter All Staff Chart Caste\",\"filter_staff\":{\"generalCount\":0,\"obcCount\":2,\"scCount\":0,\"stCount\":0,\"ntaCount\":0,\"ntbCount\":0,\"ntdCount\":1},\"total\":3,\"level\":\"info\"}","timestamp":"2022-11-02T07:40:41.169Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:40:46.177Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:41:09.966Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:41:40.557Z"}
+{"filter_staff":{"boyCount":3,"generalCount":0,"girlCount":0,"ntaCount":0,"ntbCount":0,"ntcCount":0,"ntdCount":1,"obcCount":2,"otherCount":0,"scCount":0,"stCount":0},"level":"info","message":"Filter All Staff Chart All","timestamp":"2022-11-02T07:41:40.689Z","total":3}
+{"level":"info","message":"{\"message\":\"Filter All Staff Chart All\",\"filter_staff\":{\"boyCount\":3,\"girlCount\":0,\"otherCount\":0,\"generalCount\":0,\"obcCount\":2,\"scCount\":0,\"stCount\":0,\"ntaCount\":0,\"ntbCount\":0,\"ntcCount\":0,\"ntdCount\":1},\"total\":3,\"level\":\"info\"}","timestamp":"2022-11-02T07:41:40.693Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:41:43.531Z"}
+{"filter_staff":{"boyCount":3,"generalCount":0,"girlCount":0,"ntaCount":0,"ntbCount":0,"ntcCount":0,"ntdCount":1,"obcCount":2,"otherCount":0,"scCount":0,"stCount":0},"level":"info","message":"Filter All Staff Chart All","timestamp":"2022-11-02T07:41:43.599Z","total":3}
+{"level":"info","message":"{\"message\":\"Filter All Staff Chart All\",\"filter_staff\":{\"boyCount\":3,\"girlCount\":0,\"otherCount\":0,\"generalCount\":0,\"obcCount\":2,\"scCount\":0,\"stCount\":0,\"ntaCount\":0,\"ntbCount\":0,\"ntcCount\":0,\"ntdCount\":1},\"total\":3,\"level\":\"info\"}","timestamp":"2022-11-02T07:41:43.600Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:41:47.521Z"}
+{"filter_staff":{"generalCount":0,"ntaCount":0,"ntbCount":0,"ntdCount":1,"obcCount":2,"scCount":0,"stCount":0},"level":"info","message":"Filter All Staff Chart Caste","timestamp":"2022-11-02T07:41:47.573Z","total":3}
+{"level":"info","message":"{\"message\":\"Filter All Staff Chart Caste\",\"filter_staff\":{\"generalCount\":0,\"obcCount\":2,\"scCount\":0,\"stCount\":0,\"ntaCount\":0,\"ntbCount\":0,\"ntdCount\":1},\"total\":3,\"level\":\"info\"}","timestamp":"2022-11-02T07:41:47.574Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:41:53.495Z"}
+{"filter_staff":{"boyCount":3,"girlCount":0,"otherCount":0},"level":"info","message":"Filter All Staff Chart Gender","timestamp":"2022-11-02T07:41:53.550Z","total":3}
+{"level":"info","message":"{\"message\":\"Filter All Staff Chart Gender\",\"filter_staff\":{\"boyCount\":3,\"girlCount\":0,\"otherCount\":0},\"total\":3,\"level\":\"info\"}","timestamp":"2022-11-02T07:41:53.551Z"}
+{"level":"info","message":{},"timestamp":"2022-11-02T07:41:55.436Z"}
+{"filter_staff":{"boyCount":3,"girlCount":0,"otherCount":0},"level":"info","message":"Filter All Staff Chart Gender","timestamp":"2022-11-02T07:41:55.494Z","total":3}
+{"level":"info","message":"{\"message\":\"Filter All Staff Chart Gender\",\"filter_staff\":{\"boyCount\":3,\"girlCount\":0,\"otherCount\":0},\"total\":3,\"level\":\"info\"}","timestamp":"2022-11-02T07:41:55.495Z"}

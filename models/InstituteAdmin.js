@@ -533,6 +533,7 @@ const instituteAdminSchema = new mongoose.Schema({
     ntaCount: { type: Number, default: 0},
     ntbCount: { type: Number, default: 0},
     ntcCount: { type: Number, default: 0},
+    ntdCount: { type: Number, default: 0},
   },
   lang_mode: {
     type: String,

@@ -1658,11 +1658,11 @@ paths:
           description: OK
 
 
-  /api/v1/extra/biometric/staff/ref:
+  /api/v1/extra/biometric/student/ref:
     patch:
       tags:
         - Setting Control API
-      summary: Staff Biometric Unique Query -(verified)
+      summary: Student Biometric Unique Query -(verified)
       consumes:
         - application/json
       produces:

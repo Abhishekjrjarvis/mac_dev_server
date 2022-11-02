@@ -59,3 +59,9 @@
 {"level":"info","message":{"answer_content_transcript":"क्योंकि यह 42 किमी स्प्रिंट दौड़ है"},"timestamp":"2022-11-02T04:47:52.512Z"}
 {"answer_status":true,"level":"info","message":"Answer Language Transcription Processed ✨✨✨✨","timestamp":"2022-11-02T04:47:52.604Z"}
 {"level":"info","message":"{\"message\":\"Answer Language Transcription Processed ✨✨✨✨\",\"answer_status\":true,\"level\":\"info\"}","timestamp":"2022-11-02T04:47:52.605Z"}
+{"level":"info","message":{"staff_ref":[{"bioId":"1","staffId":"6360aea051d30672ae8cfe80"},{"bioId":"2","staffId":"6360b23851d30672ae8d0103"}]},"timestamp":"2022-11-02T06:38:34.172Z"}
+{"level":"info","message":"All Staff Get Unique Biometric Id","status":true,"timestamp":"2022-11-02T06:38:34.187Z"}
+{"level":"info","message":"{\"message\":\"All Staff Get Unique Biometric Id\",\"status\":true,\"level\":\"info\"}","timestamp":"2022-11-02T06:38:34.189Z"}
+{"level":"info","message":{"student_ref":[{"bioId":"1","studentId":"6360bbd6f10c337ebccb6c18"},{"bioId":"2","studentId":"6360bbe0f10c337ebccb6c44"}]},"timestamp":"2022-11-02T06:48:12.930Z"}
+{"level":"info","message":"All Student Get Unique Biometric Id","status":true,"timestamp":"2022-11-02T06:48:12.953Z"}
+{"level":"info","message":"{\"message\":\"All Student Get Unique Biometric Id\",\"status\":true,\"level\":\"info\"}","timestamp":"2022-11-02T06:48:12.955Z"}

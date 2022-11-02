@@ -434,3 +434,43 @@ exports.fetchLangTranscriptPoll = async(req, res) =>{
     console.log(e)
   }
 }
+
+exports.fetchBiometricStaffQuery = async(req, res) =>{
+  try{
+    const { staff_ref } = req.body
+    if(staff_ref?.length > 0){
+      staff_ref?.forEach(async (ele) => {
+        const staff = await Staff.findById({_id: `${ele.staffId}`})
+        staff.staff_biometric_id = ele.bioId
+        await staff.save()
+      })
+      res.status(200).send({ message: 'All Staff Get Unique Biometric Id', status: true})
+    }
+    else{
+      res.status(200).send({ message: 'Need a staff', status: false})
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.fetchBiometricStudentQuery = async(req, res) =>{
+  try{
+    const { student_ref } = req.body
+    if(student_ref?.length > 0){
+      student_ref?.forEach(async (ele) => {
+        const student = await Student.findById({_id: `${ele.studentId}`})
+        student.student_biometric_id = ele.bioId
+        await student.save()
+      })
+      res.status(200).send({ message: 'All Student Get Unique Biometric Id', status: true})
+    }
+    else{
+      res.status(200).send({ message: 'Need a student', status: false})
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}

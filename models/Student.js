@@ -349,6 +349,7 @@ const studentSchema = new mongoose.Schema({
       ref: "SubjectUpdate",
     },
   ],
+  student_biometric_id: { type: String },
 });
 
 const Student = mongoose.model("Student", studentSchema);

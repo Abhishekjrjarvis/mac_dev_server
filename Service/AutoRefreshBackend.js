@@ -106,7 +106,7 @@ exports.recommendedAllIns = async(req, res) =>{
         var recommend = []
         const { uid } = req.params
         const { expand_search } = req.query
-        const expand = expand_search ? expand_search : 2
+        const expand = expand_search ? expand_search : 50
         var user = await User.findById({_id: uid})
         .select('user_latitude user_longitude userInstituteFollowing userFollowers userCircle')
 

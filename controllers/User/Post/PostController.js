@@ -818,8 +818,10 @@ exports.retrieveAllUserPosts = async (req, res) => {
           tagPeople: [],
           needUser: []
         }
-        post.splice(3, 0, data_u_s)
-        post.splice(5, 0, data_i_s)
+        if(page == 1){
+          post.splice(3, 0, data_u_s)
+          post.splice(5, 0, data_i_s)
+        }
       res.status(200).send({
         message: "Success",
         post,

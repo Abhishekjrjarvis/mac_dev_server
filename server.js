@@ -56,6 +56,7 @@ const filterNew = require("./routes/Filterization/filterRoute");
 const dailyUpdateRoute = require("./routes/dailyUpdate/dailyUpdateRoute");
 const timetableRoute = require("./routes/Timetable/timetableRoute");
 const prod = require("./routes/ProdAPI/prodRoute");
+const election = require("./routes/Election/electionRoute");
 
 // ============================= DB Configuration ==============================
 
@@ -180,6 +181,7 @@ app.use("/api/v1/edit/user", userMemberRoute);
 app.use("/api/v1/admission", admissionNew);
 app.use("/api/v1/dailyupdate", dailyUpdateRoute);
 app.use("/api/v1/timetable", timetableRoute);
+app.use("/api/v1/election/event", election);
 
 app.use("/api/v1/prod/access", prod);
 

@@ -2,7 +2,7 @@ const Department = require('../../models/Department')
 const User = require('../../models/User')
 const Student = require('../../models/Student')
 const StudentNotification = require('../../models/Marks/StudentNotification')
-const invokeMemberTabNotification = require('../../firebase/MemberTab')
+const invokeMemberTabNotification = require('../../Firebase/MemberTab')
 const Participate = require('../../models/ParticipativeEvent/participate')
 const Class = require('../../models/Class')
 

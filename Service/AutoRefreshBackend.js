@@ -5,7 +5,7 @@ const { shuffleArray } = require('../Utilities/Shuffle');
 const Election = require('../models/Elections/Election')
 const Student = require('../models/Student')
 const StudentNotification = require('../models/Marks/StudentNotification')
-const invokeMemberTabNotification = require('../firebase/MemberTab')
+const invokeMemberTabNotification = require('../Firebase/MemberTab')
 
 exports.check_poll_status = async(req, res) => {
     var r_date = new Date();

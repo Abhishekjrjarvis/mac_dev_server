@@ -585,7 +585,7 @@ exports.viewInstituteStaff = async (req, res) => {
 
 exports.addDepartmentWeeklyTime = async (req, res) => {
   try {
-    if (!req.params.cid) throw "Please send class id to perform task";
+    if (!req.params.did) throw "Please send Department id to perform task";
     const department = await Department.findById(req.params.did);
     let flag = false;
     let index = 0;
@@ -619,7 +619,7 @@ exports.addDepartmentWeeklyTime = async (req, res) => {
 
 exports.getDepartmentWeeklyTime = async (req, res) => {
   try {
-    if (!req.params.cid) throw "Please send class id to perform task";
+    if (!req.params.did) throw "Please send Department id to perform task";
     const department = await Department.findById(req.params.did)
       .select("activeTimeDayWise")
       .lean()
@@ -652,7 +652,7 @@ exports.getDepartmentWeeklyTime = async (req, res) => {
 
 exports.addDepartmentDateWiseTime = async (req, res) => {
   try {
-    if (!req.params.cid) throw "Please send class id to perform task";
+    if (!req.params.did) throw "Please send Department id to perform task";
     const department = await Department.findById(req.params.did);
     let flag = false;
     let index = 0;
@@ -689,7 +689,7 @@ exports.addDepartmentDateWiseTime = async (req, res) => {
 
 exports.getDepartmentDateWiseTime = async (req, res) => {
   try {
-    if (!req.params.cid) throw "Please send Department id to perform task";
+    if (!req.params.did) throw "Please send Department id to perform task";
     const department = await Department.findById(req.params.did)
       .select("activeTimeDateWise activeTimeDayWise")
       .lean()

@@ -13,6 +13,8 @@ const { processUnlockFeaturePayment, paytmUnlockFeatureResponse } = require('../
 const { generateTxnToken, paytmVerifyResponseStatus, generateActivateTxnToken, paytmVerifyActivateResponseStatus } = require("../../controllers/Payment/ApkPaymentController")
 const { generateAdmissionTxnToken, paytmVerifyAdmissionResponseStatus } = require('../../controllers/Payment/APK/apkAdmissionPayment')
 
+const { processParticipateEventPayment, paytmParticipateEventResponse } = require('../../controllers/Payment/ParticipativeEvent/eventPayment')
+const { generateParticipateEventTxnToken, paytmVerifyParticipateEventResponseStatus } = require('../../controllers/Payment/ParticipativeEvent/apkEventPayment')
 
 // ================= Student Fee And Checklist Payment ====================
 
@@ -46,6 +48,12 @@ router.route('/payment/admission/process').post(processAdmissionPayment);
 router.route('/admission/callback/:uid/apply/:aid/student/:sid/status/:statusId/q/:name/value/:value').post(paytmAdmissionResponse);
 
 
+// ================== Participate Event Payment ========================
+
+router.route('/payment/participate/process').post(processParticipateEventPayment);
+router.route('/participate/callback/:uid/event/:eid/student/:sid/status/:nid/q/:name/value/:value').post(paytmParticipateEventResponse);
+
+
 
 // ================== Id Card Payment ========================
 
@@ -69,5 +77,10 @@ router.route('/verify/activate/status/:id/user/:name').post(paytmVerifyActivateR
 // ============================= APK Admission Token ==========================================
 router.route('/generateAdmissionTxnToken').post(generateAdmissionTxnToken);
 router.route('/verify/admission/:uid/apply/:aid/student/:sid/status/:statusId/value/:value').post(paytmVerifyAdmissionResponseStatus);
+
+// ============================= APK Participate Event Token ==========================================
+router.route('/generateParticipateTxnToken').post(generateParticipateEventTxnToken);
+router.route('/verify/participate/:uid/event/:eid/student/:sid/status/:nid/value/:value').post(paytmVerifyParticipateEventResponseStatus);
+
 
 module.exports = router;

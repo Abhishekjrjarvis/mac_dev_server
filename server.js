@@ -16,6 +16,8 @@ const helmet = require("helmet");
 const {
   check_poll_status,
   payment_modal_initiated,
+  election_vote_day,
+  election_result_day
 } = require("./Service/AutoRefreshBackend");
 const uploadRoute = require("./routes/UploadContent/index");
 const elearningRoute = require("./routes/Elearning/index");
@@ -57,6 +59,7 @@ const dailyUpdateRoute = require("./routes/dailyUpdate/dailyUpdateRoute");
 const timetableRoute = require("./routes/Timetable/timetableRoute");
 const prod = require("./routes/ProdAPI/prodRoute");
 const election = require("./routes/Election/electionRoute");
+const participate = require('./routes/ParticipativeEvent/participateRoute')
 
 // ============================= DB Configuration ==============================
 
@@ -182,14 +185,23 @@ app.use("/api/v1/admission", admissionNew);
 app.use("/api/v1/dailyupdate", dailyUpdateRoute);
 app.use("/api/v1/timetable", timetableRoute);
 app.use("/api/v1/election/event", election);
+app.use("/api/v1/participate/event", participate);
 
 app.use("/api/v1/prod/access", prod);
 
 // ============================================================================
 
 // setInterval(async () => {
-//   await check_poll_status();
-// }, 20000);
+//   await election_vote_day();
+// }, 30000);
+
+// setInterval(async () => {
+//   await election_result_day();
+// }, 30000);
+
+// setInterval(async () => {
+  //   await participate_result_day();
+  // }, 30000);
 
 setInterval(async () => {
   await payment_modal_initiated();

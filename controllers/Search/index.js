@@ -532,7 +532,7 @@ exports.searchStaff = async (req, res) => {
         })
           .sort("-createdAt")
           .select(
-            "staffFirstName staffMiddleName staffLastName staffROLLNO photoId staffProfilePhoto"
+            "staffFirstName staffMiddleName staff_biometric_id staffLastName staffROLLNO photoId staffProfilePhoto"
           )
           .populate({
             path: "user",
@@ -556,7 +556,7 @@ exports.searchStaff = async (req, res) => {
         })
           .sort("-createdAt")
           .select(
-            "staffFirstName staffMiddleName staffLastName staffROLLNO photoId staffProfilePhoto"
+            "staffFirstName staffMiddleName staff_biometric_id staffLastName staffROLLNO photoId staffProfilePhoto"
           )
           .populate({
             path: "user",
@@ -593,7 +593,7 @@ exports.searchStaff = async (req, res) => {
       const dropItem = (getPage - 1) * itemPerPage;
       const staff = await Staff.find(search)
         .select(
-          "staffFirstName staffMiddleName staffLastName staffROLLNO photoId staffProfilePhoto"
+          "staffFirstName staffMiddleName staff_biometric_id staffLastName staffROLLNO photoId staffProfilePhoto"
         )
         .populate({
           path: "user",

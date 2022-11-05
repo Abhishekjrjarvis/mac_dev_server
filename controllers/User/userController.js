@@ -33,7 +33,7 @@ exports.retrieveProfileData = async (req, res) => {
     var totalUpVote = 0
     const user = await User.findById({ _id: id })
       .select(
-        "userLegalName photoId show_suggestion is_mentor questionCount blockCount userBlock blockStatus user one_line_about recoveryMail answerQuestionCount recentChat profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
+        "userLegalName photoId show_suggestion is_mentor questionCount blockCount blockStatus user one_line_about recoveryMail answerQuestionCount recentChat profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
       )
       const answers = await Answer.find({ author: id })
       for(let up of answers){

@@ -2423,7 +2423,7 @@ exports.retrieveDepartmentStaffArray = async (req, res) => {
       .populate({
         path: "departmentChatGroup",
         select:
-          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+          "staffFirstName staff_biometric_id staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
         populate: {
           path: "user",
           select: "username userLegalName photoId profilePhoto",

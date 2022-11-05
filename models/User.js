@@ -331,6 +331,12 @@ const userSchema = new mongoose.Schema({
       ref: 'User'
     }
   ],
+  blockedBy: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }
+  ],
   blockCount: {
     type: Number,
     default: 0

@@ -1072,7 +1072,7 @@ exports.getDashDataQuery = async (req, res) => {
     const { id } = req.params;
     const user = await User.findById({ _id: id })
       .select(
-        "userLegalName username userBlock ageRestrict is_mentor show_suggestion photoId blockStatus one_line_about profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify"
+        "userLegalName username userBlock blockedBy ageRestrict is_mentor show_suggestion photoId blockStatus one_line_about profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify"
       )
       if(user.userPosts && user.userPosts.length < 1){
         var post = []
@@ -1686,10 +1686,11 @@ exports.updateUserUnBlock = async (req, res) => {
 
     if(user?.userBlock?.includes(`${suser._id}`)){
       user.userBlock.pull(suser._id)
+      suser.blockedBy.pull(user._id)
       if(user.blockCount >=1 ){
         user.blockCount -= 1
       }
-      await user.save()
+      await Promise.all([ user.save(), suser.save() ])
       res.status(200).send({ message: "You are UnBlocked able to follow / circle ", unblock: true });
     }
     else{
@@ -1712,10 +1713,11 @@ exports.retrieveUserReportBlock = async (req, res) => {
     }
     else{
       user.userBlock.push(suser._id)
+      suser.blockedBy.push(user._id)
       if(user.blockCount >=1 ){
         user.blockCount += 1
       }
-      await user.save()
+      await Promise.all([ user.save(), suser.save() ])
       res.status(200).send({ message: "You are Blocked not able to follow / circle ", block: true });
     }
   } catch (e) {

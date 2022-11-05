@@ -33,7 +33,7 @@ exports.retrieveProfileData = async (req, res) => {
     var totalUpVote = 0
     const user = await User.findById({ _id: id })
       .select(
-        "userLegalName photoId show_suggestion questionCount blockCount userBlock blockStatus user one_line_about recoveryMail answerQuestionCount recentChat profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
+        "userLegalName photoId show_suggestion is_mentor questionCount blockCount userBlock blockStatus user one_line_about recoveryMail answerQuestionCount recentChat profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
       )
       const answers = await Answer.find({ author: id })
       for(let up of answers){
@@ -314,52 +314,57 @@ exports.updateUserFollow = async (req, res) => {
     const user = await User.findById({ _id: user_session });
     const suser = await User.findById({ _id: req.body.userFollowId });
 
-    if (user.userFollowing.includes(req.body.userFollowId)) {
-      res.status(200).send({ message: "You Already Following This User" });
-    } else {
-      const notify = new Notification({});
-      suser.userFollowers.push(user_session);
-      user.userFollowing.push(req.body.userFollowId);
-      user.followingUICount += 1;
-      suser.followerCount += 1;
-      notify.notifyContent = `${user.userLegalName} started to following you`;
-      notify.notify_hi_content = `${user.userLegalName} आपको  फॉलो  कर  रहा है |`
-      notify.notify_mr_content = `${user.userLegalName} ने तुम्हाला फॉलो करायला सुरुवात केली`
-      notify.notifySender = user._id;
-      notify.notifyReceiever = suser._id;
-      suser.uNotify.push(notify);
-      notify.user = suser;
-      notify.notifyByPhoto = user;
-      await Promise.all([
-        user.save(),
-        suser.save(),
-        notify.save()
-      ])
-      if(suser?.user_follower_notify === 'Enable'){
-        invokeFirebaseNotification("Followers", notify, suser.userLegalName, suser._id, suser.deviceToken);
-      }
-      res.status(200).send({ message: " Following This User" });
-      const post = await Post.find({
-        $and: [{ author: suser._id, postStatus: "Anyone" }],
-      });
-      post.forEach(async (ele) => {
-        //
-        if(user?.userPosts?.includes(ele)){
+    if(suser.userBlock?.includes(`${user._id}`)){
+      res.status(200).send({ message: "You're blocked by this Person / user 😒" });
+    }
+    else{
+      if (user.userFollowing.includes(req.body.userFollowId)) {
+        // res.status(200).send({ message: "You Already Following This User" });
+      } else {
+        const notify = new Notification({});
+        suser.userFollowers.push(user_session);
+        user.userFollowing.push(req.body.userFollowId);
+        user.followingUICount += 1;
+        suser.followerCount += 1;
+        notify.notifyContent = `${user.userLegalName} started to following you`;
+        notify.notify_hi_content = `${user.userLegalName} आपको  फॉलो  कर  रहा है |`
+        notify.notify_mr_content = `${user.userLegalName} ने तुम्हाला फॉलो करायला सुरुवात केली`
+        notify.notifySender = user._id;
+        notify.notifyReceiever = suser._id;
+        suser.uNotify.push(notify);
+        notify.user = suser;
+        notify.notifyByPhoto = user;
+        await Promise.all([
+          user.save(),
+          suser.save(),
+          notify.save()
+        ])
+        if(suser?.user_follower_notify === 'Enable'){
+          invokeFirebaseNotification("Followers", notify, suser.userLegalName, suser._id, suser.deviceToken);
+        }
+        res.status(200).send({ message: " Following This User 👍😀✨🎉" });
+        const post = await Post.find({
+          $and: [{ author: suser._id, postStatus: "Anyone" }],
+        });
+        post.forEach(async (ele) => {
+          //
+          if(user?.userPosts?.includes(ele)){
 
-        }
-        else{
-          user.userPosts.push(ele);
-        }
+          }
+          else{
+            user.userPosts.push(ele);
+          }
+          //
+        });
+        await user.save();
         //
-      });
-      await user.save();
-      //
-      const posts = await Post.find({ author: `${suser._id}` });
-        posts.forEach(async (ele) => {
-          ele.authorFollowersCount = suser.followerCount;
-          await ele.save();
-      });
-      //
+        const posts = await Post.find({ author: `${suser._id}` });
+          posts.forEach(async (ele) => {
+            ele.authorFollowersCount = suser.followerCount;
+            await ele.save();
+        });
+        //
+      }
     }
   } catch (e) {
     console.log('UFOU', e)
@@ -524,10 +529,9 @@ exports.removeUserCircle = async (req, res) => {
 
         post.forEach(async (ele) => {
           if(user && user.userPosts?.includes(`${ele}`)){
+            user.userPosts.pull(ele._id);
           }
-          else{
-            user.userPosts.pull(ele);
-          }
+          else{}
         });
         await user.save();
 
@@ -537,10 +541,9 @@ exports.removeUserCircle = async (req, res) => {
 
         posts.forEach(async (ele) => {
           if(suser && suser.userPosts?.includes(`${ele}`)){
+            suser.userPosts.pull(ele._id);
           }
-          else{
-            suser.userPosts.pull(ele);
-          }
+          else{}
         });
         await suser.save();
         //
@@ -1069,25 +1072,11 @@ exports.getDashDataQuery = async (req, res) => {
     const { id } = req.params;
     const user = await User.findById({ _id: id })
       .select(
-        "userLegalName username ageRestrict show_suggestion photoId blockStatus one_line_about profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify"
+        "userLegalName username ageRestrict is_mentor show_suggestion photoId blockStatus one_line_about profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify"
       )
       if(user.userPosts && user.userPosts.length < 1){
         var post = []
       }
-      // .populate({
-      //   path: 'supportChat',
-      //   populate: {
-      //     path: 'latestMessage'
-      //   }
-      // })
-      // .populate({
-      //   path: 'supportChat',
-      //   populate: {
-      //     path: 'message'
-      //   }
-      // })
-      // .lean()
-      // .exec();
     if (user) {
       res.status(200).send({ message: "Success", user, post });
     } else {
@@ -1628,28 +1617,19 @@ exports.retrieveStaffSalaryHistory = async(req, res) =>{
 exports.updateUserBlock = async (req, res) => {
   try {
     var user_session = req.tokenData && req.tokenData.userId;
+    var { blockId } = req.query
     var user = await User.findById({ _id: user_session });
-    var suser = await User.findById({ _id: req.body.followId });
-
+    var suser = await User.findById({ _id: blockId });
     if (
-      user.userCircle.includes(req.body.followId) &&
+      user.userCircle.includes(blockId) &&
       suser.userCircle.includes(user_session)
     ) {
-      if(user?.userBlock?.includes(`${suser._id}`)){
-        user.userBlock.pull(suser._id)
-        if(user.blockCount >=1 ){
-          user.blockCount -= 1
-        }
-        await user.save()
-        res.status(200).send({ message: "You are UnBlocked able to chat" });
-      }
-      else{
         user.userBlock.push(suser._id)
         user.blockCount += 1
         await user.save()
-        res.status(200).send({ message: "You are Blocked not able to chat" });
+        res.status(200).send({ message: "You are Blocked not able to follow / show feed" });
         try {
-          user.userCircle.pull(req.body.followId);
+          user.userCircle.pull(blockId);
           suser.userCircle.pull(user_session);
           if(suser.circleCount > 0){
             suser.circleCount -= 1;
@@ -1657,57 +1637,23 @@ exports.updateUserBlock = async (req, res) => {
           if(user.circleCount > 0){
             user.circleCount -= 1;
           }
-          user.userFollowers.push(req.body.followId);
-          suser.userFollowing.push(user_session);
-          user.followerCount += 1;
-          suser.followingUICount += 1;
-          await Promise.all([ 
-            user.save(),
-            suser.save()
-          ])
-          res.status(200).send({ message: "Uncircled" });
-          const post = await Post.find({
-            $and: [{ author: `${suser._id}` }],
-          });
-  
+
+          const post = await Post.find({ author: `${suser._id}` });
           post.forEach(async (ele) => {
-            if(user && user.userPosts?.includes(`${ele}`)){
-            }
-            else{
-              user.userPosts.pull(ele);
+            if(user?.userPosts?.includes(`${ele._id}`)){
+              user.userPosts.pull(ele._id);
             }
           });
           await user.save();
   
-          const posts = await Post.find({
-            $and: [{ author: `${user._id}` }],
-          });
-  
+          const posts = await Post.find({ author: `${user._id}` });
           posts.forEach(async (ele) => {
-            if(suser && suser.userPosts?.includes(`${ele}`)){
-            }
-            else{
-              suser.userPosts.pull(ele);
+            if(suser?.userPosts?.includes(`${ele._id}`)){
+              suser.userPosts.pull(ele._id);
             }
           });
           await suser.save();
-          //
-          const post_follow = await Post.find({
-            $and: [{ author: user._id, postStatus: "Anyone" }],
-          });
-          post_follow.forEach(async (ele) => {
-            //
-            if(suser?.userPosts?.includes(ele)){
-    
-            }
-            else{
-              suser.userPosts.push(ele);
-            }
-            //
-          });
-          await suser.save()
-          //
-          //
+
           const post_count = await Post.find({ author: `${suser._id}` });
           post_count.forEach(async (ele) => {
             ele.authorFollowersCount = suser.followerCount;
@@ -1722,7 +1668,6 @@ exports.updateUserBlock = async (req, res) => {
         } catch {
           res.status(500).send({ error: "error" });
         }
-      }
     } else {
       res.status(200).send({ message: "Engage Network" });
     }
@@ -1731,6 +1676,29 @@ exports.updateUserBlock = async (req, res) => {
   }
 };
 //
+
+exports.updateUserUnBlock = async (req, res) => {
+  try {
+    var user_session = req.tokenData && req.tokenData.userId;
+    const { blockId } = req.query
+    var user = await User.findById({ _id: user_session });
+    var suser = await User.findById({ _id: blockId });
+
+    if(user?.userBlock?.includes(`${suser._id}`)){
+      user.userBlock.pull(suser._id)
+      if(user.blockCount >=1 ){
+        user.blockCount -= 1
+      }
+      await user.save()
+      res.status(200).send({ message: "You are UnBlocked able to follow / circle ", unblock: true });
+    }
+    else{
+      res.status(200).send({ message: "You are Already UnBlocked able to follow / circle " });
+    }
+  } catch (e) {
+    console.log('UUBU', e)
+  }
+};
 
 exports.retrieveUserLocationPermission = async (req, res) => {
   try {

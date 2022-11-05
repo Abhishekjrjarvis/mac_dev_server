@@ -999,16 +999,32 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: body
-          name: body
+        - in: query
+          name: blockId # Note the name is the same as in the path
+          required: true
           schema:
-            type: object
-            required:
-              - followId
-            properties:
-              followId:
-                type: string
-                description: Block User Id
+            type: string
+          description: Enter Blocked User Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/unblock/user/:
+    patch:
+      tags:
+        - User Profile API
+      summary: UnBlock User to User Api -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: blockId # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: Enter Blocked User Id
       responses:
         "200":
           description: OK

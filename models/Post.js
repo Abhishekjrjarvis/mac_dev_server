@@ -164,7 +164,7 @@ const postSchema = new mongoose.Schema({
     ref: 'NewApplication'
   },
   hash_trend: { type: String, default: 'Not on trending' },
-  comment_turned: { type: String, default: 'Off' },
+  comment_turned: { type: String, default: 'On' },
   post_question_transcript: { type: String },
   post_description_transcript: { type: String },
   post_title_transcript: { type: String }

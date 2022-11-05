@@ -403,6 +403,10 @@ const userSchema = new mongoose.Schema({
   lang_mode: {
     type: String,
     default: 'en'
+  },
+  is_mentor: {
+    type: Boolean,
+    default: false
   }
 });
 

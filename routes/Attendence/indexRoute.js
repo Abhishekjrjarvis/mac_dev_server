@@ -29,12 +29,12 @@ router.get("/student/:sid", catchAsync(Avail.viewClassStudent));
 //=========ATTENDANCE OF STAFF================================
 router
   .route("/department/:did/daywise")
-  .get(catchAsync(Avail.addDepartmentWeeklyTime))
-  .patch(catchAsync(Avail.getDepartmentWeeklyTime));
+  .get(catchAsync(Avail.getDepartmentWeeklyTime))
+  .patch(catchAsync(Avail.addDepartmentWeeklyTime));
 router
   .route("/department/:did/datewise")
-  .get(catchAsync(Avail.addDepartmentDateWiseTime))
-  .patch(catchAsync(Avail.getDepartmentDateWiseTime));
+  .get(catchAsync(Avail.getDepartmentDateWiseTime))
+  .patch(catchAsync(Avail.addDepartmentDateWiseTime));
 router
   .route("/institute/:id/staff/attendance")
   .get(catchAsync(Avail.getAttendInstituteStaff))

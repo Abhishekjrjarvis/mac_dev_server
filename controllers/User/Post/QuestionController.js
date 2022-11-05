@@ -240,8 +240,8 @@ exports.postQuestionAnswer = async (req, res) => {
       //
       var notify = new Notification({});
       notify.notifyContent = `${answers.authorName} answered your question`;
-      notify.notify_hi_content = `${answers.authorName} ने आपके प्रश्न का उत्तर दिया |`
-      notify.notify_mr_content = `${answers.authorName} ने तुमच्या प्रश्नाचे उत्तर दिले.`
+      notify.notify_hi_content = `${answers.authorName} ने आपके प्रश्न का उत्तर दिया |`;
+      notify.notify_mr_content = `${answers.authorName} ने तुमच्या प्रश्नाचे उत्तर दिले.`;
       notify.notifySender = answers.author;
       notify.notifyByPhoto = answers.author;
       if (post_user) {
@@ -383,7 +383,7 @@ exports.questionAnswerSave = async (req, res) => {
     const { aid } = req.params;
     const user_session =
       req.tokenData && req.tokenData.userId ? req.tokenData.userId : "";
-    var user = await User.findById({_id: `${user_session}`})
+    var user = await User.findById({ _id: `${user_session}` });
     if (user_session) {
       const answer = await Answer.findById({ _id: aid });
       if (
@@ -391,20 +391,18 @@ exports.questionAnswerSave = async (req, res) => {
         answer.answerSave.includes(user_session)
       ) {
         answer.answerSave.pull(user_session);
-        user.user_saved_answer.pull(answer._id)
-        await Promise.all([
-          answer.save(),
-          user.save()
-        ])
-        res.status(200).send({ message: "Remove Answer To Favourites 👎", status: false });
+        user.user_saved_answer.pull(answer._id);
+        await Promise.all([answer.save(), user.save()]);
+        res
+          .status(200)
+          .send({ message: "Remove Answer To Favourites 👎", status: false });
       } else {
         answer.answerSave.push(user_session);
-        user.user_saved_answer.push(answer._id)
-        await Promise.all([
-          answer.save(),
-          user.save()
-        ])
-        res.status(200).send({ message: "Added Answer To Favourites 👍", status: true });
+        user.user_saved_answer.push(answer._id);
+        await Promise.all([answer.save(), user.save()]);
+        res
+          .status(200)
+          .send({ message: "Added Answer To Favourites 👍", status: true });
       }
     } else {
       res.status(401).send({ message: "Unauthorized access" });
@@ -490,8 +488,8 @@ exports.rePostQuestionAnswer = async (req, res) => {
       //
       var notify = new Notification({});
       notify.notifyContent = `${answers.authorName} answered your question with repost.`;
-      notify.notify_hi_content = `${answers.authorName} ने आपके प्रश्न का उत्तर रिपोस्ट के साथ दिया।`
-      notify.notify_mr_content = `${answers.authorName} ने तुमच्या प्रश्नाचे उत्तर पुन्हा पोस्टसह दिले.`
+      notify.notify_hi_content = `${answers.authorName} ने आपके प्रश्न का उत्तर रिपोस्ट के साथ दिया।`;
+      notify.notify_mr_content = `${answers.authorName} ने तुमच्या प्रश्नाचे उत्तर पुन्हा पोस्टसह दिले.`;
       notify.notifySender = answers.author;
       notify.notifyByPhoto = answers.author;
       if (post_user) {
@@ -525,8 +523,8 @@ exports.rePostQuestionAnswer = async (req, res) => {
       res.status(200).send({ message: "RePosted Answer", rePost });
       if (user.userFollowers.length >= 1) {
         user.userFollowers.forEach(async (ele) => {
-          if(ele.userPosts.includes(rePost._id)){}
-          else{ 
+          if (ele.userPosts.includes(rePost._id)) {
+          } else {
             ele.userPosts.push(rePost._id);
             await ele.save();
           }
@@ -534,8 +532,8 @@ exports.rePostQuestionAnswer = async (req, res) => {
       }
       if (user.userCircle.length >= 1) {
         user.userCircle.forEach(async (ele) => {
-          if(ele.userPosts.includes(rePost._id)){}
-          else{
+          if (ele.userPosts.includes(rePost._id)) {
+          } else {
             ele.userPosts.push(rePost._id);
             await ele.save();
           }
@@ -613,22 +611,22 @@ exports.rePostAnswerLike = async (req, res) => {
           // if (`${rePost.author}` === `${upVoteUser._id}`) {
           //   console.log('true')
           // } else {
-            // console.log('rendered')
-            upVoteUser.userFollowers.forEach(async (ele) => {
-              if (ele?.userPosts?.includes(rePost._id)) {
-              } else {
-                ele.userPosts.push(rePost._id);
-                await ele.save();
-              }
-            });
+          // console.log('rendered')
+          upVoteUser.userFollowers.forEach(async (ele) => {
+            if (ele?.userPosts?.includes(rePost._id)) {
+            } else {
+              ele.userPosts.push(rePost._id);
+              await ele.save();
+            }
+          });
 
-            upVoteUser.userCircle.forEach(async (ele) => {
-              if (ele?.userPosts?.includes(rePost._id)) {
-              } else {
-                ele.userPosts.push(rePost._id);
-                await ele.save();
-              }
-            });
+          upVoteUser.userCircle.forEach(async (ele) => {
+            if (ele?.userPosts?.includes(rePost._id)) {
+            } else {
+              ele.userPosts.push(rePost._id);
+              await ele.save();
+            }
+          });
           // }
         }
       }
@@ -780,9 +778,7 @@ exports.getAllSaveAnswerQuery = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const uid = req.params.uid;
     const skip = (page - 1) * limit;
-    const user = await User.findById(uid)
-    .select("id")
-    .populate({
+    const user = await User.findById(uid).select("id").populate({
       path: "user_saved_answer",
     });
     if (user && user.user_saved_answer.length >= 1) {
@@ -799,8 +795,10 @@ exports.getAllSaveAnswerQuery = async (req, res) => {
           select:
             "postQuestion author authorProfilePhoto authorPhotoId authorUserName isUser answerCount createdAt",
         });
-        
-      const answerCount = await Answer.find({ _id: { $in: user.user_saved_answer } });
+
+      const answerCount = await Answer.find({
+        _id: { $in: user.user_saved_answer },
+      });
       if (page * limit >= answerCount.length) {
       } else {
         var totalPage = page + 1;
@@ -819,14 +817,16 @@ exports.getAllSaveAnswerQuery = async (req, res) => {
   }
 };
 
-exports.getOneQuestionQuery = async(req, res) => {
-  try{
-    const { qid } = req.params
-    const one_question = await Post.findById({_id: qid})
-    .select('postQuestion commentCount answerCount createdAt author authorUserName authorProfilePhoto authorPhotoId needCount needUser')
-    res.status(200).send({ message: 'Question Query', one_query: one_question})
+exports.getOneQuestionQuery = async (req, res) => {
+  try {
+    const { qid } = req.params;
+    const one_question = await Post.findById({ _id: qid }).select(
+      "postQuestion commentCount answerCount createdAt author authorUserName authorProfilePhoto authorPhotoId needCount needUser isInstitute isUser endUserSave"
+    );
+    res
+      .status(200)
+      .send({ message: "Question Query", one_query: one_question });
+  } catch (e) {
+    console.log(e);
   }
-  catch( e){
-    console.log(e)
-  }
-}
+};

@@ -1625,8 +1625,9 @@ exports.updateUserBlock = async (req, res) => {
       suser.userCircle.includes(user_session)
     ) {
         user.userBlock.push(suser._id)
+        suser.blockedBy.push(user._id)
         user.blockCount += 1
-        await user.save()
+        await Promise.all([ user.save(), suser.save() ])
         res.status(200).send({ message: "You are Blocked not able to follow / show feed" });
         try {
           user.userCircle.pull(blockId);

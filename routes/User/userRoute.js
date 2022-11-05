@@ -226,7 +226,7 @@ router.get(
 
 router.get('/staff/:sid/sal/history', catchAsync(User.retrieveStaffSalaryHistory))
 
-router.patch("/block/user", isLoggedIn, catchAsync(User.updateUserBlock));
+// router.patch("/block/user", isLoggedIn, catchAsync(User.updateUserBlock));
 
 router.patch("/unblock/user", isLoggedIn, catchAsync(User.updateUserUnBlock));
 

@@ -1614,68 +1614,68 @@ exports.retrieveStaffSalaryHistory = async(req, res) =>{
 }
 
 //
-exports.updateUserBlock = async (req, res) => {
-  try {
-    var user_session = req.tokenData && req.tokenData.userId;
-    var { blockId } = req.query
-    var user = await User.findById({ _id: user_session });
-    var suser = await User.findById({ _id: blockId });
-    if (
-      user.userCircle.includes(blockId) &&
-      suser.userCircle.includes(user_session)
-    ) {
-        user.userBlock.push(suser._id)
-        suser.blockedBy.push(user._id)
-        user.blockCount += 1
-        await Promise.all([ user.save(), suser.save() ])
-        res.status(200).send({ message: "You are Blocked not able to follow / show feed" });
-        try {
-          user.userCircle.pull(blockId);
-          suser.userCircle.pull(user_session);
-          if(suser.circleCount > 0){
-            suser.circleCount -= 1;
-          }
-          if(user.circleCount > 0){
-            user.circleCount -= 1;
-          }
+// exports.updateUserBlock = async (req, res) => {
+//   try {
+//     var user_session = req.tokenData && req.tokenData.userId;
+//     var { blockId } = req.query
+//     var user = await User.findById({ _id: user_session });
+//     var suser = await User.findById({ _id: blockId });
+//     if (
+//       user.userCircle.includes(blockId) &&
+//       suser.userCircle.includes(user_session)
+//     ) {
+//         user.userBlock.push(suser._id)
+//         suser.blockedBy.push(user._id)
+//         user.blockCount += 1
+//         await Promise.all([ user.save(), suser.save() ])
+//         res.status(200).send({ message: "You are Blocked not able to follow / show feed" });
+//         try {
+//           user.userCircle.pull(blockId);
+//           suser.userCircle.pull(user_session);
+//           if(suser.circleCount > 0){
+//             suser.circleCount -= 1;
+//           }
+//           if(user.circleCount > 0){
+//             user.circleCount -= 1;
+//           }
 
-          const post = await Post.find({ author: `${suser._id}` });
-          post.forEach(async (ele) => {
-            if(user?.userPosts?.includes(`${ele._id}`)){
-              user.userPosts.pull(ele._id);
-            }
-          });
-          await user.save();
+//           const post = await Post.find({ author: `${suser._id}` });
+//           post.forEach(async (ele) => {
+//             if(user?.userPosts?.includes(`${ele._id}`)){
+//               user.userPosts.pull(ele._id);
+//             }
+//           });
+//           await user.save();
   
-          const posts = await Post.find({ author: `${user._id}` });
-          posts.forEach(async (ele) => {
-            if(suser?.userPosts?.includes(`${ele._id}`)){
-              suser.userPosts.pull(ele._id);
-            }
-          });
-          await suser.save();
+//           const posts = await Post.find({ author: `${user._id}` });
+//           posts.forEach(async (ele) => {
+//             if(suser?.userPosts?.includes(`${ele._id}`)){
+//               suser.userPosts.pull(ele._id);
+//             }
+//           });
+//           await suser.save();
 
-          const post_count = await Post.find({ author: `${suser._id}` });
-          post_count.forEach(async (ele) => {
-            ele.authorFollowersCount = suser.followerCount;
-            await ele.save();
-          });
-          const post_counts = await Post.find({ author: `${user._id}` });
-          post_counts.forEach(async (ele) => {
-            ele.authorFollowersCount = user.followerCount;
-            await ele.save();
-          });
-          //
-        } catch {
-          res.status(500).send({ error: "error" });
-        }
-    } else {
-      res.status(200).send({ message: "Engage Network" });
-    }
-  } catch (e) {
-    console.log('UBU', e)
-  }
-};
+//           const post_count = await Post.find({ author: `${suser._id}` });
+//           post_count.forEach(async (ele) => {
+//             ele.authorFollowersCount = suser.followerCount;
+//             await ele.save();
+//           });
+//           const post_counts = await Post.find({ author: `${user._id}` });
+//           post_counts.forEach(async (ele) => {
+//             ele.authorFollowersCount = user.followerCount;
+//             await ele.save();
+//           });
+//           //
+//         } catch {
+//           res.status(500).send({ error: "error" });
+//         }
+//     } else {
+//       res.status(200).send({ message: "Engage Network" });
+//     }
+//   } catch (e) {
+//     console.log('UBU', e)
+//   }
+// };
 //
 
 exports.updateUserUnBlock = async (req, res) => {
@@ -1720,6 +1720,54 @@ exports.retrieveUserReportBlock = async (req, res) => {
       }
       await Promise.all([ user.save(), suser.save() ])
       res.status(200).send({ message: "You are Blocked not able to follow / circle ", block: true });
+      try {
+        user.userCircle?.pull(blockId);
+        suser.userCircle?.pull(user_session);
+        if(suser.circleCount > 0){
+          suser.circleCount -= 1;
+        }
+        if(user.circleCount > 0){
+          user.circleCount -= 1;
+        }
+        suser.userFollowers?.pull(user_session);
+        user.userFollowing?.pull(blockId);
+        if(user.followingUICount > 0 ){
+          user.followingUICount -= 1;
+        }
+        if(suser.followerCount > 0 ){
+          suser.followerCount -= 1;
+        }
+        
+        const post = await Post.find({ author: `${suser._id}` });
+        post.forEach(async (ele) => {
+          if(user?.userPosts?.includes(`${ele._id}`)){
+            user.userPosts.pull(ele._id);
+          }
+        });
+        await user.save();
+
+        const posts = await Post.find({ author: `${user._id}` });
+        posts.forEach(async (ele) => {
+          if(suser?.userPosts?.includes(`${ele._id}`)){
+            suser.userPosts.pull(ele._id);
+          }
+        });
+        await suser.save();
+
+        const post_count = await Post.find({ author: `${suser._id}` });
+        post_count.forEach(async (ele) => {
+          ele.authorFollowersCount = suser.followerCount;
+          await ele.save();
+        });
+        const post_counts = await Post.find({ author: `${user._id}` });
+        post_counts.forEach(async (ele) => {
+          ele.authorFollowersCount = user.followerCount;
+          await ele.save();
+        });
+        //
+      } catch {
+        res.status(500).send({ error: "error" });
+      }
     }
   } catch (e) {
     console.log('UUBU', e)

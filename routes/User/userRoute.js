@@ -230,6 +230,8 @@ router.patch("/block/user", isLoggedIn, catchAsync(User.updateUserBlock));
 
 router.patch("/unblock/user", isLoggedIn, catchAsync(User.updateUserUnBlock));
 
+router.patch('/report/block/user', isLoggedIn, catchAsync(User.retrieveUserReportBlock))
+
 router.patch(
   "/:uid/location/permission",
   catchAsync(User.retrieveUserLocationPermission)

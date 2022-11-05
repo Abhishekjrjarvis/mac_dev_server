@@ -1700,6 +1700,29 @@ exports.updateUserUnBlock = async (req, res) => {
   }
 };
 
+exports.retrieveUserReportBlock = async (req, res) => {
+  try {
+    var user_session = req.tokenData && req.tokenData.userId;
+    const { blockId } = req.query
+    var user = await User.findById({ _id: user_session });
+    var suser = await User.findById({ _id: blockId });
+
+    if(user?.userBlock?.includes(`${suser._id}`)){
+      res.status(200).send({ message: "You are Already Blocked able to follow / circle " });
+    }
+    else{
+      user.userBlock.push(suser._id)
+      if(user.blockCount >=1 ){
+        user.blockCount += 1
+      }
+      await user.save()
+      res.status(200).send({ message: "You are Blocked not able to follow / circle ", block: true });
+    }
+  } catch (e) {
+    console.log('UUBU', e)
+  }
+};
+
 exports.retrieveUserLocationPermission = async (req, res) => {
   try {
     const { uid } = req.params;

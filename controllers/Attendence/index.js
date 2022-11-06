@@ -303,8 +303,8 @@ exports.markAttendenceClassStudent = async (req, res) => {
           const user = await User.findById({ _id: `${student.user}` });
           const notify = new StudentNotification({});
           notify.notifyContent = `you're present today`;
-          notify.notify_hi_content = `आप आज उपस्थित हैं |`
-          notify.notify_mr_content = `तुम्ही आज हजर आहात.`
+          notify.notify_hi_content = `आप आज उपस्थित हैं |`;
+          notify.notify_mr_content = `तुम्ही आज हजर आहात.`;
           notify.notifySender = classes._id;
           notify.notifyReceiever = user._id;
           notify.notifyType = "Student";
@@ -343,8 +343,8 @@ exports.markAttendenceClassStudent = async (req, res) => {
           const user = await User.findById({ _id: `${student.user}` });
           const notify = new StudentNotification({});
           notify.notifyContent = `you're absent today`;
-          notify.notify_hi_content = `आप आज अनुपस्थित हैं |`
-          notify.notify_mr_content = `तुम्ही आज गैरहजर आहात.`
+          notify.notify_hi_content = `आप आज अनुपस्थित हैं |`;
+          notify.notify_mr_content = `तुम्ही आज गैरहजर आहात.`;
           notify.notifySender = classes._id;
           notify.notifyReceiever = user._id;
           notify.notifyType = "Student";
@@ -585,7 +585,7 @@ exports.viewInstituteStaff = async (req, res) => {
 
 exports.addDepartmentWeeklyTime = async (req, res) => {
   try {
-    if (!req.params.cid) throw "Please send class id to perform task";
+    if (!req.params.did) throw "Please send Department id to perform task";
     const department = await Department.findById(req.params.did);
     let flag = false;
     let index = 0;
@@ -619,7 +619,7 @@ exports.addDepartmentWeeklyTime = async (req, res) => {
 
 exports.getDepartmentWeeklyTime = async (req, res) => {
   try {
-    if (!req.params.cid) throw "Please send class id to perform task";
+    if (!req.params.did) throw "Please send Department id to perform task";
     const department = await Department.findById(req.params.did)
       .select("activeTimeDayWise")
       .lean()
@@ -652,7 +652,7 @@ exports.getDepartmentWeeklyTime = async (req, res) => {
 
 exports.addDepartmentDateWiseTime = async (req, res) => {
   try {
-    if (!req.params.cid) throw "Please send class id to perform task";
+    if (!req.params.did) throw "Please send Department id to perform task";
     const department = await Department.findById(req.params.did);
     let flag = false;
     let index = 0;
@@ -689,7 +689,7 @@ exports.addDepartmentDateWiseTime = async (req, res) => {
 
 exports.getDepartmentDateWiseTime = async (req, res) => {
   try {
-    if (!req.params.cid) throw "Please send Department id to perform task";
+    if (!req.params.did) throw "Please send Department id to perform task";
     const department = await Department.findById(req.params.did)
       .select("activeTimeDateWise activeTimeDayWise")
       .lean()
@@ -773,8 +773,8 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
         staff.attendDates.push(staffAttendence._id);
         const notify = new StudentNotification({});
         notify.notifyContent = `you're present today`;
-        notify.notify_hi_content = `आप आज उपस्थित हैं |`
-        notify.notify_mr_content = `तुम्ही आज हजर आहात.`
+        notify.notify_hi_content = `आप आज उपस्थित हैं |`;
+        notify.notify_mr_content = `तुम्ही आज हजर आहात.`;
         notify.notifySender = id;
         notify.notifyReceiever = staff.user._id;
         notify.notifyType = "Staff";
@@ -817,8 +817,8 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
         });
         const notify = new StudentNotification({});
         notify.notifyContent = `you're absent today`;
-        notify.notify_hi_content = `आप आज अनुपस्थित हैं |`
-        notify.notify_mr_content = `तुम्ही आज गैरहजर आहात.`
+        notify.notify_hi_content = `आप आज अनुपस्थित हैं |`;
+        notify.notify_mr_content = `तुम्ही आज गैरहजर आहात.`;
         notify.notifySender = id;
         notify.notifyReceiever = staff.user._id;
         notify.notifyType = "Staff";
@@ -1223,8 +1223,8 @@ exports.holidayCalendar = async (req, res) => {
       const user = await User.findById({ _id: `${student.user._id}` });
       const notify = new StudentNotification({});
       notify.notifyContent = `New Holiday Marked`;
-      notify.notify_hi_content = `नई छुट्टी मार्के की गई | `
-      notify.notify_mr_content = `नवीन सुट्टी मार्क केली.`
+      notify.notify_hi_content = `नई छुट्टी मार्के की गई | `;
+      notify.notify_mr_content = `नवीन सुट्टी मार्क केली.`;
       notify.notifySender = depart._id;
       notify.notifyType = "Student";
       notify.notifyPublisher = student._id;

@@ -139,6 +139,10 @@ const financeSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  financeParticipateEventBalance: {
+    type: Number,
+    default: 0
+  },
   requestArray: [],
   staff_pay_list: [
     {

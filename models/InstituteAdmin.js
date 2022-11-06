@@ -539,7 +539,13 @@ const instituteAdminSchema = new mongoose.Schema({
   lang_mode: {
     type: String,
     default: 'en'
-  }
+  },
+  block_institute: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'InstituteAdmin'
+    }
+  ]
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

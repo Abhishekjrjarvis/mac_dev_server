@@ -331,6 +331,12 @@ const userSchema = new mongoose.Schema({
       ref: 'User'
     }
   ],
+  blockedBy: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }
+  ],
   blockCount: {
     type: Number,
     default: 0
@@ -403,6 +409,10 @@ const userSchema = new mongoose.Schema({
   lang_mode: {
     type: String,
     default: 'en'
+  },
+  is_mentor: {
+    type: Boolean,
+    default: false
   }
 });
 

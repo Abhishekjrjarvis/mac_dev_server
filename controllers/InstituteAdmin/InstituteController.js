@@ -795,6 +795,7 @@ exports.fillStaffForm = async (req, res) => {
     const aStatus = new Status({});
     institute.staff.push(staff._id);
     user.staff.push(staff._id);
+    user.is_mentor = true
     institute.joinedPost.push(user._id);
     if (institute.userFollowersList.includes(uid)) {
     } else {
@@ -864,6 +865,7 @@ exports.fillStudentForm = async (req, res) => {
     const aStatus = new Status({});
     institute.student.push(student._id);
     user.student.push(student._id);
+    user.is_mentor = true
     institute.joinedPost.push(user._id);
     classes.student.push(student._id);
     student.studentClass = classes._id;
@@ -962,7 +964,7 @@ exports.retrieveApproveStaffList = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "staffFirstName staffMiddleName recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO"
+          "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO"
         )
         .populate({
           path: "user",
@@ -983,7 +985,7 @@ exports.retrieveApproveStaffList = async (req, res) => {
         })
           .sort("-createdAt")
           .select(
-            "staffFirstName staffMiddleName recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO"
+            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO"
           )
           .populate({
             path: "user",
@@ -1010,7 +1012,7 @@ exports.retrieveApproveStaffList = async (req, res) => {
         })
           .sort("-createdAt")
           .select(
-            "staffFirstName staffMiddleName recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO"
+            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO"
           )
           .populate({
             path: "user",
@@ -2399,7 +2401,7 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
       .populate({
         path: "ApproveStudent",
         select:
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO",
+          "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO",
         populate: {
           path: "user",
           select: "userLegalName username",
@@ -2421,7 +2423,7 @@ exports.retrieveDepartmentStaffArray = async (req, res) => {
       .populate({
         path: "departmentChatGroup",
         select:
-          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+          "staffFirstName staff_biometric_id staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
         populate: {
           path: "user",
           select: "username userLegalName photoId profilePhoto",
@@ -2744,3 +2746,49 @@ exports.settingFormUpdate = async (req, res) => {
     });
   }
 };
+
+
+// exports.retrieveInstituteBlockQuery = async(req, res) => {
+//   try{
+//     const { blockId } = req.query
+//     var ins_session = req.tokenData.insId
+//     const institutes = await InstituteAdmin.findById({_id: `${ins_session}`})
+//     const block_ins = await InstituteAdmin.findById({_id: blockId})
+//     if (institutes.status === "Approved" && block_ins.status === "Approved") {
+//       if (institutes.following.includes(blockId)) {
+//         block_ins.followers.pull(ins_session);
+//         institutes.following.pull(blockId);
+//         institutes.block_institute.push(block_ins._id)
+//         if (institutes.followingCount >= 1) {
+//           institutes.followingCount -= 1;
+//         }
+//         if (block_ins.followersCount >= 1) {
+//           block_ins.followersCount -= 1;
+//         }
+//         await Promise.all([block_ins.save(), institutes.save()]);
+//         res.status(200).send({ message: "Block Institute By You" });
+//         if (block_ins.isUniversal === "Not Assigned") {
+//           const post = await Post.find({
+//             $and: [{ author: block_ins._id, postStatus: "Anyone" }],
+//           });
+//           post.forEach(async (pt) => {
+//             institutes.posts.pull(pt);
+//           });
+//           await institutes.save();
+//         } else {
+//         }
+//       } else {
+//         res
+//           .status(200)
+//           .send({ message: "You Already Blocked This Institute" });
+//       }
+//     } else {
+//       res
+//         .status(200)
+//         .send({ message: "Institute is Not Approved, No Operation execution..." });
+//     }
+//   }
+//   catch{
+
+//   }
+// }

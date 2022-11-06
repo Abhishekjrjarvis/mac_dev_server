@@ -75,7 +75,8 @@ const admissionPaymentSchema = new mongoose.Schema({
     },
     payName: {
         type: String
-    }
+    },
+    eventId: { type: String }
 });
 
 module.exports = mongoose.model("AdmissionPayment", admissionPaymentSchema);

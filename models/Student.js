@@ -350,6 +350,18 @@ const studentSchema = new mongoose.Schema({
     },
   ],
   student_biometric_id: { type: String },
+  election_candidate: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Election'
+    }
+  ],
+  participate_event: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Participate'
+    }
+  ]
 });
 
 const Student = mongoose.model("Student", studentSchema);

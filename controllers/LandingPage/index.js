@@ -6,6 +6,8 @@ const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const sendAnEmail = require('../../Service/email.js')
+const User = require('../../models/User')
+const invokeSpecificRegister = require('../../Firebase/specific')
 
 exports.uploadGetTouchDetail = async(req, res) =>{
     try{
@@ -60,6 +62,33 @@ exports.uploadUserCareerDetail = async(req, res) =>{
 
     }
 }
+
+const AppUpdate = async(req, res) => {
+    try{
+        var data = `A New Update Available. Update your app to get smoother experience 😀`
+        const users = await User.find({})
+        .select('deviceToken')
+        if(users?.length > 0){
+            users?.forEach((ele) => {
+                invokeSpecificRegister(
+                  "Specific Notification",
+                  data,
+                  'App Update Notification',
+                  ele._id,
+                  ele.deviceToken,
+                );
+            })
+            return true
+        }
+    }
+    catch(e){
+        console.log(e)
+    }
+}
+
+// console.log(AppUpdate())
+
+
 
 // const axios = require("axios");
 

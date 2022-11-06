@@ -817,16 +817,15 @@ exports.getAllSaveAnswerQuery = async (req, res) => {
   }
 };
 
-exports.getOneQuestionQuery = async (req, res) => {
-  try {
-    const { qid } = req.params;
-    const one_question = await Post.findById({ _id: qid }).select(
-      "postQuestion commentCount answerCount createdAt author authorUserName authorProfilePhoto authorPhotoId needCount needUser isInstitute isUser endUserSave"
-    );
-    res
-      .status(200)
-      .send({ message: "Question Query", one_query: one_question });
-  } catch (e) {
-    console.log(e);
+
+exports.getOneQuestionQuery = async(req, res) => {
+  try{
+    const { qid } = req.params
+    const one_question = await Post.findById({_id: qid})
+    .select('postQuestion commentCount answerCount createdAt author authorUserName authorProfilePhoto authorPhotoId needCount needUser isInstitute isUser endUserSave')
+    res.status(200).send({ message: 'Question Query', one_query: one_question})
+  }
+  catch( e){
+    console.log(e)
   }
 };

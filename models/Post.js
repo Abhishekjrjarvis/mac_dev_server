@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-const Comment = require('./Comment')
-const Answer = require('./Question/Answer')
+const Comment = require("./Comment");
+const Answer = require("./Question/Answer");
 
 const postSchema = new mongoose.Schema({
   postTitle: {
@@ -69,11 +69,11 @@ const postSchema = new mongoose.Schema({
     type: String,
   },
   authorOneLine: {
-    type: String
+    type: String,
   },
   authorFollowersCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   comment: [
     {
@@ -125,49 +125,49 @@ const postSchema = new mongoose.Schema({
   // endUserFact: [],
   // endUserSupport: [],
   post_url: {
-    type: String
+    type: String,
   },
   rePostAnswer: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Answer'
+    ref: "Answer",
   },
   //
   isHelpful: {
-    type: String
+    type: String,
   },
   isNeed: {
-    type: String
+    type: String,
   },
   needCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   needUser: [],
   postBlockStatus: {
     type: String,
-    default: 'Not Block'
+    default: "Not Block",
   },
   needMultiple: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
-    }
+      ref: "User",
+    },
   ],
   repostMultiple: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
-    }
+      ref: "User",
+    },
   ],
   new_application: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'NewApplication'
+    ref: "NewApplication",
   },
   hash_trend: { type: String, default: 'Not on trending' },
   comment_turned: { type: String, default: 'On' },
   post_question_transcript: { type: String },
   post_description_transcript: { type: String },
-  post_title_transcript: { type: String }
+  post_title_transcript: { type: String },
   //
 });
 

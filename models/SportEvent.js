@@ -26,6 +26,10 @@ const sportEventSchema = new mongoose.Schema({
     sportEventStatus: {
         type: String,
         default: 'Upcoming'
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
     }
 })
 

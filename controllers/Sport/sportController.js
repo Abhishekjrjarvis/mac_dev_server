@@ -83,11 +83,39 @@ exports.retrieveSportDetail = async(req, res) =>{
               select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto'
             },
           })
-          // .populate("sportEvent");
         res.status(200).send({ message: "Let's Explore Sport data 👍", sport });
       } catch(e) {
         console.log(e);
       }
+}
+
+exports.retrieveSportDetailEvent = async(req, res) =>{
+  try {
+    const { status } = req.query
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const { id } = req.params
+    const skip = (page - 1) * limit;
+    
+    const sport = await Sport.findById({_id: id})
+    .select('sportEvent')
+
+    const event = await SportEvent.find({ $and: [{ _id: { $in: sport?.sportEvent}}, { sportEventStatus: `${status}` }]})
+    .sort('-createdAt')
+    .limit(limit)
+    .skip(skip)
+    .select('sportEventName sportEventCategory sportEventPlace sportEventDate sportEventDescription sportEventProfilePhoto photoId')
+    
+    if(event?.length > 0 ){
+      res.status(200).send({ message: "Let's Explore Sport Event data 👍", event });
+    }
+    else{
+      res.status(200).send({ message: "No Sport Event data 😒", event: [] });
+    }
+    
+    } catch(e) {
+      console.log(e);
+    }
 }
 
 exports.getSportClass = async(req, res) =>{
@@ -212,66 +240,63 @@ exports.retrieveSportEventDetail = async(req, res) =>{
     try {
         const { id } = req.params;
         const event = await SportEvent.findById({ _id: id })
-          .populate({
-            path: "sportEventMatch",
-            select: 'id',
-            populate: {
-              path: "sportEventMatchClass",
-              select: 'id sportEventClassName',
-              populate: {
-                path: "sportStudent",
-                select: 'id studentFirstName',
-              },
-            },
-          })
-          .populate({
-            path: "sportDepartment",
-            select: 'id sportName',
-          })
-          .populate({
-            path: "sportEventMatch",
-            select: 'id',
-            populate: {
-              path: "sportEvent",
-              select: 'id',
-            },
-          })
-          .populate({
-            path: "sportEventMatch",
-            select: 'id',
-            populate: {
-              path: "sportWinner",
-              select: 'id',
-            },
-          })
-          .populate({
-            path: "sportEventMatch",
-            select: 'id',
-            populate: {
-              path: "sportWinnerTeam",
-              select: 'id',
-            },
-          })
-          .populate({
-            path: "sportEventMatch",
-            select: 'id',
-            populate: {
-              path: "sportRunner",
-              select: 'id',
-            },
-          })
-          .populate({
-            path: "sportEventMatch",
-            select: 'id',
-            populate: {
-              path: "sportRunnerTeam",
-              select: 'id',
-            },
-          });
+        .select('sportEventName sportEventMatchCount sportEventStatus sportEventCategory sportEventPlace sportEventDate sportEventDescription sportEventProfilePhoto')
+        .populate({
+          path: 'sportDepartment',
+          select: '_id'
+        })
         res.status(200).send({ message: "One Event Detail", event });
       } catch(e) {
         console.log(`Error`, e.message);
       }
+}
+
+exports.retrieveSportEventQuery = async(req, res) => {
+  try{
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const { eid } = req.params
+    const skip = (page - 1) * limit;
+    const event_query = await SportEvent.findById({_id: eid})
+    .select('sportEventMatch')
+
+    const match_query = await SportEventMatch.find({ _id: { $in: event_query?.sportEventMatch}})
+    .sort('-createdAt')
+    .limit(limit)
+    .skip(skip)
+    .select('sportEventMatchName sportEventMatchCategory sportEventMatchCategoryLevel sportEventMatchDate')
+    .populate({
+      path: 'sportPlayer1',
+      select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto'
+    })
+    .populate({
+      path: 'sportTeam1',
+      select: 'sportClassTeamName'
+    })
+    .populate({
+      path: 'sportPlayer2',
+      select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto'
+    })
+    .populate({
+      path: 'sportTeam2',
+      select: 'sportClassTeamName'
+    })
+    .populate({
+      path: 'sportFreePlayer',
+      select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto'
+    })
+
+
+    if(match_query?.length > 0){
+      res.status(200).send({ message: 'Awesome Event', match_query })
+    }
+    else{
+      res.status(200).send({ message: 'Awesome Event', match_query: [] })
+    }
+  }
+  catch{
+
+  }
 }
 
 exports.getIntraMatchEvent = async(req, res) =>{

@@ -86,6 +86,10 @@ const sportEventMatchSchema = new mongoose.Schema({
             type: String 
         },
     ],
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
 })
 
 

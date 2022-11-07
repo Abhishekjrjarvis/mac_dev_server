@@ -43,4 +43,12 @@ router.patch('/biometric/staff/ref', catchAsync(Extra.fetchBiometricStaffQuery))
 
 router.patch('/biometric/student/ref', catchAsync(Extra.fetchBiometricStudentQuery))
 
+router.get('/export/staff/card', catchAsync(Extra.fetchExportStaffIdCardQuery))
+
+router.get('/export/student/card', catchAsync(Extra.fetchExportStudentIdCardQuery))
+
+router.patch('/export/staff/:id/card/format', catchAsync(Extra.fetchExportStaffIdCardFormat))
+
+router.patch('/export/student/:id/card/format', catchAsync(Extra.fetchExportStudentIdCardFormat))
+
 module.exports = router

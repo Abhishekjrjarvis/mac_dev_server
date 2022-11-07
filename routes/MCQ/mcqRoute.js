@@ -8,7 +8,17 @@ const upload = multer({ dest: "uploads/" });
 router
   .route("/:smid/question/:cmid")
   .get(catchAsync(mcqController.getQuestion))
-  .post(catchAsync(mcqController.addQuestion));
+  .post(
+    upload.fields([
+      {
+        name: "questionImage",
+      },
+      {
+        name: "answerImage",
+      },
+    ]),
+    catchAsync(mcqController.addQuestion)
+  );
 
 router
   .route("/question/:smid/testset/:cmid")

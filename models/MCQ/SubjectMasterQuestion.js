@@ -11,6 +11,20 @@ const subjectMasterQuestionShcema = new mongoose.Schema({
     ref: "ClassMaster",
     required: true,
   },
+  isUniversal: {
+    type: Boolean,
+    default: false,
+  },
+  institute: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "InstituteAdmin",
+  },
+  // universal_activate_question:[
+  //   {
+  //     type: mongoose.Schema.Types.ObjectId,
+  //     ref: "InstituteAdmin",
+  //   }
+  // ],
   questions: [
     {
       questionSNO: {
@@ -24,7 +38,25 @@ const subjectMasterQuestionShcema = new mongoose.Schema({
       questionDescription: {
         type: String,
       },
-      questionImage: [],
+      questionImage: [
+        {
+          documentType: {
+            type: String,
+          },
+          documentName: {
+            type: String,
+          },
+          documentSize: {
+            type: String,
+          },
+          documentKey: {
+            type: String,
+          },
+          documentEncoding: {
+            type: String,
+          },
+        },
+      ],
       options: [
         {
           option: { type: String },
@@ -42,7 +74,25 @@ const subjectMasterQuestionShcema = new mongoose.Schema({
       answerDescription: {
         type: String,
       },
-      answerImage: [],
+      answerImage: [
+        {
+          documentType: {
+            type: String,
+          },
+          documentName: {
+            type: String,
+          },
+          documentSize: {
+            type: String,
+          },
+          documentKey: {
+            type: String,
+          },
+          documentEncoding: {
+            type: String,
+          },
+        },
+      ],
       createdAt: {
         type: Date,
         default: Date.now,

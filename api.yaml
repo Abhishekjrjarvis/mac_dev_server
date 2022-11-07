@@ -11525,674 +11525,674 @@ paths:
           description: OK
 
 #FOR THE MCQ ALL API
-  # /api/v1/all-images/onefile:
-  #   patch:
-  #     tags:
-  #       - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-  #     summary:
-  #       - To upload one file at a time for the add question
-  #     consumes:
-  #       - application/json
-  #     produces:
-  #       - application/json'
-  #     parameters:
-  #       - in: formData
-  #         name: file
-  #         type: file
-  #         required: true
-  #         description: upload your file
-  #     responses:
-  #       "200":
-  #         description: OK
+  /api/v1/all-images/onefile:
+    patch:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary:
+        - To upload one file at a time for the add question
+      consumes:
+        - application/json
+      produces:
+        - application/json'
+      parameters:
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your file
+      responses:
+        "200":
+          description: OK
 
-  # /api/v1/mcq/{smid}/question/{cmid}:
-  #   get:
-  #     tags:
-  #       - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-  #     summary: It is give all mcq questions in subject teacher side with their respective class master and subject master (VERIFIED)
-  #     consumes:
-  #       - application/json
-  #     produces:
-  #       - application/json
-  #     parameters:
-  #       - in: path
-  #         name: smid
-  #         required: true
-  #         type: string
-  #         description: It is particular Subject Master id
-  #       - in: path
-  #         name: cmid
-  #         required: true
-  #         type: string
-  #         description: It is particular Class Master id  
-  #       - in: query
-  #         name: page
-  #         type: integer
-  #         description: pass the page number
-  #       - in: query
-  #         name: limit
-  #         type: integer
-  #         description: pass the limit one time how many item you want                    
-  #     responses:
-  #       "200":
-  #         description: OK
+  /api/v1/mcq/{smid}/question/{cmid}:
+    get:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary: It is give all mcq questions in subject teacher side with their respective class master and subject master (VERIFIED)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: smid
+          required: true
+          type: string
+          description: It is particular Subject Master id
+        - in: path
+          name: cmid
+          required: true
+          type: string
+          description: It is particular Class Master id  
+        - in: query
+          name: page
+          type: integer
+          description: pass the page number
+        - in: query
+          name: limit
+          type: integer
+          description: pass the limit one time how many item you want                    
+      responses:
+        "200":
+          description: OK
 
-  #   post:
-  #     tags:
-  #       - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-  #     summary: It is add question by subject teacher side with their respective class master and subject master (VERIFIED)
-  #     consumes:
-  #       - application/json
-  #     produces:
-  #       - application/json
-  #     parameters:
-  #       - in: path
-  #         name: smid
-  #         required: true
-  #         type: string
-  #         description: It is particular Subject Master id
-  #       - in: path
-  #         name: cmid
-  #         required: true
-  #         type: string
-  #         description: It is particular Class Master id    
-  #       - in: body
-  #         name: body
-  #         schema:
-  #           type: object
-  #           properties:
-  #             questionSNO:
-  #               type: string
-  #               required:  true
-  #               description: It is question serial number
-  #             questionNumber:
-  #               type: integer
-  #               required:  true
-  #               description: It is question number that how many marks of one question
-  #             questionDescription:
-  #               type: string
-  #               required:  true
-  #               description: It is question description
-  #             questionImage:
-  #               type: array
-  #               description: It is list of all selected images key
-  #               items:
-  #                 type: string
-  #             options:
-  #               type: array
-  #               required:  true
-  #               description: It is list of all selected correct answer
-  #               items:
-  #                 type: object
-  #                 properties:
-  #                   option:
-  #                     type: string
-  #                     description: here give option description
-  #                   optionNumber:
-  #                     type: string
-  #                     required: true
-  #                     description: it is a option serial number in alphabet or number      
-  #                   image:
-  #                     type: string
-  #                     description: it is option image key                  
-  #             correctAnswer:
-  #               type: array
-  #               required:  true
-  #               description: It is list of all selected correct answer
-  #               items:
-  #                 type: object
-  #                 properties:
-  #                   option:
-  #                     type: string
-  #                     description: here give option description
-  #                   optionNumber:
-  #                     type: string
-  #                     required: true
-  #                     description: it is a option serial number in alphabet or number      
-  #                   image:
-  #                     type: string
-  #                     description: it is option image key                                     
-  #             answerDescription:
-  #               type: string
-  #               required:  true
-  #               description: It is answer description
-  #             answerImage:
-  #               type: array
-  #               description: It is list of all selected images key
-  #               items:
-  #                 type: string                  
-  #     responses:
-  #       "200":
-  #         description: OK
+    post:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary: It is add question by subject teacher side with their respective class master and subject master (VERIFIED)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: smid
+          required: true
+          type: string
+          description: It is particular Subject Master id
+        - in: path
+          name: cmid
+          required: true
+          type: string
+          description: It is particular Class Master id    
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              questionSNO:
+                type: string
+                required:  true
+                description: It is question serial number
+              questionNumber:
+                type: integer
+                required:  true
+                description: It is question number that how many marks of one question
+              questionDescription:
+                type: string
+                required:  true
+                description: It is question description
+              questionImage:
+                type: array
+                description: It is list of all selected images key
+                items:
+                  type: string
+              options:
+                type: array
+                required:  true
+                description: It is list of all selected correct answer
+                items:
+                  type: object
+                  properties:
+                    option:
+                      type: string
+                      description: here give option description
+                    optionNumber:
+                      type: string
+                      required: true
+                      description: it is a option serial number in alphabet or number      
+                    image:
+                      type: string
+                      description: it is option image key                  
+              correctAnswer:
+                type: array
+                required:  true
+                description: It is list of all selected correct answer
+                items:
+                  type: object
+                  properties:
+                    option:
+                      type: string
+                      description: here give option description
+                    optionNumber:
+                      type: string
+                      required: true
+                      description: it is a option serial number in alphabet or number      
+                    image:
+                      type: string
+                      description: it is option image key                                     
+              answerDescription:
+                type: string
+                required:  true
+                description: It is answer description
+              answerImage:
+                type: array
+                description: It is list of all selected images key
+                items:
+                  type: string                  
+      responses:
+        "200":
+          description: OK
 
-  # /api/v1/mcq/question/{smid}/testset/{cmid}:
-  #   get:
-  #     tags:
-  #       - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-  #     summary: It is give all mcq questions in subject teacher side with their respective class master and subject master to ADD in Test set (VERIFIED)
-  #     consumes:
-  #       - application/json
-  #     produces:
-  #       - application/json
-  #     parameters:
-  #       - in: path
-  #         name: smid
-  #         required: true
-  #         type: string
-  #         description: It is particular Subject Master id
-  #       - in: path
-  #         name: cmid
-  #         required: true
-  #         type: string
-  #         description: It is particular Class Master id 
-  #       - in: query
-  #         name: page
-  #         type: integer
-  #         description: pass the page number
-  #       - in: query
-  #         name: limit
-  #         type: integer
-  #         description: pass the limit one time how many item you want                        
-  #     responses:
-  #       "200":
-  #         description: OK
+  /api/v1/mcq/question/{smid}/testset/{cmid}:
+    get:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary: It is give all mcq questions in subject teacher side with their respective class master and subject master to ADD in Test set (VERIFIED)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: smid
+          required: true
+          type: string
+          description: It is particular Subject Master id
+        - in: path
+          name: cmid
+          required: true
+          type: string
+          description: It is particular Class Master id 
+        - in: query
+          name: page
+          type: integer
+          description: pass the page number
+        - in: query
+          name: limit
+          type: integer
+          description: pass the limit one time how many item you want                        
+      responses:
+        "200":
+          description: OK
 
-  #   post:
-  #     tags:
-  #       - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-  #     summary: It is save TESTSET by subject teacher side with their respective class master and subject master (VERIFIED)
-  #     consumes:
-  #       - application/json
-  #     produces:
-  #       - application/json
-  #     parameters:
-  #       - in: path
-  #         name: smid
-  #         required: true
-  #         type: string
-  #         description: It is particular Subject Master id
-  #       - in: path
-  #         name: cmid
-  #         required: true
-  #         type: string
-  #         description: It is particular Class Master id    
-  #       - in: body
-  #         name: body
-  #         schema:
-  #           type: object
-  #           properties:
-  #             testName:
-  #               type: string
-  #               required:  true
-  #               description: It is testName of the test set
-  #             testTotalQuestion:
-  #               type: integer
-  #               required:  true
-  #               description: It is testTotalQuestion number of questions
-  #             testTotalNumber:
-  #               type: integer
-  #               required:  true
-  #               description: It is testTotalNumber maximum number of test set
-  #             questions:
-  #               type: array
-  #               description: it is hold all the question of that test set
-  #               required: true 
-  #               items:
-  #                 type: object
-  #                 properties:
-  #                   questionSNO:
-  #                     type: string
-  #                     required:  true
-  #                     description: It is question serial number
-  #                   questionNumber:
-  #                     type: integer
-  #                     required:  true
-  #                     description: It is question number that how many marks of one question
-  #                   questionDescription:
-  #                     type: string
-  #                     required:  true
-  #                     description: It is question description
-  #                   questionImage:
-  #                     type: array
-  #                     description: It is list of all selected images key
-  #                     items:
-  #                       type: string
-  #                   options:
-  #                     type: array
-  #                     required:  true
-  #                     description: It is list of all selected correct answer
-  #                     items:
-  #                       type: object
-  #                       properties:
-  #                         option:
-  #                           type: string
-  #                           description: here give option description
-  #                         optionNumber:
-  #                           type: string
-  #                           required: true
-  #                           description: it is a option serial number in alphabet or number      
-  #                         image:
-  #                           type: string
-  #                           description: it is option image key                  
-  #                   correctAnswer:
-  #                     type: array
-  #                     required:  true
-  #                     description: It is list of all selected correct answer
-  #                     items:
-  #                       type: object
-  #                       properties:
-  #                         option:
-  #                           type: string
-  #                           description: here give option description
-  #                         optionNumber:
-  #                           type: string
-  #                           required: true
-  #                           description: it is a option serial number in alphabet or number      
-  #                         image:
-  #                           type: string
-  #                           description: it is option image key                                     
-  #                   answerDescription:
-  #                     type: string
-  #                     required:  true
-  #                     description: It is answer description
-  #                   answerImage:
-  #                     type: array
-  #                     description: It is list of all selected images key
-  #                     items:
-  #                       type: string                  
-  #     responses:
-  #             "200":
-  #               description: OK
+    post:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary: It is save TESTSET by subject teacher side with their respective class master and subject master (VERIFIED)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: smid
+          required: true
+          type: string
+          description: It is particular Subject Master id
+        - in: path
+          name: cmid
+          required: true
+          type: string
+          description: It is particular Class Master id    
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              testName:
+                type: string
+                required:  true
+                description: It is testName of the test set
+              testTotalQuestion:
+                type: integer
+                required:  true
+                description: It is testTotalQuestion number of questions
+              testTotalNumber:
+                type: integer
+                required:  true
+                description: It is testTotalNumber maximum number of test set
+              questions:
+                type: array
+                description: it is hold all the question of that test set
+                required: true 
+                items:
+                  type: object
+                  properties:
+                    questionSNO:
+                      type: string
+                      required:  true
+                      description: It is question serial number
+                    questionNumber:
+                      type: integer
+                      required:  true
+                      description: It is question number that how many marks of one question
+                    questionDescription:
+                      type: string
+                      required:  true
+                      description: It is question description
+                    questionImage:
+                      type: array
+                      description: It is list of all selected images key
+                      items:
+                        type: string
+                    options:
+                      type: array
+                      required:  true
+                      description: It is list of all selected correct answer
+                      items:
+                        type: object
+                        properties:
+                          option:
+                            type: string
+                            description: here give option description
+                          optionNumber:
+                            type: string
+                            required: true
+                            description: it is a option serial number in alphabet or number      
+                          image:
+                            type: string
+                            description: it is option image key                  
+                    correctAnswer:
+                      type: array
+                      required:  true
+                      description: It is list of all selected correct answer
+                      items:
+                        type: object
+                        properties:
+                          option:
+                            type: string
+                            description: here give option description
+                          optionNumber:
+                            type: string
+                            required: true
+                            description: it is a option serial number in alphabet or number      
+                          image:
+                            type: string
+                            description: it is option image key                                     
+                    answerDescription:
+                      type: string
+                      required:  true
+                      description: It is answer description
+                    answerImage:
+                      type: array
+                      description: It is list of all selected images key
+                      items:
+                        type: string                  
+      responses:
+              "200":
+                description: OK
 
-  # /api/v1/mcq/subject/{smid}/alltestset/{cmid}:
-  #   get:
-  #     tags:
-  #       - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-  #     summary: It is give all testset list in subject teacher side with their respective class master and subject master (VERIFIED)
-  #     consumes:
-  #       - application/json
-  #     produces:
-  #       - application/json
-  #     parameters:
-  #       - in: path
-  #         name: smid
-  #         required: true
-  #         type: string
-  #         description: It is particular Subject Master id      
-  #       - in: path
-  #         name: cmid
-  #         required: true
-  #         type: string
-  #         description: It is particular Class Master id 
-  #       - in: query
-  #         name: page
-  #         type: integer
-  #         description: pass the page number
-  #       - in: query
-  #         name: limit
-  #         type: integer
-  #         description: pass the limit one time how many item you want                        
-  #     responses:
-  #       "200":
-  #         description: OK
+  /api/v1/mcq/subject/{smid}/alltestset/{cmid}:
+    get:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary: It is give all testset list in subject teacher side with their respective class master and subject master (VERIFIED)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: smid
+          required: true
+          type: string
+          description: It is particular Subject Master id      
+        - in: path
+          name: cmid
+          required: true
+          type: string
+          description: It is particular Class Master id 
+        - in: query
+          name: page
+          type: integer
+          description: pass the page number
+        - in: query
+          name: limit
+          type: integer
+          description: pass the limit one time how many item you want                        
+      responses:
+        "200":
+          description: OK
 
-  # /api/v1/mcq/testset/{tsid}/detail:
-  #   get:
-  #     tags:
-  #       - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-  #     summary: It is give ONE testset some DETAILS in subject teacher side with their respective class master and subject master (VERIFIED)
-  #     consumes:
-  #       - application/json
-  #     produces:
-  #       - application/json
-  #     parameters:
-  #       - in: path
-  #         name: tsid
-  #         required: true
-  #         type: string
-  #         description: It is particular TESTSET id      
-  #       - in: query
-  #         name: page
-  #         type: integer
-  #         description: pass the page number
-  #       - in: query
-  #         name: limit
-  #         type: integer
-  #         description: pass the limit one time how many item you want                        
-  #     responses:
-  #       "200":
-  #         description: OK
+  /api/v1/mcq/testset/{tsid}/detail:
+    get:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary: It is give ONE testset some DETAILS in subject teacher side with their respective class master and subject master (VERIFIED)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tsid
+          required: true
+          type: string
+          description: It is particular TESTSET id      
+        - in: query
+          name: page
+          type: integer
+          description: pass the page number
+        - in: query
+          name: limit
+          type: integer
+          description: pass the limit one time how many item you want                        
+      responses:
+        "200":
+          description: OK
 
-  # /api/v1/mcq/subject/{sid}/take/testset:
-  #   post:
-  #     tags:
-  #       - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-  #     summary: It is take ONE testset by subject teacher for that particular class students (VERIFIED)
-  #     consumes:
-  #       - application/json
-  #     produces:
-  #       - application/json
-  #     parameters:
-  #       - in: path
-  #         name: sid
-  #         required: true
-  #         type: string
-  #         description: It is particular Subject Teacher id      
-  #       - in: body
-  #         name: body
-  #         schema:
-  #           type: object
-  #           properties:
-  #             tsid:
-  #               type: string
-  #               required:  true
-  #               description: It is particular TESTET ID
-  #             testExamName:
-  #               type: string
-  #               required:  true
-  #               description: It is testExamName of the test set Exam  
-  #             testDate:
-  #               type: string
-  #               required:  true
-  #               description: It is testDate of Exam that day held  
-  #             testStart:
-  #               type: string
-  #               required:  true
-  #               description: It is start time of the testet Exam  
-  #             testEnd:
-  #               type: string
-  #               required:  true
-  #               description: It is end time of the testet Exam  
-  #             testDuration:
-  #               type: string
-  #               required:  true
-  #               description: It is duration time of the testet Exam 
-  #     responses:
-  #       "200":
-  #         description: OK
+  /api/v1/mcq/subject/{sid}/take/testset:
+    post:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary: It is take ONE testset by subject teacher for that particular class students (VERIFIED)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular Subject Teacher id      
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              tsid:
+                type: string
+                required:  true
+                description: It is particular TESTET ID
+              testExamName:
+                type: string
+                required:  true
+                description: It is testExamName of the test set Exam  
+              testDate:
+                type: string
+                required:  true
+                description: It is testDate of Exam that day held  
+              testStart:
+                type: string
+                required:  true
+                description: It is start time of the testet Exam  
+              testEnd:
+                type: string
+                required:  true
+                description: It is end time of the testet Exam  
+              testDuration:
+                type: string
+                required:  true
+                description: It is duration time of the testet Exam 
+      responses:
+        "200":
+          description: OK
 
-  # /api/v1/mcq/student/{sid}/alltestset:
-  #   get:
-  #     tags:
-  #       - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-  #     summary: It is give all testset list (and also give status of complete or not) in student side that assign by subject teacher (VERIFIED)
-  #     consumes:
-  #       - application/json
-  #     produces:
-  #       - application/json
-  #     parameters:
-  #       - in: path
-  #         name: sid
-  #         required: true
-  #         type: string
-  #         description: It is particular Student id      
-  #       - in: query
-  #         name: page
-  #         type: integer
-  #         description: pass the page number
-  #       - in: query
-  #         name: limit
-  #         type: integer
-  #         description: pass the limit one time how many item you want                        
-  #     responses:
-  #       "200":
-  #         description: OK
+  /api/v1/mcq/student/{sid}/alltestset:
+    get:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary: It is give all testset list (and also give status of complete or not) in student side that assign by subject teacher (VERIFIED)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is particular Student id      
+        - in: query
+          name: page
+          type: integer
+          description: pass the page number
+        - in: query
+          name: limit
+          type: integer
+          description: pass the limit one time how many item you want                        
+      responses:
+        "200":
+          description: OK
 
-  # /api/v1/mcq/student/testset/{tsid}/detail:
-  #   get:
-  #     tags:
-  #       - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-  #     summary: It is give one testset some detail(like start test Exam screen page) in student side that assign by subject teacher (VERIFIED)
-  #     consumes:
-  #       - application/json
-  #     produces:
-  #       - application/json
-  #     parameters:
-  #       - in: path
-  #         name: tsid
-  #         required: true
-  #         type: string
-  #         description: It is particular TESTSET id      
-  #     responses:
-  #       "200":
-  #         description: OK
+  /api/v1/mcq/student/testset/{tsid}/detail:
+    get:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary: It is give one testset some detail(like start test Exam screen page) in student side that assign by subject teacher (VERIFIED)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tsid
+          required: true
+          type: string
+          description: It is particular TESTSET id      
+      responses:
+        "200":
+          description: OK
 
-  # /api/v1/mcq/student/testset/paper/{tsid}:
-  #   get:
-  #     tags:
-  #       - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-  #     summary: It is give one testset all questions with optins for giving the test by student side that assign by subject teacher (VERIFIED)
-  #     consumes:
-  #       - application/json
-  #     produces:
-  #       - application/json
-  #     parameters:
-  #       - in: path
-  #         name: tsid
-  #         required: true
-  #         type: string
-  #         description: It is particular TESTSET id      
-  #     responses:
-  #       "200":
-  #         description: OK
+  /api/v1/mcq/student/testset/paper/{tsid}:
+    get:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary: It is give one testset all questions with optins for giving the test by student side that assign by subject teacher (VERIFIED)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tsid
+          required: true
+          type: string
+          description: It is particular TESTSET id      
+      responses:
+        "200":
+          description: OK
 
-  #   patch:
-  #     tags:
-  #       - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-  #     summary: It is save one question answer giving by student (VERIFIED)
-  #     consumes:
-  #       - application/json
-  #     produces:
-  #       - application/json
-  #     parameters:
-  #       - in: path
-  #         name: tsid
-  #         required: true
-  #         type: string
-  #         description: It is particular TESTSET id      
-  #       - in: body
-  #         name: body
-  #         schema:
-  #           type: object
-  #           properties:
-  #             testSetLeftTime:
-  #               type: integer
-  #               required:  true
-  #               description: each time send remaining time left to give the paper           
-  #             questionSNO:
-  #               type: string
-  #               required:  true
-  #               description: It is particular Question serial number
-  #             givenAnswer:
-  #               type: array
-  #               required:  true
-  #               description: It is hold all the option giving by student  
-  #               items:
-  #                 type: object
-  #                 properties:
-  #                   option:
-  #                     type: string
-  #                     description: here give option description
-  #                   optionNumber:
-  #                     type: string
-  #                     required: true
-  #                     description: it is a option serial number in alphabet or number      
-  #                   image:
-  #                     type: string
-  #                     description: it is option image key   
-  #     responses:
-  #       "200":
-  #         description: OK
+    patch:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary: It is save one question answer giving by student (VERIFIED)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tsid
+          required: true
+          type: string
+          description: It is particular TESTSET id      
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              testSetLeftTime:
+                type: integer
+                required:  true
+                description: each time send remaining time left to give the paper           
+              questionSNO:
+                type: string
+                required:  true
+                description: It is particular Question serial number
+              givenAnswer:
+                type: array
+                required:  true
+                description: It is hold all the option giving by student  
+                items:
+                  type: object
+                  properties:
+                    option:
+                      type: string
+                      description: here give option description
+                    optionNumber:
+                      type: string
+                      required: true
+                      description: it is a option serial number in alphabet or number      
+                    image:
+                      type: string
+                      description: it is option image key   
+      responses:
+        "200":
+          description: OK
 
-  # /api/v1/mcq/student/testset/{tsid}/complete:
-  #   get:
-  #     tags:
-  #       - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-  #     summary: It is give one testset results given by student side that assign by subject teacher (VERIFIED)
-  #     consumes:
-  #       - application/json
-  #     produces:
-  #       - application/json
-  #     parameters:
-  #       - in: path
-  #         name: tsid
-  #         required: true
-  #         type: string
-  #         description: It is particular TESTSET id      
-  #     responses:
-  #       "200":
-  #         description: OK
+  /api/v1/mcq/student/testset/{tsid}/complete:
+    get:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary: It is give one testset results given by student side that assign by subject teacher (VERIFIED)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tsid
+          required: true
+          type: string
+          description: It is particular TESTSET id      
+      responses:
+        "200":
+          description: OK
 
-  #   patch:
-  #     tags:
-  #       - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-  #     summary: It is submit Exam of one TESTSET giving by student (VERIFIED)
-  #     consumes:
-  #       - application/json
-  #     produces:
-  #       - application/json
-  #     parameters:
-  #       - in: path
-  #         name: tsid
-  #         required: true
-  #         type: string
-  #         description: It is particular TESTSET id      
-  #       - in: body
-  #         name: body
-  #         schema:
-  #           type: object
-  #           properties:
-  #             testSetComplete:
-  #               type: boolean
-  #               required:  true
-  #               description: here type the testSetComplete is "true or false"
-  #     responses:
-  #       "200":
-  #         description: OK
+    patch:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary: It is submit Exam of one TESTSET giving by student (VERIFIED)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tsid
+          required: true
+          type: string
+          description: It is particular TESTSET id      
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              testSetComplete:
+                type: boolean
+                required:  true
+                description: here type the testSetComplete is "true or false"
+      responses:
+        "200":
+          description: OK
 
-  # /api/v1/mcq/exam/class/{cmid}/subject/{smid}/alltestset:
-  #   get:
-  #     tags:
-  #       - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-  #     summary: It is give all save TESTSET list that created by subject teacher, And use at time of creating exam by department head (VERIFIED)
-  #     consumes:
-  #       - application/json
-  #     produces:
-  #       - application/json
-  #     parameters:
-  #       - in: path
-  #         name: cmid
-  #         required: true
-  #         type: string
-  #         description: It is particular Class Master id  
-  #       - in: path
-  #         name: smid
-  #         required: true
-  #         type: string
-  #         description: It is particular Subject Master id          
-  #       - in: query
-  #         name: page
-  #         type: integer
-  #         description: pass the page number
-  #       - in: query
-  #         name: limit
-  #         type: integer
-  #         description: pass the limit one time how many item you want                    
-  #     responses:
-  #       "200":
-  #         description: OK
+  /api/v1/mcq/exam/class/{cmid}/subject/{smid}/alltestset:
+    get:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary: It is give all save TESTSET list that created by subject teacher, And use at time of creating exam by department head (VERIFIED)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cmid
+          required: true
+          type: string
+          description: It is particular Class Master id  
+        - in: path
+          name: smid
+          required: true
+          type: string
+          description: It is particular Subject Master id          
+        - in: query
+          name: page
+          type: integer
+          description: pass the page number
+        - in: query
+          name: limit
+          type: integer
+          description: pass the limit one time how many item you want                    
+      responses:
+        "200":
+          description: OK
 
-  # /api/v1/mcq/exam/create/batch/{bid}:
-  #   post:
-  #     tags:
-  #       - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-  #     summary: It is created exam (for MCQ) in that particular department with according their batch id ((VERIFIED))
-  #     consumes:
-  #       - application/json
-  #     produces:
-  #       - application/json
-  #     parameters:
-  #       - in: path
-  #         name: bid
-  #         required: true
-  #         type: string
-  #         description: It is selected Batch id for creating the exam   
-  #       - in: body
-  #         name: body
-  #         schema:
-  #           type: object
-  #           properties:
-  #             examName:
-  #               type: string
-  #               description: give name of the exam
-  #               required: true
-  #             examType:
-  #               type: string
-  #               required: true
-  #               description: give the exam type  that is "Final" or "Other"
-  #             examMode:
-  #               type: string
-  #               required: true
-  #               description: give the exam mode  that is "Offline" or "Online"
-  #             examWeight:
-  #               type: integer
-  #               description: give the exam weightage, only exam type is "Other"           
-  #             allclasses:
-  #               type: array
-  #               required: true 
-  #               description: give the arrays of the classes id that is selected by the class Master
-  #               items:
-  #                 type: string
-  #                 description: It is accept classes id 
-  #             allsubject:
-  #               type: array
-  #               description: give the arrays of the subject with their details
-  #               required: true 
-  #               items:
-  #                 type: object
-  #                 properties:
-  #                   subjectIds:
-  #                     type: array
-  #                     required: true 
-  #                     description: give the arrays of the subjects id that is selected by the subject Master
-  #                     items:
-  #                       type: string
-  #                       description: It is accept subject id 
-  #                   subjectName:
-  #                     type: string
-  #                     required: true
-  #                     description: give the name of the subject that is show in Subject Master(subjectName)
-  #                   totalMarks:
-  #                     type: integer
-  #                     required: true
-  #                     description: give the total maximum marks of that subject
-  #                   date:
-  #                     type: string
-  #                     required: true
-  #                     description: give the date which day exam is schedule of that subject and fomate (28/07/2022) 
-  #                   startTime:
-  #                     type: string
-  #                     required: true
-  #                     description: give the exam start time of that particular subject (02:00 Pm)
-  #                   endTime:
-  #                     type: string
-  #                     required: true
-  #                     description: give the exam end time of that particular subject (04:00 Pm)
-  #                   duration:
-  #                     type: string
-  #                     required: true
-  #                     description: here give total duration of the paper  
-  #                   testSetId:
-  #                     type: string
-  #                     required: true
-  #                     description: Give the particular selected TESTSET ID                                            
-  #                   _id:
-  #                     type: string
-  #                     required: true
-  #                     description: it is Subject Master id that is selecetd when add the subject in created time                                                                                                    
-  #     responses:
-  #       "200":
-  #         description: OK
+  /api/v1/mcq/exam/create/batch/{bid}:
+    post:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary: It is created exam (for MCQ) in that particular department with according their batch id ((VERIFIED))
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: bid
+          required: true
+          type: string
+          description: It is selected Batch id for creating the exam   
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              examName:
+                type: string
+                description: give name of the exam
+                required: true
+              examType:
+                type: string
+                required: true
+                description: give the exam type  that is "Final" or "Other"
+              examMode:
+                type: string
+                required: true
+                description: give the exam mode  that is "Offline" or "Online"
+              examWeight:
+                type: integer
+                description: give the exam weightage, only exam type is "Other"           
+              allclasses:
+                type: array
+                required: true 
+                description: give the arrays of the classes id that is selected by the class Master
+                items:
+                  type: string
+                  description: It is accept classes id 
+              allsubject:
+                type: array
+                description: give the arrays of the subject with their details
+                required: true 
+                items:
+                  type: object
+                  properties:
+                    subjectIds:
+                      type: array
+                      required: true 
+                      description: give the arrays of the subjects id that is selected by the subject Master
+                      items:
+                        type: string
+                        description: It is accept subject id 
+                    subjectName:
+                      type: string
+                      required: true
+                      description: give the name of the subject that is show in Subject Master(subjectName)
+                    totalMarks:
+                      type: integer
+                      required: true
+                      description: give the total maximum marks of that subject
+                    date:
+                      type: string
+                      required: true
+                      description: give the date which day exam is schedule of that subject and fomate (28/07/2022) 
+                    startTime:
+                      type: string
+                      required: true
+                      description: give the exam start time of that particular subject (02:00 Pm)
+                    endTime:
+                      type: string
+                      required: true
+                      description: give the exam end time of that particular subject (04:00 Pm)
+                    duration:
+                      type: string
+                      required: true
+                      description: here give total duration of the paper  
+                    testSetId:
+                      type: string
+                      required: true
+                      description: Give the particular selected TESTSET ID                                            
+                    _id:
+                      type: string
+                      required: true
+                      description: it is Subject Master id that is selecetd when add the subject in created time                                                                                                    
+      responses:
+        "200":
+          description: OK
 
 # fot the assignment side
   /api/v1/mcq/subject/{sid}/assignment:

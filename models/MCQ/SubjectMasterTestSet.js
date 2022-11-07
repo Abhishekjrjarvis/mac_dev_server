@@ -11,6 +11,14 @@ const subjectMasterTestSetShcema = new mongoose.Schema({
     ref: "ClassMaster",
     required: true,
   },
+  isUniversal: {
+    type: Boolean,
+    default: false,
+  },
+  institute: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "InstituteAdmin",
+  },
   testName: {
     type: String,
   },

@@ -7,6 +7,7 @@ const StudentAssignment = require("../../models/MCQ/StudentAssignment");
 const Subject = require("../../models/Subject");
 const Student = require("../../models/Student");
 const Department = require("../../models/Department");
+const InstituteAdmin = require("../../models/InstituteAdmin");
 const Batch = require("../../models/Batch");
 const Class = require("../../models/Class");
 const ClassMaster = require("../../models/ClassMaster");
@@ -23,7 +24,139 @@ const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const User = require("../../models/User");
+const { file_to_aws } = require("../../Utilities/uploadFileAws");
 
+// ================================== GET  UNIVERSAL INSTITUTE ALL MCQ FOR ALL USER====================
+
+exports.getUniversalSubjectProfile = async (req, res) => {
+  try {
+    if (!req.params.sid) throw "Please send subject id to perform task";
+    const subject = await Subject.findById(req.params.sid)
+      .populate({
+        path: "universalDepartment",
+        select: "dName",
+      })
+      .populate({
+        path: "universalClass",
+        select: "className classTitle",
+      })
+      .populate({
+        path: "universalSubject",
+        select: "subjectName",
+      })
+      .select("universalDepartment universalClass universalSubject")
+      .lean()
+      .exec();
+    if (!subject) {
+      res
+        .status(200)
+        .send({ message: "This subject id is no more valid... 😎😎" });
+    } else {
+      res
+        .status(200)
+        .send({ message: "All universal related detial 🧨🧨", subject });
+    }
+  } catch (e) {
+    res.status(200).send({ message: e });
+    console.log(e);
+  }
+};
+
+exports.getUniversalDepartment = async (req, res) => {
+  try {
+    const universalInstitute = await InstituteAdmin.find({
+      isUniversal: { $neq: "Not Assigned" },
+    })
+      .populate({
+        path: "depart",
+        select: "dName",
+      })
+      .select("depart")
+      .lean()
+      .exec();
+    if (!universalInstitute) {
+      res.status(200).send({
+        message: "This universal institute not assign till now... 😎😎",
+      });
+    } else {
+      res.status(200).send({
+        message: "All universal institute related department 🧨🧨",
+        universalDepartment: universalInstitute.depart,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.getUniversalClass = async (req, res) => {
+  try {
+    if (!req.params.did) throw "Please send department id to perform task";
+    const universalDepartment = await Department.findById(req.params.did)
+      .populate({
+        path: "class",
+        select: "className classTItle",
+      })
+      .select("class")
+      .lean()
+      .exec();
+    if (!universalDepartment) {
+      res.status(200).send({
+        message: "This universal department not created till now... 😎😎",
+      });
+    } else {
+      res.status(200).send({
+        message: "All universal department related classes 🧨🧨",
+        universalClass: universalDepartment.class,
+      });
+    }
+  } catch (e) {
+    res.status(200).send({ message: e });
+    console.log(e);
+  }
+};
+
+exports.getUniversalSubject = async (req, res) => {
+  try {
+    if (!req.params.cid) throw "Please send class id to perform task";
+    const universalClass = await Class.findById(req.params.cid)
+      .populate({
+        path: "subject",
+        select: "subjectName",
+      })
+      .select("subject")
+      .lean()
+      .exec();
+    if (!universalClass) {
+      res.status(200).send({
+        message: "This universal class not created till now... 😎😎",
+      });
+    } else {
+      res.status(200).send({
+        message: "All universal class related subjects 🧨🧨",
+        universalSubject: universalClass.subject,
+      });
+    }
+  } catch (e) {
+    res.status(200).send({ message: e });
+    console.log(e);
+  }
+};
+
+exports.updateUniversalSubjectProfile = async (req, res) => {
+  try {
+    if (!req.params.sid) throw "Please send subject id to perform task";
+    await Subject.findByIdAndUpdate(req.params.sid, req.body);
+    res.status(200).send({
+      message: "Universal mcq selected option change successfully...🤗🤗🤗",
+    });
+  } catch (e) {
+    res.status(200).send({ message: e });
+    console.log(e);
+  }
+};
+
+// =========================================================================================================
 exports.getQuestion = async (req, res) => {
   try {
     const subjectMaster = await SubjectMaster.findById(req.params.smid)
@@ -78,28 +211,134 @@ exports.getQuestion = async (req, res) => {
   }
 };
 
+// // =============================== GET UNIVERSAL QUESTION WITH OWN =================
+// exports.getQuestion = async (req, res) => {
+//   try {
+//     const subjectMaster = await SubjectMaster.findById(req.params.smid)
+//       .populate({
+//         path: "allQuestion",
+//         match: {
+//           subjectMaster: { $eq: req.params.smid },
+//           classMaster: { $eq: req.params.cmid },
+//         },
+//         select: "questions",
+//       })
+//       .select("allQuestion")
+//       .lean()
+//       .exec();
+
+//     const getPage = req.query.page ? parseInt(req.query.page) : 1;
+//     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+//     const startItem = (getPage - 1) * itemPerPage;
+//     const endItem = startItem + itemPerPage;
+
+//     const filterFunction = (questions, startItem, endItem) => {
+//       const limitQuestions = questions.slice(startItem, endItem);
+//       const quest = [];
+//       limitQuestions?.forEach((que) => {
+//         quest.push({
+//           questionSNO: que?.questionSNO,
+//           questionNumber: que?.questionNumber,
+//           questionDescription: que?.questionDescription,
+//           questionImage: que?.questionImage,
+//         });
+//       });
+//       return quest;
+//     };
+
+//     if (subjectMaster?.allQuestion) {
+//       const quest = filterFunction(
+//         subjectMaster?.allQuestion[0]?.questions,
+//         startItem,
+//         endItem
+//       );
+//       res.status(200).send({
+//         message: "all questions",
+//         questions: quest,
+//       });
+//     } else {
+//       res.status(200).send({
+//         message: "not questions",
+//       });
+//     }
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
 exports.addQuestion = async (req, res) => {
   try {
+    // console.log(req?.files);
+    // console.log(req?.body);
+    // console.log("this is only for answer image", req?.files["answerImage"]);
+    // console.log("this is only asnwer image", req.answerImage);
+
     const questions = await SubjectMasterQuestion.findOne({
       subjectMaster: req.params.smid,
       classMaster: req.params.cmid,
     });
+    const questionImage = [];
+    const answerImage = [];
+    // for (let fileObject in req.files) {
+    //   for (let singleFile of req.files[fileObject]) {
+    //     const uploadedFile = await file_to_aws(singleFile);
+    //     if (fileObject === "questionImage") questionImage.push(uploadedFile);
+    //     answerImage.push(uploadedFile);
+    //   }
+    // }
 
+    const parsed = JSON.parse(req.body.options);
+
+    const modifiedObject = parsed[0].replace(/(\w+:)|(\w+ :)/g, function (obj) {
+      return '"' + obj.substring(0, obj.length - 1) + '":';
+    });
+    // const modifiedValue = parsed[0].replace(
+    //   /(:+\w) | ( :+\w)/g,
+    //   // "'",
+    //   function (obj) {
+    //     console.log(obj);
+    //     console.log(parsed[0][obj]);
+    //     return '"' + obj.substring(0, obj.length - 1) + '"';
+    //   }
+    // );
+    // console.log(modifiedObject);
+    // console.log(modifiedValue);
+    // console.log(modifiedObject.replaceAll("'", '"'));
+    // console.log("modifwesdh0", modifiedObject.replaceAll("'", '"'));
+    // console.log(JSON.parse(modifiedObject));
+    const createQuestion = {
+      questionSNO: req.body.questionSNO,
+      questionNumber: req.body.questionNumber,
+      questionDescription: req.body.questionDescription,
+      options: req.body.options,
+      correctAnswer: req.body.correctAnswer,
+      answerDescription: req.body.questionSNO,
+      questionImage: questionImage,
+      answerImage: answerImage,
+    };
+    // console.log("dsfsfa", createQuestion);
     if (!questions) {
+      const clsMaster = await ClassMaster.findById(req.params.cmid).populate(
+        "institute"
+      );
       const newQuestion = new SubjectMasterQuestion({
         subjectMaster: req.params.smid,
         classMaster: req.params.cmid,
+        institute: clsMaster.institute,
+        isUniversal:
+          clsMaster.institute.isUniversal === "Not Assigned" ? false : true,
       });
       const master = await SubjectMaster.findById(req.params.smid);
       master.allQuestion?.push(newQuestion._id);
-      newQuestion.questions.push({ ...req.body });
+
+      newQuestion.questions.push(createQuestion);
       await Promise.all([newQuestion.save(), master.save()]);
       res.status(201).send({ message: "queston is created" });
     } else {
-      questions.questions.push({ ...req.body });
+      questions.questions.push(createQuestion);
       await questions.save();
       res.status(201).send({ message: "queston is created" });
     }
+    // res.status(201).send({ message: "queston is created" });
   } catch (e) {
     console.log(e);
   }
@@ -153,11 +392,16 @@ exports.getQuestionAddTestSet = async (req, res) => {
 exports.saveTestSet = async (req, res) => {
   try {
     const master = await SubjectMaster.findById(req.params.smid);
-    const classmaster = await ClassMaster.findById(req.params.cmid);
+    const classmaster = await ClassMaster.findById(req.params.cmid).populate(
+      "institute"
+    );
     const testSet = new SubjectMasterTestSet({
       testName: req.body?.testName,
       subjectMaster: req.params.smid,
       classMaster: req.params.cmid,
+      institute: classmaster.institute,
+      isUniversal:
+        classmaster.institute.isUniversal === "Not Assigned" ? false : true,
       testSubject: master?.subjectName,
       testTotalQuestion: req.body?.testTotalQuestion,
       testTotalNumber: req.body?.testTotalNumber,
@@ -291,8 +535,8 @@ exports.takeTestSet = async (req, res) => {
       student.testSet.push(studentTestSet._id);
       const notify = new StudentNotification({});
       notify.notifyContent = `New ${testSet.testExamName} Test is created for ${testSet.testSubject}`;
-      notify.notify_hi_content = `नई ${testSet.testExamName} परीक्षा ${testSet.testSubject} के लिए बनाया गया है`
-      notify.notify_mr_content = `नई ${testSet.testSubject} साठी नवीन ${testSet.testExamName} चाचणी तयार केली आहे.`
+      notify.notify_hi_content = `नई ${testSet.testExamName} परीक्षा ${testSet.testSubject} के लिए बनाया गया है`;
+      notify.notify_mr_content = `नई ${testSet.testSubject} साठी नवीन ${testSet.testExamName} चाचणी तयार केली आहे.`;
       notify.notifySender = subject._id;
       notify.notifyReceiever = user._id;
       notify.notifyType = "Student";
@@ -687,8 +931,8 @@ exports.createExam = async (req, res) => {
               }
               const notify = new StudentNotification({});
               notify.notifyContent = `New ${exam.examName} Exam is created for ${sub.subjectName} , check your members tab`;
-              notify.notify_hi_content = `नई परीक्षा ${exam.examName} ${sub.subjectName} के लिए बनाई है | अपना सदस्य टैब देखे |`
-              notify.notify_mr_content = `${sub.subjectName} साठी नवीन ${exam.examName} परीक्षा तयार केली आहे, तुमचे सदस्य टॅब तपासा.`
+              notify.notify_hi_content = `नई परीक्षा ${exam.examName} ${sub.subjectName} के लिए बनाई है | अपना सदस्य टैब देखे |`;
+              notify.notify_mr_content = `${sub.subjectName} साठी नवीन ${exam.examName} परीक्षा तयार केली आहे, तुमचे सदस्य टॅब तपासा.`;
               notify.notifySender = department._id;
               notify.notifyReceiever = user._id;
               notify.notifyType = "Student";
@@ -864,8 +1108,8 @@ exports.createAssignment = async (req, res) => {
       stu.assignments.push(studentAssignment._id);
       const notify = new StudentNotification({});
       notify.notifyContent = `New ${studentAssignment.assignmentName} is created for ${subject.subjectName} , check your members tab`;
-      notify.notify_hi_content = `नई ${studentAssignment.assignmentName} ${subject.subjectName} के लिए बनाई है | अपना सदस्य टैब देखे |`
-      notify.notify_mr_content = `${subject.subjectName} साठी नवीन ${studentAssignment.assignmentName} तयार केले आहे, तुमचे सदस्य टॅब तपासा.`
+      notify.notify_hi_content = `नई ${studentAssignment.assignmentName} ${subject.subjectName} के लिए बनाई है | अपना सदस्य टैब देखे |`;
+      notify.notify_mr_content = `${subject.subjectName} साठी नवीन ${studentAssignment.assignmentName} तयार केले आहे, तुमचे सदस्य टॅब तपासा.`;
       notify.notifySender = subject._id;
       notify.notifyReceiever = user._id;
       notify.notifyType = "Student";
@@ -1227,8 +1471,8 @@ exports.getStudentOneAssignmentSubmit = async (req, res) => {
     //
     const notify = new StudentNotification({});
     notify.notifyContent = `${student?.studentFirstName} submit ${assignment?.assignmentName} Assignment Successfully`;
-    notify.notify_hi_content = `${student?.studentFirstName} ने ${assignment?.assignmentName} असाइनमेंट सफलतापूर्वक सबमिट किया है |`
-    notify.notify_mr_content = `${student?.studentFirstName} ने ${assignment?.assignmentName} असाइनमेंट यशस्वीरित्या सबमिट केली.`
+    notify.notify_hi_content = `${student?.studentFirstName} ने ${assignment?.assignmentName} असाइनमेंट सफलतापूर्वक सबमिट किया है |`;
+    notify.notify_mr_content = `${student?.studentFirstName} ने ${assignment?.assignmentName} असाइनमेंट यशस्वीरित्या सबमिट केली.`;
     notify.notifySender = student._id;
     notify.notifyReceiever = user._id;
     notify.assignmentId = assignment?._id;

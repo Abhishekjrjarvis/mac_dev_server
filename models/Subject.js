@@ -51,6 +51,19 @@ const subjectSchema = new mongoose.Schema({
   setting: {
     subjectPassingMarks: { type: Number, default: 0 },
   },
+  universalDepartment: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Department",
+  },
+  universalClass: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Class",
+  },
+  universalSubject: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Subject",
+  },
+
   createdAt: {
     type: Date,
     default: Date.now,

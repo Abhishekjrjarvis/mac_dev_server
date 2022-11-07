@@ -20,10 +20,10 @@ const studentSchema = new mongoose.Schema({
   studentDistrict: { type: String },
   studentState: { type: String },
   studentAddress: { type: String },
-  studentPhoneNumber: { type: Number, maxlength: 10, minlength: 10 },
-  studentAadharNumber: { type: String, maxlength: 12, minlength: 12 },
+  studentPhoneNumber: { type: Number },
+  studentAadharNumber: { type: String },
   studentParentsName: { type: String },
-  studentParentsPhoneNumber: { type: Number, maxlength: 10, minlength: 10 },
+  studentParentsPhoneNumber: { type: Number },
   studentDocuments: { type: String },
   studentAadharFrontCard: { type: String },
   studentAadharBackCard: { type: String },
@@ -349,6 +349,19 @@ const studentSchema = new mongoose.Schema({
       ref: "SubjectUpdate",
     },
   ],
+  student_biometric_id: { type: String },
+  election_candidate: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Election'
+    }
+  ],
+  participate_event: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Participate'
+    }
+  ]
 });
 
 const Student = mongoose.model("Student", studentSchema);

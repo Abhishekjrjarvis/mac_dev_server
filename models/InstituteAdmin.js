@@ -533,11 +533,19 @@ const instituteAdminSchema = new mongoose.Schema({
     ntaCount: { type: Number, default: 0},
     ntbCount: { type: Number, default: 0},
     ntcCount: { type: Number, default: 0},
+    ntdCount: { type: Number, default: 0},
+    vjCount: { type: Number, default: 0},
   },
   lang_mode: {
     type: String,
     default: 'en'
-  }
+  },
+  block_institute: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'InstituteAdmin'
+    }
+  ]
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

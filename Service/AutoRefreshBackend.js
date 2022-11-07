@@ -2,6 +2,10 @@ const Poll = require('../models/Question/Poll')
 const InstituteAdmin = require('../models/InstituteAdmin')
 const User = require('../models/User');
 const { shuffleArray } = require('../Utilities/Shuffle');
+const Election = require('../models/Elections/Election')
+const Student = require('../models/Student')
+const StudentNotification = require('../models/Marks/StudentNotification')
+const invokeMemberTabNotification = require('../Firebase/MemberTab')
 
 exports.check_poll_status = async(req, res) => {
     var r_date = new Date();
@@ -66,6 +70,196 @@ exports.payment_modal_initiated = async(req, res) =>{
     }
 }
 
+
+exports.election_vote_day = async(req, res) =>{
+    var v_date = new Date()
+    var v_day = v_date.getDate()
+    var v_month = v_date.getMonth() + 1
+    var v_year = v_date.getFullYear()
+    if(v_day < 10){
+        v_day = `0${v_day}`
+    }
+    if(v_month < 10){
+        v_month = `0${v_month}`
+    }
+    var date_format = new Date(`${v_year}-${v_month}-${v_day}`)
+    try{
+        const elect_app = await Election.find({ election_voting_day: date_format})
+        if(elect_app.length >= 1){
+            elect_app.forEach(async (elect) => {
+                if(elect?.vote_notification === 'Close'){
+                    if(elect?.election_visible === 'Only Institute'){
+                        var all_student = await Student.find({ $and: [{ institute: depart?.institute}, { studentStatus: 'Approved'}] })
+                        .select('user notification')
+                    }
+                    else if(elect?.election_visible === 'Only Department'){
+                        var all_student = await Student.find({ _id: { $in: depart?.ApproveStudent }})
+                        .select('user notification')
+                    }
+                    else{}
+                    all_student?.forEach(async (ele) => {
+                        const notify = new StudentNotification({});
+                        const user = await User.findById({_id: `${ele?.user}`}).select('activity_tab deviceToken')
+                        notify.notifyContent = `Voting form 00:00 to  23:59 today`;
+                        notify.notifySender = depart._id;
+                        notify.notifyReceiever = user._id;
+                        notify.electionId = elect?._id;
+                        notify.notifyType = "Student";
+                        notify.election_type = 'Open for vote'
+                        notify.notifyPublisher = ele._id;
+                        user.activity_tab.push(notify._id);
+                        ele.notification.push(notify._id);
+                        notify.notifyByDepartPhoto = depart._id;
+                        notify.notifyCategory = "Election";
+                        notify.redirectIndex = 12;
+                        invokeMemberTabNotification(
+                        "Student Activity",
+                        notify,
+                        "Voting Day",
+                        user._id,
+                        user.deviceToken,
+                        "Student",
+                        notify
+                        );
+                        await Promise.all([ele.save(), notify.save(), user.save()]);
+                    })
+                    elect.vote_notification = 'Opened'
+                    await elect.save()
+                }
+                else{
+
+                }
+            })
+        }
+        else{
+            
+        }
+    }
+    catch{
+
+    }
+}
+
+
+const large_vote_candidate = (arr) => {
+    let first_vote = -1 , second_vote = -1;
+    let winner = ''
+    for(let i = 0; i <= arr.length-1; i++){
+        if(arr[i].election_vote_receieved > first_vote){
+            second_vote = first_vote;
+            first_vote = arr[i].election_vote_receieved;
+            winner = arr[i].student
+        }
+        else if( arr[i].election_vote_receieved > second_vote && arr[i].election_vote_receieved != first_vote){
+            second_vote = arr[i].election_vote_receieved;
+        }
+    }
+    var data = {
+        max_votes: first_vote - second_vote,
+        winner: winner
+    }
+    return data
+}
+
+exports.election_result_day = async(req, res) =>{
+    var v_date = new Date()
+    var v_day = v_date.getDate()
+    var v_month = v_date.getMonth() + 1
+    var v_year = v_date.getFullYear()
+    if(v_day < 10){
+        v_day = `0${v_day}`
+    }
+    if(v_month < 10){
+        v_month = `0${v_month}`
+    }
+    var date_format = new Date(`${v_year}-${v_month}-${v_day}`)
+    try{
+        const elect_app = await Election.find({ election_result_day: date_format})
+        if(elect_app.length >= 1){
+            elect_app.forEach(async (elect) => {
+                if(elect?.vote_notification === 'Not Declare'){
+                    var query = large_vote_candidate(elect?.election_candidate)
+                    if(elect?.election_visible === 'Only Institute'){
+                        var all_student = await Student.find({ $and: [{ institute: depart?.institute}, { studentStatus: 'Approved'}] })
+                        .select('user notification')
+                    }
+                    else if(elect?.election_visible === 'Only Department'){
+                        var all_student = await Student.find({ _id: { $in: depart?.ApproveStudent }})
+                        .select('user notification')
+                    }
+                    else{}
+                    all_student?.forEach(async (ele) => {
+                        const notify = new StudentNotification({});
+                        const user = await User.findById({_id: `${ele?.user}`}).select('activity_tab deviceToken')
+                        notify.notifyContent = `Is winner with ${query.max_votes} votes`;
+                        notify.election_winner = query.student
+                        notify.notifySender = depart._id;
+                        notify.notifyReceiever = user._id;
+                        notify.electionId = elect?._id;
+                        notify.notifyType = "Student";
+                        notify.election_type = 'Result Declared'
+                        notify.notifyPublisher = ele._id;
+                        user.activity_tab.push(notify._id);
+                        ele.notification.push(notify._id);
+                        notify.notifyByDepartPhoto = depart._id;
+                        notify.notifyCategory = "Election";
+                        notify.redirectIndex = 12;
+                        invokeMemberTabNotification(
+                        "Student Activity",
+                        notify,
+                        "Voting Day",
+                        user._id,
+                        user.deviceToken,
+                        "Student",
+                        notify
+                        );
+                        await Promise.all([ele.save(), notify.save(), user.save()]);
+                    })
+                    elect.vote_notification = 'Declare'
+                    elect.election_candidate?.forEach(async (ele) => {
+                        if(`${ele.student}` === `${query.student}`){
+                            const winner_student_voters = await Student.find({_id: { $in: ele.voted_student}})
+                            winner_student_voters?.forEach(async (vote) => {
+                                vote.extraPoints += 20
+                                vote.election_candidate.push(elect._id)
+                                await vote.save()
+                            })
+                            const winner_student = await Student.findById({_id: `${ele?.student}`})
+                            winner_student.extraPoints += 5
+                            winner_student.election_candidate.push(elect._id)
+                            await winner_student.save()
+                        }
+                    })
+                    elect.election_candidate?.forEach(async (ele) => {
+                        if(`${ele.student}` !== `${query.student}`){
+                            const candidate_student_voters = await Student.find({_id: { $in: ele.voted_student}})
+                            candidate_student_voters?.forEach(async (vote) => {
+                                vote.extraPoints += 5
+                                vote.election_candidate.push(elect._id)
+                                await vote.save()
+                            })
+                            const candidate_student = await Student.findById({_id: `${ele?.student}`})
+                            candidate_student.extraPoints += 5
+                            candidate_student.election_candidate.push(elect._id)
+                            await candidate_student.save()
+                        }
+                    })
+                    await elect.save()
+                }
+                else{
+
+                }
+            })
+        }
+        else{
+            
+        }
+    }
+    catch{
+
+    }
+}
+
 const distanceRecommend = (lat1, lon1, lat2, lon2, distanceId, expand) => {
     var p = 0.017453292519943295;
     var c = Math.cos;
@@ -106,7 +300,7 @@ exports.recommendedAllIns = async(req, res) =>{
         var recommend = []
         const { uid } = req.params
         const { expand_search } = req.query
-        const expand = expand_search ? expand_search : 2
+        const expand = expand_search ? expand_search : 50
         var user = await User.findById({_id: uid})
         .select('user_latitude user_longitude userInstituteFollowing userFollowers userCircle')
 

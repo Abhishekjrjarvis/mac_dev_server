@@ -51,9 +51,19 @@ const studentNotificationSchema = new mongoose.Schema({
   departmentId: { type: String },
   batchId: { type: String },
   instituteId: { type: String },
+  electionId: { type: String },
   notifyCategory: { type: String },
   notify_hi_content: { type: String },
-  notify_mr_content: { type: String }
+  notify_mr_content: { type: String },
+  election_type: { type: String },
+  vote_status: { type: String },
+  election_winner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Student'
+  },
+  participateEventId: { type: String },
+  participate_event_type: { type: String },
+  event_payment_status: { type: String },
 });
 
 module.exports = mongoose.model(

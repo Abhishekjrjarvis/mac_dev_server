@@ -91,7 +91,7 @@ exports.rewardProfileAdsQuery = async(req, res) => {
         const { uid } = req.params
         var user_ads = await User.findById({_id: uid})
         .select('id profile_ads_count')
-        if(user_ads?.profile_ads_count === 5){
+        if(user_ads?.profile_ads_count === 10){
             user_ads.profile_ads_count = 0
             await user_ads.save()
         }

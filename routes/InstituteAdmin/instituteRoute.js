@@ -509,4 +509,10 @@ router.patch(
   "/:id/form/setting/update",
   catchAsync(Institute.settingFormUpdate)
 );
+
+// router.patch(
+//   "/:id/block",
+//   catchAsync(Institute.retrieveInstituteBlockQuery)
+// );
+
 module.exports = router;

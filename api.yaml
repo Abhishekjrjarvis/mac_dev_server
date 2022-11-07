@@ -999,20 +999,56 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: body
-          name: body
+        - in: query
+          name: blockId # Note the name is the same as in the path
+          required: true
           schema:
-            type: object
-            required:
-              - followId
-            properties:
-              followId:
-                type: string
-                description: Block User Id
+            type: string
+          description: Enter Blocked User Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/unblock/user/:
+    patch:
+      tags:
+        - User Profile API
+      summary: UnBlock User to User Api -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: blockId # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: Enter Blocked User Id
       responses:
         "200":
           description: OK
   
+  /api/v1/user/report/block/user:
+    patch:
+      tags:
+        - User Profile API
+      summary: Block User to User Api -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: blockId # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: Enter Blocked User Id
+      responses:
+        "200":
+          description: OK
+
   /api/v1/user/one-announcement/{aid}:
     get:
       tags:
@@ -1547,6 +1583,65 @@ paths:
         "200":
           description: OK
 
+  /api/v1/extra/{aid}/transcript/lang/answer:
+    patch:
+      tags:
+        - Setting Control API
+      summary: Answer Language Translation -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Answer Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              answer_content_transcript:
+                type: string
+                description: Enter Translated Text
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/extra/{pid}/transcript/lang/poll:
+    patch:
+      tags:
+        - Setting Control API
+      summary: Poll Language Translation -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          type: string
+          description: Enter Poll Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              quest_lang:
+                type: string
+                description: Enter Translated Question Text
+              poll_answer_lang:
+                type: array
+                description: Array of Translated String ["सेवा क्षेत्र", "चुस्त नीति ढांचा", "औद्योगिक क्षेत्र", "मूल्य और मुद]
+                items:
+                  type: string
+                  description: Translated Poll Answer
+      responses:
+        "200":
+          description: OK
   
   /api/v1/extra/{uid}/lang/mode:
     patch:
@@ -1568,6 +1663,58 @@ paths:
           required: true
           type: string
           description: Enter Lang Mode ("en" || "hi" || "mr")
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/extra/biometric/staff/ref:
+    patch:
+      tags:
+        - Setting Control API
+      summary: Staff Biometric Unique Query -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              staff_ref:
+                type: array
+                description: Array of Objects like "[{"staffId": "6360aea051d30672ae8cfe80","bioId": "1"},{"staffId": "6360b23851d30672ae8d0103","bioId": "2"}]"   
+                items:
+                  type: string
+                  description: staffId bioId
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/extra/biometric/student/ref:
+    patch:
+      tags:
+        - Setting Control API
+      summary: Student Biometric Unique Query -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              student_ref:
+                type: array
+                description: Array of Objects like "[{"studentId": "6360aea051d30672ae8cfe80","bioId": "1"},{"studentId": "6360b23851d30672ae8d0103","bioId": "2"}]"   
+                items:
+                  type: string
+                  description: studentId bioId
       responses:
         "200":
           description: OK

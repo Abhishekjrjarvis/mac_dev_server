@@ -21,6 +21,11 @@ const studentTestSetShcema = new mongoose.Schema({
     ref: "SubjectMasterTestSet",
     required: true,
   },
+  allotedTestSet: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "AllotedTestSet",
+    required: true,
+  },
   testName: {
     type: String,
   },
@@ -57,6 +62,7 @@ const studentTestSetShcema = new mongoose.Schema({
     {
       questionSNO: {
         type: String,
+        required: true,
       },
       questionNumber: {
         type: Number,
@@ -65,7 +71,25 @@ const studentTestSetShcema = new mongoose.Schema({
       questionDescription: {
         type: String,
       },
-      questionImage: [],
+      questionImage: [
+        {
+          documentType: {
+            type: String,
+          },
+          documentName: {
+            type: String,
+          },
+          documentSize: {
+            type: String,
+          },
+          documentKey: {
+            type: String,
+          },
+          documentEncoding: {
+            type: String,
+          },
+        },
+      ],
       options: [
         {
           option: { type: String },
@@ -90,7 +114,29 @@ const studentTestSetShcema = new mongoose.Schema({
       answerDescription: {
         type: String,
       },
-      answerImage: [],
+      answerImage: [
+        {
+          documentType: {
+            type: String,
+          },
+          documentName: {
+            type: String,
+          },
+          documentSize: {
+            type: String,
+          },
+          documentKey: {
+            type: String,
+          },
+          documentEncoding: {
+            type: String,
+          },
+        },
+      ],
+      isUniversal: {
+        type: Boolean,
+        default: false,
+      },
     },
   ],
   testSetAccess: {

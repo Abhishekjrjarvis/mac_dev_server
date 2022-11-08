@@ -6,6 +6,21 @@ const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 
 router
+  .route("/subject/profile/:sid")
+  .get(catchAsync(mcqController.getUniversalSubjectProfile))
+  .patch(catchAsync(mcqController.updateUniversalSubjectProfile));
+
+router
+  .route("/universal/department")
+  .get(catchAsync(mcqController.getUniversalDepartment));
+router
+  .route("/universal/class/:did")
+  .get(catchAsync(mcqController.getUniversalClass));
+router
+  .route("/universal/subject/:cid")
+  .get(catchAsync(mcqController.getUniversalSubject));
+
+router
   .route("/:smid/question/:cmid")
   .get(catchAsync(mcqController.getQuestion))
   .post(
@@ -19,15 +34,15 @@ router
     ]),
     catchAsync(mcqController.addQuestion)
   );
+// depricated -> changed
+router
+  .route("/:smid/question/count/:cmid")
+  .get(catchAsync(mcqController.getQuestionAddTestSet));
 
 router
   .route("/question/:smid/testset/:cmid")
-  .get(catchAsync(mcqController.getQuestionAddTestSet))
+  .get(catchAsync(mcqController.allSaveTestSet))
   .post(catchAsync(mcqController.saveTestSet));
-
-router
-  .route("/subject/:smid/alltestset/:cmid")
-  .get(catchAsync(mcqController.allSaveTestSet));
 
 router
   .route("/testset/:tsid/detail")
@@ -36,6 +51,14 @@ router
 router
   .route("/subject/:sid/take/testset")
   .post(catchAsync(mcqController.takeTestSet));
+
+router
+  .route("/subject/:sid/taken/alltestset")
+  .get(catchAsync(mcqController.subjectAllotedTestSet));
+
+router
+  .route("/subject/alloted/:atsid/testset/student")
+  .get(catchAsync(mcqController.subjectGivenStudentTestSet));
 
 router
   .route("/student/:sid/alltestset")

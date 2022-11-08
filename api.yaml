@@ -11544,12 +11544,119 @@ paths:
       responses:
         "200":
           description: OK
+# Universal profile related api
+  /api/v1/mcq/subject/profile/{sid}:
+    get:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary:
+        - Universal subject profile data (VERIFIED)
+      consumes:
+        - application/json
+      produces:
+        - application/json'
+      parameters:
+        - in: path
+          name: sid
+          type: string
+          required: true
+          description: It is subject teacher id
+      responses:
+        "200":
+          description: OK
+    
+    patch:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary:
+        - To update Universal subject profile data (VERIFIED)
+      consumes:
+        - application/json
+      produces:
+        - application/json'
+      parameters:
+        - in: path
+          name: sid
+          type: string
+          required: true
+          description: It is subject teacher id
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              universalDepartment:
+                type: string
+                description: It is Universal profile related department ID
+              universalClass:
+                type: string
+                description: It is Universal profile related class ID
+              universalSubject:
+                type: string
+                description: It is Universal profile related subject ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/mcq/universal/department:
+    get:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary:
+        - All department of Universal Institute (VERIFIED)
+      consumes:
+        - application/json
+      produces:
+        - application/json'
+      responses:
+        "200":
+          description: OK
+  
+  /api/v1/mcq/universal/class/{did}:
+    get:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary:
+        - To retrieve all department related universal classes (VERIFIED)
+      consumes:
+        - application/json
+      produces:
+        - application/json'
+      parameters:
+        - in: path
+          name: did
+          type: string
+          required: true
+          description: It is universal department ID
+      responses:
+        "200":
+          description: OK
+  
+  /api/v1/mcq/universal/subject/{cid}:
+    get:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary:
+        - To retrieve all classes related universal subjects (VERIFIED)
+      consumes:
+        - application/json
+      produces:
+        - application/json'
+      parameters:
+        - in: path
+          name: cid
+          type: string
+          required: true
+          description: It is universal class ID
+      responses:
+        "200":
+          description: OK
 
   /api/v1/mcq/{smid}/question/{cmid}:
     get:
       tags:
         - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-      summary: It is give all mcq questions in subject teacher side with their respective class master and subject master (VERIFIED)
+      summary: It is give all mcq questions (with and without universal) in subject teacher side with their respective class master and subject master (VERIFIED)
       consumes:
         - application/json
       produces:
@@ -11572,7 +11679,15 @@ paths:
         - in: query
           name: limit
           type: integer
-          description: pass the limit one time how many item you want                    
+          description: pass the limit one time how many item you want  
+        - in: query
+          name: usmid
+          type: string
+          description: It is universal Subject Master id
+        - in: query
+          name: ucmid
+          type: string
+          description: It is universal Class Master id                            
       responses:
         "200":
           description: OK
@@ -11665,11 +11780,35 @@ paths:
         "200":
           description: OK
 
+  /api/v1/mcq/{smid}/question/count/{cmid}:
+    get:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary: It is give mcq questions count in subject teacher side with their respective class master and subject master to ADD question in Test set (VERIFIED)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: smid
+          required: true
+          type: string
+          description: It is particular Subject Master id
+        - in: path
+          name: cmid
+          required: true
+          type: string
+          description: It is particular Class Master id 
+      responses:
+        "200":
+          description: OK
+
   /api/v1/mcq/question/{smid}/testset/{cmid}:
     get:
       tags:
         - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-      summary: It is give all mcq questions in subject teacher side with their respective class master and subject master to ADD in Test set (VERIFIED)
+      summary: It is give all testset list (with and without universal) in subject teacher side with their respective class master and subject master (VERIFIED)
       consumes:
         - application/json
       produces:
@@ -11692,7 +11831,15 @@ paths:
         - in: query
           name: limit
           type: integer
-          description: pass the limit one time how many item you want                        
+          description: pass the limit one time how many item you want 
+        - in: query
+          name: usmid
+          type: string
+          description: It is Universal Subject Master id
+        - in: query
+          name: ucmid
+          type: string
+          description: It is Universal Class Master id                                  
       responses:
         "200":
           description: OK
@@ -11735,112 +11882,20 @@ paths:
                 description: It is testTotalNumber maximum number of test set
               questions:
                 type: array
-                description: it is hold all the question of that test set
+                description: it is hold all the question IDS only
                 required: true 
                 items:
-                  type: object
-                  properties:
-                    questionSNO:
-                      type: string
-                      required:  true
-                      description: It is question serial number
-                    questionNumber:
-                      type: integer
-                      required:  true
-                      description: It is question number that how many marks of one question
-                    questionDescription:
-                      type: string
-                      required:  true
-                      description: It is question description
-                    questionImage:
-                      type: array
-                      description: It is list of all selected images key
-                      items:
-                        type: string
-                    options:
-                      type: array
-                      required:  true
-                      description: It is list of all selected correct answer
-                      items:
-                        type: object
-                        properties:
-                          option:
-                            type: string
-                            description: here give option description
-                          optionNumber:
-                            type: string
-                            required: true
-                            description: it is a option serial number in alphabet or number      
-                          image:
-                            type: string
-                            description: it is option image key                  
-                    correctAnswer:
-                      type: array
-                      required:  true
-                      description: It is list of all selected correct answer
-                      items:
-                        type: object
-                        properties:
-                          option:
-                            type: string
-                            description: here give option description
-                          optionNumber:
-                            type: string
-                            required: true
-                            description: it is a option serial number in alphabet or number      
-                          image:
-                            type: string
-                            description: it is option image key                                     
-                    answerDescription:
-                      type: string
-                      required:  true
-                      description: It is answer description
-                    answerImage:
-                      type: array
-                      description: It is list of all selected images key
-                      items:
-                        type: string                  
+                  type: string
+                  description: It is question ID only
       responses:
               "200":
                 description: OK
-
-  /api/v1/mcq/subject/{smid}/alltestset/{cmid}:
-    get:
-      tags:
-        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-      summary: It is give all testset list in subject teacher side with their respective class master and subject master (VERIFIED)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: smid
-          required: true
-          type: string
-          description: It is particular Subject Master id      
-        - in: path
-          name: cmid
-          required: true
-          type: string
-          description: It is particular Class Master id 
-        - in: query
-          name: page
-          type: integer
-          description: pass the page number
-        - in: query
-          name: limit
-          type: integer
-          description: pass the limit one time how many item you want                        
-      responses:
-        "200":
-          description: OK
 
   /api/v1/mcq/testset/{tsid}/detail:
     get:
       tags:
         - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-      summary: It is give ONE testset some DETAILS in subject teacher side with their respective class master and subject master (VERIFIED)
+      summary: It is give one testset all question some details in subject teacher side with their respective class master and subject master (VERIFIED)
       consumes:
         - application/json
       produces:
@@ -11867,7 +11922,7 @@ paths:
     post:
       tags:
         - MCQ Related ALL Api (In Subject Teacher, Department, Students)
-      summary: It is take ONE testset by subject teacher for that particular class students (VERIFIED)
+      summary: It is take one testset mcq by subject teacher for that particular class students (VERIFIED)
       consumes:
         - application/json
       produces:
@@ -11894,7 +11949,7 @@ paths:
               testDate:
                 type: string
                 required:  true
-                description: It is testDate of Exam that day held  
+                description: It is testDate of Exam that day held 2022-11-08 like 
               testStart:
                 type: string
                 required:  true
@@ -11907,6 +11962,60 @@ paths:
                 type: string
                 required:  true
                 description: It is duration time of the testet Exam 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/mcq/subject/{sid}/taken/alltestset:
+    get:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary: It is give all testset list taken by subject teacher in subject teacher (VERIFIED)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is Subject Teacher ID     
+        - in: query
+          name: page
+          type: integer
+          description: pass the page number
+        - in: query
+          name: limit
+          type: integer
+          description: pass the limit one time how many item you want                        
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/mcq/subject/alloted/{atsid}/testset/student:
+    get:
+      tags:
+        - MCQ Related ALL Api (In Subject Teacher, Department, Students)
+      summary: It is give all student list with their number of one testset taken mcq in subject teacher (VERIFIED)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: atsid
+          required: true
+          type: string
+          description: It is Alloted testset ID     
+        - in: query
+          name: page
+          type: integer
+          description: pass the page number
+        - in: query
+          name: limit
+          type: integer
+          description: pass the limit one time how many item you want                        
       responses:
         "200":
           description: OK

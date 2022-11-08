@@ -63,7 +63,18 @@ const subjectSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Subject",
   },
-
+  takeTestSet: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubjectMasterTestSet",
+    },
+  ],
+  allotedTestSet: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "AllotedTestSet",
+    },
+  ],
   createdAt: {
     type: Date,
     default: Date.now,

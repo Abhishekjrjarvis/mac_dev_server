@@ -27,78 +27,18 @@ const subjectMasterQuestionShcema = new mongoose.Schema({
   // ],
   questions: [
     {
-      questionSNO: {
-        type: String,
-        required: true,
-      },
-      questionNumber: {
-        type: Number,
-        required: true,
-      },
-      questionDescription: {
-        type: String,
-      },
-      questionImage: [
-        {
-          documentType: {
-            type: String,
-          },
-          documentName: {
-            type: String,
-          },
-          documentSize: {
-            type: String,
-          },
-          documentKey: {
-            type: String,
-          },
-          documentEncoding: {
-            type: String,
-          },
-        },
-      ],
-      options: [
-        {
-          option: { type: String },
-          optionNumber: { type: String },
-          image: { type: String },
-        },
-      ],
-      correctAnswer: [
-        {
-          option: { type: String },
-          optionNumber: { type: String },
-          image: { type: String },
-        },
-      ],
-      answerDescription: {
-        type: String,
-      },
-      answerImage: [
-        {
-          documentType: {
-            type: String,
-          },
-          documentName: {
-            type: String,
-          },
-          documentSize: {
-            type: String,
-          },
-          documentKey: {
-            type: String,
-          },
-          documentEncoding: {
-            type: String,
-          },
-        },
-      ],
-      createdAt: {
-        type: Date,
-        default: Date.now,
-      },
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubjectQuestion",
     },
   ],
+  questionCount: {
+    type: Number,
+    default: 0,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 module.exports = mongoose.model(

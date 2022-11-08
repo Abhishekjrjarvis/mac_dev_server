@@ -1,6 +1,8 @@
 const SubjectMaster = require("../../models/SubjectMaster");
+const SubjectQuestion = require("../../models/MCQ/SubjectQuestion");
 const SubjectMasterQuestion = require("../../models/MCQ/SubjectMasterQuestion");
 const SubjectMasterTestSet = require("../../models/MCQ/SubjectMasterTestSet");
+const AllotedTestSet = require("../../models/MCQ/AllotedTestSet");
 const StudentTestSet = require("../../models/MCQ/StudentTestSet");
 const Assignment = require("../../models/MCQ/Assignment");
 const StudentAssignment = require("../../models/MCQ/StudentAssignment");
@@ -77,6 +79,7 @@ exports.getUniversalDepartment = async (req, res) => {
     if (!universalInstitute) {
       res.status(200).send({
         message: "This universal institute not assign till now... 😎😎",
+        universalDepartment: [],
       });
     } else {
       res.status(200).send({
@@ -95,7 +98,7 @@ exports.getUniversalClass = async (req, res) => {
     const universalDepartment = await Department.findById(req.params.did)
       .populate({
         path: "class",
-        select: "className classTItle",
+        select: "className classTItle masterClassName",
       })
       .select("class")
       .lean()
@@ -103,6 +106,7 @@ exports.getUniversalClass = async (req, res) => {
     if (!universalDepartment) {
       res.status(200).send({
         message: "This universal department not created till now... 😎😎",
+        universalClass: [],
       });
     } else {
       res.status(200).send({
@@ -122,7 +126,7 @@ exports.getUniversalSubject = async (req, res) => {
     const universalClass = await Class.findById(req.params.cid)
       .populate({
         path: "subject",
-        select: "subjectName",
+        select: "subjectName subjectMasterName",
       })
       .select("subject")
       .lean()
@@ -130,6 +134,7 @@ exports.getUniversalSubject = async (req, res) => {
     if (!universalClass) {
       res.status(200).send({
         message: "This universal class not created till now... 😎😎",
+        universalSubject: [],
       });
     } else {
       res.status(200).send({
@@ -156,115 +161,83 @@ exports.updateUniversalSubjectProfile = async (req, res) => {
   }
 };
 
-// =========================================================================================================
+// // =============================== GET UNIVERSAL QUESTION WITH OWN =================
+
 exports.getQuestion = async (req, res) => {
   try {
-    const subjectMaster = await SubjectMaster.findById(req.params.smid)
-      .populate({
-        path: "allQuestion",
-        match: {
-          subjectMaster: { $eq: req.params.smid },
-          classMaster: { $eq: req.params.cmid },
+    if (req.query?.ucmid && req.query?.usmid) {
+      const uniSubjectMaster = await SubjectMasterQuestion.findOne({
+        subjectMaster: { $eq: req.query.usmid },
+        classMaster: { $eq: req.query.ucmid },
+      });
+      const subjectMaster = await SubjectMasterQuestion.findOne({
+        subjectMaster: { $eq: req.params.smid },
+        classMaster: { $eq: req.params.cmid },
+      });
+      const getPage = req.query.page ? parseInt(req.query.page) : 1;
+      const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+      const skipItem = (getPage - 1) * itemPerPage;
+      const subjectQuestion = await SubjectQuestion.find({
+        relatedSubject: {
+          $in: [`${uniSubjectMaster._id}`, `${subjectMaster._id}`],
         },
-        select: "questions",
       })
-      .select("allQuestion")
-      .lean()
-      .exec();
-
-    const getPage = req.query.page ? parseInt(req.query.page) : 1;
-    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
-    const startItem = (getPage - 1) * itemPerPage;
-    const endItem = startItem + itemPerPage;
-
-    const filterFunction = (questions, startItem, endItem) => {
-      const limitQuestions = questions.slice(startItem, endItem);
-      const quest = [];
-      limitQuestions?.forEach((que) => {
-        quest.push({
-          questionSNO: que?.questionSNO,
-          questionNumber: que?.questionNumber,
-          questionDescription: que?.questionDescription,
-          questionImage: que?.questionImage,
+        .sort("-createdAt")
+        .skip(skipItem)
+        .limit(itemPerPage)
+        .select(
+          "questionSNO questionNumber questionDescription questionImage isUniversal"
+        )
+        .lean()
+        .exec();
+      if (subjectQuestion?.length) {
+        res.status(200).send({
+          message: "all questions",
+          questions: subjectQuestion,
         });
-      });
-      return quest;
-    };
-
-    if (subjectMaster?.allQuestion) {
-      const quest = filterFunction(
-        subjectMaster?.allQuestion[0]?.questions,
-        startItem,
-        endItem
-      );
-      res.status(200).send({
-        message: "all questions",
-        questions: quest,
-      });
+      } else {
+        res.status(200).send({
+          message: "not questions",
+          questions: [],
+        });
+      }
     } else {
-      res.status(200).send({
-        message: "not questions",
+      const subjectMaster = await SubjectMasterQuestion.findOne({
+        subjectMaster: { $eq: req.params.smid },
+        classMaster: { $eq: req.params.cmid },
       });
+      const getPage = req.query.page ? parseInt(req.query.page) : 1;
+      const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+      const skipItem = (getPage - 1) * itemPerPage;
+      const subjectQuestion = await SubjectQuestion.find({
+        _id: { $in: subjectMaster.questions },
+      })
+        .sort("-createdAt")
+        .skip(skipItem)
+        .limit(itemPerPage)
+        .select(
+          "questionSNO questionNumber questionDescription questionImage isUniversal"
+        )
+        .lean()
+        .exec();
+
+      if (subjectQuestion?.length) {
+        res.status(200).send({
+          message: "all questions",
+          questions: subjectQuestion,
+        });
+      } else {
+        res.status(200).send({
+          message: "not questions",
+          questions: [],
+        });
+      }
     }
   } catch (e) {
     console.log(e);
   }
 };
 
-// // =============================== GET UNIVERSAL QUESTION WITH OWN =================
-// exports.getQuestion = async (req, res) => {
-//   try {
-//     const subjectMaster = await SubjectMaster.findById(req.params.smid)
-//       .populate({
-//         path: "allQuestion",
-//         match: {
-//           subjectMaster: { $eq: req.params.smid },
-//           classMaster: { $eq: req.params.cmid },
-//         },
-//         select: "questions",
-//       })
-//       .select("allQuestion")
-//       .lean()
-//       .exec();
-
-//     const getPage = req.query.page ? parseInt(req.query.page) : 1;
-//     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
-//     const startItem = (getPage - 1) * itemPerPage;
-//     const endItem = startItem + itemPerPage;
-
-//     const filterFunction = (questions, startItem, endItem) => {
-//       const limitQuestions = questions.slice(startItem, endItem);
-//       const quest = [];
-//       limitQuestions?.forEach((que) => {
-//         quest.push({
-//           questionSNO: que?.questionSNO,
-//           questionNumber: que?.questionNumber,
-//           questionDescription: que?.questionDescription,
-//           questionImage: que?.questionImage,
-//         });
-//       });
-//       return quest;
-//     };
-
-//     if (subjectMaster?.allQuestion) {
-//       const quest = filterFunction(
-//         subjectMaster?.allQuestion[0]?.questions,
-//         startItem,
-//         endItem
-//       );
-//       res.status(200).send({
-//         message: "all questions",
-//         questions: quest,
-//       });
-//     } else {
-//       res.status(200).send({
-//         message: "not questions",
-//       });
-//     }
-//   } catch (e) {
-//     console.log(e);
-//   }
-// };
 exports.addQuestion = async (req, res) => {
   try {
     // console.log(req?.files);
@@ -286,11 +259,11 @@ exports.addQuestion = async (req, res) => {
     //   }
     // }
 
-    const parsed = JSON.parse(req.body.options);
+    // const parsed = JSON.parse(req.body.options);
 
-    const modifiedObject = parsed[0].replace(/(\w+:)|(\w+ :)/g, function (obj) {
-      return '"' + obj.substring(0, obj.length - 1) + '":';
-    });
+    // const modifiedObject = parsed[0].replace(/(\w+:)|(\w+ :)/g, function (obj) {
+    //   return '"' + obj.substring(0, obj.length - 1) + '":';
+    // });
     // const modifiedValue = parsed[0].replace(
     //   /(:+\w) | ( :+\w)/g,
     //   // "'",
@@ -314,29 +287,60 @@ exports.addQuestion = async (req, res) => {
       answerDescription: req.body.questionSNO,
       questionImage: questionImage,
       answerImage: answerImage,
+      isUniversal: false,
+      relatedSubject: "",
     };
-    // console.log("dsfsfa", createQuestion);
     if (!questions) {
       const clsMaster = await ClassMaster.findById(req.params.cmid).populate(
         "institute"
       );
+      const universal =
+        clsMaster.institute.isUniversal === "Not Assigned" ? false : true;
       const newQuestion = new SubjectMasterQuestion({
         subjectMaster: req.params.smid,
         classMaster: req.params.cmid,
         institute: clsMaster.institute,
-        isUniversal:
-          clsMaster.institute.isUniversal === "Not Assigned" ? false : true,
+        isUniversal: universal,
       });
+      createQuestion.isUniversal = universal;
+      createQuestion.relatedSubject = newQuestion._id;
+      const subjectQuestion = new SubjectQuestion({ ...createQuestion });
       const master = await SubjectMaster.findById(req.params.smid);
       master.allQuestion?.push(newQuestion._id);
-
-      newQuestion.questions.push(createQuestion);
-      await Promise.all([newQuestion.save(), master.save()]);
-      res.status(201).send({ message: "queston is created" });
+      newQuestion.questionCount += 1;
+      newQuestion.questions.push(subjectQuestion._id);
+      await Promise.all([
+        subjectQuestion.save(),
+        newQuestion.save(),
+        master.save(),
+      ]);
+      res.status(201).send({
+        message: "queston is created",
+        question: {
+          questionSNO: subjectQuestion.questionSNO,
+          questionNumber: subjectQuestion.questionNumber,
+          questionDescription: subjectQuestion.questionDescription,
+          questionImage: subjectQuestion.questionImage,
+          _id: subjectQuestion._id,
+        },
+      });
     } else {
-      questions.questions.push(createQuestion);
-      await questions.save();
-      res.status(201).send({ message: "queston is created" });
+      createQuestion.isUniversal = questions.isUniversal;
+      createQuestion.relatedSubject = questions._id;
+      const subjectQuestion = new SubjectQuestion({ ...createQuestion });
+      questions.questions.push(subjectQuestion._id);
+      questions.questionCount += 1;
+      await Promise.all([subjectQuestion.save(), questions.save()]);
+      res.status(201).send({
+        message: "queston is created",
+        question: {
+          questionSNO: subjectQuestion.questionSNO,
+          questionNumber: subjectQuestion.questionNumber,
+          questionDescription: subjectQuestion.questionDescription,
+          questionImage: subjectQuestion.questionImage,
+          _id: subjectQuestion._id,
+        },
+      });
     }
     // res.status(201).send({ message: "queston is created" });
   } catch (e) {
@@ -346,38 +350,31 @@ exports.addQuestion = async (req, res) => {
 
 exports.getQuestionAddTestSet = async (req, res) => {
   try {
-    const subjectMaster = await SubjectMaster.findById(req.params.smid)
-      .populate({
-        path: "allQuestion",
-        match: {
-          subjectMaster: { $eq: req.params.smid },
-          classMaster: { $eq: req.params.cmid },
-        },
-        select: "questions",
-      })
-      .select("allQuestion")
+    const subjectMaster = await SubjectMasterQuestion.findOne({
+      subjectMaster: { $eq: req.params.smid },
+      classMaster: { $eq: req.params.cmid },
+    })
+      .select("questionCount")
       .lean()
       .exec();
+    // const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    // const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    // const startItem = (getPage - 1) * itemPerPage;
+    // const endItem = startItem + itemPerPage;
 
-    const getPage = req.query.page ? parseInt(req.query.page) : 1;
-    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
-    const startItem = (getPage - 1) * itemPerPage;
-    const endItem = startItem + itemPerPage;
-
-    const filterFunction = (questions, startItem, endItem) => {
-      const limitQuestions = questions.slice(startItem, endItem);
-      return limitQuestions;
-    };
-
-    if (subjectMaster?.allQuestion) {
-      const quest = filterFunction(
-        subjectMaster?.allQuestion[0]?.questions,
-        startItem,
-        endItem
-      );
+    // const filterFunction = (questions, startItem, endItem) => {
+    //   const limitQuestions = questions?.slice(startItem, endItem);
+    //   return limitQuestions;
+    // };
+    if (subjectMaster) {
+      // const quest = filterFunction(
+      //   subjectMaster?.allQuestion[0]?.questions,
+      //   startItem,
+      //   endItem
+      // );
       res.status(200).send({
         message: "all questions for add to test set",
-        questions: quest,
+        subjectMaster,
       });
     } else {
       res.status(200).send({
@@ -411,6 +408,13 @@ exports.saveTestSet = async (req, res) => {
     classmaster.testSet?.push(testSet._id);
     await Promise.all([testSet.save(), master.save(), classmaster.save()]);
     res.status(201).send({ message: "queston test set is created" });
+    if (Array.isArray(req.body?.questions)) {
+      req.body?.questions.forEach(async (questId) => {
+        const que = await SubjectQuestion.findById(questId);
+        que.assignTestSet.push(testSet._id);
+        await que.save();
+      });
+    }
   } catch (e) {
     console.log(e);
   }
@@ -418,32 +422,46 @@ exports.saveTestSet = async (req, res) => {
 
 exports.allSaveTestSet = async (req, res) => {
   try {
-    const classMaster = await ClassMaster.findById(req.params.cmid)
-      .populate({
-        path: "testSet",
-        match: { subjectMaster: { $eq: req.params.smid } },
-        select: "testName testTotalQuestion testTotalNumber",
+    if (req.query?.ucmid && req.query?.usmid) {
+      const getPage = req.query.page ? parseInt(req.query.page) : 1;
+      const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+      const skipItem = (getPage - 1) * itemPerPage;
+      const testset = await SubjectMasterTestSet.find({
+        subjectMaster: { $in: [`${req.params.smid}`, `${req.query.usmid}`] },
+        classMaster: { $in: [`${req.params.cmid}`, `${req.query.ucmid}`] },
       })
-      .select("testSet");
+        .sort("-createdAt")
+        .skip(skipItem)
+        .limit(itemPerPage)
+        .select("testName testTotalQuestion testTotalNumber isUniversal")
+        .lean()
+        .exec();
 
-    const getPage = req.query.page ? parseInt(req.query.page) : 1;
-    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
-    const startItem = (getPage - 1) * itemPerPage;
-    const endItem = startItem + itemPerPage;
-
-    const filterFunction = (testSet, startItem, endItem) => {
-      const testsetList = testSet.slice(startItem, endItem);
-      return testsetList;
-    };
-    if (classMaster?.testSet?.length) {
-      const testSetList = filterFunction(
-        classMaster?.testSet,
-        startItem,
-        endItem
-      );
-      res.status(200).send({ message: "All test set", testSets: testSetList });
+      if (testset?.length) {
+        res.status(200).send({ message: "All test set", testSets: testset });
+      } else {
+        res.status(200).send({ message: "No any test set", testSets: [] });
+      }
     } else {
-      res.status(200).send({ message: "No any test set" });
+      const getPage = req.query.page ? parseInt(req.query.page) : 1;
+      const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+      const skipItem = (getPage - 1) * itemPerPage;
+      const testset = await SubjectMasterTestSet.find({
+        subjectMaster: { $eq: req.params.smid },
+        classMaster: { $eq: req.params.cmid },
+      })
+        .sort("-createdAt")
+        .skip(skipItem)
+        .limit(itemPerPage)
+        .select("testName testTotalQuestion testTotalNumber isUniversal")
+        .lean()
+        .exec();
+
+      if (testset?.length) {
+        res.status(200).send({ message: "All test set", testSets: testset });
+      } else {
+        res.status(200).send({ message: "No any test set", testSets: [] });
+      }
     }
   } catch (e) {
     console.log(e);
@@ -454,38 +472,29 @@ exports.oneTestSetDetail = async (req, res) => {
   try {
     const subjectMasterTestSet = await SubjectMasterTestSet.findById(
       req.params.tsid
-    ).select("testName testTotalQuestion testTotalNumber questions");
-
+    );
     const getPage = req.query.page ? parseInt(req.query.page) : 1;
     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
-    const startItem = (getPage - 1) * itemPerPage;
-    const endItem = startItem + itemPerPage;
+    const skipItem = (getPage - 1) * itemPerPage;
+    const subjectQuestion = await SubjectQuestion.find({
+      _id: { $in: subjectMasterTestSet.questions },
+    })
+      .skip(skipItem)
+      .limit(itemPerPage)
+      .select("questionSNO questionNumber questionDescription questionImage")
+      .lean()
+      .exec();
 
-    const filterFunction = (questions, startItem, endItem) => {
-      const limitQuestions = questions.slice(startItem, endItem);
-      const quest = [];
-      limitQuestions?.forEach((que) => {
-        quest.push({
-          questionSNO: que?.questionSNO,
-          questionNumber: que?.questionNumber,
-          questionDescription: que?.questionDescription,
-          questionImage: que?.questionImage,
-        });
-      });
-      return quest;
-    };
-    if (subjectMasterTestSet?.questions?.length) {
-      const testSetQuestion = filterFunction(
-        subjectMasterTestSet?.questions,
-        startItem,
-        endItem
-      );
+    if (subjectQuestion?.length) {
       res.status(200).send({
         message: "All test set questions",
-        testSetAllQuestions: testSetQuestion,
+        testSetAllQuestions: subjectQuestion,
       });
     } else {
-      res.status(200).send({ message: "No any test set questions" });
+      res.status(200).send({
+        message: "No any test set questions",
+        testSetAllQuestions: [],
+      });
     }
   } catch (e) {
     console.log(e);
@@ -498,45 +507,65 @@ exports.takeTestSet = async (req, res) => {
       path: "class",
       select: "ApproveStudent",
     });
-    // console.log(subject?.class.ApproveStudent);
     const testSet = await SubjectMasterTestSet.findById(req.body?.tsid);
-    testSet.testExamName = req.body?.testExamName;
-    testSet.testDate = req.body?.testDate;
-    testSet.testStart = `${req.body?.testStart.substr(
-      0,
-      5
-    )}:00T${req.body?.testStart.substr(6, 2)}`;
-    testSet.testEnd = `${req.body?.testEnd.substr(
-      0,
-      5
-    )}:00T${req.body?.testEnd.substr(6, 2)}`;
-    testSet.testDuration = req.body?.testDuration;
-    await testSet.save();
-    const obj = {
+    const allotedSet = {
+      testExamName: req.body?.testExamName,
+      testTotalNumber: testSet.testTotalNumber,
+      testDate: req.body?.testDate,
+      testStart: `${req.body?.testStart.substr(
+        0,
+        5
+      )}:00T${req.body?.testStart.substr(6, 2)}`,
+      testEnd: `${req.body?.testEnd.substr(0, 5)}:00T${req.body?.testEnd.substr(
+        6,
+        2
+      )}`,
+      testDuration: req.body?.testDuration,
+      assignTestSubject: req.params.sid,
+      assignStudent: subject?.class?.ApproveStudent,
+      subjectMasterTestSet: testSet._id,
+    };
+    const alloted = new AllotedTestSet(allotedSet);
+    testSet.allotedTestSet.push(alloted._id);
+    testSet.assignSubject.push(subject._id);
+    subject.takeTestSet.push(testSet._id);
+    subject.allotedTestSet.push(alloted._id);
+    await Promise.all([alloted.save(), subject.save(), testSet.save()]);
+    const studentTestObject = {
       subjectMaster: testSet?.subjectMaster,
       classMaster: testSet?.classMaster,
       subjectMasterTestSet: testSet._id,
+      allotedTestSet: alloted._id,
       testName: testSet?.testName,
+      testExamName: allotedSet?.testExamName,
       testSubject: testSet?.testSubject,
+      testDate: allotedSet?.testDate,
+      testStart: allotedSet?.testStart,
+      testEnd: allotedSet?.testEnd,
+      testDuration: allotedSet?.testDuration,
       testTotalQuestion: testSet?.testTotalQuestion,
       testTotalNumber: testSet?.testTotalNumber,
-      testDate: testSet?.testDate,
-      testDuration: testSet?.testDuration,
-      testEnd: testSet?.testEnd,
-      testExamName: testSet?.testExamName,
-      testStart: testSet?.testStart,
-      questions: testSet?.questions,
+      questions: [],
+      student: "",
     };
+    for (let quest of testSet?.questions) {
+      // another way of selecting item in array .option options.optionNumber options.image
+      const getQuestion = await SubjectQuestion.findById(quest).select(
+        "questionSNO questionNumber questionDescription questionImage options correctAnswer answerDescription answerImage isUniversal -_id"
+      );
+      studentTestObject.questions.push(getQuestion);
+    }
+
     for (stId of subject?.class?.ApproveStudent) {
       const student = await Student.findById(stId);
+      studentTestObject.student = stId;
       const user = await User.findById({ _id: `${student.user}` });
-      const studentTestSet = new StudentTestSet(obj);
-      studentTestSet.student = stId;
+      const studentTestSet = new StudentTestSet(studentTestObject);
       student.testSet.push(studentTestSet._id);
       const notify = new StudentNotification({});
-      notify.notifyContent = `New ${testSet.testExamName} Test is created for ${testSet.testSubject}`;
-      notify.notify_hi_content = `नई ${testSet.testExamName} परीक्षा ${testSet.testSubject} के लिए बनाया गया है`;
-      notify.notify_mr_content = `नई ${testSet.testSubject} साठी नवीन ${testSet.testExamName} चाचणी तयार केली आहे.`;
+      notify.notifyContent = `New ${allotedSet.testExamName} Test is created for ${testSet.testSubject}`;
+      notify.notify_hi_content = `नई ${allotedSet.testExamName} परीक्षा ${testSet.testSubject} के लिए बनाया गया है`;
+      notify.notify_mr_content = `नई ${testSet.testSubject} साठी नवीन ${allotedSet.testExamName} चाचणी तयार केली आहे.`;
       notify.notifySender = subject._id;
       notify.notifyReceiever = user._id;
       notify.notifyType = "Student";
@@ -546,7 +575,6 @@ exports.takeTestSet = async (req, res) => {
       notify.notifyBySubjectPhoto = subject._id;
       notify.notifyCategory = "MCQ";
       notify.redirectIndex = 6;
-      //
       invokeMemberTabNotification(
         "Student Activity",
         notify,
@@ -556,7 +584,6 @@ exports.takeTestSet = async (req, res) => {
         "Student",
         notify
       );
-      //
       await Promise.all([
         studentTestSet.save(),
         student.save(),
@@ -564,9 +591,78 @@ exports.takeTestSet = async (req, res) => {
         user.save(),
       ]);
     }
-    res
-      .status(200)
-      .send({ message: "queston test set is assigned to student" });
+    res.status(200).send({
+      message: "queston test set is assigned to student",
+      studentTestObject,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subjectAllotedTestSet = async (req, res) => {
+  try {
+    const subject = await Subject.findById(req.params.sid);
+    if (subject?.allotedTestSet?.length) {
+      const getPage = req.query.page ? parseInt(req.query.page) : 1;
+      const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+      const skipItem = (getPage - 1) * itemPerPage;
+      const subjectTestSet = await AllotedTestSet.find({
+        _id: { $in: subject.allotedTestSet },
+      })
+        .sort("-createdAt")
+        .select("testTotalNumber testExamName testDate testStart testEnd")
+        .skip(skipItem)
+        .limit(itemPerPage)
+        .lean()
+        .exec();
+      res.status(200).send({
+        message: "all alloted testset list",
+        allotedTestSet: subjectTestSet,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "all alloted testset list", allotedTestSet: [] });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subjectGivenStudentTestSet = async (req, res) => {
+  try {
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skipItem = (getPage - 1) * itemPerPage;
+    const alloted = await AllotedTestSet.findById(req.params.atsid)
+      .populate({
+        path: "assignStudent",
+        skip: skipItem,
+        limit: itemPerPage,
+        populat: {
+          path: "testSet",
+          match: {
+            allotedTestSet: { $eq: `${req.params.atsid}` },
+          },
+          select: "testObtainMarks testSetAccess",
+        },
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO testSet",
+      })
+      .select("assignStudent")
+      .lean()
+      .exec();
+    if (alloted.assignStudent?.length) {
+      res.status(200).send({
+        message: "testset student list",
+        studentList: alloted.assignStudent,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "testset student list", studentList: [] });
+    }
   } catch (e) {
     console.log(e);
   }

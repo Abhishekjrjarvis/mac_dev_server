@@ -22,25 +22,14 @@ const subjectMasterTestSetShcema = new mongoose.Schema({
   testName: {
     type: String,
   },
-  testExamName: {
-    type: String,
-  },
   testSubject: {
     type: String,
     required: true,
   },
-  testDate: {
-    type: String,
-  },
-  testStart: {
-    type: String,
-  },
-  testEnd: {
-    type: String,
-  },
-  testDuration: {
-    type: String,
-  },
+  allotedTestSet: [
+    { type: mongoose.Schema.Types.ObjectId, ref: "AllotedTestSet" },
+  ],
+
   testTotalQuestion: {
     type: Number,
   },
@@ -49,40 +38,21 @@ const subjectMasterTestSetShcema = new mongoose.Schema({
   },
   questions: [
     {
-      questionSNO: {
-        type: String,
-      },
-      questionNumber: {
-        type: Number,
-        required: true,
-      },
-      questionDescription: {
-        type: String,
-      },
-      questionImage: [],
-      options: [
-        {
-          option: { type: String },
-          optionNumber: { type: String },
-          image: { type: String },
-        },
-      ],
-      correctAnswer: [
-        {
-          option: { type: String },
-          optionNumber: { type: String },
-          image: { type: String },
-        },
-      ],
-      answerDescription: {
-        type: String,
-      },
-      answerImage: [],
-      createdAt: {
-        type: Date,
-      },
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubjectQuestion",
     },
   ],
+  assignSubject: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Subject",
+    },
+  ],
+
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 module.exports = mongoose.model(

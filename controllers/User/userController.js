@@ -790,7 +790,7 @@ exports.getReportPostUser = async (req, res) => {
     const user = await User.findById({ _id: id });
     const post = await Post.findById({ _id: uid });
     const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-    const report = await new Report({ reportStatus: reportStatus });
+    const report = new Report({ reportStatus: reportStatus });
     admin.reportList.push(report._id);
     admin.reportPostQueryCount += 1
     report.reportInsPost = post._id;

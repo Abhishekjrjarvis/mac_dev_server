@@ -795,13 +795,15 @@ exports.getReportPostUser = async (req, res) => {
     admin.reportPostQueryCount += 1
     report.reportInsPost = post._id;
     report.reportBy = user._id;
+    user.userPosts?.pull(post?._id)
     await Promise.all([ 
      admin.save(),
-     report.save()
+     report.save(),
+     user.save()
     ])
-    res.status(200).send({ message: "reported", report: report.reportStatus });
+    res.status(200).send({ message: "reported with feed Removal", report: report.reportStatus });
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(e);
   }
 };
 

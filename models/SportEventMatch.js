@@ -79,9 +79,6 @@ const sportEventMatchSchema = new mongoose.Schema({
             ref: 'Student'
         }
     ],
-    sportInterPlayer1: { type: String },
-    sportInterTeam1: { type: String },
-    sportInterFreePlayer: [],
     createdAt: {
         type: Date,
         default: Date.now

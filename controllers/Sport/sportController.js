@@ -408,24 +408,25 @@ exports.getInterMatchEvent = async(req, res) =>{
         event.sportEventMatch.push(match._id);
         event.sportEventMatchCount += 1
         match.sportEvent = event._id;
+        if(sportPlayer !== ''){
+          match.sportPlayer1 = sportPlayer;
+        }
+        else if(sportTeam !== ''){
+          match.sportTeam1 = sportTeam;
+        }
+        else if(sportPlayerFree?.length >= 1){
+          for (let i = 0; i < sportPlayerFree.length; i++) {
+            const student = await Student.findById({
+              _id: sportPlayerFree[i],
+            });
+            match.sportFreePlayer.push(student._id);
+          }
+        }
         await Promise.all([
           event.save(),
           match.save()
         ])
         res.status(200).send({ message: "Inter Match Created", match: match._id, status: true });
-        //
-        if (sportPlayer !== "") {
-          match.sportInterPlayer1 = sportPlayer;
-          await match.save();
-        } else if (sportTeam !== "") {
-          match.sportInterTeam1 = sportTeam;
-          await match.save();
-        } else if (sportPlayerFree.length >= 1) {
-          for (let i = 0; i < sportPlayerFree.length; i++) {
-            match.sportInterFreePlayer.push(sportPlayerFree[i]);
-            await match.save();
-          }
-        }
         const student = await Student.find({ $and: [{institute: `${sport.institute}`}, { studentStatus: 'Approved'}]})
         .select('id')
         .populate({

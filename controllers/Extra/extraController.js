@@ -10,6 +10,7 @@ const Answer = require('../../models/Question/Answer')
 const Poll = require('../../models/Question/Poll')
 const Department = require('../../models/Department')
 const Class = require('../../models/Class')
+const invokeSpecificRegister = require('../../Firebase/specific')
 
 exports.validateUserAge = async(req, res) =>{
     try{
@@ -620,7 +621,7 @@ exports.reportAccountByEndUser = async (req, res) => {
     admin.reported_end_user_count += 1;
     await Promise.all([ admin.save() ]);
     res.status(200).send({ message: "Thanks for letting us Know", report: true });
-    const users_query = ["630f4b86e5a48ad50a9617a1", "630f6d19a8d864c2234fe4cc"]
+    const users_query = ["6360aa8151d30672ae8cfc3e", "6360b53f51d30672ae8d034f"]
     for(let i=0; i< users_query?.length; i++){
       var user = await User.findById({_id: users_query[i]})
       .select('deviceToken')

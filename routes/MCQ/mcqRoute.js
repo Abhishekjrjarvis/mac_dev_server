@@ -34,6 +34,10 @@ router
     ]),
     catchAsync(mcqController.addQuestion)
   );
+
+router
+  .route("/one/question/:qid")
+  .get(catchAsync(mcqController.getOneQuestion));
 // depricated -> changed
 router
   .route("/:smid/question/count/:cmid")

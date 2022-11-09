@@ -238,6 +238,34 @@ exports.getQuestion = async (req, res) => {
   }
 };
 
+exports.getOneQuestion = async (req, res) => {
+  try {
+    if (!req.params.qid) throw "Please send question id to perform task";
+    const question = await SubjectQuestion.findById(req.params.qid)
+      .select(
+        "questionSNO questionNumber questionDescription questionImage isUniversal options correctAnswer answerDescription answerImage"
+      )
+      .lean()
+      .exec();
+    if (question) {
+      res.status(200).send({
+        message: "all questions",
+        question,
+      });
+    } else {
+      res.status(200).send({
+        message: "not questions",
+        question: {},
+      });
+    }
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+    });
+    console.log(e);
+  }
+};
+
 exports.addQuestion = async (req, res) => {
   try {
     // console.log(req?.files);

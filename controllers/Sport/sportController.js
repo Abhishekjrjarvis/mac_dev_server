@@ -644,7 +644,7 @@ exports.retrieveMatchDetail = async(req, res) =>{
     try {
         const { mid } = req.params;
         const match = await SportEventMatch.findById({ _id: mid })
-          .select('sportEventMatchName studentOpponentPlayer sportInterFreePlayer sportInterPlayer1 sportInterTeam1')
+          .select('sportEventMatchName studentOpponentPlayer matchStatus sportInterFreePlayer sportInterPlayer1 sportInterTeam1')
           .populate({
             path: "sportFreePlayer",
             select: 'studentFirstName studentMiddleName studentLastName'
@@ -674,19 +674,19 @@ exports.retrieveMatchDetail = async(req, res) =>{
             select: 'sportEventMatchClassName'
           })
           .populate({
-            path: 'studentWinner',
+            path: 'sportWinner',
             select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto'
           })
           .populate({
-            path: 'studentWinnerTeam',
+            path: 'sportWinnerTeam',
             select: 'sportClassTeamName'
           })
           .populate({
-            path: 'studentRunner',
+            path: 'sportRunner',
             select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto'
           })
           .populate({
-            path: 'studentRunnerTeam',
+            path: 'sportRunnerTeam',
             select: 'sportClassTeamName'
           })
         res.status(200).send({ message: "One Match Data", match });

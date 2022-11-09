@@ -422,7 +422,7 @@ exports.getInterMatchEvent = async(req, res) =>{
           await match.save();
         } else if (sportPlayerFree.length >= 1) {
           for (let i = 0; i < sportPlayerFree.length; i++) {
-            match.sportInterFreePlayer.push(student);
+            match.sportInterFreePlayer.push(sportPlayerFree[i]);
             await match.save();
           }
         }
@@ -644,7 +644,7 @@ exports.retrieveMatchDetail = async(req, res) =>{
     try {
         const { mid } = req.params;
         const match = await SportEventMatch.findById({ _id: mid })
-          .select('sportEventMatchName')
+          .select('sportEventMatchName studentOpponentPlayer sportInterFreePlayer sportInterPlayer1 sportInterTeam1')
           .populate({
             path: "sportFreePlayer",
             select: 'studentFirstName studentMiddleName studentLastName'
@@ -672,7 +672,23 @@ exports.retrieveMatchDetail = async(req, res) =>{
           .populate({
             path: "sportEventMatchClass",
             select: 'sportEventMatchClassName'
-          });
+          })
+          .populate({
+            path: 'studentWinner',
+            select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto'
+          })
+          .populate({
+            path: 'studentWinnerTeam',
+            select: 'sportClassTeamName'
+          })
+          .populate({
+            path: 'studentRunner',
+            select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto'
+          })
+          .populate({
+            path: 'studentRunnerTeam',
+            select: 'sportClassTeamName'
+          })
         res.status(200).send({ message: "One Match Data", match });
       } catch(e) {
         console.log(e);

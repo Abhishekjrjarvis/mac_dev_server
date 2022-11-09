@@ -627,7 +627,7 @@ exports.reportAccountByEndUser = async (req, res) => {
       .select('deviceToken')
       invokeSpecificRegister(
         "Specific Notification",
-        data,
+        `you're reported by ${user.username} related to ${accountStatus}`,
         'Reported End User',
         user._id,
         user.deviceToken,

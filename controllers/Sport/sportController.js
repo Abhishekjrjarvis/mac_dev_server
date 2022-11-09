@@ -353,7 +353,7 @@ exports.getIntraMatchEvent = async(req, res) =>{
         } else if (sportPlayerFree.length >= 1) {
           for (let i = 0; i < sportPlayerFree.length; i++) {
             const student = await Student.findById({
-              _id: sportPlayerFree[i].studentId,
+              _id: sportPlayerFree[i],
             });
             match.sportFreePlayer.push(student._id);
             match.sportFreePlayerCount += 1
@@ -551,7 +551,7 @@ exports.removeStudentSportClass = async(req, res) =>{
           if(sport_depart.sportMemberCount > 0){
             sport_depart.sportMemberCount -= 1
           }
-          student.sportClass = '';
+          student.sportClass = null;
           await student.save()
         }
         await Promise.all([ classes.save(), sport_depart.save()])
@@ -877,7 +877,7 @@ exports.updateIntraMatchFree = async(req, res) =>{
         await match.save();
         if (studentParticipants.length >= 1) {
           for (let i = 0; i < studentParticipants.length; i++) {
-            const student = await Student.findById({_id: studentParticipants[i].studentId});
+            const student = await Student.findById({_id: studentParticipants[i]});
             match.sportParticipants.push(student._id);
             if (match.sportEventMatchCategoryLevel === "Final Match") {
               student.extraPoints += 5;
@@ -901,7 +901,7 @@ exports.updateIntraMatchFree = async(req, res) =>{
         await student2.save()
 
         studentParticipants?.forEach(async (ele) => {
-          const student = await Student.findById({_id: ele.studentId})
+          const student = await Student.findById({_id: ele})
           student.studentSportsEventMatch?.forEach(async (res) => {
             if(`${res.eventMatch}` === `${match._id}`){
               res.rankTitle = 'Participants'
@@ -936,7 +936,7 @@ exports.updateInterMatchFree = async(req, res) =>{
         ])
         if (studentParticipants.length >= 1) {
           for (let i = 0; i < studentParticipants.length; i++) {
-            const student = await Student.findById({_id: studentParticipants[i].studentId});
+            const student = await Student.findById({_id: studentParticipants[i]});
             match.sportInterParticipants.push(student._id);
             if (match.sportEventMatchCategoryLevel === "Final Match") {
               student.extraPoints += 5;

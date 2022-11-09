@@ -13,7 +13,11 @@ router.post(
   catchAsync(Sport.getSportDepart)
 );
 
+// One Sport Department Detail
 router.get("/detail/:id", catchAsync(Sport.retrieveSportDetail));
+
+// One Sport All Event
+router.get("/detail/:id/event", catchAsync(Sport.retrieveSportDetailEvent));
 
 router.post("/ins/:id/sport/:sid/class", catchAsync(Sport.getSportClass));
 
@@ -25,7 +29,11 @@ router.post(
 
 router.patch("/info/:sid", catchAsync(Sport.updateSportInfo));
 
+// One Event Detail
 router.get("/event/detail/:id", catchAsync(Sport.retrieveSportEventDetail));
+
+// All Event Match
+router.get("/event/:eid/match", catchAsync(Sport.retrieveSportEventQuery));
 
 // Add Intra Match to the Event
 router.post('/event/:eid/match/intra', catchAsync(Sport.getIntraMatchEvent))

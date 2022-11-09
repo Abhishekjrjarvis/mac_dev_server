@@ -672,7 +672,8 @@ exports.reportPostByUser = async (req, res) => {
     admin.reportPostQueryCount += 1;
     report.reportInsPost = post._id;
     report.reportBy = user._id;
-    await Promise.all([admin.save(), report.save()]);
+    user.userPosts?.pull(post?._id)
+    await Promise.all([admin.save(), report.save(), user.save()]);
     res.status(200).send({ message: "reported", report: reportStatus });
   } catch (e) {
     console.log(`Error`, e.message);

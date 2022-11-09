@@ -790,18 +790,20 @@ exports.getReportPostUser = async (req, res) => {
     const user = await User.findById({ _id: id });
     const post = await Post.findById({ _id: uid });
     const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-    const report = await new Report({ reportStatus: reportStatus });
+    const report = new Report({ reportStatus: reportStatus });
     admin.reportList.push(report._id);
     admin.reportPostQueryCount += 1
     report.reportInsPost = post._id;
     report.reportBy = user._id;
+    user.userPosts?.pull(post?._id)
     await Promise.all([ 
      admin.save(),
-     report.save()
+     report.save(),
+     user.save()
     ])
-    res.status(200).send({ message: "reported", report: report.reportStatus });
+    res.status(200).send({ message: "reported with feed Removal", report: report.reportStatus });
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(e);
   }
 };
 

@@ -257,7 +257,19 @@ const superAdminSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'SupportChat'
         }
-    ]
+    ],
+    reported_end_user: [
+        {
+            end_user: { type: String },
+            report_by: { type: String },
+            account_status: { type: String, default: 'Not Block'},
+            created_at: { type: Date, default: Date.now },
+        }
+    ],
+    reported_end_user_count: {
+        type: Number,
+        default: 0
+    }
     
 })
 

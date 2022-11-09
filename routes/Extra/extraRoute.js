@@ -51,4 +51,6 @@ router.patch('/export/staff/:id/card/format', catchAsync(Extra.fetchExportStaffI
 
 router.patch('/export/student/:id/card/format', catchAsync(Extra.fetchExportStudentIdCardFormat))
 
+router.post("/:to/report/enduser/account/:by", catchAsync(Extra.reportAccountByEndUser));
+
 module.exports = router

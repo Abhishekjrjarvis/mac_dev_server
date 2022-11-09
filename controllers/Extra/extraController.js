@@ -606,3 +606,33 @@ exports.fetchExportStudentIdCardFormat = async(req, res) => {
     console.log(e)
   }
 }
+
+exports.reportAccountByEndUser = async (req, res) => {
+  try {
+    const { to, by } = req.params;
+    const { accountStatus } = req.query;
+    const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    admin.reported_end_user.push({
+      end_user: to,
+      report_by: by,
+      account_status: accountStatus,
+    })
+    admin.reported_end_user_count += 1;
+    await Promise.all([ admin.save() ]);
+    res.status(200).send({ message: "Thanks for letting us Know", report: true });
+    const users_query = ["630f4b86e5a48ad50a9617a1", "630f6d19a8d864c2234fe4cc"]
+    for(let i=0; i< users_query?.length; i++){
+      var user = await User.findById({_id: users_query[i]})
+      .select('deviceToken')
+      invokeSpecificRegister(
+        "Specific Notification",
+        data,
+        'Reported End User',
+        user._id,
+        user.deviceToken,
+      );
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

@@ -546,6 +546,16 @@ const instituteAdminSchema = new mongoose.Schema({
       ref: 'InstituteAdmin'
     }
   ],
+  blockedBy: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'InstituteAdmin'
+    }
+  ],
+  blockCount: {
+    type: Number,
+    default: 0
+  },
   export_staff_data: {
     fullName: { type: Boolean, default: true },
     staffDOB: { type: Boolean, default: true },

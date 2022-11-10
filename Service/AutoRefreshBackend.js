@@ -370,14 +370,14 @@ exports.recommendedAllAdmissionPost = async(req, res) =>{
         var recommend = []
         const { id } = req.params
         const { expand_search, post_query } = req.query
-        const expand = expand_search ? expand_search : 50
+        const expand = expand_search ? expand_search : 2
         const ins = await InstituteAdmin.findById({_id: id}).select('ins_latitude ins_longitude')
 
-        const post = await Post.findById({_id: post_query})
+        var post = await Post.findById({_id: post_query})
         var user = await User.find({})
         .select('user_latitude user_longitude userPosts')
         
-        user?.forEach(async (auth) => {
+        user?.forEach(async (auth) => { 
             if(auth.userPosts?.includes(post?._id)){
                 auth.userPosts.pull(post?._id)    
             }
@@ -391,6 +391,46 @@ exports.recommendedAllAdmissionPost = async(req, res) =>{
         }
         recommend = recommend.sort(compareDistance)
         var refresh_recommend = recommend.filter(recomm => recomm != null);
+        if(refresh_recommend?.length > 0){
+            const recommend_user_feed = await User.find({_id: { $in: refresh_recommend }})
+            recommend_user_feed?.forEach(async (feed) => {
+                if(feed.userPosts?.includes(post?._id)){
+
+                }
+                else{
+                    feed.userPosts.push(post?._id)
+                }
+                await feed.save()
+            })
+            res.status(200).send({ message: 'Recommend App Author Increase visibility by expand area', show: true})
+        }
+        else{
+            res.status(200).send({ message: 'No Recommend App met critiria', show: false})
+        }
+    }
+    catch(e){
+        console.log(e)
+    }
+}
+
+
+exports.new_admission_recommend_post = async(id, post_query, expand_search) => {
+    var recommend = []
+    const expand = expand_search ? expand_search : 2
+    const ins = await InstituteAdmin.findById({_id: id}).select('ins_latitude ins_longitude')
+
+    const post = await Post.findById({_id: post_query})
+    var user = await User.find({})
+    .select('user_latitude user_longitude userPosts')
+
+    if(user?.length > 0){
+        user.forEach((rec) => {
+            recommend.push(distanceRecommend(ins?.ins_latitude, ins?.ins_longitude, rec?.user_latitude, rec?.user_longitude, rec?._id, expand)) 
+        })
+    }
+    recommend = recommend.sort(compareDistance)
+    var refresh_recommend = recommend.filter(recomm => recomm != null);
+    if(refresh_recommend?.length > 0){
         const recommend_user_feed = await User.find({_id: { $in: refresh_recommend }})
         recommend_user_feed?.forEach(async (feed) => {
             if(feed.userPosts?.includes(post?._id)){
@@ -401,46 +441,7 @@ exports.recommendedAllAdmissionPost = async(req, res) =>{
             }
             await feed.save()
         })
-        res.status(200).send({ message: 'Recommend App Author Increase visibility by expand area', show: true})
+        return true
     }
-    catch(e){
-        console.log(e)
-    }
-}
-
-
-exports.new_admission_recommend_post = async(id, post_query, expand_search) => {
-    var recommend = []
-    const expand = expand_search ? expand_search : 50
-    const ins = await InstituteAdmin.findById({_id: id}).select('ins_latitude ins_longitude')
-
-    const post = await Post.findById({_id: post_query})
-    var user = await User.find({})
-    .select('user_latitude user_longitude userPosts')
-    
-    user?.forEach(async (auth) => {
-        if(auth.userPosts?.includes(post?._id)){
-            auth.userPosts.pull(post?._id)    
-        }
-        await auth.save()
-    })
-
-    if(user?.length > 0){
-        user.forEach((rec) => {
-            recommend.push(distanceRecommend(ins?.ins_latitude, ins?.ins_longitude, rec?.user_latitude, rec?.user_longitude, rec?._id, expand)) 
-        })
-    }
-    recommend = recommend.sort(compareDistance)
-    var refresh_recommend = recommend.filter(recomm => recomm != null);
-    const recommend_user_feed = await User.find({_id: { $in: refresh_recommend }})
-    recommend_user_feed?.forEach(async (feed) => {
-        if(feed.userPosts?.includes(post?._id)){
-
-        }
-        else{
-            feed.userPosts.push(post?._id)
-        }
-        await feed.save()
-    })
-    return true
+    return false
 }

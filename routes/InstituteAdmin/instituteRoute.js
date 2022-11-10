@@ -510,9 +510,8 @@ router.patch(
   catchAsync(Institute.settingFormUpdate)
 );
 
-// router.patch(
-//   "/:id/block",
-//   catchAsync(Institute.retrieveInstituteBlockQuery)
-// );
+router.patch("/unblock/institute", isLoggedIn, catchAsync(Institute.updateInstituteUnBlock));
+
+router.patch('/report/block/institute', isLoggedIn, catchAsync(Institute.retrieveInstituteReportBlock))
 
 module.exports = router;

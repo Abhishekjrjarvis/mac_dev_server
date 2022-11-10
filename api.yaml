@@ -12896,6 +12896,47 @@ paths:
         "200":
           description: OK
 
+
+  /api/v1/institute/unblock/institute/:
+    patch:
+      tags:
+        - Institute Profile API
+      summary: UnBlock Institute to Institute Api -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: blockId # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: Enter Blocked Institute Id
+      responses:
+        "200":
+          description: OK
+  
+  /api/v1/institute/report/block/institute:
+    patch:
+      tags:
+        - Institute Profile API
+      summary: Block Institute to Institute Api -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: blockId # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: Enter Blocked Institute Id
+      responses:
+        "200":
+          description: OK
+
   /api/v1/user/profile/{username}:
     get:
       tags:

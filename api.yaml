@@ -16442,3 +16442,17 @@ paths:
       responses:
         "200":
           description: OK
+
+  /api/v1/sport/arts/{Student}/{Profile}:
+    get:
+      tags:
+        - Sport and Arts Module Query
+      summary: Points from Student Profile API (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      responses:
+        "200":
+          description: OK

@@ -19,6 +19,9 @@ router.get("/detail/:id", catchAsync(Sport.retrieveSportDetail));
 // One Sport All Event
 router.get("/detail/:id/event", catchAsync(Sport.retrieveSportDetailEvent));
 
+// All Sport Classes
+router.get("/detail/:id/all/class", catchAsync(Sport.retrieveSportDetailClass));
+
 router.post("/ins/:id/sport/:sid/class", catchAsync(Sport.getSportClass));
 
 router.post("/:sid/event", upload.single("file"), catchAsync(Sport.getSportEvent));

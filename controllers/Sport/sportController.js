@@ -112,6 +112,36 @@ exports.retrieveSportDetailEvent = async(req, res) =>{
     }
 }
 
+
+exports.retrieveSportDetailClass = async(req, res) =>{
+  try {
+    const { status } = req.query
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const { id } = req.params
+    const skip = (page - 1) * limit;
+    
+    const sport = await Sport.findById({_id: id})
+    .select('sportClass')
+
+    const classes = await SportEvent.find({ $and: [{ _id: { $in: sport?.sportClass}}]})
+    .sort('-createdAt')
+    .limit(limit)
+    .skip(skip)
+    .select('sportClassName')
+    
+    if(classes?.length > 0 ){
+      res.status(200).send({ message: "Let's Explore Sport Class data 👍", classes });
+    }
+    else{
+      res.status(200).send({ message: "No Sport Class data 😒", classes: [] });
+    }
+    
+    } catch(e) {
+      console.log(e);
+    }
+}
+
 exports.getSportClass = async(req, res) =>{
     try {
         const { id, sid } = req.params;

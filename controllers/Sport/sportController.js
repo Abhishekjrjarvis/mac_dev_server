@@ -356,21 +356,23 @@ exports.getIntraMatchEvent = async(req, res) =>{
           })
           await Promise.all([ match.save(), student1.save(), student2.save()]);
         } else if (sportTPlayer1 !== "" && sportTPlayer2 !== "") {
-          const Team1 = await SportTeam.findById({ _id: `${sportTPlayer1}` });
-          const Team2 = await SportTeam.findById({ _id: `${sportTPlayer2}` });
+          const Team1 = await SportTeam.findById({ _id: `${sportTPlayer1}` })
+          const Team2 = await SportTeam.findById({ _id: `${sportTPlayer2}` })
           match.sportTeam1 = Team1._id;
           match.sportTeam2 = Team2._id;
-          Team1.sportTeamStudent?.forEach(async (team_f) => {
-            team_f.studentSportsEventMatch.push({
+          const students1 = await Student.find({_id: { $in: Team1.sportTeamStudent}})
+          students1.forEach(async (arr) => {
+            arr.studentSportsEventMatch.push({
               eventMatch: match._id
             })
-            await team_f.save()
+            await arr.save()
           })
-          Team2.sportTeamStudent?.forEach(async (team_s) => {
-            team_s.studentSportsEventMatch.push({
+          const students2 = await Student.find({_id: { $in: Team2.sportTeamStudent}})
+          students2.forEach(async (arr) => {
+            arr.studentSportsEventMatch.push({
               eventMatch: match._id
             })
-            await team_s.save()
+            await arr.save()
           })
           await match.save();
         } else if (sportPlayerFree.length >= 1) {
@@ -431,11 +433,24 @@ exports.getInterMatchEvent = async(req, res) =>{
         event.sportEventMatch.push(match._id);
         event.sportEventMatchCount += 1
         match.sportEvent = event._id;
+        await Promise.all([
+          event.save(),
+          match.save()
+        ])
+        res.status(200).send({ message: "Inter Match Created", match: match, status: true });
         if(sportPlayer){
           match.sportPlayer1 = sportPlayer;
         }
         else if(sportTeam){
-          match.sportTeam1 = sportTeam;
+          const team = await SportTeam.findById({_id: `${sportTeam}`}).select('sportTeamStudent')
+          const students = await Student.find({_id: { $in: team.sportTeamStudent}})
+          match.sportTeam1 = team._id;
+          students.forEach(async (arr) => {
+            arr.studentSportsEventMatch.push({
+              eventMatch: match._id
+            })
+            await arr.save()
+          })
         }
         else if(sportPlayerFree?.length >= 1){
           for (let i = 0; i < sportPlayerFree.length; i++) {
@@ -445,14 +460,7 @@ exports.getInterMatchEvent = async(req, res) =>{
             match.sportFreePlayer.push(student._id);
           }
         }
-        else{
-          console.log('data')
-        }
-        await Promise.all([
-          event.save(),
-          match.save()
-        ])
-        res.status(200).send({ message: "Inter Match Created", match: match, status: true });
+        await match.save()
         const student = await Student.find({ $and: [{institute: `${sport.institute}`}, { studentStatus: 'Approved'}]})
         .select('id')
         .populate({
@@ -678,7 +686,7 @@ exports.retrieveMatchDetail = async(req, res) =>{
     try {
         const { mid } = req.params;
         const match = await SportEventMatch.findById({ _id: mid })
-          .select('sportEventMatchName studentOpponentPlayer matchStatus sportInterFreePlayer sportInterPlayer1 sportInterTeam1')
+          .select('sportEventMatchName rankMatch sportOpponentPlayer matchStatus ')
           .populate({
             path: "sportFreePlayer",
             select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto'
@@ -778,8 +786,10 @@ exports.updateInterMatchIndividual = async(req, res) =>{
         if (match.sportEventMatchCategoryLevel === "Final Match") {
           if (studentRankTitle === "Winner") {
             student.extraPoints += 40;
+            match.sportWinner = student._id
           } else if (studentRankTitle === "Runner") {
             student.extraPoints += 25;
+            match.sportRunner = student._id
           }
         }
         await Promise.all([
@@ -806,12 +816,20 @@ exports.updateIntraMatchTeam = async(req, res) =>{
         var team1 = await SportTeam.findById({ _id: `${teamWinner}` })
         .populate({
           path: 'sportTeamStudent',
-          select: 'studentSportsEventMatch'
+          select: 'studentSportsEventMatch',
+          populate: {
+            path: 'student',
+            select: '_id extraPoints'
+          }
         });
         var team2 = await SportTeam.findById({ _id: `${teamRunner}` })
         .populate({
           path: 'sportTeamStudent',
-          select: 'studentSportsEventMatch'
+          select: 'studentSportsEventMatch',
+          populate: {
+            path: 'student',
+            select: '_id extraPoints'
+          }
         });
         match.sportWinnerTeam = team1._id;
         match.sportRunnerTeam = team2._id;
@@ -825,33 +843,35 @@ exports.updateIntraMatchTeam = async(req, res) =>{
             team2.save()
           ])
           for (let i = 0; i < team1.sportTeamStudent.length; i++) {
-            const student1 = await Student.findById({ _id: team1.sportTeamStudent[i]._id});
+            const student1 = await Student.findById({ _id: team1.sportTeamStudent[i].student._id});
             student1.extraPoints += 25;
             await student1.save();
           }
           for (let i = 0; i < team2.sportTeamStudent.length; i++) {
-            const student2 = await Student.findById({_id: team2.sportTeamStudent[i]._id});
+            const student2 = await Student.findById({_id: team2.sportTeamStudent[i].student._id});
             student2.extraPoints += 15;
             await student2.save();
           }
         }
         res.status(200).send({ message: "Intra Team Match Result Updated", match_status: true });
-        team1?.sportTeamStudent?.forEach(async (ele) => {
-          ele.studentSportsEventMatch?.forEach(async (res) => {
-            if(`${res.eventMatch}` === `${match._id}`){
-              res.rankTitle = 'Winner'
+        for (let i = 0; i < team1.sportTeamStudent.length; i++) {
+          const student = await Student.findById({_id: team1.sportTeamStudent[i].student._id});
+          student.studentSportsEventMatch?.forEach((ele) => {
+            if(`${ele.eventMatch}` === `${match._id}`){
+              ele.rankTitle = 'Winner'
             }
           })
-          await ele.save()
-        })
-        team2?.sportTeamStudent?.forEach(async (ele) => {
-          ele.studentSportsEventMatch?.forEach(async (res) => {
-            if(`${res.eventMatch}` === `${match._id}`){
-              res.rankTitle = 'Runner'
+          await student.save()
+        }
+        for (let i = 0; i < team2.sportTeamStudent.length; i++) {
+          const student = await Student.findById({_id: team2.sportTeamStudent[i].student._id});
+          student.studentSportsEventMatch?.forEach((ele) => {
+            if(`${ele.eventMatch}` === `${match._id}`){
+              ele.rankTitle = 'Runner'
             }
           })
-          await ele.save()
-        })
+          await student.save()
+        }
       } catch(e) {
         console.log(e);
       }
@@ -865,7 +885,11 @@ exports.updateInterMatchTeam = async(req, res) =>{
         var team = await SportTeam.findById({ _id: `${teamPlayer}` })
         .populate({
           path: 'sportTeamStudent',
-          select: 'studentSportsEventMatch'
+          select: 'studentSportsEventMatch',
+          populate: {
+            path: 'student',
+            select: '_id extraPoints'
+          }
         });
         match.sportOpponentPlayer = teamOpponentPlayer;
         match.matchStatus = "Completed";
@@ -875,17 +899,19 @@ exports.updateInterMatchTeam = async(req, res) =>{
           if (studentRankTitle === "Winner") {
             team.teamPoints += 40;
             for (let i = 0; i < team.sportTeamStudent.length; i++) {
-              const student = await Student.findById({_id: team.sportTeamStudent[i]._id});
+              const student = await Student.findById({_id: team.sportTeamStudent[i].student._id});
               student.extraPoints += 40;
               await student.save();
             }
+            match.sportWinnerTeam = team._id
           } else if (studentRankTitle === "Runner") {
             team.teamPoints += 25;
             for (let i = 0; i < team.sportTeamStudent.length; i++) {
-              const student = await Student.findById({_id: team.sportTeamStudent[i]._id});
+              const student = await Student.findById({_id: team.sportTeamStudent[i].student._id});
               student.extraPoints += 25;
               await student.save();
             }
+            match.sportRunnerTeam = team._id
           }
         }
         await Promise.all([
@@ -893,14 +919,15 @@ exports.updateInterMatchTeam = async(req, res) =>{
           team.save()
         ])
         res.status(200).send({ message: "Inter Team Match Result Updated", match_status: true });
-        team?.sportTeamStudent?.forEach(async (ele) => {
-          ele.studentSportsEventMatch?.forEach(async (res) => {
-            if(`${res.eventMatch}` === `${match._id}`){
-              res.rankTitle = studentRankTitle
+        for (let i = 0; i < team.sportTeamStudent.length; i++) {
+          const student = await Student.findById({_id: team.sportTeamStudent[i].student._id});
+          student.studentSportsEventMatch?.forEach((ele) => {
+            if(`${ele.eventMatch}` === `${match._id}`){
+              ele.rankTitle = studentRankTitle
             }
           })
-          await ele.save()
-        })
+          await student.save()
+        }
       } catch(e) {
         console.log(e);
       }
@@ -976,8 +1003,10 @@ exports.updateInterMatchFree = async(req, res) =>{
         if (match.sportEventMatchCategoryLevel === "Final Match") {
           if (studentRankTitle === "Winner") {
             student.extraPoints += 40;
+            match.sportWinner = student._id
           } else if (studentRankTitle === "Runner") {
             student.extraPoints += 25;
+            match.sportRunner = student._id
           }
         }
         await Promise.all([

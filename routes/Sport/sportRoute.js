@@ -65,27 +65,19 @@ router.get('/match/detail/:mid', catchAsync(Sport.retrieveMatchDetail))
 router.post('/match/:mid/update/intra/individual', catchAsync(Sport.updateIntraMatchIndividual))
 
 // Update Score of Inter Match (Individual)
-router.post(
-  "/match/:mid/update/inter/individual",
-  isLoggedIn,
-  catchAsync(Sport.updateInterMatchIndividual)
-);
+router.post("/match/:mid/update/inter/individual", catchAsync(Sport.updateInterMatchIndividual));
 
 // Update Score of Intra Match (Team)
-router.post('/match/:mid/update/intra/team', isLoggedIn, catchAsync(Sport.updateIntraMatchTeam))
+router.post('/match/:mid/update/intra/team', catchAsync(Sport.updateIntraMatchTeam))
 
 // Update Score of Inter Match (Team)
-router.post(
-  "/match/:mid/update/inter/team",
-  isLoggedIn,
-  catchAsync(Sport.updateInterMatchTeam)
-);
+router.post("/match/:mid/update/inter/team", catchAsync(Sport.updateInterMatchTeam));
 
 // Update Score of Intra Match (Free)
-router.post('/match/:mid/update/intra/free', isLoggedIn, catchAsync(Sport.updateIntraMatchFree))
+router.post('/match/:mid/update/intra/free', catchAsync(Sport.updateIntraMatchFree))
 
 // Update Score of Inter Match (Free)
-router.post('/match/:mid/update/inter/free', isLoggedIn, catchAsync(Sport.updateInterMatchFree))
+router.post('/match/:mid/update/inter/free', catchAsync(Sport.updateInterMatchFree))
 
 // Event Update
 router.patch('event/:eid/update', catchAsync(Sport.updateEvent))

@@ -67,10 +67,10 @@ const sportEventMatchSchema = new mongoose.Schema({
             ref: 'Student'
         }
     ],
-    sportPlayer: { 
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Student'
-    },
+    // sportPlayer: { 
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: 'Student'
+    // },
     sportOpponentPlayer: { type: String },
     rankMatch: { type: String },
     sportInterParticipants: [

@@ -40,13 +40,19 @@ exports.getUniversalSubjectProfile = async (req, res) => {
       })
       .populate({
         path: "universalClass",
-        select: "className classTitle",
+        select: "className classTitle masterClassName",
       })
       .populate({
         path: "universalSubject",
-        select: "subjectName",
+        select: "subjectName subjectMasterName",
       })
-      .select("universalDepartment universalClass universalSubject")
+      .populate({
+        path: "class",
+        select: "masterClassName",
+      })
+      .select(
+        "universalDepartment universalClass universalSubject subjectMasterName class"
+      )
       .lean()
       .exec();
     if (!subject) {
@@ -67,7 +73,7 @@ exports.getUniversalSubjectProfile = async (req, res) => {
 exports.getUniversalDepartment = async (req, res) => {
   try {
     const universalInstitute = await InstituteAdmin.find({
-      isUniversal: { $neq: "Not Assigned" },
+      isUniversal: { $nin: ["Not Assigned"] },
     })
       .populate({
         path: "depart",
@@ -76,7 +82,7 @@ exports.getUniversalDepartment = async (req, res) => {
       .select("depart")
       .lean()
       .exec();
-    if (!universalInstitute) {
+    if (!universalInstitute?.[0]?.depart?.length) {
       res.status(200).send({
         message: "This universal institute not assign till now... 😎😎",
         universalDepartment: [],
@@ -84,7 +90,7 @@ exports.getUniversalDepartment = async (req, res) => {
     } else {
       res.status(200).send({
         message: "All universal institute related department 🧨🧨",
-        universalDepartment: universalInstitute.depart,
+        universalDepartment: universalInstitute[0].depart,
       });
     }
   } catch (e) {

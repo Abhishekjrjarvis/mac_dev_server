@@ -19,7 +19,7 @@ const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require('../../Firebase/firebase')
 const Post = require('../../models/Post')
 const invokeMemberTabNotification = require('../../Firebase/MemberTab')
-
+const { new_admission_recommend_post } = require('../../Service/AutoRefreshBackend')
 
 exports.retrieveAdmissionAdminHead = async(req, res) =>{
     try{
@@ -196,6 +196,7 @@ exports.fetchAdmissionQuery = async(req, res) =>{
 exports.retrieveAdmissionNewApplication = async(req, res) =>{
     try{
         const { aid } = req.params
+        const { expand } = req.query
         req.body.admissionFee = parseInt(req.body.admissionFee)
         req.body.applicationSeats = parseInt(req.body.applicationSeats)
         const admission = await Admission.findById({_id: aid })
@@ -232,55 +233,7 @@ exports.retrieveAdmissionNewApplication = async(req, res) =>{
         post.new_application = newApply._id
         post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
         await Promise.all([ post.save(), institute.save() ])
-        if (institute.isUniversal === "Not Assigned") {
-          if (institute.followers.length >= 1) {
-            if (post.postStatus === "Anyone") {
-              institute.followers.forEach(async (ele) => {
-                ele.posts.push(post._id);
-                await ele.save();
-              });
-            } else {
-            }
-          }
-          if (institute.userFollowersList.length >= 1) {
-            if (post.postStatus === "Anyone") {
-              institute.userFollowersList.forEach(async (ele) => {
-                ele.userPosts.push(post._id);
-                await ele.save();
-              });
-            } else {
-              if (institute.joinedUserList.length >= 1) {
-                institute.joinedUserList.forEach(async (ele) => {
-                  ele.userPosts.push(post._id);
-                  await ele.save();
-                });
-              }
-            }
-          }
-        } else if (institute.isUniversal === "Universal") {
-          const all = await InstituteAdmin.find({ status: "Approved" });
-          const user = await User.find({ userStatus: "Approved" });
-          if (post.postStatus === "Anyone") {
-            all.forEach(async (el) => {
-              if (el._id !== institute._id) {
-                el.posts.push(post._id);
-                await el.save();
-              }
-            });
-            user.forEach(async (el) => {
-              el.userPosts.push(post._id);
-              await el.save();
-            });
-          }
-          if (post.postStatus === "Private") {
-            all.forEach(async (el) => {
-              if (el._id !== institute._id) {
-                el.posts.push(post._id);
-                await el.save();
-              }
-            });
-          }
-        }
+        new_admission_recommend_post(institute?._id, post?._id, expand)
     }
     catch(e){
       console.log(e)

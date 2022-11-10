@@ -6,6 +6,7 @@ const Election = require('../models/Elections/Election')
 const Student = require('../models/Student')
 const StudentNotification = require('../models/Marks/StudentNotification')
 const invokeMemberTabNotification = require('../Firebase/MemberTab')
+const Post = require('../models/Post')
 
 exports.check_poll_status = async(req, res) => {
     var r_date = new Date();
@@ -334,8 +335,10 @@ exports.recommendedAllIns = async(req, res) =>{
                 refresh_recommend_user.push(...recommend?.joinedUserList)
             })
 
-            refresh_recommend_user?.splice(`${user?._id}`, 1)
-            var valid_recommend_user = remove_redundancy_recommend(refresh_recommend_user, user?.userFollowers, user?.userCircle)
+            var refresh_recommend_ref = refresh_recommend_user?.filter(function (user_ref) {
+                return `${user_ref}` !== `${user?._id}`;
+            });
+            var valid_recommend_user = remove_redundancy_recommend(refresh_recommend_ref, user?.userFollowers, user?.userCircle)
             const recommend_user = await User.find({_id: { $in: valid_recommend_user}})
             .select('userLegalName username followerCount photoId profilePhoto one_line_about')
             .lean()
@@ -345,7 +348,7 @@ exports.recommendedAllIns = async(req, res) =>{
             recommend_ins?.forEach((rem_rec_red) =>{
                 if(user?.userInstituteFollowing?.includes(rem_rec_red?._id)) return
                 var data_cal = distanceCal(user?.user_latitude, user?.user_longitude, rem_rec_red?.ins_latitude, rem_rec_red?.ins_longitude)
-                rem_rec_red.ins_distance = data_cal.toFixed(2)
+                rem_rec_red.ins_distance = data_cal.toFixed(3)
                 rec_user.push(rem_rec_red)
             })
             shuffleArray(rec_user)
@@ -359,4 +362,85 @@ exports.recommendedAllIns = async(req, res) =>{
     catch(e){
         console.log(e)
     }
+}
+
+
+exports.recommendedAllAdmissionPost = async(req, res) =>{
+    try{
+        var recommend = []
+        const { id } = req.params
+        const { expand_search, post_query } = req.query
+        const expand = expand_search ? expand_search : 50
+        const ins = await InstituteAdmin.findById({_id: id}).select('ins_latitude ins_longitude')
+
+        const post = await Post.findById({_id: post_query})
+        var user = await User.find({})
+        .select('user_latitude user_longitude userPosts')
+        
+        user?.forEach(async (auth) => {
+            if(auth.userPosts?.includes(post?._id)){
+                auth.userPosts.pull(post?._id)    
+            }
+            await auth.save()
+        })
+
+        if(user?.length > 0){
+            user.forEach((rec) => {
+                recommend.push(distanceRecommend(ins?.ins_latitude, ins?.ins_longitude, rec?.user_latitude, rec?.user_longitude, rec?._id, expand)) 
+            })
+        }
+        recommend = recommend.sort(compareDistance)
+        var refresh_recommend = recommend.filter(recomm => recomm != null);
+        const recommend_user_feed = await User.find({_id: { $in: refresh_recommend }})
+        recommend_user_feed?.forEach(async (feed) => {
+            if(feed.userPosts?.includes(post?._id)){
+
+            }
+            else{
+                feed.userPosts.push(post?._id)
+            }
+            await feed.save()
+        })
+        res.status(200).send({ message: 'Recommend App Author Increase visibility by expand area', show: true})
+    }
+    catch(e){
+        console.log(e)
+    }
+}
+
+
+exports.new_admission_recommend_post = async(id, post_query, expand_search) => {
+    var recommend = []
+    const expand = expand_search ? expand_search : 50
+    const ins = await InstituteAdmin.findById({_id: id}).select('ins_latitude ins_longitude')
+
+    const post = await Post.findById({_id: post_query})
+    var user = await User.find({})
+    .select('user_latitude user_longitude userPosts')
+    
+    user?.forEach(async (auth) => {
+        if(auth.userPosts?.includes(post?._id)){
+            auth.userPosts.pull(post?._id)    
+        }
+        await auth.save()
+    })
+
+    if(user?.length > 0){
+        user.forEach((rec) => {
+            recommend.push(distanceRecommend(ins?.ins_latitude, ins?.ins_longitude, rec?.user_latitude, rec?.user_longitude, rec?._id, expand)) 
+        })
+    }
+    recommend = recommend.sort(compareDistance)
+    var refresh_recommend = recommend.filter(recomm => recomm != null);
+    const recommend_user_feed = await User.find({_id: { $in: refresh_recommend }})
+    recommend_user_feed?.forEach(async (feed) => {
+        if(feed.userPosts?.includes(post?._id)){
+
+        }
+        else{
+            feed.userPosts.push(post?._id)
+        }
+        await feed.save()
+    })
+    return true
 }

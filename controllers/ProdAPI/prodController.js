@@ -5,15 +5,21 @@ const InstituteAdmin = require('../../models/InstituteAdmin')
 
 exports.allPosts = async(req, res) => {
     try{
-        const post = await Post.find({ $and: [{ postType: 'Repost'}, { authorUserName: 'ankush123'}]})
-        .select('id authorUserName postType trend_category')
+        const user = await User.find({})
+        .select('id username userPosts')
         .sort('-createdAt')
         .lean()
         .exec()
-        res.status(200).send({ message: 'All Post Id', allIds: post, count: post?.length})
-    }
-    catch{
 
+        var query = []
+        user?.forEach(async (post) => {
+            const posts = await Post.find({_id: { $in: post?.userPosts}}).select('_id')
+            query.push(...posts)
+        })
+        res.status(200).send({ message: 'All Post Id', allIds: user, count: user?.length, query: query})
+    }
+    catch(e){
+        console.log(e)
     }
 }
 

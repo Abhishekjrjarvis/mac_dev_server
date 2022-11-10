@@ -16312,3 +16312,133 @@ paths:
       responses:
         "200":
           description: OK
+
+  /api/v1/sport/arts/detail/{id}/all/class:
+    get:
+      tags:
+        - Sport and Arts Module Query
+      summary: Get Sport All Classes (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Sport & Arts id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/sport/arts/class/{cid}/all/student:
+    get:
+      tags:
+        - Sport and Arts Module Query
+      summary: Get Sport Classes All Student (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Sport & Arts Class id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/sport/arts/class/{cid}/all/team:
+    get:
+      tags:
+        - Sport and Arts Module Query
+      summary: Get Sport Classes All Team (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Sport & Arts Class id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/sport/arts/student/event/query/{sid}/all:
+    get:
+      tags:
+        - Sport and Arts Module Query
+      summary: One Student All Event in Extra-Skill (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/sport/arts/student/event/query/{sid}/all/match/{eid}:
+    get:
+      tags:
+        - Sport and Arts Module Query
+      summary: One Student One Event All Event Matches in Extra-Skill (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: This is Sport Event id
+      responses:
+        "200":
+          description: OK

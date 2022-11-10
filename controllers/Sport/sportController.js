@@ -66,7 +66,7 @@ exports.retrieveSportDetail = async(req, res) =>{
     try {
         const { id } = req.params;
         const sport = await Sport.findById({ _id: id })
-          .lean()
+          .select('sportName sportPhoneNumber sportAbout sportEmail photoId coverId photo cover sportClassCount sportEventCount sportMemberCount sportTeamCount')
           .populate({
             path: "sportHead",
             select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto'
@@ -75,15 +75,9 @@ exports.retrieveSportDetail = async(req, res) =>{
             path: "institute",
             select: 'insName'
           })
-          .populate({
-            path: "sportClass",
-            select: 'sportClassName photoId photo',
-            populate: {
-              path: "sportStudent",
-              select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto'
-            },
-          })
-        res.status(200).send({ message: "Let's Explore Sport data 👍", sport });
+          .lean()
+          .exec()
+        res.status(200).send({ message: "All Master Sport Details  👍", sport });
       } catch(e) {
         console.log(e);
       }
@@ -408,10 +402,10 @@ exports.getInterMatchEvent = async(req, res) =>{
         event.sportEventMatch.push(match._id);
         event.sportEventMatchCount += 1
         match.sportEvent = event._id;
-        if(sportPlayer !== ''){
+        if(sportPlayer){
           match.sportPlayer1 = sportPlayer;
         }
-        else if(sportTeam !== ''){
+        else if(sportTeam){
           match.sportTeam1 = sportTeam;
         }
         else if(sportPlayerFree?.length >= 1){
@@ -422,11 +416,14 @@ exports.getInterMatchEvent = async(req, res) =>{
             match.sportFreePlayer.push(student._id);
           }
         }
+        else{
+          console.log('data')
+        }
         await Promise.all([
           event.save(),
           match.save()
         ])
-        res.status(200).send({ message: "Inter Match Created", match: match._id, status: true });
+        res.status(200).send({ message: "Inter Match Created", match: match, status: true });
         const student = await Student.find({ $and: [{institute: `${sport.institute}`}, { studentStatus: 'Approved'}]})
         .select('id')
         .populate({
@@ -463,14 +460,7 @@ exports.retrieveSportClassDetail = async(req, res) =>{
     try {
         const { cid } = req.params;
         const classes = await SportClass.findById({ _id: cid })
-          .populate({
-            path: "sportStudent",
-            select: 'studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId',
-            populate: {
-              path: 'sportTeam',
-              select: 'sportClassTeamName'
-            }
-          })
+          .select('sportClassName sportClassEmail sportClassPhoneNumber sportClassAbout photoId photo coverId cover sportStudentCount sportTeamCount createdAt')
           .populate({
             path: "sportClassHead",
             select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto'
@@ -483,19 +473,11 @@ exports.retrieveSportClassDetail = async(req, res) =>{
             path: "sportDepartment",
             select: 'sportName'
           })
-          .populate({
-            path: "sportTeam",
-            select: 'sportClassTeamName sportTeamStudentCount',
-            populate: {
-              path: 'sportTeamCaptain',
-              select: 'studentFirstName studenMiddleName studentLastName'
-            }
-          });
+          .lean()
+          .exec()
         res.status(200).send({ message: "One Sport Class Data", classes });
       } catch(e) {
-        console.log(
-          `Error`, e.message
-        );
+        console.log(e);
       }
 }
 
@@ -523,6 +505,59 @@ exports.updateStudentSportClass = async(req, res) =>{
       } catch(e) {
         console.log(e);
       }
+}
+
+exports.retrieveAllSportStudent = async(req, res) => {
+  try{
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const { cid } = req.params
+    const skip = (page - 1) * limit;
+    const classes = await SportClass.findById({_id: cid})
+    .select('sportStudent')
+
+    const student_query = await Student.find({ _id: { $in: classes?.sportStudent}})
+    .limit(limit)
+    .skip(skip)
+    .select('studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto')
+
+    if(student_query?.length > 0){
+      res.status(200).send({ message: 'All student of Sport Classes', student_query })
+    }
+    else{
+      res.status(200).send({ message: 'Nope...', student_query: [] })
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.retrieveAllSportTeam = async(req, res) => {
+  try{
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const { cid } = req.params
+    const skip = (page - 1) * limit;
+    const classes = await SportClass.findById({_id: cid})
+    .select('sportTeam')
+
+    const team_query = await SportTeam.find({ _id: { $in: classes?.sportTeam}})
+    .sort('-createdAt')
+    .limit(limit)
+    .skip(skip)
+    .select('sportClassTeamName sportTeamStudentCount rankTitle teamPoints')
+
+    if(team_query?.length > 0){
+      res.status(200).send({ message: 'All Team of Sport Classes', team_query })
+    }
+    else{
+      res.status(200).send({ message: 'Nope...', team_query: [] })
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
 }
 
 exports.updateSportClassInfo = async(req, res) =>{
@@ -566,46 +601,13 @@ exports.removeStudentSportClass = async(req, res) =>{
     }
 }
 
-
-// exports.getStudentSportClass = async(req, res) =>{
-//     try {
-//         const { cid, id } = req.params;
-//         const classes = await SportClass.findById({ _id: cid });
-//         const student = await Student.findById({ _id: id });
-//         classes.sportStudent.push(student);
-//         student.sportClass = classes;
-//         await classes.save();
-//         await student.save();
-//         res.status(200).send({ message: "Student Added" });
-//       } catch(e) {
-//         console.log(
-//           `Error`, e.message
-//         );
-//       }
-// }
-
-// exports.removeStudentSportClass = async(req, res) =>{
-//     try {
-//         const { cid, id } = req.params;
-//         const classes = await SportClass.findById({ _id: cid });
-//         const student = await Student.findById({ _id: id });
-//         classes.sportStudent.pull(student);
-//         student.sportClass = "";
-//         await classes.save();
-//         await student.save();
-//         res.status(200).send({ message: "Student Removed" });
-//       } catch(e) {
-//         console.log(
-//           `Error`, e.message
-//         );
-//       }
-// }
-
 exports.updateSportTeam = async(req, res) =>{
     try {
         const { request, captain, cid } = req.body;
         const classes = await SportClass.findById({ _id: cid });
-        if(request?.length > 0){
+        const sport = await Sport.findById({_id: `${classes.sportDepartment}`})
+        const parsedRequest = JSON.parse(request)
+        if(parsedRequest?.length > 0){
           var team = new SportTeam({ ...req.body });
           const file = req.file
           if(file){
@@ -613,8 +615,8 @@ exports.updateSportTeam = async(req, res) =>{
             team.sportTeamPhoto = results.key;
             team.photoId = "1";
           }
-          for (let i = 0; i < request.length; i++) {
-            const student = await Student.findById({_id: request[i] });
+          for (let i = 0; i < parsedRequest.length; i++) {
+            const student = await Student.findById({_id: parsedRequest[i] });
             team.sportTeamStudent.push({
               student: student._id,
               asCaptain: `${student._id}` === `${captain}` ? 'Captain' : 'Member'
@@ -625,11 +627,13 @@ exports.updateSportTeam = async(req, res) =>{
           }
           classes.sportTeam.push(team._id);
           classes.sportTeamCount += 1
+          sport.sportTeamCount += 1
           team.sportClass = classes._id;
           team.sportTeamCaptain = `${captain}`
           await Promise.all([
             classes.save(),
-            team.save()
+            team.save(),
+            sport.save()
           ])
           res.status(200).send({ message: "Team Created", team: team._id, status: true });
         }
@@ -648,7 +652,7 @@ exports.retrieveMatchDetail = async(req, res) =>{
           .select('sportEventMatchName studentOpponentPlayer matchStatus sportInterFreePlayer sportInterPlayer1 sportInterTeam1')
           .populate({
             path: "sportFreePlayer",
-            select: 'studentFirstName studentMiddleName studentLastName'
+            select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto'
           })
           .populate({
             path: "sportEvent",
@@ -656,7 +660,7 @@ exports.retrieveMatchDetail = async(req, res) =>{
           })
           .populate({
             path: "sportPlayer1",
-            select: 'studentFirstName studentMiddleName studentLastName'
+            select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto'
           })
           .populate({
             path: "sportTeam1",
@@ -664,7 +668,7 @@ exports.retrieveMatchDetail = async(req, res) =>{
           })
           .populate({
             path: "sportPlayer2",
-            select: 'studentFirstName studentMiddleName studentLastName'
+            select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto'
           })
           .populate({
             path: "sportTeam2",

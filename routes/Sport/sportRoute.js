@@ -21,11 +21,7 @@ router.get("/detail/:id/event", catchAsync(Sport.retrieveSportDetailEvent));
 
 router.post("/ins/:id/sport/:sid/class", catchAsync(Sport.getSportClass));
 
-router.post(
-  "/:sid/event",
-  upload.single("file"),
-  catchAsync(Sport.getSportEvent)
-);
+router.post("/:sid/event", upload.single("file"), catchAsync(Sport.getSportEvent));
 
 router.patch("/info/:sid", catchAsync(Sport.updateSportInfo));
 
@@ -35,24 +31,29 @@ router.get("/event/detail/:id", catchAsync(Sport.retrieveSportEventDetail));
 // All Event Match
 router.get("/event/:eid/match", catchAsync(Sport.retrieveSportEventQuery));
 
-// Add Intra Match to the Event
-router.post('/event/:eid/match/intra', catchAsync(Sport.getIntraMatchEvent))
-
-router.post('/event/:eid/match/inter', catchAsync(Sport.getInterMatchEvent))
-
-router.get("/class/detail/:cid", catchAsync(Sport.retrieveSportClassDetail));
-
 // Add Student
 router.post('/class/:cid/student/add', catchAsync(Sport.updateStudentSportClass))
+
+// All Sport Class Student
+router.get("/class/:cid/all/student", catchAsync(Sport.retrieveAllSportStudent));
+
+// All Sport Class Team
+router.get("/class/:cid/all/team", catchAsync(Sport.retrieveAllSportTeam));
 
 // Remove Student
 router.post('/class/:cid/student/remove', catchAsync(Sport.removeStudentSportClass))
 
-router.patch('/class/info/:cid', catchAsync(Sport.updateSportClassInfo))
+router.get("/class/detail/:cid", catchAsync(Sport.retrieveSportClassDetail));
 
+router.patch('/class/info/:cid', catchAsync(Sport.updateSportClassInfo))
 
 // Create Class Team
 router.post('/class/team', upload.single('file'), catchAsync(Sport.updateSportTeam))
+
+// Add Intra Match to the Event
+router.post('/event/:eid/match/intra', catchAsync(Sport.getIntraMatchEvent))
+
+router.post('/event/:eid/match/inter', catchAsync(Sport.getInterMatchEvent))
 
 // Match Detail
 router.get('/match/detail/:mid', catchAsync(Sport.retrieveMatchDetail))

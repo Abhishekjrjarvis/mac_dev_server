@@ -1816,3 +1816,92 @@ exports.retrieveUserRoleQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.updateUserUnBlockInstitute = async (req, res) => {
+  try {
+    var user_session = req.tokenData && req.tokenData.userId;
+    const { blockId } = req.query
+    var user = await User.findById({ _id: user_session });
+    var block_ins = await InstituteAdmin.findById({ _id: blockId });
+    if(block_ins?.isUniversal === 'Universal'){
+      res.status(200).send({ message: 'Not able to block Universal A/c', unblock: false})
+    }
+    else{
+      if(user?.user_block_institute?.includes(`${block_ins._id}`)){
+        user.user_block_institute.pull(block_ins._id)
+        if(user.blockCount >=1 ){
+          user.blockCount -= 1
+        }
+        await Promise.all([ user.save(), block_ins.save() ])
+        res.status(200).send({ message: "You are UnBlocked able to follow", unblock: true });
+      }
+      else{
+        res.status(200).send({ message: "You are Already UnBlocked able to follow" });
+      }
+    }
+  } catch (e) {
+    console.log('UUBI', e)
+  }
+};
+
+exports.retrieveUserReportBlock = async (req, res) => {
+  try {
+    var user_session = req.tokenData && req.tokenData.userId;
+    const { blockId } = req.query
+    var user = await User.findById({ _id: user_session });
+    var block_ins = await InstituteAdmin.findById({ _id: blockId });
+    const staff = await Staff.find({ $and: [{ _id: { $in: user?.staff}}, {staffStatus: 'Approved'}, {institute: blockId}]})
+    var flag = staff?.length > 0 ? true : false
+    
+    if(block_ins?.isUniversal === 'Universal'){
+      res.status(200).send({ message: 'Not able to block Universal A/c', unblock: false})
+    }
+    else{
+      if(flag){
+        if(user?.user_block_institute?.includes(`${block_ins._id}`)){
+          res.status(200).send({ message: "You are Already Blocked able to follow / circle " });
+        }
+        else{
+          user.user_block_institute.push(block_ins._id)
+          if(user.blockCount >=1 ){
+            user.blockCount += 1
+          }
+          await Promise.all([ user.save(), block_ins.save() ])
+          res.status(200).send({ message: "You are Blocked not able to follow", block: true });
+          try {
+            block_ins.followers?.pull(user_session);
+            user.userInstituteFollowing?.pull(blockId);
+            if(user.followingUICount > 0 ){
+              user.followingUICount -= 1;
+            }
+            if(block_ins.followersCount > 0 ){
+              block_ins.followersCount -= 1;
+            }
+            
+            const post = await Post.find({ author: `${block_ins._id}` });
+            post.forEach(async (ele) => {
+              if(user?.userPosts?.includes(`${ele._id}`)){
+                user.userPosts.pull(ele._id);
+              }
+            });
+            await user.save();
+
+            const post_count = await Post.find({ author: `${block_ins._id}` });
+            post_count.forEach(async (ele) => {
+              ele.authorFollowersCount = block_ins.followersCount;
+              await ele.save();
+            });
+            //
+          } catch {
+            console.log(e)
+          }
+        }
+      }
+      else{
+        res.status(200).send({ message: "You're the member of this Institute ", unblock: false})
+      }
+    }
+  } catch (e) {
+    console.log('UUBU', e)
+  }
+};

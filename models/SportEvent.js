@@ -4,6 +4,7 @@ const SportEventMatch = require('./SportEventMatch')
 const sportEventSchema = new mongoose.Schema({
     sportEventName: { type: String, required: true },
     sportEventCategory: { type: String, required: true },
+    sportEventCategoryLevel: { type: String },
     sportEventPlace: { type: String, required: true },
     sportEventDate: { type: String, required: true },
     sportEventDescription: { type: String, required: true },

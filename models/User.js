@@ -337,6 +337,12 @@ const userSchema = new mongoose.Schema({
       ref: 'User'
     }
   ],
+  user_block_institute: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'InstituteAdmin'
+    }
+  ],
   blockCount: {
     type: Number,
     default: 0

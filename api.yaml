@@ -989,27 +989,7 @@ paths:
         "200":
           description: OK
 
-  /api/v1/user/block/user/:
-    patch:
-      tags:
-        - User Profile API
-      summary: Block User to User Api -(verified)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: query
-          name: blockId # Note the name is the same as in the path
-          required: true
-          schema:
-            type: string
-          description: Enter Blocked User Id
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/user/unblock/user/:
+  /api/v1/user/unblock/user:
     patch:
       tags:
         - User Profile API
@@ -1045,6 +1025,46 @@ paths:
           schema:
             type: string
           description: Enter Blocked User Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/user/unblock/institute:
+    patch:
+      tags:
+        - User Profile API
+      summary: UnBlock User to Institute Api -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: blockId # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: Enter Blocked Institute Id
+      responses:
+        "200":
+          description: OK
+  
+  /api/v1/user/report/block/institute:
+    patch:
+      tags:
+        - User Profile API
+      summary: Block User to Institute Api -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: blockId # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: Enter Blocked Institute Id
       responses:
         "200":
           description: OK
@@ -15945,6 +15965,11 @@ paths:
           type: string
           required: true
           description: Enter Your Sport Event Category
+        - in: formData
+          name: sportEventCategoryLevel
+          type: string
+          required: true
+          description: Enter Your Sport Event Category ("Final" || "Other")
         - in: formData
           name: sportEventPlace
           type: string

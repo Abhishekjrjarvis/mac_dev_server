@@ -98,7 +98,7 @@ exports.retrieveSportDetailEvent = async(req, res) =>{
     .sort('-createdAt')
     .limit(limit)
     .skip(skip)
-    .select('sportEventName sportEventCategory sportEventPlace sportEventDate sportEventDescription sportEventProfilePhoto photoId')
+    .select('sportEventName sportEventCategory sportEventCategoryLevel sportEventPlace sportEventDate sportEventDescription sportEventProfilePhoto photoId')
     
     if(event?.length > 0 ){
       res.status(200).send({ message: "Let's Explore Sport Event data 👍", event });
@@ -1091,7 +1091,7 @@ exports.renderStudentSideEvent = async(req, res) =>{
     .select('_id')
     .populate({
       path: 'sportEvent',
-      select: 'sportEventName sportEventStatus sportEventProfilePhoto photoId sportEventDate sportEventCategory sportEventPlace'
+      select: 'sportEventName sportEventStatus sportEventProfilePhoto photoId sportEventDate sportEventCategory sportEventCategoryLevel sportEventPlace'
     })
     .lean()
     .exec()
@@ -1109,21 +1109,50 @@ exports.renderStudentSideMatch = async(req, res) =>{
     .select('_id')
     .populate({
       path: 'studentSportsEventMatch',
-      populate: {
-        path: 'eventMatch',
-        populate: {
-          path: 'sportEvent',
-          select: '_id'
-        }
-      }
+      select: 'eventMatch',
     })
-    .lean()
-    .exec()
 
-    var valid_match = student?.studentSportsEventMatch?.filter((val) =>{
-      if(`${val.eventMatch.sportEvent._id}` === `${eid}`) return val
+    var match_data = []
+    student?.studentSportsEventMatch?.forEach((each) => {
+      match_data.push(each?.eventMatch)
     })
-    res.status(200).send({ message: 'Match Detail Query', match_query: valid_match })
+
+    if(match_data?.length > 0){
+      const match = await SportEventMatch.find({_id: { $in: match_data }})
+      .select('rankMatch matchStatus sportOpponentPlayer sportEventMatchName sportEventMatchDate sportEventMatchCategory sportEventMatchCategoryLevel')
+      .populate({
+        path: 'sportWinner',
+        select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto'
+      })
+      .populate({
+        path: 'sportWinnerTeam',
+        select: 'sportClassTeamName teamPoints rankTitle'
+      })
+      .populate({
+        path: 'sportRunner',
+        select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto'
+      })
+      .populate({
+        path: 'sportRunnerTeam',
+        select: 'sportClassTeamName teamPoints rankTitle'
+      })
+      .populate({
+        path: 'sportParticipants',
+        select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto'
+      })
+      .populate({
+        path: 'sportEvent',
+        select: '_id'
+      })
+      var valid_match = match?.filter((val) =>{
+        if(`${val.sportEvent._id}` === `${eid}`) return val
+      })
+      
+      res.status(200).send({ message: 'Match Detail Query', match_query: valid_match })
+    }
+    else{
+      res.status(200).send({ message: 'Student Not Take Part In Event Match', match_query: []})
+    }
   }
   catch(e){
     console.log(e)

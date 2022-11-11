@@ -232,6 +232,10 @@ router.patch("/unblock/user", isLoggedIn, catchAsync(User.updateUserUnBlock));
 
 router.patch('/report/block/user', isLoggedIn, catchAsync(User.retrieveUserReportBlock))
 
+router.patch("/unblock/institute", isLoggedIn, catchAsync(User.updateUserUnBlockInstitute));
+
+router.patch('/report/block/institute', isLoggedIn, catchAsync(User.retrieveUserReportBlock))
+
 router.patch(
   "/:uid/location/permission",
   catchAsync(User.retrieveUserLocationPermission)

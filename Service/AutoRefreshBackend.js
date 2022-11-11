@@ -377,12 +377,12 @@ exports.recommendedAllAdmissionPost = async(req, res) =>{
         var user = await User.find({})
         .select('user_latitude user_longitude userPosts')
         
-        user?.forEach(async (auth) => { 
-            if(auth.userPosts?.includes(post?._id)){
-                auth.userPosts.pull(post?._id)    
-            }
-            await auth.save()
-        })
+        // user?.forEach(async (auth) => { 
+        //     if(auth.userPosts?.includes(post?._id)){
+        //         auth.userPosts.pull(post?._id)    
+        //     }
+        //     await auth.save()
+        // })
 
         if(user?.length > 0){
             user.forEach((rec) => {

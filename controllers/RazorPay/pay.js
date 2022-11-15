@@ -1,3 +1,4 @@
+const Razorpay = require("razorpay");
 var crypto = require("crypto");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
 const axios = require("axios");
@@ -6,7 +7,11 @@ const {
   feeInstituteFunction,
   admissionInstituteFunction,
 } = require("./paymentModule");
-const instance = require("../../server");
+
+var instance = new Razorpay({
+  key_id: process.env.RAZOR_KEY_ID,
+  key_secret: process.env.RAZOR_KEY_SECRET,
+});
 
 exports.renderKeys = async (req, res) => {
   try {

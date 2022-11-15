@@ -13,7 +13,6 @@ const mongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
 var fs = require("fs");
 const xlsx = require("xlsx");
-const Razorpay = require("Razorpay");
 
 //======================== All Routes ========================
 const {
@@ -231,12 +230,6 @@ setInterval(async () => {
 // }
 
 // console.log(convertExcelFileToJsonUsingXlsx())
-var instance = new Razorpay({
-  key_id: process.env.RAZOR_KEY_ID,
-  key_secret: process.env.RAZOR_KEY_SECRET,
-});
-
-module.exports = instance;
 
 app.get("*", (req, res) => {
   res.status(404).send("Page Not Found...");

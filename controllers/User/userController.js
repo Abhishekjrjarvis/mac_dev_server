@@ -9,11 +9,11 @@ const InsAnnouncement = require("../../models/InsAnnouncement");
 const bcrypt = require("bcryptjs");
 const Answer = require("../../models/Question/Answer");
 const Post = require("../../models/Post");
-const Comment = require('../../models/Comment')
-const ReplyComment = require('../../models/ReplyComment/ReplyComment')
-const AnswerReply = require('../../models/Question/AnswerReply')
+const Comment = require("../../models/Comment");
+const ReplyComment = require("../../models/ReplyComment/ReplyComment");
+const AnswerReply = require("../../models/Question/AnswerReply");
 const Chat = require("../../models/Chat/Chat");
-const StudentNotification = require('../../models/Marks/StudentNotification')
+const StudentNotification = require("../../models/Marks/StudentNotification");
 
 const {
   getFileStream,
@@ -30,19 +30,25 @@ const { shuffleArray } = require("../../Utilities/Shuffle");
 exports.retrieveProfileData = async (req, res) => {
   try {
     const { id } = req.params;
-    var totalUpVote = 0
-    const user = await User.findById({ _id: id })
-      .select(
-        "userLegalName photoId show_suggestion is_mentor questionCount blockedBy blockCount blockStatus user one_line_about recoveryMail answerQuestionCount recentChat profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
-      )
-      const answers = await Answer.find({ author: id })
-      for(let up of answers){
-        totalUpVote += up.upVoteCount
-      }
-      if(user && user?.userPosts?.length < 1){
-        var post = []
-      }
-    res.status(200).send({ message: "Limit User Profile Data ", user, upVote: totalUpVote, post });
+    var totalUpVote = 0;
+    const user = await User.findById({ _id: id }).select(
+      "userLegalName photoId show_suggestion is_mentor questionCount blockedBy blockCount blockStatus user one_line_about recoveryMail answerQuestionCount recentChat profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
+    );
+    const answers = await Answer.find({ author: id });
+    for (let up of answers) {
+      totalUpVote += up.upVoteCount;
+    }
+    if (user && user?.userPosts?.length < 1) {
+      var post = [];
+    }
+    res
+      .status(200)
+      .send({
+        message: "Limit User Profile Data ",
+        user,
+        upVote: totalUpVote,
+        post,
+      });
   } catch (e) {
     console.log(e);
   }
@@ -218,11 +224,7 @@ exports.updateUserFollowIns = async (req, res) => {
         sinstitute.iNotify.push(notify._id);
         notify.institute = sinstitute._id;
         notify.notifyByPhoto = user._id;
-        await Promise.all([
-          user.save(),
-          sinstitute.save(),
-          notify.save()
-        ])
+        await Promise.all([user.save(), sinstitute.save(), notify.save()]);
         res.status(200).send({ message: "Following This Institute" });
         if (sinstitute.isUniversal === "Not Assigned") {
           const post = await Post.find({
@@ -248,7 +250,7 @@ exports.updateUserFollowIns = async (req, res) => {
       }
     }
   } catch (e) {
-    console.log('UFOI', e)
+    console.log("UFOI", e);
   }
 };
 
@@ -266,11 +268,11 @@ exports.removeUserFollowIns = async (req, res) => {
         sinstitute.userFollowersList.includes(`${user._id}`)
       ) {
         user.userInstituteFollowing.pull(sinstitute._id);
-        if(user.followingUICount > 0){
+        if (user.followingUICount > 0) {
           user.followingUICount -= 1;
         }
         sinstitute.userFollowersList.pull(user._id);
-        if(sinstitute.followersCount > 0){
+        if (sinstitute.followersCount > 0) {
           sinstitute.followersCount -= 1;
         }
         await user.save();
@@ -314,10 +316,11 @@ exports.updateUserFollow = async (req, res) => {
     const user = await User.findById({ _id: user_session });
     const suser = await User.findById({ _id: req.body.userFollowId });
 
-    if(suser.userBlock?.includes(`${user._id}`)){
-      res.status(200).send({ message: "You're blocked by this Person / user 😒" });
-    }
-    else{
+    if (suser.userBlock?.includes(`${user._id}`)) {
+      res
+        .status(200)
+        .send({ message: "You're blocked by this Person / user 😒" });
+    } else {
       if (user.userFollowing.includes(req.body.userFollowId)) {
         // res.status(200).send({ message: "You Already Following This User" });
       } else {
@@ -327,20 +330,22 @@ exports.updateUserFollow = async (req, res) => {
         user.followingUICount += 1;
         suser.followerCount += 1;
         notify.notifyContent = `${user.userLegalName} started to following you`;
-        notify.notify_hi_content = `${user.userLegalName} आपको  फॉलो  कर  रहा है |`
-        notify.notify_mr_content = `${user.userLegalName} ने तुम्हाला फॉलो करायला सुरुवात केली`
+        notify.notify_hi_content = `${user.userLegalName} आपको  फॉलो  कर  रहा है |`;
+        notify.notify_mr_content = `${user.userLegalName} ने तुम्हाला फॉलो करायला सुरुवात केली`;
         notify.notifySender = user._id;
         notify.notifyReceiever = suser._id;
         suser.uNotify.push(notify);
         notify.user = suser;
         notify.notifyByPhoto = user;
-        await Promise.all([
-          user.save(),
-          suser.save(),
-          notify.save()
-        ])
-        if(suser?.user_follower_notify === 'Enable'){
-          invokeFirebaseNotification("Followers", notify, suser.userLegalName, suser._id, suser.deviceToken);
+        await Promise.all([user.save(), suser.save(), notify.save()]);
+        if (suser?.user_follower_notify === "Enable") {
+          invokeFirebaseNotification(
+            "Followers",
+            notify,
+            suser.userLegalName,
+            suser._id,
+            suser.deviceToken
+          );
         }
         res.status(200).send({ message: " Following This User 👍😀✨🎉" });
         const post = await Post.find({
@@ -348,10 +353,8 @@ exports.updateUserFollow = async (req, res) => {
         });
         post.forEach(async (ele) => {
           //
-          if(user?.userPosts?.includes(ele)){
-
-          }
-          else{
+          if (user?.userPosts?.includes(ele)) {
+          } else {
             user.userPosts.push(ele);
           }
           //
@@ -359,15 +362,15 @@ exports.updateUserFollow = async (req, res) => {
         await user.save();
         //
         const posts = await Post.find({ author: `${suser._id}` });
-          posts.forEach(async (ele) => {
-            ele.authorFollowersCount = suser.followerCount;
-            await ele.save();
+        posts.forEach(async (ele) => {
+          ele.authorFollowersCount = suser.followerCount;
+          await ele.save();
         });
         //
       }
     }
   } catch (e) {
-    console.log('UFOU', e)
+    console.log("UFOU", e);
   }
 };
 
@@ -380,10 +383,10 @@ exports.updateUserUnFollow = async (req, res) => {
     if (user.userFollowing.includes(req.body.userFollowId)) {
       suser.userFollowers.pull(user_session);
       user.userFollowing.pull(req.body.userFollowId);
-      if(user.followingUICount > 0){
+      if (user.followingUICount > 0) {
         user.followingUICount -= 1;
       }
-      if(suser.followerCount > 0){
+      if (suser.followerCount > 0) {
         suser.followerCount -= 1;
       }
       await user.save();
@@ -398,9 +401,9 @@ exports.updateUserUnFollow = async (req, res) => {
       await user.save();
       //
       const posts = await Post.find({ author: `${suser._id}` });
-        posts.forEach(async (ele) => {
-          ele.authorFollowersCount = suser.followerCount;
-          await ele.save();
+      posts.forEach(async (ele) => {
+        ele.authorFollowersCount = suser.followerCount;
+        await ele.save();
       });
       //
     } else {
@@ -428,11 +431,11 @@ exports.updateUserCircle = async (req, res) => {
       try {
         const notify = new Notification({});
         suser.userFollowing.pull(user_session);
-        if(suser.followingUICount > 0){
+        if (suser.followingUICount > 0) {
           suser.followingUICount -= 1;
         }
         user.userFollowers.pull(req.body.followId);
-        if(user.followerCount > 0){
+        if (user.followerCount > 0) {
           user.followerCount -= 1;
         }
         suser.userCircle.push(user_session);
@@ -440,25 +443,30 @@ exports.updateUserCircle = async (req, res) => {
         suser.circleCount += 1;
         user.circleCount += 1;
         notify.notifyContent = `${user.userLegalName} has been added to your circle`;
-        notify.notify_hi_content = `${user.userLegalName} आपके सर्कल मे जुड गाय है |`
-        notify.notify_mr_content = `${user.userLegalName} तुमच्या सर्कल मध्ये जोडले गेले आहे`
+        notify.notify_hi_content = `${user.userLegalName} आपके सर्कल मे जुड गाय है |`;
+        notify.notify_mr_content = `${user.userLegalName} तुमच्या सर्कल मध्ये जोडले गेले आहे`;
         notify.notifySender = user._id;
         notify.notifyReceiever = suser._id;
         suser.uNotify.push(notify);
         notify.user = suser;
         notify.notifyByPhoto = user;
-        await Promise.all([ user.save(), suser.save(), notify.save() ])
-        if(suser?.user_follower_notify === 'Enable'){
-          invokeFirebaseNotification("Circle", notify, 'Circled', suser._id, suser.deviceToken);
+        await Promise.all([user.save(), suser.save(), notify.save()]);
+        if (suser?.user_follower_notify === "Enable") {
+          invokeFirebaseNotification(
+            "Circle",
+            notify,
+            "Circled",
+            suser._id,
+            suser.deviceToken
+          );
         }
         res.status(200).send({ message: "😀 Added to circle" });
         const post = await Post.find({
           $and: [{ author: suser._id }],
         });
         post.forEach(async (ele) => {
-          if(user && user.userPosts?.includes(`${ele}`)){
-          }
-          else{
+          if (user && user.userPosts?.includes(`${ele}`)) {
+          } else {
             user.userPosts.push(ele);
           }
         });
@@ -467,9 +475,8 @@ exports.updateUserCircle = async (req, res) => {
           $and: [{ author: user._id }],
         });
         posts.forEach(async (ele) => {
-          if(suser && suser.userPosts?.includes(`${ele}`)){
-          }
-          else{
+          if (suser && suser.userPosts?.includes(`${ele}`)) {
+          } else {
             suser.userPosts.push(ele);
           }
         });
@@ -491,7 +498,7 @@ exports.updateUserCircle = async (req, res) => {
       }
     }
   } catch (e) {
-    console.log('UCU', e)
+    console.log("UCU", e);
   }
 };
 
@@ -508,30 +515,27 @@ exports.removeUserCircle = async (req, res) => {
       try {
         user.userCircle.pull(req.body.followId);
         suser.userCircle.pull(user_session);
-        if(suser.circleCount > 0){
+        if (suser.circleCount > 0) {
           suser.circleCount -= 1;
         }
-        if(user.circleCount > 0){
+        if (user.circleCount > 0) {
           user.circleCount -= 1;
         }
         user.userFollowers.push(req.body.followId);
         suser.userFollowing.push(user_session);
         user.followerCount += 1;
         suser.followingUICount += 1;
-        await Promise.all([ 
-          user.save(),
-          suser.save()
-        ])
+        await Promise.all([user.save(), suser.save()]);
         res.status(200).send({ message: "Uncircled" });
         const post = await Post.find({
           $and: [{ author: `${suser._id}` }],
         });
 
         post.forEach(async (ele) => {
-          if(user && user.userPosts?.includes(`${ele}`)){
+          if (user && user.userPosts?.includes(`${ele}`)) {
             user.userPosts.pull(ele._id);
+          } else {
           }
-          else{}
         });
         await user.save();
 
@@ -540,10 +544,10 @@ exports.removeUserCircle = async (req, res) => {
         });
 
         posts.forEach(async (ele) => {
-          if(suser && suser.userPosts?.includes(`${ele}`)){
+          if (suser && suser.userPosts?.includes(`${ele}`)) {
             suser.userPosts.pull(ele._id);
+          } else {
           }
-          else{}
         });
         await suser.save();
         //
@@ -552,15 +556,13 @@ exports.removeUserCircle = async (req, res) => {
         });
         post_follow.forEach(async (ele) => {
           //
-          if(suser?.userPosts?.includes(ele)){
-  
-          }
-          else{
+          if (suser?.userPosts?.includes(ele)) {
+          } else {
             suser.userPosts.push(ele);
           }
           //
         });
-        await suser.save()
+        await suser.save();
         //
         //
         const post_count = await Post.find({ author: `${suser._id}` });
@@ -603,8 +605,8 @@ var date = new Date();
 var p_date = date.getDate();
 var p_month = date.getMonth() + 1;
 var p_year = date.getFullYear();
-if (p_date < 9){
-  p_date = `0${p_date}`
+if (p_date < 9) {
+  p_date = `0${p_date}`;
 }
 if (p_month < 10) {
   p_month = `0${p_month}`;
@@ -616,56 +618,55 @@ var month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 exports.updateUserPersonal = async (req, res) => {
   try {
     const { id } = req.params;
-    var users = await User.findByIdAndUpdate(id, req.body)
-    await users.save()
+    var users = await User.findByIdAndUpdate(id, req.body);
+    await users.save();
     res.status(200).send({ message: "Personal Info Updated" });
     //
-    var user = await User.findById({_id: id})
-    var b_date = user.userDateOfBirth.slice(8, 10)
-    var b_month = user.userDateOfBirth.slice(5, 7)
-    var b_year = user.userDateOfBirth.slice(0, 4)
+    var user = await User.findById({ _id: id });
+    var b_date = user.userDateOfBirth.slice(8, 10);
+    var b_month = user.userDateOfBirth.slice(5, 7);
+    var b_year = user.userDateOfBirth.slice(0, 4);
     if (b_date > p_date) {
-        p_date = p_date + month[b_month - 1];
-        p_month = p_month - 1;
+      p_date = p_date + month[b_month - 1];
+      p_month = p_month - 1;
     }
     if (b_month > p_month) {
-        p_year = p_year - 1;
-        p_month = p_month + 12;
+      p_year = p_year - 1;
+      p_month = p_month + 12;
     }
     var get_cal_year = p_year - b_year;
-    if(get_cal_year > 13){
-      user.ageRestrict = 'No'
+    if (get_cal_year > 13) {
+      user.ageRestrict = "No";
+    } else {
+      user.ageRestrict = "Yes";
     }
-    else{
-      user.ageRestrict = 'Yes'
-    }
-    await user.save()
+    await user.save();
     //
-      const post = await Post.find({ author: `${user._id}` });
-      post.forEach(async (ele) => {
-        ele.authorOneLine = user.one_line_about;
-        await ele.save();
-      });
-      const comment = await Comment.find({ author: `${user._id}` });
-      comment.forEach(async (com) => {
-        com.authorOneLine = user.one_line_about;
-        await com.save();
-      });
-      const replyComment = await ReplyComment.find({ author: `${user._id}` });
-      replyComment.forEach(async (reply) => {
-        reply.authorOneLine = user.one_line_about;
-        await reply.save();
-      });
-      const answers = await Answer.find({ author: `${user._id}` });
-      answers.forEach(async (ans) => {
-        ans.authorOneLine = user.one_line_about;
-        await ans.save();
-      });
-      const answerReply = await AnswerReply.find({ author: `${user._id}` });
-      answerReply.forEach(async (ansRep) => {
-        ansRep.authorOneLine = user.one_line_about;
-        await ansRep.save();
-      });
+    const post = await Post.find({ author: `${user._id}` });
+    post.forEach(async (ele) => {
+      ele.authorOneLine = user.one_line_about;
+      await ele.save();
+    });
+    const comment = await Comment.find({ author: `${user._id}` });
+    comment.forEach(async (com) => {
+      com.authorOneLine = user.one_line_about;
+      await com.save();
+    });
+    const replyComment = await ReplyComment.find({ author: `${user._id}` });
+    replyComment.forEach(async (reply) => {
+      reply.authorOneLine = user.one_line_about;
+      await reply.save();
+    });
+    const answers = await Answer.find({ author: `${user._id}` });
+    answers.forEach(async (ans) => {
+      ans.authorOneLine = user.one_line_about;
+      await ans.save();
+    });
+    const answerReply = await AnswerReply.find({ author: `${user._id}` });
+    answerReply.forEach(async (ansRep) => {
+      ansRep.authorOneLine = user.one_line_about;
+      await ansRep.save();
+    });
   } catch (e) {
     console.log(`Error`, e);
   }
@@ -714,7 +715,9 @@ exports.deactivateUserAccount = async (req, res) => {
       //
       // res.clearCookie("SessionID", { path: "/" });
       //
-      res.status(200).send({ message: "Deactivated Account", status: user.activeStatus });
+      res
+        .status(200)
+        .send({ message: "Deactivated Account", status: user.activeStatus });
     } else {
       res.status(404).send({ message: "Bad Request" });
     }
@@ -792,16 +795,17 @@ exports.getReportPostUser = async (req, res) => {
     const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const report = new Report({ reportStatus: reportStatus });
     admin.reportList.push(report._id);
-    admin.reportPostQueryCount += 1
+    admin.reportPostQueryCount += 1;
     report.reportInsPost = post._id;
     report.reportBy = user._id;
-    user.userPosts?.pull(post?._id)
-    await Promise.all([ 
-     admin.save(),
-     report.save(),
-     user.save()
-    ])
-    res.status(200).send({ message: "reported with feed Removal", report: report.reportStatus });
+    user.userPosts?.pull(post?._id);
+    await Promise.all([admin.save(), report.save(), user.save()]);
+    res
+      .status(200)
+      .send({
+        message: "reported with feed Removal",
+        report: report.reportStatus,
+      });
   } catch (e) {
     console.log(e);
   }
@@ -849,7 +853,6 @@ exports.getNotifications = async (req, res) => {
   }
 };
 
-
 exports.getAllUserActivity = async (req, res) => {
   try {
     const page = req.query.page ? parseInt(req.query.page) : 1;
@@ -857,9 +860,13 @@ exports.getAllUserActivity = async (req, res) => {
     const id = req.params.id;
     const skip = (page - 1) * limit;
 
-    const user = await User.findById({ _id: id }).populate({ path: "activity_tab" });
+    const user = await User.findById({ _id: id }).populate({
+      path: "activity_tab",
+    });
 
-    const notify = await StudentNotification.find({ _id: { $in: user.activity_tab } })
+    const notify = await StudentNotification.find({
+      _id: { $in: user.activity_tab },
+    })
       .populate({
         path: "notifyByInsPhoto",
         select: "photoId insProfilePhoto name insName",
@@ -896,56 +903,60 @@ exports.getAllUserActivity = async (req, res) => {
   }
 };
 
-
-
 exports.getAllTotalCount = async (req, res) => {
   try {
     const id = req.params.id;
     const user = await User.findById({ _id: id })
-    .select('_id activity_tab uNotify')
-    .populate({
-      path: 'uNotify'
-    })
-    var total = 0
+      .select("_id activity_tab uNotify")
+      .populate({
+        path: "uNotify",
+      });
+    var total = 0;
     const notify = await Notification.find({
-      $and: [{ _id: { $in: user?.uNotify } }, { notifyViewStatus: 'Not View' }],
-    })
+      $and: [{ _id: { $in: user?.uNotify } }, { notifyViewStatus: "Not View" }],
+    });
     const activity = await StudentNotification.find({
-      $and: [{ _id: { $in: user?.activity_tab } }, { notifyViewStatus: 'Not View' }],
-    })
-    total = total + notify?.length + activity?.length
+      $and: [
+        { _id: { $in: user?.activity_tab } },
+        { notifyViewStatus: "Not View" },
+      ],
+    });
+    total = total + notify?.length + activity?.length;
 
-    res.status(200).send({ message: "Not Viewed Notification & Activity", count: total });
+    res
+      .status(200)
+      .send({ message: "Not Viewed Notification & Activity", count: total });
   } catch (e) {
     console.log(e);
   }
 };
 
-
-
 exports.retrieveMarkAllView = async (req, res) => {
   try {
     const id = req.params.id;
     const user = await User.findById({ _id: id })
-    .select('_id')
-    .populate({ path: "activity_tab uNotify" });
+      .select("_id")
+      .populate({ path: "activity_tab uNotify" });
     const notify = await Notification.find({
-      $and: [{ _id: { $in: user.uNotify } }, { notifyViewStatus: 'Not View' }],
-    })
+      $and: [{ _id: { $in: user.uNotify } }, { notifyViewStatus: "Not View" }],
+    });
     const activity = await StudentNotification.find({
-      $and: [{ _id: { $in: user.activity_tab } }, { notifyViewStatus: 'Not View' }],
-    })
-    if(notify?.length >=1){
-      notify.forEach( async(ele) =>{
-        ele.notifyViewStatus = 'View'
-        await ele.save()
-      })
+      $and: [
+        { _id: { $in: user.activity_tab } },
+        { notifyViewStatus: "Not View" },
+      ],
+    });
+    if (notify?.length >= 1) {
+      notify.forEach(async (ele) => {
+        ele.notifyViewStatus = "View";
+        await ele.save();
+      });
     }
-    if(activity?.length >=1){
-      activity.forEach( async(ele) =>{
-        ele.notifyViewStatus = 'View'
-        await ele.save()
-      })
+    if (activity?.length >= 1) {
+      activity.forEach(async (ele) => {
+        ele.notifyViewStatus = "View";
+        await ele.save();
+      });
     }
 
     res.status(200).send({ message: "Mark All To Be Viewed" });
@@ -954,21 +965,19 @@ exports.retrieveMarkAllView = async (req, res) => {
   }
 };
 
-
 exports.updateReadNotifications = async (req, res) => {
   try {
     const { rid } = req.params;
     const read = await Notification.findOne({ _id: rid });
-    const activity = await StudentNotification.findOne({_id: rid})
-    if(read){
+    const activity = await StudentNotification.findOne({ _id: rid });
+    if (read) {
       read.notifyReadStatus = "Read";
       await read.save();
-    }
-    else if(activity){
+    } else if (activity) {
       activity.notifyReadStatus = "Read";
       await activity.save();
+    } else {
     }
-    else{}
     res.status(200).send({ message: "Mark As Read" });
   } catch (e) {
     console.log(e);
@@ -979,16 +988,15 @@ exports.getHideNotifications = async (req, res) => {
   try {
     const { nid } = req.params;
     const notify = await Notification.findOne({ _id: nid });
-    const activity = await StudentNotification.findOne({_id: nid})
-    if(notify){
+    const activity = await StudentNotification.findOne({ _id: nid });
+    if (notify) {
       notify.notifyVisibility = "hide";
       await notify.save();
-    }
-    else if(activity){
+    } else if (activity) {
       activity.notifyVisibility = "hide";
       await activity.save();
+    } else {
     }
-    else{}
     res.status(200).send({ message: "Hide" });
   } catch (e) {
     console.log(e);
@@ -1072,13 +1080,12 @@ exports.getQCoins = async (req, res) => {
 exports.getDashDataQuery = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await User.findById({ _id: id })
-      .select(
-        "userLegalName username userBlock ageRestrict blockedBy is_mentor show_suggestion photoId blockStatus one_line_about profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify"
-      )
-      if(user.userPosts && user.userPosts.length < 1){
-        var post = []
-      }
+    const user = await User.findById({ _id: id }).select(
+      "userLegalName username userBlock ageRestrict blockedBy is_mentor show_suggestion photoId blockStatus one_line_about profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify"
+    );
+    if (user.userPosts && user.userPosts.length < 1) {
+      var post = [];
+    }
     if (user) {
       res.status(200).send({ message: "Success", user, post });
     } else {
@@ -1119,7 +1126,9 @@ exports.followingArray = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const { uid } = req.params;
     const skip = (page - 1) * limit;
-    const user = await User.findById({ _id: uid }).select('id userFollowing userInstituteFollowing')
+    const user = await User.findById({ _id: uid }).select(
+      "id userFollowing userInstituteFollowing"
+    );
 
     const uFollowing = await User.find({ _id: { $in: user.userFollowing } })
       .select(
@@ -1134,12 +1143,12 @@ exports.followingArray = async (req, res) => {
       .select("insName name photoId insProfilePhoto blockStatus")
       .limit(limit)
       .skip(skip);
-    var mergeArray = [...uFollowing, ...uInsFollowing]
+    var mergeArray = [...uFollowing, ...uInsFollowing];
     res.status(200).send({
       message: "Success",
       uFollowing: uFollowing,
       uInsFollowing: uInsFollowing,
-      mergeArray: mergeArray
+      mergeArray: mergeArray,
     });
   } catch {}
 };
@@ -1324,26 +1333,31 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
       })
       .populate({
         path: "admissionDepartment",
-        select: "admissionAdminEmail admissionAdminPhoneNumber admissionAdminAbout",
+        select:
+          "admissionAdminEmail admissionAdminPhoneNumber admissionAdminAbout",
         populate: {
-          path: 'admissionAdminHead',
-          select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto'
+          path: "admissionAdminHead",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
         },
       })
       .populate({
         path: "sportDepartment",
         select: "sportEmail sportPhoneNumber sportAbout sportName",
         populate: {
-          path: 'sportHead',
-          select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto'
+          path: "sportHead",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
         },
       })
       .populate({
         path: "staffSportClass",
-        select: "sportClassEmail sportClassPhoneNumber sportClassAbout sportClassName",
+        select:
+          "sportClassEmail sportClassPhoneNumber sportClassAbout sportClassName",
         populate: {
-          path: 'sportClassHead',
-          select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto'
+          path: "sportClassHead",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
         },
       })
       .lean()
@@ -1383,33 +1397,34 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
 exports.retrieveStudentDesignationArray = async (req, res) => {
   try {
     const { sid } = req.params;
-    if(sid !== ''){
-    var average_points = 0
-    const student = await Student.findById({ _id: sid })
-      .select(
-        "studentFirstName studentMiddleName studentLastName batchCount extraPoints photoId studentProfilePhoto studentGender studentReligion studentMotherName studentDOB studentNationality studentMTongue studentCast studentCastCategory studentBirthPlace studentState studentDistrict studentAddress studentPhoneNumber studentParentsName studentParentsPhoneNumber studentAadharCard studentAadharNumber studentDocuments studentGRNO studentStatus studentROLLNO"
-      )
-      .populate({
-        path: "studentClass",
-        select: "className classTitle classStatus classHeadTitle",
-        populate: {
-          path: "batch",
-          select: "batchName batchStatus",
-        },
-      })
-      .populate({
-        path: "institute",
-        select: "insName name photoId insProfilePhoto",
-      })
-      .populate({
-        path: "user",
-        select: "userLegalName username photoId profilePhoto",
-      });
-    average_points += ((student.extraPoints) / student.batchCount)
-    res.status(200).send({ message: "Student Designation Data", student, average_points });
-    }
-    else {
-      res.status(200).send({ message: 'Need a valid Key Id'})
+    if (sid !== "") {
+      var average_points = 0;
+      const student = await Student.findById({ _id: sid })
+        .select(
+          "studentFirstName studentMiddleName studentLastName batchCount extraPoints photoId studentProfilePhoto studentGender studentReligion studentMotherName studentDOB studentNationality studentMTongue studentCast studentCastCategory studentBirthPlace studentState studentDistrict studentAddress studentPhoneNumber studentParentsName studentParentsPhoneNumber studentAadharCard studentAadharNumber studentDocuments studentGRNO studentStatus studentROLLNO"
+        )
+        .populate({
+          path: "studentClass",
+          select: "className classTitle classStatus classHeadTitle",
+          populate: {
+            path: "batch",
+            select: "batchName batchStatus",
+          },
+        })
+        .populate({
+          path: "institute",
+          select: "insName name photoId insProfilePhoto",
+        })
+        .populate({
+          path: "user",
+          select: "userLegalName username photoId profilePhoto",
+        });
+      average_points += student.extraPoints / student.batchCount;
+      res
+        .status(200)
+        .send({ message: "Student Designation Data", student, average_points });
+    } else {
+      res.status(200).send({ message: "Need a valid Key Id" });
     }
   } catch {}
 };
@@ -1477,101 +1492,98 @@ exports.allCircleUsers = async (req, res) => {
   }).populate({ path: "userCircle" });
   const user = users.userCircle.find(keyword);
   res.send(user);
-}
+};
 
-exports.retrieveUserSubjectChat = async(req, res) =>{
-  try{
-    const { uid } = req.params
-    const user = await User.findById({_id: uid})
-    .select('id')
-    .populate({
-      path: 'subjectChat',
-      populate: {
-        path: 'subjects',
-        match: { subjectStatus: { $eq: 'UnCompleted'}},
-        select: 'subjectName subjectStatus',
+exports.retrieveUserSubjectChat = async (req, res) => {
+  try {
+    const { uid } = req.params;
+    const user = await User.findById({ _id: uid })
+      .select("id")
+      .populate({
+        path: "subjectChat",
         populate: {
-          path: 'class',
-          select: 'className classTitle'
-        }
-      }
-    })
-    res.status(200).send({ message: 'As a Subject Teacher', chat: user})
+          path: "subjects",
+          match: { subjectStatus: { $eq: "UnCompleted" } },
+          select: "subjectName subjectStatus",
+          populate: {
+            path: "class",
+            select: "className classTitle",
+          },
+        },
+      });
+    res.status(200).send({ message: "As a Subject Teacher", chat: user });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
-exports.retrieveUserClassChat = async(req, res) =>{
-  try{
-    const { uid } = req.params
-    const user = await User.findById({_id: uid})
-    .select('id')
-    .populate({
-      path: 'classChat',
-      populate: {
-        path: 'classes',
-        match: { classStatus: { $eq: 'UnCompleted'}},
-        select: 'className classStatus classTitle',
+exports.retrieveUserClassChat = async (req, res) => {
+  try {
+    const { uid } = req.params;
+    const user = await User.findById({ _id: uid })
+      .select("id")
+      .populate({
+        path: "classChat",
         populate: {
-          path: 'batch',
-          select: 'batchName'
-        }
-      }
-    })
-    .lean()
-    .exec()
-    res.status(200).send({ message: 'As a Class Teacher', class_chat: user})
+          path: "classes",
+          match: { classStatus: { $eq: "UnCompleted" } },
+          select: "className classStatus classTitle",
+          populate: {
+            path: "batch",
+            select: "batchName",
+          },
+        },
+      })
+      .lean()
+      .exec();
+    res.status(200).send({ message: "As a Class Teacher", class_chat: user });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
-exports.retrieveUserDepartmentChat = async(req, res) =>{
-  try{
-    const { uid } = req.params
-    const user = await User.findById({_id: uid})
-    .select('id')
-    .populate({
-      path: 'departmentChat',
-      populate: {
-        path: 'department',
-        select: 'dName dTitle',
+exports.retrieveUserDepartmentChat = async (req, res) => {
+  try {
+    const { uid } = req.params;
+    const user = await User.findById({ _id: uid })
+      .select("id")
+      .populate({
+        path: "departmentChat",
         populate: {
-          path: 'departmentSelectBatch',
-          select: 'batchName'
-        }
-      }
-    })
-    .lean()
-    .exec()
-    res.status(200).send({ message: 'As a Department Head', depart_chat: user})
+          path: "department",
+          select: "dName dTitle",
+          populate: {
+            path: "departmentSelectBatch",
+            select: "batchName",
+          },
+        },
+      })
+      .lean()
+      .exec();
+    res
+      .status(200)
+      .send({ message: "As a Department Head", depart_chat: user });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
-
-exports.retrieveUserApplicationStatus = async(req, res) =>{
-  try{
-    var options = { sort: { "createdAt": "-1"}}
-    const { uid } = req.params
-    const user = await User.findById({_id: uid})
-    .select('id')
-    .populate({
-      path: 'applicationStatus',
-      options
-    })
-    res.status(200).send({ message: 'user Application Status', status: user.applicationStatus})
-  }
-  catch{
-
-  }
-}
-
+exports.retrieveUserApplicationStatus = async (req, res) => {
+  try {
+    var options = { sort: { createdAt: "-1" } };
+    const { uid } = req.params;
+    const user = await User.findById({ _id: uid }).select("id").populate({
+      path: "applicationStatus",
+      options,
+    });
+    res
+      .status(200)
+      .send({
+        message: "user Application Status",
+        status: user.applicationStatus,
+      });
+  } catch {}
+};
 
 exports.retrieveProfileDataUsername = async (req, res) => {
   try {
@@ -1591,29 +1603,30 @@ exports.retrieveProfileDataUsername = async (req, res) => {
   }
 };
 
-
-exports.retrieveStaffSalaryHistory = async(req, res) =>{
-  try{
-    const { sid } = req.params
-    const staff = await Staff.findById({_id: sid})
-    .select('_id')
-    .populate({
-      path: 'salary_history',
-      populate: {
-        path: 'emp_pay',
-        select: 'salary pay_mode month',
+exports.retrieveStaffSalaryHistory = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const staff = await Staff.findById({ _id: sid })
+      .select("_id")
+      .populate({
+        path: "salary_history",
         populate: {
-          path: 'staff',
-          select: 'staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto'
-        }
-      }
-    })
-    res.status(200).send({ message: 'All Salary History ', salary: staff?.salary_history})
+          path: "emp_pay",
+          select: "salary pay_mode month",
+          populate: {
+            path: "staff",
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+          },
+        },
+      });
+    res
+      .status(200)
+      .send({ message: "All Salary History ", salary: staff?.salary_history });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
 //
 // exports.updateUserBlock = async (req, res) => {
@@ -1648,7 +1661,7 @@ exports.retrieveStaffSalaryHistory = async(req, res) =>{
 //             }
 //           });
 //           await user.save();
-  
+
 //           const posts = await Post.find({ author: `${user._id}` });
 //           posts.forEach(async (ele) => {
 //             if(suser?.userPosts?.includes(`${ele._id}`)){
@@ -1683,66 +1696,80 @@ exports.retrieveStaffSalaryHistory = async(req, res) =>{
 exports.updateUserUnBlock = async (req, res) => {
   try {
     var user_session = req.tokenData && req.tokenData.userId;
-    const { blockId } = req.query
+    const { blockId } = req.query;
     var user = await User.findById({ _id: user_session });
     var suser = await User.findById({ _id: blockId });
 
-    if(user?.userBlock?.includes(`${suser._id}`)){
-      user.userBlock.pull(suser._id)
-      suser.blockedBy.pull(user._id)
-      if(user.blockCount >=1 ){
-        user.blockCount -= 1
+    if (user?.userBlock?.includes(`${suser._id}`)) {
+      user.userBlock.pull(suser._id);
+      suser.blockedBy.pull(user._id);
+      if (user.blockCount >= 1) {
+        user.blockCount -= 1;
       }
-      await Promise.all([ user.save(), suser.save() ])
-      res.status(200).send({ message: "You are UnBlocked able to follow / circle ", unblock: true });
-    }
-    else{
-      res.status(200).send({ message: "You are Already UnBlocked able to follow / circle " });
+      await Promise.all([user.save(), suser.save()]);
+      res
+        .status(200)
+        .send({
+          message: "You are UnBlocked able to follow / circle ",
+          unblock: true,
+        });
+    } else {
+      res
+        .status(200)
+        .send({
+          message: "You are Already UnBlocked able to follow / circle ",
+        });
     }
   } catch (e) {
-    console.log('UUBU', e)
+    console.log("UUBU", e);
   }
 };
 
 exports.retrieveUserReportBlock = async (req, res) => {
   try {
     var user_session = req.tokenData && req.tokenData.userId;
-    const { blockId } = req.query
+    const { blockId } = req.query;
     var user = await User.findById({ _id: user_session });
     var suser = await User.findById({ _id: blockId });
 
-    if(user?.userBlock?.includes(`${suser._id}`)){
-      res.status(200).send({ message: "You are Already Blocked able to follow / circle " });
-    }
-    else{
-      user.userBlock.push(suser._id)
-      suser.blockedBy.push(user._id)
-      if(user.blockCount >=1 ){
-        user.blockCount += 1
+    if (user?.userBlock?.includes(`${suser._id}`)) {
+      res
+        .status(200)
+        .send({ message: "You are Already Blocked able to follow / circle " });
+    } else {
+      user.userBlock.push(suser._id);
+      suser.blockedBy.push(user._id);
+      if (user.blockCount >= 1) {
+        user.blockCount += 1;
       }
-      await Promise.all([ user.save(), suser.save() ])
-      res.status(200).send({ message: "You are Blocked not able to follow / circle ", block: true });
+      await Promise.all([user.save(), suser.save()]);
+      res
+        .status(200)
+        .send({
+          message: "You are Blocked not able to follow / circle ",
+          block: true,
+        });
       try {
         user.userCircle?.pull(blockId);
         suser.userCircle?.pull(user_session);
-        if(suser.circleCount > 0){
+        if (suser.circleCount > 0) {
           suser.circleCount -= 1;
         }
-        if(user.circleCount > 0){
+        if (user.circleCount > 0) {
           user.circleCount -= 1;
         }
         suser.userFollowers?.pull(user_session);
         user.userFollowing?.pull(blockId);
-        if(user.followingUICount > 0 ){
+        if (user.followingUICount > 0) {
           user.followingUICount -= 1;
         }
-        if(suser.followerCount > 0 ){
+        if (suser.followerCount > 0) {
           suser.followerCount -= 1;
         }
-        
+
         const post = await Post.find({ author: `${suser._id}` });
         post.forEach(async (ele) => {
-          if(user?.userPosts?.includes(`${ele._id}`)){
+          if (user?.userPosts?.includes(`${ele._id}`)) {
             user.userPosts.pull(ele._id);
           }
         });
@@ -1750,7 +1777,7 @@ exports.retrieveUserReportBlock = async (req, res) => {
 
         const posts = await Post.find({ author: `${user._id}` });
         posts.forEach(async (ele) => {
-          if(suser?.userPosts?.includes(`${ele._id}`)){
+          if (suser?.userPosts?.includes(`${ele._id}`)) {
             suser.userPosts.pull(ele._id);
           }
         });
@@ -1772,7 +1799,7 @@ exports.retrieveUserReportBlock = async (req, res) => {
       }
     }
   } catch (e) {
-    console.log('UUBU', e)
+    console.log("UUBU", e);
   }
 };
 
@@ -1790,28 +1817,36 @@ exports.retrieveUserLocationPermission = async (req, res) => {
 exports.retrieveUserRoleQuery = async (req, res) => {
   try {
     const { uid } = req.params;
-    const user = await User.findById({_id: uid})
-    .select('staff student')
+    const user = await User.findById({ _id: uid }).select("staff student");
 
-    const staff = await Staff.find({_id: {$in: user?.staff}})
-    .sort('staffDesignationCount')
-    .select('staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto')
-    .populate({
-      path: 'institute',
-      select: 'insName'
-    })
+    const staff = await Staff.find({ _id: { $in: user?.staff } })
+      .sort("staffDesignationCount")
+      .select(
+        "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+      )
+      .populate({
+        path: "institute",
+        select: "insName",
+      });
 
-    const student = await Student.find({_id: { $in: user?.student}})
-    .sort('createdAt')
-    .select('studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto')
-    .populate({
-      path: 'institute',
-      select: 'insName'
-    })
-    
-    var mergeArray = [...staff, ...student]
-    var get_array = shuffleArray(mergeArray)
-    res.status(200).send({ message: "User Role for Staff & Student", role_query: get_array });
+    const student = await Student.find({ _id: { $in: user?.student } })
+      .sort("createdAt")
+      .select(
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto"
+      )
+      .populate({
+        path: "institute",
+        select: "insName",
+      });
+
+    var mergeArray = [...staff, ...student];
+    var get_array = shuffleArray(mergeArray);
+    res
+      .status(200)
+      .send({
+        message: "User Role for Staff & Student",
+        role_query: get_array,
+      });
   } catch (e) {
     console.log(e);
   }
@@ -1820,67 +1855,86 @@ exports.retrieveUserRoleQuery = async (req, res) => {
 exports.updateUserUnBlockInstitute = async (req, res) => {
   try {
     var user_session = req.tokenData && req.tokenData.userId;
-    const { blockId } = req.query
+    const { blockId } = req.query;
     var user = await User.findById({ _id: user_session });
     var block_ins = await InstituteAdmin.findById({ _id: blockId });
-    if(block_ins?.isUniversal === 'Universal'){
-      res.status(200).send({ message: 'Not able to block Universal A/c', unblock: false})
-    }
-    else{
-      if(user?.user_block_institute?.includes(`${block_ins._id}`)){
-        user.user_block_institute.pull(block_ins._id)
-        if(user.blockCount >=1 ){
-          user.blockCount -= 1
+    if (block_ins?.isUniversal === "Universal") {
+      res
+        .status(200)
+        .send({ message: "Not able to block Universal A/c", unblock: false });
+    } else {
+      if (user?.user_block_institute?.includes(`${block_ins._id}`)) {
+        user.user_block_institute.pull(block_ins._id);
+        if (user.blockCount >= 1) {
+          user.blockCount -= 1;
         }
-        await Promise.all([ user.save(), block_ins.save() ])
-        res.status(200).send({ message: "You are UnBlocked able to follow", unblock: true });
-      }
-      else{
-        res.status(200).send({ message: "You are Already UnBlocked able to follow" });
+        await Promise.all([user.save(), block_ins.save()]);
+        res
+          .status(200)
+          .send({ message: "You are UnBlocked able to follow", unblock: true });
+      } else {
+        res
+          .status(200)
+          .send({ message: "You are Already UnBlocked able to follow" });
       }
     }
   } catch (e) {
-    console.log('UUBI', e)
+    console.log("UUBI", e);
   }
 };
 
 exports.retrieveUserReportBlock = async (req, res) => {
   try {
     var user_session = req.tokenData && req.tokenData.userId;
-    const { blockId } = req.query
+    const { blockId } = req.query;
     var user = await User.findById({ _id: user_session });
     var block_ins = await InstituteAdmin.findById({ _id: blockId });
-    const staff = await Staff.find({ $and: [{ _id: { $in: user?.staff}}, {staffStatus: 'Approved'}, {institute: blockId}]})
-    var flag = staff?.length > 0 ? true : false
-    
-    if(block_ins?.isUniversal === 'Universal'){
-      res.status(200).send({ message: 'Not able to block Universal A/c', unblock: false})
-    }
-    else{
-      if(flag){
-        if(user?.user_block_institute?.includes(`${block_ins._id}`)){
-          res.status(200).send({ message: "You are Already Blocked able to follow / circle " });
-        }
-        else{
-          user.user_block_institute.push(block_ins._id)
-          if(user.blockCount >=1 ){
-            user.blockCount += 1
+    const staff = await Staff.find({
+      $and: [
+        { _id: { $in: user?.staff } },
+        { staffStatus: "Approved" },
+        { institute: blockId },
+      ],
+    });
+    var flag = staff?.length > 0 ? true : false;
+
+    if (block_ins?.isUniversal === "Universal") {
+      res
+        .status(200)
+        .send({ message: "Not able to block Universal A/c", unblock: false });
+    } else {
+      if (flag) {
+        if (user?.user_block_institute?.includes(`${block_ins._id}`)) {
+          res
+            .status(200)
+            .send({
+              message: "You are Already Blocked able to follow / circle ",
+            });
+        } else {
+          user.user_block_institute.push(block_ins._id);
+          if (user.blockCount >= 1) {
+            user.blockCount += 1;
           }
-          await Promise.all([ user.save(), block_ins.save() ])
-          res.status(200).send({ message: "You are Blocked not able to follow", block: true });
+          await Promise.all([user.save(), block_ins.save()]);
+          res
+            .status(200)
+            .send({
+              message: "You are Blocked not able to follow",
+              block: true,
+            });
           try {
             block_ins.followers?.pull(user_session);
             user.userInstituteFollowing?.pull(blockId);
-            if(user.followingUICount > 0 ){
+            if (user.followingUICount > 0) {
               user.followingUICount -= 1;
             }
-            if(block_ins.followersCount > 0 ){
+            if (block_ins.followersCount > 0) {
               block_ins.followersCount -= 1;
             }
-            
+
             const post = await Post.find({ author: `${block_ins._id}` });
             post.forEach(async (ele) => {
-              if(user?.userPosts?.includes(`${ele._id}`)){
+              if (user?.userPosts?.includes(`${ele._id}`)) {
                 user.userPosts.pull(ele._id);
               }
             });
@@ -1893,15 +1947,19 @@ exports.retrieveUserReportBlock = async (req, res) => {
             });
             //
           } catch {
-            console.log(e)
+            console.log(e);
           }
         }
-      }
-      else{
-        res.status(200).send({ message: "You're the member of this Institute ", unblock: false})
+      } else {
+        res
+          .status(200)
+          .send({
+            message: "You're the member of this Institute ",
+            unblock: false,
+          });
       }
     }
   } catch (e) {
-    console.log('UUBU', e)
+    console.log("UUBU", e);
   }
 };

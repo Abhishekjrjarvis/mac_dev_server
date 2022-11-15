@@ -8,6 +8,7 @@ const Notification = require("../../../models/notification");
 const {
   uploadPostImageFile,
   uploadVideo,
+  deleteFile,
 } = require("../../../S3Configuration");
 const fs = require("fs");
 const util = require("util");
@@ -107,6 +108,30 @@ exports.postWithText = async (req, res) => {
         }
       }
     }
+    // if (req.body?.hashtag?.length > 0) {
+    //   for (let hash of req.body?.hashtag) {
+    //     const hTag = await HashTag.findById({ _id: `${hash}` });
+    //     post.hash_tag.push(hTag._id);
+    //     hTag.hashtag_post.push(post._id);
+    //     await hTag.save();
+    //   }
+    //   post.is_hashtag = true;
+    // }
+    // if (req.body?.hashtag?.length > 0) {
+    //   req.body?.hashtag?.forEach(async (ele) => {
+    //     const hash = await HashTag.findById({ _id: `${ele}` }).select(
+    //       "hashtag_follower"
+    //     );
+    //     const users = await User.find({ _id: { $in: hash?.hashtag_follower } });
+    //     users?.forEach(async (user) => {
+    //       if (user.userPosts?.includes(post._id)) {
+    //       } else {
+    //         user.userPosts.push(post._id);
+    //       }
+    //       await user.save();
+    //     });
+    //   });
+    // }
   } catch {}
 };
 
@@ -369,7 +394,8 @@ exports.postWithDeleted = async (req, res) => {
     );
     const post = await Post.findById({ _id: pid })
       .select("postType")
-      .populate({ path: "poll_query", select: "id" });
+      .populate({ path: "poll_query", select: "id" })
+      .populate({ path: "rePostAnswer", select: "id" });
     await User.findByIdAndUpdate(id, { $pull: { userPosts: pid } });
     await User.findByIdAndUpdate(id, { $pull: { user_saved_post: pid } });
     await User.findByIdAndUpdate(id, { $pull: { tag_post: pid } });
@@ -383,6 +409,15 @@ exports.postWithDeleted = async (req, res) => {
       }
       // post.poll_query = "";
       // await post.save();
+    }
+    if (post && post.postType === "Repost" && post.rePostAnswer !== "") {
+      await Answer.findByIdAndDelete(post.rePostAnswer?._id);
+      if (user.poll_Count >= 1) {
+        user.poll_Count -= 1;
+      }
+    }
+    if (user.answerQuestionCount > 0) {
+      user.answerQuestionCount -= 1;
     }
     await Post.findByIdAndDelete({ _id: pid });
     await user.save();
@@ -499,7 +534,10 @@ exports.postComment = async (req, res) => {
   try {
     const { id } = req.params;
     var post = await Post.findById({ _id: id });
-    if(post.comment_turned === 'Off') return res.status(200).send({ message: 'Comments are turned off', off: true})
+    if (post.comment_turned === "Off")
+      return res
+        .status(200)
+        .send({ message: "Comments are turned off", off: true });
     const comment = new Comment({ ...req.body });
     if (req.tokenData && req.tokenData.insId) {
       const institute = await InstituteAdmin.findById({
@@ -534,8 +572,8 @@ exports.postComment = async (req, res) => {
         notify.notifyContent = `you shared a new comment`;
       } else {
         notify.notifyContent = `${comment.authorName} commented on your post`;
-        notify.notify_hi_content = `${comment.authorName} ने आपकी पोस्ट पर कमेन्ट की |`
-        notify.notify_mr_content = `${comment.authorName} ने तुमच्या पोस्टवर कमेन्ट केली`
+        notify.notify_hi_content = `${comment.authorName} ने आपकी पोस्ट पर कमेन्ट की |`;
+        notify.notify_mr_content = `${comment.authorName} ने तुमच्या पोस्टवर कमेन्ट केली`;
       }
       notify.notifySender = req.tokenData?.userId
         ? req.tokenData.userId
@@ -566,8 +604,8 @@ exports.postComment = async (req, res) => {
         notify.notifyContent = `you shared a new comment`;
       } else {
         notify.notifyContent = `${comment.authorName} commented on your post`;
-        notify.notify_hi_content = `${comment.authorName} ने आपकी पोस्ट पर कमेन्ट की |`
-        notify.notify_mr_content = `${comment.authorName} ने तुमच्या पोस्टवर कमेन्ट केली`
+        notify.notify_hi_content = `${comment.authorName} ने आपकी पोस्ट पर कमेन्ट की |`;
+        notify.notify_mr_content = `${comment.authorName} ने तुमच्या पोस्टवर कमेन्ट केली`;
       }
       notify.notifySender = req.tokenData?.userId
         ? req.tokenData.userId
@@ -603,7 +641,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const p_types = req.query.p_type ? req.query.p_type : "";
-    const query_search = req.query.search_key ? req.query.search_key : ''
+    const query_search = req.query.search_key ? req.query.search_key : "";
     const id = req.params.id;
     const skip = (page - 1) * limit;
     const user = await User.findById(id).select(
@@ -613,8 +651,8 @@ exports.retrieveAllUserPosts = async (req, res) => {
     //   path: "userPosts",
     // });
     if (user && user.userPosts.length >= 1) {
-        //
-      if(query_search.trim() === ''){
+      //
+      if (query_search.trim() === "") {
         if (user.ageRestrict === "Yes") {
           var post = await Post.find({
             $and: [{ author: { $in: user.userInstituteFollowing } }],
@@ -623,7 +661,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
             .limit(limit)
             .skip(skip)
             .select(
-              "postTitle postText postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+              "postTitle postText question_visibility postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
             )
             .populate({
               path: "poll_query",
@@ -663,7 +701,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
             .limit(limit)
             .skip(skip)
             .select(
-              "postTitle postText postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+              "postTitle postText question_visibility postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
             )
             .populate({
               path: "poll_query",
@@ -694,19 +732,19 @@ exports.retrieveAllUserPosts = async (req, res) => {
               },
             });
         }
-      }
-      else{
+      } else {
         if (user.ageRestrict === "Yes") {
           var post = await Post.find({
-            $and: [{ author: { $in: user.userInstituteFollowing } },
-              { postQuestion: { $regex: query_search, $options: "i" } }
+            $and: [
+              { author: { $in: user.userInstituteFollowing } },
+              { postQuestion: { $regex: query_search, $options: "i" } },
             ],
           })
             .sort("-createdAt")
             .limit(limit)
             .skip(skip)
             .select(
-              "postTitle postText postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+              "postTitle postText question_visibility postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
             )
             .populate({
               path: "poll_query",
@@ -740,15 +778,16 @@ exports.retrieveAllUserPosts = async (req, res) => {
         //
         else {
           var post = await Post.find({
-            $and: [{ _id: { $in: user.userPosts } }, 
-              { postQuestion: { $regex: query_search, $options: "i" } }
+            $and: [
+              { _id: { $in: user.userPosts } },
+              { postQuestion: { $regex: query_search, $options: "i" } },
             ],
           })
             .sort("-createdAt")
             .limit(limit)
             .skip(skip)
             .select(
-              "postTitle postText postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+              "postTitle postText question_visibility postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
             )
             .populate({
               path: "poll_query",
@@ -785,68 +824,71 @@ exports.retrieveAllUserPosts = async (req, res) => {
       } else {
         var totalPage = page + 1;
       }
-      if(post?.length > 0){
+      if (post?.length > 0) {
         var data_u_s = {
-          _id: 'Sywi84Id',
+          _id: "Sywi84Id",
           postImage: [],
-          postStatus: '',
+          postStatus: "",
           likeCount: 0,
           commentCount: 0,
           endUserLike: [],
           endUserSave: [],
-          createdAt: '2022-10-19T13:33:54.737+00:00',
-          author: '',
-          authorName: '',
-          authorUserName: '',
+          createdAt: "2022-10-19T13:33:54.737+00:00",
+          author: "",
+          authorName: "",
+          authorUserName: "",
           tagPeople: [],
           needUser: [],
-          user: true
-        }
+          user: true,
+        };
         var data_i_s = {
-          _id: 'Sdh38hId',
+          _id: "Sdh38hId",
           user: false,
           postImage: [],
-          postStatus: '',
+          postStatus: "",
           likeCount: 0,
           commentCount: 0,
           endUserLike: [],
           endUserSave: [],
-          createdAt: '2022-10-19T13:33:54.737+00:00',
-          author: '',
-          authorName: '',
-          authorUserName: '',
+          createdAt: "2022-10-19T13:33:54.737+00:00",
+          author: "",
+          authorName: "",
+          authorUserName: "",
           tagPeople: [],
-          needUser: []
-        }
+          needUser: [],
+        };
         var data_ads = {
-          _id: 'SAds89da',
+          _id: "SAds89da",
           user: false,
           postImage: [],
-          postStatus: '',
+          postStatus: "",
           likeCount: 0,
           commentCount: 0,
           endUserLike: [],
           endUserSave: [],
-          createdAt: '2022-10-19T13:33:54.737+00:00',
-          author: '',
-          authorName: '',
-          authorUserName: '',
+          createdAt: "2022-10-19T13:33:54.737+00:00",
+          author: "",
+          authorName: "",
+          authorUserName: "",
           tagPeople: [],
-          needUser: []
+          needUser: [],
+        };
+        if (page == 1) {
+          post.splice(3, 0, data_u_s);
+          post.splice(5, 0, data_i_s);
         }
-        if(page == 1){
-          post.splice(3, 0, data_u_s)
-          post.splice(5, 0, data_i_s)
-        }
-        post.splice(Math.floor(Math.random() * (post.length - 6) + 6), 0, data_ads)
-      res.status(200).send({
-        message: "Success",
-        post,
-        postCount: postCount.length,
-        totalPage: totalPage,
-      });
-      }
-      else{
+        post.splice(
+          Math.floor(Math.random() * (post.length - 6) + 6),
+          0,
+          data_ads
+        );
+        res.status(200).send({
+          message: "Success",
+          post,
+          postCount: postCount.length,
+          totalPage: totalPage,
+        });
+      } else {
         res.status(200).send({
           message: "Failure",
           post: [],
@@ -865,7 +907,7 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const p_types = req.query.p_type ? req.query.p_type : "";
-    const query_search = req.query.search_key ? req.query.search_key : ''
+    const query_search = req.query.search_key ? req.query.search_key : "";
     const id = req.params.id;
     const skip = (page - 1) * limit;
     const user = await User.findById(id).select(
@@ -875,8 +917,8 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
     //   path: "userPosts",
     // });
     if (user && user.userPosts.length >= 1) {
-        //
-      if(query_search.trim() === ''){
+      //
+      if (query_search.trim() === "") {
         if (user.ageRestrict === "Yes") {
           var post = await Post.find({
             $and: [{ author: { $in: user.userInstituteFollowing } }],
@@ -885,7 +927,7 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
             .limit(limit)
             .skip(skip)
             .select(
-              "postTitle postText postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+              "postTitle postText question_visibility postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
             )
             .populate({
               path: "poll_query",
@@ -925,7 +967,7 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
             .limit(limit)
             .skip(skip)
             .select(
-              "postTitle postText postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+              "postTitle postText question_visibility postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
             )
             .populate({
               path: "poll_query",
@@ -956,19 +998,19 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
               },
             });
         }
-      }
-      else{
+      } else {
         if (user.ageRestrict === "Yes") {
           var post = await Post.find({
-            $and: [{ author: { $in: user.userInstituteFollowing } },
-              { postQuestion: { $regex: query_search, $options: "i" } }
+            $and: [
+              { author: { $in: user.userInstituteFollowing } },
+              { postQuestion: { $regex: query_search, $options: "i" } },
             ],
           })
             .sort("-createdAt")
             .limit(limit)
             .skip(skip)
             .select(
-              "postTitle postText postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+              "postTitle postText question_visibility postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
             )
             .populate({
               path: "poll_query",
@@ -1002,15 +1044,16 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
         //
         else {
           var post = await Post.find({
-            $and: [{ _id: { $in: user.userPosts } }, 
-              { postQuestion: { $regex: query_search, $options: "i" } }
+            $and: [
+              { _id: { $in: user.userPosts } },
+              { postQuestion: { $regex: query_search, $options: "i" } },
             ],
           })
             .sort("-createdAt")
             .limit(limit)
             .skip(skip)
             .select(
-              "postTitle postText postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+              "postTitle postText question_visibility postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
             )
             .populate({
               path: "poll_query",
@@ -1047,15 +1090,14 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
       } else {
         var totalPage = page + 1;
       }
-      if(post?.length > 0){
-      res.status(200).send({
-        message: "Success",
-        post,
-        postCount: postCount.length,
-        totalPage: totalPage,
-      });
-      }
-      else{
+      if (post?.length > 0) {
+        res.status(200).send({
+          message: "Success",
+          post,
+          postCount: postCount.length,
+          totalPage: totalPage,
+        });
+      } else {
         res.status(200).send({
           message: "Failure",
           post: [],
@@ -1086,7 +1128,7 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "postTitle postText postDescription post_question_transcript post_description_transcript comment_turned isHelpful authorFollowersCount authorOneLine needCount needUser isNeed endUserSave tagPeople isUser isInstitute createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postQuestion answerCount answerUpVoteCount trend_category postType"
+            "postTitle postText question_visibility postDescription post_question_transcript post_description_transcript comment_turned isHelpful authorFollowersCount authorOneLine needCount needUser isNeed endUserSave tagPeople isUser isInstitute createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postQuestion answerCount answerUpVoteCount trend_category postType"
           )
           .populate({
             path: "poll_query",
@@ -1122,7 +1164,7 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "postTitle postText postDescription post_question_transcript post_description_transcript comment_turned isHelpful authorFollowersCount authorOneLine needCount needUser isNeed endUserSave tagPeople isUser isInstitute createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postQuestion answerCount answerUpVoteCount trend_category postType"
+            "postTitle postText question_visibility postDescription post_question_transcript post_description_transcript comment_turned isHelpful authorFollowersCount authorOneLine needCount needUser isNeed endUserSave tagPeople isUser isInstitute createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postQuestion answerCount answerUpVoteCount trend_category postType"
           )
           .populate({
             path: "poll_query",
@@ -1645,7 +1687,32 @@ exports.commentReplyDelete = async (req, res) => {
   }
 };
 
-
+exports.renderEditPostQuery = async (req, res) => {
+  try {
+    const { pid } = req.params;
+    const edit_post = await Post.findByIdAndUpdate(pid, req.body);
+    if (JSON.parse(req.body?.deleteImage)?.length) {
+      for (let dimage of JSON.parse(req.body?.deleteImage)) {
+        edit_post?.postImage?.pull(dimage);
+        await deleteFile(dimage);
+      }
+    }
+    if (req?.files) {
+      for (let file of req.files) {
+        const results = await uploadPostImageFile(file);
+        edit_post.postImage.push(results.Key);
+        await unlinkFile(file.path);
+      }
+      edit_post.imageId = "0";
+    }
+    await edit_post.save();
+    res
+      .status(200)
+      .send({ message: "Post Edited Successfully 👍", edited: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 // if (p_types !== "") {
 //   var post = await Post.find({

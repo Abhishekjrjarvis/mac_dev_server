@@ -9,6 +9,7 @@ const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require("../../../Firebase/firebase");
 const InstituteAdmin = require("../../../models/InstituteAdmin");
+const HashTag = require("../../../models/HashTag/hashTag");
 
 exports.postQuestionText = async (req, res) => {
   try {
@@ -25,6 +26,16 @@ exports.postQuestionText = async (req, res) => {
         await unlinkFile(file.path);
       }
       post.imageId = "0";
+    }
+    if (JSON.parse(req.body?.hashtag)?.length > 0) {
+      for (let hash of JSON.parse(req.body?.hashtag)) {
+        const hTag = await HashTag.findById({ _id: `${hash}` });
+        post.hash_tag.push(hTag._id);
+        hTag.hashtag_post.push(post._id);
+        hTag.hashtag_question_count += 1;
+        await hTag.save();
+      }
+      post.is_hashtag = true;
     }
     user.userPosts.push(post._id);
     user.questionCount += 1;
@@ -50,6 +61,21 @@ exports.postQuestionText = async (req, res) => {
       user.userCircle.forEach(async (ele) => {
         ele.userPosts.push(post._id);
         await ele.save();
+      });
+    }
+    if (JSON.parse(req.body?.hashtag)?.length > 0) {
+      JSON.parse(req.body?.hashtag)?.forEach(async (ele) => {
+        const hash = await HashTag.findById({ _id: `${ele}` }).select(
+          "hashtag_follower"
+        );
+        const users = await User.find({ _id: { $in: hash?.hashtag_follower } });
+        users?.forEach(async (user) => {
+          if (user.userPosts?.includes(post._id)) {
+          } else {
+            user.userPosts.push(post._id);
+          }
+          await user.save();
+        });
       });
     }
   } catch (e) {
@@ -447,7 +473,7 @@ exports.rePostQuestionAnswer = async (req, res) => {
         answers.answerImageId = "0";
       }
       if (req.tokenData && req.tokenData.userId) {
-        var user = await User.findById({ _id: req.tokenData.userId })
+        var user = await User.findById({ _id: `${req.tokenData.userId}` })
           .populate({ path: "userFollowers" })
           .populate({ path: "userCircle" });
         if (user.staff.length >= 1) {
@@ -478,6 +504,8 @@ exports.rePostQuestionAnswer = async (req, res) => {
       rePost.isUser = "user";
       rePost.postType = "Repost";
       rePost.rePostAnswer = answers;
+      rePost.hash_tag.push(...post?.hash_tag);
+      rePost.is_hashtag = post?.is_hashtag;
       rePost.post_url = `https://qviple.com/q/${rePost.authorUserName}/profile`;
       await Promise.all([
         rePost.save(),
@@ -485,6 +513,12 @@ exports.rePostQuestionAnswer = async (req, res) => {
         user.save(),
         post.save(),
       ]);
+      const hashTag = await HashTag.find({ _id: { $in: post?.hash_tag } });
+      hashTag?.forEach(async (ele) => {
+        ele.hashtag_post.push(rePost._id);
+        ele.hashtag_repost_count += 1;
+        await ele.save();
+      });
       //
       var notify = new Notification({});
       notify.notifyContent = `${answers.authorName} answered your question with repost.`;
@@ -537,6 +571,23 @@ exports.rePostQuestionAnswer = async (req, res) => {
             ele.userPosts.push(rePost._id);
             await ele.save();
           }
+        });
+      }
+      if (post?.hash_tag?.length > 0) {
+        post?.hash_tag?.forEach(async (ele) => {
+          const hash = await HashTag.findById({ _id: `${ele}` }).select(
+            "hashtag_follower"
+          );
+          const users = await User.find({
+            _id: { $in: hash?.hashtag_follower },
+          });
+          users?.forEach(async (user) => {
+            if (user.userPosts?.includes(rePost._id)) {
+            } else {
+              user.userPosts.push(rePost._id);
+            }
+            await user.save();
+          });
         });
       }
     } else {
@@ -817,15 +868,16 @@ exports.getAllSaveAnswerQuery = async (req, res) => {
   }
 };
 
-
-exports.getOneQuestionQuery = async(req, res) => {
-  try{
-    const { qid } = req.params
-    const one_question = await Post.findById({_id: qid})
-    .select('postQuestion commentCount answerCount createdAt author authorUserName authorProfilePhoto authorPhotoId needCount needUser isInstitute isUser endUserSave')
-    res.status(200).send({ message: 'Question Query', one_query: one_question})
-  }
-  catch( e){
-    console.log(e)
+exports.getOneQuestionQuery = async (req, res) => {
+  try {
+    const { qid } = req.params;
+    const one_question = await Post.findById({ _id: qid }).select(
+      "postQuestion commentCount answerCount createdAt author authorUserName authorProfilePhoto authorPhotoId needCount needUser isInstitute isUser endUserSave"
+    );
+    res
+      .status(200)
+      .send({ message: "Question Query", one_query: one_question });
+  } catch (e) {
+    console.log(e);
   }
 };

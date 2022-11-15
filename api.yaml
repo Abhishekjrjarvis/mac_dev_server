@@ -16671,3 +16671,146 @@ paths:
       responses:
         "200":
           description: OK
+
+  
+# Poll & Post Edit Query
+
+  /api/v1/user/post/edit/{pid}:
+    patch:
+      tags:
+        - Poll & Post Edit
+      summary: One Text, Image, Question Post Update -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          type: string
+          description: This is Post id
+        - in: formData
+          name: postTitle
+          type: string
+          required: false
+          description: Enter a post title for Text, Image
+        - in: formData
+          name: postDescription
+          type: string
+          required: false
+          description: Enter a post desc for Text post
+        - in: formData
+          name: postQuestion
+          type: string
+          required: false
+          description: Enter a question for Question Post
+        - in: formData
+          name: trend_category
+          type: string
+          required: false
+          description: Enter a question category for Question Post
+        - in: formData
+          name: deleteImage
+          type: array
+          required: false
+          description: Enter a image key of replace 
+        - in: formData
+          name: file
+          type: array
+          required: false
+          description: Enter a new image 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/poll/edit/{pid}:
+    patch:
+      tags:
+        - Poll & Post Edit
+      summary: One Poll Update -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          type: string
+          description: This is Post id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              poll_question:
+                type: string
+                description: This is for Question Poll
+                required: false
+              trend_category:
+                type: string
+                description: This is for Question post category
+                required: false
+              pollAnswer:
+                type: array
+                description: Array of Object with poll answer id & content [{"oid": "8389", "content": "here"}, {"oid": "8389", "content": "here"}]
+                items:
+                  type: string
+                  description: Enter Poll Answer Id & Content
+      responses:
+        "200":
+          description: OK
+
+# Featured HashTag
+  /api/v1/hashtag/{hid}/query:
+    get:
+      tags:
+        - Featured HashTag Query
+      summary: One HashTag detail & Post (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hashtag Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hashtag/all/array:
+    get:
+      tags:
+        - Featured HashTag Query
+      summary: All HashTag By Follower's (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hashtag/follow:
+    patch:
+      tags:
+        - Featured HashTag Query
+      summary: Follow & UnFollow HashTag By User (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: hid
+          required: true
+          type: string
+          description: This is Hashtag Id
+      responses:
+        "200":
+          description: OK

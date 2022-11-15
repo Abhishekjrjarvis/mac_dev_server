@@ -135,6 +135,12 @@ const userSchema = new mongoose.Schema({
       ref: "PlaylistPayment",
     },
   ],
+  payment_history: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "OrderPayment",
+    },
+  ],
   videoPurchase: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -242,19 +248,19 @@ const userSchema = new mongoose.Schema({
   ],
   user_birth_privacy: {
     type: String,
-    default: 'Every one'
+    default: "Every one",
   },
   user_address_privacy: {
     type: String,
-    default: 'Every one'
+    default: "Every one",
   },
   user_circle_privacy: {
     type: String,
-    default: 'Every one'
+    default: "Every one",
   },
   tag_privacy: {
     type: String,
-    default: 'Every one'
+    default: "Every one",
   },
   user_saved_post: [
     {
@@ -288,72 +294,72 @@ const userSchema = new mongoose.Schema({
   ],
   created_at: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   one_line_about: {
-    type: String
+    type: String,
   },
   user_follower_notify: {
     type: String,
-    default: 'Enable'
+    default: "Enable",
   },
   user_comment_notify: {
     type: String,
-    default: 'Enable'
+    default: "Enable",
   },
   user_answer_notify: {
     type: String,
-    default: 'Enable'
+    default: "Enable",
   },
   user_institute_notify: {
     type: String,
-    default: 'Enable'
+    default: "Enable",
   },
   activity_tab: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'StudentNotification'
-    }
+      ref: "StudentNotification",
+    },
   ],
   blockStatus: {
     type: String,
-    default: 'UnBlocked'
+    default: "UnBlocked",
   },
   inquiryList: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Inquiry'
-    }
+      ref: "Inquiry",
+    },
   ],
   userBlock: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
-    }
+      ref: "User",
+    },
   ],
   blockedBy: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
-    }
+      ref: "User",
+    },
   ],
   user_block_institute: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'InstituteAdmin'
-    }
+      ref: "InstituteAdmin",
+    },
   ],
   blockCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   departmentChat: [
     {
       isDepartmentHead: { type: String },
       department: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Department'
-      }
+        ref: "Department",
+      },
     },
   ],
   classChat: [
@@ -361,8 +367,8 @@ const userSchema = new mongoose.Schema({
       isClassTeacher: { type: String },
       classes: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Class'
-      }
+        ref: "Class",
+      },
     },
   ],
   subjectChat: [
@@ -371,13 +377,7 @@ const userSchema = new mongoose.Schema({
       subjects: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Subject",
-      }
-    },
-  ],
-  admissionPayList: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "AdmissionPayment",
+      },
     },
   ],
   user_latitude: {
@@ -406,20 +406,30 @@ const userSchema = new mongoose.Schema({
   },
   profile_ads_count: {
     type: Number,
-    default: 0
+    default: 0,
   },
   show_suggestion: {
     type: String,
-    default: 'Enable'
+    default: "Enable",
   },
   lang_mode: {
     type: String,
-    default: 'en'
+    default: "en",
   },
   is_mentor: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
+  follow_hashtag: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "HashTag",
+    },
+  ],
+  follow_hashtag_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 userSchema.post("findOneAndDelete", async function (doc) {

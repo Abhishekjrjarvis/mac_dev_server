@@ -246,12 +246,6 @@ const studentSchema = new mongoose.Schema({
       ref: "StudentTransfer",
     },
   ],
-  paymentList: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Payment",
-    },
-  ],
   applyList: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -353,15 +347,15 @@ const studentSchema = new mongoose.Schema({
   election_candidate: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Election'
-    }
+      ref: "Election",
+    },
   ],
   participate_event: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Participate'
-    }
-  ]
+      ref: "Participate",
+    },
+  ],
 });
 
 const Student = mongoose.model("Student", studentSchema);

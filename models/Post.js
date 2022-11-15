@@ -109,21 +109,6 @@ const postSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Poll",
   },
-  // funCount: {
-  //   type: Number,
-  //   default: 0,
-  // },
-  // factCount: {
-  //   type: Number,
-  //   default: 0,
-  // },
-  // supportCount: {
-  //   type: Number,
-  //   default: 0,
-  // },
-  // endUserFun: [],
-  // endUserFact: [],
-  // endUserSupport: [],
   post_url: {
     type: String,
   },
@@ -163,11 +148,19 @@ const postSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "NewApplication",
   },
-  hash_trend: { type: String, default: 'Not on trending' },
-  comment_turned: { type: String, default: 'On' },
+  hash_trend: { type: String, default: "Not on trending" },
+  comment_turned: { type: String, default: "On" },
   post_question_transcript: { type: String },
   post_description_transcript: { type: String },
   post_title_transcript: { type: String },
+  question_visibility: { type: String, default: "Open" },
+  is_hashtag: { type: Boolean, default: false },
+  hash_tag: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "HashTag",
+    },
+  ],
   //
 });
 

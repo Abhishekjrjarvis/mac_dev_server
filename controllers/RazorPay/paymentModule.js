@@ -11,6 +11,10 @@ const Class = require("../../models/Class");
 const Status = require("../../models/Admission/status");
 const NewApplication = require("../../models/Admission/NewApplication");
 const Admission = require("../../models/Admission/Admission");
+const StudentNotification = require("../../models/Marks/StudentNotification");
+const invokeMemberTabNotification = require("../../Firebase/MemberTab");
+const Department = require("../../models/Department");
+const Participate = require("../../models/ParticipativeEvent/participate");
 
 exports.unlockInstituteFunction = async (order, paidBy, tx_amounts) => {
   try {
@@ -26,6 +30,7 @@ exports.unlockInstituteFunction = async (order, paidBy, tx_amounts) => {
     institute.activateStatus = "Activated";
     institute.activateDate = new Date();
     orderPay.payment_to_end_user_id = admin._id;
+    orderPay.payment_flag_to = "Credit";
     notify.notifyContent = `Feature Unlock Amount ${institute.insName}/ (Rs.${tx_amounts})  has been paid successfully stay tuned...`;
     notify.notify_hi_content = `फ़ीचर अनलॉक राशि ${institute.insName}/ (Rs.${tx_amounts}) का पेमेंट सफलतापूर्वक कर दिया गया है |`;
     notify.notify_mr_content = `वैशिष्ट्य अनलॉक रक्कम ${institute.insName}/ (रु.${tx_amounts}) यशस्वीरित्या भरली गेली आहे`;
@@ -56,12 +61,10 @@ exports.feeInstituteFunction = async (order, paidBy, tx_amount, moduleId) => {
       _id: `${institute?.financeDepart[0]}`,
     }).populate({
       path: "financeHead",
-      populate: {
-        path: "user",
-      },
+      select: "user",
     });
     const user = await User.findById({
-      _id: `${finance.financeHead.user._id}`,
+      _id: `${finance.financeHead.user}`,
     });
     const classes = await Class.findById({ _id: `${student.studentClass}` });
     const fData = await Fees.findById({ _id: moduleId });
@@ -118,6 +121,7 @@ exports.feeInstituteFunction = async (order, paidBy, tx_amount, moduleId) => {
             feeId: fData._id,
           });
           studentUser.payment_history.push(order);
+          user.payment_history.push(order);
           await Promise.all([
             student.save(),
             fData.save(),
@@ -183,6 +187,7 @@ exports.feeInstituteFunction = async (order, paidBy, tx_amount, moduleId) => {
           notify.user = user._id;
           notify.notifyByStudentPhoto = student._id;
           studentUser.payment_history.push(order);
+          user.payment_history.push(order);
           await Promise.all([
             student.save(),
             checklistData.save(),
@@ -222,6 +227,12 @@ exports.admissionInstituteFunction = async (
     const ins = await InstituteAdmin.findById({ _id: `${student.institute}` });
     const finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
+    }).populate({
+      path: "financeHead",
+      select: "user",
+    });
+    const financeUser = await User.findById({
+      _id: `${finance.financeHead.user}`,
     });
     const status = await Status.findById({ _id: statusId });
     const aStatus = new Status({});
@@ -287,11 +298,13 @@ exports.admissionInstituteFunction = async (
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByStudentPhoto = student._id;
+    financeUser.payment_history.push(order);
     await Promise.all([
       student.save(),
       user.save(),
       apply.save(),
       finance.save(),
+      financeUser.save(),
       ins.save(),
       admin.save(),
       status.save(),
@@ -299,6 +312,86 @@ exports.admissionInstituteFunction = async (
       admission.save(),
       notify.save(),
     ]);
+    return `${user?.username}`;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.participateEventFunction = async (
+  order,
+  paidBy,
+  tx_amount_ad,
+  moduleId,
+  notifyId
+) => {
+  try {
+    const student = await Student.findById({ _id: paidBy });
+    const user = await User.findById({ _id: `${student.user}` });
+    const event = await Participate.findById({ _id: moduleId });
+    const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const depart = await Department.findById({ _id: `${event.department}` });
+    const ins = await InstituteAdmin.findById({ _id: `${depart.institute}` });
+    const finance = await Finance.findById({
+      _id: `${institute?.financeDepart[0]}`,
+    }).populate({
+      path: "financeHead",
+      select: "user",
+    });
+    const financeUser = await User.findById({
+      _id: `${finance.financeHead.user}`,
+    });
+    const status = await StudentNotification.findById({ _id: notifyId });
+    const notify = new StudentNotification({});
+    depart.onlineFee += parseInt(tx_amount_ad);
+    event.online_fee += parseInt(tx_amount_ad);
+    finance.financeParticipateEventBalance += parseInt(tx_amount_ad);
+    finance.financeTotalBalance += parseInt(tx_amount_ad);
+    admin.returnAmount += parseInt(tx_amount);
+    ins.adminRepayAmount += parseInt(tx_amount_ad);
+    status.event_payment_status = "Paid";
+    event.event_fee.push({
+      student: student._id,
+      fee_status: "Paid",
+    });
+    event.paid_participant += 1;
+    notify.notifyContent = `${student.studentFirstName} ${
+      student.studentMiddleName ? `${student.studentMiddleName} ` : ""
+    } ${student.studentLastName} your transaction is successfull for ${
+      event.event_name
+    } ${parseInt(tx_amount_ad)}`;
+    notify.notifySender = depart._id;
+    notify.notifyReceiever = user._id;
+    user.activity_tab.push(notify._id);
+    notify.user = user._id;
+    notify.notifyByStudentPhoto = student._id;
+    notify.notifyType = "Student";
+    notify.notifyCategory = "Participate Event";
+    notify.redirectIndex = 13;
+    student.notification.push(notify._id);
+    user.payment_history.push(order);
+    financeUser.payment_history.push(order);
+    await Promise.all([
+      student.save(),
+      user.save(),
+      event.save(),
+      finance.save(),
+      financeUser.save(),
+      ins.save(),
+      admin.save(),
+      status.save(),
+      depart.save(),
+      notify.save(),
+    ]);
+    invokeMemberTabNotification(
+      "Student Activity",
+      notify,
+      "Payment Successfull",
+      user._id,
+      user.deviceToken,
+      "Student",
+      notify
+    );
     return `${user?.username}`;
   } catch (e) {
     console.log(e);

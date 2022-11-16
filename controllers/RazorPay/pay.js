@@ -6,6 +6,7 @@ const {
   unlockInstituteFunction,
   feeInstituteFunction,
   admissionInstituteFunction,
+  participateEventFunction,
 } = require("./paymentModule");
 
 var instance = new Razorpay({
@@ -65,6 +66,8 @@ exports.verifyRazorPayment = async (req, res) => {
       order_payment.payment_module_type = payment_module_type;
       order_payment.payment_by_end_user_id = payment_by_end_user_id;
       order_payment.payment_to_end_user_id = payment_to_end_user_id;
+      order_payment.payment_flag_by = "Debit";
+      order_payment.payment_flag_to = "Credit";
       order_payment.payment_module_id = payment_module_id;
       order_payment.payment_amount = payment_amount;
       order_payment.payment_status = "Captured";
@@ -96,6 +99,17 @@ exports.verifyRazorPayment = async (req, res) => {
         );
         res.redirect(
           `${process.env.FRONT_REDIRECT_URL}/q/${admission_status}/feed`
+        );
+      } else if (payment_module_type === "Participate") {
+        const participate_status = await participateEventFunction(
+          order_payment?._id,
+          payment_by_end_user_id,
+          payment_amount,
+          payment_module_id,
+          ad_status_id
+        );
+        res.redirect(
+          `${process.env.FRONT_REDIRECT_URL}/q/${participate_status}/feed`
         );
       } else {
       }

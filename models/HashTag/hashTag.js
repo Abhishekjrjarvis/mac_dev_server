@@ -8,6 +8,9 @@ const hashTagSchema = new mongoose.Schema({
   hashtag_profile_photo: {
     type: String,
   },
+  hashtag_photo_id: {
+    type: String,
+  },
   hashtag_about: {
     type: String,
   },

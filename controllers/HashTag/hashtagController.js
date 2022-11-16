@@ -1,40 +1,27 @@
 const HashTag = require("../../models/HashTag/hashTag");
 const User = require("../../models/User");
 const Post = require("../../models/Post");
+const { uploadDocFile } = require("../../S3Configuration");
+const fs = require("fs");
+const util = require("util");
+const unlinkFile = util.promisify(fs.unlink);
 
 const addHashtag = () => {
   var hashTag = [
-    "#jee",
-    "#cat",
-    "#pharmacy",
-    "#neet",
-    "#cet",
-    "#physics",
-    "#biology",
-    "#chemistry",
-    "#maths",
-    "#electrical",
-    "#computerscience",
-    "#mechanical",
-    "#english",
-    "#hindi",
-    "#climatechange",
-    "#environment",
-    "#geography",
-    "#history",
-    "#social",
-    "#economics",
-    "#earth",
-    "#universe",
-    "#10thstandard",
-    "#12thstandard",
-    "#11thstandard",
-    "#9thstandard",
-    "#8thstandard",
-    "#7thstandard",
-    "#6thstandard",
-    "#5thstandard",
-    "#globalwarming",
+    "#facts",
+    "#upsc",
+    "#life",
+    "#technology",
+    "#elearning",
+    "#career",
+    "#arts",
+    "#drawing",
+    "#informationtechnology",
+    "#aptitude",
+    "#comunication",
+    "#civil",
+    "#measurement",
+    "#homescience",
   ];
 
   hashTag?.forEach(async (ele) => {
@@ -192,7 +179,9 @@ exports.arrayHashtag = async (req, res) => {
       .sort("-hashtag_follower_count")
       .limit(limit)
       .skip(skip)
-      .select("hashtag_name hashtag_follower_count hashtag_profile_photo");
+      .select(
+        "hashtag_name hashtag_follower_count hashtag_profile_photo hashtag_photo_id"
+      );
     if (hash?.length > 0) {
       res.status(200).send({
         message: "All Array of Hashtag by follower",
@@ -206,6 +195,26 @@ exports.arrayHashtag = async (req, res) => {
         status: false,
       });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.updateHashtag = async (req, res) => {
+  try {
+    const { hid } = req.params;
+    const hash = await HashTag.findById({ _id: hid });
+    const file = req.file;
+    const results = await uploadDocFile(file);
+    hash.hashtag_profile_photo = results.key;
+    hash.hashtag_photo_id = "1";
+    await Promise.all([hash.save()]);
+    await unlinkFile(file.path);
+    res.status(200).send({
+      message: "update Profile 😀",
+      hash: hash,
+      status: true,
+    });
   } catch (e) {
     console.log(e);
   }

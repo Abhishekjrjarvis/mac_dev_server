@@ -15801,6 +15801,35 @@ paths:
         "200":
           description: OK
 
+  /api/v1/prod/access/all/recommendation/post/app/{id}:
+    get:
+      tags:
+        - Recommendation API Query
+      summary: Get Recommended Admission App Post By Expand Area (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id 
+        - in: query
+          name: expand_search
+          required: false
+          type: number
+          description: Enter a no. in km to expand your network
+        - in: query
+          name: post_query
+          required: true
+          type: number
+          description: Enter a Post Id which is visible to user's near by expand area
+      responses:
+        "200":
+          description: OK
+
 
 # Reward Based Ads API
   /api/v1/prod/access/all/profile/{uid}/reward/ads:
@@ -16859,6 +16888,387 @@ paths:
           required: true
           type: string
           description: This is Hashtag Id
+      responses:
+        "200":
+          description: OK
+
+#Election Events
+  /api/v1/election/event/new/{did}:
+    post:
+      tags:
+        - Election Event Query
+      summary: Create new election event (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is Department Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              election_position:
+                type: string
+                description: Enter election -> President Election 2027 
+                required: true
+              election_visible:
+                type: string
+                description: visible ("Only Institute" || "Only Department")
+                required: true
+              date:
+                type: string
+                description: Enter Date ("2022-11-05")
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/election/event/all/query:
+    get:
+      tags:
+        - Election Event Query
+      summary: All Election Event Array (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter page no.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/election/event/one/{eid}:
+    get:
+      tags:
+        - Election Event Query
+      summary: One Election Event Detail (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: Enter Election Event Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/election/event/{eid}/apply/{sid}:
+    post:
+      tags:
+        - Election Event Query
+      summary: One Student Apply at election event (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: This is Election Event Id
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              tagLine:
+                type: string
+                description: Enter Tag Line
+                required: true
+              description:
+                type: string
+                description: Enter Desc
+                required: true
+              members:
+                type: array
+                description: Array of String ["9898493898", "38989393898"]
+                items:
+                  type: string
+                  description: Enter Student Id
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/election/event/{eid}/status/{applyId}/candidate/{sid}:
+    patch:
+      tags:
+        - Election Event Query
+      summary: Election Event Status (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: Enter Election Event Id
+        - in: path
+          name: applyId
+          required: true
+          type: string
+          description: Enter Election Event application Id
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Student Id
+        - in: query
+          name: status
+          required: true
+          type: string
+          description: Enter Status ("Approved" || "Rejected")
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/election/event/{eid}/status/{applyId}/candidate/{sid}/vote/{nid}:
+    patch:
+      tags:
+        - Election Event Query
+      summary: One Vote One Nation (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: Enter Election Event Id
+        - in: path
+          name: applyId
+          required: true
+          type: string
+          description: Enter Election Event application Id
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Student Id
+        - in: path
+          name: nid
+          required: true
+          type: string
+          description: Enter Student Notification Id
+      responses:
+        "200":
+          description: OK
+
+
+#Participate Event
+  /api/v1/participate/event/new/{did}:
+    post:
+      tags:
+        - Participate Event Query
+      summary: Create new Participate event (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is Department Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              event_name:
+                type: string
+                description: Enter Event Name 
+                required: true
+              date:
+                type: string
+                description: Enter Date ("2022-11-05")
+                required: true
+              lastDate:
+                type: string
+                description: Enter Last Date ("2022-11-07")
+                required: true
+              event_about:
+                type: string
+                description: Enter Event About
+                required: true
+              event_fee:
+                type: number
+                description: Enter Event Fee
+                required: true
+              event_fee_critiria:
+                type: string
+                description: Enter Fee Critiria ("Yes" || "No")
+                required: true
+              event_checklist_critiria:
+                type: string
+                description: Enter Fee Critiria ("Yes" || "No")
+                required: true
+              event_ranking_critiria:
+                type: string
+                description: Enter Fee Critiria ("Yes" || "No")
+                required: true
+              classes:
+                type: array
+                description: Array of String ["9898493898", "38989393898"]
+                items:
+                  type: string
+                  description: Enter Class Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/participate/event/all/query:
+    get:
+      tags:
+        - Participate Event Query
+      summary: All Participate Event Array (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter page no.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/participate/event/one/{pid}:
+    get:
+      tags:
+        - Participate Event Query
+      summary: One Participate Event Detail (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          type: string
+          description: Enter Participate Event Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/participate/event/one/{pid}/student/array:
+    get:
+      tags:
+        - Participate Event Query
+      summary: All Participate Event Student List (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          type: string
+          description: Enter Participate Event Id
+        - in: query
+          name: page
+          required: false
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: false
+          type: string
+          description: Enter Limit No.
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/participate/event/one/{pid}/student/{sid}/checklist:
+    patch:
+      tags:
+        - Participate Event Query
+      summary: Assign Checklist to student (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          type: string
+          description: Enter Participate Event Id
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Student Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/participate/event/one/{pid}/student/{sid}/result:
+    patch:
+      tags:
+        - Participate Event Query
+      summary: Result Declaration (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          type: string
+          description: Enter Participate Event Id
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Student Id
+        - in: query
+          name: rank
+          required: true
+          type: string
+          description: Enter Rank ("Winner" || "Ist Runner" || "IInd Runner")
       responses:
         "200":
           description: OK

@@ -14,12 +14,21 @@ router.get("/all/query", catchAsync(Event.retrieveAllParticipateEventQuery));
 router.get("/one/:pid", catchAsync(Event.retrieveOneParticipateEventQuery));
 
 // Get One Participate Event
-router.get("/one/:pid/student/array", catchAsync(Event.retrieveAllParticipateEventStudent));
+router.get(
+  "/one/:pid/student/array",
+  catchAsync(Event.retrieveAllParticipateEventStudent)
+);
 
 // Assign Checklist
-router.get("/one/:pid/student/:sid/checklist", catchAsync(Event.retrieveChecklistParticipateEventStudent));
+router.patch(
+  "/one/:pid/student/:sid/checklist",
+  catchAsync(Event.retrieveChecklistParticipateEventStudent)
+);
 
 // Result Declaration
-router.get("/one/:pid/student/:sid/result", catchAsync(Event.retrieveResultParticipateEventStudent));
+router.patch(
+  "/one/:pid/student/:sid/result",
+  catchAsync(Event.retrieveResultParticipateEventStudent)
+);
 
-module.exports = router
+module.exports = router;

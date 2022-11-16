@@ -5,7 +5,7 @@ const hashTagSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  hashtag_proflile_photo: {
+  hashtag_profile_photo: {
     type: String,
   },
   hashtag_about: {

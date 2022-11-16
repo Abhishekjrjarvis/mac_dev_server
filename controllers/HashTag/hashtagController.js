@@ -50,7 +50,7 @@ const addHashtag = () => {
 const photo_hashtag = async () => {
   const all = await HashTag.find({});
   all?.forEach(async (ele) => {
-    ele.hashtag_proflile_photo = "https://qviple.com/images/newLogo.svg";
+    ele.hashtag_profile_photo = "72cb82ebece43d88721ae4ae49583071";
     await ele.save();
   });
 };
@@ -109,13 +109,14 @@ exports.renderHashtag = async (req, res) => {
       totalPage = page + 1;
     }
     var hash_data = {
+      _id: hash._id,
       hashtag_name: hash.hashtag_name,
       hashtag_about: hash.hashtag_about,
       hashtag_follower_count: hash.hashtag_follower_count,
       hashtag_question_count: hash.hashtag_question_count,
       hashtag_repost_count: hash.hashtag_repost_count,
       hashtag_poll_count: hash.hashtag_poll_count,
-      hashtag_proflile_photo: hash.hashtag_proflile_photo,
+      hashtag_profile_photo: hash.hashtag_profile_photo,
     };
     res.status(200).send({
       message: "Explore your favourite hashtag 😀",
@@ -185,7 +186,7 @@ exports.arrayHashtag = async (req, res) => {
       .sort("-hashtag_follower_count")
       .limit(limit)
       .skip(skip)
-      .select("hashtag_name hashtag_follower_count hashtag_proflile_photo");
+      .select("hashtag_name hashtag_follower_count hashtag_profile_photo");
     if (hash?.length > 0) {
       res.status(200).send({
         message: "All Array of Hashtag by follower",

@@ -77,7 +77,7 @@ exports.renderHashtag = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "postTitle postText question_visibility is_hashtag postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+        "postTitle postText question_visibility postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
       )
       .populate({
         path: "poll_query",
@@ -97,10 +97,6 @@ exports.renderHashtag = async (req, res) => {
       .populate({
         path: "repostMultiple",
         select: "username photoId profilePhoto",
-      })
-      .populate({
-        path: "hash_tag",
-        select: "hashtag_name hashtag_profile_photo",
       });
     const postCount = await Post.find({ _id: { $in: hash.hashtag_post } });
     var totalPage = 0;

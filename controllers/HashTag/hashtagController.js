@@ -64,6 +64,27 @@ exports.renderHashtag = async (req, res) => {
       return res.status(200).send({
         message: "You're are breaking rules of API Fetching 😡",
         out: true,
+      });
+    const hash = await HashTag.findById({ _id: hid }).select(
+      "hashtag_name hashtag_profile_photo hashtag_follower_count hashtag_trend hashtag_about hashtag_question_count hashtag_repost_count hashtag_poll_count"
+    );
+    res.status(200).send({
+      message: "Explore your favourite hashtag 😀",
+      in: true,
+      hash,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderHashtagPost = async (req, res) => {
+  try {
+    const { hid } = req.params;
+    if (!hid)
+      return res.status(200).send({
+        message: "You're are breaking rules of API Fetching 😡",
+        out: true,
         totalPage: 0,
         postCount: 0,
         post: [],
@@ -104,20 +125,9 @@ exports.renderHashtag = async (req, res) => {
     } else {
       totalPage = page + 1;
     }
-    var hash_data = {
-      _id: hash._id,
-      hashtag_name: hash.hashtag_name,
-      hashtag_about: hash.hashtag_about,
-      hashtag_follower_count: hash.hashtag_follower_count,
-      hashtag_question_count: hash.hashtag_question_count,
-      hashtag_repost_count: hash.hashtag_repost_count,
-      hashtag_poll_count: hash.hashtag_poll_count,
-      hashtag_profile_photo: hash.hashtag_profile_photo,
-    };
     res.status(200).send({
       message: "Explore your favourite hashtag 😀",
       in: true,
-      hash: hash_data,
       totalPage,
       postCount: postCount?.length,
       post,

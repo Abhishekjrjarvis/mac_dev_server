@@ -16767,6 +16767,25 @@ paths:
     get:
       tags:
         - Featured HashTag Query
+      summary: One HashTag detail (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hashtag Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hashtag/{hid}/query/post:
+    get:
+      tags:
+        - Featured HashTag Query
       summary: One HashTag detail & Post (verified)
       consumes:
         - application/json

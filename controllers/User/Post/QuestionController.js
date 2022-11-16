@@ -63,7 +63,7 @@ exports.postQuestionText = async (req, res) => {
         await ele.save();
       });
     }
-    if (JSON.parse(req.body?.hashtag)?.length > 0) {
+    if (req.body?.hashtag && JSON.parse(req.body?.hashtag)?.length > 0) {
       JSON.parse(req.body?.hashtag)?.forEach(async (ele) => {
         const hash = await HashTag.findById({ _id: `${ele}` }).select(
           "hashtag_follower"

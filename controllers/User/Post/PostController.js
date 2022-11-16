@@ -873,6 +873,22 @@ exports.retrieveAllUserPosts = async (req, res) => {
           tagPeople: [],
           needUser: [],
         };
+        var hash_tag_ads = {
+          _id: "Sius2789",
+          user: false,
+          postImage: [],
+          postStatus: "",
+          likeCount: 0,
+          commentCount: 0,
+          endUserLike: [],
+          endUserSave: [],
+          createdAt: "2022-10-19T13:33:54.737+00:00",
+          author: "",
+          authorName: "",
+          authorUserName: "",
+          tagPeople: [],
+          needUser: [],
+        };
         if (page == 1) {
           post.splice(3, 0, data_u_s);
           post.splice(5, 0, data_i_s);
@@ -882,6 +898,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
           0,
           data_ads
         );
+        post.splice(2, 0, hash_tag_ads);
         res.status(200).send({
           message: "Success",
           post,

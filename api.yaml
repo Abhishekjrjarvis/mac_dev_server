@@ -12917,7 +12917,7 @@ paths:
           description: OK
 
 
-  /api/v1/institute/unblock/institute/:
+  /api/v1/ins/unblock/institute/:
     patch:
       tags:
         - Institute Profile API
@@ -12937,7 +12937,7 @@ paths:
         "200":
           description: OK
   
-  /api/v1/institute/report/block/institute:
+  /api/v1/ins/report/block/institute:
     patch:
       tags:
         - Institute Profile API
@@ -16792,6 +16792,16 @@ paths:
       produces:
         - application/json
       parameters:
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter page no.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
       responses:
         "200":
           description: OK

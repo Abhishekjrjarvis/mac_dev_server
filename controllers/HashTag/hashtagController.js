@@ -164,9 +164,14 @@ exports.followHashtag = async (req, res) => {
 
 exports.arrayHashtag = async (req, res) => {
   try {
+    var page = req.query.page ? parseInt(req.query.page) : 1;
+    var limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    var skip = (page - 1) * limit;
     const hash = await HashTag.find({})
       .sort("-hashtag_follower_count")
-      .select("hashtag_name hashtag_follower_count");
+      .limit(limit)
+      .skip(skip)
+      .select("hashtag_name hashtag_follower_count hashtag_proflile_photo");
     if (hash?.length > 0) {
       res.status(200).send({
         message: "All Array of Hashtag by follower",

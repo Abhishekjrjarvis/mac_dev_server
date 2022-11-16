@@ -41,14 +41,12 @@ exports.retrieveProfileData = async (req, res) => {
     if (user && user?.userPosts?.length < 1) {
       var post = [];
     }
-    res
-      .status(200)
-      .send({
-        message: "Limit User Profile Data ",
-        user,
-        upVote: totalUpVote,
-        post,
-      });
+    res.status(200).send({
+      message: "Limit User Profile Data ",
+      user,
+      upVote: totalUpVote,
+      post,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -800,12 +798,10 @@ exports.getReportPostUser = async (req, res) => {
     report.reportBy = user._id;
     user.userPosts?.pull(post?._id);
     await Promise.all([admin.save(), report.save(), user.save()]);
-    res
-      .status(200)
-      .send({
-        message: "reported with feed Removal",
-        report: report.reportStatus,
-      });
+    res.status(200).send({
+      message: "reported with feed Removal",
+      report: report.reportStatus,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -1576,12 +1572,10 @@ exports.retrieveUserApplicationStatus = async (req, res) => {
       path: "applicationStatus",
       options,
     });
-    res
-      .status(200)
-      .send({
-        message: "user Application Status",
-        status: user.applicationStatus,
-      });
+    res.status(200).send({
+      message: "user Application Status",
+      status: user.applicationStatus,
+    });
   } catch {}
 };
 
@@ -1707,18 +1701,14 @@ exports.updateUserUnBlock = async (req, res) => {
         user.blockCount -= 1;
       }
       await Promise.all([user.save(), suser.save()]);
-      res
-        .status(200)
-        .send({
-          message: "You are UnBlocked able to follow / circle ",
-          unblock: true,
-        });
+      res.status(200).send({
+        message: "You are UnBlocked able to follow / circle ",
+        unblock: true,
+      });
     } else {
-      res
-        .status(200)
-        .send({
-          message: "You are Already UnBlocked able to follow / circle ",
-        });
+      res.status(200).send({
+        message: "You are Already UnBlocked able to follow / circle ",
+      });
     }
   } catch (e) {
     console.log("UUBU", e);
@@ -1743,12 +1733,10 @@ exports.retrieveUserReportBlock = async (req, res) => {
         user.blockCount += 1;
       }
       await Promise.all([user.save(), suser.save()]);
-      res
-        .status(200)
-        .send({
-          message: "You are Blocked not able to follow / circle ",
-          block: true,
-        });
+      res.status(200).send({
+        message: "You are Blocked not able to follow / circle ",
+        block: true,
+      });
       try {
         user.userCircle?.pull(blockId);
         suser.userCircle?.pull(user_session);
@@ -1841,12 +1829,10 @@ exports.retrieveUserRoleQuery = async (req, res) => {
 
     var mergeArray = [...staff, ...student];
     var get_array = shuffleArray(mergeArray);
-    res
-      .status(200)
-      .send({
-        message: "User Role for Staff & Student",
-        role_query: get_array,
-      });
+    res.status(200).send({
+      message: "User Role for Staff & Student",
+      role_query: get_array,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -1905,23 +1891,19 @@ exports.retrieveUserReportBlock = async (req, res) => {
     } else {
       if (flag) {
         if (user?.user_block_institute?.includes(`${block_ins._id}`)) {
-          res
-            .status(200)
-            .send({
-              message: "You are Already Blocked able to follow / circle ",
-            });
+          res.status(200).send({
+            message: "You are Already Blocked able to follow / circle ",
+          });
         } else {
           user.user_block_institute.push(block_ins._id);
           if (user.blockCount >= 1) {
             user.blockCount += 1;
           }
           await Promise.all([user.save(), block_ins.save()]);
-          res
-            .status(200)
-            .send({
-              message: "You are Blocked not able to follow",
-              block: true,
-            });
+          res.status(200).send({
+            message: "You are Blocked not able to follow",
+            block: true,
+          });
           try {
             block_ins.followers?.pull(user_session);
             user.userInstituteFollowing?.pull(blockId);
@@ -1951,12 +1933,10 @@ exports.retrieveUserReportBlock = async (req, res) => {
           }
         }
       } else {
-        res
-          .status(200)
-          .send({
-            message: "You're the member of this Institute ",
-            unblock: false,
-          });
+        res.status(200).send({
+          message: "You're the member of this Institute ",
+          block: false,
+        });
       }
     }
   } catch (e) {

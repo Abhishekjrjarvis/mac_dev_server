@@ -27,7 +27,7 @@ exports.postQuestionText = async (req, res) => {
       }
       post.imageId = "0";
     }
-    if (JSON.parse(req.body?.hashtag)?.length > 0) {
+    if (req.body?.hashtag && JSON.parse(req.body?.hashtag)?.length > 0) {
       for (let hash of JSON.parse(req.body?.hashtag)) {
         const hTag = await HashTag.findById({ _id: `${hash}` });
         post.hash_tag.push(hTag._id);

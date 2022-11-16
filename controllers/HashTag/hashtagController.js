@@ -47,6 +47,16 @@ const addHashtag = () => {
 
 // console.log(addHashtag());
 
+const photo_hashtag = async () => {
+  const all = await HashTag.find({});
+  all?.forEach(async (ele) => {
+    ele.hashtag_proflile_photo = "https://qviple.com/images/newLogo.svg";
+    await ele.save();
+  });
+};
+
+// console.log(photo_hashtag());
+
 exports.renderHashtag = async (req, res) => {
   try {
     const { hid } = req.params;

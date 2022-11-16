@@ -109,4 +109,7 @@ router.patch(
   upload.array("file"),
   catchAsync(Post.renderEditPostQuery)
 );
+
+router.get("/:pid/query", catchAsync(Post.renderOnePostQuery));
+
 module.exports = router;

@@ -16762,6 +16762,25 @@ paths:
         "200":
           description: OK
 
+  /api/v1/user/post/{pid}/query:
+    get:
+      tags:
+        - Poll & Post Edit
+      summary: One Post detail (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          type: string
+          description: This is Post Id
+      responses:
+        "200":
+          description: OK
+
 # Featured HashTag
   /api/v1/hashtag/{hid}/query:
     get:

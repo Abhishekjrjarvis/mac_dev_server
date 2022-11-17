@@ -8,6 +8,8 @@ const { shuffleArray } = require('../../Utilities/Shuffle')
 const Post = require('../../models/Post')
 const Answer = require('../../models/Question/Answer')
 const Poll = require('../../models/Question/Poll')
+const Department = require('../../models/Department')
+const Class = require('../../models/Class')
 
 exports.validateUserAge = async(req, res) =>{
     try{
@@ -469,6 +471,136 @@ exports.fetchBiometricStudentQuery = async(req, res) =>{
     else{
       res.status(200).send({ message: 'Need a student', status: false})
     }
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.fetchExportStaffIdCardQuery = async(req, res) => {
+  try{
+    const { did, id } = req.query
+    var live_data = []
+    const export_ins = await InstituteAdmin.findById({_id: id})
+    .select('export_staff_data')
+    const depart = await Department.findById({_id: did})
+    .select('staffCount')
+    .populate({
+      path: 'departmentChatGroup',
+      select: 'staffFirstName staffMiddleName staffROLLNO staffLastName staffProfilePhoto photoId staffCast staffCastCategory staffReligion staffBirthPlace staffNationality staffMotherName staffMTongue staffGender staffDOB staffDistrict staffState staffAddress staffQualification staffAadharNumber staffPhoneNumber staffAadharFrontCard staffAadharBackCard staffPanNumber staffBankDetails staffUpiId staffCasteCertificate staffHeight staffWeight staffBMI'
+    })
+    
+    depart?.departmentChatGroup?.forEach((staff) => {
+      live_data.push({
+        indexNo: staff.staffROLLNO,
+        fullName: export_ins.export_staff_data.fullName ? `${staff.staffFirstName} ${staff.staffMiddleName ? staff.staffMiddleName : ''} ${staff.staffLastName}` : '',
+        photo: staff.staffProfilePhoto,
+        cast: export_ins.export_staff_data.staffCast ? staff.staffCast : '',
+        castCategory: export_ins.export_staff_data.staffCastCategory ? staff.staffCastCategory : '',
+        religion: export_ins.export_staff_data.staffReligion ? staff.staffReligion : '',
+        birthPlace: export_ins.export_staff_data.staffBirthPlace ? staff.staffBirthPlace : '',
+        motherName: export_ins.export_staff_data.staffMotherName ? staff.staffMotherName : '',
+        motherTongue: export_ins.export_staff_data.staffMTongue ? staff.staffMTongue : '',
+        district: export_ins.export_staff_data.staffDistrict ? staff.staffDistrict : '',
+        state: export_ins.export_staff_data.staffState ? staff.staffState : '',
+        address: export_ins.export_staff_data.staffAddress ? staff.staffAddress : '',
+        phoneNumber: export_ins.export_staff_data.staffPhoneNumber ? staff.staffPhoneNumber : '',
+        aadharNumber: export_ins.export_staff_data.staffAadharNumber ? staff.staffAadharNumber : '',
+        qualification: export_ins.export_staff_data.staffQualification ? staff.staffQualification : '',
+        gender: export_ins.export_staff_data.staffGender ? staff.staffGender : '',
+        dob: export_ins.export_staff_data.staffDOB ? staff.staffDOB : '',
+        nationality: export_ins.export_staff_data.staffNationality ? staff.staffNationality : '',
+        aadharFrontCard: export_ins.export_staff_data.staffAadharFrontCard ? staff.staffAadharFrontCard : '',
+        aadharBackCard: export_ins.export_staff_data.staffAadharBackCard ? staff.staffAadharBackCard : '',
+        panNumber: export_ins.export_staff_data.staffPanNumber ? staff.staffPanNumber : '',
+        bankDetails: export_ins.export_staff_data.staffBankDetails ? staff.staffBankDetails : '',
+        upiId: export_ins.export_staff_data.staffUpiId ? staff.staffUpiId : '',
+        castCertificate: export_ins.export_staff_data.staffCasteCertificate ? staff.staffCasteCertificate : '',
+        height: export_ins.export_staff_data.staffHeight ? staff.staffHeight : '',
+        weight: export_ins.export_staff_data.staffWeight ? staff.staffWeight : '',
+        bmi: export_ins.export_staff_data.staffBMI ? staff.staffBMI : '',
+      })
+    })
+    res.status(200).send({ message: 'Exported Staff Format Pattern Save', staff_card: live_data, export_format: true })
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.fetchExportStudentIdCardQuery = async(req, res) => {
+  try{
+    const { id } = req.query
+    const { request } = req.body
+    var query_data = []
+    var live_data = []
+    const export_ins = await InstituteAdmin.findById({_id: id})
+    .select('export_student_data')
+    
+    const classes = await Class.find({_id: { $in: request }})
+    .select('ApproveStudent')
+
+    classes.forEach((ele) => {
+      query_data.push(...ele?.ApproveStudent)
+    })
+    const student_query = await Student.find({ _id: { $in: query_data }})
+    .select('studentFirstName studentMiddleName studentGRNO studentLastName studentProfilePhoto photoId studentCast studentCastCategory studentReligion studentBirthPlace studentNationality studentMotherName studentMTongue studentGender studentDOB studentDistrict studentState studentAddress  studentAadharNumber studentPhoneNumber studentAadharFrontCard studentAadharBackCard studentPanNumber studentBankDetails studentUpiId studentCasteCertificate studentHeight studentWeight studentBMI')
+
+    student_query?.forEach((student) => {
+      live_data.push({
+        indexNo: student.studentROLLNO,
+        fullName: export_ins.export_student_data.fullName ? `${student.studentFirstName} ${student.studentMiddleName ? student.studentMiddleName : ''} ${student.studentLastName}` : '',
+        photo: student.studentProfilePhoto,
+        cast: export_ins.export_student_data.studentCast ? student.studentCast : '',
+        castCategory: export_ins.export_student_data.studentCastCategory ? student.studentCastCategory : '',
+        religion: export_ins.export_student_data.studentReligion ? student.studentReligion : '',
+        birthPlace: export_ins.export_student_data.studentBirthPlace ? student.studentBirthPlace : '',
+        motherName: export_ins.export_student_data.studentMotherName ? student.studentMotherName : '',
+        motherTongue: export_ins.export_student_data.studentMTongue ? student.studentMTongue : '',
+        district: export_ins.export_student_data.studentDistrict ? student.studentDistrict : '',
+        state: export_ins.export_student_data.studentState ? student.studentState : '',
+        address: export_ins.export_student_data.studentAddress ? student.studentAddress : '',
+        phoneNumber: export_ins.export_student_data.studentPhoneNumber ? student.studentPhoneNumber : '',
+        aadharNumber: export_ins.export_student_data.studentAadharNumber ? student.studentAadharNumber : '',
+        parentName: export_ins.export_student_data.studentParentsName ? student.studentParentsName : '',
+        parentNumber: export_ins.export_student_data.studentParentsPhoneNumber ? student.studentParentsPhoneNumber : '',
+        gender: export_ins.export_student_data.studentGender ? student.studentGender : '',
+        dob: export_ins.export_student_data.studentDOB ? student.studentDOB : '',
+        nationality: export_ins.export_student_data.studentNationality ? student.studentNationality : '',
+        aadharFrontCard: export_ins.export_student_data.studentAadharFrontCard ? student.studentAadharFrontCard : '',
+        aadharBackCard: export_ins.export_student_data.studentAadharBackCard ? student.studentAadharBackCard : '',
+        panNumber: export_ins.export_student_data.studentPanNumber ? student.studentPanNumber : '',
+        bankDetails: export_ins.export_student_data.studentBankDetails ? student.studentBankDetails : '',
+        upiId: export_ins.export_student_data.studentUpiId ? student.studentUpiId : '',
+        castCertificate: export_ins.export_student_data.studentCasteCertificate ? student.studentCasteCertificate : '',
+        height: export_ins.export_student_data.studentHeight ? student.studentHeight : '',
+        weight: export_ins.export_student_data.studentWeight ? student.studentWeight : '',
+        bmi: export_ins.export_student_data.studentBMI ? student.studentBMI : '',
+      })
+    })
+    res.status(200).send({ message: 'Exported Student Format Pattern Save', student_card: live_data, export_format: true })
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.fetchExportStaffIdCardFormat = async(req, res) => {
+  try{
+    const { id } = req.params
+    await InstituteAdmin.findByIdAndUpdate(id, req.body)
+    res.status(200).send({ message: 'Exported Staff Format Pattern Save', export_format: true })
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
+exports.fetchExportStudentIdCardFormat = async(req, res) => {
+  try{
+    const { id } = req.params
+    await InstituteAdmin.findByIdAndUpdate(id, req.body)
+    res.status(200).send({ message: 'Exported Student Format Pattern Save', export_format: true })
   }
   catch(e){
     console.log(e)

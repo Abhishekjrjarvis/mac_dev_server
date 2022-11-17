@@ -81,11 +81,11 @@ const sportEventMatchSchema = new mongoose.Schema({
     ],
     sportInterPlayer1: { type: String },
     sportInterTeam1: { type: String },
-    sportInterFreePlayer: [
-        { 
-            type: String 
-        },
-    ],
+    sportInterFreePlayer: [],
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
 })
 
 

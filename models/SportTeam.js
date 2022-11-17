@@ -49,6 +49,10 @@ const sportTeamSchema = new mongoose.Schema({
     sportTeamCaptain: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Student'
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
     }
 })
 

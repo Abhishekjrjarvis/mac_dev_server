@@ -42,6 +42,7 @@ router
 router
   .route("/:smid/question/count/:cmid")
   .get(catchAsync(mcqController.getQuestionAddTestSet));
+
 router
   .route("/question/:smid/testset/:cmid")
   .get(catchAsync(mcqController.allSaveTestSet))

@@ -65,7 +65,9 @@ exports.retrieveSportDetail = async (req, res) => {
   try {
     const { id } = req.params;
     const sport = await Sport.findById({ _id: id })
-      .lean()
+      .select(
+        "sportName sportPhoneNumber sportAbout sportEmail photoId coverId photo cover sportClassCount sportEventCount sportMemberCount sportTeamCount"
+      )
       .populate({
         path: "sportHead",
         select:
@@ -75,17 +77,73 @@ exports.retrieveSportDetail = async (req, res) => {
         path: "institute",
         select: "insName",
       })
-      .populate({
-        path: "sportClass",
-        select: "sportClassName photoId photo",
-        populate: {
-          path: "sportStudent",
-          select:
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
-        },
-      });
-    // .populate("sportEvent");
-    res.status(200).send({ message: "Let's Explore Sport data 👍", sport });
+      .lean()
+      .exec();
+    res.status(200).send({ message: "All Master Sport Details  👍", sport });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveSportDetailEvent = async (req, res) => {
+  try {
+    const { status } = req.query;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const { id } = req.params;
+    const skip = (page - 1) * limit;
+
+    const sport = await Sport.findById({ _id: id }).select("sportEvent");
+
+    const event = await SportEvent.find({
+      $and: [
+        { _id: { $in: sport?.sportEvent } },
+        { sportEventStatus: `${status}` },
+      ],
+    })
+      .sort("-createdAt")
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "sportEventName sportEventCategory sportEventCategoryLevel sportEventPlace sportEventDate sportEventDescription sportEventProfilePhoto photoId"
+      );
+
+    if (event?.length > 0) {
+      res
+        .status(200)
+        .send({ message: "Let's Explore Sport Event data 👍", event });
+    } else {
+      res.status(200).send({ message: "No Sport Event data 😒", event: [] });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveSportDetailClass = async (req, res) => {
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const { id } = req.params;
+    const skip = (page - 1) * limit;
+
+    const sport = await Sport.findById({ _id: id }).select("sportClass");
+
+    const classes = await SportClass.find({
+      $and: [{ _id: { $in: sport?.sportClass } }],
+    })
+      .sort("-createdAt")
+      .limit(limit)
+      .skip(skip)
+      .select("sportClassName");
+
+    if (classes?.length > 0) {
+      res
+        .status(200)
+        .send({ message: "Let's Explore Sport Class data 👍", classes });
+    } else {
+      res.status(200).send({ message: "No Sport Class data 😒", classes: [] });
+    }
   } catch (e) {
     console.log(e);
   }
@@ -158,12 +216,10 @@ exports.getSportEvent = async (req, res) => {
     event.photoId = "1";
     await Promise.all([sport.save(), event.save()]);
     await unlinkFile(file.path);
-    res
-      .status(200)
-      .send({
-        message: `${event.sportEventName} Event Created`,
-        event: event._id,
-      });
+    res.status(200).send({
+      message: `${event.sportEventName} Event Created`,
+      event: event._id,
+    });
     var institute = await InstituteAdmin.findById({
       _id: `${sport.institute}`,
     });
@@ -216,66 +272,68 @@ exports.retrieveSportEventDetail = async (req, res) => {
   try {
     const { id } = req.params;
     const event = await SportEvent.findById({ _id: id })
-      .populate({
-        path: "sportEventMatch",
-        select: "id",
-        populate: {
-          path: "sportEventMatchClass",
-          select: "id sportEventClassName",
-          populate: {
-            path: "sportStudent",
-            select: "id studentFirstName",
-          },
-        },
-      })
+      .select(
+        "sportEventName sportEventMatchCount sportEventStatus sportEventCategory sportEventPlace sportEventDate sportEventDescription sportEventProfilePhoto"
+      )
       .populate({
         path: "sportDepartment",
-        select: "id sportName",
-      })
-      .populate({
-        path: "sportEventMatch",
-        select: "id",
-        populate: {
-          path: "sportEvent",
-          select: "id",
-        },
-      })
-      .populate({
-        path: "sportEventMatch",
-        select: "id",
-        populate: {
-          path: "sportWinner",
-          select: "id",
-        },
-      })
-      .populate({
-        path: "sportEventMatch",
-        select: "id",
-        populate: {
-          path: "sportWinnerTeam",
-          select: "id",
-        },
-      })
-      .populate({
-        path: "sportEventMatch",
-        select: "id",
-        populate: {
-          path: "sportRunner",
-          select: "id",
-        },
-      })
-      .populate({
-        path: "sportEventMatch",
-        select: "id",
-        populate: {
-          path: "sportRunnerTeam",
-          select: "id",
-        },
+        select: "_id",
       });
     res.status(200).send({ message: "One Event Detail", event });
   } catch (e) {
     console.log(`Error`, e.message);
   }
+};
+
+exports.retrieveSportEventQuery = async (req, res) => {
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const { eid } = req.params;
+    const skip = (page - 1) * limit;
+    const event_query = await SportEvent.findById({ _id: eid }).select(
+      "sportEventMatch"
+    );
+
+    const match_query = await SportEventMatch.find({
+      _id: { $in: event_query?.sportEventMatch },
+    })
+      .sort("-createdAt")
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "sportEventMatchName sportEventMatchCategory sportEventMatchCategoryLevel sportEventMatchDate"
+      )
+      .populate({
+        path: "sportPlayer1",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+      })
+      .populate({
+        path: "sportTeam1",
+        select: "sportClassTeamName",
+      })
+      .populate({
+        path: "sportPlayer2",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+      })
+      .populate({
+        path: "sportTeam2",
+        select: "sportClassTeamName",
+      })
+      .populate({
+        path: "sportFreePlayer",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+      });
+
+    if (match_query?.length > 0) {
+      res.status(200).send({ message: "Awesome Event", match_query });
+    } else {
+      res.status(200).send({ message: "Awesome Event", match_query: [] });
+    }
+  } catch {}
 };
 
 exports.getIntraMatchEvent = async (req, res) => {
@@ -322,23 +380,29 @@ exports.getIntraMatchEvent = async (req, res) => {
       const Team2 = await SportTeam.findById({ _id: `${sportTPlayer2}` });
       match.sportTeam1 = Team1._id;
       match.sportTeam2 = Team2._id;
-      Team1.sportTeamStudent?.forEach(async (team_f) => {
-        team_f.studentSportsEventMatch.push({
-          eventMatch: match._id,
-        });
-        await team_f.save();
+      const students1 = await Student.find({
+        _id: { $in: Team1.sportTeamStudent },
       });
-      Team2.sportTeamStudent?.forEach(async (team_s) => {
-        team_s.studentSportsEventMatch.push({
+      students1.forEach(async (arr) => {
+        arr.studentSportsEventMatch.push({
           eventMatch: match._id,
         });
-        await team_s.save();
+        await arr.save();
+      });
+      const students2 = await Student.find({
+        _id: { $in: Team2.sportTeamStudent },
+      });
+      students2.forEach(async (arr) => {
+        arr.studentSportsEventMatch.push({
+          eventMatch: match._id,
+        });
+        await arr.save();
       });
       await match.save();
     } else if (sportPlayerFree.length >= 1) {
       for (let i = 0; i < sportPlayerFree.length; i++) {
         const student = await Student.findById({
-          _id: sportPlayerFree[i].studentId,
+          _id: sportPlayerFree[i],
         });
         match.sportFreePlayer.push(student._id);
         match.sportFreePlayerCount += 1;
@@ -404,21 +468,32 @@ exports.getInterMatchEvent = async (req, res) => {
     await Promise.all([event.save(), match.save()]);
     res
       .status(200)
-      .send({ message: "Inter Match Created", match: match._id, status: true });
-    //
-    if (sportPlayer !== "") {
-      match.sportInterPlayer1 = sportPlayer;
-      await match.save();
-    } else if (sportTeam !== "") {
-      match.soprtPlayer = null;
-      match.sportInterTeam1 = sportTeam;
-      await match.save();
-    } else if (sportPlayerFree.length >= 1) {
+      .send({ message: "Inter Match Created", match: match, status: true });
+    if (sportPlayer) {
+      match.sportPlayer1 = sportPlayer;
+    } else if (sportTeam) {
+      const team = await SportTeam.findById({ _id: `${sportTeam}` }).select(
+        "sportTeamStudent"
+      );
+      const students = await Student.find({
+        _id: { $in: team.sportTeamStudent },
+      });
+      match.sportTeam1 = team._id;
+      students.forEach(async (arr) => {
+        arr.studentSportsEventMatch.push({
+          eventMatch: match._id,
+        });
+        await arr.save();
+      });
+    } else if (sportPlayerFree?.length >= 1) {
       for (let i = 0; i < sportPlayerFree.length; i++) {
-        match.sportInterFreePlayer.push(student);
-        await match.save();
+        const student = await Student.findById({
+          _id: sportPlayerFree[i],
+        });
+        match.sportFreePlayer.push(student._id);
       }
     }
+    await match.save();
     const student = await Student.find({
       $and: [
         { institute: `${sport.institute}` },
@@ -460,15 +535,9 @@ exports.retrieveSportClassDetail = async (req, res) => {
   try {
     const { cid } = req.params;
     const classes = await SportClass.findById({ _id: cid })
-      .populate({
-        path: "sportStudent",
-        select:
-          "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId",
-        populate: {
-          path: "sportTeam",
-          select: "sportClassTeamName",
-        },
-      })
+      .select(
+        "sportClassName sportClassEmail sportClassPhoneNumber sportClassAbout photoId photo coverId cover sportStudentCount sportTeamCount createdAt"
+      )
       .populate({
         path: "sportClassHead",
         select:
@@ -482,17 +551,11 @@ exports.retrieveSportClassDetail = async (req, res) => {
         path: "sportDepartment",
         select: "sportName",
       })
-      .populate({
-        path: "sportTeam",
-        select: "sportClassTeamName sportTeamStudentCount",
-        populate: {
-          path: "sportTeamCaptain",
-          select: "studentFirstName studenMiddleName studentLastName",
-        },
-      });
+      .lean()
+      .exec();
     res.status(200).send({ message: "One Sport Class Data", classes });
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(e);
   }
 };
 
@@ -514,17 +577,81 @@ exports.updateStudentSportClass = async (req, res) => {
         await student.save();
       }
       await Promise.all([classes.save(), sport_depart.save()]);
-      res
-        .status(200)
-        .send({
-          message: "Student added to sports class",
-          classes: classes._id,
-          status: true,
-        });
+      res.status(200).send({
+        message: "Student added to sports class",
+        classes: classes._id,
+        status: true,
+      });
     } else {
       res
         .status(200)
         .send({ message: "No Student added to sports class", status: false });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveAllSportStudent = async (req, res) => {
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const { cid } = req.params;
+    const skip = (page - 1) * limit;
+    const classes = await SportClass.findById({ _id: cid }).select(
+      "sportStudent"
+    );
+
+    const student_query = await Student.find({
+      _id: { $in: classes?.sportStudent },
+    })
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto"
+      );
+
+    if (student_query?.length > 0) {
+      res
+        .status(200)
+        .send({ message: "All student of Sport Classes", student_query });
+    } else {
+      res.status(200).send({ message: "Nope...", student_query: [] });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveAllSportTeam = async (req, res) => {
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const { cid } = req.params;
+    const skip = (page - 1) * limit;
+    const classes = await SportClass.findById({ _id: cid }).select("sportTeam");
+
+    const team_query = await SportTeam.find({
+      _id: { $in: classes?.sportTeam },
+    })
+      .sort("-createdAt")
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "sportClassTeamName sportTeamStudentCount rankTitle teamPoints sportTeamPhoto photoId"
+      )
+      .populate({
+        path: "sportTeamCaptain",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+      });
+
+    if (team_query?.length > 0) {
+      res
+        .status(200)
+        .send({ message: "All Team of Sport Classes", team_query });
+    } else {
+      res.status(200).send({ message: "Nope...", team_query: [] });
     }
   } catch (e) {
     console.log(e);
@@ -559,17 +686,15 @@ exports.removeStudentSportClass = async (req, res) => {
         if (sport_depart.sportMemberCount > 0) {
           sport_depart.sportMemberCount -= 1;
         }
-        student.sportClass = "";
+        student.sportClass = null;
         await student.save();
       }
       await Promise.all([classes.save(), sport_depart.save()]);
-      res
-        .status(200)
-        .send({
-          message: "Student Remove from sports class",
-          classes: classes._id,
-          remove: true,
-        });
+      res.status(200).send({
+        message: "Student Remove from sports class",
+        classes: classes._id,
+        remove: true,
+      });
     } else {
       res
         .status(200)
@@ -580,46 +705,13 @@ exports.removeStudentSportClass = async (req, res) => {
   }
 };
 
-// exports.getStudentSportClass = async(req, res) =>{
-//     try {
-//         const { cid, id } = req.params;
-//         const classes = await SportClass.findById({ _id: cid });
-//         const student = await Student.findById({ _id: id });
-//         classes.sportStudent.push(student);
-//         student.sportClass = classes;
-//         await classes.save();
-//         await student.save();
-//         res.status(200).send({ message: "Student Added" });
-//       } catch(e) {
-//         console.log(
-//           `Error`, e.message
-//         );
-//       }
-// }
-
-// exports.removeStudentSportClass = async(req, res) =>{
-//     try {
-//         const { cid, id } = req.params;
-//         const classes = await SportClass.findById({ _id: cid });
-//         const student = await Student.findById({ _id: id });
-//         classes.sportStudent.pull(student);
-//         student.sportClass = "";
-//         await classes.save();
-//         await student.save();
-//         res.status(200).send({ message: "Student Removed" });
-//       } catch(e) {
-//         console.log(
-//           `Error`, e.message
-//         );
-//       }
-// }
-
 exports.updateSportTeam = async (req, res) => {
   try {
     const { request, captain, cid } = req.body;
     const classes = await SportClass.findById({ _id: cid });
-    const parsedReuest = JSON.parse(request);
-    if (parsedReuest?.length > 0) {
+    const sport = await Sport.findById({ _id: `${classes.sportDepartment}` });
+    const parsedRequest = JSON.parse(request);
+    if (parsedRequest?.length > 0) {
       var team = new SportTeam({ ...req.body });
       const file = req.file;
       if (file) {
@@ -627,8 +719,8 @@ exports.updateSportTeam = async (req, res) => {
         team.sportTeamPhoto = results.key;
         team.photoId = "1";
       }
-      for (let i = 0; i < parsedReuest.length; i++) {
-        const student = await Student.findById({ _id: parsedReuest[i] });
+      for (let i = 0; i < parsedRequest.length; i++) {
+        const student = await Student.findById({ _id: parsedRequest[i] });
         team.sportTeamStudent.push({
           student: student._id,
           asCaptain: `${student._id}` === `${captain}` ? "Captain" : "Member",
@@ -639,9 +731,10 @@ exports.updateSportTeam = async (req, res) => {
       }
       classes.sportTeam.push(team._id);
       classes.sportTeamCount += 1;
+      sport.sportTeamCount += 1;
       team.sportClass = classes._id;
       team.sportTeamCaptain = `${captain}`;
-      await Promise.all([classes.save(), team.save()]);
+      await Promise.all([classes.save(), team.save(), sport.save()]);
       res
         .status(200)
         .send({ message: "Team Created", team: team._id, status: true });
@@ -659,10 +752,11 @@ exports.retrieveMatchDetail = async (req, res) => {
   try {
     const { mid } = req.params;
     const match = await SportEventMatch.findById({ _id: mid })
-      .select("sportEventMatchName")
+      .select("sportEventMatchName rankMatch sportOpponentPlayer matchStatus ")
       .populate({
         path: "sportFreePlayer",
-        select: "studentFirstName studentMiddleName studentLastName",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
       })
       .populate({
         path: "sportEvent",
@@ -670,7 +764,8 @@ exports.retrieveMatchDetail = async (req, res) => {
       })
       .populate({
         path: "sportPlayer1",
-        select: "studentFirstName studentMiddleName studentLastName",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
       })
       .populate({
         path: "sportTeam1",
@@ -678,7 +773,8 @@ exports.retrieveMatchDetail = async (req, res) => {
       })
       .populate({
         path: "sportPlayer2",
-        select: "studentFirstName studentMiddleName studentLastName",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
       })
       .populate({
         path: "sportTeam2",
@@ -687,6 +783,24 @@ exports.retrieveMatchDetail = async (req, res) => {
       .populate({
         path: "sportEventMatchClass",
         select: "sportEventMatchClassName",
+      })
+      .populate({
+        path: "sportWinner",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+      })
+      .populate({
+        path: "sportWinnerTeam",
+        select: "sportClassTeamName",
+      })
+      .populate({
+        path: "sportRunner",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+      })
+      .populate({
+        path: "sportRunnerTeam",
+        select: "sportClassTeamName",
       });
     res.status(200).send({ message: "One Match Data", match });
   } catch (e) {
@@ -710,12 +824,10 @@ exports.updateIntraMatchIndividual = async (req, res) => {
       await Promise.all([student1.save(), student2.save()]);
     }
     await match.save();
-    res
-      .status(200)
-      .send({
-        message: "Its Party Time Everyone Enjoy...",
-        match_status: true,
-      });
+    res.status(200).send({
+      message: "Its Party Time Everyone Enjoy...",
+      match_status: true,
+    });
     student1.studentSportsEventMatch?.forEach(async (res) => {
       if (`${res.eventMatch}` === `${match._id}`) {
         res.rankTitle = "Winner";
@@ -745,8 +857,10 @@ exports.updateInterMatchIndividual = async (req, res) => {
     if (match.sportEventMatchCategoryLevel === "Final Match") {
       if (studentRankTitle === "Winner") {
         student.extraPoints += 40;
+        match.sportWinner = student._id;
       } else if (studentRankTitle === "Runner") {
         student.extraPoints += 25;
+        match.sportRunner = student._id;
       }
     }
     await Promise.all([match.save(), student.save()]);
@@ -772,10 +886,18 @@ exports.updateIntraMatchTeam = async (req, res) => {
     var team1 = await SportTeam.findById({ _id: `${teamWinner}` }).populate({
       path: "sportTeamStudent",
       select: "studentSportsEventMatch",
+      populate: {
+        path: "student",
+        select: "_id extraPoints",
+      },
     });
     var team2 = await SportTeam.findById({ _id: `${teamRunner}` }).populate({
       path: "sportTeamStudent",
       select: "studentSportsEventMatch",
+      populate: {
+        path: "student",
+        select: "_id extraPoints",
+      },
     });
     match.sportWinnerTeam = team1._id;
     match.sportRunnerTeam = team2._id;
@@ -787,14 +909,14 @@ exports.updateIntraMatchTeam = async (req, res) => {
       await Promise.all([team1.save(), team2.save()]);
       for (let i = 0; i < team1.sportTeamStudent.length; i++) {
         const student1 = await Student.findById({
-          _id: team1.sportTeamStudent[i]._id,
+          _id: team1.sportTeamStudent[i].student._id,
         });
         student1.extraPoints += 25;
         await student1.save();
       }
       for (let i = 0; i < team2.sportTeamStudent.length; i++) {
         const student2 = await Student.findById({
-          _id: team2.sportTeamStudent[i]._id,
+          _id: team2.sportTeamStudent[i].student._id,
         });
         student2.extraPoints += 15;
         await student2.save();
@@ -803,22 +925,28 @@ exports.updateIntraMatchTeam = async (req, res) => {
     res
       .status(200)
       .send({ message: "Intra Team Match Result Updated", match_status: true });
-    team1?.sportTeamStudent?.forEach(async (ele) => {
-      ele.studentSportsEventMatch?.forEach(async (res) => {
-        if (`${res.eventMatch}` === `${match._id}`) {
-          res.rankTitle = "Winner";
+    for (let i = 0; i < team1.sportTeamStudent.length; i++) {
+      const student = await Student.findById({
+        _id: team1.sportTeamStudent[i].student._id,
+      });
+      student.studentSportsEventMatch?.forEach((ele) => {
+        if (`${ele.eventMatch}` === `${match._id}`) {
+          ele.rankTitle = "Winner";
         }
       });
-      await ele.save();
-    });
-    team2?.sportTeamStudent?.forEach(async (ele) => {
-      ele.studentSportsEventMatch?.forEach(async (res) => {
-        if (`${res.eventMatch}` === `${match._id}`) {
-          res.rankTitle = "Runner";
+      await student.save();
+    }
+    for (let i = 0; i < team2.sportTeamStudent.length; i++) {
+      const student = await Student.findById({
+        _id: team2.sportTeamStudent[i].student._id,
+      });
+      student.studentSportsEventMatch?.forEach((ele) => {
+        if (`${ele.eventMatch}` === `${match._id}`) {
+          ele.rankTitle = "Runner";
         }
       });
-      await ele.save();
-    });
+      await student.save();
+    }
   } catch (e) {
     console.log(e);
   }
@@ -832,6 +960,10 @@ exports.updateInterMatchTeam = async (req, res) => {
     var team = await SportTeam.findById({ _id: `${teamPlayer}` }).populate({
       path: "sportTeamStudent",
       select: "studentSportsEventMatch",
+      populate: {
+        path: "student",
+        select: "_id extraPoints",
+      },
     });
     match.sportOpponentPlayer = teamOpponentPlayer;
     match.matchStatus = "Completed";
@@ -842,34 +974,39 @@ exports.updateInterMatchTeam = async (req, res) => {
         team.teamPoints += 40;
         for (let i = 0; i < team.sportTeamStudent.length; i++) {
           const student = await Student.findById({
-            _id: team.sportTeamStudent[i]._id,
+            _id: team.sportTeamStudent[i].student._id,
           });
           student.extraPoints += 40;
           await student.save();
         }
+        match.sportWinnerTeam = team._id;
       } else if (studentRankTitle === "Runner") {
         team.teamPoints += 25;
         for (let i = 0; i < team.sportTeamStudent.length; i++) {
           const student = await Student.findById({
-            _id: team.sportTeamStudent[i]._id,
+            _id: team.sportTeamStudent[i].student._id,
           });
           student.extraPoints += 25;
           await student.save();
         }
+        match.sportRunnerTeam = team._id;
       }
     }
     await Promise.all([match.save(), team.save()]);
     res
       .status(200)
       .send({ message: "Inter Team Match Result Updated", match_status: true });
-    team?.sportTeamStudent?.forEach(async (ele) => {
-      ele.studentSportsEventMatch?.forEach(async (res) => {
-        if (`${res.eventMatch}` === `${match._id}`) {
-          res.rankTitle = studentRankTitle;
+    for (let i = 0; i < team.sportTeamStudent.length; i++) {
+      const student = await Student.findById({
+        _id: team.sportTeamStudent[i].student._id,
+      });
+      student.studentSportsEventMatch?.forEach((ele) => {
+        if (`${ele.eventMatch}` === `${match._id}`) {
+          ele.rankTitle = studentRankTitle;
         }
       });
-      await ele.save();
-    });
+      await student.save();
+    }
   } catch (e) {
     console.log(e);
   }
@@ -893,9 +1030,7 @@ exports.updateIntraMatchFree = async (req, res) => {
     await match.save();
     if (studentParticipants.length >= 1) {
       for (let i = 0; i < studentParticipants.length; i++) {
-        const student = await Student.findById({
-          _id: studentParticipants[i].studentId,
-        });
+        const student = await Student.findById({ _id: studentParticipants[i] });
         match.sportParticipants.push(student._id);
         if (match.sportEventMatchCategoryLevel === "Final Match") {
           student.extraPoints += 5;
@@ -921,7 +1056,7 @@ exports.updateIntraMatchFree = async (req, res) => {
     await student2.save();
 
     studentParticipants?.forEach(async (ele) => {
-      const student = await Student.findById({ _id: ele.studentId });
+      const student = await Student.findById({ _id: ele });
       student.studentSportsEventMatch?.forEach(async (res) => {
         if (`${res.eventMatch}` === `${match._id}`) {
           res.rankTitle = "Participants";
@@ -951,16 +1086,16 @@ exports.updateInterMatchFree = async (req, res) => {
     if (match.sportEventMatchCategoryLevel === "Final Match") {
       if (studentRankTitle === "Winner") {
         student.extraPoints += 40;
+        match.sportWinner = student._id;
       } else if (studentRankTitle === "Runner") {
         student.extraPoints += 25;
+        match.sportRunner = student._id;
       }
     }
     await Promise.all([match.save(), student.save()]);
     if (studentParticipants.length >= 1) {
       for (let i = 0; i < studentParticipants.length; i++) {
-        const student = await Student.findById({
-          _id: studentParticipants[i].studentId,
-        });
+        const student = await Student.findById({ _id: studentParticipants[i] });
         match.sportInterParticipants.push(student._id);
         if (match.sportEventMatchCategoryLevel === "Final Match") {
           student.extraPoints += 5;
@@ -1048,7 +1183,7 @@ exports.renderStudentSideEvent = async (req, res) => {
       .populate({
         path: "sportEvent",
         select:
-          "sportEventName sportEventStatus sportEventProfilePhoto photoId sportEventDate sportEventCategory sportEventPlace",
+          "sportEventName sportEventStatus sportEventProfilePhoto photoId sportEventDate sportEventCategory sportEventCategoryLevel sportEventPlace",
       })
       .lean()
       .exec();
@@ -1067,23 +1202,59 @@ exports.renderStudentSideMatch = async (req, res) => {
       .select("_id")
       .populate({
         path: "studentSportsEventMatch",
-        populate: {
-          path: "eventMatch",
-          populate: {
-            path: "sportEvent",
-            select: "_id",
-          },
-        },
-      })
-      .lean()
-      .exec();
+        select: "eventMatch",
+      });
 
-    var valid_match = student?.studentSportsEventMatch?.filter((val) => {
-      if (`${val.eventMatch.sportEvent._id}` === `${eid}`) return val;
+    var match_data = [];
+    student?.studentSportsEventMatch?.forEach((each) => {
+      match_data.push(each?.eventMatch);
     });
-    res
-      .status(200)
-      .send({ message: "Match Detail Query", match_query: valid_match });
+
+    if (match_data?.length > 0) {
+      const match = await SportEventMatch.find({ _id: { $in: match_data } })
+        .select(
+          "rankMatch matchStatus sportOpponentPlayer sportEventMatchName sportEventMatchDate sportEventMatchCategory sportEventMatchCategoryLevel"
+        )
+        .populate({
+          path: "sportWinner",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+        })
+        .populate({
+          path: "sportWinnerTeam",
+          select: "sportClassTeamName teamPoints rankTitle",
+        })
+        .populate({
+          path: "sportRunner",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+        })
+        .populate({
+          path: "sportRunnerTeam",
+          select: "sportClassTeamName teamPoints rankTitle",
+        })
+        .populate({
+          path: "sportParticipants",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+        })
+        .populate({
+          path: "sportEvent",
+          select: "_id",
+        });
+      var valid_match = match?.filter((val) => {
+        if (`${val.sportEvent._id}` === `${eid}`) return val;
+      });
+
+      res
+        .status(200)
+        .send({ message: "Match Detail Query", match_query: valid_match });
+    } else {
+      res.status(200).send({
+        message: "Student Not Take Part In Event Match",
+        match_query: [],
+      });
+    }
   } catch (e) {
     console.log(e);
   }

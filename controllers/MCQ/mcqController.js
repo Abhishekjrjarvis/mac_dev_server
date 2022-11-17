@@ -172,10 +172,12 @@ exports.updateUniversalSubjectProfile = async (req, res) => {
 exports.getQuestion = async (req, res) => {
   try {
     if (req.query?.ucmid && req.query?.usmid) {
+      // console.log(req.query?.usmid, req.query?.ucmid);
       const uniSubjectMaster = await SubjectMasterQuestion.findOne({
         subjectMaster: { $eq: req.query.usmid },
         classMaster: { $eq: req.query.ucmid },
       });
+      // console.log(uniSubjectMaster);
       const subjectMaster = await SubjectMasterQuestion.findOne({
         subjectMaster: { $eq: req.params.smid },
         classMaster: { $eq: req.params.cmid },
@@ -318,7 +320,7 @@ exports.addQuestion = async (req, res) => {
       questionDescription: req.body.questionDescription,
       options: req.body.options,
       correctAnswer: req.body.correctAnswer,
-      answerDescription: req.body.questionSNO,
+      answerDescription: req.body.answerDescription,
       questionImage: questionImage,
       answerImage: answerImage,
       isUniversal: false,
@@ -674,7 +676,7 @@ exports.subjectGivenStudentTestSet = async (req, res) => {
         path: "assignStudent",
         skip: skipItem,
         limit: itemPerPage,
-        populat: {
+        populate: {
           path: "testSet",
           match: {
             allotedTestSet: { $eq: `${req.params.atsid}` },
@@ -734,7 +736,7 @@ exports.studentOneTestSet = async (req, res) => {
   try {
     const testset = await StudentTestSet.findById(req.params.tsid)
       .select(
-        "testExamName testSubject testDate testStart testEnd testTotalNumber testDuration"
+        "testExamName testSubject testDate testStart testEnd testTotalNumber testDuration testObtainMarks"
       )
       .lean()
       .exec();
@@ -758,12 +760,12 @@ exports.studentTestSet = async (req, res) => {
   try {
     const studentTestSet = await StudentTestSet.findById(req.params.tsid)
       .select(
-        "testExamName testDate testStart testEnd testDuration testSetLeftTime testTotalQuestion testTotalNumber questions"
+        "testExamName testDate testStart testEnd testDuration testSetLeftTime testTotalQuestion testTotalNumber questions.questionNumber questions.questionDescription questions.questionImage questions.options questions.questionSNO questions.givenAnswer questions._id"
       )
       .populate({
-        path: "questions",
+        path: "student",
         select:
-          "questionSNO questionNumber questionDescription questionImage options",
+          "studentFirstName studentMiddleName studentLastName studentProfilePhoto studentROLLNO",
       });
     var currentDate = new Date();
     currentDate.setHours(currentDate.getHours() + 5);
@@ -774,7 +776,8 @@ exports.studentTestSet = async (req, res) => {
       JSON.stringify(currentDate),
       studentTestSet?.testEnd
     );
-    if (entryTime && exitTime) {
+    // if (entryTime && exitTime) {
+    if (true) {
       studentTestSet.testSetAccess = true;
 
       await studentTestSet.save();
@@ -798,7 +801,8 @@ exports.studentTestSetQuestionSave = async (req, res) => {
     const testSet = await StudentTestSet.findById(req.params.tsid);
     for (test of testSet?.questions) {
       if (test?.questionSNO === req.body?.questionSNO) {
-        test.givenAnswer.push(...req.body?.givenAnswer);
+        test.givenAnswer = [...req.body?.givenAnswer];
+        // test.givenAnswer.push(...req.body?.givenAnswer);
         const corr = [];
         const giv = [];
         for (correct of test.correctAnswer) {
@@ -864,6 +868,7 @@ exports.studentTestSetResult = async (req, res) => {
     var currentDate = new Date();
     currentDate.setHours(currentDate.getHours() + 5);
     currentDate.setMinutes(currentDate.getMinutes() + 30);
+    // remove unwanted things
     const studentTestSet = await StudentTestSet.findById(
       req.params.tsid
     ).select(

@@ -36,7 +36,7 @@ router
   );
 
 router
-  .route("/one/question/:qid")
+  .route("/question/:qid/one")
   .get(catchAsync(mcqController.getOneQuestion));
 // depricated -> changed
 router

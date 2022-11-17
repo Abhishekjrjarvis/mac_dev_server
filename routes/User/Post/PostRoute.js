@@ -106,7 +106,7 @@ router.delete("/edit/comment/reply/:cid", catchAsync(Post.commentReplyDelete));
 
 router.patch(
   "/edit/:pid",
-  upload.array("file"),
+  // upload.array("file"),
   catchAsync(Post.renderEditPostQuery)
 );
 

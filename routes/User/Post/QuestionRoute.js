@@ -81,9 +81,7 @@ router.get(
 
 //
 
-router
-  .route("/edit/answer/:aid")
-  .patch(upload.array("file"), catchAsync(Question.answerEdit));
+router.route("/edit/answer/:aid").patch(catchAsync(Question.answerEdit));
 
 router
   .route("/edit/answer/reply/:aid")

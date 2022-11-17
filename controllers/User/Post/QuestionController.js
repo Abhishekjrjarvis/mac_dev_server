@@ -766,26 +766,25 @@ exports.retrieveHelpQuestion = async (req, res) => {
 exports.answerEdit = async (req, res) => {
   try {
     if (!req.params.aid) throw "Please send answer id to perform task";
-    const answer = await Answer.findById(req.params.aid);
-    if (req.body?.answerContent) {
-      answer.answerContent = req.body?.answerContent;
-    }
-    if (req.body?.deleteImage?.length) {
-      for (let dimage of req.body?.deleteImage) {
-        answer?.answerImage?.pull(dimage);
-        await deleteFile(dimage);
-      }
-    }
-    if (req?.files) {
-      for (let file of req.files) {
-        const results = await uploadPostImageFile(file);
-        answer.answerImage.push(results.Key);
-        await unlinkFile(file.path);
-      }
-      answer.answerImageId = "0";
-    }
-    await answer.save();
-    res.status(200).send({ message: "Comment Edited successfully👍" });
+    await Answer.findByIdAndUpdate(req.params.aid, req.body);
+    // if (req.body?.deleteImage?.length) {
+    //   for (let dimage of req.body?.deleteImage) {
+    //     answer?.answerImage?.pull(dimage);
+    //     await deleteFile(dimage);
+    //   }
+    // }
+    // if (req?.files) {
+    //   for (let file of req.files) {
+    //     const results = await uploadPostImageFile(file);
+    //     answer.answerImage.push(results.Key);
+    //     await unlinkFile(file.path);
+    //   }
+    //   answer.answerImageId = "0";
+    // }
+    // await answer.save();
+    res
+      .status(200)
+      .send({ message: "Answer | Repost Edited successfully👍", new: true });
   } catch (e) {
     res.status(200).send({
       message: e,

@@ -27,8 +27,8 @@ exports.postQuestionText = async (req, res) => {
       }
       post.imageId = "0";
     }
-    if (req.body?.hashtag && JSON.parse(req.body?.hashtag)?.length > 0) {
-      for (let hash of JSON.parse(req.body?.hashtag)) {
+    if (req.body?.hashtag && req.body?.hashtag?.length > 0) {
+      for (let hash of req.body?.hashtag) {
         const hTag = await HashTag.findById({ _id: `${hash}` });
         post.hash_tag.push(hTag._id);
         hTag.hashtag_post.push(post._id);
@@ -91,8 +91,8 @@ exports.postQuestionText = async (req, res) => {
           await el.save();
         });
       }
-      if (req.body?.hashtag && JSON.parse(req.body?.hashtag)?.length > 0) {
-        JSON.parse(req.body?.hashtag)?.forEach(async (ele) => {
+      if (req.body?.hashtag && req.body?.hashtag?.length > 0) {
+        req.body?.hashtag?.forEach(async (ele) => {
           const hash = await HashTag.findById({ _id: `${ele}` }).select(
             "hashtag_follower"
           );

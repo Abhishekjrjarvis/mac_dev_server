@@ -81,17 +81,15 @@ router.get(
 
 //
 
-router
-  .route("/edit/answer/:aid")
-  .patch(upload.array("file"), catchAsync(Question.answerEdit));
+router.route("/edit/answer/:aid").patch(catchAsync(Question.answerEdit));
 
 router
   .route("/edit/answer/reply/:aid")
   .patch(catchAsync(Question.answerReplyEdit))
   .delete(catchAsync(Question.answerReplyDelete));
 
-router.get('/:uid/all/save/answer', catchAsync(Question.getAllSaveAnswerQuery))
+router.get("/:uid/all/save/answer", catchAsync(Question.getAllSaveAnswerQuery));
 
-router.get('/one/:qid/question', catchAsync(Question.getOneQuestionQuery))
+router.get("/one/:qid/question", catchAsync(Question.getOneQuestionQuery));
 
 module.exports = router;

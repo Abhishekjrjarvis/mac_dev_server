@@ -6,7 +6,7 @@ const answerSchema = new mongoose.Schema({
     required: true,
   },
   answerImageId: {
-    type: String
+    type: String,
   },
   answerImage: [],
   createdAt: {
@@ -21,19 +21,19 @@ const answerSchema = new mongoose.Schema({
     type: String,
   },
   authorName: {
-    type: String
+    type: String,
   },
   authorUserName: {
-    type: String
+    type: String,
   },
   authorPhotoId: {
-    type: String
+    type: String,
   },
   authorProfilePhoto: {
-    type: String
+    type: String,
   },
   authorOneLine: {
-    type: String
+    type: String,
   },
   answerReply: [
     {
@@ -45,24 +45,23 @@ const answerSchema = new mongoose.Schema({
   downVote: [],
   upVoteCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   downVoteCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   answerReplyCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
-  answerSave:[],
+  answerSave: [],
   isMentor: {
     type: String,
-    default: 'No'
+    default: "No",
   },
-  answer_content_transcript: { type: String }
+  answer_content_transcript: { type: String },
 });
-
 
 answerSchema.post("findOneAndDelete", async function (doc) {
   if (doc) {

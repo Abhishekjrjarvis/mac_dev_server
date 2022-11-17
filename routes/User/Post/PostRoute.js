@@ -98,27 +98,18 @@ router.get(
   catchAsync(Post.retrieveAllUserReposts)
 );
 
-// router.get("");
+router.patch("/edit/comment/:cid", catchAsync(Post.commentEdit));
+router.delete("/edit/comment/:cid", catchAsync(Post.commentDelete));
+
+router.patch("/edit/comment/relpy/:cid", catchAsync(Post.commentReplyEdit));
+router.delete("/edit/comment/reply/:cid", catchAsync(Post.commentReplyDelete));
 
 router.patch(
-  "/edit/comment/:cid",
-  // isLoggedIn,
-  catchAsync(Post.commentEdit)
-);
-router.delete(
-  "/edit/comment/:cid",
-  // isLoggedIn,
-  catchAsync(Post.commentDelete)
+  "/edit/:pid",
+  // upload.array("file"),
+  catchAsync(Post.renderEditPostQuery)
 );
 
-router.patch(
-  "/edit/comment/relpy/:cid",
-  // isLoggedIn,
-  catchAsync(Post.commentReplyEdit)
-);
-router.delete(
-  "/edit/comment/reply/:cid",
-  // isLoggedIn,
-  catchAsync(Post.commentReplyDelete)
-);
+router.get("/:pid/query", catchAsync(Post.renderOnePostQuery));
+
 module.exports = router;

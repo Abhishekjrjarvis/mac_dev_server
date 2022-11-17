@@ -4,7 +4,7 @@ const Admin = require("../../models/superAdmin");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const User = require("../../models/User");
 const bcrypt = require("bcryptjs");
-const Post = require('../../models/Post')
+const Post = require("../../models/Post");
 const {
   getFileStream,
   uploadDocFile,
@@ -15,60 +15,70 @@ const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const axios = require("axios");
 const jwt = require("jsonwebtoken");
-const payment_modal_activate = require('./AuthFunction')
-const Referral = require('../../models/QCoins/Referral')
-const SupportChat = require('../../models/Chat/SupportChat')
-const QRCode = require('qrcode');
-const invokeSpecificRegister = require('../../Firebase/specific')
-
-
+const payment_modal_activate = require("./AuthFunction");
+const Referral = require("../../models/QCoins/Referral");
+const SupportChat = require("../../models/Chat/SupportChat");
+const QRCode = require("qrcode");
+const invokeSpecificRegister = require("../../Firebase/specific");
 
 function generateAccessToken(username, userId, userPassword) {
-  return jwt.sign({ username, userId, userPassword }, process.env.TOKEN_SECRET, { expiresIn: "1y", });
+  return jwt.sign(
+    { username, userId, userPassword },
+    process.env.TOKEN_SECRET,
+    { expiresIn: "1y" }
+  );
 }
 
 function generateAccessInsToken(name, insId, insPassword) {
-  return jwt.sign({ name, insId, insPassword }, process.env.TOKEN_SECRET, { expiresIn: "1y", });
+  return jwt.sign({ name, insId, insPassword }, process.env.TOKEN_SECRET, {
+    expiresIn: "1y",
+  });
 }
 
 function generateAccessAdminToken(adminUserName, adminId, adminPassword) {
-  return jwt.sign({ adminUserName, adminId, adminPassword }, process.env.TOKEN_SECRET, { expiresIn: "1y", });
+  return jwt.sign(
+    { adminUserName, adminId, adminPassword },
+    process.env.TOKEN_SECRET,
+    { expiresIn: "1y" }
+  );
 }
 
 const generateQR = async (encodeData, Id) => {
-	try {
-    const institute = await InstituteAdmin.findById({_id: Id})
-		var data = await QRCode.toDataURL(encodeData);
-    institute.profileQRCode = data
-    await institute.save()
-	} catch(e){
-		console.log(e);
-	}
-}
+  try {
+    const institute = await InstituteAdmin.findById({ _id: Id });
+    var data = await QRCode.toDataURL(encodeData);
+    institute.profileQRCode = data;
+    await institute.save();
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 const show_specific_activity = async (query) => {
-  try{
+  try {
     var data = `Welcome ${query?.insName}/${query?.name} with contact ${query?.insEmail}/${query?.insPhoneNumber} with delievering content ${query?.insMode} as ${query?.insType} placed on ${query?.insAddress}
-     in ${query?.insDistrict} in ${query?.insState} with postal code ${query?.insPincode} at Qviple Platform.`
-    const users_query = ["630f4b86e5a48ad50a9617a1", "630f6d19a8d864c2234fe4cc"]
-    for(let i=0; i< users_query?.length; i++){
-      var user = await User.findById({_id: users_query[i]})
-      .select('deviceToken')
+     in ${query?.insDistrict} in ${query?.insState} with postal code ${query?.insPincode} at Qviple Platform.`;
+    const users_query = [
+      "630f4b86e5a48ad50a9617a1",
+      "630f6d19a8d864c2234fe4cc",
+    ];
+    for (let i = 0; i < users_query?.length; i++) {
+      var user = await User.findById({ _id: users_query[i] }).select(
+        "deviceToken"
+      );
       invokeSpecificRegister(
         "Specific Notification",
         data,
-        'New Institute Welcome',
+        "New Institute Welcome",
         user._id,
-        user.deviceToken,
+        user.deviceToken
       );
     }
-    return 'Done 👍'
-    
+    return "Done 👍";
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
 // var de = {
 //   insName: "Team Hyderabad",
@@ -101,36 +111,41 @@ exports.getRegisterIns = async (req, res) => {
         res.send({ message: "Institute Existing with this Username" });
       } else {
         const institute = new InstituteAdmin({ ...req.body });
-        if(req.body.userId !== ''){
-          const user = await User.findOne({ username: req.body.userId })
-          if(user){
-          var refCoins = new Referral({referralEarnStatus: 'Earned'})
-          refCoins.referralBy = institute._id
-          institute.referralArray.push(refCoins._id)
-          institute.initialReferral = user._id
-          refCoins.referralTo = user._id
-          user.referralArray.push(refCoins._id)
-          user.referralStatus = 'Granted'
-          user.paymentStatus = 'Not Paid'
-          await Promise.all([ refCoins.save(), user.save()])
+        if (req.body.userId !== "") {
+          const user = await User.findOne({ username: req.body.userId });
+          if (user) {
+            var refCoins = new Referral({ referralEarnStatus: "Earned" });
+            refCoins.referralBy = institute._id;
+            institute.referralArray.push(refCoins._id);
+            institute.initialReferral = user._id;
+            refCoins.referralTo = user._id;
+            user.referralArray.push(refCoins._id);
+            user.referralStatus = "Granted";
+            user.paymentStatus = "Not Paid";
+            await Promise.all([refCoins.save(), user.save()]);
           }
         }
         institute.photoId = "1";
         institute.coverId = "2";
-        institute.profileURL = `https://qviple.com/q/${institute.name}/profile`
-        institute.modal_activate = payment_modal_activate()
+        institute.profileURL = `https://qviple.com/q/${institute.name}/profile`;
+        institute.modal_activate = payment_modal_activate();
         admins.instituteList.push(institute);
-        admins.requestInstituteCount += 1
+        admins.requestInstituteCount += 1;
         await Promise.all([admins.save(), institute.save()]);
         res.status(201).send({ message: "Institute", institute });
-        const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
-        if(uInstitute && uInstitute.posts.length >=1){
-        uInstitute.posts.forEach(async (ele) => {
-          institute.posts.push(ele)
-        })
-        await institute.save()
+        const uInstitute = await InstituteAdmin.findOne({
+          isUniversal: "Universal",
+        });
+        if (uInstitute && uInstitute.posts.length >= 1) {
+          uInstitute.posts.forEach(async (ele) => {
+            institute.posts.push(ele);
+          });
+          await institute.save();
         }
-        generateQR(`https://qviple.com/q/${institute.name}/profile`, institute._id)
+        generateQR(
+          `https://qviple.com/q/${institute.name}/profile`,
+          institute._id
+        );
       }
     }
   } catch (e) {
@@ -163,20 +178,23 @@ exports.getUpDocIns = async (req, res) => {
   }
 };
 
-
 exports.getPassIns = async (req, res) => {
   try {
     const { id } = req.params;
     const { insPassword, insRePassword } = req.body;
     const institute = await InstituteAdmin.findById({ _id: id });
-    const admin = await Admin.findById({_id: `${process.env.S_ADMIN_ID}`})
+    const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const genPass = bcrypt.genSaltSync(12);
     const hashPass = bcrypt.hashSync(insPassword, genPass);
     if (insPassword === insRePassword) {
       institute.insPassword = hashPass;
       await institute.save();
-      const token = generateAccessInsToken(institute?.name, institute?._id, institute?.insPassword);
-      res.json({ token: `Bearer ${token}`, institute: institute, login: true});
+      const token = generateAccessInsToken(
+        institute?.name,
+        institute?._id,
+        institute?.insPassword
+      );
+      res.json({ token: `Bearer ${token}`, institute: institute, login: true });
     } else {
       res.send({ message: "Invalid Combination", login: false });
     }
@@ -360,55 +378,63 @@ exports.profileByUser = async (req, res) => {
         });
         user.profilePhoto = results.key;
         admins.users.push(user);
-        admins.userCount += 1
+        admins.userCount += 1;
         await Promise.all([admins.save(), user.save()]);
         await unlinkFile(file.path);
         const token = generateAccessToken(user?.username, user?._id);
-        res.status(200).send({ message: "Profile Successfully Created...", user, token: `Bearer ${token}` });
-        var uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
-        .select('id userFollowersList followersCount')
-        .populate({ path: 'posts' })
-        if(uInstitute && uInstitute.posts && uInstitute.posts.length >=1){
-        const post = await Post.find({ _id: { $in: uInstitute.posts }, postStatus: 'Anyone'})
-        post.forEach(async (ele) => {
-          user.userPosts.push(ele)
+        res
+          .status(200)
+          .send({
+            message: "Profile Successfully Created...",
+            user,
+            token: `Bearer ${token}`,
+          });
+        var uInstitute = await InstituteAdmin.findOne({
+          isUniversal: "Universal",
         })
-        await user.save()
+          .select("id userFollowersList followersCount")
+          .populate({ path: "posts" });
+        if (uInstitute && uInstitute.posts && uInstitute.posts.length >= 1) {
+          const post = await Post.find({
+            _id: { $in: uInstitute.posts },
+            postStatus: "Anyone",
+          });
+          post.forEach(async (ele) => {
+            user.userPosts.push(ele);
+          });
+          await user.save();
         }
         //
-        var b_date = user.userDateOfBirth.slice(8, 10)
-        var b_month = user.userDateOfBirth.slice(5, 7)
-        var b_year = user.userDateOfBirth.slice(0, 4)
+        var b_date = user.userDateOfBirth.slice(8, 10);
+        var b_month = user.userDateOfBirth.slice(5, 7);
+        var b_year = user.userDateOfBirth.slice(0, 4);
         if (b_date > p_date) {
-            p_date = p_date + month[b_month - 1];
-            p_month = p_month - 1;
+          p_date = p_date + month[b_month - 1];
+          p_month = p_month - 1;
         }
         if (b_month > p_month) {
-            p_year = p_year - 1;
-            p_month = p_month + 12;
+          p_year = p_year - 1;
+          p_month = p_month + 12;
         }
         var get_cal_year = p_year - b_year;
-        if(get_cal_year > 13){
-          user.ageRestrict = 'No'
+        if (get_cal_year > 13) {
+          user.ageRestrict = "No";
+        } else {
+          user.ageRestrict = "Yes";
         }
-        else{
-          user.ageRestrict = 'Yes'
-        }
-        await user.save()
+        await user.save();
         //
-        if(uInstitute?.userFollowersList?.includes(`${user._id}`)){
-
-        }
-        else{
-          uInstitute.userFollowersList.push(user._id)
-          uInstitute.followersCount += 1
-          user.userInstituteFollowing.push(uInstitute._id)
-          user.followingUICount += 1
-          await Promise.all([ uInstitute.save(), user.save()])
+        if (uInstitute?.userFollowersList?.includes(`${user._id}`)) {
+        } else {
+          uInstitute.userFollowersList.push(user._id);
+          uInstitute.followersCount += 1;
+          user.userInstituteFollowing.push(uInstitute._id);
+          user.followingUICount += 1;
+          await Promise.all([uInstitute.save(), user.save()]);
           const posts = await Post.find({ author: `${uInstitute._id}` });
-            posts.forEach(async (ele) => {
-              ele.authorFollowersCount = uInstitute.followersCount;
-              await ele.save();
+          posts.forEach(async (ele) => {
+            ele.authorFollowersCount = uInstitute.followersCount;
+            await ele.save();
           });
         }
         //
@@ -419,8 +445,7 @@ exports.profileByUser = async (req, res) => {
   }
 };
 
-
-exports.profileByGoogle = async(req, res) =>{
+exports.profileByGoogle = async (req, res) => {
   var date = new Date();
   var p_date = date.getDate();
   var p_month = date.getMonth() + 1;
@@ -429,8 +454,15 @@ exports.profileByGoogle = async(req, res) =>{
     p_month = `0${p_month}`;
   }
   var c_date = `${p_year}-${p_month}-${p_date}`;
-  try{
-    const { userGender, userLegalName, username, userEmail, userDateOfBirth, pic_url } = req.body
+  try {
+    const {
+      userGender,
+      userLegalName,
+      username,
+      userEmail,
+      userDateOfBirth,
+      pic_url,
+    } = req.body;
     const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const user = new User({
       userLegalName: userLegalName,
@@ -444,45 +476,54 @@ exports.profileByGoogle = async(req, res) =>{
       coverId: "2",
       createdAt: c_date,
       remindLater: rDate,
-    })
+    });
     admins.users.push(user);
-    admins.userCount += 1
+    admins.userCount += 1;
     await Promise.all([admins.save(), user.save()]);
     const token = generateAccessToken(user?.username, user?._id);
-    res.status(200).send({ message: "Profile Successfully Created...", user, token: `Bearer ${token}` });
-    const uInstitute = await InstituteAdmin.findOne({ isUniversal: 'Universal'})
-    .populate({ path: 'posts' })
-    if(uInstitute && uInstitute.posts && uInstitute.posts.length >=1){
-    const post = await Post.find({ _id: { $in: uInstitute.posts }, postStatus: 'Anyone'})
-    post.forEach(async (ele) => {
-      user.userPosts.push(ele)
-    })
-    await user.save()
+    res
+      .status(200)
+      .send({
+        message: "Profile Successfully Created...",
+        user,
+        token: `Bearer ${token}`,
+      });
+    const uInstitute = await InstituteAdmin.findOne({
+      isUniversal: "Universal",
+    }).populate({ path: "posts" });
+    if (uInstitute && uInstitute.posts && uInstitute.posts.length >= 1) {
+      const post = await Post.find({
+        _id: { $in: uInstitute.posts },
+        postStatus: "Anyone",
+      });
+      post.forEach(async (ele) => {
+        user.userPosts.push(ele);
+      });
+      await user.save();
     }
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
-
+};
 
 exports.getUserPassword = async (req, res) => {
   try {
     const { id } = req.params;
     const { userPassword, userRePassword } = req.body;
-    const admin = await Admin.findById({_id: `${process.env.S_ADMIN_ID}`})
+    const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const user = await User.findById({ _id: id });
-    const genUserPass =  bcrypt.genSaltSync(12);
-    const hashUserPass =  bcrypt.hashSync(
-      req.body.userPassword,
-      genUserPass
-    );
+    const genUserPass = bcrypt.genSaltSync(12);
+    const hashUserPass = bcrypt.hashSync(req.body.userPassword, genUserPass);
     if (user) {
       if (userPassword === userRePassword) {
         user.userPassword = hashUserPass;
         await user.save();
-        const token = generateAccessToken(user?.username, user?._id, user?.userPassword);
-        res.json({ token: `Bearer ${token}`, user: user});
+        const token = generateAccessToken(
+          user?.username,
+          user?._id,
+          user?.userPassword
+        );
+        res.json({ token: `Bearer ${token}`, user: user });
       } else {
         res.send({ message: "Invalid Password Combination" });
       }
@@ -552,10 +593,7 @@ exports.getNewPassword = async (req, res) => {
     const user = await User.findById({ _id: rid });
     const institute = await InstituteAdmin.findById({ _id: rid });
     const genUserPass = bcrypt.genSaltSync(12);
-    const hashUserPass = bcrypt.hashSync(
-      req.body.userPassword,
-      genUserPass
-    );
+    const hashUserPass = bcrypt.hashSync(req.body.userPassword, genUserPass);
     if (user) {
       if (userPassword === userRePassword) {
         user.userPassword = hashUserPass;
@@ -587,33 +625,38 @@ module.exports.getLogin = async (req, res) => {
   try {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
-    if(token == null){
-      res.status(401).send({ message: 'Invalid Token'})
-    }
-    else{
-      jwt.verify(token, `${process.env.TOKEN_SECRET}`, function(err, decoded) {
+    if (token == null) {
+      res.status(401).send({ message: "Invalid Token" });
+    } else {
+      jwt.verify(token, `${process.env.TOKEN_SECRET}`, function (err, decoded) {
         if (err) {
-            res.status(401).send({ message: 'UnAuthorized User', status: false})
+          res.status(401).send({ message: "UnAuthorized User", status: false });
+        } else {
+          res
+            .status(200)
+            .send({
+              message: "Authorized User",
+              status: true,
+              token: token,
+              user: decoded.userId,
+              institute: decoded.insId,
+              admin: decoded.adminId,
+            });
         }
-        else {
-            res.status(200).send({ message: 'Authorized User', status: true, token: token, user: decoded.userId, institute: decoded.insId, admin: decoded.adminId})
-        }
-    });
+      });
     }
   } catch (e) {
     console.log(`Error`, e);
   }
 };
 
-
-
 module.exports.authentication = async (req, res) => {
   var d_date = new Date();
   var d_a_date = d_date.getDate();
   var d_a_month = d_date.getMonth() + 1;
   var d_a_year = d_date.getFullYear();
-  if(d_a_date <= 9){
-    d_a_date = `0${d_a_date}`
+  if (d_a_date <= 9) {
+    d_a_date = `0${d_a_date}`;
   }
   if (d_a_month < 10) {
     d_a_month = `0${d_a_month}`;
@@ -621,10 +664,10 @@ module.exports.authentication = async (req, res) => {
   var deactivate_date = `${d_a_year}-${d_a_month}-${d_a_date}`;
   try {
     const { insUserName, insPassword } = req.body;
-    const institute = await InstituteAdmin.findOne({ name: `${insUserName}` })
-    const user = await User.findOne({ username: `${insUserName}` })
-    const admin = await Admin.findOne({ adminUserName: `${insUserName}` })
-    
+    const institute = await InstituteAdmin.findOne({ name: `${insUserName}` });
+    const user = await User.findOne({ username: `${insUserName}` });
+    const admin = await Admin.findOne({ adminUserName: `${insUserName}` });
+
     if (institute) {
       const checkPass = bcrypt.compareSync(insPassword, institute.insPassword);
       if (checkPass) {
@@ -636,21 +679,29 @@ module.exports.authentication = async (req, res) => {
           institute.activeStatus = "Activated";
           institute.activeDate = "";
           await institute.save();
-          const token = generateAccessInsToken(institute?.name, institute?._id, institute?.insPassword);
-          res.json({ 
+          const token = generateAccessInsToken(
+            institute?.name,
+            institute?._id,
+            institute?.insPassword
+          );
+          res.json({
             token: `Bearer ${token}`,
             institute: institute,
-            login: true
+            login: true,
           });
         } else if (institute.activeStatus === "Activated") {
-          const token = generateAccessInsToken(institute?.name, institute?._id, institute?.insPassword);
-          res.json({ 
+          const token = generateAccessInsToken(
+            institute?.name,
+            institute?._id,
+            institute?.insPassword
+          );
+          res.json({
             token: `Bearer ${token}`,
             institute: institute,
-            login: true
+            login: true,
           });
         } else {
-          res.status(401).send({ message: 'Unauthorized', login: false})
+          res.status(401).send({ message: "Unauthorized", login: false });
         }
         //
       } else {
@@ -662,7 +713,11 @@ module.exports.authentication = async (req, res) => {
         admin.adminPassword
       );
       if (checkAdminPass) {
-        const token = generateAccessAdminToken(admin?.username, admin?._id, admin?.userPassword);
+        const token = generateAccessAdminToken(
+          admin?.username,
+          admin?._id,
+          admin?.userPassword
+        );
         res.json({ token: `Bearer ${token}`, admin: admin, login: true });
       } else {
         res.send({ message: "Invalid Credentials", login: false });
@@ -681,21 +736,29 @@ module.exports.authentication = async (req, res) => {
             user.activeStatus = "Activated";
             user.activeDate = "";
             await user.save();
-            const token = generateAccessToken(user?.username, user?._id, user?.userPassword);
+            const token = generateAccessToken(
+              user?.username,
+              user?._id,
+              user?.userPassword
+            );
             res.json({
               token: `Bearer ${token}`,
               user: user,
-              login: true
+              login: true,
             });
           } else if (user.activeStatus === "Activated") {
-            const token = generateAccessToken(user?.username, user?._id, user?.userPassword);
+            const token = generateAccessToken(
+              user?.username,
+              user?._id,
+              user?.userPassword
+            );
             res.json({
               token: `Bearer ${token}`,
               user: user,
-              login: true
+              login: true,
             });
           } else {
-            res.status(401).send({ message: 'Unauthorized', login: false})
+            res.status(401).send({ message: "Unauthorized", login: false });
           }
         } else {
           res.send({ message: "Invalid Credentials", login: false });
@@ -709,23 +772,30 @@ module.exports.authentication = async (req, res) => {
   }
 };
 
-module.exports.authenticationGoogle = async (req, res) =>{
-  try{
-    const { email, googleAuthToken } = req.body
-    const user = await User.findOne({ userEmail: email})
-    .select('userLegalName username userEmail deviceToken profilePhoto photoId google_avatar')
-    if(user){
+module.exports.authenticationGoogle = async (req, res) => {
+  try {
+    const { email, googleAuthToken } = req.body;
+    const user = await User.findOne({ userEmail: email }).select(
+      "userLegalName username userEmail deviceToken profilePhoto photoId google_avatar"
+    );
+    if (user) {
       const token = generateAccessToken(user?.username, user?._id);
-      res.status(200).send({ message: 'successfully signed In', sign_in: true, user: user, token: `Bearer ${token}`, g_AuthToken: googleAuthToken})
+      res
+        .status(200)
+        .send({
+          message: "successfully signed In",
+          sign_in: true,
+          user: user,
+          token: `Bearer ${token}`,
+          g_AuthToken: googleAuthToken,
+        });
+    } else {
+      res.status(200).send({ message: "Failed to signed In", sign_in: false });
     }
-    else{
-      res.status(200).send({ message: 'Failed to signed In', sign_in: false})
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
 module.exports.getLogout = async (req, res) => {
   try {
@@ -736,31 +806,62 @@ module.exports.getLogout = async (req, res) => {
   }
 };
 
+exports.retrieveEmailRedundantQuery = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const check_ins = await InstituteAdmin.findOne({ insEmail: email }).select(
+      "id"
+    );
+    const check_user = await User.findOne({ userEmail: email }).select("id");
+    const check_admin = await Admin.findOne({ adminEmail: email }).select("id");
+    var flag_email = false;
+    if (check_ins) {
+      flag_email = true;
+      res
+        .status(200)
+        .send({ message: "Email Already Registered", flag: flag_email });
+    } else if (check_user) {
+      flag_email = true;
+      res
+        .status(200)
+        .send({ message: "Email Already Registered", flag: flag_email });
+    } else if (check_admin) {
+      flag_email = true;
+      res
+        .status(200)
+        .send({ message: "Email Already Registered", flag: flag_email });
+    } else {
+      res.status(200).send({ message: "Valid Email", flag: flag_email });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
 
-exports.retrieveEmailRedundantQuery = async(req, res) => {
-  try{
-    const { email } = req.body
-    const check_ins = await InstituteAdmin.findOne({ insEmail: email }).select('id')
-    const check_user = await User.findOne({ userEmail: email }).select('id')
-    const check_admin = await Admin.findOne({ adminEmail: email }).select('id')
-    var flag_email = false
-    if(check_ins){
-      flag_email = true
-      res.status(200).send({ message: 'Email Already Registered', flag: flag_email})
-    }
-    else if(check_user){
-      flag_email = true
-      res.status(200).send({ message: 'Email Already Registered', flag: flag_email})
-    }
-    else if(check_admin){
-      flag_email = true
-      res.status(200).send({ message: 'Email Already Registered', flag: flag_email})
-    }
-    else{
-      res.status(200).send({ message: 'Valid Email', flag: flag_email})
-    }
-  }
-  catch(e){
-    console.log(e)
-  }
-} 
+// exports.retrieveUsernameEditQuery = async(req, res) => {
+//   try{
+//     const { u_name } = req.body
+//     const check_ins = await InstituteAdmin.findOne({ name: u_name }).select('id')
+//     const check_user = await User.findOne({ username: u_name }).select('id')
+//     const check_admin = await Admin.findOne({ adminUserName: u_name }).select('id')
+//     var flag_email = false
+//     if(check_ins){
+//       flag_email = true
+//       res.status(200).send({ message: 'Email Already Registered', flag: flag_email})
+//     }
+//     else if(check_user){
+//       flag_email = true
+//       res.status(200).send({ message: 'Email Already Registered', flag: flag_email})
+//     }
+//     else if(check_admin){
+//       flag_email = true
+//       res.status(200).send({ message: 'Email Already Registered', flag: flag_email})
+//     }
+//     else{
+//       res.status(200).send({ message: 'Valid Email', flag: flag_email})
+//     }
+//   }
+//   catch(e){
+//     console.log(e)
+//   }
+// }

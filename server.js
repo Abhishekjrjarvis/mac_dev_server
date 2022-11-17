@@ -13,6 +13,7 @@ const mongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
 var fs = require("fs");
 const xlsx = require("xlsx");
+
 //======================== All Routes ========================
 const {
   check_poll_status,
@@ -61,6 +62,9 @@ const timetableRoute = require("./routes/Timetable/timetableRoute");
 const prod = require("./routes/ProdAPI/prodRoute");
 const election = require("./routes/Election/electionRoute");
 const participate = require("./routes/ParticipativeEvent/participateRoute");
+const checkout = require("./routes/RazorPay/payCheckoutRoute");
+const hashtag = require("./routes/HashTag/hashtagRoute");
+
 
 // ============================= DB Configuration ==============================
 
@@ -187,6 +191,8 @@ app.use("/api/v1/dailyupdate", dailyUpdateRoute);
 app.use("/api/v1/timetable", timetableRoute);
 app.use("/api/v1/election/event", election);
 app.use("/api/v1/participate/event", participate);
+app.use("/api/v1/pay", checkout);
+app.use("/api/v1/hashtag", hashtag);
 
 app.use("/api/v1/prod/access", prod);
 
@@ -203,24 +209,28 @@ app.use("/api/v1/prod/access", prod);
 // setInterval(async () => {
 //   await participate_result_day();
 // }, 30000);
+
+setInterval(async () => {
+  await payment_modal_initiated();
+}, 30000);
+
 // function convertExcelFileToJsonUsingXlsx() {
-//   const file = xlsx.readFile("./data.xlsx");
+
+//   const file = xlsx.readFile('./data.xls');
 //   const sheetNames = file.SheetNames;
 //   const totalSheets = sheetNames.length;
 //   let parsedData = [];
 
 //   for (let i = 0; i < totalSheets; i++) {
-//     const tempData = xlsx.utils.sheet_to_json(file.Sheets[sheetNames[i]]);
-//     tempData.shift();
-//     parsedData.push(...tempData);
+
+//       const tempData = xlsx.utils.sheet_to_json(file.Sheets[sheetNames[i]]);
+//       tempData.shift();
+//       parsedData.push(...tempData);
 //   }
-//   return JSON.stringify(parsedData);
+//  return JSON.stringify(parsedData)
 // }
 
-// console.log(convertExcelFileToJsonUsingXlsx());
-setInterval(async () => {
-  await payment_modal_initiated();
-}, 30000);
+// console.log(convertExcelFileToJsonUsingXlsx())
 
 app.get("*", (req, res) => {
   res.status(404).send("Page Not Found...");

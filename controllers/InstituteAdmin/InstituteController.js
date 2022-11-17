@@ -45,7 +45,7 @@ exports.getDashOneQuery = async (req, res) => {
   try {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id }).select(
-      "insName name insAbout photoId blockStatus sportStatus sportClassStatus sportDepart sportClassDepart staff_privacy modal_activate email_privacy followers_critiria initial_Unlock_Amount contact_privacy followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount accessFeature activateStatus"
+      "insName name insAbout photoId blockStatus block_institute blockedBy sportStatus sportClassStatus sportDepart sportClassDepart staff_privacy modal_activate email_privacy followers_critiria initial_Unlock_Amount contact_privacy followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount accessFeature activateStatus"
     );
     const encrypt = await encryptionPayload(institute);
     res.status(200).send({
@@ -672,7 +672,7 @@ exports.reportPostByUser = async (req, res) => {
     admin.reportPostQueryCount += 1;
     report.reportInsPost = post._id;
     report.reportBy = user._id;
-    user.userPosts?.pull(post?._id)
+    user.userPosts?.pull(post?._id);
     await Promise.all([admin.save(), report.save(), user.save()]);
     res.status(200).send({ message: "reported", report: reportStatus });
   } catch (e) {
@@ -796,7 +796,7 @@ exports.fillStaffForm = async (req, res) => {
     const aStatus = new Status({});
     institute.staff.push(staff._id);
     user.staff.push(staff._id);
-    user.is_mentor = true
+    user.is_mentor = true;
     institute.joinedPost.push(user._id);
     if (institute.userFollowersList.includes(uid)) {
     } else {
@@ -866,7 +866,7 @@ exports.fillStudentForm = async (req, res) => {
     const aStatus = new Status({});
     institute.student.push(student._id);
     user.student.push(student._id);
-    user.is_mentor = true
+    user.is_mentor = true;
     institute.joinedPost.push(user._id);
     classes.student.push(student._id);
     student.studentClass = classes._id;
@@ -2243,8 +2243,8 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     classes.ApproveStudent.push(student._id);
     classes.studentCount += 1;
     classes.student.pull(sid);
-    student.studentGRNO = classes.ApproveStudent.length;
-    student.studentROLLNO = classes.ApproveStudent.length;
+    student.studentGRNO = `Q${institute.ApproveStudent.length + 1}`;
+    student.studentROLLNO = classes.ApproveStudent.length + 1;
     student.studentClass = classes._id;
     student.studentAdmissionDate = new Date().toISOString();
     depart.ApproveStudent.push(student._id);
@@ -2709,36 +2709,8 @@ exports.settingFormUpdate = async (req, res) => {
   try {
     if (!req.params.id) throw "Please send institute id to perform task";
     await InstituteAdmin.findByIdAndUpdate(req.params.id, req.body);
-
-    // const institute = await InstituteAdmin.findById(req.params.id);
-
-    // institute.studentFormSetting.fullName = true;
-    // institute.studentFormSetting.studentDOB = true;
-    // institute.studentFormSetting.studentGender = true;
-    // institute.studentFormSetting.studentNationality = false;
-    // institute.studentFormSetting.studentMTongue = false;
-    // // studentMotherName: req.body.
-    // // studentCast: req.body.
-    // // studentCastCategory: req.body.
-    // // studentReligion: req.body.
-    // // studentBirthPlace: req.body.
-    // // studentBookNo: req.body.
-    // // studentDistrict: req.body.
-    // // studentState: req.body.
-    // // studentAddress: req.body.
-    // // studentPhoneNumber: req.body.
-    // // studentAadharNumber: req.body.
-    // // studentParentsName: req.body.
-    // // studentParentsPhoneNumber: req.body.
-    // // studentAadharFrontCard: req.body.
-    // // studentAadharBackCard: req.body.
-    // // studentPanNumber: req.body.
-    // // studentBankDetails: req.body.
-    // // studentCasteCertificate: req.body.
-    // institute.save();
     res.status(200).send({
       message: "form updated successfully 👏",
-      // institute: institute.studentFormSetting,
     });
   } catch (e) {
     console.log(e);
@@ -2748,48 +2720,99 @@ exports.settingFormUpdate = async (req, res) => {
   }
 };
 
+exports.updateInstituteUnBlock = async (req, res) => {
+  try {
+    var institute_session = req.tokenData && req.tokenData.insId;
+    const { blockId } = req.query;
+    var institute = await InstituteAdmin.findById({ _id: institute_session });
+    var sinstitute = await InstituteAdmin.findById({ _id: blockId });
 
-// exports.retrieveInstituteBlockQuery = async(req, res) => {
-//   try{
-//     const { blockId } = req.query
-//     var ins_session = req.tokenData.insId
-//     const institutes = await InstituteAdmin.findById({_id: `${ins_session}`})
-//     const block_ins = await InstituteAdmin.findById({_id: blockId})
-//     if (institutes.status === "Approved" && block_ins.status === "Approved") {
-//       if (institutes.following.includes(blockId)) {
-//         block_ins.followers.pull(ins_session);
-//         institutes.following.pull(blockId);
-//         institutes.block_institute.push(block_ins._id)
-//         if (institutes.followingCount >= 1) {
-//           institutes.followingCount -= 1;
-//         }
-//         if (block_ins.followersCount >= 1) {
-//           block_ins.followersCount -= 1;
-//         }
-//         await Promise.all([block_ins.save(), institutes.save()]);
-//         res.status(200).send({ message: "Block Institute By You" });
-//         if (block_ins.isUniversal === "Not Assigned") {
-//           const post = await Post.find({
-//             $and: [{ author: block_ins._id, postStatus: "Anyone" }],
-//           });
-//           post.forEach(async (pt) => {
-//             institutes.posts.pull(pt);
-//           });
-//           await institutes.save();
-//         } else {
-//         }
-//       } else {
-//         res
-//           .status(200)
-//           .send({ message: "You Already Blocked This Institute" });
-//       }
-//     } else {
-//       res
-//         .status(200)
-//         .send({ message: "Institute is Not Approved, No Operation execution..." });
-//     }
-//   }
-//   catch{
+    if (institute?.block_institute?.includes(`${sinstitute._id}`)) {
+      institute.block_institute.pull(sinstitute._id);
+      sinstitute.blockedBy.pull(institute._id);
+      if (institute.blockCount >= 1) {
+        institute.blockCount -= 1;
+      }
+      await Promise.all([institute.save(), sinstitute.save()]);
+      res
+        .status(200)
+        .send({ message: "You are UnBlocked able to follow ", unblock: true });
+    } else {
+      res
+        .status(200)
+        .send({ message: "You are Already UnBlocked", unblock: false });
+    }
+  } catch (e) {
+    console.log("UIBU", e);
+  }
+};
 
-//   }
-// }
+exports.retrieveInstituteReportBlock = async (req, res) => {
+  try {
+    var institute_session = req.tokenData && req.tokenData.insId;
+    const { blockId } = req.query;
+    var institute = await InstituteAdmin.findById({ _id: institute_session });
+    var sinstitute = await InstituteAdmin.findById({ _id: blockId });
+
+    if (sinstitute?.isUniversal === "Universal") {
+      res.status(200).send({ message: "You're unable to block universal A/c" });
+    } else {
+      if (institute?.block_institute?.includes(`${sinstitute._id}`)) {
+        res.status(200).send({ message: "You are Already Blocked" });
+      } else {
+        institute.block_institute.push(sinstitute._id);
+        sinstitute.blockedBy.push(institute._id);
+        if (institute.blockCount >= 1) {
+          institute.blockCount += 1;
+        }
+        await Promise.all([institute.save(), sinstitute.save()]);
+        res.status(200).send({
+          message: "You are Blocked not able to follow ",
+          block: true,
+        });
+        try {
+          sinstitute.followers?.pull(institute_session);
+          institute.following?.pull(blockId);
+          if (institute.followingCount > 0) {
+            institute.followingCount -= 1;
+          }
+          if (sinstitute.followersCount > 0) {
+            sinstitute.followersCount -= 1;
+          }
+
+          const post = await Post.find({ author: `${sinstitute._id}` });
+          post.forEach(async (ele) => {
+            if (institute?.posts?.includes(`${ele._id}`)) {
+              institute.posts.pull(ele._id);
+            }
+          });
+          await institute.save();
+
+          const posts = await Post.find({ author: `${institute._id}` });
+          posts.forEach(async (ele) => {
+            if (sinstitute?.posts?.includes(`${ele._id}`)) {
+              sinstitute.posts.pull(ele._id);
+            }
+          });
+          await sinstitute.save();
+
+          const post_count = await Post.find({ author: `${sinstitute._id}` });
+          post_count.forEach(async (ele) => {
+            ele.authorFollowersCount = sinstitute.followersCount;
+            await ele.save();
+          });
+          const post_counts = await Post.find({ author: `${institute._id}` });
+          post_counts.forEach(async (ele) => {
+            ele.authorFollowersCount = institute.followersCount;
+            await ele.save();
+          });
+          //
+        } catch {
+          res.status(500).send({ error: "error" });
+        }
+      }
+    }
+  } catch (e) {
+    console.log("UIBU", e);
+  }
+};

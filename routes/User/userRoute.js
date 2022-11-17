@@ -102,25 +102,13 @@ router.post(
   catchAsync(User.getReportPostUser)
 );
 
-router.get(
-  "/dashboard/:id/notify",
-  catchAsync(User.getNotifications)
-);
+router.get("/dashboard/:id/notify", catchAsync(User.getNotifications));
 //
-router.get(
-  "/:id/activity",
-  catchAsync(User.getAllUserActivity)
-);
+router.get("/:id/activity", catchAsync(User.getAllUserActivity));
 
-router.get(
-  "/:id/activity/total/notify",
-  catchAsync(User.getAllTotalCount)
-);
+router.get("/:id/activity/total/notify", catchAsync(User.getAllTotalCount));
 
-router.patch(
-  "/:id/mark/viewed",
-  catchAsync(User.retrieveMarkAllView)
-);
+router.patch("/:id/mark/viewed", catchAsync(User.retrieveMarkAllView));
 
 router.patch(
   "/read/notify/user/:rid",
@@ -209,14 +197,19 @@ router.get("/:uid/circle/array/query", catchAsync(User.circleArrayQuery));
 
 router.get("/circle/user", isLoggedIn, catchAsync(User.allCircleUsers));
 
+router.get("/:uid/subject/chat", catchAsync(User.retrieveUserSubjectChat));
 
-router.get("/:uid/subject/chat", catchAsync(User.retrieveUserSubjectChat))
+router.get("/:uid/class/chat", catchAsync(User.retrieveUserClassChat));
 
-router.get("/:uid/class/chat", catchAsync(User.retrieveUserClassChat))
+router.get(
+  "/:uid/department/chat",
+  catchAsync(User.retrieveUserDepartmentChat)
+);
 
-router.get("/:uid/department/chat", catchAsync(User.retrieveUserDepartmentChat))
-
-router.get("/:uid/application/status", catchAsync(User.retrieveUserApplicationStatus))
+router.get(
+  "/:uid/application/status",
+  catchAsync(User.retrieveUserApplicationStatus)
+);
 
 router.get(
   "/profile/:username",
@@ -224,13 +217,32 @@ router.get(
   catchAsync(User.retrieveProfileDataUsername)
 );
 
-router.get('/staff/:sid/sal/history', catchAsync(User.retrieveStaffSalaryHistory))
+router.get(
+  "/staff/:sid/sal/history",
+  catchAsync(User.retrieveStaffSalaryHistory)
+);
 
 // router.patch("/block/user", isLoggedIn, catchAsync(User.updateUserBlock));
 
 router.patch("/unblock/user", isLoggedIn, catchAsync(User.updateUserUnBlock));
 
-router.patch('/report/block/user', isLoggedIn, catchAsync(User.retrieveUserReportBlock))
+router.patch(
+  "/report/block/user",
+  isLoggedIn,
+  catchAsync(User.retrieveUserReportBlock)
+);
+
+router.patch(
+  "/unblock/institute",
+  isLoggedIn,
+  catchAsync(User.updateUserUnBlockInstitute)
+);
+
+router.patch(
+  "/report/block/institute",
+  isLoggedIn,
+  catchAsync(User.retrieveUserReportBlock)
+);
 
 router.patch(
   "/:uid/location/permission",
@@ -238,6 +250,6 @@ router.patch(
 );
 
 // User Switch Staff & Student
-router.get('/:uid/staff/student/role', catchAsync(User.retrieveUserRoleQuery))
+router.get("/:uid/staff/student/role", catchAsync(User.retrieveUserRoleQuery));
 
 module.exports = router;

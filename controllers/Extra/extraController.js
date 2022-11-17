@@ -10,6 +10,7 @@ const Answer = require('../../models/Question/Answer')
 const Poll = require('../../models/Question/Poll')
 const Department = require('../../models/Department')
 const Class = require('../../models/Class')
+const invokeSpecificRegister = require('../../Firebase/specific')
 
 exports.validateUserAge = async(req, res) =>{
     try{
@@ -606,3 +607,33 @@ exports.fetchExportStudentIdCardFormat = async(req, res) => {
     console.log(e)
   }
 }
+
+exports.reportAccountByEndUser = async (req, res) => {
+  try {
+    const { to, by } = req.params;
+    const { accountStatus } = req.query;
+    const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    admin.reported_end_user.push({
+      end_user: to,
+      report_by: by,
+      account_status: accountStatus,
+    })
+    admin.reported_end_user_count += 1;
+    await Promise.all([ admin.save() ]);
+    res.status(200).send({ message: "Thanks for letting us Know", report: true });
+    const users_query = ["6360aa8151d30672ae8cfc3e", "6360b53f51d30672ae8d034f"]
+    for(let i=0; i< users_query?.length; i++){
+      var user = await User.findById({_id: users_query[i]})
+      .select('deviceToken')
+      invokeSpecificRegister(
+        "Specific Notification",
+        `you're reported by ${user.username} related to ${accountStatus}`,
+        'Reported End User',
+        user._id,
+        user.deviceToken,
+      );
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

@@ -65,6 +65,7 @@ const participate = require("./routes/ParticipativeEvent/participateRoute");
 const checkout = require("./routes/RazorPay/payCheckoutRoute");
 const hashtag = require("./routes/HashTag/hashtagRoute");
 
+
 // ============================= DB Configuration ==============================
 
 const dburl = `${process.env.DB_URL2}`; // Development

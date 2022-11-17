@@ -13704,7 +13704,7 @@ paths:
     patch:
       tags:
         - Comment Edit and Delete (API)
-      summary: One Answer edit -(verified)
+      summary: One Answer | Repost edit -(verified)
       consumes:
         - application/json
       produces:
@@ -16787,34 +16787,6 @@ paths:
                 items:
                   type: string
                   description: Enter Poll Answer Id & Content
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/post/question/edit/answer/{aid}:
-    patch:
-      tags:
-        - Poll & Post Edit
-      summary: One Answer | Repost Update -(verified)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: aid
-          required: true
-          type: string
-          description: This is Answer id
-        - in : body
-          name: body
-          schema:
-            type: object
-            properties:
-              answerContent:
-                type: string
-                description: Enter Answer Content
-                required: false
       responses:
         "200":
           description: OK

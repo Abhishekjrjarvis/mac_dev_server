@@ -639,7 +639,12 @@ exports.retrieveAllSportTeam = async (req, res) => {
       .skip(skip)
       .select(
         "sportClassTeamName sportTeamStudentCount rankTitle teamPoints sportTeamPhoto photoId"
-      );
+      )
+      .populate({
+        path: "sportTeamCaptain",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+      });
 
     if (team_query?.length > 0) {
       res

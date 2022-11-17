@@ -841,11 +841,25 @@ exports.retrieveEmailRedundantQuery = async (req, res) => {
 // exports.retrieveUsernameEditQuery = async(req, res) => {
 //   try{
 //     const { u_name } = req.body
-//     const check_ins = await InstituteAdmin.findOne({ insEmail: email }).select('id')
-//     const check_user = await User.findOne({ userEmail: email }).select('id')
-//     const check_admin = await Admin.findOne({ adminEmail: email }).select('id')
+//     const check_ins = await InstituteAdmin.findOne({ name: u_name }).select('id')
+//     const check_user = await User.findOne({ username: u_name }).select('id')
+//     const check_admin = await Admin.findOne({ adminUserName: u_name }).select('id')
 //     var flag_email = false
-
+//     if(check_ins){
+//       flag_email = true
+//       res.status(200).send({ message: 'Email Already Registered', flag: flag_email})
+//     }
+//     else if(check_user){
+//       flag_email = true
+//       res.status(200).send({ message: 'Email Already Registered', flag: flag_email})
+//     }
+//     else if(check_admin){
+//       flag_email = true
+//       res.status(200).send({ message: 'Email Already Registered', flag: flag_email})
+//     }
+//     else{
+//       res.status(200).send({ message: 'Valid Email', flag: flag_email})
+//     }
 //   }
 //   catch(e){
 //     console.log(e)

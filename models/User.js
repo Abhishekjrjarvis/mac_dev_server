@@ -430,6 +430,9 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  next_username: {
+    type: String,
+  },
 });
 
 userSchema.post("findOneAndDelete", async function (doc) {

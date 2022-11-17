@@ -776,8 +776,8 @@ exports.studentTestSet = async (req, res) => {
       JSON.stringify(currentDate),
       studentTestSet?.testEnd
     );
-    // if (entryTime && exitTime) {
-    if (true) {
+    if (entryTime && exitTime) {
+      // if (true) {
       studentTestSet.testSetAccess = true;
 
       await studentTestSet.save();

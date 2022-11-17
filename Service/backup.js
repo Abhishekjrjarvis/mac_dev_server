@@ -855,3 +855,141 @@
 // }
 
 
+
+// const sort_student_by_alpha = async (arr, day, month, year) => {
+//   const students = await Student.find({
+//     _id: { $in: arr },
+//   })
+//     .sort("studentFirstName")
+//     .select(
+//       "leave studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO"
+//     )
+//     .populate({
+//       path: "leave",
+//       match: {
+//         date: { $in: [`${day}/${month}/${year}`] },
+//       },
+//       select: "date",
+//     })
+//     .populate({
+//       path: "user",
+//       select: "userLegalName username",
+//     });
+//   return students;
+// };
+
+// const sort_student_by_decreasing = async (arr, day, month, year) => {
+//   const students = await Student.find({
+//     _id: { $in: arr },
+//   })
+//     .sort("-studentROLLNO")
+//     .select(
+//       "leave studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO"
+//     )
+//     .populate({
+//       path: "leave",
+//       match: {
+//         date: { $in: [`${day}/${month}/${year}`] },
+//       },
+//       select: "date",
+//     })
+//     .populate({
+//       path: "user",
+//       select: "userLegalName username",
+//     });
+//   students?.forEach(async (ele) => {
+//     await ele.save();
+//   });
+//   return students;
+// };
+
+// const sort_student_by_increasing = async (arr, day, month, year) => {
+//   const students = await Student.find({
+//     _id: { $in: arr },
+//   })
+//     .sort("studentROLLNO")
+//     .select(
+//       "leave studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO"
+//     )
+//     .populate({
+//       path: "leave",
+//       match: {
+//         date: { $in: [`${day}/${month}/${year}`] },
+//       },
+//       select: "date",
+//     })
+//     .populate({
+//       path: "user",
+//       select: "userLegalName username",
+//     });
+//   return students;
+// };
+
+// exports.retrieveApproveCatalogArray = async (req, res) => {
+//   try {
+//     const { cid } = req.params;
+//     const { sort_query } = req.query;
+//     const currentDate = new Date();
+//     const currentDateLocalFormat = currentDate.toISOString().split("-");
+//     const day =
+//       +currentDateLocalFormat[2].split("T")[0] > 9
+//         ? +currentDateLocalFormat[2].split("T")[0]
+//         : `0${+currentDateLocalFormat[2].split("T")[0]}`;
+//     const month =
+//       +currentDateLocalFormat[1] > 9
+//         ? +currentDateLocalFormat[1]
+//         : `0${+currentDateLocalFormat[1]}`;
+//     const year = +currentDateLocalFormat[0];
+//     // const regExpression = new RegExp(`${day}\/${month}\/${year}$`);
+//     const classes = await Class.findById({ _id: cid }).select(
+//       "className classStatus classTitle exams ApproveStudent"
+//     );
+
+//     if (sort_query === "Alphabetical") {
+//       const sortedA = await sort_student_by_alpha(
+//         classes.ApproveStudent,
+//         day,
+//         month,
+//         year
+//       );
+//       res.status(200).send({
+//         message: "Sorted By Alphabetical Order",
+//         classes,
+//         students: sortedA,
+//         access: true,
+//       });
+//     } else if (sort_query === "Descending") {
+//       const sortedD = await sort_student_by_decreasing(
+//         classes.ApproveStudent,
+//         day,
+//         month,
+//         year
+//       );
+//       res.status(200).send({
+//         message: "Sorted By Decreasing Order",
+//         classes,
+//         students: sortedD,
+//         access: true,
+//       });
+//     } else if (sort_query === "Ascending") {
+//       const sortedI = await sort_student_by_increasing(
+//         classes.ApproveStudent,
+//         day,
+//         month,
+//         year
+//       );
+//       res.status(200).send({
+//         message: "Sorted By Increasing Order",
+//         classes,
+//         students: sortedI,
+//         access: true,
+//       });
+//     } else {
+//       res
+//         .status(200)
+//         .send({ message: "You're breaking sorting rules 😡", access: false });
+//     }
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };

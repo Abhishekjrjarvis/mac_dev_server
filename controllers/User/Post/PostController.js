@@ -1723,22 +1723,7 @@ exports.commentReplyDelete = async (req, res) => {
 exports.renderEditPostQuery = async (req, res) => {
   try {
     const { pid } = req.params;
-    const edit_post = await Post.findByIdAndUpdate(pid, req.body);
-    if (JSON.parse(req.body?.deleteImage)?.length) {
-      for (let dimage of JSON.parse(req.body?.deleteImage)) {
-        edit_post?.postImage?.pull(dimage);
-        await deleteFile(dimage);
-      }
-    }
-    if (req?.files) {
-      for (let file of req.files) {
-        const results = await uploadPostImageFile(file);
-        edit_post.postImage.push(results.Key);
-        await unlinkFile(file.path);
-      }
-      edit_post.imageId = "0";
-    }
-    await edit_post.save();
+    await Post.findByIdAndUpdate(pid, req.body);
     res
       .status(200)
       .send({ message: "Post Edited Successfully 👍", edited: true });
@@ -1747,59 +1732,63 @@ exports.renderEditPostQuery = async (req, res) => {
   }
 };
 
-
-exports.renderOnePostQuery = async(req, res) => {
-  try{
-    const { pid } = req.params
-    if(!pid) return res.status(200).send({ message: "You're breaking rules of API fetching 😡", access: false})
-    const one_post = await Post.findById({_id: pid})
-    .select(
-      "postTitle postText question_visibility is_hashtag postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
-    )
-    .populate({
-      path: "poll_query",
-    })
-    .populate({
-      path: "rePostAnswer",
-      populate: {
-        path: "post",
+exports.renderOnePostQuery = async (req, res) => {
+  try {
+    const { pid } = req.params;
+    if (!pid)
+      return res
+        .status(200)
+        .send({
+          message: "You're breaking rules of API fetching 😡",
+          access: false,
+        });
+    const one_post = await Post.findById({ _id: pid })
+      .select(
+        "postTitle postText question_visibility is_hashtag postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
+      )
+      .populate({
+        path: "poll_query",
+      })
+      .populate({
+        path: "rePostAnswer",
+        populate: {
+          path: "post",
+          select:
+            "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser answerCount createdAt",
+        },
+      })
+      .populate({
+        path: "needMultiple",
+        select: "username photoId profilePhoto",
+      })
+      .populate({
+        path: "repostMultiple",
+        select: "username photoId profilePhoto",
+      })
+      .populate({
+        path: "new_application",
         select:
-          "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser answerCount createdAt",
-      },
-    })
-    .populate({
-      path: "needMultiple",
-      select: "username photoId profilePhoto",
-    })
-    .populate({
-      path: "repostMultiple",
-      select: "username photoId profilePhoto",
-    })
-    .populate({
-      path: "new_application",
-      select:
-        "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName applicationPhoto photoId",
-      populate: {
-        path: "applicationDepartment",
-        select: "dName",
-      },
-    })
-    .populate({
-      path: "hash_tag",
-      select: "hashtag_name hashtag_profile_photo",
-    })
-    if(one_post){
-      res.status(200).send({ message: "One Post Details 😡", access: true})
+          "applicationSeats applicationStartDate applicationEndDate applicationAbout admissionFee applicationName applicationPhoto photoId",
+        populate: {
+          path: "applicationDepartment",
+          select: "dName",
+        },
+      })
+      .populate({
+        path: "hash_tag",
+        select: "hashtag_name hashtag_profile_photo",
+      });
+    if (one_post) {
+      res.status(200).send({ message: "One Post Details 😡", access: true });
+    } else {
+      res
+        .status(200)
+        .send({ message: "Entering invalid format 😡", access: false });
     }
-    else{
-      res.status(200).send({ message: "Entering invalid format 😡", access: false})
-    }
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
-
+};
 
 // if (p_types !== "") {
 //   var post = await Post.find({

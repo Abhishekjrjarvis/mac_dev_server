@@ -2243,8 +2243,8 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     classes.ApproveStudent.push(student._id);
     classes.studentCount += 1;
     classes.student.pull(sid);
-    student.studentGRNO = classes.ApproveStudent.length;
-    student.studentROLLNO = classes.ApproveStudent.length;
+    student.studentGRNO = `Q${institute.ApproveStudent.length + 1}`;
+    student.studentROLLNO = classes.ApproveStudent.length + 1;
     student.studentClass = classes._id;
     student.studentAdmissionDate = new Date().toISOString();
     depart.ApproveStudent.push(student._id);
@@ -2766,12 +2766,10 @@ exports.retrieveInstituteReportBlock = async (req, res) => {
           institute.blockCount += 1;
         }
         await Promise.all([institute.save(), sinstitute.save()]);
-        res
-          .status(200)
-          .send({
-            message: "You are Blocked not able to follow ",
-            block: true,
-          });
+        res.status(200).send({
+          message: "You are Blocked not able to follow ",
+          block: true,
+        });
         try {
           sinstitute.followers?.pull(institute_session);
           institute.following?.pull(blockId);

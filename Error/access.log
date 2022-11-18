@@ -2634,3 +2634,138 @@
 {"level":"info","message":{},"timestamp":"2022-11-17T13:09:37.512Z"}
 {"hash":{"__v":0,"_id":"63732b6c3ea4f6ba0733b2dc","created_at":"2022-11-15T06:02:20.235Z","hashtag_follower":[],"hashtag_follower_count":0,"hashtag_name":"#neet","hashtag_photo_id":"1","hashtag_poll_count":0,"hashtag_post":[],"hashtag_profile_photo":"4363e968b6cea33759be7bac28f03d3b","hashtag_proflile_photo":"https://qviple.com/images/newLogo.svg","hashtag_question_count":0,"hashtag_repost_count":0,"hashtag_trend":"Not on Trending"},"level":"info","message":"update Profile 😀","status":true,"timestamp":"2022-11-17T13:09:38.046Z"}
 {"level":"info","message":"{\"message\":\"update Profile \ud83d\ude00\",\"hash\":{\"_id\":\"63732b6c3ea4f6ba0733b2dc\",\"hashtag_follower_count\":0,\"hashtag_question_count\":0,\"hashtag_poll_count\":0,\"hashtag_follower\":[],\"hashtag_post\":[],\"hashtag_trend\":\"Not on Trending\",\"created_at\":\"2022-11-15T06:02:20.235Z\",\"hashtag_name\":\"#neet\",\"__v\":0,\"hashtag_proflile_photo\":\"https://qviple.com/images/newLogo.svg\",\"hashtag_repost_count\":0,\"hashtag_profile_photo\":\"4363e968b6cea33759be7bac28f03d3b\",\"hashtag_photo_id\":\"1\"},\"status\":true,\"level\":\"info\"}","timestamp":"2022-11-17T13:09:38.050Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T03:15:25.754Z"}
+{"flag":true,"level":"info","message":"Username Granted for next update 😀👍","timestamp":"2022-11-18T03:15:25.918Z"}
+{"level":"info","message":"{\"message\":\"Username Granted for next update 😀👍\",\"flag\":true,\"level\":\"info\"}","timestamp":"2022-11-18T03:15:25.921Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T03:20:35.742Z"}
+{"flag":true,"level":"info","message":"User Username Granted for next update 😀👍","timestamp":"2022-11-18T03:20:35.968Z"}
+{"level":"info","message":"{\"message\":\"User Username Granted for next update 😀👍\",\"flag\":true,\"level\":\"info\"}","timestamp":"2022-11-18T03:20:35.971Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T03:35:59.069Z"}
+{"flag":false,"level":"info","message":"User Username Rejected for next update is available 😀👍","timestamp":"2022-11-18T03:35:59.233Z"}
+{"level":"info","message":"{\"message\":\"User Username Rejected for next update is available 😀👍\",\"flag\":false,\"level\":\"info\"}","timestamp":"2022-11-18T03:35:59.239Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T03:37:33.093Z"}
+{"check_user":{"_id":"6360aa8151d30672ae8cfc3e"},"flag":false,"level":"info","message":"User Username Rejected for next update is available 😀👍","timestamp":"2022-11-18T03:37:33.271Z"}
+{"level":"info","message":"{\"message\":\"User Username Rejected for next update is available \ud83d\ude00\ud83d\udc4d\",\"flag\":false,\"check_user\":{\"_id\":\"6360aa8151d30672ae8cfc3e\"},\"level\":\"info\"}","timestamp":"2022-11-18T03:37:33.274Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T03:38:21.943Z"}
+{"flag":true,"level":"info","message":"User Username Granted for next update 😀👍","timestamp":"2022-11-18T03:38:22.118Z"}
+{"level":"info","message":"{\"message\":\"User Username Granted for next update 😀👍\",\"flag\":true,\"level\":\"info\"}","timestamp":"2022-11-18T03:38:22.120Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T03:38:32.599Z"}
+{"flag":true,"level":"info","message":"User Username Granted for next update 😀👍","timestamp":"2022-11-18T03:38:32.874Z"}
+{"level":"info","message":"{\"message\":\"User Username Granted for next update 😀👍\",\"flag\":true,\"level\":\"info\"}","timestamp":"2022-11-18T03:38:32.875Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T03:42:23.741Z"}
+{"flag":true,"level":"info","message":"User Username Granted for next update 😀👍","timestamp":"2022-11-18T03:42:23.985Z"}
+{"level":"info","message":"{\"message\":\"User Username Granted for next update 😀👍\",\"flag\":true,\"level\":\"info\"}","timestamp":"2022-11-18T03:42:23.987Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T03:42:28.191Z"}
+{"flag":false,"level":"info","message":"Nothing found here to save 🙄","timestamp":"2022-11-18T03:42:28.312Z"}
+{"level":"info","message":"{\"message\":\"Nothing found here to save 🙄\",\"flag\":false,\"level\":\"info\"}","timestamp":"2022-11-18T03:42:28.313Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T03:43:24.178Z"}
+{"check_user":{"_id":"6360aa8151d30672ae8cfc3e","next_date":"2023-01-02"},"flag":false,"level":"info","message":"User Username Rejected for next update is available 😀👍","timestamp":"2022-11-18T03:43:24.420Z"}
+{"level":"info","message":"{\"message\":\"User Username Rejected for next update is available \ud83d\ude00\ud83d\udc4d\",\"flag\":false,\"check_user\":{\"_id\":\"6360aa8151d30672ae8cfc3e\",\"next_date\":\"2023-01-02\"},\"level\":\"info\"}","timestamp":"2022-11-18T03:43:24.424Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T03:45:26.633Z"}
+{"flag":false,"level":"info","message":"User Username Rejected for next update is available at 2023-01-02T00:00:00.000Z 😀👍","timestamp":"2022-11-18T03:45:26.802Z"}
+{"level":"info","message":"{\"message\":\"User Username Rejected for next update is available at 2023-01-02T00:00:00.000Z \ud83d\ude00\ud83d\udc4d\",\"flag\":false,\"level\":\"info\"}","timestamp":"2022-11-18T03:45:26.806Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T03:55:25.409Z"}
+{"flag":false,"level":"info","message":"User Username Rejected for next update is available at Mon Jan 02 2023 05:30:00 GMT+0530 😀👍","timestamp":"2022-11-18T03:55:25.603Z"}
+{"level":"info","message":"{\"message\":\"User Username Rejected for next update is available at Mon Jan 02 2023 05:30:00 GMT+0530 \ud83d\ude00\ud83d\udc4d\",\"flag\":false,\"level\":\"info\"}","timestamp":"2022-11-18T03:55:25.607Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T03:56:24.330Z"}
+{"flag":false,"level":"info","message":"User Username Rejected for next update is available at in a month 😀👍","timestamp":"2022-11-18T03:56:24.518Z"}
+{"level":"info","message":"{\"message\":\"User Username Rejected for next update is available at in a month \ud83d\ude00\ud83d\udc4d\",\"flag\":false,\"level\":\"info\"}","timestamp":"2022-11-18T03:56:24.521Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T03:57:35.274Z"}
+{"flag":false,"level":"info","message":"User Username Rejected for next update is available at Jan 2nd 23 😀👍","timestamp":"2022-11-18T03:57:35.473Z"}
+{"level":"info","message":"{\"message\":\"User Username Rejected for next update is available at Jan 2nd 23 \ud83d\ude00\ud83d\udc4d\",\"flag\":false,\"level\":\"info\"}","timestamp":"2022-11-18T03:57:35.476Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T04:13:32.500Z"}
+{"level":"info","message":"this username does not exists in lake 🔍","seen":false,"timestamp":"2022-11-18T04:13:32.600Z"}
+{"level":"info","message":"{\"message\":\"this username does not exists in lake 🔍\",\"seen\":false,\"level\":\"info\"}","timestamp":"2022-11-18T04:13:32.601Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T04:14:11.584Z"}
+{"level":"info","message":"this username does not exists in lake 🔍","seen":false,"timestamp":"2022-11-18T04:14:11.665Z"}
+{"level":"info","message":"{\"message\":\"this username does not exists in lake 🔍\",\"seen\":false,\"level\":\"info\"}","timestamp":"2022-11-18T04:14:11.667Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T04:14:16.065Z"}
+{"level":"info","message":"this username does not exists in lake 🔍","seen":false,"timestamp":"2022-11-18T04:14:16.138Z"}
+{"level":"info","message":"{\"message\":\"this username does not exists in lake 🔍\",\"seen\":false,\"level\":\"info\"}","timestamp":"2022-11-18T04:14:16.139Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T04:14:39.412Z"}
+{"level":"info","message":"this username does not exists in lake 🔍","seen":false,"timestamp":"2022-11-18T04:14:40.804Z"}
+{"level":"info","message":"{\"message\":\"this username does not exists in lake 🔍\",\"seen\":false,\"level\":\"info\"}","timestamp":"2022-11-18T04:14:40.805Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T04:14:44.256Z"}
+{"level":"info","message":"this username does not exists in lake 🔍","seen":false,"timestamp":"2022-11-18T04:14:44.345Z"}
+{"level":"info","message":"{\"message\":\"this username does not exists in lake 🔍\",\"seen\":false,\"level\":\"info\"}","timestamp":"2022-11-18T04:14:44.346Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T04:14:50.180Z"}
+{"level":"info","message":"this username does not exists in lake 🔍","seen":false,"timestamp":"2022-11-18T04:14:50.251Z"}
+{"level":"info","message":"{\"message\":\"this username does not exists in lake 🔍\",\"seen\":false,\"level\":\"info\"}","timestamp":"2022-11-18T04:14:50.251Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T04:15:25.122Z"}
+{"level":"info","message":"this username does not exists in lake 🔍","seen":false,"timestamp":"2022-11-18T04:15:25.244Z"}
+{"level":"info","message":"{\"message\":\"this username does not exists in lake 🔍\",\"seen\":false,\"level\":\"info\"}","timestamp":"2022-11-18T04:15:25.246Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T04:15:27.577Z"}
+{"level":"info","message":"this username does not exists in lake 🔍","seen":false,"timestamp":"2022-11-18T04:15:27.661Z"}
+{"level":"info","message":"{\"message\":\"this username does not exists in lake 🔍\",\"seen\":false,\"level\":\"info\"}","timestamp":"2022-11-18T04:15:27.662Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T04:15:59.414Z"}
+{"level":"info","message":"this username does not exists in lake 🔍","seen":false,"timestamp":"2022-11-18T04:15:59.497Z"}
+{"level":"info","message":"{\"message\":\"this username does not exists in lake 🔍\",\"seen\":false,\"level\":\"info\"}","timestamp":"2022-11-18T04:15:59.498Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T04:18:15.106Z"}
+{"level":"info","message":"this username does not exists in lake 🔍","seen":false,"timestamp":"2022-11-18T04:18:15.185Z"}
+{"level":"info","message":"{\"message\":\"this username does not exists in lake 🔍\",\"seen\":false,\"level\":\"info\"}","timestamp":"2022-11-18T04:18:15.187Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T04:20:10.167Z"}
+{"level":"info","message":"this username does not exists in lake 🔍","seen":false,"timestamp":"2022-11-18T04:20:10.286Z"}
+{"level":"info","message":"{\"message\":\"this username does not exists in lake 🔍\",\"seen\":false,\"level\":\"info\"}","timestamp":"2022-11-18T04:20:10.288Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T04:23:03.410Z"}
+{"level":"info","message":"this username does not exists in lake 🔍","seen":false,"timestamp":"2022-11-18T04:23:03.542Z"}
+{"level":"info","message":"{\"message\":\"this username does not exists in lake 🔍\",\"seen\":false,\"level\":\"info\"}","timestamp":"2022-11-18T04:23:03.545Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T04:23:05.221Z"}
+{"level":"info","message":"this username does not exists in lake 🔍","seen":false,"timestamp":"2022-11-18T04:23:05.303Z"}
+{"level":"info","message":"{\"message\":\"this username does not exists in lake 🔍\",\"seen\":false,\"level\":\"info\"}","timestamp":"2022-11-18T04:23:05.305Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T04:29:01.473Z"}
+{"level":"info","message":"this username does not exists in lake 🔍","seen":false,"timestamp":"2022-11-18T04:29:01.573Z"}
+{"level":"info","message":"{\"message\":\"this username does not exists in lake 🔍\",\"seen\":false,\"level\":\"info\"}","timestamp":"2022-11-18T04:29:01.575Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T04:29:53.352Z"}
+{"level":"info","message":"this username does not exists in lake 🔍","seen":false,"timestamp":"2022-11-18T04:29:53.431Z"}
+{"level":"info","message":"{\"message\":\"this username does not exists in lake 🔍\",\"seen\":false,\"level\":\"info\"}","timestamp":"2022-11-18T04:29:53.432Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T04:30:39.759Z"}
+{"level":"info","message":"this username does not exists in lake 🔍","seen":false,"timestamp":"2022-11-18T04:30:40.849Z"}
+{"level":"info","message":"{\"message\":\"this username does not exists in lake 🔍\",\"seen\":false,\"level\":\"info\"}","timestamp":"2022-11-18T04:30:40.850Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T04:31:12.612Z"}
+{"level":"info","message":"this username does not exists in lake 🔍","seen":false,"timestamp":"2022-11-18T04:31:12.683Z"}
+{"level":"info","message":"{\"message\":\"this username does not exists in lake 🔍\",\"seen\":false,\"level\":\"info\"}","timestamp":"2022-11-18T04:31:12.684Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T04:34:19.652Z"}
+{"level":"info","message":"Username already exists 🙄","seen":true,"timestamp":"2022-11-18T04:34:19.787Z","username":{"_id":"6360ae5a51d30672ae8cfe50","username":"ankush123"}}
+{"level":"info","message":"{\"message\":\"Username already exists \ud83d\ude44\",\"seen\":true,\"username\":{\"_id\":\"6360ae5a51d30672ae8cfe50\",\"username\":\"ankush123\"},\"level\":\"info\"}","timestamp":"2022-11-18T04:34:19.790Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T04:34:24.201Z"}
+{"level":"info","message":"Username already exists 🙄","seen":true,"timestamp":"2022-11-18T04:34:24.285Z","username":{"_id":"6360b52b51d30672ae8d0337","username":"ankush12"}}
+{"level":"info","message":"{\"message\":\"Username already exists \ud83d\ude44\",\"seen\":true,\"username\":{\"_id\":\"6360b52b51d30672ae8d0337\",\"username\":\"ankush12\"},\"level\":\"info\"}","timestamp":"2022-11-18T04:34:24.286Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T04:34:28.294Z"}
+{"level":"info","message":"this username does not exists in lake 🔍","seen":false,"timestamp":"2022-11-18T04:34:28.373Z"}
+{"level":"info","message":"{\"message\":\"this username does not exists in lake 🔍\",\"seen\":false,\"level\":\"info\"}","timestamp":"2022-11-18T04:34:28.374Z"}
+{"level":"info","message":{"request":["6360b46751d30672ae8d0262"]},"timestamp":"2022-11-18T05:12:43.341Z"}
+{"export_format":true,"level":"info","message":"Exported Student Format Pattern Save","student_card":[{"aadharNumber":"123456789012","address":"Agra Mathura","bankDetails":"","birthPlace":"Agra","bmi":"","cast":"Kumar","castCategory":"OBC","castCertificate":"","district":"Allahabad","dob":"Nov 20,1995","fullName":"Ankush  Kumar","gender":"Male","height":"","motherName":"Shivdamini","motherTongue":"Hindi","nationality":"Indian","phoneNumber":87874005,"photo":"320b519e106783e6d08abb6e7ff63743","religion":"Hindu","state":"Uttar Pradesh","upiId":"","weight":""},{"aadharNumber":"","bankDetails":"","birthPlace":"","bmi":"","cast":"","castCategory":"NT-A","castCertificate":"","dob":"Nov 02,2022","fullName":"Prashant  Warungase","gender":"Male","height":"","motherName":"Sarita","motherTongue":"","nationality":"Indian","photo":"408b4643bb6a0aa87496dba684ae083b","religion":"Hindu","upiId":"","weight":""},{"aadharNumber":"","bankDetails":"","birthPlace":"","bmi":"","cast":"","castCertificate":"","dob":"Nov 03,2022","fullName":"Tushar B B","gender":"Male","height":"","motherName":"","motherTongue":"","nationality":"Indian","photo":"4139498a10e7cbbf34e17e908ee6b9b1","religion":"Hindu","upiId":"","weight":""}],"timestamp":"2022-11-18T05:12:43.634Z"}
+{"level":"info","message":"{\"message\":\"Exported Student Format Pattern Save\",\"student_card\":[{\"fullName\":\"Ankush  Kumar\",\"photo\":\"320b519e106783e6d08abb6e7ff63743\",\"cast\":\"Kumar\",\"castCategory\":\"OBC\",\"religion\":\"Hindu\",\"birthPlace\":\"Agra\",\"motherName\":\"Shivdamini\",\"motherTongue\":\"Hindi\",\"district\":\"Allahabad\",\"state\":\"Uttar Pradesh\",\"address\":\"Agra Mathura\",\"phoneNumber\":87874005,\"aadharNumber\":\"123456789012\",\"gender\":\"Male\",\"dob\":\"Nov 20,1995\",\"nationality\":\"Indian\",\"bankDetails\":\"\",\"upiId\":\"\",\"castCertificate\":\"\",\"height\":\"\",\"weight\":\"\",\"bmi\":\"\"},{\"fullName\":\"Prashant  Warungase\",\"photo\":\"408b4643bb6a0aa87496dba684ae083b\",\"cast\":\"\",\"castCategory\":\"NT-A\",\"religion\":\"Hindu\",\"birthPlace\":\"\",\"motherName\":\"Sarita\",\"motherTongue\":\"\",\"aadharNumber\":\"\",\"gender\":\"Male\",\"dob\":\"Nov 02,2022\",\"nationality\":\"Indian\",\"bankDetails\":\"\",\"upiId\":\"\",\"castCertificate\":\"\",\"height\":\"\",\"weight\":\"\",\"bmi\":\"\"},{\"fullName\":\"Tushar B B\",\"photo\":\"4139498a10e7cbbf34e17e908ee6b9b1\",\"cast\":\"\",\"religion\":\"Hindu\",\"birthPlace\":\"\",\"motherName\":\"\",\"motherTongue\":\"\",\"aadharNumber\":\"\",\"gender\":\"Male\",\"dob\":\"Nov 03,2022\",\"nationality\":\"Indian\",\"bankDetails\":\"\",\"upiId\":\"\",\"castCertificate\":\"\",\"height\":\"\",\"weight\":\"\",\"bmi\":\"\"}],\"export_format\":true,\"level\":\"info\"}","timestamp":"2022-11-18T05:12:43.638Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T05:34:40.465Z"}
+{"level":"info","message":"Page Not Found...","timestamp":"2022-11-18T05:34:40.478Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T05:34:54.752Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T05:35:34.918Z"}
+{"download":true,"level":"info","message":"Student Leaving Certificate","student":{"_id":"6360bbd6f10c337ebccb6c18","batches":{"_id":"6360b3ab51d30672ae8d01d0","batchName":"2022-2023"},"certificateLeavingCopy":{"secondCopy":false,"thirdCopy":false,"trueCopy":true},"institute":{"_id":"6360a8c251d30672ae8cfba8","insAddress":"plot no. 77 Adarsh Vihar Buddeshwar Chauraha LKO","insAffiliated":null,"insDistrict":"Bangalore","insName":"Qviple Education SAAS Platform","insPhoneNumber":7007023972,"insPincode":560068,"insProfilePhoto":"6c992874795b72a9b7c1ad7f4c32f901","insState":"Karnataka","photoId":"0"},"photoId":"0","studentAdmissionDate":"2022-11-01T06:26:02.811Z","studentBirthPlace":"Agra","studentBookNo":"1","studentCast":"Kumar","studentCastCategory":"OBC","studentCertificateNo":"1","studentClass":{"_id":"6360b46751d30672ae8d0262","className":"FYJC"},"studentDOB":"Nov 20,1995","studentFirstName":"Ankush","studentLastName":"Kumar","studentLeavingInsDate":"Fri Nov 18 2022 11:05:35 GMT+0530 (India Standard Time)","studentLeavingStatus":"Ready","studentMTongue":"Hindi","studentMotherName":"Shivdamini","studentNationality":"Indian","studentProfilePhoto":"320b519e106783e6d08abb6e7ff63743","studentReligion":"Hindu"},"timestamp":"2022-11-18T05:35:35.335Z"}
+{"level":"info","message":"{\"message\":\"Student Leaving Certificate\",\"student\":{\"certificateLeavingCopy\":{\"trueCopy\":true,\"secondCopy\":false,\"thirdCopy\":false},\"_id\":\"6360bbd6f10c337ebccb6c18\",\"studentFirstName\":\"Ankush\",\"studentLastName\":\"Kumar\",\"studentDOB\":\"Nov 20,1995\",\"studentNationality\":\"Indian\",\"studentMTongue\":\"Hindi\",\"studentMotherName\":\"Shivdamini\",\"studentCast\":\"Kumar\",\"studentCastCategory\":\"OBC\",\"studentReligion\":\"Hindu\",\"studentBirthPlace\":\"Agra\",\"photoId\":\"0\",\"studentProfilePhoto\":\"320b519e106783e6d08abb6e7ff63743\",\"studentClass\":{\"_id\":\"6360b46751d30672ae8d0262\",\"className\":\"FYJC\"},\"institute\":{\"_id\":\"6360a8c251d30672ae8cfba8\",\"insName\":\"Qviple Education SAAS Platform\",\"insPhoneNumber\":7007023972,\"insState\":\"Karnataka\",\"insDistrict\":\"Bangalore\",\"insPincode\":560068,\"insAddress\":\"plot no. 77 Adarsh Vihar Buddeshwar Chauraha LKO\",\"photoId\":\"0\",\"insProfilePhoto\":\"6c992874795b72a9b7c1ad7f4c32f901\",\"insAffiliated\":null},\"batches\":{\"_id\":\"6360b3ab51d30672ae8d01d0\",\"batchName\":\"2022-2023\"},\"studentAdmissionDate\":\"2022-11-01T06:26:02.811Z\",\"studentLeavingInsDate\":\"Fri Nov 18 2022 11:05:35 GMT+0530 (India Standard Time)\",\"studentBookNo\":\"1\",\"studentCertificateNo\":\"1\",\"studentLeavingStatus\":\"Ready\"},\"download\":true,\"level\":\"info\"}","timestamp":"2022-11-18T05:35:35.343Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T05:50:33.771Z"}
+{"flag":true,"level":"info","message":"User Username Granted for next update 😀👍","timestamp":"2022-11-18T05:50:34.034Z"}
+{"level":"info","message":"{\"message\":\"User Username Granted for next update 😀👍\",\"flag\":true,\"level\":\"info\"}","timestamp":"2022-11-18T05:50:34.036Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T05:50:38.615Z"}
+{"flag":false,"level":"info","message":"Nothing found here to save 🙄","timestamp":"2022-11-18T05:50:38.746Z"}
+{"level":"info","message":"{\"message\":\"Nothing found here to save 🙄\",\"flag\":false,\"level\":\"info\"}","timestamp":"2022-11-18T05:50:38.748Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T05:51:09.521Z"}
+{"flag":false,"level":"info","message":"User Username Rejected for next update is available at Jan 2nd 23 😀👍","timestamp":"2022-11-18T05:51:09.680Z"}
+{"level":"info","message":"{\"message\":\"User Username Rejected for next update is available at Jan 2nd 23 \ud83d\ude00\ud83d\udc4d\",\"flag\":false,\"level\":\"info\"}","timestamp":"2022-11-18T05:51:09.682Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T05:51:19.535Z"}
+{"level":"info","message":"this username does not exists in lake 🔍","seen":false,"timestamp":"2022-11-18T05:51:19.617Z"}
+{"level":"info","message":"{\"message\":\"this username does not exists in lake 🔍\",\"seen\":false,\"level\":\"info\"}","timestamp":"2022-11-18T05:51:19.619Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T05:51:24.549Z"}
+{"level":"info","message":"Username already exists 🙄","seen":true,"timestamp":"2022-11-18T05:51:24.795Z","username":{"_id":"6360aa8151d30672ae8cfc3e","username":"Abhishek12"}}
+{"level":"info","message":"{\"message\":\"Username already exists \ud83d\ude44\",\"seen\":true,\"username\":{\"_id\":\"6360aa8151d30672ae8cfc3e\",\"username\":\"Abhishek12\"},\"level\":\"info\"}","timestamp":"2022-11-18T05:51:24.796Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T05:54:43.788Z"}
+{"flag":true,"level":"info","message":"User Username Granted for next update 😀👍","timestamp":"2022-11-18T05:54:44.005Z"}
+{"level":"info","message":"{\"message\":\"User Username Granted for next update 😀👍\",\"flag\":true,\"level\":\"info\"}","timestamp":"2022-11-18T05:54:44.008Z"}
+{"level":"info","message":{},"timestamp":"2022-11-18T05:54:50.149Z"}
+{"flag":false,"level":"info","message":"Nothing found here to save 🙄","timestamp":"2022-11-18T05:54:50.398Z"}
+{"level":"info","message":"{\"message\":\"Nothing found here to save 🙄\",\"flag\":false,\"level\":\"info\"}","timestamp":"2022-11-18T05:54:50.399Z"}
+{"level":"info","message":{"request":["6360b46751d30672ae8d0262"]},"timestamp":"2022-11-18T06:17:02.326Z"}
+{"export_format":true,"level":"info","message":"Exported Student Format Pattern Save","student_card":[{"Gr_No":"Q1","fullName":"Ankush  Kumar","photo":"320b519e106783e6d08abb6e7ff63743","studentClass":"FYJC","studentDepartment":"Computer Science","studentPaidFeeCount":0,"studentRemainingFeeCount":100},{"Gr_No":"Q2","fullName":"Prashant  Warungase","photo":"408b4643bb6a0aa87496dba684ae083b","studentClass":"FYJC","studentDepartment":"Computer Science","studentPaidFeeCount":0,"studentRemainingFeeCount":100},{"Gr_No":"Q3","fullName":"Tushar B B","photo":"4139498a10e7cbbf34e17e908ee6b9b1","studentClass":"Hollywood","studentDepartment":"Marvel Cinematic Universe","studentPaidFeeCount":0,"studentRemainingFeeCount":0}],"timestamp":"2022-11-18T06:17:02.639Z"}
+{"level":"info","message":"{\"message\":\"Exported Student Format Pattern Save\",\"student_card\":[{\"Gr_No\":\"Q1\",\"fullName\":\"Ankush  Kumar\",\"photo\":\"320b519e106783e6d08abb6e7ff63743\",\"studentRemainingFeeCount\":100,\"studentPaidFeeCount\":0,\"studentDepartment\":\"Computer Science\",\"studentClass\":\"FYJC\"},{\"Gr_No\":\"Q2\",\"fullName\":\"Prashant  Warungase\",\"photo\":\"408b4643bb6a0aa87496dba684ae083b\",\"studentRemainingFeeCount\":100,\"studentPaidFeeCount\":0,\"studentDepartment\":\"Computer Science\",\"studentClass\":\"FYJC\"},{\"Gr_No\":\"Q3\",\"fullName\":\"Tushar B B\",\"photo\":\"4139498a10e7cbbf34e17e908ee6b9b1\",\"studentRemainingFeeCount\":0,\"studentPaidFeeCount\":0,\"studentDepartment\":\"Marvel Cinematic Universe\",\"studentClass\":\"Hollywood\"}],\"export_format\":true,\"level\":\"info\"}","timestamp":"2022-11-18T06:17:02.645Z"}
+{"level":"info","message":{"request":["6360b46751d30672ae8d0262"]},"timestamp":"2022-11-18T06:19:17.112Z"}
+{"export_format":true,"level":"info","message":"Exported Student Remain Fee","student_card":[{"Gr_No":"Q1","fullName":"Ankush  Kumar","photo":"320b519e106783e6d08abb6e7ff63743","studentClass":"FYJC","studentDepartment":"Computer Science","studentPaidFeeCount":0,"studentRemainingFeeCount":100},{"Gr_No":"Q2","fullName":"Prashant  Warungase","photo":"408b4643bb6a0aa87496dba684ae083b","studentClass":"FYJC","studentDepartment":"Computer Science","studentPaidFeeCount":0,"studentRemainingFeeCount":100}],"timestamp":"2022-11-18T06:19:17.481Z"}
+{"level":"info","message":"{\"message\":\"Exported Student Remain Fee\",\"student_card\":[{\"Gr_No\":\"Q1\",\"fullName\":\"Ankush  Kumar\",\"photo\":\"320b519e106783e6d08abb6e7ff63743\",\"studentRemainingFeeCount\":100,\"studentPaidFeeCount\":0,\"studentDepartment\":\"Computer Science\",\"studentClass\":\"FYJC\"},{\"Gr_No\":\"Q2\",\"fullName\":\"Prashant  Warungase\",\"photo\":\"408b4643bb6a0aa87496dba684ae083b\",\"studentRemainingFeeCount\":100,\"studentPaidFeeCount\":0,\"studentDepartment\":\"Computer Science\",\"studentClass\":\"FYJC\"}],\"export_format\":true,\"level\":\"info\"}","timestamp":"2022-11-18T06:19:17.485Z"}

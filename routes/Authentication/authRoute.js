@@ -67,6 +67,8 @@ router.post(
   catchAsync(Auth.retrieveEmailRedundantQuery)
 );
 
-// router.patch("/username/:uid", catchAsync(Auth.retrieveUsernameEditQuery));
+router.patch("/username", catchAsync(Auth.retrieveUsernameEditQuery));
+
+router.get("/username/search", catchAsync(Auth.searchByUsernameQuery));
 
 module.exports = router;

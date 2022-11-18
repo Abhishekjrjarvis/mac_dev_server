@@ -106,6 +106,50 @@ paths:
         "200":
           description: OK
 
+  
+  /api/v1/auth/username/search:
+    get:
+      tags:
+        - Login And Logout Api
+      summary: Search Existing Username -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: u_name
+          required: true
+          type: string
+          description: Enter the search username
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/auth/username:
+    patch:
+      tags:
+        - Login And Logout Api
+      summary: Edit Username (Based on 45 Days) -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: o_name
+          required: true
+          type: string
+          description: Enter the existing username
+        - in: query
+          name: n_name
+          required: true
+          type: string
+          description: Enter the new username
+      responses:
+        "200":
+          description: OK
+
   /api/v1/auth/logout:
     get:
       tags:
@@ -1997,6 +2041,25 @@ paths:
                 items:
                   type: string
                   description: Enter Class Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/extra/export/student/all:
+    get:
+      tags:
+        - Setting Control API
+      summary: Get All Students Exported Data -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: id
+          required: true
+          type: string
+          description: Enter institute Id
       responses:
         "200":
           description: OK

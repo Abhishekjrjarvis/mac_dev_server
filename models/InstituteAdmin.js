@@ -543,18 +543,18 @@ const instituteAdminSchema = new mongoose.Schema({
   block_institute: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'InstituteAdmin'
-    }
+      ref: "InstituteAdmin",
+    },
   ],
   blockedBy: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'InstituteAdmin'
-    }
+      ref: "InstituteAdmin",
+    },
   ],
   blockCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   export_staff_data: {
     fullName: { type: Boolean, default: true },
@@ -609,7 +609,10 @@ const instituteAdminSchema = new mongoose.Schema({
     studentHeight: { type: Boolean, defult: false },
     studentWeight: { type: Boolean, defult: false },
     studentBMI: { type: Boolean, defult: false },
-  }
+  },
+  next_date: {
+    type: String,
+  },
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

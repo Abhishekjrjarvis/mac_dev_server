@@ -430,7 +430,7 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  next_username: {
+  next_date: {
     type: String,
   },
 });

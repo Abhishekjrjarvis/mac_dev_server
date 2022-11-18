@@ -4,7 +4,6 @@ const Admin = require("../../models/superAdmin");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const User = require("../../models/User");
 const bcrypt = require("bcryptjs");
-const Post = require("../../models/Post");
 const {
   getFileStream,
   uploadDocFile,
@@ -19,7 +18,13 @@ const payment_modal_activate = require("./AuthFunction");
 const Referral = require("../../models/QCoins/Referral");
 const SupportChat = require("../../models/Chat/SupportChat");
 const QRCode = require("qrcode");
+const moment = require("moment");
 const invokeSpecificRegister = require("../../Firebase/specific");
+const Answer = require("../../models/Question/Answer");
+const Post = require("../../models/Post");
+const Comment = require("../../models/Comment");
+const ReplyComment = require("../../models/ReplyComment/ReplyComment");
+const AnswerReply = require("../../models/Question/AnswerReply");
 
 function generateAccessToken(username, userId, userPassword) {
   return jwt.sign(
@@ -129,6 +134,15 @@ exports.getRegisterIns = async (req, res) => {
         institute.coverId = "2";
         institute.profileURL = `https://qviple.com/q/${institute.name}/profile`;
         institute.modal_activate = payment_modal_activate();
+        institute.next_date = `${new Date().getFullYear()}-${
+          new Date().getMonth() + 1 < 10
+            ? `0${new Date().getMonth() + 1}`
+            : new Date().getMonth() + 1
+        }-${
+          new Date().getDate() < 10
+            ? `0${new Date().getDate()}`
+            : new Date().getDate()
+        }`;
         admins.instituteList.push(institute);
         admins.requestInstituteCount += 1;
         await Promise.all([admins.save(), institute.save()]);
@@ -373,8 +387,8 @@ exports.profileByUser = async (req, res) => {
           userPhoneNumber: id,
           photoId: "0",
           coverId: "2",
-          createdAt: c_date,
           remindLater: rDate,
+          next_date: c_date,
         });
         user.profilePhoto = results.key;
         admins.users.push(user);
@@ -382,13 +396,11 @@ exports.profileByUser = async (req, res) => {
         await Promise.all([admins.save(), user.save()]);
         await unlinkFile(file.path);
         const token = generateAccessToken(user?.username, user?._id);
-        res
-          .status(200)
-          .send({
-            message: "Profile Successfully Created...",
-            user,
-            token: `Bearer ${token}`,
-          });
+        res.status(200).send({
+          message: "Profile Successfully Created...",
+          user,
+          token: `Bearer ${token}`,
+        });
         var uInstitute = await InstituteAdmin.findOne({
           isUniversal: "Universal",
         })
@@ -481,13 +493,11 @@ exports.profileByGoogle = async (req, res) => {
     admins.userCount += 1;
     await Promise.all([admins.save(), user.save()]);
     const token = generateAccessToken(user?.username, user?._id);
-    res
-      .status(200)
-      .send({
-        message: "Profile Successfully Created...",
-        user,
-        token: `Bearer ${token}`,
-      });
+    res.status(200).send({
+      message: "Profile Successfully Created...",
+      user,
+      token: `Bearer ${token}`,
+    });
     const uInstitute = await InstituteAdmin.findOne({
       isUniversal: "Universal",
     }).populate({ path: "posts" });
@@ -632,16 +642,14 @@ module.exports.getLogin = async (req, res) => {
         if (err) {
           res.status(401).send({ message: "UnAuthorized User", status: false });
         } else {
-          res
-            .status(200)
-            .send({
-              message: "Authorized User",
-              status: true,
-              token: token,
-              user: decoded.userId,
-              institute: decoded.insId,
-              admin: decoded.adminId,
-            });
+          res.status(200).send({
+            message: "Authorized User",
+            status: true,
+            token: token,
+            user: decoded.userId,
+            institute: decoded.insId,
+            admin: decoded.adminId,
+          });
         }
       });
     }
@@ -780,15 +788,13 @@ module.exports.authenticationGoogle = async (req, res) => {
     );
     if (user) {
       const token = generateAccessToken(user?.username, user?._id);
-      res
-        .status(200)
-        .send({
-          message: "successfully signed In",
-          sign_in: true,
-          user: user,
-          token: `Bearer ${token}`,
-          g_AuthToken: googleAuthToken,
-        });
+      res.status(200).send({
+        message: "successfully signed In",
+        sign_in: true,
+        user: user,
+        token: `Bearer ${token}`,
+        g_AuthToken: googleAuthToken,
+      });
     } else {
       res.status(200).send({ message: "Failed to signed In", sign_in: false });
     }
@@ -838,30 +844,163 @@ exports.retrieveEmailRedundantQuery = async (req, res) => {
   }
 };
 
-// exports.retrieveUsernameEditQuery = async(req, res) => {
-//   try{
-//     const { u_name } = req.body
-//     const check_ins = await InstituteAdmin.findOne({ name: u_name }).select('id')
-//     const check_user = await User.findOne({ username: u_name }).select('id')
-//     const check_admin = await Admin.findOne({ adminUserName: u_name }).select('id')
-//     var flag_email = false
-//     if(check_ins){
-//       flag_email = true
-//       res.status(200).send({ message: 'Email Already Registered', flag: flag_email})
-//     }
-//     else if(check_user){
-//       flag_email = true
-//       res.status(200).send({ message: 'Email Already Registered', flag: flag_email})
-//     }
-//     else if(check_admin){
-//       flag_email = true
-//       res.status(200).send({ message: 'Email Already Registered', flag: flag_email})
-//     }
-//     else{
-//       res.status(200).send({ message: 'Valid Email', flag: flag_email})
-//     }
-//   }
-//   catch(e){
-//     console.log(e)
-//   }
-// }
+exports.retrieveUsernameEditQuery = async (req, res) => {
+  try {
+    var date = `${new Date().getFullYear()}-${
+      new Date().getMonth() + 1 < 10
+        ? `0${new Date().getMonth() + 1}`
+        : new Date().getMonth() + 1
+    }-${
+      new Date().getDate() < 10
+        ? `0${new Date().getDate()}`
+        : new Date().getDate()
+    }`;
+    const { o_name, n_name } = req.query;
+    const check_ins = await InstituteAdmin.findOne({ name: o_name }).select(
+      "id next_date"
+    );
+    const check_user = await User.findOne({ username: o_name }).select(
+      "id next_date"
+    );
+    const check_admin = await Admin.findOne({ adminUserName: o_name }).select(
+      "id"
+    );
+    if (check_ins) {
+      if (check_ins?.next_date <= date) {
+        check_ins.name = n_name;
+        check_ins.next_date =
+          payment_modal_activate.check_username_edit_query();
+        await check_ins.save();
+        res.status(200).send({
+          message: "Ins Username Granted for next update 😀👍",
+          flag: true,
+        });
+        const post = await Post.find({ author: `${check_ins._id}` });
+        post.forEach(async (ele) => {
+          ele.authorUserName = check_ins.name;
+          await ele.save();
+        });
+        const comment = await Comment.find({ author: `${check_ins._id}` });
+        comment.forEach(async (com) => {
+          com.authorUserName = check_ins.name;
+          await com.save();
+        });
+        const replyComment = await ReplyComment.find({
+          author: `${check_ins._id}`,
+        });
+        replyComment.forEach(async (reply) => {
+          reply.authorUserName = check_ins.name;
+          await reply.save();
+        });
+      } else {
+        res.status(200).send({
+          message: `Ins Username Rejected for next update is available at ${moment(
+            new Date(check_ins.next_date).toISOString()
+          ).format("MMM Do YY")} 😀👍`,
+          flag: false,
+        });
+      }
+    } else if (check_user) {
+      if (check_user?.next_date <= date) {
+        check_user.username = n_name;
+        check_user.next_date =
+          payment_modal_activate.check_username_edit_query();
+        await check_user.save();
+        res.status(200).send({
+          message: "User Username Granted for next update 😀👍",
+          flag: true,
+        });
+        const post = await Post.find({ author: `${check_user._id}` });
+        post.forEach(async (ele) => {
+          ele.authorUserName = check_user.username;
+          await ele.save();
+        });
+        const comment = await Comment.find({ author: `${check_user._id}` });
+        comment.forEach(async (com) => {
+          com.authorUserName = check_user.username;
+          await com.save();
+        });
+        const replyComment = await ReplyComment.find({
+          author: `${check_user._id}`,
+        });
+        replyComment.forEach(async (reply) => {
+          reply.authorUserName = check_user.username;
+          await reply.save();
+        });
+        const answers = await Answer.find({ author: `${check_user._id}` });
+        answers.forEach(async (ans) => {
+          ans.authorUserName = check_user.username;
+          await ans.save();
+        });
+        const answerReply = await AnswerReply.find({
+          author: `${check_user._id}`,
+        });
+        answerReply.forEach(async (ansRep) => {
+          ansRep.authorUserName = check_user.username;
+          await ansRep.save();
+        });
+      } else {
+        res.status(200).send({
+          message: `User Username Rejected for next update is available at ${moment(
+            new Date(check_user.next_date).toISOString()
+          ).format("MMM Do YY")} 😀👍`,
+          flag: false,
+        });
+      }
+    } else if (check_admin) {
+      res.status(200).send({
+        message: "Admin Username Granted for next update 😀👍",
+        flag: true,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "Nothing found here to save 🙄", flag: false });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.searchByUsernameQuery = async (req, res) => {
+  try {
+    if (req.query.u_name.trim() === "") {
+      res.status(202).send({ message: "Please Provide a username to search" });
+    } else {
+      const one_ins = await InstituteAdmin.findOne({
+        name: req.query.u_name,
+      })
+        .select("name")
+        .lean()
+        .exec();
+
+      const one_user = await User.findOne({
+        username: req.query.u_name,
+      })
+        .select("username")
+        .lean()
+        .exec();
+
+      if (one_ins)
+        res.status(202).send({
+          message: "Username already exists 🙄",
+          seen: true,
+          username: one_ins,
+        });
+      else if (one_user)
+        res.status(202).send({
+          message: "Username already exists 🙄",
+          seen: true,
+          username: one_user,
+        });
+      else {
+        res.status(200).send({
+          message: "this username does not exists in lake 🔍",
+          seen: false,
+        });
+      }
+    }
+  } catch (e) {
+    console.log(e.kind);
+  }
+};

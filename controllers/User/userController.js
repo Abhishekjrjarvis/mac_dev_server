@@ -1838,6 +1838,27 @@ exports.retrieveUserRoleQuery = async (req, res) => {
   }
 };
 
+exports.retrieveUserRoleQueryFormat = async (req, res) => {
+  try {
+    const { uid } = req.params;
+    const user = await User.findById({ _id: uid }).select("staff student");
+      if(user?.staff?.length > 0 || user?.student?.length > 0){
+        res.status(200).send({
+          message: "User Role for Staff & Student 😀👍",
+          role_query: true,
+        });
+      }
+      else{
+        res.status(200).send({
+          message: "No Role for Staff & Student 🙄🔍",
+          role_query: false,
+        });
+      }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.updateUserUnBlockInstitute = async (req, res) => {
   try {
     var user_session = req.tokenData && req.tokenData.userId;

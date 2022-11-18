@@ -173,72 +173,201 @@ exports.getQuestion = async (req, res) => {
   try {
     if (req.query?.ucmid && req.query?.usmid) {
       // console.log(req.query?.usmid, req.query?.ucmid);
-      const uniSubjectMaster = await SubjectMasterQuestion.findOne({
-        subjectMaster: { $eq: req.query.usmid },
-        classMaster: { $eq: req.query.ucmid },
-      });
-      // console.log(uniSubjectMaster);
-      const subjectMaster = await SubjectMasterQuestion.findOne({
-        subjectMaster: { $eq: req.params.smid },
-        classMaster: { $eq: req.params.cmid },
-      });
       const getPage = req.query.page ? parseInt(req.query.page) : 1;
       const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
       const skipItem = (getPage - 1) * itemPerPage;
-      const subjectQuestion = await SubjectQuestion.find({
-        relatedSubject: {
-          $in: [`${uniSubjectMaster._id}`, `${subjectMaster._id}`],
-        },
-      })
-        .sort("-createdAt")
-        .skip(skipItem)
-        .limit(itemPerPage)
-        .select(
-          "questionSNO questionNumber questionDescription questionImage isUniversal"
-        )
-        .lean()
-        .exec();
-      if (subjectQuestion?.length) {
-        res.status(200).send({
-          message: "all questions",
-          questions: subjectQuestion,
+      if (req.query.search) {
+        const uniSubjectMaster = await SubjectMasterQuestion.findOne({
+          subjectMaster: { $eq: req.query.usmid },
+          classMaster: { $eq: req.query.ucmid },
         });
+        // console.log(uniSubjectMaster);
+        const subjectMaster = await SubjectMasterQuestion.findOne({
+          subjectMaster: { $eq: req.params.smid },
+          classMaster: { $eq: req.params.cmid },
+        });
+
+        // const allIds = [];
+        // if (uniSubjectMaster) {
+        //   if (subjectMaster) {
+        //     allIds = [`${uniSubjectMaster._id}`, `${subjectMaster._id}`];
+        //   } else {
+        //     allIds = [`${uniSubjectMaster._id}`];
+        //   }
+        // } else {
+        //   allIds = subjectMaster.questions;
+        // }
+
+        const subjectQuestion = await SubjectQuestion.find({
+          $and: [
+            {
+              questionDescription: { $regex: req.query.search, $options: "i" },
+            },
+            {
+              relatedSubject: {
+                $in: [`${uniSubjectMaster._id}`, `${subjectMaster._id}`],
+              },
+            },
+          ],
+        })
+          .sort("-createdAt")
+          .skip(skipItem)
+          .limit(itemPerPage)
+          .select(
+            "questionSNO questionNumber questionDescription questionImage isUniversal"
+          )
+          .lean()
+          .exec();
+        if (subjectQuestion?.length) {
+          res.status(200).send({
+            message: "all questions",
+            questions: subjectQuestion,
+          });
+        } else {
+          res.status(200).send({
+            message: "not questions",
+            questions: [],
+          });
+        }
       } else {
-        res.status(200).send({
-          message: "not questions",
-          questions: [],
+        const uniSubjectMaster = await SubjectMasterQuestion.findOne({
+          subjectMaster: { $eq: req.query.usmid },
+          classMaster: { $eq: req.query.ucmid },
         });
+        const subjectMaster = await SubjectMasterQuestion.findOne({
+          subjectMaster: { $eq: req.params.smid },
+          classMaster: { $eq: req.params.cmid },
+        });
+
+        let allIds = [];
+        if (uniSubjectMaster) {
+          if (subjectMaster) {
+            allIds = [`${uniSubjectMaster._id}`, `${subjectMaster._id}`];
+          } else {
+            allIds = [`${uniSubjectMaster._id}`];
+          }
+        } else {
+          allIds = subjectMaster.questions;
+        }
+        if (uniSubjectMaster) {
+          const subjectQuestion = await SubjectQuestion.find({
+            relatedSubject: {
+              $in: allIds,
+            },
+          })
+            .sort("-createdAt")
+            .skip(skipItem)
+            .limit(itemPerPage)
+            .select(
+              "questionSNO questionNumber questionDescription questionImage isUniversal"
+            )
+            .lean()
+            .exec();
+          if (subjectQuestion?.length) {
+            res.status(200).send({
+              message: "all questions",
+              questions: subjectQuestion,
+            });
+          } else {
+            res.status(200).send({
+              message: "not questions",
+              questions: [],
+            });
+          }
+        } else {
+          const subjectQuestion = await SubjectQuestion.find({
+            _id: { $in: allIds },
+          })
+            .sort("-createdAt")
+            .skip(skipItem)
+            .limit(itemPerPage)
+            .select(
+              "questionSNO questionNumber questionDescription questionImage isUniversal"
+            )
+            .lean()
+            .exec();
+
+          if (subjectQuestion?.length) {
+            res.status(200).send({
+              message: "all questions",
+              questions: subjectQuestion,
+            });
+          } else {
+            res.status(200).send({
+              message: "not questions",
+              questions: [],
+            });
+          }
+        }
       }
     } else {
-      const subjectMaster = await SubjectMasterQuestion.findOne({
-        subjectMaster: { $eq: req.params.smid },
-        classMaster: { $eq: req.params.cmid },
-      });
       const getPage = req.query.page ? parseInt(req.query.page) : 1;
       const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
       const skipItem = (getPage - 1) * itemPerPage;
-      const subjectQuestion = await SubjectQuestion.find({
-        _id: { $in: subjectMaster.questions },
-      })
-        .sort("-createdAt")
-        .skip(skipItem)
-        .limit(itemPerPage)
-        .select(
-          "questionSNO questionNumber questionDescription questionImage isUniversal"
-        )
-        .lean()
-        .exec();
+      if (req.query.search) {
+        const subjectMaster = await SubjectMasterQuestion.findOne({
+          subjectMaster: { $eq: req.params.smid },
+          classMaster: { $eq: req.params.cmid },
+        });
+        const subjectQuestion = await SubjectQuestion.find({
+          $and: [
+            {
+              questionDescription: { $regex: req.query.search, $options: "i" },
+            },
+            {
+              _id: { $in: subjectMaster.questions },
+            },
+          ],
+        })
+          .sort("-createdAt")
+          .skip(skipItem)
+          .limit(itemPerPage)
+          .select(
+            "questionSNO questionNumber questionDescription questionImage isUniversal"
+          )
+          .lean()
+          .exec();
 
-      if (subjectQuestion?.length) {
-        res.status(200).send({
-          message: "all questions",
-          questions: subjectQuestion,
-        });
+        if (subjectQuestion?.length) {
+          res.status(200).send({
+            message: "all questions",
+            questions: subjectQuestion,
+          });
+        } else {
+          res.status(200).send({
+            message: "not questions",
+            questions: [],
+          });
+        }
       } else {
-        res.status(200).send({
-          message: "not questions",
-          questions: [],
+        const subjectMaster = await SubjectMasterQuestion.findOne({
+          subjectMaster: { $eq: req.params.smid },
+          classMaster: { $eq: req.params.cmid },
         });
+
+        const subjectQuestion = await SubjectQuestion.find({
+          _id: { $in: subjectMaster.questions },
+        })
+          .sort("-createdAt")
+          .skip(skipItem)
+          .limit(itemPerPage)
+          .select(
+            "questionSNO questionNumber questionDescription questionImage isUniversal"
+          )
+          .lean()
+          .exec();
+
+        if (subjectQuestion?.length) {
+          res.status(200).send({
+            message: "all questions",
+            questions: subjectQuestion,
+          });
+        } else {
+          res.status(200).send({
+            message: "not questions",
+            questions: [],
+          });
+        }
       }
     }
   } catch (e) {
@@ -251,7 +380,7 @@ exports.getOneQuestion = async (req, res) => {
     if (!req.params.qid) throw "Please send question id to perform task";
     const question = await SubjectQuestion.findById(req.params.qid)
       .select(
-        "questionSNO questionNumber questionDescription questionImage isUniversal options correctAnswer answerDescription answerImage"
+        "questionSNO questionNumber questionDescription questionImage.documentKey questionImage.documentName isUniversal options correctAnswer answerDescription answerImage.documentKey answerImage.documentName"
       )
       .lean()
       .exec();
@@ -277,7 +406,7 @@ exports.getOneQuestion = async (req, res) => {
 exports.addQuestion = async (req, res) => {
   try {
     // console.log(req?.files);
-    // console.log(req?.body);
+    // console.log(req.body);
     // console.log("this is only for answer image", req?.files["answerImage"]);
     // console.log("this is only asnwer image", req.answerImage);
 
@@ -287,39 +416,21 @@ exports.addQuestion = async (req, res) => {
     });
     const questionImage = [];
     const answerImage = [];
-    // for (let fileObject in req.files) {
-    //   for (let singleFile of req.files[fileObject]) {
-    //     const uploadedFile = await file_to_aws(singleFile);
-    //     if (fileObject === "questionImage") questionImage.push(uploadedFile);
-    //     answerImage.push(uploadedFile);
-    //   }
-    // }
+    for (let fileObject in req.files) {
+      for (let singleFile of req.files[fileObject]) {
+        const uploadedFile = await file_to_aws(singleFile);
+        // console.log(uploadedFile);
+        if (fileObject === "questionImage") questionImage.push(uploadedFile);
+        else answerImage.push(uploadedFile);
+      }
+    }
 
-    // const parsed = JSON.parse(req.body.options);
-
-    // const modifiedObject = parsed[0].replace(/(\w+:)|(\w+ :)/g, function (obj) {
-    //   return '"' + obj.substring(0, obj.length - 1) + '":';
-    // });
-    // const modifiedValue = parsed[0].replace(
-    //   /(:+\w) | ( :+\w)/g,
-    //   // "'",
-    //   function (obj) {
-    //     console.log(obj);
-    //     console.log(parsed[0][obj]);
-    //     return '"' + obj.substring(0, obj.length - 1) + '"';
-    //   }
-    // );
-    // console.log(modifiedObject);
-    // console.log(modifiedValue);
-    // console.log(modifiedObject.replaceAll("'", '"'));
-    // console.log("modifwesdh0", modifiedObject.replaceAll("'", '"'));
-    // console.log(JSON.parse(modifiedObject));
     const createQuestion = {
       questionSNO: req.body.questionSNO,
-      questionNumber: req.body.questionNumber,
+      questionNumber: +req.body.questionNumber,
       questionDescription: req.body.questionDescription,
-      options: req.body.options,
-      correctAnswer: req.body.correctAnswer,
+      options: JSON.parse(req.body.options),
+      correctAnswer: JSON.parse(req.body.correctAnswer),
       answerDescription: req.body.answerDescription,
       questionImage: questionImage,
       answerImage: answerImage,
@@ -378,7 +489,7 @@ exports.addQuestion = async (req, res) => {
         },
       });
     }
-    // res.status(201).send({ message: "queston is created" });
+    // res.status(201).send({ message: "queston is created", createQuestion });
   } catch (e) {
     console.log(e);
   }
@@ -517,7 +628,9 @@ exports.oneTestSetDetail = async (req, res) => {
     })
       .skip(skipItem)
       .limit(itemPerPage)
-      .select("questionSNO questionNumber questionDescription questionImage")
+      .select(
+        "questionSNO questionNumber questionDescription questionImage.documentKey questionImage.documentName"
+      )
       .lean()
       .exec();
 
@@ -715,6 +828,7 @@ exports.studentAllTestSet = async (req, res) => {
         "testExamName testSubject testDate testStart testEnd testSetComplete",
       skip: startItem,
       limit: itemPerPage,
+      options: { sort: { createdAt: -1 } },
     });
 
     if (student?.testSet) {
@@ -736,15 +850,27 @@ exports.studentOneTestSet = async (req, res) => {
   try {
     const testset = await StudentTestSet.findById(req.params.tsid)
       .select(
-        "testExamName testSubject testDate testStart testEnd testTotalNumber testDuration testObtainMarks"
+        "testExamName testSubject testDate testStart testEnd testTotalNumber testDuration testObtainMarks testSetComplete"
       )
       .lean()
       .exec();
-
+    var currentDate = new Date();
+    currentDate.setHours(currentDate.getHours() + 5);
+    currentDate.setMinutes(currentDate.getMinutes() + 30);
+    const examTime = `${testset?.testDate}T${testset?.testStart}`;
+    const entryTime = dateTimeComparison(JSON.stringify(currentDate), examTime);
+    const exitTime = timeComparison(
+      JSON.stringify(currentDate),
+      testset?.testEnd
+    );
+    let startExamTime = false;
+    if (entryTime && exitTime) startExamTime = true;
+    else startExamTime = false;
     if (testset) {
       res.status(200).send({
         message: "one test set details",
         testsets: testset,
+        startExamTime,
       });
     } else {
       res.status(204).send({
@@ -760,7 +886,7 @@ exports.studentTestSet = async (req, res) => {
   try {
     const studentTestSet = await StudentTestSet.findById(req.params.tsid)
       .select(
-        "testExamName testDate testStart testEnd testDuration testSetLeftTime testTotalQuestion testTotalNumber questions.questionNumber questions.questionDescription questions.questionImage questions.options questions.questionSNO questions.givenAnswer questions._id"
+        "testExamName testDate testStart testEnd testDuration testSetLeftTime testTotalQuestion testTotalNumber questions.questionNumber questions.questionDescription questions.questionImage.documentKey questions.questionImage.documentName questions.options questions.questionSNO questions.givenAnswer questions._id"
       )
       .populate({
         path: "student",
@@ -801,28 +927,51 @@ exports.studentTestSetQuestionSave = async (req, res) => {
     const testSet = await StudentTestSet.findById(req.params.tsid);
     for (test of testSet?.questions) {
       if (test?.questionSNO === req.body?.questionSNO) {
-        test.givenAnswer = [...req.body?.givenAnswer];
-        // test.givenAnswer.push(...req.body?.givenAnswer);
-        const corr = [];
-        const giv = [];
-        for (correct of test.correctAnswer) {
-          corr.push(correct.optionNumber);
-        }
-        for (given of req.body?.givenAnswer) {
-          giv.push(given.optionNumber);
-        }
-        let flag = false;
-
-        for (opt of giv) {
-          if (corr.includes(opt)) {
-            flag = true;
-          } else {
-            flag = false;
-            break;
+        if (!req.body?.notSelect) {
+          test.givenAnswer = [...req.body?.givenAnswer];
+          // test.givenAnswer.push(...req.body?.givenAnswer);
+          const corr = [];
+          const giv = [];
+          for (correct of test.correctAnswer) {
+            corr.push(correct.optionNumber);
           }
-        }
-        if (flag) {
-          testSet.testObtainMarks += test.questionNumber;
+          for (given of req.body?.givenAnswer) {
+            giv.push(given.optionNumber);
+          }
+          let flag = false;
+
+          for (opt of giv) {
+            if (corr.includes(opt)) {
+              flag = true;
+            } else {
+              flag = false;
+              break;
+            }
+          }
+          if (flag) {
+            testSet.testObtainMarks += test.questionNumber;
+          }
+        } else {
+          test.givenAnswer = [];
+          const corr = [];
+          const giv = [];
+          for (correct of test.correctAnswer) {
+            corr.push(correct.optionNumber);
+          }
+          for (given of req.body?.givenAnswer) {
+            giv.push(given.optionNumber);
+          }
+          let flag = false;
+          for (opt of giv) {
+            if (corr.includes(opt)) {
+              flag = true;
+            } else {
+              flag = false;
+              break;
+            }
+          }
+
+          if (flag) testSet.testObtainMarks -= test.questionNumber;
         }
       }
     }

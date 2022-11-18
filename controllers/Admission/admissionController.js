@@ -120,13 +120,11 @@ exports.retieveAdmissionAdminAllApplication = async (req, res) => {
       });
 
     if (ongoing?.length > 0) {
-      res
-        .status(200)
-        .send({
-          message: "Ongoing Application Lets Explore",
-          ongoing,
-          ongoingCount: ongoing?.length,
-        });
+      res.status(200).send({
+        message: "Ongoing Application Lets Explore",
+        ongoing,
+        ongoingCount: ongoing?.length,
+      });
     } else {
       res
         .status(200)
@@ -164,13 +162,11 @@ exports.retieveAdmissionAdminAllCApplication = async (req, res) => {
       });
 
     if (completed?.length > 0) {
-      res
-        .status(200)
-        .send({
-          message: "Completed Application Lets Explore",
-          completed,
-          completedCount: completed?.length,
-        });
+      res.status(200).send({
+        message: "Completed Application Lets Explore",
+        completed,
+        completedCount: completed?.length,
+      });
     } else {
       res
         .status(200)
@@ -212,13 +208,11 @@ exports.retieveAdmissionAdminAllCDetailApplication = async (req, res) => {
       });
 
     if (completed?.length > 0) {
-      res
-        .status(200)
-        .send({
-          message: "Completed Application Lets Explore",
-          completed,
-          completedCount: completed?.length,
-        });
+      res.status(200).send({
+        message: "Completed Application Lets Explore",
+        completed,
+        completedCount: completed?.length,
+      });
     } else {
       res
         .status(200)
@@ -320,21 +314,17 @@ exports.fetchAdmissionApplicationArray = async (req, res) => {
         });
 
       // if(newApp?.length > 0){
-      res
-        .status(200)
-        .send({
-          message: "Lets begin new year journey",
-          allApp: newApp,
-          allAppCount: newApp?.length,
-        });
+      res.status(200).send({
+        message: "Lets begin new year journey",
+        allApp: newApp,
+        allAppCount: newApp?.length,
+      });
       // }
     } else {
-      res
-        .status(200)
-        .send({
-          message: "get a better lens to find what you need 🔍",
-          allApp: [],
-        });
+      res.status(200).send({
+        message: "get a better lens to find what you need 🔍",
+        allApp: [],
+      });
     }
   } catch (e) {
     console.log(e);
@@ -385,13 +375,11 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
       status.save(),
       apply.save(),
     ]);
-    res
-      .status(201)
-      .send({
-        message: "Taste a bite of sweets till your application is selected",
-        student: student._id,
-        status: true,
-      });
+    res.status(201).send({
+      message: "Taste a bite of sweets till your application is selected",
+      student: student._id,
+      status: true,
+    });
     invokeMemberTabNotification(
       "Admission Status",
       status.content,
@@ -424,13 +412,11 @@ exports.fetchAllRequestApplication = async (req, res) => {
       });
 
     if (apply?.receievedApplication?.length > 0) {
-      res
-        .status(200)
-        .send({
-          message:
-            "Lots of Request arrived make sure you come up with Tea and Snack",
-          request: apply,
-        });
+      res.status(200).send({
+        message:
+          "Lots of Request arrived make sure you come up with Tea and Snack",
+        request: apply,
+      });
     } else {
       res
         .status(200)
@@ -461,13 +447,11 @@ exports.fetchAllSelectApplication = async (req, res) => {
       });
 
     if (apply?.selectedApplication?.length > 0) {
-      res
-        .status(200)
-        .send({
-          message:
-            "Lots of Selection required make sure you come up with Tea and Snack",
-          select: apply,
-        });
+      res.status(200).send({
+        message:
+          "Lots of Selection required make sure you come up with Tea and Snack",
+        select: apply,
+      });
     } else {
       res.status(200).send({ message: "Go To Outside for Dinner", select: [] });
     }
@@ -496,13 +480,11 @@ exports.fetchAllConfirmApplication = async (req, res) => {
       });
 
     if (apply?.confirmedApplication?.length > 0) {
-      res
-        .status(200)
-        .send({
-          message:
-            "Lots of Confirmation and class allot required make sure you come up with Tea and Snack",
-          confirm: apply,
-        });
+      res.status(200).send({
+        message:
+          "Lots of Confirmation and class allot required make sure you come up with Tea and Snack",
+        confirm: apply,
+      });
     } else {
       res
         .status(200)
@@ -542,12 +524,10 @@ exports.retrieveAdmissionSelectedApplication = async (req, res) => {
       user.save(),
       status.save(),
     ]);
-    res
-      .status(200)
-      .send({
-        message: `congrats ${student.studentFirstName} `,
-        select_status: true,
-      });
+    res.status(200).send({
+      message: `congrats ${student.studentFirstName} `,
+      select_status: true,
+    });
     invokeMemberTabNotification(
       "Admission Status",
       status.content,
@@ -590,12 +570,10 @@ exports.retrieveAdmissionPayMode = async (req, res) => {
     aStatus.applicationId = apply._id;
     user.applicationStatus.push(aStatus._id);
     await Promise.all([status.save(), aStatus.save(), user.save()]);
-    res
-      .status(200)
-      .send({
-        message: "Lets do some excercise visit institute",
-        status: true,
-      });
+    res.status(200).send({
+      message: "Lets do some excercise visit institute",
+      status: true,
+    });
     invokeMemberTabNotification(
       "Admission Status",
       aStatus.content,
@@ -628,13 +606,11 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     const user = await User.findById({ _id: `${student.user}` });
     const status = new Status({});
     if (price && price > apply.admissionFee && finance?._id !== "") {
-      res
-        .status(404)
-        .send({
-          message:
-            "I think you are lost in this process take a break check finance Or Price",
-          status: false,
-        });
+      res.status(404).send({
+        message:
+          "I think you are lost in this process take a break check finance Or Price",
+        status: false,
+      });
     } else {
       if (price < apply.admissionFee) {
         admission.remainingFee.push(student._id);
@@ -736,11 +712,9 @@ exports.cancelAdmissionApplication = async (req, res) => {
       price <= finance.financeTotalBalance &&
       price <= admission.offlineFee
     ) {
-      res
-        .status(200)
-        .send({
-          message: "insufficient Balance in Finance Department to make refund",
-        });
+      res.status(200).send({
+        message: "insufficient Balance in Finance Department to make refund",
+      });
     } else {
       apply.cancelCount += 1;
       if (apply.offlineFee >= price) {
@@ -774,12 +748,10 @@ exports.cancelAdmissionApplication = async (req, res) => {
         aStatus.save(),
         user.save(),
       ]);
-      res
-        .status(200)
-        .send({
-          message: "Refund & Cancellation of Admission",
-          refund_status: true,
-        });
+      res.status(200).send({
+        message: "Refund & Cancellation of Admission",
+        refund_status: true,
+      });
       invokeMemberTabNotification(
         "Admission Status",
         aStatus.content,
@@ -835,12 +807,10 @@ exports.retrieveAdmissionApplicationClass = async (req, res) => {
       .skip(skip)
       .select("className classTitle boyCount girlCount photoId photo");
     if (classes?.length > 0) {
-      res
-        .status(200)
-        .send({
-          message: "Front & Back Benchers at one place",
-          classes: classes,
-        });
+      res.status(200).send({
+        message: "Front & Back Benchers at one place",
+        classes: classes,
+      });
     } else {
       res.status(404).send({ message: "Renovation at classes", classes: [] });
     }
@@ -942,12 +912,10 @@ exports.retrieveClassAllotQuery = async (req, res) => {
       batch.save(),
       notify.save(),
     ]);
-    res
-      .status(200)
-      .send({
-        message: `Distribute sweets to all family members ${student.studentFirstName} `,
-        allot_status: true,
-      });
+    res.status(200).send({
+      message: `Distribute sweets to all family members ${student.studentFirstName} `,
+      allot_status: true,
+    });
     invokeMemberTabNotification(
       "Admission Status",
       aStatus.content,
@@ -978,12 +946,10 @@ exports.completeAdmissionApplication = async (req, res) => {
       admission.newAppCount -= 1;
     }
     await Promise.all([apply.save(), admission.save(), admission_ins.save()]);
-    res
-      .status(200)
-      .send({
-        message: "Enjoy your work load is empty go for party",
-        complete_status: true,
-      });
+    res.status(200).send({
+      message: "Enjoy your work load is empty go for party",
+      complete_status: true,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -1012,13 +978,11 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
         select: "dName",
       });
     if (student?.length > 0) {
-      res
-        .status(200)
-        .send({
-          message: "Its a party time",
-          remain: student,
-          remainCount: student?.length,
-        });
+      res.status(200).send({
+        message: "Its a party time",
+        remain: student,
+        remainCount: student?.length,
+      });
     } else {
       res
         .status(200)
@@ -1036,12 +1000,10 @@ exports.oneStudentViewRemainingFee = async (req, res) => {
       "admissionPaymentStatus"
     );
 
-    res
-      .status(200)
-      .send({
-        message: "Remaining fee view",
-        remain_fee: student.admissionPaymentStatus,
-      });
+    res.status(200).send({
+      message: "Remaining fee view",
+      remain_fee: student.admissionPaymentStatus,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -1050,7 +1012,7 @@ exports.oneStudentViewRemainingFee = async (req, res) => {
 exports.paidRemainingFeeStudent = async (req, res) => {
   try {
     const { aid, sid, appId } = req.params;
-    const { amount } = req.body;
+    const { amount, mode } = req.body;
     var price = parseInt(amount);
     var admin_ins = await Admission.findById({ _id: aid });
     var student = await Student.findById({ _id: sid }).select(
@@ -1095,12 +1057,10 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       apply.save(),
       finance.save(),
     ]);
-    res
-      .status(200)
-      .send({
-        message: "Balance Pool increasing with price Operation complete",
-        paid: true,
-      });
+    res.status(200).send({
+      message: "Balance Pool increasing with price Operation complete",
+      paid: true,
+    });
     invokeMemberTabNotification(
       "Admission Status",
       `Collect No Dues receipt from the ${institute.insName}`,
@@ -1113,6 +1073,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
         if (`${ele.student}` === `${student._id}`) {
           ele.fee_remain = ele.fee_remain >= price ? ele.fee_remain - price : 0;
           ele.paid_status = "Paid";
+          ele.second_pay_mode = mode;
           if (apply?.remainingFee >= price) {
             apply.remainingFee -= price;
           }
@@ -1125,6 +1086,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
         if (`${ele.student}` === `${student._id}`) {
           ele.fee_remain = ele.fee_remain >= price ? ele.fee_remain - price : 0;
           ele.paid_status = "Paid";
+          ele.second_pay_mode = mode;
           if (apply?.remainingFee >= price) {
             apply.remainingFee -= price;
           }
@@ -1177,12 +1139,10 @@ exports.retrieveOneApplicationQuery = async (req, res) => {
       })
       .lean()
       .exec();
-    res
-      .status(200)
-      .send({
-        message: "Sit with a paper and pen to note down all details carefully",
-        oneApply,
-      });
+    res.status(200).send({
+      message: "Sit with a paper and pen to note down all details carefully",
+      oneApply,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -1281,12 +1241,10 @@ exports.retrieveAllDepartmentArray = async (req, res) => {
       });
 
     if (ins_depart?.depart?.length > 0) {
-      res
-        .status(200)
-        .send({
-          message: "All Department with batch",
-          allDB: ins_depart?.depart,
-        });
+      res.status(200).send({
+        message: "All Department with batch",
+        allDB: ins_depart?.depart,
+      });
     } else {
       res
         .status(404)

@@ -180,6 +180,29 @@ const financeSchema = new mongoose.Schema(
       studentDepartment: { type: Boolean, default: true },
       studentClass: { type: Boolean, default: true },
     },
+    gst_format: {
+      liability: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Income",
+        },
+      ],
+      input_tax_credit: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Expense",
+        },
+      ],
+      b_to_c: [
+        {
+          month: { type: String },
+          total_amount: { type: Number, default: 0 },
+          createdAt: { type: Date, default: Date.now },
+          i_slab: { type: Number, default: 0 },
+          s_slab: { type: Number, default: 0 },
+        },
+      ],
+    },
     // ,
     // filter_finance: [
     //   {

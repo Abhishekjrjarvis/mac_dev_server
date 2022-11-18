@@ -908,13 +908,13 @@ exports.retrieveAllUserPosts = async (req, res) => {
         if (page == 1) {
           post.splice(3, 0, data_u_s);
           post.splice(5, 0, data_i_s);
+          post.splice(2, 0, hash_tag_ads);
         }
         post.splice(
           Math.floor(Math.random() * (post.length - 6) + 6),
           0,
           data_ads
         );
-        post.splice(2, 0, hash_tag_ads);
         res.status(200).send({
           message: "Success",
           post,

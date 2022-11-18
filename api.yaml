@@ -10103,6 +10103,9 @@ paths:
               businessAddress:
                 type: string
                 description: Enter Business Address
+              gstSlab:
+                type: number
+                description: Enter GST Slab % default -> 18
       responses:
         "200":
           description: OK
@@ -10247,7 +10250,7 @@ paths:
         - in: formData
           name: incomePurpose
           type: string
-          required: true
+          required: false
           description: Enter Income Purpose
         - in: formData
           name: incomeAmount
@@ -10264,6 +10267,26 @@ paths:
           type: string
           required: true
           description: Enter Description of Income 
+        - in: formData
+          name: gst_slab
+          type: number
+          required: false
+          description: Enter GST Slab Percentage %
+        - in: formData
+          name: gst_number
+          type: string
+          required: false
+          description: Enter GST Number
+        - in: formData
+          name: business_name
+          type: string
+          required: false
+          description: Enter Business Name 
+        - in: formData
+          name: business_address
+          type: string
+          required: false
+          description: Enter Business Address
         - in: formData
           name: file
           type: file
@@ -10318,7 +10341,7 @@ paths:
         - in: formData
           name: expensePurpose
           type: string
-          required: true
+          required: false
           description: Enter Expense Purpose
         - in: formData
           name: expenseAmount
@@ -10335,6 +10358,26 @@ paths:
           type: string
           required: true
           description: Enter Description of Expense 
+        - in: formData
+          name: gst_slab
+          type: number
+          required: false
+          description: Enter GST Slab Percentage %
+        - in: formData
+          name: gst_number
+          type: string
+          required: false
+          description: Enter GST Number
+        - in: formData
+          name: business_name
+          type: string
+          required: false
+          description: Enter Business Name 
+        - in: formData
+          name: business_address
+          type: string
+          required: false
+          description: Enter Business Address
         - in: formData
           name: file
           type: file
@@ -14945,10 +14988,14 @@ paths:
             type: object
             required:
               - amount
+              - mode
             properties:
               amount:
                 type: number
                 description: Enter amount
+              mode:
+                type: string
+                description: Enter payment mode ("Online" | "Offline")
       responses:
         "200":
           description: OK
@@ -16746,6 +16793,59 @@ paths:
           required: true
           type: string
           description: This is Sport Event id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/sport/arts/student/class/{sid}/query:
+    get:
+      tags:
+        - Sport and Arts Module Query
+      summary: Get All Sport Classes Of One Student  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/sport/arts/student/team/{cid}/query:
+    get:
+      tags:
+        - Sport and Arts Module Query
+      summary: One Student Team By One Sport Class  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Sport Class id
+        - in: query
+          name: sid
+          required: true
+          type: string
+          description: Enter Student Id
       responses:
         "200":
           description: OK

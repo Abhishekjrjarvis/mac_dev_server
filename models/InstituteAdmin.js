@@ -313,6 +313,7 @@ const instituteAdminSchema = new mongoose.Schema({
   GSTInfo: { type: String },
   businessName: { type: String },
   businessAddress: { type: String },
+  gstSlab: { type: Number, default: 18 },
   accessFeature: { type: String, default: "Locked" },
   unlockAmount: { type: Number, default: 1000 },
   featurePaymentStatus: { type: String, default: "Not Paid" },
@@ -613,6 +614,12 @@ const instituteAdminSchema = new mongoose.Schema({
   next_date: {
     type: String,
   },
+  payment_history: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "OrderPayment",
+    },
+  ],
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

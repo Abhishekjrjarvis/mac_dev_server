@@ -1150,7 +1150,7 @@ exports.retrieveOneEmpQuery = async (req, res) => {
         select:
           "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
       });
-      var filtered = emp.pay_slip.filter((ele) => {
+      var filtered = emp?.pay_slip?.filter((ele) => {
         if (`${ele.month}` === `${month}`) return ele;
       });
       var detail = {

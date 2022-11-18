@@ -816,7 +816,7 @@ exports.getNotifications = async (req, res) => {
 
     const user = await User.findById({ _id: id }).populate({ path: "uNotify" });
 
-    const notify = await Notification.find({ _id: { $in: user.uNotify } })
+    const notify = await Notification.find({ _id: { $in: user?.uNotify } })
       .populate({
         path: "notifyByInsPhoto",
         select: "photoId insProfilePhoto name insName",
@@ -861,7 +861,7 @@ exports.getAllUserActivity = async (req, res) => {
     });
 
     const notify = await StudentNotification.find({
-      _id: { $in: user.activity_tab },
+      _id: { $in: user?.activity_tab },
     })
       .populate({
         path: "notifyByInsPhoto",
@@ -934,11 +934,11 @@ exports.retrieveMarkAllView = async (req, res) => {
       .select("_id")
       .populate({ path: "activity_tab uNotify" });
     const notify = await Notification.find({
-      $and: [{ _id: { $in: user.uNotify } }, { notifyViewStatus: "Not View" }],
+      $and: [{ _id: { $in: user?.uNotify } }, { notifyViewStatus: "Not View" }],
     });
     const activity = await StudentNotification.find({
       $and: [
-        { _id: { $in: user.activity_tab } },
+        { _id: { $in: user?.activity_tab } },
         { notifyViewStatus: "Not View" },
       ],
     });
@@ -1079,7 +1079,7 @@ exports.getDashDataQuery = async (req, res) => {
     const user = await User.findById({ _id: id }).select(
       "userLegalName username userBlock user_block_institute follow_hashtag ageRestrict blockedBy is_mentor show_suggestion photoId blockStatus one_line_about profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify"
     );
-    if (user.userPosts && user.userPosts.length < 1) {
+    if (user?.userPosts && user?.userPosts.length < 1) {
       var post = [];
     }
     if (user) {
@@ -1100,7 +1100,7 @@ exports.followersArray = async (req, res) => {
       path: "userFollowers",
     });
 
-    const followers = await User.find({ _id: { $in: user.userFollowers } })
+    const followers = await User.find({ _id: { $in: user?.userFollowers } })
       .select(
         "userLegalName username photoId profilePhoto blockStatus user_birth_privacy user_address_privacy user_circle_privacy"
       )
@@ -1126,7 +1126,7 @@ exports.followingArray = async (req, res) => {
       "id userFollowing userInstituteFollowing"
     );
 
-    const uFollowing = await User.find({ _id: { $in: user.userFollowing } })
+    const uFollowing = await User.find({ _id: { $in: user?.userFollowing } })
       .select(
         "userLegalName username photoId profilePhoto blockStatus user_birth_privacy user_address_privacy user_circle_privacy"
       )
@@ -1134,7 +1134,7 @@ exports.followingArray = async (req, res) => {
       .skip(skip);
 
     const uInsFollowing = await InstituteAdmin.find({
-      _id: { $in: user.userInstituteFollowing },
+      _id: { $in: user?.userInstituteFollowing },
     })
       .select("insName name photoId insProfilePhoto blockStatus")
       .limit(limit)
@@ -1159,7 +1159,7 @@ exports.circleArray = async (req, res) => {
       path: "userCircle",
     });
 
-    const circle = await User.find({ _id: { $in: user.userCircle } })
+    const circle = await User.find({ _id: { $in: user?.userCircle } })
       .select(
         "userLegalName username photoId profilePhoto blockStatus user_birth_privacy user_address_privacy user_circle_privacy"
       )
@@ -1842,18 +1842,17 @@ exports.retrieveUserRoleQueryFormat = async (req, res) => {
   try {
     const { uid } = req.params;
     const user = await User.findById({ _id: uid }).select("staff student");
-      if(user?.staff?.length > 0 || user?.student?.length > 0){
-        res.status(200).send({
-          message: "User Role for Staff & Student 😀👍",
-          role_query: true,
-        });
-      }
-      else{
-        res.status(200).send({
-          message: "No Role for Staff & Student 🙄🔍",
-          role_query: false,
-        });
-      }
+    if (user?.staff?.length > 0 || user?.student?.length > 0) {
+      res.status(200).send({
+        message: "User Role for Staff & Student 😀👍",
+        role_query: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Role for Staff & Student 🙄🔍",
+        role_query: false,
+      });
+    }
   } catch (e) {
     console.log(e);
   }

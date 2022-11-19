@@ -8,7 +8,7 @@ const Class = require("../../models/Class");
 const Finance = require("../../models/Finance");
 const ELearning = require("../../models/ELearning");
 const Library = require("../../models/Library/Library");
-const Admission = require('../../models/Admission/Admission')
+const Admission = require("../../models/Admission/Admission");
 const Sport = require("../../models/Sport");
 const Staff = require("../../models/Staff");
 const Student = require("../../models/Student");
@@ -18,8 +18,10 @@ const Video = require("../../models/Video");
 const Post = require("../../models/Post");
 const Comment = require("../../models/Comment");
 const ReplyComment = require("../../models/ReplyComment/ReplyComment");
-const Answer = require('../../models/Question/Answer')
-const AnswerReply = require('../../models/Question/AnswerReply')
+const Answer = require("../../models/Question/Answer");
+const AnswerReply = require("../../models/Question/AnswerReply");
+const SportTeam = require("../../models/SportTeam");
+const SportClass = require("../../models/SportClass");
 
 const {
   getFileStream,
@@ -488,6 +490,63 @@ exports.patchSportImageCover = async (req, res) => {
   try {
     const { sid } = req.params;
     const sport = await Sport.findById({ _id: sid });
+    if (sport.cover) await deleteFile(sport.cover);
+    const width = 375;
+    const height = 245;
+    const file = req.file;
+    const results = await uploadFile(file, width, height);
+    sport.cover = results.key;
+    sport.coverId = "0";
+    await sport.save();
+    await unlinkFile(file.path);
+    res.status(201).send({ message: "updated photo" });
+  } catch (err) {
+    console.log(err.message);
+  }
+};
+
+exports.patchSportClassImagePhoto = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const sport = await SportClass.findById({ _id: sid });
+    if (sport.photo) await deleteFile(sport.photo);
+    const width = 112;
+    const height = 112;
+    const file = req.file;
+    const results = await uploadFile(file, width, height);
+    sport.photo = results.key;
+    sport.photoId = "0";
+    await sport.save();
+    await unlinkFile(file.path);
+    res.status(201).send({ message: "updated photo" });
+  } catch (err) {
+    console.log(err.message);
+  }
+};
+
+exports.patchSportClassImageCover = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const sport = await SportClass.findById({ _id: sid });
+    if (sport.cover) await deleteFile(sport.cover);
+    const width = 375;
+    const height = 245;
+    const file = req.file;
+    const results = await uploadFile(file, width, height);
+    sport.cover = results.key;
+    sport.coverId = "0";
+    await sport.save();
+    await unlinkFile(file.path);
+    res.status(201).send({ message: "updated photo" });
+  } catch (err) {
+    console.log(err.message);
+  }
+};
+
+exports.patchSportTeamImageCover = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const sport = await SportTeam.findById({ _id: sid });
     if (sport.cover) await deleteFile(sport.cover);
     const width = 375;
     const height = 245;

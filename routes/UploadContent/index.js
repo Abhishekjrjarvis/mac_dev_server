@@ -121,6 +121,14 @@ router
   .route("/:sid/sport/cover")
   .patch(isLoggedIn, upload.single("file"), patchSportImageCover);
 
+router;
+//   .route("/:sid/sport/class/photo")
+//   .patch(isLoggedIn, upload.single("file"), patchSportClassImagePhoto);
+
+// router
+//   .route("/:sid/sport/class/cover")
+//   .patch(isLoggedIn, upload.single("file"), patchSportClassImageCover);
+
 // router
 //   .route("/:id/staff/photo")
 //   .patch(isLoggedIn, upload.single("file"), patchStaffImagePhoto);

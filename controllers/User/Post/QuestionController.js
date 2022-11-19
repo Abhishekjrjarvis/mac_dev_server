@@ -456,6 +456,7 @@ exports.rePostQuestionAnswer = async (req, res) => {
   try {
     const { id } = req.params;
     const { post_type } = req.query;
+    console.log(req.body);
     var post = await Post.findById({ _id: id });
     //
     var post_user = await User.findOne({ _id: `${post.author}` });

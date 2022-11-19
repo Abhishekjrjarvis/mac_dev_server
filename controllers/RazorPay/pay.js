@@ -28,7 +28,7 @@ exports.renderKeys = async (req, res) => {
 exports.checkoutRazorPayment = async (req, res) => {
   try {
     const options = {
-      amount: Number(req.body.amount),
+      amount: Number(req.body.amount * 100),
       currency: "INR",
     };
     const order = await instance.orders.create(options);
@@ -110,12 +110,10 @@ exports.verifyRazorPayment = async (req, res) => {
           ad_status_id
         );
         if (isApk) {
-          res
-            .status(200)
-            .send({
-              message: "Success with Razorpay Admission 😀",
-              check: true,
-            });
+          res.status(200).send({
+            message: "Success with Razorpay Admission 😀",
+            check: true,
+          });
         }
         res.redirect(
           `${process.env.FRONT_REDIRECT_URL}/q/${admission_status}/feed`
@@ -129,12 +127,10 @@ exports.verifyRazorPayment = async (req, res) => {
           ad_status_id
         );
         if (isApk) {
-          res
-            .status(200)
-            .send({
-              message: "Success with Razorpay Participate 😀",
-              check: true,
-            });
+          res.status(200).send({
+            message: "Success with Razorpay Participate 😀",
+            check: true,
+          });
         }
         res.redirect(
           `${process.env.FRONT_REDIRECT_URL}/q/${participate_status}/feed`

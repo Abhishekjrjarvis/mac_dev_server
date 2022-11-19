@@ -65,8 +65,8 @@ const hashtag = require("./routes/HashTag/hashtagRoute");
 
 // ============================= DB Configuration ==============================
 
-// const dburl = `${process.env.DB_URL2}`; // Development
-const dburl = `${process.env.DB_URL}`; // Production
+const dburl = `${process.env.DB_URL2}`; // Development
+// const dburl = `${process.env.DB_URL}`; // Production
 
 mongoose
   .connect(dburl, {
@@ -81,10 +81,10 @@ mongoose
   });
 
 app.use(mongoSanitize());
-app.use(helmet({ contentSecurityPolicy: false }));
-// app.use(
-//   helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false })
-// );
+// app.use(helmet({ contentSecurityPolicy: false }));
+app.use(
+  helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false })
+);
 app.use(compression());
 
 const swaggerUI = require("swagger-ui-express");

@@ -487,8 +487,8 @@ exports.rePostQuestionAnswer = async (req, res) => {
         answers.authorOneLine = user.one_line_about;
       }
       var rePost = new Post({});
-      if (req.body?.hashtag && JSON.parse(req.body?.hashtag)?.length > 0) {
-        for (let hash of JSON.parse(req.body?.hashtag)) {
+      if (req.body?.hashtag && JSON?.parse(req.body?.hashtag)?.length > 0) {
+        for (let hash of JSON?.parse(req.body?.hashtag)) {
           const hTag = await HashTag.findById({ _id: `${hash}` });
           rePost.hash_tag.push(hTag._id);
           hTag.hashtag_post.push(rePost._id);
@@ -575,8 +575,8 @@ exports.rePostQuestionAnswer = async (req, res) => {
           }
         });
       }
-      if (req.body?.hashtag && JSON.parse(req.body?.hashtag)?.length > 0) {
-        JSON.parse(req.body?.hashtag)?.forEach(async (ele) => {
+      if (req.body?.hashtag && JSON?.parse(req.body?.hashtag)?.length > 0) {
+        JSON?.parse(req.body?.hashtag)?.forEach(async (ele) => {
           const hash = await HashTag.findById({ _id: `${ele}` }).select(
             "hashtag_follower"
           );

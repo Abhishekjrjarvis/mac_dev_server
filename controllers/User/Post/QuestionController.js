@@ -456,7 +456,6 @@ exports.rePostQuestionAnswer = async (req, res) => {
   try {
     const { id } = req.params;
     const { post_type } = req.query;
-    console.log(req.body);
     var post = await Post.findById({ _id: id });
     //
     var post_user = await User.findOne({ _id: `${post.author}` });
@@ -488,8 +487,9 @@ exports.rePostQuestionAnswer = async (req, res) => {
         answers.authorOneLine = user.one_line_about;
       }
       var rePost = new Post({});
-      if (req.body?.hashtag && JSON?.parse(req.body?.hashtag)?.length > 0) {
-        for (let hash of JSON?.parse(req.body?.hashtag)) {
+      var parseHash = req.body?.hashtag ? JSON.parse(req.body?.hashtag) : "";
+      if (parseHash.length > 0) {
+        for (let hash of parseHash) {
           const hTag = await HashTag.findById({ _id: `${hash}` });
           rePost.hash_tag.push(hTag._id);
           hTag.hashtag_post.push(rePost._id);
@@ -576,8 +576,8 @@ exports.rePostQuestionAnswer = async (req, res) => {
           }
         });
       }
-      if (req.body?.hashtag && JSON?.parse(req.body?.hashtag)?.length > 0) {
-        JSON?.parse(req.body?.hashtag)?.forEach(async (ele) => {
+      if (parseHash && parseHash?.length > 0) {
+        parseHash?.forEach(async (ele) => {
           const hash = await HashTag.findById({ _id: `${ele}` }).select(
             "hashtag_follower"
           );

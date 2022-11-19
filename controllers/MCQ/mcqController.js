@@ -925,11 +925,64 @@ exports.studentTestSet = async (req, res) => {
 exports.studentTestSetQuestionSave = async (req, res) => {
   try {
     const testSet = await StudentTestSet.findById(req.params.tsid);
+    // console.log(testSet);
     for (test of testSet?.questions) {
       if (test?.questionSNO === req.body?.questionSNO) {
-        if (!req.body?.notSelect) {
+        if (test.givenAnswer?.length) {
+          if (
+            test.givenAnswer[0].optionNumber ===
+            req.body?.givenAnswer[0]?.optionNumber
+          ) {
+            test.givenAnswer = [];
+            const corr = [];
+            const giv = [];
+            for (correct of test.correctAnswer) {
+              corr.push(correct.optionNumber);
+            }
+            for (given of req.body?.givenAnswer) {
+              giv.push(given.optionNumber);
+            }
+            let flag = false;
+
+            for (opt of giv) {
+              if (corr.includes(opt)) {
+                flag = true;
+              } else {
+                flag = false;
+                break;
+              }
+            }
+            if (flag) {
+              testSet.testObtainMarks -= test.questionNumber;
+            }
+          } else {
+            test.givenAnswer = [...req.body?.givenAnswer];
+            const corr = [];
+            const giv = [];
+            for (correct of test.correctAnswer) {
+              corr.push(correct.optionNumber);
+            }
+            for (given of req.body?.givenAnswer) {
+              giv.push(given.optionNumber);
+            }
+            let flag = false;
+
+            for (opt of giv) {
+              if (corr.includes(opt)) {
+                flag = true;
+              } else {
+                flag = false;
+                break;
+              }
+            }
+            if (flag) {
+              testSet.testObtainMarks += test.questionNumber;
+            } else {
+              testSet.testObtainMarks -= test.questionNumber;
+            }
+          }
+        } else {
           test.givenAnswer = [...req.body?.givenAnswer];
-          // test.givenAnswer.push(...req.body?.givenAnswer);
           const corr = [];
           const giv = [];
           for (correct of test.correctAnswer) {
@@ -939,7 +992,6 @@ exports.studentTestSetQuestionSave = async (req, res) => {
             giv.push(given.optionNumber);
           }
           let flag = false;
-
           for (opt of giv) {
             if (corr.includes(opt)) {
               flag = true;
@@ -951,33 +1003,12 @@ exports.studentTestSetQuestionSave = async (req, res) => {
           if (flag) {
             testSet.testObtainMarks += test.questionNumber;
           }
-        } else {
-          test.givenAnswer = [];
-          const corr = [];
-          const giv = [];
-          for (correct of test.correctAnswer) {
-            corr.push(correct.optionNumber);
-          }
-          for (given of req.body?.givenAnswer) {
-            giv.push(given.optionNumber);
-          }
-          let flag = false;
-          for (opt of giv) {
-            if (corr.includes(opt)) {
-              flag = true;
-            } else {
-              flag = false;
-              break;
-            }
-          }
-
-          if (flag) testSet.testObtainMarks -= test.questionNumber;
         }
       }
     }
     testSet.testSetLeftTime = req.body?.testSetLeftTime;
-
     await testSet.save();
+    // console.log(testSet.testObtainMarks);
     res.status(200).send({ message: "question answer is save" });
   } catch (e) {
     console.log(e);

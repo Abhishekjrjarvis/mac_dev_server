@@ -1349,3 +1349,26 @@ exports.renderStudentSideTeam = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderOneTeamQuery = async (req, res) => {
+  try {
+    const { tid } = req.params;
+    const team = await SportTeam.findById({ _id: tid })
+      .select(
+        "sportClassTeamName photoId photo sportTeamStudentCount coverId cover"
+      )
+      .populate({
+        path: "sportTeamStudent",
+        populate: {
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentGRNO photoId studentProfilePhoto",
+        },
+      });
+    res
+      .status(200)
+      .send({ message: "One Team Query 😀", access: true, team: team });
+  } catch (e) {
+    console.log(e);
+  }
+};

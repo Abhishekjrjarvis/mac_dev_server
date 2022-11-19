@@ -252,4 +252,10 @@ router.patch(
 // User Switch Staff & Student
 router.get("/:uid/staff/student/role", catchAsync(User.retrieveUserRoleQuery));
 
+// User Switch Boolean
+router.get(
+  "/:uid/staff/student/role/query/format",
+  catchAsync(User.retrieveUserRoleQueryFormat)
+);
+
 module.exports = router;

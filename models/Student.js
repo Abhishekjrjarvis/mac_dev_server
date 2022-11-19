@@ -186,14 +186,18 @@ const studentSchema = new mongoose.Schema({
       ref: "Checklist",
     },
   ],
-  sportClass: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "SportClass",
-  },
-  sportTeam: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "SportTeam",
-  },
+  sportClass: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SportClass",
+    },
+  ],
+  sportTeam: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SportTeam",
+    },
+  ],
   extraPoints: {
     type: Number,
     default: 0,

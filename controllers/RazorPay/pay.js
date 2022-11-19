@@ -71,6 +71,7 @@ exports.verifyRazorPayment = async (req, res) => {
       order_payment.payment_module_id = payment_module_id;
       order_payment.payment_amount = payment_amount;
       order_payment.payment_status = "Captured";
+      order_payment.payment_invoice_number += 1;
       await order_payment.save();
       if (payment_module_type === "Unlock") {
         const unlock_status = await unlockInstituteFunction(
@@ -132,7 +133,7 @@ exports.fetchPaymentHistoryQuery = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "razorpay_order_id payment_module_type payment_amount payment_status created_at"
+        "razorpay_order_id payment_module_type payment_amount payment_status created_at payment_mode payment_invoice_number"
       );
 
     if (order?.length > 0) {

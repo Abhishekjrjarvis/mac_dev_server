@@ -8,6 +8,36 @@ const unlinkFile = util.promisify(fs.unlink);
 
 const addHashtag = () => {
   var hashTag = [
+    "#climatechange",
+    "#economics",
+    "#universe",
+    "#jee",
+    "#neet",
+    "#5thstandard",
+    "#6thstandard",
+    "#7thstandard",
+    "#8thstandard",
+    "#9thstandard",
+    "#10thstandard",
+    "#11thstandard",
+    "#12thstandard",
+    "#cat",
+    "#pharmacy",
+    "#cet",
+    "#physics",
+    "#biology",
+    "#chemistry",
+    "#maths",
+    "#electrical",
+    "#computerscience",
+    "#mechanical",
+    "#english",
+    "#hindi",
+    "#environment",
+    "#geography",
+    "#history",
+    "#social",
+    "#earth",
     "#facts",
     "#upsc",
     "#life",
@@ -22,6 +52,7 @@ const addHashtag = () => {
     "#civil",
     "#measurement",
     "#homescience",
+    "#globalwarming",
   ];
 
   hashTag?.forEach(async (ele) => {
@@ -176,7 +207,7 @@ exports.arrayHashtag = async (req, res) => {
     var limit = req.query.limit ? parseInt(req.query.limit) : 10;
     var skip = (page - 1) * limit;
     const hash = await HashTag.find({})
-      .sort("-hashtag_follower_count")
+      .sort("created_at")
       .limit(limit)
       .skip(skip)
       .select(

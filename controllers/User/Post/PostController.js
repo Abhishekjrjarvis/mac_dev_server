@@ -475,10 +475,10 @@ exports.postLike = async (req, res) => {
       req.tokenData && req.tokenData.userId ? req.tokenData.userId : "";
     if (user_session) {
       if (
-        post.endUserLike.length >= 1 &&
-        post.endUserLike.includes(String(user_session))
+        post.endUserLike?.length >= 1 &&
+        post.endUserLike?.includes(String(user_session))
       ) {
-        post.endUserLike.pull(user_session);
+        post.endUserLike?.pull(user_session);
         if (post.likeCount >= 1) {
           post.likeCount -= 1;
         }
@@ -908,13 +908,13 @@ exports.retrieveAllUserPosts = async (req, res) => {
         if (page == 1) {
           post.splice(3, 0, data_u_s);
           post.splice(5, 0, data_i_s);
+          post.splice(2, 0, hash_tag_ads);
         }
         post.splice(
           Math.floor(Math.random() * (post.length - 6) + 6),
           0,
           data_ads
         );
-        post.splice(2, 0, hash_tag_ads);
         res.status(200).send({
           message: "Success",
           post,
@@ -1736,12 +1736,10 @@ exports.renderOnePostQuery = async (req, res) => {
   try {
     const { pid } = req.params;
     if (!pid)
-      return res
-        .status(200)
-        .send({
-          message: "You're breaking rules of API fetching 😡",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "You're breaking rules of API fetching 😡",
+        access: false,
+      });
     const one_post = await Post.findById({ _id: pid })
       .select(
         "postTitle postText question_visibility is_hashtag postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"

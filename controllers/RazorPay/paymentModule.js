@@ -38,6 +38,7 @@ exports.unlockInstituteFunction = async (order, paidBy, tx_amounts) => {
     notify.notifyReceiever = admin._id;
     admin.aNotify.push(notify._id);
     notify.notifyByInsPhoto = institute._id;
+    institute.payment_history.push(orderPay._id);
     await Promise.all([
       institute.save(),
       admin.save(),
@@ -121,7 +122,7 @@ exports.feeInstituteFunction = async (order, paidBy, tx_amount, moduleId) => {
             feeId: fData._id,
           });
           studentUser.payment_history.push(order);
-          user.payment_history.push(order);
+          institute.payment_history.push(order);
           await Promise.all([
             student.save(),
             fData.save(),
@@ -187,7 +188,7 @@ exports.feeInstituteFunction = async (order, paidBy, tx_amount, moduleId) => {
           notify.user = user._id;
           notify.notifyByStudentPhoto = student._id;
           studentUser.payment_history.push(order);
-          user.payment_history.push(order);
+          institute.payment_history.push(order);
           await Promise.all([
             student.save(),
             checklistData.save(),
@@ -230,9 +231,6 @@ exports.admissionInstituteFunction = async (
     }).populate({
       path: "financeHead",
       select: "user",
-    });
-    const financeUser = await User.findById({
-      _id: `${finance.financeHead.user}`,
     });
     const status = await Status.findById({ _id: statusId });
     const aStatus = new Status({});
@@ -298,13 +296,12 @@ exports.admissionInstituteFunction = async (
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByStudentPhoto = student._id;
-    financeUser.payment_history.push(order);
+    ins.payment_history.push(order);
     await Promise.all([
       student.save(),
       user.save(),
       apply.save(),
       finance.save(),
-      financeUser.save(),
       ins.save(),
       admin.save(),
       status.save(),
@@ -338,9 +335,6 @@ exports.participateEventFunction = async (
       path: "financeHead",
       select: "user",
     });
-    const financeUser = await User.findById({
-      _id: `${finance.financeHead.user}`,
-    });
     const status = await StudentNotification.findById({ _id: notifyId });
     const notify = new StudentNotification({});
     depart.onlineFee += parseInt(tx_amount_ad);
@@ -370,13 +364,12 @@ exports.participateEventFunction = async (
     notify.redirectIndex = 13;
     student.notification.push(notify._id);
     user.payment_history.push(order);
-    financeUser.payment_history.push(order);
+    ins.payment_history.push(order);
     await Promise.all([
       student.save(),
       user.save(),
       event.save(),
       finance.save(),
-      financeUser.save(),
       ins.save(),
       admin.save(),
       status.save(),

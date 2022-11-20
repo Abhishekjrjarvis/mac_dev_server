@@ -203,17 +203,17 @@ exports.followHashtag = async (req, res) => {
 
 exports.arrayHashtag = async (req, res) => {
   try {
-    const { search } = req.query
+    const { search } = req.query;
     var page = req.query.page ? parseInt(req.query.page) : 1;
     var limit = req.query.limit ? parseInt(req.query.limit) : 10;
     var skip = (page - 1) * limit;
-    if(search){
-      var hash = await HashTag.find({})
-      .select(
+    if (search) {
+      var hash = await HashTag.find({
+        hashtag_name: { $regex: search, $options: "i" },
+      }).select(
         "hashtag_name hashtag_follower_count hashtag_profile_photo hashtag_photo_id"
       );
-    }
-    else{
+    } else {
       var hash = await HashTag.find({})
         .sort("created_at")
         .limit(limit)

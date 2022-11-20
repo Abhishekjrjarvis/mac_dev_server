@@ -801,6 +801,11 @@ exports.retrieveMatchDetail = async (req, res) => {
       .populate({
         path: "sportRunnerTeam",
         select: "sportClassTeamName",
+      })
+      .populate({
+        path: "sportParticipants",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
       });
     res.status(200).send({ message: "One Match Data", match });
   } catch (e) {

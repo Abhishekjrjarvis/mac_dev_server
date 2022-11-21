@@ -159,3 +159,19 @@ exports.rewardProfileAdsQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.oneInstitute = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const ins = await InstituteAdmin.findById({ _id: id });
+    res.status(200).send({ message: "One Institute ", one_ins: ins });
+  } catch {}
+};
+
+exports.oneUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById({ _id: id });
+    res.status(200).send({ message: "One User ", one_user: user });
+  } catch {}
+};

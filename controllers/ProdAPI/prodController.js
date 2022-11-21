@@ -34,7 +34,7 @@ exports.allPolls = async (req, res) => {
   try {
     // const { query } = req.query
     const poll = await InstituteAdmin.find({})
-      .select("id activateStatus accessFeature unlockAmount")
+      .select("id staffFormSetting studentFormSetting")
       .lean()
       .exec();
     res

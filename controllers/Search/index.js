@@ -138,10 +138,6 @@ exports.searchUserUniversalWeb = async (req, res) => {
           ];
           var universalArrayUser = shuffleArray(mergeArray);
           res.status(200).send({
-            allInstitutes,
-            users,
-            allMentors,
-            allHashtag,
             universalArrayUser,
           });
         }
@@ -276,10 +272,6 @@ exports.searchInstituteUniversalWeb = async (req, res) => {
           ];
           var universalArray = shuffleArray(mergeArray);
           res.status(200).send({
-            allInstitutes,
-            departments,
-            staff,
-            students,
             universalArray,
           });
         }

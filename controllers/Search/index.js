@@ -70,10 +70,14 @@ exports.searchUserUniversalWeb = async (req, res) => {
         ],
       })
         .select(
-          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto user"
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
         )
         .limit(itemPerPage)
         .skip(dropItem)
+        .populate({
+          path: "user",
+          select: "username",
+        })
         .lean()
         .exec();
 
@@ -134,6 +138,10 @@ exports.searchUserUniversalWeb = async (req, res) => {
           ];
           var universalArrayUser = shuffleArray(mergeArray);
           res.status(200).send({
+            allInstitutes,
+            users,
+            allMentors,
+            allHashtag,
             universalArrayUser,
           });
         }
@@ -175,9 +183,13 @@ exports.searchInstituteUniversalWeb = async (req, res) => {
           { dTitle: { $regex: req.query.search, $options: "i" } },
         ],
       })
-        .select("dName dTitle photo photoId")
+        .select("dName photo photoId")
         .limit(itemPerPage)
         .skip(dropItem)
+        .populate({
+          path: "dHead",
+          select: "staffFirstName staffMiddleName staffLastName",
+        })
         .lean()
         .exec();
 
@@ -195,7 +207,7 @@ exports.searchInstituteUniversalWeb = async (req, res) => {
         ],
       })
         .select(
-          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
         )
         .limit(itemPerPage)
         .skip(dropItem)
@@ -216,7 +228,7 @@ exports.searchInstituteUniversalWeb = async (req, res) => {
         ],
       })
         .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto"
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO"
         )
         .limit(itemPerPage)
         .skip(dropItem)
@@ -264,6 +276,10 @@ exports.searchInstituteUniversalWeb = async (req, res) => {
           ];
           var universalArray = shuffleArray(mergeArray);
           res.status(200).send({
+            allInstitutes,
+            departments,
+            staff,
+            students,
             universalArray,
           });
         }

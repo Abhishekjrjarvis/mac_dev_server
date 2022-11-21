@@ -147,4 +147,7 @@ router.get(
 // Student Side Team Rendering
 router.get("/student/team/:cid/query", catchAsync(Sport.renderStudentSideTeam));
 
+// One Team Rendering
+router.get("/team/:tid/query", catchAsync(Sport.renderOneTeamQuery));
+
 module.exports = router;

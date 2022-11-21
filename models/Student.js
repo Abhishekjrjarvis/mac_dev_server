@@ -47,7 +47,6 @@ const studentSchema = new mongoose.Schema({
   studentBookNo: { type: String },
   studentCertificateNo: { type: String },
   studentROLLNO: { type: String },
-  studentMothersName: { type: String },
   studentGRNO: { type: String },
   studentLeavingBehaviour: { type: String },
   studentLeavingStudy: { type: String },
@@ -248,12 +247,6 @@ const studentSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "StudentTransfer",
-    },
-  ],
-  applyList: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "ApplyPayment",
     },
   ],
   studentExemptFee: [

@@ -801,6 +801,11 @@ exports.retrieveMatchDetail = async (req, res) => {
       .populate({
         path: "sportRunnerTeam",
         select: "sportClassTeamName",
+      })
+      .populate({
+        path: "sportParticipants",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
       });
     res.status(200).send({ message: "One Match Data", match });
   } catch (e) {
@@ -1091,12 +1096,20 @@ exports.updateInterMatchFree = async (req, res) => {
         student.extraPoints += 25;
         match.sportRunner = student._id;
       }
+    } else {
+      if (studentRankTitle === "Winner") {
+        student.extraPoints += 40;
+        match.sportWinner = student._id;
+      } else if (studentRankTitle === "Runner") {
+        student.extraPoints += 25;
+        match.sportRunner = student._id;
+      }
     }
     await Promise.all([match.save(), student.save()]);
     if (studentParticipants.length >= 1) {
       for (let i = 0; i < studentParticipants.length; i++) {
         const student = await Student.findById({ _id: studentParticipants[i] });
-        match.sportInterParticipants.push(student._id);
+        match.sportParticipants.push(student._id);
         if (match.sportEventMatchCategoryLevel === "Final Match") {
           student.extraPoints += 5;
           await student.save();
@@ -1345,6 +1358,29 @@ exports.renderStudentSideTeam = async (req, res) => {
         status: false,
       });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneTeamQuery = async (req, res) => {
+  try {
+    const { tid } = req.params;
+    const team = await SportTeam.findById({ _id: tid })
+      .select(
+        "sportClassTeamName photoId photo sportTeamStudentCount coverId cover"
+      )
+      .populate({
+        path: "sportTeamStudent",
+        populate: {
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentGRNO photoId studentProfilePhoto",
+        },
+      });
+    res
+      .status(200)
+      .send({ message: "One Team Query 😀", access: true, team: team });
   } catch (e) {
     console.log(e);
   }

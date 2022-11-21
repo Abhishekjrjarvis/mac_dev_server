@@ -4,9 +4,11 @@ const { isLoggedIn } = require("../../middleware");
 const {
   searchInstitute,
   searchInstituteUniversal,
+  searchInstituteUniversalWeb,
   searchUserInstitute,
   searchUser,
   searchUserUniversal,
+  searchUserUniversalWeb,
   searchDepartment,
   searchClass,
   searchClassMaster,
@@ -30,12 +32,12 @@ const {
 } = require("../../controllers/Search/index");
 
 router.route("/institute").get(searchInstitute);
-router
-  .route("/institute/:id/allsearch")
-  .get(isLoggedIn, searchInstituteUniversal);
+router.route("/institute/:id/allsearch").get(searchInstituteUniversal);
+router.route("/institute/:id/allsearch/web").get(searchInstituteUniversalWeb);
 router.route("/user/institute").get(searchUserInstitute);
 router.route("/user").get(isLoggedIn, searchUser);
 router.route("/user/:id/allsearch").get(searchUserUniversal);
+router.route("/user/:id/allsearch/web").get(searchUserUniversalWeb);
 router.route("/:id/department").get(isLoggedIn, searchDepartment);
 router.route("/:did/class/:bid").get(isLoggedIn, searchClass);
 router.route("/:did/classmaster").get(isLoggedIn, searchClassMaster);

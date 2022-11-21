@@ -17,7 +17,7 @@ exports.photoEditByStaff = async (req, res) => {
     res.status(200).send({
       message: "photo edited successfully👍",
     });
-    await unlinkFile(file.path);
+    await unlinkFile(req.file.path);
   } catch (e) {
     console.log(e);
   }

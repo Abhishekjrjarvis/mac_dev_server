@@ -129,12 +129,6 @@ const userSchema = new mongoose.Schema({
       ref: "Playlist",
     },
   ],
-  playlistPayment: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "PlaylistPayment",
-    },
-  ],
   payment_history: [
     {
       type: mongoose.Schema.Types.ObjectId,

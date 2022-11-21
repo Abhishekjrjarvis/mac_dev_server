@@ -92,8 +92,8 @@ exports.feeInstituteFunction = async (order, paidBy, tx_amount, moduleId) => {
           finance.financeTotalBalance =
             finance.financeTotalBalance + parseInt(tx_amount);
           // finance.institute.insBankBalance
-          finance.institute.adminRepayAmount =
-            finance.institute.adminRepayAmount + parseInt(tx_amount);
+          institute.adminRepayAmount =
+            institute.adminRepayAmount + parseInt(tx_amount);
           admin.returnAmount += parseInt(tx_amount);
           notify.notifyContent = `${student.studentFirstName}${
             student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
@@ -112,8 +112,8 @@ exports.feeInstituteFunction = async (order, paidBy, tx_amount, moduleId) => {
           )}) यशस्वीरित्या भरले`;
           notify.notifySender = student._id;
           notify.notifyReceiever = user._id;
-          finance.institute.iNotify.push(notify._id);
-          notify.institute = finance.institute;
+          institute.iNotify.push(notify._id);
+          notify.institute = institute._id;
           user.uNotify.push(notify._id);
           notify.user = user._id;
           notify.notifyByStudentPhoto = student._id;
@@ -162,8 +162,8 @@ exports.feeInstituteFunction = async (order, paidBy, tx_amount, moduleId) => {
           finance.financeTotalBalance =
             finance.financeTotalBalance + parseInt(tx_amount);
           // finance.institute.insBankBalance
-          finance.institute.adminRepayAmount =
-            finance.institute.adminRepayAmount + parseInt(tx_amount);
+          institute.adminRepayAmount =
+            institute.adminRepayAmount + parseInt(tx_amount);
           admin.returnAmount += parseInt(tx_amount);
           notify.notifyContent = `${student.studentFirstName}${
             student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
@@ -182,8 +182,8 @@ exports.feeInstituteFunction = async (order, paidBy, tx_amount, moduleId) => {
           }/ (रु.${parseInt(tx_amount)}) यशस्वीरित्या भरले`;
           notify.notifySender = student._id;
           notify.notifyReceiever = user._id;
-          finance.institute.iNotify.push(notify._id);
-          notify.institute = finance.institute;
+          institute.iNotify.push(notify._id);
+          notify.institute = institute._id;
           user.uNotify.push(notify._id);
           notify.user = user._id;
           notify.notifyByStudentPhoto = student._id;

@@ -1888,7 +1888,7 @@ exports.updateUserUnBlockInstitute = async (req, res) => {
   }
 };
 
-exports.retrieveUserReportBlock = async (req, res) => {
+exports.retrieveUserReportBlockIns = async (req, res) => {
   try {
     var user_session = req.tokenData && req.tokenData.userId;
     const { blockId } = req.query;

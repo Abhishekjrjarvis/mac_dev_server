@@ -10,8 +10,8 @@ const loggers = createLogger({
     }),
     new transports.MongoDB({
       level: "info",
-      // db: `${process.env.DB_URL2}`,
-      db: `${process.env.DB_URL}`,
+      db: `${process.env.DB_URL2}`,
+      // db: `${process.env.DB_URL}`,
       options: {
         useUnifiedTopology: true,
       },

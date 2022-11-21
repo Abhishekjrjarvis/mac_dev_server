@@ -14,6 +14,265 @@ const Checklist = require("../../models/Checklist");
 const Fees = require("../../models/Fees");
 const Batch = require("../../models/Batch");
 const Library = require("../../models/Library/Library");
+const { shuffleArray } = require("../../Utilities/Shuffle");
+
+exports.searchUserUniversalWeb = async (req, res) => {
+  try {
+    if (req.query.search.trim() === "")
+      res.status(203).send({ message: "Please Provide a string to search" });
+    else {
+      const getPage = req.query.page ? parseInt(req.query.page) : 1;
+      const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+      const dropItem = (getPage - 1) * itemPerPage;
+      const { filter } = req.query;
+      const allInstitutes = await InstituteAdmin.find({
+        $and: [
+          { status: "Approved" },
+          {
+            $or: [
+              { insName: { $regex: req.query.search, $options: "i" } },
+              { name: { $regex: req.query.search, $options: "i" } },
+            ],
+          },
+        ],
+      })
+        .select("insName insProfilePhoto photoId name blockStatus status")
+        .limit(itemPerPage)
+        .skip(dropItem)
+        .lean()
+        .exec();
+
+      const users = await User.find({
+        $and: [{ _id: { $ne: [req.params.id] } }],
+        $or: [
+          { userLegalName: { $regex: req.query.search, $options: "i" } },
+          { username: { $regex: req.query.search, $options: "i" } },
+        ],
+      })
+        .limit(itemPerPage)
+        .skip(dropItem)
+        .select(
+          "userLegalName profilePhoto photoId username blockStatus userStatus"
+        )
+        .lean()
+        .exec();
+
+      const allMentors = await Staff.find({
+        $and: [
+          { status: "Approved" },
+          {
+            $or: [
+              { staffFirstName: { $regex: req.query.search, $options: "i" } },
+              { staffMiddleName: { $regex: req.query.search, $options: "i" } },
+              { staffLastName: { $regex: req.query.search, $options: "i" } },
+            ],
+          },
+        ],
+      })
+        .select(
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto user"
+        )
+        .limit(itemPerPage)
+        .skip(dropItem)
+        .lean()
+        .exec();
+
+      const allHashtag = await HashTag.find({
+        $and: [
+          {
+            $or: [
+              { hashtag_name: { $regex: req.query.search, $options: "i" } },
+            ],
+          },
+        ],
+      })
+        .select(
+          "hashtag_name hashtag_follower_count hashtag_profile_photo hashtag_photo_id"
+        )
+        .limit(itemPerPage)
+        .skip(dropItem)
+        .lean()
+        .exec();
+      if (
+        !allInstitutes.length &&
+        !users.length &&
+        !allMentors.length &&
+        !allHashtag.length
+      )
+        res.status(204).send({ message: "Not found any search" });
+      else {
+        if (filter === "Institute") {
+          res.status(200).send({
+            message: "filter by Institute",
+            universalArrayUser: allInstitutes,
+            filter: true,
+          });
+        } else if (filter === "Mentor") {
+          res.status(200).send({
+            message: "filter by Mentor",
+            universalArrayUser: allMentors,
+            filter: true,
+          });
+        } else if (filter === "People") {
+          res.status(200).send({
+            message: "filter by People",
+            universalArrayUser: users,
+            filter: true,
+          });
+        } else if (filter === "Hashtag") {
+          res.status(200).send({
+            message: "filter by Hashtag",
+            universalArrayUser: allHashtag,
+            filter: true,
+          });
+        } else {
+          var mergeArray = [
+            ...allInstitutes,
+            ...users,
+            ...allMentors,
+            ...allHashtag,
+          ];
+          var universalArrayUser = shuffleArray(mergeArray);
+          res.status(200).send({
+            universalArrayUser,
+          });
+        }
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.searchInstituteUniversalWeb = async (req, res) => {
+  try {
+    if (req.query.search.trim() === "") {
+      res.status(202).send({ message: "Please Provide a string to search" });
+    } else {
+      const getPage = req.query.page ? parseInt(req.query.page) : 1;
+      const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+      const dropItem = (getPage - 1) * itemPerPage;
+      const { filter } = req.query;
+      const allInstitutes = await InstituteAdmin.find({
+        $and: [
+          { _id: { $ne: [req.params.id] } },
+          { status: { $eq: "Approved" } },
+        ],
+        $or: [
+          { insName: { $regex: req.query.search, $options: "i" } },
+          { name: { $regex: req.query.search, $options: "i" } },
+        ],
+      })
+        .select("insName insProfilePhoto photoId name blockStatus")
+        .limit(itemPerPage)
+        .skip(dropItem)
+        .lean()
+        .exec();
+      const departments = await Department.find({
+        $and: [{ institute: req.params.id }],
+        $or: [
+          { dName: { $regex: req.query.search, $options: "i" } },
+          { dTitle: { $regex: req.query.search, $options: "i" } },
+        ],
+      })
+        .select("dName dTitle photo photoId")
+        .limit(itemPerPage)
+        .skip(dropItem)
+        .lean()
+        .exec();
+
+      const staff = await Staff.find({
+        $and: [
+          { institute: req.params.id },
+          { staffStatus: { $ne: "Not Approved" } },
+        ],
+        $or: [
+          { staffFirstName: { $regex: req.query.search, $options: "i" } },
+          {
+            staffMiddleName: { $regex: req.query.search, $options: "i" },
+          },
+          { staffLastName: { $regex: req.query.search, $options: "i" } },
+        ],
+      })
+        .select(
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto"
+        )
+        .limit(itemPerPage)
+        .skip(dropItem)
+        .lean()
+        .exec();
+
+      const students = await Student.find({
+        $and: [
+          { institute: req.params.id },
+          { studentStatus: { $ne: "Not Approved" } },
+        ],
+        $or: [
+          { studentFirstName: { $regex: req.query.search, $options: "i" } },
+          {
+            studentMiddleName: { $regex: req.query.search, $options: "i" },
+          },
+          { studentLastName: { $regex: req.query.search, $options: "i" } },
+        ],
+      })
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto"
+        )
+        .limit(itemPerPage)
+        .skip(dropItem)
+        .lean()
+        .exec();
+
+      if (
+        !allInstitutes.length &&
+        !departments.length &&
+        !staff.length &&
+        !students.length
+      )
+        res.status(202).send({ message: "Not found any search" });
+      else {
+        if (filter === "Institute") {
+          res.status(200).send({
+            message: "filter by Institute",
+            universalArray: allInstitutes,
+            filter: true,
+          });
+        } else if (filter === "Staff") {
+          res.status(200).send({
+            message: "filter by Staff",
+            universalArray: staff,
+            filter: true,
+          });
+        } else if (filter === "Department") {
+          res.status(200).send({
+            message: "filter by Department",
+            universalArray: departments,
+            filter: true,
+          });
+        } else if (filter === "Student") {
+          res.status(200).send({
+            message: "filter by Student",
+            universalArray: students,
+            filter: true,
+          });
+        } else {
+          var mergeArray = [
+            ...allInstitutes,
+            ...departments,
+            ...staff,
+            ...students,
+          ];
+          var universalArray = shuffleArray(mergeArray);
+          res.status(200).send({
+            universalArray,
+          });
+        }
+      }
+    }
+  } catch (e) {
+    console.log(e.kind);
+  }
+};
 
 exports.searchUserUniversal = async (req, res) => {
   try {

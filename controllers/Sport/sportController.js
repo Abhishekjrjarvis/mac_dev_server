@@ -1096,6 +1096,14 @@ exports.updateInterMatchFree = async (req, res) => {
         student.extraPoints += 25;
         match.sportRunner = student._id;
       }
+    } else {
+      if (studentRankTitle === "Winner") {
+        student.extraPoints += 40;
+        match.sportWinner = student._id;
+      } else if (studentRankTitle === "Runner") {
+        student.extraPoints += 25;
+        match.sportRunner = student._id;
+      }
     }
     await Promise.all([match.save(), student.save()]);
     if (studentParticipants.length >= 1) {

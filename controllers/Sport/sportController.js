@@ -1101,7 +1101,7 @@ exports.updateInterMatchFree = async (req, res) => {
     if (studentParticipants.length >= 1) {
       for (let i = 0; i < studentParticipants.length; i++) {
         const student = await Student.findById({ _id: studentParticipants[i] });
-        match.sportInterParticipants.push(student._id);
+        match.sportParticipants.push(student._id);
         if (match.sportEventMatchCategoryLevel === "Final Match") {
           student.extraPoints += 5;
           await student.save();

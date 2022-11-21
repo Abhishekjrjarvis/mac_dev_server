@@ -29,6 +29,8 @@ const instituteAdminSchema = new mongoose.Schema({
   insProfileCoverPhoto: { type: String },
   photoId: { type: String },
   coverId: { type: String },
+  b_certificate_count: { type: Number, default: 0 },
+  l_certificate_count: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
   staffJoinCode: { type: String },
   bankAccountHolderName: { type: String },

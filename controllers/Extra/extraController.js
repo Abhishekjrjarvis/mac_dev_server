@@ -135,9 +135,12 @@ exports.retrieveBonafideGRNO = async (req, res) => {
         select:
           "insName insAddress insState insDistrict insPhoneNumber insPincode photoId insProfilePhoto",
       });
-    // const institute = await InstituteAdmin.findById({_id: `${student.institute}`})
+    const institute = await InstituteAdmin.findById({
+      _id: `${student.institute}`,
+    });
     student.studentReason = reason;
     student.studentBonaStatus = "Ready";
+    institute.b_certificate_count += 1;
     if (student.certificateBonaFideCopy.trueCopy) {
       if (student.certificateBonaFideCopy.secondCopy) {
         if (student.certificateBonaFideCopy.thirdCopy) {
@@ -154,7 +157,7 @@ exports.retrieveBonafideGRNO = async (req, res) => {
       student.certificateBonaFideCopy.trueCopy = true;
       download = true;
     }
-    await Promise.all([student.save()]);
+    await Promise.all([student.save(), institute.save()]);
     res
       .status(200)
       .send({ message: "Student Bonafide Certificate", student, download });
@@ -198,6 +201,7 @@ exports.retrieveLeavingGRNO = async (req, res) => {
     student.studentLeavingInsDate = new Date();
     student.studentBookNo = institute.leavingArray.length + 1;
     student.studentCertificateNo = institute.leavingArray.length + 1;
+    institute.l_certificate_count += 1;
     student.studentLeavingStatus = "Ready";
     if (student.certificateLeavingCopy.trueCopy) {
       if (student.certificateLeavingCopy.secondCopy) {

@@ -76,6 +76,7 @@ exports.uploadBankDetail = async (req, res) => {
       GSTInfo,
       businessName,
       businessAddress,
+      gstSlab,
     } = req.body;
     const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const institute = await InstituteAdmin.findById({ _id: id });
@@ -88,6 +89,7 @@ exports.uploadBankDetail = async (req, res) => {
     institute.GSTInfo = GSTInfo;
     institute.businessName = businessName;
     institute.businessAddress = businessAddress;
+    institute.gstSlab = gstSlab;
     institute.financeDetailStatus = "Added";
     institute.bankAccountType = bankAccountType;
     notify.notifyContent = ` ${institute.insName} Institute payment Details updated Check and Verify `;
@@ -116,6 +118,7 @@ exports.removeBankDetail = async (req, res) => {
     institute.GSTInfo = "";
     institute.businessName = "";
     institute.businessAddress = "";
+    institute.gstSlab = "";
     institute.financeDetailStatus = "Not Added";
     institute.paymentBankStatus =
       "payment Details are mandatory for Finance Department";
@@ -229,11 +232,8 @@ exports.getFinanceInfo = async (req, res) => {
 exports.getIncome = async (req, res) => {
   try {
     const { fid } = req.params;
-    const finance = await Finance.findById({ _id: fid }).populate({
-      path: "financeHead",
-      select: "user",
-    });
-    var f_user = await User.findById({ _id: `${finance.financeHead?.user}` });
+    const finance = await Finance.findById({ _id: fid });
+    var f_user = await InstituteAdmin.findById({ _id: `${finance.institute}` });
     var user = await User.findOne({ _id: `${req.body.user}` }).select(
       "_id payment_history"
     );
@@ -244,13 +244,16 @@ exports.getIncome = async (req, res) => {
     finance.incomeDepartment.push(incomes._id);
     incomes.incomeAck = results.key;
     incomes.finances = finance._id;
+    incomes.invoice_number = finance.incomeDepartment?.length + 1;
     order.payment_module_type = "Income";
     order.payment_to_end_user_id = f_user._id;
     order.payment_module_id = incomes._id;
     order.payment_amount = incomes.incomeAmount;
     order.payment_status = "Captured";
     order.payment_flag_to = "Credit";
+    order.payment_mode = incomes.incomeAccount;
     f_user.payment_history.push(order._id);
+    order.payment_invoice_number += 1;
     if (req.body?.user) {
       incomes.incomeFromUser = user._id;
       order.payment_by_end_user_id = user._id;
@@ -270,6 +273,7 @@ exports.getIncome = async (req, res) => {
         finance.financeIncomeBankBalance + incomes.incomeAmount;
       finance.financeTotalBalance += incomes.incomeAmount;
     }
+    finance.gst_format.liability.push(incomes._id);
     await Promise.all([
       finance.save(),
       incomes.save(),
@@ -283,7 +287,9 @@ exports.getIncome = async (req, res) => {
       incomes: incomes._id,
       status: true,
     });
-  } catch (e) {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.getAllIncomes = async (req, res) => {
@@ -303,11 +309,8 @@ exports.getAllIncomes = async (req, res) => {
 exports.getExpense = async (req, res) => {
   try {
     const { fid } = req.params;
-    const finance = await Finance.findById({ _id: fid }).populate({
-      path: "financeHead",
-      select: "user",
-    });
-    var f_user = await User.findById({ _id: `${finance.financeHead?.user}` });
+    const finance = await Finance.findById({ _id: fid });
+    var f_user = await InstituteAdmin.findById({ _id: `${finance.institute}` });
     var user = await User.findOne({ _id: `${req.body.user}` }).select(
       "_id payment_history"
     );
@@ -328,6 +331,8 @@ exports.getExpense = async (req, res) => {
       order.payment_amount = expenses.expenseAmount;
       order.payment_status = "Captured";
       order.payment_flag_by = "Debit";
+      order.payment_mode = expenses.expenseAccount;
+      order.payment_invoice_number += 1;
       f_user.payment_history.push(order._id);
       if (req.body?.user) {
         expenses.expensePaidUser = user._id;
@@ -352,6 +357,7 @@ exports.getExpense = async (req, res) => {
           finance.financeTotalBalance -= expenses.expenseAmount;
         }
       }
+      finance.gst_format.input_tax_credit.push(expenses._id);
       await Promise.all([
         finance.save(),
         expenses.save(),
@@ -1150,7 +1156,7 @@ exports.retrieveOneEmpQuery = async (req, res) => {
         select:
           "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
       });
-      var filtered = emp.pay_slip.filter((ele) => {
+      var filtered = emp?.pay_slip?.filter((ele) => {
         if (`${ele.month}` === `${month}`) return ele;
       });
       var detail = {
@@ -1247,6 +1253,80 @@ exports.retrieveAllStaffArray = async (req, res) => {
     res
       .status(200)
       .send({ message: "All Staff List", staff_array: ins?.ApproveStaff });
+  } catch {}
+};
+
+exports.retrieveAllGSTIncome = async (req, res) => {
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { fid } = req.params;
+    const finance = await Finance.findById({ _id: fid }).select("gst_format");
+
+    const l_income = await Income.find({
+      _id: { $in: finance?.gst_format?.liability },
+    })
+      .sort("invoice_number")
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "incomeAmount gst_number gst_slab createdAt invoice_number incomeAccount incomeFrom"
+      )
+      .populate({
+        path: "incomeFromUser",
+        select: "userLegalName",
+      });
+
+    if (l_income?.length > 0) {
+      res.status(200).send({
+        message: "All GST liability 😀",
+        liability: l_income,
+        status: true,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "No GST liability 🙄", liability: [], status: false });
+    }
+  } catch {}
+};
+
+exports.retrieveAllGSTInputTax = async (req, res) => {
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { fid } = req.params;
+    const finance = await Finance.findById({ _id: fid }).select("gst_format");
+
+    const l_expense = await Expense.find({
+      _id: { $in: finance?.gst_format?.input_tax_credit },
+    })
+      .sort("-createdAt")
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "expenseAmount gst_number gst_slab createdAt expenseAccount expensePaid"
+      )
+      .populate({
+        path: "expensePaidUser",
+        select: "userLegalName",
+      });
+
+    if (l_expense?.length > 0) {
+      res.status(200).send({
+        message: "All GST Input Tax Credit 😀",
+        tax_credit: l_expense,
+        status: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No GST Input Tax Credit 🙄",
+        tax_credit: [],
+        status: false,
+      });
+    }
   } catch {}
 };
 

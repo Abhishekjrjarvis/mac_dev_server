@@ -200,4 +200,11 @@ router.get("/:fid/all/staff/array", catchAsync(Finance.retrieveAllStaffArray));
 
 // router.get('/:fid/gateway/charges', catchAsync(Finance.retrievePaymentChargesQuery))
 
+router.get(
+  "/:fid/gst/income/liability",
+  catchAsync(Finance.retrieveAllGSTIncome)
+);
+
+router.get("/:fid/gst/tax/credit", catchAsync(Finance.retrieveAllGSTInputTax));
+
 module.exports = router;

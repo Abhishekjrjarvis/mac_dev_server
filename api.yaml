@@ -106,6 +106,50 @@ paths:
         "200":
           description: OK
 
+  
+  /api/v1/auth/username/search:
+    get:
+      tags:
+        - Login And Logout Api
+      summary: Search Existing Username -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: u_name
+          required: true
+          type: string
+          description: Enter the search username
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/auth/username:
+    patch:
+      tags:
+        - Login And Logout Api
+      summary: Edit Username (Based on 45 Days) -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: o_name
+          required: true
+          type: string
+          description: Enter the existing username
+        - in: query
+          name: n_name
+          required: true
+          type: string
+          description: Enter the new username
+      responses:
+        "200":
+          description: OK
+
   /api/v1/auth/logout:
     get:
       tags:
@@ -1997,6 +2041,25 @@ paths:
                 items:
                   type: string
                   description: Enter Class Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/extra/export/student/all:
+    get:
+      tags:
+        - Setting Control API
+      summary: Get All Students Exported Data -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: id
+          required: true
+          type: string
+          description: Enter institute Id
       responses:
         "200":
           description: OK
@@ -6908,6 +6971,85 @@ paths:
         "200":
           description: OK
 
+  
+  /api/v1/all-images/{sid}/sport/class/photo:
+    patch:
+      tags:
+        - To get All Images, Videos and Documents
+      summary:
+        - To upload Sport Class profile photo
+      consumes:
+        - application/json
+      produces:
+        - application/json'
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          schema:
+            type: string
+          description: This is Sport Class ID
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your image with images extenstion
+      responses:
+        "200":
+          description: OK
+  /api/v1/all-images/{sid}/sport/class/cover:
+    patch:
+      tags:
+        - To get All Images, Videos and Documents
+      summary:
+        - To upload Sport Class profile cover photo
+      consumes:
+        - application/json
+      produces:
+        - application/json'
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          schema:
+            type: string
+          description: This is Sport Class ID
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your image with images extenstion
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/all-images/{sid}/sport/team/cover:
+    patch:
+      tags:
+        - To get All Images, Videos and Documents
+      summary:
+        - To upload Sport Team profile cover photo
+      consumes:
+        - application/json
+      produces:
+        - application/json'
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          schema:
+            type: string
+          description: This is Sport Team ID
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your image with images extenstion
+      responses:
+        "200":
+          description: OK
+
 
   /api/v1/all/todevice/token:
     post:
@@ -10040,6 +10182,9 @@ paths:
               businessAddress:
                 type: string
                 description: Enter Business Address
+              gstSlab:
+                type: number
+                description: Enter GST Slab % default -> 18
       responses:
         "200":
           description: OK
@@ -10184,7 +10329,7 @@ paths:
         - in: formData
           name: incomePurpose
           type: string
-          required: true
+          required: false
           description: Enter Income Purpose
         - in: formData
           name: incomeAmount
@@ -10201,6 +10346,26 @@ paths:
           type: string
           required: true
           description: Enter Description of Income 
+        - in: formData
+          name: gst_slab
+          type: number
+          required: false
+          description: Enter GST Slab Percentage %
+        - in: formData
+          name: gst_number
+          type: string
+          required: false
+          description: Enter GST Number
+        - in: formData
+          name: business_name
+          type: string
+          required: false
+          description: Enter Business Name 
+        - in: formData
+          name: business_address
+          type: string
+          required: false
+          description: Enter Business Address
         - in: formData
           name: file
           type: file
@@ -10255,7 +10420,7 @@ paths:
         - in: formData
           name: expensePurpose
           type: string
-          required: true
+          required: false
           description: Enter Expense Purpose
         - in: formData
           name: expenseAmount
@@ -10272,6 +10437,26 @@ paths:
           type: string
           required: true
           description: Enter Description of Expense 
+        - in: formData
+          name: gst_slab
+          type: number
+          required: false
+          description: Enter GST Slab Percentage %
+        - in: formData
+          name: gst_number
+          type: string
+          required: false
+          description: Enter GST Number
+        - in: formData
+          name: business_name
+          type: string
+          required: false
+          description: Enter Business Name 
+        - in: formData
+          name: business_address
+          type: string
+          required: false
+          description: Enter Business Address
         - in: formData
           name: file
           type: file
@@ -14882,10 +15067,14 @@ paths:
             type: object
             required:
               - amount
+              - mode
             properties:
               amount:
                 type: number
                 description: Enter amount
+              mode:
+                type: string
+                description: Enter payment mode ("Online" | "Offline")
       responses:
         "200":
           description: OK
@@ -16683,6 +16872,79 @@ paths:
           required: true
           type: string
           description: This is Sport Event id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/sport/arts/student/class/{sid}/query:
+    get:
+      tags:
+        - Sport and Arts Module Query
+      summary: Get All Sport Classes Of One Student  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/sport/arts/student/team/{cid}/query:
+    get:
+      tags:
+        - Sport and Arts Module Query
+      summary: One Student Team By One Sport Class  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Sport Class id
+        - in: query
+          name: sid
+          required: true
+          type: string
+          description: Enter Student Id
+      responses:
+        "200":
+          description: OK
+        
+
+  /api/v1/sport/arts/team/{tid}/query:
+    get:
+      tags:
+        - Sport and Arts Module Query
+      summary: One Team Details (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This is Sport Team id 
       responses:
         "200":
           description: OK

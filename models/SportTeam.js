@@ -1,61 +1,63 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
 const sportTeamSchema = new mongoose.Schema({
-    sportClassTeamName: {
-        type: String,
-        required: true
-    },
-    sportTeamStudent: [
-        {
-            student: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'Student'
-            },
-            asCaptain: { type: String, default: 'Member' },
-        },
-    ],
-    sportClass: {
+  sportClassTeamName: {
+    type: String,
+    required: true,
+  },
+  sportTeamStudent: [
+    {
+      student: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'SportClass'
+        ref: "Student",
+      },
+      asCaptain: { type: String, default: "Member" },
     },
-    sportEventMatch: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'SportEventMatch'
-        }
-    ],
-    sportTeamStudentCount: {
-        type: Number,
-        default: 0
+  ],
+  sportClass: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "SportClass",
+  },
+  sportEventMatch: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SportEventMatch",
     },
-    sportEventMatch: {
-        type: Number,
-        default: 0
-    },
-    rankTitle: {
-        type: String
-    },
-    teamPoints: {
-        type: Number,
-        default: 0
-    },
-    sportTeamPhoto: {
-        type: String
-    },
-    photoId: {
-        type: String,
-        default: 0
-    },
-    sportTeamCaptain: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Student'
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    }
-})
+  ],
+  sportTeamStudentCount: {
+    type: Number,
+    default: 0,
+  },
+  sportEventMatch: {
+    type: Number,
+    default: 0,
+  },
+  rankTitle: {
+    type: String,
+  },
+  teamPoints: {
+    type: Number,
+    default: 0,
+  },
+  sportTeamPhoto: {
+    type: String,
+  },
+  photoId: {
+    type: String,
+    default: 0,
+  },
+  sportTeamCaptain: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Student",
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  coverId: { type: String, default: "1" },
+  cover: { type: String },
+});
 
-const SportTeam = mongoose.model('SportTeam', sportTeamSchema)
+const SportTeam = mongoose.model("SportTeam", sportTeamSchema);
 
-module.exports = SportTeam
+module.exports = SportTeam;

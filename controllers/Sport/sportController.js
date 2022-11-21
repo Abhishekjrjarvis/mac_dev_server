@@ -573,7 +573,7 @@ exports.updateStudentSportClass = async (req, res) => {
         classes.sportStudent.push(student._id);
         classes.sportStudentCount += 1;
         sport_depart.sportMemberCount += 1;
-        student.sportClass = classes._id;
+        student.sportClass.push(classes._id);
         await student.save();
       }
       await Promise.all([classes.save(), sport_depart.save()]);
@@ -686,7 +686,7 @@ exports.removeStudentSportClass = async (req, res) => {
         if (sport_depart.sportMemberCount > 0) {
           sport_depart.sportMemberCount -= 1;
         }
-        student.sportClass = null;
+        student.sportClass?.pull(classes._id);
         await student.save();
       }
       await Promise.all([classes.save(), sport_depart.save()]);
@@ -726,7 +726,7 @@ exports.updateSportTeam = async (req, res) => {
           asCaptain: `${student._id}` === `${captain}` ? "Captain" : "Member",
         });
         team.sportTeamStudentCount += 1;
-        student.sportTeam = team._id;
+        student.sportTeam.push(team._id);
         await student.save();
       }
       classes.sportTeam.push(team._id);
@@ -801,6 +801,11 @@ exports.retrieveMatchDetail = async (req, res) => {
       .populate({
         path: "sportRunnerTeam",
         select: "sportClassTeamName",
+      })
+      .populate({
+        path: "sportParticipants",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
       });
     res.status(200).send({ message: "One Match Data", match });
   } catch (e) {
@@ -1091,12 +1096,20 @@ exports.updateInterMatchFree = async (req, res) => {
         student.extraPoints += 25;
         match.sportRunner = student._id;
       }
+    } else {
+      if (studentRankTitle === "Winner") {
+        student.extraPoints += 40;
+        match.sportWinner = student._id;
+      } else if (studentRankTitle === "Runner") {
+        student.extraPoints += 25;
+        match.sportRunner = student._id;
+      }
     }
     await Promise.all([match.save(), student.save()]);
     if (studentParticipants.length >= 1) {
       for (let i = 0; i < studentParticipants.length; i++) {
         const student = await Student.findById({ _id: studentParticipants[i] });
-        match.sportInterParticipants.push(student._id);
+        match.sportParticipants.push(student._id);
         if (match.sportEventMatchCategoryLevel === "Final Match") {
           student.extraPoints += 5;
           await student.save();
@@ -1255,6 +1268,119 @@ exports.renderStudentSideMatch = async (req, res) => {
         match_query: [],
       });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderStudentSideClass = async (req, res) => {
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { sid } = req.params;
+    const student = await Student.findById({ _id: sid }).select(
+      "_id sportClass"
+    );
+
+    const classes = await SportClass.find({ _id: { $in: student?.sportClass } })
+      .sort("-createdAt")
+      .limit(limit)
+      .skip(skip)
+      .select("sportClassName photoId photo")
+      .populate({
+        path: "sportClassHead",
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+      });
+
+    if (classes?.length > 0) {
+      res.status(200).send({
+        message: "Student Not Take Part In Event Match",
+        classes: classes,
+        status: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Available Class for Student",
+        classes: [],
+        status: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderStudentSideTeam = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    const { sid } = req.query;
+    var per_team = {};
+    const classes = await SportClass.findById({ _id: cid }).select("sportTeam");
+
+    const teams = await SportTeam.find({
+      _id: { $in: classes?.sportTeam },
+    })
+      .select("cover coverId sportClassTeamName sportTeamStudentCount")
+      .populate({
+        path: "sportTeamStudent",
+        populate: {
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
+        },
+      });
+
+    teams?.forEach((tem) => {
+      tem?.sportTeamStudent?.forEach((ele) => {
+        if (`${ele?.student?._id}` === `${sid}`) {
+          (per_team._id = tem._id),
+            (per_team.cover = tem.cover),
+            (per_team.coverId = tem.coverId),
+            (per_team.name = tem.sportClassTeamName),
+            (per_team.memberCount = tem.sportTeamStudentCount),
+            (per_team.memberArray = tem.sportTeamStudent);
+        }
+      });
+    });
+
+    if (per_team) {
+      res.status(200).send({
+        message: "personal team 😀",
+        team: per_team,
+        status: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Available Team for Student",
+        per_team,
+        status: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneTeamQuery = async (req, res) => {
+  try {
+    const { tid } = req.params;
+    const team = await SportTeam.findById({ _id: tid })
+      .select(
+        "sportClassTeamName photoId photo sportTeamStudentCount coverId cover"
+      )
+      .populate({
+        path: "sportTeamStudent",
+        populate: {
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentGRNO photoId studentProfilePhoto",
+        },
+      });
+    res
+      .status(200)
+      .send({ message: "One Team Query 😀", access: true, team: team });
   } catch (e) {
     console.log(e);
   }

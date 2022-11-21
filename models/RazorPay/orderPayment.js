@@ -29,6 +29,14 @@ const orderPaymentSchema = new mongoose.Schema({
   payment_status: {
     type: String,
   },
+  payment_invoice_number: {
+    type: Number,
+    default: 0,
+  },
+  payment_mode: {
+    type: String,
+    default: "By Bank",
+  },
   created_at: {
     type: Date,
     default: Date.now,

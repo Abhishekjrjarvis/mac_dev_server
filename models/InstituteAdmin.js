@@ -29,6 +29,8 @@ const instituteAdminSchema = new mongoose.Schema({
   insProfileCoverPhoto: { type: String },
   photoId: { type: String },
   coverId: { type: String },
+  b_certificate_count: { type: Number, default: 0 },
+  l_certificate_count: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
   staffJoinCode: { type: String },
   bankAccountHolderName: { type: String },
@@ -313,6 +315,7 @@ const instituteAdminSchema = new mongoose.Schema({
   GSTInfo: { type: String },
   businessName: { type: String },
   businessAddress: { type: String },
+  gstSlab: { type: Number, default: 18 },
   accessFeature: { type: String, default: "Locked" },
   unlockAmount: { type: Number, default: 1000 },
   featurePaymentStatus: { type: String, default: "Not Paid" },
@@ -458,9 +461,6 @@ const instituteAdminSchema = new mongoose.Schema({
   profileURL: {
     type: String,
   },
-  modal_activate: {
-    type: String,
-  },
   activeStatus: {
     type: String,
     default: "Activated",
@@ -543,18 +543,18 @@ const instituteAdminSchema = new mongoose.Schema({
   block_institute: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'InstituteAdmin'
-    }
+      ref: "InstituteAdmin",
+    },
   ],
   blockedBy: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'InstituteAdmin'
-    }
+      ref: "InstituteAdmin",
+    },
   ],
   blockCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   export_staff_data: {
     fullName: { type: Boolean, default: true },
@@ -609,7 +609,16 @@ const instituteAdminSchema = new mongoose.Schema({
     studentHeight: { type: Boolean, defult: false },
     studentWeight: { type: Boolean, defult: false },
     studentBMI: { type: Boolean, defult: false },
-  }
+  },
+  next_date: {
+    type: String,
+  },
+  payment_history: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "OrderPayment",
+    },
+  ],
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

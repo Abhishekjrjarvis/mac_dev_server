@@ -486,7 +486,18 @@ exports.rePostQuestionAnswer = async (req, res) => {
         answers.authorProfilePhoto = user.profilePhoto;
         answers.authorOneLine = user.one_line_about;
       }
-      const rePost = new Post({});
+      var rePost = new Post({});
+      var parseHash = req.body?.hashtag ? JSON.parse(req.body?.hashtag) : "";
+      if (parseHash.length > 0) {
+        for (let hash of parseHash) {
+          const hTag = await HashTag.findById({ _id: `${hash}` });
+          rePost.hash_tag.push(hTag._id);
+          hTag.hashtag_post.push(rePost._id);
+          hTag.hashtag_repost_count += 1;
+          await hTag.save();
+        }
+        rePost.is_hashtag = true;
+      }
       rePost.author = user._id;
       rePost.authorName = user.userLegalName;
       rePost.authorUserName = user.username;
@@ -504,8 +515,6 @@ exports.rePostQuestionAnswer = async (req, res) => {
       rePost.isUser = "user";
       rePost.postType = "Repost";
       rePost.rePostAnswer = answers;
-      rePost.hash_tag.push(...post?.hash_tag);
-      rePost.is_hashtag = post?.is_hashtag;
       rePost.post_url = `https://qviple.com/q/${rePost.authorUserName}/profile`;
       await Promise.all([
         rePost.save(),
@@ -513,13 +522,7 @@ exports.rePostQuestionAnswer = async (req, res) => {
         user.save(),
         post.save(),
       ]);
-      const hashTag = await HashTag.find({ _id: { $in: post?.hash_tag } });
-      hashTag?.forEach(async (ele) => {
-        ele.hashtag_post.push(rePost._id);
-        ele.hashtag_repost_count += 1;
-        await ele.save();
-      });
-      //
+
       var notify = new Notification({});
       notify.notifyContent = `${answers.authorName} answered your question with repost.`;
       notify.notify_hi_content = `${answers.authorName} ने आपके प्रश्न का उत्तर रिपोस्ट के साथ दिया।`;
@@ -573,8 +576,8 @@ exports.rePostQuestionAnswer = async (req, res) => {
           }
         });
       }
-      if (post?.hash_tag?.length > 0) {
-        post?.hash_tag?.forEach(async (ele) => {
+      if (parseHash && parseHash?.length > 0) {
+        parseHash?.forEach(async (ele) => {
           const hash = await HashTag.findById({ _id: `${ele}` }).select(
             "hashtag_follower"
           );

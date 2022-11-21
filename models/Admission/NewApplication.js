@@ -71,6 +71,7 @@ const newApplicationSchema = new mongoose.Schema({
       payment_status: { type: String, default: "Pending" },
       fee_remain: { type: Number, default: 0 },
       paid_status: { type: "String" },
+      second_pay_mode: { type: "String" },
     },
   ],
   allottedApplication: [
@@ -85,6 +86,7 @@ const newApplicationSchema = new mongoose.Schema({
       alloted_status: { type: String, default: "Not Alloted" },
       fee_remain: { type: Number, default: 0 },
       paid_status: { type: "String" },
+      second_pay_mode: { type: "String" },
     },
   ],
   cancelApplication: [

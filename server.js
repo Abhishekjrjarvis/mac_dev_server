@@ -11,13 +11,10 @@ const MongoStore = require("connect-mongo");
 const loggers = require("./Utilities/Logs/resLogs");
 const mongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
-var fs = require("fs");
-const xlsx = require("xlsx");
 
 //======================== All Routes ========================
 const {
   check_poll_status,
-  payment_modal_initiated,
   election_vote_day,
   election_result_day,
 } = require("./Service/AutoRefreshBackend");
@@ -25,7 +22,6 @@ const uploadRoute = require("./routes/UploadContent/index");
 const elearningRoute = require("./routes/Elearning/index");
 const libraryRoute = require("./routes/Library/libraryRoute");
 const searchRoute = require("./routes/Search/index");
-const paymentNew = require("./routes/Payment/paymentRoute");
 const adminNew = require("./routes/SuperAdmin/adminRoute");
 const instituteNew = require("./routes/InstituteAdmin/instituteRoute");
 const authNew = require("./routes/Authentication/authRoute");
@@ -35,8 +31,6 @@ const miscellaneousNew = require("./routes/Miscellaneous/miscellaneousRoute");
 const userNew = require("./routes/User/userRoute");
 const availNew = require("./routes/Attendence/indexRoute");
 const landingNew = require("./routes/LandingRoute/indexRoute");
-const chatNew = require("./routes/Chat/chatRoute");
-const messageNew = require("./routes/Chat/messageRoute");
 const feesNew = require("./routes/Fees/feesRoute");
 const extraNew = require("./routes/Extra/extraRoute");
 const institutePostRoute = require("./routes/InstituteAdmin/Post/PostRoute");
@@ -65,14 +59,10 @@ const participate = require("./routes/ParticipativeEvent/participateRoute");
 const checkout = require("./routes/RazorPay/payCheckoutRoute");
 const hashtag = require("./routes/HashTag/hashtagRoute");
 
-
 // ============================= DB Configuration ==============================
 
 const dburl = `${process.env.DB_URL2}`; // Development
 // const dburl = `${process.env.DB_URL}`; // Production
-
-// 6360a7d565aca073d9f9e074 - Development
-// 630f3b68a5eb4786489045a1 - Production
 
 mongoose
   .connect(dburl, {
@@ -161,7 +151,6 @@ app.use("/api/v1/exam", examRoute);
 app.use("/api/v1/mcq", mcqRoute);
 app.use("/api/v1/batch", batchRoute);
 app.use("/api/v1/compleave", complaintLeaveRoute);
-app.use("/api/v1", paymentNew);
 app.use("/api/v1/admin", adminNew);
 app.use("/api/v1/ins", instituteNew);
 app.use("/api/v1/ins/post", institutePostRoute);
@@ -174,8 +163,6 @@ app.use("/api/v1/user", userNew);
 app.use("/api/v1/user/post", userPostRoute);
 app.use("/api/v1/attendance", availNew);
 app.use("/api/v1/landing", landingNew);
-app.use("/api/v1/chat", chatNew);
-app.use("/api/v1/message", messageNew);
 app.use("/api/v1/fees", feesNew);
 app.use("/api/v1/extra", extraNew);
 app.use("/api/v1/post/question", questionNew);
@@ -209,28 +196,6 @@ app.use("/api/v1/prod/access", prod);
 // setInterval(async () => {
 //   await participate_result_day();
 // }, 30000);
-
-setInterval(async () => {
-  await payment_modal_initiated();
-}, 30000);
-
-// function convertExcelFileToJsonUsingXlsx() {
-
-//   const file = xlsx.readFile('./data.xls');
-//   const sheetNames = file.SheetNames;
-//   const totalSheets = sheetNames.length;
-//   let parsedData = [];
-
-//   for (let i = 0; i < totalSheets; i++) {
-
-//       const tempData = xlsx.utils.sheet_to_json(file.Sheets[sheetNames[i]]);
-//       tempData.shift();
-//       parsedData.push(...tempData);
-//   }
-//  return JSON.stringify(parsedData)
-// }
-
-// console.log(convertExcelFileToJsonUsingXlsx())
 
 app.get("*", (req, res) => {
   res.status(404).send("Page Not Found...");

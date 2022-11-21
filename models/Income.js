@@ -7,7 +7,6 @@ const incomeSchema = new mongoose.Schema({
   },
   incomePurpose: {
     type: String,
-    required: true,
   },
   incomeAmount: {
     type: Number,
@@ -31,6 +30,11 @@ const incomeSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Finance",
   },
+  gst_slab: { type: Number, default: 0 },
+  gst_number: { type: String },
+  business_name: { type: String },
+  business_address: { type: String },
+  invoice_number: { type: Number, default: 0 },
   createdAt: {
     type: Date,
     default: Date.now,

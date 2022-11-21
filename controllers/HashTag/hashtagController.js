@@ -8,6 +8,36 @@ const unlinkFile = util.promisify(fs.unlink);
 
 const addHashtag = () => {
   var hashTag = [
+    "#climatechange",
+    "#economics",
+    "#universe",
+    "#jee",
+    "#neet",
+    "#5thstandard",
+    "#6thstandard",
+    "#7thstandard",
+    "#8thstandard",
+    "#9thstandard",
+    "#10thstandard",
+    "#11thstandard",
+    "#12thstandard",
+    "#cat",
+    "#pharmacy",
+    "#cet",
+    "#physics",
+    "#biology",
+    "#chemistry",
+    "#maths",
+    "#electrical",
+    "#computerscience",
+    "#mechanical",
+    "#english",
+    "#hindi",
+    "#environment",
+    "#geography",
+    "#history",
+    "#social",
+    "#earth",
     "#facts",
     "#upsc",
     "#life",
@@ -22,6 +52,7 @@ const addHashtag = () => {
     "#civil",
     "#measurement",
     "#homescience",
+    "#globalwarming",
   ];
 
   hashTag?.forEach(async (ele) => {
@@ -172,16 +203,25 @@ exports.followHashtag = async (req, res) => {
 
 exports.arrayHashtag = async (req, res) => {
   try {
+    const { search } = req.query;
     var page = req.query.page ? parseInt(req.query.page) : 1;
     var limit = req.query.limit ? parseInt(req.query.limit) : 10;
     var skip = (page - 1) * limit;
-    const hash = await HashTag.find({})
-      .sort("-hashtag_follower_count")
-      .limit(limit)
-      .skip(skip)
-      .select(
+    if (search) {
+      var hash = await HashTag.find({
+        hashtag_name: { $regex: search, $options: "i" },
+      }).select(
         "hashtag_name hashtag_follower_count hashtag_profile_photo hashtag_photo_id"
       );
+    } else {
+      var hash = await HashTag.find({})
+        .sort("created_at")
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "hashtag_name hashtag_follower_count hashtag_profile_photo hashtag_photo_id"
+        );
+    }
     if (hash?.length > 0) {
       res.status(200).send({
         message: "All Array of Hashtag by follower",

@@ -29,6 +29,9 @@ const {
   patchAdmissionImageCover,
   patchSportImagePhoto,
   patchSportImageCover,
+  patchSportClassImagePhoto,
+  patchSportClassImageCover,
+  patchSportTeamImageCover,
   // patchStaffImagePhoto,
   // patchStaffAddharDoc,
   // patchStudentImagePhoto,
@@ -120,6 +123,18 @@ router
 router
   .route("/:sid/sport/cover")
   .patch(isLoggedIn, upload.single("file"), patchSportImageCover);
+
+router
+  .route("/:sid/sport/class/photo")
+  .patch(isLoggedIn, upload.single("file"), patchSportClassImagePhoto);
+
+router
+  .route("/:sid/sport/class/cover")
+  .patch(isLoggedIn, upload.single("file"), patchSportClassImageCover);
+
+router
+  .route("/:sid/sport/team/cover")
+  .patch(isLoggedIn, upload.single("file"), patchSportTeamImageCover);
 
 // router
 //   .route("/:id/staff/photo")

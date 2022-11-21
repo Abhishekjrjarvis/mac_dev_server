@@ -28,7 +28,7 @@ exports.renderKeys = async (req, res) => {
 exports.checkoutRazorPayment = async (req, res) => {
   try {
     const options = {
-      amount: Number(req.body.amount),
+      amount: Number(req.body.amount * 100),
       currency: "INR",
     };
     const order = await instance.orders.create(options);
@@ -52,6 +52,7 @@ exports.verifyRazorPayment = async (req, res) => {
       payment_module_id,
       payment_amount,
       ad_status_id,
+      isApk,
     } = req.query;
 
     const body = razorpay_order_id + "|" + razorpay_payment_id;
@@ -71,6 +72,7 @@ exports.verifyRazorPayment = async (req, res) => {
       order_payment.payment_module_id = payment_module_id;
       order_payment.payment_amount = payment_amount;
       order_payment.payment_status = "Captured";
+      order_payment.payment_invoice_number += 1;
       await order_payment.save();
       if (payment_module_type === "Unlock") {
         const unlock_status = await unlockInstituteFunction(
@@ -78,6 +80,11 @@ exports.verifyRazorPayment = async (req, res) => {
           payment_by_end_user_id,
           payment_amount
         );
+        if (isApk) {
+          res
+            .status(200)
+            .send({ message: "Success with Razorpay unlock 😀", check: true });
+        }
         res.redirect(
           `${process.env.FRONT_REDIRECT_URL}/q/${unlock_status}/feed`
         );
@@ -88,6 +95,11 @@ exports.verifyRazorPayment = async (req, res) => {
           payment_amount,
           payment_module_id
         );
+        if (isApk) {
+          res
+            .status(200)
+            .send({ message: "Success with Razorpay Fees 😀", check: true });
+        }
         res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${fee_status}/feed`);
       } else if (payment_module_type === "Admission") {
         const admission_status = await admissionInstituteFunction(
@@ -97,6 +109,12 @@ exports.verifyRazorPayment = async (req, res) => {
           payment_module_id,
           ad_status_id
         );
+        if (isApk) {
+          res.status(200).send({
+            message: "Success with Razorpay Admission 😀",
+            check: true,
+          });
+        }
         res.redirect(
           `${process.env.FRONT_REDIRECT_URL}/q/${admission_status}/feed`
         );
@@ -108,6 +126,12 @@ exports.verifyRazorPayment = async (req, res) => {
           payment_module_id,
           ad_status_id
         );
+        if (isApk) {
+          res.status(200).send({
+            message: "Success with Razorpay Participate 😀",
+            check: true,
+          });
+        }
         res.redirect(
           `${process.env.FRONT_REDIRECT_URL}/q/${participate_status}/feed`
         );
@@ -132,7 +156,7 @@ exports.fetchPaymentHistoryQuery = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "razorpay_order_id payment_module_type payment_amount payment_status created_at"
+        "razorpay_order_id payment_module_type payment_amount payment_status created_at payment_mode payment_invoice_number"
       );
 
     if (order?.length > 0) {

@@ -459,9 +459,6 @@ const instituteAdminSchema = new mongoose.Schema({
   profileURL: {
     type: String,
   },
-  modal_activate: {
-    type: String,
-  },
   activeStatus: {
     type: String,
     default: "Activated",

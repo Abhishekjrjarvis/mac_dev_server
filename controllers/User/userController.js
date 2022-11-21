@@ -12,7 +12,6 @@ const Post = require("../../models/Post");
 const Comment = require("../../models/Comment");
 const ReplyComment = require("../../models/ReplyComment/ReplyComment");
 const AnswerReply = require("../../models/Question/AnswerReply");
-const Chat = require("../../models/Chat/Chat");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 
 const {
@@ -32,7 +31,7 @@ exports.retrieveProfileData = async (req, res) => {
     const { id } = req.params;
     var totalUpVote = 0;
     const user = await User.findById({ _id: id }).select(
-      "userLegalName photoId show_suggestion is_mentor user_block_institute questionCount blockedBy blockCount blockStatus user one_line_about recoveryMail answerQuestionCount recentChat profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
+      "userLegalName photoId show_suggestion is_mentor user_block_institute questionCount blockedBy blockCount blockStatus user one_line_about recoveryMail answerQuestionCount profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
     );
     const answers = await Answer.find({ author: id });
     for (let up of answers) {
@@ -1583,7 +1582,7 @@ exports.retrieveProfileDataUsername = async (req, res) => {
   try {
     var totalUpVote = 0;
     const user = await User.findOne({ userLegalName: username }).select(
-      "userLegalName photoId questionCount answerQuestionCount recentChat profilePhoto user_birth_privacy user_address_privacy user_circle_privacy userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
+      "userLegalName photoId questionCount answerQuestionCount profilePhoto user_birth_privacy user_address_privacy user_circle_privacy userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
     );
     const questionUpVote = await Post.find({ author: user._id });
     for (let up of questionUpVote) {

@@ -938,10 +938,7 @@ exports.reportAccountByEndUser = async (req, res) => {
     res
       .status(200)
       .send({ message: "Thanks for letting us Know", report: true });
-    const users_query = [
-      "6360aa8151d30672ae8cfc3e",
-      "6360b53f51d30672ae8d034f",
-    ];
+    const users_query = [...process.env.REPORT_NOTIFY];
     for (let i = 0; i < users_query?.length; i++) {
       var user = await User.findById({ _id: users_query[i] }).select(
         "deviceToken"

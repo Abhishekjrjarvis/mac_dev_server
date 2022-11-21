@@ -978,3 +978,64 @@
 //     console.log(e);
 //   }
 // };
+
+// var de = {
+//   insName: "Team Hyderabad",
+//   name: 'team_hyd11',
+//   insEmail: 'hyd21@gmail.com',
+//   insPhoneNumber: 7007023972,
+//   insMode: 'Online',
+//   insType: 'College / Polytechnic',
+//   insAddress: '177 A Bleeker Street',
+//   insDistrict: 'Nashik',
+//   insState: 'Maharashtra',
+//   insPincode: 422410
+// }
+// console.log(show_specific_activity(de))
+
+// Payment Modal Initiation
+
+// modal_activate: {
+//     type: String,
+//   },
+
+// setInterval(async () => {
+//     await payment_modal_initiated();
+//   }, 30000);
+
+// exports.payment_modal_initiated = async(req, res) =>{
+//     var v_date = new Date()
+//     var v_day = v_date.getDate()
+//     var v_month = v_date.getMonth() + 1
+//     var v_year = v_date.getFullYear()
+//     if(v_day < 10){
+//         v_day = `0${v_day}`
+//     }
+//     if(v_month < 10){
+//         v_month = `0${v_month}`
+//     }
+//     var date_format = `${v_year}-${v_month}-${v_day}`
+//     try{
+//         const institute = await InstituteAdmin.find({ modal_activate: `${date_format}`})
+//         if(institute.length >= 1){
+//             institute.forEach(async (ele) => {
+//                 ele.accessFeature = 'Locked'
+//                 ele.activateStatus = 'Not Activated'
+//                 await ele.save()
+//             })
+//         }
+//         else{
+
+//         }
+//     }
+//     catch{
+
+//     }
+// }
+
+// Chat & Message Part
+
+// const chatNew = require("./routes/Chat/chatRoute");
+// const messageNew = require("./routes/Chat/messageRoute");
+// app.use("/api/v1/chat", chatNew);
+// app.use("/api/v1/message", messageNew);

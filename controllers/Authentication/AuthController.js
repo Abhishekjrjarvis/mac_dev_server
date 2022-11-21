@@ -16,7 +16,6 @@ const axios = require("axios");
 const jwt = require("jsonwebtoken");
 const payment_modal_activate = require("./AuthFunction");
 const Referral = require("../../models/QCoins/Referral");
-const SupportChat = require("../../models/Chat/SupportChat");
 const QRCode = require("qrcode");
 const moment = require("moment");
 const invokeSpecificRegister = require("../../Firebase/specific");
@@ -85,20 +84,6 @@ const show_specific_activity = async (query) => {
   }
 };
 
-// var de = {
-//   insName: "Team Hyderabad",
-//   name: 'team_hyd11',
-//   insEmail: 'hyd21@gmail.com',
-//   insPhoneNumber: 7007023972,
-//   insMode: 'Online',
-//   insType: 'College / Polytechnic',
-//   insAddress: '177 A Bleeker Street',
-//   insDistrict: 'Nashik',
-//   insState: 'Maharashtra',
-//   insPincode: 422410
-// }
-// console.log(show_specific_activity(de))
-
 exports.getRegisterIns = async (req, res) => {
   try {
     const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
@@ -133,7 +118,7 @@ exports.getRegisterIns = async (req, res) => {
         institute.photoId = "1";
         institute.coverId = "2";
         institute.profileURL = `https://qviple.com/q/${institute.name}/profile`;
-        institute.modal_activate = payment_modal_activate();
+        // institute.modal_activate = payment_modal_activate();
         institute.next_date = `${new Date().getFullYear()}-${
           new Date().getMonth() + 1 < 10
             ? `0${new Date().getMonth() + 1}`

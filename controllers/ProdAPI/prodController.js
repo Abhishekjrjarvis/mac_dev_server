@@ -34,7 +34,7 @@ exports.allPolls = async (req, res) => {
   try {
     // const { query } = req.query
     const poll = await InstituteAdmin.find({})
-      .select("id activateStatus accessFeature unlockAmount")
+      .select("id staffFormSetting studentFormSetting")
       .lean()
       .exec();
     res
@@ -158,4 +158,20 @@ exports.rewardProfileAdsQuery = async (req, res) => {
   } catch (e) {
     console.log(e);
   }
+};
+
+exports.oneInstitute = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const ins = await InstituteAdmin.findById({ _id: id });
+    res.status(200).send({ message: "One Institute ", one_ins: ins });
+  } catch {}
+};
+
+exports.oneUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById({ _id: id });
+    res.status(200).send({ message: "One User ", one_user: user });
+  } catch {}
 };

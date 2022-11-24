@@ -241,7 +241,7 @@ router.patch(
 router.patch(
   "/report/block/institute",
   isLoggedIn,
-  catchAsync(User.retrieveUserReportBlock)
+  catchAsync(User.retrieveUserReportBlockIns)
 );
 
 router.patch(

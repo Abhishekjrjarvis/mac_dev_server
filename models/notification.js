@@ -7,7 +7,7 @@ const notificationSchema = new mongoose.Schema({
   notifyReceiever: { type: String, required: true },
   notifyReadStatus: { type: String, default: "Unread" },
   notifyVisibility: { type: String, default: "Unhide" },
-  notifyViewStatus: { type: String, default: 'Not View'},
+  notifyViewStatus: { type: String, default: "Not View" },
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -43,12 +43,16 @@ const notificationSchema = new mongoose.Schema({
   notifyBySuperAdminPhoto: {
     type: String,
   },
+  notifyByManageAdminPhoto: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "ManageAdmin",
+  },
   reminderIndex: {
-    type: Number
+    type: Number,
   },
   notifyCategory: { type: String },
   notify_hi_content: { type: String },
-  notify_mr_content: { type: String }
+  notify_mr_content: { type: String },
 });
 
 module.exports = mongoose.model("Notification", notificationSchema);

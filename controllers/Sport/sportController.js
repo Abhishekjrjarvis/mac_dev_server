@@ -135,7 +135,7 @@ exports.retrieveSportDetailClass = async (req, res) => {
       .sort("-createdAt")
       .limit(limit)
       .skip(skip)
-      .select("sportClassName");
+      .select("sportClassName photoId coverId photo cover");
 
     if (classes?.length > 0) {
       res
@@ -1287,7 +1287,7 @@ exports.renderStudentSideClass = async (req, res) => {
       .sort("-createdAt")
       .limit(limit)
       .skip(skip)
-      .select("sportClassName photoId photo")
+      .select("sportClassName photoId photo coverId cover")
       .populate({
         path: "sportClassHead",
         select:

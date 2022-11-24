@@ -1890,7 +1890,7 @@ exports.updateUserUnBlockInstitute = async (req, res) => {
   }
 };
 
-exports.retrieveUserReportBlock = async (req, res) => {
+exports.retrieveUserReportBlockIns = async (req, res) => {
   try {
     var user_session = req.tokenData && req.tokenData.userId;
     const { blockId } = req.query;
@@ -1910,10 +1910,10 @@ exports.retrieveUserReportBlock = async (req, res) => {
         .status(200)
         .send({ message: "Not able to block Universal A/c", unblock: false });
     } else {
-      if (flag) {
+      if (!flag) {
         if (user?.user_block_institute?.includes(`${block_ins._id}`)) {
           res.status(200).send({
-            message: "You are Already Blocked able to follow / circle ",
+            message: "You are Already Blocked not able to follow / circle ",
           });
         } else {
           user.user_block_institute.push(block_ins._id);

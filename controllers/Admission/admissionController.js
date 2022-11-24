@@ -26,6 +26,7 @@ const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const {
   new_admission_recommend_post,
 } = require("../../Service/AutoRefreshBackend");
+const BusinessTC = require("../../models/Finance/BToC");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
@@ -237,8 +238,8 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
     const { expand } = req.query;
     req.body.admissionFee = parseInt(req.body.admissionFee);
     req.body.applicationSeats = parseInt(req.body.applicationSeats);
-    const admission = await Admission.findById({ _id: aid });
-    const institute = await InstituteAdmin.findById({
+    var admission = await Admission.findById({ _id: aid });
+    var institute = await InstituteAdmin.findById({
       _id: `${admission.institute}`,
     });
     const newApply = new NewApplication({ ...req.body });
@@ -596,10 +597,10 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     const admission = await Admission.findById({
       _id: `${apply.admissionAdmin}`,
     });
-    const institute = await InstituteAdmin.findById({
+    var institute = await InstituteAdmin.findById({
       _id: `${admission.institute}`,
     });
-    const finance = await Finance.findById({
+    var finance = await Finance.findById({
       _id: `${institute.financeDepart[0]}`,
     });
     const student = await Student.findById({ _id: sid });
@@ -679,6 +680,17 @@ exports.payOfflineAdmissionFee = async (req, res) => {
         user._id,
         user.deviceToken
       );
+      if (apply?.gstSlab > 0) {
+        var business_data = new BusinessTC({});
+        business_data.b_to_c_month = new Date().toISOString();
+        business_data.b_to_c_i_slab = parseInt(apply?.gstSlab) / 2;
+        business_data.b_to_c_s_slab = parseInt(apply?.gstSlab) / 2;
+        business_data.finance = finance._id;
+        business_data.b_to_c_name = "Admission Fees";
+        finance.gst_format.b_to_c.push(business_data?._id);
+        business_data.b_to_c_total_amount = price;
+        await Promise.all([finance.save(), business_data.save()]);
+      }
     }
   } catch (e) {
     console.log(e);
@@ -1020,8 +1032,8 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     );
     var institute = await InstituteAdmin.findById({
       _id: `${admin_ins.institute}`,
-    }).select("insName financeDepart");
-    const finance = await Finance.findById({
+    }).select("insName financeDepart gstSlab");
+    var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
     var user = await User.findById({ _id: `${student.user}` }).select(
@@ -1093,6 +1105,17 @@ exports.paidRemainingFeeStudent = async (req, res) => {
         }
       });
       await apply.save();
+    }
+    if (apply?.gstSlab > 0) {
+      var business_data = new BusinessTC({});
+      business_data.b_to_c_month = new Date().toISOString();
+      business_data.b_to_c_i_slab = parseInt(apply?.gstSlab) / 2;
+      business_data.b_to_c_s_slab = parseInt(apply?.gstSlab) / 2;
+      business_data.finance = finance._id;
+      business_data.b_to_c_name = "Admission Fees";
+      finance.gst_format.b_to_c.push(business_data?._id);
+      business_data.b_to_c_total_amount = price;
+      await Promise.all([finance.save(), business_data.save()]);
     }
   } catch (e) {
     console.log(e);

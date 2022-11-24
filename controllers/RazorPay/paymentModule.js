@@ -15,6 +15,7 @@ const StudentNotification = require("../../models/Marks/StudentNotification");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const Department = require("../../models/Department");
 const Participate = require("../../models/ParticipativeEvent/participate");
+const BusinessTC = require("../../models/Finance/BToC");
 
 exports.unlockInstituteFunction = async (order, paidBy, tx_amounts) => {
   try {
@@ -67,6 +68,7 @@ exports.feeInstituteFunction = async (order, paidBy, tx_amount, moduleId) => {
     const user = await User.findById({
       _id: `${finance.financeHead.user}`,
     });
+    const orderPay = await OrderPayment.findById({ _id: order });
     const classes = await Class.findById({ _id: `${student.studentClass}` });
     const fData = await Fees.findById({ _id: moduleId });
     const checklistData = await Checklist.findById({ _id: moduleId });
@@ -123,6 +125,17 @@ exports.feeInstituteFunction = async (order, paidBy, tx_amount, moduleId) => {
           });
           studentUser.payment_history.push(order);
           institute.payment_history.push(order);
+          orderPay.payment_fee = fData._id;
+          if (fData.gstSlab > 0) {
+            var business_data = new BusinessTC({});
+            business_data.b_to_c_month = new Date().toISOString();
+            business_data.b_to_c_i_slab = parseInt(fData?.gstSlab) / 2;
+            business_data.b_to_c_s_slab = parseInt(fData?.gstSlab) / 2;
+            business_data.finance = finance._id;
+            finance.gst_format.b_to_c.push(business_data?._id);
+            business_data.b_to_c_total_amount = parseInt(tx_amount);
+            await business_data.save();
+          }
           await Promise.all([
             student.save(),
             fData.save(),
@@ -133,6 +146,7 @@ exports.feeInstituteFunction = async (order, paidBy, tx_amount, moduleId) => {
             admin.save(),
             classes.save(),
             studentUser.save(),
+            orderPay.save(),
           ]);
         } catch (e) {
           console.log(e);
@@ -189,6 +203,17 @@ exports.feeInstituteFunction = async (order, paidBy, tx_amount, moduleId) => {
           notify.notifyByStudentPhoto = student._id;
           studentUser.payment_history.push(order);
           institute.payment_history.push(order);
+          orderPay.payment_checklist = checklistData._id;
+          if (checklistData.gstSlab > 0) {
+            var business_data = new BusinessTC({});
+            business_data.b_to_c_month = new Date().toISOString();
+            business_data.b_to_c_i_slab = parseInt(checklistData?.gstSlab) / 2;
+            business_data.b_to_c_s_slab = parseInt(checklistData?.gstSlab) / 2;
+            business_data.finance = finance._id;
+            finance.gst_format.b_to_c.push(business_data?._id);
+            business_data.b_to_c_total_amount = parseInt(tx_amount);
+            await business_data.save();
+          }
           await Promise.all([
             student.save(),
             checklistData.save(),
@@ -198,6 +223,7 @@ exports.feeInstituteFunction = async (order, paidBy, tx_amount, moduleId) => {
             notify.save(),
             admin.save(),
             studentUser.save(),
+            orderPay.save(),
           ]);
         } catch (e) {
           console.log(e);
@@ -221,6 +247,7 @@ exports.admissionInstituteFunction = async (
     const student = await Student.findById({ _id: paidBy });
     const user = await User.findById({ _id: `${student.user}` });
     const apply = await NewApplication.findById({ _id: moduleId });
+    const orderPay = await OrderPayment.findById({ _id: order });
     const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const admission = await Admission.findById({
       _id: `${apply.admissionAdmin}`,
@@ -235,6 +262,17 @@ exports.admissionInstituteFunction = async (
     const status = await Status.findById({ _id: statusId });
     const aStatus = new Status({});
     const notify = new Notification({});
+    if (apply?.gstSlab > 0) {
+      var business_data = new BusinessTC({});
+      business_data.b_to_c_month = new Date().toISOString();
+      business_data.b_to_c_i_slab = parseInt(apply?.gstSlab) / 2;
+      business_data.b_to_c_s_slab = parseInt(apply?.gstSlab) / 2;
+      business_data.b_to_c_name = "Admission Fees";
+      business_data.finance = finance._id;
+      finance.gst_format.b_to_c.push(business_data?._id);
+      business_data.b_to_c_total_amount = parseInt(tx_amount_ad);
+      await business_data.save();
+    }
     student.admissionPaymentStatus.push({
       applicationId: apply._id,
       status: "online",
@@ -297,6 +335,7 @@ exports.admissionInstituteFunction = async (
     notify.user = user._id;
     notify.notifyByStudentPhoto = student._id;
     ins.payment_history.push(order);
+    orderPay.payment_admission = apply._id;
     await Promise.all([
       student.save(),
       user.save(),
@@ -308,6 +347,7 @@ exports.admissionInstituteFunction = async (
       aStatus.save(),
       admission.save(),
       notify.save(),
+      orderPay.save(),
     ]);
     return `${user?.username}`;
   } catch (e) {
@@ -327,6 +367,7 @@ exports.participateEventFunction = async (
     const user = await User.findById({ _id: `${student.user}` });
     const event = await Participate.findById({ _id: moduleId });
     const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const orderPay = await OrderPayment.findById({ _id: order });
     const depart = await Department.findById({ _id: `${event.department}` });
     const ins = await InstituteAdmin.findById({ _id: `${depart.institute}` });
     const finance = await Finance.findById({
@@ -365,6 +406,7 @@ exports.participateEventFunction = async (
     student.notification.push(notify._id);
     user.payment_history.push(order);
     ins.payment_history.push(order);
+    orderPay.payment_participate = event._id;
     await Promise.all([
       student.save(),
       user.save(),
@@ -375,6 +417,7 @@ exports.participateEventFunction = async (
       status.save(),
       depart.save(),
       notify.save(),
+      orderPay.save(),
     ]);
     invokeMemberTabNotification(
       "Student Activity",

@@ -47,6 +47,30 @@ const orderPaymentSchema = new mongoose.Schema({
   payment_flag_to: {
     type: String,
   },
+  payment_income: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Income",
+  },
+  payment_expense: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Expense",
+  },
+  payment_admission: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "NewApplication",
+  },
+  payment_fee: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Fees",
+  },
+  payment_checklist: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Checklist",
+  },
+  payment_participate: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Participate",
+  },
 });
 
 module.exports = mongoose.model("OrderPayment", orderPaymentSchema);

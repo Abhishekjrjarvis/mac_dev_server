@@ -17,6 +17,7 @@ const HashTag = require("../../models/HashTag/hashTag");
 
 const Library = require("../../models/Library/Library");
 const { shuffleArray } = require("../../Utilities/Shuffle");
+const HashTag = require("../../models/HashTag/hashTag");
 
 exports.searchUserUniversalWeb = async (req, res) => {
   try {
@@ -140,10 +141,6 @@ exports.searchUserUniversalWeb = async (req, res) => {
           ];
           var universalArrayUser = shuffleArray(mergeArray);
           res.status(200).send({
-            allInstitutes,
-            users,
-            allMentors,
-            allHashtag,
             universalArrayUser,
           });
         }

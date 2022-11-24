@@ -1331,7 +1331,7 @@ exports.retrieveNewClass = async (req, res) => {
         classes: classRoom._id,
       });
       classRoom.department = depart._id;
-      notify.notifyContent = `you got the designation of ${classRoom.className} as ${classRoom.classTitle}`;
+      notify.notifyContent = `you got the designation of ${classRoom.className} as ${classRoom.classHeadTitle}`;
       notify.notifySender = id;
       notify.notifyReceiever = user._id;
       user.uNotify.push(notify._id);
@@ -1414,7 +1414,7 @@ exports.retrieveNewSubject = async (req, res) => {
       subjects: subject._id,
     });
     subject.subjectTeacherName = staff._id;
-    notify.notifyContent = `you got the designation of ${subject.subjectName} as ${subject.subjectTitle}`;
+    notify.notifyContent = `you got the designation of ${subject.subjectName} of ${classes.classTitle} as ${subject.subjectTitle}`;
     notify.notifySender = id;
     notify.notifyReceiever = user._id;
     user.uNotify.push(notify._id);

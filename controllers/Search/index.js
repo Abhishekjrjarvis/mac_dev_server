@@ -13,6 +13,8 @@ const SportClass = require("../../models/SportClass");
 const Checklist = require("../../models/Checklist");
 const Fees = require("../../models/Fees");
 const Batch = require("../../models/Batch");
+const HashTag = require("../../models/HashTag/hashTag");
+
 const Library = require("../../models/Library/Library");
 const { shuffleArray } = require("../../Utilities/Shuffle");
 
@@ -276,10 +278,6 @@ exports.searchInstituteUniversalWeb = async (req, res) => {
           ];
           var universalArray = shuffleArray(mergeArray);
           res.status(200).send({
-            allInstitutes,
-            departments,
-            staff,
-            students,
             universalArray,
           });
         }

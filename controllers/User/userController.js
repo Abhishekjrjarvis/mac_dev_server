@@ -1581,7 +1581,9 @@ exports.retrieveUserApplicationStatus = async (req, res) => {
 exports.retrieveProfileDataUsername = async (req, res) => {
   try {
     var totalUpVote = 0;
-    const user = await User.findOne({ userLegalName: username }).select(
+    const user = await User.findOne({
+      username: req.params.username,
+    }).select(
       "userLegalName photoId questionCount answerQuestionCount profilePhoto user_birth_privacy user_address_privacy user_circle_privacy userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
     );
     const questionUpVote = await Post.find({ author: user._id });

@@ -567,6 +567,37 @@ exports.saveTestSet = async (req, res) => {
   }
 };
 
+exports.editSaveTestSet = async (req, res) => {
+  try {
+    if (!req.params.tsid) throw "Please send to test set id perform task";
+    const testset = await SubjectMasterTestSet.findById(req.params.tsid);
+    testset.testName = req.body?.testName;
+    testset.testTotalQuestion = req.body?.testTotalQuestion;
+    testset.testTotalNumber = req.body?.testTotalNumber;
+    for (let questId of req.body?.deletedQuestions) {
+      if (testset.questions?.includes(questId)) {
+        const que = await SubjectQuestion.findById(questId);
+        que.assignTestSet.pull(testset._id);
+        await que.save();
+        testset.questions.pull(questId);
+      }
+    }
+    for (let questId of req.body?.questions) {
+      if (!testset.questions?.includes(questId)) {
+        const que = await SubjectQuestion.findById(questId);
+        que.assignTestSet.push(testset._id);
+        await que.save();
+        testset.questions.push(questId);
+      }
+    }
+    await testset.save();
+    res.status(201).send({ message: "test set is edited" });
+  } catch (e) {
+    res.status(200).send({ message: e });
+    console.log(e);
+  }
+};
+
 exports.allSaveTestSet = async (req, res) => {
   try {
     if (req.query?.ucmid && req.query?.usmid) {

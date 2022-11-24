@@ -47,10 +47,10 @@ router
   .route("/question/:smid/testset/:cmid")
   .get(catchAsync(mcqController.allSaveTestSet))
   .post(catchAsync(mcqController.saveTestSet));
-
 router
   .route("/testset/:tsid/detail")
-  .get(catchAsync(mcqController.oneTestSetDetail));
+  .get(catchAsync(mcqController.oneTestSetDetail))
+  .patch(catchAsync(mcqController.editSaveTestSet));
 
 router
   .route("/subject/:sid/take/testset")

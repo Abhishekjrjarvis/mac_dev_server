@@ -58,6 +58,7 @@ const election = require("./routes/Election/electionRoute");
 const participate = require("./routes/ParticipativeEvent/participateRoute");
 const checkout = require("./routes/RazorPay/payCheckoutRoute");
 const hashtag = require("./routes/HashTag/hashtagRoute");
+const manage = require("./routes/ManageAdmin/manageRoute");
 
 // ============================= DB Configuration ==============================
 
@@ -180,6 +181,7 @@ app.use("/api/v1/election/event", election);
 app.use("/api/v1/participate/event", participate);
 app.use("/api/v1/pay", checkout);
 app.use("/api/v1/hashtag", hashtag);
+app.use("/api/v1/manage/admin", manage);
 
 app.use("/api/v1/prod/access", prod);
 

@@ -4,11 +4,10 @@ const User = require("../../models/User");
 const Department = require("../../models/Department");
 const Class = require("../../models/Class");
 const Notification = require("../../models/notification");
-const StudentNotification = require('../../models/Marks/StudentNotification')
-const InstituteAdmin = require('../../models/InstituteAdmin')
-const Finance = require('../../models/Finance')
-const invokeMemberTabNotification = require('../../Firebase/MemberTab')
-
+const StudentNotification = require("../../models/Marks/StudentNotification");
+const InstituteAdmin = require("../../models/InstituteAdmin");
+const Finance = require("../../models/Finance");
+const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 
 exports.viewDepartment = async (req, res) => {
   const department = await Department.findById(req.params.did);
@@ -39,10 +38,11 @@ exports.createChecklist = async (req, res) => {
   try {
     const { did } = req.params;
     const { ClassId } = req.body;
-    const department = await Department.findById({ _id: did })
-    .select('institute checklists ApproveStudent')
+    const department = await Department.findById({ _id: did }).select(
+      "institute checklists ApproveStudent"
+    );
 
-    var check = new Checklist(req.body);
+    var check = new Checklist({ ...req.body });
     department.checklists.push(check._id);
     check.checklistDepartment = department._id;
 
@@ -63,13 +63,13 @@ exports.createChecklist = async (req, res) => {
       const user = await User.findById({ _id: `${student.user._id}` });
       const notify = new StudentNotification({});
       notify.notifyContent = `New ${check.checklistName} (checklist) has been created. check your member's Tab`;
-      notify.notify_hi_content = `नवीन ${check.checklistName} बनाई गई है। अपना सदस्य टैब देखे |`
-      notify.notify_mr_content = `नवीन ${check.checklistName} तयार केली आहे. तुमच्या सदस्याचा टॅब तपासा.`
+      notify.notify_hi_content = `नवीन ${check.checklistName} बनाई गई है। अपना सदस्य टैब देखे |`;
+      notify.notify_mr_content = `नवीन ${check.checklistName} तयार केली आहे. तुमच्या सदस्याचा टॅब तपासा.`;
       notify.notifySender = did;
       notify.notifyReceiever = user._id;
-      notify.notifyType = 'Student'
-      notify.notifyPublisher = student._id
-      notify.checklistId = check._id
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student._id;
+      notify.checklistId = check._id;
       user.activity_tab.push(notify._id);
       notify.notifyByDepartPhoto = department._id;
       notify.notifyCategory = "Checklist";
@@ -78,10 +78,10 @@ exports.createChecklist = async (req, res) => {
       invokeMemberTabNotification(
         "Student Activity",
         notify,
-        'New Checklist',
+        "New Checklist",
         user._id,
         user.deviceToken,
-        'Student',
+        "Student",
         notify
       );
       //
@@ -91,19 +91,23 @@ exports.createChecklist = async (req, res) => {
     //
     for (let i = 0; i < ClassId.length; i++) {
       const classes = await Class.findById({ _id: ClassId[i] });
-      const student = await Student.find({ studentClass: `${classes._id}`})
+      const student = await Student.find({ studentClass: `${classes._id}` });
       student.forEach(async (st) => {
-        st.studentRemainingFeeCount += check.checklistAmount
-        await st.save()
-      })
+        st.studentRemainingFeeCount += check.checklistAmount;
+        await st.save();
+      });
     }
-    const institute = await InstituteAdmin.findById({_id: `${department.institute}`}).select('financeDepart')
-    const finance = await Finance.findById({_id: `${institute.financeDepart[0]}`})
-    finance.financeRaisedBalance += check.checklistAmount
-    await finance.save()
+    const institute = await InstituteAdmin.findById({
+      _id: `${department.institute}`,
+    }).select("financeDepart");
+    const finance = await Finance.findById({
+      _id: `${institute.financeDepart[0]}`,
+    });
+    finance.financeRaisedBalance += check.checklistAmount;
+    await Promise.all([finance.save()]);
     //
-  } catch(e) {
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
 };
 

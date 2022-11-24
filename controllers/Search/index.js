@@ -15,6 +15,7 @@ const Fees = require("../../models/Fees");
 const Batch = require("../../models/Batch");
 const Library = require("../../models/Library/Library");
 const { shuffleArray } = require("../../Utilities/Shuffle");
+const HashTag = require("../../models/HashTag/hashTag");
 
 exports.searchUserUniversalWeb = async (req, res) => {
   try {

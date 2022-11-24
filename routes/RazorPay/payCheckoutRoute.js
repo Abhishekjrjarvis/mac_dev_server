@@ -8,6 +8,8 @@ router.post("/checkout", Razor.checkoutRazorPayment);
 
 router.post("/verify", Razor.verifyRazorPayment);
 
-router.get("/history", Razor.fetchPaymentHistoryQuery);
+router.get("/history/by", Razor.fetchPaymentHistoryQueryBy);
+
+router.get("/history/to", Razor.fetchPaymentHistoryQueryTo);
 
 module.exports = router;

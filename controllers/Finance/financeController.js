@@ -18,6 +18,7 @@ const Payroll = require("../../models/Finance/Payroll");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
+const BusinessTC = require("../../models/Finance/BToC");
 
 exports.getFinanceDepart = async (req, res) => {
   try {
@@ -252,6 +253,7 @@ exports.getIncome = async (req, res) => {
     order.payment_status = "Captured";
     order.payment_flag_to = "Credit";
     order.payment_mode = incomes.incomeAccount;
+    order.payment_income = incomes._id;
     f_user.payment_history.push(order._id);
     order.payment_invoice_number += 1;
     if (req.body?.user) {
@@ -273,7 +275,9 @@ exports.getIncome = async (req, res) => {
         finance.financeIncomeBankBalance + incomes.incomeAmount;
       finance.financeTotalBalance += incomes.incomeAmount;
     }
-    finance.gst_format.liability.push(incomes._id);
+    if (incomes?.gstSlab > 0) {
+      finance.gst_format.liability.push(incomes._id);
+    }
     await Promise.all([
       finance.save(),
       incomes.save(),
@@ -333,6 +337,7 @@ exports.getExpense = async (req, res) => {
       order.payment_flag_by = "Debit";
       order.payment_mode = expenses.expenseAccount;
       order.payment_invoice_number += 1;
+      order.payment_expense = expenses._id;
       f_user.payment_history.push(order._id);
       if (req.body?.user) {
         expenses.expensePaidUser = user._id;
@@ -357,7 +362,9 @@ exports.getExpense = async (req, res) => {
           finance.financeTotalBalance -= expenses.expenseAmount;
         }
       }
-      finance.gst_format.input_tax_credit.push(expenses._id);
+      if (expenses?.gstSlab > 0) {
+        finance.gst_format.input_tax_credit.push(expenses._id);
+      }
       await Promise.all([
         finance.save(),
         expenses.save(),
@@ -1271,7 +1278,7 @@ exports.retrieveAllGSTIncome = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "incomeAmount gst_number gst_slab createdAt invoice_number incomeAccount incomeFrom"
+        "incomeAmount gst_number gstSlab createdAt invoice_number incomeAccount incomeFrom"
       )
       .populate({
         path: "incomeFromUser",
@@ -1307,7 +1314,7 @@ exports.retrieveAllGSTInputTax = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "expenseAmount gst_number gst_slab createdAt expenseAccount expensePaid"
+        "expenseAmount gst_number gstSlab createdAt expenseAccount expensePaid"
       )
       .populate({
         path: "expensePaidUser",
@@ -1330,20 +1337,142 @@ exports.retrieveAllGSTInputTax = async (req, res) => {
   } catch {}
 };
 
-// exports.retrievePaymentChargesQuery = async(req, res) => {
-//   try{
-//     const { fid } = req.params
-//     const finance = await Finance.findById({_id: fid})
-//     .select('id payment_gateway_charges')
-//     .lean()
-//     if(finance?.payment_gateway_charges?.length >= 1){
-//       res.status(200).send({ message: 'charges', charges: finance})
-//     }
-//     else{
-//       res.status(200).send({ message: 'charges', charges: [] })
-//     }
-//   }
-//   catch(e){
-//     console.log(e)
-//   }
-// }
+exports.retrieveAllBToCQuery = async (req, res) => {
+  try {
+    var business = [];
+    await BusinessTC.aggregate(
+      [
+        { $match: { finance: req.params.fid, b_to_c_name: "Internal Fees" } },
+        {
+          $project: {
+            _id: 1,
+            year: { $year: "$b_to_c_month" },
+            monthly: { $month: "$b_to_c_month" },
+            b_to_c_total_amount: 1,
+            name: { $toLower: "$b_to_c_name" },
+            igst: { $floor: "$b_to_c_i_slab" },
+            sgst: { $floor: "$b_to_c_s_slab" },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              monthly: "$monthly",
+              year: "$year",
+              name: "$name",
+              igst: "$igst",
+              sgst: "$sgst",
+            },
+            sum: { $sum: "$b_to_c_total_amount" },
+          },
+        },
+      ],
+      function (err, result) {
+        business.push(...result);
+      }
+    );
+    await BusinessTC.aggregate(
+      [
+        { $match: { finance: req.params.fid, b_to_c_name: "Admission Fees" } },
+        {
+          $project: {
+            _id: 1,
+            year: { $year: "$b_to_c_month" },
+            monthly: { $month: "$b_to_c_month" },
+            b_to_c_total_amount: 1,
+            name: { $toLower: "$b_to_c_name" },
+            igst: { $floor: "$b_to_c_i_slab" },
+            sgst: { $floor: "$b_to_c_s_slab" },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              monthly: "$monthly",
+              year: "$year",
+              name: "$name",
+              igst: "$igst",
+              sgst: "$sgst",
+            },
+            sum: { $sum: "$b_to_c_total_amount" },
+          },
+        },
+      ],
+      function (err, result) {
+        business.push(...result);
+      }
+    );
+    if (business?.length <= 0) {
+      res.status(200).send({
+        message: "No Business to customer 😡",
+        bToC: [],
+        status: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "All Business to customer 😀",
+        bToC: business,
+        status: true,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveAllBToCQueryArray = async (req, res) => {
+  try {
+    const { month, year } = req.query;
+    var l_month = 0;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { fid } = req.params;
+    var finance = await Finance.findById({ _id: fid }).select("gst_format");
+    if (month && year) {
+      if (parseInt(month) < 12) {
+        l_month = parseInt(month) + 1;
+      } else {
+        l_month = 01;
+      }
+      const allBusiness = await BusinessTC.find({
+        $and: [
+          { _id: { $in: finance?.gst_format?.b_to_c } },
+          {
+            createdAt: {
+              $gte: new Date(`${year}-${month}-01`),
+              $lt: new Date(`${year}-${l_month}-01`),
+            },
+          },
+        ],
+      })
+        .sort("-createdAt")
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "b_to_c_total_amount b_to_c_month b_to_c_i_slab b_to_c_s_slab b_to_c_name createdAt"
+        );
+
+      if (allBusiness?.length > 0) {
+        res.status(200).send({
+          message: "All Monthly Business to Customer 😀",
+          all: allBusiness,
+          status: true,
+        });
+      } else {
+        res.status(200).send({
+          message: "No Monthly Business to Customer 🔍",
+          all: [],
+          status: false,
+        });
+      }
+    } else {
+      res.status(200).send({
+        message: "No Month, Year Query Data available 😡",
+        status: false,
+      });
+    }
+  } catch (e) {
+    // console.log(e);
+  }
+};

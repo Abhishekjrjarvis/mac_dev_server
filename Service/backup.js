@@ -1039,3 +1039,97 @@
 // const messageNew = require("./routes/Chat/messageRoute");
 // app.use("/api/v1/chat", chatNew);
 // app.use("/api/v1/message", messageNew);
+
+// const bus = () => {
+//   var data = [
+//     {
+//       b_to_c_name: "Internal Fees",
+//       b_to_c_name: "2022-10-22T00:00:00.000Z",
+//       b_to_c_total_amount: 62,
+//       b_to_c_i_slab: 5,
+//       b_to_c_s_slab: 5,
+//     },
+//     {
+//       b_to_c_name: "Internal Fees",
+//       b_to_c_month: "2022-09-22T00:00:00.000Z",
+//       b_to_c_total_amount: 89,
+//       b_to_c_i_slab: 5,
+//       b_to_c_s_slab: 5,
+//     },
+//     {
+//       b_to_c_name: "Internal Fees",
+//       b_to_c_month: "2022-09-02T00:00:00.000Z",
+//       b_to_c_total_amount: 69,
+//       b_to_c_i_slab: 5,
+//       b_to_c_s_slab: 5,
+//     },
+//     {
+//       b_to_c_name: "Admission Fees",
+//       b_to_c_month: "2022-10-22T00:00:00.000Z",
+//       b_to_c_total_amount: 60,
+//       b_to_c_i_slab: 5,
+//       b_to_c_s_slab: 5,
+//     },
+//   ];
+//   data?.forEach(async (ele) => {
+//     const bt = new BusinessTC({ ...ele });
+//     await bt.save();
+//   });
+//   return true;
+// };
+
+// console.log(bus());
+
+// exports.retrievePaymentChargesQuery = async(req, res) => {
+//   try{
+//     const { fid } = req.params
+//     const finance = await Finance.findById({_id: fid})
+//     .select('id payment_gateway_charges')
+//     .lean()
+//     if(finance?.payment_gateway_charges?.length >= 1){
+//       res.status(200).send({ message: 'charges', charges: finance})
+//     }
+//     else{
+//       res.status(200).send({ message: 'charges', charges: [] })
+//     }
+//   }
+//   catch(e){
+//     console.log(e)
+//   }
+// }
+
+// ,
+// filter_finance: [
+//   {
+//     year: { type: String },
+//     data: [
+//       {
+//         month: { type: String },
+//         financeTotal: { type: Number, default: 0 },
+//         financeSubmit: { type: Number, default: 0 },
+//         financeCollected: { type: Number, default: 0 },
+//         financeBank: { type: Number, default: 0 },
+//         financeRaised: { type: Number, default: 0 },
+//         financeIncomeCash: { type: Number, default: 0 },
+//         financeExpenseCash: { type: Number, default: 0 },
+//         financeIncomeBank: { type: Number, default: 0 },
+//         financeExpenseBank: { type: Number, default: 0 },
+//         financeExempt: { type: Number, default: 0 },
+//       }
+//     ]
+//   }
+// ]
+
+// const all_data = (r1, f1, c1) => {
+//     const found_re1 = r1.filter((r) => !f1.includes(r));
+//     const found_re2 = r1.filter((r) => !c1.includes(r));
+//     const found_re3 = found_re1.filter((r) => found_re2.includes(r));
+//     const unique_follow = [...new Set(found_re3)];
+//     return unique_follow;
+//   };
+
+//   var rec_data = ["1", "2", "3", "4", "6", "8", "7", "1"];
+//   var rec_fol = ["2", "7"];
+//   var rec_cir = ["3", "4", "8"];
+//   // 6, 1,
+//   console.log(all_data(rec_data, rec_fol, rec_cir));

@@ -67,6 +67,10 @@ const feeSchema = new mongoose.Schema({
       ref: "Student",
     },
   ],
+  gstSlab: { type: Number, default: 0 },
+  gst_number: { type: String },
+  business_name: { type: String },
+  business_address: { type: String },
 });
 
 const Fees = mongoose.model("Fees", feeSchema);

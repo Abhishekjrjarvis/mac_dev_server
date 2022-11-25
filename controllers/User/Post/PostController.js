@@ -4,6 +4,7 @@ const Comment = require("../../../models/Comment");
 const InstituteAdmin = require("../../../models/InstituteAdmin");
 const ReplyComment = require("../../../models/ReplyComment/ReplyComment");
 const Poll = require("../../../models/Question/Poll");
+const Answer = require("../../../models/Question/Answer");
 const Notification = require("../../../models/notification");
 const {
   uploadPostImageFile,

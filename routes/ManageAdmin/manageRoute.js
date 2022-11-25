@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Manage = require("../../controllers/ManageAdmin/manageController");
 const catchAsync = require("../../Utilities/catchAsync");
-const { isLoggedIn } = require("../../middleware");
+const { isLoggedIn, isLimit } = require("../../middleware");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 
@@ -12,16 +12,23 @@ router.post(
   catchAsync(Manage.renderAdministrator)
 );
 
+router.post("/new/password", catchAsync(Manage.renderAdministratorPassword));
+
+router.post(
+  "/login",
+  isLimit,
+  catchAsync(Manage.renderAdministratorAuthentication)
+);
+
 router.get("/:mid/query", catchAsync(Manage.renderAdministratorQuery));
+// Send Notify
+router.post("/:mid/add", catchAsync(Manage.renderAdministratorAddInstitute));
 
-// router.patch("/follow", isLoggedIn, catchAsync(HashTag.followHashtag));
+router.post("/:mid/status", catchAsync(Manage.renderAdministratorStatus));
 
-// router.get("/all/array", catchAsync(HashTag.arrayHashtag));
-
-// router.patch(
-//   "/:hid/update",
-//   upload.single("file"),
-//   catchAsync(HashTag.updateHashtag)
-// );
+router.get(
+  "/:mid/all/ins/query",
+  catchAsync(Manage.renderAdministratorAllInsQuery)
+);
 
 module.exports = router;

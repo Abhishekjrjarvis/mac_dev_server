@@ -622,6 +622,12 @@ const instituteAdminSchema = new mongoose.Schema({
       ref: "OrderPayment",
     },
   ],
+  affiliation_by: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ManageAdmin",
+    },
+  ],
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

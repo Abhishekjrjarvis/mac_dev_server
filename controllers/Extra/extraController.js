@@ -136,7 +136,7 @@ exports.retrieveBonafideGRNO = async (req, res) => {
           "insName insAddress insState insDistrict insPhoneNumber insPincode photoId insProfilePhoto",
       });
     const institute = await InstituteAdmin.findById({
-      _id: `${student.institute}`,
+      _id: `${student.institute._id}`,
     });
     student.studentReason = reason;
     student.studentBonaStatus = "Ready";

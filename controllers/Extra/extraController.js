@@ -120,7 +120,7 @@ exports.retrieveBonafideGRNO = async (req, res) => {
       $and: [{ studentGRNO: `${gr}` }, { institute: id }],
     })
       .select(
-        "studentFirstName studentMiddleName certificateBonaFideCopy studentAdmissionDate studentLastName photoId studentProfilePhoto studentDOB"
+        "studentFirstName studentGRNO studentMiddleName certificateBonaFideCopy studentAdmissionDate studentLastName photoId studentProfilePhoto studentDOB"
       )
       .populate({
         path: "studentClass",
@@ -175,7 +175,7 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       $and: [{ studentGRNO: `${gr}` }, { institute: id }],
     })
       .select(
-        "studentFirstName studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB"
+        "studentFirstName studentGRNO studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB"
       )
       .populate({
         path: "studentClass",

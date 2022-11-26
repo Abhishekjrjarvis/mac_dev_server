@@ -36,4 +36,6 @@ router.get(
   catchAsync(Manage.renderAdministratorAllRequest)
 );
 
+router.get("/:mid/finance", catchAsync(Manage.renderAdministratorAllFinance));
+
 module.exports = router;

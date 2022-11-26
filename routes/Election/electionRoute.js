@@ -37,6 +37,12 @@ router.patch(
   catchAsync(Election.retrieveVoteElectionQuery)
 );
 
+// Approve Election Apply Event
+router.get(
+  "/:did/one/institute",
+  catchAsync(Election.retrieveVoteElectionDepartment)
+);
+
 // All Elections at Students Side
 router.get("/all/:sid/query", catchAsync(Election.retrieveAllElectionArray));
 

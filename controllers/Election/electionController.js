@@ -7,6 +7,7 @@ const User = require("../../models/User");
 const Student = require("../../models/Student");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const moment = require("moment");
+const InstituteAdmin = require("../../models/InstituteAdmin");
 
 const date_renew = (s_date, type) => {
   var r_l_date = new Date(s_date);
@@ -170,15 +171,13 @@ exports.retrieveOneElectionQueryCandidate = async (req, res) => {
     const { eid } = req.params;
     const all_candidate = await Election.findById({ _id: eid }).populate({
       path: "election_candidate",
-      options: {
-        limit: limit,
-        skip: skip,
-      },
       populate: {
         path: "student",
         select:
           "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
       },
+      limit: limit,
+      skip: skip,
     });
 
     if (all_candidate?.election_candidate?.length > 0) {
@@ -334,6 +333,67 @@ exports.retrieveVoteElectionQuery = async (req, res) => {
     notify.vote_status = "Voted";
     await Promise.all([notify.save(), elect.save()]);
     res.status(200).send({ message: "Vote Done 👍✨😀 ", voted: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveVoteElectionDepartment = async (req, res) => {
+  try {
+    const { did } = req.params;
+    const { search } = req.query;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const depart = await Department.findById({ _id: did });
+    const one_ins = await InstituteAdmin.findById({
+      _id: `${depart?.institute}`,
+    }).select("ApproveStudent");
+
+    if (search) {
+      var all_student = await Student.find({
+        $and: [
+          {
+            institute: one_ins?._id,
+          },
+          {
+            studentStatus: "Approved",
+          },
+        ],
+        $or: [
+          { studentFirstName: { $regex: search, $options: "i" } },
+          {
+            studentMiddleName: { $regex: search, $options: "i" },
+          },
+          { studentLastName: { $regex: search, $options: "i" } },
+        ],
+      }).select(
+        "studentFirstName studentMiddleName studentLastName status studentGRNO photoId studentProfilePhoto"
+      );
+    } else {
+      var all_student = await Student.find({
+        _id: { $in: one_ins?.ApproveStudent },
+      })
+        .sort("-createdAt")
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName studentLastName studentGRNO photoId studentProfilePhoto"
+        );
+    }
+    if (all_student?.length > 0) {
+      res.status(200).send({
+        message: "All Supporting Member Array 😀",
+        all: all_student,
+        status: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Supporting Member Array 😡",
+        all: [],
+        status: false,
+      });
+    }
   } catch (e) {
     console.log(e);
   }

@@ -157,16 +157,24 @@ exports.patchUserImagePhoto = async (req, res) => {
   try {
     const { id } = req.params;
     const file = req.file;
+    const { sample_pic } = req.body;
     const user = await User.findById({ _id: id });
-    if (user.profilePhoto) await deleteFile(user.profilePhoto);
-    const width = 112;
-    const height = 112;
-    const results = await uploadFile(file, width, height);
-    user.profilePhoto = results.key;
-    user.photoId = "0";
-    await user.save();
-    await unlinkFile(file.path);
-    res.status(201).send({ message: "Successfully photo change" });
+    if (!sample_pic) {
+      // if (user.profilePhoto) await deleteFile(user.profilePhoto);
+      const width = 112;
+      const height = 112;
+      const results = await uploadFile(file, width, height);
+      user.profilePhoto = results.key;
+      user.photoId = "0";
+      await user.save();
+      await unlinkFile(file.path);
+      res.status(201).send({ message: "Successfully photo change" });
+    } else {
+      user.profilePhoto = sample_pic;
+      user.photoId = "0";
+      await user.save();
+      res.status(201).send({ message: "Successfully photo change" });
+    }
     const post = await Post.find({ author: user._id });
     post.forEach(async (ele) => {
       ele.authorPhotoId = "0";

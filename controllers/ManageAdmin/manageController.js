@@ -10,6 +10,8 @@ const unlinkFile = util.promisify(fs.unlink);
 const jwt = require("jsonwebtoken");
 const Admin = require("../../models/superAdmin");
 const InstituteAdmin = require("../../models/InstituteAdmin");
+const Finance = require("../../models/Finance");
+const Student = require("../../models/Student");
 
 function generateAccessManageToken(manage_name, manage_id, manage_pass) {
   return jwt.sign(
@@ -113,12 +115,7 @@ exports.renderAdministratorPassword = async (req, res) => {
         manage?._id,
         manage?.affiliation_password
       );
-      res.json({
-        token: `Bearer ${token}`,
-        manage: manage,
-        institute: manage?.affiliation_institute_approve,
-        login: true,
-      });
+      res.json({ token: `Bearer ${token}`, manage: manage, login: true });
     } else {
       res.send({ message: "Invalid Combination", login: false });
     }
@@ -277,6 +274,14 @@ exports.renderAdministratorAllInsQuery = async (req, res) => {
           select: "userLegalName username photoId profilePhoto",
         },
       });
+
+    // all_ins?.forEach((ele) => {
+    //   const all_ins_token = generateAccessInsToken(
+    //     ele?.,
+    //     manage?._id,
+    //     manage?.affiliation_password
+    //   );
+    // });
     res.status(200).send({
       message: "All Affiliated Institute 😀",
       all_ins: all_ins,
@@ -307,6 +312,39 @@ exports.renderAdministratorAllRequest = async (req, res) => {
     res.status(200).send({
       message: "All Affiliated Institute 😀",
       all_ins: all_ins,
+      query: true,
+    });
+  } catch (e) {}
+};
+
+exports.renderAdministratorAllFinance = async (req, res) => {
+  try {
+    const { mid } = req.params;
+    if (!mid)
+      return res.status(200).send({
+        message: "There is a bug need to fixed immediately 😀",
+        query: false,
+      });
+    const manage = await ManageAdmin.findById({ _id: mid }).select(
+      "affiliation_institute_approve"
+    );
+
+    const all_finance = await Finance.find({
+      institute: { $in: manage?.affiliation_institute_request },
+    }).select(
+      "financeTotalBalance financeSubmitBalance financeBankBalance financeExemptBalance "
+    );
+
+    const student = await Student.find({
+      $and: [
+        { institute: { $in: manage?.affiliation_institute_request } },
+        { studentStatus: "Approved" },
+      ],
+    }).select("studentRemainingFeeCount");
+    res.status(200).send({
+      message: "All Affiliated Institute 😀",
+      all_finance: all_finance,
+      all_remain: student,
       query: true,
     });
   } catch (e) {}

@@ -5,14 +5,14 @@ const InstituteAdmin = require("../../models/InstituteAdmin");
 const Batch = require("../../models/Batch");
 const User = require("../../models/User");
 
-var trendingQuery = (trends, cat, type) => {
+var trendingQuery = (trends, cat, type, page) => {
   if (cat !== "") {
     trends.forEach((ele, index) => {
       if (index > 2) return;
       ele.hash_trend = `#${index + 1} on trending `;
     });
   } else {
-    if (type === "Repost") {
+    if (type === "Repost" && page === 1) {
       trends.forEach((ele, index) => {
         if (index > 2) return;
         ele.hash_trend = `#${index + 1} on trending`;
@@ -73,7 +73,7 @@ exports.retrieveByLearnQuery = async (req, res) => {
       res.status(200).send({ message: "filter By Learn", filteredLearn: [] });
     } else {
       var order_by_learn = post.sort(sortRepostUpvote("rePostAnswer"));
-      var learn_data = trendingQuery(order_by_learn, category, "Repost");
+      var learn_data = trendingQuery(order_by_learn, category, "Repost", page);
       res
         .status(200)
         .send({ message: "filter By Learn", filteredLearn: learn_data });
@@ -235,13 +235,11 @@ exports.filterByDateIncomes = async (req, res) => {
         .status(200)
         .send({ message: "Filter Incomes", f_incomes: incomes, stats: stats });
     } else {
-      res
-        .status(200)
-        .send({
-          message: "user",
-          f_incomes: [],
-          stats: { cash: 0, bank: 0, total: 0 },
-        });
+      res.status(200).send({
+        message: "user",
+        f_incomes: [],
+        stats: { cash: 0, bank: 0, total: 0 },
+      });
     }
   } catch (e) {
     console.log(e);
@@ -280,21 +278,17 @@ exports.filterByDateExpenses = async (req, res) => {
       total: cash + bank,
     };
     if (expenses?.length >= 1) {
-      res
-        .status(200)
-        .send({
-          message: "Filter Expenses",
-          f_expenses: expenses,
-          stats: stats,
-        });
+      res.status(200).send({
+        message: "Filter Expenses",
+        f_expenses: expenses,
+        stats: stats,
+      });
     } else {
-      res
-        .status(200)
-        .send({
-          message: "user",
-          f_expenses: [],
-          stats: { cash: 0, bank: 0, total: 0 },
-        });
+      res.status(200).send({
+        message: "user",
+        f_expenses: [],
+        stats: { cash: 0, bank: 0, total: 0 },
+      });
     }
   } catch (e) {
     console.log(e);
@@ -347,21 +341,17 @@ exports.retrieveByActiveStudent = async (req, res) => {
         filter_student_caste.vjCount += ele?.student_category?.vjCount;
       });
       if (role === "Gender") {
-        res
-          .status(200)
-          .send({
-            message: "Filter Active Batch Student Chart gender",
-            filter_student: filter_student_gender,
-            total: total,
-          });
+        res.status(200).send({
+          message: "Filter Active Batch Student Chart gender",
+          filter_student: filter_student_gender,
+          total: total,
+        });
       } else if (role === "Caste") {
-        res
-          .status(200)
-          .send({
-            message: "Filter Active Batch Student Chart caste",
-            filter_student: filter_student_caste,
-            total: total,
-          });
+        res.status(200).send({
+          message: "Filter Active Batch Student Chart caste",
+          filter_student: filter_student_caste,
+          total: total,
+        });
       }
     } else if (type === "All") {
       const filter_batch = await Batch.find({
@@ -384,21 +374,17 @@ exports.retrieveByActiveStudent = async (req, res) => {
         filter_student_caste.vjCount += ele?.student_category?.vjCount;
       });
       if (role === "Gender") {
-        res
-          .status(200)
-          .send({
-            message: "Filter All Batch Student Chart gender",
-            filter_student: filter_student_gender,
-            total: total,
-          });
+        res.status(200).send({
+          message: "Filter All Batch Student Chart gender",
+          filter_student: filter_student_gender,
+          total: total,
+        });
       } else if (role === "Caste") {
-        res
-          .status(200)
-          .send({
-            message: "Filter All Batch Student Chart caste",
-            filter_student: filter_student_caste,
-            total: total,
-          });
+        res.status(200).send({
+          message: "Filter All Batch Student Chart caste",
+          filter_student: filter_student_caste,
+          total: total,
+        });
       }
     } else {
       res
@@ -426,13 +412,11 @@ exports.retrieveByActiveStaff = async (req, res) => {
           girlCount: filter_ins?.staff_category?.girlCount,
           otherCount: filter_ins?.staff_category?.otherCount,
         };
-        res
-          .status(200)
-          .send({
-            message: "Filter All Staff Chart Gender",
-            filter_staff: gender,
-            total: total,
-          });
+        res.status(200).send({
+          message: "Filter All Staff Chart Gender",
+          filter_staff: gender,
+          total: total,
+        });
       } else if (role === "Caste") {
         var caste = {
           generalCount: filter_ins?.staff_category?.generalCount,
@@ -445,13 +429,11 @@ exports.retrieveByActiveStaff = async (req, res) => {
           ntdCount: filter_ins?.staff_category?.ntdCount,
           vjCount: filter_ins?.staff_category?.vjCount,
         };
-        res
-          .status(200)
-          .send({
-            message: "Filter All Staff Chart Caste",
-            filter_staff: caste,
-            total: total,
-          });
+        res.status(200).send({
+          message: "Filter All Staff Chart Caste",
+          filter_staff: caste,
+          total: total,
+        });
       }
       var all_filter = {
         boyCount: filter_ins?.staff_category?.boyCount,
@@ -468,13 +450,11 @@ exports.retrieveByActiveStaff = async (req, res) => {
         vjCount: filter_ins?.staff_category?.vjCount,
       };
       if (role == undefined) {
-        res
-          .status(200)
-          .send({
-            message: "Filter All Staff Chart All",
-            filter_staff: all_filter,
-            total: total,
-          });
+        res.status(200).send({
+          message: "Filter All Staff Chart All",
+          filter_staff: all_filter,
+          total: total,
+        });
       }
     } else {
       res

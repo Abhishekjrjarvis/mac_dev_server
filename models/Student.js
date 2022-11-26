@@ -278,18 +278,6 @@ const studentSchema = new mongoose.Schema({
   },
   borrow: [{ type: mongoose.Schema.Types.ObjectId, ref: "IssueBook" }],
   deposite: [{ type: mongoose.Schema.Types.ObjectId, ref: "CollectBook" }],
-  deptElections: [
-    {
-      electionStatus: {
-        type: String,
-        default: "Not Applied",
-      },
-      election: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Elections",
-      },
-    },
-  ],
   createdAt: {
     type: Date,
     default: Date.now,

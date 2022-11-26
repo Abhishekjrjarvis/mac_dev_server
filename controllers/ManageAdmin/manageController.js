@@ -34,7 +34,7 @@ exports.renderAdministrator = async (req, res) => {
     const valid_user = await User.findOne({
       username: `${req.body.affiliation_username}`,
     });
-    const manage_user = await Manage.findOne({
+    const manage_user = await ManageAdmin.findOne({
       affiliation_username: req.body.affiliation_username,
     });
 
@@ -57,11 +57,11 @@ exports.renderAdministrator = async (req, res) => {
     } else {
       const access_user = await User.findById({ _id: user });
       const manage = new ManageAdmin({ ...req.body });
-      manage.affiliation_admin = user._id;
+      manage.affiliation_admin = access_user._id;
       access_user.manage_admins.push(manage._id);
       manage.permission.push({
         role: "full_read_access",
-        author: user._id,
+        author: access_user._id,
       });
       if (req.file) {
         const results = await uploadDocFile(req.file);
@@ -78,16 +78,16 @@ exports.renderAdministrator = async (req, res) => {
       const notify = new Notification({});
       notify.notifyContent = `Your got the designation of ${manage?.affiliation_name} as Afilliation Head`;
       notify.notifySender = manage._id;
-      notify.notifyReceiever = user._id;
-      user.uNotify.push(notify._id);
-      notify.user = user._id;
+      notify.notifyReceiever = access_user._id;
+      access_user.uNotify.push(notify._id);
+      notify.user = access_user._id;
       notify.notifyByManageAdminPhoto = manage._id;
       invokeFirebaseNotification(
         "Designation Allocation",
         notify,
         "New Affiliation",
-        user._id,
-        user.deviceToken
+        access_user._id,
+        access_user.deviceToken
       );
     }
   } catch (e) {
@@ -100,7 +100,7 @@ exports.renderAdministrator = async (req, res) => {
 
 exports.renderAdministratorPassword = async (req, res) => {
   try {
-    const { mid } = req.params;
+    const { mid } = req.query;
     const { password, rePassword } = req.body;
     const manage = await ManageAdmin.findById({ _id: mid });
     const genPass = bcrypt.genSaltSync(12);
@@ -113,7 +113,12 @@ exports.renderAdministratorPassword = async (req, res) => {
         manage?._id,
         manage?.affiliation_password
       );
-      res.json({ token: `Bearer ${token}`, manage: manage, login: true });
+      res.json({
+        token: `Bearer ${token}`,
+        manage: manage,
+        institute: manage?.affiliation_institute_approve,
+        login: true,
+      });
     } else {
       res.send({ message: "Invalid Combination", login: false });
     }
@@ -144,6 +149,8 @@ module.exports.renderAdministratorAuthentication = async (req, res) => {
       } else {
         res.send({ message: "Invalid Credentials", login: false });
       }
+    } else {
+      res.send({ message: "No Existence 😡", login: false });
     }
   } catch (e) {
     console.log(`Error`, e);
@@ -160,7 +167,7 @@ exports.renderAdministratorQuery = async (req, res) => {
       });
     const manage = await ManageAdmin.findById({ _id: mid })
       .select(
-        "affiliation_name affiliation_institute_approve_count photoId photo"
+        "affiliation_name affiliation_admin affiliation_institute_approve_count photoId photo"
       )
       .populate({
         path: "affiliation_admin",
@@ -168,10 +175,12 @@ exports.renderAdministratorQuery = async (req, res) => {
       })
       .populate({
         path: "affiliation_institute_approve",
-        select: "studentCount staffCount",
+        select: "studentCount staffCount insBankBalance",
       })
       .lean()
       .exec();
+
+    // const classesCount = await Department
     res
       .status(200)
       .send({ message: "Manage Admin with Roles 😀", manage, query: true });
@@ -229,7 +238,7 @@ exports.renderAdministratorStatus = async (req, res) => {
       await Promise.all([manage.save(), institute.save()]);
       res
         .status(200)
-        .send({ message: "Reject By Affiliation 😒", status: false });
+        .send({ message: "Reject By Affiliation 😒", status: true });
     } else {
       res.status(400).send({ message: "Invalid Status 😡", status: false });
     }
@@ -268,6 +277,33 @@ exports.renderAdministratorAllInsQuery = async (req, res) => {
           select: "userLegalName username photoId profilePhoto",
         },
       });
+    res.status(200).send({
+      message: "All Affiliated Institute 😀",
+      all_ins: all_ins,
+      query: true,
+    });
+  } catch (e) {}
+};
+
+exports.renderAdministratorAllRequest = async (req, res) => {
+  try {
+    const { mid } = req.params;
+    if (!mid)
+      return res.status(200).send({
+        message: "There is a bug need to fixed immediately 😀",
+        query: false,
+      });
+    const manage = await ManageAdmin.findById({ _id: mid }).select(
+      "affiliation_institute_request"
+    );
+
+    const all_ins = await InstituteAdmin.find({
+      _id: { $in: manage?.affiliation_institute_request },
+    })
+      .sort("-createdAt")
+      .select(
+        "insName insType insMode name photoId insProfilePhoto insEmail insAddress insState insDistrict insPincode insPhoneNumber name status isUniversal coverId insProfileCoverPhoto"
+      );
     res.status(200).send({
       message: "All Affiliated Institute 😀",
       all_ins: all_ins,

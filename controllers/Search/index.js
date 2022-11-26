@@ -805,7 +805,7 @@ exports.searchStaff = async (req, res) => {
           )
           .populate({
             path: "user",
-            select: "_id",
+            select: "_id userLegalName",
           })
           .populate({
             path: "staffLeave",
@@ -866,7 +866,7 @@ exports.searchStaff = async (req, res) => {
         )
         .populate({
           path: "user",
-          select: "_id",
+          select: "_id userLegalName",
         })
         .limit(itemPerPage)
         .skip(dropItem)
@@ -918,7 +918,7 @@ exports.searchStaffRequest = async (req, res) => {
         )
         .populate({
           path: "user",
-          select: "_id",
+          select: "_id userLegalName",
         })
         .limit(itemPerPage)
         .skip(dropItem)

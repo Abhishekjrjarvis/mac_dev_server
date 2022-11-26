@@ -31,4 +31,9 @@ router.get(
   catchAsync(Manage.renderAdministratorAllInsQuery)
 );
 
+router.get(
+  "/:mid/all/request",
+  catchAsync(Manage.renderAdministratorAllRequest)
+);
+
 module.exports = router;

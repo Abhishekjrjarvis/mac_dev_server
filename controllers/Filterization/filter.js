@@ -6,7 +6,7 @@ const Batch = require("../../models/Batch");
 const User = require("../../models/User");
 
 var trendingQuery = (trends, cat, type, page) => {
-  if (cat !== "") {
+  if (cat !== "" && page === 1) {
     trends.forEach((ele, index) => {
       if (index > 2) return;
       ele.hash_trend = `#${index + 1} on trending `;
@@ -18,11 +18,13 @@ var trendingQuery = (trends, cat, type, page) => {
         ele.hash_trend = `#${index + 1} on trending`;
       });
     } else {
-      trends.forEach((ele, index) => {
-        ele.hash_trend = `#${index + 1} on trending for ${
-          ele.trend_category?.split(" ")[0]
-        }`;
-      });
+      if (page === 1) {
+        trends.forEach((ele, index) => {
+          ele.hash_trend = `#${index + 1} on trending for ${
+            ele.trend_category?.split(" ")[0]
+          }`;
+        });
+      }
     }
   }
   return trends;
@@ -121,7 +123,7 @@ exports.retrieveByAnswerQuery = async (req, res) => {
         .status(200)
         .send({ message: "filter By Answer", filteredQuestion: [] });
     } else {
-      var data = trendingQuery(post, category, "Question");
+      var data = trendingQuery(post, category, "Question", page);
       res
         .status(200)
         .send({ message: "filter By Answer", filteredQuestion: data });

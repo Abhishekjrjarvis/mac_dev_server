@@ -5,54 +5,31 @@ const { uploadDocFile } = require("../../S3Configuration");
 const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
+const { shuffleArray } = require("../../Utilities/Shuffle");
 
 const addHashtag = () => {
   var hashTag = [
-    "#climatechange",
-    "#economics",
-    "#universe",
-    "#jee",
-    "#neet",
-    "#5thstandard",
-    "#6thstandard",
-    "#7thstandard",
-    "#8thstandard",
-    "#9thstandard",
-    "#10thstandard",
-    "#11thstandard",
-    "#12thstandard",
-    "#cat",
-    "#pharmacy",
-    "#cet",
-    "#physics",
-    "#biology",
-    "#chemistry",
-    "#maths",
-    "#electrical",
-    "#computerscience",
-    "#mechanical",
-    "#english",
-    "#hindi",
-    "#environment",
-    "#geography",
-    "#history",
-    "#social",
-    "#earth",
-    "#facts",
-    "#upsc",
-    "#life",
-    "#technology",
-    "#elearning",
-    "#career",
-    "#arts",
-    "#drawing",
-    "#informationtechnology",
-    "#aptitude",
-    "#comunication",
-    "#civil",
-    "#measurement",
-    "#homescience",
-    "#globalwarming",
+    "#audit",
+    "#badminton",
+    "#coaching",
+    "#cricket",
+    "#community",
+    "#culture",
+    "#dailyupdate",
+    "#education",
+    "#football",
+    "#gst",
+    "#habits",
+    "#health",
+    "#learn",
+    "#news",
+    "#quiz",
+    "#reading",
+    "#science",
+    "#sports",
+    "#taxes",
+    "#tennis",
+    "#update",
   ];
 
   hashTag?.forEach(async (ele) => {
@@ -207,33 +184,61 @@ exports.arrayHashtag = async (req, res) => {
     var page = req.query.page ? parseInt(req.query.page) : 1;
     var limit = req.query.limit ? parseInt(req.query.limit) : 10;
     var skip = (page - 1) * limit;
-    if (search) {
-      var hash = await HashTag.find({
-        hashtag_name: { $regex: search, $options: "i" },
-      }).select(
-        "hashtag_name hashtag_follower_count hashtag_profile_photo hashtag_photo_id"
-      );
-    } else {
-      var hash = await HashTag.find({})
-        .sort("created_at")
-        .limit(limit)
-        .skip(skip)
-        .select(
-          "hashtag_name hashtag_follower_count hashtag_profile_photo hashtag_photo_id"
+    var uid = req.tokenData?.userId ? req.tokenData?.userId : "";
+    if (uid) {
+      var user = await User.findById({ _id: uid }).select("follow_hashtag");
+      if (search) {
+        var hash = await HashTag.find({
+          hashtag_name: { $regex: search, $options: "i" },
+        }).select(
+          "hashtag_name hashtag_profile_photo hashtag_photo_id hashtag_follower_count"
         );
-    }
-    if (hash?.length > 0) {
-      res.status(200).send({
-        message: "All Array of Hashtag by follower",
-        hash: hash,
-        status: true,
-      });
+        if (hash?.length > 0) {
+          res.status(200).send({
+            message: "All Array of Hashtag by follower 🔍",
+            hash: hash,
+            status: true,
+          });
+        } else {
+          res.status(200).send({
+            message: "All Array of Hashtag by follower 😡",
+            hash: [],
+            status: false,
+          });
+        }
+      } else {
+        var compare_hash = [];
+        var match_hash = await HashTag.find({}).select("_id");
+        match_hash?.forEach((ele) => {
+          compare_hash.push(ele?._id);
+        });
+        var data = compare_hash.filter(
+          (f1) => !user?.follow_hashtag?.includes(f1)
+        );
+
+        var hash = await HashTag.find({ _id: { $in: data } })
+          .limit(limit)
+          .skip(skip)
+          .select(
+            "hashtag_name hashtag_profile_photo hashtag_photo_id hashtag_follower_count"
+          );
+        var get_array = shuffleArray(hash);
+        if (get_array?.length > 0) {
+          res.status(200).send({
+            message: "All Array of Hashtag by follower 😀",
+            hash: get_array,
+            status: true,
+          });
+        } else {
+          res.status(200).send({
+            message: "All Array of Hashtag by follower 😒",
+            hash: [],
+            status: false,
+          });
+        }
+      }
     } else {
-      res.status(200).send({
-        message: "All Array of Hashtag by follower",
-        hash: [],
-        status: false,
-      });
+      res.status(400).send({ message: "Bad Request", deny: true });
     }
   } catch (e) {
     console.log(e);

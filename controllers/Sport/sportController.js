@@ -472,6 +472,11 @@ exports.getInterMatchEvent = async (req, res) => {
       .send({ message: "Inter Match Created", match: match, status: true });
     if (sportPlayer) {
       match.sportPlayer1 = sportPlayer;
+      const students = await Student.findById({ _id: `${sportPlayer}` });
+      students.studentSportsEventMatch.push({
+        eventMatch: match._id,
+      });
+      await students.save();
     } else if (sportTeam) {
       const team = await SportTeam.findById({ _id: `${sportTeam}` }).select(
         "sportTeamStudent"
@@ -492,6 +497,10 @@ exports.getInterMatchEvent = async (req, res) => {
           _id: sportPlayerFree[i],
         });
         match.sportFreePlayer.push(student._id);
+        student.studentSportsEventMatch.push({
+          eventMatch: match._id,
+        });
+        await student.save();
       }
     }
     await match.save();

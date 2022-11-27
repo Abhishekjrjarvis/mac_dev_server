@@ -156,11 +156,11 @@ exports.patchInstituteAnnouncementDoc = async (req, res) => {
 exports.patchUserImagePhoto = async (req, res) => {
   try {
     const { id } = req.params;
-    const file = req.file;
     const { sample_pic } = req.body;
     const user = await User.findById({ _id: id });
     if (!sample_pic) {
       // if (user.profilePhoto) await deleteFile(user.profilePhoto);
+      const file = req.file;
       const width = 112;
       const height = 112;
       const results = await uploadFile(file, width, height);

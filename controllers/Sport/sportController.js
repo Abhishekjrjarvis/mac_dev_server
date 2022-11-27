@@ -1248,7 +1248,7 @@ exports.renderStudentSideMatch = async (req, res) => {
         })
         .populate({
           path: "sportWinnerTeam",
-          select: "sportClassTeamName teamPoints rankTitle",
+          select: "sportClassTeamName teamPoints rankTitle sportTeamStudent",
         })
         .populate({
           path: "sportRunner",
@@ -1257,7 +1257,7 @@ exports.renderStudentSideMatch = async (req, res) => {
         })
         .populate({
           path: "sportRunnerTeam",
-          select: "sportClassTeamName teamPoints rankTitle",
+          select: "sportClassTeamName teamPoints rankTitle sportTeamStudent",
         })
         .populate({
           path: "sportParticipants",

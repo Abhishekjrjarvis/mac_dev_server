@@ -23,6 +23,12 @@ function generateAccessManageToken(manage_name, manage_id, manage_pass) {
   );
 }
 
+function generateAccessInsToken(ins_name, ins_id, ins_pass) {
+  return jwt.sign({ ins_name, ins_id, ins_pass }, process.env.TOKEN_SECRET, {
+    expiresIn: "1y",
+  });
+}
+
 exports.renderAdministrator = async (req, res) => {
   try {
     const { user } = req.query;
@@ -245,6 +251,11 @@ exports.renderAdministratorStatus = async (req, res) => {
 exports.renderAdministratorAllInsQuery = async (req, res) => {
   try {
     const { mid } = req.params;
+    var all_ins_token = [];
+    var token = {
+      all_ins: [],
+      token: "",
+    };
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
@@ -275,19 +286,20 @@ exports.renderAdministratorAllInsQuery = async (req, res) => {
         },
       });
 
-    // all_ins?.forEach((ele) => {
-    //   const all_ins_token = generateAccessInsToken(
-    //     ele?.,
-    //     manage?._id,
-    //     manage?.affiliation_password
-    //   );
-    // });
+    all_ins?.forEach((ele) => {
+      var all = generateAccessInsToken(ele?.name, ele?._id, ele?.insPassword);
+      token.all_ins = ele;
+      token.token = all;
+      all_ins_token.push(token);
+    });
     res.status(200).send({
       message: "All Affiliated Institute 😀",
-      all_ins: all_ins,
+      all_ins: all_ins_token,
       query: true,
     });
-  } catch (e) {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.renderAdministratorAllRequest = async (req, res) => {

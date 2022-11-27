@@ -62,8 +62,8 @@ const manage = require("./routes/ManageAdmin/manageRoute");
 
 // ============================= DB Configuration ==============================
 
-// const dburl = `${process.env.DB_URL2}`; // Development
-const dburl = `${process.env.DB_URL}`; // Production
+const dburl = `${process.env.DB_URL2}`; // Development
+// const dburl = `${process.env.DB_URL}`; // Production
 
 mongoose
   .connect(dburl, {
@@ -78,10 +78,10 @@ mongoose
   });
 
 app.use(mongoSanitize());
-app.use(helmet({ contentSecurityPolicy: false }));
-// app.use(
-//   helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false })
-// );
+// app.use(helmet({ contentSecurityPolicy: false }));
+app.use(
+  helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false })
+);
 app.use(compression());
 
 const swaggerUI = require("swagger-ui-express");
@@ -97,6 +97,8 @@ app.use(
       "http://18.205.27.165",
       "http://localhost:3000",
       "https://qviple.com",
+      "https://admin.qviple.com",
+      "https://developer.qviple.com",
     ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,

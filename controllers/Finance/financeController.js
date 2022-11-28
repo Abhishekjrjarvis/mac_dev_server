@@ -235,15 +235,17 @@ exports.getIncome = async (req, res) => {
     const { fid } = req.params;
     const finance = await Finance.findById({ _id: fid });
     var f_user = await InstituteAdmin.findById({ _id: `${finance.institute}` });
-    var user = await User.findOne({ _id: `${req.body.user}` }).select(
+    var user = await User.findOne({ username: `${req.body.user}` }).select(
       "_id payment_history"
     );
-    const file = req.file;
-    const results = await uploadDocFile(file);
     var incomes = new Income({ ...req.body });
+    if (req.file) {
+      const file = req.file;
+      const results = await uploadDocFile(file);
+      incomes.incomeAck = results.key;
+    }
     var order = new OrderPayment({});
     finance.incomeDepartment.push(incomes._id);
-    incomes.incomeAck = results.key;
     incomes.finances = finance._id;
     incomes.invoice_number = finance.incomeDepartment?.length + 1;
     order.payment_module_type = "Income";
@@ -256,7 +258,7 @@ exports.getIncome = async (req, res) => {
     order.payment_income = incomes._id;
     f_user.payment_history.push(order._id);
     order.payment_invoice_number += 1;
-    if (req.body?.user) {
+    if (user) {
       incomes.incomeFromUser = user._id;
       order.payment_by_end_user_id = user._id;
       order.payment_flag_by = "Debit";
@@ -284,7 +286,9 @@ exports.getIncome = async (req, res) => {
       order.save(),
       f_user.save(),
     ]);
-    await unlinkFile(file.path);
+    if (req.file) {
+      await unlinkFile(req.file.path);
+    }
     res.status(200).send({
       message: "Add New Income",
       finance: finance._id,
@@ -315,19 +319,21 @@ exports.getExpense = async (req, res) => {
     const { fid } = req.params;
     const finance = await Finance.findById({ _id: fid });
     var f_user = await InstituteAdmin.findById({ _id: `${finance.institute}` });
-    var user = await User.findOne({ _id: `${req.body.user}` }).select(
+    var user = await User.findOne({ username: `${req.body.user}` }).select(
       "_id payment_history"
     );
     if (
       finance.financeTotalBalance > 0 &&
       req.body.expenseAmount <= finance.financeTotalBalance
     ) {
-      const file = req.file;
-      const results = await uploadDocFile(file);
       const expenses = new Expense({ ...req.body });
+      if (req.file) {
+        const file = req.file;
+        const results = await uploadDocFile(file);
+        expenses.expenseAck = results.key;
+      }
       var order = new OrderPayment({});
       finance.expenseDepartment.push(expenses._id);
-      expenses.expenseAck = results.key;
       expenses.finances = finance._id;
       order.payment_module_type = "Expense";
       order.payment_by_end_user_id = f_user._id;
@@ -339,7 +345,7 @@ exports.getExpense = async (req, res) => {
       order.payment_invoice_number += 1;
       order.payment_expense = expenses._id;
       f_user.payment_history.push(order._id);
-      if (req.body?.user) {
+      if (user) {
         expenses.expensePaidUser = user._id;
         order.payment_to_end_user_id = user._id;
         order.payment_flag_to = "Credit";
@@ -371,7 +377,9 @@ exports.getExpense = async (req, res) => {
         order.save(),
         f_user.save(),
       ]);
-      await unlinkFile(file.path);
+      if (req.file) {
+        await unlinkFile(file.path);
+      }
       res.status(200).send({
         message: "Add New Expense",
         finance: finance._id,

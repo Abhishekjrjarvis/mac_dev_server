@@ -2243,8 +2243,8 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     classes.ApproveStudent.push(student._id);
     classes.studentCount += 1;
     classes.student.pull(sid);
-    student.studentGRNO = `Q${institute.ApproveStudent.length + 1}`;
-    student.studentROLLNO = classes.ApproveStudent.length + 1;
+    student.studentGRNO = `Q${institute.ApproveStudent.length}`;
+    student.studentROLLNO = classes.ApproveStudent.length;
     student.studentClass = classes._id;
     student.studentAdmissionDate = new Date().toISOString();
     depart.ApproveStudent.push(student._id);

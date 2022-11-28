@@ -961,7 +961,7 @@ exports.retrieveApproveStaffList = async (req, res) => {
       const staffIns = await Staff.find({
         _id: { $in: staff_ins?.ApproveStaff },
       })
-        .sort("-createdAt")
+        .sort("-staffROLLNO")
         .limit(limit)
         .skip(skip)
         .select(
@@ -984,7 +984,7 @@ exports.retrieveApproveStaffList = async (req, res) => {
         const staffIns = await Staff.find({
           _id: { $in: staff_ins?.ApproveStaff },
         })
-          .sort("-createdAt")
+          .sort("-staffROLLNO")
           .select(
             "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO"
           )
@@ -1011,7 +1011,7 @@ exports.retrieveApproveStaffList = async (req, res) => {
         const staffIns = await Staff.find({
           _id: { $in: staff_ins?.ApproveStaff },
         })
-          .sort("-createdAt")
+          .sort("-staffROLLNO")
           .select(
             "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO"
           )

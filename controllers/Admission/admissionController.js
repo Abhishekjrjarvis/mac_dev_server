@@ -338,6 +338,12 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
     const user = await User.findById({ _id: uid });
     const student = new Student({ ...req.body });
     const apply = await NewApplication.findById({ _id: aid });
+    const admission = await Admission.findById({
+      _id: `${apply.admissionAdmin}`,
+    }).select("institute");
+    const institute = await InstituteAdmin.findById({
+      _id: `${admission.institute}`,
+    });
     const status = new Status({});
     for (let file of req.files) {
       let count = 1;
@@ -370,11 +376,19 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
       fee_remain: apply.admissionFee,
     });
     apply.receievedCount += 1;
+    if (institute.userFollowersList.includes(uid)) {
+    } else {
+      user.userInstituteFollowing.push(institute._id);
+      user.followingUICount += 1;
+      institute.userFollowersList.push(uid);
+      institute.followersCount += 1;
+    }
     await Promise.all([
       student.save(),
       user.save(),
       status.save(),
       apply.save(),
+      institute.save(),
     ]);
     res.status(201).send({
       message: "Taste a bite of sweets till your application is selected",
@@ -615,9 +629,10 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     } else {
       if (price < apply.admissionFee) {
         admission.remainingFee.push(student._id);
-        if (student.admissionRemainFeeCount >= apply.admissionFee) {
-          student.admissionRemainFeeCount -= apply.admissionFee;
-        }
+        // if (student.admissionRemainFeeCount >= apply.admissionFee) {
+        //   student.admissionRemainFeeCount -= apply.admissionFee;
+        // }
+        student.admissionRemainFeeCount += apply.admissionFee - price;
         apply.remainingFee += apply.admissionFee - price;
         admission.remainingFeeCount += apply.admissionFee - price;
         student.admissionPaymentStatus.push({
@@ -635,9 +650,9 @@ exports.payOfflineAdmissionFee = async (req, res) => {
           installment: "No Installment",
           fee: price,
         });
-        if (student.admissionRemainFeeCount >= apply.admissionFee) {
-          student.admissionRemainFeeCount -= apply.admissionFee;
-        }
+        // if (student.admissionRemainFeeCount >= apply.admissionFee) {
+        //   student.admissionRemainFeeCount -= apply.admissionFee;
+        // }
       }
       admission.offlineFee += price;
       apply.collectedFeeCount += price;
@@ -826,7 +841,9 @@ exports.retrieveAdmissionApplicationClass = async (req, res) => {
     } else {
       res.status(404).send({ message: "Renovation at classes", classes: [] });
     }
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.retrieveClassAllotQuery = async (req, res) => {
@@ -888,8 +905,8 @@ exports.retrieveClassAllotQuery = async (req, res) => {
     classes.strength += 1;
     classes.ApproveStudent.push(student._id);
     classes.studentCount += 1;
-    student.studentGRNO = `Q${institute.ApproveStudent.length + 1}`;
-    student.studentROLLNO = classes.ApproveStudent.length + 1;
+    student.studentGRNO = `Q${institute.ApproveStudent.length}`;
+    student.studentROLLNO = classes.ApproveStudent.length;
     student.studentClass = classes._id;
     student.studentAdmissionDate = new Date().toISOString();
     depart.ApproveStudent.push(student._id);

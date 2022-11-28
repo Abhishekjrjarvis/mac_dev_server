@@ -247,7 +247,7 @@ exports.getIncome = async (req, res) => {
     var order = new OrderPayment({});
     finance.incomeDepartment.push(incomes._id);
     incomes.finances = finance._id;
-    incomes.invoice_number = finance.incomeDepartment?.length + 1;
+    incomes.invoice_number = finance.incomeDepartment?.length;
     order.payment_module_type = "Income";
     order.payment_to_end_user_id = f_user._id;
     order.payment_module_id = incomes._id;
@@ -378,7 +378,7 @@ exports.getExpense = async (req, res) => {
         f_user.save(),
       ]);
       if (req.file) {
-        await unlinkFile(file.path);
+        await unlinkFile(req.file.path);
       }
       res.status(200).send({
         message: "Add New Expense",

@@ -965,11 +965,11 @@ exports.retrieveApproveStaffList = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO"
+          "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
         )
         .populate({
           path: "user",
-          select: "userLegalName userEmail",
+          select: "userLegalName userEmail userPhoneNumber",
         });
       if (staffIns) {
         res.status(200).send({ message: "All Staff With Limit ", staffIns });
@@ -986,11 +986,11 @@ exports.retrieveApproveStaffList = async (req, res) => {
         })
           .sort("-createdAt")
           .select(
-            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO"
+            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
           )
           .populate({
             path: "user",
-            select: "userLegalName userEmail",
+            select: "userLegalName userEmail userPhoneNumber",
           })
           .populate({
             path: "staffLeave",
@@ -1013,11 +1013,11 @@ exports.retrieveApproveStaffList = async (req, res) => {
         })
           .sort("-createdAt")
           .select(
-            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO"
+            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
           )
           .populate({
             path: "user",
-            select: "userLegalName userEmail",
+            select: "userLegalName userEmail userPhoneNumber",
           });
         if (staffIns) {
           res.status(200).send({ message: "Without Limit", staffIns });

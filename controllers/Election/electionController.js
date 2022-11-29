@@ -169,12 +169,15 @@ exports.retrieveOneElectionQueryCandidate = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
     const { eid } = req.params;
-    const all_candidate = await Election.findById({ _id: eid }).select("_id");
+    const all_candidate = await Election.findById({ _id: eid })
+      .select("_id election_candidate")
+      .limit(limit)
+      .skip(skip);
     // .populate({
-    //   // path: "election_candidate",
-    //   // limit: limit,
-    //   // skip: skip,
-    //   // select: "election_candidate_status",
+    //   path: "election_candidate",
+    //   limit: limit,
+    //   skip: skip,
+    //   select: "election_candidate_status",
     //   // populate: {
     //   //   path: "student",
     //   //   select:
@@ -185,7 +188,7 @@ exports.retrieveOneElectionQueryCandidate = async (req, res) => {
     if (all_candidate?.election_candidate?.length > 0) {
       res.status(200).send({
         message: "All Candidate List 😀",
-        all_candidate: all_candidate?.election_candidate,
+        all_candidate: all_candidate,
         status: true,
       });
     } else {

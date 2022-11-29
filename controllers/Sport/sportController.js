@@ -95,19 +95,30 @@ exports.retrieveSportDetailEvent = async (req, res) => {
 
     const sport = await Sport.findById({ _id: id }).select("sportEvent");
 
-    const event = await SportEvent.find({
-      $and: [
-        { _id: { $in: sport?.sportEvent } },
-        { sportEventStatus: `${status}` },
-      ],
-    })
-      .sort("-createdAt")
-      .limit(limit)
-      .skip(skip)
-      .select(
-        "sportEventName sportEventCategory sportEventCategoryLevel sportEventPlace sportEventDate sportEventDescription sportEventProfilePhoto photoId"
-      );
-
+    if (status) {
+      var event = await SportEvent.find({
+        $and: [
+          { _id: { $in: sport?.sportEvent } },
+          { sportEventStatus: `${status}` },
+        ],
+      })
+        .sort("-createdAt")
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "sportEventName sportEventCategory sportEventCategoryLevel sportEventPlace sportEventDate sportEventDescription sportEventProfilePhoto photoId"
+        );
+    } else {
+      var event = await SportEvent.find({
+        $and: [{ _id: { $in: sport?.sportEvent } }],
+      })
+        .sort("-createdAt")
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "sportEventName sportEventCategory sportEventCategoryLevel sportEventPlace sportEventDate sportEventDescription sportEventProfilePhoto photoId"
+        );
+    }
     if (event?.length > 0) {
       res
         .status(200)
@@ -1390,7 +1401,7 @@ exports.renderOneTeamQuery = async (req, res) => {
     const { tid } = req.params;
     const team = await SportTeam.findById({ _id: tid })
       .select(
-        "sportClassTeamName photoId photo sportTeamStudentCount coverId cover"
+        "sportClassTeamName photoId photo sportTeamStudentCount coverId cover sportTeamPhoto"
       )
       .populate({
         path: "sportTeamStudent",

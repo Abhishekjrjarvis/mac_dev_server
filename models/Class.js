@@ -106,9 +106,9 @@ const classSchema = new mongoose.Schema({
     default: 0,
   },
   finalReportsSettings: {
-    finalReport: { type: Boolean, default: false },
-    attendance: { type: Boolean, default: false },
-    behaviour: { type: Boolean, default: false },
+    finalReport: { type: Boolean, default: true },
+    attendance: { type: Boolean, default: true },
+    behaviour: { type: Boolean, default: true },
     gradeMarks: { type: Boolean, default: false },
     aggregatePassingPercentage: { type: Number, default: 0 },
   },

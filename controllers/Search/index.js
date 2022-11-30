@@ -829,7 +829,7 @@ exports.searchStaff = async (req, res) => {
           )
           .populate({
             path: "user",
-            select: "_id",
+            select: "_id userLegalName",
           })
           .lean()
           .exec();
@@ -873,7 +873,7 @@ exports.searchStaff = async (req, res) => {
         .lean()
         .exec();
       if (!staff.length) {
-        res.status(202).send({ message: "Not found any search" });
+        res.status(202).send({ message: "Not found any search", staff: [] });
       } else {
         res.status(200).send({
           staff,

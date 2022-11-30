@@ -22,7 +22,7 @@ exports.getDayWiseSchedule = async (req, res) => {
           select: "-_id staffFirstName staffMiddleName staffLastName",
         },
         select:
-          "schedule.from schedule.subjectName schedule.to schedule.assignStaff",
+          "schedule.from schedule.subjectName schedule.subject schedule.to schedule.assignStaff",
       })
       .select("timetableDayWise")
       .lean()
@@ -77,6 +77,11 @@ exports.addDayWiseSchedule = async (req, res) => {
         subjectName: subject.subjectName,
         assignStaff: subject.subjectTeacherName,
       });
+      // for(let itr of classes.timetableDayWise[0].schedule){
+      //   if(String(itr.subject) ===req.body.subjectId){
+
+      //   }
+      // }
       await classes.timetableDayWise[0].save();
       // console.log("hi", classes.timetableDayWise);
     }

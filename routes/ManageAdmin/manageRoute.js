@@ -12,7 +12,10 @@ router.post(
   catchAsync(Manage.renderAdministrator)
 );
 
-router.post("/new/password", catchAsync(Manage.renderAdministratorPassword));
+router.post(
+  "/new/password/:mid",
+  catchAsync(Manage.renderAdministratorPassword)
+);
 
 router.post(
   "/login",
@@ -37,5 +40,14 @@ router.get(
 );
 
 router.get("/:mid/finance", catchAsync(Manage.renderAdministratorAllFinance));
+
+router.get(
+  "/:mid/admission",
+  catchAsync(Manage.renderAdministratorAllAdmission)
+);
+
+router.get("/all", catchAsync(Manage.renderAdministratorAllManageAdmin));
+
+router.get("/all/user", catchAsync(Manage.renderAdministratorAllUser));
 
 module.exports = router;

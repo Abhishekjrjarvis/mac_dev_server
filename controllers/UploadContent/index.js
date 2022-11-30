@@ -560,8 +560,8 @@ exports.patchSportTeamImageCover = async (req, res) => {
     const height = 245;
     const file = req.file;
     const results = await uploadFile(file, width, height);
-    sport.cover = results.key;
-    sport.coverId = "0";
+    sport.sportTeamPhoto = results.key;
+    sport.photoId = "0";
     await sport.save();
     await unlinkFile(file.path);
     res.status(201).send({ message: "updated photo" });

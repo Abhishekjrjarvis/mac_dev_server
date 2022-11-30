@@ -313,7 +313,7 @@ exports.retrieveSportEventQuery = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "sportEventMatchName sportEventMatchCategory sportEventMatchCategoryLevel sportEventMatchDate"
+        "sportEventMatchName sportEventMatchCategory sportEventMatchDate sportEventMatchCategoryLevel sportEventMatchDate"
       )
       .populate({
         path: "sportPlayer1",
@@ -374,7 +374,7 @@ exports.getIntraMatchEvent = async (req, res) => {
       .status(200)
       .send({ message: "Match Created", match: match._id, status: true });
     //
-    if (sportInPlayer1 !== "" && sportInPlayer2 !== "") {
+    if (sportInPlayer1 && sportInPlayer2) {
       const student1 = await Student.findById({ _id: `${sportInPlayer1}` });
       const student2 = await Student.findById({ _id: `${sportInPlayer2}` });
       match.sportPlayer1 = student1._id;
@@ -386,7 +386,7 @@ exports.getIntraMatchEvent = async (req, res) => {
         eventMatch: match._id,
       });
       await Promise.all([match.save(), student1.save(), student2.save()]);
-    } else if (sportTPlayer1 !== "" && sportTPlayer2 !== "") {
+    } else if (sportTPlayer1 && sportTPlayer2) {
       const Team1 = await SportTeam.findById({ _id: `${sportTPlayer1}` });
       const Team2 = await SportTeam.findById({ _id: `${sportTPlayer2}` });
       match.sportTeam1 = Team1._id;
@@ -1292,9 +1292,10 @@ exports.renderStudentSideMatch = async (req, res) => {
         if (`${val.sportEvent._id}` === `${eid}`) return val;
       });
 
-      res
-        .status(200)
-        .send({ message: "Match Detail Query", match_query: valid_match });
+      res.status(200).send({
+        message: "Match Detail Query",
+        match_query: valid_match,
+      });
     } else {
       res.status(200).send({
         message: "Student Not Take Part In Event Match",

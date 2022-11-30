@@ -244,24 +244,21 @@ exports.admissionInstituteFunction = async (
   statusId
 ) => {
   try {
-    const student = await Student.findById({ _id: paidBy });
-    const user = await User.findById({ _id: `${student.user}` });
-    const apply = await NewApplication.findById({ _id: moduleId });
-    const orderPay = await OrderPayment.findById({ _id: order });
-    const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-    const admission = await Admission.findById({
+    var student = await Student.findById({ _id: paidBy });
+    var user = await User.findById({ _id: `${student.user}` });
+    var apply = await NewApplication.findById({ _id: moduleId });
+    var orderPay = await OrderPayment.findById({ _id: order });
+    var admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    var admission = await Admission.findById({
       _id: `${apply.admissionAdmin}`,
     });
-    const ins = await InstituteAdmin.findById({ _id: `${student.institute}` });
-    const finance = await Finance.findById({
+    var ins = await InstituteAdmin.findById({ _id: `${student.institute}` });
+    var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     }).populate({
       path: "financeHead",
       select: "user",
     });
-    const status = await Status.findById({ _id: statusId });
-    const aStatus = new Status({});
-    const notify = new Notification({});
     if (apply?.gstSlab > 0) {
       var business_data = new BusinessTC({});
       business_data.b_to_c_month = new Date().toISOString();
@@ -273,82 +270,164 @@ exports.admissionInstituteFunction = async (
       business_data.b_to_c_total_amount = parseInt(tx_amount_ad);
       await business_data.save();
     }
-    student.admissionPaymentStatus.push({
-      applicationId: apply._id,
-      status: "online",
-      installment: "No Installment",
-      fee: parseInt(tx_amount_ad),
-    });
-    if (student.admissionRemainFeeCount >= tx_amount_ad) {
-      student.admissionRemainFeeCount -= tx_amount_ad;
-    }
-    admission.onlineFee += parseInt(tx_amount_ad);
-    apply.onlineFee += parseInt(tx_amount_ad);
-    apply.collectedFeeCount += parseInt(tx_amount_ad);
-    finance.financeAdmissionBalance += parseInt(tx_amount_ad);
-    finance.financeTotalBalance += parseInt(tx_amount_ad);
-    admin.returnAmount += parseInt(tx_amount_ad);
-    ins.adminRepayAmount += parseInt(tx_amount_ad);
-    apply.selectedApplication.splice({
-      student: student._id,
-      fee_remain: apply.admissionFee,
-    });
-    apply.confirmedApplication.push({
-      student: student._id,
-      fee_remain:
-        apply.admissionFee >= parseInt(tx_amount_ad)
-          ? apply.admissionFee - parseInt(tx_amount_ad)
-          : 0,
-      payment_status: "online",
-      paid_status:
-        apply.admissionFee - parseInt(tx_amount_ad) == 0 ? "Paid" : "Not Paid",
-    });
-    apply.confirmCount += 1;
-    aStatus.content = `Welcome to Institute ${ins.insName}, ${ins.insDistrict}.
+    if (statusId) {
+      const status = await Status.findById({ _id: statusId });
+      const aStatus = new Status({});
+      const notify = new Notification({});
+      student.admissionPaymentStatus.push({
+        applicationId: apply._id,
+        status: "Paid",
+        mode: "online",
+        installment: "No Installment",
+        fee: parseInt(tx_amount_ad),
+      });
+      if (student.admissionRemainFeeCount >= tx_amount_ad) {
+        student.admissionRemainFeeCount -= tx_amount_ad;
+      }
+      admission.onlineFee += parseInt(tx_amount_ad);
+      apply.onlineFee += parseInt(tx_amount_ad);
+      apply.collectedFeeCount += parseInt(tx_amount_ad);
+      finance.financeAdmissionBalance += parseInt(tx_amount_ad);
+      finance.financeTotalBalance += parseInt(tx_amount_ad);
+      finance.financeBankBalance += parseInt(tx_amount_ad);
+      admin.returnAmount += parseInt(tx_amount_ad);
+      ins.adminRepayAmount += parseInt(tx_amount_ad);
+      apply.selectedApplication.splice({
+        student: student._id,
+        fee_remain: apply.admissionFee,
+      });
+      apply.confirmedApplication.push({
+        student: student._id,
+        fee_remain:
+          apply.admissionFee >= parseInt(tx_amount_ad)
+            ? apply.admissionFee - parseInt(tx_amount_ad)
+            : 0,
+        payment_status: "online",
+        paid_status:
+          apply.admissionFee - parseInt(tx_amount_ad) == 0
+            ? "Paid"
+            : "Not Paid",
+      });
+      apply.confirmCount += 1;
+      aStatus.content = `Welcome to Institute ${ins.insName}, ${ins.insDistrict}.
     Your seat has been confirmed, You will be alloted your class shortly, Stay Update!`;
-    aStatus.applicationId = apply._id;
-    user.applicationStatus.push(aStatus._id);
-    user.payment_history.push(order);
-    (status.payMode = "online"), (status.isPaid = "Paid");
-    notify.notifyContent = `${student.studentFirstName} 
+      aStatus.applicationId = apply._id;
+      user.applicationStatus.push(aStatus._id);
+      user.payment_history.push(order);
+      (status.payMode = "online"), (status.isPaid = "Paid");
+      notify.notifyContent = `${student.studentFirstName} 
     ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} 
     ${
       student.studentLastName
     } your transaction is successfull for Admission Fee ${parseInt(
-      tx_amount_ad
-    )}`;
-    notify.notify_hi_content = `${student.studentFirstName} 
+        tx_amount_ad
+      )}`;
+      notify.notify_hi_content = `${student.studentFirstName} 
     ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} 
     ${student.studentLastName} प्रवेश शुल्क ${parseInt(
-      tx_amount_ad
-    )} के लिए आपका लेन-देन सफल है |`;
-    notify.notify_mr_content = `प्रवेश शुल्कासाठी ${student.studentFirstName} 
+        tx_amount_ad
+      )} के लिए आपका लेन-देन सफल है |`;
+      notify.notify_mr_content = `प्रवेश शुल्कासाठी ${student.studentFirstName} 
     ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} 
     ${student.studentLastName} तुमचा व्यवहार यशस्वी झाला आहे ${parseInt(
-      tx_amount_ad
-    )}`;
-    notify.notifySender = admission._id;
-    notify.notifyReceiever = user._id;
-    ins.iNotify.push(notify._id);
-    notify.institute = ins._id;
-    user.uNotify.push(notify._id);
-    notify.user = user._id;
-    notify.notifyByStudentPhoto = student._id;
-    ins.payment_history.push(order);
-    orderPay.payment_admission = apply._id;
-    await Promise.all([
-      student.save(),
-      user.save(),
-      apply.save(),
-      finance.save(),
-      ins.save(),
-      admin.save(),
-      status.save(),
-      aStatus.save(),
-      admission.save(),
-      notify.save(),
-      orderPay.save(),
-    ]);
+        tx_amount_ad
+      )}`;
+      notify.notifySender = admission._id;
+      notify.notifyReceiever = user._id;
+      ins.iNotify.push(notify._id);
+      notify.institute = ins._id;
+      user.uNotify.push(notify._id);
+      notify.user = user._id;
+      notify.notifyByStudentPhoto = student._id;
+      ins.payment_history.push(order);
+      orderPay.payment_admission = apply._id;
+      await Promise.all([
+        student.save(),
+        user.save(),
+        apply.save(),
+        finance.save(),
+        ins.save(),
+        admin.save(),
+        status.save(),
+        aStatus.save(),
+        admission.save(),
+        notify.save(),
+        orderPay.save(),
+      ]);
+    } else {
+      if (student?.admissionPaymentStatus?.length > 0) {
+        student?.admissionPaymentStatus.forEach(async (ele) => {
+          if (admission?.newApplication?.includes(`${ele.applicationId}`)) {
+            if (parseInt(tx_amount_ad) === ele.fee - ele.firstInstallment) {
+              ele.status = "Paid";
+              ele.mode = mode;
+              ele.secondInstallment = parseInt(tx_amount_ad);
+              ele.fee = ele.firstInstallment + ele.secondInstallment - ele.fee;
+            }
+          }
+        });
+      }
+      if (student?.remainingFeeList?.length > 0) {
+        student?.remainingFeeList.forEach(async (ele) => {
+          if (admission?.newApplication?.includes(`${ele.appId}`)) {
+            ele.status = "Paid";
+          }
+        });
+      }
+      if (admission?.remainingFeeCount >= parseInt(tx_amount_ad)) {
+        admission.remainingFeeCount -= parseInt(tx_amount_ad);
+      }
+      if (student?.admissionRemainFeeCount >= parseInt(tx_amount_ad)) {
+        student.admissionRemainFeeCount -= parseInt(tx_amount_ad);
+      }
+      admission.remainingFee.pull(student._id);
+      admin_ins.onlineFee += parseInt(tx_amount_ad);
+      apply.onlineFee += parseInt(tx_amount_ad);
+      apply.collectedFeeCount += parseInt(tx_amount_ad);
+      finance.financeTotalBalance += parseInt(tx_amount_ad);
+      finance.financeAdmissionBalance += parseInt(tx_amount_ad);
+      finance.financeBankBalance += parseInt(tx_amount_ad);
+      if (apply?.allottedApplication?.length > 0) {
+        apply?.allottedApplication.forEach((ele) => {
+          if (`${ele.student}` === `${student._id}`) {
+            ele.fee_remain =
+              ele.fee_remain >= parseInt(tx_amount_ad)
+                ? ele.fee_remain - parseInt(tx_amount_ad)
+                : 0;
+            ele.paid_status = "Paid";
+            ele.second_pay_mode = mode;
+            if (apply?.remainingFee >= parseInt(tx_amount_ad)) {
+              apply.remainingFee -= parseInt(tx_amount_ad);
+            }
+          }
+        });
+      }
+      if (apply?.confirmedApplication?.length > 0) {
+        apply?.confirmedApplication.forEach((ele) => {
+          if (`${ele.student}` === `${student._id}`) {
+            ele.fee_remain =
+              ele.fee_remain >= parseInt(tx_amount_ad)
+                ? ele.fee_remain - parseInt(tx_amount_ad)
+                : 0;
+            ele.paid_status = "Paid";
+            ele.second_pay_mode = mode;
+            if (apply?.remainingFee >= parseInt(tx_amount_ad)) {
+              apply.remainingFee -= parseInt(tx_amount_ad);
+            }
+          }
+        });
+      }
+      ins.payment_history.push(order);
+      orderPay.payment_admission = apply._id;
+      await Promise.all([
+        admission.save(),
+        student.save(),
+        apply.save(),
+        finance.save(),
+        ins.save(),
+        orderPay.save(),
+      ]);
+    }
     return `${user?.username}`;
   } catch (e) {
     console.log(e);

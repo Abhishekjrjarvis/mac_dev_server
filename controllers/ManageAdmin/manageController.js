@@ -12,6 +12,7 @@ const Admin = require("../../models/superAdmin");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const Finance = require("../../models/Finance");
 const Student = require("../../models/Student");
+const Admission = require("../../models/Admission/Admission");
 
 function generateAccessManageToken(manage_name, manage_id, manage_pass) {
   return jwt.sign(
@@ -31,7 +32,7 @@ function generateAccessInsToken(ins_name, ins_id, ins_pass) {
 
 exports.renderAdministrator = async (req, res) => {
   try {
-    const { user } = req.query;
+    const { user } = req.body;
 
     const valid_institute = await InstituteAdmin.findOne({
       name: `${req.body.affiliation_username}`,
@@ -63,7 +64,7 @@ exports.renderAdministrator = async (req, res) => {
         .status(400)
         .send({ message: "Username Already Exists 😡", deny: true });
     } else {
-      const access_user = await User.findById({ _id: user });
+      const access_user = await User.findOne({ username: user });
       const manage = new ManageAdmin({ ...req.body });
       manage.affiliation_admin = access_user._id;
       access_user.manage_admins.push(manage._id);
@@ -80,9 +81,11 @@ exports.renderAdministrator = async (req, res) => {
       if (req.file) {
         await unlinkFile(req.file.path);
       }
-      res
-        .status(200)
-        .send({ message: "You got the new responsibility 👍", status: true });
+      res.status(200).send({
+        message: "You got the new responsibility 👍",
+        status: true,
+        manage: manage?._id,
+      });
       const notify = new Notification({});
       notify.notifyContent = `Your got the designation of ${manage?.affiliation_name} as Afilliation Head`;
       notify.notifySender = manage._id;
@@ -102,13 +105,14 @@ exports.renderAdministrator = async (req, res) => {
     res.status(200).send({
       message: "There is a bug need to fixed immediately 😀",
       status: false,
+      e,
     });
   }
 };
 
 exports.renderAdministratorPassword = async (req, res) => {
   try {
-    const { mid } = req.query;
+    const { mid } = req.params;
     const { password, rePassword } = req.body;
     const manage = await ManageAdmin.findById({ _id: mid });
     const genPass = bcrypt.genSaltSync(12);
@@ -251,11 +255,11 @@ exports.renderAdministratorStatus = async (req, res) => {
 exports.renderAdministratorAllInsQuery = async (req, res) => {
   try {
     const { mid } = req.params;
-    var all_ins_token = [];
-    var token = {
-      all_ins: [],
-      token: "",
-    };
+    // var all_ins_token = [];
+    // var token = {
+    //   all_ins: [],
+    //   token: "",
+    // };
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
@@ -275,7 +279,7 @@ exports.renderAdministratorAllInsQuery = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "insName photoId insProfilePhoto name status isUniversal one_line_about insEmail insAddress followersCount coverId insProfileCoverPhoto"
+        "insName photoId insProfilePhoto financeDepart bankAccountPhoneNumber bankAccountType bankAccountHolderName bankIfscCode bankAccountPhoneNumber financeStatus admissionDepart admissionStatus name status isUniversal one_line_about insEmail insAddress followersCount coverId insProfileCoverPhoto"
       )
       .populate({
         path: "displayPersonList",
@@ -286,15 +290,15 @@ exports.renderAdministratorAllInsQuery = async (req, res) => {
         },
       });
 
-    all_ins?.forEach((ele) => {
-      var all = generateAccessInsToken(ele?.name, ele?._id, ele?.insPassword);
-      token.all_ins = ele;
-      token.token = all;
-      all_ins_token.push(token);
-    });
+    // all_ins?.forEach((ele) => {
+    //   var all = generateAccessInsToken(ele?.name, ele?._id, ele?.insPassword);
+    //   token.all_ins = ele;
+    //   token.token = all;
+    //   all_ins_token.push(token);
+    // });
     res.status(200).send({
       message: "All Affiliated Institute 😀",
-      all_ins: all_ins_token,
+      all_ins: all_ins,
       query: true,
     });
   } catch (e) {
@@ -342,14 +346,14 @@ exports.renderAdministratorAllFinance = async (req, res) => {
     );
 
     const all_finance = await Finance.find({
-      institute: { $in: manage?.affiliation_institute_request },
+      institute: { $in: manage?.affiliation_institute_approve },
     }).select(
       "financeTotalBalance financeSubmitBalance financeBankBalance financeExemptBalance "
     );
 
     const student = await Student.find({
       $and: [
-        { institute: { $in: manage?.affiliation_institute_request } },
+        { institute: { $in: manage?.affiliation_institute_approve } },
         { studentStatus: "Approved" },
       ],
     }).select("studentRemainingFeeCount");
@@ -360,4 +364,95 @@ exports.renderAdministratorAllFinance = async (req, res) => {
       query: true,
     });
   } catch (e) {}
+};
+
+exports.renderAdministratorAllAdmission = async (req, res) => {
+  try {
+    const { mid } = req.params;
+    if (!mid)
+      return res.status(200).send({
+        message: "There is a bug need to fixed immediately 😀",
+        query: false,
+      });
+    const manage = await ManageAdmin.findById({ _id: mid }).select(
+      "affiliation_institute_approve"
+    );
+
+    const all_admission = await Admission.find({
+      institute: { $in: manage?.affiliation_institute_approve },
+    }).select(
+      "onlineFee offlineFee newAppCount queryCount remainingFeeCount completedCount"
+    );
+
+    const student = await Student.find({
+      $and: [
+        { institute: { $in: manage?.affiliation_institute_approve } },
+        { studentStatus: "Approved" },
+      ],
+    }).select("admissionRemainFeeCount");
+    res.status(200).send({
+      message: "All Affiliated Institute 😀",
+      all_admission: all_admission,
+      all_remain: student,
+      query: true,
+    });
+  } catch (e) {}
+};
+
+exports.renderAdministratorAllManageAdmin = async (req, res) => {
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (search) {
+      var manage = await ManageAdmin.find({
+        $or: [{ affiliation_name: { $regex: search, $options: "i" } }],
+      }).select("affiliation_name photoId photo affiliation_institute_approve");
+    } else {
+      var manage = await ManageAdmin.find({})
+        .limit(limit)
+        .skip(skip)
+        .select("affiliation_name photoId photo affiliation_institute_approve");
+    }
+    if (manage?.length > 0) {
+      res.status(200).send({
+        message: "Affiliation at one place",
+        manage: manage,
+      });
+    } else {
+      res.status(404).send({ message: "Renovation at manage", manage: [] });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAdministratorAllUser = async (req, res) => {
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (search) {
+      var user = await User.find({
+        $or: [{ userLegalName: { $regex: search, $options: "i" } }],
+      }).select("userLegalName username photoId profilePhoto");
+    } else {
+      var user = await User.find({})
+        .limit(limit)
+        .skip(skip)
+        .select("userLegalName username photoId profilePhoto");
+    }
+    if (user?.length > 0) {
+      res.status(200).send({
+        message: "Affiliation at one place",
+        user: user,
+      });
+    } else {
+      res.status(404).send({ message: "Renovation at user", user: [] });
+    }
+  } catch (e) {
+    console.log(e);
+  }
 };

@@ -442,7 +442,7 @@ exports.postQuestionDeleteAnswer = async (req, res) => {
     const post = await Post.findById({ _id: pid });
     await Post.findByIdAndUpdate(id, { $pull: { answer: aid } });
     await Answer.findByIdAndDelete({ _id: aid });
-    if (post.answerCount >= 1) {
+    if (post.answerCount > 0) {
       post.answerCount -= 1;
     }
     await post.save();

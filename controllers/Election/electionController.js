@@ -45,7 +45,11 @@ exports.retrieveNewElectionQuery = async (req, res) => {
     elect.department = depart._id;
     elect.election_app_start_date = new Date(`${req.body?.date}`).toISOString();
     await Promise.all([depart.save(), elect.save()]);
+<<<<<<< HEAD
     res.status(201).send({
+=======
+    res.status(200).send({
+>>>>>>> b4f4a918b49875270904e8bc7d50b54bc2a24efb
       message: "New Election Application will be available",
       status: true,
     });
@@ -148,6 +152,7 @@ exports.retrieveAllElectionQuery = async (req, res) => {
     console.log(e);
   }
 };
+<<<<<<< HEAD
 exports.retrieveOneElectionQuery = async (req, res) => {
   try {
     const { eid } = req.params;
@@ -165,6 +170,15 @@ exports.retrieveOneElectionQuery = async (req, res) => {
         select:
           "election_candidate_status election_result_status election_vote_receieved election_tag_line election_description",
       });
+=======
+
+exports.retrieveOneElectionQuery = async (req, res) => {
+  try {
+    const { eid } = req.params;
+    const elect = await Election.find({ _id: eid }).select(
+      "election_position election_app_start_date election_app_end_date election_selection_date election_compaign_date election_result_date election_voting_date election_status"
+    );
+>>>>>>> b4f4a918b49875270904e8bc7d50b54bc2a24efb
     res
       .status(200)
       .send({ message: "One Election Event Process Query ", elect: elect });
@@ -179,6 +193,7 @@ exports.retrieveOneElectionQueryCandidate = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
     const { eid } = req.params;
+<<<<<<< HEAD
     const all_candidate = await Election.findById({ _id: eid }).populate({
       path: "election_candidate",
       options: {
@@ -191,11 +206,32 @@ exports.retrieveOneElectionQueryCandidate = async (req, res) => {
           "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
       },
     });
+=======
+    const all_candidate = await Election.findById({ _id: eid })
+      .select("_id election_candidate")
+      .limit(limit)
+      .skip(skip);
+    // .populate({
+    //   path: "election_candidate",
+    //   limit: limit,
+    //   skip: skip,
+    //   select: "election_candidate_status",
+    //   // populate: {
+    //   //   path: "student",
+    //   //   select:
+    //   //     "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
+    //   // },
+    // });
+>>>>>>> b4f4a918b49875270904e8bc7d50b54bc2a24efb
 
     if (all_candidate?.election_candidate?.length > 0) {
       res.status(200).send({
         message: "All Candidate List 😀",
+<<<<<<< HEAD
         all_candidate,
+=======
+        all_candidate: all_candidate,
+>>>>>>> b4f4a918b49875270904e8bc7d50b54bc2a24efb
         status: true,
       });
     } else {
@@ -207,6 +243,10 @@ exports.retrieveOneElectionQueryCandidate = async (req, res) => {
     }
   } catch {}
 };
+<<<<<<< HEAD
+=======
+
+>>>>>>> b4f4a918b49875270904e8bc7d50b54bc2a24efb
 exports.retrieveApplyElectionQuery = async (req, res) => {
   try {
     const { eid, sid } = req.params;
@@ -409,3 +449,46 @@ exports.retrieveVoteElectionDepartment = async (req, res) => {
     console.log(e);
   }
 };
+<<<<<<< HEAD
+=======
+
+exports.retrieveAllElectionArray = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!sid)
+      return res.status(200).send({
+        message: "There is a bug need to fixed immediately 😀",
+        query: false,
+      });
+    const student = await Student.findById({ _id: sid }).select(
+      "election_candidate"
+    );
+
+    const all_elect = await Election.find({
+      _id: { $in: student?.election_candidate },
+    })
+      .sort("-created_at")
+      .limit(limit)
+      .skip(skip)
+      .select("election_position election_app_start_date election_status");
+
+    if (all_elect?.length > 0) {
+      res.status(200).send({
+        message: "All Upcoming Election 😀",
+        query: true,
+        all_elect,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Upcoming Election 😡",
+        query: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+>>>>>>> b4f4a918b49875270904e8bc7d50b54bc2a24efb

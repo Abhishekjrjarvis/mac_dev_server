@@ -266,6 +266,37 @@ exports.promoteStudent = async (req, res) => {
       previousclasses?.ApproveStudent?.pull(stu);
       classes.studentCount += 1;
       await student.save();
+
+      if (student.studentGender === "Male") {
+        classes.boyCount += 1;
+        batch.student_category.boyCount += 1;
+      } else if (student.studentGender === "Female") {
+        classes.girlCount += 1;
+        batch.student_category.girlCount += 1;
+      } else {
+        batch.student_category.otherCount += 1;
+      }
+      if (student.studentCastCategory === "General") {
+        batch.student_category.generalCount += 1;
+      } else if (student.studentCastCategory === "OBC") {
+        batch.student_category.obcCount += 1;
+      } else if (student.studentCastCategory === "SC") {
+        batch.student_category.scCount += 1;
+      } else if (student.studentCastCategory === "ST") {
+        batch.student_category.stCount += 1;
+      } else if (student.studentCastCategory === "NT-A") {
+        batch.student_category.ntaCount += 1;
+      } else if (student.studentCastCategory === "NT-B") {
+        batch.student_category.ntbCount += 1;
+      } else if (student.studentCastCategory === "NT-C") {
+        batch.student_category.ntcCount += 1;
+      } else if (student.studentCastCategory === "NT-D") {
+        batch.student_category.ntdCount += 1;
+      } else if (student.studentCastCategory === "VJ") {
+        batch.student_category.vjCount += 1;
+      } else {
+      }
+      await Promise.all([classes.save(), batch.save()]);
     }
 
     await Promise.all([

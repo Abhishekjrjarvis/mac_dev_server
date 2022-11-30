@@ -46,6 +46,10 @@ const checklistSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Student",
   },
+  gstSlab: { type: Number, default: 0 },
+  gst_number: { type: String },
+  business_name: { type: String },
+  business_address: { type: String },
 });
 
 const Checklist = mongoose.model("Checklist", checklistSchema);

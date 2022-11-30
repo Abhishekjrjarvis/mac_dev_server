@@ -311,6 +311,9 @@ const instituteAdminSchema = new mongoose.Schema({
     type: String,
     default: "Not Assigned",
   },
+  last_seen: {
+    type: Date,
+  },
   paymentBankStatus: { type: String },
   GSTInfo: { type: String },
   businessName: { type: String },
@@ -617,6 +620,12 @@ const instituteAdminSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "OrderPayment",
+    },
+  ],
+  affiliation_by: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ManageAdmin",
     },
   ],
 });

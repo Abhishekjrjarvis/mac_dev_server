@@ -414,6 +414,9 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  last_seen: {
+    type: Date,
+  },
   follow_hashtag: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -427,6 +430,12 @@ const userSchema = new mongoose.Schema({
   next_date: {
     type: String,
   },
+  manage_admins: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ManageAdmin",
+    },
+  ],
 });
 
 userSchema.post("findOneAndDelete", async function (doc) {

@@ -54,7 +54,7 @@ exports.verifyRazorPayment = async (req, res) => {
       ad_status_id,
       isApk,
     } = req.query;
-
+    var refactor_amount = parseInt(payment_amount) / 100;
     const body = razorpay_order_id + "|" + razorpay_payment_id;
     var expectedSignature = crypto
       .createHmac("sha256", process.env.RAZOR_KEY_SECRET)
@@ -70,7 +70,7 @@ exports.verifyRazorPayment = async (req, res) => {
       order_payment.payment_flag_by = "Debit";
       order_payment.payment_flag_to = "Credit";
       order_payment.payment_module_id = payment_module_id;
-      order_payment.payment_amount = payment_amount;
+      order_payment.payment_amount = refactor_amount;
       order_payment.payment_status = "Captured";
       order_payment.payment_invoice_number += 1;
       await order_payment.save();
@@ -78,7 +78,7 @@ exports.verifyRazorPayment = async (req, res) => {
         const unlock_status = await unlockInstituteFunction(
           order_payment?._id,
           payment_by_end_user_id,
-          payment_amount
+          refactor_amount
         );
         if (isApk) {
           res
@@ -92,7 +92,7 @@ exports.verifyRazorPayment = async (req, res) => {
         const fee_status = await feeInstituteFunction(
           order_payment?._id,
           payment_by_end_user_id,
-          payment_amount,
+          refactor_amount,
           payment_module_id
         );
         if (isApk) {
@@ -105,7 +105,7 @@ exports.verifyRazorPayment = async (req, res) => {
         const admission_status = await admissionInstituteFunction(
           order_payment?._id,
           payment_by_end_user_id,
-          payment_amount,
+          refactor_amount,
           payment_module_id,
           ad_status_id
         );
@@ -122,7 +122,7 @@ exports.verifyRazorPayment = async (req, res) => {
         const participate_status = await participateEventFunction(
           order_payment?._id,
           payment_by_end_user_id,
-          payment_amount,
+          refactor_amount,
           payment_module_id,
           ad_status_id
         );
@@ -145,7 +145,7 @@ exports.verifyRazorPayment = async (req, res) => {
   }
 };
 
-exports.fetchPaymentHistoryQuery = async (req, res) => {
+exports.fetchPaymentHistoryQueryBy = async (req, res) => {
   try {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
@@ -156,8 +156,70 @@ exports.fetchPaymentHistoryQuery = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "razorpay_order_id payment_module_type payment_amount payment_status created_at payment_mode payment_invoice_number"
-      );
+        "razorpay_order_id payment_module_type payment_module_id payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
+      )
+      .populate({
+        path: "payment_fee",
+        select: "feeName",
+      })
+      .populate({
+        path: "payment_admission",
+        select: "applicationName",
+      })
+      .populate({
+        path: "payment_checklist",
+        select: "checklistName",
+      })
+      .populate({
+        path: "payment_income",
+        select: "incomeDesc",
+      })
+      .populate({
+        path: "payment_expense",
+        select: "expenseDesc",
+      });
+
+    if (order?.length > 0) {
+      res.status(200).send({ message: "User Pay History", history: order });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.fetchPaymentHistoryQueryTo = async (req, res) => {
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const { uid } = req.query;
+    const skip = (page - 1) * limit;
+    const order = await OrderPayment.find({ payment_to_end_user_id: uid })
+      .sort("-created_at")
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "razorpay_order_id payment_module_type payment_module_id payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
+      )
+      .populate({
+        path: "payment_fee",
+        select: "feeName",
+      })
+      .populate({
+        path: "payment_admission",
+        select: "applicationName",
+      })
+      .populate({
+        path: "payment_checklist",
+        select: "checklistName",
+      })
+      .populate({
+        path: "payment_income",
+        select: "incomeDesc",
+      })
+      .populate({
+        path: "payment_expense",
+        select: "expenseDesc",
+      });
 
     if (order?.length > 0) {
       res.status(200).send({ message: "User Pay History", history: order });

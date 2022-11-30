@@ -3,6 +3,7 @@ const Poll = require("../../models/Question/Poll");
 const Answer = require("../../models/Question/Answer");
 const User = require("../../models/User");
 const InstituteAdmin = require("../../models/InstituteAdmin");
+const Staff = require("../../models/Staff");
 
 exports.allPosts = async (req, res) => {
   try {
@@ -34,7 +35,7 @@ exports.allPolls = async (req, res) => {
   try {
     // const { query } = req.query
     const poll = await InstituteAdmin.find({})
-      .select("id activateStatus accessFeature unlockAmount")
+      .select("id staffFormSetting studentFormSetting")
       .lean()
       .exec();
     res
@@ -158,4 +159,30 @@ exports.rewardProfileAdsQuery = async (req, res) => {
   } catch (e) {
     console.log(e);
   }
+};
+
+exports.oneInstitute = async (req, res) => {
+  try {
+    const { id } = req.params;
+    // const staff = await Staff.find({}).select("id staffFirstName");
+    const ins = await InstituteAdmin.findById({ _id: id })
+      .select("id ApproveStaff")
+      // .populate({
+      //   path: "iNotify",
+      //   select: "notifyContent",
+      // });
+      .populate({
+        path: "ApproveStaff",
+        select: "id staffFirstName staffMiddleName staffLastName staffROLLNO",
+      });
+    res.status(200).send({ message: "One Institute ", one_ins: ins });
+  } catch {}
+};
+
+exports.oneUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById({ _id: id });
+    res.status(200).send({ message: "One User ", one_user: user });
+  } catch {}
 };

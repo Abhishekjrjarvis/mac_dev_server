@@ -13,10 +13,10 @@ const SportClass = require("../../models/SportClass");
 const Checklist = require("../../models/Checklist");
 const Fees = require("../../models/Fees");
 const Batch = require("../../models/Batch");
-const HashTag = require("../../models/HashTag/hashTag");
 
 const Library = require("../../models/Library/Library");
 const { shuffleArray } = require("../../Utilities/Shuffle");
+const HashTag = require("../../models/HashTag/hashTag");
 
 exports.searchUserUniversalWeb = async (req, res) => {
   try {
@@ -140,10 +140,6 @@ exports.searchUserUniversalWeb = async (req, res) => {
           ];
           var universalArrayUser = shuffleArray(mergeArray);
           res.status(200).send({
-            allInstitutes,
-            users,
-            allMentors,
-            allHashtag,
             universalArrayUser,
           });
         }
@@ -922,7 +918,7 @@ exports.searchStaffRequest = async (req, res) => {
         )
         .populate({
           path: "user",
-          select: "_id",
+          select: "_id userLegalName",
         })
         .limit(itemPerPage)
         .skip(dropItem)

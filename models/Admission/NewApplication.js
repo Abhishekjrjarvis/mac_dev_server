@@ -100,6 +100,10 @@ const newApplicationSchema = new mongoose.Schema({
       refund_amount: { type: Number, default: 0 },
     },
   ],
+  gstSlab: { type: Number, default: 0 },
+  gst_number: { type: String },
+  business_name: { type: String },
+  business_address: { type: String },
 });
 
 module.exports = mongoose.model("NewApplication", newApplicationSchema);

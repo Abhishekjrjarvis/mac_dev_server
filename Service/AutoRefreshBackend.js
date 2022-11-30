@@ -267,12 +267,14 @@ const compareDistance = (rec_1, rec_2) => {
   return rec_1 - rec_2;
 };
 
-const remove_redundancy_recommend = (re1, uf1, uc1) => {
-  const found_re1 = re1.filter((r) => uf1.includes(r));
-  const found_re2 = re1.filter((r) => uc1.includes(r));
-  var remove_Ids_re1 = re1?.splice(`${found_re1}`, 1);
-  var remove_Ids_re2 = remove_Ids_re1?.splice(`${found_re2}`, 1);
-  return remove_Ids_re2;
+const remove_redundancy_recommend = (re1, uf1, uc1, uff1) => {
+  const found_re1 = re1.filter((r) => !uf1.includes(r));
+  const found_re2 = re1.filter((r) => !uc1.includes(r));
+  const found_re3 = re1.filter((r) => !uff1.includes(r));
+  const found_re4 = found_re1.filter((r) => found_re2.includes(r));
+  const found_re5 = found_re3.filter((r) => found_re4.includes(r));
+  const unique_follow = [...new Set(found_re5)];
+  return unique_follow;
 };
 
 exports.recommendedAllIns = async (req, res) => {
@@ -280,9 +282,9 @@ exports.recommendedAllIns = async (req, res) => {
     var recommend = [];
     const { uid } = req.params;
     const { expand_search } = req.query;
-    const expand = expand_search ? expand_search : 50;
+    const expand = expand_search ? expand_search : 35;
     var user = await User.findById({ _id: uid }).select(
-      "user_latitude user_longitude userInstituteFollowing userFollowers userCircle"
+      "user_latitude user_longitude userInstituteFollowing userFollowers userCircle userFollowing"
     );
 
     const ins = await InstituteAdmin.find({}).select(
@@ -328,7 +330,6 @@ exports.recommendedAllIns = async (req, res) => {
         if (recommend?.joinedUserList.includes(user?._id)) return;
         refresh_recommend_user.push(...recommend?.joinedUserList);
       });
-
       var refresh_recommend_ref = refresh_recommend_user?.filter(function (
         user_ref
       ) {
@@ -337,7 +338,8 @@ exports.recommendedAllIns = async (req, res) => {
       var valid_recommend_user = remove_redundancy_recommend(
         refresh_recommend_ref,
         user?.userFollowers,
-        user?.userCircle
+        user?.userCircle,
+        user?.userFollowing
       );
       const recommend_user = await User.find({
         _id: { $in: valid_recommend_user },
@@ -361,23 +363,19 @@ exports.recommendedAllIns = async (req, res) => {
         rec_user.push(rem_rec_red);
       });
       shuffleArray(rec_user);
-      res
-        .status(200)
-        .send({
-          message: "Recommended Institute for follow and Joined",
-          recommend_ins_array: rec_user,
-          recommend: true,
-          refresh_recommend_user: recommend_user,
-        });
+      res.status(200).send({
+        message: "Recommended Institute for follow and Joined",
+        recommend_ins_array: rec_user,
+        recommend: true,
+        refresh_recommend_user: recommend_user,
+      });
     } else {
-      res
-        .status(200)
-        .send({
-          message: "No Recommendation / Suggestion",
-          recommend_ins_array: [],
-          recommend: false,
-          refresh_recommend_user: [],
-        });
+      res.status(200).send({
+        message: "No Recommendation / Suggestion",
+        recommend_ins_array: [],
+        recommend: false,
+        refresh_recommend_user: [],
+      });
     }
   } catch (e) {
     console.log(e);
@@ -433,12 +431,10 @@ exports.recommendedAllAdmissionPost = async (req, res) => {
         }
         await feed.save();
       });
-      res
-        .status(200)
-        .send({
-          message: "Recommend App Author Increase visibility by expand area",
-          show: true,
-        });
+      res.status(200).send({
+        message: "Recommend App Author Increase visibility by expand area",
+        show: true,
+      });
     } else {
       res
         .status(200)

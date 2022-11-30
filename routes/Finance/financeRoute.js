@@ -207,4 +207,11 @@ router.get(
 
 router.get("/:fid/gst/tax/credit", catchAsync(Finance.retrieveAllGSTInputTax));
 
+router.get("/:fid/gst/b/to/c", catchAsync(Finance.retrieveAllBToCQuery));
+
+router.get(
+  "/:fid/gst/btoc/filter",
+  catchAsync(Finance.retrieveAllBToCQueryArray)
+);
+
 module.exports = router;

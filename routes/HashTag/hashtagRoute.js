@@ -12,7 +12,7 @@ router.get("/:hid/query/post", catchAsync(HashTag.renderHashtagPost));
 
 router.patch("/follow", isLoggedIn, catchAsync(HashTag.followHashtag));
 
-router.get("/all/array", catchAsync(HashTag.arrayHashtag));
+router.get("/all/array", isLoggedIn, catchAsync(HashTag.arrayHashtag));
 
 router.patch(
   "/:hid/update",

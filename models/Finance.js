@@ -195,35 +195,11 @@ const financeSchema = new mongoose.Schema(
       ],
       b_to_c: [
         {
-          month: { type: String },
-          total_amount: { type: Number, default: 0 },
-          createdAt: { type: Date, default: Date.now },
-          i_slab: { type: Number, default: 0 },
-          s_slab: { type: Number, default: 0 },
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "BusinessTC",
         },
       ],
     },
-    // ,
-    // filter_finance: [
-    //   {
-    //     year: { type: String },
-    //     data: [
-    //       {
-    //         month: { type: String },
-    //         financeTotal: { type: Number, default: 0 },
-    //         financeSubmit: { type: Number, default: 0 },
-    //         financeCollected: { type: Number, default: 0 },
-    //         financeBank: { type: Number, default: 0 },
-    //         financeRaised: { type: Number, default: 0 },
-    //         financeIncomeCash: { type: Number, default: 0 },
-    //         financeExpenseCash: { type: Number, default: 0 },
-    //         financeIncomeBank: { type: Number, default: 0 },
-    //         financeExpenseBank: { type: Number, default: 0 },
-    //         financeExempt: { type: Number, default: 0 },
-    //       }
-    //     ]
-    //   }
-    // ]
   },
   { timestamps: true }
 );

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const AnswerReply = require("./AnswerReply");
 
 const answerSchema = new mongoose.Schema({
   answerContent: {

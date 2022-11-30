@@ -12,10 +12,13 @@ router.get("/:did/all/query", catchAsync(Election.retrieveAllElectionQuery));
 
 // Get One Election
 router.get("/one/:eid", catchAsync(Election.retrieveOneElectionQuery));
+
+// Get One Election
 router.get(
   "/one/:eid/all/candidate",
   catchAsync(Election.retrieveOneElectionQueryCandidate)
 );
+
 // Create Election Event
 router.post(
   "/:eid/apply/:sid",
@@ -34,9 +37,13 @@ router.patch(
   catchAsync(Election.retrieveVoteElectionQuery)
 );
 
+// Approve Election Apply Event
 router.get(
   "/:did/one/institute",
   catchAsync(Election.retrieveVoteElectionDepartment)
 );
+
+// All Elections at Students Side
+router.get("/all/:sid/query", catchAsync(Election.retrieveAllElectionArray));
 
 module.exports = router;

@@ -13,7 +13,6 @@ const SportClass = require("../../models/SportClass");
 const Checklist = require("../../models/Checklist");
 const Fees = require("../../models/Fees");
 const Batch = require("../../models/Batch");
-const HashTag = require("../../models/HashTag/hashTag");
 
 const Library = require("../../models/Library/Library");
 const { shuffleArray } = require("../../Utilities/Shuffle");
@@ -806,7 +805,7 @@ exports.searchStaff = async (req, res) => {
           )
           .populate({
             path: "user",
-            select: "_id",
+            select: "_id userLegalName",
           })
           .populate({
             path: "staffLeave",
@@ -867,7 +866,7 @@ exports.searchStaff = async (req, res) => {
         )
         .populate({
           path: "user",
-          select: "_id",
+          select: "_id userLegalName",
         })
         .limit(itemPerPage)
         .skip(dropItem)
@@ -919,7 +918,7 @@ exports.searchStaffRequest = async (req, res) => {
         )
         .populate({
           path: "user",
-          select: "_id",
+          select: "_id userLegalName",
         })
         .limit(itemPerPage)
         .skip(dropItem)

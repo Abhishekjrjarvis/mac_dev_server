@@ -4,6 +4,7 @@ const Comment = require("../../../models/Comment");
 const InstituteAdmin = require("../../../models/InstituteAdmin");
 const ReplyComment = require("../../../models/ReplyComment/ReplyComment");
 const Poll = require("../../../models/Question/Poll");
+const Answer = require("../../../models/Question/Answer");
 const Notification = require("../../../models/notification");
 const {
   uploadPostImageFile,
@@ -395,25 +396,26 @@ exports.postWithDeleted = async (req, res) => {
     const post = await Post.findById({ _id: pid })
       .select("postType")
       .populate({ path: "poll_query", select: "id" })
-      .populate({ path: "rePostAnswer", select: "id" });
+      .populate({ path: "rePostAnswer", select: "id post" });
+
+    const question = await Post.findOne({ _id: `${post?.rePostAnswer?.post}` });
     await User.findByIdAndUpdate(id, { $pull: { userPosts: pid } });
     await User.findByIdAndUpdate(id, { $pull: { user_saved_post: pid } });
     await User.findByIdAndUpdate(id, { $pull: { tag_post: pid } });
-    if (user.postCount >= 1) {
+    if (user.postCount > 0) {
       user.postCount -= 1;
     }
     if (post && post.postType === "Poll" && post.poll_query !== "") {
       await Poll.findByIdAndDelete(post.poll_query?._id);
-      if (user.poll_Count >= 1) {
+      if (user.poll_Count > 0) {
         user.poll_Count -= 1;
       }
-      // post.poll_query = "";
-      // await post.save();
     }
     if (post && post.postType === "Repost" && post.rePostAnswer !== "") {
       await Answer.findByIdAndDelete(post.rePostAnswer?._id);
-      if (user.poll_Count >= 1) {
-        user.poll_Count -= 1;
+      if (question && question?.answerCount > 0) {
+        question.answerCount -= 1;
+        await question.save();
       }
     }
     if (user.answerQuestionCount > 0) {

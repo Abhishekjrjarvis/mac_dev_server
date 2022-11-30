@@ -103,8 +103,21 @@ exports.createChecklist = async (req, res) => {
     const finance = await Finance.findById({
       _id: `${institute.financeDepart[0]}`,
     });
-    finance.financeRaisedBalance += check.checklistAmount;
-    await Promise.all([finance.save()]);
+    //
+    var strength = 0;
+    for (let i = 0; i < ClassId.length; i++) {
+      const classes = await Class.findById({ _id: ClassId[i] }).select(
+        "ApproveStudent"
+      );
+      strength += classes.ApproveStudent?.length;
+    }
+    if (strength > 0) {
+      finance.financeRaisedBalance += check.checklistAmount * strength;
+      await finance.save();
+    } else {
+      finance.financeRaisedBalance += check.checklistAmount * strength;
+      await finance.save();
+    }
     //
   } catch (e) {
     console.log(e);

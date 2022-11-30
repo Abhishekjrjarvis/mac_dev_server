@@ -12,6 +12,7 @@ const Batch = require("../../models/Batch");
 const Department = require("../../models/Department");
 const Class = require("../../models/Class");
 const Admin = require("../../models/superAdmin");
+const OrderPayment = require("../../models/RazorPay/orderPayment");
 const {
   uploadDocFile,
   uploadFile,
@@ -338,6 +339,12 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
     const user = await User.findById({ _id: uid });
     const student = new Student({ ...req.body });
     const apply = await NewApplication.findById({ _id: aid });
+    const admission = await Admission.findById({
+      _id: `${apply.admissionAdmin}`,
+    }).select("institute");
+    const institute = await InstituteAdmin.findById({
+      _id: `${admission.institute}`,
+    });
     const status = new Status({});
     for (let file of req.files) {
       let count = 1;
@@ -370,11 +377,19 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
       fee_remain: apply.admissionFee,
     });
     apply.receievedCount += 1;
+    if (institute.userFollowersList.includes(uid)) {
+    } else {
+      user.userInstituteFollowing.push(institute._id);
+      user.followingUICount += 1;
+      institute.userFollowersList.push(uid);
+      institute.followersCount += 1;
+    }
     await Promise.all([
       student.save(),
       user.save(),
       status.save(),
       apply.save(),
+      institute.save(),
     ]);
     res.status(201).send({
       message: "Taste a bite of sweets till your application is selected",
@@ -590,7 +605,7 @@ exports.retrieveAdmissionPayMode = async (req, res) => {
 exports.payOfflineAdmissionFee = async (req, res) => {
   try {
     const { sid, aid } = req.params;
-    const { amount, tAmount } = req.body;
+    const { amount, tAmount, mode } = req.body;
     var price = parseInt(amount);
     var tPrice = parseInt(tAmount);
     const apply = await NewApplication.findById({ _id: aid });
@@ -606,6 +621,18 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     const student = await Student.findById({ _id: sid });
     const user = await User.findById({ _id: `${student.user}` });
     const status = new Status({});
+    const order = new OrderPayment({});
+    order.payment_module_type = "Admission Fees";
+    order.payment_to_end_user_id = admission?._id;
+    order.payment_by_end_user_id = user._id;
+    order.payment_module_id = apply._id;
+    order.payment_amount = price;
+    order.payment_status = "Captured";
+    order.payment_flag_to = "Credit";
+    order.payment_mode = "Offline";
+    order.payment_admission = apply._id;
+    order.payment_from = student._id;
+    institute.payment_history.push(order._id);
     if (price && price > apply.admissionFee && finance?._id !== "") {
       res.status(404).send({
         message:
@@ -615,14 +642,21 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     } else {
       if (price < apply.admissionFee) {
         admission.remainingFee.push(student._id);
-        if (student.admissionRemainFeeCount >= apply.admissionFee) {
-          student.admissionRemainFeeCount -= apply.admissionFee;
-        }
+        // if (student.admissionRemainFeeCount >= apply.admissionFee) {
+        //   student.admissionRemainFeeCount -= apply.admissionFee;
+        // }
+        student.admissionRemainFeeCount += apply.admissionFee - price;
         apply.remainingFee += apply.admissionFee - price;
         admission.remainingFeeCount += apply.admissionFee - price;
+        student.remainingFeeList.push({
+          remainAmount: apply.admissionFee - price,
+          appId: apply._id,
+          status: "Not Paid",
+        });
         student.admissionPaymentStatus.push({
           applicationId: apply._id,
           status: "Pending",
+          mode: mode,
           installment: "Installment",
           firstInstallment: price,
           secondInstallment: tPrice,
@@ -631,19 +665,31 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       } else if (price == apply.admissionFee) {
         student.admissionPaymentStatus.push({
           applicationId: apply._id,
-          status: "offline",
+          status: "Paid",
+          mode: mode,
           installment: "No Installment",
           fee: price,
         });
-        if (student.admissionRemainFeeCount >= apply.admissionFee) {
-          student.admissionRemainFeeCount -= apply.admissionFee;
-        }
+        // if (student.admissionRemainFeeCount >= apply.admissionFee) {
+        //   student.admissionRemainFeeCount -= apply.admissionFee;
+        // }
       }
-      admission.offlineFee += price;
-      apply.collectedFeeCount += price;
-      apply.offlineFee += price;
-      finance.financeAdmissionBalance += price;
-      finance.financeTotalBalance += price;
+      if (mode === "Offline") {
+        admission.offlineFee += price;
+        apply.collectedFeeCount += price;
+        apply.offlineFee += price;
+        finance.financeAdmissionBalance += price;
+        finance.financeTotalBalance += price;
+        finance.financeSubmitBalance += price;
+      } else if (mode === "Online") {
+        admission.onlineFee += price;
+        apply.collectedFeeCount += price;
+        apply.onlineFee += price;
+        finance.financeAdmissionBalance += price;
+        finance.financeTotalBalance += price;
+        finance.financeBankBalance += price;
+      } else {
+      }
       apply.selectedApplication.splice(
         {
           student: student._id,
@@ -655,7 +701,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
         student: student._id,
         fee_remain:
           apply.admissionFee >= price ? apply.admissionFee - price : 0,
-        payment_status: "offline",
+        payment_status: mode,
         paid_status: apply.admissionFee - price == 0 ? "Paid" : "Not Paid",
       });
       apply.confirmCount += 1;
@@ -669,6 +715,8 @@ exports.payOfflineAdmissionFee = async (req, res) => {
         student.save(),
         finance.save(),
         user.save(),
+        order.save(),
+        institute.save(),
       ]);
       res
         .status(200)
@@ -808,16 +856,32 @@ exports.retrieveAdmissionApplicationClass = async (req, res) => {
     const skip = (page - 1) * limit;
     const apply = await NewApplication.findById({ _id: aid });
     const batch = await Batch.findById({ _id: `${apply.applicationBatch}` });
-    const classes = await Class.find({
-      $and: [
-        { _id: { $in: batch?.classroom } },
-        { classStatus: "UnCompleted" },
-      ],
-    })
-      .sort("-strength")
-      .limit(limit)
-      .skip(skip)
-      .select("className classTitle boyCount girlCount photoId photo");
+    const { search } = req.query;
+    if (search) {
+      var classes = await Class.find({
+        $and: [
+          { _id: { $in: batch?.classroom } },
+          { classStatus: "UnCompleted" },
+        ],
+        $or: [
+          { className: { $regex: search, $options: "i" } },
+          {
+            classTitle: { $regex: search, $options: "i" },
+          },
+        ],
+      }).select("className classTitle boyCount girlCount photoId photo");
+    } else {
+      var classes = await Class.find({
+        $and: [
+          { _id: { $in: batch?.classroom } },
+          { classStatus: "UnCompleted" },
+        ],
+      })
+        .sort("-strength")
+        .limit(limit)
+        .skip(skip)
+        .select("className classTitle boyCount girlCount photoId photo");
+    }
     if (classes?.length > 0) {
       res.status(200).send({
         message: "Front & Back Benchers at one place",
@@ -826,18 +890,12 @@ exports.retrieveAdmissionApplicationClass = async (req, res) => {
     } else {
       res.status(404).send({ message: "Renovation at classes", classes: [] });
     }
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.retrieveClassAllotQuery = async (req, res) => {
-  var date = new Date();
-  var p_date = date.getDate();
-  var p_month = date.getMonth() + 1;
-  var p_year = date.getFullYear();
-  if (p_month <= 10) {
-    p_month = `0${p_month}`;
-  }
-  var c_date = `${p_year}-${p_month}-${p_date}`;
   try {
     const { sid, aid, cid } = req.params;
     const apply = await NewApplication.findById({ _id: aid });
@@ -880,16 +938,11 @@ exports.retrieveClassAllotQuery = async (req, res) => {
     admins.studentArray.push(student._id);
     admins.studentCount += 1;
     institute.studentCount += 1;
-    if (student.studentGender === "Male") {
-      classes.boyCount += 1;
-    } else if (student.studentGender === "Female") {
-      classes.girlCount += 1;
-    }
     classes.strength += 1;
     classes.ApproveStudent.push(student._id);
     classes.studentCount += 1;
-    student.studentGRNO = `Q${institute.ApproveStudent.length + 1}`;
-    student.studentROLLNO = classes.ApproveStudent.length + 1;
+    student.studentGRNO = `Q${institute.ApproveStudent.length}`;
+    student.studentROLLNO = classes.ApproveStudent.length;
     student.studentClass = classes._id;
     student.studentAdmissionDate = new Date().toISOString();
     depart.ApproveStudent.push(student._id);
@@ -928,6 +981,36 @@ exports.retrieveClassAllotQuery = async (req, res) => {
       message: `Distribute sweets to all family members ${student.studentFirstName} `,
       allot_status: true,
     });
+    if (student.studentGender === "Male") {
+      classes.boyCount += 1;
+      batch.student_category.boyCount += 1;
+    } else if (student.studentGender === "Female") {
+      classes.girlCount += 1;
+      batch.student_category.girlCount += 1;
+    } else {
+      batch.student_category.otherCount += 1;
+    }
+    if (student.studentCastCategory === "General") {
+      batch.student_category.generalCount += 1;
+    } else if (student.studentCastCategory === "OBC") {
+      batch.student_category.obcCount += 1;
+    } else if (student.studentCastCategory === "SC") {
+      batch.student_category.scCount += 1;
+    } else if (student.studentCastCategory === "ST") {
+      batch.student_category.stCount += 1;
+    } else if (student.studentCastCategory === "NT-A") {
+      batch.student_category.ntaCount += 1;
+    } else if (student.studentCastCategory === "NT-B") {
+      batch.student_category.ntbCount += 1;
+    } else if (student.studentCastCategory === "NT-C") {
+      batch.student_category.ntcCount += 1;
+    } else if (student.studentCastCategory === "NT-D") {
+      batch.student_category.ntdCount += 1;
+    } else if (student.studentCastCategory === "VJ") {
+      batch.student_category.vjCount += 1;
+    } else {
+    }
+    await Promise.all([classes.save(), batch.save()]);
     invokeMemberTabNotification(
       "Admission Status",
       aStatus.content,
@@ -957,6 +1040,7 @@ exports.completeAdmissionApplication = async (req, res) => {
     if (admission?.newAppCount > 0) {
       admission.newAppCount -= 1;
     }
+    admission.completedCount += 1;
     await Promise.all([apply.save(), admission.save(), admission_ins.save()]);
     res.status(200).send({
       message: "Enjoy your work load is empty go for party",
@@ -1028,11 +1112,11 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     var price = parseInt(amount);
     var admin_ins = await Admission.findById({ _id: aid });
     var student = await Student.findById({ _id: sid }).select(
-      "admissionPaymentStatus user admissionRemainFeeCount"
+      "admissionPaymentStatus user admissionRemainFeeCount remainingFeeList"
     );
     var institute = await InstituteAdmin.findById({
       _id: `${admin_ins.institute}`,
-    }).select("insName financeDepart gstSlab");
+    }).select("insName financeDepart gstSlab payment_history");
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
@@ -1040,14 +1124,34 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       "deviceToken"
     );
     var apply = await NewApplication.findById({ _id: appId });
+    const order = new OrderPayment({});
+    order.payment_module_type = "Admission Fees";
+    order.payment_to_end_user_id = admin_ins._id;
+    order.payment_by_end_user_id = user._id;
+    order.payment_module_id = apply._id;
+    order.payment_amount = price;
+    order.payment_status = "Captured";
+    order.payment_flag_to = "Credit";
+    order.payment_mode = mode;
+    order.payment_admission = apply._id;
+    order.payment_from = student._id;
+    institute.payment_history.push(order._id);
     if (student?.admissionPaymentStatus?.length > 0) {
       student?.admissionPaymentStatus.forEach(async (ele) => {
         if (admin_ins?.newApplication?.includes(`${ele.applicationId}`)) {
           if (price === ele.fee - ele.firstInstallment) {
             ele.status = "Paid";
+            ele.mode = mode;
             ele.secondInstallment = price;
             ele.fee = ele.firstInstallment + ele.secondInstallment - ele.fee;
           }
+        }
+      });
+    }
+    if (student?.remainingFeeList?.length > 0) {
+      student?.remainingFeeList.forEach(async (ele) => {
+        if (admin_ins?.newApplication?.includes(`${ele.appId}`)) {
+          ele.status = "Paid";
         }
       });
     }
@@ -1058,16 +1162,29 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       student.admissionRemainFeeCount -= price;
     }
     admin_ins.remainingFee.pull(student._id);
-    admin_ins.offlineFee += price;
-    apply.offlineFee += price;
-    apply.collectedFeeCount += price;
-    finance.financeTotalBalance += price;
-    finance.financeAdmissionBalance += price;
+    if (mode === "Online") {
+      admin_ins.onlineFee += price;
+      apply.onlineFee += price;
+      apply.collectedFeeCount += price;
+      finance.financeTotalBalance += price;
+      finance.financeAdmissionBalance += price;
+      finance.financeBankBalance += price;
+    } else if (mode === "Offline") {
+      admin_ins.offlineFee += price;
+      apply.offlineFee += price;
+      apply.collectedFeeCount += price;
+      finance.financeTotalBalance += price;
+      finance.financeAdmissionBalance += price;
+      finance.financeSubmitBalance += price;
+    } else {
+    }
     await Promise.all([
       admin_ins.save(),
       student.save(),
       apply.save(),
       finance.save(),
+      institute.save(),
+      order.save(),
     ]);
     res.status(200).send({
       message: "Balance Pool increasing with price Operation complete",
@@ -1075,7 +1192,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     });
     invokeMemberTabNotification(
       "Admission Status",
-      `Collect No Dues receipt from the ${institute.insName}`,
+      `Payment Installment paid Successfully `,
       "Application Status",
       user._id,
       user.deviceToken
@@ -1287,6 +1404,29 @@ exports.retrieveStudentCancelAdmissionMode = async (req, res) => {
     res
       .status(200)
       .send({ message: "Cancel Admission Selection", cancel_status: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveStudentAdmissionFees = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const student = await Student.findById({ _id: sid }).select(
+      "remainingFeeList"
+    );
+
+    if (student?.remainingFeeList?.length > 0) {
+      res.status(200).send({
+        message: "All Admission Fees",
+        get: true,
+        array: student?.remainingFeeList,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "No Admission Fees", get: false, array: [] });
+    }
   } catch (e) {
     console.log(e);
   }

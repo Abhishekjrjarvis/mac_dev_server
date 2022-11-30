@@ -17,13 +17,13 @@ const manageAdminSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
-  affiliation_institute: [
+  affiliation_institute_approve: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "InstituteAdmin",
     },
   ],
-  affiliation_institute_count: {
+  affiliation_institute_approve_count: {
     type: Number,
     default: 0,
   },
@@ -43,6 +43,16 @@ const manageAdminSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
+  },
+  affiliation_institute_reject: [],
+  affiliation_institute_reject_count: {
+    type: Number,
+    default: 0,
+  },
+  affiliation_institute_request: [],
+  affiliation_institute_request_count: {
+    type: Number,
+    default: 0,
   },
 });
 

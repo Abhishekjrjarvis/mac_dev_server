@@ -278,18 +278,6 @@ const studentSchema = new mongoose.Schema({
   },
   borrow: [{ type: mongoose.Schema.Types.ObjectId, ref: "IssueBook" }],
   deposite: [{ type: mongoose.Schema.Types.ObjectId, ref: "CollectBook" }],
-  deptElections: [
-    {
-      electionStatus: {
-        type: String,
-        default: "Not Applied",
-      },
-      election: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Elections",
-      },
-    },
-  ],
   createdAt: {
     type: Date,
     default: Date.now,
@@ -309,6 +297,7 @@ const studentSchema = new mongoose.Schema({
         ref: "NewApplication",
       },
       status: { type: String, default: "Pending" },
+      mode: { type: String },
       installment: { type: String, default: "No Installment" },
       firstInstallment: { type: Number, default: 0 },
       secondInstallment: { type: Number, default: 0 },
@@ -321,6 +310,13 @@ const studentSchema = new mongoose.Schema({
       refund_reason: { type: String },
       refund_amount: { type: Number, default: 0 },
       refund_on: { type: Date, default: Date.now },
+    },
+  ],
+  remainingFeeList: [
+    {
+      remainAmount: { type: String },
+      appId: { type: String },
+      status: { type: String, default: "Not Paid" },
     },
   ],
   certificateBonaFideCopy: {

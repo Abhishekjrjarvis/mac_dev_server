@@ -97,6 +97,8 @@ app.use(
       "http://18.205.27.165",
       "http://localhost:3000",
       "https://qviple.com",
+      "https://admin.qviple.com",
+      "https://developer.qviple.com",
     ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,

@@ -347,7 +347,8 @@ exports.profileByUser = async (req, res) => {
   try {
     const { id } = req.params;
     const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-    const { userLegalName, userGender, userDateOfBirth, username } = req.body;
+    const { userLegalName, userGender, userDateOfBirth, username, sample_pic } =
+      req.body;
     const existAdmin = await Admin.findOne({ adminUserName: username });
     const existInstitute = await InstituteAdmin.findOne({ name: username });
     const existUser = await User.findOne({ username: username });
@@ -359,10 +360,6 @@ exports.profileByUser = async (req, res) => {
       if (existUser) {
         res.send({ message: "Username already exists" });
       } else {
-        var width = 200;
-        var height = 200;
-        var file = req.file;
-        var results = await uploadFile(file, width, height);
         var user = new User({
           userLegalName: userLegalName,
           userGender: userGender,
@@ -375,11 +372,21 @@ exports.profileByUser = async (req, res) => {
           remindLater: rDate,
           next_date: c_date,
         });
-        user.profilePhoto = results.key;
+        if (req.file) {
+          var width = 200;
+          var height = 200;
+          var file = req.file;
+          var results = await uploadFile(file, width, height);
+          user.profilePhoto = results.key;
+        } else {
+          user.profilePhoto = sample_pic;
+        }
         admins.users.push(user);
         admins.userCount += 1;
         await Promise.all([admins.save(), user.save()]);
-        await unlinkFile(file.path);
+        if (req.file) {
+          await unlinkFile(req.file.path);
+        }
         const token = generateAccessToken(user?.username, user?._id);
         res.status(200).send({
           message: "Profile Successfully Created...",

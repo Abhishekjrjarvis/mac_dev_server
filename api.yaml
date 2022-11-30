@@ -16393,11 +16393,6 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: path
-          name: cid
-          required: true
-          type: string
-          description: This is Sport & Arts Class Id
         - in: formData
           name: file
           type: file
@@ -16408,6 +16403,11 @@ paths:
           type: string
           required: true
           description: Enter Sport Class Team Name
+        - in: formData
+          name: cid
+          type: string
+          required: true
+          description: Enter Sport Class Id
         - in: formData
           name: captain
           type: string

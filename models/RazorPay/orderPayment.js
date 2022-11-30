@@ -71,6 +71,9 @@ const orderPaymentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Participate",
   },
+  payment_from: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.model("OrderPayment", orderPaymentSchema);

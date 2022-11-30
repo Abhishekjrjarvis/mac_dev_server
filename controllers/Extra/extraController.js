@@ -120,7 +120,7 @@ exports.retrieveBonafideGRNO = async (req, res) => {
       $and: [{ studentGRNO: `${gr}` }, { institute: id }],
     })
       .select(
-        "studentFirstName studentMiddleName certificateBonaFideCopy studentAdmissionDate studentLastName photoId studentProfilePhoto studentDOB"
+        "studentFirstName studentGRNO studentMiddleName certificateBonaFideCopy studentAdmissionDate studentLastName photoId studentProfilePhoto studentDOB"
       )
       .populate({
         path: "studentClass",
@@ -136,7 +136,7 @@ exports.retrieveBonafideGRNO = async (req, res) => {
           "insName insAddress insState insDistrict insPhoneNumber insPincode photoId insProfilePhoto",
       });
     const institute = await InstituteAdmin.findById({
-      _id: `${student.institute}`,
+      _id: `${student.institute._id}`,
     });
     student.studentReason = reason;
     student.studentBonaStatus = "Ready";
@@ -175,7 +175,7 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       $and: [{ studentGRNO: `${gr}` }, { institute: id }],
     })
       .select(
-        "studentFirstName studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB"
+        "studentFirstName studentGRNO studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB"
       )
       .populate({
         path: "studentClass",

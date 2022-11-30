@@ -521,9 +521,9 @@ const instituteAdminSchema = new mongoose.Schema({
     studentPanNumber: { type: Boolean, default: false },
     studentBankDetails: { type: Boolean, default: false },
     studentCasteCertificate: { type: Boolean, default: false },
-    studentHeight: { type: Boolean, defult: false },
-    studentWeight: { type: Boolean, defult: false },
-    studentBMI: { type: Boolean, defult: false },
+    studentHeight: { type: Boolean, default: false },
+    studentWeight: { type: Boolean, default: false },
+    studentBMI: { type: Boolean, default: false },
   },
   staff_category: {
     boyCount: { type: Number, default: 0 },
@@ -620,6 +620,12 @@ const instituteAdminSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "OrderPayment",
+    },
+  ],
+  affiliation_by: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ManageAdmin",
     },
   ],
 });

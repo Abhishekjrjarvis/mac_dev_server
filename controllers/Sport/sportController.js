@@ -1244,22 +1244,20 @@ exports.renderStudentSideEvent = async (req, res) => {
 exports.renderStudentSideMatch = async (req, res) => {
   try {
     const { sid, eid } = req.params;
+    var sorted_match = [];
     const student = await Student.findById({ _id: sid })
       .select("_id")
       .populate({
         path: "studentSportsEventMatch",
-        select: "eventMatch",
+        select: "eventMatch rankTitle",
       });
 
-    var match_data = [];
-    student?.studentSportsEventMatch?.forEach((each) => {
-      match_data.push(each?.eventMatch);
-    });
-
-    if (match_data?.length > 0) {
-      const match = await SportEventMatch.find({ _id: { $in: match_data } })
+    for (let match of student?.studentSportsEventMatch) {
+      const match_arr = await SportEventMatch.findById({
+        _id: match.eventMatch,
+      })
         .select(
-          "rankMatch matchStatus sportOpponentPlayer sportEventMatchName sportEventMatchDate sportEventMatchCategory sportEventMatchCategoryLevel"
+          "rankMatch matchStatus sportEvent sportOpponentPlayer sportEventMatchName sportEventMatchDate sportEventMatchCategory sportEventMatchCategoryLevel"
         )
         .populate({
           path: "sportWinner",
@@ -1283,18 +1281,19 @@ exports.renderStudentSideMatch = async (req, res) => {
           path: "sportParticipants",
           select:
             "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
-        })
-        .populate({
-          path: "sportEvent",
-          select: "_id",
         });
-      var valid_match = match?.filter((val) => {
-        if (`${val.sportEvent._id}` === `${eid}`) return val;
-      });
+      if (`${match_arr?.sportEvent}` === `${eid}`) {
+        sorted_match.push({
+          match: match_arr,
+          rank: match.rankTitle,
+        });
+      }
+    }
 
+    if (sorted_match?.length > 0) {
       res.status(200).send({
         message: "Match Detail Query",
-        match_query: valid_match,
+        match_query: sorted_match,
       });
     } else {
       res.status(200).send({
@@ -1356,7 +1355,7 @@ exports.renderStudentSideTeam = async (req, res) => {
     const teams = await SportTeam.find({
       _id: { $in: classes?.sportTeam },
     })
-      .select("cover coverId sportClassTeamName sportTeamStudentCount")
+      .select("sportTeamPhoto sportClassTeamName sportTeamStudentCount")
       .populate({
         path: "sportTeamStudent",
         populate: {

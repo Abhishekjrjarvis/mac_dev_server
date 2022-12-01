@@ -11,6 +11,7 @@ const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const BusinessTC = require("../../models/Finance/BToC");
 const moment = require("moment");
 const Admin = require("../../models/superAdmin");
+const OrderPayment = require("../../models/RazorPay/orderPayment");
 
 exports.createFess = async (req, res) => {
   try {
@@ -143,22 +144,22 @@ exports.getOneFeesDetail = async (req, res) => {
 exports.feesPaidByStudent = async (req, res) => {
   try {
     const { cid, id } = req.params;
-    var { offlineQuery, exemptQuery } = req.body;
-    var off_status = "Pending";
-    var exe_status = "Pending";
-    var classes = await Class.findById({ _id: cid });
-    var fData = await Fees.findById({ _id: id });
+    const { offlineQuery, exemptQuery } = req.body;
+    let off_status = "Pending";
+    let exe_status = "Pending";
+    const classes = await Class.findById({ _id: cid });
+    const fData = await Fees.findById({ _id: id });
     const s_admin = await Admin.findById({
       _id: `${process.env.S_ADMIN_ID}`,
     }).select("invoice_count");
-    var institute = await InstituteAdmin.findById({
+    const institute = await InstituteAdmin.findById({
       _id: `${classes.institute}`,
     });
-    var finance = await Finance.findById({
+    const finance = await Finance.findById({
       _id: `${institute.financeDepart[0]}`,
     });
     if (offlineQuery?.length > 0) {
-      offlineQuery.forEach(async (off) => {
+      for (let off of offlineQuery) {
         const student = await Student.findById({ _id: `${off}` });
         const user = await User.findById({ _id: `${student.user}` });
         if (
@@ -193,9 +194,14 @@ exports.feesPaidByStudent = async (req, res) => {
           order.payment_invoice_number = s_admin.invoice_count;
           user.payment_history.push(order._id);
           institute.payment_history.push(order._id);
-          await Promise.all([student.save(), user.save(), order.save()]);
+          await Promise.all([
+            student.save(),
+            user.save(),
+            order.save(),
+            s_admin.save(),
+          ]);
         }
-      });
+      }
       if (fData?.gstSlab > 0) {
         var business_data = new BusinessTC({});
         business_data.b_to_c_month = new Date().toISOString();
@@ -204,19 +210,12 @@ exports.feesPaidByStudent = async (req, res) => {
         business_data.finance = finance._id;
         finance.gst_format.b_to_c.push(business_data?._id);
         business_data.b_to_c_total_amount = fData.feeAmount;
-        await Promise.all([business_data.save()]);
+        await business_data.save();
       }
       off_status = "Done";
-      await Promise.all([
-        fData.save(),
-        classes.save(),
-        finance.save(),
-        institute.save(),
-        s_admin.save(),
-      ]);
     }
     if (exemptQuery?.length > 0) {
-      exemptQuery.forEach(async (exe) => {
+      for (let exe of exemptQuery) {
         const student = await Student.findById({ _id: `${exe}` });
         if (
           fData.studentExemptList.length >= 1 &&
@@ -237,10 +236,16 @@ exports.feesPaidByStudent = async (req, res) => {
           });
           await student.save();
         }
-      });
+      }
       exe_status = "Done";
-      await Promise.all([fData.save(), classes.save(), finance.save()]);
     }
+
+    await Promise.all([
+      fData.save(),
+      finance.save(),
+      classes.save(),
+      institute.save(),
+    ]);
     if (off_status === "Done" || exe_status === "Done") {
       res.status(200).send({
         message: "Wait for Operation Complete",

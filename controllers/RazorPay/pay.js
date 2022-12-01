@@ -186,6 +186,8 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
 
     if (order?.length > 0) {
       res.status(200).send({ message: "User Pay History", history: order });
+    } else {
+      res.status(200).send({ message: "No User Pay History", history: [] });
     }
   } catch (e) {
     console.log(e);
@@ -228,6 +230,8 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
 
     if (order?.length > 0) {
       res.status(200).send({ message: "User Pay History", history: order });
+    } else {
+      res.status(200).send({ message: "No User Pay History", history: [] });
     }
   } catch (e) {
     console.log(e);

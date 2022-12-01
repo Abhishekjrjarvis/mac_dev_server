@@ -13,6 +13,7 @@ const Comment = require("../../models/Comment");
 const ReplyComment = require("../../models/ReplyComment/ReplyComment");
 const AnswerReply = require("../../models/Question/AnswerReply");
 const StudentNotification = require("../../models/Marks/StudentNotification");
+const invokeSpecificRegister = require("../../Firebase/specific");
 
 const {
   getFileStream,
@@ -30,7 +31,7 @@ exports.retrieveProfileData = async (req, res) => {
   try {
     const { id } = req.params;
     var totalUpVote = 0;
-    const user = await User.findById({ _id: id }).select(
+    var user = await User.findById({ _id: id }).select(
       "userLegalName photoId show_suggestion is_mentor user_block_institute questionCount blockedBy blockCount blockStatus user one_line_about recoveryMail answerQuestionCount profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify userBio userAddress userEducation userHobbies userGender coverId profileCoverPhoto username followerCount followingUICount circleCount postCount userAbout userEmail userAddress userDateOfBirth userPhoneNumber userHobbies userEducation "
     );
     const answers = await Answer.find({ author: id });
@@ -46,6 +47,19 @@ exports.retrieveProfileData = async (req, res) => {
       upVote: totalUpVote,
       post,
     });
+    if(`${req.tokenData?.userId}` === `${id}`){
+
+    }
+    else{
+      const see_user = await User.findById({_id: `${req.tokenData?.userId}`}).select('userLegalName deviceToken')
+      invokeSpecificRegister(
+        "Specific Notification",
+        `${see_user?.username} viewed your profile`,
+        "View Profile",
+        see_user._id,
+        see_user.deviceToken
+      );
+    }
   } catch (e) {
     console.log(e);
   }

@@ -61,8 +61,16 @@ exports.getProfileOneQuery = async (req, res) => {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName status photoId insProfilePhoto sportStatus sportClassStatus blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement admissionCount"
+        "insName status photoId insProfilePhoto sportStatus sportClassStatus blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement admissionCount request_at affiliation_by"
       )
+      .populate({
+        path: "request_at",
+        select: "affiliation_name photo",
+      })
+      .populate({
+        path: "affiliation_by",
+        select: "affiliation_name photo",
+      })
       .lean()
       .exec();
     res.status(200).send({ message: "Limit Post Ins", institute });
@@ -2371,32 +2379,9 @@ exports.retrievePendingRequestArray = async (req, res) => {
   }
 };
 
-const sort_student_by_alpha = async (arr, day, month, year) => {
-  const students = await Student.find({
-    _id: { $in: arr },
-  })
-    .sort({ studentFirstName: 1 })
-    .select(
-      "leave studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO"
-    )
-    .populate({
-      path: "leave",
-      match: {
-        date: { $in: [`${day}/${month}/${year}`] },
-      },
-      select: "date",
-    })
-    .populate({
-      path: "user",
-      select: "userLegalName username",
-    });
-  return students;
-};
-
 exports.retrieveApproveCatalogArray = async (req, res) => {
   try {
     const { cid } = req.params;
-    const { sort_query } = req.query;
     const currentDate = new Date();
     const currentDateLocalFormat = currentDate.toISOString().split("-");
     const day =
@@ -2409,119 +2394,35 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
         : `0${+currentDateLocalFormat[1]}`;
     const year = +currentDateLocalFormat[0];
     // const regExpression = new RegExp(`${day}\/${month}\/${year}$`);
-    const classes = await Class.findById({ _id: cid }).select(
-      "className classStatus classTitle exams ApproveStudent"
-    );
-
-    if (sort_query === "Alphabetical") {
-      const sortedA = await sort_student_by_alpha(
-        classes.ApproveStudent,
-        day,
-        month,
-        year
-      );
-      res.status(200).send({
-        message: "Sorted By Alphabetical Order",
-        classes,
-        students: sortedA,
-        access: true,
-      });
-    // } 
-    // else if (sort_query === "Gender") {
-    //   const studentFemale = await Student.find({
-    //     $and: [
-    //       { _id: { $in: classes.ApproveStudent } },
-    //       { studentGender: "Female" },
-    //     ],
-    //   }).select("_id");
-    //   sortData.push()
-    //   const studentMale = await Student.find({
-    //     $and: [
-    //       { _id: { $in: classes.ApproveStudent } },
-    //       { studentGender: "Male" },
-    //     ],
-    //   }).select("_id");
-
-    //   const data = [...studentFemale, ...studentMale];
-
-    //   for (let stu of data) {
-    //     const student = await Student.findById({_id: stu?})
-    //   }
-    //   res.status(200).send({
-    //     message: "Sorted By Gender Order",
-    //     classes,
-    //     students: refactorData,
-    //     access: true,
-    //   });
-    // } else {
-    }
-    else{
-      res
-        .status(200)
-        .send({ message: "You're breaking sorting rules 😡", access: false });
-    }
+    const classes = await Class.findById({ _id: cid })
+      .select("className classStatus classTitle exams")
+      .populate({
+        path: "ApproveStudent",
+        select: "leave",
+        populate: {
+          path: "leave",
+          match: {
+            date: { $in: [`${day}/${month}/${year}`] },
+          },
+          select: "date",
+        },
+      })
+      .populate({
+        path: "ApproveStudent",
+        select:
+          "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO",
+        populate: {
+          path: "user",
+          select: "userLegalName username",
+        },
+      })
+      .lean()
+      .exec();
+    res.status(200).send({ message: "Approve catalog", classes });
   } catch (e) {
     console.log(e);
   }
 };
-
-      // .populate({
-      //   path: "leave",
-      //   match: {
-      //     date: { $in: [`${day}/${month}/${year}`] },
-      //   },
-      //   select: "date",
-      // })
-      // .populate({
-      //   path: "user",
-      //   select: "userLegalName username",
-      // });
-
-
-// exports.retrieveApproveCatalogArray = async (req, res) => {
-//   try {
-//     const { cid } = req.params;
-//     const currentDate = new Date();
-//     const currentDateLocalFormat = currentDate.toISOString().split("-");
-//     const day =
-//       +currentDateLocalFormat[2].split("T")[0] > 9
-//         ? +currentDateLocalFormat[2].split("T")[0]
-//         : `0${+currentDateLocalFormat[2].split("T")[0]}`;
-//     const month =
-//       +currentDateLocalFormat[1] > 9
-//         ? +currentDateLocalFormat[1]
-//         : `0${+currentDateLocalFormat[1]}`;
-//     const year = +currentDateLocalFormat[0];
-//     // const regExpression = new RegExp(`${day}\/${month}\/${year}$`);
-//     const classes = await Class.findById({ _id: cid })
-//       .select("className classStatus classTitle exams")
-//       .populate({
-//         path: "ApproveStudent",
-//         select: "leave",
-//         populate: {
-//           path: "leave",
-//           match: {
-//             date: { $in: [`${day}/${month}/${year}`] },
-//           },
-//           select: "date",
-//         },
-//       })
-//       .populate({
-//         path: "ApproveStudent",
-//         select:
-//           "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO",
-//         populate: {
-//           path: "user",
-//           select: "userLegalName username",
-//         },
-//       })
-//       .lean()
-//       .exec();
-//     res.status(200).send({ message: "Approve catalog", classes });
-//   } catch (e) {
-//     console.log(e);
-//   }
-// };
 
 exports.retrieveDepartmentStaffArray = async (req, res) => {
   try {

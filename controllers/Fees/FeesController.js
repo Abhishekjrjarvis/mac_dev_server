@@ -171,7 +171,7 @@ exports.feesPaidByStudent = async (req, res) => {
             fee: fData.feeAmount,
             feeId: fData._id,
           });
-          await Promise.all([student.save(), fData.save(), classes.save()]);
+          await student.save();
           if (fData?.gstSlab > 0) {
             var business_data = new BusinessTC({});
             business_data.b_to_c_month = new Date().toISOString();
@@ -180,7 +180,7 @@ exports.feesPaidByStudent = async (req, res) => {
             business_data.finance = finance._id;
             finance.gst_format.b_to_c.push(business_data?._id);
             business_data.b_to_c_total_amount = fData.feeAmount;
-            await Promise.all([finance.save(), business_data.save()]);
+            await business_data.save();
           }
         }
       });
@@ -206,16 +206,12 @@ exports.feesPaidByStudent = async (req, res) => {
             fee: fData.feeAmount,
             feeId: fData._id,
           });
-          await Promise.all([
-            student.save(),
-            fData.save(),
-            classes.save(),
-            finance.save(),
-          ]);
+          await student.save();
         }
       });
       exe_status = "Done";
     }
+    await Promise.all([fData.save(), finance.save(), classes.save()]);
     if (off_status === "Done" || exe_status === "Done") {
       res.status(200).send({
         message: "Wait for Operation Complete",

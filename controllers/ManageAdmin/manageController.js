@@ -197,7 +197,7 @@ exports.renderAdministratorQuery = async (req, res) => {
 exports.renderAdministratorAddInstitute = async (req, res) => {
   try {
     const { mid } = req.params;
-    const { query_ins } = req.query;
+    const { query_ins } = req.body;
     if (!mid)
       return res.status(200).send({
         message: "There is a bug need to fixed immediately 😀",
@@ -206,10 +206,13 @@ exports.renderAdministratorAddInstitute = async (req, res) => {
     const manage = await ManageAdmin.findById({ _id: mid });
     const institute = await InstituteAdmin.findById({ _id: `${query_ins}` });
     manage.affiliation_institute_request.push(institute?._id);
+    institute.request_at = manage._id;
     manage.affiliation_institute_request_count += 1;
-    await Promise.all([manage.save()]);
+    await Promise.all([manage.save(), institute.save()]);
     res.status(200).send({ message: "Successfully Added 😀", added: true });
-  } catch (e) {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.renderAdministratorStatus = async (req, res) => {
@@ -242,6 +245,7 @@ exports.renderAdministratorStatus = async (req, res) => {
       }
       manage.affiliation_institute_reject.push(institute?._id);
       manage.affiliation_institute_reject_count += 1;
+      institute.request_at = null;
       await Promise.all([manage.save(), institute.save()]);
       res
         .status(200)
@@ -408,12 +412,16 @@ exports.renderAdministratorAllManageAdmin = async (req, res) => {
     if (search) {
       var manage = await ManageAdmin.find({
         $or: [{ affiliation_name: { $regex: search, $options: "i" } }],
-      }).select("affiliation_name photoId photo affiliation_institute_approve");
+      }).select(
+        "affiliation_name photoId photo affiliation_institute_approve affiliation_institute_approve_count affiliation_institute_request"
+      );
     } else {
       var manage = await ManageAdmin.find({})
         .limit(limit)
         .skip(skip)
-        .select("affiliation_name photoId photo affiliation_institute_approve");
+        .select(
+          "affiliation_name photoId photo affiliation_institute_approve affiliation_institute_approve_count affiliation_institute_request "
+        );
     }
     if (manage?.length > 0) {
       res.status(200).send({

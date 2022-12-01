@@ -16,6 +16,7 @@ router
 
 router
   .route("/subject/:sid/setting")
+  .get(catchAsync(batchController.subjectSetting))
   .patch(catchAsync(batchController.subjectUpdateSetting));
 
 router.route("/class/:cid").get(catchAsync(batchController.allDepartment));

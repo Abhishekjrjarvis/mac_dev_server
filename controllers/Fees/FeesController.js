@@ -241,6 +241,7 @@ exports.feesPaidByStudent = async (req, res) => {
       exe_status = "Done";
       await Promise.all([fData.save(), classes.save(), finance.save()]);
     }
+    await Promise.all([fData.save(), finance.save(), classes.save()]);
     if (off_status === "Done" || exe_status === "Done") {
       res.status(200).send({
         message: "Wait for Operation Complete",

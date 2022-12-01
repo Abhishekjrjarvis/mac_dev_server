@@ -2,6 +2,7 @@ const Razorpay = require("razorpay");
 var crypto = require("crypto");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
 const axios = require("axios");
+const Admin = require("../../models/superAdmin");
 const {
   unlockInstituteFunction,
   feeInstituteFunction,
@@ -42,6 +43,9 @@ exports.checkoutRazorPayment = async (req, res) => {
 
 exports.verifyRazorPayment = async (req, res) => {
   try {
+    const s_admin = await Admin.findById({
+      _id: `${process.env.S_ADMIN_ID}`,
+    }).select("invoice_count");
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
       req.body;
 
@@ -72,8 +76,9 @@ exports.verifyRazorPayment = async (req, res) => {
       order_payment.payment_module_id = payment_module_id;
       order_payment.payment_amount = refactor_amount;
       order_payment.payment_status = "Captured";
-      order_payment.payment_invoice_number += 1;
-      await order_payment.save();
+      s_admin.invoice_count += 1;
+      order_payment.payment_invoice_number = s_admin.invoice_count;
+      await Promise.all([order_payment.save(), s_admin.save()]);
       if (payment_module_type === "Unlock") {
         const unlock_status = await unlockInstituteFunction(
           order_payment?._id,

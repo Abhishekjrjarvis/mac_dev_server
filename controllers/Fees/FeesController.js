@@ -9,6 +9,8 @@ const Checklist = require("../../models/Checklist");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const BusinessTC = require("../../models/Finance/BToC");
+const moment = require("moment");
+const Admin = require("../../models/superAdmin");
 
 exports.createFess = async (req, res) => {
   try {
@@ -146,6 +148,9 @@ exports.feesPaidByStudent = async (req, res) => {
     var exe_status = "Pending";
     var classes = await Class.findById({ _id: cid });
     var fData = await Fees.findById({ _id: id });
+    const s_admin = await Admin.findById({
+      _id: `${process.env.S_ADMIN_ID}`,
+    }).select("invoice_count");
     var institute = await InstituteAdmin.findById({
       _id: `${classes.institute}`,
     });
@@ -155,6 +160,7 @@ exports.feesPaidByStudent = async (req, res) => {
     if (offlineQuery?.length > 0) {
       offlineQuery.forEach(async (off) => {
         const student = await Student.findById({ _id: `${off}` });
+        const user = await User.findById({ _id: `${student.user}` });
         if (
           fData.studentsList.length >= 1 &&
           fData.studentsList.includes(String(student._id))
@@ -171,20 +177,43 @@ exports.feesPaidByStudent = async (req, res) => {
             fee: fData.feeAmount,
             feeId: fData._id,
           });
-          await student.save();
-          if (fData?.gstSlab > 0) {
-            var business_data = new BusinessTC({});
-            business_data.b_to_c_month = new Date().toISOString();
-            business_data.b_to_c_i_slab = parseInt(fData?.gstSlab) / 2;
-            business_data.b_to_c_s_slab = parseInt(fData?.gstSlab) / 2;
-            business_data.finance = finance._id;
-            finance.gst_format.b_to_c.push(business_data?._id);
-            business_data.b_to_c_total_amount = fData.feeAmount;
-            await business_data.save();
-          }
+          const order = new OrderPayment({});
+          order.payment_module_type = "Internal Fees";
+          order.payment_to_end_user_id = institute._id;
+          order.payment_by_end_user_id = user._id;
+          order.payment_module_id = fData._id;
+          order.payment_amount = fData.feeAmount;
+          order.payment_status = "Captured";
+          order.payment_flag_to = "Credit";
+          order.payment_flag_by = "Debit";
+          order.payment_mode = "Offline";
+          order.payment_fee = fData._id;
+          order.payment_from = student._id;
+          s_admin.invoice_count += 1;
+          order.payment_invoice_number = s_admin.invoice_count;
+          user.payment_history.push(order._id);
+          institute.payment_history.push(order._id);
+          await Promise.all([student.save(), user.save(), order.save()]);
         }
       });
+      if (fData?.gstSlab > 0) {
+        var business_data = new BusinessTC({});
+        business_data.b_to_c_month = new Date().toISOString();
+        business_data.b_to_c_i_slab = parseInt(fData?.gstSlab) / 2;
+        business_data.b_to_c_s_slab = parseInt(fData?.gstSlab) / 2;
+        business_data.finance = finance._id;
+        finance.gst_format.b_to_c.push(business_data?._id);
+        business_data.b_to_c_total_amount = fData.feeAmount;
+        await Promise.all([business_data.save()]);
+      }
       off_status = "Done";
+      await Promise.all([
+        fData.save(),
+        classes.save(),
+        finance.save(),
+        institute.save(),
+        s_admin.save(),
+      ]);
     }
     if (exemptQuery?.length > 0) {
       exemptQuery.forEach(async (exe) => {
@@ -210,6 +239,7 @@ exports.feesPaidByStudent = async (req, res) => {
         }
       });
       exe_status = "Done";
+      await Promise.all([fData.save(), classes.save(), finance.save()]);
     }
     await Promise.all([fData.save(), finance.save(), classes.save()]);
     if (off_status === "Done" || exe_status === "Done") {
@@ -391,7 +421,7 @@ exports.retrieveStudentQuery = async (req, res) => {
     const { sid } = req.params;
     const student = await Student.findById({ _id: sid })
       .select(
-        "id onlineFeeList offlineFeeList exemptFeeList admissionRemainFeeCount onlineCheckList offlineCheckList studentRemainingFeeCount studentPaidFeeCount"
+        "id onlineFeeList offlineFeeList exemptFeeList studentAdmissionDate admissionRemainFeeCount onlineCheckList offlineCheckList studentRemainingFeeCount studentPaidFeeCount"
       )
       .populate({
         path: "institute",
@@ -410,11 +440,31 @@ exports.retrieveStudentQuery = async (req, res) => {
         select: "userLegalName username",
       })
       .lean();
-    const fees = await Fees.find({ _id: { $in: student?.department?.fees } })
+    var admission_date = moment(student?.studentAdmissionDate).format("l");
+    var year = admission_date.substring(6, 10);
+    var month = admission_date.substring(0, 2);
+    var day = admission_date.substring(3, 5);
+    const fees = await Fees.find({
+      $and: [
+        { _id: { $in: student?.department?.fees } },
+        {
+          createdAt: {
+            $gte: new Date(`${year}-${month}-${day}`),
+          },
+        },
+      ],
+    })
       .sort("-createdAt")
       .lean();
     const check = await Checklist.find({
-      _id: { $in: student?.department?.checklists },
+      $and: [
+        { _id: { $in: student?.department?.checklists } },
+        {
+          createdAt: {
+            $gte: new Date(`${year}-${month}-${day}`),
+          },
+        },
+      ],
     })
       .sort("-createdAt")
       .lean();

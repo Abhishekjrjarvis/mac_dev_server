@@ -234,6 +234,9 @@ exports.getIncome = async (req, res) => {
   try {
     const { fid } = req.params;
     const finance = await Finance.findById({ _id: fid });
+    const s_admin = await Admin.findById({
+      _id: `${process.env.S_ADMIN_ID}`,
+    }).select("invoice_count");
     var f_user = await InstituteAdmin.findById({ _id: `${finance.institute}` });
     var user = await User.findOne({ username: `${req.body.user}` }).select(
       "_id payment_history"
@@ -257,7 +260,8 @@ exports.getIncome = async (req, res) => {
     order.payment_mode = incomes.incomeAccount;
     order.payment_income = incomes._id;
     f_user.payment_history.push(order._id);
-    order.payment_invoice_number += 1;
+    s_admin.invoice_count += 1;
+    order.payment_invoice_number = s_admin.invoice_count;
     if (user) {
       incomes.incomeFromUser = user._id;
       order.payment_by_end_user_id = user._id;
@@ -285,6 +289,7 @@ exports.getIncome = async (req, res) => {
       incomes.save(),
       order.save(),
       f_user.save(),
+      s_admin.save(),
     ]);
     if (req.file) {
       await unlinkFile(req.file.path);
@@ -342,7 +347,7 @@ exports.getExpense = async (req, res) => {
       order.payment_status = "Captured";
       order.payment_flag_by = "Debit";
       order.payment_mode = expenses.expenseAccount;
-      order.payment_invoice_number += 1;
+      // order.payment_invoice_number += 1;
       order.payment_expense = expenses._id;
       f_user.payment_history.push(order._id);
       if (user) {

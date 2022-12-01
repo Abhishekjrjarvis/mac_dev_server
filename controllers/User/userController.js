@@ -1406,7 +1406,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
 exports.retrieveStudentDesignationArray = async (req, res) => {
   try {
     const { sid } = req.params;
-    if (sid !== "") {
+    if (sid) {
       var average_points = 0;
       const student = await Student.findById({ _id: sid })
         .select(
@@ -1435,7 +1435,9 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
     } else {
       res.status(200).send({ message: "Need a valid Key Id" });
     }
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.retrieveUserThreeArray = async (req, res) => {

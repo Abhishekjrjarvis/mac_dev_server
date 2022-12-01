@@ -732,21 +732,35 @@ exports.retrieveRepayInstituteAmount = async (req, res) => {
 
 exports.retrieveInstituteRepayQuery = async (req, res) => {
   try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
-      .select("id")
-      .populate({
-        path: "getReturn",
-        populate: {
-          path: "institute",
-          select: "insName",
-        },
-      })
-      .lean();
+      .select("id getReturn")
+
+    const get_return = await RePay.find({_id: { $in: institute?.getReturn }})
+    .sort('createdAt')
+    .limit(limit)
+    .skip(skip)
+    .select('repayAmount repayStatus')
+    .populate({
+      path: 'institute',
+      select: 'insName'
+    })
+    if(get_return?.length > 0){
     res
       .status(200)
-      .send({ message: "Repay Array", repay: institute.getReturn });
-  } catch {}
+      .send({ message: "Repay Array", repay: get_return });
+    }
+    else{
+      res
+      .status(200)
+      .send({ message: "No Repay Array", repay: [] });
+    }
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 exports.retrieveSocialPostCount = async (req, res) => {

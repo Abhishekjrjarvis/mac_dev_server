@@ -17578,3 +17578,66 @@ paths:
       responses:
         "200":
           description: OK
+
+
+# Payment History (Institute, user)
+
+  /api/v1/pay/history/by:
+    get:
+      tags:
+        - Payment History
+      summary: Get Pay By a User (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: uid
+          required: true
+          type: string
+          description: Enter User Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/pay/history/to:
+    get:
+      tags:
+        - Payment History
+      summary: Receieve At Institute (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: uid
+          required: true
+          type: string
+          description: Enter Institute Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+  

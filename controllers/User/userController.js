@@ -47,14 +47,14 @@ exports.retrieveProfileData = async (req, res) => {
       upVote: totalUpVote,
       post,
     });
-    if(`${req.tokenData?.userId}` === `${id}`){
-
-    }
-    else{
-      const see_user = await User.findById({_id: `${req.tokenData?.userId}`}).select('userLegalName deviceToken')
+    if (`${req.tokenData?.userId}` === `${id}`) {
+    } else {
+      const see_user = await User.findById({
+        _id: `${req.tokenData?.userId}`,
+      }).select("userLegalName deviceToken");
       invokeSpecificRegister(
         "Specific Notification",
-        `${see_user?.username} viewed your profile`,
+        `${see_user?.userLegalName} viewed your profile`,
         "View Profile",
         see_user._id,
         see_user.deviceToken

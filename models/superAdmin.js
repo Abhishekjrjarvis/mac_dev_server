@@ -270,6 +270,10 @@ const superAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  invoice_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Admin = mongoose.model("Admin", superAdminSchema);

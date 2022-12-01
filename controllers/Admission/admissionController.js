@@ -608,6 +608,9 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     const { amount, tAmount, mode } = req.body;
     var price = parseInt(amount);
     var tPrice = parseInt(tAmount);
+    const s_admin = await Admin.findById({
+      _id: `${process.env.S_ADMIN_ID}`,
+    }).select("invoice_count");
     const apply = await NewApplication.findById({ _id: aid });
     const admission = await Admission.findById({
       _id: `${apply.admissionAdmin}`,
@@ -629,9 +632,13 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     order.payment_amount = price;
     order.payment_status = "Captured";
     order.payment_flag_to = "Credit";
+    order.payment_flag_by = "Debit";
     order.payment_mode = "Offline";
     order.payment_admission = apply._id;
     order.payment_from = student._id;
+    s_admin.invoice_count += 1;
+    order.payment_invoice_number = s_admin.invoice_count;
+    user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     if (price && price > apply.admissionFee && finance?._id !== "") {
       res.status(404).send({
@@ -717,6 +724,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
         user.save(),
         order.save(),
         institute.save(),
+        s_admin.save(),
       ]);
       res
         .status(200)
@@ -1110,6 +1118,9 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     const { aid, sid, appId } = req.params;
     const { amount, mode } = req.body;
     var price = parseInt(amount);
+    const s_admin = await Admin.findById({
+      _id: `${process.env.S_ADMIN_ID}`,
+    }).select("invoice_count");
     var admin_ins = await Admission.findById({ _id: aid });
     var student = await Student.findById({ _id: sid }).select(
       "admissionPaymentStatus user admissionRemainFeeCount remainingFeeList"
@@ -1132,9 +1143,13 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     order.payment_amount = price;
     order.payment_status = "Captured";
     order.payment_flag_to = "Credit";
+    order.payment_flag_by = "Debit";
     order.payment_mode = mode;
     order.payment_admission = apply._id;
     order.payment_from = student._id;
+    s_admin.invoice_count += 1;
+    order.payment_invoice_number = s_admin.invoice_count;
+    user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     if (student?.admissionPaymentStatus?.length > 0) {
       student?.admissionPaymentStatus.forEach(async (ele) => {
@@ -1185,6 +1200,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       finance.save(),
       institute.save(),
       order.save(),
+      s_admin.save(),
     ]);
     res.status(200).send({
       message: "Balance Pool increasing with price Operation complete",

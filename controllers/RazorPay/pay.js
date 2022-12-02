@@ -158,7 +158,7 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
     const skip = (page - 1) * limit;
     const { filter } = req.query;
     if (filter) {
-      const order = await OrderPayment.find({
+      var order = await OrderPayment.find({
         $and: [{ payment_by_end_user_id: uid }, { payment_module_id: filter }],
       })
         .sort("-created_at")
@@ -196,7 +196,7 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
           select: "insName photoId insProfilePhoto",
         });
     } else {
-      const order = await OrderPayment.find({ payment_by_end_user_id: uid })
+      var order = await OrderPayment.find({ payment_by_end_user_id: uid })
         .sort("-created_at")
         .limit(limit)
         .skip(skip)

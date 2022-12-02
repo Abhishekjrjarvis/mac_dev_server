@@ -17641,3 +17641,28 @@ paths:
           description: OK
 
   
+# Sorted By Alpha || Gender
+
+  /api/v1/feed/filter/by/class/catalog/{cid}:
+    get:
+      tags:
+        - Filter Query
+      summary: Get Sorted Students List By Gender || Alpha (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: Enter Class Id
+        - in: query
+          name: sort_query
+          required: true
+          type: string
+          description: for only gender -> ("Gender"), for only Alphabetical -> ("Alpha"), for both -> ("Gender_Alpha")
+      responses:
+        "200":
+          description: OK

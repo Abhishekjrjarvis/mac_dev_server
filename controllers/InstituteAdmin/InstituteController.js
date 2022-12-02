@@ -10,16 +10,11 @@ const Admin = require("../../models/superAdmin");
 const Fees = require("../../models/Fees");
 const Report = require("../../models/Report");
 const Batch = require("../../models/Batch");
-const Complaint = require("../../models/Complaint");
-const Transfer = require("../../models/Transfer");
 const DisplayPerson = require("../../models/DisplayPerson");
-const Finance = require("../../models/Finance");
 const bcrypt = require("bcryptjs");
-// const Library = require("../../models/Library/Library");
 const Subject = require("../../models/Subject");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const Class = require("../../models/Class");
-const Leave = require("../../models/Leave");
 const ClassMaster = require("../../models/ClassMaster");
 const SubjectMaster = require("../../models/SubjectMaster");
 const ReplyAnnouncement = require("../../models/ReplyAnnouncement");
@@ -30,9 +25,7 @@ const Post = require("../../models/Post");
 const Comment = require("../../models/Comment");
 const ReplyComment = require("../../models/ReplyComment/ReplyComment");
 const {
-  getFileStream,
   uploadDocFile,
-  uploadVideo,
   uploadFile,
 } = require("../../S3Configuration");
 const fs = require("fs");

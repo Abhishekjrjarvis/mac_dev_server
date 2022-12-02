@@ -4,21 +4,47 @@ const Filter = require("../../controllers/Filterization/filter");
 const catchAsync = require("../../Utilities/catchAsync");
 const { isLoggedIn } = require("../../middleware");
 
-router.get('/by/learn', catchAsync(Filter.retrieveByLearnQuery))
+router.get("/by/learn", isLoggedIn, catchAsync(Filter.retrieveByLearnQuery));
 
-router.get('/by/answer', catchAsync(Filter.retrieveByAnswerQuery))
+router.get("/by/answer", isLoggedIn, catchAsync(Filter.retrieveByAnswerQuery));
 
-router.get('/by/participate', catchAsync(Filter.retrieveByParticipateQuery))
+router.get(
+  "/by/participate",
+  isLoggedIn,
+  catchAsync(Filter.retrieveByParticipateQuery)
+);
 
-router.get('/by/date', catchAsync(Filter.filterByDate))
+router.get("/by/date", isLoggedIn, catchAsync(Filter.filterByDate));
 
-router.get('/by/date/incomes', catchAsync(Filter.filterByDateIncomes))
+router.get(
+  "/by/date/incomes",
+  isLoggedIn,
+  catchAsync(Filter.filterByDateIncomes)
+);
 
-router.get('/by/date/expenses', catchAsync(Filter.filterByDateExpenses))
+router.get(
+  "/by/date/expenses",
+  isLoggedIn,
+  catchAsync(Filter.filterByDateExpenses)
+);
 
-router.get('/by/:id/student', catchAsync(Filter.retrieveByActiveStudent))
+router.get(
+  "/by/:id/student",
+  isLoggedIn,
+  catchAsync(Filter.retrieveByActiveStudent)
+);
 
-router.get('/by/:id/staff', catchAsync(Filter.retrieveByActiveStaff))
+router.get(
+  "/by/:id/staff",
+  isLoggedIn,
+  catchAsync(Filter.retrieveByActiveStaff)
+);
+
+router.get(
+  "/by/class/catalog/:cid",
+  isLoggedIn,
+  catchAsync(Filter.retrieveApproveCatalogArrayFilter)
+);
 
 // router.get('/filter/by/date/funds', catchAsync(Filter.filterByDateFunds))
 module.exports = router;

@@ -258,4 +258,8 @@ router.get(
   catchAsync(User.retrieveUserRoleQueryFormat)
 );
 
+router.get("/:id/all/three/section/notify", catchAsync(User.getAllThreeCount));
+
+router.patch("/:id/mark/viewed", catchAsync(User.retrieveMarkAllThree));
+
 module.exports = router;

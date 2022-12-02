@@ -195,6 +195,11 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
           path: "payment_to_end_user_id",
           select: "insName photoId insProfilePhoto",
         });
+      if (order?.length > 0) {
+        res.status(200).send({ message: "User Pay History", history: order });
+      } else {
+        res.status(200).send({ message: "No User Pay History", history: [] });
+      }
     } else {
       var order = await OrderPayment.find({ payment_by_end_user_id: uid })
         .sort("-created_at")
@@ -231,11 +236,11 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
           path: "payment_to_end_user_id",
           select: "insName photoId insProfilePhoto",
         });
-    }
-    if (order?.length > 0) {
-      res.status(200).send({ message: "User Pay History", history: order });
-    } else {
-      res.status(200).send({ message: "No User Pay History", history: [] });
+      if (order?.length > 0) {
+        res.status(200).send({ message: "User Pay History", history: order });
+      } else {
+        res.status(200).send({ message: "No User Pay History", history: [] });
+      }
     }
   } catch (e) {
     console.log(e);
@@ -287,6 +292,12 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
           path: "payment_to_end_user_id",
           select: "insName photoId insProfilePhoto",
         });
+
+      if (order?.length > 0) {
+        res.status(200).send({ message: "User Pay History", history: order });
+      } else {
+        res.status(200).send({ message: "No User Pay History", history: [] });
+      }
     } else {
       var order = await OrderPayment.find({ payment_to_end_user_id: uid })
         .sort("-created_at")
@@ -323,11 +334,11 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
           path: "payment_to_end_user_id",
           select: "insName photoId insProfilePhoto",
         });
-    }
-    if (order?.length > 0) {
-      res.status(200).send({ message: "User Pay History", history: order });
-    } else {
-      res.status(200).send({ message: "No User Pay History", history: [] });
+      if (order?.length > 0) {
+        res.status(200).send({ message: "User Pay History", history: order });
+      } else {
+        res.status(200).send({ message: "No User Pay History", history: [] });
+      }
     }
   } catch (e) {
     console.log(e);

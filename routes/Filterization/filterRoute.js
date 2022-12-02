@@ -42,7 +42,7 @@ router.get(
 
 router.get(
   "/by/class/catalog/:cid",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Filter.retrieveApproveCatalogArrayFilter)
 );
 

@@ -12,4 +12,6 @@ router.get("/history/by", Razor.fetchPaymentHistoryQueryBy);
 
 router.get("/history/to", Razor.fetchPaymentHistoryQueryTo);
 
+router.get("/one/:pid", Razor.fetchPaymentOneHistory);
+
 module.exports = router;

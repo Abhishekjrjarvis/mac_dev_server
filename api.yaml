@@ -17603,6 +17603,11 @@ paths:
           type: string
           description: Enter Page
         - in: query
+          name: filter
+          required: true
+          type: string
+          description: Enter Filter By Module Type
+        - in: query
           name: limit
           required: true
           type: string
@@ -17632,10 +17637,35 @@ paths:
           type: string
           description: Enter Page
         - in: query
+          name: filter
+          required: true
+          type: string
+          description: Enter Filter By Module Type
+        - in: query
           name: limit
           required: true
           type: string
           description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/pay/one/{pid}:
+    get:
+      tags:
+        - Payment History
+      summary: view one payment detail (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          type: string
+          description: Enter Payment Id
       responses:
         "200":
           description: OK

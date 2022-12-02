@@ -24,10 +24,7 @@ const Status = require("../../models/Admission/status");
 const Post = require("../../models/Post");
 const Comment = require("../../models/Comment");
 const ReplyComment = require("../../models/ReplyComment/ReplyComment");
-const {
-  uploadDocFile,
-  uploadFile,
-} = require("../../S3Configuration");
+const { uploadDocFile, uploadFile } = require("../../S3Configuration");
 const fs = require("fs");
 const util = require("util");
 const encryptionPayload = require("../../Utilities/Encrypt/payload");
@@ -2374,6 +2371,7 @@ exports.retrievePendingRequestArray = async (req, res) => {
 
 exports.retrieveApproveCatalogArray = async (req, res) => {
   try {
+    var options = { sort: { studentROLLNO: 1 } };
     const { cid } = req.params;
     const currentDate = new Date();
     const currentDateLocalFormat = currentDate.toISOString().split("-");
@@ -2391,6 +2389,7 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
       .select("className classStatus classTitle exams")
       .populate({
         path: "ApproveStudent",
+        options,
         select: "leave",
         populate: {
           path: "leave",
@@ -2402,6 +2401,7 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
       })
       .populate({
         path: "ApproveStudent",
+        options,
         select:
           "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO",
         populate: {
@@ -2411,7 +2411,7 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
       })
       .lean()
       .exec();
-    res.status(200).send({ message: "Approve catalog", classes });
+    res.status(200).send({ message: "Approve catalog", classes: classes });
   } catch (e) {
     console.log(e);
   }

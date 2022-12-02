@@ -171,8 +171,6 @@ exports.retrieveOneElectionQueryCandidate = async (req, res) => {
     const { eid } = req.params;
     const all_candidate = await Election.findById({ _id: eid })
       .select("_id")
-      .limit(limit)
-      .skip(skip)
       .populate({
         path: "election_candidate",
         limit: limit,

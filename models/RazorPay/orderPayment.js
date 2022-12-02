@@ -14,10 +14,12 @@ const orderPaymentSchema = new mongoose.Schema({
     type: String,
   },
   payment_by_end_user_id: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
   },
   payment_to_end_user_id: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "InstituteAdmin",
   },
   payment_module_id: {
     type: String,

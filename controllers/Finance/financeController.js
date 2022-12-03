@@ -551,7 +551,7 @@ exports.requestClassOfflineFee = async (req, res) => {
         feeAmount: amount,
         status: "Pending",
       });
-      finance.financeCollectedSBalance += amount;
+      // finance.financeCollectedSBalance += amount;
       finance.requestArray.push(classes._id);
       classes.receieveFee.push(fee._id);
       classes.requestFeeStatus.feeId = fee._id;

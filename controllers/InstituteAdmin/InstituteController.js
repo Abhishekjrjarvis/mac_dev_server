@@ -2373,7 +2373,7 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
   try {
     var options = { sort: { studentROLLNO: 1 } };
     const { cid } = req.params;
-    var options = { sort: { studentROLLNO: 1 } };
+    // var options = { sort: { studentROLLNO: 1 } };
     const currentDate = new Date();
     const currentDateLocalFormat = currentDate.toISOString().split("-");
     const day =

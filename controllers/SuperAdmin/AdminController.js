@@ -198,12 +198,10 @@ exports.getSuperAdmin = async (req, res) => {
 exports.sendOtpToAdmin = async (req, res) => {
   try {
     generateAdminOTP(req.body.adminPhoneNumber).then((data) => {
-      res
-        .status(200)
-        .send({
-          message: "OTP send",
-          adminPhoneNumber: req.body.adminPhoneNumber,
-        });
+      res.status(200).send({
+        message: "OTP send",
+        adminPhoneNumber: req.body.adminPhoneNumber,
+      });
     });
   } catch {}
 };
@@ -638,12 +636,10 @@ exports.retrieveNotificationCountQuery = async (req, res) => {
     const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` })
       .select("id aNotify")
       .lean();
-    res
-      .status(200)
-      .send({
-        message: "Notification Count Data",
-        notifyCount: admin.aNotify.length,
-      });
+    res.status(200).send({
+      message: "Notification Count Data",
+      notifyCount: admin.aNotify.length,
+    });
   } catch {}
 };
 
@@ -732,21 +728,31 @@ exports.retrieveRepayInstituteAmount = async (req, res) => {
 
 exports.retrieveInstituteRepayQuery = async (req, res) => {
   try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
     const { id } = req.params;
-    const institute = await InstituteAdmin.findById({ _id: id })
-      .select("id")
+    const institute = await InstituteAdmin.findById({ _id: id }).select(
+      "id getReturn"
+    );
+
+    const get_return = await RePay.find({ _id: { $in: institute?.getReturn } })
+      .sort("createdAt")
+      .limit(limit)
+      .skip(skip)
+      .select("repayAmount repayStatus")
       .populate({
-        path: "getReturn",
-        populate: {
-          path: "institute",
-          select: "insName",
-        },
-      })
-      .lean();
-    res
-      .status(200)
-      .send({ message: "Repay Array", repay: institute.getReturn });
-  } catch {}
+        path: "institute",
+        select: "insName",
+      });
+    if (get_return?.length > 0) {
+      res.status(200).send({ message: "Repay Array", repay: get_return });
+    } else {
+      res.status(200).send({ message: "No Repay Array", repay: [] });
+    }
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.retrieveSocialPostCount = async (req, res) => {
@@ -763,15 +769,13 @@ exports.retrieveSocialPostCount = async (req, res) => {
       .select("id")
       .lean();
 
-    res
-      .status(200)
-      .send({
-        message: "Total Posts",
-        postCount: postCount?.length,
-        questionCount: questionCount?.length,
-        pollCount: pollCount?.length,
-        repostCount: repostCount?.length,
-      });
+    res.status(200).send({
+      message: "Total Posts",
+      postCount: postCount?.length,
+      questionCount: questionCount?.length,
+      pollCount: pollCount?.length,
+      repostCount: repostCount?.length,
+    });
   } catch {}
 };
 
@@ -793,13 +797,11 @@ exports.retrieveSocialLikeCount = async (req, res) => {
         total += answer?.upVote?.length;
       });
     }
-    res
-      .status(200)
-      .send({
-        message: "Total Likes",
-        likeCount: total,
-        postCount: postCount?.length,
-      });
+    res.status(200).send({
+      message: "Total Likes",
+      likeCount: total,
+      postCount: postCount?.length,
+    });
   } catch {}
 };
 

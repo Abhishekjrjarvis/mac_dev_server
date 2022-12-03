@@ -3,7 +3,8 @@ const mongoose = require("mongoose");
 const insAnnouncementSchema = new mongoose.Schema({
   insAnnTitle: { type: String },
   insAnnDescription: { type: String },
-  insAnnVisibility: { type: String, default: 'Anyone' },
+  insAnnVisibility: { type: String, default: "Anyone" },
+  // insAnnViewUser: [],
   announcementDocument: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -18,10 +19,10 @@ const insAnnouncementSchema = new mongoose.Schema({
   reply: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'ReplyAnnouncement'
-    }
+      ref: "ReplyAnnouncement",
+    },
   ],
-  starList: []
+  starList: [],
 });
 
 module.exports = mongoose.model("InsAnnouncement", insAnnouncementSchema);

@@ -191,7 +191,6 @@ exports.retrieveOneElectionQueryCandidate = async (req, res) => {
           "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
       },
     });
-
     if (all_candidate?.election_candidate?.length > 0) {
       res.status(200).send({
         message: "All Candidate List 😀",

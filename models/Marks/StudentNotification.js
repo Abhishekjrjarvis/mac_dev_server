@@ -6,7 +6,7 @@ const studentNotificationSchema = new mongoose.Schema({
   notifyReceiever: { type: String, required: true },
   notifyReadStatus: { type: String, default: "Unread" },
   notifyVisibility: { type: String, default: "Unhide" },
-  notifyViewStatus: { type: String, default: 'Not View'},
+  notifyViewStatus: { type: String, default: "Not View" },
   redirectIndex: { type: Number },
   notifyByClassPhoto: {
     type: mongoose.Schema.Types.ObjectId,
@@ -18,28 +18,28 @@ const studentNotificationSchema = new mongoose.Schema({
   },
   notifyByInsPhoto: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'InstituteAdmin'
+    ref: "InstituteAdmin",
   },
   notifyByStaffPhoto: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Staff'
+    ref: "Staff",
   },
   notifyByStudentPhoto: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Student'
+    ref: "Student",
   },
   notifyBySubjectPhoto: {
     type: String,
   },
   notifyByFinancePhoto: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Finance'
+    ref: "Finance",
   },
   notifyType: {
-    type: String
+    type: String,
   },
   notifyPublisher: {
-    type: String
+    type: String,
   },
   examId: { type: String },
   checklistId: { type: String },
@@ -49,6 +49,7 @@ const studentNotificationSchema = new mongoose.Schema({
   financeId: { type: String },
   classId: { type: String },
   departmentId: { type: String },
+  dailyUpdateId: { type: String },
   batchId: { type: String },
   instituteId: { type: String },
   electionId: { type: String },
@@ -59,7 +60,7 @@ const studentNotificationSchema = new mongoose.Schema({
   vote_status: { type: String },
   election_winner: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Student'
+    ref: "Student",
   },
   participateEventId: { type: String },
   participate_event_type: { type: String },

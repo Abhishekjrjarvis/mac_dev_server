@@ -12,6 +12,7 @@ const BusinessTC = require("../../models/Finance/BToC");
 const moment = require("moment");
 const Admin = require("../../models/superAdmin");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
+
 exports.createFess = async (req, res) => {
   try {
     const { ClassId } = req.body;
@@ -239,7 +240,6 @@ exports.feesPaidByStudent = async (req, res) => {
       }
       exe_status = "Done";
     }
-
     await Promise.all([
       fData.save(),
       finance.save(),
@@ -444,10 +444,10 @@ exports.retrieveStudentQuery = async (req, res) => {
         select: "userLegalName username",
       })
       .lean();
-    var admission_date = moment(student?.studentAdmissionDate).format("l");
-    var year = admission_date.substring(6, 10);
-    var month = admission_date.substring(0, 2);
-    var day = admission_date.substring(3, 5);
+    // var admission_date = moment(student?.studentAdmissionDate).format("l");
+    var year = student?.studentAdmissionDate.substring(0, 4);
+    var month = student?.studentAdmissionDate.substring(5, 7);
+    var day = student?.studentAdmissionDate.substring(8, 10);
     const fees = await Fees.find({
       $and: [
         { _id: { $in: student?.department?.fees } },

@@ -10,16 +10,11 @@ const Admin = require("../../models/superAdmin");
 const Fees = require("../../models/Fees");
 const Report = require("../../models/Report");
 const Batch = require("../../models/Batch");
-const Complaint = require("../../models/Complaint");
-const Transfer = require("../../models/Transfer");
 const DisplayPerson = require("../../models/DisplayPerson");
-const Finance = require("../../models/Finance");
 const bcrypt = require("bcryptjs");
-// const Library = require("../../models/Library/Library");
 const Subject = require("../../models/Subject");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const Class = require("../../models/Class");
-const Leave = require("../../models/Leave");
 const ClassMaster = require("../../models/ClassMaster");
 const SubjectMaster = require("../../models/SubjectMaster");
 const ReplyAnnouncement = require("../../models/ReplyAnnouncement");
@@ -29,12 +24,7 @@ const Status = require("../../models/Admission/status");
 const Post = require("../../models/Post");
 const Comment = require("../../models/Comment");
 const ReplyComment = require("../../models/ReplyComment/ReplyComment");
-const {
-  getFileStream,
-  uploadDocFile,
-  uploadVideo,
-  uploadFile,
-} = require("../../S3Configuration");
+const { uploadDocFile, uploadFile } = require("../../S3Configuration");
 const fs = require("fs");
 const util = require("util");
 const encryptionPayload = require("../../Utilities/Encrypt/payload");
@@ -2381,6 +2371,7 @@ exports.retrievePendingRequestArray = async (req, res) => {
 
 exports.retrieveApproveCatalogArray = async (req, res) => {
   try {
+    var options = { sort: { studentROLLNO: 1 } };
     const { cid } = req.params;
     var options = { sort: { studentROLLNO: 1 } };
     const currentDate = new Date();
@@ -2421,7 +2412,7 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
       })
       .lean()
       .exec();
-    res.status(200).send({ message: "Approve catalog", classes });
+    res.status(200).send({ message: "Approve catalog", classes: classes });
   } catch (e) {
     console.log(e);
   }

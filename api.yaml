@@ -17578,3 +17578,121 @@ paths:
       responses:
         "200":
           description: OK
+
+
+# Payment History (Institute, user)
+
+  /api/v1/pay/history/by:
+    get:
+      tags:
+        - Payment History
+      summary: Get Pay By a User (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: uid
+          required: true
+          type: string
+          description: Enter User Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page
+        - in: query
+          name: filter
+          required: true
+          type: string
+          description: Enter Filter By Module Type
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/pay/history/to:
+    get:
+      tags:
+        - Payment History
+      summary: Receieve At Institute (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: uid
+          required: true
+          type: string
+          description: Enter Institute Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page
+        - in: query
+          name: filter
+          required: true
+          type: string
+          description: Enter Filter By Module Type
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/pay/one/{pid}:
+    get:
+      tags:
+        - Payment History
+      summary: view one payment detail (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          type: string
+          description: Enter Payment Id
+      responses:
+        "200":
+          description: OK
+
+  
+# Sorted By Alpha || Gender
+
+  /api/v1/feed/filter/by/class/catalog/{cid}:
+    get:
+      tags:
+        - Filter Query
+      summary: Get Sorted Students List By Gender || Alpha (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: Enter Class Id
+        - in: query
+          name: sort_query
+          required: true
+          type: string
+          description: for only gender -> ("Gender"), for only Alphabetical -> ("Alpha"), for both -> ("Gender_Alpha")
+      responses:
+        "200":
+          description: OK

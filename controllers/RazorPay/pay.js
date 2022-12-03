@@ -112,7 +112,8 @@ exports.verifyRazorPayment = async (req, res) => {
           payment_by_end_user_id,
           refactor_amount,
           payment_module_id,
-          ad_status_id
+          ad_status_id,
+          payment_to_end_user_id
         );
         if (isApk) {
           res.status(200).send({
@@ -156,36 +157,107 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const { uid } = req.query;
     const skip = (page - 1) * limit;
-    const order = await OrderPayment.find({ payment_by_end_user_id: uid })
-      .sort("-created_at")
-      .limit(limit)
-      .skip(skip)
-      .select(
-        "razorpay_order_id payment_module_type payment_module_id payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
-      )
-      .populate({
-        path: "payment_fee",
-        select: "feeName",
+    const { filter } = req.query;
+    if (filter) {
+      var order = await OrderPayment.find({
+        $and: [{ payment_by_end_user_id: uid }, { payment_module_id: filter }],
       })
-      .populate({
-        path: "payment_admission",
-        select: "applicationName",
-      })
-      .populate({
-        path: "payment_checklist",
-        select: "checklistName",
-      })
-      .populate({
-        path: "payment_income",
-        select: "incomeDesc",
-      })
-      .populate({
-        path: "payment_expense",
-        select: "expenseDesc",
-      });
-
-    if (order?.length > 0) {
-      res.status(200).send({ message: "User Pay History", history: order });
+        .sort("-created_at")
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "razorpay_order_id payment_module_type payment_module_id payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
+        )
+        .populate({
+          path: "payment_fee",
+          select: "feeName",
+        })
+        .populate({
+          path: "payment_admission",
+          select: "applicationName",
+        })
+        .populate({
+          path: "payment_checklist",
+          select: "checklistName",
+        })
+        .populate({
+          path: "payment_income",
+          select: "incomeDesc",
+        })
+        .populate({
+          path: "payment_expense",
+          select: "expenseDesc",
+        })
+        .populate({
+          path: "payment_by_end_user_id",
+          select: "userLegalName photoId profilePhoto",
+        })
+        .populate({
+          path: "payment_to_end_user_id",
+          select: "insName photoId insProfilePhoto",
+        })
+        .populate({
+          path: "payment_expense_by_end_user_id",
+          select: "insName photoId insProfilePhoto",
+        })
+        .populate({
+          path: "payment_expense_to_end_user_id",
+          select: "userLegalName photoId profilePhoto",
+        });
+      if (order?.length > 0) {
+        res.status(200).send({ message: "User Pay History", history: order });
+      } else {
+        res.status(200).send({ message: "No User Pay History", history: [] });
+      }
+    } else {
+      var order = await OrderPayment.find({ payment_by_end_user_id: uid })
+        .sort("-created_at")
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "razorpay_order_id payment_module_type payment_module_id payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
+        )
+        .populate({
+          path: "payment_fee",
+          select: "feeName",
+        })
+        .populate({
+          path: "payment_admission",
+          select: "applicationName",
+        })
+        .populate({
+          path: "payment_checklist",
+          select: "checklistName",
+        })
+        .populate({
+          path: "payment_income",
+          select: "incomeDesc",
+        })
+        .populate({
+          path: "payment_expense",
+          select: "expenseDesc",
+        })
+        .populate({
+          path: "payment_by_end_user_id",
+          select: "userLegalName photoId profilePhoto",
+        })
+        .populate({
+          path: "payment_to_end_user_id",
+          select: "insName photoId insProfilePhoto",
+        })
+        .populate({
+          path: "payment_expense_by_end_user_id",
+          select: "insName photoId insProfilePhoto",
+        })
+        .populate({
+          path: "payment_expense_to_end_user_id",
+          select: "userLegalName photoId profilePhoto",
+        });
+      if (order?.length > 0) {
+        res.status(200).send({ message: "User Pay History", history: order });
+      } else {
+        res.status(200).send({ message: "No User Pay History", history: [] });
+      }
     }
   } catch (e) {
     console.log(e);
@@ -198,13 +270,122 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const { uid } = req.query;
     const skip = (page - 1) * limit;
-    const order = await OrderPayment.find({ payment_to_end_user_id: uid })
-      .sort("-created_at")
-      .limit(limit)
-      .skip(skip)
-      .select(
-        "razorpay_order_id payment_module_type payment_module_id payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
-      )
+    const { filter } = req.query;
+    if (filter) {
+      var order = await OrderPayment.find({
+        $and: [{ payment_to_end_user_id: uid }, { payment_module_id: filter }],
+      })
+        .sort("-created_at")
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "razorpay_order_id payment_module_type payment_module_id payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
+        )
+        .populate({
+          path: "payment_fee",
+          select: "feeName",
+        })
+        .populate({
+          path: "payment_admission",
+          select: "applicationName",
+        })
+        .populate({
+          path: "payment_checklist",
+          select: "checklistName",
+        })
+        .populate({
+          path: "payment_income",
+          select: "incomeDesc",
+        })
+        .populate({
+          path: "payment_expense",
+          select: "expenseDesc",
+        })
+        .populate({
+          path: "payment_by_end_user_id",
+          select: "userLegalName photoId profilePhoto",
+        })
+        .populate({
+          path: "payment_to_end_user_id",
+          select: "insName photoId insProfilePhoto",
+        })
+        .populate({
+          path: "payment_expense_by_end_user_id",
+          select: "insName photoId insProfilePhoto",
+        })
+        .populate({
+          path: "payment_expense_to_end_user_id",
+          select: "userLegalName photoId profilePhoto",
+        });
+
+      if (order?.length > 0) {
+        res.status(200).send({ message: "User Pay History", history: order });
+      } else {
+        res.status(200).send({ message: "No User Pay History", history: [] });
+      }
+    } else {
+      var order = await OrderPayment.find({ payment_to_end_user_id: uid })
+        .sort("-created_at")
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "razorpay_order_id payment_module_type payment_module_id payment_flag_by payment_flag_to payment_amount payment_status created_at payment_mode payment_invoice_number"
+        )
+        .populate({
+          path: "payment_fee",
+          select: "feeName",
+        })
+        .populate({
+          path: "payment_admission",
+          select: "applicationName",
+        })
+        .populate({
+          path: "payment_checklist",
+          select: "checklistName",
+        })
+        .populate({
+          path: "payment_income",
+          select: "incomeDesc",
+        })
+        .populate({
+          path: "payment_expense",
+          select: "expenseDesc",
+        })
+        .populate({
+          path: "payment_by_end_user_id",
+          select: "userLegalName photoId profilePhoto",
+        })
+        .populate({
+          path: "payment_to_end_user_id",
+          select: "insName photoId insProfilePhoto",
+        })
+        .populate({
+          path: "payment_expense_by_end_user_id",
+          select: "insName photoId insProfilePhoto",
+        })
+        .populate({
+          path: "payment_expense_to_end_user_id",
+          select: "userLegalName photoId profilePhoto",
+        });
+      if (order?.length > 0) {
+        res.status(200).send({ message: "User Pay History", history: order });
+      } else {
+        res.status(200).send({ message: "No User Pay History", history: [] });
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.fetchPaymentOneHistory = async (req, res) => {
+  try {
+    const { pid } = req.params;
+    if (!pid)
+      return res
+        .status(200)
+        .send({ message: "Their is a bug need to fix it 😀", deny: true });
+    const one_pay = await OrderPayment.findById({ _id: pid })
       .populate({
         path: "payment_fee",
         select: "feeName",
@@ -224,12 +405,17 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
       .populate({
         path: "payment_expense",
         select: "expenseDesc",
+      })
+      .populate({
+        path: "payment_by_end_user_id",
+        select: "userLegalName photoId profilePhoto",
+      })
+      .populate({
+        path: "payment_to_end_user_id",
+        select: "insName photoId insProfilePhoto",
       });
-
-    if (order?.length > 0) {
-      res.status(200).send({ message: "User Pay History", history: order });
-    }
-  } catch (e) {
-    console.log(e);
-  }
+    res
+      .status(200)
+      .send({ message: "One Payment Detail", deny: false, one_pay });
+  } catch {}
 };

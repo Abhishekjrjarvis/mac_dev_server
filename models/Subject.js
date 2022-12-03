@@ -75,6 +75,18 @@ const subjectSchema = new mongoose.Schema({
       ref: "AllotedTestSet",
     },
   ],
+  backlog: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
+  pass: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
   createdAt: {
     type: Date,
     default: Date.now,

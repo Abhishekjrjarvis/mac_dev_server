@@ -142,6 +142,7 @@ exports.getOneFeesDetail = async (req, res) => {
 };
 
 exports.feesPaidByStudent = async (req, res) => {
+  // try fro check this route
   try {
     const { cid, id } = req.params;
     const { offlineQuery, exemptQuery } = req.body;

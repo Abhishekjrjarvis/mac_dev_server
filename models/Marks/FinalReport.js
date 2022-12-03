@@ -23,6 +23,8 @@ const finalReportSchema = new mongoose.Schema({
   behaviourStar: { type: Number, default: 0 },
   behaviourImprovement: { type: String },
   behaviourLack: { type: String },
+  passStatus: { type: String },
+  totalCutoff: { type: Number },
   subjects: [
     {
       subject: { type: mongoose.Schema.Types.ObjectId, required: true },
@@ -34,6 +36,8 @@ const finalReportSchema = new mongoose.Schema({
       graceMarks: { type: Number, default: 0 },
       totalMarks: { type: Number, required: true },
       obtainTotalMarks: { type: Number, required: true },
+      subjectCutoff: { type: Number },
+      subjectPassStatus: { type: String },
     },
   ],
 });

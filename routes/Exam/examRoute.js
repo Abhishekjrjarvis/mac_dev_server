@@ -68,6 +68,10 @@ router
   .post(catchAsync(examController.oneStudentReportCardFinalize));
 
 router
+  .route("/class/student/:sid/report/grace/update")
+  .patch(catchAsync(examController.oneStudentReportCardGraceUpdate));
+
+router
   .route("/class/student/:sid/report/finalize/grace/update")
   .patch(catchAsync(examController.oneStudentReportCardFinalizeGraceUpdate));
 

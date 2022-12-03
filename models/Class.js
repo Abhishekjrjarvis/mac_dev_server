@@ -242,6 +242,18 @@ const classSchema = new mongoose.Schema({
       ref: "ClassTimetable",
     },
   ],
+  fail: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
+  pass: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
 });
 
 const Class = mongoose.model("Class", classSchema);

@@ -112,7 +112,8 @@ exports.verifyRazorPayment = async (req, res) => {
           payment_by_end_user_id,
           refactor_amount,
           payment_module_id,
-          ad_status_id
+          ad_status_id,
+          payment_to_end_user_id
         );
         if (isApk) {
           res.status(200).send({

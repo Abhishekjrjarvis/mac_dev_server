@@ -241,7 +241,8 @@ exports.admissionInstituteFunction = async (
   paidBy,
   tx_amount_ad,
   moduleId,
-  statusId
+  statusId,
+  paidTo
 ) => {
   try {
     var student = await Student.findById({ _id: paidBy });
@@ -252,7 +253,7 @@ exports.admissionInstituteFunction = async (
     var admission = await Admission.findById({
       _id: `${apply.admissionAdmin}`,
     });
-    var ins = await InstituteAdmin.findById({ _id: `${student.institute}` });
+    var ins = await InstituteAdmin.findById({ _id: `${paidTo}` });
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     }).populate({

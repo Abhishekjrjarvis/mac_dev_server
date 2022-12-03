@@ -1437,11 +1437,12 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
         message: "All Admission Fees",
         get: true,
         array: student?.remainingFeeList,
+        student: student,
       });
     } else {
       res
         .status(200)
-        .send({ message: "No Admission Fees", get: false, array: [] });
+        .send({ message: "No Admission Fees", get: false, array: [], student: student });
     }
   } catch (e) {
     console.log(e);

@@ -1980,3 +1980,65 @@ exports.retrieveUserReportBlockIns = async (req, res) => {
     console.log("UUBU", e);
   }
 };
+
+// exports.getAllThreeCount = async (req, res) => {
+//   try {
+//     const id = req.params.id;
+//     const user = await User.findById({ _id: id })
+//       .select("_id activity_tab uNotify")
+//       .populate({
+//         path: "uNotify",
+//       });
+//     var total = 0;
+//     const notify = await Notification.find({
+//       $and: [{ _id: { $in: user?.uNotify } }, { notifyViewStatus: "Not View" }],
+//     });
+//     const activity = await StudentNotification.find({
+//       $and: [
+//         { _id: { $in: user?.activity_tab } },
+//         { notifyViewStatus: "Not View" },
+//       ],
+//     });
+//     total = total + notify?.length + activity?.length;
+
+//     res
+//       .status(200)
+//       .send({ message: "Not Viewed Notification & Activity", count: total });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
+
+// exports.retrieveMarkAllView = async (req, res) => {
+//   try {
+//     const id = req.params.id;
+//     const user = await User.findById({ _id: id })
+//       .select("_id")
+//       .populate({ path: "activity_tab uNotify" });
+//     const notify = await Notification.find({
+//       $and: [{ _id: { $in: user?.uNotify } }, { notifyViewStatus: "Not View" }],
+//     });
+//     const activity = await StudentNotification.find({
+//       $and: [
+//         { _id: { $in: user?.activity_tab } },
+//         { notifyViewStatus: "Not View" },
+//       ],
+//     });
+//     if (notify?.length >= 1) {
+//       notify.forEach(async (ele) => {
+//         ele.notifyViewStatus = "View";
+//         await ele.save();
+//       });
+//     }
+//     if (activity?.length >= 1) {
+//       activity.forEach(async (ele) => {
+//         ele.notifyViewStatus = "View";
+//         await ele.save();
+//       });
+//     }
+
+//     res.status(200).send({ message: "Mark All To Be Viewed" });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };

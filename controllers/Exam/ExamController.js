@@ -709,7 +709,15 @@ exports.oneStudentReportCardClassTeacher = async (req, res) => {
       .populate({
         path: "subjectMarks",
       })
-      .select("_id ");
+      .populate({
+        path: "studentClass",
+        populate: {
+          path: "subject",
+          select: "setting.subjectPassingMarks",
+        },
+        select: "subject finalReportsSettings.aggregatePassingPercentage -_id",
+      })
+      .select("_id subjectMarks studentClass");
 
     const subjects = [];
     const total = {
@@ -717,6 +725,11 @@ exports.oneStudentReportCardClassTeacher = async (req, res) => {
       otherTotal: 0,
       graceTotal: 0,
       allSubjectTotal: 0,
+      totalCutoff: student?.studentClass?.finalReportsSettings
+        ?.aggregatePassingPercentage
+        ? student?.studentClass?.finalReportsSettings
+            ?.aggregatePassingPercentage
+        : 0,
     };
     student?.subjectMarks.forEach((submarks) => {
       const obj = {
@@ -728,7 +741,12 @@ exports.oneStudentReportCardClassTeacher = async (req, res) => {
         otherObtainMarks: 0,
         subjectWiseTotal: submarks.graceMarks,
         graceMarks: submarks.graceMarks,
+        subjectCutoff: 0,
       };
+      for (let cut of student?.studentClass?.subject) {
+        if (String(submarks.subject) === String(cut?._id))
+          obj.subjectCutoff = cut.setting.subjectPassingMarks;
+      }
       let totalOtherAllWeight = 0;
       submarks?.marks.forEach((eachmarks) => {
         if (eachmarks.examType === "Other") {
@@ -763,7 +781,11 @@ exports.oneStudentReportCardClassTeacher = async (req, res) => {
     const totalPercantage =
       (total.allSubjectTotal * 100) / (100 * subjects.length);
 
-    res.status(200).send({ subjects, total, totalPercantage });
+    res.status(200).send({
+      subjects,
+      total,
+      totalPercantage,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -821,7 +843,7 @@ exports.oneStudentReletedNecessaryData = async (req, res) => {
       .populate({
         path: "institute",
         select:
-          "_id insName insDistrict insPincode insPhoneNumber insEmail insProfilePhoto",
+          "_id insName insDistrict insPincode insPhoneNumber insEmail insProfilePhoto insAddress",
       })
       .populate({
         path: "studentClass",
@@ -878,10 +900,15 @@ exports.oneStudentReportCardFinalize = async (req, res) => {
       behaviourStar: req.body.behaviourStar,
       behaviourImprovement: req.body.behaviourImprovement,
       behaviourLack: req.body.behaviourLack,
+      totalCutoff: req.body.totalCutoff,
+      passStatus:
+        req.body.totalCutoff > Math.round(req.body.totalPercentage)
+          ? "FAIL"
+          : "PASS",
     });
     student.finalReport.push(finalize._id);
     student.finalReportStatus = "Yes";
-    req.body?.subjects?.forEach((subject) => {
+    for (let subject of req.body?.subjects) {
       if (!subject.finalExamObtain || !subject.finalExamTotal) {
         throw "All Final Exam Marks is not updated";
       }
@@ -898,13 +925,51 @@ exports.oneStudentReportCardFinalize = async (req, res) => {
         graceMarks: subject.graceMarks,
         totalMarks: subject.totalMarks,
         obtainTotalMarks: subject.obtainTotalMarks,
+        subjectCutoff: subject.subjectCutoff,
+        subjectPassStatus:
+          subject.subjectCutoff > Math.round(subject.obtainTotalMarks)
+            ? "FAIL"
+            : "PASS",
       });
-    });
-    await Promise.all([finalize.save(), student.save()]);
+      const backlogSub = await Subject.findById(subject._id);
+      if (subject.subjectCutoff > Math.round(subject.obtainTotalMarks))
+        backlogSub.backlog.push(req.params.sid);
+      else backlogSub.backlog.push(req.params.sid);
+      await backlogSub.save();
+    }
+    const classes = await Class.findById(student?.studentClass);
+    if (req.body.totalCutoff > Math.round(req.body.totalPercentage))
+      classes.fail.push(req.params.sid);
+    else classes.pass.push(req.params.sid);
+    await Promise.all([finalize.save(), student.save(), classes.save()]);
     res.status(201).send({ message: "Finalize successfully" });
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     res.status(200).send({ message: e });
+  }
+};
+
+exports.oneStudentReportCardGraceUpdate = async (req, res) => {
+  try {
+    const student = await Student.findById(req.params.sid).populate({
+      path: "subjectMarks",
+    });
+
+    for (let subMarks of student?.subjectMarks) {
+      for (let bodysubject of req.body?.subjects) {
+        if (String(subMarks.subject) === bodysubject._id) {
+          subMarks.graceMarks = bodysubject.graceMarks;
+        }
+      }
+      await subMarks.save();
+    }
+    res.status(200).send({
+      message: "grace marks updated successfully...😋😊😊😋😋",
+      student,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(424).send({ message: e });
   }
 };
 

@@ -2382,6 +2382,7 @@ exports.retrievePendingRequestArray = async (req, res) => {
 exports.retrieveApproveCatalogArray = async (req, res) => {
   try {
     const { cid } = req.params;
+    var options = { sort: { studentROLLNO: 1 } };
     const currentDate = new Date();
     const currentDateLocalFormat = currentDate.toISOString().split("-");
     const day =
@@ -2398,6 +2399,7 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
       .select("className classStatus classTitle exams")
       .populate({
         path: "ApproveStudent",
+        options,
         select: "leave",
         populate: {
           path: "leave",
@@ -2409,6 +2411,7 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
       })
       .populate({
         path: "ApproveStudent",
+        options,
         select:
           "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO",
         populate: {

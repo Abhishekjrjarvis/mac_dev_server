@@ -22,6 +22,9 @@ exports.preformedStructure = async (req, res) => {
         path: "subject",
       },
     });
+    // console.log(batch);
+    // console.log(batch.classroom);
+    // console.log(batch.classroom.subject);
     const department = await Department.findById(batch?.department);
     const institute = await InstituteAdmin.findById(batch?.institute);
     const identicalBatch = new Batch({
@@ -50,6 +53,7 @@ exports.preformedStructure = async (req, res) => {
         department: oneClass?.department,
         classStartDate: date,
         classTeacher: oneClass?.classTeacher,
+        finalReportsSettings: oneClass?.finalReportsSettings,
       });
 
       classMaster?.classDivision.push(identicalClass._id);
@@ -77,6 +81,7 @@ exports.preformedStructure = async (req, res) => {
           subjectMasterName: oneSubject?.subjectMasterName,
           class: identicalClass._id,
           institute: batch?.institute,
+          setting: oneSubject?.setting,
         });
         sujectStaff?.staffSubject.push(identicalSubject._id);
         sujectStaff.staffDesignationCount += 1;
@@ -329,35 +334,13 @@ exports.promoteStudent = async (req, res) => {
 exports.getclassComplete = async (req, res) => {
   try {
     const classes = await Class.findById(req.params.cid)
-      .populate({
-        path: "subject",
-        select: "subjectStatus",
-      })
-      .select("subject classStatus")
+      .select("classStatus")
       .lean()
       .exec();
-    let flag = false;
-
-    for (let sub of classes?.subject) {
-      if (sub.subjectStatus === "Completed") flag = true;
-      else {
-        flag = false;
-        break;
-      }
-    }
-    if (flag) {
-      res.status(200).send({
-        message: "All subject is completed",
-        flag,
-        classStatus: classes?.classStatus,
-      });
-    } else {
-      res.status(200).send({
-        message: "Can not completed class due to all subject is not completed",
-        flag,
-        classStatus: classes?.classStatus,
-      });
-    }
+    res.status(200).send({
+      message: "All subject is completed",
+      classStatus: classes?.classStatus,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -365,43 +348,36 @@ exports.getclassComplete = async (req, res) => {
 
 exports.classComplete = async (req, res) => {
   try {
-    const classes = await Class.findById(req.params.cid)
-      .populate({
-        path: "subject",
-        select: "subjectStatus",
-      })
-      .select("ApproveStudent subject classTeacher classStatus");
+    const classes = await Class.findById(req.params.cid);
     if (classes.classStatus !== "Completed") {
-      let flag = false;
-
-      for (let sub of classes?.subject) {
-        if (sub.subjectStatus === "Completed") flag = true;
-        else {
-          flag = false;
-          break;
+      for (let subId of classes?.subject) {
+        const subject = await Subject.findById(subId);
+        if (subject.subjectStatus !== "Completed") {
+          subject.subjectStatus = "Completed";
+          const subStaff = await Staff.findById(
+            subject?.subjectTeacherName
+          ).select("staffSubject previousStaffSubject staffDesignationCount");
+          if (subStaff.staffDesignationCount >= 1) {
+            subStaff.staffDesignationCount -= 1;
+          }
+          subStaff.previousStaffSubject?.push(subject._id);
+          subStaff.staffSubject.pull(subject._id);
+          await Promise.all([subStaff.save(), subject.save()]);
         }
       }
-
-      if (flag) {
-        classes.classStatus = req.body.classStatus;
-        const staff = await Staff.findById(classes?.classTeacher).select(
-          "staffClass previousStaffClass"
-        );
-        if (staff.staffDesignationCount >= 1) {
-          staff.staffDesignationCount -= 1;
-        }
-        staff.previousStaffClass?.push(req.params.cid);
-        staff.staffClass.pull(req.params.cid);
-        await Promise.all([staff.save(), classes.save()]);
-        res.status(200).send({
-          message: "Class is completed",
-        });
-      } else {
-        res.status(200).send({
-          message:
-            "Can not completed class due to all subject is not completed",
-        });
+      classes.classStatus = req.body.classStatus;
+      const staff = await Staff.findById(classes?.classTeacher).select(
+        "staffClass previousStaffClass"
+      );
+      if (staff.staffDesignationCount >= 1) {
+        staff.staffDesignationCount -= 1;
       }
+      staff.previousStaffClass?.push(req.params.cid);
+      staff.staffClass.pull(req.params.cid);
+      await Promise.all([staff.save(), classes.save()]);
+      res.status(200).send({
+        message: "Class is completed",
+      });
     } else {
       res.status(200).send({ message: "already class is completed" });
     }

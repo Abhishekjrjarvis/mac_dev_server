@@ -896,7 +896,7 @@ exports.retrieveAdmissionApplicationClass = async (req, res) => {
         classes: classes,
       });
     } else {
-      res.status(404).send({ message: "Renovation at classes", classes: [] });
+      res.status(200).send({ message: "Renovation at classes", classes: [] });
     }
   } catch (e) {
     console.log(e);

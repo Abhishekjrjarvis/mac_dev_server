@@ -51,15 +51,15 @@ exports.getProfileOneQuery = async (req, res) => {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName status photoId insProfilePhoto sportStatus sportClassStatus blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement admissionCount"
+        "insName status photoId insProfilePhoto sportStatus sportClassStatus blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement admissionCount request_at affiliation_by"
       )
       .populate({
         path: "request_at",
-        select: "affiliation_name",
+        select: "affiliation_name photo",
       })
       .populate({
         path: "affiliation_by",
-        select: "affiliation_name photo photoId",
+        select: "affiliation_name photo",
       })
       .lean()
       .exec();
@@ -963,11 +963,11 @@ exports.retrieveApproveStaffList = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO"
+          "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
         )
         .populate({
           path: "user",
-          select: "userLegalName userEmail",
+          select: "userLegalName userEmail userPhoneNumber",
         });
       if (staffIns) {
         res.status(200).send({ message: "All Staff With Limit ", staffIns });
@@ -984,11 +984,11 @@ exports.retrieveApproveStaffList = async (req, res) => {
         })
           .sort("staffROLLNO")
           .select(
-            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO"
+            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
           )
           .populate({
             path: "user",
-            select: "userLegalName userEmail",
+            select: "userLegalName userEmail userPhoneNumber",
           })
           .populate({
             path: "staffLeave",
@@ -1011,11 +1011,11 @@ exports.retrieveApproveStaffList = async (req, res) => {
         })
           .sort("staffROLLNO")
           .select(
-            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO"
+            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
           )
           .populate({
             path: "user",
-            select: "userLegalName userEmail",
+            select: "userLegalName userEmail userPhoneNumber",
           });
         if (staffIns) {
           res.status(200).send({ message: "Without Limit", staffIns });

@@ -239,7 +239,6 @@ exports.feesPaidByStudent = async (req, res) => {
       }
       exe_status = "Done";
     }
-
     await Promise.all([
       fData.save(),
       finance.save(),

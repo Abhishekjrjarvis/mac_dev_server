@@ -729,6 +729,13 @@ exports.oneStudentReportCardClassTeacher = async (req, res) => {
         subjectWiseTotal: submarks.graceMarks,
         graceMarks: submarks.graceMarks,
       };
+      let totalOtherAllWeight = 0;
+      submarks?.marks.forEach((eachmarks) => {
+        if (eachmarks.examType === "Other") {
+          totalOtherAllWeight = totalOtherAllWeight + eachmarks.examWeight;
+        }
+      });
+      // console.log("this is weight", totalOtherAllWeight);
       submarks?.marks.forEach((eachmarks) => {
         if (eachmarks.examType === "Other") {
           obj.otherTotalMarks = obj.otherTotalMarks + eachmarks.totalMarks;
@@ -743,7 +750,8 @@ exports.oneStudentReportCardClassTeacher = async (req, res) => {
           obj.finalObtainMarks = eachmarks.obtainMarks;
           obj.subjectWiseTotal =
             obj.subjectWiseTotal +
-            (eachmarks.obtainMarks * eachmarks.examWeight) / 100;
+            (eachmarks.obtainMarks * (100 - totalOtherAllWeight)) /
+              eachmarks.totalMarks;
         }
       });
       total.finalTotal = total.finalTotal + obj.finalObtainMarks;

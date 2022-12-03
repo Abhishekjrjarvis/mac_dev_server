@@ -119,6 +119,18 @@ exports.subjectUpdateSetting = async (req, res) => {
   }
 };
 
+exports.subjectSetting = async (req, res) => {
+  try {
+    const subject = await Subject.findById(req.params.sid)
+      .select("setting subjectStatus")
+      .lean()
+      .exec();
+    res.status(200).send({ message: "get subject setting", subject });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.subjectComplete = async (req, res) => {
   try {
     const subject = await Subject.findById(req.params.sid);

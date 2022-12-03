@@ -649,10 +649,10 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     } else {
       if (price < apply.admissionFee) {
         admission.remainingFee.push(student._id);
-        // if (student.admissionRemainFeeCount >= apply.admissionFee) {
-        //   student.admissionRemainFeeCount -= apply.admissionFee;
-        // }
-        student.admissionRemainFeeCount += apply.admissionFee - price;
+        if (student.admissionRemainFeeCount <= apply.admissionFee) {
+          student.admissionRemainFeeCount =
+            apply.admissionFee - student.admissionRemainFeeCount;
+        }
         apply.remainingFee += apply.admissionFee - price;
         admission.remainingFeeCount += apply.admissionFee - price;
         student.remainingFeeList.push({
@@ -896,7 +896,7 @@ exports.retrieveAdmissionApplicationClass = async (req, res) => {
         classes: classes,
       });
     } else {
-      res.status(404).send({ message: "Renovation at classes", classes: [] });
+      res.status(200).send({ message: "Renovation at classes", classes: [] });
     }
   } catch (e) {
     console.log(e);
@@ -1132,7 +1132,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       _id: `${institute?.financeDepart[0]}`,
     });
     var user = await User.findById({ _id: `${student.user}` }).select(
-      "deviceToken"
+      "deviceToken payment_history"
     );
     var apply = await NewApplication.findById({ _id: appId });
     const order = new OrderPayment({});
@@ -1437,11 +1437,12 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
         message: "All Admission Fees",
         get: true,
         array: student?.remainingFeeList,
+        student: student,
       });
     } else {
       res
         .status(200)
-        .send({ message: "No Admission Fees", get: false, array: [] });
+        .send({ message: "No Admission Fees", get: false, array: [], student: student });
     }
   } catch (e) {
     console.log(e);

@@ -4,6 +4,8 @@ const Expense = require("../../models/Expense");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const Batch = require("../../models/Batch");
 const User = require("../../models/User");
+const Class = require("../../models/Class");
+const Student = require("../../models/Student");
 
 var trendingQuery = (trends, cat, type, page) => {
   if (cat !== "" && page === 1) {
@@ -462,6 +464,176 @@ exports.retrieveByActiveStaff = async (req, res) => {
       res
         .status(404)
         .send({ message: "Are you looking something else in Data" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const sort_student_by_alpha = async (arr, day, month, year) => {
+  var send_filter = [];
+  const students = await Student.find({
+    _id: { $in: arr },
+  })
+    .sort({ studentFirstName: 1, studentMiddleName: 1, studentLastName: 1 })
+    .select("_id");
+
+  for (let i = 0; i < students.length; i++) {
+    const stu = await Student.findById({ _id: students[i]._id })
+      .select(
+        "leave studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO"
+      )
+      .populate({
+        path: "leave",
+        match: {
+          date: { $in: [`${day}/${month}/${year}`] },
+        },
+        select: "date",
+      })
+      .populate({
+        path: "user",
+        select: "userLegalName username",
+      });
+    stu.studentROLLNO = i + 1;
+    await stu.save();
+    send_filter.push(stu);
+  }
+  return send_filter;
+};
+
+const sorted_by_gender = async (arr, day, month, year) => {
+  var sorted_data = [];
+  const studentFemale = await Student.find({
+    $and: [{ _id: { $in: arr } }, { studentGender: "Female" }],
+  }).select("_id");
+  const studentMale = await Student.find({
+    $and: [{ _id: { $in: arr } }, { studentGender: "Male" }],
+  }).select("_id");
+
+  const data = [...studentFemale, ...studentMale];
+  for (let i = 0; i < data.length; i++) {
+    const stu = await Student.findById({ _id: data[i]._id })
+      .select(
+        "leave studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO"
+      )
+      .populate({
+        path: "leave",
+        match: {
+          date: { $in: [`${day}/${month}/${year}`] },
+        },
+        select: "date",
+      })
+      .populate({
+        path: "user",
+        select: "userLegalName username",
+      });
+    stu.studentROLLNO = i + 1;
+    await stu.save();
+    sorted_data.push(stu);
+  }
+  return sorted_data;
+};
+
+const sorted_by_both_gender_and_aplha = async (arr, day, month, year) => {
+  var sorted_ga = [];
+  const studentFemale = await Student.find({
+    $and: [{ _id: { $in: arr } }, { studentGender: "Female" }],
+  })
+    .sort({ studentFirstName: 1, studentMiddleName: 1, studentLastName: 1 })
+    .select("_id");
+  const studentMale = await Student.find({
+    $and: [{ _id: { $in: arr } }, { studentGender: "Male" }],
+  })
+    .sort({ studentFirstName: 1, studentMiddleName: 1, studentLastName: 1 })
+    .select("_id");
+
+  var data = [...studentFemale, ...studentMale];
+  for (let i = 0; i < data.length; i++) {
+    const stu = await Student.findById({ _id: data[i]._id })
+      .select(
+        "leave studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO"
+      )
+      .populate({
+        path: "leave",
+        match: {
+          date: { $in: [`${day}/${month}/${year}`] },
+        },
+        select: "date",
+      })
+      .populate({
+        path: "user",
+        select: "userLegalName username",
+      });
+    stu.studentROLLNO = i + 1;
+    await stu.save();
+    sorted_ga.push(stu);
+  }
+  return sorted_ga;
+};
+
+exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    const { sort_query } = req.query;
+    const currentDate = new Date();
+    const currentDateLocalFormat = currentDate.toISOString().split("-");
+    const day =
+      +currentDateLocalFormat[2].split("T")[0] > 9
+        ? +currentDateLocalFormat[2].split("T")[0]
+        : `0${+currentDateLocalFormat[2].split("T")[0]}`;
+    const month =
+      +currentDateLocalFormat[1] > 9
+        ? +currentDateLocalFormat[1]
+        : `0${+currentDateLocalFormat[1]}`;
+    const year = +currentDateLocalFormat[0];
+    // const regExpression = new RegExp(`${day}\/${month}\/${year}$`);
+    const classes = await Class.findById({ _id: cid }).select(
+      "className classStatus classTitle exams ApproveStudent"
+    );
+
+    if (sort_query === "Alpha") {
+      const sortedA = await sort_student_by_alpha(
+        classes.ApproveStudent,
+        day,
+        month,
+        year
+      );
+      res.status(200).send({
+        message: "Sorted By Alphabetical Order",
+        classes,
+        students: sortedA,
+        access: true,
+      });
+    } else if (sort_query === "Gender") {
+      const sortedG = await sorted_by_gender(
+        classes.ApproveStudent,
+        day,
+        month,
+        year
+      );
+      res.status(200).send({
+        message: "Sorted By Gender Order",
+        classes,
+        students: sortedG,
+        access: true,
+      });
+    } else if (sort_query === "Gender_Alpha") {
+      const sortedGA = await sorted_by_both_gender_and_aplha(
+        classes.ApproveStudent,
+        day,
+        month,
+        year
+      );
+      res.status(200).send({
+        message: "Sorted By Gender & Alpha Order",
+        classes,
+        students: sortedGA,
+        access: true,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "You're breaking sorting rules 😡", access: false });
     }
   } catch (e) {
     console.log(e);

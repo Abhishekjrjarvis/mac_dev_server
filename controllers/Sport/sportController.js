@@ -849,8 +849,8 @@ exports.updateIntraMatchIndividual = async (req, res) => {
       student1.extraPoints += 25;
       student2.extraPoints += 15;
       await Promise.all([student1.save(), student2.save()]);
+      event.sportEventStatus = "Completed";
     }
-    event.sportEventStatus = "Completed";
     await Promise.all([match.save(), event.save()]);
     res.status(200).send({
       message: "Its Party Time Everyone Enjoy...",
@@ -883,7 +883,6 @@ exports.updateInterMatchIndividual = async (req, res) => {
     match.sportOpponentPlayer = studentOpponentPlayer;
     match.matchStatus = "Completed";
     match.rankMatch = studentRankTitle;
-    event.sportEventStatus = "Completed";
     if (match.sportEventMatchCategoryLevel === "Final") {
       if (studentRankTitle === "Winner") {
         student.extraPoints += 40;
@@ -892,6 +891,7 @@ exports.updateInterMatchIndividual = async (req, res) => {
         student.extraPoints += 25;
         match.sportRunner = student._id;
       }
+      event.sportEventStatus = "Completed";
     }
     await Promise.all([match.save(), student.save(), event.save()]);
     res
@@ -933,8 +933,7 @@ exports.updateIntraMatchTeam = async (req, res) => {
     match.sportWinnerTeam = team1._id;
     match.sportRunnerTeam = team2._id;
     match.matchStatus = "Completed";
-    event.sportEventStatus = "Completed";
-    await Promise.all([match.save(), event.save()]);
+    await match.save();
     if (match.sportEventMatchCategoryLevel === "Final") {
       team1.teamPoints += 25;
       team2.teamPoints += 15;
@@ -953,6 +952,8 @@ exports.updateIntraMatchTeam = async (req, res) => {
         student2.extraPoints += 15;
         await student2.save();
       }
+      event.sportEventStatus = "Completed";
+      await event.save();
     }
     res
       .status(200)
@@ -1000,7 +1001,6 @@ exports.updateInterMatchTeam = async (req, res) => {
     });
     match.sportOpponentPlayer = teamOpponentPlayer;
     match.matchStatus = "Completed";
-    event.sportEventStatus = "Completed";
     match.rankMatch = studentRankTitle;
     team.rankTitle = studentRankTitle;
     if (match.sportEventMatchCategoryLevel === "Final") {
@@ -1025,6 +1025,7 @@ exports.updateInterMatchTeam = async (req, res) => {
         }
         match.sportRunnerTeam = team._id;
       }
+      event.sportEventStatus = "Completed";
     }
     await Promise.all([match.save(), team.save(), event.save()]);
     res
@@ -1062,6 +1063,7 @@ exports.updateIntraMatchFree = async (req, res) => {
       student1.extraPoints += 25;
       student2.extraPoints += 15;
       await Promise.all([student1.save(), student2.save()]);
+      event.sportEventStatus = "Completed";
     }
     if (studentParticipants.length >= 1) {
       for (let i = 0; i < studentParticipants.length; i++) {
@@ -1120,7 +1122,6 @@ exports.updateInterMatchFree = async (req, res) => {
     match.sportOpponentPlayer = studentOpponentPlayer;
     match.rankMatch = studentRankTitle;
     match.matchStatus = "Completed";
-    event.sportEventStatus = "Completed";
     if (match.sportEventMatchCategoryLevel === "Final") {
       if (studentRankTitle === "Winner") {
         student.extraPoints += 40;
@@ -1129,15 +1130,8 @@ exports.updateInterMatchFree = async (req, res) => {
         student.extraPoints += 25;
         match.sportRunner = student._id;
       }
-    } else {
-      if (studentRankTitle === "Winner") {
-        student.extraPoints += 40;
-        match.sportWinner = student._id;
-      } else if (studentRankTitle === "Runner") {
-        student.extraPoints += 25;
-        match.sportRunner = student._id;
-      }
-    }
+      event.sportEventStatus = "Completed";
+    } 
     await Promise.all([match.save(), student.save(), event.save()]);
     if (studentParticipants.length >= 1) {
       for (let i = 0; i < studentParticipants.length; i++) {

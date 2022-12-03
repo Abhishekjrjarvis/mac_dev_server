@@ -411,12 +411,12 @@ exports.postWithDeleted = async (req, res) => {
         user.poll_Count -= 1;
       }
     }
-    if (post && post.postType === "Repost" && post.rePostAnswer !== "") {
-      await Answer.findByIdAndDelete(post.rePostAnswer?._id);
+    if (post && post.postType === "Repost" && post.rePostAnswer) {
       if (question && question?.answerCount > 0) {
         question.answerCount -= 1;
         await question.save();
       }
+      await Answer.findByIdAndDelete(post.rePostAnswer?._id);
     }
     if (user.answerQuestionCount > 0) {
       user.answerQuestionCount -= 1;
@@ -566,6 +566,7 @@ exports.postComment = async (req, res) => {
     post.commentCount += 1;
     comment.post = post._id;
     await Promise.all([post.save(), comment.save()]);
+    res.status(201).send({ message: "comment created", comment });
     var notify = new Notification({});
     var author_user = await User.findOne({ _id: `${post?.author}` });
     var author_ins = await InstituteAdmin.findOne({ _id: `${post.author}` });
@@ -590,16 +591,19 @@ exports.postComment = async (req, res) => {
       } else if (req?.tokenData?.insId) {
         notify.notifyByInsPhoto = req?.tokenData?.insId;
       }
-      await Promise.all([notify.save(), author_user.save()]);
-      if (author_user?.user_comment_notify === "Enable") {
-        invokeFirebaseNotification(
-          "Comment",
-          notify,
-          "New Comment",
-          comment.author,
-          author_user.deviceToken,
-          post._id
-        );
+      if (`${comment.author}` === `${author_user?._id}`) {
+      } else {
+        await Promise.all([notify.save(), author_user.save()]);
+        if (author_user?.user_comment_notify === "Enable") {
+          invokeFirebaseNotification(
+            "Comment",
+            notify,
+            "New Comment",
+            comment.author,
+            author_user.deviceToken,
+            post._id
+          );
+        }
       }
     } else if (author_ins) {
       if (`${comment.author}` === `${author_ins?._id}`) {
@@ -622,17 +626,19 @@ exports.postComment = async (req, res) => {
       } else if (req?.tokenData?.insId) {
         notify.notifyByInsPhoto = req?.tokenData?.insId;
       }
-      await Promise.all([notify.save(), author_ins.save()]);
-      invokeFirebaseNotification(
-        "Comment",
-        notify,
-        "New Comment",
-        comment.author,
-        author_ins.deviceToken,
-        post._id
-      );
+      if (`${comment.author}` === `${author_ins?._id}`) {
+      } else {
+        await Promise.all([notify.save(), author_ins.save()]);
+        invokeFirebaseNotification(
+          "Comment",
+          notify,
+          "New Comment",
+          comment.author,
+          author_ins.deviceToken,
+          post._id
+        );
+      }
     }
-    res.status(201).send({ message: "comment created", comment });
   } catch (e) {
     console.log("UCN", e);
   }

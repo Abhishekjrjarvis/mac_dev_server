@@ -51,10 +51,8 @@ exports.postWithText = async (req, res) => {
       if (institute.followers.length >= 1) {
         if (post.postStatus === "Anyone") {
           institute.followers.forEach(async (ele) => {
-            if(ele.posts.includes(post._id)){
-
-            }
-            else{
+            if (ele.posts.includes(post._id)) {
+            } else {
               ele.posts.push(post._id);
               await ele.save();
             }
@@ -65,10 +63,8 @@ exports.postWithText = async (req, res) => {
       if (institute.userFollowersList.length >= 1) {
         if (post.postStatus === "Anyone") {
           institute.userFollowersList.forEach(async (ele) => {
-            if(ele.userPosts.includes(post._id)){
-
-            }
-            else{
+            if (ele.userPosts.includes(post._id)) {
+            } else {
               ele.userPosts.push(post._id);
               await ele.save();
             }
@@ -76,13 +72,11 @@ exports.postWithText = async (req, res) => {
         } else {
           if (institute.joinedUserList.length >= 1) {
             institute.joinedUserList.forEach(async (ele) => {
-              if(ele.userPosts.includes(post._id)){
-
-            }
-            else{
-              ele.userPosts.push(post._id);
-              await ele.save();
-            }
+              if (ele.userPosts.includes(post._id)) {
+              } else {
+                ele.userPosts.push(post._id);
+                await ele.save();
+              }
             });
           }
         }
@@ -750,7 +744,10 @@ exports.postComment = async (req, res) => {
   try {
     const { id } = req.params;
     const post = await Post.findById({ _id: id });
-    if(post.comment_turned === 'Off') return res.status(200).send({ message: 'Comments are turned off', off: true})
+    if (post.comment_turned === "Off")
+      return res
+        .status(200)
+        .send({ message: "Comments are turned off", off: true });
     const comment = new Comment({ ...req.body });
     if (req.tokenData && req.tokenData.insId) {
       const institute = await InstituteAdmin.findById({
@@ -777,14 +774,15 @@ exports.postComment = async (req, res) => {
     post.commentCount += 1;
     comment.post = post._id;
     await Promise.all([post.save(), comment.save()]);
+    res.status(201).send({ message: "comment created", comment });
     var notify = new Notification({});
     var author_ins = await InstituteAdmin.findById({ _id: `${post.author}` });
     if (`${comment.author}` === `${author_ins._id}`) {
       notify.notifyContent = `you shared a new comment`;
     } else {
       notify.notifyContent = `${comment.authorName} commented on your post`;
-      notify.notify_hi_content = `${comment.authorName} ने आपकी पोस्ट पर कमेन्ट की |`
-      notify.notify_mr_content = `${comment.authorName} ने तुमच्या पोस्टवर कमेन्ट केली`
+      notify.notify_hi_content = `${comment.authorName} ने आपकी पोस्ट पर कमेन्ट की |`;
+      notify.notify_mr_content = `${comment.authorName} ने तुमच्या पोस्टवर कमेन्ट केली`;
     }
     notify.notifySender = req.tokenData?.userId
       ? req.tokenData.userId
@@ -799,16 +797,18 @@ exports.postComment = async (req, res) => {
     } else if (req?.tokenData?.insId) {
       notify.notifyByInsPhoto = req?.tokenData?.insId;
     }
-    await Promise.all([notify.save(), author_ins.save()]);
-    invokeFirebaseNotification(
-      "Comment",
-      notify,
-      "New Comment",
-      comment.author,
-      author_ins.deviceToken,
-      post._id
-    );
-    res.status(201).send({ message: "comment created", comment });
+    if (`${comment.author}` === `${author_ins._id}`) {
+    } else {
+      await Promise.all([notify.save(), author_ins.save()]);
+      invokeFirebaseNotification(
+        "Comment",
+        notify,
+        "New Comment",
+        comment.author,
+        author_ins.deviceToken,
+        post._id
+      );
+    }
   } catch (e) {
     console.log("ICN", e);
   }
@@ -1085,9 +1085,10 @@ exports.likeCommentChild = async (req, res) => {
         comment.allLikeCount += 1;
         await comment.save();
 
-        res
-          .status(200)
-          .send({ message: "liked by Institute", allLikeCount: comment.allLikeCount });
+        res.status(200).send({
+          message: "liked by Institute",
+          allLikeCount: comment.allLikeCount,
+        });
       } else {
         comment.parentCommentLike.pull(id);
         if (comment.allLikeCount >= 1) {
@@ -1105,18 +1106,20 @@ exports.likeCommentChild = async (req, res) => {
         comment.parentCommentLike.push(id);
         comment.allLikeCount += 1;
         await comment.save();
-        res
-          .status(200)
-          .send({ message: "liked by User", allLikeCount: comment.allLikeCount });
+        res.status(200).send({
+          message: "liked by User",
+          allLikeCount: comment.allLikeCount,
+        });
       } else {
         comment.parentCommentLike.pull(id);
         if (comment.allLikeCount >= 1) {
           comment.allLikeCount -= 1;
         }
         await comment.save();
-        res
-          .status(200)
-          .send({ message: "diliked by user", allLikeCount: comment.allLikeCount });
+        res.status(200).send({
+          message: "diliked by user",
+          allLikeCount: comment.allLikeCount,
+        });
       }
     }
     res.status(401).send();

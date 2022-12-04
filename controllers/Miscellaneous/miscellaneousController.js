@@ -153,6 +153,14 @@ exports.getAllPayments = async (req, res) => {
       .populate({
         path: "payment_checklist",
         select: "checklistName",
+      })
+      .populate({
+        path: "payment_by_end_user_id",
+        select: "userLegalName username photoId profilePhoto",
+      })
+      .populate({
+        path: "payment_to_end_user_id",
+        select: "insName photoId insProfilePhoto",
       });
     res.status(200).send({ message: "Payment Data", allPayment: all });
   } catch (e) {

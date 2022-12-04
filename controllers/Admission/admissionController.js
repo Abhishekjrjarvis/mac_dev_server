@@ -659,6 +659,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
           remainAmount: apply.admissionFee - price,
           appId: apply._id,
           status: "Not Paid",
+          instituteId: institute._id,
         });
         student.admissionPaymentStatus.push({
           applicationId: apply._id,
@@ -677,9 +678,9 @@ exports.payOfflineAdmissionFee = async (req, res) => {
           installment: "No Installment",
           fee: price,
         });
-        // if (student.admissionRemainFeeCount >= apply.admissionFee) {
-        //   student.admissionRemainFeeCount -= apply.admissionFee;
-        // }
+        if (student.admissionRemainFeeCount >= apply.admissionFee) {
+          student.admissionRemainFeeCount -= apply.admissionFee;
+        }
       }
       if (mode === "Offline") {
         admission.offlineFee += price;
@@ -791,14 +792,14 @@ exports.cancelAdmissionApplication = async (req, res) => {
       if (apply.collectedFeeCount >= price) {
         apply.collectedFeeCount -= price;
       }
-      if(admission.offlineFee >= price){
-      admission.offlineFee -= price;
+      if (admission.offlineFee >= price) {
+        admission.offlineFee -= price;
       }
-      if(finance.financeAdmissionBalance >= price){
-      finance.financeAdmissionBalance -= price;
+      if (finance.financeAdmissionBalance >= price) {
+        finance.financeAdmissionBalance -= price;
       }
-      if(finance.financeTotalBalance >= price){
-      finance.financeTotalBalance -= price;
+      if (finance.financeTotalBalance >= price) {
+        finance.financeTotalBalance -= price;
       }
       aStatus.content = `Your application for ${apply?.applicationDepartment?.dName} has been rejected. Best Of Luck for next time`;
       aStatus.applicationId = apply._id;

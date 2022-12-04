@@ -317,6 +317,7 @@ const studentSchema = new mongoose.Schema({
       remainAmount: { type: String },
       appId: { type: String },
       status: { type: String, default: "Not Paid" },
+      instituteId: { type: String },
     },
   ],
   certificateBonaFideCopy: {

@@ -379,35 +379,45 @@ exports.allStudentInSubjectTeacher = async (req, res) => {
         .lean()
         .exec();
 
-      for (let onemarks of student?.subjectMarks[0]?.marks) {
-        if (onemarks.examId === req.params.eid) {
-          const attend = await AttendenceDate.find({
-            $and: [
-              { attendDate: { $eq: `${onemarks.date}` } },
-              { className: { $eq: `${student.studentClass}` } },
-            ],
-          });
-          let flag = null;
-          if (attend?.length) {
-            attend[0]?.presentStudent?.forEach((ids) => {
-              if (String(ids?.student) === req.params.sid) return (flag = true);
+      if (student?.subjectMarks?.length) {
+        for (let onemarks of student?.subjectMarks[0]?.marks) {
+          if (onemarks.examId === req.params.eid) {
+            const attend = await AttendenceDate.find({
+              $and: [
+                { attendDate: { $eq: `${onemarks.date}` } },
+                { className: { $eq: `${student.studentClass}` } },
+              ],
             });
-            attend[0]?.absentStudent?.forEach((ids) => {
-              if (String(ids?.student) === req.params.sid)
-                return (flag = false);
+            let flag = null;
+            if (attend?.length) {
+              attend[0]?.presentStudent?.forEach((ids) => {
+                if (String(ids?.student) === req.params.sid)
+                  return (flag = true);
+              });
+              attend[0]?.absentStudent?.forEach((ids) => {
+                if (String(ids?.student) === req.params.sid)
+                  return (flag = false);
+              });
+            }
+            // let weightage = 100;
+            // if (onemarks.examType === "Final") {
+            //   for (let weight of student?.subjectMarks[0]?.marks) {
+            //     if (weight.examType === "Other") weightage += weight.examWeight;
+            //   }
+            // }
+            students.push({
+              _id: student._id,
+              studentFirstName: student.studentFirstName,
+              studentMiddleName: student?.studentMiddleName,
+              studentLastName: student?.studentLastName,
+              studentProfilePhoto: student.studentProfilePhoto,
+              studentROLLNO: student.studentROLLNO,
+              obtainMarks: onemarks.obtainMarks,
+              answerSheet: onemarks?.answerSheet,
+              present: flag,
+              // finalWeight: weightage,
             });
           }
-          students.push({
-            _id: student._id,
-            studentFirstName: student.studentFirstName,
-            studentMiddleName: student?.studentMiddleName,
-            studentLastName: student?.studentLastName,
-            studentProfilePhoto: student.studentProfilePhoto,
-            studentROLLNO: student.studentROLLNO,
-            obtainMarks: onemarks.obtainMarks,
-            answerSheet: onemarks?.answerSheet,
-            present: flag,
-          });
         }
       }
     }

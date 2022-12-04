@@ -1046,7 +1046,7 @@ exports.retrieveApproveStudentList = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate"
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender"
         )
         .populate({
           path: "user",

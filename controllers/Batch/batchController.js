@@ -107,7 +107,10 @@ exports.preformedStructure = async (req, res) => {
       department.save(),
       institute.save(),
     ]);
-    res.status(200).send({ message: "Identical Batch Created Successfully" });
+    res.status(200).send({
+      message: "Identical Batch Created Successfully",
+      batchId: identicalBatch?._id,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -158,11 +161,17 @@ exports.subjectComplete = async (req, res) => {
 exports.allDepartment = async (req, res) => {
   try {
     const classes = await Class.findById(req.params.cid);
+    const options = {
+      sort: {
+        createdAt: -1,
+      },
+    };
     const institute = await InstituteAdmin.findById(classes.institute)
       .populate({
         path: "depart",
         populate: {
           path: "batches",
+          options,
           match: { _id: { $ne: classes.batch } },
           select: "batchName",
         },

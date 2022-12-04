@@ -724,11 +724,11 @@ exports.searchStudent = async (req, res) => {
       })
         .sort("createdAt")
         .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO"
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender"
         )
         .populate({
           path: "user",
-          select: "_id",
+          select: "_id userPhoneNumber",
         })
         .populate({
           path: "studentClass",
@@ -764,11 +764,11 @@ exports.searchStudent = async (req, res) => {
       const dropItem = (getPage - 1) * itemPerPage;
       const student = await Student.find(search)
         .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO"
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender"
         )
         .populate({
           path: "user",
-          select: "_id",
+          select: "_id userPhoneNumber",
         })
         .populate({
           path: "studentClass",
@@ -801,11 +801,11 @@ exports.searchStaff = async (req, res) => {
         })
           .sort("-createdAt")
           .select(
-            "staffFirstName staffMiddleName staff_biometric_id staffLastName staffROLLNO photoId staffProfilePhoto"
+            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
           )
           .populate({
             path: "user",
-            select: "_id userLegalName",
+            select: "_id userLegalName userPhoneNumber",
           })
           .populate({
             path: "staffLeave",
@@ -825,11 +825,11 @@ exports.searchStaff = async (req, res) => {
         })
           .sort("-createdAt")
           .select(
-            "staffFirstName staffMiddleName staff_biometric_id staffLastName staffROLLNO photoId staffProfilePhoto"
+            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
           )
           .populate({
             path: "user",
-            select: "_id userLegalName",
+            select: "_id userLegalName userPhoneNumber",
           })
           .lean()
           .exec();
@@ -862,11 +862,11 @@ exports.searchStaff = async (req, res) => {
       const dropItem = (getPage - 1) * itemPerPage;
       const staff = await Staff.find(search)
         .select(
-          "staffFirstName staffMiddleName staff_biometric_id staffLastName staffROLLNO photoId staffProfilePhoto"
+          "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
         )
         .populate({
           path: "user",
-          select: "_id userLegalName",
+          select: "_id userLegalName userPhoneNumber",
         })
         .limit(itemPerPage)
         .skip(dropItem)

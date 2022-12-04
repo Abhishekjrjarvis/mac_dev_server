@@ -361,7 +361,7 @@ exports.admissionInstituteFunction = async (
           if (admission?.newApplication?.includes(`${ele.applicationId}`)) {
             if (parseInt(tx_amount_ad) === ele.fee - ele.firstInstallment) {
               ele.status = "Paid";
-              ele.mode = mode;
+              ele.mode = "Online";
               ele.secondInstallment = parseInt(tx_amount_ad);
               ele.fee = ele.firstInstallment + ele.secondInstallment - ele.fee;
             }

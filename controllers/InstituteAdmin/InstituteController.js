@@ -2409,7 +2409,7 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
       .exec();
 
     classes?.ApproveStudent.sort(function (st1, st2) {
-      return st1 - st2;
+      return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
     });
     res.status(200).send({ message: "Approve catalog", classes: classes });
   } catch (e) {

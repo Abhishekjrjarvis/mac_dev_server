@@ -396,7 +396,7 @@ exports.admissionInstituteFunction = async (
                 ? ele.fee_remain - parseInt(tx_amount_ad)
                 : 0;
             ele.paid_status = "Paid";
-            ele.second_pay_mode = mode;
+            ele.second_pay_mode = "Online";
             if (apply?.remainingFee >= parseInt(tx_amount_ad)) {
               apply.remainingFee -= parseInt(tx_amount_ad);
             }
@@ -411,7 +411,7 @@ exports.admissionInstituteFunction = async (
                 ? ele.fee_remain - parseInt(tx_amount_ad)
                 : 0;
             ele.paid_status = "Paid";
-            ele.second_pay_mode = mode;
+            ele.second_pay_mode = "Online";
             if (apply?.remainingFee >= parseInt(tx_amount_ad)) {
               apply.remainingFee -= parseInt(tx_amount_ad);
             }

@@ -450,9 +450,9 @@ exports.retrieveStudentQuery = async (req, res) => {
       })
       .lean();
     // var admission_date = moment(student?.studentAdmissionDate).format("l");
-    var year = student?.studentAdmissionDate.substring(0, 4);
-    var month = student?.studentAdmissionDate.substring(5, 7);
-    var day = student?.studentAdmissionDate.substring(8, 10);
+    var year = student?.studentAdmissionDate?.substring(0, 4);
+    var month = student?.studentAdmissionDate?.substring(5, 7);
+    var day = student?.studentAdmissionDate?.substring(8, 10);
     const fees = await Fees.find({
       $and: [
         { _id: { $in: student?.department?.fees } },

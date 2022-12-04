@@ -255,7 +255,7 @@ exports.admissionInstituteFunction = async (
     });
     var ins = await InstituteAdmin.findById({ _id: `${paidTo}` });
     var finance = await Finance.findById({
-      _id: `${institute?.financeDepart[0]}`,
+      _id: `${ins?.financeDepart[0]}`,
     }).populate({
       path: "financeHead",
       select: "user",

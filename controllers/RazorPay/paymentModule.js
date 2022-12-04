@@ -382,7 +382,7 @@ exports.admissionInstituteFunction = async (
         student.admissionRemainFeeCount -= parseInt(tx_amount_ad);
       }
       admission.remainingFee.pull(student._id);
-      admin_ins.onlineFee += parseInt(tx_amount_ad);
+      admission.onlineFee += parseInt(tx_amount_ad);
       apply.onlineFee += parseInt(tx_amount_ad);
       apply.collectedFeeCount += parseInt(tx_amount_ad);
       finance.financeTotalBalance += parseInt(tx_amount_ad);

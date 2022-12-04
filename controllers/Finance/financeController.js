@@ -551,7 +551,7 @@ exports.requestClassOfflineFee = async (req, res) => {
         feeAmount: amount,
         status: "Pending",
       });
-      finance.financeCollectedSBalance += amount;
+      // finance.financeCollectedSBalance += amount;
       finance.requestArray.push(classes._id);
       classes.receieveFee.push(fee._id);
       classes.requestFeeStatus.feeId = fee._id;
@@ -1230,6 +1230,10 @@ exports.retrieveRemainFeeList = async (req, res) => {
       .populate({
         path: "studentClass",
         select: "className classTitle",
+      })
+      .populate({
+        path: "user",
+        select: "username userLegalName",
       });
     res.status(200).send({ message: "Remaining Fee List", list: student });
   } catch (e) {

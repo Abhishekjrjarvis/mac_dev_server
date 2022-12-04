@@ -175,6 +175,7 @@ exports.feesPaidByStudent = async (req, res) => {
           student.offlineFeeList.push(fData._id);
           fData.offlineStudentsList.push(student._id);
           fData.offlineFee += fData.feeAmount;
+          finance.financeCollectedSBalance += fData.feeAmount;
           classes.offlineFeeCollection.push({
             fee: fData.feeAmount,
             feeId: fData._id,

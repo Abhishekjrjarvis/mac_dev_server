@@ -2371,9 +2371,7 @@ exports.retrievePendingRequestArray = async (req, res) => {
 
 exports.retrieveApproveCatalogArray = async (req, res) => {
   try {
-    var options = { sort: { studentROLLNO: 1 } };
     const { cid } = req.params;
-    var options = { sort: { studentROLLNO: 1 } };
     const currentDate = new Date();
     const currentDateLocalFormat = currentDate.toISOString().split("-");
     const day =
@@ -2385,12 +2383,10 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
         ? +currentDateLocalFormat[1]
         : `0${+currentDateLocalFormat[1]}`;
     const year = +currentDateLocalFormat[0];
-    // const regExpression = new RegExp(`${day}\/${month}\/${year}$`);
     const classes = await Class.findById({ _id: cid })
       .select("className classStatus classTitle exams")
       .populate({
         path: "ApproveStudent",
-        options,
         select: "leave",
         populate: {
           path: "leave",
@@ -2402,7 +2398,6 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
       })
       .populate({
         path: "ApproveStudent",
-        options,
         select:
           "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO",
         populate: {
@@ -2412,6 +2407,10 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
       })
       .lean()
       .exec();
+
+    classes?.ApproveStudent.sort(function (st1, st2) {
+      return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+    });
     res.status(200).send({ message: "Approve catalog", classes: classes });
   } catch (e) {
     console.log(e);

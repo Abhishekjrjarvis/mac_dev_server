@@ -659,6 +659,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
           remainAmount: apply.admissionFee - price,
           appId: apply._id,
           status: "Not Paid",
+          instituteId: institute._id,
         });
         student.admissionPaymentStatus.push({
           applicationId: apply._id,
@@ -677,9 +678,9 @@ exports.payOfflineAdmissionFee = async (req, res) => {
           installment: "No Installment",
           fee: price,
         });
-        // if (student.admissionRemainFeeCount >= apply.admissionFee) {
-        //   student.admissionRemainFeeCount -= apply.admissionFee;
-        // }
+        if (student.admissionRemainFeeCount >= apply.admissionFee) {
+          student.admissionRemainFeeCount -= apply.admissionFee;
+        }
       }
       if (mode === "Offline") {
         admission.offlineFee += price;
@@ -791,9 +792,15 @@ exports.cancelAdmissionApplication = async (req, res) => {
       if (apply.collectedFeeCount >= price) {
         apply.collectedFeeCount -= price;
       }
-      admission.offlineFee -= price;
-      finance.financeAdmissionBalance -= price;
-      finance.financeTotalBalance -= price;
+      if (admission.offlineFee >= price) {
+        admission.offlineFee -= price;
+      }
+      if (finance.financeAdmissionBalance >= price) {
+        finance.financeAdmissionBalance -= price;
+      }
+      if (finance.financeTotalBalance >= price) {
+        finance.financeTotalBalance -= price;
+      }
       aStatus.content = `Your application for ${apply?.applicationDepartment?.dName} has been rejected. Best Of Luck for next time`;
       aStatus.applicationId = apply._id;
       user.applicationStatus.push(aStatus._id);
@@ -1413,10 +1420,23 @@ exports.retrieveAllDepartmentArray = async (req, res) => {
 
 exports.retrieveStudentCancelAdmissionMode = async (req, res) => {
   try {
-    const { sid } = req.params;
-    const status = await Status.findById({ _id: sid });
+    const { statusId, aid, sid } = req.params;
+    const status = await Status.findById({ _id: statusId });
+    const apply = await NewApplication.findById({ _id: aid });
+    const student = await Student.findById({ _id: sid });
+    if (apply?.selectedApplication?.length > 0) {
+      apply?.selectedApplication?.forEach((ele) => {
+        if (`${ele.student}` === `${student._id}`) {
+          ele.payment_status = "Cancelled";
+        }
+      });
+      await apply.save();
+    }
     status.for_selection = "No";
-    await status.save();
+    if (student.admissionRemainFeeCount >= apply.admissionFees) {
+      student.admissionRemainFeeCount -= apply.admissionFees;
+    }
+    await Promise.all([status.save(), student.save()]);
     res
       .status(200)
       .send({ message: "Cancel Admission Selection", cancel_status: true });
@@ -1440,9 +1460,12 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
         student: student,
       });
     } else {
-      res
-        .status(200)
-        .send({ message: "No Admission Fees", get: false, array: [], student: student });
+      res.status(200).send({
+        message: "No Admission Fees",
+        get: false,
+        array: [],
+        student: student,
+      });
     }
   } catch (e) {
     console.log(e);

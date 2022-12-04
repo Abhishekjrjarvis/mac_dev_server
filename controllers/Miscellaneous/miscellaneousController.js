@@ -7,6 +7,7 @@ const Checklist = require("../../models/Checklist");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const Batch = require("../../models/Batch");
 const Video = require("../../models/Video");
+const OrderPayment = require("../../models/RazorPay/orderPayment");
 
 exports.getAllStaff = async (req, res) => {
   try {

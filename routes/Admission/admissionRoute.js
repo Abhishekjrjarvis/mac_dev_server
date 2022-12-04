@@ -177,7 +177,7 @@ router.get(
 
 // Cancel Select Mode
 router.patch(
-  "/:sid/status/cancel",
+  "/:statusId/status/cancel/app/:aid/student/:sid",
   catchAsync(Admission.retrieveStudentCancelAdmissionMode)
 );
 

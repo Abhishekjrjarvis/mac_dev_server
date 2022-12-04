@@ -1230,6 +1230,10 @@ exports.retrieveRemainFeeList = async (req, res) => {
       .populate({
         path: "studentClass",
         select: "className classTitle",
+      })
+      .populate({
+        path: "user",
+        select: "username userLegalName",
       });
     res.status(200).send({ message: "Remaining Fee List", list: student });
   } catch (e) {

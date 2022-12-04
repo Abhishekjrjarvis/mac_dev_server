@@ -89,10 +89,10 @@ exports.feeInstituteFunction = async (order, paidBy, tx_amount, moduleId) => {
           if (student.studentRemainingFeeCount >= fData.feeAmount) {
             student.studentRemainingFeeCount -= fData.feeAmount;
           }
-          finance.financeBankBalance =
-            finance.financeBankBalance + parseInt(tx_amount);
-          finance.financeTotalBalance =
-            finance.financeTotalBalance + parseInt(tx_amount);
+          // finance.financeBankBalance =
+          //   finance.financeBankBalance + parseInt(tx_amount);
+          // finance.financeTotalBalance =
+          //   finance.financeTotalBalance + parseInt(tx_amount);
           // finance.institute.insBankBalance
           institute.adminRepayAmount =
             institute.adminRepayAmount + parseInt(tx_amount);
@@ -171,10 +171,10 @@ exports.feeInstituteFunction = async (order, paidBy, tx_amount, moduleId) => {
           checklistData.studentsList.push(student._id);
           checklistData.checklistStudent = student._id;
           student.onlineCheckList.push(checklistData._id);
-          finance.financeBankBalance =
-            finance.financeBankBalance + parseInt(tx_amount);
-          finance.financeTotalBalance =
-            finance.financeTotalBalance + parseInt(tx_amount);
+          // finance.financeBankBalance =
+          //   finance.financeBankBalance + parseInt(tx_amount);
+          // finance.financeTotalBalance =
+          //   finance.financeTotalBalance + parseInt(tx_amount);
           // finance.institute.insBankBalance
           institute.adminRepayAmount =
             institute.adminRepayAmount + parseInt(tx_amount);
@@ -289,8 +289,8 @@ exports.admissionInstituteFunction = async (
       apply.onlineFee += parseInt(tx_amount_ad);
       apply.collectedFeeCount += parseInt(tx_amount_ad);
       finance.financeAdmissionBalance += parseInt(tx_amount_ad);
-      finance.financeTotalBalance += parseInt(tx_amount_ad);
-      finance.financeBankBalance += parseInt(tx_amount_ad);
+      // finance.financeTotalBalance += parseInt(tx_amount_ad);
+      // finance.financeBankBalance += parseInt(tx_amount_ad);
       admin.returnAmount += parseInt(tx_amount_ad);
       ins.adminRepayAmount += parseInt(tx_amount_ad);
       apply.selectedApplication.splice({
@@ -385,9 +385,11 @@ exports.admissionInstituteFunction = async (
       admission.onlineFee += parseInt(tx_amount_ad);
       apply.onlineFee += parseInt(tx_amount_ad);
       apply.collectedFeeCount += parseInt(tx_amount_ad);
-      finance.financeTotalBalance += parseInt(tx_amount_ad);
+      // finance.financeTotalBalance += parseInt(tx_amount_ad);
       finance.financeAdmissionBalance += parseInt(tx_amount_ad);
-      finance.financeBankBalance += parseInt(tx_amount_ad);
+      // finance.financeBankBalance += parseInt(tx_amount_ad);
+      admin.returnAmount += parseInt(tx_amount_ad);
+      ins.adminRepayAmount += parseInt(tx_amount_ad);
       if (apply?.allottedApplication?.length > 0) {
         apply?.allottedApplication.forEach((ele) => {
           if (`${ele.student}` === `${student._id}`) {
@@ -427,6 +429,7 @@ exports.admissionInstituteFunction = async (
         finance.save(),
         ins.save(),
         orderPay.save(),
+        admin.save(),
       ]);
     }
     return `${user?.username}`;
@@ -461,8 +464,8 @@ exports.participateEventFunction = async (
     depart.onlineFee += parseInt(tx_amount_ad);
     event.online_fee += parseInt(tx_amount_ad);
     finance.financeParticipateEventBalance += parseInt(tx_amount_ad);
-    finance.financeTotalBalance += parseInt(tx_amount_ad);
-    admin.returnAmount += parseInt(tx_amount);
+    // finance.financeTotalBalance += parseInt(tx_amount_ad);
+    admin.returnAmount += parseInt(tx_amount_ad);
     ins.adminRepayAmount += parseInt(tx_amount_ad);
     status.event_payment_status = "Paid";
     event.event_fee.push({

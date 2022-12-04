@@ -129,6 +129,36 @@ exports.getAllInstitute = async (req, res) => {
   }
 };
 
+exports.getAllPayments = async (req, res) => {
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const all = await OrderPayment.find({ payment_mode: "By Bank" })
+      .sort("-createdAt")
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "payment_module_type payment_amount createdAt payment_status razorpay_order_id"
+      )
+      .populate({
+        path: "payment_fee",
+        select: "feeName",
+      })
+      .populate({
+        path: "payment_admission",
+        select: "applicationName",
+      })
+      .populate({
+        path: "payment_checklist",
+        select: "checklistName",
+      });
+    res.status(200).send({ message: "Payment Data", allPayment: all });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.getAllBatch = async (req, res) => {
   try {
     const batch = await Batch.find({});

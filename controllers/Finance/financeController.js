@@ -341,7 +341,7 @@ exports.getExpense = async (req, res) => {
       finance.expenseDepartment.push(expenses._id);
       expenses.finances = finance._id;
       order.payment_module_type = "Expense";
-      order.payment_expense_by_end_user_id = f_user._id;
+      order.payment_expense_to_end_user_id = f_user._id;
       order.payment_module_id = expenses._id;
       order.payment_amount = expenses.expenseAmount;
       order.payment_status = "Captured";
@@ -352,7 +352,7 @@ exports.getExpense = async (req, res) => {
       f_user.payment_history.push(order._id);
       if (user) {
         expenses.expensePaidUser = user._id;
-        order.payment_expense_to_end_user_id = user._id;
+        order.payment_by_end_user_id = user._id;
         order.payment_flag_to = "Credit";
         user.payment_history.push(order._id);
         await user.save();

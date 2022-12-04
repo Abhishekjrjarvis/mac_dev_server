@@ -30,6 +30,9 @@ router.get(
 // All Institute Data
 router.get("/institute/list/data", catchAsync(All.getAllInstitute));
 
+// All Payment Data
+router.get("/payment/day", catchAsync(All.getAllPayments));
+
 // All Batch Data
 router.get("/batch/list/data", isLoggedIn, catchAsync(All.getAllBatch));
 

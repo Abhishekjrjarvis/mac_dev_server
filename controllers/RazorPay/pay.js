@@ -195,15 +195,15 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
         .populate({
           path: "payment_to_end_user_id",
           select: "insName photoId insProfilePhoto",
-        })
-        .populate({
-          path: "payment_expense_by_end_user_id",
-          select: "insName photoId insProfilePhoto",
-        })
-        .populate({
-          path: "payment_expense_to_end_user_id",
-          select: "userLegalName photoId profilePhoto",
         });
+      // .populate({
+      //   path: "payment_expense_by_end_user_id",
+      //   select: "insName photoId insProfilePhoto",
+      // })
+      // .populate({
+      //   path: "payment_expense_to_end_user_id",
+      //   select: "userLegalName photoId profilePhoto",
+      // });
       if (order?.length > 0) {
         res.status(200).send({ message: "User Pay History", history: order });
       } else {
@@ -244,15 +244,15 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
         .populate({
           path: "payment_to_end_user_id",
           select: "insName photoId insProfilePhoto",
-        })
-        .populate({
-          path: "payment_expense_by_end_user_id",
-          select: "insName photoId insProfilePhoto",
-        })
-        .populate({
-          path: "payment_expense_to_end_user_id",
-          select: "userLegalName photoId profilePhoto",
         });
+      // .populate({
+      //   path: "payment_expense_by_end_user_id",
+      //   select: "insName photoId insProfilePhoto",
+      // })
+      // .populate({
+      //   path: "payment_expense_to_end_user_id",
+      //   select: "userLegalName photoId profilePhoto",
+      // });
       if (order?.length > 0) {
         res.status(200).send({ message: "User Pay History", history: order });
       } else {
@@ -308,15 +308,15 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
         .populate({
           path: "payment_to_end_user_id",
           select: "insName photoId insProfilePhoto",
-        })
-        .populate({
-          path: "payment_expense_by_end_user_id",
-          select: "insName photoId insProfilePhoto",
-        })
-        .populate({
-          path: "payment_expense_to_end_user_id",
-          select: "userLegalName photoId profilePhoto",
         });
+      // .populate({
+      //   path: "payment_expense_by_end_user_id",
+      //   select: "insName photoId insProfilePhoto",
+      // })
+      // .populate({
+      //   path: "payment_expense_to_end_user_id",
+      //   select: "userLegalName photoId profilePhoto",
+      // });
 
       if (order?.length > 0) {
         res.status(200).send({ message: "User Pay History", history: order });
@@ -358,15 +358,15 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
         .populate({
           path: "payment_to_end_user_id",
           select: "insName photoId insProfilePhoto",
-        })
-        .populate({
-          path: "payment_expense_by_end_user_id",
-          select: "insName photoId insProfilePhoto",
-        })
-        .populate({
-          path: "payment_expense_to_end_user_id",
-          select: "userLegalName photoId profilePhoto",
         });
+      // .populate({
+      //   path: "payment_expense_by_end_user_id",
+      //   select: "insName photoId insProfilePhoto",
+      // })
+      // .populate({
+      //   path: "payment_expense_to_end_user_id",
+      //   select: "userLegalName photoId profilePhoto",
+      // });
       if (order?.length > 0) {
         res.status(200).send({ message: "User Pay History", history: order });
       } else {

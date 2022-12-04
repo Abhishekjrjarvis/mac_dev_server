@@ -69,7 +69,7 @@ exports.verifyRazorPayment = async (req, res) => {
     if (is_authenticated) {
       var order_payment = new OrderPayment({ ...req.body });
       order_payment.payment_module_type = payment_module_type;
-      order_payment.payment_by_end_user_id = payment_by_end_user_id;
+      // order_payment.payment_by_end_user_id = payment_by_end_user_id;
       order_payment.payment_to_end_user_id = payment_to_end_user_id;
       order_payment.payment_flag_by = "Debit";
       order_payment.payment_flag_to = "Credit";

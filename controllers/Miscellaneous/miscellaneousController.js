@@ -136,11 +136,11 @@ exports.getAllPayments = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
     const all = await OrderPayment.find({ payment_mode: "By Bank" })
-      .sort("-createdAt")
+      .sort("created_at")
       .limit(limit)
       .skip(skip)
       .select(
-        "payment_module_type payment_amount createdAt payment_status razorpay_order_id"
+        "payment_module_type payment_amount created_at payment_status razorpay_order_id"
       )
       .populate({
         path: "payment_fee",

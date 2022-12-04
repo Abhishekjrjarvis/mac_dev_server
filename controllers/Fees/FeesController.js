@@ -311,6 +311,10 @@ exports.retrieveClassFeeArray = async (req, res) => {
         path: "fee",
         select: "feeName feeAmount feeDate",
       });
+
+    classes?.ApproveStudent.sort(function (st1, st2) {
+      return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+    });
     res.status(200).send({ message: "Class Fee Data ", classes });
   } catch {}
 };

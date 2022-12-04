@@ -651,7 +651,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
         admission.remainingFee.push(student._id);
         if (student.admissionRemainFeeCount <= apply.admissionFee) {
           student.admissionRemainFeeCount =
-            apply.admissionFee - student.admissionRemainFeeCount;
+            student.admissionRemainFeeCount - price;
         }
         apply.remainingFee += apply.admissionFee - price;
         admission.remainingFeeCount += apply.admissionFee - price;

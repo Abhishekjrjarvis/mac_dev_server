@@ -421,6 +421,9 @@ exports.allStudentInSubjectTeacher = async (req, res) => {
         }
       }
     }
+    students.sort((st1, st2) => {
+      return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+    });
     res.status(200).send({ students });
   } catch (e) {
     console.log(e);

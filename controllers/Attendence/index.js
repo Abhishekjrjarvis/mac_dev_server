@@ -1157,7 +1157,7 @@ exports.getAttendStaffByIdForMonth = async (req, res) => {
         leaveCount,
       });
     } else {
-      res.status(404).send({ message: "Failure" });
+      res.status(200).send({ message: "Failure" });
     }
   } catch {}
 };

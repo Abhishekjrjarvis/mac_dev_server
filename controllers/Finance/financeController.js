@@ -1167,7 +1167,7 @@ exports.retrieveOneEmpQuery = async (req, res) => {
       const emp = await Payroll.findById({ _id: eid }).populate({
         path: "staff",
         select:
-          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
       });
       res.status(200).send({ message: "One Employee Detail ", detail: emp });
     } else if (type === "History") {

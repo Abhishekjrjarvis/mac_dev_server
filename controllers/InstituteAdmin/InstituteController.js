@@ -77,7 +77,9 @@ exports.getSettingPersonal = async (req, res) => {
       .lean()
       .exec();
     if (institute) {
-      res.status(200).send({ message: "Success", institute });
+      res
+        .status(200)
+        .send({ message: "Success for retrieving Setting ✨", institute });
     } else {
       res.status(404).send({ message: "Failure" });
     }
@@ -172,13 +174,15 @@ exports.getNotificationIns = async (req, res) => {
   try {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const id = req.params.id;
+    const { id } = req.params;
     const skip = (page - 1) * limit;
-    const institute = await InstituteAdmin.findById({ _id: id }).populate({
-      path: "iNotify",
-    });
-
-    const notify = await Notification.find({ _id: { $in: institute.iNotify } })
+    const institute = await InstituteAdmin.findById({ _id: id }).select(
+      "iNotify"
+    );
+    const notify = await Notification.find({ _id: { $in: institute?.iNotify } })
+      .sort("-notifyTime")
+      .limit(limit)
+      .skip(skip)
       .populate({
         path: "notifyByInsPhoto",
         select: "photoId insProfilePhoto",
@@ -198,11 +202,8 @@ exports.getNotificationIns = async (req, res) => {
       .populate({
         path: "notifyByDepartPhoto",
         select: "photoId photo",
-      })
-      .sort("-notifyTime")
-      .limit(limit)
-      .skip(skip);
-    res.status(200).send({ message: "Notification send", notify });
+      });
+    res.status(200).send({ message: "Notification Data ✨", notify });
   } catch (e) {
     console.log("Error", e.message);
   }

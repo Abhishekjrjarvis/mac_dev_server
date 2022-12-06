@@ -1631,18 +1631,27 @@ exports.retrieveStaffSalaryHistory = async (req, res) => {
           },
         },
       });
-      const institute = await InstituteAdmin.findById({_id: `${staff.institute}`})
-      .select('insName insAddress insPhoneNumber insEmail insDistrict insState insProfilePhoto photoId')
+    const institute = await InstituteAdmin.findById({
+      _id: `${staff.institute}`,
+    })
+      .select(
+        "insName insAddress insPhoneNumber insEmail insDistrict insState insProfilePhoto photoId"
+      )
       .populate({
-        path: 'financeDepart',
-        select: 'financeHead',
+        path: "financeDepart",
+        select: "financeHead",
         populate: {
-          path: 'staffFirstName staffMiddleName staffLastName'
-        }
-      })
+          path: "financeHead",
+          select: "staffFirstName staffMiddleName staffLastName",
+        },
+      });
     res
       .status(200)
-      .send({ message: "All Salary History ", salary: staff?.salary_history, institute: institute });
+      .send({
+        message: "All Salary History ",
+        salary: staff?.salary_history,
+        institute: institute,
+      });
   } catch (e) {
     console.log(e);
   }

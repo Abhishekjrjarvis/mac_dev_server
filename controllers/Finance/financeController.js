@@ -1181,14 +1181,14 @@ exports.retrieveOneEmpQuery = async (req, res) => {
       const emp = await Payroll.findById({ _id: eid }).populate({
         path: "staff",
         select:
-          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO institute",
       });
       res.status(200).send({ message: "One Employee Detail ", detail: emp });
     } else if (type === "History") {
       const emp = await Payroll.findById({ _id: eid }).populate({
         path: "staff",
         select:
-          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO institute",
       });
       var filtered = emp?.pay_slip?.filter((ele) => {
         if (`${ele.month}` === `${month}`) return ele;
@@ -1206,10 +1206,20 @@ exports.retrieveOneEmpQuery = async (req, res) => {
         // employer_contribution: emp.epc,
         staff: emp.staff,
       };
+      const institute = await InstituteAdmin.findById({_id: `${emp?.staff?.institute}`})
+      .select('insName insEmail insAddress insPhoneNumber insAddress insDistrict insState')
+      .populate({
+        path: 'financeDepart',
+        select: 'financeHead',
+        populate: {
+          path: 'staffFirstName staffMiddleName staffLastName'
+        }
+      })
       res.status(200).send({
         message: "One Employee Salary History ",
         detail: detail,
         filter: filtered,
+        institute: institute
       });
     } else {
     }

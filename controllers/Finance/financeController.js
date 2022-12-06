@@ -1138,7 +1138,7 @@ exports.retrieveAllSalaryHistory = async (req, res) => {
   try {
     const { fid } = req.params;
     const finance = await Finance.findById({ _id: fid })
-      .select("_id")
+      .select("_id institute financeHead")
       .populate({
         path: "salary_history",
         populate: {
@@ -1151,9 +1151,23 @@ exports.retrieveAllSalaryHistory = async (req, res) => {
           },
         },
       });
+
+    const financeStaff = await Staff.findById({
+      _id: `${finance?.financeHead}`,
+    }).select("staffFirstName staffMiddleName staffLastName");
+    const institute = await InstituteAdmin.findById({
+      _id: `${finance.institute}`,
+    }).select(
+      "insName insAddress insPhoneNumber insEmail insDistrict insState insProfilePhoto photoId"
+    );
     res
       .status(200)
-      .send({ message: "All Employee ", salary: finance.salary_history });
+      .send({
+        message: "All Employee ",
+        salary: finance.salary_history,
+        institute: institute,
+        financeStaff: financeStaff,
+      });
   } catch (e) {
     console.log(e);
   }

@@ -89,10 +89,10 @@ exports.feeInstituteFunction = async (order, paidBy, tx_amount, moduleId) => {
           if (student.studentRemainingFeeCount >= fData.feeAmount) {
             student.studentRemainingFeeCount -= fData.feeAmount;
           }
-          finance.financeBankBalance =
-            finance.financeBankBalance + parseInt(tx_amount);
-          finance.financeTotalBalance =
-            finance.financeTotalBalance + parseInt(tx_amount);
+          // finance.financeBankBalance =
+          //   finance.financeBankBalance + parseInt(tx_amount);
+          // finance.financeTotalBalance =
+          //   finance.financeTotalBalance + parseInt(tx_amount);
           // finance.institute.insBankBalance
           institute.adminRepayAmount =
             institute.adminRepayAmount + parseInt(tx_amount);
@@ -126,6 +126,7 @@ exports.feeInstituteFunction = async (order, paidBy, tx_amount, moduleId) => {
           studentUser.payment_history.push(order);
           institute.payment_history.push(order);
           orderPay.payment_fee = fData._id;
+          orderPay.payment_by_end_user_id = studentUser._id;
           if (fData.gstSlab > 0) {
             var business_data = new BusinessTC({});
             business_data.b_to_c_month = new Date().toISOString();
@@ -171,10 +172,10 @@ exports.feeInstituteFunction = async (order, paidBy, tx_amount, moduleId) => {
           checklistData.studentsList.push(student._id);
           checklistData.checklistStudent = student._id;
           student.onlineCheckList.push(checklistData._id);
-          finance.financeBankBalance =
-            finance.financeBankBalance + parseInt(tx_amount);
-          finance.financeTotalBalance =
-            finance.financeTotalBalance + parseInt(tx_amount);
+          // finance.financeBankBalance =
+          //   finance.financeBankBalance + parseInt(tx_amount);
+          // finance.financeTotalBalance =
+          //   finance.financeTotalBalance + parseInt(tx_amount);
           // finance.institute.insBankBalance
           institute.adminRepayAmount =
             institute.adminRepayAmount + parseInt(tx_amount);
@@ -204,6 +205,7 @@ exports.feeInstituteFunction = async (order, paidBy, tx_amount, moduleId) => {
           studentUser.payment_history.push(order);
           institute.payment_history.push(order);
           orderPay.payment_checklist = checklistData._id;
+          orderPay.payment_by_end_user_id = studentUser._id;
           if (checklistData.gstSlab > 0) {
             var business_data = new BusinessTC({});
             business_data.b_to_c_month = new Date().toISOString();
@@ -255,7 +257,7 @@ exports.admissionInstituteFunction = async (
     });
     var ins = await InstituteAdmin.findById({ _id: `${paidTo}` });
     var finance = await Finance.findById({
-      _id: `${institute?.financeDepart[0]}`,
+      _id: `${ins?.financeDepart[0]}`,
     }).populate({
       path: "financeHead",
       select: "user",
@@ -289,8 +291,8 @@ exports.admissionInstituteFunction = async (
       apply.onlineFee += parseInt(tx_amount_ad);
       apply.collectedFeeCount += parseInt(tx_amount_ad);
       finance.financeAdmissionBalance += parseInt(tx_amount_ad);
-      finance.financeTotalBalance += parseInt(tx_amount_ad);
-      finance.financeBankBalance += parseInt(tx_amount_ad);
+      // finance.financeTotalBalance += parseInt(tx_amount_ad);
+      // finance.financeBankBalance += parseInt(tx_amount_ad);
       admin.returnAmount += parseInt(tx_amount_ad);
       ins.adminRepayAmount += parseInt(tx_amount_ad);
       apply.selectedApplication.splice({
@@ -342,6 +344,7 @@ exports.admissionInstituteFunction = async (
       notify.notifyByStudentPhoto = student._id;
       ins.payment_history.push(order);
       orderPay.payment_admission = apply._id;
+      orderPay.payment_by_end_user_id = user._id;
       await Promise.all([
         student.save(),
         user.save(),
@@ -361,7 +364,7 @@ exports.admissionInstituteFunction = async (
           if (admission?.newApplication?.includes(`${ele.applicationId}`)) {
             if (parseInt(tx_amount_ad) === ele.fee - ele.firstInstallment) {
               ele.status = "Paid";
-              ele.mode = mode;
+              ele.mode = "Online";
               ele.secondInstallment = parseInt(tx_amount_ad);
               ele.fee = ele.firstInstallment + ele.secondInstallment - ele.fee;
             }
@@ -382,12 +385,14 @@ exports.admissionInstituteFunction = async (
         student.admissionRemainFeeCount -= parseInt(tx_amount_ad);
       }
       admission.remainingFee.pull(student._id);
-      admin_ins.onlineFee += parseInt(tx_amount_ad);
+      admission.onlineFee += parseInt(tx_amount_ad);
       apply.onlineFee += parseInt(tx_amount_ad);
       apply.collectedFeeCount += parseInt(tx_amount_ad);
-      finance.financeTotalBalance += parseInt(tx_amount_ad);
+      // finance.financeTotalBalance += parseInt(tx_amount_ad);
       finance.financeAdmissionBalance += parseInt(tx_amount_ad);
-      finance.financeBankBalance += parseInt(tx_amount_ad);
+      // finance.financeBankBalance += parseInt(tx_amount_ad);
+      admin.returnAmount += parseInt(tx_amount_ad);
+      ins.adminRepayAmount += parseInt(tx_amount_ad);
       if (apply?.allottedApplication?.length > 0) {
         apply?.allottedApplication.forEach((ele) => {
           if (`${ele.student}` === `${student._id}`) {
@@ -396,7 +401,7 @@ exports.admissionInstituteFunction = async (
                 ? ele.fee_remain - parseInt(tx_amount_ad)
                 : 0;
             ele.paid_status = "Paid";
-            ele.second_pay_mode = mode;
+            ele.second_pay_mode = "Online";
             if (apply?.remainingFee >= parseInt(tx_amount_ad)) {
               apply.remainingFee -= parseInt(tx_amount_ad);
             }
@@ -411,7 +416,7 @@ exports.admissionInstituteFunction = async (
                 ? ele.fee_remain - parseInt(tx_amount_ad)
                 : 0;
             ele.paid_status = "Paid";
-            ele.second_pay_mode = mode;
+            ele.second_pay_mode = "Online";
             if (apply?.remainingFee >= parseInt(tx_amount_ad)) {
               apply.remainingFee -= parseInt(tx_amount_ad);
             }
@@ -420,6 +425,7 @@ exports.admissionInstituteFunction = async (
       }
       ins.payment_history.push(order);
       orderPay.payment_admission = apply._id;
+      orderPay.payment_by_end_user_id = user._id;
       await Promise.all([
         admission.save(),
         student.save(),
@@ -427,6 +433,7 @@ exports.admissionInstituteFunction = async (
         finance.save(),
         ins.save(),
         orderPay.save(),
+        admin.save(),
       ]);
     }
     return `${user?.username}`;
@@ -461,8 +468,8 @@ exports.participateEventFunction = async (
     depart.onlineFee += parseInt(tx_amount_ad);
     event.online_fee += parseInt(tx_amount_ad);
     finance.financeParticipateEventBalance += parseInt(tx_amount_ad);
-    finance.financeTotalBalance += parseInt(tx_amount_ad);
-    admin.returnAmount += parseInt(tx_amount);
+    // finance.financeTotalBalance += parseInt(tx_amount_ad);
+    admin.returnAmount += parseInt(tx_amount_ad);
     ins.adminRepayAmount += parseInt(tx_amount_ad);
     status.event_payment_status = "Paid";
     event.event_fee.push({
@@ -487,6 +494,7 @@ exports.participateEventFunction = async (
     user.payment_history.push(order);
     ins.payment_history.push(order);
     orderPay.payment_participate = event._id;
+    orderPay.payment_by_end_user_id = user._id;
     await Promise.all([
       student.save(),
       user.save(),

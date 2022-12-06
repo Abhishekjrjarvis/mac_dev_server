@@ -841,7 +841,7 @@ exports.retrieveAllPosts = async (req, res) => {
           .populate({
             path: "new_application",
             select:
-              "applicationSeats applicationStartDate applicationEndDate applicationAbout applicationStatus admissionFee applicationName",
+              "applicationSeats applicationStartDate applicationPhoto photoId applicationEndDate applicationAbout applicationStatus admissionFee applicationName",
             populate: {
               path: "applicationDepartment",
               select: "dName",
@@ -863,7 +863,7 @@ exports.retrieveAllPosts = async (req, res) => {
           .populate({
             path: "new_application",
             select:
-              "applicationSeats applicationStartDate applicationEndDate applicationAbout applicationStatus admissionFee applicationName",
+              "applicationSeats applicationStartDate applicationPhoto photoId applicationEndDate applicationAbout applicationStatus admissionFee applicationName",
             populate: {
               path: "applicationDepartment",
               select: "dName",
@@ -913,7 +913,7 @@ exports.retreiveAllProfilePosts = async (req, res) => {
       .populate({
         path: "new_application",
         select:
-          "applicationSeats applicationStartDate applicationEndDate applicationAbout applicationStatus admissionFee applicationName",
+          "applicationSeats applicationStartDate applicationPhoto photoId applicationEndDate applicationAbout applicationStatus admissionFee applicationName",
         populate: {
           path: "applicationDepartment",
           select: "dName",
@@ -1220,7 +1220,7 @@ exports.retrieveSavedAllPosts = async (req, res) => {
         .populate({
           path: "new_application",
           select:
-            "applicationSeats applicationStartDate applicationEndDate applicationAbout applicationStatus admissionFee applicationName",
+            "applicationSeats applicationStartDate applicationPhoto photoId applicationEndDate applicationAbout applicationStatus admissionFee applicationName",
           populate: {
             path: "applicationDepartment",
             select: "dName",
@@ -1274,7 +1274,7 @@ exports.retrieveTagAllPosts = async (req, res) => {
         .populate({
           path: "new_application",
           select:
-            "applicationSeats applicationStartDate applicationEndDate applicationAbout applicationStatus admissionFee applicationName",
+            "applicationSeats applicationStartDate applicationPhoto photoId applicationEndDate applicationAbout applicationStatus admissionFee applicationName",
           populate: {
             path: "applicationDepartment",
             select: "dName",

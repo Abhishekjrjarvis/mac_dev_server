@@ -30,7 +30,7 @@ router.get(
 
 router.get(
   "/:id/setting/personal",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Institute.getSettingPersonal)
 );
 
@@ -44,13 +44,13 @@ router.get("/:id/credit/q-coins", isLoggedIn, catchAsync(Institute.getCQCoins));
 
 router.get(
   "/:id/announcemnt",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Institute.getAnnouncementArray)
 );
 
 router.get(
   "/dashboard/:id/notify",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Institute.getNotificationIns)
 );
 

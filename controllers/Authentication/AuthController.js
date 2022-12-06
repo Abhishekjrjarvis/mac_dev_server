@@ -756,6 +756,7 @@ module.exports.authentication = async (req, res) => {
               token: `Bearer ${token}`,
               user: user,
               login: true,
+              is_developer: user?.is_developer,
             });
           } else {
             res.status(401).send({ message: "Unauthorized", login: false });

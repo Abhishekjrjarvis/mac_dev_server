@@ -311,6 +311,10 @@ exports.retrieveClassFeeArray = async (req, res) => {
         path: "fee",
         select: "feeName feeAmount feeDate",
       });
+
+    classes?.ApproveStudent.sort(function (st1, st2) {
+      return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+    });
     res.status(200).send({ message: "Class Fee Data ", classes });
   } catch {}
 };
@@ -445,40 +449,43 @@ exports.retrieveStudentQuery = async (req, res) => {
         select: "userLegalName username",
       })
       .lean();
-    // var admission_date = moment(student?.studentAdmissionDate).format("l");
-    var year = student?.studentAdmissionDate.substring(0, 4);
-    var month = student?.studentAdmissionDate.substring(5, 7);
-    var day = student?.studentAdmissionDate.substring(8, 10);
-    const fees = await Fees.find({
-      $and: [
-        { _id: { $in: student?.department?.fees } },
-        {
-          createdAt: {
-            $gte: new Date(`${year}-${month}-${day}`),
+    if (student?.studentAdmissionDate) {
+      // var admission_date = moment(student?.studentAdmissionDate).format("l");
+      var year = student?.studentAdmissionDate?.substring(0, 4);
+      var month = student?.studentAdmissionDate?.substring(5, 7);
+      var day = student?.studentAdmissionDate?.substring(8, 10);
+      var fees = await Fees.find({
+        $and: [
+          { _id: { $in: student?.department?.fees } },
+          {
+            createdAt: {
+              $gte: new Date(`${year}-${month}-${day}`),
+            },
           },
-        },
-      ],
-    })
-      .sort("-createdAt")
-      .lean();
-    const check = await Checklist.find({
-      $and: [
-        { _id: { $in: student?.department?.checklists } },
-        {
-          createdAt: {
-            $gte: new Date(`${year}-${month}-${day}`),
+        ],
+      })
+        .sort("-createdAt")
+        .lean();
+      var check = await Checklist.find({
+        $and: [
+          { _id: { $in: student?.department?.checklists } },
+          {
+            createdAt: {
+              $gte: new Date(`${year}-${month}-${day}`),
+            },
           },
-        },
-      ],
-    })
-      .sort("-createdAt")
-      .lean();
-    var mergePay = [...fees, ...check];
-    const institute = await InstituteAdmin.findById({
-      _id: `${student.institute._id}`,
-    })
-      .select("financeDepart")
-      .lean();
+        ],
+      })
+        .sort("-createdAt")
+        .lean();
+      var mergePay = [...fees, ...check];
+      var institute = await InstituteAdmin.findById({
+        _id: `${student.institute._id}`,
+      })
+        .select("financeDepart")
+        .lean();
+    } else {
+    }
     if (institute && institute.financeDepart.length >= 1) {
       var finance = await Finance.findById({
         _id: `${institute?.financeDepart[0]}`,

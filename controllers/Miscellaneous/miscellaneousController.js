@@ -7,6 +7,7 @@ const Checklist = require("../../models/Checklist");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const Batch = require("../../models/Batch");
 const Video = require("../../models/Video");
+const OrderPayment = require("../../models/RazorPay/orderPayment");
 
 exports.getAllStaff = async (req, res) => {
   try {
@@ -126,6 +127,44 @@ exports.getAllInstitute = async (req, res) => {
     res.status(200).send({ message: "Institute data", iRandom: institute });
   } catch (e) {
     console.log(`Error`, e.message);
+  }
+};
+
+exports.getAllPayments = async (req, res) => {
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const all = await OrderPayment.find({ payment_mode: "By Bank" })
+      .sort("created_at")
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "payment_module_type payment_amount created_at payment_status razorpay_order_id"
+      )
+      .populate({
+        path: "payment_fee",
+        select: "feeName",
+      })
+      .populate({
+        path: "payment_admission",
+        select: "applicationName",
+      })
+      .populate({
+        path: "payment_checklist",
+        select: "checklistName",
+      })
+      .populate({
+        path: "payment_by_end_user_id",
+        select: "userLegalName username photoId profilePhoto",
+      })
+      .populate({
+        path: "payment_to_end_user_id",
+        select: "insName photoId insProfilePhoto",
+      });
+    res.status(200).send({ message: "Payment Data", allPayment: all });
+  } catch (e) {
+    console.log(e);
   }
 };
 

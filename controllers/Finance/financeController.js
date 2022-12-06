@@ -1208,7 +1208,7 @@ exports.retrieveOneEmpQuery = async (req, res) => {
         _id: `${emp?.staff?.institute}`,
       })
         .select(
-          "insName insEmail insAddress insPhoneNumber insAddress insDistrict insState"
+          "insName insEmail insAddress insPhoneNumber insAddress insDistrict insState insProfilePhoto"
         )
         .populate({
           path: "financeDepart",

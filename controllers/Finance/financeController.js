@@ -1160,14 +1160,12 @@ exports.retrieveAllSalaryHistory = async (req, res) => {
     }).select(
       "insName insAddress insPhoneNumber insEmail insDistrict insState insProfilePhoto photoId"
     );
-    res
-      .status(200)
-      .send({
-        message: "All Employee ",
-        salary: finance.salary_history,
-        institute: institute,
-        financeStaff: financeStaff,
-      });
+    res.status(200).send({
+      message: "All Employee ",
+      salary: finance.salary_history,
+      institute: institute,
+      financeStaff: financeStaff,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -1206,20 +1204,25 @@ exports.retrieveOneEmpQuery = async (req, res) => {
         // employer_contribution: emp.epc,
         staff: emp.staff,
       };
-      const institute = await InstituteAdmin.findById({_id: `${emp?.staff?.institute}`})
-      .select('insName insEmail insAddress insPhoneNumber insAddress insDistrict insState')
-      .populate({
-        path: 'financeDepart',
-        select: 'financeHead',
-        populate: {
-          path: 'staffFirstName staffMiddleName staffLastName'
-        }
+      const institute = await InstituteAdmin.findById({
+        _id: `${emp?.staff?.institute}`,
       })
+        .select(
+          "insName insEmail insAddress insPhoneNumber insAddress insDistrict insState"
+        )
+        .populate({
+          path: "financeDepart",
+          select: "financeHead",
+          populate: {
+            path: "financeHead",
+            select: "staffFirstName staffMiddleName staffLastName",
+          },
+        });
       res.status(200).send({
         message: "One Employee Salary History ",
         detail: detail,
         filter: filtered,
-        institute: institute
+        institute: institute,
       });
     } else {
     }

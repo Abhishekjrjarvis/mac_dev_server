@@ -7,7 +7,6 @@ const departmentSchema = new mongoose.Schema({
   dPhoneNumber: { type: Number, minlength: 10 },
   dOperatingAdmin: { type: String },
   dStudentRepr: { type: String },
-  dPhoto: { type: String },
   dVision: { type: String },
   dMission: { type: String },
   dAbout: { type: String },
@@ -172,27 +171,27 @@ const departmentSchema = new mongoose.Schema({
   election_event: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Election'
-    }
+      ref: "Election",
+    },
   ],
   election_event_count: {
     type: Number,
-    default: 0
+    default: 0,
   },
   participate_event: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Participate'
-    }
+      ref: "Participate",
+    },
   ],
   participate_event_count: {
     type: Number,
-    default: 0
+    default: 0,
   },
   onlineFee: {
     type: Number,
-    default: 0
-  }
+    default: 0,
+  },
 });
 
 const Department = mongoose.model("Department", departmentSchema);

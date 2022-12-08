@@ -518,15 +518,18 @@ exports.retrieveAdmissionSelectedApplication = async (req, res) => {
     const student = await Student.findById({ _id: sid });
     const user = await User.findById({ _id: `${student.user}` });
     const status = new Status({});
+    apply.receievedApplication.splice(
+      {
+        student: student._id,
+        // fee_remain: apply.admissionFee,
+      },
+      1
+    );
     apply.selectedApplication.push({
       student: student._id,
       fee_remain: apply.admissionFee,
     });
     apply.selectCount += 1;
-    apply.receievedApplication.splice({
-      student: student._id,
-      // fee_remain: apply.admissionFee,
-    });
     student.admissionRemainFeeCount += apply.admissionFee;
     status.content = `You have been selected for ${apply.applicationName}. Confirm your admission`;
     status.applicationId = apply._id;

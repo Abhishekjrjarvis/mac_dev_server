@@ -915,7 +915,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
         };
         if (page == 1) {
           post.splice(3, 0, data_u_s);
-          post.splice(5, 0, data_i_s);
+          // post.splice(5, 0, data_i_s);
           post.splice(2, 0, hash_tag_ads);
         }
         post.splice(

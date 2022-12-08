@@ -59,29 +59,29 @@ exports.searchUserUniversalWeb = async (req, res) => {
         .lean()
         .exec();
 
-      const allMentors = await Staff.find({
-        $and: [
-          { status: "Approved" },
-          {
-            $or: [
-              { staffFirstName: { $regex: req.query.search, $options: "i" } },
-              { staffMiddleName: { $regex: req.query.search, $options: "i" } },
-              { staffLastName: { $regex: req.query.search, $options: "i" } },
-            ],
-          },
-        ],
-      })
-        .select(
-          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
-        )
-        .limit(itemPerPage)
-        .skip(dropItem)
-        .populate({
-          path: "user",
-          select: "username",
-        })
-        .lean()
-        .exec();
+      // const allMentors = await Staff.find({
+      //   $and: [
+      //     { status: "Approved" },
+      //     {
+      //       $or: [
+      //         { staffFirstName: { $regex: req.query.search, $options: "i" } },
+      //         { staffMiddleName: { $regex: req.query.search, $options: "i" } },
+      //         { staffLastName: { $regex: req.query.search, $options: "i" } },
+      //       ],
+      //     },
+      //   ],
+      // })
+      //   .select(
+      //     "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+      //   )
+      //   .limit(itemPerPage)
+      //   .skip(dropItem)
+      //   .populate({
+      //     path: "user",
+      //     select: "username",
+      //   })
+      //   .lean()
+      //   .exec();
 
       const allHashtag = await HashTag.find({
         $and: [
@@ -102,7 +102,7 @@ exports.searchUserUniversalWeb = async (req, res) => {
       if (
         !allInstitutes.length &&
         !users.length &&
-        !allMentors.length &&
+        // !allMentors.length &&
         !allHashtag.length
       )
         res.status(204).send({ message: "Not found any search" });
@@ -113,13 +113,15 @@ exports.searchUserUniversalWeb = async (req, res) => {
             universalArrayUser: allInstitutes,
             filter: true,
           });
-        } else if (filter === "Mentor") {
-          res.status(200).send({
-            message: "filter by Mentor",
-            universalArrayUser: allMentors,
-            filter: true,
-          });
-        } else if (filter === "People") {
+        }
+        // else if (filter === "Mentor") {
+        //   res.status(200).send({
+        //     message: "filter by Mentor",
+        //     universalArrayUser: allMentors,
+        //     filter: true,
+        //   });
+        // }
+        else if (filter === "People") {
           res.status(200).send({
             message: "filter by People",
             universalArrayUser: users,
@@ -135,7 +137,7 @@ exports.searchUserUniversalWeb = async (req, res) => {
           var mergeArray = [
             ...allInstitutes,
             ...users,
-            ...allMentors,
+            // ...allMentors,
             ...allHashtag,
           ];
           var universalArrayUser = shuffleArray(mergeArray);

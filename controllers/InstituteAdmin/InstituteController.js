@@ -1046,7 +1046,7 @@ exports.retrieveApproveStudentList = async (req, res) => {
       const studentIns = await Student.find({
         _id: { $in: student_ins?.ApproveStudent },
       })
-        .sort({ studentGRNO: 1})
+        .sort({ studentGRNO: 1 })
         .limit(limit)
         .skip(skip)
         .select(
@@ -1443,7 +1443,9 @@ exports.retrieveNewSubject = async (req, res) => {
       message: "Successfully Created Subject",
       subject,
     });
-  } catch (e) {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.retrieveSubjectMaster = async (req, res) => {

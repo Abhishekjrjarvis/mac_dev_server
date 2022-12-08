@@ -61,13 +61,12 @@ const hashtag = require("./routes/HashTag/hashtagRoute");
 const manage = require("./routes/ManageAdmin/manageRoute");
 
 // ============================= DB Configuration ==============================
-
-const dburl = `${process.env.TESTING_DATABASE_URL}`; // 638f00d14a67136be89ccc78
+const testinDburl = `${process.env.TESTING_DATABASE_URL}`; // Testing
 // const dburl = `${process.env.DB_URL2}`; // Development
 // const dburl = `${process.env.DB_URL}`; // Production
 
 mongoose
-  .connect(dburl, {
+  .connect(testinDburl, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -109,7 +108,7 @@ app.use(
 const secret = "Thisismysecret";
 
 const store = new MongoStore({
-  mongoUrl: dburl,
+  mongoUrl: testinDburl,
   touchAfter: 24 * 60 * 60,
 });
 

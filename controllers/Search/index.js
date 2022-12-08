@@ -114,7 +114,7 @@ exports.searchUserUniversalWeb = async (req, res) => {
             filter: true,
           });
         }
-        // else if (filter === "Mentor") {
+        //  else if (filter === "Mentor") {
         //   res.status(200).send({
         //     message: "filter by Mentor",
         //     universalArrayUser: allMentors,

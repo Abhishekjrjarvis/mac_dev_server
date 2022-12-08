@@ -173,9 +173,18 @@ exports.allDepartment = async (req, res) => {
           path: "batches",
           options,
           match: { _id: { $ne: classes.batch } },
-          select: "batchName",
+          select: "batchName createdAt",
         },
-        select: "dName batches",
+        select: "dName dTitle photo dHead batches",
+      })
+      .populate({
+        path: "depart",
+        populate: {
+          path: "dHead",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        },
+        select: "dName dTitle photo dHead batches",
       })
       .select("_id depart")
       .lean()

@@ -102,7 +102,7 @@ exports.feeInstituteFunction = async (
           // finance.institute.insBankBalance
           institute.adminRepayAmount =
             institute.adminRepayAmount + parseInt(tx_amount);
-          admin.returnAmount += parseInt(tx_amount_charges);
+          admin.returnAmount += tx_amount_charges;
           notify.notifyContent = `${student.studentFirstName}${
             student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
           } ${student.studentLastName} paid the ${
@@ -185,7 +185,7 @@ exports.feeInstituteFunction = async (
           // finance.institute.insBankBalance
           institute.adminRepayAmount =
             institute.adminRepayAmount + parseInt(tx_amount);
-          admin.returnAmount += parseInt(tx_amount_charges);
+          admin.returnAmount += tx_amount_charges;
           notify.notifyContent = `${student.studentFirstName}${
             student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
           } ${student.studentLastName} paid the ${
@@ -300,7 +300,7 @@ exports.admissionInstituteFunction = async (
       finance.financeAdmissionBalance += parseInt(tx_amount_ad);
       // finance.financeTotalBalance += parseInt(tx_amount_ad);
       // finance.financeBankBalance += parseInt(tx_amount_ad);
-      admin.returnAmount += parseInt(tx_amount_ad_charges);
+      admin.returnAmount += tx_amount_ad_charges;
       ins.adminRepayAmount += parseInt(tx_amount_ad);
       apply.selectedApplication.splice({
         student: student._id,
@@ -398,7 +398,7 @@ exports.admissionInstituteFunction = async (
       // finance.financeTotalBalance += parseInt(tx_amount_ad);
       finance.financeAdmissionBalance += parseInt(tx_amount_ad);
       // finance.financeBankBalance += parseInt(tx_amount_ad);
-      admin.returnAmount += parseInt(tx_amount_ad_charges);
+      admin.returnAmount += tx_amount_ad_charges;
       ins.adminRepayAmount += parseInt(tx_amount_ad);
       if (apply?.allottedApplication?.length > 0) {
         apply?.allottedApplication.forEach((ele) => {
@@ -477,7 +477,7 @@ exports.participateEventFunction = async (
     event.online_fee += parseInt(tx_amount_ad);
     finance.financeParticipateEventBalance += parseInt(tx_amount_ad);
     // finance.financeTotalBalance += parseInt(tx_amount_ad);
-    admin.returnAmount += parseInt(tx_amount_ad_charges);
+    admin.returnAmount += tx_amount_ad_charges;
     ins.adminRepayAmount += parseInt(tx_amount_ad);
     status.event_payment_status = "Paid";
     event.event_fee.push({

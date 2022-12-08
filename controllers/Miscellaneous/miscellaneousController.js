@@ -136,7 +136,7 @@ exports.getAllPayments = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
     const all = await OrderPayment.find({ payment_mode: "By Bank" })
-      .sort("created_at")
+      .sort("-created_at")
       .limit(limit)
       .skip(skip)
       .select(

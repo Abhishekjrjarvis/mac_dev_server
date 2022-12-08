@@ -302,10 +302,16 @@ exports.admissionInstituteFunction = async (
       // finance.financeBankBalance += parseInt(tx_amount_ad);
       admin.returnAmount += tx_amount_ad_charges;
       ins.adminRepayAmount += parseInt(tx_amount_ad);
-      apply.selectedApplication.splice({
-        student: student._id,
-        fee_remain: apply.admissionFee,
-      });
+      // apply.selectedApplication.splice({
+      //   student: student._id,
+      //   fee_remain: apply.admissionFee,
+      // });
+      for (let app of apply.selectedApplication) {
+        if (`${app.student}` === `${student._id}`) {
+          apply.selectedApplication.pull(app._id);
+        } else {
+        }
+      }
       apply.confirmedApplication.push({
         student: student._id,
         fee_remain:

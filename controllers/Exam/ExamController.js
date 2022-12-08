@@ -835,8 +835,10 @@ exports.oneStudentAllYearAttendance = async (req, res) => {
       institute: student.institute,
     };
     student?.attendDate?.forEach((attend) => {
-      if (attend.presentStudent.includes(req.params.sid)) {
-        attendance.totalPresent += 1;
+      for (let pre of attend?.presentStudent) {
+        if (String(pre.student) === req.params.sid) {
+          attendance.totalPresent += 1;
+        }
       }
     });
     attendance.attendancePercentage = (
@@ -1020,6 +1022,11 @@ exports.oneStudentReportCardFinalizeGraceUpdate = async (req, res) => {
                 finalize.totalGraceExam += bodysubject.graceMarks - prevGrace;
                 finalize.totalTotalExam += bodysubject.graceMarks - prevGrace;
               }
+              finalSubject.subjectPassStatus =
+                finalSubject.subjectCutoff >
+                Math.round(finalSubject.obtainTotalMarks)
+                  ? "FAIL"
+                  : "PASS";
             }
           }
           await subjectMarks.save();
@@ -1029,6 +1036,10 @@ exports.oneStudentReportCardFinalizeGraceUpdate = async (req, res) => {
     finalize.totalPercentage =
       (finalize.totalTotalExam * 100) /
       (100 * finalize.subjects?.length).toFixed(2);
+    finalize.passStatus =
+      finalize.totalCutoff > Math.round(finalize.totalPercentage)
+        ? "FAIL"
+        : "PASS";
     await Promise.all([finalize.save()]);
     res.status(200).send({ finalize });
   } catch (e) {

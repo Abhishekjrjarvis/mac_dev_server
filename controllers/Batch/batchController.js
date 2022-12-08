@@ -309,6 +309,7 @@ exports.promoteStudent = async (req, res) => {
         classes.girlCount += 1;
         batch.student_category.girlCount += 1;
       } else {
+        classes.otherCount += 1;
         batch.student_category.otherCount += 1;
       }
       if (student.studentCastCategory === "General") {

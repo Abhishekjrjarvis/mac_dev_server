@@ -124,6 +124,10 @@ const classSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  otherCount: {
+    type: Number,
+    default: 0,
+  },
   strength: {
     type: Number,
     default: 0,

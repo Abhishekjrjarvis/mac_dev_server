@@ -290,7 +290,8 @@ exports.markAttendenceClassStudent = async (req, res) => {
         // +markDate[0] === +currentDateLocalFormat[2].split("T")[0] &&
         // +markDate[1] === +currentDateLocalFormat[1] &&
         // +markDate[2] === +currentDateLocalFormat[0] &&
-        fun()
+        // fun()
+        true
       ) {
         const attendence = new AttendenceDate({});
         attendence.attendDate = req.body.date;

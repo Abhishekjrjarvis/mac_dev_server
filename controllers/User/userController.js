@@ -656,26 +656,31 @@ exports.updateUserPersonal = async (req, res) => {
     const post = await Post.find({ author: `${user._id}` });
     post.forEach(async (ele) => {
       ele.authorOneLine = user.one_line_about;
+      ele.authorName = user.userLegalName;
       await ele.save();
     });
     const comment = await Comment.find({ author: `${user._id}` });
     comment.forEach(async (com) => {
       com.authorOneLine = user.one_line_about;
+      com.authorName = user.userLegalName;
       await com.save();
     });
     const replyComment = await ReplyComment.find({ author: `${user._id}` });
     replyComment.forEach(async (reply) => {
       reply.authorOneLine = user.one_line_about;
+      reply.authorName = user.userLegalName;
       await reply.save();
     });
     const answers = await Answer.find({ author: `${user._id}` });
     answers.forEach(async (ans) => {
       ans.authorOneLine = user.one_line_about;
+      ans.authorName = user.userLegalName;
       await ans.save();
     });
     const answerReply = await AnswerReply.find({ author: `${user._id}` });
     answerReply.forEach(async (ansRep) => {
       ansRep.authorOneLine = user.one_line_about;
+      ansRep.authorName = user.userLegalName;
       await ansRep.save();
     });
   } catch (e) {
@@ -1645,13 +1650,11 @@ exports.retrieveStaffSalaryHistory = async (req, res) => {
           select: "staffFirstName staffMiddleName staffLastName",
         },
       });
-    res
-      .status(200)
-      .send({
-        message: "All Salary History ",
-        salary: staff?.salary_history,
-        institute: institute,
-      });
+    res.status(200).send({
+      message: "All Salary History ",
+      salary: staff?.salary_history,
+      institute: institute,
+    });
   } catch (e) {
     console.log(e);
   }

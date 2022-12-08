@@ -15,7 +15,7 @@ const Subject = require("../../models/Subject");
 const Transfer = require("../../models/Transfer");
 const StudentTransfer = require("../../models/StudentTransfer");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
-const StudentNotification = require('../../models/Marks/StudentNotification')
+const StudentNotification = require("../../models/Marks/StudentNotification");
 
 //=======================================For the students related controller=========================================
 
@@ -103,8 +103,8 @@ exports.postStudentLeave = async (req, res) => {
     user.activity_tab.push(notify._id);
     notify.notifyByStudentPhoto = student._id;
     notify.notifyCategory = "Leave";
-    notify.redirectIndex = 10
-    notify.classId = classes?._id
+    notify.redirectIndex = 10;
+    notify.classId = classes?._id;
     //
     invokeMemberTabNotification(
       "Staff Activity",
@@ -184,7 +184,8 @@ exports.getAllStudentLeaveClass = async (req, res) => {
 
 exports.oneStudentLeaveProcess = async (req, res) => {
   try {
-    const leave = await StudentLeave.findById(req.params.cid)
+    const { status } = req.body;
+    let leave = await StudentLeave.findById(req.params.cid)
       .populate({
         path: "classes",
         select: "className",
@@ -198,10 +199,10 @@ exports.oneStudentLeaveProcess = async (req, res) => {
         select: "user",
       })
       .select("student classes status");
-    const user = await User.findById(leave.student.user._id);
+    leave.status = status;
+    const user = await User.findById(leave?.student?.user._id);
 
     const notify = new StudentNotification({});
-    leave.status = req.body.status;
     notify.notifyContent = `Your Leave request has been ${req.body.status} by ${leave.classes.className}`;
     notify.notifySender = leave.classes._id;
     notify.notifyReceiever = user._id;
@@ -210,7 +211,7 @@ exports.oneStudentLeaveProcess = async (req, res) => {
     user.activity_tab.push(notify._id);
     notify.notifyByClassPhoto = leave.classes._id;
     notify.notifyCategory = "Leave";
-    notify.redirectIndex = 10
+    notify.redirectIndex = 10;
     //
     invokeMemberTabNotification(
       "Student Activity",
@@ -402,7 +403,7 @@ exports.classComplaintSolve = async (req, res) => {
     await complaint.save();
     res.status(200).send({ message: "Complaint Resolevd" });
   } catch (e) {
-    console.log(e)
+    console.log(e);
   }
 };
 
@@ -501,8 +502,8 @@ exports.studentTransferRequested = async (req, res) => {
     user.activity_tab.push(notify._id);
     notify.notifyByStudentPhoto = student._id;
     notify.notifyCategory = "Transfer";
-    notify.redirectIndex = 11
-    notify.classId = classes?._id
+    notify.redirectIndex = 11;
+    notify.classId = classes?._id;
     //
     invokeMemberTabNotification(
       "Staff Activity",
@@ -554,7 +555,7 @@ exports.studentTransferApproved = async (req, res) => {
     user.activity_tab.push(notify._id);
     notify.notifyByClassPhoto = classes._id;
     notify.notifyCategory = "Transfer";
-    notify.redirectIndex = 11
+    notify.redirectIndex = 11;
     //
     invokeMemberTabNotification(
       "Student Activity",
@@ -600,7 +601,7 @@ exports.studentTransferRejected = async (req, res) => {
     user.activity_tab.push(notify._id);
     notify.notifyByClassPhoto = classes._id;
     notify.notifyCategory = "Transfer";
-    notify.redirectIndex = 11
+    notify.redirectIndex = 11;
     //
     invokeMemberTabNotification(
       "Student Activity",
@@ -724,8 +725,8 @@ exports.postStaffLeave = async (req, res) => {
     institute.iNotify.push(notify._id);
     notify.notifyByStaffPhoto = staff._id;
     notify.notifyCategory = "Leave";
-    notify.redirectIndex = 10
-    notify.instituteId = institute?._id
+    notify.redirectIndex = 10;
+    notify.instituteId = institute?._id;
     //
     invokeMemberTabNotification(
       "Institute Activity",
@@ -827,7 +828,7 @@ exports.oneStaffLeaveProcess = async (req, res) => {
     user.activity_tab.push(notify._id);
     notify.notifyByInsPhoto = leave.institute._id;
     notify.notifyCategory = "Leave";
-    notify.redirectIndex = 10
+    notify.redirectIndex = 10;
     //
     invokeMemberTabNotification(
       "Staff Activity",

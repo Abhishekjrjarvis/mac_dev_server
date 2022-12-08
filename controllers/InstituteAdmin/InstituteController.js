@@ -269,11 +269,13 @@ exports.getUpdatePersonalIns = async (req, res) => {
     const post = await Post.find({ author: `${institute._id}` });
     post.forEach(async (ele) => {
       ele.authorOneLine = institute.one_line_about;
+      ele.authorName = institute.insName;
       await ele.save();
     });
     const comment = await Comment.find({ author: `${institute._id}` });
     comment.forEach(async (com) => {
       com.authorOneLine = institute.one_line_about;
+      com.authorName = institute.insName;
       await com.save();
     });
     const replyComment = await ReplyComment.find({
@@ -281,6 +283,7 @@ exports.getUpdatePersonalIns = async (req, res) => {
     });
     replyComment.forEach(async (reply) => {
       reply.authorOneLine = institute.one_line_about;
+      reply.authorName = institute.insName;
       await reply.save();
     });
   } catch (e) {

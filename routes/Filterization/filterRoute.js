@@ -10,7 +10,7 @@ router.get("/by/answer", isLoggedIn, catchAsync(Filter.retrieveByAnswerQuery));
 
 router.get(
   "/by/participate",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Filter.retrieveByParticipateQuery)
 );
 

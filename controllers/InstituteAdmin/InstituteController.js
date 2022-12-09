@@ -209,6 +209,53 @@ exports.getNotificationIns = async (req, res) => {
   }
 };
 
+exports.getAllTotalCount = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const institute = await InstituteAdmin.findById({ _id: id })
+      .select("_id iNotify")
+      .populate({
+        path: "iNotify",
+      });
+    var total = 0;
+    const notify = await Notification.find({
+      $and: [
+        { _id: { $in: institute?.iNotify } },
+        { notifyViewStatus: "Not View" },
+      ],
+    });
+    total = total + notify?.length;
+
+    res.status(200).send({ message: "Not Viewed Notification", count: total });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveMarkAllView = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const institute = await InstituteAdmin.findById({ _id: id })
+      .select("_id")
+      .populate({ path: "iNotify" });
+    const notify = await Notification.find({
+      $and: [
+        { _id: { $in: institute?.iNotify } },
+        { notifyViewStatus: "Not View" },
+      ],
+    });
+    if (notify?.length >= 1) {
+      notify.forEach(async (ele) => {
+        ele.notifyViewStatus = "View";
+        await ele.save();
+      });
+    }
+    res.status(200).send({ message: "Mark All To Be Viewed" });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.getNotifyReadIns = async (req, res) => {
   try {
     const { rid } = req.params;

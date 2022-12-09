@@ -54,6 +54,13 @@ router.get(
   catchAsync(Institute.getNotificationIns)
 );
 
+router.get(
+  "/:id/activity/total/notify",
+  catchAsync(Institute.getAllTotalCount)
+);
+
+router.patch("/:id/mark/viewed", catchAsync(Institute.retrieveMarkAllView));
+
 router.post(
   "/read/notify/:rid",
   isLoggedIn,

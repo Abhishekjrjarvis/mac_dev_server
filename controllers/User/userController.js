@@ -229,7 +229,7 @@ exports.updateUserFollowIns = async (req, res) => {
         user.userInstituteFollowing.push(req.body.InsfollowId);
         user.followingUICount += 1;
         sinstitute.followersCount += 1;
-        notify.notifyContent = `${user.userLegalName} started to following you`;
+        notify.notifyContent = `${user.userLegalName} started following you`;
         notify.notifySender = user._id;
         notify.notifyReceiever = sinstitute._id;
         sinstitute.iNotify.push(notify._id);
@@ -939,7 +939,12 @@ exports.getAllTotalCount = async (req, res) => {
 
     res
       .status(200)
-      .send({ message: "Not Viewed Notification & Activity", count: total });
+      .send({
+        message: "Not Viewed Notification & Activity",
+        count: total,
+        notifyCount: notify?.length,
+        activityCount: activity?.length,
+      });
   } catch (e) {
     console.log(e);
   }

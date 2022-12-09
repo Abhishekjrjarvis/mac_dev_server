@@ -4,7 +4,7 @@
 // const ClassMaster = require("../../models/ClassMaster");
 // const InstituteAdmin = require("../../models/InstituteAdmin");
 // const Department = require("../../models/Department");
-// const Batch = require("../../models/Batch");
+const Batch = require("../../models/Batch");
 const Class = require("../../models/Class");
 const Student = require("../../models/Student");
 const StudentPreviousData = require("../../models/StudentPreviousData");
@@ -34,15 +34,51 @@ exports.photoEditByStudent = async (req, res) => {
 exports.formEditByClassTeacher = async (req, res) => {
   try {
     if (!req.params.sid) throw "Please send student id to perform task";
-    await Student.findByIdAndUpdate(req.params.sid, req.body);
+    const one_student = await Student.findByIdAndUpdate(
+      req.params.sid,
+      req.body
+    );
     res.status(200).send({
       message: "Student form edited successfully👍",
     });
+    const classes = await Class.findById({ _id: one_student?.studentClass });
+    const batch = await Batch.findById({ _id: one_student?.batches });
+    if (one_student.studentGender === "Male") {
+      classes.boyCount += 1;
+      batch.student_category.boyCount += 1;
+    } else if (one_student.studentGender === "Female") {
+      classes.girlCount += 1;
+      batch.student_category.girlCount += 1;
+    } else {
+      classes.otherCount += 1;
+      batch.student_category.otherCount += 1;
+    }
+    if (one_student.studentCastCategory === "General") {
+      batch.student_category.generalCount += 1;
+    } else if (one_student.studentCastCategory === "OBC") {
+      batch.student_category.obcCount += 1;
+    } else if (one_student.studentCastCategory === "SC") {
+      batch.student_category.scCount += 1;
+    } else if (one_student.studentCastCategory === "ST") {
+      batch.student_category.stCount += 1;
+    } else if (one_student.studentCastCategory === "NT-A") {
+      batch.student_category.ntaCount += 1;
+    } else if (one_student.studentCastCategory === "NT-B") {
+      batch.student_category.ntbCount += 1;
+    } else if (one_student.studentCastCategory === "NT-C") {
+      batch.student_category.ntcCount += 1;
+    } else if (one_student.studentCastCategory === "NT-D") {
+      batch.student_category.ntdCount += 1;
+    } else if (one_student.studentCastCategory === "VJ") {
+      batch.student_category.vjCount += 1;
+    } else {
+    }
+    await Promise.all([classes.save(), batch.save()]);
   } catch (e) {
     console.log(e);
   }
 };
-
+// Batch Removal Is still pending
 exports.removeByClassTeacher = async (req, res) => {
   try {
     if (!req.params.sid) throw "Please send student id to perform task";
@@ -60,6 +96,16 @@ exports.removeByClassTeacher = async (req, res) => {
     classes.batch?.ApproveStudent?.pull(student._id);
     classes.department?.ApproveStudent?.pull(student._id);
     classes.department.studentCount -= 1;
+    if (student?.studentGender === "Male") {
+      classes.boyCount -= 1;
+      classes.strength -= 1;
+    } else if (student?.studentGender === "Female") {
+      classes.girlCount -= 1;
+      classes.strength -= 1;
+    } else {
+      classes.otherCount -= 1;
+      classes.strength -= 1;
+    }
     await Promise.all([
       classes.batch.save(),
       classes.department.save(),

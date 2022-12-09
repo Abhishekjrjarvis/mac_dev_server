@@ -293,7 +293,7 @@ exports.retrieveClassFeeArray = async (req, res) => {
       .populate({
         path: "ApproveStudent",
         select:
-          "studentFirstName studentMiddleName studentLastName studentROLLNO photoId studentProfilePhoto onlineFeeList offlineFeeList",
+          "studentFirstName studentMiddleName studentAdmissionDate studentLastName studentROLLNO photoId studentProfilePhoto onlineFeeList offlineFeeList",
       })
       .populate({
         path: "institute",
@@ -309,9 +309,23 @@ exports.retrieveClassFeeArray = async (req, res) => {
       })
       .populate({
         path: "fee",
-        select: "feeName feeAmount feeDate",
+        select: "feeName feeAmount feeDate createdAt",
       });
 
+    //   var sorted_student = [];
+    // for (var fee of classes?.fee) {
+    //   for (var stu of classes?.ApproveStudent) {
+    //     if (
+    //       moment(stu.studentAdmissionDate).format("YYYY-MM-DD") <
+    //       moment(fee?.createdAt).format("YYYY-MM-DD")
+    //     ) {
+    //       if (sorted_student?.includes(stu)) {
+    //       } else {
+    //         sorted_student.push(stu);
+    //       }
+    //     }
+    //   }
+    // }
     classes?.ApproveStudent.sort(function (st1, st2) {
       return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
     });

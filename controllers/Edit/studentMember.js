@@ -82,8 +82,10 @@ exports.removeByClassTeacher = async (req, res) => {
       finalReport: student?.finalReport,
       testSet: student?.testSet,
       assignments: student?.assignments,
-      totalAssigment: student?.totalAssigment,
-      submittedAssigment: student?.submittedAssigment,
+      totalAssignment: student?.totalAssignment,
+      submittedAssignment: student?.submittedAssignment,
+      incompletedAssignment: student?.incompletedAssignment,
+      completedAssignment: student?.completedAssignment,
       studentFee: student?.studentFee,
       attendDate: student?.attendDate,
       checklist: student?.checklist,
@@ -95,14 +97,25 @@ exports.removeByClassTeacher = async (req, res) => {
       studentChecklist: student?.studentChecklist,
       leave: student?.leave,
       transfer: student?.transfer,
-      paymentList: student?.paymentList,
-      applyList: student?.applyList,
       studentExemptFee: student?.studentExemptFee,
       exemptFeeList: student?.exemptFeeList,
       studentRemainingFeeCount: student?.studentRemainingFeeCount,
       studentPaidFeeCount: student?.studentPaidFeeCount,
       library: student?.library,
       studentAdmissionDate: student?.studentAdmissionDate,
+      borrow: student?.borrow,
+      deposite: student?.deposite,
+      sportEventCount: student?.sportEventCount,
+      admissionRemainFeeCount: student?.admissionRemainFeeCount,
+      admissionPaymentStatus: student?.admissionPaymentStatus,
+      refundAdmission: student?.refundAdmission,
+      remainingFeeList: student?.remainingFeeList,
+      certificateBonaFideCopy: student?.certificateBonaFideCopy,
+      certificateLeavingCopy: student?.certificateLeavingCopy,
+      dailyUpdate: student?.dailyUpdate,
+      student_biometric_id: student?.student_biometric_id,
+      election_candidate: student?.election_candidate,
+      participate_event: student?.participate_event,
     });
     student?.previousYearData?.push(previousData._id);
     student.studentClass = null;
@@ -119,8 +132,10 @@ exports.removeByClassTeacher = async (req, res) => {
     student.finalReport = [];
     student.testSet = [];
     student.assignments = [];
-    student.totalAssigment = 0;
-    student.submittedAssigment = 0;
+    student.totalAssignment = 0;
+    student.submittedAssignment = 0;
+    student.incompletedAssignment = 0;
+    student.completedAssignment = 0;
     student.studentFee = [];
     student.attendDate = [];
     student.checklist = [];
@@ -140,6 +155,27 @@ exports.removeByClassTeacher = async (req, res) => {
     student.studentPaidFeeCount = 0;
     student.library = null;
     student.studentAdmissionDate = "";
+    student.borrow = [];
+    student.deposite = [];
+    student.sportEventCount = 0;
+    student.admissionRemainFeeCount = 0;
+    student.admissionPaymentStatus = [];
+    student.refundAdmission = [];
+    student.remainingFeeList = [];
+    student.certificateBonaFideCopy = {
+      trueCopy: false,
+      secondCopy: false,
+      thirdCopy: false,
+    };
+    student.certificateLeavingCopy = {
+      trueCopy: false,
+      secondCopy: false,
+      thirdCopy: false,
+    };
+    student.dailyUpdate = [];
+    student.student_biometric_id = "";
+    student.election_candidate = [];
+    student.participate_event = [];
     await Promise.all([previousData.save(), student.save()]);
     // console.log("hi", studentCurrentRollNumber);
     // console.log("hi", classes?.ApproveStudent?.slice(studentCurrentRollNumber));

@@ -57,11 +57,20 @@ const previousSchema = new mongoose.Schema({
     },
   ],
 
-  totalAssigment: {
+  totalAssignment: {
     type: Number,
     default: 0,
   },
-  submittedAssigment: {
+  submittedAssignment: {
+    type: Number,
+    default: 0,
+  },
+
+  incompletedAssignment: {
+    type: Number,
+    default: 0,
+  },
+  completedAssignment: {
     type: Number,
     default: 0,
   },
@@ -133,18 +142,7 @@ const previousSchema = new mongoose.Schema({
       ref: "StudentTransfer",
     },
   ],
-  paymentList: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Payment",
-    },
-  ],
-  applyList: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "ApplyPayment",
-    },
-  ],
+
   studentExemptFee: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -172,10 +170,80 @@ const previousSchema = new mongoose.Schema({
   studentAdmissionDate: {
     type: String,
   },
+  borrow: [{ type: mongoose.Schema.Types.ObjectId, ref: "IssueBook" }],
+  deposite: [{ type: mongoose.Schema.Types.ObjectId, ref: "CollectBook" }],
   createdAt: {
     type: Date,
     default: Date.now,
   },
+  sportEventCount: {
+    type: Number,
+    default: 0,
+  },
+  admissionRemainFeeCount: {
+    type: Number,
+    default: 0,
+  },
+  admissionPaymentStatus: [
+    {
+      applicationId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NewApplication",
+      },
+      status: { type: String, default: "Pending" },
+      mode: { type: String },
+      installment: { type: String, default: "No Installment" },
+      firstInstallment: { type: Number, default: 0 },
+      secondInstallment: { type: Number, default: 0 },
+      fee: { type: Number, default: 0 },
+    },
+  ],
+  refundAdmission: [
+    {
+      refund_status: { type: String, default: "No Refund" },
+      refund_reason: { type: String },
+      refund_amount: { type: Number, default: 0 },
+      refund_on: { type: Date, default: Date.now },
+    },
+  ],
+  remainingFeeList: [
+    {
+      remainAmount: { type: String },
+      appId: { type: String },
+      status: { type: String, default: "Not Paid" },
+      instituteId: { type: String },
+    },
+  ],
+  certificateBonaFideCopy: {
+    trueCopy: { type: Boolean, default: false },
+    secondCopy: { type: Boolean, default: false },
+    thirdCopy: { type: Boolean, default: false },
+  },
+  certificateLeavingCopy: {
+    trueCopy: { type: Boolean, default: false },
+    secondCopy: { type: Boolean, default: false },
+    thirdCopy: { type: Boolean, default: false },
+  },
+
+  dailyUpdate: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubjectUpdate",
+    },
+  ],
+  student_biometric_id: { type: String },
+  election_candidate: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Election",
+    },
+  ],
+  participate_event: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Participate",
+    },
+  ],
 });
 
 module.exports = mongoose.model("StudentPreviousData", previousSchema);

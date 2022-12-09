@@ -227,16 +227,25 @@ exports.promoteStudent = async (req, res) => {
     for (let stu of req.body?.students) {
       const student = await Student.findById(stu);
       const previousData = new StudentPreviousData({
+        studentCode: student.studentCode,
         class: student?.studentClass,
+        student: student?._id,
         batch: student?.batches,
+        studentROLLNO: student.studentROLLNO,
+        behaviour: student?.studentBehaviour,
         department: student?.department,
         institute: student?.institute,
-        studentROLLNO: student?.studentROLLNO,
-        behaviour: student?.studentBehaviour,
+        notification: student?.notification,
         subjectMarks: student?.subjectMarks,
         exams: student?.exams,
+        finalReportStatus: student?.finalReportStatus,
         finalReport: student?.finalReport,
         testSet: student?.testSet,
+        assignments: student?.assignments,
+        totalAssignment: student?.totalAssignment,
+        submittedAssignment: student?.submittedAssignment,
+        incompletedAssignment: student?.incompletedAssignment,
+        completedAssignment: student?.completedAssignment,
         studentFee: student?.studentFee,
         attendDate: student?.attendDate,
         checklist: student?.checklist,
@@ -248,10 +257,25 @@ exports.promoteStudent = async (req, res) => {
         studentChecklist: student?.studentChecklist,
         leave: student?.leave,
         transfer: student?.transfer,
-        paymentList: student?.paymentList,
         studentExemptFee: student?.studentExemptFee,
         exemptFeeList: student?.exemptFeeList,
-        student: student._id,
+        studentRemainingFeeCount: student?.studentRemainingFeeCount,
+        studentPaidFeeCount: student?.studentPaidFeeCount,
+        library: student?.library,
+        studentAdmissionDate: student?.studentAdmissionDate,
+        borrow: student?.borrow,
+        deposite: student?.deposite,
+        sportEventCount: student?.sportEventCount,
+        admissionRemainFeeCount: student?.admissionRemainFeeCount,
+        admissionPaymentStatus: student?.admissionPaymentStatus,
+        refundAdmission: student?.refundAdmission,
+        remainingFeeList: student?.remainingFeeList,
+        certificateBonaFideCopy: student?.certificateBonaFideCopy,
+        certificateLeavingCopy: student?.certificateLeavingCopy,
+        dailyUpdate: student?.dailyUpdate,
+        student_biometric_id: student?.student_biometric_id,
+        election_candidate: student?.election_candidate,
+        participate_event: student?.participate_event,
       });
       // console.log(previousData);
       await previousData.save();
@@ -268,6 +292,11 @@ exports.promoteStudent = async (req, res) => {
       student.finalReportStatus = "No";
       student.finalReport = [];
       student.testSet = [];
+      student.assignments = [];
+      student.totalAssignment = 0;
+      student.submittedAssignment = 0;
+      student.incompletedAssignment = 0;
+      student.completedAssignment = 0;
       student.studentFee = [];
       student.attendDate = [];
       student.checklist = [];
@@ -283,6 +312,31 @@ exports.promoteStudent = async (req, res) => {
       student.applyList = [];
       student.studentExemptFee = [];
       student.exemptFeeList = [];
+      student.studentRemainingFeeCount = 0;
+      student.studentPaidFeeCount = 0;
+      student.library = null;
+      student.studentAdmissionDate = "";
+      student.borrow = [];
+      student.deposite = [];
+      student.sportEventCount = 0;
+      student.admissionRemainFeeCount = 0;
+      student.admissionPaymentStatus = [];
+      student.refundAdmission = [];
+      student.remainingFeeList = [];
+      student.certificateBonaFideCopy = {
+        trueCopy: false,
+        secondCopy: false,
+        thirdCopy: false,
+      };
+      student.certificateLeavingCopy = {
+        trueCopy: false,
+        secondCopy: false,
+        thirdCopy: false,
+      };
+      student.dailyUpdate = [];
+      student.student_biometric_id = "";
+      student.election_candidate = [];
+      student.participate_event = [];
       roll += 1;
       if (classes?.ApproveStudent?.includes(student._id)) {
       } else {

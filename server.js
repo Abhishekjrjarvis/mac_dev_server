@@ -61,12 +61,12 @@ const hashtag = require("./routes/HashTag/hashtagRoute");
 const manage = require("./routes/ManageAdmin/manageRoute");
 
 // ============================= DB Configuration ==============================
-const testinDburl = `${process.env.TESTING_DATABASE_URL}`; // Testing
+// const dburl = `${process.env.TESTING_DATABASE_URL}`; // Testing
 // const dburl = `${process.env.DB_URL2}`; // Development
-// const dburl = `${process.env.DB_URL}`; // Production
+const dburl = `${process.env.DB_URL}`; // Production
 
 mongoose
-  .connect(testinDburl, {
+  .connect(dburl, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -78,10 +78,10 @@ mongoose
   });
 
 app.use(mongoSanitize());
-// app.use(helmet({ contentSecurityPolicy: false }));
-app.use(
-  helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false })
-);
+app.use(helmet({ contentSecurityPolicy: false }));
+// app.use(
+//   helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false })
+// );
 app.use(compression());
 
 const swaggerUI = require("swagger-ui-express");
@@ -99,6 +99,7 @@ app.use(
       "https://qviple.com",
       "https://admin.qviple.com",
       "https://developer.qviple.com",
+      "https://support.qviple.com",
     ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
@@ -108,7 +109,7 @@ app.use(
 const secret = "Thisismysecret";
 
 const store = new MongoStore({
-  mongoUrl: testinDburl,
+  mongoUrl: dburl,
   touchAfter: 24 * 60 * 60,
 });
 

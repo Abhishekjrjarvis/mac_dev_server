@@ -232,9 +232,9 @@ const generateOTP = async (mob) => {
     )
     .then((res) => {
       if ((res && res.data.includes("success")) || res.data.includes("sent")) {
-        console.log("messsage Sent Successfully", res.data);
+        // console.log("messsage Sent Successfully", res.data);
       } else {
-        console.log("something went wrong");
+        // console.log("something went wrong");
       }
     });
   return OTP;
@@ -279,9 +279,9 @@ const generateInsOTP = async (mob) => {
     )
     .then((res) => {
       if ((res && res.data.includes("success")) || res.data.includes("sent")) {
-        console.log("messsage Sent Successfully", res.data);
+        // console.log("messsage Sent Successfully", res.data);
       } else {
-        console.log("something went wrong");
+        // console.log("something went wrong");
       }
     })
     .catch(() => {});
@@ -333,7 +333,7 @@ exports.verifyOtpByUser = async (req, res) => {
       account_linked.push({
         user: all,
         login: true,
-        token: token,
+        token: `Bearer ${token}`,
       });
     }
     if (

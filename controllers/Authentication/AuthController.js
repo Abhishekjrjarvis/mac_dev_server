@@ -31,7 +31,6 @@ const StudentNotification = require("../../models/Marks/StudentNotification");
 const Notification = require("../../models/notification");
 const Status = require("../../models/Admission/status");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
-const Class = require("../../models/Class");
 
 function generateAccessToken(username, userId, userPassword) {
   return jwt.sign(

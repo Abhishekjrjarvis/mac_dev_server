@@ -937,14 +937,12 @@ exports.getAllTotalCount = async (req, res) => {
     });
     total = total + notify?.length + activity?.length;
 
-    res
-      .status(200)
-      .send({
-        message: "Not Viewed Notification & Activity",
-        count: total,
-        notifyCount: notify?.length,
-        activityCount: activity?.length,
-      });
+    res.status(200).send({
+      message: "Not Viewed Notification & Activity",
+      count: total,
+      notifyCount: notify?.length,
+      activityCount: activity?.length,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -1177,20 +1175,39 @@ exports.circleArray = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const { uid } = req.params;
+    const { search } = req.query;
     const skip = (page - 1) * limit;
-    const user = await User.findById({ _id: uid }).populate({
-      path: "userCircle",
-    });
+    var user = await User.findById({ _id: uid }).select("userCircle");
 
-    const circle = await User.find({ _id: { $in: user?.userCircle } })
-      .select(
-        "userLegalName username photoId profilePhoto blockStatus user_birth_privacy user_address_privacy user_circle_privacy"
-      )
-      .limit(limit)
-      .skip(skip);
-
-    res.status(200).send({ message: "Success", circle: circle });
-  } catch {}
+    if (search) {
+      var circle = await User.find({
+        $and: [{ _id: { $in: user?.userCircle } }],
+        $or: [
+          { userLegalName: { $regex: search, $options: "i" } },
+          { username: { $regex: search, $options: "i" } },
+        ],
+      })
+        .select(
+          "userLegalName username photoId one_line_about profilePhoto blockStatus user_birth_privacy user_address_privacy user_circle_privacy"
+        )
+        .limit(limit)
+        .skip(skip);
+    } else {
+      var circle = await User.find({ _id: { $in: user?.userCircle } })
+        .select(
+          "userLegalName username photoId one_line_about profilePhoto blockStatus user_birth_privacy user_address_privacy user_circle_privacy"
+        )
+        .limit(limit)
+        .skip(skip);
+    }
+    if (circle?.length > 0) {
+      res.status(200).send({ message: "Success", circle: circle });
+    } else {
+      res.status(200).send({ message: "Failure", circle: [] });
+    }
+  } catch (e) {
+    console.log();
+  }
 };
 
 exports.followingInsArray = async (req, res) => {

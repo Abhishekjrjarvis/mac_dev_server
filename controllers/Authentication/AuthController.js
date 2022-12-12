@@ -1050,7 +1050,9 @@ exports.searchByClassCode = async (req, res) => {
       res.status(202).send({ message: "Please Provide a code to search" });
     } else {
       if (req.query.author === "Student") {
-        var classes = await Class.findOne({ classCode: req.query.search });
+        var classes = await Class.findOne({
+          classCode: req.query.search,
+        }).select("classCode classTitle className");
         var one_ins = await InstituteAdmin.findOne({
           classCodeList: { $in: [req.query.search] },
         })

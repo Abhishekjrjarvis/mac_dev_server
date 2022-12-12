@@ -163,6 +163,178 @@ paths:
         "200":
           description: OK
 
+  /api/v1/auth/classcode/search:
+    get:
+      tags:
+        - Login And Logout Api
+      summary: Search Existing Institute By Class code -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: search
+          required: true
+          type: string
+          description: Enter the class code
+        - in: query
+          name: author
+          required: true
+          type: string
+          description: Enter the Author Type ("Staff" || "Student")
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/auth/direct/join/student/{id}:
+    post:
+      tags:
+        - Login And Logout Api
+      summary: Direct Student joining + creation with user A/c -(verified )
+      produces:
+        - application/json
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is user phone number
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your student profile photo
+        - in: formData
+          name: studentCode
+          type: string
+          required: true
+          description: This is student code to join class which provided by the class Teacher
+        - in: formData
+          name: studentFirstName
+          type: string
+          required: true
+          description: student first name
+        - in: formData
+          name: studentMiddleName
+          type: string
+          required: true
+          description: student middle name
+        - in: formData
+          name: studentLastName
+          type: string
+          required: true
+          description: student last name
+        - in: formData
+          name: studentDOB
+          type: string
+          required: true
+          description: student studentDOB
+        - in: formData
+          name: studentGender
+          type: string
+          required: true
+          description: student studentGender
+        - in: formData
+          name: studentMotherName
+          type: string
+          required: true
+          description: student studentMotherName
+        - in: formData
+          name: studentCastCategory
+          type: string
+          required: true
+          description: student studentCastCategory
+        - in: formData
+          name: studentReligion
+          type: string
+          required: true
+          description: student studentReligion
+        - in: formData
+          name: sample_pic
+          type: string
+          required: false
+          description: This is for default Avatar
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/auth/direct/join/staff/{id}:
+    post:
+      tags:
+        - Login And Logout Api
+      summary: Direct Staff joining + creation with user A/c -(verified )
+      produces:
+        - application/json
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is user phone number
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your staff profile photo
+        - in: formData
+          name: staffCode
+          type: string
+          required: true
+          description: This is staff code to join class which provided by the class Teacher
+        - in: formData
+          name: staffFirstName
+          type: string
+          required: true
+          description: staff first name
+        - in: formData
+          name: staffMiddleName
+          type: string
+          required: true
+          description: staff middle name
+        - in: formData
+          name: staffLastName
+          type: string
+          required: true
+          description: staff last name
+        - in: formData
+          name: staffDOB
+          type: string
+          required: true
+          description: staff staffDOB
+        - in: formData
+          name: staffGender
+          type: string
+          required: true
+          description: staff staffGender
+        - in: formData
+          name: staffMotherName
+          type: string
+          required: true
+          description: staff staffMotherName
+        - in: formData
+          name: staffCastCategory
+          type: string
+          required: true
+          description: staff staffCastCategory
+        - in: formData
+          name: staffReligion
+          type: string
+          required: true
+          description: staff staffReligion
+        - in: formData
+          name: sample_pic
+          type: string
+          required: false
+          description: This is for default Avatar
+      responses:
+        "200":
+          description: OK
+
     #This is for all account forget process 
 
   /api/v1/auth/user/forgot:

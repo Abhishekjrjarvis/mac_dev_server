@@ -44,6 +44,10 @@ const manageAdminSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  affiliation_status: {
+    type: String,
+    default: "Not Approved",
+  },
   affiliation_institute_reject: [],
   affiliation_institute_reject_count: {
     type: Number,

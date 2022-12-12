@@ -163,18 +163,19 @@ exports.rewardProfileAdsQuery = async (req, res) => {
 
 exports.oneInstitute = async (req, res) => {
   try {
-    const { id } = req.params;
+    // const { id } = req.params;
     // const staff = await Staff.find({}).select("id staffFirstName");
-    const ins = await InstituteAdmin.findById({ _id: id })
-      .select("id ApproveStaff")
-      // .populate({
-      //   path: "iNotify",
-      //   select: "notifyContent",
-      // });
-      .populate({
-        path: "ApproveStaff",
-        select: "id staffFirstName staffMiddleName staffLastName staffROLLNO",
-      });
+    const ins = await InstituteAdmin.find({}).select(
+      "id postCount questionCount pollCount"
+    );
+    // .populate({
+    //   path: "iNotify",
+    //   select: "notifyContent",
+    // });
+    // .populate({
+    //   path: "ApproveStaff",
+    //   select: "id staffFirstName staffMiddleName staffLastName staffROLLNO",
+    // });
     res.status(200).send({ message: "One Institute ", one_ins: ins });
   } catch {}
 };

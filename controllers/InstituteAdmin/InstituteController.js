@@ -63,7 +63,10 @@ exports.getProfileOneQuery = async (req, res) => {
       })
       .lean()
       .exec();
-    res.status(200).send({ message: "Limit Post Ins", institute });
+    const encrypt = await encryptionPayload(institute);
+    res
+      .status(200)
+      .send({ message: "Limit Post Ins", institute, eData: encrypt });
   } catch {}
 };
 

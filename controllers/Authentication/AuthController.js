@@ -317,14 +317,37 @@ exports.getOtpAtIns = async (req, res) => {
 
 exports.verifyOtpByUser = async (req, res) => {
   try {
+    var account_linked = [];
     const { id } = req.params;
     const valid_otp = await OTPCode.findOne({ otp_number: `${id}` });
+    const all_account = await User.find({ userPhoneNumber: id }).select(
+      "userLegalName username profilePhoto userPassword"
+    );
+
+    for (let all of all_account) {
+      const token = generateAccessToken(
+        all?.username,
+        all?._id,
+        all?.userPassword
+      );
+      account_linked.push({
+        user: all,
+        login: true,
+        token: token,
+      });
+    }
     if (
       req.body.userOtpCode &&
       req.body.userOtpCode === `${valid_otp?.otp_code}`
     ) {
       var userStatus = "approved";
-      res.send({ message: "OTP verified", id, userStatus });
+      res.send({
+        message: "OTP verified",
+        id,
+        userStatus,
+        accounts: account_linked,
+        count: account_linked?.length,
+      });
       await OTPCode.findByIdAndDelete(valid_otp?._id);
     } else {
       res.send({ message: "Invalid OTP" });
@@ -342,7 +365,6 @@ exports.verifyOtpByIns = async (req, res) => {
       req.body.insOtpCode &&
       req.body.insOtpCode === `${valid_otp?.otp_code}`
     ) {
-      console.log("Valid OTP");
       var insMobileStatus = "approved";
       res.send({ message: "OTP verified", id, insMobileStatus });
       await OTPCode.findByIdAndDelete(valid_otp?._id);

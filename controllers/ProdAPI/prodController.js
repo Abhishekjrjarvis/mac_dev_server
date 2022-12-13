@@ -187,3 +187,11 @@ exports.oneUser = async (req, res) => {
     res.status(200).send({ message: "One User ", one_user: user });
   } catch {}
 };
+
+exports.deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+  } catch (e) {
+    console.log(e);
+  }
+};

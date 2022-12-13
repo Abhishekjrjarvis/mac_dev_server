@@ -1329,8 +1329,7 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
       notify.classId = classes?._id;
       notify.departmentId = classes?.department;
       notify.batchId = classes?.batch;
-      aStatus.content = `Your application for joining as student in ${institute.insName} is filled successfully. Stay updated to check status of your application.
-       Tap here to see username ${user?.username} & password ${valid?.password}`;
+      aStatus.content = `Your application for joining as student in ${institute.insName} is filled successfully. Stay updated to check status of your application.Tap here to see username ${user?.username}`;
       aStatus.see_secure = true;
       user.applicationStatus.push(aStatus._id);
       //
@@ -1519,8 +1518,7 @@ exports.retrieveDirectJoinStaffQuery = async (req, res) => {
       institute.iNotify.push(notify._id);
       notify.institute = institute._id;
       notify.notifyByStaffPhoto = staff._id;
-      aStatus.content = `Your application for joining as staff in ${institute.insName} is filled successfully..
-      Tap here to see username ${user?.username} & password ${valid?.password}`;
+      aStatus.content = `Your application for joining as staff in ${institute.insName} is filled successfully.Tap here to see username ${user?.username}`;
       user.applicationStatus.push(aStatus._id);
       aStatus.see_secure = true;
       await Promise.all([

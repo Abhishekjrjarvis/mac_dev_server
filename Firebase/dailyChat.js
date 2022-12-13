@@ -40,14 +40,7 @@ exports.chatCount = async (user) => {
   const db = getFirestore();
   const shotChat = await db.collection(`users/${user}/chats`).get();
   shotChat?.forEach(async (shot) => {
-    const shotMessage = await db
-      .collection(`users/${user}/chats/${shot?.id}/messages`)
-      .get();
-    shotMessage?.forEach((snap) => {
-      if (`${user}` !== `${snap?.data()?.senderId}` && !snap?.data()?.isSeen) {
-        count = count + 1;
-      }
-    });
+    console.log(shot?.data());
   });
   return count;
 };

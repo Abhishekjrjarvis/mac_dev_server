@@ -86,7 +86,7 @@ router.post(
 );
 
 router.post(
-  "/direct/join/admission/:id",
+  "/direct/join/admission/:id/apply/:aid",
   upload.array("file"),
   catchAsync(Auth.retrieveDirectJoinAdmissionQuery)
 );

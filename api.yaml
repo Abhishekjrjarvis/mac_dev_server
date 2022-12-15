@@ -336,7 +336,7 @@ paths:
           description: OK
 
 
-  /api/v1/auth/direct/join/admission/{id}:
+  /api/v1/auth/direct/join/admission/{id}/apply/{aid}:
     post:
       tags:
         - Login And Logout Api

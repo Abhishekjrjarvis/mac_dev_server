@@ -1560,7 +1560,6 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
     if (
       !id &&
       !aid &&
-      !req.body.studentCode &&
       !req.body.studentFirstName &&
       !req.body.studentLastName &&
       !req.body.studentGender &&
@@ -1678,8 +1677,7 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
         student.photoId = "0";
         student.studentProfilePhoto = sample_pic;
       }
-      status.content = `You have applied for ${apply.applicationName} has been filled successfully.
-      Stay updated to check status of your application.`;
+      status.content = `You have applied for ${apply.applicationName} has been filled successfully.Stay updated to check status of your application.Tap here to see username ${user?.username}`;
       status.applicationId = apply._id;
       user.student.push(student._id);
       user.applyApplication.push(apply._id);
@@ -1690,11 +1688,11 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
         fee_remain: apply.admissionFee,
       });
       apply.receievedCount += 1;
-      if (institute.userFollowersList.includes(uid)) {
+      if (institute.userFollowersList.includes(user?._id)) {
       } else {
         user.userInstituteFollowing.push(institute._id);
         user.followingUICount += 1;
-        institute.userFollowersList.push(uid);
+        institute.userFollowersList.push(user?._id);
         institute.followersCount += 1;
       }
       await Promise.all([

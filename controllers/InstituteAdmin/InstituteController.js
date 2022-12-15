@@ -29,6 +29,7 @@ const fs = require("fs");
 const util = require("util");
 const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const { todayDate } = require("../../Utilities/timeComparison");
+const { randomSixCode } = require("../../Service/close");
 const unlinkFile = util.promisify(fs.unlink);
 
 exports.getDashOneQuery = async (req, res) => {
@@ -670,13 +671,24 @@ exports.getNewStaffJoinCodeIns = async (req, res) => {
   try {
     const { id } = req.params;
     const { code } = req.body;
-    const institute = await InstituteAdmin.findById({ _id: id });
-    institute.staffJoinCode = code;
-    await institute.save();
-    res.status(200).send({
-      message: "staff joining code",
-      institute: institute.staffJoinCode,
-    });
+    const all_ins = await InstituteAdmin.find({ staffJoinCode: `${code}` });
+    if (all_ins?.length > 0) {
+      const institute = await InstituteAdmin.findById({ _id: id });
+      institute.staffJoinCode = await randomSixCode();
+      await institute.save();
+      res.status(200).send({
+        message: "New Random Staff joining code",
+        institute: institute.staffJoinCode,
+      });
+    } else {
+      const institute = await InstituteAdmin.findById({ _id: id });
+      institute.staffJoinCode = code;
+      await institute.save();
+      res.status(200).send({
+        message: "Staff joining code",
+        institute: institute.staffJoinCode,
+      });
+    }
   } catch (e) {
     console.log(`Error`, e.message);
   }

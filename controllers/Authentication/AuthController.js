@@ -1,6 +1,8 @@
 const Admin = require("../../models/superAdmin");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const User = require("../../models/User");
+const Admission = require("../../models/Admission/Admission");
+const NewApplication = require("../../models/Admission/NewApplication");
 const bcrypt = require("bcryptjs");
 const {
   getFileStream,
@@ -1539,6 +1541,188 @@ exports.retrieveDirectJoinStaffQuery = async (req, res) => {
         token: `Bearer ${token}`,
         login: true,
         staff,
+      });
+    } else {
+      res.status(200).send({
+        message: "Bug in the direct joining process 😡",
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
+  try {
+    const { id, aid } = req.params;
+    const { sample_pic } = req.body;
+    if (
+      !id &&
+      !aid &&
+      !req.body.studentCode &&
+      !req.body.studentFirstName &&
+      !req.body.studentLastName &&
+      !req.body.studentGender &&
+      !req.body.studentDOB
+    )
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const valid = await filter_unique_username(
+      req.body.studentFirstName,
+      req.body.studentDOB
+    );
+    if (!valid?.exist) {
+      const genUserPass = bcrypt.genSaltSync(12);
+      const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
+      var user = new User({
+        userLegalName: req.body.studentFirstName,
+        userGender: req.body.studentGender,
+        userDateOfBirth: req.body.studentDOB,
+        username: valid?.username,
+        userStatus: "Approved",
+        userPhoneNumber: id,
+        userPassword: hashUserPass,
+        photoId: "0",
+        coverId: "2",
+        remindLater: rDate,
+        next_date: c_date,
+      });
+      admins.users.push(user);
+      admins.userCount += 1;
+      await Promise.all([admins.save(), user.save()]);
+      var uInstitute = await InstituteAdmin.findOne({
+        isUniversal: "Universal",
+      })
+        .select("id userFollowersList followersCount")
+        .populate({ path: "posts" });
+      if (uInstitute && uInstitute.posts && uInstitute.posts.length >= 1) {
+        const post = await Post.find({
+          _id: { $in: uInstitute.posts },
+          postStatus: "Anyone",
+        });
+        post.forEach(async (ele) => {
+          user.userPosts.push(ele);
+        });
+        await user.save();
+      }
+      //
+      var b_date = user.userDateOfBirth.slice(8, 10);
+      var b_month = user.userDateOfBirth.slice(5, 7);
+      var b_year = user.userDateOfBirth.slice(0, 4);
+      if (b_date > p_date) {
+        p_date = p_date + month[b_month - 1];
+        p_month = p_month - 1;
+      }
+      if (b_month > p_month) {
+        p_year = p_year - 1;
+        p_month = p_month + 12;
+      }
+      var get_cal_year = p_year - b_year;
+      if (get_cal_year > 13) {
+        user.ageRestrict = "No";
+      } else {
+        user.ageRestrict = "Yes";
+      }
+      await user.save();
+      //
+      if (uInstitute?.userFollowersList?.includes(`${user._id}`)) {
+      } else {
+        uInstitute.userFollowersList.push(user._id);
+        uInstitute.followersCount += 1;
+        user.userInstituteFollowing.push(uInstitute._id);
+        user.followingUICount += 1;
+        await Promise.all([uInstitute.save(), user.save()]);
+        const posts = await Post.find({ author: `${uInstitute._id}` });
+        posts.forEach(async (ele) => {
+          ele.authorFollowersCount = uInstitute.followersCount;
+          await ele.save();
+        });
+      }
+      const student = new Student({ ...req.body });
+      const apply = await NewApplication.findById({ _id: aid });
+      const admission = await Admission.findById({
+        _id: `${apply.admissionAdmin}`,
+      }).select("institute");
+      const institute = await InstituteAdmin.findById({
+        _id: `${admission.institute}`,
+      });
+      const status = new Status({});
+      if (req?.files) {
+        for (let file of req.files) {
+          let count = 1;
+          if (count === 1) {
+            const width = 200;
+            const height = 200;
+            const results = await uploadFile(file, width, height);
+            student.photoId = "0";
+            student.studentProfilePhoto = results.key;
+            user.profilePhoto = results.key;
+            count = count + 1;
+          } else if (count === 2) {
+            const results = await uploadDocFile(file);
+            student.studentAadharFrontCard = results.key;
+            count = count + 1;
+          } else {
+            const results = await uploadDocFile(file);
+            student.studentAadharBackCard = results.key;
+          }
+          await unlinkFile(file.path);
+        }
+      }
+      if (sample_pic) {
+        user.profilePhoto = sample_pic;
+        student.photoId = "0";
+        student.studentProfilePhoto = sample_pic;
+      }
+      status.content = `You have applied for ${apply.applicationName} has been filled successfully.
+      Stay updated to check status of your application.`;
+      status.applicationId = apply._id;
+      user.student.push(student._id);
+      user.applyApplication.push(apply._id);
+      student.user = user._id;
+      user.applicationStatus.push(status._id);
+      apply.receievedApplication.push({
+        student: student._id,
+        fee_remain: apply.admissionFee,
+      });
+      apply.receievedCount += 1;
+      if (institute.userFollowersList.includes(uid)) {
+      } else {
+        user.userInstituteFollowing.push(institute._id);
+        user.followingUICount += 1;
+        institute.userFollowersList.push(uid);
+        institute.followersCount += 1;
+      }
+      await Promise.all([
+        student.save(),
+        user.save(),
+        status.save(),
+        apply.save(),
+        institute.save(),
+      ]);
+      invokeMemberTabNotification(
+        "Admission Status",
+        status.content,
+        "Application Status",
+        user._id,
+        user.deviceToken
+      );
+      const token = generateAccessToken(
+        user?.username,
+        user?._id,
+        user?.userPassword
+      );
+      res.status(200).send({
+        message:
+          "Account Creation Process Completed & message: Taste a bite of sweets till your application is selected, 😀✨",
+        user,
+        token: `Bearer ${token}`,
+        login: true,
+        student: student?._id,
       });
     } else {
       res.status(200).send({

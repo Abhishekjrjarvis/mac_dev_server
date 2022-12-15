@@ -68,6 +68,7 @@ exports.retrieveAgeRestrict = async (req, res) => {
   try {
     const { uid } = req.params;
     const user = await User.findById({ _id: uid });
+    // const ageEncrypt = await encryptionPayload(user.ageRestrict);
     res
       .status(200)
       .send({ message: "Get Age Rstrict", status: user.ageRestrict });
@@ -81,6 +82,7 @@ exports.retrieveRandomInstituteQuery = async (req, res) => {
     );
     var random = Math.floor(Math.random() * institute.length);
     var r_Ins = institute[random];
+    // const encrypt_random = await encryptionPayload(r_Ins);
     res.status(200).send({ message: "Random Institute", r_Ins });
   } catch {}
 };

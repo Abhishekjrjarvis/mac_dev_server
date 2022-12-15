@@ -17,6 +17,7 @@ const newApplicationSchema = new mongoose.Schema({
   applicationStartDate: { type: String },
   applicationEndDate: { type: String },
   admissionFee: { type: Number, required: true },
+  admissionDueDate: { type: String },
   // applicationFee: { type: Number, required: true },
   remainingFee: { type: Number, default: 0 },
   applicationAbout: { type: String, required: true },
@@ -104,6 +105,58 @@ const newApplicationSchema = new mongoose.Schema({
   gst_number: { type: String },
   business_name: { type: String },
   business_address: { type: String },
+  one_installments: {
+    fees: { type: Number, default: 0 },
+    dueDate: { type: String },
+  },
+  two_installments: {
+    fees: { type: Number, default: 0 },
+    dueDate: { type: String },
+  },
+  three_installments: {
+    fees: { type: Number, default: 0 },
+    dueDate: { type: String },
+  },
+  four_installments: {
+    fees: { type: Number, default: 0 },
+    dueDate: { type: String },
+  },
+  five_installments: {
+    fees: { type: Number, default: 0 },
+    dueDate: { type: String },
+  },
+  six_installments: {
+    fees: { type: Number, default: 0 },
+    dueDate: { type: String },
+  },
+  seven_installments: {
+    fees: { type: Number, default: 0 },
+    dueDate: { type: String },
+  },
+  eight_installments: {
+    fees: { type: Number, default: 0 },
+    dueDate: { type: String },
+  },
+  nine_installments: {
+    fees: { type: Number, default: 0 },
+    dueDate: { type: String },
+  },
+  ten_installments: {
+    fees: { type: Number, default: 0 },
+    dueDate: { type: String },
+  },
+  eleven_installments: {
+    fees: { type: Number, default: 0 },
+    dueDate: { type: String },
+  },
+  tweleve_installments: {
+    fees: { type: Number, default: 0 },
+    dueDate: { type: String },
+  },
+  total_installments: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("NewApplication", newApplicationSchema);

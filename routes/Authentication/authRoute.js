@@ -85,4 +85,10 @@ router.post(
   catchAsync(Auth.retrieveDirectJoinStaffQuery)
 );
 
+router.post(
+  "/direct/join/admission/:id",
+  upload.array("file"),
+  catchAsync(Auth.retrieveDirectJoinAdmissionQuery)
+);
+
 module.exports = router;

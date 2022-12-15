@@ -362,11 +362,6 @@ paths:
           required: true
           description: upload your student profile photo
         - in: formData
-          name: studentCode
-          type: string
-          required: true
-          description: This is student code to join class which provided by the class Teacher
-        - in: formData
           name: studentFirstName
           type: string
           required: true

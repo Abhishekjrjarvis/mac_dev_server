@@ -178,7 +178,7 @@ exports.retrieveByParticipateQuery = async (req, res) => {
         .send({ message: "filter By Participate", filteredPoll: [] });
     } else {
       var order_by_poll = post.sort(sortPollVote("poll_query"));
-      var data = trendingQuery(order_by_poll, category, "Poll");
+      var data = trendingQuery(order_by_poll, category, "Poll", page);
       res
         .status(200)
         .send({ message: "filter By Participate", filteredPoll: data });
@@ -510,7 +510,10 @@ const sorted_by_gender = async (arr, day, month, year) => {
     $and: [{ _id: { $in: arr } }, { studentGender: "Male" }],
   }).select("_id");
 
-  const data = [...studentFemale, ...studentMale];
+  const studentOther = await Student.find({
+    $and: [{ _id: { $in: arr } }, { studentGender: "Other" }],
+  }).select("_id");
+  const data = [...studentFemale, ...studentMale, ...studentOther];
   for (let i = 0; i < data.length; i++) {
     const stu = await Student.findById({ _id: data[i]._id })
       .select(
@@ -547,7 +550,13 @@ const sorted_by_both_gender_and_aplha = async (arr, day, month, year) => {
     .sort({ studentFirstName: 1, studentMiddleName: 1, studentLastName: 1 })
     .select("_id");
 
-  var data = [...studentFemale, ...studentMale];
+  const studentOther = await Student.find({
+    $and: [{ _id: { $in: arr } }, { studentGender: "Other" }],
+  })
+    .sort({ studentFirstName: 1, studentMiddleName: 1, studentLastName: 1 })
+    .select("_id");
+
+  var data = [...studentFemale, ...studentMale, ...studentOther];
   for (let i = 0; i < data.length; i++) {
     const stu = await Student.findById({ _id: data[i]._id })
       .select(

@@ -9,14 +9,94 @@ const upload = multer({ dest: "uploads/" });
 router.post(
   "/:uid/staffform/:id",
   isLoggedIn,
-  upload.array("file"),
+  upload.fields([
+    {
+      name: "file",
+    },
+    {
+      name: "addharFrontCard",
+    },
+    {
+      name: "addharBackCard",
+    },
+    {
+      name: "bankPassbook",
+    },
+    {
+      name: "casteCertificate",
+    },
+    {
+      name: "identityDocument",
+    },
+    {
+      name: "joiningTransferLetter",
+    },
+    {
+      name: "leavingTransferCertificate",
+    },
+    {
+      name: "incomeCertificate",
+    },
+    {
+      name: "lastYearMarksheet",
+    },
+    {
+      name: "nationalityCertificate",
+    },
+    {
+      name: "domicileCertificate",
+    },
+    {
+      name: "nonCreamyLayerCertificate",
+    },
+  ]),
   catchAsync(Institute.fillStaffForm)
 );
 
 router.post(
   "/:uid/studentform/:id",
   isLoggedIn,
-  upload.array("file"),
+  upload.fields([
+    {
+      name: "file",
+    },
+    {
+      name: "addharFrontCard",
+    },
+    {
+      name: "addharBackCard",
+    },
+    {
+      name: "bankPassbook",
+    },
+    {
+      name: "casteCertificate",
+    },
+    {
+      name: "identityDocument",
+    },
+    {
+      name: "joiningTransferLetter",
+    },
+    {
+      name: "leavingTransferCertificate",
+    },
+    {
+      name: "incomeCertificate",
+    },
+    {
+      name: "lastYearMarksheet",
+    },
+    {
+      name: "nationalityCertificate",
+    },
+    {
+      name: "domicileCertificate",
+    },
+    {
+      name: "nonCreamyLayerCertificate",
+    },
+  ]),
   catchAsync(Institute.fillStudentForm)
 );
 
@@ -30,7 +110,7 @@ router.get(
 
 router.get(
   "/:id/setting/personal",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Institute.getSettingPersonal)
 );
 
@@ -44,13 +124,13 @@ router.get("/:id/credit/q-coins", isLoggedIn, catchAsync(Institute.getCQCoins));
 
 router.get(
   "/:id/announcemnt",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Institute.getAnnouncementArray)
 );
 
 router.get(
   "/dashboard/:id/notify",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Institute.getNotificationIns)
 );
 

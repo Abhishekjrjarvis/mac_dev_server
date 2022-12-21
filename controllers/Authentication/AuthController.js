@@ -525,7 +525,7 @@ exports.getUserPassword = async (req, res) => {
           user?._id,
           user?.userPassword
         );
-        res.json({ token: `Bearer ${token}`, user: user });
+        res.json({ token: `Bearer ${token}`, user: user, login: true });
       } else {
         res.send({ message: "Invalid Password Combination" });
       }
@@ -756,6 +756,7 @@ module.exports.authentication = async (req, res) => {
               token: `Bearer ${token}`,
               user: user,
               login: true,
+              is_developer: user?.is_developer,
             });
           } else {
             res.status(401).send({ message: "Unauthorized", login: false });

@@ -341,7 +341,7 @@ exports.getExpense = async (req, res) => {
       finance.expenseDepartment.push(expenses._id);
       expenses.finances = finance._id;
       order.payment_module_type = "Expense";
-      order.payment_expense_by_end_user_id = f_user._id;
+      order.payment_expense_to_end_user_id = f_user._id;
       order.payment_module_id = expenses._id;
       order.payment_amount = expenses.expenseAmount;
       order.payment_status = "Captured";
@@ -352,7 +352,7 @@ exports.getExpense = async (req, res) => {
       f_user.payment_history.push(order._id);
       if (user) {
         expenses.expensePaidUser = user._id;
-        order.payment_expense_to_end_user_id = user._id;
+        order.payment_by_end_user_id = user._id;
         order.payment_flag_to = "Credit";
         user.payment_history.push(order._id);
         await user.save();
@@ -551,7 +551,7 @@ exports.requestClassOfflineFee = async (req, res) => {
         feeAmount: amount,
         status: "Pending",
       });
-      finance.financeCollectedSBalance += amount;
+      // finance.financeCollectedSBalance += amount;
       finance.requestArray.push(classes._id);
       classes.receieveFee.push(fee._id);
       classes.requestFeeStatus.feeId = fee._id;
@@ -1138,7 +1138,7 @@ exports.retrieveAllSalaryHistory = async (req, res) => {
   try {
     const { fid } = req.params;
     const finance = await Finance.findById({ _id: fid })
-      .select("_id")
+      .select("_id institute financeHead")
       .populate({
         path: "salary_history",
         populate: {
@@ -1151,9 +1151,21 @@ exports.retrieveAllSalaryHistory = async (req, res) => {
           },
         },
       });
-    res
-      .status(200)
-      .send({ message: "All Employee ", salary: finance.salary_history });
+
+    const financeStaff = await Staff.findById({
+      _id: `${finance?.financeHead}`,
+    }).select("staffFirstName staffMiddleName staffLastName");
+    const institute = await InstituteAdmin.findById({
+      _id: `${finance.institute}`,
+    }).select(
+      "insName insAddress insPhoneNumber insEmail insDistrict insState insProfilePhoto photoId"
+    );
+    res.status(200).send({
+      message: "All Employee ",
+      salary: finance.salary_history,
+      institute: institute,
+      financeStaff: financeStaff,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -1167,14 +1179,14 @@ exports.retrieveOneEmpQuery = async (req, res) => {
       const emp = await Payroll.findById({ _id: eid }).populate({
         path: "staff",
         select:
-          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO institute",
       });
       res.status(200).send({ message: "One Employee Detail ", detail: emp });
     } else if (type === "History") {
       const emp = await Payroll.findById({ _id: eid }).populate({
         path: "staff",
         select:
-          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO institute",
       });
       var filtered = emp?.pay_slip?.filter((ele) => {
         if (`${ele.month}` === `${month}`) return ele;
@@ -1192,10 +1204,25 @@ exports.retrieveOneEmpQuery = async (req, res) => {
         // employer_contribution: emp.epc,
         staff: emp.staff,
       };
+      const institute = await InstituteAdmin.findById({
+        _id: `${emp?.staff?.institute}`,
+      })
+        .select(
+          "insName insEmail insAddress insPhoneNumber insAddress insDistrict insState insProfilePhoto"
+        )
+        .populate({
+          path: "financeDepart",
+          select: "financeHead",
+          populate: {
+            path: "financeHead",
+            select: "staffFirstName staffMiddleName staffLastName",
+          },
+        });
       res.status(200).send({
         message: "One Employee Salary History ",
         detail: detail,
         filter: filtered,
+        institute: institute,
       });
     } else {
     }
@@ -1230,6 +1257,10 @@ exports.retrieveRemainFeeList = async (req, res) => {
       .populate({
         path: "studentClass",
         select: "className classTitle",
+      })
+      .populate({
+        path: "user",
+        select: "username userLegalName",
       });
     res.status(200).send({ message: "Remaining Fee List", list: student });
   } catch (e) {

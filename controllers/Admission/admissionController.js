@@ -32,6 +32,11 @@ const BusinessTC = require("../../models/Finance/BToC");
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
     const { id, sid } = req.params;
+    if (!sid && !id)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        status: false,
+      });
     const institute = await InstituteAdmin.findById({ _id: id });
     const staff = await Staff.findById({ _id: sid });
     const user = await User.findById({ _id: `${staff.user}` });
@@ -236,6 +241,11 @@ exports.fetchAdmissionQuery = async (req, res) => {
 exports.retrieveAdmissionNewApplication = async (req, res) => {
   try {
     const { aid } = req.params;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        status: false,
+      });
     const { expand } = req.query;
     req.body.admissionFee = parseInt(req.body.admissionFee);
     req.body.applicationSeats = parseInt(req.body.applicationSeats);
@@ -336,6 +346,11 @@ exports.fetchAdmissionApplicationArray = async (req, res) => {
 exports.retrieveAdmissionReceievedApplication = async (req, res) => {
   try {
     const { uid, aid } = req.params;
+    if (!uid && !aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        status: false,
+      });
     const user = await User.findById({ _id: uid });
     const student = new Student({ ...req.body });
     const apply = await NewApplication.findById({ _id: aid });
@@ -514,19 +529,26 @@ exports.fetchAllConfirmApplication = async (req, res) => {
 exports.retrieveAdmissionSelectedApplication = async (req, res) => {
   try {
     const { sid, aid } = req.params;
+    if (!sid && !aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        select_status: false,
+      });
     const apply = await NewApplication.findById({ _id: aid });
     const student = await Student.findById({ _id: sid });
     const user = await User.findById({ _id: `${student.user}` });
     const status = new Status({});
+    for (let app of apply.receievedApplication) {
+      if (`${app.student}` === `${student._id}`) {
+        apply.receievedApplication.pull(app._id);
+      } else {
+      }
+    }
     apply.selectedApplication.push({
       student: student._id,
       fee_remain: apply.admissionFee,
     });
     apply.selectCount += 1;
-    apply.receievedApplication.splice({
-      student: student._id,
-      // fee_remain: apply.admissionFee,
-    });
     student.admissionRemainFeeCount += apply.admissionFee;
     status.content = `You have been selected for ${apply.applicationName}. Confirm your admission`;
     status.applicationId = apply._id;
@@ -606,6 +628,11 @@ exports.payOfflineAdmissionFee = async (req, res) => {
   try {
     const { sid, aid } = req.params;
     const { amount, tAmount, mode } = req.body;
+    if (!sid && !aid && !amount && !mode)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        confirm_status: false,
+      });
     var price = parseInt(amount);
     var tPrice = parseInt(tAmount);
     const s_admin = await Admin.findById({
@@ -651,7 +678,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
         admission.remainingFee.push(student._id);
         if (student.admissionRemainFeeCount <= apply.admissionFee) {
           student.admissionRemainFeeCount =
-            apply.admissionFee - student.admissionRemainFeeCount;
+            student.admissionRemainFeeCount - price;
         }
         apply.remainingFee += apply.admissionFee - price;
         admission.remainingFeeCount += apply.admissionFee - price;
@@ -659,6 +686,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
           remainAmount: apply.admissionFee - price,
           appId: apply._id,
           status: "Not Paid",
+          instituteId: institute._id,
         });
         student.admissionPaymentStatus.push({
           applicationId: apply._id,
@@ -677,9 +705,9 @@ exports.payOfflineAdmissionFee = async (req, res) => {
           installment: "No Installment",
           fee: price,
         });
-        // if (student.admissionRemainFeeCount >= apply.admissionFee) {
-        //   student.admissionRemainFeeCount -= apply.admissionFee;
-        // }
+        if (student.admissionRemainFeeCount >= apply.admissionFee) {
+          student.admissionRemainFeeCount -= apply.admissionFee;
+        }
       }
       if (mode === "Offline") {
         admission.offlineFee += price;
@@ -697,13 +725,12 @@ exports.payOfflineAdmissionFee = async (req, res) => {
         finance.financeBankBalance += price;
       } else {
       }
-      apply.selectedApplication.splice(
-        {
-          student: student._id,
-          // fee_remain: apply.admissionFee,
-        },
-        1
-      );
+      for (let app of apply.selectedApplication) {
+        if (`${app.student}` === `${student._id}`) {
+          apply.selectedApplication.pull(app._id);
+        } else {
+        }
+      }
       apply.confirmedApplication.push({
         student: student._id,
         fee_remain:
@@ -757,6 +784,11 @@ exports.cancelAdmissionApplication = async (req, res) => {
   try {
     const { sid, aid } = req.params;
     const { amount } = req.body;
+    if (!sid && !aid && !amount)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        refund_status: false,
+      });
     var price = parseInt(amount);
     const student = await Student.findById({ _id: sid });
     const user = await User.findById({ _id: `${student.user}` });
@@ -791,9 +823,15 @@ exports.cancelAdmissionApplication = async (req, res) => {
       if (apply.collectedFeeCount >= price) {
         apply.collectedFeeCount -= price;
       }
-      admission.offlineFee -= price;
-      finance.financeAdmissionBalance -= price;
-      finance.financeTotalBalance -= price;
+      if (admission.offlineFee >= price) {
+        admission.offlineFee -= price;
+      }
+      if (finance.financeAdmissionBalance >= price) {
+        finance.financeAdmissionBalance -= price;
+      }
+      if (finance.financeTotalBalance >= price) {
+        finance.financeTotalBalance -= price;
+      }
       aStatus.content = `Your application for ${apply?.applicationDepartment?.dName} has been rejected. Best Of Luck for next time`;
       aStatus.applicationId = apply._id;
       user.applicationStatus.push(aStatus._id);
@@ -828,12 +866,12 @@ exports.cancelAdmissionApplication = async (req, res) => {
         user.deviceToken
       );
       if (apply.confirmedApplication?.length > 0) {
-        apply.confirmedApplication.splice(
-          {
-            student: student._id,
-          },
-          1
-        );
+        for (let app of apply.confirmedApplication) {
+          if (`${app.student}` === `${student._id}`) {
+            apply.confirmedApplication.pull(app._id);
+          } else {
+          }
+        }
         apply.cancelApplication.push({
           student: student._id,
           payment_status: "Refund",
@@ -906,6 +944,11 @@ exports.retrieveAdmissionApplicationClass = async (req, res) => {
 exports.retrieveClassAllotQuery = async (req, res) => {
   try {
     const { sid, aid, cid } = req.params;
+    if (!sid && !aid && !cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        allot_status: false,
+      });
     const apply = await NewApplication.findById({ _id: aid });
     const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const admission = await Admission.findById({
@@ -923,13 +966,12 @@ exports.retrieveClassAllotQuery = async (req, res) => {
     const user = await User.findById({ _id: `${student.user}` });
     const notify = new Notification({});
     const aStatus = new Status({});
-    apply.confirmedApplication.splice(
-      {
-        student: student._id,
-        // payment_status: 'offline'
-      },
-      1
-    );
+    for (let app of apply.confirmedApplication) {
+      if (`${app.student}` === `${student._id}`) {
+        apply.confirmedApplication.pull(app._id);
+      } else {
+      }
+    }
     apply.allottedApplication.push({
       student: student._id,
       payment_status: "offline",
@@ -996,6 +1038,7 @@ exports.retrieveClassAllotQuery = async (req, res) => {
       classes.girlCount += 1;
       batch.student_category.girlCount += 1;
     } else {
+      classes.otherCount += 1;
       batch.student_category.otherCount += 1;
     }
     if (student.studentCastCategory === "General") {
@@ -1034,6 +1077,11 @@ exports.retrieveClassAllotQuery = async (req, res) => {
 exports.completeAdmissionApplication = async (req, res) => {
   try {
     const { aid } = req.params;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        complete_status: false,
+      });
     const apply = await NewApplication.findById({ _id: aid });
     const admission = await Admission.findById({
       _id: `${apply.admissionAdmin}`,
@@ -1117,6 +1165,11 @@ exports.paidRemainingFeeStudent = async (req, res) => {
   try {
     const { aid, sid, appId } = req.params;
     const { amount, mode } = req.body;
+    if (!sid && !aid && !appId && !amount && !mode)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        paid: false,
+      });
     var price = parseInt(amount);
     const s_admin = await Admin.findById({
       _id: `${process.env.S_ADMIN_ID}`,
@@ -1275,7 +1328,7 @@ exports.retrieveOneApplicationQuery = async (req, res) => {
     const { aid } = req.params;
     const oneApply = await NewApplication.findById({ _id: aid })
       .select(
-        "applicationName applicationType applicationAbout admissionProcess applicationEndDate applicationStartDate admissionFee applicationPhoto photoId applicationSeats receievedCount selectCount confirmCount cancelCount allotCount onlineFee offlineFee remainingFee collectedFeeCount"
+        "applicationName applicationType applicationAbout admissionProcess applicationEndDate applicationStartDate admissionFee applicationPhoto photoId applicationSeats receievedCount selectCount confirmCount applicationStatus cancelCount allotCount onlineFee offlineFee remainingFee collectedFeeCount"
       )
       .populate({
         path: "applicationDepartment",
@@ -1413,10 +1466,28 @@ exports.retrieveAllDepartmentArray = async (req, res) => {
 
 exports.retrieveStudentCancelAdmissionMode = async (req, res) => {
   try {
-    const { sid } = req.params;
-    const status = await Status.findById({ _id: sid });
+    const { statusId, aid, sid } = req.params;
+    if (!sid && !aid && !statusId)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        cancel_status: false,
+      });
+    const status = await Status.findById({ _id: statusId });
+    const apply = await NewApplication.findById({ _id: aid });
+    const student = await Student.findById({ _id: sid });
+    if (apply?.selectedApplication?.length > 0) {
+      apply?.selectedApplication?.forEach((ele) => {
+        if (`${ele.student}` === `${student._id}`) {
+          ele.payment_status = "Cancelled";
+        }
+      });
+      await apply.save();
+    }
     status.for_selection = "No";
-    await status.save();
+    if (student.admissionRemainFeeCount >= apply.admissionFee) {
+      student.admissionRemainFeeCount -= apply.admissionFee;
+    }
+    await Promise.all([status.save(), student.save()]);
     res
       .status(200)
       .send({ message: "Cancel Admission Selection", cancel_status: true });
@@ -1440,9 +1511,12 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
         student: student,
       });
     } else {
-      res
-        .status(200)
-        .send({ message: "No Admission Fees", get: false, array: [], student: student });
+      res.status(200).send({
+        message: "No Admission Fees",
+        get: false,
+        array: [],
+        student: student,
+      });
     }
   } catch (e) {
     console.log(e);

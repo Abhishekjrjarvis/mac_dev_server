@@ -21,6 +21,10 @@ const subjectSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "SubjectMaster",
   },
+  subjectOptional: {
+    type: String,
+    default: "No",
+  },
   exams: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -82,6 +86,12 @@ const subjectSchema = new mongoose.Schema({
     },
   ],
   pass: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
+  optionalStudent: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Student",

@@ -54,22 +54,23 @@ exports.verifyRazorPayment = async (req, res) => {
       payment_by_end_user_id,
       payment_to_end_user_id,
       payment_module_id,
+      payment_amount_charges,
       payment_amount,
       ad_status_id,
       isApk,
     } = req.query;
-    var refactor_amount = parseInt(payment_amount) / 100;
+    var refactor_amount = parseFloat(payment_amount) / 100;
+    var refactor_amount_nocharges = parseInt(payment_amount_charges) / 100;
     const body = razorpay_order_id + "|" + razorpay_payment_id;
     var expectedSignature = crypto
       .createHmac("sha256", process.env.RAZOR_KEY_SECRET)
       .update(body.toString())
       .digest("hex");
     const is_authenticated = expectedSignature === razorpay_signature;
-
     if (is_authenticated) {
       var order_payment = new OrderPayment({ ...req.body });
       order_payment.payment_module_type = payment_module_type;
-      order_payment.payment_by_end_user_id = payment_by_end_user_id;
+      // order_payment.payment_by_end_user_id = payment_by_end_user_id;
       order_payment.payment_to_end_user_id = payment_to_end_user_id;
       order_payment.payment_flag_by = "Debit";
       order_payment.payment_flag_to = "Credit";
@@ -97,6 +98,7 @@ exports.verifyRazorPayment = async (req, res) => {
         const fee_status = await feeInstituteFunction(
           order_payment?._id,
           payment_by_end_user_id,
+          refactor_amount_nocharges,
           refactor_amount,
           payment_module_id
         );
@@ -110,6 +112,7 @@ exports.verifyRazorPayment = async (req, res) => {
         const admission_status = await admissionInstituteFunction(
           order_payment?._id,
           payment_by_end_user_id,
+          refactor_amount_nocharges,
           refactor_amount,
           payment_module_id,
           ad_status_id,
@@ -128,6 +131,7 @@ exports.verifyRazorPayment = async (req, res) => {
         const participate_status = await participateEventFunction(
           order_payment?._id,
           payment_by_end_user_id,
+          refactor_amount_nocharges,
           refactor_amount,
           payment_module_id,
           ad_status_id
@@ -195,15 +199,15 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
         .populate({
           path: "payment_to_end_user_id",
           select: "insName photoId insProfilePhoto",
-        })
-        .populate({
-          path: "payment_expense_by_end_user_id",
-          select: "insName photoId insProfilePhoto",
-        })
-        .populate({
-          path: "payment_expense_to_end_user_id",
-          select: "userLegalName photoId profilePhoto",
         });
+      // .populate({
+      //   path: "payment_expense_by_end_user_id",
+      //   select: "insName photoId insProfilePhoto",
+      // })
+      // .populate({
+      //   path: "payment_expense_to_end_user_id",
+      //   select: "userLegalName photoId profilePhoto",
+      // });
       if (order?.length > 0) {
         res.status(200).send({ message: "User Pay History", history: order });
       } else {
@@ -244,15 +248,15 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
         .populate({
           path: "payment_to_end_user_id",
           select: "insName photoId insProfilePhoto",
-        })
-        .populate({
-          path: "payment_expense_by_end_user_id",
-          select: "insName photoId insProfilePhoto",
-        })
-        .populate({
-          path: "payment_expense_to_end_user_id",
-          select: "userLegalName photoId profilePhoto",
         });
+      // .populate({
+      //   path: "payment_expense_by_end_user_id",
+      //   select: "insName photoId insProfilePhoto",
+      // })
+      // .populate({
+      //   path: "payment_expense_to_end_user_id",
+      //   select: "userLegalName photoId profilePhoto",
+      // });
       if (order?.length > 0) {
         res.status(200).send({ message: "User Pay History", history: order });
       } else {
@@ -308,15 +312,15 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
         .populate({
           path: "payment_to_end_user_id",
           select: "insName photoId insProfilePhoto",
-        })
-        .populate({
-          path: "payment_expense_by_end_user_id",
-          select: "insName photoId insProfilePhoto",
-        })
-        .populate({
-          path: "payment_expense_to_end_user_id",
-          select: "userLegalName photoId profilePhoto",
         });
+      // .populate({
+      //   path: "payment_expense_by_end_user_id",
+      //   select: "insName photoId insProfilePhoto",
+      // })
+      // .populate({
+      //   path: "payment_expense_to_end_user_id",
+      //   select: "userLegalName photoId profilePhoto",
+      // });
 
       if (order?.length > 0) {
         res.status(200).send({ message: "User Pay History", history: order });
@@ -358,15 +362,15 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
         .populate({
           path: "payment_to_end_user_id",
           select: "insName photoId insProfilePhoto",
-        })
-        .populate({
-          path: "payment_expense_by_end_user_id",
-          select: "insName photoId insProfilePhoto",
-        })
-        .populate({
-          path: "payment_expense_to_end_user_id",
-          select: "userLegalName photoId profilePhoto",
         });
+      // .populate({
+      //   path: "payment_expense_by_end_user_id",
+      //   select: "insName photoId insProfilePhoto",
+      // })
+      // .populate({
+      //   path: "payment_expense_to_end_user_id",
+      //   select: "userLegalName photoId profilePhoto",
+      // });
       if (order?.length > 0) {
         res.status(200).send({ message: "User Pay History", history: order });
       } else {

@@ -315,7 +315,7 @@ exports.getQuestion = async (req, res) => {
               questionDescription: { $regex: req.query.search, $options: "i" },
             },
             {
-              _id: { $in: subjectMaster.questions },
+              _id: { $in: subjectMaster?.questions },
             },
           ],
         })
@@ -346,7 +346,7 @@ exports.getQuestion = async (req, res) => {
         });
 
         const subjectQuestion = await SubjectQuestion.find({
-          _id: { $in: subjectMaster.questions },
+          _id: { $in: subjectMaster?.questions },
         })
           .sort("-createdAt")
           .skip(skipItem)
@@ -895,8 +895,11 @@ exports.studentOneTestSet = async (req, res) => {
       testset?.testEnd
     );
     let startExamTime = false;
-    if (entryTime && exitTime) startExamTime = true;
-    else startExamTime = false;
+    // console.log(currentDate.substr(11));
+    console.log(entryTime, "sgfsdghs === ", exitTime);
+    if (entryTime && !exitTime) {
+      startExamTime = true;
+    } else startExamTime = false;
     if (testset) {
       res.status(200).send({
         message: "one test set details",
@@ -933,7 +936,7 @@ exports.studentTestSet = async (req, res) => {
       JSON.stringify(currentDate),
       studentTestSet?.testEnd
     );
-    if (entryTime && exitTime) {
+    if (entryTime && !exitTime) {
       // if (true) {
       studentTestSet.testSetAccess = true;
 

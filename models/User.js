@@ -240,6 +240,10 @@ const userSchema = new mongoose.Schema({
       ref: "Answer",
     },
   ],
+  is_developer: {
+    type: Boolean,
+    default: false,
+  },
   user_birth_privacy: {
     type: String,
     default: "Every one",

@@ -421,6 +421,9 @@ exports.allStudentInSubjectTeacher = async (req, res) => {
         }
       }
     }
+    students.sort((st1, st2) => {
+      return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+    });
     res.status(200).send({ students });
   } catch (e) {
     console.log(e);
@@ -521,7 +524,8 @@ exports.allExamInStudent = async (req, res) => {
         },
         select: "exams subject",
       })
-      .select("studentClass");
+      .select("studentClass exams");
+
     // if (student.studentClass === null && req.query.previousClass) {
     //   var classes = await Class.findById(req.query.previousClass)
     //     .populate({
@@ -537,22 +541,23 @@ exports.allExamInStudent = async (req, res) => {
     // const detailSubject =
     //   student?.studentClass !== null ? student?.studentClass : classes;
     const exams = [];
-
-    student?.studentClass?.exams.forEach((exam) => {
-      const examObj = {
-        _id: exam._id,
-        examName: exam.examName,
-        examType: exam.examType,
-        examWeight: exam.examWeight,
-        subject: 0,
-      };
-      exam.subjects?.forEach((sub) => {
-        if (student?.studentClass?.subject.includes(String(sub.subjectId))) {
-          examObj.subject = examObj.subject + 1;
-        }
-      });
-      exams.push(examObj);
-    });
+    for (let exam of student?.studentClass?.exams) {
+      if (student.exams?.includes(exam?._id)) {
+        const examObj = {
+          _id: exam._id,
+          examName: exam.examName,
+          examType: exam.examType,
+          examWeight: exam.examWeight,
+          subject: 0,
+        };
+        exam.subjects?.forEach((sub) => {
+          if (student?.studentClass?.subject.includes(String(sub.subjectId))) {
+            examObj.subject = examObj.subject + 1;
+          }
+        });
+        exams.push(examObj);
+      }
+    }
     res.status(200).send({ exams });
   } catch (e) {
     console.log(e);
@@ -832,8 +837,10 @@ exports.oneStudentAllYearAttendance = async (req, res) => {
       institute: student.institute,
     };
     student?.attendDate?.forEach((attend) => {
-      if (attend.presentStudent.includes(req.params.sid)) {
-        attendance.totalPresent += 1;
+      for (let pre of attend?.presentStudent) {
+        if (String(pre.student) === req.params.sid) {
+          attendance.totalPresent += 1;
+        }
       }
     });
     attendance.attendancePercentage = (
@@ -1017,6 +1024,11 @@ exports.oneStudentReportCardFinalizeGraceUpdate = async (req, res) => {
                 finalize.totalGraceExam += bodysubject.graceMarks - prevGrace;
                 finalize.totalTotalExam += bodysubject.graceMarks - prevGrace;
               }
+              finalSubject.subjectPassStatus =
+                finalSubject.subjectCutoff >
+                Math.round(finalSubject.obtainTotalMarks)
+                  ? "FAIL"
+                  : "PASS";
             }
           }
           await subjectMarks.save();
@@ -1026,6 +1038,10 @@ exports.oneStudentReportCardFinalizeGraceUpdate = async (req, res) => {
     finalize.totalPercentage =
       (finalize.totalTotalExam * 100) /
       (100 * finalize.subjects?.length).toFixed(2);
+    finalize.passStatus =
+      finalize.totalCutoff > Math.round(finalize.totalPercentage)
+        ? "FAIL"
+        : "PASS";
     await Promise.all([finalize.save()]);
     res.status(200).send({ finalize });
   } catch (e) {

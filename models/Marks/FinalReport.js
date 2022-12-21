@@ -11,7 +11,7 @@ const finalReportSchema = new mongoose.Schema({
     ref: "Class",
     required: true,
   },
-  createAt: { type: Date, default: Date.now },
+  createdAt: { type: Date, default: Date.now },
   totalFinalExam: { type: Number, required: true },
   totalOtherExam: { type: Number, required: true },
   totalGraceExam: { type: Number, required: true },

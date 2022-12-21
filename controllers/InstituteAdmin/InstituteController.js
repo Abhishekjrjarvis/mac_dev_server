@@ -29,6 +29,7 @@ const fs = require("fs");
 const util = require("util");
 const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const { todayDate } = require("../../Utilities/timeComparison");
+const { file_to_aws } = require("../../Utilities/uploadFileAws");
 const unlinkFile = util.promisify(fs.unlink);
 
 exports.getDashOneQuery = async (req, res) => {
@@ -77,7 +78,9 @@ exports.getSettingPersonal = async (req, res) => {
       .lean()
       .exec();
     if (institute) {
-      res.status(200).send({ message: "Success", institute });
+      res
+        .status(200)
+        .send({ message: "Success for retrieving Setting ✨", institute });
     } else {
       res.status(404).send({ message: "Failure" });
     }
@@ -172,13 +175,15 @@ exports.getNotificationIns = async (req, res) => {
   try {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const id = req.params.id;
+    const { id } = req.params;
     const skip = (page - 1) * limit;
-    const institute = await InstituteAdmin.findById({ _id: id }).populate({
-      path: "iNotify",
-    });
-
-    const notify = await Notification.find({ _id: { $in: institute.iNotify } })
+    const institute = await InstituteAdmin.findById({ _id: id }).select(
+      "iNotify"
+    );
+    const notify = await Notification.find({ _id: { $in: institute?.iNotify } })
+      .sort("-notifyTime")
+      .limit(limit)
+      .skip(skip)
       .populate({
         path: "notifyByInsPhoto",
         select: "photoId insProfilePhoto",
@@ -198,11 +203,8 @@ exports.getNotificationIns = async (req, res) => {
       .populate({
         path: "notifyByDepartPhoto",
         select: "photoId photo",
-      })
-      .sort("-notifyTime")
-      .limit(limit)
-      .skip(skip);
-    res.status(200).send({ message: "Notification send", notify });
+      });
+    res.status(200).send({ message: "Notification Data ✨", notify });
   } catch (e) {
     console.log("Error", e.message);
   }
@@ -268,11 +270,13 @@ exports.getUpdatePersonalIns = async (req, res) => {
     const post = await Post.find({ author: `${institute._id}` });
     post.forEach(async (ele) => {
       ele.authorOneLine = institute.one_line_about;
+      ele.authorName = institute.insName;
       await ele.save();
     });
     const comment = await Comment.find({ author: `${institute._id}` });
     comment.forEach(async (com) => {
       com.authorOneLine = institute.one_line_about;
+      com.authorName = institute.insName;
       await com.save();
     });
     const replyComment = await ReplyComment.find({
@@ -280,6 +284,7 @@ exports.getUpdatePersonalIns = async (req, res) => {
     });
     replyComment.forEach(async (reply) => {
       reply.authorOneLine = institute.one_line_about;
+      reply.authorName = institute.insName;
       await reply.save();
     });
   } catch (e) {
@@ -758,37 +763,39 @@ exports.printedBySuperAdmin = async (req, res) => {
 };
 
 exports.fillStaffForm = async (req, res) => {
-  // var staffDate = new Date();
-  // var joinDate = `${staffDate.getFullYear()}-${
-  //   staffDate.getMonth() < 10
-  //     ? `0${staffDate.getMonth() + 1}`
-  //     : staffDate.getMonth() + 1
-  // }-${
-  //   staffDate.getDate() < 10 ? `0${staffDate.getDate()}` : staffDate.getDate()
-  // }`;
   try {
     const { uid, id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id });
     const user = await User.findById({ _id: uid });
     const staff = new Staff({ ...req.body });
-    for (let file of req.files) {
-      let count = 1;
-      if (count === 1) {
-        const width = 200;
-        const height = 200;
-        const results = await uploadFile(file, width, height);
-        staff.photoId = "0";
-        staff.staffProfilePhoto = results.key;
-        count = count + 1;
-      } else if (count === 2) {
-        const results = await uploadDocFile(file);
-        staff.staffAadharFrontCard = results.key;
-        count = count + 1;
-      } else {
-        const results = await uploadDocFile(file);
-        staff.staffAadharBackCard = results.key;
+    for (let fileObject in req.files) {
+      for (let singleFile of req.files[fileObject]) {
+        if (fileObject === "file") {
+          const width = 200;
+          const height = 200;
+          const results = await uploadFile(file, width, height);
+          staff.photoId = "0";
+          staff.staffProfilePhoto = results.Key;
+          await unlinkFile(file.path);
+        } else {
+          const uploadedFile = await file_to_aws(singleFile);
+          if (fileObject === "addharFrontCard")
+            staff.staffAadharFrontCard = uploadedFile.documentKey;
+          else if (fileObject === "addharBackCard")
+            staff.staffAadharBackCard = uploadedFile.documentKey;
+          else if (fileObject === "bankPassbook")
+            staff.staffBankPassbook = uploadedFile.documentKey;
+          else if (fileObject === "casteCertificate")
+            staff.staffCasteCertificate = uploadedFile.documentKey;
+          else {
+            staff.studentDocuments.push({
+              documentName: fileObject,
+              documentKey: uploadedFile.documentKey,
+              documentType: uploadedFile.documentType,
+            });
+          }
+        }
       }
-      await unlinkFile(file.path);
     }
     const notify = new Notification({});
     const aStatus = new Status({});
@@ -840,26 +847,35 @@ exports.fillStudentForm = async (req, res) => {
     const classes = await Class.findOne({ classCode: req.body.studentCode });
     const classStaff = await Staff.findById({ _id: `${classes.classTeacher}` });
     const classUser = await User.findById({ _id: `${classStaff.user}` });
-    for (let file of req.files) {
-      let count = 1;
-      if (count === 1) {
-        const width = 200;
-        const height = 200;
-        const results = await uploadFile(file, width, height);
-        student.photoId = "0";
-        student.studentProfilePhoto = results.key;
-        count = count + 1;
-      } else if (count === 2) {
-        const results = await uploadDocFile(file);
-        student.studentAadharFrontCard = results.key;
-        count = count + 1;
-      } else {
-        const results = await uploadDocFile(file);
-        student.studentAadharBackCard = results.key;
+    for (let fileObject in req.files) {
+      for (let singleFile of req.files[fileObject]) {
+        if (fileObject === "file") {
+          const width = 200;
+          const height = 200;
+          const results = await uploadFile(file, width, height);
+          student.photoId = "0";
+          student.studentProfilePhoto = results.Key;
+          await unlinkFile(file.path);
+        } else {
+          const uploadedFile = await file_to_aws(singleFile);
+          if (fileObject === "addharFrontCard")
+            student.studentAadharFrontCard = uploadedFile.documentKey;
+          else if (fileObject === "addharBackCard")
+            student.studentAadharBackCard = uploadedFile.documentKey;
+          else if (fileObject === "bankPassbook")
+            student.studentBankPassbook = uploadedFile.documentKey;
+          else if (fileObject === "casteCertificate")
+            student.studentCasteCertificate = uploadedFile.documentKey;
+          else {
+            student.studentDocuments.push({
+              documentName: fileObject,
+              documentKey: uploadedFile.documentKey,
+              documentType: uploadedFile.documentType,
+            });
+          }
+        }
       }
-      await unlinkFile(file.path);
     }
-
     const notify = new StudentNotification({});
     const aStatus = new Status({});
     institute.student.push(student._id);
@@ -1042,7 +1058,7 @@ exports.retrieveApproveStudentList = async (req, res) => {
       const studentIns = await Student.find({
         _id: { $in: student_ins?.ApproveStudent },
       })
-        .sort("-createdAt")
+        .sort({ studentGRNO: 1 })
         .limit(limit)
         .skip(skip)
         .select(
@@ -1275,7 +1291,14 @@ exports.retrieveNewClass = async (req, res) => {
   try {
     // console.log(req.body)
     const { id, did, bid } = req.params;
-    const { sid, classTitle, classHeadTitle, mcId, classCode } = req.body;
+    const {
+      sid,
+      classTitle,
+      classHeadTitle,
+      mcId,
+      aggregatePassingPercentage,
+      optionalSubjectCount,
+    } = req.body;
     const institute = await InstituteAdmin.findById({ _id: id });
     const masterClass = await ClassMaster.findById({ _id: mcId });
     const mCName = masterClass.className;
@@ -1299,6 +1322,10 @@ exports.retrieveNewClass = async (req, res) => {
         classHeadTitle: classHeadTitle,
         classCode: `${result}`,
         classStartDate: date,
+        finalReportsSettings: {
+          aggregatePassingPercentage: aggregatePassingPercentage,
+        },
+        optionalSubjectCount: optionalSubjectCount,
       });
       institute.classCodeList.push(`${result}`);
       institute.classRooms.push(classRoom._id);
@@ -1365,7 +1392,8 @@ exports.retrieveNewClass = async (req, res) => {
 exports.retrieveNewSubject = async (req, res) => {
   try {
     const { id, cid, bid, did } = req.params;
-    const { sid, subjectTitle, subjectName, msid } = req.body;
+    const { sid, subjectTitle, msid, subjectOptional, subjectPassingMarks } =
+      req.body;
     const institute = await InstituteAdmin.findById({ _id: id });
     const classes = await Class.findById({ _id: cid }).populate({
       path: "classTeacher",
@@ -1384,6 +1412,10 @@ exports.retrieveNewSubject = async (req, res) => {
       subjectTitle: subjectTitle,
       subjectName: subjectMaster.subjectName,
       subjectMasterName: subjectMaster._id,
+      subjectOptional: subjectOptional,
+      setting: {
+        subjectPassingMarks: subjectPassingMarks,
+      },
     });
     classes.subject.push(subject._id);
     classes.subjectCount += 1;
@@ -1439,7 +1471,9 @@ exports.retrieveNewSubject = async (req, res) => {
       message: "Successfully Created Subject",
       subject,
     });
-  } catch (e) {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.retrieveSubjectMaster = async (req, res) => {
@@ -2294,6 +2328,7 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
       classes.girlCount += 1;
       batch.student_category.girlCount += 1;
     } else {
+      classes.otherCount += 1;
       batch.student_category.otherCount += 1;
     }
     if (student.studentCastCategory === "General") {
@@ -2371,9 +2406,7 @@ exports.retrievePendingRequestArray = async (req, res) => {
 
 exports.retrieveApproveCatalogArray = async (req, res) => {
   try {
-    var options = { sort: { studentROLLNO: 1 } };
     const { cid } = req.params;
-    var options = { sort: { studentROLLNO: 1 } };
     const currentDate = new Date();
     const currentDateLocalFormat = currentDate.toISOString().split("-");
     const day =
@@ -2385,12 +2418,10 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
         ? +currentDateLocalFormat[1]
         : `0${+currentDateLocalFormat[1]}`;
     const year = +currentDateLocalFormat[0];
-    // const regExpression = new RegExp(`${day}\/${month}\/${year}$`);
     const classes = await Class.findById({ _id: cid })
       .select("className classStatus classTitle exams")
       .populate({
         path: "ApproveStudent",
-        options,
         select: "leave",
         populate: {
           path: "leave",
@@ -2402,7 +2433,6 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
       })
       .populate({
         path: "ApproveStudent",
-        options,
         select:
           "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO",
         populate: {
@@ -2412,6 +2442,10 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
       })
       .lean()
       .exec();
+
+    classes?.ApproveStudent.sort(function (st1, st2) {
+      return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+    });
     res.status(200).send({ message: "Approve catalog", classes: classes });
   } catch (e) {
     console.log(e);

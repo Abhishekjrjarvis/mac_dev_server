@@ -6,6 +6,7 @@ const Notification = require("../../models/notification");
 const axios = require("axios");
 const Post = require("../../models/Post");
 const Answer = require("../../models/Question/Answer");
+const Finance = require("../../models/Finance");
 const RePay = require("../../models/Return/RePay");
 const { uploadDocFile } = require("../../S3Configuration");
 const fs = require("fs");
@@ -697,10 +698,15 @@ exports.retrieveRepayInstituteAmount = async (req, res) => {
     const { amount, txnId, message } = req.body;
     const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const institute = await InstituteAdmin.findById({ _id: uid });
+    const finance = await Finance.findById({
+      _id: `${institute?.financeDepart[0]}`,
+    });
     const notify = new Notification({});
     const repay = new RePay({});
     institute.adminRepayAmount -= amount;
     institute.insBankBalance += amount;
+    finance.financeBankBalance = finance.financeBankBalance + amount;
+    finance.financeTotalBalance = finance.financeTotalBalance + amount;
     admin.returnAmount -= amount;
     notify.notifyContent = `Super Admin re-pay Rs. ${amount} to you`;
     notify.notifySender = admin._id;
@@ -719,6 +725,7 @@ exports.retrieveRepayInstituteAmount = async (req, res) => {
       notify.save(),
       admin.save(),
       repay.save(),
+      finance.save(),
     ]);
     res.status(200).send({ message: "Amount Transferred", status: true });
   } catch (e) {

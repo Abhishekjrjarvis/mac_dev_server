@@ -61,7 +61,7 @@ const hashtag = require("./routes/HashTag/hashtagRoute");
 const manage = require("./routes/ManageAdmin/manageRoute");
 
 // ============================= DB Configuration ==============================
-
+// const dburl = `${process.env.TESTING_DATABASE_URL}`; // Testing
 const dburl = `${process.env.DB_URL2}`; // Development
 // const dburl = `${process.env.DB_URL}`; // Production
 

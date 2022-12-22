@@ -23,7 +23,7 @@ const subjectSchema = new mongoose.Schema({
   },
   subjectOptional: {
     type: String,
-    default: "No",
+    default: "Mandatory",
   },
   exams: [
     {

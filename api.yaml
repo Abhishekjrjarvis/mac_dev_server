@@ -3183,7 +3183,7 @@ paths:
           name: casteCertificate
           type: file
           required: true
-          description: staff staffCasteCertificate 
+          description: staff staffCasteCertificatePhoto 
         - in: formData
           name: identityDocument
           type: file
@@ -3496,7 +3496,7 @@ paths:
           name: casteCertificate
           type: file
           required: true
-          description: student studentCasteCertificate 
+          description: student studentCasteCertificatePhoto 
         - in: formData
           name: identityDocument
           type: file
@@ -14446,6 +14446,9 @@ paths:
                   addressInfo:
                     type: boolean
                     description: here pass value "true" or "false"
+                  identityDetails:
+                    type: boolean
+                    description: here pass value "true" or "false"                    
                   previousSchoolAndDocument:
                     type: object
                     required: true,
@@ -14501,6 +14504,9 @@ paths:
                   addressInfo:
                     type: boolean
                     description: here pass value "true" or "false"
+                  identityDetails:
+                    type: boolean
+                    description: here pass value "true" or "false"                       
                   previousSchoolAndDocument:
                     type: object
                     required: true,

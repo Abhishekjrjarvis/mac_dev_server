@@ -44,7 +44,7 @@ const studentSchema = new mongoose.Schema({
   studentBankAccountHolderName: { type: String },
   studentBankIfsc: { type: String },
   studentBankPassbook: { type: String },
-  studentCasteCertificate: { type: String },
+  studentCasteCertificatePhoto: { type: String },
   studentDocuments: [
     {
       documentName: {

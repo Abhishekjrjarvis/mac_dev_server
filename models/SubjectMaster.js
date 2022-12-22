@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const subjectMasterSchema = new mongoose.Schema({
   subjectName: { type: String, required: true },
+  subjectType: { type: String, default: "Mandatory" },
   institute: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteAdmin",

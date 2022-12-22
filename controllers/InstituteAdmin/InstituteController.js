@@ -786,7 +786,7 @@ exports.fillStaffForm = async (req, res) => {
           else if (fileObject === "bankPassbook")
             staff.staffBankPassbook = uploadedFile.documentKey;
           else if (fileObject === "casteCertificate")
-            staff.staffCasteCertificate = uploadedFile.documentKey;
+            staff.staffCasteCertificatePhoto = uploadedFile.documentKey;
           else {
             staff.studentDocuments.push({
               documentName: fileObject,
@@ -865,7 +865,7 @@ exports.fillStudentForm = async (req, res) => {
           else if (fileObject === "bankPassbook")
             student.studentBankPassbook = uploadedFile.documentKey;
           else if (fileObject === "casteCertificate")
-            student.studentCasteCertificate = uploadedFile.documentKey;
+            student.studentCasteCertificatePhoto = uploadedFile.documentKey;
           else {
             student.studentDocuments.push({
               documentName: fileObject,
@@ -1392,8 +1392,7 @@ exports.retrieveNewClass = async (req, res) => {
 exports.retrieveNewSubject = async (req, res) => {
   try {
     const { id, cid, bid, did } = req.params;
-    const { sid, subjectTitle, msid, subjectOptional, subjectPassingMarks } =
-      req.body;
+    const { sid, subjectTitle, msid, subjectPassingMarks } = req.body;
     const institute = await InstituteAdmin.findById({ _id: id });
     const classes = await Class.findById({ _id: cid }).populate({
       path: "classTeacher",
@@ -1412,7 +1411,7 @@ exports.retrieveNewSubject = async (req, res) => {
       subjectTitle: subjectTitle,
       subjectName: subjectMaster.subjectName,
       subjectMasterName: subjectMaster._id,
-      subjectOptional: subjectOptional,
+      subjectOptional: subjectMaster.subjectType,
       setting: {
         subjectPassingMarks: subjectPassingMarks,
       },
@@ -1480,7 +1479,7 @@ exports.retrieveSubjectMaster = async (req, res) => {
   try {
     const { did } = req.params;
     const subjectMaster = await SubjectMaster.find({ department: did })
-      .select("subjectName subjects")
+      .select("subjectName subjectType subjects")
       .lean()
       .exec();
     if (subjectMaster) {
@@ -1565,7 +1564,7 @@ exports.retrieveClassSubject = async (req, res) => {
       .select("className classTitle classHeadTitle classAbout classStatus")
       .populate({
         path: "subject",
-        select: "subjectName subjectTitle subjectStatus",
+        select: "subjectName subjectOptional subjectTitle subjectStatus",
       })
       .lean()
       .exec();
@@ -1706,11 +1705,12 @@ exports.retrieveNewClassMaster = async (req, res) => {
 exports.retrieveNewSubjectMaster = async (req, res) => {
   try {
     const { id, did, bid } = req.params;
-    const { subjectName } = req.body;
+    const { subjectName, subjectType } = req.body;
     const institute = await InstituteAdmin.findById({ _id: id });
     const departmentData = await Department.findById({ _id: did });
     const subjectMaster = new SubjectMaster({
       subjectName: subjectName,
+      subjectType: subjectType,
       institute: institute._id,
       department: did,
     });

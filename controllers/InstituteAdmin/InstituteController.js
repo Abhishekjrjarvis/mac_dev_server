@@ -2331,6 +2331,11 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     var batch = await Batch.findById({ _id: bid });
     const notify = new Notification({});
     const aStatus = new Status({});
+    for (let subjChoose of student?.studentOptionalSubject) {
+      const subject = await Subject.findById(subjChoose);
+      subject.optionalStudent.push(student?._id);
+      await subject.save();
+    }
     student.studentStatus = req.body.status;
     institute.ApproveStudent.push(student._id);
     admins.studentArray.push(student._id);

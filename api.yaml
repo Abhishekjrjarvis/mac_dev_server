@@ -3232,7 +3232,7 @@ paths:
         - application/json
       parameters:
         - in: path
-          name: uid
+          name: uid 
           required: true
           type: string
           description: This is user id which apply to institute as staff
@@ -3312,10 +3312,30 @@ paths:
           required: true
           description: staff staffBirthPlace
         - in: formData
+          name: staffBirthPlacePincode
+          type: string
+          required: true
+          description: staff staffBirthPlacePincode
+        - in: formData
+          name: staffBirthPlaceState
+          type: string
+          required: true
+          description: staff staffBirthPlaceState          
+        - in: formData
+          name: staffBirthPlaceDistrict
+          type: string
+          required: true
+          description: staff staffBirthPlaceDistrict
+        - in: formData
           name: staffDistrict
           type: string
           required: true
           description: staff staffDistrict
+        - in: formData
+          name: staffPincode
+          type: string
+          required: true
+          description: staff staffPincode          
         - in: formData
           name: staffState
           type: string
@@ -3326,6 +3346,26 @@ paths:
           type: string
           required: true
           description: staff staffAddress
+        - in: formData
+          name: staffCurrentPincode
+          type: string
+          required: true
+          description: staff staffCurrentPincode
+        - in: formData
+          name: staffCurrentDistrict
+          type: string
+          required: true
+          description: staff staffCurrentDistrict          
+        - in: formData
+          name: staffCurrentState
+          type: string
+          required: true
+          description: staff staffCurrentState
+        - in: formData
+          name: staffCurrentAddress
+          type: string
+          required: true
+          description: staff staffCurrentAddress
         - in: formData
           name: staffPhoneNumber
           type: string
@@ -3342,15 +3382,95 @@ paths:
           required: true
           description: staff staffQualification
         - in: formData
-          name: file
+          name: addharFrontCard
           type: file
           required: true
           description: upload your addhar card front side photo  
         - in: formData
-          name: file
+          name: addharBackCard
           type: file
           required: true
-          description: upload your addhar card back side photo           
+          description: upload your addhar card back side photo 
+        - in: formData
+          name: staffPreviousSchool
+          type: string
+          required: true
+          description: staff staffPreviousSchool          
+        - in: formData
+          name: staffPanNumber
+          type: string
+          required: true
+          description: staff staffPanNumber 
+        - in: formData
+          name: staffBankName
+          type: string
+          required: true
+          description: staff staffBankName
+        - in: formData
+          name: staffBankAccount
+          type: string
+          required: true
+          description: staff staffBankAccount 
+        - in: formData
+          name: staffBankAccountHolderName
+          type: string
+          required: true
+          description: staff staffBankAccountHolderName                   
+        - in: formData
+          name: staffBankIfsc
+          type: string
+          required: true
+          description: staff staffBankIfsc
+        - in: formData
+          name: bankPassbook
+          type: file
+          required: true
+          description: staff staffBankPassbook 
+        - in: formData
+          name: casteCertificate
+          type: file
+          required: true
+          description: staff staffCasteCertificatePhoto 
+        - in: formData
+          name: identityDocument
+          type: file
+          required: true
+          description: staff staffidentityDocument 
+        - in: formData
+          name: joiningTransferLetter
+          type: file
+          required: true
+          description: staff staffjoiningTransferLetter   
+        - in: formData
+          name: leavingTransferCertificate
+          type: file
+          required: true
+          description: staff staffleavingTransferCertificate 
+        - in: formData
+          name: incomeCertificate
+          type: file
+          required: true
+          description: staff staffincomeCertificate  
+        - in: formData
+          name: lastYearMarksheet
+          type: file
+          required: true
+          description: staff stafflastYearMarksheet 
+        - in: formData
+          name: nationalityCertificate
+          type: file
+          required: true
+          description: staff staffnationalityCertificate   
+        - in: formData
+          name: domicileCertificate
+          type: file
+          required: true
+          description: staff staffdomicileCertificate 
+        - in: formData
+          name: nonCreamyLayerCertificate
+          type: file
+          required: true
+          description: staff staffnonCreamyLayerCertificate                       
       responses:
         "200":
           description: OK 
@@ -3485,10 +3605,30 @@ paths:
           required: true
           description: student studentBirthPlace
         - in: formData
+          name: studentBirthPlacePincode
+          type: string
+          required: true
+          description: student studentBirthPlacePincode
+        - in: formData
+          name: studentBirthPlaceState
+          type: string
+          required: true
+          description: student studentBirthPlaceState          
+        - in: formData
+          name: studentBirthPlaceDistrict
+          type: string
+          required: true
+          description: student studentBirthPlaceDistrict          
+        - in: formData
           name: studentDistrict
           type: string
           required: true
           description: student studentDistrict
+        - in: formData
+          name: studentPincode
+          type: string
+          required: true
+          description: student studentPincode           
         - in: formData
           name: studentState
           type: string
@@ -3499,6 +3639,26 @@ paths:
           type: string
           required: true
           description: student studentAddress
+        - in: formData
+          name: studentCurrentPincode
+          type: string
+          required: true
+          description: student studentCurrentPincode
+        - in: formData
+          name: studentCurrentDistrict
+          type: string
+          required: true
+          description: student studentCurrentDistrict          
+        - in: formData
+          name: studentCurrentState
+          type: string
+          required: true
+          description: student studentCurrentState
+        - in: formData
+          name: studentCurrentAddress
+          type: string
+          required: true
+          description: student studentCurrentAddress          
         - in: formData
           name: studentPhoneNumber
           type: string
@@ -3520,15 +3680,110 @@ paths:
           required: true
           description: student studentParentsPhoneNumber
         - in: formData
-          name: file
+          name: studentFatherRationCardColor
+          type: string
+          required: true
+          description: student studentFatherRationCardColor          
+        - in: formData
+          name: studentParentsOccupation
+          type: string
+          required: true
+          description: student studentParentsOccupation
+        - in: formData
+          name: studentParentsAnnualIncom
+          type: string
+          required: true
+          description: student studentParentsAnnualIncom           
+        - in: formData
+          name: addharFrontCard
           type: file
           required: true
           description: upload your addhar card front side photo  
         - in: formData
-          name: file
+          name: addharBackCard
           type: file
           required: true
-          description: upload your addhar card back side photo     
+          description: upload your addhar card back side photo  
+        - in: formData
+          name: studentPreviousSchool
+          type: string
+          required: true
+          description: student studentPreviousSchool
+        - in: formData
+          name: studentPanNumber
+          type: string
+          required: true
+          description: student studentPanNumber 
+        - in: formData
+          name: studentBankName
+          type: string
+          required: true
+          description: student studentBankName
+        - in: formData
+          name: studentBankAccount
+          type: string
+          required: true
+          description: student studentBankAccount 
+        - in: formData
+          name: studentBankAccountHolderName
+          type: string
+          required: true
+          description: student studentBankAccountHolderName                      
+        - in: formData
+          name: studentBankIfsc
+          type: string
+          required: true
+          description: student studentBankIfsc
+        - in: formData
+          name: bankPassbook
+          type: file
+          required: true
+          description: student studentBankPassbook 
+        - in: formData
+          name: casteCertificate
+          type: file
+          required: true
+          description: student studentCasteCertificatePhoto 
+        - in: formData
+          name: identityDocument
+          type: file
+          required: true
+          description: student studentidentityDocument 
+        - in: formData
+          name: joiningTransferLetter
+          type: file
+          required: true
+          description: student studentjoiningTransferLetter   
+        - in: formData
+          name: leavingTransferCertificate
+          type: file
+          required: true
+          description: student studentleavingTransferCertificate 
+        - in: formData
+          name: incomeCertificate
+          type: file
+          required: true
+          description: student studentincomeCertificate  
+        - in: formData
+          name: lastYearMarksheet
+          type: file
+          required: true
+          description: student studentlastYearMarksheet 
+        - in: formData
+          name: nationalityCertificate
+          type: file
+          required: true
+          description: student studentnationalityCertificate   
+        - in: formData
+          name: domicileCertificate
+          type: file
+          required: true
+          description: student studentdomicileCertificate 
+        - in: formData
+          name: nonCreamyLayerCertificate
+          type: file
+          required: true
+          description: student studentnonCreamyLayerCertificate                        
       responses:
         "200":
           description: OK
@@ -14429,70 +14684,57 @@ paths:
                 required:  true
                 description: here pass all staff form setting boolean
                 properties:
-                  staffNationality:
+                  personalInfo:
                     type: boolean
                     description: here pass value "true" or "false"
-                  staffMTongue:
+                  otherPersonalInfo:
                     type: boolean
                     description: here pass value "true" or "false"
-                  staffMotherName:
+                  addressInfo:
                     type: boolean
                     description: here pass value "true" or "false"
-                  staffCast:
+                  identityDetails:
                     type: boolean
-                    description: here pass value "true" or "false"
-                  staffCastCategory:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffReligion:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffBirthPlace:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffDistrict:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffState:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffAddress:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffPhoneNumber:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffAadharNumber:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffQualification:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffAadharFrontCard:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffAadharBackCard:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffPanNumber:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffBankDetails:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffUpiId:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffHeight:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffWeight:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffBMI:
-                    type: boolean
-                    description: here pass value "true" or "false"                                                      
-                  staffCasteCertificate:
+                    description: here pass value "true" or "false"                    
+                  previousSchoolAndDocument:
+                    type: object
+                    required: true,
+                    description: previous schools and document related toggle
+                    properties:
+                      previousSchoolDocument:
+                        type: boolean
+                        description: here pass value "true" or "false"
+                      aadharCard:
+                        type: boolean
+                        description: here pass value "true" or "false"
+                      identityDocument:
+                        type: boolean
+                        description: here pass value "true" or "false"
+                      casteCertificate:
+                        type: boolean
+                        description: here pass value "true" or "false"
+                      joiningTransferLetter:
+                        type: boolean
+                        description: here pass value "true" or "false"
+                      leavingTransferCertificate:
+                        type: boolean
+                        description: here pass value "true" or "false"
+                      incomeCertificate:
+                        type: boolean
+                        description: here pass value "true" or "false"
+                      lastYearMarksheet:
+                        type: boolean
+                        description: here pass value "true" or "false"
+                      nationalityCertificate:
+                        type: boolean
+                        description: here pass value "true" or "false"
+                      domicileCertificate:
+                        type: boolean
+                        description: here pass value "true" or "false"
+                      nonCreamyLayerCertificate:
+                        type: boolean
+                        description: here pass value "true" or "false"
+                  bankDetails:
                     type: boolean
                     description: here pass value "true" or "false"      
               studentFormSetting:
@@ -14500,72 +14742,59 @@ paths:
                 required:  true
                 description: here pass all student form setting boolean
                 properties:
-                  studentNationality:
+                  personalInfo:
                     type: boolean
                     description: here pass value "true" or "false"
-                  studentMTongue:
+                  otherPersonalInfo:
                     type: boolean
                     description: here pass value "true" or "false"
-                  studentMotherName:
+                  addressInfo:
                     type: boolean
                     description: here pass value "true" or "false"
-                  studentCast:
+                  identityDetails:
                     type: boolean
-                    description: here pass value "true" or "false"
-                  studentCastCategory:
+                    description: here pass value "true" or "false"                       
+                  previousSchoolAndDocument:
+                    type: object
+                    required: true,
+                    description: previous schools and document related toggle
+                    properties:
+                      previousSchoolDocument:
+                        type: boolean
+                        description: here pass value "true" or "false"
+                      aadharCard:
+                        type: boolean
+                        description: here pass value "true" or "false"
+                      identityDocument:
+                        type: boolean
+                        description: here pass value "true" or "false"
+                      casteCertificate:
+                        type: boolean
+                        description: here pass value "true" or "false"
+                      joiningTransferLetter:
+                        type: boolean
+                        description: here pass value "true" or "false"
+                      leavingTransferCertificate:
+                        type: boolean
+                        description: here pass value "true" or "false"
+                      incomeCertificate:
+                        type: boolean
+                        description: here pass value "true" or "false"
+                      lastYearMarksheet:
+                        type: boolean
+                        description: here pass value "true" or "false"
+                      nationalityCertificate:
+                        type: boolean
+                        description: here pass value "true" or "false"
+                      domicileCertificate:
+                        type: boolean
+                        description: here pass value "true" or "false"
+                      nonCreamyLayerCertificate:
+                        type: boolean
+                        description: here pass value "true" or "false"
+                  bankDetails:
                     type: boolean
-                    description: here pass value "true" or "false"
-                  studentReligion:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentBirthPlace:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentDistrict:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentState:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentAddress:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentPhoneNumber:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentAadharNumber:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentAadharFrontCard:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentAadharBackCard:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentPanNumber:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentBankDetails:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentCasteCertificate:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentParentsName:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentParentsPhoneNumber:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentHeight:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentWeight:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentBMI:
-                    type: boolean
-                    description: here pass value "true" or "false"                     
+                    description: here pass value "true" or "false"                         
       responses:
         "200":
           description: OK

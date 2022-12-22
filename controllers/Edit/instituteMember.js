@@ -275,7 +275,7 @@ exports.classDetail = async (req, res) => {
           "staffProfilePhoto photoId staffFirstName staffMiddleName staffLastName",
       })
       .select(
-        "className classTitle classHeadTitle classTeacher masterClassName"
+        "className classTitle classHeadTitle classTeacher masterClassName finalReportsSettings.aggregatePassingPercentage optionalSubjectCount"
       )
       .lean()
       .exec();
@@ -302,6 +302,9 @@ exports.classEdit = async (req, res) => {
       classes.className = classMaster.className;
       await Promise.all([previousClassMaster.save(), classMaster.save()]);
     }
+    classes.finalReportsSettings.aggregatePassingPercentage =
+      req.body?.aggregatePassingPercentage;
+    classes.optionalSubjectCount = req.body?.optionalSubjectCount;
     if (req.body.classTitle) classes.classTitle = req.body?.classTitle;
     if (req.body.classHeadTitle)
       classes.classHeadTitle = req.body?.classHeadTitle;
@@ -446,7 +449,9 @@ exports.subjectDetail = async (req, res) => {
         select:
           "staffProfilePhoto photoId staffFirstName staffMiddleName staffLastName",
       })
-      .select("subjectName subjectTitle subjectTeacherName subjectMasterName")
+      .select(
+        "subjectName subjectTitle subjectOptional subjectTeacherName subjectMasterName setting.subjectPassingMarks"
+      )
       .lean()
       .exec();
     res.status(200).send({
@@ -468,6 +473,7 @@ exports.subjectEdit = async (req, res) => {
     if (req.body?.subjectTitle) {
       subject.subjectTitle = req.body?.subjectTitle;
     }
+    subject.setting.subjectPassingMarks = req.body?.subjectPassingMarks;
     if (req.body?.smId) {
       const previousSubjectMaster = await SubjectMaster.findById(
         subject.subjectMasterName

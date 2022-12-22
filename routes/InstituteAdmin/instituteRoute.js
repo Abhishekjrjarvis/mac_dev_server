@@ -9,14 +9,94 @@ const upload = multer({ dest: "uploads/" });
 router.post(
   "/:uid/staffform/:id",
   isLoggedIn,
-  upload.array("file"),
+  upload.fields([
+    {
+      name: "file",
+    },
+    {
+      name: "addharFrontCard",
+    },
+    {
+      name: "addharBackCard",
+    },
+    {
+      name: "bankPassbook",
+    },
+    {
+      name: "casteCertificate",
+    },
+    {
+      name: "identityDocument",
+    },
+    {
+      name: "joiningTransferLetter",
+    },
+    {
+      name: "leavingTransferCertificate",
+    },
+    {
+      name: "incomeCertificate",
+    },
+    {
+      name: "lastYearMarksheet",
+    },
+    {
+      name: "nationalityCertificate",
+    },
+    {
+      name: "domicileCertificate",
+    },
+    {
+      name: "nonCreamyLayerCertificate",
+    },
+  ]),
   catchAsync(Institute.fillStaffForm)
 );
 
 router.post(
   "/:uid/studentform/:id",
   isLoggedIn,
-  upload.array("file"),
+  upload.fields([
+    {
+      name: "file",
+    },
+    {
+      name: "addharFrontCard",
+    },
+    {
+      name: "addharBackCard",
+    },
+    {
+      name: "bankPassbook",
+    },
+    {
+      name: "casteCertificate",
+    },
+    {
+      name: "identityDocument",
+    },
+    {
+      name: "joiningTransferLetter",
+    },
+    {
+      name: "leavingTransferCertificate",
+    },
+    {
+      name: "incomeCertificate",
+    },
+    {
+      name: "lastYearMarksheet",
+    },
+    {
+      name: "nationalityCertificate",
+    },
+    {
+      name: "domicileCertificate",
+    },
+    {
+      name: "nonCreamyLayerCertificate",
+    },
+  ]),
   catchAsync(Institute.fillStudentForm)
 );
 

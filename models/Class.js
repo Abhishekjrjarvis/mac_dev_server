@@ -258,6 +258,10 @@ const classSchema = new mongoose.Schema({
       ref: "Student",
     },
   ],
+  optionalSubjectCount: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Class = mongoose.model("Class", classSchema);

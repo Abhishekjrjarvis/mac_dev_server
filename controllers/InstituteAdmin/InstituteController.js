@@ -29,6 +29,7 @@ const fs = require("fs");
 const util = require("util");
 const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const { todayDate } = require("../../Utilities/timeComparison");
+const { file_to_aws } = require("../../Utilities/uploadFileAws");
 const { randomSixCode } = require("../../Service/close");
 const unlinkFile = util.promisify(fs.unlink);
 
@@ -824,37 +825,39 @@ exports.printedBySuperAdmin = async (req, res) => {
 };
 
 exports.fillStaffForm = async (req, res) => {
-  // var staffDate = new Date();
-  // var joinDate = `${staffDate.getFullYear()}-${
-  //   staffDate.getMonth() < 10
-  //     ? `0${staffDate.getMonth() + 1}`
-  //     : staffDate.getMonth() + 1
-  // }-${
-  //   staffDate.getDate() < 10 ? `0${staffDate.getDate()}` : staffDate.getDate()
-  // }`;
   try {
     const { uid, id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id });
     const user = await User.findById({ _id: uid });
     const staff = new Staff({ ...req.body });
-    for (let file of req.files) {
-      let count = 1;
-      if (count === 1) {
-        const width = 200;
-        const height = 200;
-        const results = await uploadFile(file, width, height);
-        staff.photoId = "0";
-        staff.staffProfilePhoto = results.key;
-        count = count + 1;
-      } else if (count === 2) {
-        const results = await uploadDocFile(file);
-        staff.staffAadharFrontCard = results.key;
-        count = count + 1;
-      } else {
-        const results = await uploadDocFile(file);
-        staff.staffAadharBackCard = results.key;
+    for (let fileObject in req.files) {
+      for (let singleFile of req.files[fileObject]) {
+        if (fileObject === "file") {
+          const width = 200;
+          const height = 200;
+          const results = await uploadFile(file, width, height);
+          staff.photoId = "0";
+          staff.staffProfilePhoto = results.Key;
+          await unlinkFile(file.path);
+        } else {
+          const uploadedFile = await file_to_aws(singleFile);
+          if (fileObject === "addharFrontCard")
+            staff.staffAadharFrontCard = uploadedFile.documentKey;
+          else if (fileObject === "addharBackCard")
+            staff.staffAadharBackCard = uploadedFile.documentKey;
+          else if (fileObject === "bankPassbook")
+            staff.staffBankPassbook = uploadedFile.documentKey;
+          else if (fileObject === "casteCertificate")
+            staff.staffCasteCertificatePhoto = uploadedFile.documentKey;
+          else {
+            staff.studentDocuments.push({
+              documentName: fileObject,
+              documentKey: uploadedFile.documentKey,
+              documentType: uploadedFile.documentType,
+            });
+          }
+        }
       }
-      await unlinkFile(file.path);
     }
     const notify = new Notification({});
     const aStatus = new Status({});
@@ -906,26 +909,35 @@ exports.fillStudentForm = async (req, res) => {
     const classes = await Class.findOne({ classCode: req.body.studentCode });
     const classStaff = await Staff.findById({ _id: `${classes.classTeacher}` });
     const classUser = await User.findById({ _id: `${classStaff.user}` });
-    for (let file of req.files) {
-      let count = 1;
-      if (count === 1) {
-        const width = 200;
-        const height = 200;
-        const results = await uploadFile(file, width, height);
-        student.photoId = "0";
-        student.studentProfilePhoto = results.key;
-        count = count + 1;
-      } else if (count === 2) {
-        const results = await uploadDocFile(file);
-        student.studentAadharFrontCard = results.key;
-        count = count + 1;
-      } else {
-        const results = await uploadDocFile(file);
-        student.studentAadharBackCard = results.key;
+    for (let fileObject in req.files) {
+      for (let singleFile of req.files[fileObject]) {
+        if (fileObject === "file") {
+          const width = 200;
+          const height = 200;
+          const results = await uploadFile(file, width, height);
+          student.photoId = "0";
+          student.studentProfilePhoto = results.Key;
+          await unlinkFile(file.path);
+        } else {
+          const uploadedFile = await file_to_aws(singleFile);
+          if (fileObject === "addharFrontCard")
+            student.studentAadharFrontCard = uploadedFile.documentKey;
+          else if (fileObject === "addharBackCard")
+            student.studentAadharBackCard = uploadedFile.documentKey;
+          else if (fileObject === "bankPassbook")
+            student.studentBankPassbook = uploadedFile.documentKey;
+          else if (fileObject === "casteCertificate")
+            student.studentCasteCertificatePhoto = uploadedFile.documentKey;
+          else {
+            student.studentDocuments.push({
+              documentName: fileObject,
+              documentKey: uploadedFile.documentKey,
+              documentType: uploadedFile.documentType,
+            });
+          }
+        }
       }
-      await unlinkFile(file.path);
     }
-
     const notify = new StudentNotification({});
     const aStatus = new Status({});
     institute.student.push(student._id);
@@ -1341,7 +1353,14 @@ exports.retrieveNewClass = async (req, res) => {
   try {
     // console.log(req.body)
     const { id, did, bid } = req.params;
-    const { sid, classTitle, classHeadTitle, mcId, classCode } = req.body;
+    const {
+      sid,
+      classTitle,
+      classHeadTitle,
+      mcId,
+      aggregatePassingPercentage,
+      optionalSubjectCount,
+    } = req.body;
     const institute = await InstituteAdmin.findById({ _id: id });
     const masterClass = await ClassMaster.findById({ _id: mcId });
     const mCName = masterClass.className;
@@ -1365,6 +1384,10 @@ exports.retrieveNewClass = async (req, res) => {
         classHeadTitle: classHeadTitle,
         classCode: `${result}`,
         classStartDate: date,
+        finalReportsSettings: {
+          aggregatePassingPercentage: aggregatePassingPercentage,
+        },
+        optionalSubjectCount: optionalSubjectCount,
       });
       institute.classCodeList.push(`${result}`);
       institute.classRooms.push(classRoom._id);
@@ -1431,7 +1454,7 @@ exports.retrieveNewClass = async (req, res) => {
 exports.retrieveNewSubject = async (req, res) => {
   try {
     const { id, cid, bid, did } = req.params;
-    const { sid, subjectTitle, subjectName, msid } = req.body;
+    const { sid, subjectTitle, msid, subjectPassingMarks } = req.body;
     const institute = await InstituteAdmin.findById({ _id: id });
     const classes = await Class.findById({ _id: cid }).populate({
       path: "classTeacher",
@@ -1450,6 +1473,10 @@ exports.retrieveNewSubject = async (req, res) => {
       subjectTitle: subjectTitle,
       subjectName: subjectMaster.subjectName,
       subjectMasterName: subjectMaster._id,
+      subjectOptional: subjectMaster.subjectType,
+      setting: {
+        subjectPassingMarks: subjectPassingMarks,
+      },
     });
     classes.subject.push(subject._id);
     classes.subjectCount += 1;
@@ -1514,7 +1541,7 @@ exports.retrieveSubjectMaster = async (req, res) => {
   try {
     const { did } = req.params;
     const subjectMaster = await SubjectMaster.find({ department: did })
-      .select("subjectName subjects")
+      .select("subjectName subjectType subjects")
       .lean()
       .exec();
     if (subjectMaster) {
@@ -1599,7 +1626,7 @@ exports.retrieveClassSubject = async (req, res) => {
       .select("className classTitle classHeadTitle classAbout classStatus")
       .populate({
         path: "subject",
-        select: "subjectName subjectTitle subjectStatus",
+        select: "subjectName subjectOptional subjectTitle subjectStatus",
       })
       .lean()
       .exec();
@@ -1740,11 +1767,12 @@ exports.retrieveNewClassMaster = async (req, res) => {
 exports.retrieveNewSubjectMaster = async (req, res) => {
   try {
     const { id, did, bid } = req.params;
-    const { subjectName } = req.body;
+    const { subjectName, subjectType } = req.body;
     const institute = await InstituteAdmin.findById({ _id: id });
     const departmentData = await Department.findById({ _id: did });
     const subjectMaster = new SubjectMaster({
       subjectName: subjectName,
+      subjectType: subjectType,
       institute: institute._id,
       department: did,
     });

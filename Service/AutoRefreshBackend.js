@@ -276,57 +276,125 @@ const remove_redundancy_recommend = (re1, uf1, uc1, uff1) => {
   const unique_follow = [...new Set(found_re5)];
   return unique_follow;
 };
+// Use in Next Year Working
+// exports.recommendedAllIns = async (req, res) => {
+//   try {
+//     var recommend = [];
+//     const { uid } = req.params;
+//     const { expand_search } = req.query;
+//     const expand = expand_search ? expand_search : 35;
+//     var user = await User.findById({ _id: uid }).select(
+//       "user_latitude user_longitude userInstituteFollowing userFollowers userCircle userFollowing"
+//     );
+
+//     const ins = await InstituteAdmin.find({}).select(
+//       "ins_latitude ins_longitude"
+//     );
+//     if (ins?.length > 0) {
+//       ins.forEach((rec) => {
+//         // if(user?.userInstituteFollowing?.includes(rec?._id)) return
+//         recommend.push(
+//           distanceRecommend(
+//             user?.user_latitude,
+//             user?.user_longitude,
+//             rec?.ins_latitude,
+//             rec?.ins_longitude,
+//             rec?._id,
+//             expand
+//           )
+//         );
+//       });
+//     }
+//     recommend = recommend.sort(compareDistance);
+//     var refresh_recommend = recommend.filter((recomm) => recomm != null);
+//     if (refresh_recommend?.length > 0) {
+//       const recommend_ins = await InstituteAdmin.find({
+//         $and: [{ _id: { $in: refresh_recommend } }, { status: "Approved" }],
+//       })
+//         .select(
+//           "insName name photoId insProfilePhoto status isUniversal followersCount one_line_about coverId joinedUserList insEmail insAddress ins_latitude ins_longitude insProfileCoverPhoto"
+//         )
+//         .populate({
+//           path: "displayPersonList",
+//           select: "displayTitle createdAt",
+//           populate: {
+//             path: "displayUser",
+//             select: "userLegalName username photoId profilePhoto",
+//           },
+//         })
+//         .lean()
+//         .exec();
+
+//       var refresh_recommend_user = [];
+//       recommend_ins?.forEach((recommend) => {
+//         if (recommend?.joinedUserList.includes(user?._id)) return;
+//         refresh_recommend_user.push(...recommend?.joinedUserList);
+//       });
+//       var refresh_recommend_ref = refresh_recommend_user?.filter(function (
+//         user_ref
+//       ) {
+//         return `${user_ref}` !== `${user?._id}`;
+//       });
+//       var valid_recommend_user = remove_redundancy_recommend(
+//         refresh_recommend_ref,
+//         user?.userFollowers,
+//         user?.userCircle,
+//         user?.userFollowing
+//       );
+//       const recommend_user = await User.find({
+//         _id: { $in: valid_recommend_user },
+//       })
+//         .select(
+//           "userLegalName username followerCount photoId profilePhoto one_line_about"
+//         )
+//         .lean()
+//         .exec();
+
+//       var rec_user = [];
+//       recommend_ins?.forEach((rem_rec_red) => {
+//         if (user?.userInstituteFollowing?.includes(rem_rec_red?._id)) return;
+//         var data_cal = distanceCal(
+//           user?.user_latitude,
+//           user?.user_longitude,
+//           rem_rec_red?.ins_latitude,
+//           rem_rec_red?.ins_longitude
+//         );
+//         rem_rec_red.ins_distance = data_cal.toFixed(3);
+//         rec_user.push(rem_rec_red);
+//       });
+//       shuffleArray(rec_user);
+//       res.status(200).send({
+//         message: "Recommended Institute for follow and Joined",
+//         recommend_ins_array: rec_user,
+//         recommend: true,
+//         refresh_recommend_user: recommend_user,
+//       });
+//     } else {
+//       res.status(200).send({
+//         message: "No Recommendation / Suggestion",
+//         recommend_ins_array: [],
+//         recommend: false,
+//         refresh_recommend_user: [],
+//       });
+//     }
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
 
 exports.recommendedAllIns = async (req, res) => {
   try {
-    var recommend = [];
     const { uid } = req.params;
-    const { expand_search } = req.query;
-    const expand = expand_search ? expand_search : 35;
     var user = await User.findById({ _id: uid }).select(
       "user_latitude user_longitude userInstituteFollowing userFollowers userCircle userFollowing"
     );
 
-    const ins = await InstituteAdmin.find({}).select(
-      "ins_latitude ins_longitude"
-    );
+    const ins = await InstituteAdmin.find({
+      _id: { $in: user.userInstituteFollowing },
+    }).select("joinedUserList");
     if (ins?.length > 0) {
-      ins.forEach((rec) => {
-        // if(user?.userInstituteFollowing?.includes(rec?._id)) return
-        recommend.push(
-          distanceRecommend(
-            user?.user_latitude,
-            user?.user_longitude,
-            rec?.ins_latitude,
-            rec?.ins_longitude,
-            rec?._id,
-            expand
-          )
-        );
-      });
-    }
-    recommend = recommend.sort(compareDistance);
-    var refresh_recommend = recommend.filter((recomm) => recomm != null);
-    if (refresh_recommend?.length > 0) {
-      const recommend_ins = await InstituteAdmin.find({
-        $and: [{ _id: { $in: refresh_recommend } }, { status: "Approved" }],
-      })
-        .select(
-          "insName name photoId insProfilePhoto status isUniversal followersCount one_line_about coverId joinedUserList insEmail insAddress ins_latitude ins_longitude insProfileCoverPhoto"
-        )
-        .populate({
-          path: "displayPersonList",
-          select: "displayTitle createdAt",
-          populate: {
-            path: "displayUser",
-            select: "userLegalName username photoId profilePhoto",
-          },
-        })
-        .lean()
-        .exec();
-
       var refresh_recommend_user = [];
-      recommend_ins?.forEach((recommend) => {
+      ins?.forEach((recommend) => {
         if (recommend?.joinedUserList.includes(user?._id)) return;
         refresh_recommend_user.push(...recommend?.joinedUserList);
       });
@@ -349,23 +417,9 @@ exports.recommendedAllIns = async (req, res) => {
         )
         .lean()
         .exec();
-
-      var rec_user = [];
-      recommend_ins?.forEach((rem_rec_red) => {
-        if (user?.userInstituteFollowing?.includes(rem_rec_red?._id)) return;
-        var data_cal = distanceCal(
-          user?.user_latitude,
-          user?.user_longitude,
-          rem_rec_red?.ins_latitude,
-          rem_rec_red?.ins_longitude
-        );
-        rem_rec_red.ins_distance = data_cal.toFixed(3);
-        rec_user.push(rem_rec_red);
-      });
-      shuffleArray(rec_user);
       res.status(200).send({
         message: "Recommended Institute for follow and Joined",
-        recommend_ins_array: rec_user,
+        recommend_ins_array: [],
         recommend: true,
         refresh_recommend_user: recommend_user,
       });

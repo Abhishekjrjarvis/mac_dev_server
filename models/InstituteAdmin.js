@@ -32,7 +32,7 @@ const instituteAdminSchema = new mongoose.Schema({
   b_certificate_count: { type: Number, default: 0 },
   l_certificate_count: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
-  staffJoinCode: { type: String },
+  staffJoinCode: { type: String, unique: true },
   bankAccountHolderName: { type: String },
   bankAccountNumber: { type: String },
   bankIfscCode: { type: String },

@@ -12,6 +12,8 @@ const Department = require("../../models/Department");
 const Class = require("../../models/Class");
 const invokeSpecificRegister = require("../../Firebase/specific");
 const Finance = require("../../models/Finance");
+const { chatCount } = require("../../Firebase/dailyChat");
+const { getFirestore } = require("firebase-admin/firestore");
 
 exports.validateUserAge = async (req, res) => {
   try {
@@ -66,6 +68,7 @@ exports.retrieveAgeRestrict = async (req, res) => {
   try {
     const { uid } = req.params;
     const user = await User.findById({ _id: uid });
+    // const ageEncrypt = await encryptionPayload(user.ageRestrict);
     res
       .status(200)
       .send({ message: "Get Age Rstrict", status: user.ageRestrict });
@@ -79,6 +82,7 @@ exports.retrieveRandomInstituteQuery = async (req, res) => {
     );
     var random = Math.floor(Math.random() * institute.length);
     var r_Ins = institute[random];
+    // const encrypt_random = await encryptionPayload(r_Ins);
     res.status(200).send({ message: "Random Institute", r_Ins });
   } catch {}
 };
@@ -955,6 +959,71 @@ exports.reportAccountByEndUser = async (req, res) => {
         user.deviceToken
       );
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// var data = 0;
+
+// const chatCountQuery = async (uid) => {
+//   const db = getFirestore();
+//   const shotChat = await db.collection(`users/${uid}/chats`).get();
+//   shotChat?.forEach((shot) => {
+//     messageCount(uid, shot?.id).then((res) => {
+//       data += res;
+//     });
+//   });
+//   return data;
+// };
+
+// const messageCount = async (uid, cid) => {
+//   const db = getFirestore();
+//   var count = 0;
+//   const shotMessage = await db
+//     .collection(`users/${uid}/chats/${cid}/messages`)
+//     .get();
+//   shotMessage?.forEach((snap) => {
+//     if (`${uid}` !== `${snap?.data()?.senderId}` && !snap?.data()?.isSeen) {
+//       count = count + 1;
+//     }
+//   });
+//   return count + 1;
+// };
+
+exports.retrieveRecentChatCount = async (req, res) => {
+  try {
+    const { uid } = req.params;
+    // var num = 0;
+    // var tNum = 0;
+    // var dNum = 0;
+    // var sNum = 0;
+    // const db = getFirestore();
+    // const sfRef = db.collection("users").doc(`${uid}`);
+    // const collections = await sfRef.listCollections();
+    // collections.forEach(async (collection) => {
+    //   const data = await collection.get();
+    //   data.docs.forEach(async (snap) => {
+    //     const map_data = await db
+    //       .collection(`/users/${uid}/chats/${snap.id}/messages`)
+    //       .listDocuments();
+    //     map_data.forEach(async (count) => {
+    //       const add = await count?.get();
+    //       if (`${uid}` !== `${add?.data()?.senderId}` && !add?.data()?.isSeen) {
+    //         num = num + 1;
+    //       }
+    //       tNum += num;
+    //     });
+    //     sNum += tNum;
+    //   });
+    //   dNum += sNum;
+    // });
+    const data = await chatCount(uid);
+    res.status(200).send({
+      message: "New Recents Chats🙄",
+      show: true,
+      data,
+    });
   } catch (e) {
     console.log(e);
   }

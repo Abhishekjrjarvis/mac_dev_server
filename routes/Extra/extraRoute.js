@@ -113,4 +113,9 @@ router.post(
   catchAsync(Extra.reportAccountByEndUser)
 );
 
+router.get(
+  "/:uid/recent/chat/count",
+  catchAsync(Extra.retrieveRecentChatCount)
+);
+
 module.exports = router;

@@ -67,6 +67,7 @@ exports.renderAdministrator = async (req, res) => {
       const access_user = await User.findOne({ username: user });
       const manage = new ManageAdmin({ ...req.body });
       manage.affiliation_admin = access_user._id;
+      manage.affiliation_status = "Approved";
       access_user.manage_admins.push(manage._id);
       manage.permission.push({
         role: "full_read_access",

@@ -11,6 +11,9 @@ const MongoStore = require("connect-mongo");
 const loggers = require("./Utilities/Logs/resLogs");
 const mongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
+const cluster = require("cluster");
+const http = require("http");
+const numCPUs = require("os").cpus().length;
 
 //======================== All Routes ========================
 const {
@@ -61,12 +64,12 @@ const hashtag = require("./routes/HashTag/hashtagRoute");
 const manage = require("./routes/ManageAdmin/manageRoute");
 
 // ============================= DB Configuration ==============================
-const testinDburl = `${process.env.TESTING_DATABASE_URL}`; // Testing
-// const dburl = `${process.env.DB_URL2}`; // Development
+// const dburl = `${process.env.TESTING_DATABASE_URL}`; // Testing
+const dburl = `${process.env.DB_URL2}`; // Development
 // const dburl = `${process.env.DB_URL}`; // Production
 
 mongoose
-  .connect(testinDburl, {
+  .connect(dburl, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -99,6 +102,7 @@ app.use(
       "https://qviple.com",
       "https://admin.qviple.com",
       "https://developer.qviple.com",
+      "https://support.qviple.com",
     ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
@@ -108,7 +112,7 @@ app.use(
 const secret = "Thisismysecret";
 
 const store = new MongoStore({
-  mongoUrl: testinDburl,
+  mongoUrl: dburl,
   touchAfter: 24 * 60 * 60,
 });
 
@@ -207,63 +211,37 @@ app.get("*", (req, res) => {
 
 const port = process.env.PORT || 8080;
 
-const server = app.listen(port, function () {
-  console.log("Server listening on port " + port);
+app.listen(port, function () {
+  console.log(`Server listening on port ${port}`);
 });
 
-const io = require("socket.io")(server, {
-  pingTimeout: 60000,
-  cors: {
-    origin: "*",
-  },
-});
+// if (cluster.isMaster) {
+//   console.log(`Master Process ${process.pid} is running`);
 
-const users = {};
+//   for (let i = 0; i < numCPUs; i++) {
+//     cluster.fork();
+//   }
 
-io.on("connection", (socket) => {
-  console.log("Connected to socket.io");
-  socket.on("setup", (userData) => {
-    socket.join(userData);
-    socket.emit("connected");
-  });
+//   cluster.on("exit", (worker, code, signal) => {
+//     console.log(`worker ${worker.process.pid} died`);
+//   });
+// } else {
+//   const port = process.env.PORT || 8080;
 
-  socket.on("online", (userId) => {
-    console.log("a user " + userId + " connected");
-    users[socket.id] = userId;
-  });
-  socket.on("join chat", (room) => {
-    socket.join(room);
-    console.log("User Joined Room: " + room);
-  });
-  socket.on("typing", (room) => socket.in(room).emit("typing"));
-  socket.on("stop typing", (room) => socket.in(room).emit("stop typing"));
-  socket.on("new message", (newMessageRecieved) => {
-    var chat = newMessageRecieved.chat;
-    if (!chat.users) return console.log("chat.users not defined");
+//   app.listen(port, function () {
+//     console.log(
+//       `Worker ${process.pid} started Server listening on port ${port}`
+//     );
+//   });
+// }
 
-    chat.users.forEach((user) => {
-      if (user._id == newMessageRecieved.sender._id) return;
-      socket.in(user._id).emit("message recieved", newMessageRecieved);
-    });
-  });
-
-  socket.on("new support", (newMessageRecieved) => {
-    var chats = newMessageRecieved.chat;
-    if (!chats.users) return console.log("chat.users not defined");
-
-    chats.users.forEach((user) => {
-      if (user == newMessageRecieved.sender) return;
-      socket.in(user).emit("message support", newMessageRecieved);
-    });
-  });
-
-  socket.on("offline", (userId) => {
-    console.log("a user " + userId + " disconnected");
-    delete users[socket.id];
-  });
-
-  socket.off("setup", (userData) => {
-    console.log("USER DISCONNECTED");
-    socket.leave(userData);
-  });
-});
+// process.on("SIGTERM", () => {
+//   console.info("SIGTERM signal received.");
+//   server.close(() => {
+//     console.log("Http server closed.");
+//     mongoose.connection.close(false, () => {
+//       console.log("MongoDb connection closed.");
+//       process.exit(0);
+//     });
+//   });
+// });

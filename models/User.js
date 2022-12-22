@@ -1,4 +1,9 @@
 const mongoose = require("mongoose");
+const Post = require("./Post");
+const Staff = require("./Staff");
+const Student = require("./Student");
+const Status = require("./Admission/status");
+const Answer = require("./Question/Answer");
 
 const userSchema = new mongoose.Schema({
   userPhoneNumber: { type: Number, maxlength: 10 },
@@ -447,6 +452,26 @@ userSchema.post("findOneAndDelete", async function (doc) {
     await Post.deleteMany({
       _id: {
         $in: doc.userPosts,
+      },
+    });
+    await Staff.deleteMany({
+      _id: {
+        $in: doc.staff,
+      },
+    });
+    await Student.deleteMany({
+      _id: {
+        $in: doc.student,
+      },
+    });
+    await Status.deleteMany({
+      _id: {
+        $in: doc.applicationStatus,
+      },
+    });
+    await Answer.deleteMany({
+      _id: {
+        $in: doc.answered_query,
       },
     });
   }

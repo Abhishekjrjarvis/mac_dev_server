@@ -25,8 +25,12 @@ router.get(
   catchAsync(Recommend.recommendedAllAdmissionPost)
 );
 
-router.get("/:id/data/ins", catchAsync(Prod.oneInstitute));
+router.get("/data/ins", catchAsync(Prod.oneInstitute));
 
 router.get("/:id/data/user", catchAsync(Prod.oneUser));
+
+router.delete("/user/:id/delete", catchAsync(Prod.deleteUser));
+
+router.delete("/ins/:id/delete", catchAsync(Prod.deleteIns));
 
 module.exports = router;

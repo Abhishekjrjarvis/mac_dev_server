@@ -17,15 +17,24 @@ exports.photoEditByStudent = async (req, res) => {
   try {
     if (!req.params.sid || !req.file)
       throw "Please send student id to perform task or upload photo";
+    const { sample_pic } = req.body;
     const student = await Student.findById(req.params.sid);
-    await deleteFile(student.studentProfilePhoto);
-    const results = await uploadFile(req.file);
-    student.studentProfilePhoto = results.Key;
-    await student.save();
-    res.status(200).send({
-      message: "Photo edited successfully👍",
-    });
-    await unlinkFile(file.path);
+    if (!sample_pic) {
+      // await deleteFile(student.studentProfilePhoto);
+      const results = await uploadFile(req.file);
+      student.studentProfilePhoto = results.Key;
+      await student.save();
+      res.status(200).send({
+        message: "Photo edited successfully👍",
+      });
+      await unlinkFile(file.path);
+    } else {
+      student.studentProfilePhoto = sample_pic;
+      await student.save();
+      res.status(200).send({
+        message: "Photo edited successfully👍",
+      });
+    }
   } catch (e) {
     console.log(e);
   }

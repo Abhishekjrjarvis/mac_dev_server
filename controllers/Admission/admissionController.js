@@ -94,7 +94,7 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
       })
       .populate({
         path: "institute",
-        select: "_id",
+        select: "_id insName insProfilePhoto status",
       });
     res.status(200).send({ message: "Admission Detail", admission });
   } catch {}
@@ -264,6 +264,18 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
     admission.newAppCount += 1;
     newApply.admissionAdmin = admission._id;
     institute.admissionCount += 1;
+    newApply.one_installments = JSON.parse(req.body.one_installments);
+    newApply.two_installments = JSON.parse(req.body.two_installments);
+    newApply.three_installments = JSON.parse(req.body.three_installments);
+    newApply.four_installments = JSON.parse(req.body.four_installments);
+    newApply.five_installments = JSON.parse(req.body.five_installments);
+    newApply.six_installments = JSON.parse(req.body.six_installments);
+    newApply.seven_installments = JSON.parse(req.body.seven_installments);
+    newApply.eight_installments = JSON.parse(req.body.eight_installments);
+    newApply.nine_installments = JSON.parse(req.body.nine_installments);
+    newApply.ten_installments = JSON.parse(req.body.ten_installments);
+    newApply.eleven_installments = JSON.parse(req.body.eleven_installments);
+    newApply.tweleve_installments = JSON.parse(req.body.tweleve_installments);
     await Promise.all([admission.save(), newApply.save(), institute.save()]);
     if (req.file) {
       await unlinkFile(req.file?.path);

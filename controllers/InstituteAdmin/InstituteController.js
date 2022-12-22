@@ -29,6 +29,7 @@ const fs = require("fs");
 const util = require("util");
 const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const { todayDate } = require("../../Utilities/timeComparison");
+const { randomSixCode } = require("../../Service/close");
 const unlinkFile = util.promisify(fs.unlink);
 
 exports.getDashOneQuery = async (req, res) => {
@@ -63,7 +64,10 @@ exports.getProfileOneQuery = async (req, res) => {
       })
       .lean()
       .exec();
-    res.status(200).send({ message: "Limit Post Ins", institute });
+    const encrypt = await encryptionPayload(institute);
+    res
+      .status(200)
+      .send({ message: "Limit Post Ins", institute, eData: encrypt });
   } catch {}
 };
 
@@ -206,6 +210,53 @@ exports.getNotificationIns = async (req, res) => {
     res.status(200).send({ message: "Notification Data ✨", notify });
   } catch (e) {
     console.log("Error", e.message);
+  }
+};
+
+exports.getAllTotalCount = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const institute = await InstituteAdmin.findById({ _id: id })
+      .select("_id iNotify")
+      .populate({
+        path: "iNotify",
+      });
+    var total = 0;
+    const notify = await Notification.find({
+      $and: [
+        { _id: { $in: institute?.iNotify } },
+        { notifyViewStatus: "Not View" },
+      ],
+    });
+    total = total + notify?.length;
+
+    res.status(200).send({ message: "Not Viewed Notification", count: total });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveMarkAllView = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const institute = await InstituteAdmin.findById({ _id: id })
+      .select("_id")
+      .populate({ path: "iNotify" });
+    const notify = await Notification.find({
+      $and: [
+        { _id: { $in: institute?.iNotify } },
+        { notifyViewStatus: "Not View" },
+      ],
+    });
+    if (notify?.length >= 1) {
+      notify.forEach(async (ele) => {
+        ele.notifyViewStatus = "View";
+        await ele.save();
+      });
+    }
+    res.status(200).send({ message: "Mark All To Be Viewed" });
+  } catch (e) {
+    console.log(e);
   }
 };
 
@@ -620,13 +671,24 @@ exports.getNewStaffJoinCodeIns = async (req, res) => {
   try {
     const { id } = req.params;
     const { code } = req.body;
-    const institute = await InstituteAdmin.findById({ _id: id });
-    institute.staffJoinCode = code;
-    await institute.save();
-    res.status(200).send({
-      message: "staff joining code",
-      institute: institute.staffJoinCode,
-    });
+    const all_ins = await InstituteAdmin.find({ staffJoinCode: `${code}` });
+    if (all_ins?.length > 0) {
+      const institute = await InstituteAdmin.findById({ _id: id });
+      institute.staffJoinCode = await randomSixCode();
+      await institute.save();
+      res.status(200).send({
+        message: "New Random Staff joining code",
+        institute: institute.staffJoinCode,
+      });
+    } else {
+      const institute = await InstituteAdmin.findById({ _id: id });
+      institute.staffJoinCode = code;
+      await institute.save();
+      res.status(200).send({
+        message: "Staff joining code",
+        institute: institute.staffJoinCode,
+      });
+    }
   } catch (e) {
     console.log(`Error`, e.message);
   }

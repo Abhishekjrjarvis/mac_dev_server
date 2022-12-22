@@ -1,8 +1,8 @@
-// ==================ALL ROUTES ADDED TO SWAGGER=====================================================
-
 const Admin = require("../../models/superAdmin");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const User = require("../../models/User");
+const Admission = require("../../models/Admission/Admission");
+const NewApplication = require("../../models/Admission/NewApplication");
 const bcrypt = require("bcryptjs");
 const {
   getFileStream,
@@ -24,6 +24,15 @@ const Post = require("../../models/Post");
 const Comment = require("../../models/Comment");
 const ReplyComment = require("../../models/ReplyComment/ReplyComment");
 const AnswerReply = require("../../models/Question/AnswerReply");
+const OTPCode = require("../../models/OTP/otp");
+const { shuffleArray } = require("../../Utilities/Shuffle");
+const Staff = require("../../models/Staff");
+const Student = require("../../models/Student");
+const Class = require("../../models/Class");
+const StudentNotification = require("../../models/Marks/StudentNotification");
+const Notification = require("../../models/notification");
+const Status = require("../../models/Admission/status");
+const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 
 function generateAccessToken(username, userId, userPassword) {
   return jwt.sign(
@@ -202,8 +211,6 @@ exports.getPassIns = async (req, res) => {
   }
 };
 
-var OTP = "";
-
 var r_date = new Date();
 var r_l_date = new Date(r_date);
 r_l_date.setDate(r_l_date.getDate() + 21);
@@ -221,17 +228,18 @@ const generateOTP = async (mob) => {
   let rand3 = Math.floor(Math.random() * 9) + 1;
   let rand4 = Math.floor(Math.random() * 9) + 1;
   OTP = `${rand1}${rand2}${rand3}${rand4}`;
-  const data = axios
+  axios
     .post(
       `http://mobicomm.dove-sms.com//submitsms.jsp?user=Mithkal&key=4c3168d558XX&mobile=+91${mob}&message=Welcome to Qviple, Your Qviple account verification OTP is ${OTP} Mithkal Minds Pvt Ltd.&senderid=QVIPLE&accusage=6`
     )
     .then((res) => {
       if ((res && res.data.includes("success")) || res.data.includes("sent")) {
-        console.log("messsage Sent Successfully", res.data);
+        // console.log("messsage Sent Successfully", res.data);
       } else {
-        console.log("something went wrong");
+        // console.log("something went wrong");
       }
     });
+  return OTP;
 };
 
 exports.getOtpAtUser = async (req, res) => {
@@ -239,11 +247,16 @@ exports.getOtpAtUser = async (req, res) => {
     const { userPhoneNumber, status } = req.body;
     if (userPhoneNumber) {
       if (status === "Not Verified") {
-        generateOTP(userPhoneNumber).then((data) => {
-          res.status(200).send({
-            message: "code will be send to registered mobile number",
-            userPhoneNumber,
-          });
+        await OTPCode.deleteMany({ otp_number: userPhoneNumber });
+        const code = await generateOTP(userPhoneNumber);
+        const otpCode = new OTPCode({
+          otp_number: userPhoneNumber,
+          otp_code: `${code}`,
+        });
+        await otpCode.save();
+        res.status(200).send({
+          message: "code will be send to registered mobile number",
+          userPhoneNumber,
         });
       } else {
         res.send({ message: "User will be verified..." });
@@ -256,26 +269,25 @@ exports.getOtpAtUser = async (req, res) => {
   }
 };
 
-var InsOTP = "";
-
 const generateInsOTP = async (mob) => {
   let rand1 = Math.floor(Math.random() * 9) + 1;
   let rand2 = Math.floor(Math.random() * 9) + 1;
   let rand3 = Math.floor(Math.random() * 9) + 1;
   let rand4 = Math.floor(Math.random() * 9) + 1;
   InsOTP = `${rand1}${rand2}${rand3}${rand4}`;
-  const data = axios
+  axios
     .post(
       `http://mobicomm.dove-sms.com//submitsms.jsp?user=Mithkal&key=4c3168d558XX&mobile=+91${mob}&message=Welcome to Qviple, Your Qviple account verification OTP is ${InsOTP} Mithkal Minds Pvt Ltd.&senderid=QVIPLE&accusage=6`
     )
     .then((res) => {
       if ((res && res.data.includes("success")) || res.data.includes("sent")) {
-        console.log("messsage Sent Successfully", res.data);
+        // console.log("messsage Sent Successfully", res.data);
       } else {
-        console.log("something went wrong");
+        // console.log("something went wrong");
       }
     })
     .catch(() => {});
+  return InsOTP;
 };
 
 exports.getOtpAtIns = async (req, res) => {
@@ -283,11 +295,16 @@ exports.getOtpAtIns = async (req, res) => {
     const { insPhoneNumber, status } = req.body;
     if (insPhoneNumber) {
       if (status === "Not Verified") {
-        generateInsOTP(insPhoneNumber).then((data) => {
-          res.status(200).send({
-            message: "code will be send to registered mobile number",
-            insPhoneNumber,
-          });
+        await OTPCode.deleteMany({ otp_number: insPhoneNumber });
+        const code = await generateInsOTP(insPhoneNumber);
+        const otpCode = new OTPCode({
+          otp_number: insPhoneNumber,
+          otp_code: `${code}`,
+        });
+        await otpCode.save();
+        res.status(200).send({
+          message: "code will be send to registered mobile number",
+          insPhoneNumber,
         });
       } else {
         res.send({ message: "Institute Phone Number will be verified..." });
@@ -296,16 +313,44 @@ exports.getOtpAtIns = async (req, res) => {
       res.send({ message: "Invalid Phone No." });
     }
   } catch {
-    console.log(`SomeThing Went Wrong at this EndPoint(/ins-detail)`);
+    console.log(e);
   }
 };
 
 exports.verifyOtpByUser = async (req, res) => {
   try {
+    var account_linked = [];
     const { id } = req.params;
-    if (req.body.userOtpCode && req.body.userOtpCode === OTP) {
+    const valid_otp = await OTPCode.findOne({ otp_number: `${id}` });
+    const all_account = await User.find({ userPhoneNumber: id }).select(
+      "userLegalName username profilePhoto userPassword"
+    );
+
+    for (let all of all_account) {
+      const token = generateAccessToken(
+        all?.username,
+        all?._id,
+        all?.userPassword
+      );
+      account_linked.push({
+        user: all,
+        login: true,
+        token: `Bearer ${token}`,
+      });
+    }
+    if (
+      req.body.userOtpCode &&
+      req.body.userOtpCode === `${valid_otp?.otp_code}`
+    ) {
       var userStatus = "approved";
-      res.send({ message: "OTP verified", id, userStatus });
+      res.send({
+        message: "OTP verified",
+        id,
+        userStatus,
+        accounts: account_linked,
+        count: account_linked?.length,
+      });
+      await OTPCode.findByIdAndDelete(valid_otp?._id);
     } else {
       res.send({ message: "Invalid OTP" });
     }
@@ -317,17 +362,19 @@ exports.verifyOtpByUser = async (req, res) => {
 exports.verifyOtpByIns = async (req, res) => {
   try {
     const { id } = req.params;
-    if (req.body.insOtpCode && req.body.insOtpCode === `${InsOTP}`) {
-      console.log("Valid OTP");
+    const valid_otp = await OTPCode.findOne({ otp_number: `${id}` });
+    if (
+      req.body.insOtpCode &&
+      req.body.insOtpCode === `${valid_otp?.otp_code}`
+    ) {
       var insMobileStatus = "approved";
       res.send({ message: "OTP verified", id, insMobileStatus });
+      await OTPCode.findByIdAndDelete(valid_otp?._id);
     } else {
       res.send({ message: "Invalid OTP" });
     }
   } catch {
-    console.log(
-      `SomeThing Went Wrong at this EndPoint(/ins-detail-verify/:id)`
-    );
+    console.log(e);
   }
 };
 
@@ -512,7 +559,6 @@ exports.getUserPassword = async (req, res) => {
   try {
     const { id } = req.params;
     const { userPassword, userRePassword } = req.body;
-    const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const user = await User.findById({ _id: id });
     const genUserPass = bcrypt.genSaltSync(12);
     const hashUserPass = bcrypt.hashSync(req.body.userPassword, genUserPass);
@@ -525,15 +571,15 @@ exports.getUserPassword = async (req, res) => {
           user?._id,
           user?.userPassword
         );
-        res.json({ token: `Bearer ${token}`, user: user });
+        res.json({ token: `Bearer ${token}`, user: user, login: true });
       } else {
-        res.send({ message: "Invalid Password Combination" });
+        res.send({ message: "Invalid Password Combination", login: false });
       }
     } else {
-      res.send({ message: "Invalid User" });
+      res.send({ message: "Invalid User", login: false });
     }
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(e);
   }
 };
 
@@ -543,18 +589,28 @@ exports.forgotPasswordSendOtp = async (req, res) => {
     const user = await User.findOne({ username: username });
     const institute = await InstituteAdmin.findOne({ name: username });
     if (user) {
-      generateOTP(user.userPhoneNumber).then((data) => {
-        res.status(200).send({
-          message: "code will be send to registered mobile number",
-          user,
-        });
+      await OTPCode.deleteMany({ otp_number: user.userPhoneNumber });
+      const code = await generateOTP(user.userPhoneNumber);
+      const otpCode = new OTPCode({
+        otp_number: user.userPhoneNumber,
+        otp_code: `${code}`,
+      });
+      await otpCode.save();
+      res.status(200).send({
+        message: "code will be send to registered mobile number",
+        user,
       });
     } else if (institute) {
-      generateOTP(institute.insPhoneNumber).then((data) => {
-        res.status(200).send({
-          message: "code will be send to registered mobile number",
-          institute,
-        });
+      await OTPCode.deleteMany({ otp_number: institute.insPhoneNumber });
+      const code = await generateOTP(institute.insPhoneNumber);
+      const otpCode = new OTPCode({
+        otp_number: institute.insPhoneNumber,
+        otp_code: `${code}`,
+      });
+      await otpCode.save();
+      res.status(200).send({
+        message: "code will be send to registered mobile number",
+        institute,
       });
     } else {
       res.status(200).send({ message: "Invalid Username" });
@@ -570,21 +626,35 @@ exports.forgotPasswordVerifyOtp = async (req, res) => {
     const user = await User.findById({ _id: fid });
     const institute = await InstituteAdmin.findById({ _id: fid });
     if (user) {
-      if (req.body.userOtpCode && req.body.userOtpCode === OTP) {
+      const valid_otp_user = await OTPCode.findOne({
+        otp_number: `${user?.userPhoneNumber}`,
+      });
+      if (
+        req.body.userOtpCode &&
+        req.body.userOtpCode === `${valid_otp_user?.otp_code}`
+      ) {
         res.status(200).send({ message: "Otp verified", user });
+        await OTPCode.findByIdAndDelete(valid_otp_user?._id);
       } else {
         console.log("Invalid OTP By User F");
       }
     } else if (institute) {
-      if (req.body.userOtpCode && req.body.userOtpCode === OTP) {
+      const valid_otp_ins = await OTPCode.findOne({
+        otp_number: `${institute?.insPhoneNumber}`,
+      });
+      if (
+        req.body.userOtpCode &&
+        req.body.userOtpCode === `${valid_otp_ins?.otp_code}`
+      ) {
         res.status(200).send({ message: "Otp verified", institute });
+        await OTPCode.findByIdAndDelete(valid_otp_ins?._id);
       } else {
         console.log("Invalid OTP By Institute F");
       }
     } else {
     }
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(e);
   }
 };
 
@@ -995,5 +1065,670 @@ exports.searchByUsernameQuery = async (req, res) => {
     }
   } catch (e) {
     console.log(e.kind);
+  }
+};
+
+exports.searchByClassCode = async (req, res) => {
+  try {
+    if (req.query.search.trim() === "") {
+      res.status(202).send({ message: "Please Provide a code to search" });
+    } else {
+      if (req.query.author === "Student") {
+        var classes = await Class.findOne({
+          classCode: req.query.search,
+        }).select("classCode classTitle className");
+        var one_ins = await InstituteAdmin.findOne({
+          classCodeList: { $in: [req.query.search] },
+        })
+          .select("insName insProfilePhoto photoId classCodeList")
+          .lean()
+          .exec();
+      } else if (req.query.author === "Staff") {
+        var one_ins = await InstituteAdmin.findOne({
+          staffJoinCode: req.query.search,
+        })
+          .select("insName insProfilePhoto photoId staffJoinCode")
+          .lean()
+          .exec();
+      } else {
+      }
+    }
+    if (one_ins)
+      res.status(202).send({
+        message: "Check All Details 🔍",
+        seen: true,
+        one_ins,
+        classes,
+      });
+    else {
+      res.status(200).send({
+        message: "this code does not exists in lake 🔍",
+        seen: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const random_password = () => {
+  const upperCase = ["A", "B", "C", "D", "E", "F", "G", "H", "Z"];
+  const lowerCase = ["i", "j", "k", "l", "m", "n", "o", "p", "W"];
+  const digits = ["0", "1", "2", "3", "4", "5", "6", "7", "8"];
+  const exp = [".", "_", "@", "#", "$", "!", "%", "&", "*"];
+  const u_1 = Math.floor(Math.random() * 9);
+  const u_2 = Math.floor(Math.random() * 9);
+  const u_3 = Math.floor(Math.random() * 9);
+  const u_4 = Math.floor(Math.random() * 9);
+  const u_5 = Math.floor(Math.random() * 9);
+  const u_6 = Math.floor(Math.random() * 9);
+  const u_7 = Math.floor(Math.random() * 9);
+  const u_8 = Math.floor(Math.random() * 9);
+  const u_9 = Math.floor(Math.random() * 9);
+  const userExp = `${lowerCase[u_1]}${upperCase[u_2]}${digits[u_3]}${upperCase[u_4]}${exp[u_6]}${digits[u_5]}${lowerCase[u_8]}${exp[u_7]}${exp[u_9]}`;
+  return userExp;
+};
+
+const filter_unique_username = async (name, dob) => {
+  const new_query = `${dob?.substring(5, 7)}${dob?.substring(8, 10)}`.split("");
+  const shuffle_date = shuffleArray(new_query);
+  const combined_name = `${name}_${shuffle_date.join("")}`;
+  const username = combined_name;
+  const existAdmin = await Admin.findOne({ adminUserName: username });
+  const existInstitute = await InstituteAdmin.findOne({ name: username });
+  const existUser = await User.findOne({ username: username });
+  if (existAdmin) {
+    const combined_name_one = `${name}_${new_query}`.split("");
+    const username_one = shuffleArray(combined_name_one);
+    const valid_username_one = {
+      username: username_one.join(""),
+      password: random_password(),
+      exist: false,
+    };
+    return valid_username_one;
+  } else if (existInstitute) {
+    const combined_name_two = `${name}_${new_query}`.split("");
+    const username_two = shuffleArray(combined_name_two);
+    const valid_username_two = {
+      username: username_two.join(""),
+      password: random_password(),
+      exist: false,
+    };
+    return valid_username_two;
+  } else if (existUser) {
+    const combined_name_three = `${name}_${new_query}`.split("");
+    const username_three = shuffleArray(combined_name_three);
+    const valid_username_three = {
+      username: username_three.join(""),
+      password: random_password(),
+      exist: false,
+    };
+    return valid_username_three;
+  } else {
+    const valid_username = {
+      username: username,
+      password: random_password(),
+      exist: false,
+    };
+    return valid_username;
+  }
+};
+
+exports.retrieveDirectJoinQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { sample_pic } = req.body;
+    if (
+      !id &&
+      !req.body.studentCode &&
+      !req.body.studentFirstName &&
+      !req.body.studentLastName &&
+      !req.body.studentGender &&
+      !req.body.studentDOB
+    )
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const valid = await filter_unique_username(
+      req.body.studentFirstName,
+      req.body.studentDOB
+    );
+    if (!valid?.exist) {
+      const genUserPass = bcrypt.genSaltSync(12);
+      const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
+      var user = new User({
+        userLegalName: req.body.studentFirstName,
+        userGender: req.body.studentGender,
+        userDateOfBirth: req.body.studentDOB,
+        username: valid?.username,
+        userStatus: "Approved",
+        userPhoneNumber: id,
+        userPassword: hashUserPass,
+        photoId: "0",
+        coverId: "2",
+        remindLater: rDate,
+        next_date: c_date,
+      });
+      admins.users.push(user);
+      admins.userCount += 1;
+      await Promise.all([admins.save(), user.save()]);
+      var uInstitute = await InstituteAdmin.findOne({
+        isUniversal: "Universal",
+      })
+        .select("id userFollowersList followersCount")
+        .populate({ path: "posts" });
+      if (uInstitute && uInstitute.posts && uInstitute.posts.length >= 1) {
+        const post = await Post.find({
+          _id: { $in: uInstitute.posts },
+          postStatus: "Anyone",
+        });
+        post.forEach(async (ele) => {
+          user.userPosts.push(ele);
+        });
+        await user.save();
+      }
+      //
+      var b_date = user.userDateOfBirth.slice(8, 10);
+      var b_month = user.userDateOfBirth.slice(5, 7);
+      var b_year = user.userDateOfBirth.slice(0, 4);
+      if (b_date > p_date) {
+        p_date = p_date + month[b_month - 1];
+        p_month = p_month - 1;
+      }
+      if (b_month > p_month) {
+        p_year = p_year - 1;
+        p_month = p_month + 12;
+      }
+      var get_cal_year = p_year - b_year;
+      if (get_cal_year > 13) {
+        user.ageRestrict = "No";
+      } else {
+        user.ageRestrict = "Yes";
+      }
+      await user.save();
+      //
+      if (uInstitute?.userFollowersList?.includes(`${user._id}`)) {
+      } else {
+        uInstitute.userFollowersList.push(user._id);
+        uInstitute.followersCount += 1;
+        user.userInstituteFollowing.push(uInstitute._id);
+        user.followingUICount += 1;
+        await Promise.all([uInstitute.save(), user.save()]);
+        const posts = await Post.find({ author: `${uInstitute._id}` });
+        posts.forEach(async (ele) => {
+          ele.authorFollowersCount = uInstitute.followersCount;
+          await ele.save();
+        });
+      }
+      const classes = await Class.findOne({ classCode: req.body.studentCode });
+      const institute = await InstituteAdmin.findById({
+        _id: `${classes?.institute}`,
+      });
+      const student = new Student({ ...req.body });
+      const classStaff = await Staff.findById({
+        _id: `${classes.classTeacher}`,
+      });
+      const classUser = await User.findById({ _id: `${classStaff.user}` });
+      if (req?.files) {
+        for (let file of req.files) {
+          let count = 1;
+          if (count === 1) {
+            const width = 200;
+            const height = 200;
+            const results = await uploadFile(file, width, height);
+            student.photoId = "0";
+            student.studentProfilePhoto = results.key;
+            user.profilePhoto = results.key;
+            count = count + 1;
+          } else if (count === 2) {
+            const results = await uploadDocFile(file);
+            student.studentAadharFrontCard = results.key;
+            count = count + 1;
+          } else {
+            const results = await uploadDocFile(file);
+            student.studentAadharBackCard = results.key;
+          }
+          await unlinkFile(file.path);
+        }
+      }
+      if (sample_pic) {
+        user.profilePhoto = sample_pic;
+        student.photoId = "0";
+        student.studentProfilePhoto = sample_pic;
+      }
+
+      const notify = new StudentNotification({});
+      const aStatus = new Status({});
+      institute.student.push(student._id);
+      user.student.push(student._id);
+      user.is_mentor = true;
+      institute.joinedPost.push(user._id);
+      classes.student.push(student._id);
+      student.studentClass = classes._id;
+      if (institute.userFollowersList.includes(user?._id)) {
+      } else {
+        user.userInstituteFollowing.push(institute?._id);
+        user.followingUICount += 1;
+        institute.userFollowersList.push(user?._id);
+        institute.followersCount += 1;
+      }
+      student.institute = institute._id;
+      student.user = user._id;
+      notify.notifyContent = `${student.studentFirstName}${
+        student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+      } ${student.studentLastName} has been applied for role of student`;
+      notify.notifySender = student._id;
+      notify.notifyReceiever = classUser._id;
+      institute.iNotify.push(notify._id);
+      notify.notifyType = "Staff";
+      notify.notifyPublisher = classStaff._id;
+      classUser.activity_tab.push(notify._id);
+      notify.notifyByStudentPhoto = student._id;
+      notify.notifyCategory = "Student Request";
+      notify.redirectIndex = 9;
+      notify.classId = classes?._id;
+      notify.departmentId = classes?.department;
+      notify.batchId = classes?.batch;
+      aStatus.content = `Your application for joining as student in ${institute.insName} is filled successfully. Stay updated to check status of your application.Tap here to see username ${user?.username}`;
+      aStatus.see_secure = true;
+      user.applicationStatus.push(aStatus._id);
+      //
+      invokeMemberTabNotification(
+        "Staff Activity",
+        notify,
+        "Request for Joining",
+        classUser._id,
+        classUser.deviceToken,
+        "Staff",
+        notify
+      );
+      //
+      await Promise.all([
+        student.save(),
+        institute.save(),
+        user.save(),
+        classes.save(),
+        notify.save(),
+        aStatus.save(),
+        classUser.save(),
+      ]);
+      const token = generateAccessToken(
+        user?.username,
+        user?._id,
+        user?.userPassword
+      );
+      res.status(200).send({
+        message: "Account Creation Process Completed 😀✨",
+        user,
+        token: `Bearer ${token}`,
+        login: true,
+        student,
+      });
+    } else {
+      res.status(200).send({
+        message: "Bug in the direct joining process 😡",
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveDirectJoinStaffQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { sample_pic } = req.body;
+    if (
+      !id &&
+      !req.body.staffCode &&
+      !req.body.staffFirstName &&
+      !req.body.staffLastName &&
+      !req.body.staffGender &&
+      !req.body.staffDOB
+    )
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const valid = await filter_unique_username(
+      req.body.staffFirstName,
+      req.body.staffDOB
+    );
+    if (!valid?.exist) {
+      const genUserPass = bcrypt.genSaltSync(12);
+      const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
+      var user = new User({
+        userLegalName: req.body.staffFirstName,
+        userGender: req.body.staffGender,
+        userDateOfBirth: req.body.staffDOB,
+        username: valid?.username,
+        userStatus: "Approved",
+        userPhoneNumber: id,
+        userPassword: hashUserPass,
+        photoId: "0",
+        coverId: "2",
+        remindLater: rDate,
+        next_date: c_date,
+      });
+      admins.users.push(user);
+      admins.userCount += 1;
+      await Promise.all([admins.save(), user.save()]);
+      var uInstitute = await InstituteAdmin.findOne({
+        isUniversal: "Universal",
+      })
+        .select("id userFollowersList followersCount")
+        .populate({ path: "posts" });
+      if (uInstitute && uInstitute.posts && uInstitute.posts.length >= 1) {
+        const post = await Post.find({
+          _id: { $in: uInstitute.posts },
+          postStatus: "Anyone",
+        });
+        post.forEach(async (ele) => {
+          user.userPosts.push(ele);
+        });
+        await user.save();
+      }
+      //
+      var b_date = user.userDateOfBirth.slice(8, 10);
+      var b_month = user.userDateOfBirth.slice(5, 7);
+      var b_year = user.userDateOfBirth.slice(0, 4);
+      if (b_date > p_date) {
+        p_date = p_date + month[b_month - 1];
+        p_month = p_month - 1;
+      }
+      if (b_month > p_month) {
+        p_year = p_year - 1;
+        p_month = p_month + 12;
+      }
+      var get_cal_year = p_year - b_year;
+      if (get_cal_year > 13) {
+        user.ageRestrict = "No";
+      } else {
+        user.ageRestrict = "Yes";
+      }
+      await user.save();
+      //
+      if (uInstitute?.userFollowersList?.includes(`${user._id}`)) {
+      } else {
+        uInstitute.userFollowersList.push(user._id);
+        uInstitute.followersCount += 1;
+        user.userInstituteFollowing.push(uInstitute._id);
+        user.followingUICount += 1;
+        await Promise.all([uInstitute.save(), user.save()]);
+        const posts = await Post.find({ author: `${uInstitute._id}` });
+        posts.forEach(async (ele) => {
+          ele.authorFollowersCount = uInstitute.followersCount;
+          await ele.save();
+        });
+      }
+      const institute = await InstituteAdmin.findOne({
+        staffJoinCode: req.body.staffCode,
+      });
+      const staff = new Staff({ ...req.body });
+      if (req?.files) {
+        for (let file of req.files) {
+          let count = 1;
+          if (count === 1) {
+            const width = 200;
+            const height = 200;
+            const results = await uploadFile(file, width, height);
+            staff.photoId = "0";
+            staff.staffProfilePhoto = results.key;
+            user.profilePhoto = results.key;
+            count = count + 1;
+          } else if (count === 2) {
+            const results = await uploadDocFile(file);
+            staff.staffAadharFrontCard = results.key;
+            count = count + 1;
+          } else {
+            const results = await uploadDocFile(file);
+            staff.staffAadharBackCard = results.key;
+          }
+          await unlinkFile(file.path);
+        }
+      }
+      if (sample_pic) {
+        user.profilePhoto = sample_pic;
+        staff.photoId = "0";
+        staff.staffProfilePhoto = sample_pic;
+      }
+      const notify = new Notification({});
+      const aStatus = new Status({});
+      institute.staff.push(staff._id);
+      user.staff.push(staff._id);
+      user.is_mentor = true;
+      institute.joinedPost.push(user._id);
+      if (institute.userFollowersList.includes(user?._id)) {
+      } else {
+        user.userInstituteFollowing.push(institute?._id);
+        user.followingUICount += 1;
+        institute.userFollowersList.push(user?._id);
+        institute.followersCount += 1;
+      }
+      staff.institute = institute._id;
+      staff.staffApplyDate = new Date().toISOString();
+      staff.user = user._id;
+      notify.notifyContent = `${staff.staffFirstName}${
+        staff.staffMiddleName ? ` ${staff.staffMiddleName}` : ""
+      } ${staff.staffLastName} has been applied for role of Staff`;
+      notify.notifySender = staff._id;
+      notify.notifyReceiever = institute._id;
+      institute.iNotify.push(notify._id);
+      notify.institute = institute._id;
+      notify.notifyByStaffPhoto = staff._id;
+      aStatus.content = `Your application for joining as staff in ${institute.insName} is filled successfully.Tap here to see username ${user?.username}`;
+      user.applicationStatus.push(aStatus._id);
+      aStatus.see_secure = true;
+      await Promise.all([
+        staff.save(),
+        institute.save(),
+        user.save(),
+        notify.save(),
+        aStatus.save(),
+      ]);
+      const token = generateAccessToken(
+        user?.username,
+        user?._id,
+        user?.userPassword
+      );
+      res.status(200).send({
+        message: "Account Creation Process Completed 😀✨",
+        user,
+        token: `Bearer ${token}`,
+        login: true,
+        staff,
+      });
+    } else {
+      res.status(200).send({
+        message: "Bug in the direct joining process 😡",
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
+  try {
+    const { id, aid } = req.params;
+    const { sample_pic } = req.body;
+    if (
+      !id &&
+      !aid &&
+      !req.body.studentFirstName &&
+      !req.body.studentLastName &&
+      !req.body.studentGender &&
+      !req.body.studentDOB
+    )
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const valid = await filter_unique_username(
+      req.body.studentFirstName,
+      req.body.studentDOB
+    );
+    if (!valid?.exist) {
+      const genUserPass = bcrypt.genSaltSync(12);
+      const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
+      var user = new User({
+        userLegalName: req.body.studentFirstName,
+        userGender: req.body.studentGender,
+        userDateOfBirth: req.body.studentDOB,
+        username: valid?.username,
+        userStatus: "Approved",
+        userPhoneNumber: id,
+        userPassword: hashUserPass,
+        photoId: "0",
+        coverId: "2",
+        remindLater: rDate,
+        next_date: c_date,
+      });
+      admins.users.push(user);
+      admins.userCount += 1;
+      await Promise.all([admins.save(), user.save()]);
+      var uInstitute = await InstituteAdmin.findOne({
+        isUniversal: "Universal",
+      })
+        .select("id userFollowersList followersCount")
+        .populate({ path: "posts" });
+      if (uInstitute && uInstitute.posts && uInstitute.posts.length >= 1) {
+        const post = await Post.find({
+          _id: { $in: uInstitute.posts },
+          postStatus: "Anyone",
+        });
+        post.forEach(async (ele) => {
+          user.userPosts.push(ele);
+        });
+        await user.save();
+      }
+      //
+      var b_date = user.userDateOfBirth.slice(8, 10);
+      var b_month = user.userDateOfBirth.slice(5, 7);
+      var b_year = user.userDateOfBirth.slice(0, 4);
+      if (b_date > p_date) {
+        p_date = p_date + month[b_month - 1];
+        p_month = p_month - 1;
+      }
+      if (b_month > p_month) {
+        p_year = p_year - 1;
+        p_month = p_month + 12;
+      }
+      var get_cal_year = p_year - b_year;
+      if (get_cal_year > 13) {
+        user.ageRestrict = "No";
+      } else {
+        user.ageRestrict = "Yes";
+      }
+      await user.save();
+      //
+      if (uInstitute?.userFollowersList?.includes(`${user._id}`)) {
+      } else {
+        uInstitute.userFollowersList.push(user._id);
+        uInstitute.followersCount += 1;
+        user.userInstituteFollowing.push(uInstitute._id);
+        user.followingUICount += 1;
+        await Promise.all([uInstitute.save(), user.save()]);
+        const posts = await Post.find({ author: `${uInstitute._id}` });
+        posts.forEach(async (ele) => {
+          ele.authorFollowersCount = uInstitute.followersCount;
+          await ele.save();
+        });
+      }
+      const student = new Student({ ...req.body });
+      const apply = await NewApplication.findById({ _id: aid });
+      const admission = await Admission.findById({
+        _id: `${apply.admissionAdmin}`,
+      }).select("institute");
+      const institute = await InstituteAdmin.findById({
+        _id: `${admission.institute}`,
+      });
+      const status = new Status({});
+      if (req?.files) {
+        for (let file of req.files) {
+          let count = 1;
+          if (count === 1) {
+            const width = 200;
+            const height = 200;
+            const results = await uploadFile(file, width, height);
+            student.photoId = "0";
+            student.studentProfilePhoto = results.key;
+            user.profilePhoto = results.key;
+            count = count + 1;
+          } else if (count === 2) {
+            const results = await uploadDocFile(file);
+            student.studentAadharFrontCard = results.key;
+            count = count + 1;
+          } else {
+            const results = await uploadDocFile(file);
+            student.studentAadharBackCard = results.key;
+          }
+          await unlinkFile(file.path);
+        }
+      }
+      if (sample_pic) {
+        user.profilePhoto = sample_pic;
+        student.photoId = "0";
+        student.studentProfilePhoto = sample_pic;
+      }
+      status.content = `You have applied for ${apply.applicationName} has been filled successfully.Stay updated to check status of your application.Tap here to see username ${user?.username}`;
+      status.applicationId = apply._id;
+      user.student.push(student._id);
+      user.applyApplication.push(apply._id);
+      student.user = user._id;
+      user.applicationStatus.push(status._id);
+      apply.receievedApplication.push({
+        student: student._id,
+        fee_remain: apply.admissionFee,
+      });
+      apply.receievedCount += 1;
+      if (institute.userFollowersList.includes(user?._id)) {
+      } else {
+        user.userInstituteFollowing.push(institute._id);
+        user.followingUICount += 1;
+        institute.userFollowersList.push(user?._id);
+        institute.followersCount += 1;
+      }
+      await Promise.all([
+        student.save(),
+        user.save(),
+        status.save(),
+        apply.save(),
+        institute.save(),
+      ]);
+      invokeMemberTabNotification(
+        "Admission Status",
+        status.content,
+        "Application Status",
+        user._id,
+        user.deviceToken
+      );
+      const token = generateAccessToken(
+        user?.username,
+        user?._id,
+        user?.userPassword
+      );
+      res.status(200).send({
+        message:
+          "Account Creation Process Completed & message: Taste a bite of sweets till your application is selected, 😀✨",
+        user,
+        token: `Bearer ${token}`,
+        login: true,
+        student: student?._id,
+      });
+    } else {
+      res.status(200).send({
+        message: "Bug in the direct joining process 😡",
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
   }
 };

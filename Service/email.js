@@ -1,24 +1,21 @@
-const nodemailer = require('nodemailer')
-
+const nodemailer = require("nodemailer");
 
 const sendAnEmail = (name, email) => {
-
-const transporter = nodemailer.createTransport({
-    service: 'Godaddy',
-    host: "smtpout.secureserver.net",  
+  const transporter = nodemailer.createTransport({
+    service: "Godaddy",
+    host: "smtpout.secureserver.net",
     secureConnection: true,
     port: 465,
     auth: {
-        user: `email`,
-        pass: `pass`
-    }
-})
+      user: `email`,
+      pass: `pass`,
+    },
+  });
 
-
-const options = {
+  const options = {
     from: `email`,
     to: `${email}`,
-    subject: 'Thanks for Get In Touch',
+    subject: "Thanks for Get In Touch",
     text: `Welcome To The Qviple, ${name}`,
     html: `<div style="padding: 10px; text-align: left; color: lightGray">
     <div style="display: flex; justify-content: center">
@@ -34,21 +31,22 @@ const options = {
     <p style="margin-top: auto; font-weight: 600;">Team Qviple <br/>
     Nashik, Maharashtra
     </p></div></div>`,
-    attachments: [{
-        filename: 'logo-icon.png',
+    attachments: [
+      {
+        filename: "logo-icon.png",
         path: `${__dirname}/logo-icon.png`,
-        cid: "qvipleLogoImage" //same cid value as in the html img src
-    }]
-}
+        cid: "qvipleLogoImage", //same cid value as in the html img src
+      },
+    ],
+  };
 
-transporter.sendMail(options, function(err, data){
-    if(err){
-        console.log(err.message)
-        return
+  transporter.sendMail(options, function (err, data) {
+    if (err) {
+      console.log(err.message);
+      return;
     }
-    console.log('Send Email')
-})
+    console.log("Send Email");
+  });
+};
 
-}
-
-module.exports = sendAnEmail
+module.exports = sendAnEmail;

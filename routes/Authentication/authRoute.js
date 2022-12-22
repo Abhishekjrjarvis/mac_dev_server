@@ -71,4 +71,24 @@ router.patch("/username", catchAsync(Auth.retrieveUsernameEditQuery));
 
 router.get("/username/search", catchAsync(Auth.searchByUsernameQuery));
 
+router.get("/classcode/search", catchAsync(Auth.searchByClassCode));
+
+router.post(
+  "/direct/join/student/:id",
+  upload.array("file"),
+  catchAsync(Auth.retrieveDirectJoinQuery)
+);
+
+router.post(
+  "/direct/join/staff/:id",
+  upload.array("file"),
+  catchAsync(Auth.retrieveDirectJoinStaffQuery)
+);
+
+router.post(
+  "/direct/join/admission/:id/apply/:aid",
+  upload.array("file"),
+  catchAsync(Auth.retrieveDirectJoinAdmissionQuery)
+);
+
 module.exports = router;

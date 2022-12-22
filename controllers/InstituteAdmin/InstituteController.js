@@ -909,6 +909,9 @@ exports.fillStudentForm = async (req, res) => {
     const classes = await Class.findOne({ classCode: req.body.studentCode });
     const classStaff = await Staff.findById({ _id: `${classes.classTeacher}` });
     const classUser = await User.findById({ _id: `${classStaff.user}` });
+    const studentOptionalSubject = req.body?.optionalSubject
+      ? JSON.parse(req.body?.optionalSubject)
+      : [];
     for (let fileObject in req.files) {
       for (let singleFile of req.files[fileObject]) {
         if (fileObject === "file") {
@@ -938,6 +941,7 @@ exports.fillStudentForm = async (req, res) => {
         }
       }
     }
+    student.studentOptionalSubject.push(...studentOptionalSubject);
     const notify = new StudentNotification({});
     const aStatus = new Status({});
     institute.student.push(student._id);

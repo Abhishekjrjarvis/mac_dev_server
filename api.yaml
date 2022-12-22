@@ -3585,6 +3585,10 @@ paths:
           required: true
           description: student studentMotherName
         - in: formData
+          name: optionalSubject
+          type: string
+          description: student list of optional subject ids like ["6452364","783567343gj","327856735476"] hints(JSON FORM ENCODE)         
+        - in: formData
           name: studentCast
           type: string
           required: true

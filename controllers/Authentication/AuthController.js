@@ -33,6 +33,7 @@ const StudentNotification = require("../../models/Marks/StudentNotification");
 const Notification = require("../../models/notification");
 const Status = require("../../models/Admission/status");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
+const { file_to_aws } = require("../../Utilities/uploadFileAws");
 
 function generateAccessToken(username, userId, userPassword) {
   return jwt.sign(
@@ -1076,7 +1077,15 @@ exports.searchByClassCode = async (req, res) => {
       if (req.query.author === "Student") {
         var classes = await Class.findOne({
           classCode: req.query.search,
-        }).select("classCode classTitle className");
+        })
+          .populate({
+            path: "subject",
+            match: {
+              subjectOptional: { $eq: "Optional" },
+            },
+            select: "subjectName",
+          })
+          .select("classCode classTitle className optionalSubjectCount");
         var one_ins = await InstituteAdmin.findOne({
           classCodeList: { $in: [req.query.search] },
         })
@@ -1271,28 +1280,40 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
         _id: `${classes.classTeacher}`,
       });
       const classUser = await User.findById({ _id: `${classStaff.user}` });
-      if (req?.files) {
-        for (let file of req.files) {
-          let count = 1;
-          if (count === 1) {
+      const studentOptionalSubject = req.body?.optionalSubject
+        ? JSON.parse(req.body?.optionalSubject)
+        : [];
+      for (let fileObject in req.files) {
+        for (let singleFile of req.files[fileObject]) {
+          if (fileObject === "file") {
             const width = 200;
             const height = 200;
             const results = await uploadFile(file, width, height);
             student.photoId = "0";
-            student.studentProfilePhoto = results.key;
-            user.profilePhoto = results.key;
-            count = count + 1;
-          } else if (count === 2) {
-            const results = await uploadDocFile(file);
-            student.studentAadharFrontCard = results.key;
-            count = count + 1;
+            student.studentProfilePhoto = results.Key;
+            user.profilePhoto = results.Key;
+            await unlinkFile(file.path);
           } else {
-            const results = await uploadDocFile(file);
-            student.studentAadharBackCard = results.key;
+            const uploadedFile = await file_to_aws(singleFile);
+            if (fileObject === "addharFrontCard")
+              student.studentAadharFrontCard = uploadedFile.documentKey;
+            else if (fileObject === "addharBackCard")
+              student.studentAadharBackCard = uploadedFile.documentKey;
+            else if (fileObject === "bankPassbook")
+              student.studentBankPassbook = uploadedFile.documentKey;
+            else if (fileObject === "casteCertificate")
+              student.studentCasteCertificatePhoto = uploadedFile.documentKey;
+            else {
+              student.studentDocuments.push({
+                documentName: fileObject,
+                documentKey: uploadedFile.documentKey,
+                documentType: uploadedFile.documentType,
+              });
+            }
           }
-          await unlinkFile(file.path);
         }
       }
+      student.studentOptionalSubject.push(...studentOptionalSubject);
       if (sample_pic) {
         user.profilePhoto = sample_pic;
         student.photoId = "0";
@@ -1469,26 +1490,34 @@ exports.retrieveDirectJoinStaffQuery = async (req, res) => {
         staffJoinCode: req.body.staffCode,
       });
       const staff = new Staff({ ...req.body });
-      if (req?.files) {
-        for (let file of req.files) {
-          let count = 1;
-          if (count === 1) {
+      for (let fileObject in req.files) {
+        for (let singleFile of req.files[fileObject]) {
+          if (fileObject === "file") {
             const width = 200;
             const height = 200;
             const results = await uploadFile(file, width, height);
             staff.photoId = "0";
-            staff.staffProfilePhoto = results.key;
-            user.profilePhoto = results.key;
-            count = count + 1;
-          } else if (count === 2) {
-            const results = await uploadDocFile(file);
-            staff.staffAadharFrontCard = results.key;
-            count = count + 1;
+            staff.staffProfilePhoto = results.Key;
+            user.profilePhoto = results.Key;
+            await unlinkFile(file.path);
           } else {
-            const results = await uploadDocFile(file);
-            staff.staffAadharBackCard = results.key;
+            const uploadedFile = await file_to_aws(singleFile);
+            if (fileObject === "addharFrontCard")
+              staff.staffAadharFrontCard = uploadedFile.documentKey;
+            else if (fileObject === "addharBackCard")
+              staff.staffAadharBackCard = uploadedFile.documentKey;
+            else if (fileObject === "bankPassbook")
+              staff.staffBankPassbook = uploadedFile.documentKey;
+            else if (fileObject === "casteCertificate")
+              staff.staffCasteCertificatePhoto = uploadedFile.documentKey;
+            else {
+              staff.studentDocuments.push({
+                documentName: fileObject,
+                documentKey: uploadedFile.documentKey,
+                documentType: uploadedFile.documentType,
+              });
+            }
           }
-          await unlinkFile(file.path);
         }
       }
       if (sample_pic) {
@@ -1650,28 +1679,40 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
         _id: `${admission.institute}`,
       });
       const status = new Status({});
-      if (req?.files) {
-        for (let file of req.files) {
-          let count = 1;
-          if (count === 1) {
+      const studentOptionalSubject = req.body?.optionalSubject
+        ? JSON.parse(req.body?.optionalSubject)
+        : [];
+      for (let fileObject in req.files) {
+        for (let singleFile of req.files[fileObject]) {
+          if (fileObject === "file") {
             const width = 200;
             const height = 200;
             const results = await uploadFile(file, width, height);
             student.photoId = "0";
-            student.studentProfilePhoto = results.key;
-            user.profilePhoto = results.key;
-            count = count + 1;
-          } else if (count === 2) {
-            const results = await uploadDocFile(file);
-            student.studentAadharFrontCard = results.key;
-            count = count + 1;
+            student.studentProfilePhoto = results.Key;
+            user.profilePhoto = results.Key;
+            await unlinkFile(file.path);
           } else {
-            const results = await uploadDocFile(file);
-            student.studentAadharBackCard = results.key;
+            const uploadedFile = await file_to_aws(singleFile);
+            if (fileObject === "addharFrontCard")
+              student.studentAadharFrontCard = uploadedFile.documentKey;
+            else if (fileObject === "addharBackCard")
+              student.studentAadharBackCard = uploadedFile.documentKey;
+            else if (fileObject === "bankPassbook")
+              student.studentBankPassbook = uploadedFile.documentKey;
+            else if (fileObject === "casteCertificate")
+              student.studentCasteCertificatePhoto = uploadedFile.documentKey;
+            else {
+              student.studentDocuments.push({
+                documentName: fileObject,
+                documentKey: uploadedFile.documentKey,
+                documentType: uploadedFile.documentType,
+              });
+            }
           }
-          await unlinkFile(file.path);
         }
       }
+      student.studentOptionalSubject.push(...studentOptionalSubject);
       if (sample_pic) {
         user.profilePhoto = sample_pic;
         student.photoId = "0";

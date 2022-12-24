@@ -33,7 +33,6 @@ const staffSchema = new mongoose.Schema({
   staffAadharFrontCard: { type: String },
   staffAadharBackCard: { type: String },
   staffPreviousSchool: { type: String },
-  staffPanNumber: { type: String },
   staffBankName: { type: String },
   staffBankAccount: { type: String },
   staffBankAccountHolderName: { type: String },

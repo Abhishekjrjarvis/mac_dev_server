@@ -1288,7 +1288,7 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
           if (fileObject === "file") {
             const width = 200;
             const height = 200;
-            const results = await uploadFile(file, width, height);
+            const results = await uploadFile(singleFile, width, height);
             student.photoId = "0";
             student.studentProfilePhoto = results.Key;
             user.profilePhoto = results.Key;
@@ -1495,7 +1495,7 @@ exports.retrieveDirectJoinStaffQuery = async (req, res) => {
           if (fileObject === "file") {
             const width = 200;
             const height = 200;
-            const results = await uploadFile(file, width, height);
+            const results = await uploadFile(singleFile, width, height);
             staff.photoId = "0";
             staff.staffProfilePhoto = results.Key;
             user.profilePhoto = results.Key;
@@ -1511,7 +1511,7 @@ exports.retrieveDirectJoinStaffQuery = async (req, res) => {
             else if (fileObject === "casteCertificate")
               staff.staffCasteCertificatePhoto = uploadedFile.documentKey;
             else {
-              staff.studentDocuments.push({
+              staff.staffDocuments.push({
                 documentName: fileObject,
                 documentKey: uploadedFile.documentKey,
                 documentType: uploadedFile.documentType,
@@ -1687,7 +1687,7 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
           if (fileObject === "file") {
             const width = 200;
             const height = 200;
-            const results = await uploadFile(file, width, height);
+            const results = await uploadFile(singleFile, width, height);
             student.photoId = "0";
             student.studentProfilePhoto = results.Key;
             user.profilePhoto = results.Key;

@@ -85,7 +85,7 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
     const { aid } = req.params;
     const admission = await Admission.findById({ _id: aid })
       .select(
-        "admissionAdminEmail admissionAdminPhoneNumber remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount"
+        "admissionAdminEmail admissionAdminPhoneNumber remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount completedCount"
       )
       .populate({
         path: "admissionAdminHead",

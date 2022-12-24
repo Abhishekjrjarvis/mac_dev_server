@@ -835,7 +835,7 @@ exports.fillStaffForm = async (req, res) => {
         if (fileObject === "file") {
           const width = 200;
           const height = 200;
-          const results = await uploadFile(file, width, height);
+          const results = await uploadFile(singleFile, width, height);
           staff.photoId = "0";
           staff.staffProfilePhoto = results.Key;
           await unlinkFile(file.path);
@@ -850,7 +850,7 @@ exports.fillStaffForm = async (req, res) => {
           else if (fileObject === "casteCertificate")
             staff.staffCasteCertificatePhoto = uploadedFile.documentKey;
           else {
-            staff.studentDocuments.push({
+            staff.staffDocuments.push({
               documentName: fileObject,
               documentKey: uploadedFile.documentKey,
               documentType: uploadedFile.documentType,
@@ -917,7 +917,7 @@ exports.fillStudentForm = async (req, res) => {
         if (fileObject === "file") {
           const width = 200;
           const height = 200;
-          const results = await uploadFile(file, width, height);
+          const results = await uploadFile(singleFile, width, height);
           student.photoId = "0";
           student.studentProfilePhoto = results.Key;
           await unlinkFile(file.path);
@@ -1178,7 +1178,7 @@ exports.getFullStaffInfo = async (req, res) => {
     const { id } = req.params;
     const staff = await Staff.findById({ _id: id })
       .select(
-        "staffFirstName staffDesignationCount staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffDistrict staffState staffAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffStatus staffROLLNO staffPhoneNumber"
+        "staffFirstName staffDesignationCount staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber"
       )
       .populate({
         path: "user",
@@ -1205,7 +1205,7 @@ exports.getFullStudentInfo = async (req, res) => {
     const { id } = req.params;
     const student = await Student.findById({ _id: id })
       .select(
-        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentDistrict studentState studentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentDocuments studentAadharFrontCard studentAadharBackCard studentStatus studentGRNO studentROLLNO"
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
       )
       .populate({
         path: "user",
@@ -2921,5 +2921,27 @@ exports.retrieveInstituteReportBlock = async (req, res) => {
     }
   } catch (e) {
     console.log("UIBU", e);
+  }
+};
+
+exports.renderStats = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id)
+      return res.status(200).send({
+        message: "There is a bug need to fixed immediately 😡",
+        access: false,
+      });
+    const stats = await InstituteAdmin.findById({ _id: id }).select(
+      "departmentCount staffCount studentCount insProfileCoverPhoto"
+    );
+    // const statsEncrypt = await encryptionPayload(stats);
+    res.status(200).send({
+      message: "Check some stats 😀",
+      stats,
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
   }
 };

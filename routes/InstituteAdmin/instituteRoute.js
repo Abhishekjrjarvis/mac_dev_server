@@ -608,5 +608,6 @@ router.patch(
   isLoggedIn,
   catchAsync(Institute.retrieveInstituteReportBlock)
 );
+router.get("/:id/stats", isLoggedIn, catchAsync(Institute.renderStats));
 
 module.exports = router;

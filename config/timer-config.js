@@ -15,7 +15,7 @@ exports.timerFunction = () => {
   // setInterval(async () => {
   //   await participate_result_day();
   // }, 30000);
-  setInterval(async () => {
-    await dueDateAlarm();
-  }, 86400000);
+  // setInterval(async () => {
+  //   await dueDateAlarm();
+  // }, 86400000);
 };

@@ -7,6 +7,9 @@ const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 // const { customMergeSort } = require("../../Utilities/Sort/custom_sort");
 const { dailyChatFirebaseQuery } = require("../../Firebase/dailyChat");
+const invokeMemberTabNotification = require("../../Firebase/MemberTab");
+const StudentNotification = require("../../models/Marks/StudentNotification");
+// const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.getAlldailyUpdate = async (req, res) => {
   try {
@@ -35,13 +38,14 @@ exports.getAlldailyUpdate = async (req, res) => {
       .sort({ createdAt: -1 })
       .lean()
       .exec();
+    // const dailyEncrypt = await encryptionPayload(dailyUpdate);
     res.status(200).send({
       message: "all daily subject update list",
       // dailyUpdate: customMergeSort(subject?.dailyUpdate),
       dailyUpdate,
     });
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     res.status(200).send({
       message: e,
     });
@@ -101,7 +105,35 @@ exports.createDailyUpdate = async (req, res) => {
       }
     }
     subject.dailyUpdate?.push(dailyUpdate._id);
-    await Promise.all([dailyUpdate.save(), subject.save()]);
+    var notify = new StudentNotification({});
+    for (let stu of subject?.class?.ApproveStudent) {
+      const student = await Student.findById({ _id: `${stu}` });
+      const student_user = await User.findById({ _id: `${student?.user}` });
+      notify.notifyContent = `Check out the recent daily updates of ${subject?.subjectName}`;
+      notify.notifySender = subject._id;
+      notify.notifyReceiever = student_user._id;
+      notify.dailyUpdateId = dailyUpdate._id;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student._id;
+      student_user.activity_tab.push(notify._id);
+      student.notification.push(notify._id);
+      notify.notifyByDepartPhoto = department._id;
+      notify.notifyCategory = "Daily Update";
+      notify.redirectIndex = 14;
+      //
+      invokeMemberTabNotification(
+        "Student Activity",
+        notify,
+        "Daily Update",
+        student_user._id,
+        student_user.deviceToken,
+        "Student",
+        notify
+      );
+      await Promise.all([student.save(), student_user.save()]);
+    }
+    await Promise.all([dailyUpdate.save(), subject.save(), notify.save()]);
+    // const dEncrypt = await encryptionPayload(dailyUpdate);
     res.status(201).send({
       message: "Daily updates created successfully 👍",
       dailyUpdate,
@@ -170,6 +202,7 @@ exports.getAlldailyUpdateStudent = async (req, res) => {
         .sort({ createdAt: -1 })
         .lean()
         .exec();
+      // const allEncrypt = await encryptionPayload(dailyUpdate);
       res.status(200).send({
         message: "all daily subject update list in student side",
         dailyUpdate,
@@ -184,13 +217,14 @@ exports.getAlldailyUpdateStudent = async (req, res) => {
         .sort({ createdAt: -1 })
         .lean()
         .exec();
+      const allEncrypt = await encryptionPayload(dailyUpdate);
       res.status(200).send({
         message: "all daily subject update list in student side",
         dailyUpdate,
       });
     }
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     res.status(200).send({
       message: e,
     });

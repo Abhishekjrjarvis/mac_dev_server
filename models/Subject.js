@@ -13,6 +13,10 @@ const subjectSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  subjectOptional: {
+    type: String,
+    default: "Mandatory",
+  },
   subjectTeacherName: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Staff",
@@ -91,6 +95,12 @@ const subjectSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  optionalStudent: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
 });
 
 const Subject = mongoose.model("Subject", subjectSchema);

@@ -13,6 +13,7 @@ const statusSchema = new mongoose.Schema({
   studentId: { type: String },
   admissionFee: { type: Number },
   see_secure: { type: Boolean, default: false },
+  oneInstallments: { type: Number },
   createdAt: {
     type: Date,
     default: Date.now,

@@ -3,17 +3,43 @@ var crypto = require("crypto");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
 const axios = require("axios");
 const Admin = require("../../models/superAdmin");
+const InstituteAdmin = require("../../models/InstituteAdmin");
 const {
   unlockInstituteFunction,
   feeInstituteFunction,
   admissionInstituteFunction,
   participateEventFunction,
 } = require("./paymentModule");
+// const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 var instance = new Razorpay({
   key_id: process.env.RAZOR_KEY_ID,
   key_secret: process.env.RAZOR_KEY_SECRET,
 });
+
+var razor_author = false;
+
+exports.institute_merchant_replace = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const institute = await InstituteAdmin.findById({ _id: id }).select(
+      "razor_key razor_id"
+    );
+    instance = new Razorpay({
+      key_id: institute?.razor_id
+        ? institute?.razor_id
+        : process.env.RAZOR_KEY_ID,
+      key_secret: institute?.razor_key
+        ? institute?.razor_key
+        : process.env.RAZOR_KEY_SECRET,
+    });
+    res
+      .status(200)
+      .send({ message: "Proceed with Account Instance 👍", status: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 exports.renderKeys = async (req, res) => {
   try {
@@ -28,6 +54,7 @@ exports.renderKeys = async (req, res) => {
 
 exports.checkoutRazorPayment = async (req, res) => {
   try {
+    // console.log(instance);
     const options = {
       amount: Number(req.body.amount * 100),
       currency: "INR",
@@ -58,6 +85,9 @@ exports.verifyRazorPayment = async (req, res) => {
       payment_amount,
       ad_status_id,
       isApk,
+      payment_installment,
+      // razor_key, // Razor KEY Secret
+      // razor_author, // Boolean
     } = req.query;
     var refactor_amount = parseFloat(payment_amount) / 100;
     var refactor_amount_nocharges = parseInt(payment_amount_charges) / 100;
@@ -100,7 +130,8 @@ exports.verifyRazorPayment = async (req, res) => {
           payment_by_end_user_id,
           refactor_amount_nocharges,
           refactor_amount,
-          payment_module_id
+          payment_module_id,
+          razor_author
         );
         if (isApk) {
           res
@@ -116,7 +147,9 @@ exports.verifyRazorPayment = async (req, res) => {
           refactor_amount,
           payment_module_id,
           ad_status_id,
-          payment_to_end_user_id
+          payment_to_end_user_id,
+          payment_installment,
+          razor_author
         );
         if (isApk) {
           res.status(200).send({
@@ -134,7 +167,8 @@ exports.verifyRazorPayment = async (req, res) => {
           refactor_amount_nocharges,
           refactor_amount,
           payment_module_id,
-          ad_status_id
+          ad_status_id,
+          razor_author
         );
         if (isApk) {
           res.status(200).send({
@@ -209,6 +243,7 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
       //   select: "userLegalName photoId profilePhoto",
       // });
       if (order?.length > 0) {
+        // const oEncrypt = await encryptionPayload(order);
         res.status(200).send({ message: "User Pay History", history: order });
       } else {
         res.status(200).send({ message: "No User Pay History", history: [] });
@@ -258,6 +293,7 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
       //   select: "userLegalName photoId profilePhoto",
       // });
       if (order?.length > 0) {
+        // const oEncrypt = await encryptionPayload(order);
         res.status(200).send({ message: "User Pay History", history: order });
       } else {
         res.status(200).send({ message: "No User Pay History", history: [] });
@@ -323,6 +359,7 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
       // });
 
       if (order?.length > 0) {
+        // const oEncrypt = await encryptionPayload(order);
         res.status(200).send({ message: "User Pay History", history: order });
       } else {
         res.status(200).send({ message: "No User Pay History", history: [] });
@@ -372,6 +409,7 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
       //   select: "userLegalName photoId profilePhoto",
       // });
       if (order?.length > 0) {
+        // const oEncrypt = await encryptionPayload(order);
         res.status(200).send({ message: "User Pay History", history: order });
       } else {
         res.status(200).send({ message: "No User Pay History", history: [] });
@@ -418,6 +456,7 @@ exports.fetchPaymentOneHistory = async (req, res) => {
         path: "payment_to_end_user_id",
         select: "insName photoId insProfilePhoto",
       });
+    // const oEncrypt = await encryptionPayload(one_pay);
     res
       .status(200)
       .send({ message: "One Payment Detail", deny: false, one_pay });

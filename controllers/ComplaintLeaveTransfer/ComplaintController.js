@@ -16,6 +16,8 @@ const Transfer = require("../../models/Transfer");
 const StudentTransfer = require("../../models/StudentTransfer");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const StudentNotification = require("../../models/Marks/StudentNotification");
+const invokeFirebaseNotification = require("../../Firebase/firebase");
+// const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 //=======================================For the students related controller=========================================
 
@@ -27,6 +29,7 @@ exports.getStudentLeave = async (req, res) => {
         select: "reason date status",
       })
       .select("_id leave");
+    // const aEncrypt = await encryptionPayload(student.leave);
     res.status(200).send({ message: "All leaves", allLeave: student.leave });
   } catch (e) {
     console.log(e);
@@ -134,6 +137,7 @@ exports.getStudentOneLeaveDetail = async (req, res) => {
     const studentLeave = await StudentLeave.findById(req.params.lid).select(
       "_id date reason status"
     );
+    // const leaveEncrypt = await encryptionPayload(studentLeave);
     res.status(200).send({ message: "One leave Details", leave: studentLeave });
   } catch (e) {
     console.log(e);
@@ -174,6 +178,7 @@ exports.getAllStudentLeaveClass = async (req, res) => {
         select: "reason date status student",
       })
       .select("_id studentLeave");
+    // const cEncrypt = await encryptionPayload(classes.studentLeave);
     res
       .status(200)
       .send({ message: "All leaves", allLeave: classes.studentLeave });
@@ -210,7 +215,7 @@ exports.oneStudentLeaveProcess = async (req, res) => {
     notify.notifyPublisher = leave.student._id;
     user.activity_tab.push(notify._id);
     notify.notifyByClassPhoto = leave.classes._id;
-    notify.notifyCategory = "Leave";
+    notify.notifyCategory = "Leave Status";
     notify.redirectIndex = 10;
     //
     invokeMemberTabNotification(
@@ -244,6 +249,7 @@ exports.studentComplaintDestination = async (req, res) => {
         select: "_id classHeadTitle",
       })
       .select("_id studentClass");
+    // const titleEncrypt = await encryptionPayload(student);
     res.status(200).send({
       message: "Class Head Tilte and Department head title",
       title: student,
@@ -264,20 +270,64 @@ exports.studentComplaint = async (req, res) => {
       complaintTo: req.body.complaintTo,
     });
     if (departmentHead !== "") {
+      const notify = new StudentNotification({});
       const department = await Department.findById(departmentHead);
+      const dStaff = await Staff.findById({ _id: `${department?.dHead}` });
+      const dUser = await User.findById({ _id: `${dStaff?.user}` });
       department?.studentComplaint.push(complaint._id);
       complaint.department = department._id;
       complaint.institute = department.institute;
-      await department.save();
+      notify.notifyContent = `${student?.studentFirstName} ${student?.studentLastName} raised a complaint.`;
+      notify.notifySender = student._id;
+      notify.notifyReceiever = dUser._id;
+      notify.notifyType = "Staff";
+      notify.notifyPublisher = dStaff._id;
+      dUser.activity_tab.push(notify._id);
+      notify.notifyByStudentPhoto = student._id;
+      notify.notifyCategory = "Department Complaint";
+      notify.redirectIndex = 15;
+      //
+      invokeMemberTabNotification(
+        "Staff Activity",
+        notify,
+        "Raise Complaint",
+        dUser._id,
+        dUser.deviceToken,
+        "Staff",
+        notify
+      );
+      await Promise.all([department.save(), dUser.save(), notify.save()]);
     } else if (classHead !== "") {
+      const notify = new StudentNotification({});
       const classes = await Class.findById(classHead).populate({
         path: "department",
         select: "institute",
       });
+      const cStaff = await Staff.findById({ _id: `${classes?.classTeacher}` });
+      const cUser = await User.findById({ _id: `${cStaff?.user}` });
       classes?.studentComplaint.push(complaint._id);
       complaint.classes = classes._id;
       complaint.institute = classes.department.institute;
-      await classes.save();
+      notify.notifyContent = `${student?.studentFirstName} ${student?.studentLastName} raised a complaint.`;
+      notify.notifySender = student._id;
+      notify.notifyReceiever = cUser._id;
+      notify.notifyType = "Staff";
+      notify.notifyPublisher = cStaff._id;
+      cUser.activity_tab.push(notify._id);
+      notify.notifyByStudentPhoto = student._id;
+      notify.notifyCategory = "Class Complaint";
+      notify.redirectIndex = 15;
+      //
+      invokeMemberTabNotification(
+        "Staff Activity",
+        notify,
+        "Raise Complaint",
+        cUser._id,
+        cUser.deviceToken,
+        "Staff",
+        notify
+      );
+      await Promise.all([classes.save(), cUser.save(), notify.save()]);
     } else {
     }
     student.complaints.push(complaint._id);
@@ -297,6 +347,7 @@ exports.studentAllComplaint = async (req, res) => {
         select: "complaintType complaintTo complaintStatus createdAt",
       })
       .select("complaints _id");
+    // const complaintEncrypt = await encryptionPayload(student.complaints);
     res
       .status(200)
       .send({ message: "all complaints", complaints: student.complaints });
@@ -315,6 +366,7 @@ exports.OneComplaint = async (req, res) => {
         path: "student",
         select: "studentFirstName studentMiddleName studentLastName",
       });
+    // const oneEncrypt = await encryptionPayload(complaint);
     res.status(200).send({ message: "one complaint details", complaint });
   } catch (e) {
     console.log(e);
@@ -324,7 +376,7 @@ exports.OneComplaint = async (req, res) => {
 exports.OneComplaintReportAdmin = async (req, res) => {
   try {
     const complaint = await Complaint.findById(req.params.cid).select(
-      "complaintInsStatus reportAdmin institute"
+      "complaintInsStatus reportAdmin institute student"
     );
     if (complaint.reportAdmin === "No") {
       const institute = await InstituteAdmin.findById(
@@ -332,8 +384,22 @@ exports.OneComplaintReportAdmin = async (req, res) => {
       ).select("studentComplaints");
       institute.studentComplaints.push(complaint._id);
       complaint.reportAdmin = "Yes";
-      await institute.save();
-      await complaint.save();
+      const notify = new Notification({});
+      notify.notifyContent = `A new complaint is reported by some one`;
+      notify.notifySender = complaint.student;
+      notify.notifyReceiever = institute._id;
+      institute.iNotify.push(notify._id);
+      notify.institute = institute._id;
+      notify.notifyCategory = "Report Complaint";
+      notify.notifyByInsPhoto = institute._id;
+      invokeFirebaseNotification(
+        "Designation Allocation",
+        notify,
+        "Reported Complaint",
+        institute._id,
+        institute.deviceToken
+      );
+      await Promise.all([institute.save(), complaint.save(), notify.save()]);
     }
     res.status(201).send({ message: "Complaints to the Admin" });
   } catch (e) {
@@ -355,7 +421,7 @@ exports.classAllComplaint = async (req, res) => {
       },
       select: "complaintType complaintTo complaintStatus createdAt",
     });
-
+    // const compEncrypt = await encryptionPayload(classes.studentComplaint);
     res.status(200).send({
       message: "all complaints",
       complaints: classes.studentComplaint,
@@ -379,7 +445,7 @@ exports.departmentAllComplaint = async (req, res) => {
       },
       select: "complaintType complaintTo complaintStatus createdAt",
     });
-
+    // const departEncrypt = await encryptionPayload(department.studentComplaint);
     res.status(200).send({
       message: "all complaints",
       complaints: department.studentComplaint,
@@ -462,7 +528,7 @@ exports.instituteAllComplaint = async (req, res) => {
         select: "complaintType complaintStatus createdAt",
       })
       .select("studentComplaints");
-
+    // const insEncrypt = await encryptionPayload(institute.studentComplaints);
     res.status(200).send({
       message: "all complaints",
       complaints: institute.studentComplaints,
@@ -554,7 +620,7 @@ exports.studentTransferApproved = async (req, res) => {
     notify.notifyPublisher = student._id;
     user.activity_tab.push(notify._id);
     notify.notifyByClassPhoto = classes._id;
-    notify.notifyCategory = "Transfer";
+    notify.notifyCategory = "Transfer Status";
     notify.redirectIndex = 11;
     //
     invokeMemberTabNotification(
@@ -600,7 +666,7 @@ exports.studentTransferRejected = async (req, res) => {
     notify.notifyPublisher = student._id;
     user.activity_tab.push(notify._id);
     notify.notifyByClassPhoto = classes._id;
-    notify.notifyCategory = "Transfer";
+    notify.notifyCategory = "Transfer Status";
     notify.redirectIndex = 11;
     //
     invokeMemberTabNotification(
@@ -636,7 +702,7 @@ exports.classAllTransfer = async (req, res) => {
         select: "transferReason createdAt student transferStatus",
       })
       .select("studentTransfer");
-
+    // const transferEncrypt = await encryptionPayload(classes.studentTransfer);
     res.status(200).send({
       message: "all transfers",
       transfers: classes.studentTransfer,
@@ -656,6 +722,7 @@ exports.getStaffLeave = async (req, res) => {
         select: "reason date status",
       })
       .select("_id staffLeave");
+    // const lEncrypt = await encryptionPayload(staff.staffLeave);
     res.status(200).send({ message: "All leaves", allLeave: staff.staffLeave });
   } catch (e) {
     console.log(e);
@@ -756,6 +823,7 @@ exports.getStaffOneLeaveDetail = async (req, res) => {
     const leave = await Leave.findById(req.params.lid).select(
       "_id date reason status"
     );
+    // const oneLeaveEncrypt = await encryptionPayload(leave);
     res.status(200).send({ message: "One leave Details", leave: leave });
   } catch (e) {
     console.log(e);
@@ -794,6 +862,7 @@ exports.getAllStaffLeaveInstitute = async (req, res) => {
         select: "reason date status staff",
       })
       .select("_id leave");
+    // const allLeaveEncrypt = await encryptionPayload(institute.leave);
     res.status(200).send({ message: "All leaves", allLeave: institute.leave });
   } catch (e) {
     console.log(e);
@@ -827,7 +896,7 @@ exports.oneStaffLeaveProcess = async (req, res) => {
     notify.notifyPublisher = leave.staff._id;
     user.activity_tab.push(notify._id);
     notify.notifyByInsPhoto = leave.institute._id;
-    notify.notifyCategory = "Leave";
+    notify.notifyCategory = "Leave Status";
     notify.redirectIndex = 10;
     //
     invokeMemberTabNotification(
@@ -875,6 +944,7 @@ exports.stafftAllComplaint = async (req, res) => {
         select: "complaintType complaintStatus createdAt complaintContent",
       })
       .select("complaints _id");
+    // const sCompEncrypt = await encryptionPayload(staff.complaints);
     res
       .status(200)
       .send({ message: "all complaints", complaints: staff.complaints });
@@ -888,6 +958,7 @@ exports.OneStaffComplaint = async (req, res) => {
     const complaint = await StaffComplaint.findById(req.params.cid).select(
       "complaintType  complaintContent complaintStatus createdAt"
     );
+    // const oneCompEncrypt = await encryptionPayload(complaint);
     res.status(200).send({ message: "one complaint details", complaint });
   } catch (e) {
     console.log(e);
@@ -944,7 +1015,7 @@ exports.instituteStaffAllComplaint = async (req, res) => {
         select: "complaintType complaintStatus createdAt",
       })
       .select("staffComplaints");
-
+    // const iAllCompEncrypt = await encryptionPayload(institute.staffComplaints);
     res.status(200).send({
       message: "all complaints",
       complaints: institute.staffComplaints,
@@ -1098,7 +1169,7 @@ exports.instituteStaffAllTransfer = async (req, res) => {
         select: "transferReason createdAt staff transferStatus",
       })
       .select("transfer");
-
+    // const iTransferEncrypt = await encryptionPayload(institute.transfer);
     res.status(200).send({
       message: "all transfer",
       transfers: institute.transfer,

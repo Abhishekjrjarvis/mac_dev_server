@@ -1,8 +1,9 @@
 const User = require("../../../models/User");
 const Post = require("../../../models/Post");
 const Poll = require("../../../models/Question/Poll");
-const end_poll = require("../../../Service/close");
+const Close = require("../../../Service/close");
 const HashTag = require("../../../models/HashTag/hashTag");
+// const encryptionPayload = require("../../../Utilities/Encrypt/payload");
 
 exports.retrievePollQuestionText = async (req, res) => {
   try {
@@ -42,8 +43,9 @@ exports.retrievePollQuestionText = async (req, res) => {
       post.postType = "Poll";
       post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
       post.poll_query = poll;
-      poll.duration_date = end_poll(req.body.day);
+      poll.duration_date = Close.end_poll(req.body.day);
       await Promise.all([user.save(), post.save(), poll.save()]);
+      // Add Another Encryption
       res.status(201).send({ message: "Poll is create", poll, post });
       if (user.userFollowers.length >= 1) {
         user.userFollowers.forEach(async (ele) => {
@@ -79,7 +81,9 @@ exports.retrievePollQuestionText = async (req, res) => {
         .status(422)
         .send({ message: "Not Valid Poll Option Min Max Critiriea" });
     }
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.pollLike = async (req, res) => {
@@ -119,6 +123,7 @@ exports.pollLike = async (req, res) => {
             (poll.poll_answer[i].users.length / poll.userPollCount) * 100;
           await poll.save();
         }
+        // const voteEncrypt = await encryptionPayload(poll.total_votes);
         res
           .status(200)
           .send({ message: "Added To Poll", voteAtPoll: poll.total_votes });

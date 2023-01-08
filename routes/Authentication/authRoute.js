@@ -75,20 +75,186 @@ router.get("/classcode/search", catchAsync(Auth.searchByClassCode));
 
 router.post(
   "/direct/join/student/:id",
-  upload.array("file"),
+  upload.fields([
+    {
+      name: "file",
+    },
+    {
+      name: "addharFrontCard",
+    },
+    {
+      name: "addharBackCard",
+    },
+    {
+      name: "bankPassbook",
+    },
+    {
+      name: "casteCertificate",
+    },
+    {
+      name: "identityDocument",
+    },
+    {
+      name: "joiningTransferLetter",
+    },
+    {
+      name: "leavingTransferCertificate",
+    },
+    {
+      name: "incomeCertificate",
+    },
+    {
+      name: "lastYearMarksheet",
+    },
+    {
+      name: "nationalityCertificate",
+    },
+    {
+      name: "domicileCertificate",
+    },
+    {
+      name: "nonCreamyLayerCertificate",
+    },
+  ]),
   catchAsync(Auth.retrieveDirectJoinQuery)
 );
 
 router.post(
   "/direct/join/staff/:id",
-  upload.array("file"),
+  upload.fields([
+    {
+      name: "file",
+    },
+    {
+      name: "addharFrontCard",
+    },
+    {
+      name: "addharBackCard",
+    },
+    {
+      name: "bankPassbook",
+    },
+    {
+      name: "casteCertificate",
+    },
+    {
+      name: "identityDocument",
+    },
+    {
+      name: "joiningTransferLetter",
+    },
+    {
+      name: "leavingTransferCertificate",
+    },
+    {
+      name: "incomeCertificate",
+    },
+    {
+      name: "lastYearMarksheet",
+    },
+    {
+      name: "nationalityCertificate",
+    },
+    {
+      name: "domicileCertificate",
+    },
+    {
+      name: "nonCreamyLayerCertificate",
+    },
+  ]),
   catchAsync(Auth.retrieveDirectJoinStaffQuery)
 );
 
 router.post(
   "/direct/join/admission/:id/apply/:aid",
-  upload.array("file"),
+  upload.fields([
+    {
+      name: "file",
+    },
+    {
+      name: "addharFrontCard",
+    },
+    {
+      name: "addharBackCard",
+    },
+    {
+      name: "bankPassbook",
+    },
+    {
+      name: "casteCertificate",
+    },
+    {
+      name: "identityDocument",
+    },
+    {
+      name: "joiningTransferLetter",
+    },
+    {
+      name: "leavingTransferCertificate",
+    },
+    {
+      name: "incomeCertificate",
+    },
+    {
+      name: "lastYearMarksheet",
+    },
+    {
+      name: "nationalityCertificate",
+    },
+    {
+      name: "domicileCertificate",
+    },
+    {
+      name: "nonCreamyLayerCertificate",
+    },
+  ]),
   catchAsync(Auth.retrieveDirectJoinAdmissionQuery)
+);
+
+router.post(
+  "/direct/institute/join/student/:id/class/:cid",
+  upload.fields([
+    {
+      name: "file",
+    },
+    {
+      name: "addharFrontCard",
+    },
+    {
+      name: "addharBackCard",
+    },
+    {
+      name: "bankPassbook",
+    },
+    {
+      name: "casteCertificate",
+    },
+    {
+      name: "identityDocument",
+    },
+    {
+      name: "joiningTransferLetter",
+    },
+    {
+      name: "leavingTransferCertificate",
+    },
+    {
+      name: "incomeCertificate",
+    },
+    {
+      name: "lastYearMarksheet",
+    },
+    {
+      name: "nationalityCertificate",
+    },
+    {
+      name: "domicileCertificate",
+    },
+    {
+      name: "nonCreamyLayerCertificate",
+    },
+  ]),
+  catchAsync(Auth.retrieveInstituteDirectJoinQuery)
 );
 
 module.exports = router;

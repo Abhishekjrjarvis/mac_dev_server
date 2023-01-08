@@ -76,6 +76,10 @@ const orderPaymentSchema = new mongoose.Schema({
   payment_from: {
     type: String,
   },
+  payout_enable: {
+    type: String,
+    default: "Not Paid",
+  },
   // payment_expense_by_end_user_id: {
   //   type: mongoose.Schema.Types.ObjectId,
   //   ref: "InstituteAdmin",

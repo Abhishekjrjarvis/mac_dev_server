@@ -8,9 +8,11 @@ const StudentNotification = require("../../models/Marks/StudentNotification");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const Finance = require("../../models/Finance");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
+// const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.viewDepartment = async (req, res) => {
   const department = await Department.findById(req.params.did);
+  // const dEncrypt = await encryptionPayload(department);
   res.status(200).send({ department });
 };
 
@@ -29,6 +31,7 @@ exports.getAllChecklistClass = async (req, res) => {
       .exec();
     // .limit(limit)
     // .skip(skip);
+    // const checkEncrypt = await encryptionPayload(classes.checklist);
     res
       .status(200)
       .send({ message: "checklist data", checklist: classes.checklist });
@@ -87,6 +90,7 @@ exports.createChecklist = async (req, res) => {
       //
       await Promise.all([user.save(), notify.save()]);
     }
+    // const cEncrypt = await encryptionPayload(check);
     res.status(201).send({ message: "Checklist Created", checklist: check });
     //
     for (let i = 0; i < ClassId.length; i++) {
@@ -135,6 +139,7 @@ exports.getOneChecklist = async (req, res) => {
       .select("_id")
       .lean()
       .exec();
+    // const checksEncrypt = await encryptionPayload(checklist);
     res.status(200).send({ message: "Checklist Data", checklist });
   } catch {}
 };
@@ -155,6 +160,7 @@ exports.studentAssignChecklist = async (req, res) => {
     checklist.studentAssignedStatus = "Assigned";
     notify.notifyContent = `${checklist.checklistName} (checklist) Allotted to you check your member's Tab`;
     notify.notifyReceiever = user._id;
+    notify.notifyCategory = "Checklist Allotted";
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByStudentPhoto = student._id;
@@ -192,6 +198,7 @@ exports.getAllChecklistDepartment = async (req, res) => {
       .exec();
     // .limit(limit)
     // .skip(skip);
+    // const dCheckEncrypt = await encryptionPayload(department.checklists);
     res.status(200).send({
       message: "checklist data",
       checklist: department.checklists,

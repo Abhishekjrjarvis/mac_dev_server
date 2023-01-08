@@ -14,6 +14,7 @@ const invokeSpecificRegister = require("../../Firebase/specific");
 const Finance = require("../../models/Finance");
 const { chatCount } = require("../../Firebase/dailyChat");
 const { getFirestore } = require("firebase-admin/firestore");
+// const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
   try {
@@ -47,6 +48,7 @@ exports.validateUserAge = async (req, res) => {
         user.ageRestrict = "No";
         await user.save();
       }
+      // const ageEncrypt = await encryptionPayload(user.ageRestrict);
       res.status(200).send({
         message: "Age Restriction Disabled ",
         restrict: user.ageRestrict,
@@ -54,6 +56,7 @@ exports.validateUserAge = async (req, res) => {
     } else if (user.ageRestrict === "No") {
       user.ageRestrict = "Yes";
       await user.save();
+      // const ageEncrypt = await encryptionPayload(user.ageRestrict);
       res.status(200).send({
         message: "Age Restriction Enabled",
         restrict: user.ageRestrict,
@@ -99,6 +102,7 @@ exports.retrieveReferralQuery = async (req, res) => {
           select: "unlockAmount activateStatus insName name",
         },
       });
+    // const refEncrypt = await encryptionPayload(user);
     res.status(200).send({ message: "Referral", user });
   } catch {}
 };
@@ -162,6 +166,7 @@ exports.retrieveBonafideGRNO = async (req, res) => {
       download = true;
     }
     await Promise.all([student.save(), institute.save()]);
+    // Add Another Encryption
     res
       .status(200)
       .send({ message: "Student Bonafide Certificate", student, download });
@@ -174,12 +179,13 @@ exports.retrieveLeavingGRNO = async (req, res) => {
   try {
     const { gr, id } = req.params;
     var download = true;
-    const { reason, study, previous, behaviour, remark } = req.body;
+    const { reason, study, previous, behaviour, remark, uidaiNumber } =
+      req.body;
     const student = await Student.findOne({
       $and: [{ studentGRNO: `${gr}` }, { institute: id }],
     })
       .select(
-        "studentFirstName studentGRNO studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB"
+        "studentFirstName studentLeavingPreviousYear studentPreviousSchool studentUidaiNumber studentGRNO studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB"
       )
       .populate({
         path: "studentClass",
@@ -192,16 +198,22 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       .populate({
         path: "institute",
         select:
-          "insName insAddress insState insDistrict insAffiliated insEditableText insEditableTexts insPhoneNumber insPincode photoId insProfilePhoto",
+          "insName insAddress insState studentFormSetting.previousSchoolAndDocument.previousSchoolDocument insDistrict insAffiliated insEditableText insEditableTexts insPhoneNumber insPincode photoId insProfilePhoto",
       });
     const institute = await InstituteAdmin.findById({
       _id: `${student.institute._id}`,
     });
+    if (
+      !institute.studentFormSetting.previousSchoolAndDocument
+        .previousSchoolDocument
+    ) {
+      student.studentPreviousSchool = previous;
+    }
     student.studentLeavingBehaviour = behaviour;
     student.studentLeavingStudy = study;
-    student.studentLeavingPrevious = previous;
     student.studentLeavingReason = reason;
     student.studentLeavingRemark = remark;
+    student.studentUidaiNumber = uidaiNumber;
     student.studentLeavingInsDate = new Date();
     student.studentBookNo = institute.leavingArray.length + 1;
     student.studentCertificateNo = institute.leavingArray.length + 1;
@@ -224,6 +236,7 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       download = true;
     }
     await Promise.all([student.save(), institute.save()]);
+    // Add Another Encryption
     res.status(200).send({
       message: "Student Leaving Certificate",
       student,
@@ -284,7 +297,8 @@ exports.retrieveUserBirthPrivacy = async (req, res) => {
 exports.retrieveInstituteBirthPrivacy = async (req, res) => {
   try {
     const { id } = req.params;
-    const { staffStatus, contactStatus, emailStatus, tagStatus } = req.body;
+    const { staffStatus, contactStatus, emailStatus, tagStatus, sms_lang } =
+      req.body;
     const institute = await InstituteAdmin.findById({ _id: id });
     if (staffStatus !== "") {
       institute.staff_privacy = staffStatus;
@@ -297,6 +311,9 @@ exports.retrieveInstituteBirthPrivacy = async (req, res) => {
     }
     if (tagStatus !== "") {
       institute.tag_privacy = tagStatus;
+    }
+    if (sms_lang) {
+      institute.sms_lang = sms_lang;
     }
     await institute.save();
     res.status(200).send({ message: `Privacy Updated Institute` });
@@ -333,7 +350,7 @@ exports.retrieveUserUpdateNotification = async (req, res) => {
 exports.retrieveCommentFeatureQuery = async (req, res) => {
   try {
     const { pid } = req.params;
-    await Post.findByIdAndUpdate(pid, req.body);
+    const post = await Post.findByIdAndUpdate(pid, req.body);
     res.status(200).send({
       message: `Comments are turned ${post.comment_turned}`,
       turned: true,
@@ -376,6 +393,7 @@ exports.retrieveMergeStaffStudent = async (req, res) => {
 
     var mergeArray = [...staff, ...student];
     var get_array = shuffleArray(mergeArray);
+    // const arrayEncrypt = await encryptionPayload(get_array);
     res
       .status(200)
       .send({ message: "Shuffle Staff Student Collection", get_array });
@@ -586,6 +604,7 @@ exports.fetchExportStaffIdCardQuery = async (req, res) => {
         bmi: export_ins.export_staff_data.staffBMI ? staff.staffBMI : "",
       });
     });
+    // const lEncrypt = await encryptionPayload(live_data);
     res.status(200).send({
       message: "Exported Staff Format Pattern Save",
       staff_card: live_data,
@@ -705,6 +724,7 @@ exports.fetchExportStudentIdCardQuery = async (req, res) => {
           : "",
       });
     });
+    // const liveEncrypt = await encryptionPayload(live_data);
     res.status(200).send({
       message: "Exported Student Format Pattern Save",
       student_card: live_data,
@@ -815,6 +835,7 @@ exports.fetchExportStudentAllQuery = async (req, res) => {
           : "",
       });
     });
+    // const sEncrypt = await encryptionPayload(live_data);
     res.status(200).send({
       message: "Exported Student Format Pattern Save",
       student_card: live_data,
@@ -908,6 +929,7 @@ exports.fetchExportStudentRemainFeeQuery = async (req, res) => {
           : "",
       });
     });
+    // const fEncrypt = await encryptionPayload(live_data);
     res.status(200).send({
       message: "Exported Student Remain Fee",
       student_card: live_data,
@@ -958,6 +980,77 @@ exports.reportAccountByEndUser = async (req, res) => {
         user._id,
         user.deviceToken
       );
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveActiveMemberRole = async (req, res) => {
+  try {
+    const { uid } = req.params;
+    const { active_member_role } = req.query;
+    const active_user = await User.findById({ _id: uid });
+    const role =
+      active_user?.staff?.length > 0
+        ? active_user?.staff[0]
+        : active_user?.student?.length > 0
+        ? active_user?.student[0]
+        : "";
+    if (!active_user?.active_member_role) {
+      active_user.active_member_role = role;
+      await active_user.save();
+    } else if (active_user?.active_member_role) {
+      active_user.active_member_role = active_member_role;
+      await active_user.save();
+    }
+
+    if (active_user?.active_member_role) {
+      const active_staff = await Staff.findOne({
+        _id: active_user?.active_member_role,
+      })
+        .select("_id")
+        .populate({
+          path: "institute",
+          select: "insName insProfilePhoto",
+        });
+      const active_student = await Student.findOne({
+        _id: active_user?.active_member_role,
+      })
+        .select("_id")
+        .populate({
+          path: "institute",
+          select: "insName insProfilePhoto",
+        });
+      if (active_staff) {
+        res.status(200).send({
+          message: "Active Role for Dashboard Feed 👻👻 (staff)",
+          role: {
+            activeRole: active_staff?._id,
+            institute: active_staff?.institute ? active_staff?.institute : "",
+            member: "Staff",
+          },
+          active: true,
+        });
+      } else if (active_student) {
+        res.status(200).send({
+          message: "Active Role for Dashboard Feed 👻👻 (student)",
+          role: {
+            activeRole: active_student?._id,
+            institute: active_student?.institute
+              ? active_student?.institute
+              : "",
+            member: "Student",
+          },
+          active: true,
+        });
+      }
+    } else {
+      res.status(200).send({
+        message: "No Active Role for Dashboard Feed 👻👻",
+        role: {},
+        active: false,
+      });
     }
   } catch (e) {
     console.log(e);

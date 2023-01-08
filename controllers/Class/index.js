@@ -1,9 +1,11 @@
 const Class = require("../../models/Class");
 const InstituteAdmin = require("../../models/InstituteAdmin");
+const encryptionPayload = require("../../Utilities/Encrypt/payload");
 // const Checklist = require("../../models/Checklist");
 
 exports.getOneInstitute = async (req, res) => {
   const classDetail = await InstituteAdmin.findById(req.params.id);
+  // const classDetailEncrypt = await encryptionPayload(classDetail.classCodeList);
   res.status(200).send({
     message: "code is refreshed",
     classDetail: classDetail.classCodeList,
@@ -12,6 +14,7 @@ exports.getOneInstitute = async (req, res) => {
 
 exports.getOneClass = async (req, res) => {
   const classDetail = await Class.findById(req.params.cid);
+  // const classEncrypt = await encryptionPayload(classDetail);
   res
     .status(200)
     .send({ message: "code is refreshed", classDetail: classDetail });
@@ -38,6 +41,7 @@ exports.classRefreshCode = async (req, res) => {
     classDetail.classCode = code;
 
     await Promise.all([institute.save(), classDetail.save()]);
+    // const classCodeEncrypt = await encryptionPayload(code);
     res.status(200).send({ message: "code is refreshed", classCode: code });
   } catch {}
 };

@@ -19,6 +19,7 @@ const StudentNotification = require("../../models/Marks/StudentNotification");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 const BusinessTC = require("../../models/Finance/BToC");
+// const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.getFinanceDepart = async (req, res) => {
   try {
@@ -40,6 +41,7 @@ exports.getFinanceDepart = async (req, res) => {
     notify.notify_mr_content = `तुम्हाला वित्त व्यवस्थापक म्हणून पद मिळाले आहे`;
     notify.notifySender = id;
     notify.notifyReceiever = user._id;
+    notify.notifyCategory = "Finance Designation";
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByInsPhoto = institute._id;
@@ -57,6 +59,7 @@ exports.getFinanceDepart = async (req, res) => {
       user.save(),
       notify.save(),
     ]);
+    // const fEncrypt = await encryptionPayload(finance._id);
     res.status(200).send({
       message: "Successfully Assigned Staff",
       finance: finance._id,
@@ -78,31 +81,47 @@ exports.uploadBankDetail = async (req, res) => {
       businessName,
       businessAddress,
       gstSlab,
+      razor_account,
+      razor_key,
+      razor_id,
     } = req.body;
     const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-    const institute = await InstituteAdmin.findById({ _id: id });
-    const notify = new Notification({});
-    institute.bankAccountHolderName = bankAccountHolderName;
-    institute.bankAccountNumber = bankAccountNumber;
-    institute.bankIfscCode = bankIfscCode;
-    institute.bankAccountPhoneNumber = bankAccountPhoneNumber;
-    institute.paymentBankStatus = "verification in progress";
-    institute.GSTInfo = GSTInfo;
-    institute.businessName = businessName;
-    institute.businessAddress = businessAddress;
-    institute.gstSlab = gstSlab;
-    institute.financeDetailStatus = "Added";
-    institute.bankAccountType = bankAccountType;
-    notify.notifyContent = ` ${institute.insName} Institute payment Details updated Check and Verify `;
-    notify.notifySender = institute._id;
-    notify.notifyReceiever = admin._id;
-    admin.aNotify.push(notify._id);
-    notify.notifyByInsPhoto = institute._id;
-    await Promise.all([institute.save(), admin.save(), notify.save()]);
-    res.status(200).send({
-      message: "bank detail updated wait for verification",
-      status: true,
-    });
+    var institute = await InstituteAdmin.findById({ _id: id });
+    if (razor_account) {
+      institute.razor_key = razor_key;
+      institute.razor_id = razor_id;
+      institute.razor_account = razor_account;
+      institute.bankAccountPhoneNumber = bankAccountPhoneNumber;
+      await institute.save();
+      res.status(200).send({
+        message: "Merchant Details updated 😀🎉",
+        status: true,
+      });
+    } else {
+      const notify = new Notification({});
+      institute.bankAccountHolderName = bankAccountHolderName;
+      institute.bankAccountNumber = bankAccountNumber;
+      institute.bankIfscCode = bankIfscCode;
+      institute.bankAccountPhoneNumber = bankAccountPhoneNumber;
+      institute.paymentBankStatus = "verification in progress";
+      institute.GSTInfo = GSTInfo;
+      institute.businessName = businessName;
+      institute.businessAddress = businessAddress;
+      institute.gstSlab = gstSlab;
+      institute.financeDetailStatus = "Added";
+      institute.bankAccountType = bankAccountType;
+      notify.notifyContent = ` ${institute.insName} Institute payment Details updated Check and Verify `;
+      notify.notifySender = institute._id;
+      notify.notifyReceiever = admin._id;
+      notify.notifyCategory = "Bank Detail";
+      admin.aNotify.push(notify._id);
+      notify.notifyByInsPhoto = institute._id;
+      await Promise.all([institute.save(), admin.save(), notify.save()]);
+      res.status(200).send({
+        message: "bank detail updated wait for verification",
+        status: true,
+      });
+    }
   } catch (e) {
     console.log(e);
   }
@@ -112,17 +131,23 @@ exports.removeBankDetail = async (req, res) => {
   try {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id });
-    institute.bankAccountHolderName = "";
-    institute.bankAccountNumber = "";
-    institute.bankIfscCode = "";
-    institute.bankAccountPhoneNumber = "";
-    institute.GSTInfo = "";
-    institute.businessName = "";
-    institute.businessAddress = "";
-    institute.gstSlab = "";
-    institute.financeDetailStatus = "Not Added";
-    institute.paymentBankStatus =
-      "payment Details are mandatory for Finance Department";
+    if (institute.razor_account) {
+      institute.razor_key = "";
+      institute.razor_id = "";
+      institute.razor_account = false;
+    } else {
+      institute.bankAccountHolderName = "";
+      institute.bankAccountNumber = "";
+      institute.bankAccountType = "";
+      institute.bankIfscCode = "";
+      institute.bankAccountPhoneNumber = "";
+      institute.GSTInfo = "";
+      institute.businessName = "";
+      institute.businessAddress = "";
+      institute.gstSlab = "";
+      institute.financeDetailStatus = "Not Added";
+      institute.paymentBankStatus = "";
+    }
     await Promise.all([institute.save()]);
     res.status(200).send({ message: "Bank Details Removed" });
   } catch (e) {}
@@ -138,6 +163,7 @@ exports.updateBankDetail = async (req, res) => {
     notify.notifyContent = ` ${institute.insName} Institute payment Details updated Check and Verify `;
     notify.notifySender = institute._id;
     notify.notifyReceiever = admin._id;
+    notify.notifyCategory = "Bank Detail";
     admin.aNotify.push(notify._id);
     notify.notifyByInsPhoto = institute._id;
     await Promise.all([institute.save(), admin.save(), notify.save()]);
@@ -163,8 +189,9 @@ exports.retrieveFinanceQuery = async (req, res) => {
       .populate({
         path: "financeHead",
         select:
-          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
       });
+    // const financeEncrypt = await encryptionPayload(finance);
     res.status(200).send({ message: "Finance", finance });
   } catch (e) {}
 };
@@ -213,6 +240,7 @@ exports.getFinanceDetail = async (req, res) => {
       })
       .lean()
       .exec();
+    // const queryEncrypt = await encryptionPayload(finance);
     res.status(200).send({ message: "finance data", finance });
   } catch (e) {}
 };
@@ -294,6 +322,7 @@ exports.getIncome = async (req, res) => {
     if (req.file) {
       await unlinkFile(req.file.path);
     }
+    // Add Another Encryption
     res.status(200).send({
       message: "Add New Income",
       finance: finance._id,
@@ -310,9 +339,11 @@ exports.getAllIncomes = async (req, res) => {
     const { queryStatus } = req.body;
     if (queryStatus === "By Cash") {
       const income = await Income.find({ incomeAccount: queryStatus });
+      // const iEncrypt = await encryptionPayload(income);
       res.status(200).send({ message: "cash data", cashIncome: income });
     } else if (queryStatus === "By Bank") {
       const income = await Income.find({ incomeAccount: queryStatus });
+      // const iEncrypt = await encryptionPayload(income);
       res.status(200).send({ message: "bank data", bankIncome: income });
     } else {
     }
@@ -385,6 +416,7 @@ exports.getExpense = async (req, res) => {
       if (req.file) {
         await unlinkFile(req.file.path);
       }
+      // Add Another Encryption
       res.status(200).send({
         message: "Add New Expense",
         finance: finance._id,
@@ -404,9 +436,11 @@ exports.getAllExpense = async (req, res) => {
     const { queryStatus } = req.body;
     if (queryStatus === "By Cash") {
       const expense = await Expense.find({ expenseAccount: queryStatus });
+      // const eEncrypt = await encryptionPayload(expense);
       res.status(200).send({ message: "cash data", cashExpense: expense });
     } else if (queryStatus === "By Bank") {
       const expense = await Expense.find({ expenseAccount: queryStatus });
+      // const eEncrypt = await encryptionPayload(expense);
       res.status(200).send({ message: "bank data", bankExpense: expense });
     } else {
     }
@@ -425,6 +459,7 @@ exports.getFinanceOnlineFee = async (req, res) => {
           "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
       },
     });
+    // const dEncrypt = await encryptionPayload(finance);
     res
       .status(200)
       .send({ message: "all class data at finance manager", finance });
@@ -438,6 +473,7 @@ exports.getClassOnlineFee = async (req, res) => {
     const classes = await Class.findById({ _id: cid });
     classes.onlineTotalFee = fee;
     await classes.save();
+    // const cEncrypt = await encryptionPayload(classes.onlineTotalFee);
     res
       .status(200)
       .send({ message: "class online total", classes: classes.onlineTotalFee });
@@ -451,6 +487,7 @@ exports.getClassOfflineFee = async (req, res) => {
     const classes = await Class.findById({ _id: cid });
     classes.offlineTotalFee = fee;
     await classes.save();
+    // const cEncrypt = await encryptionPayload(classes.offlineTotalFee);
     res.status(200).send({
       message: "class offline total",
       classes: classes.offlineTotalFee,
@@ -465,6 +502,7 @@ exports.getClassCollectedFee = async (req, res) => {
     const classes = await Class.findById({ _id: cid });
     classes.classTotalCollected = fee;
     await classes.save();
+    // const cEncrypt = await encryptionPayload(classes.classTotalCollected);
     res.status(200).send({
       message: "class offline total",
       classes: classes.classTotalCollected,
@@ -508,6 +546,7 @@ exports.collectClassFee = async (req, res) => {
           },
         },
       });
+    // const collectEncrypt = await encryptionPayload(finance);
     res.status(200).send({ message: "Class Data", finance });
   } catch (e) {}
 };
@@ -568,7 +607,7 @@ exports.requestClassOfflineFee = async (req, res) => {
       notify.financeId = finance._id;
       user.activity_tab.push(notify._id);
       notify.notifyByClassPhoto = classes._id;
-      notify.notifyCategory = "Finance";
+      notify.notifyCategory = "Class Fee Request";
       notify.redirectIndex = 8;
       //
       invokeMemberTabNotification(
@@ -672,7 +711,7 @@ exports.submitClassOfflineFee = async (req, res) => {
     notify.notifyPublisher = classStaff?._id;
     user.activity_tab.push(notify._id);
     notify.notifyByFinancePhoto = finance?._id;
-    notify.notifyCategory = "Finance";
+    notify.notifyCategory = "Class Fee Approved";
     notify.redirectIndex = 8;
     //
     invokeMemberTabNotification(
@@ -692,6 +731,7 @@ exports.submitClassOfflineFee = async (req, res) => {
       user.save(),
       notify.save(),
     ]);
+    // const classEncrypt = await encryptionPayload(finance.classRoom.length);
     res.status(200).send({
       message: "Reuqest Accepted",
       accept: true,
@@ -761,7 +801,7 @@ exports.classOfflineFeeIncorrect = async (req, res) => {
     notify.notifyPublisher = classStaff?._id;
     user.activity_tab.push(notify._id);
     notify.notifyByFinancePhoto = finance?._id;
-    notify.notifyCategory = "Finance";
+    notify.notifyCategory = "Class Fee Rejected";
     notify.redirectIndex = 8;
     //
     invokeMemberTabNotification(
@@ -791,6 +831,7 @@ exports.updatePaymenFinance = async (req, res) => {
     const finance = await Finance.findById({ _id: fid });
     finance.financeBankBalance = balance;
     await finance.save();
+    // const bEncrypt = await encryptionPayload(finance.financeBankBalance);
     res
       .status(200)
       .send({ message: "balance", bankBalance: finance.financeBankBalance });
@@ -810,6 +851,7 @@ exports.RepayBySuperAdmin = async (req, res) => {
     institute.adminRepayAmount = institute.adminRepayAmount + amount;
     notify.notifyContent = `Super Admin re-pay Rs. ${amount} to you`;
     notify.notifySender = aid;
+    notify.notifyCategory = "Qviple Repayment";
     notify.notifyReceiever = id;
     institute.iNotify.push(notify._id);
     notify.institute = institute._id;
@@ -823,8 +865,9 @@ exports.retrievePaymentDetail = async (req, res) => {
   try {
     const { id } = req.params;
     const bank = await InstituteAdmin.findById({ _id: id }).select(
-      "bankAccountHolderName paymentBankStatus bankAccountNumber bankAccountType bankAccountPhoneNumber bankIfscCode"
+      "bankAccountHolderName paymentBankStatus bankAccountNumber bankAccountType bankAccountPhoneNumber bankIfscCode razor_key razor_id razor_account"
     );
+    // const bankEncrypt = await encryptionPayload(bank);
     res.status(200).send({ message: "Payment Detail", bank });
   } catch {}
 };
@@ -838,6 +881,7 @@ exports.retrieveIncomeQuery = async (req, res) => {
     const incomes = await Income.find({
       _id: { $in: finance.incomeDepartment },
     }).sort("-createdAt");
+    // const iEncrypt = await encryptionPayload(incomes);
     res.status(200).send({ message: "All Incomes", allIncome: incomes });
   } catch {}
 };
@@ -851,6 +895,7 @@ exports.retrieveExpenseQuery = async (req, res) => {
     const expenses = await Expense.find({
       _id: { $in: finance.expenseDepartment },
     }).sort("-createdAt");
+    // const eEncrypt = await encryptionPayload(expenses);
     res.status(200).send({ message: "All Expenses", allIncome: expenses });
   } catch {}
 };
@@ -863,6 +908,7 @@ exports.retrieveRequestAtFinance = async (req, res) => {
       .populate({
         path: "classRoom",
       });
+    // Add Another Encryption
     res.status(200).send({
       message: "Get Request",
       request: finance.classRoom,
@@ -879,6 +925,7 @@ exports.retrieveSubmitAtFinance = async (req, res) => {
       .populate({
         path: "submitClassRoom",
       });
+    // Add Another Encryption
     res.status(200).send({
       message: "Get Submit",
       submit: finance.submitClassRoom,
@@ -895,6 +942,7 @@ exports.retrieveRejectAtFinance = async (req, res) => {
       .populate({
         path: "pendingClassroom",
       });
+    // Add Another Encryption
     res.status(200).send({
       message: "Get Reject",
       reject: finance.pendingClassroom,
@@ -938,6 +986,7 @@ exports.retrieveIncomeBalance = async (req, res) => {
     const finance = await Finance.findById({ _id: fid }).select(
       "financeIncomeCashBalance financeIncomeBankBalance"
     );
+    // const incomeEncrypt = await encryptionPayload(finance);
     res.status(200).send({ message: "Income Balance", incomeBalance: finance });
   } catch (e) {
     // console.log(e)
@@ -950,6 +999,7 @@ exports.retrieveExpenseBalance = async (req, res) => {
     const finance = await Finance.findById({ _id: fid }).select(
       "financeExpenseCashBalance financeExpenseBankBalance"
     );
+    // const expenseEncrypt = await encryptionPayload(finance);
     res
       .status(200)
       .send({ message: "Expense Balance", expenseBalance: finance });
@@ -972,6 +1022,7 @@ exports.retrieveRemainFeeBalance = async (req, res) => {
     student.forEach((stu) => {
       remain += stu.studentRemainingFeeCount;
     });
+    // const remainEncrypt = await encryptionPayload(remain);
     res.status(200).send({ message: "Remaining Balance", remain: remain });
   } catch (e) {
     // console.log(e)
@@ -1015,6 +1066,7 @@ exports.allEmpToFinance = async (req, res) => {
         select:
           "staffFirstName staffMiddleName staffLastName staffROLLNO staffProfilePhoto photoId",
       });
+    // const empEncrypt = await encryptionPayload(allEmp);
     res.status(200).send({ message: "All Employee List", allEmp: allEmp });
   } catch (e) {
     console.log(e);
@@ -1046,6 +1098,7 @@ exports.addFieldToPayroll = async (req, res) => {
     const finance = await Finance.findById({ _id: fid });
     var emp = await Payroll.findById({ _id: eid });
     var staff = await Staff.findById({ _id: `${emp.staff}` });
+    var user = await User.findById({ _id: `${staff?.user}` });
     if (net_total < finance.financeTotalBalance) {
       emp.pay_slip.push({
         month: month,
@@ -1089,6 +1142,31 @@ exports.addFieldToPayroll = async (req, res) => {
         pay_mode: payment_mode,
         emp_pay: emp._id,
       });
+      const notify = new StudentNotification({});
+      notify.notifyContent = `${staff?.staffFirstName} ${
+        staff?.staffMiddleName ? staff?.staffMiddleName : ""
+      } ${staff?.staffLastName} your payroll for ${moment(
+        new Date(month)
+      ).format("MMMM")} month is ready check That.`;
+      notify.notifySender = finance._id;
+      notify.notifyReceiever = user._id;
+      notify.notifyType = "Staff";
+      notify.notifyPublisher = staff._id;
+      notify.financeId = finance._id;
+      user.activity_tab.push(notify._id);
+      notify.notifyByFinancePhoto = finance._id;
+      notify.notifyCategory = "Payroll";
+      notify.redirectIndex = 17;
+      //
+      invokeMemberTabNotification(
+        "Staff Activity",
+        notify,
+        "Monthly Payroll",
+        user._id,
+        user.deviceToken,
+        "Staff",
+        notify
+      );
       if (payment_mode === "By Cash") {
         finance.financeTotalBalance -= net_total;
         if (
@@ -1120,12 +1198,14 @@ exports.addFieldToPayroll = async (req, res) => {
         finance.financeTotalBalance -= net_total;
         finance.financeBankBalance -= net_total;
         await Promise.all([emp.save(), finance.save(), staff.save()]);
+        // const payEncrypt = await encryptionPayload(emp);
         res
           .status(200)
           .send({ message: "pay & generate payroll", payroll: emp });
       } else {
         res.status(200).send({ message: `${payment_mode} out of volume` });
       }
+      await Promise.all([user.save(), notify.save()]);
     } else {
       res.status(200).send({ message: "No payment volume at finance" });
     }
@@ -1160,6 +1240,7 @@ exports.retrieveAllSalaryHistory = async (req, res) => {
     }).select(
       "insName insAddress insPhoneNumber insEmail insDistrict insState insProfilePhoto photoId"
     );
+    // Add Another Encryption
     res.status(200).send({
       message: "All Employee ",
       salary: finance.salary_history,
@@ -1181,6 +1262,7 @@ exports.retrieveOneEmpQuery = async (req, res) => {
         select:
           "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO institute",
       });
+      const dEncrypt = await encryptionPayload(emp);
       res.status(200).send({ message: "One Employee Detail ", detail: emp });
     } else if (type === "History") {
       const emp = await Payroll.findById({ _id: eid }).populate({
@@ -1218,6 +1300,7 @@ exports.retrieveOneEmpQuery = async (req, res) => {
             select: "staffFirstName staffMiddleName staffLastName",
           },
         });
+      // Add Another Encryption
       res.status(200).send({
         message: "One Employee Salary History ",
         detail: detail,
@@ -1262,6 +1345,7 @@ exports.retrieveRemainFeeList = async (req, res) => {
         path: "user",
         select: "username userLegalName",
       });
+    // const sEncrypt = await encryptionPayload(student);
     res.status(200).send({ message: "Remaining Fee List", list: student });
   } catch (e) {
     console.log(e);
@@ -1272,6 +1356,7 @@ exports.retrieveOneIncomeQuery = async (req, res) => {
   try {
     const { iid } = req.params;
     const i_detail = await Income.findById({ _id: iid });
+    // const iOneEncrypt = await encryptionPayload(i_detail);
     res.status(200).send({ message: "One Income Detail", oneIncome: i_detail });
   } catch {}
 };
@@ -1280,6 +1365,7 @@ exports.retrieveOneExpenseQuery = async (req, res) => {
   try {
     const { eid } = req.params;
     const e_detail = await Expense.findById({ _id: eid });
+    // const eOneEncrypt = await encryptionPayload(e_detail);
     res
       .status(200)
       .send({ message: "One Expense Detail", oneExpense: e_detail });
@@ -1300,7 +1386,7 @@ exports.retrieveAllStaffArray = async (req, res) => {
       })
       .lean()
       .exec();
-
+    // const staffEncrypt = await encryptionPayload(ins?.ApproveStaff);
     res
       .status(200)
       .send({ message: "All Staff List", staff_array: ins?.ApproveStaff });
@@ -1330,6 +1416,7 @@ exports.retrieveAllGSTIncome = async (req, res) => {
       });
 
     if (l_income?.length > 0) {
+      // const lEncrypt = await encryptionPayload(l_income);
       res.status(200).send({
         message: "All GST liability 😀",
         liability: l_income,
@@ -1366,6 +1453,7 @@ exports.retrieveAllGSTInputTax = async (req, res) => {
       });
 
     if (l_expense?.length > 0) {
+      // const taxEncrypt = await encryptionPayload(l_expense);
       res.status(200).send({
         message: "All GST Input Tax Credit 😀",
         tax_credit: l_expense,
@@ -1453,6 +1541,7 @@ exports.retrieveAllBToCQuery = async (req, res) => {
         status: true,
       });
     } else {
+      // const businessEncrypt = await encryptionPayload(business);
       res.status(200).send({
         message: "All Business to customer 😀",
         bToC: business,
@@ -1498,6 +1587,7 @@ exports.retrieveAllBToCQueryArray = async (req, res) => {
         );
 
       if (allBusiness?.length > 0) {
+        // const allBusinessEncrypt = await encryptionPayload(allBusiness);
         res.status(200).send({
           message: "All Monthly Business to Customer 😀",
           all: allBusiness,

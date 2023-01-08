@@ -14,10 +14,12 @@ const {
   getOnlyTime,
   // getOnlyTimeCompare,
 } = require("../../Utilities/timeComparison");
+const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 //THis is route with tested OF STUDENT
 exports.viewClassStudent = async (req, res) => {
   const institute = await Student.findById(req.params.sid);
+  // const instituteEncrypt = await encryptionPayload(institute);
   res.status(200).send({ institute });
 };
 
@@ -52,7 +54,7 @@ exports.addClassWeeklyTime = async (req, res) => {
     res.status(200).send({
       message: e,
     });
-    console.log(e);
+    // console.log(e);
   }
 };
 
@@ -77,6 +79,7 @@ exports.getClassWeeklyTime = async (req, res) => {
         daysTime.half = days.half;
       }
     }
+    // const daysEncrypt = await encryptionPayload(daysTime);
     res.status(200).send({
       message: "Day wise get attendance time edited successfully",
       daysTime,
@@ -85,7 +88,7 @@ exports.getClassWeeklyTime = async (req, res) => {
     res.status(200).send({
       message: e,
     });
-    console.log(e);
+    // console.log(e);
   }
 };
 
@@ -122,7 +125,7 @@ exports.addClassDateWiseTime = async (req, res) => {
     res.status(200).send({
       message: e,
     });
-    console.log(e);
+    // console.log(e);
   }
 };
 
@@ -159,6 +162,7 @@ exports.getClassDateWiseTime = async (req, res) => {
         }
       }
     }
+    // const dayEncrypt = await encryptionPayload(daysTime);
     res.status(200).send({
       message: "Day wise get attendance time edited successfully",
       daysTime,
@@ -167,7 +171,7 @@ exports.getClassDateWiseTime = async (req, res) => {
     res.status(200).send({
       message: e,
     });
-    console.log(e);
+    // console.log(e);
   }
 };
 
@@ -231,6 +235,7 @@ exports.getAttendClassStudent = async (req, res) => {
       },
     });
   } else {
+    // const classEncrypt = await encryptionPayload(classes);
     res.status(200).send({ classes });
   }
 };
@@ -311,6 +316,7 @@ exports.markAttendenceClassStudent = async (req, res) => {
           notify.notifyType = "Student";
           notify.notifyPublisher = student._id;
           notify.notifyByClassPhoto = classes._id;
+          notify.notifyCategory = "Student Present";
           user.activity_tab.push(notify._id);
           student.notification.push(notify._id);
           student.attendDate.push(attendence._id);
@@ -350,6 +356,7 @@ exports.markAttendenceClassStudent = async (req, res) => {
           notify.notifyReceiever = user._id;
           notify.notifyType = "Student";
           notify.notifyPublisher = student._id;
+          notify.notifyCategory = "Student Absent";
           notify.notifyByClassPhoto = classes._id;
           user.activity_tab.push(notify._id);
           student.notification.push(notify._id);
@@ -554,7 +561,7 @@ exports.getAttendStudentById = async (req, res) => {
 
       let presentPercentage = ((present * 100) / days).toFixed(2);
       let absentPercentage = ((absent * 100) / days).toFixed(2);
-
+      // Add Another Encryption
       res.status(200).send({
         message: "Success",
         presentArray,
@@ -576,11 +583,13 @@ exports.getAttendStudentById = async (req, res) => {
 
 exports.viewInstitute = async (req, res) => {
   const institute = await InstituteAdmin.findById(req.params.id);
+  // const insQueryEncrypt = await encryptionPayload(institute);
   res.status(200).send({ institute });
 };
 
 exports.viewInstituteStaff = async (req, res) => {
   const institute = await Staff.findById(req.params.sid);
+  // const insEncrypt = await encryptionPayload(institute);
   res.status(200).send({ institute });
 };
 
@@ -639,6 +648,7 @@ exports.getDepartmentWeeklyTime = async (req, res) => {
         daysTime.half = days.half;
       }
     }
+    // const dEncrypt = await encryptionPayload(daysTime);
     res.status(200).send({
       message: "Day wise get attendance time edited successfully",
       daysTime,
@@ -721,6 +731,7 @@ exports.getDepartmentDateWiseTime = async (req, res) => {
         }
       }
     }
+    // const dateEncrypt = await encryptionPayload(daysTime);
     res.status(200).send({
       message: "Date wise get attendance time edited successfully",
       daysTime,
@@ -780,6 +791,7 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
         notify.notifyReceiever = staff.user._id;
         notify.notifyType = "Staff";
         notify.notifyPublisher = staff._id;
+        notify.notifyCategory = "Staff Present";
         staff.user.activity_tab.push(notify._id);
         notify.notifyByInsPhoto = id;
         staffAttendence.presentStaff.push({
@@ -826,7 +838,7 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
         notify.notifyPublisher = staff._id;
         staff.user.activity_tab.push(notify._id);
         notify.notifyByInsPhoto = id;
-        notify.notifyCategory = "Attendence";
+        notify.notifyCategory = "Staff Absent";
         notify.redirectIndex = 3;
         //
         invokeMemberTabNotification(
@@ -917,6 +929,7 @@ exports.getAttendInstituteStaff = async (req, res) => {
         },
       });
     } else {
+      // const insEncrypt = await encryptionPayload(institute);
       res.status(200).send({ message: "Success", institute });
       // res.status(403).send({ message: "Failure" });
     }
@@ -1092,6 +1105,7 @@ exports.getAttendStaffById = async (req, res) => {
 
       let presentPercentage = ((present * 100) / days).toFixed(2);
       let absentPercentage = ((absent * 100) / days).toFixed(2);
+      // Add Another Encryption
       res.status(200).send({
         message: "Success",
         presentArray,
@@ -1152,6 +1166,7 @@ exports.getAttendStaffByIdForMonth = async (req, res) => {
           leaveCount = leaveCount + leave?.date?.length;
         });
       }
+      // Add Another Encryption
       res.status(200).send({
         message: "Success",
         absentCount,
@@ -1248,6 +1263,7 @@ exports.holidayCalendar = async (req, res) => {
     }
     //
     await Promise.all([depart.save(), leave.save()]);
+    // const leaveEncrypt = await encryptionPayload(leave);
     res.status(200).send({ message: "Holiday Marked ", leave });
   } catch {
     res.status(200).send({ message: "previous date not mark as holiday" });
@@ -1266,6 +1282,7 @@ exports.fetchHoliday = async (req, res) => {
       .lean()
       .exec();
     if (depart) {
+      // const departEncrypt = await encryptionPayload(depart);
       res.status(200).send({ message: "holiday data", depart });
     } else {
       res.status(404).send({ message: "Failure" });
@@ -1292,7 +1309,7 @@ exports.holidayInClassSide = async (req, res) => {
         },
       },
     });
-
+    // const holidayEncrypt = await encryptionPayload(classes.department.holiday);
     res.status(200).send({ holiday: classes.department.holiday });
   } catch (e) {
     console.log(e);

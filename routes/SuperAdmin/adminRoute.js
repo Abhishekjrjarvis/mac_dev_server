@@ -11,7 +11,7 @@ router.get("/super", catchAsync(Admin.getRenderAdmin));
 
 router.post("/super", catchAsync(Admin.retrieveAdminQuery));
 
-// Get Super Admin Id
+// Get Super Admin Dashboard
 router.get("/:aid", isLoggedIn, catchAsync(Admin.getAdmin));
 
 // Get Approve Institute Array
@@ -56,9 +56,6 @@ router.post(
 
 // Get Recovery Phrase
 router.get("/phrase", catchAsync(Admin.retrieveRecoveryPhrase));
-
-// Get Admin Data
-router.get("dashboard/:id", isLoggedIn, catchAsync(Admin.getAll));
 
 // Approve Institute By Super Admin
 router.post(
@@ -174,7 +171,11 @@ router.get(
   catchAsync(Admin.retrieveSocialPostCount)
 );
 
-router.get("/social/like/count", catchAsync(Admin.retrieveSocialLikeCount));
+router.get(
+  "/social/like/count",
+  isLoggedIn,
+  catchAsync(Admin.retrieveSocialLikeCount)
+);
 
 router.get(
   "/social/platform/all/posts",
@@ -212,6 +213,14 @@ router.patch(
   catchAsync(Admin.retrieveOneUserBlock)
 );
 
-// router.get('/filter/user/data', catchAsync(Admin.filterByYear))
+router.get("/payout/:pid", isLoggedIn, catchAsync(Admin.renderPayouts));
+
+// router.post(
+//   "/payout/:pid/done",
+//   isLoggedIn,
+//   catchAsync(Admin.renderPayoutsPaid)
+// );
+
+// router.get('/filter/user/data',isLoggedIn, catchAsync(Admin.filterByYear))
 
 module.exports = router;

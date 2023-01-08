@@ -2,109 +2,109 @@ const express = require("express");
 const router = express.Router();
 const complaintController = require("../../controllers/ComplaintLeaveTransfer/ComplaintController");
 const catchAsync = require("../../Utilities/catchAsync");
-
+const { isLoggedIn } = require("../../middleware");
 router
   .route("/student/:sid")
-  .get(catchAsync(complaintController.getStudentLeave))
-  .post(catchAsync(complaintController.postStudentLeave));
+  .get(isLoggedIn, catchAsync(complaintController.getStudentLeave))
+  .post(isLoggedIn, catchAsync(complaintController.postStudentLeave));
 
 router
   .route("/leave/:lid")
-  .get(catchAsync(complaintController.getStudentOneLeaveDetail))
-  .delete(catchAsync(complaintController.getStudentOneLeaveDelete));
+  .get(isLoggedIn, catchAsync(complaintController.getStudentOneLeaveDetail))
+  .delete(isLoggedIn, catchAsync(complaintController.getStudentOneLeaveDelete));
 
 router
   .route("/class/:cid")
-  .get(catchAsync(complaintController.getAllStudentLeaveClass))
-  .patch(catchAsync(complaintController.oneStudentLeaveProcess));
+  .get(isLoggedIn, catchAsync(complaintController.getAllStudentLeaveClass))
+  .patch(isLoggedIn, catchAsync(complaintController.oneStudentLeaveProcess));
 
 router
   .route("/student/:sid/complaint")
-  .get(catchAsync(complaintController.studentAllComplaint))
-  .post(catchAsync(complaintController.studentComplaint));
+  .get(isLoggedIn, catchAsync(complaintController.studentAllComplaint))
+  .post(isLoggedIn, catchAsync(complaintController.studentComplaint));
 
 router
   .route("/student/:sid/compdest")
-  .get(catchAsync(complaintController.studentComplaintDestination));
+  .get(isLoggedIn, catchAsync(complaintController.studentComplaintDestination));
 
 router
   .route("/class/:cid/complaint")
-  .get(catchAsync(complaintController.classAllComplaint));
+  .get(isLoggedIn, catchAsync(complaintController.classAllComplaint));
 
 router
   .route("/department/:did/complaint")
-  .get(catchAsync(complaintController.departmentAllComplaint));
+  .get(isLoggedIn, catchAsync(complaintController.departmentAllComplaint));
 
 router
   .route("/institute/:id/complaint")
-  .get(catchAsync(complaintController.instituteAllComplaint));
+  .get(isLoggedIn, catchAsync(complaintController.instituteAllComplaint));
 
 router
   .route("/complaint/:cid")
-  .get(catchAsync(complaintController.OneComplaint))
-  .put(catchAsync(complaintController.OneComplaintReportAdmin))
-  .patch(catchAsync(complaintController.classComplaintSolve))
-  .delete(catchAsync(complaintController.OneComplaintDelete));
+  .get(isLoggedIn, catchAsync(complaintController.OneComplaint))
+  .put(isLoggedIn, catchAsync(complaintController.OneComplaintReportAdmin))
+  .patch(isLoggedIn, catchAsync(complaintController.classComplaintSolve))
+  .delete(isLoggedIn, catchAsync(complaintController.OneComplaintDelete));
 
 router
   .route("/student/:sid/transfer")
-  .post(catchAsync(complaintController.studentTransferRequested));
+  .post(isLoggedIn, catchAsync(complaintController.studentTransferRequested));
 
 router
   .route("/class/:cid/transfer")
-  .get(catchAsync(complaintController.classAllTransfer));
+  .get(isLoggedIn, catchAsync(complaintController.classAllTransfer));
 router
   .route("/class/student/:tid/transfer")
-  .put(catchAsync(complaintController.studentTransferRejected))
-  .patch(catchAsync(complaintController.studentTransferApproved));
+  .put(isLoggedIn, catchAsync(complaintController.studentTransferRejected))
+  .patch(isLoggedIn, catchAsync(complaintController.studentTransferApproved));
 
 //for the staff
 router
   .route("/staff/:sid")
-  .get(catchAsync(complaintController.getStaffLeave))
-  .post(catchAsync(complaintController.postStaffLeave));
+  .get(isLoggedIn, catchAsync(complaintController.getStaffLeave))
+  .post(isLoggedIn, catchAsync(complaintController.postStaffLeave));
 
 router
   .route("/staff/leave/:lid")
-  .get(catchAsync(complaintController.getStaffOneLeaveDetail))
-  .delete(catchAsync(complaintController.getStaffOneLeaveDelete));
+  .get(isLoggedIn, catchAsync(complaintController.getStaffOneLeaveDetail))
+  .delete(isLoggedIn, catchAsync(complaintController.getStaffOneLeaveDelete));
 
 router
   .route("/institute/:id")
-  .get(catchAsync(complaintController.getAllStaffLeaveInstitute))
-  .patch(catchAsync(complaintController.oneStaffLeaveProcess));
+  .get(isLoggedIn, catchAsync(complaintController.getAllStaffLeaveInstitute))
+  .patch(isLoggedIn, catchAsync(complaintController.oneStaffLeaveProcess));
 
 router
   .route("/staff/:sid/complaint")
-  .get(catchAsync(complaintController.stafftAllComplaint))
-  .post(catchAsync(complaintController.staffComplaint));
+  .get(isLoggedIn, catchAsync(complaintController.stafftAllComplaint))
+  .post(isLoggedIn, catchAsync(complaintController.staffComplaint));
 
 router
   .route("/staff/complaint/:cid")
-  .get(catchAsync(complaintController.OneStaffComplaint))
-  .patch(catchAsync(complaintController.staffComplaintSolve))
-  .delete(catchAsync(complaintController.staffComplaintDelete));
+  .get(isLoggedIn, catchAsync(complaintController.OneStaffComplaint))
+  .patch(isLoggedIn, catchAsync(complaintController.staffComplaintSolve))
+  .delete(isLoggedIn, catchAsync(complaintController.staffComplaintDelete));
 
 router
   .route("/institute/:id/staff/complaint")
-  .get(catchAsync(complaintController.instituteStaffAllComplaint));
+  .get(isLoggedIn, catchAsync(complaintController.instituteStaffAllComplaint));
 
 router
   .route("/staff/:sid/transfer")
-  .post(catchAsync(complaintController.staffTransferRequested));
+  .post(isLoggedIn, catchAsync(complaintController.staffTransferRequested));
 
 router
   .route("/institute/:id/transfer")
-  .get(catchAsync(complaintController.instituteStaffAllTransfer));
+  .get(isLoggedIn, catchAsync(complaintController.instituteStaffAllTransfer));
 
 router
   .route("/institute/staff/:tid/transfer")
-  .put(catchAsync(complaintController.staffTransferRejected))
-  .patch(catchAsync(complaintController.staffTransferApproved));
+  .put(isLoggedIn, catchAsync(complaintController.staffTransferRejected))
+  .patch(isLoggedIn, catchAsync(complaintController.staffTransferApproved));
 
 // router
 //   .route("/student/:sid/complaint")
-//   .get(catchAsync(complaintController.studentComplaint));
+//   .get(isLoggedIn,catchAsync(complaintController.studentComplaint));
 // router
 //   .route("/student/complaint/reply/:id")
 //   .get(catchAsync(complaintController.studentComplaintReply));

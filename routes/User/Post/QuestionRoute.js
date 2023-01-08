@@ -81,15 +81,25 @@ router.get(
 
 //
 
-router.route("/edit/answer/:aid").patch(catchAsync(Question.answerEdit));
+router
+  .route("/edit/answer/:aid")
+  .patch(isLoggedIn, catchAsync(Question.answerEdit));
 
 router
   .route("/edit/answer/reply/:aid")
-  .patch(catchAsync(Question.answerReplyEdit))
-  .delete(catchAsync(Question.answerReplyDelete));
+  .patch(isLoggedIn, catchAsync(Question.answerReplyEdit))
+  .delete(isLoggedIn, catchAsync(Question.answerReplyDelete));
 
-router.get("/:uid/all/save/answer", catchAsync(Question.getAllSaveAnswerQuery));
+router.get(
+  "/:uid/all/save/answer",
+  isLoggedIn,
+  catchAsync(Question.getAllSaveAnswerQuery)
+);
 
-router.get("/one/:qid/question", catchAsync(Question.getOneQuestionQuery));
+router.get(
+  "/one/:qid/question",
+  isLoggedIn,
+  catchAsync(Question.getOneQuestionQuery)
+);
 
 module.exports = router;

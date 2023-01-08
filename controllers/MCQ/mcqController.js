@@ -27,6 +27,7 @@ const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const User = require("../../models/User");
 const { file_to_aws } = require("../../Utilities/uploadFileAws");
+// const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 // ================================== GET  UNIVERSAL INSTITUTE ALL MCQ FOR ALL USER====================
 
@@ -60,13 +61,14 @@ exports.getUniversalSubjectProfile = async (req, res) => {
         .status(200)
         .send({ message: "This subject id is no more valid... 😎😎" });
     } else {
+      // const subEncrypt = await encryptionPayload(subject);
       res
         .status(200)
         .send({ message: "All universal related detial 🧨🧨", subject });
     }
   } catch (e) {
     res.status(200).send({ message: e });
-    console.log(e);
+    // console.log(e);
   }
 };
 
@@ -88,6 +90,7 @@ exports.getUniversalDepartment = async (req, res) => {
         universalDepartment: [],
       });
     } else {
+      // const uEncrypt = await encryptionPayload(universalInstitute[0].depart);
       res.status(200).send({
         message: "All universal institute related department 🧨🧨",
         universalDepartment: universalInstitute[0].depart,
@@ -115,6 +118,7 @@ exports.getUniversalClass = async (req, res) => {
         universalClass: [],
       });
     } else {
+      // const cEncrypt = await encryptionPayload(universalDepartment.class);
       res.status(200).send({
         message: "All universal department related classes 🧨🧨",
         universalClass: universalDepartment.class,
@@ -122,7 +126,7 @@ exports.getUniversalClass = async (req, res) => {
     }
   } catch (e) {
     res.status(200).send({ message: e });
-    console.log(e);
+    // console.log(e);
   }
 };
 
@@ -143,6 +147,7 @@ exports.getUniversalSubject = async (req, res) => {
         universalSubject: [],
       });
     } else {
+      // const subEncrypt = await encryptionPayload(universalClass.subject);
       res.status(200).send({
         message: "All universal class related subjects 🧨🧨",
         universalSubject: universalClass.subject,
@@ -150,7 +155,7 @@ exports.getUniversalSubject = async (req, res) => {
     }
   } catch (e) {
     res.status(200).send({ message: e });
-    console.log(e);
+    // console.log(e);
   }
 };
 
@@ -219,6 +224,7 @@ exports.getQuestion = async (req, res) => {
           .lean()
           .exec();
         if (subjectQuestion?.length) {
+          // const qEncrypt = await encryptionPayload(subjectQuestion);
           res.status(200).send({
             message: "all questions",
             questions: subjectQuestion,
@@ -264,6 +270,7 @@ exports.getQuestion = async (req, res) => {
             .lean()
             .exec();
           if (subjectQuestion?.length) {
+            // const qEncrypt = await encryptionPayload(subjectQuestion);
             res.status(200).send({
               message: "all questions",
               questions: subjectQuestion,
@@ -288,6 +295,7 @@ exports.getQuestion = async (req, res) => {
             .exec();
 
           if (subjectQuestion?.length) {
+            // const qEncrypt = await encryptionPayload(subjectQuestion);
             res.status(200).send({
               message: "all questions",
               questions: subjectQuestion,
@@ -329,6 +337,7 @@ exports.getQuestion = async (req, res) => {
           .exec();
 
         if (subjectQuestion?.length) {
+          // const qEncrypt = await encryptionPayload(subjectQuestion);
           res.status(200).send({
             message: "all questions",
             questions: subjectQuestion,
@@ -358,6 +367,7 @@ exports.getQuestion = async (req, res) => {
           .exec();
 
         if (subjectQuestion?.length) {
+          // const qEncrypt = await encryptionPayload(subjectQuestion);
           res.status(200).send({
             message: "all questions",
             questions: subjectQuestion,
@@ -385,6 +395,7 @@ exports.getOneQuestion = async (req, res) => {
       .lean()
       .exec();
     if (question) {
+      // const qEncrypt = await encryptionPayload(question);
       res.status(200).send({
         message: "all questions",
         question,
@@ -399,7 +410,7 @@ exports.getOneQuestion = async (req, res) => {
     res.status(200).send({
       message: e,
     });
-    console.log(e);
+    // console.log(e);
   }
 };
 
@@ -461,6 +472,7 @@ exports.addQuestion = async (req, res) => {
         newQuestion.save(),
         master.save(),
       ]);
+      // Add Another Encryption
       res.status(201).send({
         message: "queston is created",
         question: {
@@ -478,6 +490,7 @@ exports.addQuestion = async (req, res) => {
       questions.questions.push(subjectQuestion._id);
       questions.questionCount += 1;
       await Promise.all([subjectQuestion.save(), questions.save()]);
+      // Add Another Encryption
       res.status(201).send({
         message: "queston is created",
         question: {
@@ -519,6 +532,7 @@ exports.getQuestionAddTestSet = async (req, res) => {
       //   startItem,
       //   endItem
       // );
+      // const subEncrypt = await encryptionPayload(subjectMaster);
       res.status(200).send({
         message: "all questions for add to test set",
         subjectMaster,
@@ -616,6 +630,7 @@ exports.allSaveTestSet = async (req, res) => {
         .exec();
 
       if (testset?.length) {
+        // const tEncrypt = await encryptionPayload(testset);
         res.status(200).send({ message: "All test set", testSets: testset });
       } else {
         res.status(200).send({ message: "No any test set", testSets: [] });
@@ -636,6 +651,7 @@ exports.allSaveTestSet = async (req, res) => {
         .exec();
 
       if (testset?.length) {
+        // const tEncrypt = await encryptionPayload(testset);
         res.status(200).send({ message: "All test set", testSets: testset });
       } else {
         res.status(200).send({ message: "No any test set", testSets: [] });
@@ -666,6 +682,7 @@ exports.oneTestSetDetail = async (req, res) => {
       .exec();
 
     if (subjectQuestion?.length) {
+      // const qEncrypt = await encryptionPayload(subjectQuestion);
       res.status(200).send({
         message: "All test set questions",
         testSetAllQuestions: subjectQuestion,
@@ -771,6 +788,7 @@ exports.takeTestSet = async (req, res) => {
         user.save(),
       ]);
     }
+    // const oEncrypt = await encryptionPayload(subjectTestObject);
     res.status(200).send({
       message: "queston test set is assigned to student",
       studentTestObject,
@@ -796,6 +814,7 @@ exports.subjectAllotedTestSet = async (req, res) => {
         .limit(itemPerPage)
         .lean()
         .exec();
+      // const aEncrypt = await encryptionPayload(subjectTestSet);
       res.status(200).send({
         message: "all alloted testset list",
         allotedTestSet: subjectTestSet,
@@ -834,6 +853,7 @@ exports.subjectGivenStudentTestSet = async (req, res) => {
       .lean()
       .exec();
     if (alloted.assignStudent?.length) {
+      // const allEncrypt = await encryptionPayload(alloted.assignStudent);
       res.status(200).send({
         message: "testset student list",
         studentList: alloted.assignStudent,
@@ -863,6 +883,7 @@ exports.studentAllTestSet = async (req, res) => {
     });
 
     if (student?.testSet) {
+      // const testEncrypt = await encryptionPayload(student?.testSet);
       res.status(200).send({
         message: "All questions of test set",
         testsets: student?.testSet,
@@ -901,6 +922,7 @@ exports.studentOneTestSet = async (req, res) => {
       startExamTime = true;
     } else startExamTime = false;
     if (testset) {
+      // Add Another Encryption
       res.status(200).send({
         message: "one test set details",
         testsets: testset,
@@ -941,10 +963,12 @@ exports.studentTestSet = async (req, res) => {
       studentTestSet.testSetAccess = true;
 
       await studentTestSet.save();
+      // const testEncrypt = await encryptionPayload(studentTestSet);
       res
         .status(200)
         .send({ message: "All questions of test set", studentTestSet });
     } else {
+      // const testEncrypt = await encryptionPayload(currentDate);
       res.status(200).send({
         message:
           "Not show test paper because you not attend before start and after end",
@@ -1062,11 +1086,13 @@ exports.studentTestSetComplete = async (req, res) => {
       studentTestSet.testSetComplete = req.body.testSetComplete;
       studentTestSet.testSetLeftTime = 0;
       await studentTestSet.save();
+      // const statusEncrypt = await encryptionPayload(studentTestSet.testSetComplete);
       res.status(200).send({
         message: "Student test set complete",
         status: studentTestSet.testSetComplete,
       });
     } else {
+      // const statusEncrypt = await encryptionPayload(studentTestSet.testSetComplete);
       res.status(200).send({
         message: "Student test set is not complete",
         status: studentTestSet.testSetComplete,
@@ -1098,6 +1124,7 @@ exports.studentTestSetResult = async (req, res) => {
     const examTime = `${studentTestSet?.testDate}T${formatHour}`;
     const entryTime = dateTimeComparison(JSON.stringify(currentDate), examTime);
     if (entryTime) {
+      // const eEncrypt = await encryptionPayload(studentTestSet);
       res
         .status(200)
         .send({ message: "Student test set results", studentTestSet });
@@ -1132,6 +1159,7 @@ exports.allTestSetExamCreationWithSubjectMaster = async (req, res) => {
       .exec();
 
     if (subjectMaster?.testSet?.length) {
+      // const masterEncrypt = await encryptionPayload(subjectMaster?.testSet);
       res.status(200).send({
         message:
           "All test set list with respective class Master and subject Master",
@@ -1375,6 +1403,7 @@ exports.getAssignment = async (req, res) => {
       .exec();
 
     if (assignments) {
+      // const assignEncrypt = await encryptionPayload(assignments);
       res.status(200).send({
         message: "all assignment",
         assignments,
@@ -1504,6 +1533,7 @@ exports.getOneAssignmentCount = async (req, res) => {
       submittedCount: assignment?.submittedCount,
       checkedCount: assignment?.checkedCount,
     };
+    // const oneEncrypt = await encryptionPayload(submittedStudent);
     res.status(200).send({
       message: "All Submitted Student count",
       submittedStudent,
@@ -1579,6 +1609,7 @@ exports.getOneAssignment = async (req, res) => {
       submittedCount: assignment?.submittedCount,
       submittedStudent: oneAssignmentStudents,
     };
+    // const masterEncrypt = await encryptionPayload(submittedStudent);
     res.status(200).send({
       message: "All Submitted Student",
       submittedStudent,
@@ -1604,6 +1635,7 @@ exports.getOneAssignmentOneStudentDetail = async (req, res) => {
       .select(
         "studentFirstName studentMiddleName studentLastName studentROLLNO assignments"
       );
+    // const mEncrypt = await encryptionPayload(student);
     res.status(200).send({
       message: "All Submitted Student",
       studentAssignment: student,
@@ -1621,8 +1653,9 @@ exports.getOneAssignmentOneStudentCompleteAssignment = async (req, res) => {
         match: { assignment: { $eq: `${req.params.aid}` } },
       })
       .select(
-        "assignments completedAssignment incompletedAssignment submittedAssignment"
+        "assignments completedAssignment incompletedAssignment submittedAssignment user"
       );
+    const user = await User.findById({ _id: `${student.user}` });
     const assignment = await StudentAssignment.findById(
       student?.assignments[0]._id
     );
@@ -1638,15 +1671,40 @@ exports.getOneAssignmentOneStudentCompleteAssignment = async (req, res) => {
       subjectAssignment.submittedCount -= 1;
       subjectAssignment.submittedStudent.pull(req.params.sid);
     }
-
+    const notify = new StudentNotification({});
+    notify.notifyContent = `${student.studentFirstName} ${
+      student.studentMiddleName ? student.studentMiddleName : ""
+    } ${student.studentLastName} ${req.body.assignmentSubmit} ${
+      subjectAssignment?.assignmentName
+    } Assignment successfully`;
+    notify.notifySender = subjectAssignment?.subject;
+    notify.notifyReceiever = user._id;
+    notify.subjectId = subjectAssignment?.subject;
+    notify.notifyType = "Student";
+    notify.notifyPublisher = student._id;
+    user.activity_tab.push(notify._id);
+    // notify.notifyByDepartPhoto = department._id;
+    notify.notifyCategory = "Complete Assignment";
+    notify.redirectIndex = 19;
     await Promise.all([
       subjectAssignment.save(),
       assignment.save(),
       student.save(),
+      notify.save(),
+      user.save(),
     ]);
     res.status(200).send({
       message: "Assignment complete successfully 🎁",
     });
+    invokeMemberTabNotification(
+      "Student Activity",
+      notify,
+      "Assignment Submission",
+      user._id,
+      user.deviceToken,
+      "Student",
+      notify
+    );
   } catch (e) {
     console.log(e);
   }
@@ -1664,6 +1722,7 @@ exports.getStudentAssignmentCount = async (req, res) => {
       .lean()
       .exec();
     // console.log(student);
+    // Add Another Encryption
     res.status(200).send({
       message: "assignment count",
       totalAssignment: student.totalAssignment,
@@ -1725,6 +1784,7 @@ exports.getStudentAssignment = async (req, res) => {
       .exec();
 
     if (assignments) {
+      // const aEncrypt = await encryptionPayload(assignments);
       res.status(200).send({
         message: "all assignment",
         assignments,
@@ -1756,6 +1816,7 @@ exports.getStudentOneAssignmentDetail = async (req, res) => {
       )
       .lean()
       .exec();
+    // const aEncrypt = await encryptionPayload(assignment);
     res.status(200).send({
       message: "All Submitted Student",
       assignment,
@@ -1830,7 +1891,7 @@ exports.getStudentOneAssignmentSubmit = async (req, res) => {
     user.activity_tab.push(notify._id);
     student.notification.push(notify._id);
     notify.notifyByStudentPhoto = student?._id;
-    notify.notifyCategory = "Assignment";
+    notify.notifyCategory = "Submit Assignment";
     notify.redirectIndex = 7;
     //
     invokeMemberTabNotification(

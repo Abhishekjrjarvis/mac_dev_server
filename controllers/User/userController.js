@@ -14,6 +14,10 @@ const ReplyComment = require("../../models/ReplyComment/ReplyComment");
 const AnswerReply = require("../../models/Question/AnswerReply");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const invokeSpecificRegister = require("../../Firebase/specific");
+const {
+  connect_redis_hit,
+  connect_redis_miss,
+} = require("../../config/redis-config");
 
 const {
   getFileStream,
@@ -26,6 +30,7 @@ const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 const { dateTimeSort } = require("../../Utilities/timeComparison");
 const { shuffleArray } = require("../../Utilities/Shuffle");
+// const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.retrieveProfileData = async (req, res) => {
   try {
@@ -41,6 +46,7 @@ exports.retrieveProfileData = async (req, res) => {
     if (user && user?.userPosts?.length < 1) {
       var post = [];
     }
+    // Add Another Encryption
     res.status(200).send({
       message: "Limit User Profile Data ",
       user,
@@ -68,81 +74,25 @@ exports.retrieveProfileData = async (req, res) => {
 exports.retrieveFIAnnouncement = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await User.findById({ _id: id })
+    const user = await User.findById({ _id: id }).select(
+      "followInsAnnouncement"
+    );
+
+    const announcements = await InsAnnouncement.find({
+      _id: { $in: user?.followInsAnnouncement },
+    })
       .populate({
-        path: "userInstituteFollowing",
-        populate: {
-          path: "announcement",
-          select:
-            "insAnnPhoto insAnnDescription insAnnTitle insAnnVisibility createdAt",
-          populate: {
-            path: "reply",
-            select: "replyText createdAt replyAuthorAsUser replyAuthorAsIns",
-          },
-        },
-        select: "id",
+        path: "institute",
+        select: "insName photoId insProfilePhoto",
       })
-      .populate({
-        path: "userInstituteFollowing",
-        populate: {
-          path: "announcement",
-          select:
-            "insAnnPhoto insAnnDescription insAnnTitle insAnnVisibility createdAt starList",
-          populate: {
-            path: "institute",
-            select: "insName photoId insProfilePhoto",
-          },
-        },
-        select: "id",
-      })
-      .select("_id")
       .lean()
       .exec();
 
-    const announcementArray = (announcement) => {
-      const announ = [];
-      // const announ2 = [];
-
-      announcement?.forEach((announce) => {
-        announce?.announcement?.forEach((oneAnnounce) => {
-          announ.push({
-            _id: oneAnnounce._id,
-            insAnnTitle: oneAnnounce.insAnnTitle,
-            insAnnVisibility: oneAnnounce.insAnnVisibility,
-            starList: oneAnnounce.starList,
-            createdAt: oneAnnounce.createdAt,
-            institute: {
-              _id: oneAnnounce.institute._id,
-              insName: oneAnnounce.institute.insName,
-              photoId: oneAnnounce.institute.photoId,
-              insProfilePhoto: oneAnnounce.institute.insProfilePhoto,
-            },
-          });
-        });
-      });
-      // let count = 0;
-      // for (announcement of announ) {
-      //   let countAgain = 0;
-      //   let flag = false;
-      //   for (announcementAgain of announ) {
-      //     if (
-      //       dateTimeSort(
-      //         announcement[count]?.createdAt,
-      //         announcementAgain[countAgain]?.createdAt
-      //       )
-      //     )
-      //       flag = true;
-      //     else flag = false;
-      //   }
-      // }
-
-      return announ;
-    };
-
     if (user) {
+      // const aEncrypt = await encryptionPayload(render_data);
       res.status(200).send({
         message: "Success",
-        announcements: announcementArray(user?.userInstituteFollowing),
+        announcements: announcements,
       });
     } else {
       res.status(404).send({ message: "Failure" });
@@ -170,6 +120,7 @@ exports.retrieveFIOneAnnouncement = async (req, res) => {
       .exec();
 
     if (announcementDetail) {
+      // const adsEncrypt = await encryptionPayload(announcementDetail);
       res.status(200).send({
         message: "Success",
         announcementDetail,
@@ -200,6 +151,7 @@ exports.retrieveFIOneAnnouncement = async (req, res) => {
       .exec();
 
     if (announcementDetail) {
+      // const adsEncrypt = await encryptionPayload(announcementDetail);
       res.status(200).send({
         message: "Success",
         announcementDetail,
@@ -232,6 +184,7 @@ exports.updateUserFollowIns = async (req, res) => {
         notify.notifyContent = `${user.userLegalName} started following you`;
         notify.notifySender = user._id;
         notify.notifyReceiever = sinstitute._id;
+        notify.notifyCategory = "User Follow Institute";
         sinstitute.iNotify.push(notify._id);
         notify.institute = sinstitute._id;
         notify.notifyByPhoto = user._id;
@@ -340,11 +293,12 @@ exports.updateUserFollow = async (req, res) => {
         user.userFollowing.push(req.body.userFollowId);
         user.followingUICount += 1;
         suser.followerCount += 1;
-        notify.notifyContent = `${user.userLegalName} started to following you`;
+        notify.notifyContent = `${user.userLegalName} started following you`;
         notify.notify_hi_content = `${user.userLegalName} आपको  फॉलो  कर  रहा है |`;
         notify.notify_mr_content = `${user.userLegalName} ने तुम्हाला फॉलो करायला सुरुवात केली`;
         notify.notifySender = user._id;
         notify.notifyReceiever = suser._id;
+        notify.notifyCategory = "User Follow";
         suser.uNotify.push(notify);
         notify.user = suser;
         notify.notifyByPhoto = user;
@@ -458,6 +412,7 @@ exports.updateUserCircle = async (req, res) => {
         notify.notify_mr_content = `${user.userLegalName} तुमच्या सर्कल मध्ये जोडले गेले आहे`;
         notify.notifySender = user._id;
         notify.notifyReceiever = suser._id;
+        notify.notifyCategory = "User Circle";
         suser.uNotify.push(notify);
         notify.user = suser;
         notify.notifyByPhoto = user;
@@ -605,6 +560,7 @@ exports.updateUserPhone = async (req, res) => {
     const user = await User.findById({ _id: id });
     user.userPhoneNumber = userPhoneNumber;
     await user.save();
+    // const uEncrypt = await encryptionPayload(user);
     res.status(200).send({ message: "Mobile No Updated", user });
   } catch (e) {
     console.log(`Error`);
@@ -695,11 +651,11 @@ exports.addUserAccountInstitute = async (req, res) => {
     const institute = await InstituteAdmin.findById({ _id: iid });
     user.addUserInstitute.push(institute);
     institute.addInstituteUser.push(user);
-    await user.save();
-    await institute.save();
-    res.status(200).send({ message: "Added", user, institute });
+    await Promise.all([user.save(), institute.save()]);
+    // Add Another Encryption
+    res.status(200).send({ message: "Added Institute A/c", user, institute });
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(e);
   }
 };
 
@@ -710,11 +666,11 @@ exports.addUserAccountUser = async (req, res) => {
     const userNew = await User.findById({ _id: iid });
     user.addUser.push(userNew);
     userNew.addUser.push(user);
-    await user.save();
-    await userNew.save();
-    res.status(200).send({ message: "Added", user, userNew });
+    await Promise.all([user.save(), userNew.save()]);
+    // Add Another Encryption
+    res.status(200).send({ message: "Added User A/c", user, userNew });
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(e);
   }
 };
 
@@ -728,9 +684,7 @@ exports.deactivateUserAccount = async (req, res) => {
       user.activeStatus = status;
       user.activeDate = ddate;
       await user.save();
-      //
-      // res.clearCookie("SessionID", { path: "/" });
-      //
+      // const statusEncrypt = await encryptionPayload(user.activeStatus);
       res
         .status(200)
         .send({ message: "Deactivated Account", status: user.activeStatus });
@@ -738,7 +692,7 @@ exports.deactivateUserAccount = async (req, res) => {
       res.status(404).send({ message: "Bad Request" });
     }
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(e);
   }
 };
 
@@ -747,18 +701,17 @@ exports.feedbackUser = async (req, res) => {
     const { id } = req.params;
     const admin = await Admin.findById({ _id: "62596c3a47690fe0d371f5b4" });
     const user = await User.findById({ _id: id });
-    const feed = await new Feedback({});
+    const feed = new Feedback({});
     feed.rating = req.body.rating;
     feed.bestPart = req.body.bestPart;
     feed.worstPart = req.body.worstPart;
     feed.suggestion = req.body.suggestion;
-    feed.user = user;
-    admin.feedbackList.push(feed);
-    await feed.save();
-    await admin.save();
-    res.status(200).send({ message: "Feedback" });
+    feed.user = user._id;
+    admin.feedbackList.push(feed._id);
+    await Promise.all([feed.save(), admin.save()]);
+    res.status(200).send({ message: "Feedback By The User" });
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(e);
   }
 };
 
@@ -771,7 +724,7 @@ exports.feedbackRemindLater = async (req, res) => {
     await user.save();
     res.status(200).send({ message: "Remind me Later" });
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(e);
   }
 };
 
@@ -781,7 +734,7 @@ exports.getCreditTransfer = async (req, res) => {
     const { transferCredit, transferIns } = req.body;
     const user = await User.findById({ _id: id });
     const institute = await InstituteAdmin.findById({ _id: `${transferIns}` });
-    const notify = await new Notification({});
+    const notify = new Notification({});
     institute.transferCredit =
       institute.transferCredit + parseInt(transferCredit);
     user.referalPercentage = user.referalPercentage - parseInt(transferCredit);
@@ -793,9 +746,8 @@ exports.getCreditTransfer = async (req, res) => {
     institute.iNotify.push(notify);
     notify.institute = institute;
     notify.notifyByPhoto = user;
-    await user.save();
-    await institute.save();
-    await notify.save();
+    await Promise.all([user.save(), institute.save(), notify.save()]);
+    // const cEncrypt = await encryptionPayload(user);
     res.status(200).send({ message: "transfer", user });
   } catch (e) {
     console.log(`Error`, e.message);
@@ -816,6 +768,7 @@ exports.getReportPostUser = async (req, res) => {
     report.reportBy = user._id;
     user.userPosts?.pull(post?._id);
     await Promise.all([admin.save(), report.save(), user.save()]);
+    // const rEncrypt = await encryptionPayload(report.reportStatus);
     res.status(200).send({
       message: "reported with feed Removal",
       report: report.reportStatus,
@@ -860,7 +813,7 @@ exports.getNotifications = async (req, res) => {
       .sort("-notifyTime")
       .limit(limit)
       .skip(skip);
-
+    // const nEncrypt = await encryptionPayload(notify);
     res.status(200).send({ message: "Notification send", notify });
   } catch (e) {
     console.log(e);
@@ -910,7 +863,7 @@ exports.getAllUserActivity = async (req, res) => {
       .sort("-notifyTime")
       .limit(limit)
       .skip(skip);
-
+    // const aEncrypt = await encryptionPayload(notify);
     res.status(200).send({ message: "All Activity", activity: notify });
   } catch (e) {
     console.log(e);
@@ -921,11 +874,12 @@ exports.getAllTotalCount = async (req, res) => {
   try {
     const id = req.params.id;
     const user = await User.findById({ _id: id })
-      .select("_id activity_tab uNotify")
+      .select("_id activity_tab uNotify followInsAnnouncement")
       .populate({
         path: "uNotify",
       });
     var total = 0;
+    var counts = 0;
     const notify = await Notification.find({
       $and: [{ _id: { $in: user?.uNotify } }, { notifyViewStatus: "Not View" }],
     });
@@ -935,13 +889,29 @@ exports.getAllTotalCount = async (req, res) => {
         { notifyViewStatus: "Not View" },
       ],
     });
-    total = total + notify?.length + activity?.length;
-
+    const announcements = await InsAnnouncement.find({
+      _id: { $in: user?.followInsAnnouncement },
+    })
+      .populate({
+        path: "institute",
+        select: "insName photoId insProfilePhoto",
+      })
+      .lean()
+      .exec();
+    for (let num of announcements) {
+      if (num?.insAnnViewUser?.includes(`${user?._id}`)) {
+      } else {
+        counts = counts + 1;
+      }
+    }
+    total = total + notify?.length + activity?.length + counts;
+    // Add Another Encryption
     res.status(200).send({
       message: "Not Viewed Notification & Activity",
       count: total,
       notifyCount: notify?.length,
       activityCount: activity?.length,
+      announcementCount: counts,
     });
   } catch (e) {
     console.log(e);
@@ -953,7 +923,7 @@ exports.retrieveMarkAllView = async (req, res) => {
     const id = req.params.id;
     const user = await User.findById({ _id: id })
       .select("_id")
-      .populate({ path: "activity_tab uNotify" });
+      .populate({ path: "activity_tab uNotify followInsAnnouncement" });
     const notify = await Notification.find({
       $and: [{ _id: { $in: user?.uNotify } }, { notifyViewStatus: "Not View" }],
     });
@@ -961,6 +931,12 @@ exports.retrieveMarkAllView = async (req, res) => {
       $and: [
         { _id: { $in: user?.activity_tab } },
         { notifyViewStatus: "Not View" },
+      ],
+    });
+    const announcements = await InsAnnouncement.find({
+      $and: [
+        { _id: { $in: user?.followInsAnnouncement } },
+        { insAnnViewUser: { $nin: [user._id] } },
       ],
     });
     if (notify?.length >= 1) {
@@ -974,6 +950,13 @@ exports.retrieveMarkAllView = async (req, res) => {
         ele.notifyViewStatus = "View";
         await ele.save();
       });
+    }
+    for (let num of announcements) {
+      if (num?.insAnnViewUser?.includes(`${user?._id}`)) {
+      } else {
+        num.insAnnViewUser.push(user._id);
+        await num.save();
+      }
     }
 
     res.status(200).send({ message: "Mark All To Be Viewed" });
@@ -1045,6 +1028,7 @@ exports.getPersonalSetting = async (req, res) => {
       .lean()
       .exec();
     if (user) {
+      // const uEncrypt = await encryptionPayload(user);
       res.status(200).send({ message: "Success", user });
     } else {
       res.status(404).send({ message: "Failure" });
@@ -1068,6 +1052,7 @@ exports.getSwitchAccounts = async (req, res) => {
       .lean()
       .exec();
     if (user) {
+      // const uEncrypt = await encryptionPayload(user);
       res.status(200).send({ message: "Success", user });
     } else {
       res.status(404).send({ message: "Failure" });
@@ -1087,6 +1072,7 @@ exports.getQCoins = async (req, res) => {
       .lean()
       .exec();
     if (user) {
+      // const uEncrypt = await encryptionPayload(user);
       res.status(200).send({ message: "Success", user });
     } else {
       res.status(404).send({ message: "Failure" });
@@ -1104,6 +1090,7 @@ exports.getDashDataQuery = async (req, res) => {
       var post = [];
     }
     if (user) {
+      // Add Another Encryption
       res.status(200).send({ message: "Success", user, post });
     } else {
       res.status(404).send({ message: "Failure" });
@@ -1128,6 +1115,7 @@ exports.followersArray = async (req, res) => {
       .limit(limit)
       .skip(skip);
     if (user) {
+      // const fEncrypt = await encryptionPayload(followers);
       res.status(200).send({ message: "Success", followers: followers });
     } else {
       res.status(404).send({ message: "Failure" });
@@ -1161,6 +1149,7 @@ exports.followingArray = async (req, res) => {
       .limit(limit)
       .skip(skip);
     var mergeArray = [...uFollowing, ...uInsFollowing];
+    // Add Another Encryption
     res.status(200).send({
       message: "Success",
       uFollowing: uFollowing,
@@ -1201,6 +1190,7 @@ exports.circleArray = async (req, res) => {
         .skip(skip);
     }
     if (circle?.length > 0) {
+      // const cEncrypt = await encryptionPayload(circle);
       res.status(200).send({ message: "Success", circle: circle });
     } else {
       res.status(200).send({ message: "Failure", circle: [] });
@@ -1222,6 +1212,7 @@ exports.followingInsArray = async (req, res) => {
       .lean()
       .exec();
     if (user) {
+      // const fEncrypt = await encryptionPayload(user);
       res.status(200).send({ message: "Success", user });
     } else {
       res.status(404).send({ message: "Failure" });
@@ -1255,6 +1246,7 @@ exports.retrieveAllStarAnnouncementUser = async (req, res) => {
       .sort("-createdAt")
       .limit(limit)
       .skip(skip);
+    // const aEncrypt = await encryptionPayload(announcement);
     res.status(200).send({ message: "Success", announcement });
   } catch (e) {
     console.log(e);
@@ -1268,6 +1260,7 @@ exports.retrieveRecoveryMailUser = async (req, res) => {
     const user = await User.findById({ _id: id });
     user.recoveryMail = recoveryMail;
     await Promise.all([user.save()]);
+    // const mEncrypt = await encryptionPayload(user.recoveryMail);
     res.status(200).send({ message: "Success", mail: user.recoveryMail });
   } catch {}
 };
@@ -1286,8 +1279,11 @@ exports.retrieveUserStaffArray = async (req, res) => {
           select: "insName name photoId insProfilePhoto",
         },
       });
+    // const sEncrypt = await encryptionPayload(user);
     res.status(200).send({ message: "Success", user });
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.retrieveUserStudentArray = async (req, res) => {
@@ -1304,16 +1300,25 @@ exports.retrieveUserStudentArray = async (req, res) => {
           select: "insName name photoId insProfilePhoto",
         },
       });
+    // const sEncrypt = await encryptionPayload(user);
     res.status(200).send({ message: "Success", user });
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.retrieveStaffDesignationArray = async (req, res) => {
   try {
     const { sid } = req.params;
+    // const is_cache = await connect_redis_hit(`Staff-Designation-Member-${sid}`);
+    // if (is_cache?.hit)
+    //   return res.status(200).send({
+    //     message: "All Designation Feed from Cache 🙌",
+    //     staff: is_cache.staff,
+    //   });
     const staff = await Staff.findById({ _id: sid })
       .select(
-        "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffMotherName staffGender staffNationality staffMTongue staffCast staffCastCategory staffBirthPlace staffState staffDistrict staffReligion staffAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffDesignationCount staffAadharCard staffDOB staffStatus staffROLLNO"
+        "staffFirstName staffDesignationCount staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber"
       )
       .populate({
         path: "staffDepartment",
@@ -1398,46 +1403,38 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
       })
       .lean()
       .exec();
-    // .populate({
-    //   path: "staffAdmissionAdmin",
-    //   populate: {
-    //     path: "institute",
-    //     populate: {
-    //       path: "depart",
-    //       populate: {
-    //         path: "batches",
-    //       },
-    //     },
-    //   },
-    // })
-    // .populate({
-    //   path: "elearning",
-    // })
-    // .populate({
-    //   path: "library",
-    // })
-    // .populate("financeDepartment")
-    // .populate("sportDepartment")
-    // .populate("staffSportClass")
-    // .populate("staffAdmissionAdmin")
-    // .populate({
-    //   path: "staffAdmissionAdmin",
-    //   populate: {
-    //     path: "adAdminName",
-    //   },
-    // });
-    res.status(200).send({ message: "Staff Designation Data", staff });
-  } catch {}
+    // const staffEncrypt = await encryptionPayload(staff);
+    // const cached = await connect_redis_miss(
+    //   `Staff-Designation-Member-${sid}`,
+    //   staff
+    // );
+    res.status(200).send({
+      message: "All Staff Designation Feed from DB 🙌",
+      // staff: cached.staff,
+      staff: staff,
+    });
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.retrieveStudentDesignationArray = async (req, res) => {
   try {
     const { sid } = req.params;
+    // const is_cache = await connect_redis_hit(
+    //   `Student-Designation-Member-${sid}`
+    // );
+    // if (is_cache?.hit)
+    //   return res.status(200).send({
+    //     message: "All Student Designation Feed from Cache 🙌",
+    //     student: is_cache.student,
+    //     average_points: is_cache.average_points,
+    //   });
     if (sid) {
       var average_points = 0;
       const student = await Student.findById({ _id: sid })
         .select(
-          "studentFirstName studentMiddleName studentLastName batchCount extraPoints photoId studentProfilePhoto studentGender studentReligion studentMotherName studentDOB studentNationality studentMTongue studentCast studentCastCategory studentBirthPlace studentState studentDistrict studentAddress studentPhoneNumber studentParentsName studentParentsPhoneNumber studentAadharCard studentAadharNumber studentDocuments studentGRNO studentStatus studentROLLNO"
+          "batchCount extraPoints studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
         )
         .populate({
           path: "studentClass",
@@ -1456,9 +1453,22 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           select: "userLegalName username photoId profilePhoto",
         });
       average_points += student.extraPoints / student.batchCount;
-      res
-        .status(200)
-        .send({ message: "Student Designation Data", student, average_points });
+      // Add Another Encryption
+      // const bind_student = {
+      //   student: student,
+      //   average_points: average_points,
+      // };
+      // const cached = await connect_redis_miss(
+      //   `Student-Designation-Member-${sid}`,
+      //   bind_student
+      // );
+      res.status(200).send({
+        message: "All Student Designation Feed from DB 🙌",
+        // student: cached.student,
+        // average_points: cached.average_points,
+        student: student,
+        average_points: average_points,
+      });
     } else {
       res.status(200).send({ message: "Need a valid Key Id" });
     }
@@ -1473,6 +1483,7 @@ exports.retrieveUserThreeArray = async (req, res) => {
     const user = await User.findById({ _id: id }).select(
       "id userFollowers userFollowing userInstituteFollowing userCircle"
     );
+    // const userEncrypt = await encryptionPayload(user);
     res.status(200).send({ message: "3-Array", user });
   } catch {}
 };
@@ -1495,6 +1506,7 @@ exports.retrieveUserKnowQuery = async (req, res) => {
         path: "post",
         select: "postQuestion postImage imageId isUser postType trend_category",
       });
+    // Add Another Encryption
     res
       .status(200)
       .send({ message: "Know's ", user, upVote: totalUpVote, answer: answer });
@@ -1510,12 +1522,12 @@ exports.circleArrayQuery = async (req, res) => {
         path: "userCircle",
         select: "userLegalName username photoId profilePhoto",
       });
+    // const uEncrypt = await encryptionPayload(user);
     res.status(200).send({ message: "Success", user });
   } catch {}
 };
 
 exports.allCircleUsers = async (req, res) => {
-  console.log(req.query);
   const keyword = req.query.search
     ? {
         $or: [
@@ -1529,6 +1541,7 @@ exports.allCircleUsers = async (req, res) => {
     _id: { $ne: req.tokenData && req.tokenData.userId },
   }).populate({ path: "userCircle" });
   const user = users.userCircle.find(keyword);
+  // const uEncrypt = await encryptionPayload(user);
   res.send(user);
 };
 
@@ -1549,6 +1562,7 @@ exports.retrieveUserSubjectChat = async (req, res) => {
           },
         },
       });
+    // const cEncrypt = await encryptionPayload(user);
     res.status(200).send({ message: "As a Subject Teacher", chat: user });
   } catch (e) {
     console.log(e);
@@ -1574,6 +1588,7 @@ exports.retrieveUserClassChat = async (req, res) => {
       })
       .lean()
       .exec();
+    // const classEncrypt = await encryptionPayload(user);
     res.status(200).send({ message: "As a Class Teacher", class_chat: user });
   } catch (e) {
     console.log(e);
@@ -1598,6 +1613,7 @@ exports.retrieveUserDepartmentChat = async (req, res) => {
       })
       .lean()
       .exec();
+    // const dEncrypt = await encryptionPayload(user);
     res
       .status(200)
       .send({ message: "As a Department Head", depart_chat: user });
@@ -1610,10 +1626,17 @@ exports.retrieveUserApplicationStatus = async (req, res) => {
   try {
     var options = { sort: { createdAt: "-1" } };
     const { uid } = req.params;
-    const user = await User.findById({ _id: uid }).select("id").populate({
-      path: "applicationStatus",
-      options,
-    });
+    const user = await User.findById({ _id: uid })
+      .select("id")
+      .populate({
+        path: "applicationStatus",
+        populate: {
+          path: "applicationId",
+          select: "one_installments",
+        },
+        options,
+      });
+    // const appEncrypt = await encryptionPayload(user.applicationStatus);
     res.status(200).send({
       message: "user Application Status",
       status: user.applicationStatus,
@@ -1633,6 +1656,7 @@ exports.retrieveProfileDataUsername = async (req, res) => {
     for (let up of questionUpVote) {
       totalUpVote += up.answerUpVoteCount;
     }
+    // Add Another Encryption
     res
       .status(200)
       .send({ message: "Limit User Profile Data ", user, upVote: totalUpVote });
@@ -1672,6 +1696,7 @@ exports.retrieveStaffSalaryHistory = async (req, res) => {
           select: "staffFirstName staffMiddleName staffLastName",
         },
       });
+    // Add Another Encryption
     res.status(200).send({
       message: "All Salary History ",
       salary: staff?.salary_history,
@@ -1889,6 +1914,7 @@ exports.retrieveUserRoleQuery = async (req, res) => {
 
     var mergeArray = [...staff, ...student];
     var get_array = shuffleArray(mergeArray);
+    // const roleEncrypt = await encryptionPayload(get_array);
     res.status(200).send({
       message: "User Role for Staff & Student",
       role_query: get_array,

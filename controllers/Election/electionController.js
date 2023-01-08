@@ -8,6 +8,7 @@ const Student = require("../../models/Student");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const moment = require("moment");
 const InstituteAdmin = require("../../models/InstituteAdmin");
+// const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 const date_renew = (s_date, type) => {
   var r_l_date = new Date(s_date);
@@ -136,6 +137,7 @@ exports.retrieveAllElectionQuery = async (req, res) => {
         "election_position election_app_start_date election_voting_date election_status"
       );
     if (elect?.length > 0) {
+      // const electEncrypt = await encryptionPayload(elect);
       res
         .status(200)
         .send({ message: "All Upcoming Election Event", elect: elect });
@@ -165,6 +167,7 @@ exports.retrieveOneElectionQuery = async (req, res) => {
         select:
           "election_candidate_status election_result_status election_vote_receieved election_tag_line election_description",
       });
+    // const oneElectEncrypt = await encryptionPayload(elect);
     res
       .status(200)
       .send({ message: "One Election Event Process Query ", elect: elect });
@@ -192,6 +195,7 @@ exports.retrieveOneElectionQueryCandidate = async (req, res) => {
       },
     });
     if (all_candidate?.election_candidate?.length > 0) {
+      // const allEncrypt = await encryptionPayload(all_candidate);
       res.status(200).send({
         message: "All Candidate List 😀",
         all_candidate,
@@ -248,7 +252,7 @@ exports.retrieveApplyElectionQuery = async (req, res) => {
       user.activity_tab.push(notify._id);
       student_support.notification.push(notify._id);
       notify.notifyByStudentPhoto = student._id;
-      notify.notifyCategory = "Election";
+      notify.notifyCategory = "Election Member";
       notify.redirectIndex = 12;
       invokeMemberTabNotification(
         "Student Activity",
@@ -309,7 +313,7 @@ exports.retrieveStatusElectionQuery = async (req, res) => {
     user.activity_tab.push(notify._id);
     student.notification.push(notify._id);
     notify.notifyByDepartPhoto = depart._id;
-    notify.notifyCategory = "Election";
+    notify.notifyCategory = "Election Status";
     notify.redirectIndex = 12;
     invokeMemberTabNotification(
       "Student Activity",
@@ -392,6 +396,7 @@ exports.retrieveVoteElectionDepartment = async (req, res) => {
         );
     }
     if (all_student?.length > 0) {
+      // const allStudentEncrypt = await encryptionPayload(all_student);
       res.status(200).send({
         message: "All Supporting Member Array 😀",
         all: all_student,

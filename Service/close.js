@@ -35,6 +35,8 @@ exports.randomFourCode = async () => {
   const r_2 = Math.floor(Math.random() * 9) + 1;
   const r_3 = Math.floor(Math.random() * 9) + 1;
   const r_4 = Math.floor(Math.random() * 9) + 1;
-  const pattern = `${r_1}${r_2}${r_3}${r_4}`;
+  const r_5 = Math.floor(Math.random() * 9) + 1;
+  const r_6 = Math.floor(Math.random() * 9) + 1;
+  const pattern = `${r_1}${r_2}${r_3}${r_4}${r_5}${r_6}`;
   return pattern;
 };

@@ -10,6 +10,11 @@ const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require("../../../Firebase/firebase");
 const InstituteAdmin = require("../../../models/InstituteAdmin");
 const HashTag = require("../../../models/HashTag/hashTag");
+// const encryptionPayload = require("../../../Utilities/Encrypt/payload");
+const {
+  connect_redis_hit,
+  connect_redis_miss,
+} = require("../../../config/redis-config");
 
 exports.postQuestionText = async (req, res) => {
   try {
@@ -50,6 +55,7 @@ exports.postQuestionText = async (req, res) => {
     post.postType = "Question";
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([user.save(), post.save()]);
+    // const postEncrypt = await encryptionPayload(post);
     res.status(201).send({ message: "post question is create", post });
     if (user.userFollowers.length >= 1) {
       user.userFollowers.forEach(async (ele) => {
@@ -117,6 +123,7 @@ exports.answerLike = async (req, res) => {
           question.answerUpVoteCount -= 1;
         }
         await Promise.all([answer.save(), question.save()]);
+        // const voteEncrypt = await encryptionPayload(answer.upVoteCount);
         res.status(200).send({
           message: "Removed from Upvote 👎",
           upVoteCount: answer.upVoteCount,
@@ -135,6 +142,7 @@ exports.answerLike = async (req, res) => {
         answer.upVoteCount += 1;
         question.answerUpVoteCount += 1;
         await Promise.all([answer.save(), question.save()]);
+        // Add Another Encryption
         res.status(200).send({
           message: "Added To Upvote 👍",
           upVoteCount: answer.upVoteCount,
@@ -166,6 +174,7 @@ exports.answerDisLike = async (req, res) => {
           answer.downVoteCount -= 1;
         }
         await Promise.all([answer.save()]);
+        // const voteEncrypt = await encryptionPayload(answer.downVoteCount);
         res.status(200).send({
           message: "Removed from DownVote 👎",
           downVoteCount: answer.downVoteCount,
@@ -184,6 +193,7 @@ exports.answerDisLike = async (req, res) => {
         answer.downVote.push(user_session);
         answer.downVoteCount += 1;
         await Promise.all([answer.save(), question.save()]);
+        // Add Another Encryption
         res.status(200).send({
           message: "Added To DownVote 👍",
           downVoteCount: answer.downVoteCount,
@@ -269,6 +279,7 @@ exports.postQuestionAnswer = async (req, res) => {
       notify.notify_hi_content = `${answers.authorName} ने आपके प्रश्न का उत्तर दिया |`;
       notify.notify_mr_content = `${answers.authorName} ने तुमच्या प्रश्नाचे उत्तर दिले.`;
       notify.notifySender = answers.author;
+      notify.notifyCategory = "Answer";
       notify.notifyByPhoto = answers.author;
       if (post_user) {
         notify.notifyReceiever = post_user._id;
@@ -299,6 +310,7 @@ exports.postQuestionAnswer = async (req, res) => {
           post._id
         );
       }
+      // const answerEncrypt = await encryptionPayload(answers);
       res.status(201).send({ message: "answer created", answers });
       //
     } else {
@@ -311,9 +323,15 @@ exports.postQuestionAnswer = async (req, res) => {
 
 exports.getQuestionAnswer = async (req, res) => {
   try {
-    const page = req.query.page ? parseInt(req.query.page) : 1;
-    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const pid = req.params.id;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    // const is_cache = await connect_redis_hit(`USER-Answer-${pid}-${page}`);
+    // if (is_cache?.hit)
+    //   return res.status(200).send({
+    //     message: "All Question Answer Feed from Cache 🙌",
+    //     answer: is_cache.answer,
+    //   });
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
     const insPost = await Post.findById(pid);
     const answer = await Answer.find({
@@ -330,15 +348,32 @@ exports.getQuestionAnswer = async (req, res) => {
         select:
           "postQuestion author authorProfilePhoto authorPhotoId authorUserName isUser answerCount createdAt post_question_transcript",
       });
-    res.status(200).send({ message: "All answer's of one Question", answer });
-  } catch {}
+    // const answerEncrypt = await encryptionPayload(answer);
+    // const cached = await connect_redis_miss(
+    //   `USER-Answer-${pid}-${page}`,
+    //   answer
+    // );
+    res.status(200).send({
+      message: "All answer's of one Question",
+      // answer: cached.answer,
+      answer: answer,
+    });
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.getAnswerReply = async (req, res) => {
   try {
-    const page = req.query.page ? parseInt(req.query.page) : 1;
-    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const rid = req.params.rid;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    // const is_cache = await connect_redis_hit(`USER-AnswerReply-${rid}-${page}`);
+    // if (is_cache?.hit)
+    //   return res.status(200).send({
+    //     message: "All Answer Reply Feed from Cache 🙌",
+    //     answer: is_cache.reply,
+    //   });
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
     const answer = await Answer.findById(rid);
     const reply = await AnswerReply.find({
@@ -354,7 +389,16 @@ exports.getAnswerReply = async (req, res) => {
         path: "parentAnswer",
         select: "id",
       });
-    res.status(200).send({ message: "All Answer's reply", reply });
+    // const replyEncrypt = await encryptionPayload(reply);
+    // const cached = await connect_redis_miss(
+    //   `USER-AnswerReply-${rid}-${page}`,
+    //   reply
+    // );
+    res.status(200).send({
+      message: "All Answer's reply Feed from DB",
+      // reply: cached.reply,
+      reply: reply,
+    });
   } catch {}
 };
 
@@ -392,6 +436,7 @@ exports.postAnswerReply = async (req, res) => {
         authorProfilePhoto: user.profilePhoto,
         authorOneLine: user.one_line_about,
       };
+      // Add Another Encryption
       res.status(201).send({
         replyAnswer,
         allAnswerReply: p_answer.answerReplyCount,
@@ -529,6 +574,7 @@ exports.rePostQuestionAnswer = async (req, res) => {
       notify.notify_mr_content = `${answers.authorName} ने तुमच्या प्रश्नाचे उत्तर पुन्हा पोस्टसह दिले.`;
       notify.notifySender = answers.author;
       notify.notifyByPhoto = answers.author;
+      notify.notifyCategory = "Repost";
       if (post_user) {
         notify.notifyReceiever = post_user._id;
         post_user.uNotify.push(notify._id);
@@ -557,6 +603,7 @@ exports.rePostQuestionAnswer = async (req, res) => {
         );
       }
       //
+      // const repostEncrypt = await encryptionPayload(repost);
       res.status(200).send({ message: "RePosted Answer", rePost });
       if (user.userFollowers.length >= 1) {
         user.userFollowers.forEach(async (ele) => {
@@ -633,6 +680,7 @@ exports.rePostAnswerLike = async (req, res) => {
           rePost.isHelpful = "No";
         }
         await Promise.all([answer.save(), question.save(), rePost.save()]);
+        // const voteEncrypt = await encryptionPayload(answer.upVoteCount);
         res.status(200).send({
           message: "Removed from Upvote 👎",
           upVoteCount: answer.upVoteCount,
@@ -652,6 +700,7 @@ exports.rePostAnswerLike = async (req, res) => {
         question.answerUpVoteCount += 1;
         rePost.isHelpful = "Yes";
         await Promise.all([answer.save(), question.save(), rePost.save()]);
+        // Add Another Encryption
         res.status(200).send({
           message: "Added To Upvote 👍",
           upVoteCount: answer.upVoteCount,
@@ -722,6 +771,7 @@ exports.retrieveHelpQuestion = async (req, res) => {
           post_ques.isNeed = "No";
         }
         await post_ques.save();
+        // const needEncrypt = await encryptionPayload(post_ques.needCount);
         res
           .status(200)
           .send({ message: "Removed from isNeed", need: post_ques.needCount });
@@ -730,6 +780,7 @@ exports.retrieveHelpQuestion = async (req, res) => {
         post_ques.needCount += 1;
         post_ques.isNeed = "Yes";
         await post_ques.save();
+        // const needEncrypt = await encryptionPayload(post_ques.needCount);
         res
           .status(200)
           .send({ message: "Added to isNeed", need: post_ques.needCount });
@@ -828,8 +879,16 @@ exports.answerReplyDelete = async (req, res) => {
 exports.getAllSaveAnswerQuery = async (req, res) => {
   try {
     const page = req.query.page ? parseInt(req.query.page) : 1;
-    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const uid = req.params.uid;
+    // const is_cache = await connect_redis_hit(`USER-AnswerSave-${uid}-${page}`);
+    // if (is_cache?.hit)
+    //   return res.status(200).send({
+    //     message: "All Save Answer Feed from Cache 🙌",
+    //     answer: is_cache.answer,
+    //     answerCount: is_cache.answerCount,
+    //     totalPage: is_cache.totalPage,
+    //   });
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
     const user = await User.findById(uid).select("id").populate({
       path: "user_saved_answer",
@@ -856,10 +915,23 @@ exports.getAllSaveAnswerQuery = async (req, res) => {
       } else {
         var totalPage = page + 1;
       }
+      // Add Another Encryption
+      // const bind_answer = {
+      //   answer: answer,
+      //   answerCount: answerCount.length,
+      //   totalPage: totalPage,
+      // };
+      // const cached = await connect_redis_miss(
+      //   `USER-AnswerSave-${uid}-${page}`,
+      //   bind_answer
+      // );
       res.status(200).send({
-        message: "Success",
-        answer,
-        answerCount: answerCount.length,
+        message: "All Save Answer Feed from DB 🙌",
+        // answer: cached.answer,
+        // answerCount: cached.answerCount,
+        // totalPage: cached.totalPage,
+        answer: answer,
+        answerCount: answerCount,
         totalPage: totalPage,
       });
     } else {
@@ -873,12 +945,25 @@ exports.getAllSaveAnswerQuery = async (req, res) => {
 exports.getOneQuestionQuery = async (req, res) => {
   try {
     const { qid } = req.params;
+    // const is_cache = await connect_redis_hit(`One-Question-${qid}`);
+    // if (is_cache?.hit)
+    //   return res.status(200).send({
+    //     message: "One Question from Cache 🙌",
+    //     one_query: is_cache.one_question,
+    //   });
     const one_question = await Post.findById({ _id: qid }).select(
       "postQuestion commentCount answerCount createdAt author authorUserName authorProfilePhoto authorPhotoId needCount needUser isInstitute isUser endUserSave"
     );
-    res
-      .status(200)
-      .send({ message: "Question Query", one_query: one_question });
+    // const oneEncrypt = await encryptionPayload(one_question);
+    // const cached = await connect_redis_miss(
+    //   `One-Question-${qid}`,
+    //   one_question
+    // );
+    res.status(200).send({
+      message: "Question Query",
+      // one_query: cached.one_question
+      one_query: one_question,
+    });
   } catch (e) {
     console.log(e);
   }

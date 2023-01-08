@@ -16,27 +16,54 @@ const studentSchema = new mongoose.Schema({
   studentCastCategory: { type: String },
   studentReligion: { type: String },
   studentBirthPlace: { type: String },
+  studentBirthPlacePincode: { type: String },
+  studentBirthPlaceState: { type: String },
+  studentBirthPlaceDistrict: { type: String },
   studentBookNo: { type: String },
   studentDistrict: { type: String },
+  studentPincode: { type: String },
   studentState: { type: String },
   studentAddress: { type: String },
+  studentCurrentPincode: { type: String },
+  studentCurrentDistrict: { type: String },
+  studentCurrentState: { type: String },
+  studentCurrentAddress: { type: String },
   studentPhoneNumber: { type: Number },
   studentAadharNumber: { type: String },
   studentParentsName: { type: String },
   studentParentsPhoneNumber: { type: Number },
-  studentDocuments: { type: String },
+  studentFatherRationCardColor: { type: String },
+  studentParentsOccupation: { type: String },
+  studentParentsAnnualIncom: { type: String },
   studentAadharFrontCard: { type: String },
   studentAadharBackCard: { type: String },
-  studentPanNumber: { type: String },
+  studentPreviousSchool: { type: String },
   studentBankName: { type: String },
   studentBankAccount: { type: String },
   studentBankAccountHolderName: { type: String },
   studentBankIfsc: { type: String },
-  studentBankAccountType: { type: String },
-  studentCasteCertificate: [],
-  studentHeight: { type: String },
-  studentWeight: { type: String },
-  studentBMI: { type: String },
+  studentBankPassbook: { type: String },
+  studentCasteCertificatePhoto: { type: String },
+  studentUidaiNumber: { type: String },
+  studentDocuments: [
+    {
+      documentName: {
+        type: String,
+      },
+      documentKey: {
+        type: String,
+      },
+      documentType: {
+        type: String,
+      },
+    },
+  ],
+  studentOptionalSubject: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Subject",
+    },
+  ],
   studentCertificateNo: { type: String },
   studentStatus: { type: String, default: "Not Approved" },
   studentPremoteStatus: { type: String, default: "Not Promoted" },
@@ -290,18 +317,17 @@ const studentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  admissionPaymentStatus: [
+  admissionPaidFeeCount: {
+    type: Number,
+    default: 0,
+  },
+  paidFeeList: [
     {
-      applicationId: {
+      paidAmount: { type: Number, default: 0 },
+      appId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "NewApplication",
       },
-      status: { type: String, default: "Pending" },
-      mode: { type: String },
-      installment: { type: String, default: "No Installment" },
-      firstInstallment: { type: Number, default: 0 },
-      secondInstallment: { type: Number, default: 0 },
-      fee: { type: Number, default: 0 },
     },
   ],
   refundAdmission: [
@@ -314,10 +340,18 @@ const studentSchema = new mongoose.Schema({
   ],
   remainingFeeList: [
     {
-      remainAmount: { type: String },
-      appId: { type: String },
+      remainAmount: { type: Number, default: 0 },
+      appId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NewApplication",
+      },
       status: { type: String, default: "Not Paid" },
       instituteId: { type: String },
+      installmentValue: { type: String },
+      isEnable: { type: Boolean, default: false },
+      mode: { type: String },
+      originalFee: { type: Number, default: 0 },
+      dueDate: { type: String },
     },
   ],
   certificateBonaFideCopy: {

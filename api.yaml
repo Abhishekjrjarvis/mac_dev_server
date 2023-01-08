@@ -410,6 +410,80 @@ paths:
         "200":
           description: OK
 
+  /api/v1/auth/direct/institute/join/student/{id}/class/{cid}:
+    post:
+      tags:
+        - Login And Logout Api
+      summary: In Institute Admin Side Direct Student joining in class + creation with user A/c -(verified )
+      produces:
+        - application/json
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is user phone number
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This Class Id
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your student profile photo
+        - in: formData
+          name: studentFirstName
+          type: string
+          required: true
+          description: student first name
+        - in: formData
+          name: studentMiddleName
+          type: string
+          required: true
+          description: student middle name
+        - in: formData
+          name: studentLastName
+          type: string
+          required: true
+          description: student last name
+        - in: formData
+          name: studentDOB
+          type: string
+          required: true
+          description: student studentDOB
+        - in: formData
+          name: studentGender
+          type: string
+          required: true
+          description: student studentGender
+        - in: formData
+          name: studentMotherName
+          type: string
+          required: true
+          description: student studentMotherName
+        - in: formData
+          name: studentCastCategory
+          type: string
+          required: true
+          description: student studentCastCategory
+        - in: formData
+          name: studentReligion
+          type: string
+          required: true
+          description: student studentReligion
+        - in: formData
+          name: sample_pic
+          type: string
+          required: false
+          description: This is for default Avatar
+      responses:
+        "200":
+          description: OK
+
     #This is for all account forget process 
 
   /api/v1/auth/user/forgot:
@@ -2307,6 +2381,30 @@ paths:
           required: true
           type: string
           description: Enter institute Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/extra/{uid}/active/member/role:
+    get:
+      tags:
+        - Setting Control API
+      summary: User Active Role for Dashboard Feed -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is user id
+        - in: query
+          name: active_member_role
+          required: true
+          type: string
+          description: This is id of active (staff || student)
       responses:
         "200":
           description: OK
@@ -17970,6 +18068,129 @@ paths:
           required: true
           type: string
           description: for only gender -> ("Gender"), for only Alphabetical -> ("Alpha"), for both -> ("Gender_Alpha")
+      responses:
+        "200":
+          description: OK
+
+
+# Edit Admins of Department (Finance,Admission, Sport Head || Class Head, Library)
+  /api/v1/edit/staff/finance/staff/{osid}:
+    patch:
+      tags:
+        - Edit Admins
+      summary: Update Finance Admins (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: osid
+          required: true
+          type: string
+          description: Enter Old staff id
+        - in: query
+          name: nsid
+          required: true
+          type: string
+          description: Enter New staff id
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/edit/staff/admission/staff/{osid}:
+    patch:
+      tags:
+        - Edit Admins
+      summary: Update Admission Admins (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: osid
+          required: true
+          type: string
+          description: Enter Old staff id
+        - in: query
+          name: nsid
+          required: true
+          type: string
+          description: Enter New staff id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/edit/staff/sport/arts/staff/{osid}:
+    patch:
+      tags:
+        - Edit Admins
+      summary: Update Sport Head Admins (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: osid
+          required: true
+          type: string
+          description: Enter Old staff id
+        - in: query
+          name: nsid
+          required: true
+          type: string
+          description: Enter New staff id
+      responses:
+        "200":
+          description: OK
+  
+  /api/v1/edit/staff/sport/arts/class/staff/{osid}:
+    patch:
+      tags:
+        - Edit Admins
+      summary: Update Sport Class Head Admins (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: osid
+          required: true
+          type: string
+          description: Enter Old staff id
+        - in: query
+          name: nsid
+          required: true
+          type: string
+          description: Enter New staff id
+      responses:
+        "200":
+          description: OK
+  
+  /api/v1/edit/staff/library/staff/{osid}:
+    patch:
+      tags:
+        - Edit Admins
+      summary: Update Library Admins (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: osid
+          required: true
+          type: string
+          description: Enter Old staff id
+        - in: query
+          name: nsid
+          required: true
+          type: string
+          description: Enter New staff id
       responses:
         "200":
           description: OK

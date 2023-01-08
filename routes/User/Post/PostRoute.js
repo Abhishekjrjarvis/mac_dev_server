@@ -25,11 +25,7 @@ router.get(
   catchAsync(Post.retrieveAllUserProfilePosts)
 );
 
-router.post(
-  "/:id",
-  // isLoggedIn,
-  catchAsync(Post.postWithText)
-);
+router.post("/:id", isLoggedIn, catchAsync(Post.postWithText));
 
 router.post(
   "/:id/image",
@@ -57,11 +53,7 @@ router.delete(
   catchAsync(Post.postWithDeleted)
 );
 
-router.get(
-  "/tag",
-  //  isLoggedIn,
-  catchAsync(Post.circleList)
-);
+router.get("/tag", isLoggedIn, catchAsync(Post.circleList));
 
 router.get("/reaction/:pid", isLoggedIn, catchAsync(Post.reactionPost));
 
@@ -71,7 +63,7 @@ router.get("/save/:pid", isLoggedIn, catchAsync(Post.postSave));
 
 router
   .route("/comment/:id")
-  .get(catchAsync(Post.getComment))
+  .get(isLoggedIn, catchAsync(Post.getComment))
   .post(isLoggedIn, catchAsync(Post.postComment));
 
 router
@@ -87,10 +79,15 @@ router.get(
 
 router.get(
   "/:id/all/user/saved/posts",
+  isLoggedIn,
   catchAsync(Post.retrieveAllUserSavedPosts)
 );
 
-router.get("/:id/all/user/tag/posts", catchAsync(Post.retrieveAllUserTagPosts));
+router.get(
+  "/:id/all/user/tag/posts",
+  isLoggedIn,
+  catchAsync(Post.retrieveAllUserTagPosts)
+);
 
 router.get(
   "/:id/all/user/re/posts",
@@ -98,18 +95,27 @@ router.get(
   catchAsync(Post.retrieveAllUserReposts)
 );
 
-router.patch("/edit/comment/:cid", catchAsync(Post.commentEdit));
-router.delete("/edit/comment/:cid", catchAsync(Post.commentDelete));
+router.patch("/edit/comment/:cid", isLoggedIn, catchAsync(Post.commentEdit));
+router.delete("/edit/comment/:cid", isLoggedIn, catchAsync(Post.commentDelete));
 
-router.patch("/edit/comment/relpy/:cid", catchAsync(Post.commentReplyEdit));
-router.delete("/edit/comment/reply/:cid", catchAsync(Post.commentReplyDelete));
+router.patch(
+  "/edit/comment/relpy/:cid",
+  isLoggedIn,
+  catchAsync(Post.commentReplyEdit)
+);
+router.delete(
+  "/edit/comment/reply/:cid",
+  isLoggedIn,
+  catchAsync(Post.commentReplyDelete)
+);
 
 router.patch(
   "/edit/:pid",
+  isLoggedIn,
   // upload.array("file"),
   catchAsync(Post.renderEditPostQuery)
 );
 
-router.get("/:pid/query", catchAsync(Post.renderOnePostQuery));
+router.get("/:pid/query", isLoggedIn, catchAsync(Post.renderOnePostQuery));
 
 module.exports = router;

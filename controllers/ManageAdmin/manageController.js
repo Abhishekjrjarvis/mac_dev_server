@@ -13,6 +13,7 @@ const InstituteAdmin = require("../../models/InstituteAdmin");
 const Finance = require("../../models/Finance");
 const Student = require("../../models/Student");
 const Admission = require("../../models/Admission/Admission");
+// const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 function generateAccessManageToken(manage_name, manage_id, manage_pass) {
   return jwt.sign(
@@ -82,6 +83,7 @@ exports.renderAdministrator = async (req, res) => {
       if (req.file) {
         await unlinkFile(req.file.path);
       }
+      // const manageEncrypt = await encryptionPayload(manage._id);
       res.status(200).send({
         message: "You got the new responsibility 👍",
         status: true,
@@ -91,6 +93,7 @@ exports.renderAdministrator = async (req, res) => {
       notify.notifyContent = `Your got the designation of ${manage?.affiliation_name} as Afilliation Head`;
       notify.notifySender = manage._id;
       notify.notifyReceiever = access_user._id;
+      notify.notifyCategory = "Manage Admin Designation";
       access_user.uNotify.push(notify._id);
       notify.user = access_user._id;
       notify.notifyByManageAdminPhoto = manage._id;
@@ -126,6 +129,7 @@ exports.renderAdministratorPassword = async (req, res) => {
         manage?._id,
         manage?.affiliation_password
       );
+      // const passEncrypt = await encryptionPayload(manage);
       res.json({ token: `Bearer ${token}`, manage: manage, login: true });
     } else {
       res.send({ message: "Invalid Combination", login: false });
@@ -189,6 +193,7 @@ exports.renderAdministratorQuery = async (req, res) => {
       .exec();
 
     // const classesCount = await Department
+    // const rolesEncrypt = await encryptionPayload(manage);
     res
       .status(200)
       .send({ message: "Manage Admin with Roles 😀", manage, query: true });
@@ -301,6 +306,7 @@ exports.renderAdministratorAllInsQuery = async (req, res) => {
     //   token.token = all;
     //   all_ins_token.push(token);
     // });
+    // const allEncrypt = await encryptionPayload(all_ins);
     res.status(200).send({
       message: "All Affiliated Institute 😀",
       all_ins: all_ins,
@@ -330,6 +336,7 @@ exports.renderAdministratorAllRequest = async (req, res) => {
       .select(
         "insName insType insMode name photoId insProfilePhoto insEmail insAddress insState insDistrict insPincode insPhoneNumber name status isUniversal coverId insProfileCoverPhoto"
       );
+    // const reqEncrypt = await encryptionPayload(all_ins);
     res.status(200).send({
       message: "All Affiliated Institute 😀",
       all_ins: all_ins,
@@ -362,6 +369,7 @@ exports.renderAdministratorAllFinance = async (req, res) => {
         { studentStatus: "Approved" },
       ],
     }).select("studentRemainingFeeCount");
+    // Add Another Encryption
     res.status(200).send({
       message: "All Affiliated Institute 😀",
       all_finance: all_finance,
@@ -395,6 +403,7 @@ exports.renderAdministratorAllAdmission = async (req, res) => {
         { studentStatus: "Approved" },
       ],
     }).select("admissionRemainFeeCount");
+    // Add Another Encryption
     res.status(200).send({
       message: "All Affiliated Institute 😀",
       all_admission: all_admission,
@@ -425,6 +434,7 @@ exports.renderAdministratorAllManageAdmin = async (req, res) => {
         );
     }
     if (manage?.length > 0) {
+      // const searchEncrypt = await encryptionPayload(manage);
       res.status(200).send({
         message: "Affiliation at one place",
         manage: manage,
@@ -454,6 +464,7 @@ exports.renderAdministratorAllUser = async (req, res) => {
         .select("userLegalName username photoId profilePhoto");
     }
     if (user?.length > 0) {
+      // const userEncrypt = await encryptionPayload(user);
       res.status(200).send({
         message: "Affiliation at one place",
         user: user,

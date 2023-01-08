@@ -10,6 +10,7 @@ const User = require("../../models/User");
 const DisplayPerson = require("../../models/DisplayPerson");
 const Notification = require("../../models/notification");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
+// const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 // const StudentPreviousData = require("../../models/StudentPreviousData");
 exports.departmentDetail = async (req, res) => {
@@ -24,6 +25,7 @@ exports.departmentDetail = async (req, res) => {
       .select("dName dTitle dHead")
       .lean()
       .exec();
+    // const dEncrypt = await encryptionPayload(department);
     res.status(200).send({
       message: "Department details got successfully👍",
       department,
@@ -46,13 +48,14 @@ exports.departmentEdit = async (req, res) => {
       const staff = await Staff.findById(req.body?.sid);
       const user = await User.findById(staff.user);
       const institute = await InstituteAdmin.findById(department.institute);
-      const notify = await new Notification({});
+      const notify = new Notification({});
       staff.staffDepartment.push(department._id);
       staff.staffDesignationCount += 1;
       staff.recentDesignation = department.dTitle;
       department.dHead = staff._id;
-      notify.notifyContent = `you got the designation of ${department.dName} as Head`;
+      notify.notifyContent = `you got the designation of ${department.dName} as ${department.dTitle}`;
       notify.notifySender = id;
+      notify.notifyCategory = "Department Designation";
       notify.notifyReceiever = user._id;
       user.uNotify.push(notify._id);
       notify.user = user._id;
@@ -275,10 +278,11 @@ exports.classDetail = async (req, res) => {
           "staffProfilePhoto photoId staffFirstName staffMiddleName staffLastName",
       })
       .select(
-        "className classTitle classHeadTitle classTeacher masterClassName"
+        "className classTitle classHeadTitle classTeacher masterClassName finalReportsSettings.aggregatePassingPercentage optionalSubjectCount"
       )
       .lean()
       .exec();
+    // const cEncrypt = await encryptionPayload(classes);
     res.status(200).send({
       message: "Class details got successfully👍",
       classes,
@@ -302,6 +306,9 @@ exports.classEdit = async (req, res) => {
       classes.className = classMaster.className;
       await Promise.all([previousClassMaster.save(), classMaster.save()]);
     }
+    classes.finalReportsSettings.aggregatePassingPercentage =
+      req.body?.aggregatePassingPercentage;
+    classes.optionalSubjectCount = req.body?.optionalSubjectCount;
     if (req.body.classTitle) classes.classTitle = req.body?.classTitle;
     if (req.body.classHeadTitle)
       classes.classHeadTitle = req.body?.classHeadTitle;
@@ -318,19 +325,20 @@ exports.classEdit = async (req, res) => {
       staff.staffDesignationCount += 1;
       staff.recentDesignation = classes.classHeadTitle;
       classes.classTeacher = staff._id;
-      notify.notifyContent = `you got the designation of ${classRoom.className} as Class Teacher`;
+      notify.notifyContent = `you got the designation of ${classRoom.className} as ${classRoom.classTitle}`;
       notify.notifySender = id;
+      notify.notifyCategory = "Class Designation";
       notify.notifyReceiever = user._id;
       user.uNotify.push(notify._id);
       notify.user = user._id;
       notify.notifyByInsPhoto = institute._id;
-      // invokeFirebaseNotification(
-      //   "Designation Allocation",
-      //   notify,
-      //   institute.insName,
-      //   user._id,
-      //   user.deviceToken
-      // );
+      invokeFirebaseNotification(
+        "Designation Allocation",
+        notify,
+        institute.insName,
+        user._id,
+        user.deviceToken
+      );
       await Promise.all([
         previousStaff.save(),
         staff.save(),
@@ -446,9 +454,12 @@ exports.subjectDetail = async (req, res) => {
         select:
           "staffProfilePhoto photoId staffFirstName staffMiddleName staffLastName",
       })
-      .select("subjectName subjectTitle subjectTeacherName subjectMasterName")
+      .select(
+        "subjectName subjectTitle subjectOptional subjectTeacherName subjectMasterName setting.subjectPassingMarks"
+      )
       .lean()
       .exec();
+    // const sEncrypt = await encryptionPayload(subject);
     res.status(200).send({
       message: "Subject details got successfully👍",
       subject,
@@ -468,6 +479,7 @@ exports.subjectEdit = async (req, res) => {
     if (req.body?.subjectTitle) {
       subject.subjectTitle = req.body?.subjectTitle;
     }
+    subject.setting.subjectPassingMarks = req.body?.subjectPassingMarks;
     if (req.body?.smId) {
       const previousSubjectMaster = await SubjectMaster.findById(
         subject.subjectMasterName
@@ -478,6 +490,7 @@ exports.subjectEdit = async (req, res) => {
       subjectMaster?.subjects?.push(subject._id);
       await Promise.all([previousSubjectMaster.save(), subjectMaster.save()]);
     }
+
     if (req.body?.sid) {
       const previousStaff = await Staff.findById(subject.subjectTeacherName);
       previousStaff.staffSubject?.pull(subject._id);
@@ -491,8 +504,9 @@ exports.subjectEdit = async (req, res) => {
       staff.staffDesignationCount += 1;
       staff.recentDesignation = subject.subjectTitle;
       subject.subjectTeacherName = staff._id;
-      notify.notifyContent = `you got the designation of ${subject.subjectName} as Subject Teacher`;
+      notify.notifyContent = `you got the designation of ${subject.subjectName} as ${subject.subjectTitle}`;
       notify.notifySender = id;
+      notify.notifyCategory = "Subject Designation";
       notify.notifyReceiever = user._id;
       user.uNotify.push(notify._id);
       notify.user = user._id;

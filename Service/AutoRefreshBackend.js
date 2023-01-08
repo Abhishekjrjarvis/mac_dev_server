@@ -401,7 +401,8 @@ exports.recommendedAllIns = async (req, res) => {
       var refresh_recommend_ref = refresh_recommend_user?.filter(function (
         user_ref
       ) {
-        return `${user_ref}` !== `${user?._id}`;
+        return `${user_ref}` === `${user?._id}`;
+        // return `${user_ref}` !== `${user?._id}`;
       });
       var valid_recommend_user = remove_redundancy_recommend(
         refresh_recommend_ref,

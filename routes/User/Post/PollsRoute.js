@@ -12,6 +12,6 @@ router.post(
 
 router.patch("/question/vote/:pid", isLoggedIn, catchAsync(Poll.pollLike));
 
-router.patch("/edit/:pid", catchAsync(Poll.renderEditPollQuery));
+router.patch("/edit/:pid", isLoggedIn, catchAsync(Poll.renderEditPollQuery));
 
 module.exports = router;

@@ -8,11 +8,16 @@ const ClassMaster = require("../../models/ClassMaster");
 const Staff = require("../../models/Staff");
 const Student = require("../../models/Student");
 const StudentPreviousData = require("../../models/StudentPreviousData");
-
+const Notification = require("../../models/notification");
 const {
   todayDate,
   classCodeFunction,
 } = require("../../Utilities/timeComparison");
+const encryptionPayload = require("../../Utilities/Encrypt/payload");
+const invokeFirebaseNotification = require("../../Firebase/firebase");
+const User = require("../../models/User");
+const StudentNotification = require("../../models/Marks/StudentNotification");
+const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 
 exports.preformedStructure = async (req, res) => {
   try {
@@ -22,9 +27,6 @@ exports.preformedStructure = async (req, res) => {
         path: "subject",
       },
     });
-    // console.log(batch);
-    // console.log(batch.classroom);
-    // console.log(batch.classroom.subject);
     const department = await Department.findById(batch?.department);
     const institute = await InstituteAdmin.findById(batch?.institute);
     const identicalBatch = new Batch({
@@ -40,7 +42,9 @@ exports.preformedStructure = async (req, res) => {
       const code = await classCodeFunction();
       const date = await todayDate();
       const staff = await Staff.findById(oneClass?.classTeacher);
+      const class_user = await User.findById({ _id: `${staff?.user}` });
       const classMaster = await ClassMaster.findById(oneClass?.masterClassName);
+      const notify = new Notification({});
       const identicalClass = new Class({
         classCode: code,
         className: oneClass?.className,
@@ -66,6 +70,20 @@ exports.preformedStructure = async (req, res) => {
       staff.staffDesignationCount += 1;
       staff.recentDesignation = identicalClass?.classHeadTitle;
       identicalBatch?.classroom.push(identicalClass._id);
+      notify.notifyContent = `you got the designation of ${identicalClass.className} as ${identicalClass.classHeadTitle}`;
+      notify.notifySender = oneClass?.institute;
+      notify.notifyReceiever = class_user._id;
+      notify.notifyCategory = "Class Designation";
+      class_user.uNotify.push(notify._id);
+      notify.user = class_user._id;
+      notify.notifyByInsPhoto = institute._id;
+      invokeFirebaseNotification(
+        "Designation Allocation",
+        notify,
+        institute.insName,
+        class_user._id,
+        class_user.deviceToken
+      );
       for (let oneSubject of oneClass?.subject) {
         const subjectMaster = await SubjectMaster.findById(
           oneSubject?.subjectMasterName
@@ -73,7 +91,10 @@ exports.preformedStructure = async (req, res) => {
         const sujectStaff = await Staff.findById(
           oneSubject?.subjectTeacherName
         );
-
+        const subject_user = await User.findById({
+          _id: `${sujectStaff?.user}`,
+        });
+        const notify_subject = new Notification({});
         const identicalSubject = new Subject({
           subjectName: oneSubject?.subjectName,
           subjectTitle: oneSubject?.subjectTitle,
@@ -89,15 +110,33 @@ exports.preformedStructure = async (req, res) => {
         subjectMaster?.subjects.push(identicalSubject._id);
         subjectMaster.subjectCount += 1;
         identicalClass?.subject.push(identicalSubject?._id);
+        notify_subject.notifyContent = `you got the designation of ${identicalSubject.subjectName} as ${identicalSubject.subjectTitle}`;
+        notify_subject.notifySender = batch?.institute;
+        notify_subject.notifyReceiever = subject_user._id;
+        notify.notifyCategory = "Subject Designation";
+        subject_user.uNotify.push(notify_subject._id);
+        notify_subject.user = subject_user._id;
+        notify_subject.notifyByInsPhoto = institute._id;
+        invokeFirebaseNotification(
+          "Designation Allocation",
+          notify_subject,
+          institute.insName,
+          subject_user._id,
+          subject_user.deviceToken
+        );
         await Promise.all([
           identicalSubject.save(),
           sujectStaff.save(),
           subjectMaster.save(),
+          notify_subject.save(),
+          subject_user.save(),
         ]);
       }
       await Promise.all([
         identicalClass.save(),
         classMaster.save(),
+        notify.save(),
+        class_user.save(),
         staff.save(),
       ]);
     }
@@ -107,6 +146,7 @@ exports.preformedStructure = async (req, res) => {
       department.save(),
       institute.save(),
     ]);
+    // const batchEncrypt = await encryptionPayload(identicalBatch?._id);
     res.status(200).send({
       message: "Identical Batch Created Successfully",
       batchId: identicalBatch?._id,
@@ -133,6 +173,7 @@ exports.subjectSetting = async (req, res) => {
       .select("setting subjectStatus")
       .lean()
       .exec();
+    // const subjectEncrypt = await encryptionPayload(subject);
     res.status(200).send({ message: "get subject setting", subject });
   } catch (e) {
     console.log(e);
@@ -189,6 +230,8 @@ exports.allDepartment = async (req, res) => {
       .select("_id depart")
       .lean()
       .exec();
+
+    // const departEncrypt = await encryptionPayload(institute?.depart);
     res
       .status(200)
       .send({ message: "All departments list", departmets: institute?.depart });
@@ -208,6 +251,7 @@ exports.allClasses = async (req, res) => {
       .lean()
       .exec();
 
+    // const classesEncrypt = await encryptionPayload(batch?.classroom);
     res
       .status(200)
       .send({ message: "All classes list", classes: batch?.classroom });
@@ -226,6 +270,7 @@ exports.promoteStudent = async (req, res) => {
     let roll = classes.ApproveStudent?.length + 1;
     for (let stu of req.body?.students) {
       const student = await Student.findById(stu);
+      const user = await User.findById({ _id: `${student.user}` });
       const previousData = new StudentPreviousData({
         studentCode: student.studentCode,
         class: student?.studentClass,
@@ -278,7 +323,34 @@ exports.promoteStudent = async (req, res) => {
         participate_event: student?.participate_event,
       });
       // console.log(previousData);
-      await previousData.save();
+      const notify = new StudentNotification({});
+      notify.notifyContent = `${student.studentFirstName} ${
+        student.studentMiddleName ? student.studentMiddleName : ""
+      } ${student.studentLastName} Your Report Card is Ready `;
+      notify.notifySender = classes._id;
+      notify.notifyReceiever = user._id;
+      notify.classId = classes._id;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student._id;
+      user.activity_tab.push(notify._id);
+      notify.notifyByClassPhoto = classes._id;
+      notify.notifyCategory = "Report Card";
+      notify.redirectIndex = 20;
+      invokeMemberTabNotification(
+        "Student Activity",
+        notify,
+        "View Report Card",
+        user._id,
+        user.deviceToken,
+        "Student",
+        notify
+      );
+      await Promise.all([
+        student.save(),
+        notify.save(),
+        user.save(),
+        previousData.save(),
+      ]);
       student?.previousYearData?.push(previousData._id);
       student.studentClass = classId;
       student.studentCode = classes.classCode;
@@ -410,6 +482,7 @@ exports.getclassComplete = async (req, res) => {
       .select("classStatus")
       .lean()
       .exec();
+    // const classStatusEncrypt = await encryptionPayload(classes?.classStatus);
     res.status(200).send({
       message: "All subject is completed",
       classStatus: classes?.classStatus,

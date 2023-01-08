@@ -13,6 +13,13 @@ const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const smartPhrase = require("../../Service/smartRecoveryPhrase");
+// const encryptionPayload = require("../../Utilities/Encrypt/payload");
+const OrderPayment = require("../../models/RazorPay/orderPayment");
+const invokeSpecificRegister = require("../../Firebase/specific");
+const {
+  connect_redis_hit,
+  connect_redis_miss,
+} = require("../../config/redis-config");
 
 var AdminOTP = "";
 
@@ -53,6 +60,13 @@ exports.retrieveAdminQuery = async (req, res) => {
 
 exports.getAdmin = async (req, res) => {
   try {
+    // const is_cache = await connect_redis_hit(`q-admin-dash`);
+    // if (is_cache?.hit)
+    //   return res.status(200).send({
+    //     message: "Admin Dashboard Retrieve from Cache 🙌",
+    //     admins: is_cache.admins,
+    //     postCount: is_cache.postCount,
+    //   });
     const { aid } = req.params;
     const post = await Post.find({}).select("id").lean();
     const admins = await Admin.findById({ _id: aid })
@@ -96,16 +110,33 @@ exports.getAdmin = async (req, res) => {
         },
       })
       .lean();
-    res
-      .status(200)
-      .send({ message: "Success", admins, postCount: post.length });
+    // const admin_query = {
+    //   admins: admins,
+    //   postCount: post?.length,
+    // };
+    // const adminEncrypt = await encryptionPayload(admin_query);
+    // const cached = await connect_redis_miss(`q-admin-dash`, admin_query);
+    res.status(200).send({
+      message: "Admin Dashboard Retrieve from DB",
+      // admins: cached.admins,
+      // postCount: cached.postCount,
+      admins: admins,
+      postCount: postCount,
+    });
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(e);
   }
 };
 
 exports.retrieveApproveInstituteArray = async (req, res) => {
   try {
+    // const is_cache = await connect_redis_hit(`q-admin-approve-ins-array`);
+    // if (is_cache?.hit)
+    //   return res.status(200).send({
+    //     message: "Approve Array Retrieve from Cache 🙌",
+    //     admin: is_cache.admin,
+    //     institutes: is_cache.institutes,
+    //   });
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
@@ -125,10 +156,25 @@ exports.retrieveApproveInstituteArray = async (req, res) => {
       .select(
         "insName name photoId insProfilePhoto status staffCount studentCount isUniversal"
       );
-    res
-      .status(200)
-      .send({ message: "Approve Array", admin: admin, institutes: institutes });
-  } catch {}
+    // const all_ins = {
+    //   admin: admin,
+    //   institutes: institutes,
+    // };
+    // const all_encrypt = await encryptionPayload(all_ins)
+    // const cached = await connect_redis_miss(
+    //   `q-admin-approve-ins-array`,
+    //   all_ins
+    // );
+    res.status(200).send({
+      message: "Approve Array Retreieve from DB",
+      // admin: cached.admin,
+      // institutes: cached.institutes,
+      admin: admin,
+      institutes: institutes,
+    });
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.retrievePendingInstituteArray = async (req, res) => {
@@ -142,6 +188,7 @@ exports.retrievePendingInstituteArray = async (req, res) => {
           "insName name photoId insProfilePhoto status insEmail insPhoneNumber insType insApplyDate",
       })
       .lean();
+    // const aEncrypt = await encryptionPayload(admin);
     res.status(200).send({ message: "Pending Array", admin });
   } catch {}
 };
@@ -162,6 +209,7 @@ exports.retrieveUserArray = async (req, res) => {
       .select(
         "userLegalName username photoId profilePhoto userAddress userDateOfBirth userGender userEmail userPhoneNumber "
       );
+    // const uEncrypt = await encryptionPayload(users);
     res.status(200).send({ message: "Users Array", users: users });
   } catch (e) {
     console.log(e);
@@ -182,6 +230,7 @@ exports.retrieveUniversalInstitute = async (req, res) => {
       "Congrats for the Designation of Universal at Qviple 🎉✨🎉✨";
     notify.notifySender = admin._id;
     notify.notifyReceiever = institute._id;
+    notify.notifyCategory = "Universal Designation";
     institute.iNotify.push(notify._id);
     notify.institute = institute._id;
     notify.notifyBySuperAdminPhoto =
@@ -232,6 +281,7 @@ exports.updateSuperAdmin = async (req, res) => {
     admin.photoId = "1";
     await Promise.all([admin.save()]);
     await unlinkFile(file.path);
+    // const adminEncrypt = await encryptionPayload(admin);
     res.status(201).send({ message: "Admin", admin });
   } catch (e) {
     console.log(`Error`, e);
@@ -246,68 +296,6 @@ exports.retrieveRecoveryPhrase = async (req, res) => {
     } else {
       res.status(404).send({ message: "Failure" });
     }
-  } catch {}
-};
-
-exports.getAll = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const admin = await Admin.findById({ _id: id })
-      .populate({
-        path: "ApproveInstitute",
-        populate: {
-          path: "financeDepart",
-        },
-      })
-      .populate("RejectInstitute")
-      .populate("instituteList")
-      .populate("users")
-      .populate({
-        path: "instituteIdCardBatch",
-        populate: {
-          path: "institute",
-        },
-      })
-      .populate({
-        path: "reportList",
-        populate: {
-          path: "reportInsPost",
-          populate: {
-            path: "institute",
-          },
-        },
-      })
-      .populate({
-        path: "instituteIdCardBatch",
-        populate: {
-          path: "ApproveStudent",
-        },
-      })
-      .populate("blockedUsers")
-      .populate({
-        path: "reportList",
-        populate: {
-          path: "reportBy",
-        },
-      })
-      .populate({
-        path: "reportList",
-        populate: {
-          path: "reportUserPost",
-          populate: {
-            path: "user",
-          },
-        },
-      })
-      .populate("idCardPrinting")
-      .populate("idCardPrinted")
-      .populate({
-        path: "feedbackList",
-        populate: {
-          path: "user",
-        },
-      });
-    res.status(200).send({ message: "Admin Detail", admin });
   } catch {}
 };
 
@@ -344,6 +332,7 @@ exports.getApproveIns = async (req, res) => {
     notify.notifyContent =
       "Your institute is verified and approved for further managing operations";
     notify.notifySender = admin._id;
+    notify.notifyCategory = "Approve Institute";
     //
     admin.activateAccount += 1;
     institute.accessFeature = "UnLocked";
@@ -356,6 +345,7 @@ exports.getApproveIns = async (req, res) => {
     notify.notifyBySuperAdminPhoto =
       "https://qviple.com/static/media/Mithkal_icon.043e3412.png";
     await Promise.all([institute.save(), notify.save(), admin.save()]);
+    // const adsEncrypt = await encryptionPayload(admin._id);
     res.status(200).send({
       message: `Congrats for Approval ${institute.insName}`,
       admin: admin._id,
@@ -377,12 +367,14 @@ exports.getRejectIns = async (req, res) => {
     institute.status = "Rejected";
     notify.notifyContent = `Rejected from Super Admin Contact at connect@qviple.com`;
     notify.notifySender = aid;
+    notify.notifyCategory = "Reject Institute";
     notify.notifyReceiever = id;
     institute.iNotify.push(notify._id);
     notify.institute = institute._id;
     notify.notifyBySuperAdminPhoto =
       "https://qviple.com/static/media/Mithkal_icon.043e3412.png";
     await Promise.all([admin.save(), institute.save(), notify.save()]);
+    // const adEncrypt = await encryptionPayload(admin._id);
     res.status(200).send({
       message: `Application Rejected ${institute.insName}`,
       admin: admin._id,
@@ -395,6 +387,7 @@ exports.getRejectIns = async (req, res) => {
 exports.getReferralIns = async (req, res) => {
   try {
     const institute = await InstituteAdmin.find({});
+    // const iEncrypt = await encryptionPayload(institute);
     res.status(200).send({ message: "institute detail", institute });
   } catch (e) {
     console.log(`Error`, e.message);
@@ -404,6 +397,7 @@ exports.getReferralIns = async (req, res) => {
 exports.getReferralUser = async (req, res) => {
   try {
     const user = await User.find({});
+    // const userEncrypt = await encryptionPayload(user);
     res.status(200).send({ message: "User Referal Data", user });
   } catch (e) {
     console.log(`Error`, e.message);
@@ -415,6 +409,7 @@ exports.retrieveLandingPageCount = async (req, res) => {
     const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` })
       .select("instituteCount userCount studentCount staffCount")
       .lean();
+    // const adminEncrypt = await encryptionPayload(admin);
     res.status(200).send({ message: "Success", admin });
   } catch (e) {
     console.log(e);
@@ -433,6 +428,7 @@ exports.retrieveOneInstitute = async (req, res) => {
         select: "userLegalName username photoId profilePhoto",
       })
       .lean();
+    // const oEncrypt = await encryptionPayload(institute);
     res.status(200).send({ message: "One Institute", institute });
   } catch (e) {
     console.log(e);
@@ -456,6 +452,7 @@ exports.verifyInstituteBankDetail = async (req, res) => {
       notify.notifyContent = ` ${institute.insName} congrats for payment bank verification was successfull`;
       notify.notifySender = admin._id;
       notify.notifyReceiever = institute._id;
+      notify.notifyCategory = "Bank Detail";
       institute.iNotify.push(notify._id);
       notify.notifyPid = "1";
       notify.notifyBySuperAdminPhoto = "https://qviple.com/images/newLogo.svg";
@@ -467,6 +464,7 @@ exports.verifyInstituteBankDetail = async (req, res) => {
       notify.notifyContent = ` ${institute.insName} your payment bank verification was unsuccessfull due to Incorrect Bank Data`;
       notify.notifySender = admin._id;
       notify.notifyReceiever = institute._id;
+      notify.notifyCategory = "Bank Detail";
       institute.iNotify.push(notify._id);
       notify.notifyPid = "1";
       notify.notifyBySuperAdminPhoto = "https://qviple.com/images/newLogo.svg";
@@ -480,6 +478,7 @@ exports.verifyInstituteBankDetail = async (req, res) => {
       notify.notifyContent = ` ${institute.insName} your payment bank verification was unsuccessfull due to Incorrect Bank Data`;
       notify.notifySender = admin._id;
       notify.notifyReceiever = institute._id;
+      notify.notifyCategory = "Bank Detail";
       institute.iNotify.push(notify._id);
       notify.notifyPid = "1";
       notify.notifyBySuperAdminPhoto = "https://qviple.com/images/newLogo.svg";
@@ -509,6 +508,7 @@ exports.retrieveApproveInstituteActivate = async (req, res) => {
         select: "username userLegalName photoId profilePhoto",
       })
       .lean();
+    // Add Another Encryption
     res.status(200).send({ message: "Activate Query ", institute, admin });
   } catch {}
 };
@@ -528,6 +528,7 @@ exports.retrieveApproveInstituteActivateVolume = async (req, res) => {
           select: "insName",
         },
       });
+    // Add Another Encryption
     res.status(200).send({ message: "Activate Query ", institute, admin });
   } catch {}
 };
@@ -539,6 +540,7 @@ exports.retrieveReferralUserArray = async (req, res) => {
         "createdAt userLegalName username photoId profilePhoto referralArray userCommission paymentStatus"
       )
       .lean();
+    // const uEncrypt = await encryptionPayload(user);
     res.status(200).send({ message: "Referral Query ", user });
   } catch {}
 };
@@ -570,6 +572,7 @@ exports.retrieveGetInTouch = async (req, res) => {
         path: "getTouchUsers",
       })
       .lean();
+    // const gEncrypt = await encryptionPayload(admin);
     res.status(200).send({ message: "Get In Touch Data", admin });
   } catch {}
 };
@@ -582,6 +585,7 @@ exports.retrieveCarrierQuery = async (req, res) => {
         path: "careerUserArray",
       })
       .lean();
+    // const cEncrypt = await encryptionPayload(admin);
     res.status(200).send({ message: "Career Data", admin });
   } catch (e) {
     console.log(e);
@@ -610,6 +614,7 @@ exports.retrieveReportQuery = async (req, res) => {
       })
       .lean()
       .exec();
+    // const adsEncrypt = await encryptionPayload(admin);
     res.status(200).send({ message: "Report Post Data", admin });
   } catch (e) {
     console.log(e);
@@ -628,6 +633,7 @@ exports.retrieveNotificationQuery = async (req, res) => {
         },
       })
       .lean();
+    // const adEncrypt = await encryptionPayload(admin);
     res.status(200).send({ message: "Notification Data", admin });
   } catch {}
 };
@@ -637,6 +643,7 @@ exports.retrieveNotificationCountQuery = async (req, res) => {
     const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` })
       .select("id aNotify")
       .lean();
+    // const nEncrypt = await encryptionPayload(admin.aNotify.length);
     res.status(200).send({
       message: "Notification Count Data",
       notifyCount: admin.aNotify.length,
@@ -694,27 +701,75 @@ exports.getRecentChatInstitute = async (req, res) => {
 
 exports.retrieveRepayInstituteAmount = async (req, res) => {
   try {
-    const { aid, uid } = req.params;
-    const { amount, txnId, message } = req.body;
+    const { uid } = req.params;
+    const { txnId, message, t_amount, p_amount } = req.body;
+    if (!uid && !t_amount && p_amount)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
     const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const institute = await InstituteAdmin.findById({ _id: uid });
     const finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
+    }).populate({
+      path: "financeHead",
+      select: "user",
+    });
+    const financeUser = await User.findById({
+      _id: `${finance?.financeHead?.user}`,
     });
     const notify = new Notification({});
     const repay = new RePay({});
-    institute.adminRepayAmount -= amount;
-    institute.insBankBalance += amount;
-    finance.financeBankBalance = finance.financeBankBalance + amount;
-    finance.financeTotalBalance = finance.financeTotalBalance + amount;
-    admin.returnAmount -= amount;
-    notify.notifyContent = `Super Admin re-pay Rs. ${amount} to you`;
+    const date = new Date(new Date().setDate(new Date().getDate() - 2));
+    const pay_flow = await OrderPayment.find({
+      $and: [
+        { _id: { $in: institute?.payment_history } },
+        {
+          created_at: {
+            $lte: date,
+          },
+        },
+        {
+          payout_enable: "Not Paid",
+        },
+      ],
+    }).select("payment_module_type payment_amount payout_enable payment_mode");
+
+    for (var flow of pay_flow) {
+      if (
+        flow?.payment_module_type === "Fees" &&
+        flow?.payment_mode === "By Bank"
+      ) {
+        flow.payout_enable = "Paid";
+        await flow.save();
+      }
+      if (
+        flow?.payment_module_type === "Admission" &&
+        flow?.payment_mode === "By Bank"
+      ) {
+        flow.payout_enable = "Paid";
+        await flow.save();
+      }
+    }
+    institute.partial_pay_amount +=
+      t_amount - p_amount - institute.partial_pay_amount;
+    if (institute.adminRepayAmount > p_amount) {
+      institute.adminRepayAmount -= p_amount;
+    }
+    institute.insBankBalance += p_amount;
+    finance.financeBankBalance = finance.financeBankBalance + p_amount;
+    finance.financeTotalBalance = finance.financeTotalBalance + p_amount;
+    admin.returnAmount -= p_amount;
+    notify.notifyContent = `Qviple Super Admin re-pay Rs. ${p_amount} to you`;
     notify.notifySender = admin._id;
+    notify.notifyCategory = "Qviple Repayment";
     notify.notifyReceiever = uid;
     institute.iNotify.push(notify._id);
+    financeUser.uNotify.push(notify._id);
     notify.institute = institute._id;
     notify.notifyBySuperAdminPhoto = "https://qviple.com/images/newLogo.svg";
-    repay.repayAmount = amount;
+    repay.repayAmount = p_amount;
     (repay.repayStatus = "Transferred"), (repay.txnId = txnId);
     repay.message = message;
     repay.institute = institute._id;
@@ -726,8 +781,22 @@ exports.retrieveRepayInstituteAmount = async (req, res) => {
       admin.save(),
       repay.save(),
       finance.save(),
+      financeUser.save(),
     ]);
-    res.status(200).send({ message: "Amount Transferred", status: true });
+    // const insEncrypt = await encryptionPayload(institute);
+    res.status(200).send({
+      message: "T-2 Days Payment Payout Done 😀",
+      status: true,
+      // pay_flow,
+      // pay_ins,
+    });
+    invokeSpecificRegister(
+      "Specific Notification",
+      `Qviple Super Admin re-pay Rs. ${p_amount} to you`,
+      "Qviple Repayment",
+      financeUser._id,
+      financeUser.deviceToken
+    );
   } catch (e) {
     console.log(e);
   }
@@ -747,12 +816,13 @@ exports.retrieveInstituteRepayQuery = async (req, res) => {
       .sort("createdAt")
       .limit(limit)
       .skip(skip)
-      .select("repayAmount repayStatus")
+      .select("repayAmount repayStatus createdAt")
       .populate({
         path: "institute",
         select: "insName",
       });
     if (get_return?.length > 0) {
+      // const adminEncrypt = await encryptionPayload(get_return);
       res.status(200).send({ message: "Repay Array", repay: get_return });
     } else {
       res.status(200).send({ message: "No Repay Array", repay: [] });
@@ -775,7 +845,7 @@ exports.retrieveSocialPostCount = async (req, res) => {
     const repostCount = await Post.find({ postType: "Repost" })
       .select("id")
       .lean();
-
+    // Add Another Encryption
     res.status(200).send({
       message: "Total Posts",
       postCount: postCount?.length,
@@ -804,6 +874,7 @@ exports.retrieveSocialLikeCount = async (req, res) => {
         total += answer?.upVote?.length;
       });
     }
+    // Add Another Encryption
     res.status(200).send({
       message: "Total Likes",
       likeCount: total,
@@ -835,6 +906,7 @@ exports.retrievePlatformAllPosts = async (req, res) => {
             "postQuestion authorProfilePhoto authorUserName author authorPhotoId isUser",
         },
       });
+    // const pEncrypt = await encryptionPayload(post);
     res.status(200).send({ message: "All Platform Posts", all: post });
   } catch (e) {
     console.log(e);
@@ -854,6 +926,7 @@ exports.retrieveOneUserQuery = async (req, res) => {
     for (let up of answers) {
       totalUpVote += up.upVoteCount;
     }
+    // Add Another Encryption
     res
       .status(200)
       .send({ message: "One User Profile Data ", user, upVote: totalUpVote });
@@ -876,6 +949,7 @@ exports.retrieveOneInstituteQuery = async (req, res) => {
       })
       .lean()
       .exec();
+    // const insEncrypt = await encryptionPayload(institute);
     res.status(200).send({ message: "One Institute Profile Data", institute });
   } catch {}
 };
@@ -932,6 +1006,121 @@ exports.retrieveOneUserBlock = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderPayouts = async (req, res) => {
+  try {
+    const { pid } = req.params;
+    var payout_price = 0;
+    if (!pid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const date = new Date(new Date().setDate(new Date().getDate() - 2));
+    const pay_ins = await InstituteAdmin.findById({ _id: pid }).select(
+      "payment_history partial_pay_amount"
+    );
+
+    const pay_flow = await OrderPayment.find({
+      $and: [
+        { _id: { $in: pay_ins?.payment_history } },
+        {
+          created_at: {
+            $lte: date,
+          },
+        },
+        {
+          payout_enable: "Not Paid",
+        },
+      ],
+    }).select("payment_module_type payment_amount payment_mode");
+
+    for (var flow of pay_flow) {
+      if (
+        flow?.payment_module_type === "Fees" &&
+        flow?.payment_mode === "By Bank"
+      ) {
+        payout_price += flow?.payment_amount;
+      }
+      if (
+        flow?.payment_module_type === "Admission" &&
+        flow?.payment_mode === "By Bank"
+      ) {
+        payout_price += flow?.payment_amount;
+      }
+    }
+    // const insEncrypt = await encryptionPayload(institute);
+    res.status(200).send({
+      message: "T-2 Days Payment Payout 😀",
+      access: true,
+      payout_price: payout_price + pay_ins.partial_pay_amount,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// exports.renderPayoutsPaid = async (req, res) => {
+//   try {
+//     const { pid } = req.params;
+//     const { t_amount, p_amount } = req.body;
+//     if (!pid)
+//       return res.status(200).send({
+//         message: "Their is a bug need to fix immediately 😡",
+//         access: false,
+//       });
+//     const date = new Date(new Date().setDate(new Date().getDate() - 2));
+//     const pay_ins = await InstituteAdmin.findById({ _id: pid }).select(
+//       "payment_history partial_pay_amount adminRepayAmount"
+//     );
+
+//     const pay_flow = await OrderPayment.find({
+//       $and: [
+//         { _id: { $in: pay_ins?.payment_history } },
+//         {
+//           created_at: {
+//             $lte: date,
+//           },
+//         },
+//         {
+//           payout_enable: "Not Paid",
+//         },
+//       ],
+//     }).select("payment_module_type payment_amount payout_enable payment_mode");
+
+//     for (var flow of pay_flow) {
+//       if (
+//         flow?.payment_module_type === "Fees" &&
+//         flow?.payment_mode === "By Bank"
+//       ) {
+//         flow.payout_enable = "Paid";
+//         await flow.save();
+//       }
+//       if (
+//         flow?.payment_module_type === "Admission" &&
+//         flow?.payment_mode === "By Bank"
+//       ) {
+//         flow.payout_enable = "Paid";
+//         await flow.save();
+//       }
+//     }
+//     pay_ins.partial_pay_amount +=
+//       t_amount - p_amount - pay_ins.partial_pay_amount;
+//     if (pay_ins.adminRepayAmount > p_amount) {
+//       pay_ins.adminRepayAmount -= p_amount;
+//     }
+//     await pay_ins.save();
+//     // const insEncrypt = await encryptionPayload(institute);
+//     res.status(200).send({
+//       message: "T-2 Days Payment Payout Done 😀",
+//       access: true,
+//       pay_flow,
+//       pay_ins,
+//     });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
 
 // exports.filterByYear = async(req, res) =>{
 //   try{

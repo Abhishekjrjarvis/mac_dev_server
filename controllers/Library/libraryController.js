@@ -13,6 +13,8 @@ const {
   uploadFile,
   uploadDocFile,
 } = require("../../S3Configuration");
+const invokeFirebaseNotification = require("../../Firebase/firebase");
+const Notification = require("../../models/notification");
 
 //for Institute side Activate library
 exports.activateLibrary = async (req, res) => {
@@ -21,6 +23,8 @@ exports.activateLibrary = async (req, res) => {
     const { sid } = req.body;
     const institute = await InstituteAdmin.findById(req.params.id);
     const staff = await Staff.findById(sid);
+    const user = await User.findById({ _id: `${staff?.user}` });
+    const notify = new Notification({});
     const library = new Library({
       libraryHead: sid,
       institute: institute._id,
@@ -30,7 +34,27 @@ exports.activateLibrary = async (req, res) => {
     institute.libraryActivate = "Activated";
     institute.library = library._id;
     staff.library.push(library._id);
-    await Promise.all([institute.save(), staff.save(), library.save()]);
+    notify.notifyContent = `you got the designation of as Library Head`;
+    notify.notifySender = institute._id;
+    notify.notifyReceiever = user._id;
+    user.uNotify.push(notify._id);
+    notify.notifyCategory = "Library Designation";
+    notify.user = user._id;
+    notify.notifyByInsPhoto = institute._id;
+    invokeFirebaseNotification(
+      "Designation Allocation",
+      notify,
+      institute.insName,
+      user._id,
+      user.deviceToken
+    );
+    await Promise.all([
+      institute.save(),
+      staff.save(),
+      library.save(),
+      user.save(),
+      notify.save(),
+    ]);
     res.status(201).send({ message: "Library Head is assign" });
   } catch (e) {
     res.status(200).send({

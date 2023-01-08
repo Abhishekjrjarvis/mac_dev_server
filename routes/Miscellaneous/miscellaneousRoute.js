@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { isLoggedIn, isValidKey } = require("../../middleware");
+const { isLoggedIn } = require("../../middleware");
 const catchAsync = require("../../Utilities/catchAsync");
 const All = require("../../controllers/Miscellaneous/miscellaneousController");
 
@@ -28,10 +28,10 @@ router.get(
 );
 
 // All Institute Data
-router.get("/institute/list/data", catchAsync(All.getAllInstitute));
+router.get("/institute/list/data", isLoggedIn, catchAsync(All.getAllInstitute));
 
 // All Payment Data
-router.get("/payment/day", catchAsync(All.getAllPayments));
+router.get("/payment/day", isLoggedIn, catchAsync(All.getAllPayments));
 
 // All Batch Data
 router.get("/batch/list/data", isLoggedIn, catchAsync(All.getAllBatch));

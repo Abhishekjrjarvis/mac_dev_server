@@ -12,6 +12,12 @@ const newApplicationSchema = new mongoose.Schema({
     ref: "Batch",
     required: true,
   },
+  applicationMaster: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "ClassMaster",
+  },
+  applicationParentType: { type: String },
+  applicationChildType: [],
   applicationSeats: { type: Number, default: 0 },
   applicationType: { type: String, default: "Plain Application" },
   applicationStartDate: { type: String },
@@ -59,6 +65,7 @@ const newApplicationSchema = new mongoose.Schema({
       },
       select_on: { type: Date, default: Date.now },
       payment_status: { type: String, default: "Pending" },
+      install_type: { type: String },
       fee_remain: { type: Number, default: 0 },
     },
   ],
@@ -72,6 +79,7 @@ const newApplicationSchema = new mongoose.Schema({
       payment_status: { type: String, default: "Pending" },
       fee_remain: { type: Number, default: 0 },
       paid_status: { type: "String" },
+      install_type: { type: String },
       second_pay_mode: { type: "String" },
     },
   ],
@@ -154,8 +162,7 @@ const newApplicationSchema = new mongoose.Schema({
     dueDate: { type: String },
   },
   total_installments: {
-    type: Number,
-    default: 0,
+    type: String,
   },
 });
 

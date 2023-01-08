@@ -4,6 +4,7 @@ const Answer = require("../../models/Question/Answer");
 const User = require("../../models/User");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const Staff = require("../../models/Staff");
+// const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.allPosts = async (req, res) => {
   try {
@@ -33,7 +34,6 @@ exports.allPosts = async (req, res) => {
 
 exports.allPolls = async (req, res) => {
   try {
-    // const { query } = req.query
     const poll = await InstituteAdmin.find({})
       .select("id staffFormSetting studentFormSetting")
       .lean()
@@ -152,6 +152,7 @@ exports.rewardProfileAdsQuery = async (req, res) => {
       user_ads.profile_ads_count += 1;
       await user_ads.save();
     }
+    // const rewardEncrypt = await encryptionPayload(user_ads.profile_ads_count);
     res.status(200).send({
       message: "Get Ready for Reward Based Ads",
       ads_view_count: user_ads.profile_ads_count,
@@ -163,19 +164,7 @@ exports.rewardProfileAdsQuery = async (req, res) => {
 
 exports.oneInstitute = async (req, res) => {
   try {
-    // const { id } = req.params;
-    // const staff = await Staff.find({}).select("id staffFirstName");
-    const ins = await InstituteAdmin.find({}).select(
-      "id postCount questionCount pollCount"
-    );
-    // .populate({
-    //   path: "iNotify",
-    //   select: "notifyContent",
-    // });
-    // .populate({
-    //   path: "ApproveStaff",
-    //   select: "id staffFirstName staffMiddleName staffLastName staffROLLNO",
-    // });
+    const ins = await User.find({});
     res.status(200).send({ message: "One Institute ", one_ins: ins });
   } catch {}
 };
@@ -183,9 +172,62 @@ exports.oneInstitute = async (req, res) => {
 exports.oneUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await User.findById({ _id: id });
-    res.status(200).send({ message: "One User ", one_user: user });
-  } catch {}
+    const one_user = await User.findById({ _id: id });
+    const followers_user = await User.find({
+      _id: { $in: one_user?.userFollowers },
+    });
+    const following_user = await User.find({
+      _id: { $in: one_user?.userFollowing },
+    });
+    const circle_user = await User.find({ _id: { $in: one_user?.userCircle } });
+    const ins_user = await InstituteAdmin.find({
+      _id: { $in: one_user?.userInstituteFollowing },
+    });
+    const post_author = await Post.find({ author: one_user?._id });
+    const all_user = await User.find({});
+    for (let fsu of followers_user) {
+      fsu.userFollowing.pull(one_user?._id);
+      if (fsu.followingUICount > 0) {
+        fsu.followingUICount -= 1;
+      }
+      await fsu.save();
+    }
+    for (let fu of following_user) {
+      fu.userFollowers.pull(one_user?._id);
+      if (fu.followerCount > 0) {
+        fu.followerCount -= 1;
+      }
+      await fu.save();
+    }
+    for (let cu of circle_user) {
+      cu.userCircle.pull(one_user?._id);
+      if (cu.circleCount > 0) {
+        cu.circleCount -= 1;
+      }
+      await cu.save();
+    }
+    for (let ifu of ins_user) {
+      ifu.userFollowersList.pull(one_user?._id);
+      if (ifu.followingUICount > 0) {
+        ifu.followingUICount -= 1;
+      }
+      await ifu.save();
+    }
+    for (let alp of post_author) {
+      del_post.push(alp._id);
+    }
+    for (let alu of all_user) {
+      if (alu._id !== one_user._id) {
+        alu.userPosts.pull(...del_post);
+      }
+    }
+    res.status(200).send({
+      message: "Deletion Operation Complete You're good to go 😀🙌",
+      delete: true,
+    });
+  } catch {
+    console.log(e);
+  }
 };
 
 exports.deleteUser = async (req, res) => {

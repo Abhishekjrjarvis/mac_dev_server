@@ -13,11 +13,7 @@ router.get(
   catchAsync(Post.retreiveAllProfilePosts)
 );
 
-router.post(
-  "/:id",
-  // isLoggedIn, isApproved,
-  catchAsync(Post.postWithText)
-);
+router.post("/:id", isLoggedIn, isApproved, catchAsync(Post.postWithText));
 
 router.post(
   "/:id/image",
@@ -47,11 +43,7 @@ router.delete(
   catchAsync(Post.postWithDeleted)
 );
 
-router.get(
-  "/tag",
-  // isLoggedIn,
-  catchAsync(Post.circleList)
-);
+router.get("/tag", isLoggedIn, catchAsync(Post.circleList));
 
 router.get("/reaction/:pid", isLoggedIn, catchAsync(Post.reactionPost));
 
@@ -93,25 +85,17 @@ router.get(
   catchAsync(Post.retrieveTagAllPosts)
 );
 
-router.patch(
-  "/edit/comment/:cid",
-  // isLoggedIn,
-  catchAsync(Post.commentEdit)
-);
-router.delete(
-  "/edit/comment/:cid",
-  // isLoggedIn,
-  catchAsync(Post.commentDelete)
-);
+router.patch("/edit/comment/:cid", isLoggedIn, catchAsync(Post.commentEdit));
+router.delete("/edit/comment/:cid", isLoggedIn, catchAsync(Post.commentDelete));
 
 router.patch(
   "/edit/comment/relpy/:cid",
-  // isLoggedIn,
+  isLoggedIn,
   catchAsync(Post.commentReplyEdit)
 );
 router.delete(
   "/edit/comment/reply/:cid",
-  // isLoggedIn,
+  isLoggedIn,
   catchAsync(Post.commentReplyDelete)
 );
 module.exports = router;

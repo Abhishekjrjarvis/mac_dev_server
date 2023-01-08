@@ -1,29 +1,29 @@
 const express = require("express");
 const router = express.Router();
 const batchController = require("../../controllers/Batch/batchController");
-// const { isLoggedIn } = require("../../middleware");
+const { isLoggedIn } = require("../../middleware");
 const catchAsync = require("../../Utilities/catchAsync");
 
 //=========ATTENDANCE OF STUDENT=============================
 
 router
   .route("/:bid")
-  .get(catchAsync(batchController.allClasses))
-  .post(catchAsync(batchController.preformedStructure));
+  .get(isLoggedIn, batchController.allClasses)
+  .post(isLoggedIn, batchController.preformedStructure);
 router
   .route("/subject/:sid")
-  .patch(catchAsync(batchController.subjectComplete));
+  .patch(isLoggedIn, batchController.subjectComplete);
 
 router
   .route("/subject/:sid/setting")
-  .get(catchAsync(batchController.subjectSetting))
-  .patch(catchAsync(batchController.subjectUpdateSetting));
+  .get(isLoggedIn, batchController.subjectSetting)
+  .patch(isLoggedIn, batchController.subjectUpdateSetting);
 
-router.route("/class/:cid").get(catchAsync(batchController.allDepartment));
-router.route("/promote/:cid").post(catchAsync(batchController.promoteStudent));
+router.route("/class/:cid").get(isLoggedIn, batchController.allDepartment);
+router.route("/promote/:cid").post(isLoggedIn, batchController.promoteStudent);
 
 router
   .route("/complete/:cid")
-  .get(catchAsync(batchController.getclassComplete))
-  .patch(catchAsync(batchController.classComplete));
+  .get(isLoggedIn, catchAsync(batchController.getclassComplete))
+  .patch(isLoggedIn, catchAsync(batchController.classComplete));
 module.exports = router;

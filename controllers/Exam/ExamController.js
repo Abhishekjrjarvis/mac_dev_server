@@ -18,6 +18,7 @@ const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const StudentPreviousData = require("../../models/StudentPreviousData");
+// const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.getClassMaster = async (req, res) => {
   try {
@@ -32,6 +33,7 @@ exports.getClassMaster = async (req, res) => {
       })
       .lean()
       .exec();
+    // const cMasterEncrypt = await encryptionPayload(classMaster);
     res.status(200).send({ classMaster });
   } catch {}
 };
@@ -77,6 +79,7 @@ exports.getSubjectMaster = async (req, res) => {
       }
       arr1.push(subjectObject);
     }
+    // const arrEncrypt = await encryptionPayload(arr1);
     res.status(200).send({ classMaster: arr1 });
   } catch {}
 };
@@ -232,6 +235,7 @@ exports.allExam = async (req, res) => {
   const exam = await Exam.find({
     department: { $eq: `${req.params.did}` },
   }).select("examName examWeight examMode createdAt examType");
+  // const examEncrypt = await encryptionPayload(exam);
   res.status(200).send({ exam });
 };
 
@@ -303,7 +307,7 @@ exports.examById = async (req, res) => {
       }
       oneExamDetail.push(obj);
     }
-
+    // Add Another Encryption
     res.status(200).send({
       oneExamDetail,
       exam: {
@@ -344,7 +348,7 @@ exports.allExamSubjectTeacher = async (req, res) => {
         }
       });
     });
-
+    // const sEncrypt = await encryptionPayload(subject);
     res.status(200).send({ subject });
   } catch (e) {
     console.log(e);
@@ -424,6 +428,7 @@ exports.allStudentInSubjectTeacher = async (req, res) => {
     students.sort((st1, st2) => {
       return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
     });
+    // const studentsEncrypt = await encryptionPayload(students);
     res.status(200).send({ students });
   } catch (e) {
     console.log(e);
@@ -433,6 +438,7 @@ exports.allStudentInSubjectTeacher = async (req, res) => {
 exports.allStudentMarksBySubjectTeacher = async (req, res) => {
   try {
     const { examId, marks } = req.body;
+    const subjectData = await Subject.findById({ _id: req.params.sid });
     for (let studt of marks) {
       const student = await Student.findById(studt.studentId)
         .populate({
@@ -441,8 +447,8 @@ exports.allStudentMarksBySubjectTeacher = async (req, res) => {
             subject: { $eq: req.params.sid },
           },
         })
-        .select("subjectMarks _id");
-
+        .select("subjectMarks _id user");
+      const user = await User.findById({ _id: `${student.user}` });
       const subjectMarks1 = await SubjectMarks.findById(
         student?.subjectMarks[0]?._id
       );
@@ -452,8 +458,29 @@ exports.allStudentMarksBySubjectTeacher = async (req, res) => {
           await subjectMarks1.save();
         }
       }
+      var notify = new StudentNotification({});
+      notify.notifyContent = `${subjectData?.subjectName} marks updated.`;
+      notify.notifySender = subjectData;
+      notify.notifyReceiever = user._id;
+      notify.notifyType = "Staff";
+      notify.notifyPublisher = staff._id;
+      notify.subjectId = subjectData;
+      user.activity_tab.push(notify._id);
+      // notify.notifyByFinancePhoto = subjectData;
+      notify.notifyCategory = "Marks";
+      notify.redirectIndex = 21;
+      //
+      invokeMemberTabNotification(
+        "Student Activity",
+        notify,
+        `${subjectData.subjectName} Marks`,
+        user._id,
+        user.deviceToken,
+        "Student",
+        notify
+      );
+      await Promise.all([student.save(), user.save(), notify.save()]);
     }
-
     res.status(200).send({ message: "updated" });
   } catch (e) {
     console.log(e);
@@ -558,6 +585,7 @@ exports.allExamInStudent = async (req, res) => {
         exams.push(examObj);
       }
     }
+    // const eEncrypt = await encryptionPayload(exams);
     res.status(200).send({ exams });
   } catch (e) {
     console.log(e);
@@ -604,6 +632,7 @@ exports.oneExamAllSubjectInStudent = async (req, res) => {
         }
       });
     });
+    // const subEncrypt = await encryptionPayload(subjects);
     res.status(200).send({ subjects });
   } catch (e) {
     console.log(e);
@@ -651,6 +680,7 @@ exports.oneExamOneSubjectAnswersheetInStudent = async (req, res) => {
         }
       }
     }
+    // const submarksEncrypt = await encryptionPayload(subjects);
     res.status(200).send({ subjects });
   } catch (e) {
     console.log(e);
@@ -661,6 +691,7 @@ exports.oneClassSettings = async (req, res) => {
     const classes = await Class.findById(req.params.cid).select(
       "finalReportsSettings"
     );
+    // const fEncrypt = await encryptionPayload(classes.finalReportsSettings);
     res
       .status(200)
       .send({ finalReportsSettings: classes.finalReportsSettings });
@@ -795,7 +826,7 @@ exports.oneStudentReportCardClassTeacher = async (req, res) => {
     });
     const totalPercantage =
       (total.allSubjectTotal * 100) / (100 * subjects.length);
-
+    // Add Another Encryption
     res.status(200).send({
       subjects,
       total,
@@ -847,6 +878,7 @@ exports.oneStudentAllYearAttendance = async (req, res) => {
       (attendance.totalPresent * 100) /
       attendance.totalAttendance
     ).toFixed(2);
+    // const aEncrypt = await encryptionPayload(attendence);
     res.status(200).send({ attendance });
   } catch (e) {
     console.log(e);
@@ -874,7 +906,7 @@ exports.oneStudentReletedNecessaryData = async (req, res) => {
         path: "batches",
         select: "_id batchName",
       });
-
+    // const studentEncrypt = await encryptionPayload(student);
     res.status(200).send({ student });
   } catch (e) {
     console.log(e);
@@ -889,6 +921,7 @@ exports.oneStudentBehaviourReportCard = async (req, res) => {
         select: "improvements ratings lackIn",
       })
       .select("_id studentBehaviour");
+    // const bEncrypt = await encryptionPayload(student.studentBehaviour);
     res.status(200).send({ student: student.studentBehaviour });
   } catch (e) {
     console.log(e);
@@ -980,12 +1013,13 @@ exports.oneStudentReportCardGraceUpdate = async (req, res) => {
       }
       await subMarks.save();
     }
+    // const graceEncrypt = await encryptionPayload(student);
     res.status(200).send({
       message: "grace marks updated successfully...😋😊😊😋😋",
       student,
     });
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     res.status(424).send({ message: e });
   }
 };
@@ -1043,6 +1077,7 @@ exports.oneStudentReportCardFinalizeGraceUpdate = async (req, res) => {
         ? "FAIL"
         : "PASS";
     await Promise.all([finalize.save()]);
+    // const finalizeEncrypt = await encryptionPayload(finalize);
     res.status(200).send({ finalize });
   } catch (e) {
     console.log(e);

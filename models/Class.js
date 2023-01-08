@@ -160,16 +160,9 @@ const classSchema = new mongoose.Schema({
       ref: "Playlist",
     },
   ],
-
   classStartDate: {
     type: String,
   },
-
-  //depriciated
-  studentRepresentative: {
-    type: String,
-  },
-
   subjectCount: {
     type: Number,
     default: 0,
@@ -258,6 +251,10 @@ const classSchema = new mongoose.Schema({
       ref: "Student",
     },
   ],
+  optionalSubjectCount: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Class = mongoose.model("Class", classSchema);

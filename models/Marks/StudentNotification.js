@@ -35,6 +35,10 @@ const studentNotificationSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Finance",
   },
+  notifyByAdmissionPhoto: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Admission",
+  },
   notifyType: {
     type: String,
   },
@@ -49,6 +53,7 @@ const studentNotificationSchema = new mongoose.Schema({
   financeId: { type: String },
   classId: { type: String },
   departmentId: { type: String },
+  subjectId: { type: String },
   dailyUpdateId: { type: String },
   batchId: { type: String },
   instituteId: { type: String },

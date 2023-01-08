@@ -10,7 +10,7 @@ router.get("/by/answer", isLoggedIn, catchAsync(Filter.retrieveByAnswerQuery));
 
 router.get(
   "/by/participate",
-  // isLoggedIn,
+  isLoggedIn,
   catchAsync(Filter.retrieveByParticipateQuery)
 );
 
@@ -42,9 +42,9 @@ router.get(
 
 router.get(
   "/by/class/catalog/:cid",
-  // isLoggedIn,
+  isLoggedIn,
   catchAsync(Filter.retrieveApproveCatalogArrayFilter)
 );
 
-// router.get('/filter/by/date/funds', catchAsync(Filter.filterByDateFunds))
+// router.get('/filter/by/date/funds',isLoggedIn, catchAsync(Filter.filterByDateFunds))
 module.exports = router;

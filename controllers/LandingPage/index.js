@@ -8,6 +8,7 @@ const unlinkFile = util.promisify(fs.unlink);
 const sendAnEmail = require("../../Service/email.js");
 const User = require("../../models/User");
 const invokeSpecificRegister = require("../../Firebase/specific");
+const moment = require("moment");
 
 exports.uploadGetTouchDetail = async (req, res) => {
   try {
@@ -77,6 +78,40 @@ const AppUpdate = async (req, res) => {
 };
 
 // console.log(AppUpdate());
+
+const HappyNew = async (req, res) => {
+  try {
+    var data = `Wishing you lots of love and laughter in 2023 and success in reaching your goals! 🎉🎉🎆🎆`;
+    const users = await User.find({}).select("deviceToken");
+    if (users?.length > 0) {
+      users?.forEach((ele) => {
+        invokeSpecificRegister(
+          "Specific Notification",
+          data,
+          "Happy New Year 2023 🎆",
+          ele._id,
+          ele.deviceToken
+        );
+      });
+      return true;
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+// var is_true = true;
+// setInterval(async () => {
+//   if (
+//     is_true &&
+//     `${moment(new Date()).format("YYYY-MM-DD")}` === "2023-01-01"
+//   ) {
+//     await HappyNew();
+//     is_true = false;
+//     return "Done";
+//   }
+// }, 1000);
+
+// console.log(HappyNew());
 
 // const axios = require("axios");
 

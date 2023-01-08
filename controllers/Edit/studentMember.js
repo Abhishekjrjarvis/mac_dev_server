@@ -12,6 +12,7 @@ const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const { deleteFile, uploadFile } = require("../../S3Configuration");
+// const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.photoEditByStudent = async (req, res) => {
   try {
@@ -247,7 +248,7 @@ exports.removeByClassTeacher = async (req, res) => {
       message: "student removed form class successfully👍",
     });
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     res.status(200).send({
       message: e,
     });
@@ -281,6 +282,7 @@ exports.getAllPreviousYear = async (req, res) => {
         .select("class batch")
         .lean()
         .exec();
+      // const preEncrypt = await encryptionPayload(previousData);
       res.status(200).send({
         message: "Student previous year detail all list 👍",
         previousData,
@@ -292,7 +294,7 @@ exports.getAllPreviousYear = async (req, res) => {
       });
     }
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     res.status(424).send({
       message: e,
     });
@@ -314,13 +316,14 @@ exports.previousYearReportCard = async (req, res) => {
       .select("finalReport studentROLLNO")
       .lean()
       .exec();
+    // Add Another Encryption
     res.status(200).send({
       message: "Student previous year detail all list 👍",
       finalReport: previousData?.finalReport,
       studentROLLNO: previousData?.studentROLLNO,
     });
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     res.status(424).send({
       message: e,
     });

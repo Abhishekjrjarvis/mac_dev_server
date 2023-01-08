@@ -4,6 +4,8 @@ const Staff = require("./Staff");
 const Student = require("./Student");
 const Status = require("./Admission/status");
 const Answer = require("./Question/Answer");
+const OrderPayment = require("./RazorPay/orderPayment");
+const Notification = require("./notification");
 
 const userSchema = new mongoose.Schema({
   userPhoneNumber: { type: Number, maxlength: 10 },
@@ -171,6 +173,12 @@ const userSchema = new mongoose.Schema({
     },
   ],
   starAnnouncement: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "InsAnnouncement",
+    },
+  ],
+  followInsAnnouncement: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "InsAnnouncement",
@@ -445,6 +453,9 @@ const userSchema = new mongoose.Schema({
       ref: "ManageAdmin",
     },
   ],
+  active_member_role: {
+    type: String,
+  },
 });
 
 userSchema.post("findOneAndDelete", async function (doc) {
@@ -472,6 +483,16 @@ userSchema.post("findOneAndDelete", async function (doc) {
     await Answer.deleteMany({
       _id: {
         $in: doc.answered_query,
+      },
+    });
+    await OrderPayment.deleteMany({
+      _id: {
+        $in: doc.payment_history,
+      },
+    });
+    await Notification.deleteMany({
+      _id: {
+        $in: doc.uNotify,
       },
     });
   }

@@ -956,7 +956,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
           // postCount: cached.postCount,
           // totalPage: cached.totalPage,
           post: post,
-          postCount: postCount,
+          postCount: postCount.length,
           totalPage: totalPage,
         });
       } else {
@@ -1185,7 +1185,7 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
           // postCount: cached.postCount,
           // totalPage: cached.totalPage,
           post: post,
-          postCount: postCount,
+          postCount: postCount.length,
           totalPage: totalPage,
         });
       } else {
@@ -1313,7 +1313,7 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
         // postCount: cached.postCount,
         // totalPage: cached.totalPage,
         post: post,
-        postCount: postCount,
+        postCount: postCount.length,
         totalPage: totalPage,
       });
     }
@@ -1651,7 +1651,7 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
         // postCount: cached.postCount,
         // totalPage: cached.totalPage,
         post: post,
-        postCount: postCount,
+        postCount: postCount.length,
         totalPage: totalPage,
       });
     } else {
@@ -1740,7 +1740,7 @@ exports.retrieveAllUserTagPosts = async (req, res) => {
         // postCount: cached.postCount,
         // totalPage: cached.totalPage,
         post: post,
-        postCount: postCount,
+        postCount: postCount.length,
         totalPage: totalPage,
       });
     } else {
@@ -1818,7 +1818,7 @@ exports.retrieveAllUserReposts = async (req, res) => {
         // repost: cached.repost,
         // count: cached.count,
         repost: repost,
-        count: count,
+        count: repost?.length,
       });
     } else {
       res.status(200).send({ message: "No Post found", repost: [] });

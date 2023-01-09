@@ -15202,6 +15202,30 @@ paths:
         "200":
           description: OK
 
+  /api/v1/admission/{sid}/student/{aid}/cancel/app:
+    post:
+      tags:
+        - Admission Admin Module Query
+      summary: Mark Student Application Cancel || Reject by the Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id 
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application id 
+      responses:
+        "200":
+          description: OK
+
   /api/v1/admission/{sid}/student/pay/mode/{aid}/apply/status/{statusId}:
     post:
       tags:
@@ -18045,7 +18069,25 @@ paths:
         "200":
           description: OK
 
-  
+  /api/v1/pay/merchant/author/{id}:
+    get:
+      tags:
+        - Payment History
+      summary: Create a order instance from Merchant Owner (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: Enter Institute Id
+      responses:
+        "200":
+          description: OK
+
 # Sorted By Alpha || Gender
 
   /api/v1/feed/filter/by/class/catalog/{cid}:

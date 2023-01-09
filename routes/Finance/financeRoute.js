@@ -38,12 +38,6 @@ router.get(
   catchAsync(Finance.retrieveFinanceQuery)
 );
 
-// Get Details of Finance Head
-router.get("/detail/:id", isLoggedIn, catchAsync(Finance.getFinanceDetail));
-
-// Info of Finance Department
-router.post("/info/:fid", isLoggedIn, catchAsync(Finance.getFinanceInfo));
-
 // Added Income
 router.post(
   "/:fid/income",
@@ -66,41 +60,6 @@ router.post(
 // All Cash Expenses
 router.post("/all/expenses", isLoggedIn, catchAsync(Finance.getAllExpense));
 
-// All Finance Fee Online
-router.post(
-  "/all/fee/online/:id",
-  isLoggedIn,
-  catchAsync(Finance.getFinanceOnlineFee)
-);
-
-// Class Online Fee At Finance Department
-router.post(
-  "/class/:cid/total/online/fee",
-  isLoggedIn,
-  catchAsync(Finance.getClassOnlineFee)
-);
-
-// Class Offline Fee At Finance Department
-router.post(
-  "/class/:cid/total/offline/fee",
-  isLoggedIn,
-  catchAsync(Finance.getClassOfflineFee)
-);
-
-// Class Collected Fee At Finance Department
-router.post(
-  "/class/:cid/total/collected/fee",
-  isLoggedIn,
-  catchAsync(Finance.getClassCollectedFee)
-);
-
-// Class Collect Fee
-router.get(
-  "/:fid/class/collect",
-  isLoggedIn,
-  catchAsync(Finance.collectClassFee)
-);
-
 // Class Offline Fee Request
 router.post(
   "/:fid/class/:cid/fee/:id/receieve",
@@ -120,20 +79,6 @@ router.post(
   "/:fid/class/:cid/fee/:id/incorrect",
   isLoggedIn,
   catchAsync(Finance.classOfflineFeeIncorrect)
-);
-
-// Finance Online Payment Updated
-router.post(
-  "/:fid/online/payment/updated",
-  isLoggedIn,
-  catchAsync(Finance.updatePaymenFinance)
-);
-
-// Repay From Super-Admin to Institute-Admin
-router.post(
-  "/admin/:aid/ins/:id/repay",
-  isLoggedIn,
-  catchAsync(Finance.RepayBySuperAdmin)
 );
 
 // Payment Detail
@@ -171,12 +116,6 @@ router.get(
   "/:fid/dashboard/reject/class",
   isLoggedIn,
   catchAsync(Finance.retrieveRejectAtFinance)
-);
-
-router.get(
-  "/:fid/dashboard/reject/class/remaining",
-  isLoggedIn,
-  catchAsync(Finance.retrieveRemainingAmount)
 );
 
 router.get(

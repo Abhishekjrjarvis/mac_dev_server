@@ -931,7 +931,7 @@ exports.getAllSaveAnswerQuery = async (req, res) => {
         // answerCount: cached.answerCount,
         // totalPage: cached.totalPage,
         answer: answer,
-        answerCount: answerCount,
+        answerCount: answerCount.length,
         totalPage: totalPage,
       });
     } else {

@@ -12,12 +12,14 @@ const {
 } = require("./paymentModule");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
-var instance = new Razorpay({
-  key_id: process.env.RAZOR_KEY_ID,
-  key_secret: process.env.RAZOR_KEY_SECRET,
-});
+var instance;
 
-var razor_author = false;
+// = new Razorpay({
+//   key_id: process.env.RAZOR_KEY_ID,
+//   key_secret: process.env.RAZOR_KEY_SECRET,
+// });
+
+// var razor_author = false;
 
 exports.institute_merchant_replace = async (req, res) => {
   try {
@@ -33,9 +35,13 @@ exports.institute_merchant_replace = async (req, res) => {
         ? institute?.razor_key
         : process.env.RAZOR_KEY_SECRET,
     });
-    res
-      .status(200)
-      .send({ message: "Proceed with Account Instance 👍", status: true });
+    res.status(200).send({
+      message: "Proceed with Account Instance 👍",
+      status: true,
+      key: institute?.razor_key,
+      bool: institute?.razor_key ? true : false,
+      author: institute?.razor_key ? true : false,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -86,14 +92,17 @@ exports.verifyRazorPayment = async (req, res) => {
       ad_status_id,
       isApk,
       payment_installment,
-      // razor_key, // Razor KEY Secret
-      // razor_author, // Boolean
+      razor_key, // Razor KEY Secret
+      razor_author, // Boolean
     } = req.query;
     var refactor_amount = parseFloat(payment_amount) / 100;
     var refactor_amount_nocharges = parseInt(payment_amount_charges) / 100;
     const body = razorpay_order_id + "|" + razorpay_payment_id;
     var expectedSignature = crypto
-      .createHmac("sha256", process.env.RAZOR_KEY_SECRET)
+      .createHmac(
+        "sha256",
+        razor_key ? razor_key : process.env.RAZOR_KEY_SECRET
+      )
       .update(body.toString())
       .digest("hex");
     const is_authenticated = expectedSignature === razorpay_signature;

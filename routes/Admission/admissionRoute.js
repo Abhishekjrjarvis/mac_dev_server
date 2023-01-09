@@ -159,6 +159,13 @@ router.post(
   catchAsync(Admission.retrieveAdmissionSelectedApplication)
 );
 
+// One Student Cancel at Selected
+router.post(
+  "/:sid/student/:aid/cancel",
+  isLoggedIn,
+  catchAsync(Admission.retrieveAdmissionCancelApplication)
+);
+
 // Student Confirmation Select Pay Mode
 router.post(
   "/:sid/student/pay/mode/:aid/apply/status/:statusId",

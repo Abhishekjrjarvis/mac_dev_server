@@ -205,7 +205,7 @@ exports.getPassIns = async (req, res) => {
         institute?._id,
         institute?.insPassword
       );
-      const iPassEncrypt = await encryptionPayload(institute);
+      // const iPassEncrypt = await encryptionPayload(institute);
       res.json({ token: `Bearer ${token}`, institute: institute, login: true });
     } else {
       res.send({ message: "Invalid Combination", login: false });
@@ -1289,7 +1289,9 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
       const genUserPass = bcrypt.genSaltSync(12);
       const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
       var user = new User({
-        userLegalName: req.body.studentFirstName,
+        userLegalName: `${req.body.studentFirstName}${
+          req.body.studentMiddleName ? req.body.studentMiddleName : ""
+        }${req.body.studentLastName ? req.body.studentLastName : ""}`,
         userGender: req.body.studentGender,
         userDateOfBirth: req.body.studentDOB,
         username: valid?.username,
@@ -1506,7 +1508,9 @@ exports.retrieveDirectJoinStaffQuery = async (req, res) => {
       const genUserPass = bcrypt.genSaltSync(12);
       const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
       var user = new User({
-        userLegalName: req.body.staffFirstName,
+        userLegalName: `${req.body.staffFirstName}${
+          req.body.staffMiddleName ? req.body.staffMiddleName : ""
+        }${req.body.staffLastName ? req.body.staffLastName : ""}`,
         userGender: req.body.staffGender,
         userDateOfBirth: req.body.staffDOB,
         username: valid?.username,
@@ -1691,7 +1695,9 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
       const genUserPass = bcrypt.genSaltSync(12);
       const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
       var user = new User({
-        userLegalName: req.body.studentFirstName,
+        userLegalName: `${req.body.studentFirstName}${
+          req.body.studentMiddleName ? req.body.studentMiddleName : ""
+        }${req.body.studentLastName ? req.body.studentLastName : ""}`,
         userGender: req.body.studentGender,
         userDateOfBirth: req.body.studentDOB,
         username: valid?.username,
@@ -1885,7 +1891,9 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       const genUserPass = bcrypt.genSaltSync(12);
       const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
       var user = new User({
-        userLegalName: req.body.studentFirstName,
+        userLegalName: `${req.body.studentFirstName}${
+          req.body.studentMiddleName ? req.body.studentMiddleName : ""
+        }${req.body.studentLastName ? req.body.studentLastName : ""}`,
         userGender: req.body.studentGender,
         userDateOfBirth: req.body.studentDOB,
         username: valid?.username,

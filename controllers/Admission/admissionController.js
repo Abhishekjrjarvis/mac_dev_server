@@ -176,7 +176,7 @@ exports.retieveAdmissionAdminAllApplication = async (req, res) => {
         // ongoing: cached.ongoing,
         // ongoingCount: cached.ongoingCount,
         ongoing: ongoing,
-        ongoingCount: ongoingCount,
+        ongoingCount: ongoing?.length,
       });
     } else {
       res
@@ -238,7 +238,7 @@ exports.retieveAdmissionAdminAllCApplication = async (req, res) => {
         // completed: cached.completed,
         // completedCount: cached.completedCount,
         completed: completed,
-        completedCount: completedCount,
+        completedCount: completed?.length,
       });
     } else {
       res
@@ -304,7 +304,7 @@ exports.retieveAdmissionAdminAllCDetailApplication = async (req, res) => {
         // completed: cached.completed,
         // completedCount: cached.completedCount,
         completed: completed,
-        completedCount: completedCount,
+        completedCount: completed?.length,
       });
     } else {
       res
@@ -334,7 +334,9 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
       });
     const { expand } = req.query;
     req.body.admissionFee = parseInt(req.body.admissionFee);
-    req.body.applicationSeats = parseInt(req.body.applicationSeats);
+    req.body.applicationSeats = req.body.applicationSeats
+      ? parseInt(req.body.applicationSeats)
+      : 0;
     var admission = await Admission.findById({ _id: aid });
     var institute = await InstituteAdmin.findById({
       _id: `${admission.institute}`,
@@ -514,7 +516,7 @@ exports.fetchAdmissionApplicationArray = async (req, res) => {
         // allApp: cached.newApp,
         // allAppCount: cached.allAppCount,
         allApp: newApp,
-        allAppCount: allAppCount,
+        allAppCount: newApp?.length,
       });
       // }
     } else {
@@ -557,7 +559,6 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
           const results = await uploadFile(singleFile, width, height);
           student.photoId = "0";
           student.studentProfilePhoto = results.Key;
-          user.profilePhoto = results.Key;
           await unlinkFile(singleFile.path);
         } else {
           const uploadedFile = await file_to_aws(singleFile);
@@ -972,6 +973,53 @@ exports.retrieveAdmissionSelectedApplication = async (req, res) => {
     res.status(200).send({
       message: `congrats ${student.studentFirstName} `,
       select_status: true,
+    });
+    invokeMemberTabNotification(
+      "Admission Status",
+      status.content,
+      "Application Status",
+      user._id,
+      user.deviceToken
+    );
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveAdmissionCancelApplication = async (req, res) => {
+  try {
+    const { sid, aid } = req.params;
+    if (!sid && !aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        cancel_status: false,
+      });
+    const apply = await NewApplication.findById({ _id: aid });
+    const student = await Student.findById({ _id: sid });
+    const user = await User.findById({ _id: `${student.user}` });
+    const status = new Status({});
+    for (let app of apply.receievedApplication) {
+      if (`${app.student}` === `${student._id}`) {
+        apply.receievedApplication.pull(app._id);
+      } else {
+      }
+    }
+    if (apply.receievedCount > 0) {
+      apply.receievedCount -= 1;
+    }
+    status.content = `You have been rejected for ${apply.applicationName}. Best of luck for next time `;
+    status.applicationId = apply._id;
+    status.studentId = student._id;
+    user.applicationStatus.push(status._id);
+    await Promise.all([
+      apply.save(),
+      student.save(),
+      user.save(),
+      status.save(),
+    ]);
+    res.status(200).send({
+      message: `Best of luck for next time 😥`,
+      cancel_status: true,
     });
     invokeMemberTabNotification(
       "Admission Status",
@@ -1687,25 +1735,36 @@ exports.completeAdmissionApplication = async (req, res) => {
         complete_status: false,
       });
     const apply = await NewApplication.findById({ _id: aid });
-    const admission = await Admission.findById({
-      _id: `${apply.admissionAdmin}`,
-    });
-    const admission_ins = await InstituteAdmin.findById({
-      _id: `${admission.institute}`,
-    });
-    apply.applicationStatus = "Completed";
-    if (admission_ins?.admissionCount > 0) {
-      admission_ins.admissionCount -= 1;
+    if (
+      apply?.selectedApplication?.length > 0 ||
+      apply?.confirmedApplication?.length > 0
+    ) {
+      res.status(200).send({
+        message:
+          "Application not to be completed student is in Select  || Confirm ",
+        complete_status: false,
+      });
+    } else {
+      const admission = await Admission.findById({
+        _id: `${apply.admissionAdmin}`,
+      });
+      const admission_ins = await InstituteAdmin.findById({
+        _id: `${admission.institute}`,
+      });
+      apply.applicationStatus = "Completed";
+      if (admission_ins?.admissionCount > 0) {
+        admission_ins.admissionCount -= 1;
+      }
+      if (admission?.newAppCount > 0) {
+        admission.newAppCount -= 1;
+      }
+      admission.completedCount += 1;
+      await Promise.all([apply.save(), admission.save(), admission_ins.save()]);
+      res.status(200).send({
+        message: "Enjoy your work load is empty go for party",
+        complete_status: true,
+      });
     }
-    if (admission?.newAppCount > 0) {
-      admission.newAppCount -= 1;
-    }
-    admission.completedCount += 1;
-    await Promise.all([apply.save(), admission.save(), admission_ins.save()]);
-    res.status(200).send({
-      message: "Enjoy your work load is empty go for party",
-      complete_status: true,
-    });
   } catch (e) {
     console.log(e);
   }
@@ -1755,7 +1814,7 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
         // remain: cached.student,
         // remainCount: cached.remainCount,
         remain: student,
-        remainCount: remainCount,
+        remainCount: student?.length,
       });
     } else {
       res
@@ -2543,7 +2602,7 @@ exports.retrieveOneApplicationQuery = async (req, res) => {
     //   });
     const oneApply = await NewApplication.findById({ _id: aid })
       .select(
-        "applicationName applicationType applicationAbout admissionProcess applicationEndDate applicationStartDate admissionFee applicationPhoto photoId applicationSeats receievedCount selectCount confirmCount applicationStatus cancelCount allotCount onlineFee offlineFee remainingFee collectedFeeCount one_installments two_installments"
+        "applicationName applicationType applicationAbout admissionProcess applicationEndDate applicationStartDate admissionFee applicationPhoto photoId applicationSeats receievedCount selectCount confirmCount applicationStatus cancelCount allotCount onlineFee offlineFee remainingFee collectedFeeCount total_installments one_installments two_installments"
       )
       .populate({
         path: "applicationDepartment",
@@ -2847,7 +2906,6 @@ exports.oneDepartmentAllClassMaster = async (req, res) => {
       });
     }
   } catch (e) {
-    console.log(e);
     res.status(200).send({
       message: e,
     });

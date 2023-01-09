@@ -20,6 +20,10 @@ const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 const BusinessTC = require("../../models/Finance/BToC");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
+const {
+  connect_redis_hit,
+  connect_redis_miss,
+} = require("../../config/redis-config");
 
 exports.getFinanceDepart = async (req, res) => {
   try {
@@ -178,6 +182,12 @@ exports.updateBankDetail = async (req, res) => {
 exports.retrieveFinanceQuery = async (req, res) => {
   try {
     const { fid } = req.params;
+    // const is_cache = await connect_redis_hit(`Finance-Detail-${fid}`);
+    // if (is_cache?.hit)
+    //   return res.status(200).send({
+    //     message: "All Detail Finance Manager from Cache 🙌",
+    //     finance: is_cache.finance,
+    //   });
     const finance = await Finance.findById({ _id: fid })
       .select(
         "financeName financeEmail financePhoneNumber financeAbout photoId photo cover coverId financeTotalBalance financeRaisedBalance financeExemptBalance financeCollectedSBalance financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance"
@@ -192,70 +202,18 @@ exports.retrieveFinanceQuery = async (req, res) => {
           "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
       });
     // const financeEncrypt = await encryptionPayload(finance);
-    res.status(200).send({ message: "Finance", finance });
-  } catch (e) {}
-};
-
-exports.getFinanceDetail = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const finance = await Finance.findById({ _id: id })
-      .populate({
-        path: "financeHead",
-        select:
-          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
-      })
-      .populate({
-        path: "institute",
-        select: "id insName",
-      })
-      .populate({
-        path: "expenseDepartment",
-        select: "id",
-      })
-      .populate({
-        path: "classRoom",
-        populate: {
-          path: "classTeacher",
-          select:
-            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
-        },
-        select: "id",
-      })
-      .populate({
-        path: "classRoom",
-        populate: {
-          path: "receieveFee",
-          select: "feeName feeAmount",
-        },
-        select: "id",
-      })
-      .populate({
-        path: "incomeDepartment",
-        select: "id",
-      })
-      .populate({
-        path: "submitClassRoom",
-        select: "id",
-      })
-      .lean()
-      .exec();
-    // const queryEncrypt = await encryptionPayload(finance);
-    res.status(200).send({ message: "finance data", finance });
-  } catch (e) {}
-};
-
-exports.getFinanceInfo = async (req, res) => {
-  try {
-    const { fid } = req.params;
-    const { financeAbout, financeEmail, financePhoneNumber } = req.body;
-    const financeInfo = await Finance.findById({ _id: fid });
-    financeInfo.financeAbout = financeAbout;
-    financeInfo.financeEmail = financeEmail;
-    financeInfo.financePhoneNumber = financePhoneNumber;
-    await Promise.all([financeInfo.save()]);
-    res.status(200).send({ message: "Finance Info Updates" });
-  } catch (e) {}
+    // const cached = await connect_redis_miss(
+    //   `Finance-Detail-${fid}`,
+    //   finance
+    // );
+    res.status(200).send({
+      message: "Finance",
+      finance: finance,
+      // finance: cached.finance
+    });
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.getIncome = async (req, res) => {
@@ -444,110 +402,6 @@ exports.getAllExpense = async (req, res) => {
       res.status(200).send({ message: "bank data", bankExpense: expense });
     } else {
     }
-  } catch (e) {}
-};
-
-exports.getFinanceOnlineFee = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const finance = await Finance.findById({ _id: id }).populate({
-      path: "institute",
-      select: "id",
-      populate: {
-        path: "ApproveStudent",
-        select:
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
-      },
-    });
-    // const dEncrypt = await encryptionPayload(finance);
-    res
-      .status(200)
-      .send({ message: "all class data at finance manager", finance });
-  } catch {}
-};
-
-exports.getClassOnlineFee = async (req, res) => {
-  try {
-    const { cid } = req.params;
-    const { fee } = req.body;
-    const classes = await Class.findById({ _id: cid });
-    classes.onlineTotalFee = fee;
-    await classes.save();
-    // const cEncrypt = await encryptionPayload(classes.onlineTotalFee);
-    res
-      .status(200)
-      .send({ message: "class online total", classes: classes.onlineTotalFee });
-  } catch (e) {}
-};
-
-exports.getClassOfflineFee = async (req, res) => {
-  try {
-    const { cid } = req.params;
-    const { fee } = req.body;
-    const classes = await Class.findById({ _id: cid });
-    classes.offlineTotalFee = fee;
-    await classes.save();
-    // const cEncrypt = await encryptionPayload(classes.offlineTotalFee);
-    res.status(200).send({
-      message: "class offline total",
-      classes: classes.offlineTotalFee,
-    });
-  } catch (e) {}
-};
-
-exports.getClassCollectedFee = async (req, res) => {
-  try {
-    const { cid } = req.params;
-    const { fee } = req.body;
-    const classes = await Class.findById({ _id: cid });
-    classes.classTotalCollected = fee;
-    await classes.save();
-    // const cEncrypt = await encryptionPayload(classes.classTotalCollected);
-    res.status(200).send({
-      message: "class offline total",
-      classes: classes.classTotalCollected,
-    });
-  } catch (e) {}
-};
-
-exports.collectClassFee = async (req, res) => {
-  try {
-    const { fid } = req.params;
-    const finance = await Finance.findById({ _id: fid })
-      .populate({
-        path: "institute",
-        select: "id",
-        populate: {
-          path: "ApproveStudent",
-          select: "id",
-          populate: {
-            path: "onlineCheckList",
-            select: "checklistName checklistAmount",
-          },
-        },
-      })
-      .populate({
-        path: "institute",
-        select: "id",
-        populate: {
-          path: "classRooms",
-          select: "className classTitle classStatus",
-        },
-      })
-      .populate({
-        path: "institute",
-        select: "id",
-        populate: {
-          path: "ApproveStudent",
-          select: "id",
-          populate: {
-            path: "onlineFeeList",
-            select: "feeName feeAmount",
-          },
-        },
-      });
-    // const collectEncrypt = await encryptionPayload(finance);
-    res.status(200).send({ message: "Class Data", finance });
   } catch (e) {}
 };
 
@@ -824,57 +678,42 @@ exports.classOfflineFeeIncorrect = async (req, res) => {
   } catch {}
 };
 
-exports.updatePaymenFinance = async (req, res) => {
-  try {
-    const { fid } = req.params;
-    const { balance } = req.body;
-    const finance = await Finance.findById({ _id: fid });
-    finance.financeBankBalance = balance;
-    await finance.save();
-    // const bEncrypt = await encryptionPayload(finance.financeBankBalance);
-    res
-      .status(200)
-      .send({ message: "balance", bankBalance: finance.financeBankBalance });
-  } catch (e) {}
-};
-
-exports.RepayBySuperAdmin = async (req, res) => {
-  try {
-    const { aid, id } = req.params;
-    const { amount } = req.body;
-    const admin = await Admin.findById({ _id: aid });
-    var institute = await InstituteAdmin.findById({ _id: id });
-    const notify = new Notification({});
-    if (institute.insBankBalance > 0) {
-      institute.insBankBalance = institute.insBankBalance - amount;
-    }
-    institute.adminRepayAmount = institute.adminRepayAmount + amount;
-    notify.notifyContent = `Super Admin re-pay Rs. ${amount} to you`;
-    notify.notifySender = aid;
-    notify.notifyCategory = "Qviple Repayment";
-    notify.notifyReceiever = id;
-    institute.iNotify.push(notify._id);
-    notify.institute = institute._id;
-    notify.notifyBySuperAdminPhoto = "https://qviple.com/images/newLogo.svg";
-    await Promise.all([institute.save(), notify.save()]);
-    res.status(200).send({ message: "Amount Transferred" });
-  } catch {}
-};
-
 exports.retrievePaymentDetail = async (req, res) => {
   try {
     const { id } = req.params;
+    // const is_cache = await connect_redis_hit(`Finance-Ins-Bank-Detail-${id}`);
+    // if (is_cache?.hit)
+    //   return res.status(200).send({
+    //     message: "All Detail Finance Institute Bank Detail from Cache 🙌",
+    //     bank: is_cache.bank,
+    //   });
     const bank = await InstituteAdmin.findById({ _id: id }).select(
       "bankAccountHolderName paymentBankStatus bankAccountNumber bankAccountType bankAccountPhoneNumber bankIfscCode razor_key razor_id razor_account"
     );
     // const bankEncrypt = await encryptionPayload(bank);
-    res.status(200).send({ message: "Payment Detail", bank });
-  } catch {}
+    // const cached = await connect_redis_miss(
+    //   `Finance-Ins-Bank-Detail-${id}`,
+    //   bank
+    // );
+    res.status(200).send({
+      message: "Payment Detail",
+      bank: bank,
+      // bank: cached.bank
+    });
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.retrieveIncomeQuery = async (req, res) => {
   try {
     const { fid } = req.params;
+    // const is_cache = await connect_redis_hit(`Finance-All-Incomes-${fid}`);
+    // if (is_cache?.hit)
+    //   return res.status(200).send({
+    //     message: "All Incomes of Finance from Cache 🙌",
+    //     allIncome: is_cache.incomes,
+    //   });
     const finance = await Finance.findById({ _id: fid }).select(
       "financeName incomeDepartment"
     );
@@ -882,13 +721,29 @@ exports.retrieveIncomeQuery = async (req, res) => {
       _id: { $in: finance.incomeDepartment },
     }).sort("-createdAt");
     // const iEncrypt = await encryptionPayload(incomes);
-    res.status(200).send({ message: "All Incomes", allIncome: incomes });
-  } catch {}
+    // const cached = await connect_redis_miss(
+    //   `Finance-All-Incomes-${fid}`,
+    //   incomes
+    // );
+    res.status(200).send({
+      message: "All Incomes",
+      allIncome: incomes,
+      // allIncome: cached.incomes,
+    });
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.retrieveExpenseQuery = async (req, res) => {
   try {
     const { fid } = req.params;
+    // const is_cache = await connect_redis_hit(`Finance-All-Expenses-${fid}`);
+    // if (is_cache?.hit)
+    //   return res.status(200).send({
+    //     message: "All Expenses of Finance from Cache 🙌",
+    //     allIncome: is_cache.expenses,
+    //   });
     const finance = await Finance.findById({ _id: fid }).select(
       "financeName expenseDepartment"
     );
@@ -896,40 +751,84 @@ exports.retrieveExpenseQuery = async (req, res) => {
       _id: { $in: finance.expenseDepartment },
     }).sort("-createdAt");
     // const eEncrypt = await encryptionPayload(expenses);
-    res.status(200).send({ message: "All Expenses", allIncome: expenses });
+    // const cached = await connect_redis_miss(
+    //   `Finance-All-Expenses-${fid}`,
+    //   expenses
+    // );
+    res.status(200).send({
+      message: "All Expenses",
+      allIncome: expenses,
+      // allIncome: cached.expenses,
+    });
   } catch {}
 };
 
 exports.retrieveRequestAtFinance = async (req, res) => {
   try {
     const { fid } = req.params;
+    // const is_cache = await connect_redis_hit(`Finance-All-Class-Request-${fid}`);
+    // if (is_cache?.hit)
+    //   return res.status(200).send({
+    //     message: "All Class Requests at Finance from Cache 🙌",
+    //     request: is_cache.finance.classRoom,
+    //     requestCount: is_cache.finance.classRoom.length,
+    //   });
     const finance = await Finance.findById({ _id: fid })
       .select("financeName")
       .populate({
         path: "classRoom",
       });
     // Add Another Encryption
+    // const bind_request = {
+    //   request: finance.classRoom,
+    //   requestCount: finance.classRoom.length,
+    // }
+    // const cached = await connect_redis_miss(
+    //   `Finance-All-Class-Request-${fid}`,
+    //   bind_request
+    // );
     res.status(200).send({
-      message: "Get Request",
+      message: "Get All Request from DB 🙌",
       request: finance.classRoom,
       requestCount: finance.classRoom.length,
+      // request: cached.finance.classRoom,
+      // requestCount: cached.finance.classRoom.length,
     });
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.retrieveSubmitAtFinance = async (req, res) => {
   try {
     const { fid } = req.params;
+    // const is_cache = await connect_redis_hit(`Finance-All-Class-Submit-${fid}`);
+    // if (is_cache?.hit)
+    //   return res.status(200).send({
+    //     message: "All Class Submit Requests at Finance from Cache 🙌",
+    //     submit: is_cache.finance.submitClassRoom,
+    //     submitCount: is_cache.finance.submitClassRoom.length,
+    //   });
     const finance = await Finance.findById({ _id: fid })
       .select("financeName")
       .populate({
         path: "submitClassRoom",
       });
     // Add Another Encryption
+    // const bind_submit = {
+    // submit: finance.submitClassRoom,
+    // submitCount: finance.submitClassRoom.length,
+    // }
+    // const cached = await connect_redis_miss(
+    //   `Finance-All-Class-Submit-${fid}`,
+    //   bind_submit
+    // );
     res.status(200).send({
-      message: "Get Submit",
+      message: "Get All Submit from DB 🙌",
       submit: finance.submitClassRoom,
       submitCount: finance.submitClassRoom.length,
+      // submit: cached.finance.submitClassRoom,
+      // submitCount: cached.finance.submitClassRoom.length,
     });
   } catch {}
 };
@@ -937,56 +836,56 @@ exports.retrieveSubmitAtFinance = async (req, res) => {
 exports.retrieveRejectAtFinance = async (req, res) => {
   try {
     const { fid } = req.params;
+    // const is_cache = await connect_redis_hit(`Finance-All-Class-Reject-${fid}`);
+    // if (is_cache?.hit)
+    //   return res.status(200).send({
+    //     message: "All Class Reject Requests at Finance from Cache 🙌",
+    //     submit: is_cache.finance.submitClassRoom,
+    //     submitCount: is_cache.finance.submitClassRoom.length,
+    //   });
     const finance = await Finance.findById({ _id: fid })
       .select("financeName")
       .populate({
         path: "pendingClassroom",
       });
     // Add Another Encryption
+    // const bind_reject = {
+    // reject: finance.pendingClassroom,
+    // rejectCount: finance.pendingClassroom.length,
+    // }
+    // const cached = await connect_redis_miss(
+    //   `Finance-All-Class-Reject-${fid}`,
+    //   bind_reject
+    // );
     res.status(200).send({
       message: "Get Reject",
       reject: finance.pendingClassroom,
       rejectCount: finance.pendingClassroom.length,
+      // reject: cached.finance.pendingClassroom,
+      // rejectCount: cached.finance.pendingClassroom.length,
     });
   } catch (e) {
     console.log(e);
   }
 };
 
-exports.retrieveRemainingAmount = async (req, res) => {
-  try {
-    const { fid } = req.params;
-    const finance = await Finance.findById({ _id: fid });
-    const institute = await InstituteAdmin.findById({
-      _id: `${finance.institute}`,
-    })
-      .populate({
-        path: "ApproveStudent",
-        select:
-          "studentGRNO studentFirstName studentMiddleName studentLastName",
-        populate: {
-          path: "department",
-          select: "dName",
-        },
-      })
-      .populate({
-        path: "ApproveStudent",
-        select:
-          "studentGRNO studentFirstName studentMiddleName studentLastName onlineFeeList offlineFeeList onlineCheckList",
-      });
-    institute.ApproveStudent.forEach(async (ele) => {
-      const fees = await Fees.find({ _id: { $in: ele.onlineFeeList } });
-    });
-  } catch {}
-};
-
 exports.retrieveIncomeBalance = async (req, res) => {
   try {
     const { fid } = req.params;
+    // const is_cache = await connect_redis_hit(`Finance-Income-Balance-${fid}`);
+    // if (is_cache?.hit)
+    //   return res.status(200).send({
+    //     message: "All Income Balance at Finance from Cache 🙌",
+    //     incomeBalance: is_cache.finance
+    //   });
     const finance = await Finance.findById({ _id: fid }).select(
       "financeIncomeCashBalance financeIncomeBankBalance"
     );
     // const incomeEncrypt = await encryptionPayload(finance);
+    // const cached = await connect_redis_miss(
+    //   `Finance-All-Class-Reject-${fid}`,
+    //   bind_reject
+    // );
     res.status(200).send({ message: "Income Balance", incomeBalance: finance });
   } catch (e) {
     // console.log(e)
@@ -1262,7 +1161,7 @@ exports.retrieveOneEmpQuery = async (req, res) => {
         select:
           "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO institute",
       });
-      const dEncrypt = await encryptionPayload(emp);
+      // const dEncrypt = await encryptionPayload(emp);
       res.status(200).send({ message: "One Employee Detail ", detail: emp });
     } else if (type === "History") {
       const emp = await Payroll.findById({ _id: eid }).populate({

@@ -4,7 +4,34 @@ const Answer = require("../../models/Question/Answer");
 const User = require("../../models/User");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const Staff = require("../../models/Staff");
+const Student = require("../../models/Student");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
+
+// exports.allUsers = async (req, res) => {
+//   try {
+//     const user = await User.find({})
+//       .select("id username userPosts")
+//       .sort("-createdAt")
+//       .lean()
+//       .exec();
+
+//     var query = [];
+//     user?.forEach(async (post) => {
+//       const posts = await Post.find({ _id: { $in: post?.userPosts } }).select(
+//         "_id"
+//       );
+//       query.push(...posts);
+//     });
+//     res.status(200).send({
+//       message: "All Post Id",
+//       allIds: user,
+//       count: user?.length,
+//       query: query,
+//     });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
 
 exports.allPosts = async (req, res) => {
   try {
@@ -46,7 +73,7 @@ exports.allPolls = async (req, res) => {
 
 exports.allPostById = async (req, res) => {
   try {
-    const post = await User.find({}).select("is_mentor staff");
+    const post = await InstituteAdmin.find({}).select(" insName staffJoinCode");
     res.status(200).send({ message: "All Poll Id", allIds: post });
   } catch {}
 };
@@ -233,6 +260,17 @@ exports.oneUser = async (req, res) => {
 exports.deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.allLogs = async (req, res) => {
+  try {
+    const logs = await Student.find({}).select(
+      "studentFirstName studentDocuments studentAadharFrontCard"
+    );
+    res.status(200).send({ message: "All Student Documents", logs });
   } catch (e) {
     console.log(e);
   }

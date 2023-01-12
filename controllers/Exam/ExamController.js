@@ -982,9 +982,12 @@ exports.oneStudentReportCardFinalize = async (req, res) => {
             : "PASS",
       });
       const backlogSub = await Subject.findById(subject._id);
-      if (subject.subjectCutoff > Math.round(subject.obtainTotalMarks))
+      if (subject.subjectCutoff > Math.round(subject.obtainTotalMarks)) {
         backlogSub.backlog.push(req.params.sid);
-      else backlogSub.backlog.push(req.params.sid);
+        backlogSub.backlogStudentCount += 1;
+      } else {
+        backlogSub.pass.push(req.params.sid);
+      }
       await backlogSub.save();
     }
     const classes = await Class.findById(student?.studentClass);
@@ -1082,5 +1085,193 @@ exports.oneStudentReportCardFinalizeGraceUpdate = async (req, res) => {
   } catch (e) {
     console.log(e);
     res.status(424).send({ message: e });
+  }
+};
+
+exports.retrieveBacklogClassMaster = async (req, res) => {
+  try {
+    const { did } = req.params;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const depart = await Department.findById({ _id: did }).select(
+      "departmentClassMasters"
+    );
+
+    const class_masters = await ClassMaster.find({
+      _id: { $in: depart?.departmentClassMasters },
+    })
+      .limit(limit)
+      .skip(skip)
+      .select("className classCount");
+
+    if (class_masters?.length > 0) {
+      // const cMasterEncrypt = await encryptionPayload(class_masters)
+      res.status(200).send({
+        message: "Bulk of Class Masters Heavy Load 😀",
+        access: true,
+        masters: class_masters,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Class Masters Avaliable 😡",
+        access: false,
+        masters: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveOneBacklogClassMasterSubjects = async (req, res) => {
+  try {
+    const { cmid } = req.params;
+    var subject_array = [];
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!cmid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const classes = await Class.find({ masterClassName: cmid });
+    for (var cli of classes) {
+      subject_array.push(...cli?.subject);
+    }
+
+    const subjects = await Subject.find({ _id: { $in: subject_array } })
+      .limit(limit)
+      .skip(skip)
+      .select("subjectName backlogStudentCount");
+
+    if (subjects?.length > 0) {
+      // const sMasterEncrypt = await encryptionPayload(subjects)
+      res.status(200).send({
+        message: "Lot's of work due to many subjects 😀",
+        access: true,
+        subjects: subjects,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Available Subjects 😡",
+        access: false,
+        subjects: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveBacklogOneSubjectStudent = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+
+    const one_subject = await Subject.findById({ _id: sid }).select("backlog");
+
+    const student_array = await Student.find({
+      _id: { $in: one_subject?.backlog },
+    })
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto"
+      )
+      .populate({
+        path: "studentClass",
+        select: "className classTitle",
+      })
+      .populate({
+        path: "batches",
+        select: "batchName",
+      });
+
+    if (student_array?.length > 0) {
+      // const sEncrypt = await encryptionPayload(student_array)
+      res.status(200).send({
+        message: "Lot's of work due to many backlog students 😀",
+        access: true,
+        student_array: student_array,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Available backlog students 😡",
+        access: false,
+        student_array: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveBacklogOneStudentSubjects = async (req, res) => {
+  try {
+    const { pyid } = req.params;
+    if (!pyid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const previous_back = await StudentPreviousData.findById({
+      _id: pyid,
+    }).select("student");
+
+    const one_student = await Student.findById({
+      _id: previous_back?.student,
+    }).select("finalReport");
+
+    const final_data = await FinalReport.findById({
+      _id: one_student?.finalReport[0],
+    })
+      .select("_id")
+      .populate({
+        path: "subjects",
+        select: "subject",
+        populate: {
+          path: "subject",
+          select: "subjectName",
+        },
+      })
+      .populate({
+        path: "classId",
+        select: "className classTitle",
+        populate: {
+          path: "batch",
+          select: "batchName",
+        },
+      });
+
+    if (final_data?.subjects?.length > 0) {
+      // const finalEncrypt = await encryptionPayload(final_data?.subjects)
+      res.status(200).send({
+        message: "Get Ready for Preparation once again 😀",
+        access: true,
+        subjects: final_data?.subjects,
+      });
+    } else {
+      res.status(200).send({
+        message: "Yeah enjoy party 😡",
+        access: false,
+        subjects: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
   }
 };

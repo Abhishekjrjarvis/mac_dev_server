@@ -91,4 +91,26 @@ router
     catchAsync(examController.oneStudentReportCardFinalizeGraceUpdate)
   );
 
+router
+  .route("/backlog/class/master/:did")
+  .get(isLoggedIn, catchAsync(examController.retrieveBacklogClassMaster));
+
+router
+  .route("/backlog/one/master/:cmid/subjects")
+  .get(
+    isLoggedIn,
+    catchAsync(examController.retrieveOneBacklogClassMasterSubjects)
+  );
+
+router
+  .route("/backlog/one/subject/:sid/students")
+  .get(isLoggedIn, catchAsync(examController.retrieveBacklogOneSubjectStudent));
+
+router
+  .route("/backlog/one/previous/student/:pyid/subject")
+  .get(
+    isLoggedIn,
+    catchAsync(examController.retrieveBacklogOneStudentSubjects)
+  );
+
 module.exports = router;

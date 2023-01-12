@@ -73,47 +73,6 @@ router.get(
 router.post(
   "/:uid/user/:aid/apply",
   // isLoggedIn,
-  upload.fields([
-    {
-      name: "file",
-    },
-    {
-      name: "addharFrontCard",
-    },
-    {
-      name: "addharBackCard",
-    },
-    {
-      name: "bankPassbook",
-    },
-    {
-      name: "casteCertificate",
-    },
-    {
-      name: "identityDocument",
-    },
-    {
-      name: "joiningTransferLetter",
-    },
-    {
-      name: "leavingTransferCertificate",
-    },
-    {
-      name: "incomeCertificate",
-    },
-    {
-      name: "lastYearMarksheet",
-    },
-    {
-      name: "nationalityCertificate",
-    },
-    {
-      name: "domicileCertificate",
-    },
-    {
-      name: "nonCreamyLayerCertificate",
-    },
-  ]),
   catchAsync(Admission.retrieveAdmissionReceievedApplication)
 );
 
@@ -161,7 +120,7 @@ router.post(
 
 // One Student Cancel at Selected
 router.post(
-  "/:sid/student/:aid/cancel",
+  "/:sid/student/:aid/cancel/app",
   isLoggedIn,
   catchAsync(Admission.retrieveAdmissionCancelApplication)
 );

@@ -549,35 +549,26 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
     });
     const status = new Status({});
     const studentOptionalSubject = req.body?.optionalSubject
-      ? JSON.parse(req.body?.optionalSubject)
+      ? req.body?.optionalSubject
       : [];
-    for (let fileObject in req.files) {
-      for (let singleFile of req.files[fileObject]) {
-        if (fileObject === "file") {
-          const width = 200;
-          const height = 200;
-          const results = await uploadFile(singleFile, width, height);
-          student.photoId = "0";
-          student.studentProfilePhoto = results.Key;
-          await unlinkFile(singleFile.path);
-        } else {
-          const uploadedFile = await file_to_aws(singleFile);
-          if (fileObject === "addharFrontCard")
-            student.studentAadharFrontCard = uploadedFile.documentKey;
-          else if (fileObject === "addharBackCard")
-            student.studentAadharBackCard = uploadedFile.documentKey;
-          else if (fileObject === "bankPassbook")
-            student.studentBankPassbook = uploadedFile.documentKey;
-          else if (fileObject === "casteCertificate")
-            student.studentCasteCertificatePhoto = uploadedFile.documentKey;
-          else {
-            student.studentDocuments.push({
-              documentName: fileObject,
-              documentKey: uploadedFile.documentKey,
-              documentType: uploadedFile.documentType,
-            });
-          }
-        }
+    for (var file of req.body?.fileArray) {
+      if (file.name === "file") {
+        student.photoId = "0";
+        student.studentProfilePhoto = file.key;
+      } else if (file.name === "addharFrontCard")
+        student.studentAadharFrontCard = file.key;
+      else if (file.name === "addharBackCard")
+        student.studentAadharBackCard = file.key;
+      else if (file.name === "bankPassbook")
+        student.studentBankPassbook = file.key;
+      else if (file.name === "casteCertificate")
+        student.studentCasteCertificatePhoto = file.key;
+      else {
+        student.studentDocuments.push({
+          documentName: file.name,
+          documentKey: file.key,
+          documentType: file.type,
+        });
       }
     }
     if (studentOptionalSubject?.length > 0) {

@@ -101,6 +101,10 @@ const subjectSchema = new mongoose.Schema({
       ref: "Student",
     },
   ],
+  backlogStudentCount: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Subject = mongoose.model("Subject", subjectSchema);

@@ -32,6 +32,7 @@ const { todayDate } = require("../../Utilities/timeComparison");
 const { randomSixCode } = require("../../Service/close");
 const unlinkFile = util.promisify(fs.unlink);
 const { file_to_aws } = require("../../Utilities/uploadFileAws");
+const { shuffleArray } = require("../../Utilities/Shuffle");
 
 exports.getDashOneQuery = async (req, res) => {
   try {
@@ -862,33 +863,23 @@ exports.fillStaffForm = async (req, res) => {
     const institute = await InstituteAdmin.findById({ _id: id });
     const user = await User.findById({ _id: uid });
     const staff = new Staff({ ...req.body });
-    for (let fileObject in req.files) {
-      for (let singleFile of req.files[fileObject]) {
-        if (fileObject === "file") {
-          const width = 200;
-          const height = 200;
-          const results = await uploadFile(singleFile, width, height);
-          staff.photoId = "0";
-          staff.staffProfilePhoto = results.Key;
-          await unlinkFile(singleFile.path);
-        } else {
-          const uploadedFile = await file_to_aws(singleFile);
-          if (fileObject === "addharFrontCard")
-            staff.staffAadharFrontCard = uploadedFile.documentKey;
-          else if (fileObject === "addharBackCard")
-            staff.staffAadharBackCard = uploadedFile.documentKey;
-          else if (fileObject === "bankPassbook")
-            staff.staffBankPassbook = uploadedFile.documentKey;
-          else if (fileObject === "casteCertificate")
-            staff.staffCasteCertificatePhoto = uploadedFile.documentKey;
-          else {
-            staff.staffDocuments.push({
-              documentName: fileObject,
-              documentKey: uploadedFile.documentKey,
-              documentType: uploadedFile.documentType,
-            });
-          }
-        }
+    for (var file of req.body?.fileArray) {
+      if (file.name === "file") {
+        staff.photoId = "0";
+        staff.staffProfilePhoto = file.key;
+      } else if (file.name === "addharFrontCard")
+        staff.staffAadharFrontCard = file.key;
+      else if (file.name === "addharBackCard")
+        staff.staffAadharBackCard = file.key;
+      else if (file.name === "bankPassbook") staff.staffBankPassbook = file.key;
+      else if (file.name === "casteCertificate")
+        staff.staffCasteCertificatePhoto = file.key;
+      else {
+        staff.staffDocuments.push({
+          documentName: file.name,
+          documentKey: file.key,
+          documentType: file.type,
+        });
       }
     }
     const notify = new Notification({});
@@ -944,35 +935,26 @@ exports.fillStudentForm = async (req, res) => {
     const classStaff = await Staff.findById({ _id: `${classes.classTeacher}` });
     const classUser = await User.findById({ _id: `${classStaff.user}` });
     const studentOptionalSubject = req.body?.optionalSubject
-      ? JSON.parse(req.body?.optionalSubject)
+      ? req.body?.optionalSubject
       : [];
-    for (let fileObject in req.files) {
-      for (let singleFile of req.files[fileObject]) {
-        if (fileObject === "file") {
-          const width = 200;
-          const height = 200;
-          const results = await uploadFile(singleFile, width, height);
-          student.photoId = "0";
-          student.studentProfilePhoto = results.Key;
-          await unlinkFile(singleFile.path);
-        } else {
-          const uploadedFile = await file_to_aws(singleFile);
-          if (fileObject === "addharFrontCard")
-            student.studentAadharFrontCard = uploadedFile.documentKey;
-          else if (fileObject === "addharBackCard")
-            student.studentAadharBackCard = uploadedFile.documentKey;
-          else if (fileObject === "bankPassbook")
-            student.studentBankPassbook = uploadedFile.documentKey;
-          else if (fileObject === "casteCertificate")
-            student.studentCasteCertificatePhoto = uploadedFile.documentKey;
-          else {
-            student.studentDocuments.push({
-              documentName: fileObject,
-              documentKey: uploadedFile.documentKey,
-              documentType: uploadedFile.documentType,
-            });
-          }
-        }
+    for (var file of req.body?.fileArray) {
+      if (file.name === "file") {
+        student.photoId = "0";
+        student.studentProfilePhoto = file.key;
+      } else if (file.name === "addharFrontCard")
+        student.studentAadharFrontCard = file.key;
+      else if (file.name === "addharBackCard")
+        student.studentAadharBackCard = file.key;
+      else if (file.name === "bankPassbook")
+        student.studentBankPassbook = file.key;
+      else if (file.name === "casteCertificate")
+        student.studentCasteCertificatePhoto = file.key;
+      else {
+        student.studentDocuments.push({
+          documentName: file.name,
+          documentKey: file.key,
+          documentType: file.type,
+        });
       }
     }
     if (studentOptionalSubject?.length > 0) {
@@ -2315,10 +2297,13 @@ exports.retrieveInsFollowersArray = async (req, res) => {
       .limit(limit)
       .skip(skip);
     // Add Another Encryption
+    var mergeArray = [...followers, ...uFollowers];
+    var get_array = shuffleArray(mergeArray);
     res.status(200).send({
       message: "Followers List",
       iFollowers: followers,
       uFollowers: uFollowers,
+      mergerArray: get_array,
     });
   } catch (e) {
     console.log(e);

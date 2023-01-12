@@ -40,3 +40,41 @@ exports.randomFourCode = async () => {
   const pattern = `${r_1}${r_2}${r_3}${r_4}${r_5}${r_6}`;
   return pattern;
 };
+
+exports.dailyUpdateTimer = async () => {
+  const day =
+    new Date().getDate() < 10
+      ? `0${new Date().getDate()}`
+      : new Date().getDate();
+  const month =
+    new Date().getMonth() + 1 < 10
+      ? `0${new Date().getMonth() + 1}`
+      : new Date().getMonth() + 1;
+  const year = new Date().getFullYear();
+
+  var r_date = new Date();
+  var r_l_date = new Date(r_date);
+  r_l_date.setDate(r_l_date.getDate() + 1);
+  const nextDay =
+    r_l_date.getDate() < 10 ? `0${r_l_date.getDate()}` : r_l_date.getDate();
+  const nextMonth =
+    r_l_date.getMonth() + 1 < 10
+      ? `0${r_l_date.getMonth() + 1}`
+      : r_l_date.getMonth() + 1;
+  const nextYear = r_l_date.getFullYear();
+  const today = {
+    day: day,
+    month: month,
+    year: year,
+  };
+  const next = {
+    nextDay: nextDay,
+    nextMonth: nextMonth,
+    nextYear: nextYear,
+  };
+  const combined = {
+    today: today,
+    next: next,
+  };
+  return combined;
+};

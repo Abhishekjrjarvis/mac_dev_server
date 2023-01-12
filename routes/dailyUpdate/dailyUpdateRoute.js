@@ -6,6 +6,7 @@ const dailyUpdateController = require("../../controllers/DailyUpdate/dailyUpdate
 const catchAsync = require("../../Utilities/catchAsync");
 const { isLoggedIn } = require("../../middleware");
 
+// Fix Daily Update Create
 router
   .route("/subject/:sid")
   .get(isLoggedIn, catchAsync(dailyUpdateController.getAlldailyUpdate))

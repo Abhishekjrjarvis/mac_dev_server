@@ -1188,7 +1188,7 @@ exports.searchByClassCode = async (req, res) => {
         message: "Check All Details 🔍",
         seen: true,
         one_ins,
-        classes: classes?.classStatus === "UnCompleted" ? classes : "",
+        classes: classes?.classStatus === "UnCompleted" ? classes : null,
       });
     } else {
       res.status(200).send({
@@ -1267,7 +1267,7 @@ const filter_unique_username = async (name, dob) => {
 exports.retrieveDirectJoinQuery = async (req, res) => {
   try {
     const { id } = req.params;
-    const { sample_pic } = req.body;
+    const { sample_pic, fileArray } = req.body;
     if (
       !id &&
       !req.body.studentCode &&
@@ -1364,36 +1364,27 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
       });
       const classUser = await User.findById({ _id: `${classStaff.user}` });
       const studentOptionalSubject = req.body?.optionalSubject
-        ? JSON.parse(req.body?.optionalSubject)
+        ? req.body?.optionalSubject
         : [];
-      for (let fileObject in req.files) {
-        for (let singleFile of req.files[fileObject]) {
-          if (fileObject === "file") {
-            const width = 200;
-            const height = 200;
-            const results = await uploadFile(singleFile, width, height);
-            student.photoId = "0";
-            student.studentProfilePhoto = results.Key;
-            user.profilePhoto = results.Key;
-            await unlinkFile(singleFile.path);
-          } else {
-            const uploadedFile = await file_to_aws(singleFile);
-            if (fileObject === "addharFrontCard")
-              student.studentAadharFrontCard = uploadedFile.documentKey;
-            else if (fileObject === "addharBackCard")
-              student.studentAadharBackCard = uploadedFile.documentKey;
-            else if (fileObject === "bankPassbook")
-              student.studentBankPassbook = uploadedFile.documentKey;
-            else if (fileObject === "casteCertificate")
-              student.studentCasteCertificatePhoto = uploadedFile.documentKey;
-            else {
-              student.studentDocuments.push({
-                documentName: fileObject,
-                documentKey: uploadedFile.documentKey,
-                documentType: uploadedFile.documentType,
-              });
-            }
-          }
+      for (var file of fileArray) {
+        if (file.name === "file") {
+          student.photoId = "0";
+          student.studentProfilePhoto = file.key;
+          user.profilePhoto = file.key;
+        } else if (file.name === "addharFrontCard")
+          student.studentAadharFrontCard = file.key;
+        else if (file.name === "addharBackCard")
+          student.studentAadharBackCard = file.key;
+        else if (file.name === "bankPassbook")
+          student.studentBankPassbook = file.key;
+        else if (file.name === "casteCertificate")
+          student.studentCasteCertificatePhoto = file.key;
+        else {
+          student.studentDocuments.push({
+            documentName: file.name,
+            documentKey: file.key,
+            documentType: file.type,
+          });
         }
       }
       if (studentOptionalSubject?.length > 0) {
@@ -1486,7 +1477,7 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
 exports.retrieveDirectJoinStaffQuery = async (req, res) => {
   try {
     const { id } = req.params;
-    const { sample_pic } = req.body;
+    const { sample_pic, fileArray } = req.body;
     if (
       !id &&
       !req.body.staffCode &&
@@ -1577,34 +1568,25 @@ exports.retrieveDirectJoinStaffQuery = async (req, res) => {
         staffJoinCode: req.body.staffCode,
       });
       const staff = new Staff({ ...req.body });
-      for (let fileObject in req.files) {
-        for (let singleFile of req.files[fileObject]) {
-          if (fileObject === "file") {
-            const width = 200;
-            const height = 200;
-            const results = await uploadFile(singleFile, width, height);
-            staff.photoId = "0";
-            staff.staffProfilePhoto = results.Key;
-            user.profilePhoto = results.Key;
-            await unlinkFile(singleFile.path);
-          } else {
-            const uploadedFile = await file_to_aws(singleFile);
-            if (fileObject === "addharFrontCard")
-              staff.staffAadharFrontCard = uploadedFile.documentKey;
-            else if (fileObject === "addharBackCard")
-              staff.staffAadharBackCard = uploadedFile.documentKey;
-            else if (fileObject === "bankPassbook")
-              staff.staffBankPassbook = uploadedFile.documentKey;
-            else if (fileObject === "casteCertificate")
-              staff.staffCasteCertificatePhoto = uploadedFile.documentKey;
-            else {
-              staff.staffDocuments.push({
-                documentName: fileObject,
-                documentKey: uploadedFile.documentKey,
-                documentType: uploadedFile.documentType,
-              });
-            }
-          }
+      for (var file of fileArray) {
+        if (file.name === "file") {
+          staff.photoId = "0";
+          staff.staffProfilePhoto = file.key;
+          user.profilePhoto = file.key;
+        } else if (file.name === "addharFrontCard")
+          staff.staffAadharFrontCard = file.key;
+        else if (file.name === "addharBackCard")
+          staff.staffAadharBackCard = file.key;
+        else if (file.name === "bankPassbook")
+          staff.staffBankPassbook = file.key;
+        else if (file.name === "casteCertificate")
+          staff.staffCasteCertificatePhoto = file.key;
+        else {
+          staff.staffDocuments.push({
+            documentName: file.name,
+            documentKey: file.key,
+            documentType: file.type,
+          });
         }
       }
       if (sample_pic) {
@@ -1673,7 +1655,7 @@ exports.retrieveDirectJoinStaffQuery = async (req, res) => {
 exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
   try {
     const { id, aid } = req.params;
-    const { sample_pic } = req.body;
+    const { sample_pic, fileArray } = req.body;
     if (
       !id &&
       !aid &&
@@ -1770,36 +1752,27 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
       });
       const status = new Status({});
       const studentOptionalSubject = req.body?.optionalSubject
-        ? JSON.parse(req.body?.optionalSubject)
+        ? req.body?.optionalSubject
         : [];
-      for (let fileObject in req.files) {
-        for (let singleFile of req.files[fileObject]) {
-          if (fileObject === "file") {
-            const width = 200;
-            const height = 200;
-            const results = await uploadFile(singleFile, width, height);
-            student.photoId = "0";
-            student.studentProfilePhoto = results.Key;
-            user.profilePhoto = results.Key;
-            await unlinkFile(singleFile.path);
-          } else {
-            const uploadedFile = await file_to_aws(singleFile);
-            if (fileObject === "addharFrontCard")
-              student.studentAadharFrontCard = uploadedFile.documentKey;
-            else if (fileObject === "addharBackCard")
-              student.studentAadharBackCard = uploadedFile.documentKey;
-            else if (fileObject === "bankPassbook")
-              student.studentBankPassbook = uploadedFile.documentKey;
-            else if (fileObject === "casteCertificate")
-              student.studentCasteCertificatePhoto = uploadedFile.documentKey;
-            else {
-              student.studentDocuments.push({
-                documentName: fileObject,
-                documentKey: uploadedFile.documentKey,
-                documentType: uploadedFile.documentType,
-              });
-            }
-          }
+      for (var file of fileArray) {
+        if (file.name === "file") {
+          student.photoId = "0";
+          student.studentProfilePhoto = file.key;
+          user.profilePhoto = file.key;
+        } else if (file.name === "addharFrontCard")
+          student.studentAadharFrontCard = file.key;
+        else if (file.name === "addharBackCard")
+          student.studentAadharBackCard = file.key;
+        else if (file.name === "bankPassbook")
+          student.studentBankPassbook = file.key;
+        else if (file.name === "casteCertificate")
+          student.studentCasteCertificatePhoto = file.key;
+        else {
+          student.studentDocuments.push({
+            documentName: file.name,
+            documentKey: file.key,
+            documentType: file.type,
+          });
         }
       }
       if (studentOptionalSubject?.length > 0) {
@@ -1869,7 +1842,7 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
 exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
   try {
     const { id, cid } = req.params;
-    const { sample_pic } = req.body;
+    const { sample_pic, fileArray } = req.body;
     if (
       !id &&
       !cid &&
@@ -1967,36 +1940,27 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       });
       const classUser = await User.findById({ _id: `${classStaff.user}` });
       const studentOptionalSubject = req.body?.optionalSubject
-        ? JSON.parse(req.body?.optionalSubject)
+        ? req.body?.optionalSubject
         : [];
-      for (let fileObject in req.files) {
-        for (let singleFile of req.files[fileObject]) {
-          if (fileObject === "file") {
-            const width = 200;
-            const height = 200;
-            const results = await uploadFile(singleFile, width, height);
-            student.photoId = "0";
-            student.studentProfilePhoto = results.Key;
-            user.profilePhoto = results.Key;
-            await unlinkFile(singleFile.path);
-          } else {
-            const uploadedFile = await file_to_aws(singleFile);
-            if (fileObject === "addharFrontCard")
-              student.studentAadharFrontCard = uploadedFile.documentKey;
-            else if (fileObject === "addharBackCard")
-              student.studentAadharBackCard = uploadedFile.documentKey;
-            else if (fileObject === "bankPassbook")
-              student.studentBankPassbook = uploadedFile.documentKey;
-            else if (fileObject === "casteCertificate")
-              student.studentCasteCertificatePhoto = uploadedFile.documentKey;
-            else {
-              student.studentDocuments.push({
-                documentName: fileObject,
-                documentKey: uploadedFile.documentKey,
-                documentType: uploadedFile.documentType,
-              });
-            }
-          }
+      for (var file of fileArray) {
+        if (file.name === "file") {
+          student.photoId = "0";
+          student.studentProfilePhoto = file.key;
+          user.profilePhoto = file.key;
+        } else if (file.name === "addharFrontCard")
+          student.studentAadharFrontCard = file.key;
+        else if (file.name === "addharBackCard")
+          student.studentAadharBackCard = file.key;
+        else if (file.name === "bankPassbook")
+          student.studentBankPassbook = file.key;
+        else if (file.name === "casteCertificate")
+          student.studentCasteCertificatePhoto = file.key;
+        else {
+          student.studentDocuments.push({
+            documentName: file.name,
+            documentKey: file.key,
+            documentType: file.type,
+          });
         }
       }
       if (studentOptionalSubject?.length > 0) {
@@ -2087,6 +2051,205 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
           `${student.studentFirstName} ${
             student.studentMiddleName ? student.studentMiddleName : ""
           } ${student.studentLastName}`,
+          institute?.insName,
+          classes?.classTitle
+        );
+      } else {
+      }
+      res.status(200).send({
+        message: "Direct Institute Account Creation Process Completed 😀✨",
+        status: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "Bug in the direct joining process 😡",
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
+  try {
+    const { id, insId } = req.params;
+    const { sample_pic, fileArray } = req.body;
+    if (
+      !id &&
+      !insId &&
+      !req.body.staffFirstName &&
+      !req.body.staffLastName &&
+      !req.body.staffGender &&
+      !req.body.staffDOB
+    )
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const valid = await filter_unique_username(
+      req.body.staffFirstName,
+      req.body.staffDOB
+    );
+    if (!valid?.exist) {
+      const genUserPass = bcrypt.genSaltSync(12);
+      const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
+      var user = new User({
+        userLegalName: `${req.body.staffFirstName}${
+          req.body.staffMiddleName ? req.body.staffMiddleName : ""
+        }${req.body.staffLastName ? req.body.staffLastName : ""}`,
+        userGender: req.body.staffGender,
+        userDateOfBirth: req.body.staffDOB,
+        username: valid?.username,
+        userStatus: "Approved",
+        userPhoneNumber: id,
+        userPassword: hashUserPass,
+        photoId: "0",
+        coverId: "2",
+        remindLater: rDate,
+        next_date: c_date,
+      });
+      admins.users.push(user);
+      admins.userCount += 1;
+      await Promise.all([admins.save(), user.save()]);
+      var uInstitute = await InstituteAdmin.findOne({
+        isUniversal: "Universal",
+      })
+        .select("id userFollowersList followersCount")
+        .populate({ path: "posts" });
+      if (uInstitute && uInstitute.posts && uInstitute.posts.length >= 1) {
+        const post = await Post.find({
+          _id: { $in: uInstitute.posts },
+          postStatus: "Anyone",
+        });
+        post.forEach(async (ele) => {
+          user.userPosts.push(ele);
+        });
+        await user.save();
+      }
+      //
+      var b_date = user.userDateOfBirth.slice(8, 10);
+      var b_month = user.userDateOfBirth.slice(5, 7);
+      var b_year = user.userDateOfBirth.slice(0, 4);
+      if (b_date > p_date) {
+        p_date = p_date + month[b_month - 1];
+        p_month = p_month - 1;
+      }
+      if (b_month > p_month) {
+        p_year = p_year - 1;
+        p_month = p_month + 12;
+      }
+      var get_cal_year = p_year - b_year;
+      if (get_cal_year > 13) {
+        user.ageRestrict = "No";
+      } else {
+        user.ageRestrict = "Yes";
+      }
+      await user.save();
+      //
+      if (uInstitute?.userFollowersList?.includes(`${user._id}`)) {
+      } else {
+        uInstitute.userFollowersList.push(user._id);
+        uInstitute.followersCount += 1;
+        user.userInstituteFollowing.push(uInstitute._id);
+        user.followingUICount += 1;
+        await Promise.all([uInstitute.save(), user.save()]);
+        const posts = await Post.find({ author: `${uInstitute._id}` });
+        posts.forEach(async (ele) => {
+          ele.authorFollowersCount = uInstitute.followersCount;
+          await ele.save();
+        });
+      }
+      const institute = await InstituteAdmin.findById({
+        _id: insId,
+      });
+      const staff = new Staff({ ...req.body });
+      for (var file of fileArray) {
+        if (file.name === "file") {
+          staff.photoId = "0";
+          staff.staffProfilePhoto = file.key;
+          user.profilePhoto = file.key;
+        } else if (file.name === "addharFrontCard")
+          staff.staffAadharFrontCard = file.key;
+        else if (file.name === "addharBackCard")
+          staff.staffAadharBackCard = file.key;
+        else if (file.name === "bankPassbook")
+          staff.staffBankPassbook = file.key;
+        else if (file.name === "casteCertificate")
+          staff.staffCasteCertificatePhoto = file.key;
+        else {
+          staff.staffDocuments.push({
+            documentName: file.name,
+            documentKey: file.key,
+            documentType: file.type,
+          });
+        }
+      }
+      if (sample_pic) {
+        user.profilePhoto = sample_pic;
+        staff.photoId = "0";
+        staff.staffProfilePhoto = sample_pic;
+      }
+      const notify = new Notification({});
+      const aStatus = new Status({});
+      institute.staff.push(staff._id);
+      user.staff.push(staff._id);
+      user.is_mentor = true;
+      institute.joinedPost.push(user._id);
+      if (institute.userFollowersList.includes(user?._id)) {
+      } else {
+        user.userInstituteFollowing.push(institute?._id);
+        user.followingUICount += 1;
+        institute.userFollowersList.push(user?._id);
+        institute.followersCount += 1;
+      }
+      staff.institute = institute._id;
+      staff.staffApplyDate = new Date().toISOString();
+      staff.user = user._id;
+      notify.notifyContent = `${staff.staffFirstName}${
+        staff.staffMiddleName ? ` ${staff.staffMiddleName}` : ""
+      } ${staff.staffLastName} has been applied for role of Staff`;
+      notify.notifySender = staff._id;
+      notify.notifyReceiever = institute._id;
+      institute.iNotify.push(notify._id);
+      notify.institute = institute._id;
+      notify.notifyByStaffPhoto = staff._id;
+      notify.notifyCategory = "Request Staff";
+      aStatus.content = `Your application for joining as staff in ${institute.insName} is filled successfully.Tap here to see username ${user?.username}`;
+      user.applicationStatus.push(aStatus._id);
+      aStatus.see_secure = true;
+      await Promise.all([
+        staff.save(),
+        institute.save(),
+        user.save(),
+        notify.save(),
+        aStatus.save(),
+      ]);
+      if (institute.sms_lang === "en") {
+        await directESMSQuery(
+          user?.userPhoneNumber,
+          `${staff.staffFirstName} ${
+            staff.staffMiddleName ? staff.staffMiddleName : ""
+          } ${staff.staffLastName}`,
+          institute?.insName,
+          classes?.classTitle
+        );
+      } else if (institute.sms_lang === "hi") {
+        await directHSMSQuery(
+          user?.userPhoneNumber,
+          `${staff.staffFirstName} ${
+            staff.staffMiddleName ? staff.staffMiddleName : ""
+          } ${staff.staffLastName}`,
+          institute?.insName,
+          classes?.classTitle
+        );
+      } else if (institute.sms_lang === "mr") {
+        await directMSMSQuery(
+          user?.userPhoneNumber,
+          `${staff.staffFirstName} ${
+            staff.staffMiddleName ? staff.staffMiddleName : ""
+          } ${staff.staffLastName}`,
           institute?.insName,
           classes?.classTitle
         );

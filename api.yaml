@@ -483,6 +483,80 @@ paths:
       responses:
         "200":
           description: OK
+  
+  /api/v1/auth/direct/join/staff/{id}/institute/{insId}:
+    post:
+      tags:
+        - Login And Logout Api
+      summary: In Institute Side Add Direct Staff joining + creation with user A/c -(verified )
+      produces:
+        - application/json
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is user phone number
+        - in: path
+          name: insId
+          required: true
+          type: string
+          description: This is Institute Id
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your staff profile photo
+        - in: formData
+          name: staffFirstName
+          type: string
+          required: true
+          description: staff first name
+        - in: formData
+          name: staffMiddleName
+          type: string
+          required: true
+          description: staff middle name
+        - in: formData
+          name: staffLastName
+          type: string
+          required: true
+          description: staff last name
+        - in: formData
+          name: staffDOB
+          type: string
+          required: true
+          description: staff staffDOB
+        - in: formData
+          name: staffGender
+          type: string
+          required: true
+          description: staff staffGender
+        - in: formData
+          name: staffMotherName
+          type: string
+          required: true
+          description: staff staffMotherName
+        - in: formData
+          name: staffCastCategory
+          type: string
+          required: true
+          description: staff staffCastCategory
+        - in: formData
+          name: staffReligion
+          type: string
+          required: true
+          description: staff staffReligion
+        - in: formData
+          name: sample_pic
+          type: string
+          required: false
+          description: This is for default Avatar
+      responses:
+        "200":
+          description: OK
 
     #This is for all account forget process 
 
@@ -18233,6 +18307,115 @@ paths:
           required: true
           type: string
           description: Enter New staff id
+      responses:
+        "200":
+          description: OK
+
+
+# Backlog Api Module
+
+  /api/v1/exam/backlog/class/master/{did}:
+    get:
+      tags:
+        - Backlog Module
+      summary: Get All Masters - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: Enter Department Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/backlog/one/master/{cmid}/subjects:
+    get:
+      tags:
+        - Backlog Module
+      summary: Get All Subjects Of One Class Master - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cmid
+          required: true
+          type: string
+          description: Enter One Class Master Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/backlog/one/subject/{sid}/students:
+    get:
+      tags:
+        - Backlog Module
+      summary: Get All Students Of One Selected Subjects - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Subject Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/backlog/one/previous/student/{pyid}/subject:
+    get:
+      tags:
+        - Backlog Module
+      summary: Get All Subjects Of One Selected Previous Students - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pyid
+          required: true
+          type: string
+          description: Enter Previous Year Data Id
       responses:
         "200":
           description: OK

@@ -10,6 +10,7 @@ const { dailyChatFirebaseQuery } = require("../../Firebase/dailyChat");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
+const { dailyUpdateTimer } = require("../../Service/close");
 
 exports.getAlldailyUpdate = async (req, res) => {
   try {
@@ -45,7 +46,6 @@ exports.getAlldailyUpdate = async (req, res) => {
       dailyUpdate,
     });
   } catch (e) {
-    // console.log(e);
     res.status(200).send({
       message: e,
     });
@@ -55,95 +55,115 @@ exports.getAlldailyUpdate = async (req, res) => {
 exports.createDailyUpdate = async (req, res) => {
   try {
     if (!req.params.sid) throw "Please send subject id to perform task";
-    const subject = await Subject.findById(req.params.sid)
-      .populate({
-        path: "subjectTeacherName",
-        select: "id",
-        populate: {
-          path: "user",
-          select: "id",
+    const daily_date = await dailyUpdateTimer();
+    const checkDU = await SubjectUpdate.findOne({
+      $and: [
+        {
+          date: {
+            $gte: new Date(
+              `${daily_date.today.year}-${daily_date.today.month}-${daily_date.today.day}`
+            ),
+            $lt: new Date(
+              `${daily_date.next.nextYear}-${daily_date.next.nextMonth}-${daily_date.next.nextDay}`
+            ),
+          },
         },
-      })
-      .populate({
-        path: "class",
-        select: "ApproveStudent",
+        { subject: req.params.sid },
+      ],
+    });
+    if (checkDU) {
+      console.log("Existing Daily Update");
+    } else {
+      const subject = await Subject.findById(req.params.sid)
+        .populate({
+          path: "subjectTeacherName",
+          select: "id",
+          populate: {
+            path: "user",
+            select: "id",
+          },
+        })
+        .populate({
+          path: "class",
+          select: "ApproveStudent",
+        });
+      const dailyUpdate = new SubjectUpdate({
+        subject: req.params.sid,
+        updateDescription: req.body?.updateDescription,
+        date: req.body?.date,
       });
-    const dailyUpdate = new SubjectUpdate({
-      subject: req.params.sid,
-      updateDescription: req.body?.updateDescription,
-      date: req.body?.date,
-    });
 
-    if (req?.files) {
-      // for (let file of req?.files) {
-      //   const results = await uploadPostImageFile(file);
-      //   dailyUpdate?.upadateImage?.push(results.Key);
-      // }
-      for (let file of req?.files) {
-        const obj = {
-          documentType: "",
-          documentName: "",
-          documentSize: "",
-          documentKey: "",
-          documentEncoding: "",
-        };
-        obj.documentType = file.mimetype;
-        obj.documentName = file.originalname;
-        obj.documentEncoding = file.encoding;
-        obj.documentSize = file.size;
-        var results = await uploadDocFile(file);
-        obj.documentKey = results.Key;
-        dailyUpdate?.upadateImage.push(obj);
-        await dailyChatFirebaseQuery(
-          `${subject?.id}`,
-          `${results.Key}`,
-          "dailyUpdate",
-          `${subject.subjectTeacherName?.user._id}`,
-          `${dailyUpdate.updateDescription}`
-        );
-        await unlinkFile(file.path);
+      if (req?.files) {
+        // for (let file of req?.files) {
+        //   const results = await uploadPostImageFile(file);
+        //   dailyUpdate?.upadateImage?.push(results.Key);
+        // }
+        for (let file of req?.files) {
+          const obj = {
+            documentType: "",
+            documentName: "",
+            documentSize: "",
+            documentKey: "",
+            documentEncoding: "",
+          };
+          obj.documentType = file.mimetype;
+          obj.documentName = file.originalname;
+          obj.documentEncoding = file.encoding;
+          obj.documentSize = file.size;
+          var results = await uploadDocFile(file);
+          obj.documentKey = results.Key;
+          dailyUpdate?.upadateImage.push(obj);
+          await dailyChatFirebaseQuery(
+            `${subject?.id}`,
+            `${results.Key}`,
+            "dailyUpdate",
+            `${subject.subjectTeacherName?.user._id}`,
+            `${dailyUpdate.updateDescription}`
+          );
+          await unlinkFile(file.path);
+        }
       }
-    }
-    subject.dailyUpdate?.push(dailyUpdate._id);
-    var notify = new StudentNotification({});
-    for (let stu of subject?.class?.ApproveStudent) {
-      const student = await Student.findById({ _id: `${stu}` });
-      const student_user = await User.findById({ _id: `${student?.user}` });
-      notify.notifyContent = `Check out the recent daily updates of ${subject?.subjectName}`;
-      notify.notifySender = subject._id;
-      notify.notifyReceiever = student_user._id;
-      notify.dailyUpdateId = dailyUpdate._id;
-      notify.notifyType = "Student";
-      notify.notifyPublisher = student._id;
-      student_user.activity_tab.push(notify._id);
-      student.notification.push(notify._id);
-      notify.notifyByDepartPhoto = department._id;
-      notify.notifyCategory = "Daily Update";
-      notify.redirectIndex = 14;
-      //
-      invokeMemberTabNotification(
-        "Student Activity",
-        notify,
-        "Daily Update",
-        student_user._id,
-        student_user.deviceToken,
-        "Student",
-        notify
-      );
-      await Promise.all([student.save(), student_user.save()]);
-    }
-    await Promise.all([dailyUpdate.save(), subject.save(), notify.save()]);
-    // const dEncrypt = await encryptionPayload(dailyUpdate);
-    res.status(201).send({
-      message: "Daily updates created successfully 👍",
-      dailyUpdate,
-    });
+      subject.dailyUpdate?.push(dailyUpdate._id);
+      var notify = new StudentNotification({});
+      for (let stu of subject?.class?.ApproveStudent) {
+        const student = await Student.findById({ _id: `${stu}` });
+        const student_user = await User.findById({ _id: `${student?.user}` });
+        notify.notifyContent = `Check out the recent daily updates of ${subject?.subjectName}`;
+        notify.notifySender = subject._id;
+        notify.notifyReceiever = student_user._id;
+        notify.dailyUpdateId = dailyUpdate._id;
+        notify.notifyType = "Student";
+        notify.notifyPublisher = student._id;
+        student_user.activity_tab.push(notify._id);
+        student.notification.push(notify._id);
+        notify.notifyByDepartPhoto = department._id;
+        notify.notifyCategory = "Daily Update";
+        notify.redirectIndex = 14;
+        //
+        invokeMemberTabNotification(
+          "Student Activity",
+          notify,
+          "Daily Update",
+          student_user._id,
+          student_user.deviceToken,
+          "Student",
+          notify
+        );
+        await Promise.all([student.save(), student_user.save()]);
+      }
+      await Promise.all([dailyUpdate.save(), subject.save(), notify.save()]);
+      // const dEncrypt = await encryptionPayload(dailyUpdate);
+      res.status(201).send({
+        message: "Daily updates created successfully 👍",
+        dailyUpdate,
+      });
 
-    subject?.class?.ApproveStudent?.forEach(async (sutId) => {
-      const students = await Student.findById(sutId);
-      students.dailyUpdate?.push(dailyUpdate._id);
-      await students.save();
-    });
+      subject?.class?.ApproveStudent?.forEach(async (sutId) => {
+        const students = await Student.findById(sutId);
+        students.dailyUpdate?.push(dailyUpdate._id);
+        await students.save();
+      });
+    }
   } catch (e) {
     // console.log(e);
     res.status(200).send({
@@ -217,16 +237,59 @@ exports.getAlldailyUpdateStudent = async (req, res) => {
         .sort({ createdAt: -1 })
         .lean()
         .exec();
-      const allEncrypt = await encryptionPayload(dailyUpdate);
+      // const allEncrypt = await encryptionPayload(dailyUpdate);
       res.status(200).send({
         message: "all daily subject update list in student side",
         dailyUpdate,
       });
     }
   } catch (e) {
-    // console.log(e);
     res.status(200).send({
       message: e,
     });
+  }
+};
+
+exports.renderRealTimeDailyUpdate = async (req, res) => {
+  try {
+    const daily_date = await dailyUpdateTimer();
+    const subject = await Subject.find({}).populate({
+      path: "class",
+      select: "ApproveStudent",
+    });
+    for (let sub of subject) {
+      const checkDU = await SubjectUpdate.findOne({
+        $and: [
+          {
+            date: {
+              $gte: new Date(
+                `${daily_date.today.year}-${daily_date.today.month}-${daily_date.today.day}`
+              ),
+              $lt: new Date(
+                `${daily_date.next.nextYear}-${daily_date.next.nextMonth}-${daily_date.next.nextDay}`
+              ),
+            },
+          },
+          { subject: sub._id },
+        ],
+      });
+      if (checkDU) {
+        console.log("Already Done by Auto Server Event");
+      } else {
+        const dailyUpdate = new SubjectUpdate({
+          subject: sub._id,
+          date: new Date(),
+        });
+        sub.dailyUpdate?.push(dailyUpdate._id);
+        sub?.class?.ApproveStudent?.forEach(async (student) => {
+          const students = await Student.findById(student);
+          students.dailyUpdate?.push(dailyUpdate._id);
+          await students.save();
+        });
+        await Promise.all([dailyUpdate.save(), sub.save()]);
+      }
+    }
+  } catch (e) {
+    console.log(e);
   }
 };

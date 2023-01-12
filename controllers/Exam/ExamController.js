@@ -18,6 +18,7 @@ const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const StudentPreviousData = require("../../models/StudentPreviousData");
+const Backlog = require("../../models/BacklogStudent/backlog");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.getClassMaster = async (req, res) => {
@@ -931,7 +932,7 @@ exports.oneStudentBehaviourReportCard = async (req, res) => {
 exports.oneStudentReportCardFinalize = async (req, res) => {
   try {
     const student = await Student.findById(req.params.sid).select(
-      "_id finalReport finalReportStatus studentClass"
+      "_id finalReport finalReportStatus studentClass backlog"
     );
     if (student.finalReportStatus === "Yes") {
       throw "Report card is already finalize";
@@ -982,9 +983,17 @@ exports.oneStudentReportCardFinalize = async (req, res) => {
             : "PASS",
       });
       const backlogSub = await Subject.findById(subject._id);
+      const backlogSubMaster = await SubjectMaster.findById({
+        _id: backlogSub?.subjectMasterName,
+      });
       if (subject.subjectCutoff > Math.round(subject.obtainTotalMarks)) {
-        backlogSub.backlog.push(req.params.sid);
-        backlogSub.backlogStudentCount += 1;
+        const new_backlog = new Backlog({});
+        new_backlog.backlog_subject = backlogSub?._id;
+        backlogSubMaster.backlog.push(new_backlog?._id);
+        backlogSubMaster.backlogStudentCount += 1;
+        new_backlog.backlog_students = req.params.sid;
+        student.backlog.push(new_backlog._id);
+        await Promise.all([backlogSubMaster.save(), new_backlog.save()]);
       } else {
         backlogSub.pass.push(req.params.sid);
       }
@@ -1143,10 +1152,14 @@ exports.retrieveOneBacklogClassMasterSubjects = async (req, res) => {
       });
     const classes = await Class.find({ masterClassName: cmid });
     for (var cli of classes) {
-      subject_array.push(...cli?.subject);
+      for (var sli of cli?.subject) {
+        subject_array.push(sli?.subjectMasterName._id);
+      }
     }
 
-    const subjects = await Subject.find({ _id: { $in: subject_array } })
+    const subjects = await SubjectMaster.find({
+      _id: { $in: subject_array },
+    })
       .limit(limit)
       .skip(skip)
       .select("subjectName backlogStudentCount");
@@ -1172,20 +1185,33 @@ exports.retrieveOneBacklogClassMasterSubjects = async (req, res) => {
 
 exports.retrieveBacklogOneSubjectStudent = async (req, res) => {
   try {
-    const { sid } = req.params;
+    var back_list = [];
+    const { smid } = req.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    if (!sid)
+    if (!smid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
         access: false,
       });
 
-    const one_subject = await Subject.findById({ _id: sid }).select("backlog");
+    const subject_master = await SubjectMaster.findById({ _id: smid }).select(
+      "backlog"
+    );
+
+    const all_backlogs = await Backlog.find({
+      _id: { $in: subject_master?.backlog },
+    }).select("backlog_students");
+
+    for (var back of all_backlogs) {
+      if (back?.backlog_students != null) {
+        back_list.push(back?.backlog_students);
+      }
+    }
 
     const student_array = await Student.find({
-      _id: { $in: one_subject?.backlog },
+      _id: { $in: back_list },
     })
       .limit(limit)
       .skip(skip)
@@ -1271,6 +1297,57 @@ exports.retrieveBacklogOneStudentSubjects = async (req, res) => {
         subjects: [],
       });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveBacklogOneStudentMarkStatus = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const { smid, status } = req.query;
+    if (!sid && !smid && !status)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+
+    const subject_master = await SubjectMaster.findById({ _id: smid }).select(
+      "backlog"
+    );
+
+    const backlogs = await Backlog.findOne({
+      $and: [
+        { _id: { $in: subject_master?.backlog } },
+        { backlog_students: sid },
+        { backlog_status: "Not Mark" },
+      ],
+    });
+    const previous_data = await StudentPreviousData.findOne({
+      student: sid,
+    }).select("finalReport");
+
+    const final_data = await FinalReport.findById({
+      _id: previous_data?.finalReport[0],
+    });
+
+    for (let match_subject of final_data?.subjects) {
+      if (match_subject?.subject === backlogs?.backlog_subject) {
+        if (status === "Clear") {
+          match_subject.clearBacklog = status;
+          backlogs.backlog_clear.push(sid);
+          backlogs.backlog_students = null;
+        } else if (status === "Dropout") {
+          match_subject.dropoutBacklog = status;
+          backlogs.backlog_dropout.push(sid);
+          backlogs.backlog_students = null;
+        }
+      }
+    }
+
+    backlogs.backlog_status = "Mark";
+    await Promise.all([final_data.save(), backlogs.save()]);
+    res.status(200).send({ message: `Backlog ${status} 😥`, access: true });
   } catch (e) {
     console.log(e);
   }

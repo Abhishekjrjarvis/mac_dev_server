@@ -15566,111 +15566,6 @@ paths:
         "200":
           description: OK
 
-  /api/v1/admission/{aid}/student/{uid}/inquiry:
-    post:
-      tags:
-        - Admission Admin Module Query
-      summary: Ask your Query from Admission Admin (verified)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: aid
-          required: true
-          type: string
-          description: This is Admission id 
-        - in: path
-          name: uid
-          required: true
-          type: string
-          description: This is User id
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - reasonType
-              - content
-              - replyBy
-            properties:
-              reasonType:
-                type: string
-                description: Enter Reason
-              content:
-                type: string
-                description: Enter Detailed Content
-              replyBy:
-                type: string
-                description: Enter Reply By ("User" || "Admin")
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/admission/{aid}/student/inquiry/array:
-    get:
-      tags:
-        - Admission Admin Module Query
-      summary: Get All List of Inquiry (verified)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: aid
-          required: true
-          type: string
-          description: This is Admission id 
-        - in: query
-          name: page
-          required: true
-          type: string
-          description: This is page count
-        - in: query
-          name: limit
-          required: true
-          type: string
-          description: This is limit count 
-      responses:
-        "200":
-          description: OK
-  
-  /api/v1/admission/inquiry/reply/{qid}:
-    patch:
-      tags:
-        - Admission Admin Module Query
-      summary: Chat with Admission Admin (verified)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: qid
-          required: true
-          type: string
-          description: This is Inquiry id 
-        - in: query
-          name: author
-          required: true
-          type: string
-          description: Enter Author Query ("User" || "Admin")
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - content
-            properties:
-              content:
-                type: string
-                description: Enter Detailed Content
-      responses:
-        "200":
-          description: OK
-
   /api/v1/admission/{statusId}/status/cancel/app/{aid}/student/{sid}:
     patch:
       tags:
@@ -18372,7 +18267,7 @@ paths:
         "200":
           description: OK
 
-  /api/v1/exam/backlog/one/subject/{sid}/students:
+  /api/v1/exam/backlog/one/subject/{smid}/students:
     get:
       tags:
         - Backlog Module
@@ -18383,10 +18278,10 @@ paths:
         - application/json
       parameters:
         - in: path
-          name: sid
+          name: smid
           required: true
           type: string
-          description: Enter Subject Id
+          description: Enter Subject Master Id
         - in: query
           name: page
           required: true
@@ -18416,6 +18311,236 @@ paths:
           required: true
           type: string
           description: Enter Previous Year Data Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/backlog/one/previous/student/{sid}/mark/status:
+    patch:
+      tags:
+        - Backlog Module
+      summary: Mark Clear || Dropout Backlog of One Student - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Student Id
+        - in: query
+          name: smid
+          required: true
+          type: string
+          description: Enter Subject Master Id
+        - in: query
+          name: status
+          required: true
+          type: string
+          description: Enter Status ("Clear" || "Dropout")
+      responses:
+        "200":
+          description: OK
+
+#Inquiry of Admission Module
+
+  /api/v1/admission/{aid}/new/inquiry:
+    post:
+      tags:
+        - Admission Inquiry Module 
+      summary: New Inquiry from Inside App || Web - (verified)
+      produces:
+        - application/json
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Application Id
+        - in: query
+          name: flow_status
+          required: true
+          type: string
+          description: Enter Flow Status ("By Admission Admin" || "By Existing User")
+        - in: query
+          name: uid
+          required: false
+          type: string
+          description: Enter User Id if flow_status is "By Existing User"
+        - in: formData
+          name: inquiry_student_name
+          type: string
+          required: true
+          description: Enter Student Name
+        - in: formData
+          name: inquiry_student_gender
+          type: string
+          required: true
+          description: Enter Student Gender
+        - in: formData
+          name: inquiry_student_dob
+          type: string
+          required: true
+          description: Enter Date of Birth
+        - in: formData
+          name: inquiry_student_address
+          type: string
+          required: true
+          description: Enter Student Address
+        - in: formData
+          name: file
+          type: string
+          required: true
+          description: Enter Student Profile Photo
+        - in: formData
+          name: inquiry_student_previous
+          type: string
+          required: false
+          description: Enter Student Previous School
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/direct/{id}/inquiry:
+    post:
+      tags:
+        - Admission Inquiry Module 
+      summary: New Inquiry from Direct Qr Code Scan + User Account Creation - (verified)
+      produces:
+        - application/json
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Application Id
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: Enter User Phone Number
+        - in: formData
+          name: inquiry_student_name
+          type: string
+          required: true
+          description: Enter Student Name
+        - in: formData
+          name: inquiry_student_gender
+          type: string
+          required: true
+          description: Enter Student Gender
+        - in: formData
+          name: inquiry_student_dob
+          type: string
+          required: true
+          description: Enter Date of Birth
+        - in: formData
+          name: inquiry_student_address
+          type: string
+          required: true
+          description: Enter Student Address
+        - in: formData
+          name: file
+          type: string
+          required: true
+          description: Enter Student Profile Photo
+        - in: formData
+          name: inquiry_student_previous
+          type: string
+          required: false
+          description: Enter Student Previous School
+        - in: formData
+          name: sample_pic
+          type: string
+          required: false
+          description: Enter CDN Avatar
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/all/inquiry:
+    get:
+      tags:
+        - Admission Inquiry Module 
+      summary: Get All Inquiry List - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Admission Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+        - in: query
+          name: status
+          required: true
+          type: string
+          description: Enter Status ("Ongoing" || "Reviewed")
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{id}/one/inquiry:
+    get:
+      tags:
+        - Admission Inquiry Module 
+      summary: Get One Inquiry Detail - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: Enter Inquiry Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{id}/inquiry/remark:
+    patch:
+      tags:
+        - Admission Inquiry Module 
+      summary: Mark Remark of One Inquiry - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: Enter Inquiry Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              remark:
+                type: string
+                description: Enter Remark
+                required: true
       responses:
         "200":
           description: OK

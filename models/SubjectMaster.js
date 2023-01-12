@@ -35,6 +35,16 @@ const subjectMasterSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  backlog: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Backlog",
+    },
+  ],
+  backlogStudentCount: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const SubjectMaster = mongoose.model("SubjectMaster", subjectMasterSchema);

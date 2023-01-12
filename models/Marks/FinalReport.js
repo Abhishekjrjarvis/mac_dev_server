@@ -38,6 +38,8 @@ const finalReportSchema = new mongoose.Schema({
       obtainTotalMarks: { type: Number, required: true },
       subjectCutoff: { type: Number },
       subjectPassStatus: { type: String },
+      clearBacklog: { type: String },
+      dropoutBacklog: { type: String },
     },
   ],
 });

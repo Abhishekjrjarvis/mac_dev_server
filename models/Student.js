@@ -384,6 +384,12 @@ const studentSchema = new mongoose.Schema({
       ref: "Participate",
     },
   ],
+  backlog: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Backlog",
+    },
+  ],
 });
 
 const Student = mongoose.model("Student", studentSchema);

@@ -24,6 +24,7 @@ const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 const Post = require("../../models/Post");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
+const bcrypt = require("bcryptjs");
 const {
   new_admission_recommend_post,
 } = require("../../Service/AutoRefreshBackend");
@@ -35,6 +36,15 @@ const {
   connect_redis_hit,
   connect_redis_miss,
 } = require("../../config/redis-config");
+const {
+  filter_unique_username,
+  generateAccessToken,
+} = require("../../helper/functions");
+const {
+  custom_date_time,
+  user_date_of_birth,
+  age_calc,
+} = require("../../helper/dayTimer");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
@@ -1232,7 +1242,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     if (price && price > apply.admissionFee && finance?._id !== "") {
-      res.status(404).send({
+      res.status(200).send({
         message:
           "I think you are lost in this process take a break check finance Or Price",
         status: false,
@@ -1956,7 +1966,9 @@ const four_payable = async (arg1, arg2, mode, amount, arg4, kwargs) => {
       // arg1.admissionRemainFeeCount -= amount;
     }
     await Promise.all([arg1.save(), kwargs.save(), arg4.save()]);
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const five_payable = async (arg1, arg2, mode, amount, arg4, kwargs) => {
@@ -2900,5 +2912,290 @@ exports.oneDepartmentAllClassMaster = async (req, res) => {
     res.status(200).send({
       message: e,
     });
+  }
+};
+
+exports.renderNewAdminInquiry = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const file = req.file;
+    const { flow_status, uid } = req.query;
+    if (!aid && !flow_status)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately",
+        access: false,
+      });
+    var apply = await NewApplication.findById({ _id: aid });
+    var admission_admin = await Admission.findById({
+      _id: `${apply?.admissionAdmin}`,
+    });
+    if (flow_status === "By Admission Admin") {
+      const inquiry = new Inquiry({ ...req.body });
+      if (file) {
+        var width = 200;
+        var height = 200;
+        var results = await uploadFile(file, width, height);
+        inquiry.inquiry_student_photo = results.key;
+      }
+      inquiry.inquiry_application = apply._id;
+      inquiry.admissionAdmin = admission_admin._id;
+      admission_admin.inquiryList.push(inquiry._id);
+      admission_admin.queryCount += 1;
+      await Promise.all([admission_admin.save(), inquiry.save()]);
+      res.status(200).send({
+        message: "New Inquiry By Admission Admin is Coming Ready to Handle",
+        access: true,
+      });
+    } else if (flow_status === "By Existing User") {
+      const user = await User.findById({ _id: uid });
+      const inquiry = new Inquiry({ ...req.body });
+      if (file) {
+        var width = 200;
+        var height = 200;
+        var results = await uploadFile(file, width, height);
+        inquiry.inquiry_student_photo = results.key;
+      }
+      inquiry.inquiry_application = apply._id;
+      inquiry.admissionAdmin = admission_admin._id;
+      admission_admin.inquiryList.push(inquiry._id);
+      admission_admin.queryCount += 1;
+      user.inquiryList.push(inquiry._id);
+      await Promise.all([admission_admin.save(), inquiry.save(), user.save()]);
+      res.status(200).send({
+        message: "New Inquiry By Existing User is Coming Ready to Handle",
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "You're lost in space contact to ISRO",
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllInquiryQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { status } = req.query;
+    if (!aid && !status)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately",
+        access: false,
+      });
+
+    const admission_admin = await Admission.findById({ _id: aid }).select(
+      "inquiryList"
+    );
+
+    const all_inquiry = await Inquiry.find({
+      $and: [
+        { _id: { $in: admission_admin?.inquiryList } },
+        { inquiry_status: status },
+      ],
+    })
+      .limit(limit)
+      .skip(skip)
+      .select("inquiry_student_name inquiry_student_photo createdAt reviewAt")
+      .populate({
+        path: "inquiry_application",
+        select: "applicationName",
+      });
+
+    if (all_inquiry?.length > 0) {
+      res.status(200).send({
+        message:
+          "Lot's of Inquiry Get Ready for Heavy Load Come up with Refreshment 😥",
+        access: true,
+        all_inquiry: all_inquiry,
+      });
+      res.status(200).send({
+        message: "No Heavy Load Enjoy 😀",
+        access: false,
+        all_inquiry: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneInquiryQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately",
+        access: false,
+      });
+    const one_inquiry = await Inquiry.findById({
+      _id: id,
+    })
+      .select(
+        "inquiry_student_name inquiry_student_gender inquiry_student_dob inquiry_student_address inquiry_student_previous inquiry_student_remark reviewAt createdAt inquiry_student_photo createdAt"
+      )
+      .populate({
+        path: "inquiry_application",
+        select: "applicationName",
+      });
+    const custom_dob = age_calc(one_inquiry.inquiry_student_dob);
+    const embed_inquiry = {
+      one_inquiry: one_inquiry,
+      custom_dob: `${custom_dob?.years} yrs, ${custom_dob?.months} m, ${custom_dob?.days} days`,
+    };
+    res.status(200).send({
+      message: "One Inquiry All Details Read Carefully 😥",
+      access: true,
+      one_inquiry: embed_inquiry,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderRemarkInquiryQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { remark } = req.body;
+    if (!id && !remark)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately",
+        access: false,
+      });
+    const query = await Inquiry.findById({
+      _id: id,
+    });
+    query.inquiry_student_remark = remark;
+    query.inquiry_status = "Reviewed";
+    query.reviewAt = new Date();
+    await query.save();
+    res.status(200).send({
+      message: "Inquiry Reviewed Successfully 😂",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderNewDirectInquiry = async (req, res) => {
+  try {
+    const { id, aid } = req.params;
+    const { sample_pic } = req.body;
+    const file = req.file;
+    if (
+      !id &&
+      !aid &&
+      !req.body.inquiry_student_name &&
+      !req.body.inquiry_student_gender &&
+      !req.body.inquiry_student_dob &&
+      !req.body.inquiry_student_address
+    )
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const valid = await filter_unique_username(
+      req.body.inquiry_student_name,
+      req.body.inquiry_student_dob
+    );
+    if (!valid?.exist) {
+      const genUserPass = bcrypt.genSaltSync(12);
+      const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
+      var user = new User({
+        userLegalName: req.body.inquiry_student_name,
+        userGender: req.body.inquiry_student_gender,
+        userDateOfBirth: req.body.inquiry_student_dob,
+        username: valid?.username,
+        userStatus: "Approved",
+        userPhoneNumber: id,
+        userPassword: hashUserPass,
+        photoId: "0",
+        coverId: "2",
+        remindLater: custom_date_time(21),
+        next_date: custom_date_time(0),
+      });
+      admins.users.push(user);
+      admins.userCount += 1;
+      await Promise.all([admins.save(), user.save()]);
+      var uInstitute = await InstituteAdmin.findOne({
+        isUniversal: "Universal",
+      })
+        .select("id userFollowersList followersCount")
+        .populate({ path: "posts" });
+      if (uInstitute && uInstitute.posts && uInstitute.posts.length >= 1) {
+        const post = await Post.find({
+          _id: { $in: uInstitute.posts },
+          postStatus: "Anyone",
+        });
+        post.forEach(async (ele) => {
+          user.userPosts.push(ele);
+        });
+        await user.save();
+      }
+      //
+      await user_date_of_birth();
+      //
+      if (uInstitute?.userFollowersList?.includes(`${user._id}`)) {
+      } else {
+        uInstitute.userFollowersList.push(user._id);
+        uInstitute.followersCount += 1;
+        user.userInstituteFollowing.push(uInstitute._id);
+        user.followingUICount += 1;
+        await Promise.all([uInstitute.save(), user.save()]);
+        const posts = await Post.find({ author: `${uInstitute._id}` });
+        posts.forEach(async (ele) => {
+          ele.authorFollowersCount = uInstitute.followersCount;
+          await ele.save();
+        });
+      }
+      const apply = await NewApplication.findById({ _id: aid });
+      const admission_admin = await Admission.findById({
+        _id: `${apply?.admissionAdmin}`,
+      });
+      const inquiry = new Inquiry({ ...req.body });
+      if (file) {
+        var width = 200;
+        var height = 200;
+        var results = await uploadFile(file, width, height);
+        inquiry.inquiry_student_photo = results.key;
+        user.profilePhoto = results.key;
+      }
+      if (sample_pic) {
+        user.profilePhoto = sample_pic;
+        inquiry.inquiry_student_photo = sample_pic;
+      }
+      inquiry.inquiry_application = apply._id;
+      inquiry.admissionAdmin = admission_admin._id;
+      admission_admin.inquiryList.push(inquiry._id);
+      admission_admin.queryCount += 1;
+      user.inquiryList.push(inquiry._id);
+      await Promise.all([admission_admin.save(), inquiry.save(), user.save()]);
+      const token = generateAccessToken(
+        user?.username,
+        user?._id,
+        user?.userPassword
+      );
+      res.status(200).send({
+        message:
+          "Account Creation Process Completed New Inquiry is Coming Ready to Handle 😀✨",
+        user,
+        token: `Bearer ${token}`,
+        login: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "Bug in the direct joining process 😡",
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
   }
 };

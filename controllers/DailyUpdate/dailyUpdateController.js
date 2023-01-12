@@ -18,14 +18,7 @@ exports.getAlldailyUpdate = async (req, res) => {
     const getPage = req.query.page ? parseInt(req.query.page) : 1;
     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
     const dropItem = (getPage - 1) * itemPerPage;
-    // const options = { sort: [["dailyUpdate.createdAt", "des"]] };
     const subject = await Subject.findById(req.params.sid)
-      // .populate({
-      //   path: "dailyUpdate",
-      //   select: "updateDate updateDescription upadateImage createdAt",
-      //   skip: dropItem,
-      //   limit: itemPerPage,
-      // })
       .select("dailyUpdate")
       .lean()
       .exec();
@@ -42,7 +35,6 @@ exports.getAlldailyUpdate = async (req, res) => {
     // const dailyEncrypt = await encryptionPayload(dailyUpdate);
     res.status(200).send({
       message: "all daily subject update list",
-      // dailyUpdate: customMergeSort(subject?.dailyUpdate),
       dailyUpdate,
     });
   } catch (e) {
@@ -72,7 +64,11 @@ exports.createDailyUpdate = async (req, res) => {
       ],
     });
     if (checkDU) {
-      console.log("Existing Daily Update");
+      res.status(200).send({
+        message:
+          "Today Daily updates Existing Already Please Edit By Functionality",
+        access: true,
+      });
     } else {
       const subject = await Subject.findById(req.params.sid)
         .populate({
@@ -94,10 +90,6 @@ exports.createDailyUpdate = async (req, res) => {
       });
 
       if (req?.files) {
-        // for (let file of req?.files) {
-        //   const results = await uploadPostImageFile(file);
-        //   dailyUpdate?.upadateImage?.push(results.Key);
-        // }
         for (let file of req?.files) {
           const obj = {
             documentType: "",
@@ -156,6 +148,7 @@ exports.createDailyUpdate = async (req, res) => {
       res.status(201).send({
         message: "Daily updates created successfully 👍",
         dailyUpdate,
+        access: true,
       });
 
       subject?.class?.ApproveStudent?.forEach(async (sutId) => {
@@ -165,7 +158,6 @@ exports.createDailyUpdate = async (req, res) => {
       });
     }
   } catch (e) {
-    // console.log(e);
     res.status(200).send({
       message: e,
     });
@@ -274,7 +266,7 @@ exports.renderRealTimeDailyUpdate = async (req, res) => {
         ],
       });
       if (checkDU) {
-        console.log("Already Done by Auto Server Event");
+        // console.log("Already Done by Auto Server Event");
       } else {
         const dailyUpdate = new SubjectUpdate({
           subject: sub._id,

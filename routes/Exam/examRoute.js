@@ -103,7 +103,7 @@ router
   );
 
 router
-  .route("/backlog/one/subject/:sid/students")
+  .route("/backlog/one/subject/:smid/students")
   .get(isLoggedIn, catchAsync(examController.retrieveBacklogOneSubjectStudent));
 
 router
@@ -111,6 +111,13 @@ router
   .get(
     isLoggedIn,
     catchAsync(examController.retrieveBacklogOneStudentSubjects)
+  );
+
+router
+  .route("/backlog/one/previous/student/:sid/mark/status")
+  .patch(
+    isLoggedIn,
+    catchAsync(examController.retrieveBacklogOneStudentMarkStatus)
   );
 
 module.exports = router;

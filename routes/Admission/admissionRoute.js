@@ -254,4 +254,25 @@ router.get(
   catchAsync(Admission.oneDepartmentAllClassMaster)
 );
 
+router.post(
+  "/:aid/new/inquiry",
+  upload.single("file"),
+  catchAsync(Admission.renderNewAdminInquiry)
+);
+
+router.get("/:aid/all/inquiry", catchAsync(Admission.renderAllInquiryQuery));
+
+router.get("/:id/one/inquiry", catchAsync(Admission.renderOneInquiryQuery));
+
+router.patch(
+  "/:id/inquiry/remark",
+  catchAsync(Admission.renderRemarkInquiryQuery)
+);
+
+router.post(
+  "/:aid/direct/:id/inquiry",
+  upload.single("file"),
+  catchAsync(Admission.renderNewDirectInquiry)
+);
+
 module.exports = router;

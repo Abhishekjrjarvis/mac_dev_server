@@ -79,12 +79,6 @@ const subjectSchema = new mongoose.Schema({
       ref: "AllotedTestSet",
     },
   ],
-  backlog: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Student",
-    },
-  ],
   pass: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -101,10 +95,6 @@ const subjectSchema = new mongoose.Schema({
       ref: "Student",
     },
   ],
-  backlogStudentCount: {
-    type: Number,
-    default: 0,
-  },
 });
 
 const Subject = mongoose.model("Subject", subjectSchema);

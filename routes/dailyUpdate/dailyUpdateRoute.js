@@ -17,6 +17,7 @@ router
   )
   .patch(isLoggedIn, catchAsync(dailyUpdateController.editDailyUpdate));
 
+// Student Side Daily Update
 router
   .route("/student/:sid")
   .get(isLoggedIn, catchAsync(dailyUpdateController.getAlldailyUpdateStudent));

@@ -1,9 +1,9 @@
 exports.custom_date_time = (arg) => {
   const date = new Date(new Date());
   date.setDate(date.getDate() + arg);
-  const day = date.getDate();
-  const month = date.getMonth() + 1;
-  const year = date.getFullYear();
+  var day = date.getDate();
+  var month = date.getMonth() + 1;
+  var year = date.getFullYear();
   if (month < 10) {
     month = `0${month}`;
   }
@@ -17,16 +17,16 @@ exports.custom_date_time = (arg) => {
 exports.user_date_of_birth = async (user) => {
   try {
     const date = new Date();
-    const p_date = date.getDate();
-    const p_month = date.getMonth() + 1;
-    const p_year = date.getFullYear();
+    var p_date = date.getDate();
+    var p_month = date.getMonth() + 1;
+    var p_year = date.getFullYear();
     if (p_month < 10) {
       p_month = `0${p_month}`;
     }
     if (p_date < 10) {
       p_date = `0${p_date}`;
     }
-    const month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    var month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
     var b_date = user.userDateOfBirth.slice(8, 10);
     var b_month = user.userDateOfBirth.slice(5, 7);
     var b_year = user.userDateOfBirth.slice(0, 4);

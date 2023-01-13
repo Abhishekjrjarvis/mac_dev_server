@@ -18405,7 +18405,7 @@ paths:
           name: inquiry_student_mobileNo
           type: string
           required: false
-          description: Enter Student Previous School
+          description: Enter Student Mobile No.
       responses:
         "200":
           description: OK

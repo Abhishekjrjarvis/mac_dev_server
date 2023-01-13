@@ -2151,35 +2151,6 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
         notify.save(),
         aStatus.save(),
       ]);
-      // if (institute.sms_lang === "en") {
-      //   await directESMSQuery(
-      //     user?.userPhoneNumber,
-      //     `${staff.staffFirstName} ${
-      //       staff.staffMiddleName ? staff.staffMiddleName : ""
-      //     } ${staff.staffLastName}`,
-      //     institute?.insName,
-      //     classes?.classTitle
-      //   );
-      // } else if (institute.sms_lang === "hi") {
-      //   await directHSMSQuery(
-      //     user?.userPhoneNumber,
-      //     `${staff.staffFirstName} ${
-      //       staff.staffMiddleName ? staff.staffMiddleName : ""
-      //     } ${staff.staffLastName}`,
-      //     institute?.insName,
-      //     classes?.classTitle
-      //   );
-      // } else if (institute.sms_lang === "mr") {
-      //   await directMSMSQuery(
-      //     user?.userPhoneNumber,
-      //     `${staff.staffFirstName} ${
-      //       staff.staffMiddleName ? staff.staffMiddleName : ""
-      //     } ${staff.staffLastName}`,
-      //     institute?.insName,
-      //     classes?.classTitle
-      //   );
-      // } else {
-      // }
       res.status(200).send({
         message: "Direct Institute Account Creation Process Completed 😀✨",
         status: true,

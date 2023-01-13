@@ -22,5 +22,5 @@ exports.timerFunction = () => {
   // }, 86400000);
   setInterval(async () => {
     await renderRealTimeDailyUpdate();
-  }, 864000);
+  }, 86400000);
 };

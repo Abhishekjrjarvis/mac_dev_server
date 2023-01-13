@@ -18401,6 +18401,11 @@ paths:
           type: string
           required: false
           description: Enter Student Previous School
+        - in: formData
+          name: inquiry_student_mobileNo
+          type: string
+          required: false
+          description: Enter Student Previous School
       responses:
         "200":
           description: OK

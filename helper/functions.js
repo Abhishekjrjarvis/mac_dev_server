@@ -4,7 +4,7 @@ const InstituteAdmin = require("../models/InstituteAdmin");
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 
-exports.random_password = () => {
+const random_password = () => {
   const upperCase = ["A", "B", "C", "D", "E", "F", "G", "H", "Z"];
   const lowerCase = ["i", "j", "k", "l", "m", "n", "o", "p", "W"];
   const digits = ["0", "1", "2", "3", "4", "5", "6", "7", "8"];

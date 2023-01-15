@@ -1108,7 +1108,12 @@ exports.followersArray = async (req, res) => {
       path: "userFollowers",
     });
 
-    const followers = await User.find({ _id: { $in: user?.userFollowers } })
+    const followers = await User.find({
+      $and: [
+        { _id: { $in: user?.userFollowers } },
+        { activeStatus: "Activated" },
+      ],
+    })
       .select(
         "userLegalName username photoId profilePhoto blockStatus user_birth_privacy user_address_privacy user_circle_privacy"
       )
@@ -1135,7 +1140,12 @@ exports.followingArray = async (req, res) => {
       "id userFollowing userInstituteFollowing"
     );
 
-    const uFollowing = await User.find({ _id: { $in: user?.userFollowing } })
+    const uFollowing = await User.find({
+      $and: [
+        { _id: { $in: user?.userFollowing } },
+        { activeStatus: "Activated" },
+      ],
+    })
       .select(
         "userLegalName username photoId profilePhoto blockStatus user_birth_privacy user_address_privacy user_circle_privacy"
       )
@@ -1170,7 +1180,10 @@ exports.circleArray = async (req, res) => {
 
     if (search) {
       var circle = await User.find({
-        $and: [{ _id: { $in: user?.userCircle } }],
+        $and: [
+          { _id: { $in: user?.userCircle } },
+          { activeStatus: "Activated" },
+        ],
         $or: [
           { userLegalName: { $regex: search, $options: "i" } },
           { username: { $regex: search, $options: "i" } },
@@ -1182,7 +1195,12 @@ exports.circleArray = async (req, res) => {
         .limit(limit)
         .skip(skip);
     } else {
-      var circle = await User.find({ _id: { $in: user?.userCircle } })
+      var circle = await User.find({
+        $and: [
+          { _id: { $in: user?.userCircle } },
+          { activeStatus: "Activated" },
+        ],
+      })
         .select(
           "userLegalName username photoId one_line_about profilePhoto blockStatus user_birth_privacy user_address_privacy user_circle_privacy"
         )

@@ -212,6 +212,19 @@ const staffSchema = new mongoose.Schema({
     },
   ],
   staff_biometric_id: { type: String },
+  transportDepartment: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Transport",
+    },
+  ],
+  vehicle: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Vehicle",
+  },
+  vehicle_category: {
+    type: String,
+  },
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

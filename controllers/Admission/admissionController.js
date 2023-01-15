@@ -2920,6 +2920,7 @@ exports.renderNewAdminInquiry = async (req, res) => {
     const { aid } = req.params;
     const file = req.file;
     const { flow_status, uid } = req.query;
+    var { sample_pic } = req.body;
     if (!aid && !flow_status)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately",
@@ -2931,11 +2932,8 @@ exports.renderNewAdminInquiry = async (req, res) => {
     });
     if (flow_status === "By Admission Admin") {
       const inquiry = new Inquiry({ ...req.body });
-      if (file) {
-        var width = 200;
-        var height = 200;
-        var results = await uploadFile(file, width, height);
-        inquiry.inquiry_student_photo = results.key;
+      if (sample_pic) {
+        inquiry.inquiry_student_photo = sample_pic;
       }
       inquiry.inquiry_application = apply._id;
       inquiry.admissionAdmin = admission_admin._id;
@@ -2982,31 +2980,47 @@ exports.renderAllInquiryQuery = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { status } = req.query;
+    const { status, search } = req.query;
     if (!aid && !status)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately",
         access: false,
       });
-
     const admission_admin = await Admission.findById({ _id: aid }).select(
       "inquiryList"
     );
-
-    const all_inquiry = await Inquiry.find({
-      $and: [
-        { _id: { $in: admission_admin?.inquiryList } },
-        { inquiry_status: status },
-      ],
-    })
-      .limit(limit)
-      .skip(skip)
-      .select("inquiry_student_name inquiry_student_photo createdAt reviewAt")
-      .populate({
-        path: "inquiry_application",
-        select: "applicationName",
-      });
-
+    if (search) {
+      var all_inquiry = await Inquiry.find({
+        $and: [
+          { _id: { $in: admission_admin?.inquiryList } },
+          { inquiry_status: status },
+        ],
+        $or: [{ inquiry_student_name: { $regex: search, $options: "i" } }],
+      })
+        .select(
+          "inquiry_student_name inquiry_status inquiry_student_photo createdAt reviewAt"
+        )
+        .populate({
+          path: "inquiry_application",
+          select: "applicationName",
+        });
+    } else {
+      var all_inquiry = await Inquiry.find({
+        $and: [
+          { _id: { $in: admission_admin?.inquiryList } },
+          { inquiry_status: status },
+        ],
+      })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "inquiry_student_name inquiry_status inquiry_student_photo createdAt reviewAt"
+        )
+        .populate({
+          path: "inquiry_application",
+          select: "applicationName",
+        });
+    }
     if (all_inquiry?.length > 0) {
       res.status(200).send({
         message:
@@ -3014,6 +3028,7 @@ exports.renderAllInquiryQuery = async (req, res) => {
         access: true,
         all_inquiry: all_inquiry,
       });
+    } else {
       res.status(200).send({
         message: "No Heavy Load Enjoy 😀",
         access: false,
@@ -3037,7 +3052,7 @@ exports.renderOneInquiryQuery = async (req, res) => {
       _id: id,
     })
       .select(
-        "inquiry_student_name inquiry_student_gender inquiry_student_dob inquiry_student_address inquiry_student_previous inquiry_student_remark reviewAt createdAt inquiry_student_photo createdAt"
+        "inquiry_student_name inquiry_student_gender inquiry_student_dob inquiry_student_address inquiry_student_mobileNo inquiry_student_previous inquiry_student_remark reviewAt createdAt inquiry_student_photo createdAt"
       )
       .populate({
         path: "inquiry_application",

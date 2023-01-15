@@ -45,7 +45,10 @@ exports.searchUserUniversalWeb = async (req, res) => {
         .exec();
 
       const users = await User.find({
-        $and: [{ _id: { $ne: [req.params.id] } }],
+        $and: [
+          { _id: { $ne: [req.params.id] } },
+          { activeStatus: "Activated" },
+        ],
         $or: [
           { userLegalName: { $regex: req.query.search, $options: "i" } },
           { username: { $regex: req.query.search, $options: "i" } },
@@ -312,7 +315,10 @@ exports.searchUserUniversal = async (req, res) => {
         .exec();
 
       const users = await User.find({
-        $and: [{ _id: { $ne: [req.params.id] } }],
+        $and: [
+          { _id: { $ne: [req.params.id] } },
+          { activeStatus: "Activated" },
+        ],
         $or: [
           { userLegalName: { $regex: req.query.search, $options: "i" } },
           { username: { $regex: req.query.search, $options: "i" } },
@@ -545,6 +551,7 @@ exports.searchUser = async (req, res) => {
     } else {
       const search = req.query.search
         ? {
+            $and: [{ activeStatus: "Activated" }],
             $or: [
               { userLegalName: { $regex: req.query.search, $options: "i" } },
               { username: { $regex: req.query.search, $options: "i" } },

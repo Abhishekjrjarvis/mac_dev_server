@@ -617,6 +617,16 @@ const instituteAdminSchema = new mongoose.Schema({
   razor_key: { type: String },
   razor_id: { type: String },
   razor_account: { type: Boolean, default: false },
+  transportDepart: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Transport",
+    },
+  ],
+  transportStatus: {
+    type: String,
+    default: "Disable",
+  },
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

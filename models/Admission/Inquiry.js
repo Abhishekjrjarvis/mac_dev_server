@@ -9,7 +9,7 @@ const inquirySchema = new mongoose.Schema({
   inquiry_student_gender: { type: String, required: true },
   inquiry_student_dob: { type: String, required: true },
   inquiry_student_address: { type: String, required: true },
-  inquiry_student_photo: { type: String, required: true },
+  inquiry_student_photo: { type: String },
   inquiry_student_mobileNo: { type: String },
   inquiry_student_previous: { type: String },
   inquiry_student_remark: { type: String },

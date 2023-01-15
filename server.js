@@ -24,7 +24,7 @@ app.use(compression());
 app.use(mongoSanitize());
 app.use(helmet({ contentSecurityPolicy: false }));
 // app.use(
-//   helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false })
+// helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false })
 // );
 
 const swaggerUI = require("swagger-ui-express");

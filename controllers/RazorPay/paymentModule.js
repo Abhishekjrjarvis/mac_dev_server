@@ -388,6 +388,7 @@ exports.admissionInstituteFunction = async (
       user.applicationStatus.push(aStatus._id);
       user.payment_history.push(order);
       (status.payMode = "online"), (status.isPaid = "Paid");
+      status.for_selection = "No";
       notify.notifyContent = `${student.studentFirstName} 
     ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} 
     ${

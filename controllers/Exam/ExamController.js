@@ -1388,31 +1388,40 @@ exports.retrieveBacklogOneStudentMarkStatus = async (req, res) => {
         { backlog_status: "Not Mark" },
       ],
     });
-    const previous_data = await StudentPreviousData.findOne({
-      student: sid,
-    }).select("finalReport");
+    // const previous_data = await StudentPreviousData.findOne({
+    //   student: sid,
+    // }).select("finalReport");
 
-    const final_data = await FinalReport.findById({
-      _id: previous_data?.finalReport[0],
-    });
+    // const final_data = await FinalReport.findById({
+    //   _id: previous_data?.finalReport[0],
+    // });
 
-    for (let match_subject of final_data?.subjects) {
-      if (match_subject?.subject === backlogs?.backlog_subject) {
-        if (status === "Clear") {
-          match_subject.clearBacklog = status;
-          backlogs.backlog_clear.push(sid);
-          backlogs.backlog_students = null;
-        } else if (status === "Dropout") {
-          match_subject.dropoutBacklog = status;
-          backlogs.backlog_dropout.push(sid);
-          backlogs.backlog_students = null;
-        }
-      }
+    // for (let match_subject of final_data?.subjects) {
+    //   if (match_subject?.subject === backlogs?.backlog_subject) {
+    //     if (status === "Clear") {
+    //       match_subject.clearBacklog = status;
+    //       backlogs.backlog_clear.push(sid);
+    //       backlogs.backlog_students = null;
+    //     } else if (status === "Dropout") {
+    //       match_subject.dropoutBacklog = status;
+    //       backlogs.backlog_dropout.push(sid);
+    //       backlogs.backlog_students = null;
+    //     }
+    //   }
+    // }
+    if (status === "Clear") {
+      backlogs.backlog_clear.push(sid);
+      backlogs.backlog_students = null;
+    } else if (status === "Dropout") {
+      backlogs.backlog_dropout.push(sid);
+      backlogs.backlog_students = null;
+    } else {
     }
-
     backlogs.backlog_status = "Mark";
-    await Promise.all([final_data.save(), backlogs.save()]);
-    res.status(200).send({ message: `Backlog ${status} 😥`, access: true });
+    await backlogs.save();
+    res
+      .status(200)
+      .send({ message: `Backlog ${status} 😥`, access: true, backlogs });
   } catch (e) {
     console.log(e);
   }

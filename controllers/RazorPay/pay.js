@@ -113,7 +113,7 @@ exports.verifyRazorPayment = async (req, res) => {
       order_payment.payment_flag_by = "Debit";
       order_payment.payment_flag_to = "Credit";
       order_payment.payment_module_id = payment_module_id;
-      order_payment.payment_amount = refactor_amount;
+      order_payment.payment_amount = refactor_amount_nocharges;
       order_payment.payment_status = "Captured";
       s_admin.invoice_count += 1;
       order_payment.payment_invoice_number = s_admin.invoice_count;

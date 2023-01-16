@@ -18,18 +18,8 @@ const Participate = require("../../models/ParticipativeEvent/participate");
 const BusinessTC = require("../../models/Finance/BToC");
 const {
   add_all_installment,
-  second_payable,
-  third_payable,
-  four_payable,
-  five_payable,
-  six_payable,
-  seven_payable,
-  eight_payable,
-  nine_payable,
-  ten_payable,
-  eleven_payable,
-  tweleve_payable,
-} = require("../../controllers/Admission/admissionController");
+  render_installment,
+} = require("../../helper/Installment");
 
 exports.unlockInstituteFunction = async (order, paidBy, tx_amounts) => {
   try {
@@ -431,96 +421,15 @@ exports.admissionInstituteFunction = async (
         orderPay.save(),
       ]);
     } else {
-      if (type === "Second Installment") {
-        await second_payable(
-          student,
-          apply,
-          "online",
-          parseInt(tx_amount_ad),
-          admission
-        );
-      } else if (type === "Third Installment") {
-        await third_payable(
-          student,
-          apply,
-          "online",
-          parseInt(tx_amount_ad),
-          admission
-        );
-      } else if (type === "Four Installment") {
-        await four_payable(
-          student,
-          apply,
-          "online",
-          parseInt(tx_amount_ad),
-          admission
-        );
-      } else if (type === "Five Installment") {
-        await five_payable(
-          student,
-          apply,
-          "online",
-          parseInt(tx_amount_ad),
-          admission
-        );
-      } else if (type === "Six Installment") {
-        await six_payable(
-          student,
-          apply,
-          "online",
-          parseInt(tx_amount_ad),
-          admission
-        );
-      } else if (type === "Seven Installment") {
-        await seven_payable(
-          student,
-          apply,
-          "online",
-          parseInt(tx_amount_ad),
-          admission
-        );
-      } else if (type === "Eight Installment") {
-        await eight_payable(
-          student,
-          apply,
-          "online",
-          parseInt(tx_amount_ad),
-          admission
-        );
-      } else if (type === "Nine Installment") {
-        await nine_payable(
-          student,
-          apply,
-          "online",
-          parseInt(tx_amount_ad),
-          admission
-        );
-      } else if (type === "Ten Installment") {
-        await ten_payable(
-          student,
-          apply,
-          "online",
-          parseInt(tx_amount_ad),
-          admission
-        );
-      } else if (type === "Eleven Installment") {
-        await eleven_payable(
-          student,
-          apply,
-          "online",
-          parseInt(tx_amount_ad),
-          admission
-        );
-      } else if (type === "Tweleve Installment") {
-        await tweleve_payable(
-          student,
-          apply,
-          "online",
-          parseInt(tx_amount_ad),
-          admission
-        );
-      } else {
-      }
+      await render_installment(
+        type,
+        student,
+        apply,
+        "Online",
+        parseInt(tx_amount_ad),
+        admission,
+        finance
+      );
       student.admissionPaidFeeCount += parseInt(tx_amount_ad);
       if (admission?.remainingFeeCount >= parseInt(tx_amount_ad)) {
         admission.remainingFeeCount -= parseInt(tx_amount_ad);

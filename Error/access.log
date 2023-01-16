@@ -1133,3 +1133,15 @@
 {"level":"info","message":{},"timestamp":"2023-01-13T14:17:04.748Z"}
 {"access":false,"all_inquiry":[],"level":"info","message":"No Heavy Load Enjoy 😀","timestamp":"2023-01-13T14:17:04.843Z"}
 {"level":"info","message":"{\"message\":\"No Heavy Load Enjoy 😀\",\"access\":false,\"all_inquiry\":[],\"level\":\"info\"}","timestamp":"2023-01-13T14:17:04.844Z"}
+{"level":"info","message":{},"timestamp":"2023-01-16T09:00:31.770Z"}
+{"level":"info","message":"Unauthorized","timestamp":"2023-01-16T09:00:31.778Z"}
+{"level":"info","message":{},"timestamp":"2023-01-16T09:01:00.351Z"}
+{"level":"info","message":{},"timestamp":"2023-01-16T09:01:39.303Z"}
+{"access":false,"level":"info","message":"No Available Subjects 😡","subjects":[],"timestamp":"2023-01-16T09:01:39.448Z"}
+{"level":"info","message":"{\"message\":\"No Available Subjects 😡\",\"access\":false,\"subjects\":[],\"level\":\"info\"}","timestamp":"2023-01-16T09:01:39.450Z"}
+{"level":"info","message":{},"timestamp":"2023-01-16T09:04:08.957Z"}
+{"access":true,"level":"info","message":"Lot's of work due to many subjects 😀","subjects":[{"_id":"63bba1a30e730c573767a1c9","backlogStudentCount":0,"subjectName":"Physics"},{"_id":"63bba1af0e730c573767a1cf","backlogStudentCount":0,"subjectName":"Chemistry"}],"timestamp":"2023-01-16T09:04:09.828Z"}
+{"level":"info","message":"{\"message\":\"Lot's of work due to many subjects \ud83d\ude00\",\"access\":true,\"subjects\":[{\"backlogStudentCount\":0,\"_id\":\"63bba1a30e730c573767a1c9\",\"subjectName\":\"Physics\"},{\"backlogStudentCount\":0,\"_id\":\"63bba1af0e730c573767a1cf\",\"subjectName\":\"Chemistry\"}],\"level\":\"info\"}","timestamp":"2023-01-16T09:04:09.833Z"}
+{"level":"info","message":{},"timestamp":"2023-01-16T09:06:01.470Z"}
+{"access":true,"level":"info","message":"Lot's of work due to many subjects 😀","subjects":[{"_id":"63bba1a30e730c573767a1c9","backlog":[],"backlogStudentCount":0,"subjectName":"Physics"},{"_id":"63bba1af0e730c573767a1cf","backlog":[],"backlogStudentCount":0,"subjectName":"Chemistry"}],"timestamp":"2023-01-16T09:06:01.728Z"}
+{"level":"info","message":"{\"message\":\"Lot's of work due to many subjects \ud83d\ude00\",\"access\":true,\"subjects\":[{\"backlog\":[],\"backlogStudentCount\":0,\"_id\":\"63bba1a30e730c573767a1c9\",\"subjectName\":\"Physics\"},{\"backlog\":[],\"backlogStudentCount\":0,\"_id\":\"63bba1af0e730c573767a1cf\",\"subjectName\":\"Chemistry\"}],\"level\":\"info\"}","timestamp":"2023-01-16T09:06:01.734Z"}

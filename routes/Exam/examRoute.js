@@ -95,12 +95,10 @@ router
   .route("/backlog/class/master/:did")
   .get(isLoggedIn, catchAsync(examController.retrieveBacklogClassMaster));
 
-router
-  .route("/backlog/one/master/:cmid/subjects")
-  .get(
-    isLoggedIn,
-    catchAsync(examController.retrieveOneBacklogClassMasterSubjects)
-  );
+router.route("/backlog/one/master/:cmid/subjects").get(
+  // isLoggedIn,
+  catchAsync(examController.retrieveOneBacklogClassMasterSubjects)
+);
 
 router
   .route("/backlog/one/subject/:smid/students")

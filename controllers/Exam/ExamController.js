@@ -463,8 +463,8 @@ exports.allStudentMarksBySubjectTeacher = async (req, res) => {
       notify.notifyContent = `${subjectData?.subjectName} marks updated.`;
       notify.notifySender = subjectData;
       notify.notifyReceiever = user._id;
-      notify.notifyType = "Staff";
-      notify.notifyPublisher = staff._id;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student._id;
       notify.subjectId = subjectData;
       user.activity_tab.push(notify._id);
       // notify.notifyByFinancePhoto = subjectData;
@@ -1150,10 +1150,12 @@ exports.retrieveOneBacklogClassMasterSubjects = async (req, res) => {
         message: "Their is a bug need to fix immediately 😡",
         access: false,
       });
-    const classes = await Class.find({ masterClassName: cmid });
+    const classes = await Class.find({ masterClassName: cmid }).populate({
+      path: "subject",
+    });
     for (var cli of classes) {
       for (var sli of cli?.subject) {
-        subject_array.push(sli?.subjectMasterName._id);
+        subject_array.push(sli?.subjectMasterName);
       }
     }
 

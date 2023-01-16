@@ -19,31 +19,31 @@ var instance = new Razorpay({
 
 var razor_author = false;
 
-// exports.institute_merchant_replace = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const institute = await InstituteAdmin.findById({ _id: id }).select(
-//       "razor_key razor_id"
-//     );
-//     instance = new Razorpay({
-//       key_id: institute?.razor_id
-//         ? institute?.razor_id
-//         : process.env.RAZOR_KEY_ID,
-//       key_secret: institute?.razor_key
-//         ? institute?.razor_key
-//         : process.env.RAZOR_KEY_SECRET,
-//     });
-//     res.status(200).send({
-//       message: "Proceed with Account Instance 👍",
-//       status: true,
-//       key: institute?.razor_key,
-//       bool: institute?.razor_key ? true : false,
-//       author: institute?.razor_key ? true : false,
-//     });
-//   } catch (e) {
-//     console.log(e);
-//   }
-// };
+exports.institute_merchant_replace = async (req, res) => {
+  try {
+    // const { id } = req.params;
+    // const institute = await InstituteAdmin.findById({ _id: id }).select(
+    //   "razor_key razor_id"
+    // );
+    // instance = new Razorpay({
+    //   key_id: institute?.razor_id
+    //     ? institute?.razor_id
+    //     : process.env.RAZOR_KEY_ID,
+    //   key_secret: institute?.razor_key
+    //     ? institute?.razor_key
+    //     : process.env.RAZOR_KEY_SECRET,
+    // });
+    // res.status(200).send({
+    //   message: "Proceed with Account Instance 👍",
+    //   status: true,
+    //   key: institute?.razor_key,
+    //   bool: institute?.razor_key ? true : false,
+    //   author: institute?.razor_key ? true : false,
+    // });
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 exports.renderKeys = async (req, res) => {
   try {

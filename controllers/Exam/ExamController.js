@@ -951,7 +951,7 @@ exports.oneStudentReportCardFinalize = async (req, res) => {
       const backlogSub = await Subject.findById(subject._id);
       if (subject.subjectCutoff > Math.round(subject.obtainTotalMarks))
         backlogSub.backlog.push(req.params.sid);
-      else backlogSub.backlog.push(req.params.sid);
+      else backlogSub.pass.push(req.params.sid);
       await backlogSub.save();
     }
     const classes = await Class.findById(student?.studentClass);

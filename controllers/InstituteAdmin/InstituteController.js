@@ -1389,9 +1389,11 @@ exports.retrieveNewClass = async (req, res) => {
         classCode: `${result}`,
         classStartDate: date,
         finalReportsSettings: {
-          aggregatePassingPercentage: aggregatePassingPercentage,
+          aggregatePassingPercentage: aggregatePassingPercentage
+            ? aggregatePassingPercentage
+            : 0,
         },
-        optionalSubjectCount: optionalSubjectCount,
+        optionalSubjectCount: optionalSubjectCount ? optionalSubjectCount : 0,
       });
       institute.classCodeList.push(`${result}`);
       institute.classRooms.push(classRoom._id);

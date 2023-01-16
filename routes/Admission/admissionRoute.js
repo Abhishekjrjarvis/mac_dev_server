@@ -182,5 +182,9 @@ router.patch(
 );
 
 router.get("/:sid/fees", catchAsync(Admission.retrieveStudentAdmissionFees));
+router.get(
+  "/:did/all/classmaster",
+  catchAsync(Admission.oneDepartmentAllClassMaster)
+);
 
 module.exports = router;

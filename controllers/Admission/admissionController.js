@@ -11,6 +11,7 @@ const Finance = require("../../models/Finance");
 const Batch = require("../../models/Batch");
 const Department = require("../../models/Department");
 const Class = require("../../models/Class");
+const ClassMaster = require("../../models/ClassMaster");
 const Admin = require("../../models/superAdmin");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
 const {
@@ -1532,5 +1533,37 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
     }
   } catch (e) {
     console.log(e);
+  }
+};
+
+exports.oneDepartmentAllClassMaster = async (req, res) => {
+  try {
+    if (!req.params.did)
+      throw new "Please send to department id to perform task"();
+    const department = await Department.findById(req.params.did)
+      .populate({
+        path: "departmentClassMasters",
+        select: "className",
+      })
+      .select("departmentClassMasters")
+      .lean()
+      .exec();
+
+    if (department.departmentClassMasters?.length) {
+      res.status(200).send({
+        message: "All list of class master of one department",
+        classMasters: department.departmentClassMasters,
+      });
+    } else {
+      res.status(200).send({
+        message: "All list of class master of one department is empty",
+        classMasters: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+    res.status(200).send({
+      message: e,
+    });
   }
 };

@@ -1248,6 +1248,69 @@ exports.retrieveBacklogOneSubjectStudent = async (req, res) => {
   }
 };
 
+exports.retrieveBacklogOneSubjectDropStudent = async (req, res) => {
+  try {
+    var back_drop = [];
+    const { smid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!smid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+
+    const subject_master = await SubjectMaster.findById({ _id: smid }).select(
+      "backlog"
+    );
+
+    const all_backlogs = await Backlog.find({
+      _id: { $in: subject_master?.backlog },
+    }).select("backlog_dropout");
+
+    for (var back of all_backlogs) {
+      if (back?.backlog_dropout?.length > 0) {
+        back_drop.push(...back?.backlog_dropout);
+      }
+    }
+
+    const student_array = await Student.find({
+      _id: { $in: back_drop },
+    })
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto"
+      )
+      .populate({
+        path: "studentClass",
+        select: "className classTitle",
+      })
+      .populate({
+        path: "batches",
+        select: "batchName",
+      });
+
+    if (student_array?.length > 0) {
+      // const sEncrypt = await encryptionPayload(student_array)
+      res.status(200).send({
+        message: "Lot's of work due to many backlog Drop students 😀",
+        access: true,
+        student_array: student_array,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Available backlog drop students 😡",
+        access: false,
+        student_array: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.retrieveBacklogOneStudentSubjects = async (req, res) => {
   try {
     const { pyid } = req.params;

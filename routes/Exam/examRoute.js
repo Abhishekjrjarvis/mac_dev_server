@@ -95,14 +95,21 @@ router
   .route("/backlog/class/master/:did")
   .get(isLoggedIn, catchAsync(examController.retrieveBacklogClassMaster));
 
-router.route("/backlog/one/master/:cmid/subjects").get(
-  // isLoggedIn,
-  catchAsync(examController.retrieveOneBacklogClassMasterSubjects)
-);
+router
+  .route("/backlog/one/master/:cmid/subjects")
+  .get(
+    isLoggedIn,
+    catchAsync(examController.retrieveOneBacklogClassMasterSubjects)
+  );
 
 router
   .route("/backlog/one/subject/:smid/students")
   .get(isLoggedIn, catchAsync(examController.retrieveBacklogOneSubjectStudent));
+
+router.route("/backlog/one/subject/:smid/students/dropout").get(
+  // isLoggedIn,
+  catchAsync(examController.retrieveBacklogOneSubjectDropStudent)
+);
 
 router
   .route("/backlog/one/previous/student/:pyid/subject")

@@ -18271,7 +18271,36 @@ paths:
     get:
       tags:
         - Backlog Module
-      summary: Get All Students Of One Selected Subjects - (verified)
+      summary: Get All Students Of One Selected Subject Master - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: smid
+          required: true
+          type: string
+          description: Enter Subject Master Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/backlog/one/subject/{smid}/students/dropout:
+    get:
+      tags:
+        - Backlog Module
+      summary: Get All Drop Students Of One Selected Subject Master - (verified)
       consumes:
         - application/json
       produces:
@@ -18310,7 +18339,7 @@ paths:
           name: pyid
           required: true
           type: string
-          description: Enter Previous Year Data Id
+          description: Enter Previous Year Student Data Id
       responses:
         "200":
           description: OK

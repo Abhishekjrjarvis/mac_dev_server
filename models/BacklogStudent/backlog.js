@@ -5,6 +5,14 @@ const backlogSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Subject",
   },
+  backlog_class: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Class",
+  },
+  backlog_batch: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Batch",
+  },
   backlog_status: {
     type: String,
     default: "Not Mark",
@@ -29,6 +37,10 @@ const backlogSchema = new mongoose.Schema({
       ref: "Student",
     },
   ],
+  backlog_symbol: {
+    type: String,
+    default: "Pending",
+  },
 });
 
 module.exports = mongoose.model("Backlog", backlogSchema);

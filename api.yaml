@@ -18325,7 +18325,7 @@ paths:
         "200":
           description: OK
 
-  /api/v1/exam/backlog/one/previous/student/{pyid}/subject:
+  /api/v1/exam/backlog/one/previous/student/{sid}/subject:
     get:
       tags:
         - Backlog Module
@@ -18336,10 +18336,20 @@ paths:
         - application/json
       parameters:
         - in: path
-          name: pyid
+          name: sid
           required: true
           type: string
-          description: Enter Previous Year Student Data Id
+          description: Enter Student Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
       responses:
         "200":
           description: OK

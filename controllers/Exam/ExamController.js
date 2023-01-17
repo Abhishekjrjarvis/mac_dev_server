@@ -989,6 +989,8 @@ exports.oneStudentReportCardFinalize = async (req, res) => {
       if (subject.subjectCutoff > Math.round(subject.obtainTotalMarks)) {
         const new_backlog = new Backlog({});
         new_backlog.backlog_subject = backlogSub?._id;
+        new_backlog.backlog_class = student?.studentClass;
+        new_backlog.backlog_batch = student?.batches;
         backlogSubMaster.backlog.push(new_backlog?._id);
         backlogSubMaster.backlogStudentCount += 1;
         new_backlog.backlog_students = req.params.sid;
@@ -1313,47 +1315,45 @@ exports.retrieveBacklogOneSubjectDropStudent = async (req, res) => {
 
 exports.retrieveBacklogOneStudentSubjects = async (req, res) => {
   try {
-    const { pyid } = req.params;
-    if (!pyid)
+    const { sid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!sid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
         access: false,
       });
-    const previous_back = await StudentPreviousData.findById({
-      _id: pyid,
-    }).select("student");
 
     const one_student = await Student.findById({
-      _id: previous_back?.student,
-    }).select("finalReport");
+      _id: sid,
+    }).select("backlog");
 
-    const final_data = await FinalReport.findById({
-      _id: one_student?.finalReport[0],
+    const all_back = await Backlog.find({
+      $and: [{ _id: { $in: one_student?.backlog } }],
     })
-      .select("_id")
+      .limit(limit)
+      .skip(skip)
+      .select("createdAt backlog_symbol")
       .populate({
-        path: "subjects",
-        select: "subject",
-        populate: {
-          path: "subject",
-          select: "subjectName",
-        },
+        path: "backlog_subject",
+        select: "subjectName",
       })
       .populate({
-        path: "classId",
+        path: "backlog_class",
         select: "className classTitle",
-        populate: {
-          path: "batch",
-          select: "batchName",
-        },
+      })
+      .populate({
+        path: "backlog_batch",
+        select: "batchName",
       });
 
-    if (final_data?.subjects?.length > 0) {
-      // const finalEncrypt = await encryptionPayload(final_data?.subjects)
+    if (all_back?.length > 0) {
+      // const finalEncrypt = await encryptionPayload(all_back)
       res.status(200).send({
         message: "Get Ready for Preparation once again 😀",
         access: true,
-        subjects: final_data?.subjects,
+        subjects: all_back,
       });
     } else {
       res.status(200).send({
@@ -1412,9 +1412,11 @@ exports.retrieveBacklogOneStudentMarkStatus = async (req, res) => {
     if (status === "Clear") {
       backlogs.backlog_clear.push(sid);
       backlogs.backlog_students = null;
+      backlogs.backlog_symbol = "Clear";
     } else if (status === "Dropout") {
       backlogs.backlog_dropout.push(sid);
       backlogs.backlog_students = null;
+      backlogs.backlog_symbol = "Dropout";
     } else {
     }
     backlogs.backlog_status = "Mark";

@@ -42,6 +42,7 @@ const {
   generateAccessInsToken,
   generateAccessToken,
 } = require("../../helper/functions");
+const { studentsListQuery, ClassIds } = require("../../addons");
 
 const generateQR = async (encodeData, Id) => {
   try {
@@ -2165,3 +2166,223 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+// const addDirectInClass = async (req, res) => {
+//   try {
+//     var maleAvatar = [
+//       "3D2.jpg",
+//       "3D4.jpg",
+//       "3D6.jpg",
+//       "3D19.jpg",
+//       "3D20.jpg",
+//       "3D26.jpg",
+//       "3D21.jpg",
+//       "3D12.jpg",
+//     ];
+//     var femaleAvatar = [
+//       "3D1.jpg",
+//       "3D3.jpg",
+//       "3D10.jpg",
+//       "3D11.jpg",
+//       "3D14.jpg",
+//       "3D15.jpg",
+//       "3D22.jpg",
+//       "3D31.jpg",
+//     ];
+//     var admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+//     var classes = await Class.findById({ _id: ClassIds });
+//     var institute = await InstituteAdmin.findById({
+//       _id: `${classes?.institute}`,
+//     });
+//     var classStaff = await Staff.findById({
+//       _id: `${classes.classTeacher}`,
+//     });
+//     var classUser = await User.findById({ _id: `${classStaff.user}` });
+//     for (var data of studentsListQuery) {
+//       const valid = await filter_unique_username(
+//         data.studentFirstName,
+//         data.studentDOB
+//       );
+//       if (!valid?.exist) {
+//         const genUserPass = bcrypt.genSaltSync(12);
+//         const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
+//         var user = new User({
+//           userLegalName: `${data.studentFirstName}${
+//             data.studentMiddleName ? data.studentMiddleName : ""
+//           }${data.studentLastName ? data.studentLastName : ""}`,
+//           userGender: data.studentGender,
+//           userDateOfBirth: data.studentDOB,
+//           username: valid?.username,
+//           userStatus: "Approved",
+//           userPhoneNumber: data.studentPhoneNumber,
+//           userPassword: hashUserPass,
+//           photoId: "0",
+//           coverId: "2",
+//           remindLater: rDate,
+//           next_date: c_date,
+//         });
+//         admins.users.push(user);
+//         admins.userCount += 1;
+//         await Promise.all([admins.save(), user.save()]);
+//         var uInstitute = await InstituteAdmin.findOne({
+//           isUniversal: "Universal",
+//         })
+//           .select("id userFollowersList followersCount")
+//           .populate({ path: "posts" });
+//         if (uInstitute && uInstitute.posts && uInstitute.posts.length >= 1) {
+//           const post = await Post.find({
+//             _id: { $in: uInstitute.posts },
+//             postStatus: "Anyone",
+//           });
+//           post.forEach(async (ele) => {
+//             user.userPosts.push(ele);
+//           });
+//           await user.save();
+//         }
+//         //
+//         var b_date = user.userDateOfBirth.slice(8, 10);
+//         var b_month = user.userDateOfBirth.slice(5, 7);
+//         var b_year = user.userDateOfBirth.slice(0, 4);
+//         if (b_date > p_date) {
+//           p_date = p_date + month[b_month - 1];
+//           p_month = p_month - 1;
+//         }
+//         if (b_month > p_month) {
+//           p_year = p_year - 1;
+//           p_month = p_month + 12;
+//         }
+//         var get_cal_year = p_year - b_year;
+//         if (get_cal_year > 13) {
+//           user.ageRestrict = "No";
+//         } else {
+//           user.ageRestrict = "Yes";
+//         }
+//         await user.save();
+//         //
+//         if (uInstitute?.userFollowersList?.includes(`${user._id}`)) {
+//         } else {
+//           uInstitute.userFollowersList.push(user._id);
+//           uInstitute.followersCount += 1;
+//           user.userInstituteFollowing.push(uInstitute._id);
+//           user.followingUICount += 1;
+//           await Promise.all([uInstitute.save(), user.save()]);
+//           const posts = await Post.find({ author: `${uInstitute._id}` });
+//           posts.forEach(async (ele) => {
+//             ele.authorFollowersCount = uInstitute.followersCount;
+//             await ele.save();
+//           });
+//         }
+//         const student = new Student({
+//           studentFirstName: data.studentFirstName,
+//           studentMiddleName: data.studentMiddleName,
+//           studentLastName: data.studentLastName,
+//           studentDOB: data.studentDOB,
+//           studentGender: data.studentGender,
+//           studentPhoneNumber: data.studentPhoneNumber,
+//         });
+//         student.studentCode = classes.classCode;
+//         if (student.studentGender === "Male") {
+//           user.profilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
+//           student.studentProfilePhoto =
+//             maleAvatar[Math.floor(Math.random() * 8)];
+//         } else if (student.studentGender === "Female") {
+//           user.profilePhoto = femaleAvatar[Math.floor(Math.random() * 8)];
+//           student.studentProfilePhoto =
+//             femaleAvatar[Math.floor(Math.random() * 8)];
+//         } else {
+//         }
+//         student.photoId = "0";
+//         const notify = new StudentNotification({});
+//         const aStatus = new Status({});
+//         institute.student.push(student._id);
+//         user.student.push(student._id);
+//         user.is_mentor = true;
+//         institute.joinedPost.push(user._id);
+//         classes.student.push(student._id);
+//         student.studentClass = classes._id;
+//         if (institute.userFollowersList.includes(user?._id)) {
+//         } else {
+//           user.userInstituteFollowing.push(institute?._id);
+//           user.followingUICount += 1;
+//           institute.userFollowersList.push(user?._id);
+//           institute.followersCount += 1;
+//         }
+//         student.institute = institute._id;
+//         student.user = user._id;
+//         notify.notifyContent = `${student.studentFirstName}${
+//           student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+//         } ${student.studentLastName} has been applied for role of student`;
+//         notify.notifySender = student._id;
+//         notify.notifyReceiever = classUser._id;
+//         institute.iNotify.push(notify._id);
+//         notify.notifyType = "Staff";
+//         notify.notifyPublisher = classStaff._id;
+//         classUser.activity_tab.push(notify._id);
+//         notify.notifyByStudentPhoto = student._id;
+//         notify.notifyCategory = "Student Request";
+//         notify.redirectIndex = 9;
+//         notify.classId = classes?._id;
+//         notify.departmentId = classes?.department;
+//         notify.batchId = classes?.batch;
+//         aStatus.content = `Your application for joining as student in ${institute.insName} is filled successfully. Stay updated to check status of your application.Tap here to see username ${user?.username}`;
+//         aStatus.see_secure = true;
+//         user.applicationStatus.push(aStatus._id);
+//         //
+//         invokeMemberTabNotification(
+//           "Staff Activity",
+//           notify,
+//           "Request for Joining",
+//           classUser._id,
+//           classUser.deviceToken,
+//           "Staff",
+//           notify
+//         );
+//         //
+//         await Promise.all([
+//           student.save(),
+//           user.save(),
+//           notify.save(),
+//           aStatus.save(),
+//         ]);
+//         if (institute.sms_lang === "en") {
+//           await directESMSQuery(
+//             user?.userPhoneNumber,
+//             `${student.studentFirstName} ${
+//               student.studentMiddleName ? student.studentMiddleName : ""
+//             } ${student.studentLastName}`,
+//             institute?.insName,
+//             classes?.classTitle
+//           );
+//         } else if (institute.sms_lang === "hi") {
+//           await directHSMSQuery(
+//             user?.userPhoneNumber,
+//             `${student.studentFirstName} ${
+//               student.studentMiddleName ? student.studentMiddleName : ""
+//             } ${student.studentLastName}`,
+//             institute?.insName,
+//             classes?.classTitle
+//           );
+//         } else if (institute.sms_lang === "mr") {
+//           await directMSMSQuery(
+//             user?.userPhoneNumber,
+//             `${student.studentFirstName} ${
+//               student.studentMiddleName ? student.studentMiddleName : ""
+//             } ${student.studentLastName}`,
+//             institute?.insName,
+//             classes?.classTitle
+//           );
+//         } else {
+//         }
+//         console.log("Awesome Enjoy Qviple A/c");
+//       } else {
+//         console.log("false in A/c");
+//       }
+//     }
+//     await Promise.all([institute.save(), classes.save(), classUser.save()]);
+//     console.log("Operation Process Completed");
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
+
+// addDirectInClass();

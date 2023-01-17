@@ -109,7 +109,7 @@ router.route("/backlog/one/subject/:smid/students/dropout").get(
   catchAsync(examController.retrieveBacklogOneSubjectDropStudent)
 );
 
-router.route("/backlog/one/previous/student/:pyid/subject").get(
+router.route("/backlog/one/previous/student/:sid/subject").get(
   // isLoggedIn,
   catchAsync(examController.retrieveBacklogOneStudentSubjects)
 );

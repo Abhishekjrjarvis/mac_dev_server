@@ -191,8 +191,16 @@ exports.rewardProfileAdsQuery = async (req, res) => {
 
 exports.oneInstitute = async (req, res) => {
   try {
-    const ins = await User.find({});
-    res.status(200).send({ message: "One Institute ", one_ins: ins });
+    const { id } = req.params;
+    const ins = await InstituteAdmin.find({ _id: id })
+      .select("insName")
+      .populate({
+        path: "classRooms",
+        select: "className classTitle",
+      });
+    res
+      .status(200)
+      .send({ message: "One Institute All Classes", one_ins: ins });
   } catch {}
 };
 

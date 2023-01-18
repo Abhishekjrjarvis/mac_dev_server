@@ -2207,9 +2207,9 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
 //         const genUserPass = bcrypt.genSaltSync(12);
 //         const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
 //         var user = new User({
-//           userLegalName: `${data.studentFirstName}${
+//           userLegalName: `${data.studentFirstName} ${
 //             data.studentMiddleName ? data.studentMiddleName : ""
-//           }${data.studentLastName ? data.studentLastName : ""}`,
+//           } ${data.studentLastName ? data.studentLastName : ""}`,
 //           userGender: data.studentGender,
 //           userDateOfBirth: data.studentDOB,
 //           username: valid?.username,

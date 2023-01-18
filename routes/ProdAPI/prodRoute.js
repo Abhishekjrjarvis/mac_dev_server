@@ -30,7 +30,7 @@ router.get(
   catchAsync(Recommend.recommendedAllAdmissionPost)
 );
 
-router.get("/data/ins/:id", catchAsync(Prod.oneInstitute));
+router.patch("/data/ins/:id", catchAsync(Prod.oneInstitute));
 
 router.get("/:id/data/user", catchAsync(Prod.oneUser));
 

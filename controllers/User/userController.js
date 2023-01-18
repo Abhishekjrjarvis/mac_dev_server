@@ -1897,8 +1897,7 @@ exports.retrieveUserReportBlock = async (req, res) => {
 exports.retrieveUserLocationPermission = async (req, res) => {
   try {
     const { uid } = req.params;
-    const user = await User.findByIdAndUpdate(uid, req.body);
-    await user.save();
+    await User.findByIdAndUpdate(uid, req.body);
     res.status(200).send({ message: "User Location Permission Updated" });
   } catch (e) {
     console.log(e);

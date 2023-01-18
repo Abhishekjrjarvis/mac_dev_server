@@ -32,6 +32,7 @@ const {
   patchSportClassImagePhoto,
   patchSportClassImageCover,
   patchSportTeamImageCover,
+  uploadOneWithDeletedPreviousImage,
   // patchStaffImagePhoto,
   // patchStaffAddharDoc,
   // patchStudentImagePhoto,
@@ -135,6 +136,10 @@ router
 router
   .route("/:sid/sport/team/cover")
   .patch(isLoggedIn, upload.single("file"), patchSportTeamImageCover);
+
+router
+  .route("/onefile/update")
+  .patch(upload.single("file"), uploadOneWithDeletedPreviousImage);
 
 // router
 //   .route("/:id/staff/photo")

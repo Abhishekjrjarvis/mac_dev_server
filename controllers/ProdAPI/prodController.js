@@ -5,6 +5,7 @@ const User = require("../../models/User");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const Staff = require("../../models/Staff");
 const Student = require("../../models/Student");
+const Class = require("../../models/Class");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 // exports.allUsers = async (req, res) => {
@@ -123,16 +124,13 @@ const replaceUser = (user) => {
 
 exports.allUser = async (req, res) => {
   try {
-    const user = await User.find({})
-      .select("id user_latitude user_longitude userInstituteFollowing")
-      .lean()
-      .exec();
+    const user = await User.find({}).select("id userLegalName").lean().exec();
     if (user?.length > 0) {
-      var validLUser = replaceUser(user);
+      // var validLUser = replaceUser(user);
       res.status(200).send({
         message: "All User Id",
-        allIds: validLUser,
-        count: validLUser?.length,
+        allIds: user,
+        // count: validLUser?.length,
       });
     }
   } catch {}
@@ -192,15 +190,24 @@ exports.rewardProfileAdsQuery = async (req, res) => {
 exports.oneInstitute = async (req, res) => {
   try {
     const { id } = req.params;
-    const ins = await InstituteAdmin.find({ _id: id })
-      .select("insName")
-      .populate({
-        path: "classRooms",
-        select: "className classTitle",
-      });
-    res
-      .status(200)
-      .send({ message: "One Institute All Classes", one_ins: ins });
+    // const array = [
+    //   "63c67a33ccc57f4f018fde08",
+    //   "63c67a3accc57f4f018fe04a",
+    //   "63c67a3eccc57f4f018fe16b",
+    //   "63c67a41ccc57f4f018fe28c",
+    //   "63c67a45ccc57f4f018fe3ad",
+    //   "63c67a48ccc57f4f018fe4ce",
+    // ];
+    const user = await User.findByIdAndUpdate(id, req.body);
+    // const ins = await Class.findById({ _id: id }).select("_id").populate({
+    //   path: "student",
+    //   select:
+    //     "studentFirstName studentLastName studentMiddleName studentProfilePhoto",
+    // });
+    res.status(200).send({
+      message: "One User Updated",
+      one_ins: user?.userLegalName,
+    });
   } catch {}
 };
 

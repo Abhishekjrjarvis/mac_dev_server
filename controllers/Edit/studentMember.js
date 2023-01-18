@@ -44,12 +44,37 @@ exports.photoEditByStudent = async (req, res) => {
 exports.formEditByClassTeacher = async (req, res) => {
   try {
     if (!req.params.sid) throw "Please send student id to perform task";
-    const one_student = await Student.findByIdAndUpdate(
-      req.params.sid,
-      req.body
-    );
+    const one_student = await Student.findById(req.params.sid);
+    for (let file of req.body?.fileArray) {
+      if (file.name === "addharFrontCard")
+        one_student.studentAadharFrontCard = file.key;
+      else if (file.name === "addharBackCard")
+        one_student.studentAadharBackCard = file.key;
+      else if (file.name === "bankPassbook")
+        one_student.studentBankPassbook = file.key;
+      else if (file.name === "casteCertificate")
+        one_student.studentCasteCertificatePhoto = file.key;
+      else {
+        const filterDocument = one_student.studentDocuments?.filter(
+          (val) => val.documentName !== file.name
+        );
+        one_student.studentDocuments = [
+          ...filterDocument,
+          {
+            documentName: file.name,
+            documentKey: file.key,
+            documentType: file.type,
+          },
+        ];
+      }
+    }
+    for (let studentObj in req.body?.student) {
+      one_student[`${studentObj}`] = req.body?.student[studentObj];
+    }
+    await one_student.save();
     res.status(200).send({
       message: "Student form edited successfully👍",
+      // one_student
     });
     const classes = await Class.findById({ _id: one_student?.studentClass });
     const batch = await Batch.findById({ _id: one_student?.batches });

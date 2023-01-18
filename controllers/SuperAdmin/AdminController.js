@@ -121,7 +121,7 @@ exports.getAdmin = async (req, res) => {
       // admins: cached.admins,
       // postCount: cached.postCount,
       admins: admins,
-      postCount: postCount,
+      postCount: post?.length,
     });
   } catch (e) {
     console.log(e);

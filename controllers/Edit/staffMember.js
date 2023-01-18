@@ -34,9 +34,37 @@ exports.photoEditByStaff = async (req, res) => {
 exports.formEditByInstitute = async (req, res) => {
   try {
     if (!req.params.sid) throw "Please send staff id to perform task";
-    const staffs = await Staff.findByIdAndUpdate(req.params.sid, req.body);
+    const staffs = await Staff.findById(req.params.sid);
+    for (let file of req.body?.fileArray) {
+      if (file.name === "addharFrontCard")
+        staffs.staffAadharFrontCard = file.key;
+      else if (file.name === "addharBackCard")
+        staffs.staffAadharBackCard = file.key;
+      else if (file.name === "bankPassbook")
+        staffs.staffBankPassbook = file.key;
+      else if (file.name === "casteCertificate")
+        staffs.staffCasteCertificatePhoto = file.key;
+      else {
+        const filterDocument = staffs.staffDocuments?.filter(
+          (val) => val.documentName !== file.name
+        );
+        staffs.staffDocuments = [
+          ...filterDocument,
+          {
+            documentName: file.name,
+            documentKey: file.key,
+            documentType: file.type,
+          },
+        ];
+      }
+    }
+    for (let staffObj in req.body?.staff) {
+      staffs[`${staffObj}`] = req.body?.staff[staffObj];
+    }
+    await staffs.save();
     res.status(200).send({
       message: "staff form edited successfully👍",
+      // staffs,
     });
     const institute = await InstituteAdmin.findById({ _id: staffs?.institute });
     if (staffs.staffGender === "Male") {

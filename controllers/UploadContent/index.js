@@ -29,6 +29,9 @@ const {
   uploadFile,
   uploadDocFile,
 } = require("../../S3Configuration");
+const {
+  file_to_aws_and_deleted_previous,
+} = require("../../Utilities/uploadFileAws");
 
 exports.getImage = async (req, res) => {
   try {
@@ -632,5 +635,20 @@ exports.patchStudentAddharDoc = async (req, res) => {
     res.status(201).send({ message: "Uploaded" });
   } catch (err) {
     console.log(err.message);
+  }
+};
+
+exports.uploadOneWithDeletedPreviousImage = async (req, res) => {
+  try {
+    const file = req?.file;
+    const previousKey = req.body?.previousKey || "";
+    if (!file) throw "Please send to file to upload server";
+    const imageKey = await file_to_aws_and_deleted_previous(file, previousKey);
+    res.status(200).send({
+      message: "File deleted and Uploaded file Successfully",
+      imageKey,
+    });
+  } catch (err) {
+    console.log(err);
   }
 };

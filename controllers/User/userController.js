@@ -922,7 +922,7 @@ exports.retrieveMarkAllView = async (req, res) => {
   try {
     const id = req.params.id;
     const { type } = req.query;
-    const user = await User.findById({ _id: id })
+    var user = await User.findById({ _id: id })
       .select("_id")
       .populate({ path: "activity_tab uNotify followInsAnnouncement" });
     if (type === "Notification") {

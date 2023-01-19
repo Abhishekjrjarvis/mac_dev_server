@@ -1653,7 +1653,7 @@ exports.getOneAssignmentOneStudentCompleteAssignment = async (req, res) => {
         match: { assignment: { $eq: `${req.params.aid}` } },
       })
       .select(
-        "assignments completedAssignment incompletedAssignment submittedAssignment user"
+        "assignments completedAssignment incompletedAssignment studentFirstName studentMiddleName studentLastName submittedAssignment user"
       );
     const user = await User.findById({ _id: `${student.user}` });
     const assignment = await StudentAssignment.findById(
@@ -1661,22 +1661,7 @@ exports.getOneAssignmentOneStudentCompleteAssignment = async (req, res) => {
     );
     assignment.assignmentSubmit = req.body.assignmentSubmit;
     const subjectAssignment = await Assignment.findById(assignment.assignment);
-    if (req.body.assignmentSubmit === true) {
-      student.completedAssignment += 1;
-      subjectAssignment.checkedCount += 1;
-    } else {
-      student.submittedAssignment -= 1;
-      student.incompletedAssignment += 1;
-      assignment.assignmentSubmitRequest = false;
-      subjectAssignment.submittedCount -= 1;
-      subjectAssignment.submittedStudent.pull(req.params.sid);
-    }
-    const notify = new StudentNotification({});
-    notify.notifyContent = `${student.studentFirstName} ${
-      student.studentMiddleName ? student.studentMiddleName : ""
-    } ${student.studentLastName} ${req.body.assignmentSubmit} ${
-      subjectAssignment?.assignmentName
-    } Assignment successfully`;
+    var notify = new StudentNotification({});
     notify.notifySender = subjectAssignment?.subject;
     notify.notifyReceiever = user._id;
     notify.subjectId = subjectAssignment?.subject;
@@ -1684,8 +1669,30 @@ exports.getOneAssignmentOneStudentCompleteAssignment = async (req, res) => {
     notify.notifyPublisher = student._id;
     user.activity_tab.push(notify._id);
     // notify.notifyByDepartPhoto = department._id;
-    notify.notifyCategory = "Complete Assignment";
-    notify.redirectIndex = 19;
+    if (req.body.assignmentSubmit === true) {
+      student.completedAssignment += 1;
+      subjectAssignment.checkedCount += 1;
+      notify.notifyContent = `${student.studentFirstName} ${
+        student.studentMiddleName ? student.studentMiddleName : ""
+      } ${student.studentLastName} ${req.body.assignmentSubmit} ${
+        subjectAssignment?.assignmentName
+      } Assignment Submit successfully`;
+      notify.notifyCategory = "Complete Assignment";
+      notify.redirectIndex = 19;
+    } else {
+      student.submittedAssignment -= 1;
+      student.incompletedAssignment += 1;
+      assignment.assignmentSubmitRequest = false;
+      subjectAssignment.submittedCount -= 1;
+      subjectAssignment.submittedStudent.pull(req.params.sid);
+      notify.notifyContent = `${student.studentFirstName} ${
+        student.studentMiddleName ? student.studentMiddleName : ""
+      } ${student.studentLastName} ${req.body.assignmentSubmit} ${
+        subjectAssignment?.assignmentName
+      } Assignment cancelled successfully`;
+      notify.notifyCategory = "Cancel Assignment";
+      notify.redirectIndex = C19;
+    }
     await Promise.all([
       subjectAssignment.save(),
       assignment.save(),

@@ -392,7 +392,7 @@ const studentSchema = new mongoose.Schema({
   ],
   vehicle: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Student",
+    ref: "Vehicle",
   },
   vehicleRemainFeeCount: {
     type: Number,
@@ -402,6 +402,7 @@ const studentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  routes: [],
 });
 
 const Student = mongoose.model("Student", studentSchema);

@@ -1061,7 +1061,6 @@ exports.retrieveApproveStaffList = async (req, res) => {
       const staffIns = await Staff.find({
         _id: { $in: staff_ins?.ApproveStaff },
       })
-        .sort("-staffROLLNO")
         .limit(limit)
         .skip(skip)
         .select(
@@ -1073,6 +1072,9 @@ exports.retrieveApproveStaffList = async (req, res) => {
         });
       if (staffIns) {
         // const sEncrypt = await encryptionPayload(staffIns);
+        staffIns.sort(function (st1, st2) {
+          return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
+        });
         res.status(200).send({ message: "All Staff With Limit ", staffIns });
       } else {
         res.status(404).send({ message: "Failure", staffIns: [] });
@@ -1085,7 +1087,6 @@ exports.retrieveApproveStaffList = async (req, res) => {
         const staffIns = await Staff.find({
           _id: { $in: staff_ins?.ApproveStaff },
         })
-          .sort("-staffROLLNO")
           .select(
             "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
           )
@@ -1102,6 +1103,9 @@ exports.retrieveApproveStaffList = async (req, res) => {
           });
         if (staffIns) {
           // const sEncrypt = await encryptionPayload(staffIns);
+          staffIns.sort(function (st1, st2) {
+            return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
+          });
           res.status(200).send({ message: "Without Limit", staffIns });
         } else {
           res.status(404).send({ message: "Failure", staffIns: [] });
@@ -1113,7 +1117,6 @@ exports.retrieveApproveStaffList = async (req, res) => {
         const staffIns = await Staff.find({
           _id: { $in: staff_ins?.ApproveStaff },
         })
-          .sort("-staffROLLNO")
           .select(
             "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
           )
@@ -1123,6 +1126,9 @@ exports.retrieveApproveStaffList = async (req, res) => {
           });
         if (staffIns) {
           // const sEncrypt = await encryptionPayload(staffIns);
+          staffIns.sort(function (st1, st2) {
+            return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
+          });
           res.status(200).send({ message: "Without Limit", staffIns });
         } else {
           res.status(404).send({ message: "Failure", staffIns: [] });
@@ -1163,6 +1169,12 @@ exports.retrieveApproveStudentList = async (req, res) => {
         });
       if (studentIns) {
         // const sEncrypt = await encryptionPayload(studentIns);
+        studentIns.sort(function (st1, st2) {
+          return (
+            parseInt(st1.studentGRNO.slice(1)) -
+            parseInt(st2.studentGRNO.slice(1))
+          );
+        });
         res.status(200).send({ message: "All Student with limit", studentIns });
       } else {
         res.status(404).send({ message: "Failure", studentIns: [] });
@@ -1188,6 +1200,12 @@ exports.retrieveApproveStudentList = async (req, res) => {
         });
       if (studentIns) {
         // const sEncrypt = await encryptionPayload(studentIns);
+        studentIns.sort(function (st1, st2) {
+          return (
+            parseInt(st1.studentGRNO.slice(1)) -
+            parseInt(st2.studentGRNO.slice(1))
+          );
+        });
         res.status(200).send({ message: "Without Limit", studentIns });
       } else {
         res.status(404).send({ message: "Failure", studentIns: [] });
@@ -1201,20 +1219,72 @@ exports.retrieveApproveStudentList = async (req, res) => {
 exports.getFullStaffInfo = async (req, res) => {
   try {
     const { id } = req.params;
-    const staff = await Staff.findById({ _id: id })
-      .select(
-        "staffFirstName staffDesignationCount staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber"
-      )
-      .populate({
-        path: "user",
-        select: "userLegalName userEmail",
-      })
-      .populate({
-        path: "institute",
-        select: "insName",
-      })
-      .lean()
-      .exec();
+    const { isApk } = req.query;
+    if (isApk) {
+      var staff = await Staff.findById({ _id: id })
+        .select(
+          "staffFirstName staffDesignationCount staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName userEmail",
+        })
+        .populate({
+          path: "institute",
+          select: "insName",
+        })
+        .lean()
+        .exec();
+      for (var docs of staff.staffDocuments) {
+        staff.incomeCertificate =
+          docs.documentName === "incomeCertificate"
+            ? docs.documentKey
+            : staff.incomeCertificate;
+        staff.leavingTransferCertificate =
+          docs.documentName === "leavingTransferCertificate"
+            ? docs.documentKey
+            : staff.leavingTransferCertificate;
+        staff.nonCreamyLayerCertificate =
+          docs.documentName === "nonCreamyLayerCertificate"
+            ? docs.documentKey
+            : staff.nonCreamyLayerCertificate;
+        staff.domicileCertificate =
+          docs.documentName === "domicileCertificate"
+            ? docs.documentKey
+            : staff.domicileCertificate;
+        staff.nationalityCertificate =
+          docs.documentName === "nationalityCertificate"
+            ? docs.documentKey
+            : staff.nationalityCertificate;
+        staff.lastYearMarksheet =
+          docs.documentName === "lastYearMarksheet"
+            ? docs.documentKey
+            : staff.lastYearMarksheet;
+        staff.joiningTransferLetter =
+          docs.documentName === "joiningTransferLetter"
+            ? docs.documentKey
+            : staff.joiningTransferLetter;
+        staff.identityDocument =
+          docs.documentName === "identityDocument"
+            ? docs.documentKey
+            : staff.identityDocument;
+      }
+    } else {
+      var staff = await Staff.findById({ _id: id })
+        .select(
+          "staffFirstName staffDesignationCount staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName userEmail",
+        })
+        .populate({
+          path: "institute",
+          select: "insName",
+        })
+        .lean()
+        .exec();
+    }
     if (staff) {
       // const sEncrypt = await encryptionPayload(staff);
       res.status(200).send({ message: "Staff Data To Member", staff });
@@ -1230,24 +1300,81 @@ exports.getFullStudentInfo = async (req, res) => {
   try {
     var average_points = 0;
     const { id } = req.params;
-    const student = await Student.findById({ _id: id })
-      .select(
-        "studentFirstName extraPoints batchCount studentMiddleName studentBankAccountHolderName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
-      )
-      .populate({
-        path: "user",
-        select: "userLegalName userEmail",
-      })
-      .populate({
-        path: "institute",
-        select: "insName",
-      })
-      .populate({
-        path: "studentClass",
-        select: "className classStatus",
-      })
-      .lean()
-      .exec();
+    const { isApk } = req.query;
+    if (isApk) {
+      var student = await Student.findById({ _id: id })
+        .select(
+          "studentFirstName extraPoints batchCount studentMiddleName studentBankAccountHolderName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName userEmail",
+        })
+        .populate({
+          path: "institute",
+          select: "insName",
+        })
+        .populate({
+          path: "studentClass",
+          select: "className classStatus",
+        })
+        .lean()
+        .exec();
+
+      for (var docs of student.studentDocuments) {
+        student.incomeCertificate =
+          docs.documentName === "incomeCertificate"
+            ? docs.documentKey
+            : student.incomeCertificate;
+        student.leavingTransferCertificate =
+          docs.documentName === "leavingTransferCertificate"
+            ? docs.documentKey
+            : student.leavingTransferCertificate;
+        student.nonCreamyLayerCertificate =
+          docs.documentName === "nonCreamyLayerCertificate"
+            ? docs.documentKey
+            : student.nonCreamyLayerCertificate;
+        student.domicileCertificate =
+          docs.documentName === "domicileCertificate"
+            ? docs.documentKey
+            : student.domicileCertificate;
+        student.nationalityCertificate =
+          docs.documentName === "nationalityCertificate"
+            ? docs.documentKey
+            : student.nationalityCertificate;
+        student.lastYearMarksheet =
+          docs.documentName === "lastYearMarksheet"
+            ? docs.documentKey
+            : student.lastYearMarksheet;
+        student.joiningTransferLetter =
+          docs.documentName === "joiningTransferLetter"
+            ? docs.documentKey
+            : student.joiningTransferLetter;
+        student.identityDocument =
+          docs.documentName === "identityDocument"
+            ? docs.documentKey
+            : student.identityDocument;
+      }
+    } else {
+      var student = await Student.findById({ _id: id })
+        .select(
+          "studentFirstName extraPoints batchCount studentMiddleName studentBankAccountHolderName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName userEmail",
+        })
+        .populate({
+          path: "institute",
+          select: "insName",
+        })
+        .populate({
+          path: "studentClass",
+          select: "className classStatus",
+        })
+        .lean()
+        .exec();
+    }
     average_points += student.extraPoints / student.batchCount;
     if (student) {
       // Add Another Encryption
@@ -1257,7 +1384,9 @@ exports.getFullStudentInfo = async (req, res) => {
     } else {
       res.status(404).send({ message: "Failure" });
     }
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.retrieveDepartmentList = async (req, res) => {

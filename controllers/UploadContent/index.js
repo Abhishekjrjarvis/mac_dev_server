@@ -22,6 +22,8 @@ const Answer = require("../../models/Question/Answer");
 const AnswerReply = require("../../models/Question/AnswerReply");
 const SportTeam = require("../../models/SportTeam");
 const SportClass = require("../../models/SportClass");
+const Transport = require("../../models/Transport/transport");
+const Vehicle = require("../../models/Transport/vehicle");
 
 const {
   getFileStream,
@@ -566,6 +568,44 @@ exports.patchSportTeamImageCover = async (req, res) => {
     sport.sportTeamPhoto = results.key;
     sport.photoId = "0";
     await sport.save();
+    await unlinkFile(file.path);
+    res.status(201).send({ message: "updated photo" });
+  } catch (err) {
+    console.log(err.message);
+  }
+};
+
+exports.patchVehicleImageCover = async (req, res) => {
+  try {
+    const { vid } = req.params;
+    const vehicle = await Vehicle.findById({ _id: vid });
+    if (vehicle.vehicle_photo) await deleteFile(vehicle.vehicle_photo);
+    const width = 375;
+    const height = 245;
+    const file = req.file;
+    const results = await uploadFile(file, width, height);
+    vehicle.vehicle_photo = results.key;
+    vehicle.photoId = "0";
+    await vehicle.save();
+    await unlinkFile(file.path);
+    res.status(201).send({ message: "updated photo" });
+  } catch (err) {
+    console.log(err.message);
+  }
+};
+
+exports.patchTransportImageCover = async (req, res) => {
+  try {
+    const { tid } = req.params;
+    const trans = await Transport.findById({ _id: tid });
+    if (trans.transport_photo) await deleteFile(trans.transport_photo);
+    const width = 375;
+    const height = 245;
+    const file = req.file;
+    const results = await uploadFile(file, width, height);
+    trans.transport_photo = results.key;
+    trans.photoId = "0";
+    await trans.save();
     await unlinkFile(file.path);
     res.status(201).send({ message: "updated photo" });
   } catch (err) {

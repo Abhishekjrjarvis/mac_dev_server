@@ -456,6 +456,12 @@ const userSchema = new mongoose.Schema({
   active_member_role: {
     type: String,
   },
+  vehicle: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Vehicle",
+    },
+  ],
 });
 
 userSchema.post("findOneAndDelete", async function (doc) {

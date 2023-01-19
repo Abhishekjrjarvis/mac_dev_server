@@ -1328,99 +1328,244 @@ exports.retrieveUserStudentArray = async (req, res) => {
 exports.retrieveStaffDesignationArray = async (req, res) => {
   try {
     const { sid } = req.params;
+    const { isApk } = req.query;
     // const is_cache = await connect_redis_hit(`Staff-Designation-Member-${sid}`);
     // if (is_cache?.hit)
     //   return res.status(200).send({
     //     message: "All Designation Feed from Cache 🙌",
     //     staff: is_cache.staff,
     //   });
-    const staff = await Staff.findById({ _id: sid })
-      .select(
-        "staffFirstName staffDesignationCount staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber"
-      )
-      .populate({
-        path: "staffDepartment",
-        select: "dName dTitle",
-        populate: {
-          path: "departmentSelectBatch",
-          select: "batchName batchStatus",
-        },
-      })
-      .populate({
-        path: "staffClass",
-        select: "className classTitle classStatus classHeadTitle",
-        populate: {
-          path: "batch",
-          select: "batchName batchStatus",
-        },
-      })
-      .populate({
-        path: "staffSubject",
-        select: "subjectName subjectTitle subjectStatus",
-        populate: {
-          path: "class",
+    if (isApk) {
+      var staff = await Staff.findById({ _id: sid })
+        .select(
+          "staffFirstName staffDesignationCount staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber"
+        )
+        .populate({
+          path: "staffDepartment",
+          select: "dName dTitle",
+          populate: {
+            path: "departmentSelectBatch",
+            select: "batchName batchStatus",
+          },
+        })
+        .populate({
+          path: "staffClass",
           select: "className classTitle classStatus classHeadTitle",
           populate: {
             path: "batch",
             select: "batchName batchStatus",
           },
-        },
-      })
-      .populate({
-        path: "institute",
-        select: "insName photoId insProfilePhoto",
-      })
-      .populate({
-        path: "user",
-        select: "userLegalName photoId profilePhoto",
-      })
-      .populate({
-        path: "financeDepartment",
-        select: "financeName financeEmail financePhoneNumber",
-        populate: {
-          path: "financeHead",
-          select: "staffFirstName staffMiddleName staffLastName",
-        },
-      })
-      .populate({
-        path: "financeDepartment",
-        select: "financeName financeEmail financePhoneNumber",
-        populate: {
+        })
+        .populate({
+          path: "staffSubject",
+          select: "subjectName subjectTitle subjectStatus",
+          populate: {
+            path: "class",
+            select: "className classTitle classStatus classHeadTitle",
+            populate: {
+              path: "batch",
+              select: "batchName batchStatus",
+            },
+          },
+        })
+        .populate({
           path: "institute",
-          select: "financeStatus",
-        },
-      })
-      .populate({
-        path: "admissionDepartment",
-        select:
-          "admissionAdminEmail admissionAdminPhoneNumber admissionAdminAbout",
-        populate: {
-          path: "admissionAdminHead",
+          select: "insName photoId insProfilePhoto",
+        })
+        .populate({
+          path: "user",
+          select: "userLegalName photoId profilePhoto",
+        })
+        .populate({
+          path: "financeDepartment",
+          select: "financeName financeEmail financePhoneNumber",
+          populate: {
+            path: "financeHead",
+            select: "staffFirstName staffMiddleName staffLastName",
+          },
+        })
+        .populate({
+          path: "financeDepartment",
+          select: "financeName financeEmail financePhoneNumber",
+          populate: {
+            path: "institute",
+            select: "financeStatus",
+          },
+        })
+        .populate({
+          path: "admissionDepartment",
           select:
-            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
-        },
-      })
-      .populate({
-        path: "sportDepartment",
-        select: "sportEmail sportPhoneNumber sportAbout sportName",
-        populate: {
-          path: "sportHead",
+            "admissionAdminEmail admissionAdminPhoneNumber admissionAdminAbout",
+          populate: {
+            path: "admissionAdminHead",
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+          },
+        })
+        .populate({
+          path: "sportDepartment",
+          select: "sportEmail sportPhoneNumber sportAbout sportName",
+          populate: {
+            path: "sportHead",
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+          },
+        })
+        .populate({
+          path: "staffSportClass",
           select:
-            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
-        },
-      })
-      .populate({
-        path: "staffSportClass",
-        select:
-          "sportClassEmail sportClassPhoneNumber sportClassAbout sportClassName",
-        populate: {
-          path: "sportClassHead",
+            "sportClassEmail sportClassPhoneNumber sportClassAbout sportClassName",
+          populate: {
+            path: "sportClassHead",
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+          },
+        })
+        .populate({
+          path: "transportDepartment",
           select:
-            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
-        },
-      })
-      .lean()
-      .exec();
+            "vehicle_count transport_staff_count transport_photo photoId passenger_count online_fee offline_fee remaining_fee",
+          populate: {
+            path: "transport_manager",
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+          },
+        })
+        .lean()
+        .exec();
+      for (var docs of staff.staffDocuments) {
+        staff.incomeCertificate =
+          docs.documentName === "incomeCertificate"
+            ? docs.documentKey
+            : staff.incomeCertificate;
+        staff.leavingTransferCertificate =
+          docs.documentName === "leavingTransferCertificate"
+            ? docs.documentKey
+            : staff.leavingTransferCertificate;
+        staff.nonCreamyLayerCertificate =
+          docs.documentName === "nonCreamyLayerCertificate"
+            ? docs.documentKey
+            : staff.nonCreamyLayerCertificate;
+        staff.domicileCertificate =
+          docs.documentName === "domicileCertificate"
+            ? docs.documentKey
+            : staff.domicileCertificate;
+        staff.nationalityCertificate =
+          docs.documentName === "nationalityCertificate"
+            ? docs.documentKey
+            : staff.nationalityCertificate;
+        staff.lastYearMarksheet =
+          docs.documentName === "lastYearMarksheet"
+            ? docs.documentKey
+            : staff.lastYearMarksheet;
+        staff.joiningTransferLetter =
+          docs.documentName === "joiningTransferLetter"
+            ? docs.documentKey
+            : staff.joiningTransferLetter;
+        staff.identityDocument =
+          docs.documentName === "identityDocument"
+            ? docs.documentKey
+            : staff.identityDocument;
+      }
+    } else {
+      var staff = await Staff.findById({ _id: sid })
+        .select(
+          "staffFirstName staffDesignationCount staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber"
+        )
+        .populate({
+          path: "staffDepartment",
+          select: "dName dTitle",
+          populate: {
+            path: "departmentSelectBatch",
+            select: "batchName batchStatus",
+          },
+        })
+        .populate({
+          path: "staffClass",
+          select: "className classTitle classStatus classHeadTitle",
+          populate: {
+            path: "batch",
+            select: "batchName batchStatus",
+          },
+        })
+        .populate({
+          path: "staffSubject",
+          select: "subjectName subjectTitle subjectStatus",
+          populate: {
+            path: "class",
+            select: "className classTitle classStatus classHeadTitle",
+            populate: {
+              path: "batch",
+              select: "batchName batchStatus",
+            },
+          },
+        })
+        .populate({
+          path: "institute",
+          select: "insName photoId insProfilePhoto",
+        })
+        .populate({
+          path: "user",
+          select: "userLegalName photoId profilePhoto",
+        })
+        .populate({
+          path: "financeDepartment",
+          select: "financeName financeEmail financePhoneNumber",
+          populate: {
+            path: "financeHead",
+            select: "staffFirstName staffMiddleName staffLastName",
+          },
+        })
+        .populate({
+          path: "financeDepartment",
+          select: "financeName financeEmail financePhoneNumber",
+          populate: {
+            path: "institute",
+            select: "financeStatus",
+          },
+        })
+        .populate({
+          path: "admissionDepartment",
+          select:
+            "admissionAdminEmail admissionAdminPhoneNumber admissionAdminAbout",
+          populate: {
+            path: "admissionAdminHead",
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+          },
+        })
+        .populate({
+          path: "sportDepartment",
+          select: "sportEmail sportPhoneNumber sportAbout sportName",
+          populate: {
+            path: "sportHead",
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+          },
+        })
+        .populate({
+          path: "staffSportClass",
+          select:
+            "sportClassEmail sportClassPhoneNumber sportClassAbout sportClassName",
+          populate: {
+            path: "sportClassHead",
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+          },
+        })
+        .populate({
+          path: "transportDepartment",
+          select:
+            "vehicle_count transport_staff_count transport_photo photoId passenger_count online_fee offline_fee remaining_fee",
+          populate: {
+            path: "transport_manager",
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+          },
+        })
+        .lean()
+        .exec();
+    }
     // const staffEncrypt = await encryptionPayload(staff);
     // const cached = await connect_redis_miss(
     //   `Staff-Designation-Member-${sid}`,
@@ -1439,6 +1584,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
 exports.retrieveStudentDesignationArray = async (req, res) => {
   try {
     const { sid } = req.params;
+    const { isApk } = req.query;
     // const is_cache = await connect_redis_hit(
     //   `Student-Designation-Member-${sid}`
     // );
@@ -1450,26 +1596,151 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
     //   });
     if (sid) {
       var average_points = 0;
-      const student = await Student.findById({ _id: sid })
-        .select(
-          "batchCount extraPoints studentFirstName studentBankAccountHolderName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
-        )
-        .populate({
-          path: "studentClass",
-          select: "className classTitle classStatus classHeadTitle",
-          populate: {
-            path: "batch",
-            select: "batchName batchStatus",
-          },
-        })
-        .populate({
-          path: "institute",
-          select: "insName name photoId insProfilePhoto",
-        })
-        .populate({
-          path: "user",
-          select: "userLegalName username photoId profilePhoto",
-        });
+      if (isApk) {
+        var student = await Student.findById({ _id: sid })
+          .select(
+            "batchCount extraPoints studentFirstName studentBankAccountHolderName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
+          )
+          .populate({
+            path: "studentClass",
+            select: "className classTitle classStatus classHeadTitle",
+            populate: {
+              path: "batch",
+              select: "batchName batchStatus",
+            },
+          })
+          .populate({
+            path: "institute",
+            select: "insName name photoId insProfilePhoto",
+          })
+          .populate({
+            path: "user",
+            select: "userLegalName username photoId profilePhoto",
+          })
+          .populate({
+            path: "vehicle",
+            select: "vehicle_number vehicle_type vehicle_photo photoId",
+            populate: {
+              path: "vehicle_conductor",
+              select:
+                "staffFirstName staffMiddleName staffLastName staffPhoneNumber",
+            },
+          })
+          .populate({
+            path: "vehicle",
+            select: "vehicle_number vehicle_type vehicle_photo photoId",
+            populate: {
+              path: "vehicle_driver",
+              select:
+                "staffFirstName staffMiddleName staffLastName staffPhoneNumber",
+            },
+          })
+          .populate({
+            path: "vehicle",
+            select: "vehicle_number vehicle_type vehicle_photo photoId",
+            populate: {
+              path: "vehicle_no_driver",
+              select: "userLegalName userPhoneNumber",
+            },
+          })
+          .populate({
+            path: "vehicle",
+            select: "vehicle_number vehicle_type vehicle_photo photoId",
+            populate: {
+              path: "vehicle_no_conductor",
+              select: "userLegalName userPhoneNumber",
+            },
+          });
+        for (var docs of student.studentDocuments) {
+          student.incomeCertificate =
+            docs.documentName === "incomeCertificate"
+              ? docs.documentKey
+              : student.incomeCertificate;
+          student.leavingTransferCertificate =
+            docs.documentName === "leavingTransferCertificate"
+              ? docs.documentKey
+              : student.leavingTransferCertificate;
+          student.nonCreamyLayerCertificate =
+            docs.documentName === "nonCreamyLayerCertificate"
+              ? docs.documentKey
+              : student.nonCreamyLayerCertificate;
+          student.domicileCertificate =
+            docs.documentName === "domicileCertificate"
+              ? docs.documentKey
+              : student.domicileCertificate;
+          student.nationalityCertificate =
+            docs.documentName === "nationalityCertificate"
+              ? docs.documentKey
+              : student.nationalityCertificate;
+          student.lastYearMarksheet =
+            docs.documentName === "lastYearMarksheet"
+              ? docs.documentKey
+              : student.lastYearMarksheet;
+          student.joiningTransferLetter =
+            docs.documentName === "joiningTransferLetter"
+              ? docs.documentKey
+              : student.joiningTransferLetter;
+          student.identityDocument =
+            docs.documentName === "identityDocument"
+              ? docs.documentKey
+              : student.identityDocument;
+        }
+      } else {
+        var student = await Student.findById({ _id: sid })
+          .select(
+            "batchCount extraPoints studentFirstName studentBankAccountHolderName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
+          )
+          .populate({
+            path: "studentClass",
+            select: "className classTitle classStatus classHeadTitle",
+            populate: {
+              path: "batch",
+              select: "batchName batchStatus",
+            },
+          })
+          .populate({
+            path: "institute",
+            select: "insName name photoId insProfilePhoto",
+          })
+          .populate({
+            path: "user",
+            select: "userLegalName username photoId profilePhoto",
+          })
+          .populate({
+            path: "vehicle",
+            select: "vehicle_number vehicle_type vehicle_photo photoId",
+            populate: {
+              path: "vehicle_conductor",
+              select:
+                "staffFirstName staffMiddleName staffLastName staffPhoneNumber",
+            },
+          })
+          .populate({
+            path: "vehicle",
+            select: "vehicle_number vehicle_type vehicle_photo photoId",
+            populate: {
+              path: "vehicle_driver",
+              select:
+                "staffFirstName staffMiddleName staffLastName staffPhoneNumber",
+            },
+          })
+          .populate({
+            path: "vehicle",
+            select: "vehicle_number vehicle_type vehicle_photo photoId",
+            populate: {
+              path: "vehicle_no_driver",
+              select: "userLegalName userPhoneNumber",
+            },
+          })
+          .populate({
+            path: "vehicle",
+            select: "vehicle_number vehicle_type vehicle_photo photoId",
+            populate: {
+              path: "vehicle_no_conductor",
+              select: "userLegalName userPhoneNumber",
+            },
+          });
+      }
       average_points += student.extraPoints / student.batchCount;
       // Add Another Encryption
       // const bind_student = {

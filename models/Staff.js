@@ -218,10 +218,12 @@ const staffSchema = new mongoose.Schema({
       ref: "Transport",
     },
   ],
-  vehicle: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Vehicle",
-  },
+  vehicle: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Vehicle",
+    },
+  ],
   vehicle_category: {
     type: String,
   },

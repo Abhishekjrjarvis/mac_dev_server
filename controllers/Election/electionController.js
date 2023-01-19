@@ -8,6 +8,7 @@ const Student = require("../../models/Student");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const moment = require("moment");
 const InstituteAdmin = require("../../models/InstituteAdmin");
+const { nested_document_limit } = require("../../helper/databaseFunction");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 const date_renew = (s_date, type) => {
@@ -180,31 +181,34 @@ exports.retrieveOneElectionQueryCandidate = async (req, res) => {
   try {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const skip = (page - 1) * limit;
     const { eid } = req.params;
-    const all_candidate = await Election.findById({ _id: eid }).populate({
-      path: "election_candidate",
-      options: {
-        limit: limit,
-        skip: skip,
-      },
-      populate: {
-        path: "student",
-        select:
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
-      },
-    });
-    if (all_candidate?.election_candidate?.length > 0) {
+    const all_candidate = await Election.findById({ _id: eid })
+      .select("_id")
+      .populate({
+        path: "election_candidate",
+        populate: {
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
+        },
+      });
+
+    const all_candidates = nested_document_limit(
+      page,
+      limit,
+      all_candidate?.election_candidate
+    );
+    if (all_candidates) {
       // const allEncrypt = await encryptionPayload(all_candidate);
       res.status(200).send({
         message: "All Candidate List 😀",
-        all_candidate,
+        all_candidates,
         status: true,
       });
     } else {
       res.status(200).send({
         message: "No Candidate List 😀",
-        all_candidate: [],
+        all_candidates: [],
         status: false,
       });
     }

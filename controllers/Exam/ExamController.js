@@ -461,11 +461,11 @@ exports.allStudentMarksBySubjectTeacher = async (req, res) => {
       }
       var notify = new StudentNotification({});
       notify.notifyContent = `${subjectData?.subjectName} marks updated.`;
-      notify.notifySender = subjectData;
+      notify.notifySender = subjectData._id;
       notify.notifyReceiever = user._id;
       notify.notifyType = "Student";
       notify.notifyPublisher = student._id;
-      notify.subjectId = subjectData;
+      notify.subjectId = subjectData._id;
       user.activity_tab.push(notify._id);
       // notify.notifyByFinancePhoto = subjectData;
       notify.notifyCategory = "Marks";

@@ -37,6 +37,12 @@ const transportSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  transport_photo: {
+    type: String,
+  },
+  photoId: {
+    type: String,
+  },
   transport_drivers: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -59,6 +65,12 @@ const transportSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Vehicle",
+    },
+  ],
+  transport_ndconductors: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
   ],
 });

@@ -2196,7 +2196,7 @@ exports.retrieveUserRoleQuery = async (req, res) => {
       )
       .populate({
         path: "institute",
-        select: "insName",
+        select: "insName insProfilePhoto photoId name",
       });
 
     const student = await Student.find({ _id: { $in: user?.student } })
@@ -2206,7 +2206,7 @@ exports.retrieveUserRoleQuery = async (req, res) => {
       )
       .populate({
         path: "institute",
-        select: "insName",
+        select: "insName insProfilePhoto photoId name",
       });
 
     var mergeArray = [...staff, ...student];

@@ -112,13 +112,13 @@ router.get("/:id/activity", isLoggedIn, catchAsync(User.getAllUserActivity));
 
 router.get(
   "/:id/activity/total/notify",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(User.getAllTotalCount)
 );
 
 router.patch(
   "/:id/mark/viewed",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(User.retrieveMarkAllView)
 );
 

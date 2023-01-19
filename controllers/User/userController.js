@@ -921,42 +921,51 @@ exports.getAllTotalCount = async (req, res) => {
 exports.retrieveMarkAllView = async (req, res) => {
   try {
     const id = req.params.id;
+    const { type } = req.query;
     const user = await User.findById({ _id: id })
       .select("_id")
       .populate({ path: "activity_tab uNotify followInsAnnouncement" });
-    const notify = await Notification.find({
-      $and: [{ _id: { $in: user?.uNotify } }, { notifyViewStatus: "Not View" }],
-    });
-    const activity = await StudentNotification.find({
-      $and: [
-        { _id: { $in: user?.activity_tab } },
-        { notifyViewStatus: "Not View" },
-      ],
-    });
-    const announcements = await InsAnnouncement.find({
-      $and: [
-        { _id: { $in: user?.followInsAnnouncement } },
-        { insAnnViewUser: { $nin: [user._id] } },
-      ],
-    });
-    if (notify?.length >= 1) {
-      notify.forEach(async (ele) => {
-        ele.notifyViewStatus = "View";
-        await ele.save();
+    if (type === "Notification") {
+      const notify = await Notification.find({
+        $and: [
+          { _id: { $in: user?.uNotify } },
+          { notifyViewStatus: "Not View" },
+        ],
       });
-    }
-    if (activity?.length >= 1) {
-      activity.forEach(async (ele) => {
-        ele.notifyViewStatus = "View";
-        await ele.save();
-      });
-    }
-    for (let num of announcements) {
-      if (num?.insAnnViewUser?.includes(`${user?._id}`)) {
-      } else {
-        num.insAnnViewUser.push(user._id);
-        await num.save();
+      if (notify?.length >= 1) {
+        notify.forEach(async (ele) => {
+          ele.notifyViewStatus = "View";
+          await ele.save();
+        });
       }
+    } else if (type === "Activity") {
+      const activity = await StudentNotification.find({
+        $and: [
+          { _id: { $in: user?.activity_tab } },
+          { notifyViewStatus: "Not View" },
+        ],
+      });
+      if (activity?.length >= 1) {
+        activity.forEach(async (ele) => {
+          ele.notifyViewStatus = "View";
+          await ele.save();
+        });
+      }
+    } else if (type === "Announcement") {
+      const announcements = await InsAnnouncement.find({
+        $and: [
+          { _id: { $in: user?.followInsAnnouncement } },
+          { insAnnViewUser: { $nin: [user._id] } },
+        ],
+      });
+      for (let num of announcements) {
+        if (num?.insAnnViewUser?.includes(`${user?._id}`)) {
+        } else {
+          num.insAnnViewUser.push(user._id);
+          await num.save();
+        }
+      }
+    } else {
     }
 
     res.status(200).send({ message: "Mark All To Be Viewed" });

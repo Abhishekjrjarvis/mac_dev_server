@@ -363,7 +363,7 @@ exports.renderTransportAllPassenger = async (req, res) => {
       var all_passengers = await Student.find({
         _id: { $in: trans?.transport_passengers },
       })
-        .sort("vehicleRemainFeeCount")
+        .sort("-vehicleRemainFeeCount")
         .limit(limit)
         .skip(skip)
         .select(
@@ -718,6 +718,7 @@ exports.renderTransportStudentCollect = async (req, res) => {
         access: false,
       });
     } else if (price <= one_student?.vehicleRemainFeeCount) {
+      var exempt = one_student?.vehicleRemainFeeCount - price;
       if (is_install) {
         trans.collected_fee += price;
       } else {
@@ -727,9 +728,9 @@ exports.renderTransportStudentCollect = async (req, res) => {
       }
       if (one_vehicle?.remaining_fee >= price) {
         one_vehicle.remaining_fee -= price;
-      } //Problem
+      }
       if (one_student?.vehicleRemainFeeCount >= price) {
-        one_student.vehicleRemainFeeCount -= price;
+        one_student.vehicleRemainFeeCount -= price + exempt;
       }
       if (mode === "Online") {
         trans.online_fee += price;

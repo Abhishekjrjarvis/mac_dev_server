@@ -47,7 +47,7 @@ exports.retrieveNewElectionQuery = async (req, res) => {
     depart.election_event.push(elect._id);
     depart.election_event_count += 1;
     elect.department = depart._id;
-    elect.election_app_start_date = new Date(`${req.body?.date}`).toISOString();
+    elect.election_app_start_date = new Date(`${req.body?.date}`);
     await Promise.all([depart.save(), elect.save()]);
     res.status(201).send({
       message: "New Election Application will be available",
@@ -56,27 +56,27 @@ exports.retrieveNewElectionQuery = async (req, res) => {
     elect.election_app_end_date = date_renew(
       elect.election_app_start_date,
       "End"
-    ).toISOString();
+    );
     elect.election_selection_date = date_renew(
       elect.election_app_end_date,
       "Select"
-    ).toISOString();
+    );
     elect.election_campaign_date = date_renew(
       elect.election_selection_date,
       "Compaign"
-    ).toISOString();
+    );
     elect.election_campaign_last_date = date_renew(
       elect.election_campaign_date,
       "Compaign Last"
-    ).toISOString();
+    );
     elect.election_voting_date = date_renew(
       elect.election_campaign_last_date,
       "Vote"
-    ).toISOString();
+    );
     elect.election_result_date = date_renew(
       elect.election_voting_date,
       "Result"
-    ).toISOString();
+    );
     await elect.save();
 
     if (elect?.election_visible === "Only Institute") {
@@ -363,7 +363,7 @@ exports.retrieveVoteElectionQuery = async (req, res) => {
     const { eid, applyId, sid, nid } = req.params;
     var elect = await Election.findById({ _id: eid });
     var student = await Student.findById({ _id: sid });
-    const notify = await StudentNotification.findById({ _id: nid });
+    const p_notify = await StudentNotification.findById({ _id: nid });
     elect?.election_candidate?.forEach(async (ele) => {
       if (`${ele?._id}` === `${applyId}`) {
         ele.election_vote_receieved += 1;
@@ -372,8 +372,39 @@ exports.retrieveVoteElectionQuery = async (req, res) => {
     });
     elect.election_total_voter += 1;
     elect.election_vote_cast += 1;
-    notify.vote_status = "Voted";
-    await Promise.all([notify.save(), elect.save()]);
+    p_notify.vote_status = "Voted";
+    const notify = new StudentNotification({});
+    const user = await User.findById({ _id: `${student?.user}` }).select(
+      "activity_tab deviceToken"
+    );
+    notify.notifyContent = `Your vote have been casted`;
+    notify.notifySender = elect?.department;
+    notify.notifyReceiever = user._id;
+    notify.electionId = elect?._id;
+    notify.notifyType = "Student";
+    notify.election_type = "Election Vote Casted";
+    notify.notifyPublisher = student._id;
+    user.activity_tab.push(notify._id);
+    student.notification.push(notify._id);
+    notify.notifyByDepartPhoto = elect?.department;
+    notify.notifyCategory = "Election Status";
+    notify.redirectIndex = E12;
+    invokeMemberTabNotification(
+      "Student Activity",
+      notify,
+      "Vote Casted",
+      user._id,
+      user.deviceToken,
+      "Student",
+      notify
+    );
+    await Promise.all([
+      notify.save(),
+      elect.save(),
+      user.save(),
+      p_notify.save(),
+      student.save(),
+    ]);
     res.status(200).send({ message: "Vote Done 👍✨😀 ", voted: true });
   } catch (e) {
     console.log(e);

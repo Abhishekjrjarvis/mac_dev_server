@@ -18,7 +18,9 @@ const date_renew = (s_date, type) => {
   } else if (type === "Select") {
     r_l_date.setDate(r_l_date.getDate() + 2);
   } else if (type === "Compaign") {
-    r_l_date.setDate(r_l_date.getDate() + 7);
+    r_l_date.setDate(r_l_date.getDate() + 1);
+  } else if (type === "Compaign Last") {
+    r_l_date.setDate(r_l_date.getDate() + 6);
   } else if (type === "Vote") {
     r_l_date.setDate(r_l_date.getDate() + 1);
   } else if (type === "Result") {
@@ -34,7 +36,7 @@ const date_renew = (s_date, type) => {
   if (r_l_day <= 9) {
     r_l_day = `0${r_l_day}`;
   }
-  return new Date(`${r_l_year}-${r_l_month}-${r_l_day}`);
+  return new Date(r_l_date);
 };
 
 exports.retrieveNewElectionQuery = async (req, res) => {
@@ -63,8 +65,12 @@ exports.retrieveNewElectionQuery = async (req, res) => {
       elect.election_selection_date,
       "Compaign"
     ).toISOString();
-    elect.election_voting_date = date_renew(
+    elect.election_campaign_last_date = date_renew(
       elect.election_campaign_date,
+      "Compaign Last"
+    ).toISOString();
+    elect.election_voting_date = date_renew(
+      elect.election_campaign_last_date,
       "Vote"
     ).toISOString();
     elect.election_result_date = date_renew(
@@ -156,12 +162,22 @@ exports.retrieveOneElectionQuery = async (req, res) => {
     const { eid } = req.params;
     const elect = await Election.findById({ _id: eid })
       .select(
-        "election_position election_app_start_date election_app_end_date election_selection_date election_campaign_date election_result_date election_voting_date election_status"
+        "election_position election_app_start_date election_app_end_date election_selection_date election_campaign_last_date election_campaign_date election_result_date election_voting_date election_status"
       )
       .populate({
         path: "election_candidate",
         populate: {
           path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
+        },
+        select:
+          "election_candidate_status election_result_status election_vote_receieved election_tag_line election_description",
+      })
+      .populate({
+        path: "election_candidate",
+        populate: {
+          path: "election_supporting_member",
           select:
             "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
         },

@@ -8,6 +8,7 @@ const StudentNotification = require("../models/Marks/StudentNotification");
 const invokeMemberTabNotification = require("../Firebase/MemberTab");
 const Post = require("../models/Post");
 const Department = require("../models/Department");
+const { custom_date_time } = require("../helper/dayTimer");
 
 exports.check_poll_status = async (req, res) => {
   var r_date = new Date();
@@ -43,24 +44,20 @@ exports.check_poll_status = async (req, res) => {
 };
 
 exports.election_vote_day = async (req, res) => {
-  var v_date = new Date();
-  var v_day = v_date.getDate();
-  var v_month = v_date.getMonth() + 1;
-  var v_year = v_date.getFullYear();
-  if (v_day < 10) {
-    v_day = `0${v_day}`;
-  }
-  if (v_month < 10) {
-    v_month = `0${v_month}`;
-  }
-  var date_format = new Date(`${v_year}-${v_month}-${v_day}`);
+  var today = custom_date_time(0);
+  var next = custom_date_time(1);
   try {
-    const elect_app = await Election.find({ election_voting_day: date_format });
-    const depart = await Department.findById({
-      _id: `${elect_app?.department}`,
+    const elect_app = await Election.find({
+      election_voting_date: {
+        $gte: new Date(today),
+        $lt: new Date(next),
+      },
     });
     if (elect_app.length >= 1) {
       elect_app.forEach(async (elect) => {
+        var depart = await Department.findById({
+          _id: `${elect?.department}`,
+        });
         if (elect?.vote_notification === "Close") {
           if (elect?.election_visible === "Only Institute") {
             var all_student = await Student.find({
@@ -105,13 +102,15 @@ exports.election_vote_day = async (req, res) => {
           });
           elect.vote_notification = "Opened";
           await elect.save();
-          console.log("Done");
+          // console.log("Done");
         } else {
         }
       });
     } else {
     }
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const large_vote_candidate = (arr) => {
@@ -138,21 +137,20 @@ const large_vote_candidate = (arr) => {
 };
 
 exports.election_result_day = async (req, res) => {
-  var v_date = new Date();
-  var v_day = v_date.getDate();
-  var v_month = v_date.getMonth() + 1;
-  var v_year = v_date.getFullYear();
-  if (v_day < 10) {
-    v_day = `0${v_day}`;
-  }
-  if (v_month < 10) {
-    v_month = `0${v_month}`;
-  }
-  var date_format = new Date(`${v_year}-${v_month}-${v_day}`);
+  var today = custom_date_time(0);
+  var next = custom_date_time(1);
   try {
-    const elect_app = await Election.find({ election_result_day: date_format });
+    const elect_app = await Election.find({
+      election_result_day: {
+        $gte: new Date(today),
+        $lt: new Date(next),
+      },
+    });
     if (elect_app.length >= 1) {
       elect_app.forEach(async (elect) => {
+        var depart = await Department.findById({
+          _id: `${elect?.department}`,
+        });
         if (elect?.vote_notification === "Not Declare") {
           var query = large_vote_candidate(elect?.election_candidate);
           if (elect?.election_visible === "Only Institute") {
@@ -189,7 +187,7 @@ exports.election_result_day = async (req, res) => {
             invokeMemberTabNotification(
               "Student Activity",
               notify,
-              "Voting Day",
+              "Result Announcement",
               user._id,
               user.deviceToken,
               "Student",
@@ -240,7 +238,9 @@ exports.election_result_day = async (req, res) => {
       });
     } else {
     }
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const distanceRecommend = (lat1, lon1, lat2, lon2, distanceId, expand) => {

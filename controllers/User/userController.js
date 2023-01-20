@@ -808,7 +808,7 @@ exports.getNotifications = async (req, res) => {
       })
       .populate({
         path: "notifyByDepartPhoto",
-        select: "photoId photo dName",
+        select: "coverId cover dName",
       })
       .sort("-notifyTime")
       .limit(limit)
@@ -850,15 +850,15 @@ exports.getAllUserActivity = async (req, res) => {
       })
       .populate({
         path: "notifyByDepartPhoto",
-        select: "photoId photo dName",
+        select: "coverId cover dName",
       })
       .populate({
         path: "notifyByClassPhoto",
-        select: "photoId photo className",
+        select: "coverId cover className",
       })
       .populate({
         path: "notifyByFinancePhoto",
-        select: "photoId photo",
+        select: "coverId cover",
       })
       .sort("-notifyTime")
       .limit(limit)

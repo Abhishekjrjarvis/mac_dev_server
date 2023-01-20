@@ -83,3 +83,9 @@ exports.age_calc = (dobs) => {
 
   return age;
 };
+
+exports.auto_election_timer = (arg) => {
+  const date = new Date(new Date());
+  date.setDate(date.getDate() + arg);
+  return date;
+};

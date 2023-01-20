@@ -1,5 +1,6 @@
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const Staff = require("../../models/Staff");
+const Finance = require("../../models/Finance");
 const User = require("../../models/User");
 const Notification = require("../../models/notification");
 const Student = require("../../models/Student");
@@ -79,7 +80,7 @@ exports.renderTransportManagerDashboard = async (req, res) => {
       });
     const trans_panel = await Transport.findById({ _id: tid })
       .select(
-        "vehicle_count transport_staff_count transport_photo photoId passenger_count remaining_fee"
+        "vehicle_count transport_staff_count transport_photo photoId passenger_count exempt_fee online_fee offline_fee remaining_fee"
       )
       .populate({
         path: "transport_manager",
@@ -266,6 +267,8 @@ exports.renderVehicleNewPassenger = async (req, res) => {
         path.passenger_count += 1;
         student.routes.push(path?._id);
         student.vehicleRemainFeeCount += path?.route_fees;
+        vehicle.remaining_fee += path?.route_fees;
+        trans.remaining_fee += path?.route_fees;
       }
     }
     await Promise.all([
@@ -346,28 +349,44 @@ exports.renderTransportAllPassenger = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
+    const { filter_by } = req.query;
     if (!tid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
         access: false,
       });
-    const trans = await Transport.findById({ _id: tid }).select(
+    var trans = await Transport.findById({ _id: tid }).select(
       "transport_passengers"
     );
 
-    const all_passengers = await Student.find({
-      _id: { $in: trans?.transport_passengers },
-    })
-      .limit(limit)
-      .skip(skip)
-      .select(
-        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
-      )
-      .populate({
-        path: "studentClass",
-        select: "className classTitle",
-      });
-
+    if (filter_by) {
+      var all_passengers = await Student.find({
+        _id: { $in: trans?.transport_passengers },
+      })
+        .sort("vehicleRemainFeeCount")
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+        )
+        .populate({
+          path: "studentClass",
+          select: "className classTitle",
+        });
+    } else {
+      var all_passengers = await Student.find({
+        _id: { $in: trans?.transport_passengers },
+      })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+        )
+        .populate({
+          path: "studentClass",
+          select: "className classTitle",
+        });
+    }
     if (all_passengers?.length > 0) {
       res.status(200).send({
         message: "Lot's of Passengers / Student 😀",
@@ -665,6 +684,121 @@ exports.renderTransportVehicleUserManage = async (req, res) => {
         message: "No vehicle access 😡",
         access: false,
         all_vehicle: {},
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderTransportStudentCollect = async (req, res) => {
+  try {
+    const { tid, sid } = req.params;
+    const { amount, mode, is_install } = req.body;
+    if (!tid && !amount && !mode && !is_install)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const price = parseInt(amount);
+    const trans = await Transport.findById({ _id: tid });
+    const one_student = await Student.findById({ _id: sid });
+    const one_vehicle = await Vehicle.findById({
+      _id: `${one_student?.vehicle}`,
+    });
+    const institute = await InstituteAdmin.findById({
+      _id: `${trans?.institute}`,
+    });
+    const finance = await Finance.findById({
+      _id: `${institute?.financeDepart[0]}`,
+    });
+    if (price > one_student?.vehicleRemainFeeCount) {
+      res.status(200).send({
+        message: "No Balance Pool for further Operation 😡",
+        access: false,
+      });
+    } else if (price <= one_student?.vehicleRemainFeeCount) {
+      if (is_install) {
+        trans.collected_fee += price;
+      } else {
+        trans.exempt_fee += one_student?.vehicleRemainFeeCount - price;
+        finance.financeExemptBalance +=
+          one_student?.vehicleRemainFeeCount - price;
+      }
+      if (one_vehicle?.remaining_fee >= price) {
+        one_vehicle.remaining_fee -= price;
+      } //Problem
+      if (one_student?.vehicleRemainFeeCount >= price) {
+        one_student.vehicleRemainFeeCount -= price;
+      }
+      if (mode === "Online") {
+        trans.online_fee += price;
+      } else if (mode === "Offline") {
+        trans.offline_fee += price;
+      } else {
+      }
+      if (trans.remaining_fee > price) {
+        trans.remaining_fee -= price;
+      }
+      trans.fund_history.push({
+        student: one_student?._id,
+        is_install: is_install ? true : false,
+        amount: price,
+        mode: mode,
+      });
+      await Promise.all([
+        finance.save(),
+        trans.save(),
+        one_student.save(),
+        one_vehicle.save(),
+      ]);
+      res.status(200).send({
+        message: "Installment Operation Completed 😀",
+        access: true,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderTransportFundsQuery = async (req, res) => {
+  try {
+    const { tid } = req.params;
+    const { amount } = req.body;
+    if (!tid && !amount)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const price = parseInt(amount);
+    const trans = await Transport.findById({ _id: tid });
+    const one_ins = await InstituteAdmin.findById({
+      _id: `${trans?.institute}`,
+    });
+    const finance = await Finance.findById({
+      _id: `${one_ins?.financeDepart[0]}`,
+    });
+    if (
+      finance?.requestArray?.length > 0 &&
+      finance?.requestArray?.includes(`${trans?._id}`)
+    ) {
+      res.status(200).send({
+        message: "Already requested for processing 🔍",
+        access: false,
+      });
+    } else {
+      finance.requestArray.push(trans?._id);
+      finance.transport_request.push({
+        transport_module: trans?._id,
+        amount: price,
+        status: "Requested",
+      });
+      trans.requested_status = "Requested";
+      await Promise.all([finance.save(), trans.save()]);
+      res.status(200).send({
+        message: "Installment Operation Completed 😀",
+        access: true,
       });
     }
   } catch (e) {

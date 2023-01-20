@@ -20,6 +20,7 @@ const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 const BusinessTC = require("../../models/Finance/BToC");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
+const Transport = require("../../models/Transport/transport");
 const {
   connect_redis_hit,
   connect_redis_miss,
@@ -1507,5 +1508,139 @@ exports.retrieveAllBToCQueryArray = async (req, res) => {
     }
   } catch (e) {
     // console.log(e);
+  }
+};
+
+exports.retrieveRequestTransAtFinance = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    const finance = await Finance.findById({ _id: fid })
+      .select("financeName")
+      .populate({
+        path: "transport_request",
+      });
+    res.status(200).send({
+      message: "Get All Request from DB 🙌",
+      request: finance.transport_request,
+      requestCount: finance.transport_request.length,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveSubmitTransAtFinance = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    const finance = await Finance.findById({ _id: fid })
+      .select("financeName")
+      .populate({
+        path: "transport_submit",
+      });
+    res.status(200).send({
+      message: "Get All Submit from DB 🙌",
+      submit: finance.transport_submit,
+      submitCount: finance.transport_submit.length,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveRejectTransAtFinance = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    const finance = await Finance.findById({ _id: fid })
+      .select("financeName")
+      .populate({
+        path: "transport_cancelled",
+      });
+    res.status(200).send({
+      message: "Get Reject",
+      reject: finance.transport_cancelled,
+      rejectCount: finance.transport_cancelled.length,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.submitTransportFeeQuery = async (req, res) => {
+  try {
+    const { fid, tid, rid } = req.params;
+    const { amount } = req.body;
+    if (!fid && !tid && !rid && !amount)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const price = parseInt(amount);
+    var finance = await Finance.findById({ _id: fid });
+    var trans = await Transport.findById({ _id: tid });
+    for (var docs of finance.transport_request) {
+      if (`${docs?._id}` === `${rid}`) {
+        finance.transport_request.pull(docs?._id);
+      }
+    }
+    finance.transport_submit.push({
+      transport_module: trans?._id,
+      amount: price,
+      status: "Accepeted",
+    });
+    finance.requestArray.pull(trans._id);
+    finance.financeTotalBalance += price;
+    if (mode === "Online") {
+      finance.financeBankBalance += price;
+    } else if (mode === "Offline") {
+      finance.financeSubmitBalance += price;
+    } else {
+    }
+    trans.requested_status = "Pending";
+    if (trans?.collected_fee >= price) {
+      trans.collected_fee -= price;
+    }
+    await Promise.all([trans.save(), finance.save()]);
+    res.status(200).send({
+      message: "Request Accepted",
+      access: true,
+      transLength: finance.transport_request.length,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.rejectTransportFeeQuery = async (req, res) => {
+  try {
+    const { fid, tid, rid } = req.params;
+    const { amount } = req.body;
+    if (!fid && !tid && !rid && !amount)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const price = parseInt(amount);
+    var finance = await Finance.findById({ _id: fid });
+    var trans = await Transport.findById({ _id: tid });
+    for (var docs of finance.transport_request) {
+      if (`${docs?._id}` === `${rid}`) {
+        finance.transport_request.pull(docs?._id);
+      }
+    }
+    finance.transport_cancelled.push({
+      transport_module: trans?._id,
+      amount: price,
+      status: "Rejected",
+    });
+    finance.requestArray.pull(trans._id);
+    trans.requested_status = "Pending";
+    await Promise.all([trans.save(), finance.save()]);
+    res.status(200).send({
+      message: "Request Rejected",
+      access: true,
+      transLength: finance.transport_request.length,
+    });
+  } catch (e) {
+    console.log(e);
   }
 };

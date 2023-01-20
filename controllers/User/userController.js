@@ -899,9 +899,11 @@ exports.getAllTotalCount = async (req, res) => {
       .lean()
       .exec();
     for (let num of announcements) {
-      if (num?.insAnnViewUser?.includes(`${user?._id}`)) {
+      if (num?.insAnnViewUser?.includes(id)) {
+        // console.log(true);
       } else {
         counts = counts + 1;
+        // console.log(false);
       }
     }
     total = total + notify?.length + activity?.length + counts;
@@ -952,10 +954,10 @@ exports.retrieveMarkAllView = async (req, res) => {
         });
       }
     } else if (type === "Announcement") {
-      const announcements = await InsAnnouncement.find({
+      var announcements = await InsAnnouncement.find({
         $and: [
           { _id: { $in: user?.followInsAnnouncement } },
-          { insAnnViewUser: { $nin: [user._id] } },
+          // { insAnnViewUser: { $nin: [user._id] } },
         ],
       });
       for (let num of announcements) {

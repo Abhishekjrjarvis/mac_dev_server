@@ -33,6 +33,10 @@ const transportSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  exempt_fee: {
+    type: Number,
+    default: 0,
+  },
   remaining_fee: {
     type: Number,
     default: 0,
@@ -71,6 +75,23 @@ const transportSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+    },
+  ],
+  requested_status: {
+    type: String,
+    default: "Pending",
+  },
+  collected_fee: {
+    type: Number,
+    default: 0,
+  },
+  fund_history: [
+    {
+      student: { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
+      is_install: { type: Boolean, default: false },
+      createdAt: { type: Date, default: Date.now },
+      amount: { type: Number, default: 0 },
+      mode: { type: String },
     },
   ],
 });

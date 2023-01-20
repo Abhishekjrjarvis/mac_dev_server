@@ -467,7 +467,12 @@ exports.allStudentMarksBySubjectTeacher = async (req, res) => {
       notify.notifyPublisher = student._id;
       notify.subjectId = subjectData._id;
       user.activity_tab.push(notify._id);
-      // notify.notifyByFinancePhoto = subjectData;
+      notify.notifyBySubjectPhoto = {
+        subject_id: subjectData._id,
+        subject_name: subjectData.subjectName,
+        subject_cover: "subject-cover.png",
+        subject_title: subjectData.subjectTitle,
+      };
       notify.notifyCategory = "Marks";
       notify.redirectIndex = 21;
       //

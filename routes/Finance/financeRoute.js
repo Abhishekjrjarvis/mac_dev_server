@@ -213,4 +213,34 @@ router.get(
   catchAsync(Finance.retrieveAllBToCQueryArray)
 );
 
+router.get(
+  "/:fid/dashboard/request/transport",
+  isLoggedIn,
+  catchAsync(Finance.retrieveRequestTransAtFinance)
+);
+
+router.get(
+  "/:fid/dashboard/submit/transport",
+  isLoggedIn,
+  catchAsync(Finance.retrieveSubmitTransAtFinance)
+);
+
+router.get(
+  "/:fid/dashboard/reject/transport",
+  isLoggedIn,
+  catchAsync(Finance.retrieveRejectTransAtFinance)
+);
+
+router.post(
+  "/:fid/transport/:tid/submit/:rid",
+  // isLoggedIn,
+  catchAsync(Finance.submitTransportFeeQuery)
+);
+
+router.post(
+  "/:fid/transport/:tid/incorrect/:rid",
+  // isLoggedIn,
+  catchAsync(Finance.rejectTransportFeeQuery)
+);
+
 module.exports = router;

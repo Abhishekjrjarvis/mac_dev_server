@@ -191,6 +191,14 @@ exports.retrieveOneElectionQueryCandidate = async (req, res) => {
           select:
             "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
         },
+      })
+      .populate({
+        path: "election_candidate",
+        populate: {
+          path: "election_supporting_member",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
+        },
       });
 
     const all_candidates = nested_document_limit(

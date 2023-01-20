@@ -29,7 +29,10 @@ const studentNotificationSchema = new mongoose.Schema({
     ref: "Student",
   },
   notifyBySubjectPhoto: {
-    type: String,
+    subject_id: { type: String },
+    subject_name: { type: String },
+    subject_cover: { type: String },
+    subject_title: { type: String },
   },
   notifyByFinancePhoto: {
     type: mongoose.Schema.Types.ObjectId,

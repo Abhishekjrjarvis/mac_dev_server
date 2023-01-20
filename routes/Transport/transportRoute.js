@@ -91,4 +91,16 @@ router.get(
   catchAsync(Transport.renderTransportVehicleUserManage)
 );
 
+router.post(
+  "/:tid/students/:sid/collect/offline",
+  // isLoggedIn,
+  catchAsync(Transport.renderTransportStudentCollect)
+);
+
+router.patch(
+  "/:tid/request/finance",
+  // isLoggedIn,
+  catchAsync(Transport.renderTransportFundsQuery)
+);
+
 module.exports = router;

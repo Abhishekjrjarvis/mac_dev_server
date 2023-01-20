@@ -200,6 +200,39 @@ const financeSchema = new mongoose.Schema(
         },
       ],
     },
+    transport_request: [
+      {
+        transport_module: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Transport",
+        },
+        createdAt: { type: Date, default: Date.now },
+        amount: { type: Number, default: 0 },
+        status: { type: String },
+      },
+    ],
+    transport_submit: [
+      {
+        transport_module: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Transport",
+        },
+        createdAt: { type: Date, default: Date.now },
+        amount: { type: Number, default: 0 },
+        status: { type: String },
+      },
+    ],
+    transport_cancelled: [
+      {
+        transport_module: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Transport",
+        },
+        createdAt: { type: Date, default: Date.now },
+        amount: { type: Number, default: 0 },
+        status: { type: String },
+      },
+    ],
   },
   { timestamps: true }
 );

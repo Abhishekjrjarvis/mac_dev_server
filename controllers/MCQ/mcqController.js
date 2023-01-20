@@ -769,7 +769,12 @@ exports.takeTestSet = async (req, res) => {
       notify.notifyPublisher = student._id;
       user.activity_tab.push(notify._id);
       student.notification.push(notify._id);
-      notify.notifyBySubjectPhoto = subject._id;
+      notify.notifyBySubjectPhoto = {
+        subject_id: subject?._id,
+        subject_name: subject.subjectName,
+        subject_cover: "subject-cover.png",
+        subject_title: subject.subjectTitle,
+      };
       notify.notifyCategory = "MCQ";
       notify.redirectIndex = 6;
       invokeMemberTabNotification(
@@ -1481,7 +1486,7 @@ exports.createAssignment = async (req, res) => {
         const studentTestSet = new StudentTestSet(obj);
         studentAssignment.testSet.push(studentTestSet._id);
         await studentTestSet.save();
-      }
+      }notifyBySubjectPhoto
 
       stu.assignments.push(studentAssignment._id);
       const notify = new StudentNotification({});
@@ -1494,7 +1499,12 @@ exports.createAssignment = async (req, res) => {
       notify.notifyPublisher = stu._id;
       user.activity_tab.push(notify._id);
       stu.notification.push(notify._id);
-      notify.notifyBySubjectPhoto = subject._id;
+      notify.notifyBySubjectPhoto = {
+        subject_id: subject?._id,
+        subject_name: subject.subjectName,
+        subject_cover: "subject-cover.png",
+        subject_title: subject.subjectTitle,
+      };
       notify.notifyCategory = "Assignment";
       notify.redirectIndex = 7;
       //
@@ -1660,13 +1670,22 @@ exports.getOneAssignmentOneStudentCompleteAssignment = async (req, res) => {
       student?.assignments[0]._id
     );
     assignment.assignmentSubmit = req.body.assignmentSubmit;
-    const subjectAssignment = await Assignment.findById(assignment.assignment);
+    const subjectAssignment = await Assignment.findById(assignment.assignment).populate({
+      path: "subject",
+      select: "subjectName subjectTitle"
+    })
     var notify = new StudentNotification({});
-    notify.notifySender = subjectAssignment?.subject;
+    notify.notifySender = subjectAssignment?.subject._id;
     notify.notifyReceiever = user._id;
-    notify.subjectId = subjectAssignment?.subject;
+    notify.subjectId = subjectAssignment?.subject._id;
     notify.notifyType = "Student";
     notify.notifyPublisher = student._id;
+    notify.notifyBySubjectPhoto = {
+      subject_id: subjectAssignment?.subject._id,
+      subject_name: subjectAssignment?.subject.subjectName,
+      subject_cover: "subject-cover.png",
+      subject_title: subjectAssignment?.subject.subjectTitle,
+    };
     user.activity_tab.push(notify._id);
     // notify.notifyByDepartPhoto = department._id;
     if (req.body.assignmentSubmit === true) {
@@ -1676,7 +1695,7 @@ exports.getOneAssignmentOneStudentCompleteAssignment = async (req, res) => {
         student.studentMiddleName ? student.studentMiddleName : ""
       } ${student.studentLastName} ${req.body.assignmentSubmit} ${
         subjectAssignment?.assignmentName
-      } Assignment Submit successfully`;
+      } Assignment Completed successfully`;
       notify.notifyCategory = "Complete Assignment";
       notify.redirectIndex = 19;
     } else {

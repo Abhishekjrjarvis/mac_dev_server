@@ -7,6 +7,7 @@ const Student = require("../models/Student");
 const StudentNotification = require("../models/Marks/StudentNotification");
 const invokeMemberTabNotification = require("../Firebase/MemberTab");
 const Post = require("../models/Post");
+const Department = require("../models/Department");
 
 exports.check_poll_status = async (req, res) => {
   var r_date = new Date();
@@ -55,6 +56,9 @@ exports.election_vote_day = async (req, res) => {
   var date_format = new Date(`${v_year}-${v_month}-${v_day}`);
   try {
     const elect_app = await Election.find({ election_voting_day: date_format });
+    const depart = await Department.findById({
+      _id: `${elect_app?.department}`,
+    });
     if (elect_app.length >= 1) {
       elect_app.forEach(async (elect) => {
         if (elect?.vote_notification === "Close") {
@@ -101,6 +105,7 @@ exports.election_vote_day = async (req, res) => {
           });
           elect.vote_notification = "Opened";
           await elect.save();
+          console.log("Done");
         } else {
         }
       });

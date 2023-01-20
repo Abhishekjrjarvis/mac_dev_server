@@ -11,7 +11,7 @@ const {
 exports.timerFunction = () => {
   // setInterval(async () => {
   //   await election_vote_day();
-  // }, 30000);
+  // }, 3000);
   // setInterval(async () => {
   //   await election_result_day();
   // }, 30000);

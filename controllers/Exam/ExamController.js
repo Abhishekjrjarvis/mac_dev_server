@@ -467,6 +467,7 @@ exports.allStudentMarksBySubjectTeacher = async (req, res) => {
       notify.notifyPublisher = student._id;
       notify.subjectId = subjectData._id;
       user.activity_tab.push(notify._id);
+      notify.examId = examId;
       notify.notifyBySubjectPhoto = {
         subject_id: subjectData._id,
         subject_name: subjectData.subjectName,
@@ -682,6 +683,7 @@ exports.oneExamOneSubjectAnswersheetInStudent = async (req, res) => {
             totalMarks: exammarks.totalMarks,
             answersheet: exammarks.answerSheet,
             present: flag,
+            weightage: exammarks.examWeight,
           };
         }
       }

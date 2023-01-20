@@ -254,7 +254,7 @@ exports.retrieveApplyElectionQuery = async (req, res) => {
         student.studentMiddleName ? student.studentMiddleName : ""
       } ${
         student.studentLastName
-      }. (If you have not supporting please contact with respectiv department)`;
+      }. (If you have not supporting please contact with respective department)`;
       notify.notifySender = student._id;
       notify.notifyReceiever = user._id;
       notify.electionId = elect?._id;

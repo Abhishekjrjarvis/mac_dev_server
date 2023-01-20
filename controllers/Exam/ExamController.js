@@ -440,6 +440,7 @@ exports.allStudentMarksBySubjectTeacher = async (req, res) => {
   try {
     const { examId, marks } = req.body;
     const subjectData = await Subject.findById({ _id: req.params.sid });
+    const exam_data = await Exam.findById({ _id: examId });
     for (let studt of marks) {
       const student = await Student.findById(studt.studentId)
         .populate({
@@ -467,12 +468,15 @@ exports.allStudentMarksBySubjectTeacher = async (req, res) => {
       notify.notifyPublisher = student._id;
       notify.subjectId = subjectData._id;
       user.activity_tab.push(notify._id);
-      notify.examId = examId;
       notify.notifyBySubjectPhoto = {
         subject_id: subjectData._id,
         subject_name: subjectData.subjectName,
         subject_cover: "subject-cover.png",
         subject_title: subjectData.subjectTitle,
+      };
+      notifyByExamPhoto = {
+        exam_id: exam_data?._id,
+        exam_name: exam_data?.examName,
       };
       notify.notifyCategory = "Marks";
       notify.redirectIndex = 21;

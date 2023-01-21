@@ -233,6 +233,16 @@ const financeSchema = new mongoose.Schema(
         status: { type: String },
       },
     ],
+    finance_inventory: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Store",
+      },
+    ],
+    finance_inventory_count: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

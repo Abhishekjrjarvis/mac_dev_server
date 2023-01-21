@@ -21,6 +21,8 @@ const invokeFirebaseNotification = require("../../Firebase/firebase");
 const BusinessTC = require("../../models/Finance/BToC");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const Transport = require("../../models/Transport/transport");
+const Store = require("../../models/Finance/Inventory");
+const { nested_document_limit } = require("../../helper/databaseFunction");
 const {
   connect_redis_hit,
   connect_redis_miss,
@@ -312,6 +314,7 @@ exports.getAllIncomes = async (req, res) => {
 exports.getExpense = async (req, res) => {
   try {
     const { fid } = req.params;
+    const { is_inventory } = req.query;
     const finance = await Finance.findById({ _id: fid });
     var f_user = await InstituteAdmin.findById({ _id: `${finance.institute}` });
     var user = await User.findOne({ username: `${req.body.user}` }).select(
@@ -382,6 +385,27 @@ exports.getExpense = async (req, res) => {
         expenses: expenses._id,
         status: true,
       });
+      if (is_inventory) {
+        const exist_store = await Store.findOne({
+          goods_name: req.body.expense_good_name,
+        });
+        if (exist_store) {
+          exist_store.expense_array.push(expenses?._id);
+          exist_store.total_expenses += req.body.expenseAmount;
+          exist_store.goods_quantity += req.body.expense_quantity;
+          await exist_store.save();
+        } else {
+          const store = new Store({ ...req.body });
+          store.goods_name = req.body.expense_good_name;
+          store.goods_quantity = req.body.expense_quantity;
+          store.hsn_code = req.body.expense_hsn_code;
+          store.goods_amount = req.body.expenseAmount;
+          store.expense_array.push(expenses?._id);
+          finance.finance_inventory.push(store?._id);
+          finance.finance_inventory_count += 1;
+          await Promise.all([finance.save(), store.save()]);
+        }
+      }
     } else {
       res.status(200).send({ message: "Expense Not Permitted" });
     }
@@ -1589,17 +1613,12 @@ exports.submitTransportFeeQuery = async (req, res) => {
     });
     finance.requestArray.pull(trans._id);
     finance.financeTotalBalance += price;
-    if (mode === "Online") {
-      finance.financeBankBalance += price;
-    } else if (mode === "Offline") {
-      finance.financeSubmitBalance += price;
-    } else {
-    }
+    finance.financeSubmitBalance += price;
     trans.requested_status = "Pending";
     if (trans?.collected_fee >= price) {
       trans.collected_fee -= price;
     }
-    await Promise.all([trans.save(), finance.save()]);
+    // await Promise.all([trans.save(), finance.save()]);
     res.status(200).send({
       message: "Request Accepted",
       access: true,
@@ -1640,6 +1659,85 @@ exports.rejectTransportFeeQuery = async (req, res) => {
       access: true,
       transLength: finance.transport_request.length,
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceInventoryQuery = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const finance = await Finance.findById({ _id: fid }).select(
+      "finance_inventory"
+    );
+
+    const all_goods = await Store.find({
+      _id: { $in: finance?.finance_inventory },
+    })
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "goods_name goods_quantity total_expenses hsn_code goods_amount createdAt"
+      );
+
+    if (all_goods?.length > 0) {
+      res.status(200).send({
+        message: "Stores have less capacity 😀",
+        access: true,
+        all_goods: all_goods,
+      });
+    } else {
+      res.status(200).send({
+        message: "Stores have less capacity 😀",
+        access: true,
+        all_goods: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceOneInventoryQuery = async (req, res) => {
+  try {
+    const { inid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!inid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const store = await Store.findById({ _id: inid }).select("expense_array");
+
+    const all_expenses = await Expense.find({
+      _id: { $in: store?.expense_array },
+    })
+      .limit(limit)
+      .skip(skip);
+
+    if (all_expenses?.length > 0) {
+      res.status(200).send({
+        message: "Stores have less capacity 😀",
+        access: true,
+        all_expenses: all_expenses,
+      });
+    } else {
+      res.status(200).send({
+        message: "Stores have less capacity 😀",
+        access: true,
+        all_expenses: [],
+      });
+    }
   } catch (e) {
     console.log(e);
   }

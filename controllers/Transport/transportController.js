@@ -80,7 +80,7 @@ exports.renderTransportManagerDashboard = async (req, res) => {
       });
     const trans_panel = await Transport.findById({ _id: tid })
       .select(
-        "vehicle_count transport_staff_count transport_photo photoId passenger_count exempt_fee online_fee offline_fee remaining_fee"
+        "vehicle_count transport_staff_count transport_photo photoId passenger_count collected_fee exempt_fee online_fee offline_fee remaining_fee"
       )
       .populate({
         path: "transport_manager",
@@ -719,13 +719,12 @@ exports.renderTransportStudentCollect = async (req, res) => {
       });
     } else if (price <= one_student?.vehicleRemainFeeCount) {
       var exempt = one_student?.vehicleRemainFeeCount - price;
-      if (is_install) {
-        trans.collected_fee += price;
-      } else {
+      if (!is_install) {
         trans.exempt_fee += one_student?.vehicleRemainFeeCount - price;
         finance.financeExemptBalance +=
           one_student?.vehicleRemainFeeCount - price;
       }
+      trans.collected_fee += price;
       if (one_vehicle?.remaining_fee >= price) {
         one_vehicle.remaining_fee -= price;
       }

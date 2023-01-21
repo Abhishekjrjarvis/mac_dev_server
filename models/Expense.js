@@ -21,7 +21,6 @@ const expenseSchema = new mongoose.Schema({
   },
   expenseDesc: {
     type: String,
-    required: true,
   },
   expenseAck: {
     type: String,
@@ -37,6 +36,16 @@ const expenseSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
+  },
+  expense_quantity: {
+    type: Number,
+    default: 0,
+  },
+  expense_good_name: {
+    type: String,
+  },
+  expense_hsn_code: {
+    type: String,
   },
 });
 

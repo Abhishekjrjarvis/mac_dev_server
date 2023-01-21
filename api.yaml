@@ -18588,3 +18588,63 @@ paths:
       responses:
         "200":
           description: OK
+
+#Inventory Module
+
+  /api/v1/finance/{fid}/all/inventory/query:
+    get:
+      tags:
+        - Inventory Module 
+      summary: All Stores of Inventory - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/one/inventory/{inid}/query:
+    get:
+      tags:
+        - Inventory Module 
+      summary: One Store of All Expenses Inventory - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: inid
+          required: true
+          type: string
+          description: Enter Store Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+      responses:
+        "200":
+          description: OK

@@ -52,7 +52,7 @@ router.post("/all/incomes", isLoggedIn, catchAsync(Finance.getAllIncomes));
 // Add Expense
 router.post(
   "/:fid/expense",
-  isLoggedIn,
+  // isLoggedIn,
   upload.single("file"),
   catchAsync(Finance.getExpense)
 );
@@ -215,19 +215,19 @@ router.get(
 
 router.get(
   "/:fid/dashboard/request/transport",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Finance.retrieveRequestTransAtFinance)
 );
 
 router.get(
   "/:fid/dashboard/submit/transport",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Finance.retrieveSubmitTransAtFinance)
 );
 
 router.get(
   "/:fid/dashboard/reject/transport",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Finance.retrieveRejectTransAtFinance)
 );
 
@@ -241,6 +241,18 @@ router.post(
   "/:fid/transport/:tid/incorrect/:rid",
   // isLoggedIn,
   catchAsync(Finance.rejectTransportFeeQuery)
+);
+
+router.get(
+  "/:fid/all/inventory/query",
+  // isLoggedIn,
+  catchAsync(Finance.renderFinanceInventoryQuery)
+);
+
+router.get(
+  "/one/inventory/:inid/query",
+  // isLoggedIn,
+  catchAsync(Finance.renderFinanceOneInventoryQuery)
 );
 
 module.exports = router;

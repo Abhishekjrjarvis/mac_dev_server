@@ -860,6 +860,10 @@ exports.getAllUserActivity = async (req, res) => {
         path: "notifyByFinancePhoto",
         select: "coverId cover",
       })
+      .populate({
+        path: "election_winner",
+        select: "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName",
+      })
       .sort("-notifyTime")
       .limit(limit)
       .skip(skip);

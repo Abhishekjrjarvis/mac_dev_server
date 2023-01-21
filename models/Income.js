@@ -39,6 +39,16 @@ const incomeSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  income_quantity: {
+    type: Number,
+    default: 0,
+  },
+  income_good_name: {
+    type: String,
+  },
+  income_hsn_code: {
+    type: String,
+  },
 });
 
 const Income = mongoose.model("Income", incomeSchema);

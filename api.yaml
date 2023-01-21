@@ -18648,3 +18648,32 @@ paths:
       responses:
         "200":
           description: OK
+
+  /api/v1/manage/all/user:
+    get:
+      tags:
+        - Inventory Module 
+      summary: All Users of Platform - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+        - in: query
+          name: search
+          required: true
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK

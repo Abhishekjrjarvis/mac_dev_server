@@ -391,15 +391,16 @@ exports.getExpense = async (req, res) => {
         });
         if (exist_store) {
           exist_store.expense_array.push(expenses?._id);
-          exist_store.total_expenses += req.body.expenseAmount;
-          exist_store.goods_quantity += req.body.expense_quantity;
+          exist_store.total_expenses += parseInt(req.body.expenseAmount);
+          exist_store.goods_quantity += parseInt(req.body.expense_quantity);
           await exist_store.save();
         } else {
           const store = new Store({ ...req.body });
           store.goods_name = req.body.expense_good_name;
-          store.goods_quantity = req.body.expense_quantity;
+          store.goods_quantity = parseInt(req.body.expense_quantity);
           store.hsn_code = req.body.expense_hsn_code;
-          store.goods_amount = req.body.expenseAmount;
+          store.goods_amount = parseInt(req.body.expenseAmount);
+          store.total_expenses = parseInt(req.body.expenseAmount);
           store.expense_array.push(expenses?._id);
           finance.finance_inventory.push(store?._id);
           finance.finance_inventory_count += 1;
@@ -733,6 +734,9 @@ exports.retrievePaymentDetail = async (req, res) => {
 exports.retrieveIncomeQuery = async (req, res) => {
   try {
     const { fid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
     // const is_cache = await connect_redis_hit(`Finance-All-Incomes-${fid}`);
     // if (is_cache?.hit)
     //   return res.status(200).send({
@@ -744,17 +748,32 @@ exports.retrieveIncomeQuery = async (req, res) => {
     );
     const incomes = await Income.find({
       _id: { $in: finance.incomeDepartment },
-    }).sort("-createdAt");
+    })
+      .sort("-createdAt")
+      .limit(limit)
+      .skip(skip)
+      .populate({
+        path: "incomeFromUser",
+        select: "username userLegalName photoId profilePhoto",
+      });
     // const iEncrypt = await encryptionPayload(incomes);
     // const cached = await connect_redis_miss(
     //   `Finance-All-Incomes-${fid}`,
     //   incomes
     // );
-    res.status(200).send({
-      message: "All Incomes",
-      allIncome: incomes,
-      // allIncome: cached.incomes,
-    });
+    if (incomes?.length > 0) {
+      res.status(200).send({
+        message: "All Incomes",
+        allIncome: incomes,
+        // allIncome: cached.incomes,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Incomes",
+        allIncome: [],
+        // allIncome: cached.incomes,
+      });
+    }
   } catch (e) {
     console.log(e);
   }
@@ -763,6 +782,9 @@ exports.retrieveIncomeQuery = async (req, res) => {
 exports.retrieveExpenseQuery = async (req, res) => {
   try {
     const { fid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
     // const is_cache = await connect_redis_hit(`Finance-All-Expenses-${fid}`);
     // if (is_cache?.hit)
     //   return res.status(200).send({
@@ -774,17 +796,32 @@ exports.retrieveExpenseQuery = async (req, res) => {
     );
     const expenses = await Expense.find({
       _id: { $in: finance.expenseDepartment },
-    }).sort("-createdAt");
+    })
+      .sort("-createdAt")
+      .limit(limit)
+      .skip(skip)
+      .populate({
+        path: "expensePaidUser",
+        select: "username userLegalName photoId profilePhoto",
+      });
     // const eEncrypt = await encryptionPayload(expenses);
     // const cached = await connect_redis_miss(
     //   `Finance-All-Expenses-${fid}`,
     //   expenses
     // );
-    res.status(200).send({
-      message: "All Expenses",
-      allIncome: expenses,
-      // allIncome: cached.expenses,
-    });
+    if (expenses?.length > 0) {
+      res.status(200).send({
+        message: "All Expenses",
+        allIncome: expenses,
+        // allIncome: cached.expenses,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Expenses",
+        allIncome: [],
+        // allIncome: cached.expenses,
+      });
+    }
   } catch {}
 };
 
@@ -1723,7 +1760,14 @@ exports.renderFinanceOneInventoryQuery = async (req, res) => {
       _id: { $in: store?.expense_array },
     })
       .limit(limit)
-      .skip(skip);
+      .skip(skip)
+      .select(
+        "expenseAccount expenseAmount expensePaid expense_quantity expenseDesc expenseAck expense_good_name expense_hsn_code createdAt"
+      )
+      .populate({
+        path: "expensePaidUser",
+        select: "username userLegalName photoId profilePhoto",
+      });
 
     if (all_expenses?.length > 0) {
       res.status(200).send({

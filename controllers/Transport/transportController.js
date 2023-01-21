@@ -105,7 +105,7 @@ exports.renderTransportManagerDashboard = async (req, res) => {
 exports.renderNewVehicleQuery = async (req, res) => {
   try {
     const { tid } = req.params;
-    const { dsid, csid, duid, cuid } = req.query;
+    const { dsid, csid, duid, cuid } = req.body;
     if (!tid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -206,7 +206,7 @@ exports.renderVehicleUpdateRoute = async (req, res) => {
       });
     const vehicle = await Vehicle.findById({ _id: vid });
     const route = await Direction.findById({ _id: `${vehicle.vehicle_route}` });
-    if (route_status === "Renaming Route" && rid) {
+    if (route_status === "Renaming_Route" && rid) {
       for (var path of route.direction_route) {
         if (`${path?._id}` === `${rid}`) {
           path.route_stop = route_stop ? route_stop : path.route_stop;
@@ -214,7 +214,7 @@ exports.renderVehicleUpdateRoute = async (req, res) => {
         }
       }
       await route.save();
-    } else if (route_status === "Add New Stop Point" && edit_path?.length > 0) {
+    } else if (route_status === "Add_New_Stop_Point" && edit_path?.length > 0) {
       for (var path of edit_path) {
         if (path?.index > route.direction_route?.length) {
           route.direction_route.push({
@@ -731,6 +731,7 @@ exports.renderTransportStudentCollect = async (req, res) => {
       if (one_student?.vehicleRemainFeeCount >= price) {
         one_student.vehicleRemainFeeCount -= price + exempt;
       }
+      one_student.vehiclePaidFeeCount += price;
       if (mode === "Online") {
         trans.online_fee += price;
       } else if (mode === "Offline") {

@@ -18697,3 +18697,625 @@ paths:
       responses:
         "200":
           description: OK
+
+#Transport Module
+
+  /api/v1/transport/ins/{id}/staff/{sid}:
+    post:
+      tags:
+        - Transport Module Query
+      summary: Assign and Activate Transport Module By The Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id 
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is staff id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/{tid}/dashboard:
+    get:
+      tags:
+        - Transport Module Query
+      summary: Get Dashboard Detail of Transport  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This is Transport id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/{tid}/new/vehicle:
+    post:
+      tags:
+        - Transport Module Query
+      summary: Add New Vehicle To Transport Module  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This is Transport id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              dsid:
+                type: string
+                description: Enter Driver Staff Id if(vehicle Type is "Own")
+              csid:
+                type: string
+                description: Enter Conductor Staff Id if(vehicle Type is "Own")
+              duid:
+                type: string
+                description: Enter Driver User Id if(vehicle Type is "Outsider")
+              cuid:
+                type: string
+                decription: Enter Conductor User Id if(vehicle Type is "Outsider")
+              vehicle_number:
+                type: string
+                description: Enter Vehicle Number (Required)
+              vehicle_type:
+                type: string
+                description: Enter Vehicle Type (Required) ("Own" || "Outsider")
+              vehicle_tracking_id:
+                type: string
+                description: Enter Vehicle Tracking Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/vehicle/{vid}/new/route:
+    post:
+      tags:
+        - Transport Module Query
+      summary: Add New Route To One Vehicle  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: vid
+          required: true
+          type: string
+          description: This is Vehicle id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              route_path:
+                type: array
+                description: Array of Objects { "stop": "Singar Nagar", "fee": 100 }
+                items:
+                  type: string
+                  description: Stop, Fees
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/vehicle/{vid}/route/update:
+    patch:
+      tags:
+        - Transport Module Query
+      summary: Update Previous Route || Add New Route To One Vehicle  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: vid
+          required: true
+          type: string
+          description: This is Vehicle id 
+        - in: query
+          name: route_status
+          required: true
+          type: string
+          description: Enter Route Status ("Renaming_Route" || "Add_New_Stop_Point")
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              edit_path:
+                type: array
+                description: Array of Objects { "stop": "Vidhan Sabha", "fee": 210, "index": 9 }
+                items:
+                  type: string
+                  description: Stop, Fees & Index
+              rid:
+                type: string
+                description: Enter Route Id
+              route_stop:
+                type: string
+                description: Enter Route Stop
+              route_fees:
+                type: number
+                description: Enter Route Fees
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/vehicle/{vid}/new/passenger:
+    post:
+      tags:
+        - Transport Module Query
+      summary: Add New Passenger To One Vehicle  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: vid
+          required: true
+          type: string
+          description: This is Vehicle id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              sid:
+                type: string
+                description: Enter Student Id
+              rid:
+                type: string
+                description: Enter Route Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/{tid}/all/vehicles:
+    get:
+      tags:
+        - Transport Module Query
+      summary: Get All Vehicles of Transport Module  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This is Transport id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/{tid}/all/passengers:
+    get:
+      tags:
+        - Transport Module Query
+      summary: Get All Passengers of Transport Module  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This is Transport id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+        - in: query
+          name: filter_by
+          required: true
+          type: boolean
+          description: Enter Boolean (true for Transport Side User) (false for Institute Transport Side)
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/{tid}/all/vehicles/staff:
+    get:
+      tags:
+        - Transport Module Query
+      summary: Get All Drivers / Conductors of Transport Module  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This is Transport id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/one/vehicle/{vid}/query:
+    get:
+      tags:
+        - Transport Module Query
+      summary: Get One Vehicle Details With Students List  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: vid
+          required: true
+          type: string
+          description: This is Vehicle id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/one/vehicle/{vid}/route:
+    get:
+      tags:
+        - Transport Module Query
+      summary: Get One Vehicle All Routes   (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: vid
+          required: true
+          type: string
+          description: This is Vehicle id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/vehicle/{vid}/student/{sid}/route:
+    get:
+      tags:
+        - Transport Module Query
+      summary: Get One Vehicle Details Of One Students   (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: vid
+          required: true
+          type: string
+          description: This is Vehicle id 
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/staff/{sid}/manage:
+    get:
+      tags:
+        - Transport Module Query
+      summary: Access Transport Profile From Staff Side   (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Staff id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/user/{uid}/manage:
+    get:
+      tags:
+        - Transport Module Query
+      summary: Access Transport Profile From User Side   (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is Staff id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/{tid}/students/{sid}/collect/offline:
+    post:
+      tags:
+        - Transport Module Query
+      summary: Collect Transport Fees  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This is Transport id 
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                description: Enter Amount 
+              mode:
+                type: string
+                description: Enter Mode ("Online" || "Offline")
+              is_install:
+                type: boolean
+                description: Enter Boolean (true || false)
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/{tid}/request/finance:
+    patch:
+      tags:
+        - Transport Module Query
+      summary: Request || Submit To Finance Manager  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This is Transport id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                description: Enter Amount 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/dashboard/request/transport:
+    get:
+      tags:
+        - Transport Module Query
+      summary: Get All Finance Transport Request  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/dashboard/submit/transport:
+    get:
+      tags:
+        - Transport Module Query
+      summary: Get All Finance Transport Submit  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/dashboard/reject/transport:
+    get:
+      tags:
+        - Transport Module Query
+      summary: Get All Finance Transport Reject  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/transport/{tid}/submit/{rid}:
+    post:
+      tags:
+        - Transport Module Query
+      summary: Accept Transport Request At Finance  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This is Transport id 
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: This is Transport Request id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                description: Enter Amount 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/transport/{tid}/incorrect/{rid}:
+    post:
+      tags:
+        - Transport Module Query
+      summary: Reject Transport Request At Finance  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This is Transport id 
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: This is Transport Request id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                description: Enter Amount 
+      responses:
+        "200":
+          description: OK

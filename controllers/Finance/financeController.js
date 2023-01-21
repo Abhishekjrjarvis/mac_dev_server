@@ -1587,16 +1587,33 @@ exports.retrieveAllBToCQueryArray = async (req, res) => {
 exports.retrieveRequestTransAtFinance = async (req, res) => {
   try {
     const { fid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
     const finance = await Finance.findById({ _id: fid })
       .select("financeName")
       .populate({
         path: "transport_request",
       });
-    res.status(200).send({
-      message: "Get All Request from DB 🙌",
-      request: finance.transport_request,
-      requestCount: finance.transport_request.length,
-    });
+
+    const all_request = nested_document_limit(
+      page,
+      limit,
+      finance?.transport_request
+    );
+    if (all_request?.length > 0) {
+      res.status(200).send({
+        message: "Get All Request from DB 🙌",
+        request: all_request,
+        requestCount: all_request.length,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Request from DB 🙌",
+        request: [],
+        requestCount: 0,
+      });
+    }
   } catch (e) {
     console.log(e);
   }
@@ -1605,16 +1622,32 @@ exports.retrieveRequestTransAtFinance = async (req, res) => {
 exports.retrieveSubmitTransAtFinance = async (req, res) => {
   try {
     const { fid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
     const finance = await Finance.findById({ _id: fid })
       .select("financeName")
       .populate({
         path: "transport_submit",
       });
-    res.status(200).send({
-      message: "Get All Submit from DB 🙌",
-      submit: finance.transport_submit,
-      submitCount: finance.transport_submit.length,
-    });
+    const all_submit = nested_document_limit(
+      page,
+      limit,
+      finance?.transport_submit
+    );
+    if (all_submit?.length > 0) {
+      res.status(200).send({
+        message: "Get All Submit from DB 🙌",
+        submit: all_submit,
+        submitCount: all_submit.length,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Submit from DB 🙌",
+        submit: [],
+        submitCount: 0,
+      });
+    }
   } catch (e) {
     console.log(e);
   }
@@ -1623,16 +1656,32 @@ exports.retrieveSubmitTransAtFinance = async (req, res) => {
 exports.retrieveRejectTransAtFinance = async (req, res) => {
   try {
     const { fid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
     const finance = await Finance.findById({ _id: fid })
       .select("financeName")
       .populate({
         path: "transport_cancelled",
       });
-    res.status(200).send({
-      message: "Get Reject",
-      reject: finance.transport_cancelled,
-      rejectCount: finance.transport_cancelled.length,
-    });
+    const all_cancel = nested_document_limit(
+      page,
+      limit,
+      finance?.transport_cancelled
+    );
+    if (all_cancel?.length > 0) {
+      res.status(200).send({
+        message: "Get Reject",
+        reject: all_cancel,
+        rejectCount: all_cancel.length,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Rejected Request",
+        reject: [],
+        rejectCount: 0,
+      });
+    }
   } catch (e) {
     console.log(e);
   }

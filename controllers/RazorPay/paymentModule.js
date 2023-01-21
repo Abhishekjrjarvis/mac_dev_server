@@ -16,6 +16,8 @@ const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const Department = require("../../models/Department");
 const Participate = require("../../models/ParticipativeEvent/participate");
 const BusinessTC = require("../../models/Finance/BToC");
+const Transport = require("../../models/Transport/transport");
+const Vehicle = require("../../models/Transport/vehicle");
 const {
   add_all_installment,
   render_installment,
@@ -581,6 +583,101 @@ exports.participateEventFunction = async (
       "Student Activity",
       notify,
       "Payment Successfull",
+      user._id,
+      user.deviceToken,
+      "Student",
+      notify
+    );
+    return `${user?.username}`;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.transportFunction = async (
+  order,
+  paidBy,
+  tx_amount_ad,
+  tx_amount_ad_charges,
+  moduleId,
+  is_author
+) => {
+  try {
+    const student = await Student.findById({ _id: paidBy });
+    const user = await User.findById({ _id: `${student.user}` });
+    const vehicle = await Vehicle.findById({ _id: moduleId });
+    const trans = await Transport.findById({ _id: `${vehicle?.transport}` });
+    const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const orderPay = await OrderPayment.findById({ _id: order });
+    const ins = await InstituteAdmin.findById({ _id: `${trans.institute}` });
+    const finance = await Finance.findById({
+      _id: `${institute?.financeDepart[0]}`,
+    }).populate({
+      path: "financeHead",
+      select: "user",
+    });
+    const notify = new StudentNotification({});
+    if (is_author) {
+      finance.financeBankBalance =
+        finance.financeBankBalance + parseInt(tx_amount_ad);
+      finance.financeTotalBalance =
+        finance.financeTotalBalance + parseInt(tx_amount_ad);
+      ins.insBankBalance = institute.insBankBalance + parseInt(tx_amount_ad);
+    } else {
+      admin.returnAmount += tx_amount_ad_charges;
+      ins.adminRepayAmount += parseInt(tx_amount_ad);
+    }
+    trans.online_fee += parseInt(tx_amount_ad);
+    trans.collected_fee += parseInt(tx_amount_ad);
+    if (trans.remaining_fee > parseInt(tx_amount_ad)) {
+      trans.remaining_fee -= parseInt(tx_amount_ad);
+    }
+    if (vehicle?.remaining_fee >= parseInt(tx_amount_ad)) {
+      vehicle.remaining_fee -= parseInt(tx_amount_ad);
+    }
+    if (student?.vehicleRemainFeeCount >= parseInt(tx_amount_ad)) {
+      student.vehicleRemainFeeCount -= parseInt(tx_amount_ad);
+    }
+    student.vehiclePaidFeeCount += parseInt(tx_amount_ad);
+    trans.fund_history.push({
+      student: student?._id,
+      is_install: false,
+      amount: parseInt(tx_amount_ad),
+      mode: "Online",
+    });
+    notify.notifyContent = `${student.studentFirstName} ${
+      student.studentMiddleName ? `${student.studentMiddleName} ` : ""
+    } ${student.studentLastName} your transaction is successfull for ${
+      vehicle.vehicle_number
+    } ${parseInt(tx_amount_ad)} Fees`;
+    notify.notifySender = trans._id;
+    notify.notifyReceiever = user._id;
+    user.activity_tab.push(notify._id);
+    notify.user = user._id;
+    notify.notifyByStudentPhoto = student._id;
+    notify.notifyType = "Student";
+    notify.notifyCategory = "Transport Payment";
+    notify.redirectIndex = 27;
+    student.notification.push(notify._id);
+    user.payment_history.push(order);
+    ins.payment_history.push(order);
+    orderPay.payment_transport = trans._id;
+    orderPay.payment_by_end_user_id = user._id;
+    await Promise.all([
+      student.save(),
+      user.save(),
+      trans.save(),
+      finance.save(),
+      ins.save(),
+      admin.save(),
+      notify.save(),
+      orderPay.save(),
+      vehicle.save(),
+    ]);
+    invokeMemberTabNotification(
+      "Student Activity",
+      notify,
+      "Transport Payment Successfull",
       user._id,
       user.deviceToken,
       "Student",

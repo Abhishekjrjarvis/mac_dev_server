@@ -315,6 +315,9 @@ exports.getExpense = async (req, res) => {
   try {
     const { fid } = req.params;
     const { is_inventory } = req.query;
+    const s_admin = await Admin.findById({
+      _id: `${process.env.S_ADMIN_ID}`,
+    }).select("invoice_count");
     const finance = await Finance.findById({ _id: fid });
     var f_user = await InstituteAdmin.findById({ _id: `${finance.institute}` });
     var user = await User.findOne({ username: `${req.body.user}` }).select(
@@ -333,14 +336,16 @@ exports.getExpense = async (req, res) => {
       var order = new OrderPayment({});
       finance.expenseDepartment.push(expenses._id);
       expenses.finances = finance._id;
+      expenses.invoice_number = finance.expenseDepartment?.length;
       order.payment_module_type = "Expense";
-      order.payment_expense_to_end_user_id = f_user._id;
+      order.payment_to_end_user_id = f_user._id;
       order.payment_module_id = expenses._id;
       order.payment_amount = expenses.expenseAmount;
       order.payment_status = "Captured";
       order.payment_flag_by = "Debit";
       order.payment_mode = expenses.expenseAccount;
-      // order.payment_invoice_number += 1;
+      s_admin.invoice_count += 1;
+      order.payment_invoice_number = s_admin.invoice_count;
       order.payment_expense = expenses._id;
       f_user.payment_history.push(order._id);
       if (user) {
@@ -374,6 +379,7 @@ exports.getExpense = async (req, res) => {
         expenses.save(),
         order.save(),
         f_user.save(),
+        s_admin.save(),
       ]);
       if (req.file) {
         await unlinkFile(req.file.path);
@@ -1762,7 +1768,7 @@ exports.renderFinanceOneInventoryQuery = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "expenseAccount expenseAmount expensePaid expense_quantity expenseDesc expenseAck expense_good_name expense_hsn_code createdAt"
+        "expenseAccount expenseAmount invoice_number expensePaid expense_quantity expenseDesc expenseAck expense_good_name expense_hsn_code createdAt"
       )
       .populate({
         path: "expensePaidUser",

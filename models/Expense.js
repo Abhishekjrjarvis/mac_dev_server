@@ -47,6 +47,7 @@ const expenseSchema = new mongoose.Schema({
   expense_hsn_code: {
     type: String,
   },
+  invoice_number: { type: Number, default: 0 },
 });
 
 const Expense = mongoose.model("Expense", expenseSchema);

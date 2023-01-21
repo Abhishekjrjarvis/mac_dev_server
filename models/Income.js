@@ -21,7 +21,6 @@ const incomeSchema = new mongoose.Schema({
   },
   incomeDesc: {
     type: String,
-    required: true,
   },
   incomeAck: {
     type: String,

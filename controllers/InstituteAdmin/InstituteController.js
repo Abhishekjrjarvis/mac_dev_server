@@ -542,6 +542,7 @@ exports.updateApproveStaff = async (req, res) => {
     notify.notifyByStaffPhoto = staffs._id;
     aStatus.content = `Welcome to ${institute.insName}.Your application for joining as staff  has been accepted by ${institute.insName}.`;
     user.applicationStatus.push(aStatus._id);
+    aStatus.instituteId = institute._id;
     invokeFirebaseNotification(
       "Staff Approval",
       notify,
@@ -622,6 +623,7 @@ exports.updateRejectStaff = async (req, res) => {
     notify.notifyPhoto = institute.insProfilePhoto;
     aStatus.content = `Your application for joining as staff in ${institute.insName} is being rejected. Please follow up with institute for any queries.`;
     user.applicationStatus.push(aStatus._id);
+    aStatus.instituteId = institute._id;
     await Promise.all([
       institute.save(),
       staffs.save(),
@@ -909,6 +911,7 @@ exports.fillStaffForm = async (req, res) => {
     notify.notifyByStaffPhoto = staff._id;
     aStatus.content = `Your application for joining as staff in ${institute.insName} is filled successfully..`;
     user.applicationStatus.push(aStatus._id);
+    aStatus.instituteId = institute._id;
     await Promise.all([
       staff.save(),
       institute.save(),
@@ -994,6 +997,7 @@ exports.fillStudentForm = async (req, res) => {
     notify.batchId = classes?.batch;
     aStatus.content = `Your application for joining as student in ${institute.insName} is filled successfully. Stay updated to check status of your application.`;
     user.applicationStatus.push(aStatus._id);
+    aStatus.instituteId = institute._id;
     //
     invokeMemberTabNotification(
       "Staff Activity",
@@ -2575,6 +2579,7 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     notify.notifyByStudentPhoto = student._id;
     aStatus.content = `Welcome to ${institute.insName}. Your application for joining as student  has been accepted by ${institute.insName}. Enjoy your learning in ${classes.className} - ${classes.classTitle}.`;
     user.applicationStatus.push(aStatus._id);
+    aStatus.instituteId = institute._id;
     invokeFirebaseNotification(
       "Student Approval",
       notify,
@@ -2647,6 +2652,7 @@ exports.retrieveRejectStudentRequest = async (req, res) => {
     classes.student.pull(sid);
     aStatus.content = `Your application for joining as student in ${institute.insName} is being rejected. Please follow up with institute for any queries.`;
     user.applicationStatus.push(aStatus._id);
+    aStatus.instituteId = institute._id;
     await Promise.all([
       institute.save(),
       classes.save(),

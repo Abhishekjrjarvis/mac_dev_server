@@ -1780,6 +1780,7 @@ exports.renderFinanceInventoryQuery = async (req, res) => {
     const all_goods = await Store.find({
       _id: { $in: finance?.finance_inventory },
     })
+      .sort("createdAt")
       .limit(limit)
       .skip(skip)
       .select(
@@ -1820,6 +1821,7 @@ exports.renderFinanceOneInventoryQuery = async (req, res) => {
     const all_expenses = await Expense.find({
       _id: { $in: store?.expense_array },
     })
+      .sort("createdAt")
       .limit(limit)
       .skip(skip)
       .select(

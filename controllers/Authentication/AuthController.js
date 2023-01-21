@@ -1357,6 +1357,7 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
       aStatus.content = `Your application for joining as student in ${institute.insName} is filled successfully. Stay updated to check status of your application.Tap here to see username ${user?.username}`;
       aStatus.see_secure = true;
       user.applicationStatus.push(aStatus._id);
+      aStatus.instituteId = institute._id;
       //
       invokeMemberTabNotification(
         "Staff Activity",
@@ -1547,6 +1548,7 @@ exports.retrieveDirectJoinStaffQuery = async (req, res) => {
       notify.notifyCategory = "Request Staff";
       aStatus.content = `Your application for joining as staff in ${institute.insName} is filled successfully.Tap here to see username ${user?.username}`;
       user.applicationStatus.push(aStatus._id);
+      aStatus.instituteId = institute._id;
       aStatus.see_secure = true;
       await Promise.all([
         staff.save(),
@@ -1715,6 +1717,7 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
       user.applyApplication.push(apply._id);
       student.user = user._id;
       user.applicationStatus.push(status._id);
+      status.instituteId = institute._id;
       apply.receievedApplication.push({
         student: student._id,
         fee_remain: apply.admissionFee,
@@ -1933,6 +1936,7 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       aStatus.content = `Your application for joining as student in ${institute.insName} is filled successfully. Stay updated to check status of your application.Tap here to see username ${user?.username}`;
       aStatus.see_secure = true;
       user.applicationStatus.push(aStatus._id);
+      aStatus.instituteId = institute._id;
       //
       invokeMemberTabNotification(
         "Staff Activity",
@@ -2144,6 +2148,7 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
       notify.notifyCategory = "Request Staff";
       aStatus.content = `Your application for joining as staff in ${institute.insName} is filled successfully.Tap here to see username ${user?.username}`;
       user.applicationStatus.push(aStatus._id);
+      aStatus.instituteId = institute._id;
       aStatus.see_secure = true;
       await Promise.all([
         staff.save(),

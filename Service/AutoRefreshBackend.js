@@ -199,7 +199,7 @@ exports.election_result_day = async (req, res) => {
           await notify.save();
           elect.result_notification = "Declare";
           elect.election_candidate?.forEach(async (ele) => {
-            if (`${ele.student}` === `${query.student}`) {
+            if (`${ele.student}` === `${query.winner}`) {
               const winner_student_voters = await Student.find({
                 _id: { $in: ele.voted_student },
               });
@@ -213,11 +213,12 @@ exports.election_result_day = async (req, res) => {
               });
               winner_student.extraPoints += 5;
               winner_student.election_candidate.push(elect._id);
-              await winner_student.save();
+              ele.election_result_status = "Winner";
+              await Promise.all([winner_student.save(), ele.save()]);
             }
           });
           elect.election_candidate?.forEach(async (ele) => {
-            if (`${ele.student}` !== `${query.student}`) {
+            if (`${ele.student}` !== `${query.winner}`) {
               const candidate_student_voters = await Student.find({
                 _id: { $in: ele.voted_student },
               });

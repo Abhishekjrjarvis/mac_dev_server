@@ -590,6 +590,7 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
     }
     status.content = `You have applied for ${apply.applicationName} has been filled successfully.Stay updated to check status of your application.`;
     status.applicationId = apply._id;
+    status.instituteId = institute._id;
     user.student.push(student._id);
     user.applyApplication.push(apply._id);
     student.user = user._id;
@@ -948,6 +949,9 @@ exports.retrieveAdmissionSelectedApplication = async (req, res) => {
         select_status: false,
       });
     const apply = await NewApplication.findById({ _id: aid });
+    const admission_admin = await Admission.findById({
+      _id: `${apply?.admissionAdmin}`,
+    }).select("institute");
     const student = await Student.findById({ _id: sid });
     const user = await User.findById({ _id: `${student.user}` });
     const status = new Status({});
@@ -968,6 +972,7 @@ exports.retrieveAdmissionSelectedApplication = async (req, res) => {
     status.for_selection = "Yes";
     status.studentId = student._id;
     status.admissionFee = apply.admissionFee;
+    status.instituteId = admission_admin?.institute;
     user.applicationStatus.push(status._id);
     await Promise.all([
       apply.save(),
@@ -1000,6 +1005,9 @@ exports.retrieveAdmissionCancelApplication = async (req, res) => {
         cancel_status: false,
       });
     const apply = await NewApplication.findById({ _id: aid });
+    const admission_admin = await Admission.findById({
+      _id: `${apply?.admissionAdmin}`,
+    }).select("institute");
     const student = await Student.findById({ _id: sid });
     const user = await User.findById({ _id: `${student.user}` });
     const status = new Status({});
@@ -1016,6 +1024,7 @@ exports.retrieveAdmissionCancelApplication = async (req, res) => {
     status.applicationId = apply._id;
     status.studentId = student._id;
     user.applicationStatus.push(status._id);
+    status.instituteId = admission_admin?.institute;
     await Promise.all([
       apply.save(),
       student.save(),
@@ -1067,6 +1076,7 @@ exports.retrieveAdmissionPayMode = async (req, res) => {
     aStatus.content = `Your admission is on hold please visit ${institute.insName}, ${institute.insDistrict}. with required fees or contact institute if neccessory`;
     aStatus.applicationId = apply._id;
     user.applicationStatus.push(aStatus._id);
+    aStatus.instituteId = institute._id;
     await Promise.all([status.save(), aStatus.save(), user.save()]);
     res.status(200).send({
       message: "Lets do some excercise visit institute",
@@ -1207,6 +1217,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       Your seat has been confirmed, You will be alloted your class shortly, Stay Update!`;
       status.applicationId = apply._id;
       user.applicationStatus.push(status._id);
+      status.instituteId = institute._id;
       await Promise.all([
         admission.save(),
         apply.save(),
@@ -1300,6 +1311,7 @@ exports.cancelAdmissionApplication = async (req, res) => {
       aStatus.content = `Your application for ${apply?.applicationDepartment?.dName} has been rejected. Best Of Luck for next time`;
       aStatus.applicationId = apply._id;
       user.applicationStatus.push(aStatus._id);
+      aStatus.instituteId = institute._id;
       student.admissionRemainFeeCount = 0;
       if (student.admissionPaidFeeCount > 0) {
         student.admissionPaidFeeCount -= price;
@@ -1551,6 +1563,7 @@ exports.retrieveClassAllotQuery = async (req, res) => {
         aStatus.content = `Welcome to ${depart.dName} ${classes.classTitle} Enjoy your Learning.`;
         aStatus.applicationId = apply._id;
         user.applicationStatus.push(aStatus._id);
+        aStatus.instituteId = institute._id;
         await Promise.all([
           apply.save(),
           student.save(),
@@ -2185,6 +2198,7 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
       Please visit with Required Documents to confirm your admission`;
     status.applicationId = apply._id;
     user.applicationStatus.push(status._id);
+    status.instituteId = institute._id;
     await Promise.all([apply.save(), user.save()]);
     res.status(200).send({
       message: "Look like a party mood",

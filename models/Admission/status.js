@@ -18,6 +18,10 @@ const statusSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  instituteId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "InstituteAdmin",
+  },
 });
 
 module.exports = mongoose.model("Status", statusSchema);

@@ -376,6 +376,7 @@ exports.admissionInstituteFunction = async (
       aStatus.content = `Your admission is on hold please visit ${ins.insName}, ${ins.insDistrict}. with required fees or contact institute if neccessory`;
       aStatus.applicationId = apply._id;
       user.applicationStatus.push(aStatus._id);
+      aStatus.instituteId = ins._id;
       user.payment_history.push(order);
       (status.payMode = "online"), (status.isPaid = "Paid");
       status.for_selection = "No";

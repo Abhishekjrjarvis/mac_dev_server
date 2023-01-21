@@ -366,12 +366,15 @@ exports.retrieveVoteElectionQuery = async (req, res) => {
     const p_notify = await StudentNotification.findById({ _id: nid });
     elect?.election_candidate?.forEach(async (ele) => {
       if (`${ele?._id}` === `${applyId}`) {
-        ele.election_vote_receieved += 1;
-        ele.voted_student.push(student?._id);
+        if (ele.voted_student.includes(student?._id)) {
+        } else {
+          ele.election_vote_receieved += 1;
+          ele.voted_student.push(student?._id);
+          elect.election_vote_cast += 1;
+        }
       }
     });
     elect.election_total_voter += 1;
-    elect.election_vote_cast += 1;
     p_notify.vote_status = "Voted";
     const notify = new StudentNotification({});
     const user = await User.findById({ _id: `${student?.user}` }).select(

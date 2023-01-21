@@ -18691,7 +18691,7 @@ paths:
           description: Enter Limit No.
         - in: query
           name: search
-          required: true
+          required: false
           type: string
           description: Enter Search Query
       responses:

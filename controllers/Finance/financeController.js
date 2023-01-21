@@ -1322,7 +1322,10 @@ exports.retrieveRemainFeeList = async (req, res) => {
 exports.retrieveOneIncomeQuery = async (req, res) => {
   try {
     const { iid } = req.params;
-    const i_detail = await Income.findById({ _id: iid });
+    const i_detail = await Income.findById({ _id: iid }).populate({
+      path: "incomeFromUser",
+      select: "username userLegalName photoId profilePhoto",
+    });
     // const iOneEncrypt = await encryptionPayload(i_detail);
     res.status(200).send({ message: "One Income Detail", oneIncome: i_detail });
   } catch {}
@@ -1331,7 +1334,10 @@ exports.retrieveOneIncomeQuery = async (req, res) => {
 exports.retrieveOneExpenseQuery = async (req, res) => {
   try {
     const { eid } = req.params;
-    const e_detail = await Expense.findById({ _id: eid });
+    const e_detail = await Expense.findById({ _id: eid }).populate({
+      path: "expensePaidUser",
+      select: "username userLegalName photoId profilePhoto",
+    });
     // const eOneEncrypt = await encryptionPayload(e_detail);
     res
       .status(200)

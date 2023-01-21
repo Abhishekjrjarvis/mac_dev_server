@@ -14,6 +14,7 @@ const invokeSpecificRegister = require("../../Firebase/specific");
 const Finance = require("../../models/Finance");
 const { chatCount } = require("../../Firebase/dailyChat");
 const { getFirestore } = require("firebase-admin/firestore");
+const { staff_id_card_format } = require("../../export/IdCard");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -531,83 +532,14 @@ exports.fetchExportStaffIdCardQuery = async (req, res) => {
           "staffFirstName staffMiddleName staffROLLNO staffLastName staffProfilePhoto photoId staffCast staffCastCategory staffReligion staffBirthPlace staffNationality staffMotherName staffMTongue staffGender staffDOB staffDistrict staffState staffAddress staffQualification staffAadharNumber staffPhoneNumber staffAadharFrontCard staffAadharBackCard staffPanNumber staffBankDetails staffUpiId staffCasteCertificate staffHeight staffWeight staffBMI",
       });
 
-    depart?.departmentChatGroup?.forEach((staff) => {
-      live_data.push({
-        indexNo: staff.staffROLLNO,
-        fullName: export_ins.export_staff_data.fullName
-          ? `${staff.staffFirstName} ${
-              staff.staffMiddleName ? staff.staffMiddleName : ""
-            } ${staff.staffLastName}`
-          : "",
-        photo: staff.staffProfilePhoto,
-        cast: export_ins.export_staff_data.staffCast ? staff.staffCast : "",
-        castCategory: export_ins.export_staff_data.staffCastCategory
-          ? staff.staffCastCategory
-          : "",
-        religion: export_ins.export_staff_data.staffReligion
-          ? staff.staffReligion
-          : "",
-        birthPlace: export_ins.export_staff_data.staffBirthPlace
-          ? staff.staffBirthPlace
-          : "",
-        motherName: export_ins.export_staff_data.staffMotherName
-          ? staff.staffMotherName
-          : "",
-        motherTongue: export_ins.export_staff_data.staffMTongue
-          ? staff.staffMTongue
-          : "",
-        district: export_ins.export_staff_data.staffDistrict
-          ? staff.staffDistrict
-          : "",
-        state: export_ins.export_staff_data.staffState ? staff.staffState : "",
-        address: export_ins.export_staff_data.staffAddress
-          ? staff.staffAddress
-          : "",
-        phoneNumber: export_ins.export_staff_data.staffPhoneNumber
-          ? staff.staffPhoneNumber
-          : "",
-        aadharNumber: export_ins.export_staff_data.staffAadharNumber
-          ? staff.staffAadharNumber
-          : "",
-        qualification: export_ins.export_staff_data.staffQualification
-          ? staff.staffQualification
-          : "",
-        gender: export_ins.export_staff_data.staffGender
-          ? staff.staffGender
-          : "",
-        dob: export_ins.export_staff_data.staffDOB ? staff.staffDOB : "",
-        nationality: export_ins.export_staff_data.staffNationality
-          ? staff.staffNationality
-          : "",
-        aadharFrontCard: export_ins.export_staff_data.staffAadharFrontCard
-          ? staff.staffAadharFrontCard
-          : "",
-        aadharBackCard: export_ins.export_staff_data.staffAadharBackCard
-          ? staff.staffAadharBackCard
-          : "",
-        panNumber: export_ins.export_staff_data.staffPanNumber
-          ? staff.staffPanNumber
-          : "",
-        bankDetails: export_ins.export_staff_data.staffBankDetails
-          ? staff.staffBankDetails
-          : "",
-        upiId: export_ins.export_staff_data.staffUpiId ? staff.staffUpiId : "",
-        castCertificate: export_ins.export_staff_data.staffCasteCertificate
-          ? staff.staffCasteCertificate
-          : "",
-        height: export_ins.export_staff_data.staffHeight
-          ? staff.staffHeight
-          : "",
-        weight: export_ins.export_staff_data.staffWeight
-          ? staff.staffWeight
-          : "",
-        bmi: export_ins.export_staff_data.staffBMI ? staff.staffBMI : "",
-      });
-    });
+    const export_staff = staff_id_card_format(
+      depart?.departmentChatGroup,
+      export_ins?.export_staff_data
+    );
     // const lEncrypt = await encryptionPayload(live_data);
     res.status(200).send({
       message: "Exported Staff Format Pattern Save",
-      staff_card: live_data,
+      staff_card: export_staff,
       export_format: true,
     });
   } catch (e) {

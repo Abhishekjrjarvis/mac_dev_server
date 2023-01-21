@@ -862,7 +862,8 @@ exports.getAllUserActivity = async (req, res) => {
       })
       .populate({
         path: "election_winner",
-        select: "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName",
+        select:
+          "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName",
       })
       .sort("-notifyTime")
       .limit(limit)
@@ -1939,13 +1940,23 @@ exports.retrieveUserApplicationStatus = async (req, res) => {
           select: "one_installments",
         },
         options,
+      })
+      .populate({
+        path: "applicationStatus",
+        populate: {
+          path: "instituteId",
+          select: "insName name photoId insProfilePhoto",
+        },
+        options,
       });
     // const appEncrypt = await encryptionPayload(user.applicationStatus);
     res.status(200).send({
       message: "user Application Status",
       status: user.applicationStatus,
     });
-  } catch {}
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 exports.retrieveProfileDataUsername = async (req, res) => {

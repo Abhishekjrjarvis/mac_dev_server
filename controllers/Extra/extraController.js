@@ -180,7 +180,7 @@ exports.retrieveLeavingGRNO = async (req, res) => {
   try {
     const { gr, id } = req.params;
     var download = true;
-    const { reason, study, previous, behaviour, remark, uidaiNumber } =
+    const { reason, study, previous, behaviour, remark, uidaiNumber, bookNO } =
       req.body;
     const student = await Student.findOne({
       $and: [{ studentGRNO: `${gr}` }, { institute: id }],
@@ -216,7 +216,7 @@ exports.retrieveLeavingGRNO = async (req, res) => {
     student.studentLeavingRemark = remark;
     student.studentUidaiNumber = uidaiNumber;
     student.studentLeavingInsDate = new Date();
-    student.studentBookNo = institute.leavingArray.length + 1;
+    student.studentBookNo = bookNO;
     student.studentCertificateNo = institute.leavingArray.length + 1;
     institute.l_certificate_count += 1;
     student.studentLeavingStatus = "Ready";

@@ -186,13 +186,13 @@ router.get(
 
 router.get(
   "/staffdesignationdata/:sid",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(User.retrieveStaffDesignationArray)
 );
 
 router.get(
   "/studentdesignationdata/:sid",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(User.retrieveStudentDesignationArray)
 );
 

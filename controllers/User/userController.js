@@ -1449,39 +1449,41 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .lean()
         .exec();
-      for (var docs of staff.staffDocuments) {
-        staff.incomeCertificate =
-          docs.documentName === "incomeCertificate"
-            ? docs.documentKey
-            : staff.incomeCertificate;
-        staff.leavingTransferCertificate =
-          docs.documentName === "leavingTransferCertificate"
-            ? docs.documentKey
-            : staff.leavingTransferCertificate;
-        staff.nonCreamyLayerCertificate =
-          docs.documentName === "nonCreamyLayerCertificate"
-            ? docs.documentKey
-            : staff.nonCreamyLayerCertificate;
-        staff.domicileCertificate =
-          docs.documentName === "domicileCertificate"
-            ? docs.documentKey
-            : staff.domicileCertificate;
-        staff.nationalityCertificate =
-          docs.documentName === "nationalityCertificate"
-            ? docs.documentKey
-            : staff.nationalityCertificate;
-        staff.lastYearMarksheet =
-          docs.documentName === "lastYearMarksheet"
-            ? docs.documentKey
-            : staff.lastYearMarksheet;
-        staff.joiningTransferLetter =
-          docs.documentName === "joiningTransferLetter"
-            ? docs.documentKey
-            : staff.joiningTransferLetter;
-        staff.identityDocument =
-          docs.documentName === "identityDocument"
-            ? docs.documentKey
-            : staff.identityDocument;
+      if (staff?.staffDocuments?.length > 0) {
+        for (var docs of staff?.staffDocuments) {
+          staff.incomeCertificate =
+            docs.documentName === "incomeCertificate"
+              ? docs.documentKey
+              : staff.incomeCertificate;
+          staff.leavingTransferCertificate =
+            docs.documentName === "leavingTransferCertificate"
+              ? docs.documentKey
+              : staff.leavingTransferCertificate;
+          staff.nonCreamyLayerCertificate =
+            docs.documentName === "nonCreamyLayerCertificate"
+              ? docs.documentKey
+              : staff.nonCreamyLayerCertificate;
+          staff.domicileCertificate =
+            docs.documentName === "domicileCertificate"
+              ? docs.documentKey
+              : staff.domicileCertificate;
+          staff.nationalityCertificate =
+            docs.documentName === "nationalityCertificate"
+              ? docs.documentKey
+              : staff.nationalityCertificate;
+          staff.lastYearMarksheet =
+            docs.documentName === "lastYearMarksheet"
+              ? docs.documentKey
+              : staff.lastYearMarksheet;
+          staff.joiningTransferLetter =
+            docs.documentName === "joiningTransferLetter"
+              ? docs.documentKey
+              : staff.joiningTransferLetter;
+          staff.identityDocument =
+            docs.documentName === "identityDocument"
+              ? docs.documentKey
+              : staff.identityDocument;
+        }
       }
     } else {
       var staff = await Staff.findById({ _id: sid })
@@ -1667,39 +1669,41 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
               select: "userLegalName userPhoneNumber",
             },
           });
-        for (var docs of student.studentDocuments) {
-          student.incomeCertificate =
-            docs.documentName === "incomeCertificate"
-              ? docs.documentKey
-              : student.incomeCertificate;
-          student.leavingTransferCertificate =
-            docs.documentName === "leavingTransferCertificate"
-              ? docs.documentKey
-              : student.leavingTransferCertificate;
-          student.nonCreamyLayerCertificate =
-            docs.documentName === "nonCreamyLayerCertificate"
-              ? docs.documentKey
-              : student.nonCreamyLayerCertificate;
-          student.domicileCertificate =
-            docs.documentName === "domicileCertificate"
-              ? docs.documentKey
-              : student.domicileCertificate;
-          student.nationalityCertificate =
-            docs.documentName === "nationalityCertificate"
-              ? docs.documentKey
-              : student.nationalityCertificate;
-          student.lastYearMarksheet =
-            docs.documentName === "lastYearMarksheet"
-              ? docs.documentKey
-              : student.lastYearMarksheet;
-          student.joiningTransferLetter =
-            docs.documentName === "joiningTransferLetter"
-              ? docs.documentKey
-              : student.joiningTransferLetter;
-          student.identityDocument =
-            docs.documentName === "identityDocument"
-              ? docs.documentKey
-              : student.identityDocument;
+        if (student?.studentDocuments?.length > 0) {
+          for (var docs of student.studentDocuments) {
+            student.incomeCertificate =
+              docs.documentName === "incomeCertificate"
+                ? docs.documentKey
+                : student.incomeCertificate;
+            student.leavingTransferCertificate =
+              docs.documentName === "leavingTransferCertificate"
+                ? docs.documentKey
+                : student.leavingTransferCertificate;
+            student.nonCreamyLayerCertificate =
+              docs.documentName === "nonCreamyLayerCertificate"
+                ? docs.documentKey
+                : student.nonCreamyLayerCertificate;
+            student.domicileCertificate =
+              docs.documentName === "domicileCertificate"
+                ? docs.documentKey
+                : student.domicileCertificate;
+            student.nationalityCertificate =
+              docs.documentName === "nationalityCertificate"
+                ? docs.documentKey
+                : student.nationalityCertificate;
+            student.lastYearMarksheet =
+              docs.documentName === "lastYearMarksheet"
+                ? docs.documentKey
+                : student.lastYearMarksheet;
+            student.joiningTransferLetter =
+              docs.documentName === "joiningTransferLetter"
+                ? docs.documentKey
+                : student.joiningTransferLetter;
+            student.identityDocument =
+              docs.documentName === "identityDocument"
+                ? docs.documentKey
+                : student.identityDocument;
+          }
         }
       } else {
         var student = await Student.findById({ _id: sid })
@@ -1954,8 +1958,8 @@ exports.retrieveUserApplicationStatus = async (req, res) => {
       message: "user Application Status",
       status: user.applicationStatus,
     });
-  } catch(e) {
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
 };
 

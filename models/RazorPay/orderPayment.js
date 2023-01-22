@@ -21,6 +21,9 @@ const orderPaymentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteAdmin",
   },
+  payment_by_end_user_id_name: {
+    type: String,
+  },
   payment_module_id: {
     type: String,
   },

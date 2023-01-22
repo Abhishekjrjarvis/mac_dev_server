@@ -227,9 +227,9 @@ exports.getIncome = async (req, res) => {
       _id: `${process.env.S_ADMIN_ID}`,
     }).select("invoice_count");
     var f_user = await InstituteAdmin.findById({ _id: `${finance.institute}` });
-    var user = await User.findOne({ username: `${req.body.user}` }).select(
-      "_id payment_history"
-    );
+    var user = await User.findById({
+      _id: `${req.body.incomeFromUser}`,
+    }).select("_id payment_history");
     var incomes = new Income({ ...req.body });
     if (req.file) {
       const file = req.file;
@@ -252,7 +252,6 @@ exports.getIncome = async (req, res) => {
     s_admin.invoice_count += 1;
     order.payment_invoice_number = s_admin.invoice_count;
     if (user) {
-      incomes.incomeFromUser = user._id;
       order.payment_by_end_user_id = user._id;
       order.payment_flag_by = "Debit";
       user.payment_history.push(order._id);
@@ -260,6 +259,7 @@ exports.getIncome = async (req, res) => {
     }
     if (req.body?.incomeFrom) {
       incomes.incomeFrom = req.body?.incomeFrom;
+      order.payment_by_end_user_id_name = req.body?.incomeFrom;
     }
     if (req.body.incomeAccount === "By Cash") {
       finance.financeIncomeCashBalance =
@@ -320,9 +320,9 @@ exports.getExpense = async (req, res) => {
     }).select("invoice_count");
     const finance = await Finance.findById({ _id: fid });
     var f_user = await InstituteAdmin.findById({ _id: `${finance.institute}` });
-    var user = await User.findOne({ username: `${req.body.user}` }).select(
-      "_id payment_history"
-    );
+    var user = await User.findById({
+      _id: `${req.body.expensePaidUser}`,
+    }).select("_id payment_history");
     if (
       finance.financeTotalBalance > 0 &&
       req.body.expenseAmount <= finance.financeTotalBalance
@@ -349,7 +349,6 @@ exports.getExpense = async (req, res) => {
       order.payment_expense = expenses._id;
       f_user.payment_history.push(order._id);
       if (user) {
-        expenses.expensePaidUser = user._id;
         order.payment_by_end_user_id = user._id;
         order.payment_flag_to = "Credit";
         user.payment_history.push(order._id);
@@ -357,6 +356,7 @@ exports.getExpense = async (req, res) => {
       }
       if (req.body?.expensePaid) {
         expenses.expensePaid = req.body?.expensePaid;
+        order.payment_by_end_user_id_name = req.body?.expensePaid;
       }
       if (req.body.expenseAccount === "By Cash") {
         finance.financeExpenseCashBalance =

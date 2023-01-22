@@ -43,6 +43,7 @@ const {
   generateAccessToken,
 } = require("../../helper/functions");
 const { studentsListQuery, ClassIds } = require("../../addons");
+const invokeFirebaseNotification = require("../../Firebase/firebase");
 
 const generateQR = async (encodeData, Id) => {
   try {
@@ -1215,9 +1216,9 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
       const genUserPass = bcrypt.genSaltSync(12);
       const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
       var user = new User({
-        userLegalName: `${req.body.studentFirstName}${
+        userLegalName: `${req.body.studentFirstName} ${
           req.body.studentMiddleName ? req.body.studentMiddleName : ""
-        }${req.body.studentLastName ? req.body.studentLastName : ""}`,
+        } ${req.body.studentLastName ? req.body.studentLastName : ""}`,
         userGender: req.body.studentGender,
         userDateOfBirth: req.body.studentDOB,
         username: valid?.username,
@@ -1426,9 +1427,9 @@ exports.retrieveDirectJoinStaffQuery = async (req, res) => {
       const genUserPass = bcrypt.genSaltSync(12);
       const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
       var user = new User({
-        userLegalName: `${req.body.staffFirstName}${
+        userLegalName: `${req.body.staffFirstName} ${
           req.body.staffMiddleName ? req.body.staffMiddleName : ""
-        }${req.body.staffLastName ? req.body.staffLastName : ""}`,
+        } ${req.body.staffLastName ? req.body.staffLastName : ""}`,
         userGender: req.body.staffGender,
         userDateOfBirth: req.body.staffDOB,
         username: valid?.username,
@@ -1605,9 +1606,9 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
       const genUserPass = bcrypt.genSaltSync(12);
       const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
       var user = new User({
-        userLegalName: `${req.body.studentFirstName}${
+        userLegalName: `${req.body.studentFirstName} ${
           req.body.studentMiddleName ? req.body.studentMiddleName : ""
-        }${req.body.studentLastName ? req.body.studentLastName : ""}`,
+        } ${req.body.studentLastName ? req.body.studentLastName : ""}`,
         userGender: req.body.studentGender,
         userDateOfBirth: req.body.studentDOB,
         username: valid?.username,
@@ -1793,9 +1794,9 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       const genUserPass = bcrypt.genSaltSync(12);
       const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
       var user = new User({
-        userLegalName: `${req.body.studentFirstName}${
+        userLegalName: `${req.body.studentFirstName} ${
           req.body.studentMiddleName ? req.body.studentMiddleName : ""
-        }${req.body.studentLastName ? req.body.studentLastName : ""}`,
+        } ${req.body.studentLastName ? req.body.studentLastName : ""}`,
         userGender: req.body.studentGender,
         userDateOfBirth: req.body.studentDOB,
         username: valid?.username,
@@ -1826,9 +1827,9 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
         await user.save();
       }
       //
-      var b_date = user.userDateOfBirth.slice(8, 10);
-      var b_month = user.userDateOfBirth.slice(5, 7);
-      var b_year = user.userDateOfBirth.slice(0, 4);
+      var b_date = user.userDateOfBirth?.slice(8, 10);
+      var b_month = user.userDateOfBirth?.slice(5, 7);
+      var b_year = user.userDateOfBirth?.slice(0, 4);
       if (b_date > p_date) {
         p_date = p_date + month[b_month - 1];
         p_month = p_month - 1;
@@ -2026,9 +2027,9 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
       const genUserPass = bcrypt.genSaltSync(12);
       const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
       var user = new User({
-        userLegalName: `${req.body.staffFirstName}${
+        userLegalName: `${req.body.staffFirstName} ${
           req.body.staffMiddleName ? req.body.staffMiddleName : ""
-        }${req.body.staffLastName ? req.body.staffLastName : ""}`,
+        } ${req.body.staffLastName ? req.body.staffLastName : ""}`,
         userGender: req.body.staffGender,
         userDateOfBirth: req.body.staffDOB,
         username: valid?.username,
@@ -2059,9 +2060,9 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
         await user.save();
       }
       //
-      var b_date = user.userDateOfBirth.slice(8, 10);
-      var b_month = user.userDateOfBirth.slice(5, 7);
-      var b_year = user.userDateOfBirth.slice(0, 4);
+      var b_date = user.userDateOfBirth?.slice(8, 10);
+      var b_month = user.userDateOfBirth?.slice(5, 7);
+      var b_year = user.userDateOfBirth?.slice(0, 4);
       if (b_date > p_date) {
         p_date = p_date + month[b_month - 1];
         p_month = p_month - 1;
@@ -2121,9 +2122,9 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
         staff.photoId = "0";
         staff.staffProfilePhoto = sample_pic;
       }
+
       const notify = new Notification({});
       const aStatus = new Status({});
-      institute.staff.push(staff._id);
       user.staff.push(staff._id);
       user.is_mentor = true;
       institute.joinedPost.push(user._id);
@@ -2137,26 +2138,85 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
       staff.institute = institute._id;
       staff.staffApplyDate = new Date().toISOString();
       staff.user = user._id;
-      notify.notifyContent = `${staff.staffFirstName}${
-        staff.staffMiddleName ? ` ${staff.staffMiddleName}` : ""
-      } ${staff.staffLastName} has been applied for role of Staff`;
-      notify.notifySender = staff._id;
-      notify.notifyReceiever = institute._id;
+      staff.staffStatus = "Approved";
+      institute.ApproveStaff.push(staff._id);
+      institute.staffCount += 1;
+      admins.staffArray.push(staff._id);
+      admins.staffCount += 1;
+      institute.joinedUserList.push(user._id);
+      staff.staffROLLNO = institute.ApproveStaff.length;
+      staff.staffJoinDate = new Date().toISOString();
+      notify.notifyContent = `Congrats ${staff.staffFirstName} ${
+        staff.staffMiddleName ? `${staff.staffMiddleName}` : ""
+      } ${staff.staffLastName} for joined as a staff at ${institute.insName}`;
+      notify.notifySender = id;
+      notify.notifyReceiever = user._id;
+      notify.notifyCategory = "Approve Staff";
       institute.iNotify.push(notify._id);
       notify.institute = institute._id;
+      user.uNotify.push(notify._id);
+      notify.user = user._id;
       notify.notifyByStaffPhoto = staff._id;
-      notify.notifyCategory = "Request Staff";
-      aStatus.content = `Your application for joining as staff in ${institute.insName} is filled successfully.Tap here to see username ${user?.username}`;
+      aStatus.content = `Welcome to ${institute.insName}.Your application for joining as staff  has been accepted by ${institute.insName}.`;
       user.applicationStatus.push(aStatus._id);
       aStatus.instituteId = institute._id;
-      aStatus.see_secure = true;
+      invokeFirebaseNotification(
+        "Staff Approval",
+        notify,
+        institute.insName,
+        user._id,
+        user.deviceToken
+      );
       await Promise.all([
         staff.save(),
         institute.save(),
+        admins.save(),
         user.save(),
         notify.save(),
         aStatus.save(),
       ]);
+      if (institute.isUniversal === "Not Assigned") {
+        const post = await Post.find({ author: institute._id });
+        post.forEach(async (pt) => {
+          if (
+            user.userPosts.length >= 1 &&
+            user.userPosts.includes(String(pt))
+          ) {
+          } else {
+            user.userPosts.push(pt);
+          }
+        });
+        await user.save();
+      } else {
+      }
+      if (staff.staffGender === "Male") {
+        institute.staff_category.boyCount += 1;
+      } else if (staff.staffGender === "Female") {
+        institute.staff_category.girlCount += 1;
+      } else {
+        institute.staff_category.otherCount += 1;
+      }
+      if (staff.staffCastCategory === "General") {
+        institute.staff_category.generalCount += 1;
+      } else if (staff.staffCastCategory === "OBC") {
+        institute.staff_category.obcCount += 1;
+      } else if (staff.staffCastCategory === "SC") {
+        institute.staff_category.scCount += 1;
+      } else if (staff.staffCastCategory === "ST") {
+        institute.staff_category.stCount += 1;
+      } else if (staff.staffCastCategory === "NT-A") {
+        institute.staff_category.ntaCount += 1;
+      } else if (staff.staffCastCategory === "NT-B") {
+        institute.staff_category.ntbCount += 1;
+      } else if (staff.staffCastCategory === "NT-C") {
+        institute.staff_category.ntcCount += 1;
+      } else if (staff.staffCastCategory === "NT-D") {
+        institute.staff_category.ntdCount += 1;
+      } else if (staff.staffCastCategory === "VJ") {
+        institute.staff_category.vjCount += 1;
+      } else {
+      }
+      await Promise.all([institute.save()]);
       res.status(200).send({
         message: "Direct Institute Account Creation Process Completed 😀✨",
         status: true,

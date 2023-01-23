@@ -2196,291 +2196,7 @@ paths:
                   description: studentId bioId
       responses:
         "200":
-          description: OK
-
-  /api/v1/extra/export/staff/{id}/card/format:
-    patch:
-      tags:
-        - Setting Control API
-      summary: Staff Id Card Export Data Toggle -(verified)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: Enter Institute Id
-        - in: body
-          name: body
-          schema:
-            type: object
-            properties:
-              export_staff_data:
-                type: object
-                required:  true
-                description: here pass all staff id card export data boolean
-                properties:
-                  fullName:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffDOB:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffGender:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffNationality:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffMTongue:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffMotherName:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffCast:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffCastCategory:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffReligion:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffBirthPlace:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffDistrict:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffState:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffAddress:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffPhoneNumber:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffAadharNumber:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffQualification:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffAadharFrontCard:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffAadharBackCard:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffPanNumber:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffBankDetails:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffUpiId:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffHeight:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffWeight:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffBMI:
-                    type: boolean
-                    description: here pass value "true" or "false"                                                      
-                  staffCasteCertificate:
-                    type: boolean
-                    description: here pass value "true" or "false"      
-      responses:
-        "200":
-          description: OK
-  
-  /api/v1/extra/export/student/{id}/card/format:
-    patch:
-      tags:
-        - Setting Control API
-      summary: Student Id Card Export Data Toggle -(verified)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: Enter Institute Id
-        - in: body
-          name: body
-          schema:
-            type: object
-            properties:
-              export_student_data:
-                type: object
-                required:  true
-                description: here pass all student id card export data toggle boolean
-                properties:
-                  fullName:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentDOB:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentGender:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentNationality:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentMTongue:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentMotherName:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentCast:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentCastCategory:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentReligion:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentBirthPlace:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentDistrict:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentState:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentAddress:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentPhoneNumber:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentAadharNumber:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentAadharFrontCard:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentAadharBackCard:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentPanNumber:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentBankDetails:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentCasteCertificate:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentParentsName:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentParentsPhoneNumber:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentHeight:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentWeight:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentBMI:
-                    type: boolean
-                    description: here pass value "true" or "false"  
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/extra/export/staff/card/{did}:
-    get:
-      tags:
-        - Setting Control API
-      summary: Get Staff Exported Data -(verified)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: did
-          required: true
-          type: string
-          description: Enter Department Id
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/extra/export/student/card:
-    get:
-      tags:
-        - Setting Control API
-      summary: Get Student Exported Data -(verified)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: request
-          required: true
-          type: array
-          description: Enter Array of Class Id ["98749827348917874", "9837489728478734871"]
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/extra/export/student/all/{id}:
-    get:
-      tags:
-        - Setting Control API
-      summary: Get All Students Exported Data -(verified)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: Enter institute Id
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/extra/export/student/all/{fid}:
-    get:
-      tags:
-        - Setting Control API
-      summary: Get All Students Remaining Fee At Finance Exported Data -(verified)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: fid
-          required: true
-          type: string
-          description: Enter Finance Id
-      responses:
-        "200":
-          description: OK
+          description: OK  
 
   /api/v1/extra/{uid}/active/member/role:
     get:
@@ -19339,6 +19055,107 @@ paths:
               amount:
                 type: number
                 description: Enter Amount 
+      responses:
+        "200":
+          description: OK
+
+
+# Export Module All Data
+
+  /api/v1/extra/export/student/all/admission/{aid}:
+    get:
+      tags:
+        - Export Data Module
+      summary: Get All Students Remaining Fee At Admission Module Exported Data -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Admission Module Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/extra/export/student/all/{fid}:
+    get:
+      tags:
+        - Export Data Module
+      summary: Get All Students Remaining Fee At Finance Exported Data -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/extra/export/student/all/{id}:
+    get:
+      tags:
+        - Export Data Module
+      summary: Get All Students Exported Data -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: Enter institute Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/extra/export/student/card:
+    post:
+      tags:
+        - Setting Control API
+      summary: Get Id Card Student Exported Data -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              request:
+                type: string
+                description: Enter Array of Class Id ["987482734878274387328", "893728947892374872847"]
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/extra/export/staff/card/{did}:
+    get:
+      tags:
+        - Setting Control API
+      summary: Get All Staff Exported Data -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: Enter Institute Id
       responses:
         "200":
           description: OK

@@ -12,6 +12,7 @@ const Department = require("../../models/Department");
 const Class = require("../../models/Class");
 const invokeSpecificRegister = require("../../Firebase/specific");
 const Finance = require("../../models/Finance");
+const Admission = require("../../models/Admission/Admission");
 const { chatCount } = require("../../Firebase/dailyChat");
 const { getFirestore } = require("firebase-admin/firestore");
 // const { staff_id_card_format } = require("../../export/IdCard");
@@ -520,11 +521,15 @@ exports.fetchBiometricStudentQuery = async (req, res) => {
 exports.fetchExportStaffIdCardQuery = async (req, res) => {
   try {
     const { did } = req.params;
-    const depart = await InstituteAdmin.findById({ _id: did })
-      .select("staffCount ApproveStaff")
+    const ins = await InstituteAdmin.findById({ _id: did }).select(
+      "staffCount ApproveStaff"
+    );
 
-      const all_staff = await Staff.find({ _id: { $in: depart?.ApproveStaff}})
-      .select("staffFirstName staffMiddleName staffROLLNO staffLastName staffProfilePhoto photoId staffCast staffCastCategory staffReligion staffBirthPlace staffNationality staffMotherName staffMTongue staffGender staffDOB staffDistrict staffState staffAddress staffQualification staffAadharNumber staffPhoneNumber")
+    const all_staff = await Staff.find({
+      _id: { $in: ins?.ApproveStaff },
+    }).select(
+      "staffFirstName staffMiddleName staffROLLNO staffLastName staffProfilePhoto photoId staffCast staffCastCategory staffReligion staffBirthPlace staffNationality staffMotherName staffMTongue staffGender staffDOB staffDistrict staffState staffAddress staffQualification staffAadharNumber staffPhoneNumber"
+    );
 
     // const lEncrypt = await encryptionPayload(live_data);
     res.status(200).send({
@@ -655,7 +660,69 @@ exports.fetchExportStudentRemainFeeQuery = async (req, res) => {
 
     // const fEncrypt = await encryptionPayload(live_data);
     res.status(200).send({
-      message: "Exported Student Remain Fee",
+      message: "Exported Student Finance Remain Fee",
+      student_card: refactor_response,
+      export_format: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.fetchExportAdmissionStudentRemainFeeQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    var refactor_response = [];
+    const ads = await Admission.findById({ _id: aid }).select("remainingFee");
+
+    const student_query = await Student.find({
+      _id: { $in: ads?.remainingFee },
+    })
+      .select(
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionRemainFeeCount admissionPaidFeeCount studentGRNO"
+      )
+      .populate({
+        path: "department",
+        select: "dName",
+      })
+      .populate({
+        path: "studentClass",
+        select: "className classTitle",
+      });
+
+    for (var ref = 0; ref < student_query?.length; ref++) {
+      refactor_response.push({
+        GRNO: student_query[ref]?.studentGRNO
+          ? student_query[ref]?.studentGRNO
+          : ref + 1,
+        FullName: `${
+          student_query[ref]?.studentFirstName
+            ? student_query[ref]?.studentFirstName
+            : ""
+        } ${
+          student_query[ref]?.studentMiddleName
+            ? student_query[ref]?.studentMiddleName
+            : ""
+        } ${
+          student_query[ref]?.studentLastName
+            ? student_query[ref]?.studentLastName
+            : ""
+        }`,
+        ProfilePhoto: student_query[ref]?.studentProfilePhoto,
+        RemainAmount: student_query[ref]?.admissionRemainFeeCount,
+        PaidAmount: student_query[ref]?.admissionPaidFeeCount,
+        Class: student_query[ref]?.studentClass?.className
+          ? `${student_query[ref]?.studentClass?.className} - ${student_query[ref]?.studentClass?.classTitle}`
+          : "",
+        Department: student_query[ref]?.department?.dName
+          ? `${student_query[ref]?.department?.dName}`
+          : "",
+      });
+    }
+
+    // const fEncrypt = await encryptionPayload(live_data);
+    res.status(200).send({
+      message: "Exported Student Admission Remain Fee",
       student_card: refactor_response,
       export_format: true,
     });

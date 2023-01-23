@@ -143,9 +143,15 @@ router.patch(
 );
 
 router.get(
-  "/export/student/remain/fee",
+  "/export/student/remain/fee/:fid",
   isLoggedIn,
   catchAsync(Extra.fetchExportStudentRemainFeeQuery)
+);
+
+router.get(
+  "/export/student/remain/fee/admission/:aid",
+  // isLoggedIn,
+  catchAsync(Extra.fetchExportAdmissionStudentRemainFeeQuery)
 );
 
 router.patch(

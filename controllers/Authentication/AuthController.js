@@ -708,7 +708,7 @@ exports.forgotPasswordVerifyOtp = async (req, res) => {
         req.body.userOtpCode === `${valid_otp_ins?.otp_code}`
       ) {
         // const oEncrypt = await encryptionPayload(institute);
-        res.status(200).send({ message: "Otp verified", institute, access: false });
+        res.status(200).send({ message: "Otp verified", institute, access: true });
         await OTPCode.findByIdAndDelete(valid_otp_ins?._id);
       } else {
         res.status(200).send({ message: "Invalid OTP", access: false });

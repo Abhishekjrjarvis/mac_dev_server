@@ -520,18 +520,16 @@ exports.fetchBiometricStudentQuery = async (req, res) => {
 exports.fetchExportStaffIdCardQuery = async (req, res) => {
   try {
     const { did } = req.params;
-    const depart = await Department.findById({ _id: did })
-      .select("staffCount")
-      .populate({
-        path: "departmentChatGroup",
-        select:
-          "staffFirstName staffMiddleName staffROLLNO staffLastName staffProfilePhoto photoId staffCast staffCastCategory staffReligion staffBirthPlace staffNationality staffMotherName staffMTongue staffGender staffDOB staffDistrict staffState staffAddress staffQualification staffAadharNumber staffPhoneNumber",
-      });
+    const depart = await InstituteAdmin.findById({ _id: did })
+      .select("staffCount ApproveStaff")
+
+      const all_staff = await Staff.find({ _id: { $in: depart?.ApproveStaff}})
+      .select("staffFirstName staffMiddleName staffROLLNO staffLastName staffProfilePhoto photoId staffCast staffCastCategory staffReligion staffBirthPlace staffNationality staffMotherName staffMTongue staffGender staffDOB staffDistrict staffState staffAddress staffQualification staffAadharNumber staffPhoneNumber")
 
     // const lEncrypt = await encryptionPayload(live_data);
     res.status(200).send({
       message: "Exported Staff Format Pattern Save",
-      staff_card: depart?.departmentChatGroup,
+      staff_card: all_staff,
       export_format: true,
     });
   } catch (e) {

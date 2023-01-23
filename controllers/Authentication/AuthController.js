@@ -44,6 +44,7 @@ const {
 } = require("../../helper/functions");
 const { studentsListQuery, ClassIds } = require("../../addons");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
+const { randomSixCode } = require("../../Service/close");
 
 const generateQR = async (encodeData, Id) => {
   try {
@@ -99,6 +100,7 @@ exports.getRegisterIns = async (req, res) => {
         res.send({ message: "Institute Existing with this Username" });
       } else {
         const institute = new InstituteAdmin({ ...req.body });
+        institute.staffJoinCode = await randomSixCode();
         if (req.body.userId !== "") {
           const user = await User.findOne({ username: req.body.userId });
           if (user) {

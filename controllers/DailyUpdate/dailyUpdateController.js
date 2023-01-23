@@ -273,11 +273,11 @@ exports.renderRealTimeDailyUpdate = async (req, res) => {
           date: new Date(),
         });
         sub.dailyUpdate?.push(dailyUpdate._id);
-        sub?.class?.ApproveStudent?.forEach(async (student) => {
-          const students = await Student.findById(student);
-          students.dailyUpdate?.push(dailyUpdate._id);
-          await students.save();
-        });
+        // sub?.class?.ApproveStudent?.forEach(async (student) => {
+        //   const students = await Student.findById(student);
+        //   students.dailyUpdate?.push(dailyUpdate._id);
+        //   await students.save();
+        // });
         await Promise.all([dailyUpdate.save(), sub.save()]);
       }
     }

@@ -1213,8 +1213,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
         paidAmount: price,
         appId: apply._id,
       });
-      status.content = `Welcome to Institute ${institute.insName}, ${institute.insDistrict}.
-      Your seat has been confirmed, You will be alloted your class shortly, Stay Update!`;
+      status.content = `Welcome to Institute ${institute.insName}, ${institute.insDistrict}.Please visit with Required Documents to confirm your admission`
       status.applicationId = apply._id;
       user.applicationStatus.push(status._id);
       status.instituteId = institute._id;
@@ -2214,8 +2213,7 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
       install_type: type,
     });
     apply.confirmCount += 1;
-    status.content = `Welcome to ${institute.insName}, ${institute.insDistrict}.
-      Please visit with Required Documents to confirm your admission`;
+    status.content = `Your seat has been confirmed, You will be alloted your class shortly, Stay Update!`;
     status.applicationId = apply._id;
     user.applicationStatus.push(status._id);
     status.instituteId = institute._id;

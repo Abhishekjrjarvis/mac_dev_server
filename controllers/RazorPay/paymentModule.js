@@ -355,7 +355,7 @@ exports.admissionInstituteFunction = async (
           paidAmount: parseInt(tx_amount_ad),
           appId: apply._id,
         });
-      aStatus.content = `Your admission is on hold please visit ${ins.insName}, ${ins.insDistrict}. with required fees or contact institute if neccessory`;
+      aStatus.content = `Welcome to Institute ${ins.insName}, ${ins.insDistrict}.Please visit with Required Documents to confirm your admission`
       aStatus.applicationId = apply._id;
       user.applicationStatus.push(aStatus._id);
       aStatus.instituteId = ins._id;
@@ -367,8 +367,8 @@ exports.admissionInstituteFunction = async (
       notify.notify_mr_content = `प्रवेश शुल्कासाठी ${student.studentFirstName} ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} ${student.studentLastName} तुमचा व्यवहार यशस्वी झाला आहे ${parseInt(tx_amount_ad)}`;
       notify.notifySender = admission._id;
       notify.notifyReceiever = user._id;
-      ins.iNotify.push(notify._id);
-      notify.institute = ins._id;
+      // ins.iNotify.push(notify._id);
+      // notify.institute = ins._id;
       user.uNotify.push(notify._id);
       notify.notifyCategory = "Admission Online Fee";
       notify.user = user._id;

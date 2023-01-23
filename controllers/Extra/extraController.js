@@ -541,7 +541,7 @@ exports.fetchExportStaffIdCardQuery = async (req, res) => {
 
 exports.fetchExportStudentIdCardQuery = async (req, res) => {
   try {
-    const { request } = req.body;
+    const { request } = req.query;
     var query_data = [];
     const classes = await Class.find({ _id: { $in: request } }).select(
       "ApproveStudent"

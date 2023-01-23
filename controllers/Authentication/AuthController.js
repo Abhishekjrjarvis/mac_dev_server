@@ -1026,9 +1026,9 @@ exports.retrieveUsernameEditQuery = async (req, res) => {
         });
       } else {
         res.status(200).send({
-          message: `Ins Username Rejected for next update is available at ${moment(
+          message: `You will be able to change your username once in 45 days. next change available at ${moment(
             new Date(check_ins.next_date).toISOString()
-          ).format("MMM Do YY")} 😀👍`,
+          ).format("MMM Do YYYY")} 😀👍`,
           flag: false,
         });
       }
@@ -1073,9 +1073,9 @@ exports.retrieveUsernameEditQuery = async (req, res) => {
         });
       } else {
         res.status(200).send({
-          message: `User Username Rejected for next update is available at ${moment(
+          message: `You will be able to change your username once in 45 days. next change available at ${moment(
             new Date(check_user.next_date).toISOString()
-          ).format("MMM Do YY")} 😀👍`,
+          ).format("MMM Do YYYY")} 😀👍`,
           flag: false,
         });
       }

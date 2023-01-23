@@ -1296,7 +1296,9 @@ exports.retrieveRecoveryMailUser = async (req, res) => {
     await Promise.all([user.save()]);
     // const mEncrypt = await encryptionPayload(user.recoveryMail);
     res.status(200).send({ message: "Success", mail: user.recoveryMail });
-  } catch {}
+  } catch (e){
+    console.log(e)
+  }
 };
 
 exports.retrieveUserStaffArray = async (req, res) => {

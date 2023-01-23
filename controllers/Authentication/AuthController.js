@@ -694,10 +694,10 @@ exports.forgotPasswordVerifyOtp = async (req, res) => {
         req.body.userOtpCode === `${valid_otp_user?.otp_code}`
       ) {
         // const oEncrypt = await encryptionPayload(user);
-        res.status(200).send({ message: "Otp verified", user });
+        res.status(200).send({ message: "Otp verified", user, access: true });
         await OTPCode.findByIdAndDelete(valid_otp_user?._id);
       } else {
-        console.log("Invalid OTP By User F");
+        res.status(200).send({ message: "Invalid OTP", access: false });
       }
     } else if (institute) {
       const valid_otp_ins = await OTPCode.findOne({
@@ -708,10 +708,10 @@ exports.forgotPasswordVerifyOtp = async (req, res) => {
         req.body.userOtpCode === `${valid_otp_ins?.otp_code}`
       ) {
         // const oEncrypt = await encryptionPayload(institute);
-        res.status(200).send({ message: "Otp verified", institute });
+        res.status(200).send({ message: "Otp verified", institute, access: false });
         await OTPCode.findByIdAndDelete(valid_otp_ins?._id);
       } else {
-        console.log("Invalid OTP By Institute F");
+        res.status(200).send({ message: "Invalid OTP", access: false });
       }
     } else {
     }

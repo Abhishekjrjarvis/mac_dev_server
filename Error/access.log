@@ -93,3 +93,21 @@
 {"level":"info","message":{},"timestamp":"2023-01-23T10:42:05.987Z"}
 {"level":"info","message":"Without Query All Staff","staff":[{"_id":"63bb9ed40e730c573767a063","photoId":"0","recentDesignation":"Class Head","staffFirstName":"Abhishek","staffGender":"Male","staffJoinDate":"2023-01-09T04:59:35.047Z","staffLastName":"Jr.","staffMiddleName":"Singh","staffPhoneNumber":null,"staffProfilePhoto":"29ed6431ca39ef51e12bdc7238883d3b","staffROLLNO":"1","user":{"_id":"63bb9ed20e730c573767a051","userLegalName":"Abhishek","userPhoneNumber":7007023972}}],"timestamp":"2023-01-23T10:42:06.105Z"}
 {"level":"info","message":"{\"message\":\"Without Query All Staff\",\"staff\":[{\"_id\":\"63bb9ed40e730c573767a063\",\"staffFirstName\":\"Abhishek\",\"staffMiddleName\":\"Singh\",\"staffLastName\":\"Jr.\",\"staffGender\":\"Male\",\"photoId\":\"0\",\"staffProfilePhoto\":\"29ed6431ca39ef51e12bdc7238883d3b\",\"user\":{\"_id\":\"63bb9ed20e730c573767a051\",\"userPhoneNumber\":7007023972,\"userLegalName\":\"Abhishek\"},\"staffJoinDate\":\"2023-01-09T04:59:35.047Z\",\"staffROLLNO\":\"1\",\"recentDesignation\":\"Class Head\",\"staffPhoneNumber\":null}],\"level\":\"info\"}","timestamp":"2023-01-23T10:42:06.107Z"}
+{"level":"info","message":{},"timestamp":"2023-01-23T10:50:17.862Z"}
+{"flag":false,"level":"info","message":"User Username Rejected for next update is available at Jan 9th 23 😀👍","timestamp":"2023-01-23T10:50:18.063Z"}
+{"level":"info","message":"{\"message\":\"User Username Rejected for next update is available at Jan 9th 23 \ud83d\ude00\ud83d\udc4d\",\"flag\":false,\"level\":\"info\"}","timestamp":"2023-01-23T10:50:18.068Z"}
+{"level":"info","message":{},"timestamp":"2023-01-23T10:50:30.738Z"}
+{"flag":false,"level":"info","message":"User Username Rejected for next update is available at Jan 9th 23 😀👍","timestamp":"2023-01-23T10:50:32.061Z"}
+{"level":"info","message":"{\"message\":\"User Username Rejected for next update is available at Jan 9th 23 \ud83d\ude00\ud83d\udc4d\",\"flag\":false,\"level\":\"info\"}","timestamp":"2023-01-23T10:50:32.062Z"}
+{"level":"info","message":{},"timestamp":"2023-01-23T10:50:49.503Z"}
+{"level":"info","message":"this username does not exists in lake 🔍","seen":false,"timestamp":"2023-01-23T10:50:49.584Z"}
+{"level":"info","message":"{\"message\":\"this username does not exists in lake 🔍\",\"seen\":false,\"level\":\"info\"}","timestamp":"2023-01-23T10:50:49.585Z"}
+{"level":"info","message":{},"timestamp":"2023-01-23T10:51:10.799Z"}
+{"flag":false,"level":"info","message":"User Username Rejected for next update is available at Jan 9th 23 😀👍","timestamp":"2023-01-23T10:51:10.929Z"}
+{"level":"info","message":"{\"message\":\"User Username Rejected for next update is available at Jan 9th 23 \ud83d\ude00\ud83d\udc4d\",\"flag\":false,\"level\":\"info\"}","timestamp":"2023-01-23T10:51:10.931Z"}
+{"level":"info","message":{},"timestamp":"2023-01-23T10:51:19.389Z"}
+{"level":"info","message":"Username already exists 🙄","seen":true,"timestamp":"2023-01-23T10:51:19.469Z","username":{"_id":"63bb8f9f0e730c5737679e40","username":"Abhishekjr"}}
+{"level":"info","message":"{\"message\":\"Username already exists \ud83d\ude44\",\"seen\":true,\"username\":{\"_id\":\"63bb8f9f0e730c5737679e40\",\"username\":\"Abhishekjr\"},\"level\":\"info\"}","timestamp":"2023-01-23T10:51:19.470Z"}
+{"level":"info","message":{},"timestamp":"2023-01-23T10:56:25.413Z"}
+{"flag":true,"level":"info","message":"User Username Granted for next update 😀👍","timestamp":"2023-01-23T10:56:25.616Z"}
+{"level":"info","message":"{\"message\":\"User Username Granted for next update 😀👍\",\"flag\":true,\"level\":\"info\"}","timestamp":"2023-01-23T10:56:25.616Z"}

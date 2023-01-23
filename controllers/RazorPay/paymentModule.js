@@ -115,26 +115,14 @@ exports.feeInstituteFunction = async (
               institute.adminRepayAmount + parseInt(tx_amount);
             admin.returnAmount += tx_amount_charges;
           }
-          notify.notifyContent = `${student.studentFirstName}${
-            student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
-          } ${student.studentLastName} paid the ${
-            fData.feeName
-          }/ (Rs.${parseInt(tx_amount)}) successfully`;
-          notify.notify_hi_content = `${student.studentFirstName}${
-            student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
-          } ${student.studentLastName} ने ${fData.feeName}/ (Rs.${parseInt(
-            tx_amount
-          )}) का सफलतापूर्वक पेमेंट किया |`;
-          notify.notify_mr_content = `${student.studentFirstName}${
-            student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
-          } ${student.studentLastName} ने ${fData.feeName}/ (रु.${parseInt(
-            tx_amount
-          )}) यशस्वीरित्या भरले`;
+          notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? ` ${student.studentMiddleName}` : ""} ${student.studentLastName} paid the ${fData.feeName}/ (Rs.${parseInt(tx_amount)}) successfully`;
+          notify.notify_hi_content = `${student.studentFirstName} ${student.studentMiddleName ? ` ${student.studentMiddleName}` : ""} ${student.studentLastName} ने ${fData.feeName}/ (Rs.${parseInt(tx_amount)}) का सफलतापूर्वक पेमेंट किया |`;
+          notify.notify_mr_content = `${student.studentFirstName} ${student.studentMiddleName ? ` ${student.studentMiddleName}` : ""} ${student.studentLastName} ने ${fData.feeName}/ (रु.${parseInt(tx_amount)}) यशस्वीरित्या भरले`;
           notify.notifySender = student._id;
           notify.notifyReceiever = user._id;
           notify.notifyCategory = "Online Fee";
-          institute.iNotify.push(notify._id);
-          notify.institute = institute._id;
+          // institute.iNotify.push(notify._id);
+          // notify.institute = institute._id;
           user.uNotify.push(notify._id);
           notify.user = user._id;
           notify.notifyByStudentPhoto = student._id;
@@ -203,25 +191,13 @@ exports.feeInstituteFunction = async (
               institute.adminRepayAmount + parseInt(tx_amount);
             admin.returnAmount += tx_amount_charges;
           }
-          notify.notifyContent = `${student.studentFirstName}${
-            student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
-          } ${student.studentLastName} paid the ${
-            checklistData.checklistName
-          }/ (Rs.${parseInt(tx_amount)}) successfully`;
-          notify.notify_hi_content = `${student.studentFirstName}${
-            student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
-          } ${student.studentLastName} ने ${
-            checklistData.checklistName
-          }/ (Rs.${parseInt(tx_amount)}) का सफलतापूर्वक पेमेंट किया |`;
-          notify.notify_mr_content = `${student.studentFirstName}${
-            student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
-          } ${student.studentLastName} ने ${
-            checklistData.checklistName
-          }/ (रु.${parseInt(tx_amount)}) यशस्वीरित्या भरले`;
+          notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? ` ${student.studentMiddleName}` : ""} ${student.studentLastName} paid the ${checklistData.checklistName}/ (Rs.${parseInt(tx_amount)}) successfully`;
+          notify.notify_hi_content = `${student.studentFirstName} ${student.studentMiddleName ? ` ${student.studentMiddleName}` : ""} ${student.studentLastName} ने ${checklistData.checklistName}/ (Rs.${parseInt(tx_amount)}) का सफलतापूर्वक पेमेंट किया |`;
+          notify.notify_mr_content = `${student.studentFirstName} ${student.studentMiddleName ? ` ${student.studentMiddleName}` : ""} ${student.studentLastName} ने ${checklistData.checklistName}/ (रु.${parseInt(tx_amount)}) यशस्वीरित्या भरले`;
           notify.notifySender = student._id;
           notify.notifyReceiever = user._id;
-          institute.iNotify.push(notify._id);
-          notify.institute = institute._id;
+          // institute.iNotify.push(notify._id);
+          // notify.institute = institute._id;
           notify.notifyCategory = "Online Fee";
           user.uNotify.push(notify._id);
           notify.user = user._id;
@@ -337,12 +313,6 @@ exports.admissionInstituteFunction = async (
           mode: "online",
           originalFee: apply?.admissionFee,
         });
-        /// Problem
-        // if(student?.paidFeeList?)
-        // student.paidFeeList.push({
-        //   paidAmount: price,
-        //   appId: apply._id,
-        // });
         await add_all_installment(
           apply,
           ins._id,
@@ -376,11 +346,15 @@ exports.admissionInstituteFunction = async (
         });
         await apply.save();
       }
-      for (var match of student.paidFeeList) {
-        if (`${match.appId}` === `${apply._id}`) {
-          match.paidAmount += parseInt(tx_amount_ad);
-        }
-      }
+      // for (var match of student.paidFeeList) {
+      //   if (`${match.appId}` === `${apply._id}`) {
+      //     match.paidAmount += parseInt(tx_amount_ad);
+      //   }
+      // }
+       student.paidFeeList.push({
+          paidAmount: parseInt(tx_amount_ad),
+          appId: apply._id,
+        });
       aStatus.content = `Your admission is on hold please visit ${ins.insName}, ${ins.insDistrict}. with required fees or contact institute if neccessory`;
       aStatus.applicationId = apply._id;
       user.applicationStatus.push(aStatus._id);
@@ -388,23 +362,9 @@ exports.admissionInstituteFunction = async (
       user.payment_history.push(order);
       (status.payMode = "online"), (status.isPaid = "Paid");
       status.for_selection = "No";
-      notify.notifyContent = `${student.studentFirstName} 
-    ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} 
-    ${
-      student.studentLastName
-    } your transaction is successfull for Admission Fee ${parseInt(
-        tx_amount_ad
-      )}`;
-      notify.notify_hi_content = `${student.studentFirstName} 
-    ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} 
-    ${student.studentLastName} प्रवेश शुल्क ${parseInt(
-        tx_amount_ad
-      )} के लिए आपका लेन-देन सफल है |`;
-      notify.notify_mr_content = `प्रवेश शुल्कासाठी ${student.studentFirstName} 
-    ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} 
-    ${student.studentLastName} तुमचा व्यवहार यशस्वी झाला आहे ${parseInt(
-        tx_amount_ad
-      )}`;
+      notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} ${student.studentLastName} your transaction is successfull for Admission Fee ${parseInt(tx_amount_ad)}`;
+      notify.notify_hi_content = `${student.studentFirstName} ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} ${student.studentLastName} प्रवेश शुल्क ${parseInt(tx_amount_ad)} के लिए आपका लेन-देन सफल है |`;
+      notify.notify_mr_content = `प्रवेश शुल्कासाठी ${student.studentFirstName} ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} ${student.studentLastName} तुमचा व्यवहार यशस्वी झाला आहे ${parseInt(tx_amount_ad)}`;
       notify.notifySender = admission._id;
       notify.notifyReceiever = user._id;
       ins.iNotify.push(notify._id);
@@ -555,11 +515,7 @@ exports.participateEventFunction = async (
       fee_status: "Paid",
     });
     event.paid_participant += 1;
-    notify.notifyContent = `${student.studentFirstName} ${
-      student.studentMiddleName ? `${student.studentMiddleName} ` : ""
-    } ${student.studentLastName} your transaction is successfull for ${
-      event.event_name
-    } ${parseInt(tx_amount_ad)}`;
+    notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} ${student.studentLastName} your transaction is successfull for ${event.event_name} ${parseInt(tx_amount_ad)}`;
     notify.notifySender = depart._id;
     notify.notifyReceiever = user._id;
     user.activity_tab.push(notify._id);
@@ -651,11 +607,7 @@ exports.transportFunction = async (
       amount: parseInt(tx_amount_ad),
       mode: "Online",
     });
-    notify.notifyContent = `${student.studentFirstName} ${
-      student.studentMiddleName ? `${student.studentMiddleName} ` : ""
-    } ${student.studentLastName} your transaction is successfull for ${
-      vehicle.vehicle_number
-    } ${parseInt(tx_amount_ad)} Fees`;
+    notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} ${student.studentLastName} your transaction is successfull for ${vehicle.vehicle_number} ${parseInt(tx_amount_ad)} Fees`;
     notify.notifySender = trans._id;
     notify.notifyReceiever = user._id;
     user.activity_tab.push(notify._id);

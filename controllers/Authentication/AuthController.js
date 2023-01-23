@@ -955,19 +955,19 @@ exports.retrieveEmailRedundantQuery = async (req, res) => {
       flag_email = true;
       res
         .status(200)
-        .send({ message: "Email Already Registered", flag: flag_email });
+        .send({ message: "Email Already Registered", flag: flag_email, valid_flag: { flag: true, emailId: "983288932@jdshjh889"} });
     } else if (check_user) {
       flag_email = true;
       res
         .status(200)
-        .send({ message: "Email Already Registered", flag: flag_email });
+        .send({ message: "Email Already Registered", flag: flag_email, valid_flag: { flag: true, emailId: "983288932@jdshjh889"} });
     } else if (check_admin) {
       flag_email = true;
       res
         .status(200)
-        .send({ message: "Email Already Registered", flag: flag_email });
+        .send({ message: "Email Already Registered", flag: flag_email, valid_flag: { flag: true, emailId: "983288932@jdshjh889"} });
     } else {
-      res.status(200).send({ message: "Valid Email", flag: flag_email });
+      res.status(200).send({ message: "Valid Email", flag: flag_email, valid_flag: { flag: false, emailId: "983288932@jdshjh889"} });
     }
   } catch (e) {
     console.log(e);

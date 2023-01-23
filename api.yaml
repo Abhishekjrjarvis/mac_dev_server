@@ -2435,17 +2435,11 @@ paths:
       produces:
         - application/json
       parameters:
-        - in : body
-          name: body
-          schema:
-            type: object
-            properties:
-              request:
-                type: array
-                description: Array of Objects like ["6360aea051d30672ae8cfe80"]   
-                items:
-                  type: string
-                  description: Enter Class Id
+        - in: path
+          name: request
+          required: true
+          type: array
+          description: Enter Array of Class Id ["98749827348917874", "9837489728478734871"]
       responses:
         "200":
           description: OK

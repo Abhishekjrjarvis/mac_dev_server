@@ -111,3 +111,6 @@
 {"level":"info","message":{},"timestamp":"2023-01-23T10:56:25.413Z"}
 {"flag":true,"level":"info","message":"User Username Granted for next update 😀👍","timestamp":"2023-01-23T10:56:25.616Z"}
 {"level":"info","message":"{\"message\":\"User Username Granted for next update 😀👍\",\"flag\":true,\"level\":\"info\"}","timestamp":"2023-01-23T10:56:25.616Z"}
+{"level":"info","message":{},"timestamp":"2023-01-23T11:03:30.101Z"}
+{"flag":false,"level":"info","message":"User Username Rejected for next update is available at Mar 9th 23 😀👍","timestamp":"2023-01-23T11:03:30.330Z"}
+{"level":"info","message":"{\"message\":\"User Username Rejected for next update is available at Mar 9th 23 \ud83d\ude00\ud83d\udc4d\",\"flag\":false,\"level\":\"info\"}","timestamp":"2023-01-23T11:03:30.334Z"}

@@ -337,6 +337,12 @@ exports.admissionInstituteFunction = async (
           mode: "online",
           originalFee: apply?.admissionFee,
         });
+        /// Problem
+        // if(student?.paidFeeList?)
+        // student.paidFeeList.push({
+        //   paidAmount: price,
+        //   appId: apply._id,
+        // });
         await add_all_installment(
           apply,
           ins._id,

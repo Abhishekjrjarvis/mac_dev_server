@@ -113,20 +113,20 @@ router.patch(
 );
 
 router.get(
-  "/export/staff/card",
-  isLoggedIn,
+  "/export/staff/card/:did",
+  // isLoggedIn,
   catchAsync(Extra.fetchExportStaffIdCardQuery)
 );
 
 router.get(
   "/export/student/card",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Extra.fetchExportStudentIdCardQuery)
 );
 
 router.get(
-  "/export/student/all",
-  isLoggedIn,
+  "/export/student/all/:id",
+  // isLoggedIn,
   catchAsync(Extra.fetchExportStudentAllQuery)
 );
 

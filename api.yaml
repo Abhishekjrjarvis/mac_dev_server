@@ -2386,7 +2386,7 @@ paths:
         "200":
           description: OK
 
-  /api/v1/extra/export/staff/card:
+  /api/v1/extra/export/staff/card/{did}:
     get:
       tags:
         - Setting Control API
@@ -2396,16 +2396,11 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: query
+        - in: path
           name: did
           required: true
           type: string
           description: Enter Department Id
-        - in: query
-          name: id
-          required: true
-          type: string
-          description: Enter institute Id
       responses:
         "200":
           description: OK
@@ -2420,11 +2415,6 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: query
-          name: id
-          required: true
-          type: string
-          description: Enter institute Id
         - in : body
           name: body
           schema:
@@ -2440,7 +2430,7 @@ paths:
         "200":
           description: OK
 
-  /api/v1/extra/export/student/all:
+  /api/v1/extra/export/student/all/:id:
     get:
       tags:
         - Setting Control API
@@ -2450,7 +2440,7 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: query
+        - in: path
           name: id
           required: true
           type: string

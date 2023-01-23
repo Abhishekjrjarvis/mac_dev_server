@@ -131,6 +131,10 @@ const financeSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    financeCollectedBankBalance: {
+      type: Number,
+      default: 0,
+    },
     financeExemptBalance: {
       type: Number,
       default: 0,

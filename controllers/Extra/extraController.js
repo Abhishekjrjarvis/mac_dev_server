@@ -619,7 +619,7 @@ exports.fetchExportStudentIdCardFormat = async (req, res) => {
 
 exports.fetchExportStudentRemainFeeQuery = async (req, res) => {
   try {
-    const { fid } = req.query;
+    const { fid } = req.params;
     var refactor_response = [];
     const finance = await Finance.findById({ _id: fid }).select("institute");
     const export_ins = await InstituteAdmin.findById({

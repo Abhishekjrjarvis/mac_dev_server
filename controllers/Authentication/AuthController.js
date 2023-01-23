@@ -944,7 +944,7 @@ module.exports.getLogout = async (req, res) => {
 
 exports.retrieveEmailRedundantQuery = async (req, res) => {
   try {
-    const { email } = req.body;
+    const { email } = req.query;
     const check_ins = await InstituteAdmin.findOne({ insEmail: email }).select(
       "id"
     );

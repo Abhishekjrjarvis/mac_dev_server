@@ -62,7 +62,7 @@ router.post("/login/google", catchAsync(Auth.authenticationGoogle));
 // Logout By End User
 router.get("/logout", catchAsync(Auth.getLogout));
 
-router.post(
+router.get(
   "/email/check/redundant",
   catchAsync(Auth.retrieveEmailRedundantQuery)
 );

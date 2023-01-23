@@ -786,6 +786,26 @@ paths:
         "200":
           description: OK
 
+  
+  /api/v1/auth/email/check/redundant:
+    get:
+      tags:
+        - User Authentication
+      summary: Check Existing Email -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: email
+          required: true
+          type: string
+          description: Enter Email In Query
+      responses:
+        "200":
+          description: OK
+
   /api/v1/auth/profile/google:
     post:
       tags:
@@ -2430,7 +2450,7 @@ paths:
         "200":
           description: OK
 
-  /api/v1/extra/export/student/all/:id:
+  /api/v1/extra/export/student/all/{id}:
     get:
       tags:
         - Setting Control API
@@ -2445,6 +2465,25 @@ paths:
           required: true
           type: string
           description: Enter institute Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/extra/export/student/all/{fid}:
+    get:
+      tags:
+        - Setting Control API
+      summary: Get All Students Remaining Fee At Finance Exported Data -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
       responses:
         "200":
           description: OK

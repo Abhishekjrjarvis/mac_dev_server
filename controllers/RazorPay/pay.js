@@ -105,112 +105,111 @@ exports.verifyRazorPayment = async (req, res) => {
       .update(body.toString())
       .digest("hex");
     const is_authenticated = expectedSignature === razorpay_signature;
-    console.log(is_authenticated, req.query, req.body);
-    // if (is_authenticated) {
-    //   var order_payment = new OrderPayment({ ...req.body });
-    //   order_payment.payment_module_type = payment_module_type;
-    //   // order_payment.payment_by_end_user_id = payment_by_end_user_id;
-    //   order_payment.payment_to_end_user_id = payment_to_end_user_id;
-    //   order_payment.payment_flag_by = "Debit";
-    //   order_payment.payment_flag_to = "Credit";
-    //   order_payment.payment_module_id = payment_module_id;
-    //   order_payment.payment_amount = refactor_amount_nocharges;
-    //   order_payment.payment_status = "Captured";
-    //   s_admin.invoice_count += 1;
-    //   order_payment.payment_invoice_number = s_admin.invoice_count;
-    //   await Promise.all([order_payment.save(), s_admin.save()]);
-    //   if (payment_module_type === "Unlock") {
-    //     const unlock_status = await unlockInstituteFunction(
-    //       order_payment?._id,
-    //       payment_by_end_user_id,
-    //       refactor_amount
-    //     );
-    //     if (isApk) {
-    //       res
-    //         .status(200)
-    //         .send({ message: "Success with Razorpay unlock 😀", check: true });
-    //     }
-    //     res.redirect(
-    //       `${process.env.FRONT_REDIRECT_URL}/q/${unlock_status}/feed`
-    //     );
-    //   } else if (payment_module_type === "Fees") {
-    //     const fee_status = await feeInstituteFunction(
-    //       order_payment?._id,
-    //       payment_by_end_user_id,
-    //       refactor_amount_nocharges,
-    //       refactor_amount,
-    //       payment_module_id,
-    //       razor_author
-    //     );
-    //     if (isApk) {
-    //       res
-    //         .status(200)
-    //         .send({ message: "Success with Razorpay Fees 😀", check: true });
-    //     }
-    //     res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${fee_status}/feed`);
-    //   } else if (payment_module_type === "Admission") {
-    //     const admission_status = await admissionInstituteFunction(
-    //       order_payment?._id,
-    //       payment_by_end_user_id,
-    //       refactor_amount_nocharges,
-    //       refactor_amount,
-    //       payment_module_id,
-    //       ad_status_id,
-    //       payment_to_end_user_id,
-    //       payment_installment,
-    //       razor_author
-    //     );
-    //     if (isApk) {
-    //       res.status(200).send({
-    //         message: "Success with Razorpay Admission 😀",
-    //         check: true,
-    //       });
-    //     }
-    //     res.redirect(
-    //       `${process.env.FRONT_REDIRECT_URL}/q/${admission_status}/feed`
-    //     );
-    //   } else if (payment_module_type === "Participate") {
-    //     const participate_status = await participateEventFunction(
-    //       order_payment?._id,
-    //       payment_by_end_user_id,
-    //       refactor_amount_nocharges,
-    //       refactor_amount,
-    //       payment_module_id,
-    //       ad_status_id,
-    //       razor_author
-    //     );
-    //     if (isApk) {
-    //       res.status(200).send({
-    //         message: "Success with Razorpay Participate 😀",
-    //         check: true,
-    //       });
-    //     }
-    //     res.redirect(
-    //       `${process.env.FRONT_REDIRECT_URL}/q/${participate_status}/feed`
-    //     );
-    //   } else if (payment_module_type === "Transport") {
-    //     const trans_status = await transportFunction(
-    //       order_payment?._id,
-    //       payment_by_end_user_id,
-    //       refactor_amount_nocharges,
-    //       refactor_amount,
-    //       payment_module_id,
-    //       razor_author
-    //     );
-    //     if (isApk) {
-    //       res.status(200).send({
-    //         message: "Success with Razorpay Participate 😀",
-    //         check: true,
-    //       });
-    //     }
-    //     res.redirect(
-    //       `${process.env.FRONT_REDIRECT_URL}/q/${trans_status}/memberstab`
-    //     );
-    //   } else {
-    //   }
-    // } else {
-    //   console.log(false);
-    // }
+    if (is_authenticated) {
+      var order_payment = new OrderPayment({ ...req.body });
+      order_payment.payment_module_type = payment_module_type;
+      // order_payment.payment_by_end_user_id = payment_by_end_user_id;
+      order_payment.payment_to_end_user_id = payment_to_end_user_id;
+      order_payment.payment_flag_by = "Debit";
+      order_payment.payment_flag_to = "Credit";
+      order_payment.payment_module_id = payment_module_id;
+      order_payment.payment_amount = refactor_amount_nocharges;
+      order_payment.payment_status = "Captured";
+      s_admin.invoice_count += 1;
+      order_payment.payment_invoice_number = s_admin.invoice_count;
+      await Promise.all([order_payment.save(), s_admin.save()]);
+      if (payment_module_type === "Unlock") {
+        const unlock_status = await unlockInstituteFunction(
+          order_payment?._id,
+          payment_by_end_user_id,
+          refactor_amount
+        );
+        if (isApk) {
+          res
+            .status(200)
+            .send({ message: "Success with Razorpay unlock 😀", check: true });
+        }
+        res.redirect(
+          `${process.env.FRONT_REDIRECT_URL}/q/${unlock_status}/feed`
+        );
+      } else if (payment_module_type === "Fees") {
+        const fee_status = await feeInstituteFunction(
+          order_payment?._id,
+          payment_by_end_user_id,
+          refactor_amount_nocharges,
+          refactor_amount,
+          payment_module_id,
+          razor_author
+        );
+        if (isApk) {
+          res
+            .status(200)
+            .send({ message: "Success with Razorpay Fees 😀", check: true });
+        }
+        res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${fee_status}/feed`);
+      } else if (payment_module_type === "Admission") {
+        const admission_status = await admissionInstituteFunction(
+          order_payment?._id,
+          payment_by_end_user_id,
+          refactor_amount_nocharges,
+          refactor_amount,
+          payment_module_id,
+          ad_status_id,
+          payment_to_end_user_id,
+          payment_installment,
+          razor_author
+        );
+        if (isApk) {
+          res.status(200).send({
+            message: "Success with Razorpay Admission 😀",
+            check: true,
+          });
+        }
+        res.redirect(
+          `${process.env.FRONT_REDIRECT_URL}/q/${admission_status}/feed`
+        );
+      } else if (payment_module_type === "Participate") {
+        const participate_status = await participateEventFunction(
+          order_payment?._id,
+          payment_by_end_user_id,
+          refactor_amount_nocharges,
+          refactor_amount,
+          payment_module_id,
+          ad_status_id,
+          razor_author
+        );
+        if (isApk) {
+          res.status(200).send({
+            message: "Success with Razorpay Participate 😀",
+            check: true,
+          });
+        }
+        res.redirect(
+          `${process.env.FRONT_REDIRECT_URL}/q/${participate_status}/feed`
+        );
+      } else if (payment_module_type === "Transport") {
+        const trans_status = await transportFunction(
+          order_payment?._id,
+          payment_by_end_user_id,
+          refactor_amount_nocharges,
+          refactor_amount,
+          payment_module_id,
+          razor_author
+        );
+        if (isApk) {
+          res.status(200).send({
+            message: "Success with Razorpay Participate 😀",
+            check: true,
+          });
+        }
+        res.redirect(
+          `${process.env.FRONT_REDIRECT_URL}/q/${trans_status}/memberstab`
+        );
+      } else {
+      }
+    } else {
+      console.log(false);
+    }
   } catch (e) {
     console.log(e);
   }

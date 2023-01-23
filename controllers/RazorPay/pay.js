@@ -11,6 +11,7 @@ const {
   participateEventFunction,
   transportFunction,
 } = require("./paymentModule");
+const { handle_undefined } = require("../../Handler/customError");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 var instance;
@@ -95,15 +96,16 @@ exports.verifyRazorPayment = async (req, res) => {
       razor_key, // Razor KEY Secret
       razor_author, // Boolean
     } = req.query;
+    const data_key = handle_undefined(razor_key);
     var refactor_amount = parseFloat(payment_amount) / 100;
     var refactor_amount_nocharges = parseInt(payment_amount_charges) / 100;
     const body = razorpay_order_id + "|" + razorpay_payment_id;
     var expectedSignature = crypto
-      .createHmac("sha256", razor_key ? razor_key : process.env.RAZOR_KEY_SECRET)
+      .createHmac("sha256", data_key ? data_key : process.env.RAZOR_KEY_SECRET)
       .update(body.toString())
       .digest("hex");
     const is_authenticated = expectedSignature === razorpay_signature;
-    console.log(is_authenticated, req.query, req.body)
+    console.log(is_authenticated, req.query, req.body);
     // if (is_authenticated) {
     //   var order_payment = new OrderPayment({ ...req.body });
     //   order_payment.payment_module_type = payment_module_type;

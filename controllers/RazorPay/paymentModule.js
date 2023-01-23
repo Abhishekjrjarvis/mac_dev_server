@@ -115,6 +115,7 @@ exports.feeInstituteFunction = async (
               institute.adminRepayAmount + parseInt(tx_amount);
             admin.returnAmount += tx_amount_charges;
           }
+          finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount);
           notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? ` ${student.studentMiddleName}` : ""} ${student.studentLastName} paid the ${fData.feeName}/ (Rs.${parseInt(tx_amount)}) successfully`;
           notify.notify_hi_content = `${student.studentFirstName} ${student.studentMiddleName ? ` ${student.studentMiddleName}` : ""} ${student.studentLastName} ने ${fData.feeName}/ (Rs.${parseInt(tx_amount)}) का सफलतापूर्वक पेमेंट किया |`;
           notify.notify_mr_content = `${student.studentFirstName} ${student.studentMiddleName ? ` ${student.studentMiddleName}` : ""} ${student.studentLastName} ने ${fData.feeName}/ (रु.${parseInt(tx_amount)}) यशस्वीरित्या भरले`;
@@ -191,6 +192,7 @@ exports.feeInstituteFunction = async (
               institute.adminRepayAmount + parseInt(tx_amount);
             admin.returnAmount += tx_amount_charges;
           }
+          finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount);
           notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? ` ${student.studentMiddleName}` : ""} ${student.studentLastName} paid the ${checklistData.checklistName}/ (Rs.${parseInt(tx_amount)}) successfully`;
           notify.notify_hi_content = `${student.studentFirstName} ${student.studentMiddleName ? ` ${student.studentMiddleName}` : ""} ${student.studentLastName} ने ${checklistData.checklistName}/ (Rs.${parseInt(tx_amount)}) का सफलतापूर्वक पेमेंट किया |`;
           notify.notify_mr_content = `${student.studentFirstName} ${student.studentMiddleName ? ` ${student.studentMiddleName}` : ""} ${student.studentLastName} ने ${checklistData.checklistName}/ (रु.${parseInt(tx_amount)}) यशस्वीरित्या भरले`;
@@ -295,6 +297,7 @@ exports.admissionInstituteFunction = async (
         admin.returnAmount += tx_amount_ad_charges;
         ins.adminRepayAmount += parseInt(tx_amount_ad);
       }
+      finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount_ad);
       if (parseInt(tx_amount_ad) < apply.admissionFee) {
         admission.remainingFee.push(student._id);
         if (student.admissionRemainFeeCount <= apply.admissionFee) {
@@ -424,6 +427,7 @@ exports.admissionInstituteFunction = async (
         admin.returnAmount += tx_amount_ad_charges;
         ins.adminRepayAmount += parseInt(tx_amount_ad);
       }
+      finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount_ad);
       for (var match of student.paidFeeList) {
         if (`${match.appId}` === `${apply._id}`) {
           match.paidAmount += parseInt(tx_amount_ad);
@@ -509,6 +513,7 @@ exports.participateEventFunction = async (
       admin.returnAmount += tx_amount_ad_charges;
       ins.adminRepayAmount += parseInt(tx_amount_ad);
     }
+    finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount_ad);
     status.event_payment_status = "Paid";
     event.event_fee.push({
       student: student._id,
@@ -589,6 +594,7 @@ exports.transportFunction = async (
       admin.returnAmount += tx_amount_ad_charges;
       ins.adminRepayAmount += parseInt(tx_amount_ad);
     }
+    finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount_ad);
     trans.online_fee += parseInt(tx_amount_ad);
     trans.collected_fee += parseInt(tx_amount_ad);
     if (trans.remaining_fee > parseInt(tx_amount_ad)) {

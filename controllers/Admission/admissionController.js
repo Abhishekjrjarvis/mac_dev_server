@@ -1213,7 +1213,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
         paidAmount: price,
         appId: apply._id,
       });
-      status.content = `Welcome to Institute ${institute.insName}, ${institute.insDistrict}.Please visit with Required Documents to confirm your admission`
+      status.content = `Welcome to Institute ${institute.insName}, ${institute.insDistrict}.Please visit with Required Documents to confirm your admission`;
       status.applicationId = apply._id;
       user.applicationStatus.push(status._id);
       status.instituteId = institute._id;
@@ -1601,9 +1601,10 @@ exports.retrieveClassAllotQuery = async (req, res) => {
         } else if (student.studentGender === "Female") {
           classes.girlCount += 1;
           batch.student_category.girlCount += 1;
-        } else {
+        } else if (student.studentGender === "Other") {
           classes.otherCount += 1;
           batch.student_category.otherCount += 1;
+        } else {
         }
         if (student.studentCastCategory === "General") {
           batch.student_category.generalCount += 1;

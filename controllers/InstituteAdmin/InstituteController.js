@@ -578,8 +578,9 @@ exports.updateApproveStaff = async (req, res) => {
       institute.staff_category.boyCount += 1;
     } else if (staffs.staffGender === "Female") {
       institute.staff_category.girlCount += 1;
-    } else {
+    } else if (staffs.staffGender === "Other") {
       institute.staff_category.otherCount += 1;
+    } else {
     }
     if (staffs.staffCastCategory === "General") {
       institute.staff_category.generalCount += 1;
@@ -2609,9 +2610,10 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     } else if (student.studentGender === "Female") {
       classes.girlCount += 1;
       batch.student_category.girlCount += 1;
-    } else {
+    } else if (student.studentGender === "Other") {
       classes.otherCount += 1;
       batch.student_category.otherCount += 1;
+    } else {
     }
     if (student.studentCastCategory === "General") {
       batch.student_category.generalCount += 1;

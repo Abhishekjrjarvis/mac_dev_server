@@ -71,8 +71,9 @@ exports.formEditByInstitute = async (req, res) => {
       institute.staff_category.boyCount += 1;
     } else if (staffs.staffGender === "Female") {
       institute.staff_category.girlCount += 1;
-    } else {
+    } else if (staffs.staffGender === "Other") {
       institute.staff_category.otherCount += 1;
+    } else {
     }
     if (staffs.staffCastCategory === "General") {
       institute.staff_category.generalCount += 1;

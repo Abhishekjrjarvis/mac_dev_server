@@ -164,6 +164,26 @@ exports.allIns = async (req, res) => {
   } catch {}
 };
 
+exports.allInsStaff = async (req, res) => {
+  try {
+    const ins = await InstituteAdmin.findById({ _id: req.params.id }).select(
+      "id ApproveStaff staff_category"
+    );
+
+    const staff = await Staff.find({ _id: { $in: ins?.ApproveStaff } }).select(
+      "staffGender staffCastCategory"
+    );
+    if (staff?.length > 0) {
+      res.status(200).send({
+        message: "All Staff Data",
+        allIds: staff,
+        count: staff?.length,
+        ins: ins?.staff_category,
+      });
+    }
+  } catch {}
+};
+
 exports.rewardProfileAdsQuery = async (req, res) => {
   try {
     const { uid } = req.params;

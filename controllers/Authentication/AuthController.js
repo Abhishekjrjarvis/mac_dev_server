@@ -708,7 +708,9 @@ exports.forgotPasswordVerifyOtp = async (req, res) => {
         req.body.userOtpCode === `${valid_otp_ins?.otp_code}`
       ) {
         // const oEncrypt = await encryptionPayload(institute);
-        res.status(200).send({ message: "Otp verified", institute, access: true });
+        res
+          .status(200)
+          .send({ message: "Otp verified", institute, access: true });
         await OTPCode.findByIdAndDelete(valid_otp_ins?._id);
       } else {
         res.status(200).send({ message: "Invalid OTP", access: false });
@@ -957,19 +959,37 @@ exports.retrieveEmailRedundantQuery = async (req, res) => {
       flag_email = true;
       res
         .status(200)
-        .send({ message: "Email Already Registered", flag: flag_email, valid_flag: { flag: true, emailId: check_ins?._id} });
+        .send({
+          message: "Email Already Registered",
+          flag: flag_email,
+          valid_flag: { flag: true, emailId: check_ins?._id },
+        });
     } else if (check_user) {
       flag_email = true;
       res
         .status(200)
-        .send({ message: "Email Already Registered", flag: flag_email, valid_flag: { flag: true, emailId: check_user?._id} });
+        .send({
+          message: "Email Already Registered",
+          flag: flag_email,
+          valid_flag: { flag: true, emailId: check_user?._id },
+        });
     } else if (check_admin) {
       flag_email = true;
       res
         .status(200)
-        .send({ message: "Email Already Registered", flag: flag_email, valid_flag: { flag: true, emailId: check_admin?._id} });
+        .send({
+          message: "Email Already Registered",
+          flag: flag_email,
+          valid_flag: { flag: true, emailId: check_admin?._id },
+        });
     } else {
-      res.status(200).send({ message: "Valid Email", flag: flag_email, valid_flag: { flag: false, emailId: ""} });
+      res
+        .status(200)
+        .send({
+          message: "Valid Email",
+          flag: flag_email,
+          valid_flag: { flag: false, emailId: "" },
+        });
     }
   } catch (e) {
     console.log(e);
@@ -2195,8 +2215,9 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
         institute.staff_category.boyCount += 1;
       } else if (staff.staffGender === "Female") {
         institute.staff_category.girlCount += 1;
-      } else {
+      } else if (staff.staffGender === "Other") {
         institute.staff_category.otherCount += 1;
+      } else {
       }
       if (staff.staffCastCategory === "General") {
         institute.staff_category.generalCount += 1;

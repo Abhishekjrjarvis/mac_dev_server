@@ -30,13 +30,13 @@ router.get(
 
 router.get(
   "/by/:id/student",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Filter.retrieveByActiveStudent)
 );
 
 router.get(
   "/by/:id/staff",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Filter.retrieveByActiveStaff)
 );
 

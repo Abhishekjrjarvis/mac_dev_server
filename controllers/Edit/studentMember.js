@@ -84,9 +84,10 @@ exports.formEditByClassTeacher = async (req, res) => {
     } else if (one_student.studentGender === "Female") {
       classes.girlCount += 1;
       batch.student_category.girlCount += 1;
-    } else {
+    } else if (one_student.studentGender === "Other") {
       classes.otherCount += 1;
       batch.student_category.otherCount += 1;
+    } else {
     }
     if (one_student.studentCastCategory === "General") {
       batch.student_category.generalCount += 1;

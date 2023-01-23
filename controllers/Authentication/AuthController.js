@@ -225,9 +225,9 @@ const generateOTP = async (mob) => {
     )
     .then((res) => {
       if ((res && res.data.includes("success")) || res.data.includes("sent")) {
-        // console.log("messsage Sent Successfully", res.data);
+        console.log("messsage Sent Successfully", res.data);
       } else {
-        // console.log("something went wrong");
+        console.log("something went wrong");
       }
     });
   return OTP;
@@ -329,9 +329,9 @@ const generateInsOTP = async (mob) => {
     )
     .then((res) => {
       if ((res && res.data.includes("success")) || res.data.includes("sent")) {
-        // console.log("messsage Sent Successfully", res.data);
+        console.log("messsage Sent Successfully", res.data);
       } else {
-        // console.log("something went wrong");
+        console.log("something went wrong");
       }
     })
     .catch(() => {});
@@ -465,7 +465,7 @@ exports.profileByUser = async (req, res) => {
           userLegalName: userLegalName,
           userGender: userGender,
           userDateOfBirth: userDateOfBirth,
-          username: username,
+          username: username?.trim(),
           userStatus: "Approved",
           userPhoneNumber: id,
           photoId: "0",
@@ -574,7 +574,7 @@ exports.profileByGoogle = async (req, res) => {
       userLegalName: userLegalName,
       userGender: userGender,
       userDateOfBirth: userDateOfBirth,
-      username: username,
+      username: username?.trim(),
       userStatus: "Approved",
       userEmail: userEmail,
       google_avatar: pic_url,

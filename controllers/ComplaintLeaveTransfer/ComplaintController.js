@@ -955,9 +955,12 @@ exports.stafftAllComplaint = async (req, res) => {
 
 exports.OneStaffComplaint = async (req, res) => {
   try {
-    const complaint = await StaffComplaint.findById(req.params.cid).select(
-      "complaintType  complaintContent complaintStatus createdAt"
-    );
+    const complaint = await StaffComplaint.findById(req.params.cid)
+      .populate({
+        path: "staff",
+        select: "staffFirstName staffMiddleName staffLastName",
+      })
+      .select("complaintType  complaintContent complaintStatus createdAt");
     // const oneCompEncrypt = await encryptionPayload(complaint);
     res.status(200).send({ message: "one complaint details", complaint });
   } catch (e) {

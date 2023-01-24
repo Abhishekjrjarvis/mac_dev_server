@@ -12,6 +12,7 @@ const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 const { deleteFile, uploadFile } = require("../../S3Configuration");
+const { chart_category } = require("../../helper/customChart");
 
 exports.photoEditByStaff = async (req, res) => {
   try {
@@ -34,7 +35,17 @@ exports.photoEditByStaff = async (req, res) => {
 exports.formEditByInstitute = async (req, res) => {
   try {
     if (!req.params.sid) throw "Please send staff id to perform task";
+    const old_data = {
+      gender: "",
+      caste: "",
+    };
+    const new_data = {
+      gender: "",
+      caste: "",
+    };
     const staffs = await Staff.findById(req.params.sid);
+    old_data.gender = staffs?.staffGender;
+    old_data.caste = staffs?.staffCastCategory;
     for (let file of req.body?.fileArray) {
       if (file.name === "addharFrontCard")
         staffs.staffAadharFrontCard = file.key;
@@ -66,36 +77,9 @@ exports.formEditByInstitute = async (req, res) => {
       message: "staff form edited successfully👍",
       // staffs,
     });
-    const institute = await InstituteAdmin.findById({ _id: staffs?.institute });
-    if (staffs.staffGender === "Male") {
-      institute.staff_category.boyCount += 1;
-    } else if (staffs.staffGender === "Female") {
-      institute.staff_category.girlCount += 1;
-    } else if (staffs.staffGender === "Other") {
-      institute.staff_category.otherCount += 1;
-    } else {
-    }
-    if (staffs.staffCastCategory === "General") {
-      institute.staff_category.generalCount += 1;
-    } else if (staffs.staffCastCategory === "OBC") {
-      institute.staff_category.obcCount += 1;
-    } else if (staffs.staffCastCategory === "SC") {
-      institute.staff_category.scCount += 1;
-    } else if (staffs.staffCastCategory === "ST") {
-      institute.staff_category.stCount += 1;
-    } else if (staffs.staffCastCategory === "NT-A") {
-      institute.staff_category.ntaCount += 1;
-    } else if (staffs.staffCastCategory === "NT-B") {
-      institute.staff_category.ntbCount += 1;
-    } else if (staffs.staffCastCategory === "NT-C") {
-      institute.staff_category.ntcCount += 1;
-    } else if (staffs.staffCastCategory === "NT-D") {
-      institute.staff_category.ntdCount += 1;
-    } else if (staffs.staffCastCategory === "VJ") {
-      institute.staff_category.vjCount += 1;
-    } else {
-    }
-    await Promise.all([institute.save()]);
+    new_data.gender = staffs?.staffGender;
+    new_data.caste = staffs?.staffCastCategory;
+    // await chart_category(staffs?.institute, "Edit_Staff", old_data, new_Data);
   } catch (e) {
     console.log(e);
   }

@@ -134,7 +134,7 @@ exports.retrieveBonafideGRNO = async (req, res) => {
       )
       .populate({
         path: "studentClass",
-        select: "className",
+        select: "className classTitle",
       })
       .populate({
         path: "batches",
@@ -191,7 +191,7 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       )
       .populate({
         path: "studentClass",
-        select: "className",
+        select: "className classTitle",
       })
       .populate({
         path: "batches",

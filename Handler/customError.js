@@ -4,8 +4,10 @@ exports.handle_undefined = (args) => {
     args === null ||
     args === "" ||
     args == 0 ||
-    args === NaN ||
-    args
-  )
+    args === NaN
+  ) {
     return "";
+  } else {
+    return args;
+  }
 };

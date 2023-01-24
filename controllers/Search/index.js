@@ -748,7 +748,6 @@ exports.searchStudent = async (req, res) => {
           }
         : {};
       var student = await Student.find(search)
-        .sort("createdAt")
         .select(
           "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender"
         )
@@ -762,6 +761,12 @@ exports.searchStudent = async (req, res) => {
         })
         .lean()
         .exec();
+        student.sort(function (st1, st2) {
+          return (
+            parseInt(st1.studentGRNO.slice(1)) -
+            parseInt(st2.studentGRNO.slice(1))
+          );
+        });
       res
         .status(200)
         .send({ message: "Without Query All Student", student: student });
@@ -785,6 +790,12 @@ exports.searchStudent = async (req, res) => {
         })
         .lean()
         .exec();
+        student.sort(function (st1, st2) {
+          return (
+            parseInt(st1.studentGRNO.slice(1)) -
+            parseInt(st2.studentGRNO.slice(1))
+          );
+        });
       if (!student.length) {
         res.status(202).send({ message: "Not found any search" });
       } else {
@@ -823,7 +834,6 @@ exports.searchStaff = async (req, res) => {
         : {};
       if (req.query.date) {
         const staff = await Staff.find(search)
-          .sort("-createdAt")
           .select(
             "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
           )
@@ -840,12 +850,14 @@ exports.searchStaff = async (req, res) => {
           })
           .lean()
           .exec();
+          staff.sort(function (st1, st2) {
+            return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
+          });
         res
           .status(200)
           .send({ message: "Without Query All Staff", staff: staff });
       } else {
         const staff = await Staff.find(search)
-          .sort("-createdAt")
           .select(
             "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
           )
@@ -855,6 +867,9 @@ exports.searchStaff = async (req, res) => {
           })
           .lean()
           .exec();
+          staff.sort(function (st1, st2) {
+            return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
+          });
         res
           .status(200)
           .send({ message: "Without Query All Staff", staff: staff });
@@ -877,6 +892,9 @@ exports.searchStaff = async (req, res) => {
         .skip(dropItem)
         .lean()
         .exec();
+        staff.sort(function (st1, st2) {
+          return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
+        });
       if (!staff.length) {
         res.status(202).send({ message: "Not found any search", staff: [] });
       } else {

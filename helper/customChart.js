@@ -1,4 +1,4 @@
-const InstituteAdmin = require("../../models/InstituteAdmin");
+const InstituteAdmin = require("../models/InstituteAdmin");
 
 exports.chart_category = async (args, flow, oldData, newData) => {
   try {
@@ -17,6 +17,13 @@ exports.chart_category = async (args, flow, oldData, newData) => {
       } else if (oldData?.gender === "Other" && newData?.gender === "Female") {
         institute.staff_category.girlCount += 1;
       }
+
+      if (oldData?.caste === "General" && newData?.caste === "OBC") {
+        institute.staff_category.obcCount += 1;
+      } else if (oldData?.caste === "General" && newData?.caste === "SC") {
+        institute.staff_category.scCount += 1;
+      }
+
       if (source.staffCastCategory === "General") {
         institute.staff_category.generalCount += 1;
       } else if (source.staffCastCategory === "OBC") {

@@ -12,7 +12,7 @@ const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 const { deleteFile, uploadFile } = require("../../S3Configuration");
-const { chart_category } = require("../../helper/customChart");
+const { chart_category } = require("../../Custom/staffChart");
 
 exports.photoEditByStaff = async (req, res) => {
   try {
@@ -73,13 +73,13 @@ exports.formEditByInstitute = async (req, res) => {
       staffs[`${staffObj}`] = req.body?.staff[staffObj];
     }
     await staffs.save();
-    res.status(200).send({
-      message: "staff form edited successfully👍",
-      // staffs,
-    });
     new_data.gender = staffs?.staffGender;
     new_data.caste = staffs?.staffCastCategory;
-    // await chart_category(staffs?.institute, "Edit_Staff", old_data, new_Data);
+    res.status(200).send({
+      message: "staff form edited successfully👍",
+      staffs,
+    });
+    await chart_category(staffs?.institute, "Edit_Staff", old_data, new_data);
   } catch (e) {
     console.log(e);
   }

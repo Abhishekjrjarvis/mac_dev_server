@@ -409,14 +409,6 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
       ? JSON.parse(req.body.tweleve_installments)
       : newApply.tweleve_installments;
     newApply.total_installments = req.body.total_installments;
-    newApply.admissionProcess = `1. Apply for admission from here (Below)
-    2. Fill Required form and submit application
-    3. Wait for approval from School/College/Tution (you will get notify on Qviple) After Approval
-    4. Confirm Your application by paying fees online OR you can opt for offline fees as well.
-    5. After payment, your admission will be confirmed
-    6. Visit school/college with required documents for verification and submission of original documents e.g. Leaving Certificate. (For tuition and coaching verification is not necessary)
-    7. After documents verification, you will be allotted class
-    8. Enjoy you Learning..`;
     await Promise.all([admission.save(), newApply.save(), institute.save()]);
     if (req.file) {
       await unlinkFile(req.file?.path);
@@ -966,7 +958,7 @@ exports.retrieveAdmissionSelectedApplication = async (req, res) => {
       fee_remain: apply.admissionFee,
     });
     apply.selectCount += 1;
-    student.admissionRemainFeeCount += apply.admissionFee;
+    // student.admissionRemainFeeCount += apply.admissionFee; // Depreceated for New Flow
     status.content = `You have been selected for ${apply.applicationName}. Confirm your admission`;
     status.applicationId = apply._id;
     status.for_selection = "Yes";
@@ -1097,7 +1089,7 @@ exports.retrieveAdmissionPayMode = async (req, res) => {
 exports.payOfflineAdmissionFee = async (req, res) => {
   try {
     const { sid, aid } = req.params;
-    const { amount, mode } = req.body;
+    const { amount, mode, is_install } = req.body;
     if (!sid && !aid && !amount && !mode)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -1143,12 +1135,16 @@ exports.payOfflineAdmissionFee = async (req, res) => {
         status: false,
       });
     } else {
-      if (price < apply.admissionFee) {
+      if (price > 0 && is_install) {
+        // if (price < apply.admissionFee) {
         admission.remainingFee.push(student._id);
-        if (student.admissionRemainFeeCount <= apply.admissionFee) {
-          student.admissionRemainFeeCount =
+        // Depreceated for New Flow
+        // if (student.admissionRemainFeeCount <= apply.admissionFee) {
+          // student.admissionRemainFeeCount =
+          //   student.admissionRemainFeeCount - price;
+        // }
+        student.admissionRemainFeeCount =
             student.admissionRemainFeeCount - price;
-        }
         apply.remainingFee += apply.admissionFee - price;
         admission.remainingFeeCount += apply.admissionFee - price;
         student.remainingFeeList.push({
@@ -1161,7 +1157,8 @@ exports.payOfflineAdmissionFee = async (req, res) => {
           isEnable: true,
         });
         await add_all_installment(apply, institute._id, student, price);
-      } else if (price == apply.admissionFee) {
+      // } else if (price == apply.admissionFee && !is_install) {
+      } else if (price > 0 && !is_install) {
         student.remainingFeeList.push({
           remainAmount: price,
           appId: apply._id,
@@ -1171,9 +1168,11 @@ exports.payOfflineAdmissionFee = async (req, res) => {
           mode: mode,
           isEnable: true,
         });
-        if (student.admissionRemainFeeCount >= apply.admissionFee) {
-          student.admissionRemainFeeCount -= apply.admissionFee;
-        }
+        // Depreceated for New Flow
+        // if (student.admissionRemainFeeCount >= apply.admissionFee) {
+          // student.admissionRemainFeeCount -= apply.admissionFee;
+        // }
+        student.admissionRemainFeeCount = 0;
       }
       if (apply.total_installments == "1") {
         finance.financeExemptBalance +=

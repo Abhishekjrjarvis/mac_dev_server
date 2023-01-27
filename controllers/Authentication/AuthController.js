@@ -45,6 +45,9 @@ const {
 const { studentsListQuery, ClassIds } = require("../../addons");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 const { randomSixCode } = require("../../Service/close");
+const Department = require("../../models/Department");
+const Batch = require("../../models/Batch");
+const Subject = require("../../models/Subject");
 
 const generateQR = async (encodeData, Id) => {
   try {
@@ -1116,7 +1119,7 @@ exports.retrieveUsernameEditQuery = async (req, res) => {
 
 exports.searchByUsernameQuery = async (req, res) => {
   try {
-    if (req.query.u_name.trim() === "") {
+    if (req.query.u_name?.trim() === "") {
       res.status(202).send({ message: "Please Provide a username to search" });
     } else {
       const one_ins = await InstituteAdmin.findOne({
@@ -1161,7 +1164,7 @@ exports.searchByUsernameQuery = async (req, res) => {
 
 exports.searchByClassCode = async (req, res) => {
   try {
-    if (req.query.search.trim() === "") {
+    if (req.query.search?.trim() === "") {
       res.status(202).send({ message: "Please Provide a code to search" });
     } else {
       if (req.query.author === "Student") {
@@ -1881,16 +1884,16 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
           await ele.save();
         });
       }
+
+
       const classes = await Class.findById({ _id: cid });
+      const batch = await Batch.findById({_id: `${classes?.batch}`})
+      const depart = await Department.findById({_id: `${batch?.department}`})
       const institute = await InstituteAdmin.findById({
-        _id: `${classes?.institute}`,
+        _id: `${depart?.institute}`,
       });
       const student = new Student({ ...req.body });
       student.studentCode = classes.classCode;
-      const classStaff = await Staff.findById({
-        _id: `${classes.classTeacher}`,
-      });
-      const classUser = await User.findById({ _id: `${classStaff.user}` });
       const studentOptionalSubject = req.body?.optionalSubject
         ? req.body?.optionalSubject
         : [];
@@ -1923,15 +1926,16 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
         student.photoId = "0";
         student.studentProfilePhoto = sample_pic;
       }
-
+      for (let subjChoose of student?.studentOptionalSubject) {
+        const subject = await Subject.findById(subjChoose);
+        subject.optionalStudent.push(student?._id);
+        await subject.save();
+      }
       const notify = new StudentNotification({});
       const aStatus = new Status({});
-      institute.student.push(student._id);
       user.student.push(student._id);
       user.is_mentor = true;
       institute.joinedPost.push(user._id);
-      classes.student.push(student._id);
-      student.studentClass = classes._id;
       if (institute.userFollowersList.includes(user?._id)) {
       } else {
         user.userInstituteFollowing.push(institute?._id);
@@ -1941,45 +1945,86 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       }
       student.institute = institute._id;
       student.user = user._id;
-      notify.notifyContent = `${student.studentFirstName}${
-        student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
-      } ${student.studentLastName} has been applied for role of student`;
-      notify.notifySender = student._id;
-      notify.notifyReceiever = classUser._id;
+      student.studentStatus = req.body.status;
+      institute.ApproveStudent.push(student._id);
+      admins.studentArray.push(student._id);
+      admins.studentCount += 1;
+      institute.studentCount += 1;
+      classes.strength += 1;
+      classes.ApproveStudent.push(student._id);
+      classes.studentCount += 1;
+      student.studentGRNO = `Q${institute.ApproveStudent.length}`;
+      student.studentROLLNO = classes.ApproveStudent.length;
+      student.studentClass = classes._id;
+      student.studentAdmissionDate = new Date().toISOString();
+      depart.ApproveStudent.push(student._id);
+      depart.studentCount += 1;
+      student.department = depart._id;
+      batch.ApproveStudent.push(student._id);
+      student.batches = batch._id;
+      student.batchCount += 1;
+      notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? ` ${student.studentMiddleName}` : ""} ${student.studentLastName} joined as a Student of Class ${classes.className} of ${batch.batchName}`;
+      notify.notifySender = cid;
+      notify.notifyReceiever = user._id;
+      notify.notifyCategory = "Approve Student";
       institute.iNotify.push(notify._id);
-      notify.notifyType = "Staff";
-      notify.notifyPublisher = classStaff._id;
-      classUser.activity_tab.push(notify._id);
+      notify.institute = institute._id;
+      user.uNotify.push(notify._id);
+      notify.user = user._id;
       notify.notifyByStudentPhoto = student._id;
-      notify.notifyCategory = "Student Request";
-      notify.redirectIndex = 9;
-      notify.classId = classes?._id;
-      notify.departmentId = classes?.department;
-      notify.batchId = classes?.batch;
-      aStatus.content = `Your application for joining as student in ${institute.insName} is filled successfully. Stay updated to check status of your application.Tap here to see username ${user?.username}`;
-      aStatus.see_secure = true;
+      aStatus.content = `Welcome to ${institute.insName}. Your application for joining as student  has been accepted by ${institute.insName}. Enjoy your learning in ${classes.className} - ${classes.classTitle}.`;
       user.applicationStatus.push(aStatus._id);
       aStatus.instituteId = institute._id;
-      //
-      invokeMemberTabNotification(
-        "Staff Activity",
+      invokeFirebaseNotification(
+        "Student Approval",
         notify,
-        "Request for Joining",
-        classUser._id,
-        classUser.deviceToken,
-        "Staff",
-        notify
+        institute.insName,
+        user._id,
+        user.deviceToken
       );
-      //
       await Promise.all([
+        admins.save(),
+        classes.save(),
+        depart.save(),
+        batch.save(),
         student.save(),
         institute.save(),
         user.save(),
-        classes.save(),
         notify.save(),
         aStatus.save(),
-        classUser.save(),
       ]);
+      if (student.studentGender === "Male") {
+        classes.boyCount += 1;
+        batch.student_category.boyCount += 1;
+      } else if (student.studentGender === "Female") {
+        classes.girlCount += 1;
+        batch.student_category.girlCount += 1;
+      } else if (student.studentGender === "Other") {
+        classes.otherCount += 1;
+        batch.student_category.otherCount += 1;
+      } else {
+      }
+      if (student.studentCastCategory === "General") {
+        batch.student_category.generalCount += 1;
+      } else if (student.studentCastCategory === "OBC") {
+        batch.student_category.obcCount += 1;
+      } else if (student.studentCastCategory === "SC") {
+        batch.student_category.scCount += 1;
+      } else if (student.studentCastCategory === "ST") {
+        batch.student_category.stCount += 1;
+      } else if (student.studentCastCategory === "NT-A") {
+        batch.student_category.ntaCount += 1;
+      } else if (student.studentCastCategory === "NT-B") {
+        batch.student_category.ntbCount += 1;
+      } else if (student.studentCastCategory === "NT-C") {
+        batch.student_category.ntcCount += 1;
+      } else if (student.studentCastCategory === "NT-D") {
+        batch.student_category.ntdCount += 1;
+      } else if (student.studentCastCategory === "VJ") {
+        batch.student_category.vjCount += 1;
+      } else {
+      }
+      await Promise.all([classes.save(), batch.save()]);
       if (institute.sms_lang === "en") {
         await directESMSQuery(
           user?.userPhoneNumber,
@@ -2010,7 +2055,7 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       } else {
       }
       res.status(200).send({
-        message: "Direct Institute Account Creation Process Completed 😀✨",
+        message: `Direct Institute Account Creation Process Completed ${student.studentFirstName} ${student.studentLastName} 😀✨`,
         status: true,
       });
     } else {
@@ -2255,222 +2300,3 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
   }
 };
 
-// const addDirectInClass = async (req, res) => {
-//   try {
-//     var maleAvatar = [
-//       "3D2.jpg",
-//       "3D4.jpg",
-//       "3D6.jpg",
-//       "3D19.jpg",
-//       "3D20.jpg",
-//       "3D26.jpg",
-//       "3D21.jpg",
-//       "3D12.jpg",
-//     ];
-//     var femaleAvatar = [
-//       "3D1.jpg",
-//       "3D3.jpg",
-//       "3D10.jpg",
-//       "3D11.jpg",
-//       "3D14.jpg",
-//       "3D15.jpg",
-//       "3D22.jpg",
-//       "3D31.jpg",
-//     ];
-//     var admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-//     var classes = await Class.findById({ _id: ClassIds });
-//     var institute = await InstituteAdmin.findById({
-//       _id: `${classes?.institute}`,
-//     });
-//     var classStaff = await Staff.findById({
-//       _id: `${classes.classTeacher}`,
-//     });
-//     var classUser = await User.findById({ _id: `${classStaff.user}` });
-//     for (var data of studentsListQuery) {
-//       const valid = await filter_unique_username(
-//         data.studentFirstName,
-//         data.studentDOB
-//       );
-//       if (!valid?.exist) {
-//         const genUserPass = bcrypt.genSaltSync(12);
-//         const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
-//         var user = new User({
-//           userLegalName: `${data.studentFirstName} ${
-//             data.studentMiddleName ? data.studentMiddleName : ""
-//           } ${data.studentLastName ? data.studentLastName : ""}`,
-//           userGender: data.studentGender,
-//           userDateOfBirth: data.studentDOB,
-//           username: valid?.username,
-//           userStatus: "Approved",
-//           userPhoneNumber: data.studentPhoneNumber,
-//           userPassword: hashUserPass,
-//           photoId: "0",
-//           coverId: "2",
-//           remindLater: rDate,
-//           next_date: c_date,
-//         });
-//         admins.users.push(user);
-//         admins.userCount += 1;
-//         await Promise.all([admins.save(), user.save()]);
-//         var uInstitute = await InstituteAdmin.findOne({
-//           isUniversal: "Universal",
-//         })
-//           .select("id userFollowersList followersCount")
-//           .populate({ path: "posts" });
-//         if (uInstitute && uInstitute.posts && uInstitute.posts.length >= 1) {
-//           const post = await Post.find({
-//             _id: { $in: uInstitute.posts },
-//             postStatus: "Anyone",
-//           });
-//           post.forEach(async (ele) => {
-//             user.userPosts.push(ele);
-//           });
-//           await user.save();
-//         }
-//         //
-//         var b_date = user.userDateOfBirth.slice(8, 10);
-//         var b_month = user.userDateOfBirth.slice(5, 7);
-//         var b_year = user.userDateOfBirth.slice(0, 4);
-//         if (b_date > p_date) {
-//           p_date = p_date + month[b_month - 1];
-//           p_month = p_month - 1;
-//         }
-//         if (b_month > p_month) {
-//           p_year = p_year - 1;
-//           p_month = p_month + 12;
-//         }
-//         var get_cal_year = p_year - b_year;
-//         if (get_cal_year > 13) {
-//           user.ageRestrict = "No";
-//         } else {
-//           user.ageRestrict = "Yes";
-//         }
-//         await user.save();
-//         //
-//         if (uInstitute?.userFollowersList?.includes(`${user._id}`)) {
-//         } else {
-//           uInstitute.userFollowersList.push(user._id);
-//           uInstitute.followersCount += 1;
-//           user.userInstituteFollowing.push(uInstitute._id);
-//           user.followingUICount += 1;
-//           await Promise.all([uInstitute.save(), user.save()]);
-//           const posts = await Post.find({ author: `${uInstitute._id}` });
-//           posts.forEach(async (ele) => {
-//             ele.authorFollowersCount = uInstitute.followersCount;
-//             await ele.save();
-//           });
-//         }
-//         const student = new Student({
-//           studentFirstName: data.studentFirstName,
-//           studentMiddleName: data.studentMiddleName,
-//           studentLastName: data.studentLastName,
-//           studentDOB: data.studentDOB,
-//           studentGender: data.studentGender,
-//           studentPhoneNumber: data.studentPhoneNumber,
-//         });
-//         student.studentCode = classes.classCode;
-//         if (student.studentGender === "Male") {
-//           user.profilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
-//           student.studentProfilePhoto =
-//             maleAvatar[Math.floor(Math.random() * 8)];
-//         } else if (student.studentGender === "Female") {
-//           user.profilePhoto = femaleAvatar[Math.floor(Math.random() * 8)];
-//           student.studentProfilePhoto =
-//             femaleAvatar[Math.floor(Math.random() * 8)];
-//         } else {
-//         }
-//         student.photoId = "0";
-//         const notify = new StudentNotification({});
-//         const aStatus = new Status({});
-//         institute.student.push(student._id);
-//         user.student.push(student._id);
-//         user.is_mentor = true;
-//         institute.joinedPost.push(user._id);
-//         classes.student.push(student._id);
-//         student.studentClass = classes._id;
-//         if (institute.userFollowersList.includes(user?._id)) {
-//         } else {
-//           user.userInstituteFollowing.push(institute?._id);
-//           user.followingUICount += 1;
-//           institute.userFollowersList.push(user?._id);
-//           institute.followersCount += 1;
-//         }
-//         student.institute = institute._id;
-//         student.user = user._id;
-//         notify.notifyContent = `${student.studentFirstName}${
-//           student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
-//         } ${student.studentLastName} has been applied for role of student`;
-//         notify.notifySender = student._id;
-//         notify.notifyReceiever = classUser._id;
-//         institute.iNotify.push(notify._id);
-//         notify.notifyType = "Staff";
-//         notify.notifyPublisher = classStaff._id;
-//         classUser.activity_tab.push(notify._id);
-//         notify.notifyByStudentPhoto = student._id;
-//         notify.notifyCategory = "Student Request";
-//         notify.redirectIndex = 9;
-//         notify.classId = classes?._id;
-//         notify.departmentId = classes?.department;
-//         notify.batchId = classes?.batch;
-//         aStatus.content = `Your application for joining as student in ${institute.insName} is filled successfully. Stay updated to check status of your application.Tap here to see username ${user?.username}`;
-//         aStatus.see_secure = true;
-//         user.applicationStatus.push(aStatus._id);
-//         //
-//         invokeMemberTabNotification(
-//           "Staff Activity",
-//           notify,
-//           "Request for Joining",
-//           classUser._id,
-//           classUser.deviceToken,
-//           "Staff",
-//           notify
-//         );
-//         //
-//         await Promise.all([
-//           student.save(),
-//           user.save(),
-//           notify.save(),
-//           aStatus.save(),
-//         ]);
-//         if (institute.sms_lang === "en") {
-//           await directESMSQuery(
-//             user?.userPhoneNumber,
-//             `${student.studentFirstName} ${
-//               student.studentMiddleName ? student.studentMiddleName : ""
-//             } ${student.studentLastName}`,
-//             institute?.insName,
-//             classes?.classTitle
-//           );
-//         } else if (institute.sms_lang === "hi") {
-//           await directHSMSQuery(
-//             user?.userPhoneNumber,
-//             `${student.studentFirstName} ${
-//               student.studentMiddleName ? student.studentMiddleName : ""
-//             } ${student.studentLastName}`,
-//             institute?.insName,
-//             classes?.classTitle
-//           );
-//         } else if (institute.sms_lang === "mr") {
-//           await directMSMSQuery(
-//             user?.userPhoneNumber,
-//             `${student.studentFirstName} ${
-//               student.studentMiddleName ? student.studentMiddleName : ""
-//             } ${student.studentLastName}`,
-//             institute?.insName,
-//             classes?.classTitle
-//           );
-//         } else {
-//         }
-//         console.log("Awesome Enjoy Qviple A/c");
-//       } else {
-//         console.log("false in A/c");
-//       }
-//     }
-//     await Promise.all([institute.save(), classes.save(), classUser.save()]);
-//     console.log("Operation Process Completed");
-//   } catch (e) {
-//     console.log(e);
-//   }
-// };
-
-// addDirectInClass();

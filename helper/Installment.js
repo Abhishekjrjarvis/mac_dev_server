@@ -614,3 +614,28 @@ exports.render_installment = async (
     console.log(e, "From Render Installment");
   }
 };
+
+exports.add_total_installment = async (aid) => {
+  try {
+    const apply = await NewApplication.findById({ _id: aid });
+    var total = 0;
+    total =
+      total +
+      apply?.one_installments?.fees +
+      apply?.two_installments?.fees +
+      apply?.three_installments?.fees +
+      apply?.four_installments?.fees +
+      apply?.five_installments?.fees +
+      apply?.six_installments?.fees +
+      apply?.seven_installments?.fees +
+      apply?.eight_installments?.fees +
+      apply?.nine_installments?.fees +
+      apply?.ten_installments?.fees +
+      apply?.eleven_installments?.fees +
+      apply?.tweleve_installments?.fees;
+
+    return total;
+  } catch (e) {
+    console.log(e);
+  }
+};

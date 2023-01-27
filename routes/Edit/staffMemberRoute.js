@@ -16,7 +16,7 @@ router
 
 router
   .route("/form/detail/:sid")
-  .patch(isLoggedIn, catchAsync(staffMember.formEditByInstitute));
+  .patch(catchAsync(staffMember.formEditByInstitute));
 
 router
   .route("/finance/staff/:osid")

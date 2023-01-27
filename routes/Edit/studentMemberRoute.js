@@ -16,7 +16,7 @@ router
 
 router
   .route("/form/detail/:sid")
-  .patch(isLoggedIn, catchAsync(studentMember.formEditByClassTeacher));
+  .patch( catchAsync(studentMember.formEditByClassTeacher));
 
 router
   .route("/remove/:sid")

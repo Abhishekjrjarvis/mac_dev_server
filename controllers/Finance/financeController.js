@@ -223,14 +223,17 @@ exports.retrieveFinanceQuery = async (req, res) => {
 exports.getIncome = async (req, res) => {
   try {
     const { fid } = req.params;
+    const { user_query } = req.query
     const finance = await Finance.findById({ _id: fid });
     const s_admin = await Admin.findById({
       _id: `${process.env.S_ADMIN_ID}`,
     }).select("invoice_count");
     var f_user = await InstituteAdmin.findById({ _id: `${finance.institute}` });
-    var user = await User.findById({
-      _id: `${req.body.incomeFromUser}`,
-    }).select("_id payment_history");
+    if(user_query){
+      var user = await User.findOne({
+        _id: `${user_query}`,
+      }).select("_id payment_history");
+    }
     var incomes = new Income({ ...req.body });
     if (req.file) {
       const file = req.file;
@@ -256,7 +259,11 @@ exports.getIncome = async (req, res) => {
       order.payment_by_end_user_id = user._id;
       order.payment_flag_by = "Debit";
       user.payment_history.push(order._id);
+      incomes.incomeFromUser = user._id;
       await user.save();
+    }
+    else{
+      incomes.incomeFromUser = null
     }
     if (req.body?.incomeFrom) {
       incomes.incomeFrom = req.body?.incomeFrom;
@@ -315,15 +322,17 @@ exports.getAllIncomes = async (req, res) => {
 exports.getExpense = async (req, res) => {
   try {
     const { fid } = req.params;
-    const { is_inventory } = req.query;
+    const { is_inventory, user_query } = req.query;
     const s_admin = await Admin.findById({
       _id: `${process.env.S_ADMIN_ID}`,
     }).select("invoice_count");
     const finance = await Finance.findById({ _id: fid });
     var f_user = await InstituteAdmin.findById({ _id: `${finance.institute}` });
-    var user = await User.findById({
-      _id: `${req.body.expensePaidUser}`,
-    }).select("_id payment_history");
+    if(user_query){
+      var user = await User.findOne({
+        _id: `${user_query}`,
+      }).select("_id payment_history");
+    }
     if (
       finance.financeTotalBalance > 0 &&
       req.body.expenseAmount <= finance.financeTotalBalance
@@ -353,7 +362,11 @@ exports.getExpense = async (req, res) => {
         order.payment_by_end_user_id = user._id;
         order.payment_flag_to = "Credit";
         user.payment_history.push(order._id);
+        expenses.expensePaidUser = user._id;
         await user.save();
+      }
+      else{
+        expenses.expensePaidUser = null
       }
       if (req.body?.expensePaid) {
         expenses.expensePaid = req.body?.expensePaid;

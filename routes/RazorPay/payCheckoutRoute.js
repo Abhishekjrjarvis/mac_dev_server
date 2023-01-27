@@ -15,9 +15,9 @@ router.post("/checkout", Razor.checkoutRazorPayment);
 
 router.post("/verify", Razor.verifyRazorPayment);
 
-router.get("/history/by", isLoggedIn, Razor.fetchPaymentHistoryQueryBy);
+router.get("/history/by", Razor.fetchPaymentHistoryQueryBy);
 
-router.get("/history/to", isLoggedIn, Razor.fetchPaymentHistoryQueryTo);
+router.get("/history/to", Razor.fetchPaymentHistoryQueryTo);
 
 router.get("/one/:pid", isLoggedIn, Razor.fetchPaymentOneHistory);
 

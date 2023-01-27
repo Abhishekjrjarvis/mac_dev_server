@@ -15,6 +15,7 @@ const {
   // getOnlyTimeCompare,
 } = require("../../Utilities/timeComparison");
 const encryptionPayload = require("../../Utilities/Encrypt/payload");
+const { notify_attendence_provider } = require("../../helper/dayTimer");
 
 //THis is route with tested OF STUDENT
 exports.viewClassStudent = async (req, res) => {
@@ -308,7 +309,7 @@ exports.markAttendenceClassStudent = async (req, res) => {
           });
           const user = await User.findById({ _id: `${student.user}` });
           const notify = new StudentNotification({});
-          notify.notifyContent = `you're present today`;
+          notify.notifyContent = `you're present ${notify_attendence_provider()}`;
           notify.notify_hi_content = `आप आज उपस्थित हैं |`;
           notify.notify_mr_content = `तुम्ही आज हजर आहात.`;
           notify.notifySender = classes._id;
@@ -349,7 +350,7 @@ exports.markAttendenceClassStudent = async (req, res) => {
           });
           const user = await User.findById({ _id: `${student.user}` });
           const notify = new StudentNotification({});
-          notify.notifyContent = `you're absent today`;
+          notify.notifyContent = `you're absent ${notify_attendence_provider()}`;
           notify.notify_hi_content = `आप आज अनुपस्थित हैं |`;
           notify.notify_mr_content = `तुम्ही आज गैरहजर आहात.`;
           notify.notifySender = classes._id;
@@ -784,7 +785,7 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
         });
         staff.attendDates.push(staffAttendence._id);
         const notify = new StudentNotification({});
-        notify.notifyContent = `you're present today`;
+        notify.notifyContent = `you're present ${notify_attendence_provider()}`;
         notify.notify_hi_content = `आप आज उपस्थित हैं |`;
         notify.notify_mr_content = `तुम्ही आज हजर आहात.`;
         notify.notifySender = id;
@@ -829,7 +830,7 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
           status: "Present",
         });
         const notify = new StudentNotification({});
-        notify.notifyContent = `you're absent today`;
+        notify.notifyContent = `you're absent ${notify_attendence_provider()}`;
         notify.notify_hi_content = `आप आज अनुपस्थित हैं |`;
         notify.notify_mr_content = `तुम्ही आज गैरहजर आहात.`;
         notify.notifySender = id;

@@ -139,7 +139,7 @@ exports.verifyRazorPayment = async (req, res) => {
           refactor_amount_nocharges,
           refactor_amount,
           payment_module_id,
-          razor_author
+          Boolean(razor_author)
         );
         if (isApk) {
           res
@@ -157,7 +157,7 @@ exports.verifyRazorPayment = async (req, res) => {
           ad_status_id,
           payment_to_end_user_id,
           payment_installment,
-          razor_author
+          Boolean(razor_author)
         );
         if (isApk) {
           res.status(200).send({
@@ -176,7 +176,7 @@ exports.verifyRazorPayment = async (req, res) => {
           refactor_amount,
           payment_module_id,
           ad_status_id,
-          razor_author
+          Boolean(razor_author)
         );
         if (isApk) {
           res.status(200).send({
@@ -194,7 +194,7 @@ exports.verifyRazorPayment = async (req, res) => {
           refactor_amount_nocharges,
           refactor_amount,
           payment_module_id,
-          razor_author
+          Boolean(razor_author)
         );
         if (isApk) {
           res.status(200).send({
@@ -222,9 +222,13 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
     const { uid } = req.query;
     const skip = (page - 1) * limit;
     const { filter } = req.query;
+    var filtered_array = [];
     if (filter) {
       var order = await OrderPayment.find({
-        $and: [{ payment_by_end_user_id: uid }, { payment_module_id: filter }],
+        $and: [
+          { payment_by_end_user_id: uid },
+          { payment_module_type: filter },
+        ],
       })
         .sort("-created_at")
         .limit(limit)
@@ -268,6 +272,7 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
       //   path: "payment_expense_to_end_user_id",
       //   select: "userLegalName photoId profilePhoto",
       // });
+
       if (order?.length > 0) {
         // const oEncrypt = await encryptionPayload(order);
         res.status(200).send({ message: "User Pay History", history: order });
@@ -318,9 +323,16 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
       //   path: "payment_expense_to_end_user_id",
       //   select: "userLegalName photoId profilePhoto",
       // });
-      if (order?.length > 0) {
-        // const oEncrypt = await encryptionPayload(order);
-        res.status(200).send({ message: "User Pay History", history: order });
+      for (var filteredData of order) {
+        if (`${filteredData?.payment_module_type}` != "Expense") {
+          filtered_array.push(filteredData);
+        }
+      }
+      if (filtered_array?.length > 0) {
+        // const oEncrypt = await encryptionPayload(filtered_array);
+        res
+          .status(200)
+          .send({ message: "User Pay History", history: filtered_array });
       } else {
         res.status(200).send({ message: "No User Pay History", history: [] });
       }
@@ -337,9 +349,13 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
     const { uid } = req.query;
     const skip = (page - 1) * limit;
     const { filter } = req.query;
+    var filtered_array = [];
     if (filter) {
       var order = await OrderPayment.find({
-        $and: [{ payment_to_end_user_id: uid }, { payment_module_id: filter }],
+        $and: [
+          { payment_to_end_user_id: uid },
+          { payment_module_type: filter },
+        ],
       })
         .sort("-created_at")
         .limit(limit)
@@ -383,7 +399,6 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
       //   path: "payment_expense_to_end_user_id",
       //   select: "userLegalName photoId profilePhoto",
       // });
-
       if (order?.length > 0) {
         // const oEncrypt = await encryptionPayload(order);
         res.status(200).send({ message: "User Pay History", history: order });
@@ -434,9 +449,16 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
       //   path: "payment_expense_to_end_user_id",
       //   select: "userLegalName photoId profilePhoto",
       // });
-      if (order?.length > 0) {
-        // const oEncrypt = await encryptionPayload(order);
-        res.status(200).send({ message: "User Pay History", history: order });
+      for (var filteredData of order) {
+        if (`${filteredData?.payment_module_type}` != "Expense") {
+          filtered_array.push(filteredData);
+        }
+      }
+      if (filtered_array?.length > 0) {
+        // const oEncrypt = await encryptionPayload(filtered_array);
+        res
+          .status(200)
+          .send({ message: "User Pay History", history: filtered_array });
       } else {
         res.status(200).send({ message: "No User Pay History", history: [] });
       }
@@ -486,5 +508,7 @@ exports.fetchPaymentOneHistory = async (req, res) => {
     res
       .status(200)
       .send({ message: "One Payment Detail", deny: false, one_pay });
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };

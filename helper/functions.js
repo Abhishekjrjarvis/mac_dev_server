@@ -25,13 +25,13 @@ const random_password = () => {
 exports.filter_unique_username = async (name, dob) => {
   const new_query = `${dob?.substring(5, 7)}${dob?.substring(8, 10)}`.split("");
   const shuffle_date = shuffleArray(new_query);
-  const combined_name = `${name.trim()}_${shuffle_date.join("")}`;
+  const combined_name = `${name?.trim()}_${shuffle_date.join("")}`;
   const username = combined_name;
   const existAdmin = await Admin.findOne({ adminUserName: username });
   const existInstitute = await InstituteAdmin.findOne({ name: username });
   const existUser = await User.findOne({ username: username });
   if (existAdmin) {
-    const combined_name_one = `${name.trim()}_${new_query}`.split("");
+    const combined_name_one = `${name?.trim()}_${new_query}`.split("");
     const username_one = shuffleArray(combined_name_one);
     const valid_username_one = {
       username: username_one.join(""),
@@ -40,7 +40,7 @@ exports.filter_unique_username = async (name, dob) => {
     };
     return valid_username_one;
   } else if (existInstitute) {
-    const combined_name_two = `${name.trim()}_${new_query}`.split("");
+    const combined_name_two = `${name?.trim()}_${new_query}`.split("");
     const username_two = shuffleArray(combined_name_two);
     const valid_username_two = {
       username: username_two.join(""),
@@ -49,7 +49,7 @@ exports.filter_unique_username = async (name, dob) => {
     };
     return valid_username_two;
   } else if (existUser) {
-    const combined_name_three = `${name.trim()}_${new_query}`.split("");
+    const combined_name_three = `${name?.trim()}_${new_query}`.split("");
     const username_three = shuffleArray(combined_name_three);
     const valid_username_three = {
       username: username_three.join(""),

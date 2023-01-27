@@ -14,7 +14,7 @@ router.get("/all/answer", catchAsync(Prod.allAnswer));
 router.get("/all/repost", catchAsync(Prod.allRepost));
 router.get("/all/user", catchAsync(Prod.allUser));
 router.get("/all/institute", catchAsync(Prod.allIns));
-router.get("/all/institute/staff/:id", catchAsync(Prod.allInsStaff));
+router.get("/all/institute/staff", catchAsync(Prod.allInsStaff));
 router.get(
   "/all/recommendation/ins/user/by/:uid",
   isLoggedIn,

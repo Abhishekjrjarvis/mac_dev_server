@@ -1069,6 +1069,7 @@ exports.staffTransferApproved = async (req, res) => {
       .populate("financeDepartment");
 
     transfer.transferStatus = status;
+    transfer.replaceBystaff = assignedStaff;
     await transfer.save();
     for (let i = 0; i < transferStaff.staffDepartment.length; i++) {
       const department = await Department.findById({
@@ -1169,7 +1170,16 @@ exports.instituteStaffAllTransfer = async (req, res) => {
           select:
             "staffFirstName staffMiddleName staffLastName staffProfilePhoto",
         },
-        select: "transferReason createdAt staff transferStatus",
+        select: "transferReason createdAt staff replaceBystaff transferStatus",
+      })
+      .populate({
+        path: "transfer",
+        populate: {
+          path: "replaceBystaff",
+          select:
+            "staffFirstName staffMiddleName staffLastName staffProfilePhoto",
+        },
+        select: "transferReason createdAt staff replaceBystaff transferStatus",
       })
       .select("transfer");
     // const iTransferEncrypt = await encryptionPayload(institute.transfer);

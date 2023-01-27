@@ -41,7 +41,7 @@ router.get(
 // Added Income
 router.post(
   "/:fid/income",
-  isLoggedIn,
+  // isLoggedIn,
   upload.single("file"),
   catchAsync(Finance.getIncome)
 );

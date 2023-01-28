@@ -247,6 +247,39 @@ const financeSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    admission_request: [
+      {
+        admission: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Admission",
+        },
+        createdAt: { type: Date, default: Date.now },
+        amount: { type: Number, default: 0 },
+        status: { type: String },
+      },
+    ],
+    admission_submit: [
+      {
+        admission: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Admission",
+        },
+        createdAt: { type: Date, default: Date.now },
+        amount: { type: Number, default: 0 },
+        status: { type: String },
+      },
+    ],
+    admission_cancelled: [
+      {
+        admission: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Admission",
+        },
+        createdAt: { type: Date, default: Date.now },
+        amount: { type: Number, default: 0 },
+        status: { type: String },
+      },
+    ],
   },
   { timestamps: true }
 );

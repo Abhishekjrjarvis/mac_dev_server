@@ -255,4 +255,40 @@ router.get(
   catchAsync(Finance.renderFinanceOneInventoryQuery)
 );
 
+router.get(
+  "/:fid/dashboard/request/admission",
+  // isLoggedIn,
+  catchAsync(Finance.retrieveRequestAdmissionAtFinance)
+);
+
+router.get(
+  "/:fid/dashboard/submit/admission",
+  // isLoggedIn,
+  catchAsync(Finance.retrieveSubmitAdmissionAtFinance)
+);
+
+router.get(
+  "/:fid/dashboard/reject/admission",
+  // isLoggedIn,
+  catchAsync(Finance.retrieveRejectAdmissionAtFinance)
+);
+
+router.post(
+  "/:fid/admission/request",
+  // isLoggedIn,
+  catchAsync(Finance.renderAdmissionRequestFundsQuery)
+);
+
+router.post(
+  "/:fid/admission/:tid/submit/:rid",
+  // isLoggedIn,
+  catchAsync(Finance.submitAdmissionFeeQuery)
+);
+
+router.post(
+  "/:fid/admission/:tid/incorrect/:rid",
+  // isLoggedIn,
+  catchAsync(Finance.rejectAdmissionFeeQuery)
+);
+
 module.exports = router;

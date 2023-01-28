@@ -14949,6 +14949,11 @@ paths:
           required: true
           type: string
           description: This is limit count 
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: This Search Query
       responses:
         "200":
           description: OK
@@ -14978,6 +14983,11 @@ paths:
           required: true
           type: string
           description: This is limit count 
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: This Search Query
       responses:
         "200":
           description: OK
@@ -15007,6 +15017,35 @@ paths:
           required: true
           type: string
           description: This is limit count 
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: This Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/confirmed/application/all/payload:
+    get:
+      tags:
+        - Admission Admin Module Query
+      summary: Get All Confirmed Application (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application id 
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: This Search Query
       responses:
         "200":
           description: OK
@@ -19156,6 +19195,197 @@ paths:
           required: true
           type: string
           description: Enter Institute Id
+      responses:
+        "200":
+          description: OK
+
+
+# Admission To Finance
+
+  /api/v1/finance/{aid}/admission/request:
+    post:
+      tags:
+        - Finance Module Query
+      summary: Request || Submit To Finance Manager  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                description: Enter Amount 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/dashboard/request/admission:
+    get:
+      tags:
+        - Finance Module Query
+      summary: Get All Finance Admission Request  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/dashboard/submit/admission:
+    get:
+      tags:
+        - Finance Module Query
+      summary: Get All Finance Admission Submit  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/dashboard/reject/admission:
+    get:
+      tags:
+        - Finance Module Query
+      summary: Get All Finance Admission Reject  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/admission/{aid}/submit/{rid}:
+    post:
+      tags:
+        - Finance Module Query
+      summary: Accept Admission Request At Finance  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission id 
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: This is Admission Request id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                description: Enter Amount 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/admission/{aid}/incorrect/{rid}:
+    post:
+      tags:
+        - Finance Module Query
+      summary: Reject Admission Request At Finance  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission id 
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: This is Admission Request id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                description: Enter Amount 
       responses:
         "200":
           description: OK

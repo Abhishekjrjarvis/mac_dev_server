@@ -48,6 +48,7 @@ const {
 const {
   add_all_installment,
   render_installment,
+  add_total_installment,
 } = require("../../helper/Installment");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
@@ -114,7 +115,7 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
     //   });
     const admission = await Admission.findById({ _id: aid })
       .select(
-        "admissionAdminEmail admissionAdminPhoneNumber completedCount remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount"
+        "admissionAdminEmail admissionAdminPhoneNumber completedCount exemptAmount requested_status collected_fee remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount"
       )
       .populate({
         path: "admissionAdminHead",
@@ -838,6 +839,76 @@ exports.fetchAllConfirmApplication = async (req, res) => {
   }
 };
 
+exports.fetchAllConfirmApplicationPayload = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (search) {
+      const filter_confirm = [];
+      const apply = await NewApplication.findById({ _id: aid })
+        .select("confirmCount")
+        .populate({
+          path: "confirmedApplication",
+          populate: {
+            path: "student",
+            match: {
+              studentFirstName: { $regex: `${search}`, $options: "i" },
+            },
+            select:
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
+          },
+        });
+      for (let data of apply.confirmedApplication) {
+        if (data.student !== null) {
+          filter_confirm.push(data);
+        }
+      }
+      if (filter_confirm?.length > 0) {
+        // const confirmEncrypt = await encryptionPayload(apply);
+        res.status(200).send({
+          message:
+            "Lots of Confirmation and class allot required make sure you come up with Tea and Snack from DB 🙌",
+          confirm: filter_confirm,
+        });
+      } else {
+        res.status(200).send({
+          message: "Go To Outside for Dinner",
+          confirm: [],
+        });
+      }
+    } else {
+      const apply = await NewApplication.findById({ _id: aid })
+        .select("confirmCount")
+        .populate({
+          path: "confirmedApplication",
+          populate: {
+            path: "student",
+            select:
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
+          },
+        });
+      if (apply?.confirmedApplication?.length > 0) {
+        // const confirmEncrypt = await encryptionPayload(apply);
+        res.status(200).send({
+          message:
+            "Lots of Confirmation and class allot required make sure you come up with Tea and Snack from DB 🙌",
+          confirm: apply.confirmedApplication,
+        });
+      } else {
+        res.status(200).send({
+          message: "Go To Outside for Dinner",
+          confirm: [],
+        });
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.fetchAllAllotApplication = async (req, res) => {
   try {
     const { aid } = req.params;
@@ -1090,7 +1161,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
   try {
     const { sid, aid } = req.params;
     const { amount, mode, is_install } = req.body;
-    if (!sid && !aid && !amount && !mode)
+    if (!sid && !aid && !amount && !mode && !is_install)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
         confirm_status: false,
@@ -1128,6 +1199,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     order.payment_invoice_number = s_admin.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
+    var total_amount = add_total_installment(apply);
     if (price && price > apply.admissionFee && finance?._id !== "") {
       res.status(200).send({
         message:
@@ -1140,13 +1212,12 @@ exports.payOfflineAdmissionFee = async (req, res) => {
         admission.remainingFee.push(student._id);
         // Depreceated for New Flow
         // if (student.admissionRemainFeeCount <= apply.admissionFee) {
-          // student.admissionRemainFeeCount =
-          //   student.admissionRemainFeeCount - price;
+        // student.admissionRemainFeeCount =
+        //   student.admissionRemainFeeCount - price;
         // }
-        student.admissionRemainFeeCount =
-            student.admissionRemainFeeCount - price;
-        apply.remainingFee += apply.admissionFee - price;
-        admission.remainingFeeCount += apply.admissionFee - price;
+        student.admissionRemainFeeCount += total_amount - price;
+        apply.remainingFee += total_amount - price;
+        admission.remainingFeeCount += total_amount - price;
         student.remainingFeeList.push({
           remainAmount: price,
           appId: apply._id,
@@ -1157,7 +1228,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
           isEnable: true,
         });
         await add_all_installment(apply, institute._id, student, price);
-      // } else if (price == apply.admissionFee && !is_install) {
+        // } else if (price == apply.admissionFee && !is_install) {
       } else if (price > 0 && !is_install) {
         student.remainingFeeList.push({
           remainAmount: price,
@@ -1170,9 +1241,16 @@ exports.payOfflineAdmissionFee = async (req, res) => {
         });
         // Depreceated for New Flow
         // if (student.admissionRemainFeeCount >= apply.admissionFee) {
-          // student.admissionRemainFeeCount -= apply.admissionFee;
+        // student.admissionRemainFeeCount -= apply.admissionFee;
         // }
         student.admissionRemainFeeCount = 0;
+        finance.financeExemptBalance +=
+          apply.admissionFee == price ? 0 : apply.admissionFee - price;
+        admission.remainingFee.pull(student._id);
+        admission.exemptAmount +=
+          apply.admissionFee == price ? 0 : apply.admissionFee - price;
+        apply.exemptAmount +=
+          apply.admissionFee == price ? 0 : apply.admissionFee - price;
       }
       if (apply.total_installments == "1") {
         finance.financeExemptBalance +=
@@ -1180,7 +1258,12 @@ exports.payOfflineAdmissionFee = async (req, res) => {
             ? 0
             : apply.one_installments.fees - price;
         admission.remainingFee.pull(student._id);
+        admission.exemptAmount +=
+          apply.admissionFee == price ? 0 : apply.admissionFee - price;
+        apply.exemptAmount +=
+          apply.admissionFee == price ? 0 : apply.admissionFee - price;
       }
+      admission.collected_fee += price;
       if (mode === "Offline") {
         admission.offlineFee += price;
         apply.collectedFeeCount += price;
@@ -1204,6 +1287,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
             apply.admissionFee == price
               ? "One Time Fees Paid"
               : "First Installment Paid";
+          app.fee_remain += total_amount - price;
         } else {
         }
       }
@@ -1257,8 +1341,8 @@ exports.payOfflineAdmissionFee = async (req, res) => {
 exports.cancelAdmissionApplication = async (req, res) => {
   try {
     const { sid, aid } = req.params;
-    const { amount } = req.body;
-    if (!sid && !aid && !amount)
+    const { amount, mode, remainAmount } = req.body;
+    if (!sid && !aid && !amount && !remainAmount && !mode)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
         refund_status: false,
@@ -1283,9 +1367,9 @@ exports.cancelAdmissionApplication = async (req, res) => {
     const aStatus = new Status({});
     if (
       price &&
-      price > apply.admissionFee &&
-      price <= finance.financeTotalBalance &&
-      price <= admission.offlineFee
+      price > finance.financeTotalBalance &&
+      price > admission.offlineFee &&
+      price > finance.financeSubmitBalance
     ) {
       res.status(200).send({
         message: "insufficient Balance in Finance Department to make refund",
@@ -1299,8 +1383,14 @@ exports.cancelAdmissionApplication = async (req, res) => {
       if (apply.collectedFeeCount >= price) {
         apply.collectedFeeCount -= price;
       }
+      if (apply.remainingFee >= parseInt(remainAmount)) {
+        apply.remainingFee -= parseInt(remainAmount);
+      }
       if (admission.offlineFee >= price) {
         admission.offlineFee -= price;
+      }
+      if (admission.collected_fee >= price) {
+        admission.collected_fee -= price;
       }
       if (finance.financeAdmissionBalance >= price) {
         finance.financeAdmissionBalance -= price;
@@ -1308,26 +1398,32 @@ exports.cancelAdmissionApplication = async (req, res) => {
       if (finance.financeTotalBalance >= price) {
         finance.financeTotalBalance -= price;
       }
+      if (finance.financeSubmitBalance >= price) {
+        finance.financeSubmitBalance -= price;
+      }
+      if (admission.remainingFeeCount >= parseInt(remainAmount)) {
+        admission.remainingFeeCount -= parseInt(remainAmount);
+      }
       aStatus.content = `Your application for ${apply?.applicationDepartment?.dName} has been rejected. Best Of Luck for next time`;
       aStatus.applicationId = apply._id;
       user.applicationStatus.push(aStatus._id);
       aStatus.instituteId = institute._id;
       student.admissionRemainFeeCount = 0;
-      if (student.admissionPaidFeeCount > 0) {
-        student.admissionPaidFeeCount -= price;
-      }
+      // if (student.admissionPaidFeeCount > 0) {
+      //   student.admissionPaidFeeCount -= price;
+      // }
       student.refundAdmission.push({
         refund_status: "Refund",
         refund_reason: "Cancellation of Admission",
         refund_amount: price,
       });
-      for (var pay of student.paidFeeList) {
-        if (`${pay.appId}` === `${apply._id}`) {
-          if (pay.paidAmount >= price) {
-            pay.paidAmount -= price;
-          }
-        }
-      }
+      // for (var pay of student.paidFeeList) {
+      //   if (`${pay.appId}` === `${apply._id}`) {
+      //     if (pay.paidAmount >= price) {
+      //       pay.paidAmount -= price;
+      //     }
+      //   }
+      // }
       const filter_student_install = student?.remainingFeeList.filter((stu) => {
         if (`${stu.appId}` === `${apply._id}` && stu.status === "Not Paid")
           return stu;
@@ -1389,9 +1485,6 @@ exports.cancelAdmissionApplication = async (req, res) => {
       if (admission?.remainingFee?.length > 0) {
         if (admission.remainingFee?.includes(`${student._id}`)) {
           admission.remainingFee.pull(student._id);
-          if (admission.remainingFeeCount >= price) {
-            admission.remainingFeeCount -= price;
-          }
         }
         await admission.save();
       }
@@ -1826,6 +1919,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       student.admissionRemainFeeCount -= price;
     }
     student.admissionPaidFeeCount += price;
+    admin_ins.collected_fee += price
     if (mode === "Online") {
       admin_ins.onlineFee += price;
       apply.onlineFee += price;
@@ -1901,7 +1995,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     if (apply?.confirmedApplication?.length > 0) {
       apply?.confirmedApplication.forEach((ele) => {
         if (`${ele.student}` === `${student._id}`) {
-          // ele.fee_remain = ele.fee_remain >= price ? ele.fee_remain - price : 0;
+          ele.fee_remain = ele.fee_remain >= price ? ele.fee_remain - price : 0;
           ele.paid_status = "Paid";
           ele.second_pay_mode = mode;
           // if (apply?.remainingFee >= price) {
@@ -2185,8 +2279,8 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
 exports.retrieveAdmissionCollectDocs = async (req, res) => {
   try {
     const { sid, aid } = req.params;
-    const { mode, type } = req.query;
-    if (!sid && !aid && !mode && !type)
+    const { mode, type, amount } = req.query;
+    if (!sid && !aid && !mode && !type && !amount)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
         docs_status: false,
@@ -2211,13 +2305,14 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
       student: student._id,
       payment_status: mode,
       install_type: type,
+      fee_remain: parseInt(amount),
     });
     apply.confirmCount += 1;
     status.content = `Your seat has been confirmed, You will be alloted your class shortly, Stay Update!`;
     status.applicationId = apply._id;
     user.applicationStatus.push(status._id);
     status.instituteId = institute._id;
-    await Promise.all([apply.save(), user.save()]);
+    await Promise.all([apply.save(), user.save(), status.save()]);
     res.status(200).send({
       message: "Look like a party mood",
       docs_status: true,

@@ -21,6 +21,7 @@ const Vehicle = require("../../models/Transport/vehicle");
 const {
   add_all_installment,
   render_installment,
+  add_total_installment,
 } = require("../../helper/Installment");
 
 exports.unlockInstituteFunction = async (order, paidBy, tx_amounts) => {
@@ -249,7 +250,8 @@ exports.admissionInstituteFunction = async (
   statusId,
   paidTo,
   type,
-  is_author
+  is_author,
+  is_install
 ) => {
   try {
     var student = await Student.findById({ _id: paidBy });
@@ -279,10 +281,12 @@ exports.admissionInstituteFunction = async (
       await business_data.save();
     }
     if (statusId) {
+      var total_amount = add_total_installment(apply)
       const status = await Status.findById({ _id: statusId });
       const aStatus = new Status({});
       const notify = new Notification({});
       admission.onlineFee += parseInt(tx_amount_ad);
+      admission.collected_fee += parseInt(tx_amount_ad);
       apply.onlineFee += parseInt(tx_amount_ad);
       apply.collectedFeeCount += parseInt(tx_amount_ad);
       finance.financeAdmissionBalance += parseInt(tx_amount_ad);
@@ -298,15 +302,13 @@ exports.admissionInstituteFunction = async (
         ins.adminRepayAmount += parseInt(tx_amount_ad);
       }
       // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount_ad);
-      if (parseInt(tx_amount_ad) < apply.admissionFee) {
+      if (parseInt(tx_amount_ad) > 0 && is_install) {
         admission.remainingFee.push(student._id);
-        if (student.admissionRemainFeeCount <= apply.admissionFee) {
-          student.admissionRemainFeeCount =
-            student.admissionRemainFeeCount - parseInt(tx_amount_ad);
-        }
-        apply.remainingFee += apply.admissionFee - parseInt(tx_amount_ad);
-        admission.remainingFeeCount +=
-          apply.admissionFee - parseInt(tx_amount_ad);
+        // if (student.admissionRemainFeeCount <= apply.admissionFee) {
+        // }
+        student.admissionRemainFeeCount += total_amount - parseInt(tx_amount_ad);
+        apply.remainingFee += total_amount - parseInt(tx_amount_ad);
+        admission.remainingFeeCount += total_amount - parseInt(tx_amount_ad);
         student.remainingFeeList.push({
           remainAmount: parseInt(tx_amount_ad),
           appId: apply._id,
@@ -322,7 +324,7 @@ exports.admissionInstituteFunction = async (
           student,
           parseInt(tx_amount_ad)
         );
-      } else if (parseInt(tx_amount_ad) == apply.admissionFee) {
+      } else if (parseInt(tx_amount_ad) > 0 && !is_install) {
         student.remainingFeeList.push({
           remainAmount: parseInt(tx_amount_ad),
           appId: apply._id,
@@ -332,19 +334,17 @@ exports.admissionInstituteFunction = async (
           mode: "online",
           originalFee: apply?.admissionFee,
         });
-        if (student.admissionRemainFeeCount >= apply.admissionFee) {
-          student.admissionRemainFeeCount -= apply.admissionFee;
-        }
+        // if (student.admissionRemainFeeCount >= apply.admissionFee) {
+          student.admissionRemainFeeCount = 0;
+        // }
       } else {
       }
       if (apply?.selectedApplication?.length > 0) {
         apply?.selectedApplication?.forEach((ele) => {
           if (`${ele.student}` === `${student._id}`) {
             ele.payment_status = "online";
-            ele.install_type =
-              apply.admissionFee == parseInt(tx_amount_ad)
-                ? "One Time Fees Paid"
-                : "First Installment Paid";
+            ele.install_type = apply.admissionFee == parseInt(tx_amount_ad) ? "One Time Fees Paid" : "First Installment Paid";
+            ele.fee_remain += total_amount - parseInt(tx_amount_ad);
           }
         });
         await apply.save();
@@ -414,6 +414,7 @@ exports.admissionInstituteFunction = async (
       }
       // admission.remainingFee.pull(student._id);
       admission.onlineFee += parseInt(tx_amount_ad);
+      admission.collected_fee += parseInt(tx_amount_ad);
       apply.onlineFee += parseInt(tx_amount_ad);
       apply.collectedFeeCount += parseInt(tx_amount_ad);
       finance.financeAdmissionBalance += parseInt(tx_amount_ad);
@@ -449,6 +450,9 @@ exports.admissionInstituteFunction = async (
           if (`${ele.student}` === `${student._id}`) {
             ele.paid_status = "Paid";
             ele.second_pay_mode = "Online";
+            if (ele.fee_remain >= parseInt(tx_amount_ad)) {
+              ele.fee_remain -= parseInt(tx_amount_ad);
+            }
             if (apply?.remainingFee >= parseInt(tx_amount_ad)) {
               apply.remainingFee -= parseInt(tx_amount_ad);
             }
@@ -625,7 +629,7 @@ exports.transportFunction = async (
     student.notification.push(notify._id);
     user.payment_history.push(order);
     ins.payment_history.push(order);
-    orderPay.payment_transport = trans._id;
+    orderPay.payment_transport = vehicle._id;
     orderPay.payment_by_end_user_id = user._id;
     await Promise.all([
       student.save(),

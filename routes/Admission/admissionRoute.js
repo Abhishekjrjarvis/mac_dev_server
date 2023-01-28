@@ -97,6 +97,12 @@ router.get(
   catchAsync(Admission.fetchAllConfirmApplication)
 );
 
+router.get(
+  "/:aid/confirmed/application/all/payload",
+  // isLoggedIn,
+  catchAsync(Admission.fetchAllConfirmApplicationPayload)
+);
+
 // All Allotted Application
 router.get(
   "/:aid/allotted/application",

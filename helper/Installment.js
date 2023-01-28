@@ -44,8 +44,7 @@ exports.add_all_installment = async (arg1, arg2, arg3, amount) => {
     }
     if (arg1.six_installments.fees > 0) {
       arg3.remainingFeeList.push({
-        remainAmount:
-          arg1.one_installments.fees - amount + arg1.six_installments.fees,
+        remainAmount: arg1.six_installments.fees,
         appId: arg1._id,
         status: "Not Paid",
         instituteId: arg2,
@@ -615,9 +614,8 @@ exports.render_installment = async (
   }
 };
 
-exports.add_total_installment = async (aid) => {
+exports.add_total_installment = (apply) => {
   try {
-    const apply = await NewApplication.findById({ _id: aid });
     var total = 0;
     total =
       total +

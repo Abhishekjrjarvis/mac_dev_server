@@ -37,6 +37,7 @@ const newApplicationSchema = new mongoose.Schema({
   collectedFeeCount: { type: Number, default: 0 },
   applicationPhoto: { type: String },
   photoId: { type: String, default: "1" },
+  exemptAmount: { type: Number, default: 0 },
   createdAt: {
     type: Date,
     default: Date.now,

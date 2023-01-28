@@ -95,6 +95,7 @@ exports.verifyRazorPayment = async (req, res) => {
       payment_installment,
       razor_key, // Razor KEY Secret
       razor_author, // Boolean
+      ad_install
     } = req.query;
     const data_key = handle_undefined(razor_key);
     var refactor_amount = parseFloat(payment_amount) / 100;
@@ -157,7 +158,8 @@ exports.verifyRazorPayment = async (req, res) => {
           ad_status_id,
           payment_to_end_user_id,
           payment_installment,
-          Boolean(razor_author)
+          Boolean(razor_author),
+          Boolean(ad_install)
         );
         if (isApk) {
           res.status(200).send({

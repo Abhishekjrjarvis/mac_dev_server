@@ -120,6 +120,7 @@ exports.getRegisterIns = async (req, res) => {
         }
         institute.photoId = "1";
         institute.coverId = "2";
+        institute.insProfilePhoto = "institute-default-avatar.svg"
         institute.profileURL = `https://qviple.com/q/${institute.name}/profile`;
         // institute.modal_activate = payment_modal_activate();
         institute.next_date = `${new Date().getFullYear()}-${

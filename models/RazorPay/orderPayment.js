@@ -78,7 +78,7 @@ const orderPaymentSchema = new mongoose.Schema({
   },
   payment_transport: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Transport",
+    ref: "Vehicle",
   },
   payment_from: {
     type: String,

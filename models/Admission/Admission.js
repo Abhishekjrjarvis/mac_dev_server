@@ -47,6 +47,7 @@ const admissionAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  exemptAmount: { type: Number, default: 0 },
   remainingFee: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -63,6 +64,14 @@ const admissionAdminSchema = new mongoose.Schema({
       ref: "Inquiry",
     },
   ],
+  requested_status: {
+    type: String,
+    default: "Pending",
+  },
+  collected_fee: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("Admission", admissionAdminSchema);

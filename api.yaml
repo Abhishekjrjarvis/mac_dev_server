@@ -19605,7 +19605,7 @@ paths:
           schema:
             type: object
             properties:
-              sameparameterascreatebook:
+              photoUpdate:
                 type: string
                 description: Staff id
                 required: true

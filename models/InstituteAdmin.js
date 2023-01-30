@@ -231,16 +231,20 @@ const instituteAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  elearningActivate: { type: String, default: "Not Activated" },
-  elearning: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "ELearning",
-  },
-  libraryActivate: { type: String, default: "Not Activated" },
-  library: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Library",
-  },
+  elearningStatus: { type: String, default: "Disable" },
+  elearningDepart: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ELearning",
+    }
+  ],
+  libraryActivate: { type: String, default: "Disable" },
+  library: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Library",
+    }
+  ],
   adminRepayAmount: {
     type: Number,
     default: 0,

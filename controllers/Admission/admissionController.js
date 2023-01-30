@@ -2660,29 +2660,6 @@ exports.renderNewDirectInquiry = async (req, res) => {
   }
 };
 
-// const nested_function_app = async(arr, fee) => {
-//   var flag = false
-//   const all_students = await Student.find({ studentClass: { $in: arr }})
-//   for(var nest of all_students){
-//     if(nest?.onlineFeeList?.includes(`${fee}`)){
-//       flag = true
-//       break;
-//     }
-//     else if(nest?.offlineFeeList?.includes(`${fee}`)){
-//       flag = true
-//       break;
-//     }
-//     else if(nest?.exemptFeeList?.includes(`${fee}`)){
-//       flag = true
-//       break;
-//     }
-//     else{
-//       flag = false
-//     }
-//   }
-//   return flag
-// }
-
 // exports.renderAppDeleteQuery = async(req, res) => {
 //   try{
 //     const { aid, appId } = req.params
@@ -2690,9 +2667,14 @@ exports.renderNewDirectInquiry = async (req, res) => {
 //     const ads_admin = await Admission.findById({_id: aid})
 //     const ads_app = await NewApplication.findById({ _id: appId})
 //     // const flag_status = await nested_function_app(depart.class, fid)
-    
-//     if(flag_status){
-//       res.status(200).send({ message: "Deletion Operation Denied Some Student Already Paid 😥", access: false})
+//     if(ads_app?.receievedApplication?.length > 0){
+//       res.status(200).send({ message: "Deletion Operation Denied Some Student Already Applied for this Application 😥", access: false})
+//     }
+//     else{
+//       ads_admin.newApplication.pull(ads_app?._id)
+//       if(ads_admin?.newAppCount > 0){
+//         ads_admin.newAppCount -= 1
+//       }
 //     }
     
 //   }catch(e){

@@ -32,8 +32,8 @@ exports.activateLibrary = async (req, res) => {
       photoId: "1",
       coverId: "2",
     });
-    institute.libraryActivate = "Activated";
-    institute.library = library._id;
+    institute.libraryActivate = "Enable";
+    institute.library.push(library._id);
     staff.library.push(library._id);
     notify.notifyContent = `you got the designation of as Library Head`;
     notify.notifySender = institute._id;

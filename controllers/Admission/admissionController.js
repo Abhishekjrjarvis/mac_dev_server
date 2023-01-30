@@ -2663,19 +2663,19 @@ exports.renderNewDirectInquiry = async (req, res) => {
 
 const nested_function_app = async(arg) => {
   var flag = false
-  if(ads_app?.receievedApplication?.length > 0){
+  if(arg?.receievedApplication?.length > 0){
     flag = true
   }
-  else if(ads_app?.selectedApplication?.length > 0){
+  else if(arg?.selectedApplication?.length > 0){
     flag = true
   }
-  else if(ads_app?.confirmedApplication?.length > 0){
+  else if(arg?.confirmedApplication?.length > 0){
     flag = true
   }
-  else if(ads_app?.allottedApplication?.length > 0){
+  else if(arg?.allottedApplication?.length > 0){
     flag = true
   }
-  else if(ads_app?.cancelApplication?.length > 0){
+  else if(arg?.cancelApplication?.length > 0){
     flag = true
   }
   else{
@@ -2708,14 +2708,14 @@ exports.renderAppDeleteQuery = async(req, res) => {
         institute.admissionCount -= 1;
       }
       institute.posts.pull(post?._id)
-      await Promise.all([ institute.save(), ads_admin.save() ])
+      // await Promise.all([ institute.save(), ads_admin.save() ])
       if(ads_app?.applicationPhoto) {
-        await deleteFile(ads_app?.applicationPhoto);      
+        // await deleteFile(ads_app?.applicationPhoto);      
       }
       if(post){
-        await Post.findByIdAndDelete(post?._id)
+        // await Post.findByIdAndDelete(post?._id)
       }
-      await NewApplication.findByIdAndDelete(ads_app?._id)
+      // await NewApplication.findByIdAndDelete(ads_app?._id)
       res.status(200).send({ message: "Deletion Operation Completed 😁", access: true})
     }
   }catch(e){

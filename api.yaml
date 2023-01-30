@@ -19512,7 +19512,7 @@ paths:
         - in: formData
           name: file
           type: file
-          required: true
+          required: false
           description: upload your book profile photo
         - in: formData
           name: bookName
@@ -19541,26 +19541,28 @@ paths:
           description: book language
         - in: formData
           name: totalPage
-          type: string
+          type: number
           required: true
           description: book totalPage
         - in: formData
           name: price
-          type: string
+          type: number
           required: true
           description: book price
         - in: formData
           name: totalCopies
-          type: string
+          type: number
+          required: true
           description: book totalCopies
         - in: formData
           name: shellNumber
           type: string
+          required: true
           description: book shellNumber
         - in: formData
           name: description
           type: string
-          required: true
+          required: false
           description: book description
       responses:
         "200":

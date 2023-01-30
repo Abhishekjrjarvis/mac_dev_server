@@ -56,7 +56,7 @@ exports.activateLibrary = async (req, res) => {
       user.save(),
       notify.save(),
     ]);
-    res.status(201).send({ message: "Library Head is assign" });
+    res.status(200).send({ message: "Library Head is assign" });
   } catch (e) {
     res.status(200).send({
       message: e,
@@ -130,14 +130,15 @@ exports.allBookByStaffSide = async (req, res) => {
 
 exports.createBookByStaffSide = async (req, res) => {
   try {
-    if (!req.params.lid) throw "Please send library id to perform task";
-    const library = await Library.findById(req.params.lid);
+    const { lid } = req.params
+    if (!lid) throw "Please send library id to perform task";
+    const library = await Library.findById(lid);
     const book = new Book(req.body);
     library.books.push(book._id);
     library.bookCount += 1;
     book.library = lid;
     book.leftCopies = book.totalCopies;
-    if (req?.files) {
+    if (req?.files?.length > 0) {
       let count = 0;
       for (file of req?.files) {
         if (count === 0) {
@@ -164,9 +165,7 @@ exports.createBookByStaffSide = async (req, res) => {
     await Promise.all([book.save(), library.save()]);
     res.status(201).send({ message: "book is created" });
   } catch (e) {
-    res.status(200).send({
-      message: e,
-    });
+    console.log(e)
   }
 };
 

@@ -7,8 +7,8 @@ const libraryController = require("../../controllers/Library/libraryController")
 const catchAsync = require("../../Utilities/catchAsync");
 
 router
-  .route("/activate/:id")
-  .get(isLoggedIn, catchAsync(libraryController.activateLibrary));
+  .route("/activate/:id") 
+  .post(isLoggedIn, catchAsync(libraryController.activateLibrary));
 
 router
   .route("/info/:lid")

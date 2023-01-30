@@ -17,9 +17,9 @@ exports.timerFunction = () => {
   // }, 3000);
   // setInterval(async () => {
   // }, 30000);
-  setInterval(async () => {
-    await dueDateAlarm();
-  }, 8640000);
+  // setInterval(async () => {
+  //   await dueDateAlarm();
+  // }, 86400000);
   // setInterval(async () => {
   //   await renderRealTimeDailyUpdate();
   // }, 86400000);

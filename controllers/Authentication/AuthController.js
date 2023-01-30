@@ -1366,9 +1366,7 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
       }
       student.institute = institute._id;
       student.user = user._id;
-      notify.notifyContent = `${student.studentFirstName}${
-        student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
-      } ${student.studentLastName} has been applied for role of student`;
+      notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? ` ${student.studentMiddleName}` : ""} ${student.studentLastName} has been applied for role of student`;
       notify.notifySender = student._id;
       notify.notifyReceiever = classUser._id;
       institute.iNotify.push(notify._id);
@@ -2214,9 +2212,7 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
       institute.joinedUserList.push(user._id);
       staff.staffROLLNO = institute.ApproveStaff.length;
       staff.staffJoinDate = new Date().toISOString();
-      notify.notifyContent = `Congrats ${staff.staffFirstName} ${
-        staff.staffMiddleName ? `${staff.staffMiddleName}` : ""
-      } ${staff.staffLastName} for joined as a staff at ${institute.insName}`;
+      notify.notifyContent = `Congrats ${staff.staffFirstName} ${staff.staffMiddleName ? `${staff.staffMiddleName}` : ""} ${staff.staffLastName} for joined as a staff at ${institute.insName}`;
       notify.notifySender = id;
       notify.notifyReceiever = user._id;
       notify.notifyCategory = "Approve Staff";

@@ -324,9 +324,7 @@ exports.promoteStudent = async (req, res) => {
       });
       // console.log(previousData);
       const notify = new StudentNotification({});
-      notify.notifyContent = `${student.studentFirstName} ${
-        student.studentMiddleName ? student.studentMiddleName : ""
-      } ${student.studentLastName} Your Report Card is Ready `;
+      notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? student.studentMiddleName : ""} ${student.studentLastName} Your Report Card is Ready `;
       notify.notifySender = classes._id;
       notify.notifyReceiever = user._id;
       notify.classId = classes._id;

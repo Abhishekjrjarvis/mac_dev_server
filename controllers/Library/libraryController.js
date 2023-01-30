@@ -8,6 +8,7 @@ const CollectBook = require("../../models/Library/CollectBook");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const Student = require("../../models/Student");
 const Staff = require("../../models/Staff");
+const User = require("../../models/User");
 const {
   deleteFile,
   uploadFile,
@@ -316,12 +317,12 @@ exports.allBookIssueByStaffSide = async (req, res) => {
 
 exports.bookColletedByStaffSide = async (req, res) => {
   try {
-    if (!req.params.iid) throw "Please send issued id to perform task";
-    const issue = await IssueBook.findById(req.params.iid);
+    if (!req.params.lid) throw "Please send issued id to perform task";
+    const issue = await IssueBook.findById(req.params.lid);
     const library = await Library.findById(issue.library);
     const book = await Book.findById(issue.book);
     const student = await Student.findById(issue.member);
-    const Book = new Book({
+    const collect = new CollectBook({
       member: issue.member,
       book: issue.book,
       library: library._id,

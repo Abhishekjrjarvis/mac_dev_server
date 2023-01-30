@@ -19389,3 +19389,437 @@ paths:
       responses:
         "200":
           description: OK
+
+# library side all list
+  /api/v1/library/activate/{id}:
+    post:
+      tags:
+        - Library Module 
+      summary: Assign library Head
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: Enter Institute Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              sid:
+                type: string
+                description: Staff id
+                required: true
+      responses:
+        "200":
+          description: OK          
+
+  /api/v1/library/info/{lid}:
+    get:
+      tags:
+        - Library Module 
+      summary: Give library Info
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: Enter Library Id
+      responses:
+        "200":
+          description: OK    
+    patch:
+      tags:
+        - Library Module 
+      summary: update Library info
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: Enter Library Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              libraryHeadTitle:
+                type: string
+                description: Staff id
+                required: true
+              libraryHeadTitle:
+                type: string
+                description: Staff id
+                required: true
+      responses:
+        "200":
+          description: OK     
+
+
+  /api/v1/library/books/{lid}:
+    get:
+      tags:
+        - Library Module 
+      summary: List of all bokks
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: Enter Library Id  
+        - in: query
+          name: page
+          type: integer
+          description: Enter a page 
+        - in: query
+          name: limit
+          type: integer
+          description: Enter a limit   
+      responses:
+        "200":
+          description: OK                             
+    post:
+      tags:
+        - Library Module 
+      summary: create a book
+      produces:
+        - application/json
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: library id
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your book profile photo
+        - in: formData
+          name: bookName
+          type: string
+          required: true
+          description: This is book name
+        - in: formData
+          name: bookStatus
+          type: string
+          required: true
+          description: Offline or Online
+        - in: formData
+          name: author
+          type: string
+          required: true
+          description: author name
+        - in: formData
+          name: publication
+          type: string
+          required: true
+          description: piblication name
+        - in: formData
+          name: language
+          type: string
+          required: true
+          description: book language
+        - in: formData
+          name: totalPage
+          type: string
+          required: true
+          description: book totalPage
+        - in: formData
+          name: price
+          type: string
+          required: true
+          description: book price
+        - in: formData
+          name: totalCopies
+          type: string
+          description: book totalCopies
+        - in: formData
+          name: shellNumber
+          type: string
+          description: book shellNumber
+        - in: formData
+          name: description
+          type: string
+          required: true
+          description: book description
+      responses:
+        "200":
+          description: OK  
+
+  /api/v1/library/book/{bid}:
+    get:
+      tags:
+        - Library Module 
+      summary: bokk details
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: bid
+          required: true
+          type: string
+          description: Enter book Id  
+      responses:
+        "200":
+          description: OK    
+    patch:
+      tags:
+        - Library Module 
+      summary: Assign library Head
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: bid
+          required: true
+          type: string
+          description: Enter book Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              sameparameterascreatebook:
+                type: string
+                description: Staff id
+                required: true
+      responses:
+        "200":
+          description: OK     
+
+  /api/v1/library/issued/{lid}:
+    get:
+      tags:
+        - Library Module 
+      summary: List of all issue bokks
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: Enter Library Id  
+        - in: query
+          name: page
+          type: integer
+          description: Enter a page 
+        - in: query
+          name: limit
+          type: integer
+          description: Enter a limit   
+      responses:
+        "200":
+          description: OK    
+    patch:
+      tags:
+        - Library Module 
+      summary: issue book to member
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: Enter Library Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              member:
+                type: string
+                description: student id
+                required: true
+              book:
+                type: string
+                description: book id
+                required: true                
+      responses:
+        "200":
+          description: OK     
+
+  /api/v1/library/collected/{lid}:
+    get:
+      tags:
+        - Library Module 
+      summary: List of all collected bokks
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: Enter Library Id  
+        - in: query
+          name: page
+          type: integer
+          description: Enter a page 
+        - in: query
+          name: limit
+          type: integer
+          description: Enter a limit   
+      responses:
+        "200":
+          description: OK    
+    patch:
+      tags:
+        - Library Module 
+      summary: collected book to member
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: Enter Issued Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              chargeBy:
+                type: string
+              fineCharge:
+                type: integer
+                description: book id
+      responses:
+        "200":
+          description: OK     
+
+
+  /api/v1/library/onecollected/{cid}:
+    get:
+      tags:
+        - Library Module 
+      summary: one detail book
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: Enter collect Id  
+      responses:
+        "200":
+          description: OK     
+
+  /api/v1/library/members/{lid}:
+    get:
+      tags:
+        - Library Module 
+      summary: All list of member
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: Enter collect Id  
+        - in: query
+          name: page
+          type: integer
+          description: Enter a page 
+        - in: query
+          name: limit
+          type: integer
+          description: Enter a limit   
+      responses:
+        "200":
+          description: OK  
+
+
+  /api/v1/library/members/{sid}/issued:
+    get:
+      tags:
+        - Library Module 
+      summary: All list of member issue books
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter student Id  
+        - in: query
+          name: page
+          type: integer
+          description: Enter a page 
+        - in: query
+          name: limit
+          type: integer
+          description: Enter a limit   
+      responses:
+        "200":
+          description: OK  
+
+  /api/v1/library/members/{sid}/history:
+    get:
+      tags:
+        - Library Module 
+      summary: All list of member of history books
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter student Id  
+        - in: query
+          name: page
+          type: integer
+          description: Enter a page 
+        - in: query
+          name: limit
+          type: integer
+          description: Enter a limit   
+      responses:
+        "200":
+          description: OK

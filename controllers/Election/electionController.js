@@ -264,13 +264,7 @@ exports.retrieveApplyElectionQuery = async (req, res) => {
       const user = await User.findById({
         _id: `${student_support?.user}`,
       }).select("activity_tab deviceToken");
-      notify.notifyContent = `You have been choosen as supporting member for ${
-        elect?.election_position
-      } by ${student.studentFirstName} ${
-        student.studentMiddleName ? student.studentMiddleName : ""
-      } ${
-        student.studentLastName
-      }. (If you have not supporting please contact with respective department)`;
+      notify.notifyContent = `You have been choosen as supporting member for ${elect?.election_position} by ${student.studentFirstName} ${student.studentMiddleName ? student.studentMiddleName : ""} ${student.studentLastName}. (If you have not supporting please contact with respective department)`;
       notify.notifySender = student._id;
       notify.notifyReceiever = user._id;
       notify.electionId = elect?._id;
@@ -324,14 +318,7 @@ exports.retrieveStatusElectionQuery = async (req, res) => {
     const user = await User.findById({ _id: `${student?.user}` }).select(
       "activity_tab deviceToken"
     );
-    notify.notifyContent = `Apply from ${moment(
-      elect?.election_app_start_date
-    ).format("LL")} to ${moment(elect?.election_app_end_date).format(
-      "LL"
-    )} , Voting Date ${moment(elect?.election_voting_date).format("LL")}.
-        Your application for ${
-          elect?.election_position
-        } is ${status} by authorities`;
+    notify.notifyContent = `Apply from ${moment(elect?.election_app_start_date).format("LL")} to ${moment(elect?.election_app_end_date).format("LL")} , Voting Date ${moment(elect?.election_voting_date).format("LL")}.Your application for ${elect?.election_position} is ${status} by authorities`;
     notify.notifySender = depart._id;
     notify.notifyReceiever = user._id;
     notify.electionId = elect?._id;

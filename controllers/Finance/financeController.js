@@ -1123,11 +1123,7 @@ exports.addFieldToPayroll = async (req, res) => {
         emp_pay: emp._id,
       });
       const notify = new StudentNotification({});
-      notify.notifyContent = `${staff?.staffFirstName} ${
-        staff?.staffMiddleName ? staff?.staffMiddleName : ""
-      } ${staff?.staffLastName} your payroll for ${moment(
-        new Date(month)
-      ).format("MMMM")} month is ready check That.`;
+      notify.notifyContent = `${staff?.staffFirstName} ${staff?.staffMiddleName ? staff?.staffMiddleName : ""} ${staff?.staffLastName} your payroll for ${moment(new Date(month)).format("MMMM")} month is ready check That.`;
       notify.notifySender = finance._id;
       notify.notifyReceiever = user._id;
       notify.notifyType = "Staff";

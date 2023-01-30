@@ -54,7 +54,7 @@ exports.departmentEdit = async (req, res) => {
       staff.recentDesignation = department.dTitle;
       department.dHead = staff._id;
       notify.notifyContent = `you got the designation of ${department.dName} as ${department.dTitle}`;
-      notify.notifySender = id;
+      notify.notifySender = institute._id;
       notify.notifyCategory = "Department Designation";
       notify.notifyReceiever = user._id;
       user.uNotify.push(notify._id);
@@ -325,8 +325,8 @@ exports.classEdit = async (req, res) => {
       staff.staffDesignationCount += 1;
       staff.recentDesignation = classes.classHeadTitle;
       classes.classTeacher = staff._id;
-      notify.notifyContent = `you got the designation of ${classRoom.className} as ${classRoom.classTitle}`;
-      notify.notifySender = id;
+      notify.notifyContent = `you got the designation of ${classes.className} as ${classes.classTitle}`;
+      notify.notifySender = institute._id;
       notify.notifyCategory = "Class Designation";
       notify.notifyReceiever = user._id;
       user.uNotify.push(notify._id);
@@ -505,7 +505,7 @@ exports.subjectEdit = async (req, res) => {
       staff.recentDesignation = subject.subjectTitle;
       subject.subjectTeacherName = staff._id;
       notify.notifyContent = `you got the designation of ${subject.subjectName} as ${subject.subjectTitle}`;
-      notify.notifySender = id;
+      notify.notifySender = institute._id;
       notify.notifyCategory = "Subject Designation";
       notify.notifyReceiever = user._id;
       user.uNotify.push(notify._id);

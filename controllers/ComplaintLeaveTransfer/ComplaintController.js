@@ -96,9 +96,7 @@ exports.postStudentLeave = async (req, res) => {
     student.leave.push(leave._id);
 
     const notify = new StudentNotification({});
-    notify.notifyContent = `${student.studentFirstName}${
-      student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
-    } ${student.studentLastName} requested for a leave check application`;
+    notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? ` ${student.studentMiddleName}` : ""} ${student.studentLastName} requested for a leave check application`;
     notify.notifySender = req.params.sid;
     notify.notifyReceiever = user._id;
     notify.notifyType = "Staff";
@@ -381,7 +379,7 @@ exports.OneComplaintReportAdmin = async (req, res) => {
     if (complaint.reportAdmin === "No") {
       const institute = await InstituteAdmin.findById(
         complaint.institute
-      ).select("studentComplaints");
+      )
       institute.studentComplaints.push(complaint._id);
       complaint.reportAdmin = "Yes";
       const notify = new Notification({});
@@ -556,11 +554,7 @@ exports.studentTransferRequested = async (req, res) => {
     classes.studentTransfer.push(transfer._id);
     student.transfer.push(transfer._id);
     const notify = new StudentNotification({});
-    notify.notifyContent = `${student.studentFirstName}${
-      student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
-    } ${
-      student.studentLastName
-    } requested for a Transfer. check application status`;
+    notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? ` ${student.studentMiddleName}` : ""} ${student.studentLastName} requested for a Transfer. check application status`;
     notify.notifySender = student._id;
     notify.notifyReceiever = user._id;
     notify.notifyType = "Staff";
@@ -771,9 +765,7 @@ exports.postStaffLeave = async (req, res) => {
 
     const user = await User.findById(staff.user).select("uNotify");
 
-    const institute = await InstituteAdmin.findById(staff.institute).select(
-      "leave iNotify"
-    );
+    const institute = await InstituteAdmin.findById(staff.institute)
     const leave = new Leave({
       reason: req.body.reason,
       date: dateArray,
@@ -784,9 +776,7 @@ exports.postStaffLeave = async (req, res) => {
     staff.staffLeave.push(leave._id);
 
     const notify = new Notification({});
-    notify.notifyContent = `${staff.staffFirstName}${
-      staff.staffMiddleName ? ` ${staff.staffMiddleName}` : ""
-    } ${staff.staffLastName} requested for a leave check application`;
+    notify.notifyContent = `${staff.staffFirstName} ${staff.staffMiddleName ? ` ${staff.staffMiddleName}` : ""} ${staff.staffLastName} requested for a leave check application`;
     notify.notifySender = req.params.sid;
     notify.notifyReceiever = institute._id;
     institute.iNotify.push(notify._id);

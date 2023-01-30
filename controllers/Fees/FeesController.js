@@ -182,7 +182,7 @@ exports.feesPaidByStudent = async (req, res) => {
           institute.payment_history.push(order._id);
           const notify = new StudentNotification({});
           notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} ${student.studentLastName} your transaction is successfull for ${fData?.feeName} ${fData.feeAmount}`;
-          notify.notifySender = classes.classTeacher.user;
+          notify.notifySender = classes.classTeacher._id;
           notify.notifyReceiever = user._id;
           notify.notifyType = "Student";
           notify.notifyPublisher = student._id;
@@ -244,13 +244,13 @@ exports.feesPaidByStudent = async (req, res) => {
           });
           const notify = new StudentNotification({});
           notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} ${student.studentLastName} you get exempted ${fData?.feeName} ${fData.feeAmount} on this fee.`;
-          notify.notifySender = classes.classTeacher.user;
+          notify.notifySender = classes.classTeacher._id;
           notify.notifyReceiever = user._id;
           notify.notifyType = "Student";
           notify.notifyPublisher = student._id;
           user.activity_tab.push(notify._id);
           notify.notifyByClassPhoto = classes._id;
-          notify.notifyCategory = "Offline Fees";
+          notify.notifyCategory = "Exempt Fees";
           notify.redirectIndex = 16;
           //
           invokeMemberTabNotification(

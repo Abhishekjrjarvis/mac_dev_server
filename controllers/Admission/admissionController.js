@@ -2683,41 +2683,18 @@ exports.renderNewDirectInquiry = async (req, res) => {
 //   return flag
 // }
 
-// exports.renderFeesDeleteQuery = async(req, res) => {
+// exports.renderAppDeleteQuery = async(req, res) => {
 //   try{
 //     const { aid, appId } = req.params
 //     if(!appId && !aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately 😡", access: false})
 //     const ads_admin = await Admission.findById({_id: aid})
 //     const ads_app = await NewApplication.findById({ _id: appId})
-//     const flag_status = await nested_function_app(depart.class, fid)
-
+//     // const flag_status = await nested_function_app(depart.class, fid)
+    
 //     if(flag_status){
 //       res.status(200).send({ message: "Deletion Operation Denied Some Student Already Paid 😥", access: false})
 //     }
-//     else{
-//       depart.fees.pull(fid)
-//       for(var cal of depart.class){
-//         const classes = await Class.findById({ _id: cal})
-//         for(var val of classes?.ApproveStudent){
-//           const student = await Student.findById({ _id: val})
-//           if(student?.studentRemainingFeeCount >= price?.feeAmount){
-//             student.studentRemainingFeeCount -= price.feeAmount
-//           }
-//           if(finance?.financeRaisedBalance >= price?.feeAmount){
-//             finance.financeRaisedBalance -= price.feeAmount
-//           }
-//           await student.save()
-//         }
-//         classes.fee.pull(fid)
-//         await classes.save()
-//       }
-//       await Promise.all([ finance.save(), depart.save()])
-//       await Fees.findByIdAndDelete(fid)
-//       res.status(200).send({ 
-//         message: "Deletion Operation Completed 😁", 
-//         access: true,
-//       })
-//     }
+    
 //   }catch(e){
 //     console.log(e)
 //   }

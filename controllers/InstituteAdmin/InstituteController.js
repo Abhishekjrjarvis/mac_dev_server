@@ -529,9 +529,7 @@ exports.updateApproveStaff = async (req, res) => {
     institute.joinedUserList.push(user._id);
     staffs.staffROLLNO = institute.ApproveStaff.length;
     staffs.staffJoinDate = new Date().toISOString();
-    notify.notifyContent = `Congrats ${staffs.staffFirstName} ${
-      staffs.staffMiddleName ? `${staffs.staffMiddleName}` : ""
-    } ${staffs.staffLastName} for joined as a staff at ${institute.insName}`;
+    notify.notifyContent = `Congrats ${staffs.staffFirstName} ${staffs.staffMiddleName ? `${staffs.staffMiddleName}` : ""} ${staffs.staffLastName} for joined as a staff at ${institute.insName}`;
     notify.notifySender = id;
     notify.notifyReceiever = user._id;
     notify.notifyCategory = "Approve Staff";
@@ -613,18 +611,26 @@ exports.updateRejectStaff = async (req, res) => {
     const staffs = await Staff.findById({ _id: sid });
     const user = await User.findById({ _id: uid });
     const aStatus = new Status({});
+    const notify = new Notification({})
     staffs.staffStatus = req.body.status;
     institute.staff.pull(sid);
     notify.notifyContent = `your request for the role of staff is rejected contact at connect@qviple.com`;
     notify.notifySender = id;
     notify.notifyReceiever = user._id;
-    user.uNotify.push(notify);
+    user.uNotify.push(notify._id);
     notify.user = user;
     notify.notifyPid = "1";
     notify.notifyPhoto = institute.insProfilePhoto;
     aStatus.content = `Your application for joining as staff in ${institute.insName} is being rejected. Please follow up with institute for any queries.`;
     user.applicationStatus.push(aStatus._id);
     aStatus.instituteId = institute._id;
+    invokeFirebaseNotification(
+      "Designation Allocation",
+      notify,
+      institute.insName,
+      user._id,
+      user.deviceToken
+    );
     await Promise.all([
       institute.save(),
       staffs.save(),
@@ -981,9 +987,7 @@ exports.fillStudentForm = async (req, res) => {
     }
     student.institute = institute._id;
     student.user = user._id;
-    notify.notifyContent = `${student.studentFirstName}${
-      student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
-    } ${student.studentLastName} has been applied for role of student`;
+    notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? ` ${student.studentMiddleName}` : ""} ${student.studentLastName} has been applied for role of student`;
     notify.notifySender = student._id;
     notify.notifyReceiever = classUser._id;
     institute.iNotify.push(notify._id);

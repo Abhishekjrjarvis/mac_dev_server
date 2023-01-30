@@ -347,12 +347,12 @@ exports.renderLibraryStaffQuery = async (req, res) => {
       });
     const oldStaff = await Staff.findById({ _id: osid }).populate({
       path: "institute",
-      select: "libraryActivate",
+      select: "library",
     });
     const newStaff = await Staff.findById({ _id: nsid });
     const user = await User.findById({ _id: `${newStaff.user}` });
     const library = new Library.findById({
-      _id: `${oldStaff?.institute?.libraryActivate}`,
+      _id: `${oldStaff?.institute?.library[0]}`,
     }).populate({
       path: "institute",
       select: "insName",

@@ -17,6 +17,7 @@ const {
   uploadDocFile,
   uploadFile,
   uploadPostImageFile,
+  deleteFile,
 } = require("../../S3Configuration");
 const fs = require("fs");
 const util = require("util");
@@ -2660,24 +2661,64 @@ exports.renderNewDirectInquiry = async (req, res) => {
   }
 };
 
-// exports.renderAppDeleteQuery = async(req, res) => {
-//   try{
-//     const { aid, appId } = req.params
-//     if(!appId && !aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately 😡", access: false})
-//     const ads_admin = await Admission.findById({_id: aid})
-//     const ads_app = await NewApplication.findById({ _id: appId})
-//     // const flag_status = await nested_function_app(depart.class, fid)
-//     if(ads_app?.receievedApplication?.length > 0){
-//       res.status(200).send({ message: "Deletion Operation Denied Some Student Already Applied for this Application 😥", access: false})
-//     }
-//     else{
-//       ads_admin.newApplication.pull(ads_app?._id)
-//       if(ads_admin?.newAppCount > 0){
-//         ads_admin.newAppCount -= 1
-//       }
-//     }
-    
-//   }catch(e){
-//     console.log(e)
-//   }
-// }
+const nested_function_app = async(arg) => {
+  var flag = false
+  if(ads_app?.receievedApplication?.length > 0){
+    flag = true
+  }
+  else if(ads_app?.selectedApplication?.length > 0){
+    flag = true
+  }
+  else if(ads_app?.confirmedApplication?.length > 0){
+    flag = true
+  }
+  else if(ads_app?.allottedApplication?.length > 0){
+    flag = true
+  }
+  else if(ads_app?.cancelApplication?.length > 0){
+    flag = true
+  }
+  else{
+    flag = false
+  }
+  return flag
+}
+
+exports.renderAppDeleteQuery = async(req, res) => {
+  try{
+    const { aid, appId } = req.params
+    if(!appId && !aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately 😡", access: false})
+    const ads_admin = await Admission.findById({_id: aid})
+    const ads_app = await NewApplication.findById({ _id: appId})
+    const institute = await InstituteAdmin.findById({_id: `${ads_admin?.institute}`})
+    const post = await Post.findOne({ new_application: ads_app?._id })
+    const flag_status = await nested_function_app(ads_app)
+    if(flag_status){
+      res.status(200).send({ message: "Deletion Operation Denied Some Student Already Applied for this Application 😥", access: false})
+    }
+    else{
+      ads_admin.newApplication.pull(ads_app?._id)
+      if(ads_admin?.newAppCount > 0){
+        ads_admin.newAppCount -= 1
+      }
+      if(institute?.postCount > 0){
+        institute.postCount -= 1;
+      }
+      if(institute.admissionCount > 0){
+        institute.admissionCount -= 1;
+      }
+      institute.posts.pull(post?._id)
+      await Promise.all([ institute.save(), ads_admin.save() ])
+      if(ads_app?.applicationPhoto) {
+        await deleteFile(ads_app?.applicationPhoto);      
+      }
+      if(post){
+        await Post.findByIdAndDelete(post?._id)
+      }
+      await NewApplication.findByIdAndDelete(ads_app?._id)
+      res.status(200).send({ message: "Deletion Operation Completed 😁", access: true})
+    }
+  }catch(e){
+    console.log(e)
+  }
+}

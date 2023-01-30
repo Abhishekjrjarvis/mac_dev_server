@@ -153,15 +153,16 @@ exports.studentAssignChecklist = async (req, res) => {
     });
     const user = await User.findById({ _id: `${student.user._id}` });
     const checklist = await Checklist.findById({ _id: cid });
-    const notify = new Notification({});
-    student.checklist.push(checklist._id);
-    student.checklistAllottedStatus = "Allotted";
-    checklist.student.push(student._id);
-    checklist.studentAssignedStatus = "Assigned";
+    const notify = new StudentNotification({});
+    student.allottedChecklist.push(checklist._id);
+    checklist.assignedStudent.push(student._id);
     notify.notifyContent = `${checklist.checklistName} (checklist) Allotted to you check your member's Tab`;
+    notify.notifyType = "Student";
+    notify.notifyPublisher = student._id;
+    notify.checklistId = checklist._id;
     notify.notifyReceiever = user._id;
     notify.notifyCategory = "Checklist Allotted";
-    user.uNotify.push(notify._id);
+    user.activity_tab.push(notify._id);
     notify.user = user._id;
     notify.notifyByStudentPhoto = student._id;
     await Promise.all([
@@ -208,11 +209,62 @@ exports.getAllChecklistDepartment = async (req, res) => {
   }
 };
 
-// exports.delChecklist = async (req, res) => {
-//   try {
-//     await Checklist.findByIdAndDelete(req.params.cid);
-//     res.status(200).send({
-//       message: "deleted",
-//     });
-//   } catch {}
-// };
+
+const nested_function_fee = async(arr, fee) => {
+  var flag = false
+  const all_students = await Student.find({ studentClass: { $in: arr }})
+  for(var nest of all_students){
+    if(nest?.onlineCheckList?.includes(`${fee}`)){
+      flag = true
+      break;
+    }
+    else if(nest?.allottedChecklist?.includes(`${fee}`)){
+      flag = true
+      break;
+    }
+    else{
+      flag = false
+    }
+  }
+  return flag
+}
+
+exports.renderChecklistDeleteQuery = async(req, res) => {
+  try{
+    const { did, cid } = req.params
+    if(!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately 😡", access: false})
+    const depart = await Department.findById({_id: did})
+    const finance = await Finance.findOne({ institute: `${depart?.institute}`})
+    const checklists = await Checklist.findById({_id: cid})
+    const flag_status = await nested_function_fee(depart.class, cid)
+    if(flag_status){
+      res.status(200).send({ message: "Deletion Operation Denied Some Student Already Paid 😥", access: false})
+    }
+    else{
+      depart.checklists.pull(cid)
+      for(var cal of depart.class){
+        const classes = await Class.findById({ _id: cal})
+        for(var val of classes?.ApproveStudent){
+          const student = await Student.findById({ _id: val})
+          if(student?.studentRemainingFeeCount >= checklists?.feeAmount){
+            student.studentRemainingFeeCount -= checklists.feeAmount
+          }
+          if(finance?.financeRaisedBalance >= checklists?.feeAmount){
+            finance.financeRaisedBalance -= checklists.feeAmount
+          }
+          await student.save()
+        }
+        classes.checklist.pull(cid)
+        await classes.save()
+      }
+      await Promise.all([ finance.save(), depart.save()])
+      await Checklist.findByIdAndDelete(cid)
+      res.status(200).send({ 
+        message: "Deletion Operation Completed 😁", 
+        access: true,
+      })
+    }
+  }catch(e){
+    console.log(e)
+  }
+}

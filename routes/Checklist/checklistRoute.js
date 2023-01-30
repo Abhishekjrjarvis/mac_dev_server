@@ -23,4 +23,9 @@ router
 router
   .route("/view/:did")
   .get(isLoggedIn, catchAsync(checklist.viewDepartment));
+
+router
+  .route("/:cid/destroy/:did")
+  .delete( catchAsync(checklist.renderChecklistDeleteQuery));
+
 module.exports = router;

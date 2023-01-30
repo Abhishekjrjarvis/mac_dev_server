@@ -181,11 +181,7 @@ exports.feesPaidByStudent = async (req, res) => {
           user.payment_history.push(order._id);
           institute.payment_history.push(order._id);
           const notify = new StudentNotification({});
-          notify.notifyContent = `${student.studentFirstName} ${
-            student.studentMiddleName ? `${student.studentMiddleName} ` : ""
-          } ${student.studentLastName} your transaction is successfull for ${
-            fData?.feeName
-          } ${fData.feeAmount}`;
+          notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} ${student.studentLastName} your transaction is successfull for ${fData?.feeName} ${fData.feeAmount}`;
           notify.notifySender = classes.classTeacher.user;
           notify.notifyReceiever = user._id;
           notify.notifyType = "Student";
@@ -247,11 +243,7 @@ exports.feesPaidByStudent = async (req, res) => {
             feeId: fData._id,
           });
           const notify = new StudentNotification({});
-          notify.notifyContent = `${student.studentFirstName} ${
-            student.studentMiddleName ? `${student.studentMiddleName} ` : ""
-          } ${student.studentLastName} you get exempted ${fData?.feeName} ${
-            fData.feeAmount
-          } on this fee.`;
+          notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} ${student.studentLastName} you get exempted ${fData?.feeName} ${fData.feeAmount} on this fee.`;
           notify.notifySender = classes.classTeacher.user;
           notify.notifyReceiever = user._id;
           notify.notifyType = "Student";
@@ -555,3 +547,82 @@ exports.retrieveStudentQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+const nested_function_fee = async(arr, fee) => {
+  var flag = false
+  const all_students = await Student.find({ studentClass: { $in: arr }})
+  for(var nest of all_students){
+    if(nest?.onlineFeeList?.includes(`${fee}`)){
+      flag = true
+      break;
+    }
+    else if(nest?.offlineFeeList?.includes(`${fee}`)){
+      flag = true
+      break;
+    }
+    else if(nest?.exemptFeeList?.includes(`${fee}`)){
+      flag = true
+      break;
+    }
+    else{
+      flag = false
+    }
+  }
+  return flag
+}
+
+exports.renderFeesDeleteQuery = async(req, res) => {
+  try{
+    const { did, fid } = req.params
+    if(!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately 😡", access: false})
+    const depart = await Department.findById({_id: did})
+    const finance = await Finance.findOne({ institute: `${depart?.institute}`})
+    const price = await Fees.findById({_id: fid})
+    const flag_status = await nested_function_fee(depart.class, fid)
+    if(flag_status){
+      res.status(200).send({ message: "Deletion Operation Denied Some Student Already Paid 😥", access: false})
+    }
+    else{
+      depart.fees.pull(fid)
+      for(var cal of depart.class){
+        const classes = await Class.findById({ _id: cal})
+        for(var val of classes?.ApproveStudent){
+          const student = await Student.findById({ _id: val})
+          if(student?.studentRemainingFeeCount >= price?.feeAmount){
+            student.studentRemainingFeeCount -= price.feeAmount
+          }
+          if(finance?.financeRaisedBalance >= price?.feeAmount){
+            finance.financeRaisedBalance -= price.feeAmount
+          }
+          await student.save()
+        }
+        classes.fee.pull(fid)
+        await classes.save()
+      }
+      await Promise.all([ finance.save(), depart.save()])
+      await Fees.findByIdAndDelete(fid)
+      res.status(200).send({ 
+        message: "Deletion Operation Completed 😁", 
+        access: true,
+      })
+    }
+  }catch(e){
+    console.log(e)
+  }
+}
+
+exports.renderFeesEditQuery = async(req, res) => {
+  try{
+    const { fid } = req.params
+    const { feeName, feeDate } = req.body
+    if(!fid) return res.status(200).send({ message: "There is a bug need to fix immediately", access: false})
+    const price = await Fees.findById({ _id: fid })
+    price.feeName = feeName ? feeName : price?.feeName
+    price.feeDate = feeDate ? feeDate : price?.feeDate
+    await price.save()
+    res.status(200).send({ message: "I think you correct your mistake 👍", access: true})
+  }
+  catch(e){
+    console.log(e)
+  }
+}

@@ -281,4 +281,6 @@ router.post(
   catchAsync(Admission.renderNewDirectInquiry)
 );
 
+// router.delete("/:aid/destroy/:appId", catchAsync(Admission.renderAppDeleteQuery));
+
 module.exports = router;

@@ -43,4 +43,13 @@ router
   .route("/student/:sid")
   .get(isLoggedIn, catchAsync(feesController.retrieveStudentQuery));
 
+router
+  .route("/:fid/destroy/:did")
+  .delete( catchAsync(feesController.renderFeesDeleteQuery));
+
+router
+  .route("/:fid/edit")
+  .delete( catchAsync(feesController.renderFeesEditQuery));
+
+
 module.exports = router;

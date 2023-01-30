@@ -170,16 +170,13 @@ exports.feeInstituteFunction = async (
         //
       } else {
         try {
-          student.studentChecklist.push(checklistData._id);
           student.studentPaidFeeCount += checklistData.checklistAmount;
           if (
             student.studentRemainingFeeCount >= checklistData.checklistAmount
           ) {
             student.studentRemainingFeeCount -= checklistData.checklistAmount;
           }
-          checklistData.checklistFeeStatus = statusType;
           checklistData.studentsList.push(student._id);
-          checklistData.checklistStudent = student._id;
           student.onlineCheckList.push(checklistData._id);
           if (is_author) {
             finance.financeBankBalance =

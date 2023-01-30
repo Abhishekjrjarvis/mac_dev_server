@@ -174,16 +174,12 @@ const studentSchema = new mongoose.Schema({
     },
   ],
 
-  checklist: [
+  allottedChecklist: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Checklist",
     },
   ],
-  checklistAllottedStatus: {
-    type: String,
-    default: "Not Allotted",
-  },
   department: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department",
@@ -204,12 +200,6 @@ const studentSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Fees",
-    },
-  ],
-  offlineCheckList: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Checklist",
     },
   ],
   sportClass: [
@@ -258,12 +248,6 @@ const studentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  studentChecklist: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Checklist",
-    },
-  ],
   leave: [
     {
       type: mongoose.Schema.Types.ObjectId,

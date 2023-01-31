@@ -312,8 +312,7 @@ exports.chart_category = async (args, flow, oldData, newData) => {
         await ntd_function(oldData, newData, institute);
       } else if (oldData?.caste === "VJ") {
         await vj_function(oldData, newData, institute);
-      } 
-      else{
+      } else {
         if (newData?.caste === "General") {
           institute.staff_category.generalCount += 1;
         } else if (newData?.caste === "OBC") {
@@ -335,12 +334,12 @@ exports.chart_category = async (args, flow, oldData, newData) => {
         } else {
         }
       }
-      await institute.save()
+      await institute.save();
       oldData.gender = "";
       oldData.caste = "";
       newData.gender = "";
       newData.caste = "";
-      console.log(institute.staff_category);
+      // console.log(institute.staff_category);
     }
   } catch (e) {
     console.log(e);
@@ -409,7 +408,6 @@ exports.chart_category = async (args, flow, oldData, newData) => {
 //     }
 //   }
 // };
-
 
 // exports.update_staff_chart = async(sargs, old_data, new_data) => {
 //   try{

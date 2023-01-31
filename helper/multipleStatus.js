@@ -39,11 +39,14 @@ exports.insert_multiple_status = async (args, uargs, iargs, sid) => {
 
     Status.insertMany(statusArray)
       .then((value) => {
-        uargs.applicationStatus.push(value._id);
+        // for (var val of value) {
+        uargs.applicationStatus.push(...value);
+        // }
       })
       .catch((e) => {
         console.log("Not Saved Status");
       });
+    await uargs.save();
   } catch (e) {
     console.log(e);
   }

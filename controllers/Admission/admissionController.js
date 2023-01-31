@@ -1920,7 +1920,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       student.admissionRemainFeeCount -= price;
     }
     student.admissionPaidFeeCount += price;
-    admin_ins.collected_fee += price
+    admin_ins.collected_fee += price;
     if (mode === "Online") {
       admin_ins.onlineFee += price;
       apply.onlineFee += price;
@@ -2661,76 +2661,93 @@ exports.renderNewDirectInquiry = async (req, res) => {
   }
 };
 
-exports.renderAppEditQuery = async(req, res) => {
-  try{
-    const { appId } = req.params
-    if(!appId) return res.status(200).send({ message: "There is a bug need to fixed immediately 😡", access: false})
-    await NewApplication.findByIdAndUpdate(appId, req.body)
-    res.status(200).send({ message: "You fixed your mistake 😁", access: true})
+exports.renderAppEditQuery = async (req, res) => {
+  try {
+    const { appId } = req.params;
+    if (!appId)
+      return res
+        .status(200)
+        .send({
+          message: "There is a bug need to fixed immediately 😡",
+          access: false,
+        });
+    await NewApplication.findByIdAndUpdate(appId, req.body);
+    res
+      .status(200)
+      .send({ message: "You fixed your mistake 😁", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
-const nested_function_app = async(arg) => {
-  var flag = false
-  if(arg?.receievedApplication?.length > 0){
-    flag = true
+const nested_function_app = async (arg) => {
+  var flag = false;
+  if (arg?.receievedApplication?.length > 0) {
+    flag = true;
+  } else if (arg?.selectedApplication?.length > 0) {
+    flag = true;
+  } else if (arg?.confirmedApplication?.length > 0) {
+    flag = true;
+  } else if (arg?.allottedApplication?.length > 0) {
+    flag = true;
+  } else if (arg?.cancelApplication?.length > 0) {
+    flag = true;
+  } else {
+    flag = false;
   }
-  else if(arg?.selectedApplication?.length > 0){
-    flag = true
-  }
-  else if(arg?.confirmedApplication?.length > 0){
-    flag = true
-  }
-  else if(arg?.allottedApplication?.length > 0){
-    flag = true
-  }
-  else if(arg?.cancelApplication?.length > 0){
-    flag = true
-  }
-  else{
-    flag = false
-  }
-  return flag
-}
+  return flag;
+};
 
-exports.renderAppDeleteQuery = async(req, res) => {
-  try{
-    const { aid, appId } = req.params
-    if(!appId && !aid) return res.status(200).send({ message: "Their is a bug need to fixed immediately 😡", access: false})
-    const ads_admin = await Admission.findById({_id: aid})
-    const ads_app = await NewApplication.findById({ _id: appId})
-    const institute = await InstituteAdmin.findById({_id: `${ads_admin?.institute}`})
-    const post = await Post.findOne({ new_application: ads_app?._id })
-    const flag_status = await nested_function_app(ads_app)
-    if(flag_status){
-      res.status(200).send({ message: "Deletion Operation Denied Some Student Already Applied for this Application 😥", access: false})
-    }
-    else{
-      ads_admin.newApplication.pull(ads_app?._id)
-      if(ads_admin?.newAppCount > 0){
-        ads_admin.newAppCount -= 1
+exports.renderAppDeleteQuery = async (req, res) => {
+  try {
+    const { aid, appId } = req.params;
+    if (!appId && !aid)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately 😡",
+          access: false,
+        });
+    const ads_admin = await Admission.findById({ _id: aid });
+    const ads_app = await NewApplication.findById({ _id: appId });
+    const institute = await InstituteAdmin.findById({
+      _id: `${ads_admin?.institute}`,
+    });
+    const post = await Post.findOne({ new_application: ads_app?._id });
+    const flag_status = await nested_function_app(ads_app);
+    if (flag_status) {
+      res
+        .status(200)
+        .send({
+          message:
+            "Deletion Operation Denied Some Student Already Applied for this Application 😥",
+          access: false,
+        });
+    } else {
+      ads_admin.newApplication.pull(ads_app?._id);
+      if (ads_admin?.newAppCount > 0) {
+        ads_admin.newAppCount -= 1;
       }
-      if(institute?.postCount > 0){
+      if (institute?.postCount > 0) {
         institute.postCount -= 1;
       }
-      if(institute.admissionCount > 0){
+      if (institute.admissionCount > 0) {
         institute.admissionCount -= 1;
       }
-      institute.posts.pull(post?._id)
-      await Promise.all([ institute.save(), ads_admin.save() ])
-      if(ads_app?.applicationPhoto) {
-        await deleteFile(ads_app?.applicationPhoto);      
+      institute.posts.pull(post?._id);
+      await Promise.all([institute.save(), ads_admin.save()]);
+      if (ads_app?.applicationPhoto) {
+        await deleteFile(ads_app?.applicationPhoto);
       }
-      if(post){
-        await Post.findByIdAndDelete(post?._id)
+      if (post) {
+        await Post.findByIdAndDelete(post?._id);
       }
-      await NewApplication.findByIdAndDelete(ads_app?._id)
-      res.status(200).send({ message: "Deletion Operation Completed 😁", access: true})
+      await NewApplication.findByIdAndDelete(ads_app?._id);
+      res
+        .status(200)
+        .send({ message: "Deletion Operation Completed 😁", access: true });
     }
-  }catch(e){
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
-}
+};

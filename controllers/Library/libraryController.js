@@ -174,7 +174,12 @@ exports.editBookByStaffSide = async (req, res) => {
     book.leftCopies = req.body?.leftCopies;
     book.shellNumber = req.body?.shellNumber;
     book.description = req.body?.description;
-    book.photo = req.body?.photo;
+    if (req.body?.photo) {
+      book.photo = req.body?.photo;
+      book.photoId = "0";
+    } else {
+      book.photoId = "1";
+    }
     if (req.body.attachment?.length) book.attachment = req.body.attachment;
     await book.save();
     res.status(200).send({ message: "book is updated successfully 😪😪" });

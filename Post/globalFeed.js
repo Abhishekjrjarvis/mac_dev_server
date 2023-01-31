@@ -21,14 +21,14 @@ exports.universal_account_creation_feed = async (user) => {
       uInstitute.followersCount += 1;
       user.userInstituteFollowing.push(uInstitute._id);
       user.followingUICount += 1;
-      //   await uInstitute.save();
+      await uInstitute.save();
       const posts = await Post.find({ author: `${uInstitute._id}` });
       posts.forEach(async (ele) => {
         ele.authorFollowersCount = uInstitute.followersCount;
-        // await ele.save();
+        await ele.save();
       });
     }
-    return user;
+    await user.save();
   } catch (e) {
     console.log(e);
   }

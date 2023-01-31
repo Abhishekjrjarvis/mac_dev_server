@@ -272,11 +272,17 @@ const vj_function = async (oldData, newData, batch) => {
   await batch.save();
 };
 
-exports.chart_category_student = async (sargs, flow, oldData, newData, cargs) => {
+exports.chart_category_student = async (
+  sargs,
+  flow,
+  oldData,
+  newData,
+  cargs
+) => {
   try {
     if (flow === "Edit_Student") {
       const batch = await Batch.findById({ _id: sargs });
-      const classes = await Class.findById({ _id: cargs})
+      const classes = await Class.findById({ _id: cargs });
       if (oldData?.gender === "Male" && newData?.gender === "Female") {
         batch.student_category.girlCount += 1;
         batch.student_category.boyCount -= 1;
@@ -321,8 +327,7 @@ exports.chart_category_student = async (sargs, flow, oldData, newData, cargs) =>
         await ntd_function(oldData, newData, batch);
       } else if (oldData?.caste === "VJ") {
         await vj_function(oldData, newData, batch);
-      } 
-      else{
+      } else {
         if (newData?.caste === "General") {
           batch.student_category.generalCount += 1;
         } else if (newData?.caste === "OBC") {
@@ -349,10 +354,9 @@ exports.chart_category_student = async (sargs, flow, oldData, newData, cargs) =>
       oldData.caste = "";
       newData.gender = "";
       newData.caste = "";
-      console.log(batch.student_category);
+      // console.log(batch.student_category);
     }
   } catch (e) {
     console.log(e);
   }
 };
-

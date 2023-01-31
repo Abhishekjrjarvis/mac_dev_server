@@ -54,6 +54,75 @@ paths:
         "200":
           description: OK
 
+  /api/v1/auth/direct/confirm/join/{id}/apply/{aid}:
+    post:
+      tags:
+        - Login And Logout Api
+      summary: Add Student Direct By Admission Admin Module + Direct A/c Creation + Status -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: Enter User Phone Number
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Application Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              studentFirstName:
+                type: string
+                required: true
+                description: Enter Student First Name
+              studentMiddleName:
+                type: string
+                required: false
+                description: Enter Student Middle Name
+              studentLastName:
+                type: string
+                required: true
+                description: Enter Student Last Name
+              studentDOB:
+                type: string
+                required: true
+                description: Enter Student Date of Birth (2000-01-01)
+              studentGender:
+                type: string
+                required: true
+                description: Enter Student Gender
+              type:
+                type: string
+                required: true
+                description: Enter Type of Payment ( for One Time Fees --> "O_T_F") || (for First Installment --> "F_I_P")
+              mode:
+                type: string
+                required: true
+                description: Enter Payment Mode ("Online" || "Offline")
+              amount:
+                type: number
+                required: true
+                description: Enter Price / Amount 
+              sample_pic:
+                type: number
+                required: true
+                description: Enter CDN Avatar File Path
+              fileArray:
+                type: array
+                required: false
+                description: Enter Array of Objects "[{ "name": "file", "key": "xyz.jpg", "type": "/image/png" }]"
+      responses:
+        "200":
+          description: OK
+
   /api/v1/auth/login:
     post:
       tags:
@@ -19499,7 +19568,6 @@ paths:
               publication:
                 type: string
                 description: It is a book type book publication name  
-                required: true
               language:
                 type: string
                 description: Here type the language of book written in (hindi, english)
@@ -19507,11 +19575,9 @@ paths:
               totalPage:
                 type: integer
                 description: Here type total number of pages that book contains  
-                required: true  
               price:
                 type: integer
                 description: Here type the price of book
-                required: true
               totalCopies:
                 type: integer
                 description: Here type the total book copy available (Note-It is only for the bookStatus Offline)  
@@ -19524,7 +19590,6 @@ paths:
               photo:
                 type: string
                 description: Here type the key of particular uploaded image of thumbnail of book.  
-                required: true
               attachment:
                 type: array
                 description: It is contain file key when bookStatus is Online only.
@@ -19600,7 +19665,6 @@ paths:
               publication:
                 type: string
                 description: It is a book type book publication name  
-                required: true
               language:
                 type: string
                 description: Here type the language of book written in (hindi, english)
@@ -19608,11 +19672,9 @@ paths:
               totalPage:
                 type: integer
                 description: Here type total number of pages that book contains  
-                required: true  
               price:
                 type: integer
                 description: Here type the price of book
-                required: true
               totalCopies:
                 type: integer
                 description: Here type the total book copy available (Note-It is only for the bookStatus Offline)  
@@ -19625,7 +19687,6 @@ paths:
               photo:
                 type: string
                 description: Here type the key of particular uploaded image of thumbnail of book.  
-                required: true
               attachment:
                 type: array
                 description: It is contain file key when bookStatus is Online only.
@@ -19647,7 +19708,7 @@ paths:
                       description: Here type the key of particular uploaded image thumbnail of book.  
       responses:
         "200":
-          description: OK     
+          description: OK
 
   /api/v1/library/issued/{lid}:
     get:

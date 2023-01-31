@@ -53,7 +53,11 @@ const Batch = require("../../models/Batch");
 const Subject = require("../../models/Subject");
 const { universal_account_creation_feed } = require("../../Post/globalFeed");
 const { student_form_loop } = require("../../helper/studentLoop");
-const { ignite_multiple_alarm } = require("../../helper/multipleStatus");
+const {
+  ignite_multiple_alarm,
+  fee_reordering,
+  insert_multiple_status,
+} = require("../../helper/multipleStatus");
 
 const generateQR = async (encodeData, Id) => {
   try {
@@ -2302,157 +2306,144 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
   }
 };
 
-// exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
-//   try {
-//     const { id, aid } = req.params;
-//     const { sample_pic, fileArray } = req.body;
-//     if (
-//       !id &&
-//       !aid &&
-//       !req.body.studentFirstName &&
-//       !req.body.studentLastName &&
-//       !req.body.studentGender &&
-//       !req.body.studentDOB &&
-//       !type &&
-//       !mode &&
-//       !amount
-//     )
-//       return res.status(200).send({
-//         message: "Their is a bug need to fix immediately 😡",
-//         access: false,
-//       });
-//     const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-//     const valid = await filter_unique_username(
-//       req.body.studentFirstName,
-//       req.body.studentDOB
-//     );
-//     if (!valid?.exist) {
-//       const genUserPass = bcrypt.genSaltSync(12);
-//       const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
-//       var user = new User({
-//         userLegalName: `${req.body.studentFirstName} ${
-//           req.body.studentMiddleName ? req.body.studentMiddleName : ""
-//         } ${req.body.studentLastName ? req.body.studentLastName : ""}`,
-//         userGender: req.body.studentGender,
-//         userDateOfBirth: req.body.studentDOB,
-//         username: valid?.username,
-//         userStatus: "Approved",
-//         userPhoneNumber: id,
-//         userPassword: hashUserPass,
-//         photoId: "0",
-//         coverId: "2",
-//         remindLater: rDate,
-//         next_date: c_date,
-//       });
-//       admins.users.push(user);
-//       admins.userCount += 1;
-//       await Promise.all([admins.save(), user.save()]);
+exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
+  try {
+    const { id, aid } = req.params;
+    const { sample_pic, fileArray, type, mode, amount } = req.body;
+    if (
+      !id &&
+      !aid &&
+      !req.body.studentFirstName &&
+      !req.body.studentLastName &&
+      !req.body.studentGender &&
+      !req.body.studentDOB &&
+      !type &&
+      !mode &&
+      !amount
+    )
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const valid = await filter_unique_username(
+      req.body.studentFirstName,
+      req.body.studentDOB
+    );
+    if (!valid?.exist) {
+      const genUserPass = bcrypt.genSaltSync(12);
+      const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
+      var user = new User({
+        userLegalName: `${req.body.studentFirstName} ${
+          req.body.studentMiddleName ? req.body.studentMiddleName : ""
+        } ${req.body.studentLastName ? req.body.studentLastName : ""}`,
+        userGender: req.body.studentGender,
+        userDateOfBirth: req.body.studentDOB,
+        username: valid?.username,
+        userStatus: "Approved",
+        userPhoneNumber: id,
+        userPassword: hashUserPass,
+        photoId: "0",
+        coverId: "2",
+        remindLater: rDate,
+        next_date: c_date,
+      });
+      admins.users.push(user);
+      admins.userCount += 1;
+      await Promise.all([admins.save(), user.save()]);
 
-//       user = await universal_account_creation_feed(user);
-//       user = await user_date_of_birth(user);
+      await universal_account_creation_feed(user);
+      await user_date_of_birth(user);
 
-//       const student = new Student({ ...req.body });
-//       const apply = await NewApplication.findById({ _id: aid });
-//       const admission = await Admission.findById({
-//         _id: `${apply.admissionAdmin}`,
-//       }).select("institute");
-//       const institute = await InstituteAdmin.findById({
-//         _id: `${admission.institute}`,
-//       });
-//       const finance = await Finance.findById({
-//         _id: `${institute?.financeDepart[0]}`,
-//       });
-//       const studentOptionalSubject = req.body?.optionalSubject
-//         ? req.body?.optionalSubject
-//         : [];
-//       for (var file of fileArray) {
-//         if (file.name === "file") {
-//           student.photoId = "0";
-//           student.studentProfilePhoto = file.key;
-//           user.profilePhoto = file.key;
-//         } else if (file.name === "addharFrontCard")
-//           student.studentAadharFrontCard = file.key;
-//         else if (file.name === "addharBackCard")
-//           student.studentAadharBackCard = file.key;
-//         else if (file.name === "bankPassbook")
-//           student.studentBankPassbook = file.key;
-//         else if (file.name === "casteCertificate")
-//           student.studentCasteCertificatePhoto = file.key;
-//         else {
-//           student.studentDocuments.push({
-//             documentName: file.name,
-//             documentKey: file.key,
-//             documentType: file.type,
-//           });
-//         }
-//       }
-//       if (studentOptionalSubject?.length > 0) {
-//         student.studentOptionalSubject.push(...studentOptionalSubject);
-//       }
-//       if (sample_pic) {
-//         user.profilePhoto = sample_pic;
-//         student.photoId = "0";
-//         student.studentProfilePhoto = sample_pic;
-//       }
-//       // user = await student_form_loop(
-//       //   req.body?.optionalSubject,
-//       //   fileArray,
-//       //   student,
-//       //   sample_pic,
-//       //   user
-//       // );
-//       user.student.push(student._id);
-//       user.applyApplication.push(apply._id);
-//       student.user = user._id;
-//       apply.receievedCount += 1;
-//       apply.selectCount += 1;
-//       apply.confirmCount += 1;
-//       await fee_reordering(
-//         type,
-//         mode,
-//         parseInt(amount),
-//         student,
-//         apply,
-//         institute,
-//         finance,
-//         admission
-//       );
-//       if (institute.userFollowersList.includes(user?._id)) {
-//       } else {
-//         user.userInstituteFollowing.push(institute._id);
-//         user.followingUICount += 1;
-//         institute.userFollowersList.push(user?._id);
-//         institute.followersCount += 1;
-//       }
-//       await insert_multiple_status(apply, user, institute, student?._id);
-//       // await Promise.all([
-//       //   student.save(),
-//       //   user.save(),
-//       //   apply.save(),
-//       //   institute.save(),
-//       //   admission.save(),
-//       //   finance.save()
-//       // ]);
-//       res.status(200).send({
-//         message:
-//           "Account Creation Process Completed & message: Taste a bite of sweets till your application is selected, 😀✨",
-//         access: true,
-//         user,
-//         student,
-//         apply,
-//         admission,
-//         institute,
-//         finance,
-//         status,
-//       });
-//       await ignite_multiple_alarm(user);
-//     } else {
-//       res.status(200).send({
-//         message: "Bug in the direct joining process 😡",
-//         access: false,
-//       });
-//     }
-//   } catch (e) {
-//     console.log(e);
-//   }
-// };
+      const student = new Student({ ...req.body });
+      const apply = await NewApplication.findById({ _id: aid });
+      const admission = await Admission.findById({
+        _id: `${apply.admissionAdmin}`,
+      });
+      const institute = await InstituteAdmin.findById({
+        _id: `${admission.institute}`,
+      });
+      const finance = await Finance.findById({
+        _id: `${institute?.financeDepart[0]}`,
+      });
+      const studentOptionalSubject = req.body?.optionalSubject
+        ? req.body?.optionalSubject
+        : [];
+      for (var file of fileArray) {
+        if (file.name === "file") {
+          student.photoId = "0";
+          student.studentProfilePhoto = file.key;
+          user.profilePhoto = file.key;
+        } else if (file.name === "addharFrontCard")
+          student.studentAadharFrontCard = file.key;
+        else if (file.name === "addharBackCard")
+          student.studentAadharBackCard = file.key;
+        else if (file.name === "bankPassbook")
+          student.studentBankPassbook = file.key;
+        else if (file.name === "casteCertificate")
+          student.studentCasteCertificatePhoto = file.key;
+        else {
+          student.studentDocuments.push({
+            documentName: file.name,
+            documentKey: file.key,
+            documentType: file.type,
+          });
+        }
+      }
+      if (studentOptionalSubject?.length > 0) {
+        student.studentOptionalSubject.push(...studentOptionalSubject);
+      }
+      if (sample_pic) {
+        user.profilePhoto = sample_pic;
+        student.photoId = "0";
+        student.studentProfilePhoto = sample_pic;
+      }
+      user.student.push(student._id);
+      user.applyApplication.push(apply._id);
+      student.user = user._id;
+      await insert_multiple_status(apply, user, institute, student?._id);
+      apply.receievedCount += 1;
+      apply.selectCount += 1;
+      apply.confirmCount += 1;
+      await fee_reordering(
+        type,
+        mode,
+        parseInt(amount),
+        student,
+        apply,
+        institute,
+        finance,
+        admission
+      );
+      if (institute.userFollowersList.includes(user?._id)) {
+      } else {
+        user.userInstituteFollowing.push(institute._id);
+        user.followingUICount += 1;
+        institute.userFollowersList.push(user?._id);
+        institute.followersCount += 1;
+      }
+      await insert_multiple_status(apply, user, institute, student?._id);
+      await Promise.all([
+        student.save(),
+        user.save(),
+        apply.save(),
+        institute.save(),
+        admission.save(),
+        finance.save()
+      ]);
+      res.status(200).send({
+        message:
+          "Account Creation Process Completed & message: Taste a bite of sweets till your application is selected, 😀✨",
+        access: true,
+      });
+      await ignite_multiple_alarm(user);
+    } else {
+      res.status(200).send({
+        message: "Bug in the direct joining process 😡",
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

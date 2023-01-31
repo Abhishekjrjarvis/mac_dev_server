@@ -1,6 +1,3 @@
-const fs = require("fs");
-const util = require("util");
-const unlinkFile = util.promisify(fs.unlink);
 const Library = require("../../models/Library/Library");
 const Book = require("../../models/Library/Book");
 const IssueBook = require("../../models/Library/IssueBook");
@@ -9,11 +6,6 @@ const InstituteAdmin = require("../../models/InstituteAdmin");
 const Student = require("../../models/Student");
 const Staff = require("../../models/Staff");
 const User = require("../../models/User");
-const {
-  deleteFile,
-  uploadFile,
-  uploadDocFile,
-} = require("../../S3Configuration");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 const Notification = require("../../models/notification");
 
@@ -22,6 +14,7 @@ exports.activateLibrary = async (req, res) => {
   try {
     if (!req.params.id) throw "Please send institute id to perform task";
     const { sid } = req.body;
+    if (!sid) throw "Please send staff id to activate library head";
     const institute = await InstituteAdmin.findById(req.params.id);
     const staff = await Staff.findById(sid);
     const user = await User.findById({ _id: `${staff?.user}` });
@@ -29,7 +22,6 @@ exports.activateLibrary = async (req, res) => {
     const library = new Library({
       libraryHead: sid,
       institute: institute._id,
-      photoId: "1",
       coverId: "2",
     });
     institute.libraryActivate = "Enable";
@@ -50,16 +42,16 @@ exports.activateLibrary = async (req, res) => {
       user.deviceToken
     );
     await Promise.all([
+      library.save(),
       institute.save(),
       staff.save(),
-      library.save(),
       user.save(),
       notify.save(),
     ]);
-    res.status(200).send({ message: "Library Head is assign" });
+    res.status(201).send({ message: "Library Head is assign" });
   } catch (e) {
     res.status(200).send({
-      message: e,
+      message: e.message,
     });
   }
 };
@@ -80,27 +72,28 @@ exports.libraryByStaffSide = async (req, res) => {
       )
       .lean()
       .exec();
+
     res
       .status(200)
       .send({ message: "library profile is data", library: library });
   } catch (e) {
     res.status(200).send({
-      message: e,
+      message: e.message,
     });
   }
 };
 
-exports.libraryAbout = async (req, res) => {
-  try {
-    if (!req.params.lid) throw "Please send Library id to perform task";
-    await Library.findByIdAndUpdate(req.params.lid, req.body);
-    res.status(200).send({ message: "Library edited successfully👍" });
-  } catch (e) {
-    res.status(200).send({
-      message: e,
-    });
-  }
-};
+// exports.libraryAbout = async (req, res) => {
+//   try {
+//     if (!req.params.lid) throw "Please send Library id to perform task";
+//     await Library.findByIdAndUpdate(req.params.lid, req.body);
+//     res.status(200).send({ message: "Library edited successfully👍" });
+//   } catch (e) {
+//     res.status(200).send({
+//       message: e,
+//     });
+//   }
+// };
 
 exports.allBookByStaffSide = async (req, res) => {
   try {
@@ -115,57 +108,37 @@ exports.allBookByStaffSide = async (req, res) => {
         skip: dropItem,
         limit: itemPerPage,
       })
-      .select("library")
+      .select("books")
       .lean()
       .exec();
-    res
-      .status(200)
-      .send({ message: "List of All Books", books: library.books });
+    res.status(200).send({
+      message: "List of All Books",
+      books: library.books?.length ? library.books : [],
+    });
   } catch (e) {
     res.status(200).send({
-      message: e,
+      message: e.message,
     });
   }
 };
 
 exports.createBookByStaffSide = async (req, res) => {
   try {
-    const { lid } = req.params
-    if (!lid) throw "Please send library id to perform task";
-    const library = await Library.findById(lid);
+    if (!req.params.lid) throw "Please send library id to perform task";
+    const library = await Library.findById(req.params.lid);
     const book = new Book(req.body);
     library.books.push(book._id);
     library.bookCount += 1;
-    book.library = lid;
+    book.library = req.params.lid;
     book.leftCopies = book.totalCopies;
-    if (req?.files?.length > 0) {
-      let count = 0;
-      for (file of req?.files) {
-        if (count === 0) {
-          const width = 150;
-          const height = 150;
-          const results = await uploadFile(file, width, height);
-          book.photo = results.Key;
-          book.photoId = "0";
-          await unlinkFile(file.path);
-        } else {
-          const results = await uploadDocFile(file);
-          book?.attachment?.push({
-            documentType: file.mimetype,
-            documentName: file.originalname,
-            documentSize: file.size,
-            documentKey: results.Key,
-            documentEncoding: file.encoding,
-          });
-          await unlinkFile(file.path);
-        }
-        ++count;
-      }
-    }
+    if (req.body?.photo) book.photoId = "0";
+    if (req.body?.attachment?.length) book.attachment = req.body?.attachment;
     await Promise.all([book.save(), library.save()]);
     res.status(201).send({ message: "book is created" });
   } catch (e) {
-    console.log(e)
+    res.status(200).send({
+      message: e.message,
+    });
   }
 };
 
@@ -174,15 +147,14 @@ exports.getStaffOneBookDetail = async (req, res) => {
     if (!req.params.bid) throw "Please send book id to perform task";
     const book = await Book.findById(req.params.bid)
       .select(
-        "bookName bookStatus author publication language totalPage price leftCopies totalCopies shellNumber description attachment photoId photo"
+        "bookName bookStatus author publication language totalPage price leftCopies totalCopies shellNumber description attachment.documentKey attachment.documentType attachment.documentName photoId photo"
       )
-      // .skip(dropItem).limit(itemPerPage)
       .lean()
       .exec();
     res.status(200).send({ message: "book all details", book });
   } catch (e) {
     res.status(200).send({
-      message: e,
+      message: e.message,
     });
   }
 };
@@ -190,45 +162,25 @@ exports.getStaffOneBookDetail = async (req, res) => {
 exports.editBookByStaffSide = async (req, res) => {
   try {
     if (!req.params.bid) throw "Please send book id to perform task";
-    await Book.findByIdAndUpdate(req.params.bid, req.body);
     const book = await Book.findById(req.params.bid);
-    if (req?.files) {
-      let count = 0;
-      for (file of req?.files) {
-        if (count === 0 && req.body?.photoUpdate) {
-          const width = 150;
-          const height = 150;
-          await deleteFile(book.photo);
-          const results = await uploadFile(file, width, height);
-          book.photo = results.Key;
-          book.photoId = "0";
-          await unlinkFile(file.path);
-        } else {
-          //for loop atachment some logic left
-          // if (req.body?.deleteImage?.length) {
-          //   for (let dimage of req.body?.deleteImage) {
-          //     await deleteFile(dimage);
-          //     book?.attachment?.pull(dimage);
-          //   }
-          // }
-          const results = await uploadDocFile(file);
-          book?.attachment?.push({
-            documentType: file.mimetype,
-            documentName: file.originalname,
-            documentSize: file.size,
-            documentKey: results.Key,
-            documentEncoding: file.encoding,
-          });
-          await unlinkFile(file.path);
-        }
-        ++count;
-      }
-    }
-    await Promise.all([book.save(), library.save()]);
-    res.status(201).send({ message: "book is created" });
+    book.bookName = req.body?.bookName;
+    book.bookStatus = req.body?.bookStatus;
+    book.author = req.body?.author;
+    book.publication = req.body?.publication;
+    book.language = req.body?.language;
+    book.totalPage = req.body?.totalPage;
+    book.price = req.body?.price;
+    book.totalCopies = req.body?.totalCopies;
+    book.leftCopies = req.body?.leftCopies;
+    book.shellNumber = req.body?.shellNumber;
+    book.description = req.body?.description;
+    book.photo = req.body?.photo;
+    if (req.body.attachment?.length) book.attachment = req.body.attachment;
+    await book.save();
+    res.status(200).send({ message: "book is updated successfully 😪😪" });
   } catch (e) {
     res.status(200).send({
-      message: e,
+      message: e.message,
     });
   }
 };
@@ -236,36 +188,34 @@ exports.editBookByStaffSide = async (req, res) => {
 exports.bookIssueByStaffSide = async (req, res) => {
   try {
     if (!req.params.lid) throw "Please send library id to perform task";
-    const { member, book } = req.body;
+    const { memberId, bookId } = req.body;
+    if (!memberId || !bookId)
+      throw "Please send bookId id and memberId to perform task";
     const library = await Library.findById(req.params.lid);
-    const student = await Student.findById(member);
-    const bookData = await Book.findById(book);
-    if (!bookData.leftCopies) throw "Not copy available of this book";
+    const student = await Student.findById(memberId);
+    const book = await Book.findById(bookId);
+    if (!book.leftCopies && book.bookStatus === "Offline")
+      throw "No copy available for this book 😊";
+    if (book.bookStatus === "Offline") book.leftCopies -= 1;
     const issue = new IssueBook({
-      member: member,
-      book: book,
+      member: memberId,
+      book: bookId,
       library: library._id,
-      // bookName: bookData.bookName,
-      // author: bookData.author,
-      // language: bookData.language,
-      // photoId: bookData.photoId,
-      // photo: bookData.photo,
     });
     student?.borrow?.push(issue._id);
     library?.issued?.push(issue._id);
-    if (library?.members?.includes(member)) {
+    if (library?.members?.includes(memberId)) {
     } else {
-      library?.members?.push(member);
+      library?.members?.push(memberId);
       library.memberCount += 1;
     }
-    bookData.leftCopies -= 1;
     await Promise.all([
       issue.save(),
       student.save(),
       library.save(),
-      bookData.save(),
+      book.save(),
     ]);
-    res.status(201).send({ message: "book is issued" });
+    res.status(200).send({ message: "book is issued 😎😎" });
   } catch (e) {
     res.status(200).send({
       message: e,
@@ -286,7 +236,7 @@ exports.allBookIssueByStaffSide = async (req, res) => {
           path: "book",
           select: "bookName author language photoId photo",
         },
-        select: "book member",
+        select: "book member createdAt",
         skip: dropItem,
         limit: itemPerPage,
       })
@@ -297,7 +247,7 @@ exports.allBookIssueByStaffSide = async (req, res) => {
           select:
             "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName studentGRNO",
         },
-        select: "book member",
+        select: "book member createdAt",
         skip: dropItem,
         limit: itemPerPage,
       })
@@ -309,7 +259,7 @@ exports.allBookIssueByStaffSide = async (req, res) => {
       .send({ message: "List of all issued books", issues: library.issued });
   } catch (e) {
     res.status(200).send({
-      message: e,
+      message: e.message,
     });
   }
 };
@@ -325,26 +275,26 @@ exports.bookColletedByStaffSide = async (req, res) => {
       member: issue.member,
       book: issue.book,
       library: library._id,
-      chargeBy: req.body?.chargeBy,
-      fineCharge: req.body?.fineCharge,
+      chargeBy: req.body?.chargeBy || "",
+      fineCharge: req.body?.fineCharge || 0,
       issuedDate: issue.createdAt,
     });
     student?.borrow?.pull(issue._id);
-    student?.deposite?.push(Book._id);
+    student?.deposite?.push(collect._id);
     library?.issued?.pull(issue._id);
     library?.collected?.push(collect._id);
-    book.leftCopies += 1;
+    if (book.bookStatus === "Offline") book.leftCopies += 1;
     await Promise.all([
       collect.save(),
       issue.save(),
       student.save(),
-      library.save(),
       book.save(),
+      library.save(),
     ]);
-    res.status(201).send({ message: "book collected" });
+    res.status(201).send({ message: "book collected by librarian 😊😊" });
   } catch (e) {
     res.status(200).send({
-      message: e,
+      message: e.message,
     });
   }
 };
@@ -362,7 +312,7 @@ exports.allBookCollectedLogsByStaffSide = async (req, res) => {
           path: "book",
           select: "bookName photoId photo",
         },
-        select: "book issuedDate issuedDate",
+        select: "book createdAt issuedDate",
         skip: dropItem,
         limit: itemPerPage,
       })
@@ -397,19 +347,19 @@ exports.oneBookCollectedLogsByStaffSide = async (req, res) => {
       .lean()
       .exec();
     res.status(200).send({
-      message: "One collected log books",
+      message: "One collected log books detail",
       collectedDetail: collect,
     });
   } catch (e) {
     res.status(200).send({
-      message: e,
+      message: e.message,
     });
   }
 };
 
 exports.allMembersByStaffSide = async (req, res) => {
   try {
-    if (!req.params.lid) throw "Please send Library logs id to perform task";
+    if (!req.params.lid) throw "Please send Library id to perform task of logs";
     const getPage = req.query.page ? parseInt(req.query.page) : 1;
     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
     const dropItem = (getPage - 1) * itemPerPage;
@@ -430,14 +380,15 @@ exports.allMembersByStaffSide = async (req, res) => {
     });
   } catch (e) {
     res.status(200).send({
-      message: e,
+      message: e.message,
     });
   }
 };
 
 exports.oneMemberIssuedByStaffSide = async (req, res) => {
   try {
-    if (!req.params.sid) throw "Please send Student logs id to perform task";
+    if (!req.params.sid)
+      throw "Please send Student id to perform task for issued logs";
     const getPage = req.query.page ? parseInt(req.query.page) : 1;
     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
     const dropItem = (getPage - 1) * itemPerPage;
@@ -463,14 +414,15 @@ exports.oneMemberIssuedByStaffSide = async (req, res) => {
     });
   } catch (e) {
     res.status(200).send({
-      message: e,
+      message: e.message,
     });
   }
 };
 
 exports.oneMemberHistoryByStaffSide = async (req, res) => {
   try {
-    if (!req.params.sid) throw "Please send Student logs id to perform task";
+    if (!req.params.sid)
+      throw "Please send Student id to perform task for logs history";
     const getPage = req.query.page ? parseInt(req.query.page) : 1;
     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
     const dropItem = (getPage - 1) * itemPerPage;
@@ -494,7 +446,7 @@ exports.oneMemberHistoryByStaffSide = async (req, res) => {
     });
   } catch (e) {
     res.status(200).send({
-      message: e,
+      message: e.message,
     });
   }
 };

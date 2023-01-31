@@ -98,4 +98,6 @@ router.post(
   catchAsync(Auth.retrieveInstituteDirectJoinStaffQuery)
 );
 
+// router.post("/direct/confirm/join/:id/apply/:aid", catchAsync(Auth.renderDirectAppJoinConfirmQuery))
+
 module.exports = router;

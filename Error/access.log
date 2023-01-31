@@ -611,3 +611,21 @@
 {"level":"info","message":{},"timestamp":"2023-01-30T11:42:33.833Z"}
 {"level":"info","message":"book is created","timestamp":"2023-01-30T11:42:34.816Z"}
 {"level":"info","message":"{\"message\":\"book is created\",\"level\":\"info\"}","timestamp":"2023-01-30T11:42:34.819Z"}
+{"level":"info","message":{},"timestamp":"2023-01-30T11:50:17.043Z"}
+{"access":true,"level":"info","message":"Deletion Operation Completed 😁","timestamp":"2023-01-30T11:50:17.386Z"}
+{"level":"info","message":"{\"message\":\"Deletion Operation Completed 😁\",\"access\":true,\"level\":\"info\"}","timestamp":"2023-01-30T11:50:17.389Z"}
+{"level":"info","message":{},"timestamp":"2023-01-30T11:50:49.417Z"}
+{"access":false,"level":"info","message":"Deletion Operation Denied Some Student Already Applied for this Application 😥","timestamp":"2023-01-30T11:50:49.693Z"}
+{"level":"info","message":"{\"message\":\"Deletion Operation Denied Some Student Already Applied for this Application \ud83d\ude25\",\"access\":false,\"level\":\"info\"}","timestamp":"2023-01-30T11:50:49.695Z"}
+{"level":"info","message":{},"timestamp":"2023-01-30T11:52:14.368Z"}
+{"access":true,"level":"info","message":"Deletion Operation Completed 😁","timestamp":"2023-01-30T11:52:14.605Z"}
+{"level":"info","message":"{\"message\":\"Deletion Operation Completed 😁\",\"access\":true,\"level\":\"info\"}","timestamp":"2023-01-30T11:52:14.606Z"}
+{"level":"info","message":{},"timestamp":"2023-01-30T12:24:21.454Z"}
+{"access":true,"level":"info","message":"Deletion Operation Completed 😁","timestamp":"2023-01-30T12:24:22.348Z"}
+{"level":"info","message":"{\"message\":\"Deletion Operation Completed 😁\",\"access\":true,\"level\":\"info\"}","timestamp":"2023-01-30T12:24:22.350Z"}
+{"level":"info","message":{"amount":"30","fileArray":[],"mode":"Offline","sample_pic":"","studentDOB":"2000-11-20","studentFirstName":"Abhishek","studentGender":"Male","studentLastName":"Singh","studentMiddleName":"Kumar","type":"F_I_P"},"timestamp":"2023-01-31T03:36:17.229Z"}
+{"level":"info","message":{"amount":"30","fileArray":[],"mode":"Offline","sample_pic":"","studentDOB":"2000-11-20","studentFirstName":"Abhishek","studentGender":"Male","studentLastName":"Singh","studentMiddleName":"Kumar","type":"F_I_P"},"timestamp":"2023-01-31T03:37:17.335Z"}
+{"level":"info","message":{"amount":"30","fileArray":[],"mode":"Offline","sample_pic":"","studentDOB":"2000-11-20","studentFirstName":"Abhishek","studentGender":"Male","studentLastName":"Singh","studentMiddleName":"Kumar","type":"F_I_P"},"timestamp":"2023-01-31T03:38:31.078Z"}
+{"level":"info","message":{"amount":"30","fileArray":[],"mode":"Offline","sample_pic":"","studentDOB":"2000-11-20","studentFirstName":"Abhishek","studentGender":"Male","studentLastName":"Singh","studentMiddleName":"Kumar","type":"F_I_P"},"timestamp":"2023-01-31T03:40:41.777Z"}
+{"level":"info","message":{"amount":"30","fileArray":[],"mode":"Offline","sample_pic":"","studentDOB":"2000-11-20","studentFirstName":"Abhishek","studentGender":"Male","studentLastName":"Singh","studentMiddleName":"Kumar","type":"F_I_P"},"timestamp":"2023-01-31T03:48:24.559Z"}
+{"level":"info","message":{"amount":"30","fileArray":[],"mode":"Offline","optionalSubject":[],"sample_pic":"","studentDOB":"2000-11-20","studentFirstName":"Abhishek","studentGender":"Male","studentLastName":"Singh","studentMiddleName":"Kumar","type":"F_I_P"},"timestamp":"2023-01-31T03:52:04.589Z"}

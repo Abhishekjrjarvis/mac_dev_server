@@ -2661,6 +2661,18 @@ exports.renderNewDirectInquiry = async (req, res) => {
   }
 };
 
+exports.renderAppEditQuery = async(req, res) => {
+  try{
+    const { appId } = req.params
+    if(!appId) return res.status(200).send({ message: "There is a bug need to fixed immediately 😡", access: false})
+    await NewApplication.findByIdAndUpdate(appId, req.body)
+    res.status(200).send({ message: "You fixed your mistake 😁", access: true})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
+
 const nested_function_app = async(arg) => {
   var flag = false
   if(arg?.receievedApplication?.length > 0){
@@ -2708,14 +2720,14 @@ exports.renderAppDeleteQuery = async(req, res) => {
         institute.admissionCount -= 1;
       }
       institute.posts.pull(post?._id)
-      // await Promise.all([ institute.save(), ads_admin.save() ])
+      await Promise.all([ institute.save(), ads_admin.save() ])
       if(ads_app?.applicationPhoto) {
-        // await deleteFile(ads_app?.applicationPhoto);      
+        await deleteFile(ads_app?.applicationPhoto);      
       }
       if(post){
-        // await Post.findByIdAndDelete(post?._id)
+        await Post.findByIdAndDelete(post?._id)
       }
-      // await NewApplication.findByIdAndDelete(ads_app?._id)
+      await NewApplication.findByIdAndDelete(ads_app?._id)
       res.status(200).send({ message: "Deletion Operation Completed 😁", access: true})
     }
   }catch(e){

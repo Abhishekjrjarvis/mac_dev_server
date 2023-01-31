@@ -1,4 +1,4 @@
-const moment = require("moment")
+const moment = require("moment");
 
 exports.custom_date_time = (arg) => {
   const date = new Date(new Date());
@@ -93,19 +93,26 @@ exports.auto_election_timer = (arg) => {
 };
 
 exports.notify_attendence_provider = (value) => {
-  const replaceIndexValue = value.replace("/", "-")
-  const replaceSecondIndexValue = replaceIndexValue.replace("/", "-")
-  const reverseYear = `${replaceSecondIndexValue.substring(6, 10)}`
-  const reverseMonth = `${replaceSecondIndexValue.substring(3, 5)}`
-  const reverseDay = `${replaceSecondIndexValue.substring(0, 2)}`
-  const reverseReplaceSecondIndexValue = `${reverseYear}-${reverseMonth}-${reverseDay}`
-  const day = new Date().getDate() < 10 ? `0${new Date().getDate()}` : new Date().getDate()
-  const month = new Date().getMonth() + 1 < 10 ? `0${new Date().getMonth() + 1}` : new Date().getMonth() + 1
-  const year = new Date().getFullYear()
-  if(`${day}-${month}-${year}` === `${replaceSecondIndexValue}`){
-    return "today"
+  const replaceIndexValue = value.replace("/", "-");
+  const replaceSecondIndexValue = replaceIndexValue.replace("/", "-");
+  const reverseYear = `${replaceSecondIndexValue.substring(6, 10)}`;
+  const reverseMonth = `${replaceSecondIndexValue.substring(3, 5)}`;
+  const reverseDay = `${replaceSecondIndexValue.substring(0, 2)}`;
+  const reverseReplaceSecondIndexValue = `${reverseYear}-${reverseMonth}-${reverseDay}`;
+  const day =
+    new Date().getDate() < 10
+      ? `0${new Date().getDate()}`
+      : new Date().getDate();
+  const month =
+    new Date().getMonth() + 1 < 10
+      ? `0${new Date().getMonth() + 1}`
+      : new Date().getMonth() + 1;
+  const year = new Date().getFullYear();
+  if (`${day}-${month}-${year}` === `${replaceSecondIndexValue}`) {
+    return "today";
+  } else {
+    return `on ${moment(new Date(reverseReplaceSecondIndexValue)).format(
+      "LL"
+    )}`;
   }
-  else{
-    return `on ${moment(new Date(reverseReplaceSecondIndexValue)).format("LL")}`
-  }
-}
+};

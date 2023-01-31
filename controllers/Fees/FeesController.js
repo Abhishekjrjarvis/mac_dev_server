@@ -614,12 +614,8 @@ exports.renderFeesDeleteQuery = async(req, res) => {
 exports.renderFeesEditQuery = async(req, res) => {
   try{
     const { fid } = req.params
-    const { feeName, feeDate } = req.body
     if(!fid) return res.status(200).send({ message: "There is a bug need to fix immediately", access: false})
-    const price = await Fees.findById({ _id: fid })
-    price.feeName = feeName ? feeName : price?.feeName
-    price.feeDate = feeDate ? feeDate : price?.feeDate
-    await price.save()
+    await Fees.findByIdAndUpdate(fid, req.body)
     res.status(200).send({ message: "I think you correct your mistake 👍", access: true})
   }
   catch(e){

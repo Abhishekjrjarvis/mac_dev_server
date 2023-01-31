@@ -19395,7 +19395,7 @@ paths:
     post:
       tags:
         - Library Module 
-      summary: Assign library Head
+      summary: Assign library Head (VERIFIED ✔)
       consumes:
         - application/json
       produces:
@@ -19405,7 +19405,7 @@ paths:
           name: id
           required: true
           type: string
-          description: Enter Institute Id
+          description: Enter Institute Id to activate library
         - in : body
           name: body
           schema:
@@ -19413,7 +19413,7 @@ paths:
             properties:
               sid:
                 type: string
-                description: Staff id
+                description: It is a staff id 
                 required: true
       responses:
         "200":
@@ -19423,7 +19423,7 @@ paths:
     get:
       tags:
         - Library Module 
-      summary: Give library Info
+      summary: Give library Info like (count of book, members and etc) (VERIFIED ✔)
       consumes:
         - application/json
       produces:
@@ -19433,47 +19433,16 @@ paths:
           name: lid
           required: true
           type: string
-          description: Enter Library Id
+          description: It is a library id
       responses:
         "200":
           description: OK    
-    patch:
-      tags:
-        - Library Module 
-      summary: update Library info
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: lid
-          required: true
-          type: string
-          description: Enter Library Id
-        - in : body
-          name: body
-          schema:
-            type: object
-            properties:
-              libraryHeadTitle:
-                type: string
-                description: Staff id
-                required: true
-              libraryHeadTitle:
-                type: string
-                description: Staff id
-                required: true
-      responses:
-        "200":
-          description: OK     
-
 
   /api/v1/library/books/{lid}:
     get:
       tags:
         - Library Module 
-      summary: List of all bokks
+      summary: List of all books that is created at particular institute side (VERIFIED ✔)
       consumes:
         - application/json
       produces:
@@ -19483,7 +19452,7 @@ paths:
           name: lid
           required: true
           type: string
-          description: Enter Library Id  
+          description: It is a library id 
         - in: query
           name: page
           type: integer
@@ -19495,84 +19464,95 @@ paths:
       responses:
         "200":
           description: OK                             
+    
     post:
       tags:
         - Library Module 
-      summary: create a book
+      summary: create a book to a particular library (VERIFIED ✔)
+      consumes:
+        - application/json      
       produces:
         - application/json
-      consumes:
-        - multipart/form-data
       parameters:
         - in: path
           name: lid
           required: true
           type: string
-          description: library id
-        - in: formData
-          name: file
-          type: file
-          required: false
-          description: upload your book profile photo
-        - in: formData
-          name: bookName
-          type: string
-          required: true
-          description: This is book name
-        - in: formData
-          name: bookStatus
-          type: string
-          required: true
-          description: Offline or Online
-        - in: formData
-          name: author
-          type: string
-          required: true
-          description: author name
-        - in: formData
-          name: publication
-          type: string
-          required: true
-          description: piblication name
-        - in: formData
-          name: language
-          type: string
-          required: true
-          description: book language
-        - in: formData
-          name: totalPage
-          type: number
-          required: true
-          description: book totalPage
-        - in: formData
-          name: price
-          type: number
-          required: true
-          description: book price
-        - in: formData
-          name: totalCopies
-          type: number
-          required: true
-          description: book totalCopies
-        - in: formData
-          name: shellNumber
-          type: string
-          required: true
-          description: book shellNumber
-        - in: formData
-          name: description
-          type: string
-          required: false
-          description: book description
+          description: It is a library Id
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              bookName:
+                type: string
+                description: Here type the book name
+                required: true
+              bookStatus:
+                type: string
+                description: It is a book type that is a (Offline or Online)  
+                required: true  
+              author:
+                type: string
+                description: Here type the book author name
+                required: true
+              publication:
+                type: string
+                description: It is a book type book publication name  
+                required: true
+              language:
+                type: string
+                description: Here type the language of book written in (hindi, english)
+                required: true
+              totalPage:
+                type: integer
+                description: Here type total number of pages that book contains  
+                required: true  
+              price:
+                type: integer
+                description: Here type the price of book
+                required: true
+              totalCopies:
+                type: integer
+                description: Here type the total book copy available (Note-It is only for the bookStatus Offline)  
+              shellNumber:
+                type: string
+                description: Here type the  book shell number where book is place.  
+              description:
+                type: string
+                description: Here type the  book description.  
+              photo:
+                type: string
+                description: Here type the key of particular uploaded image of thumbnail of book.  
+                required: true
+              attachment:
+                type: array
+                description: It is contain file key when bookStatus is Online only.
+                items: 
+                  type: object
+                  description: one file in list.
+                  properties:
+                    documentType:
+                      type: string
+                      description: It is a uploaded document type
+                    documentName:
+                      type: string
+                      description: it is a uploaded document file name
+                    documentSize:
+                      type: string
+                      description: It is a file size
+                    documentKey: 
+                      type: string
+                      description: Here type the key of particular uploaded image thumbnail of book.  
       responses:
         "200":
           description: OK  
 
-  /api/v1/library/book/{bid}:
+  /api/v1/library/book/detail/{bid}:
     get:
       tags:
         - Library Module 
-      summary: bokk details
+      summary: It is give the particular book details (VERIFIED ✔)
       consumes:
         - application/json
       produces:
@@ -19582,14 +19562,14 @@ paths:
           name: bid
           required: true
           type: string
-          description: Enter book Id  
+          description: It is a book Id 
       responses:
         "200":
           description: OK    
     patch:
       tags:
         - Library Module 
-      summary: Assign library Head
+      summary: It is updated particular book (VERIFIED ✔)
       consumes:
         - application/json
       produces:
@@ -19599,16 +19579,72 @@ paths:
           name: bid
           required: true
           type: string
-          description: Enter book Id
-        - in : body
+          description: It is a book Id
+        - in: body
           name: body
           schema:
             type: object
             properties:
-              photoUpdate:
+              bookName:
                 type: string
-                description: Staff id
+                description: Here type the book name
                 required: true
+              bookStatus:
+                type: string
+                description: It is a book type that is a (Offline or Online)  
+                required: true  
+              author:
+                type: string
+                description: Here type the book author name
+                required: true
+              publication:
+                type: string
+                description: It is a book type book publication name  
+                required: true
+              language:
+                type: string
+                description: Here type the language of book written in (hindi, english)
+                required: true
+              totalPage:
+                type: integer
+                description: Here type total number of pages that book contains  
+                required: true  
+              price:
+                type: integer
+                description: Here type the price of book
+                required: true
+              totalCopies:
+                type: integer
+                description: Here type the total book copy available (Note-It is only for the bookStatus Offline)  
+              shellNumber:
+                type: string
+                description: Here type the  book shell number where book is place.  
+              description:
+                type: string
+                description: Here type the  book description.  
+              photo:
+                type: string
+                description: Here type the key of particular uploaded image of thumbnail of book.  
+                required: true
+              attachment:
+                type: array
+                description: It is contain file key when bookStatus is Online only.
+                items: 
+                  type: object
+                  description: one file in list.
+                  properties:
+                    documentType:
+                      type: string
+                      description: It is a uploaded document type
+                    documentName:
+                      type: string
+                      description: it is a uploaded document file name
+                    documentSize:
+                      type: string
+                      description: It is a file size
+                    documentKey: 
+                      type: string
+                      description: Here type the key of particular uploaded image thumbnail of book.  
       responses:
         "200":
           description: OK     
@@ -19617,7 +19653,7 @@ paths:
     get:
       tags:
         - Library Module 
-      summary: List of all issue bokks
+      summary: Give the list of all issue book in particular librarian head  (VERIFIED ✔)
       consumes:
         - application/json
       produces:
@@ -19627,7 +19663,7 @@ paths:
           name: lid
           required: true
           type: string
-          description: Enter Library Id  
+          description: It is a Library Id  
         - in: query
           name: page
           type: integer
@@ -19639,10 +19675,11 @@ paths:
       responses:
         "200":
           description: OK    
+    
     patch:
       tags:
         - Library Module 
-      summary: issue book to member
+      summary: It is issue a book to any particular member (VERIFIED ✔)
       consumes:
         - application/json
       produces:
@@ -19652,19 +19689,19 @@ paths:
           name: lid
           required: true
           type: string
-          description: Enter Library Id
+          description: It is a Library Id
         - in : body
           name: body
           schema:
             type: object
             properties:
-              member:
+              memberId:
                 type: string
-                description: student id
+                description: It is a particular member(student) Id
                 required: true
-              book:
+              bookId:
                 type: string
-                description: book id
+                description: It is a book id that is selected
                 required: true                
       responses:
         "200":
@@ -19674,7 +19711,7 @@ paths:
     get:
       tags:
         - Library Module 
-      summary: List of all collected bokks
+      summary: Give the list of all collected book in particular librarian head  (VERIFIED ✔)
       consumes:
         - application/json
       produces:
@@ -19684,7 +19721,7 @@ paths:
           name: lid
           required: true
           type: string
-          description: Enter Library Id  
+          description: It is a Library Id  
         - in: query
           name: page
           type: integer
@@ -19699,7 +19736,7 @@ paths:
     patch:
       tags:
         - Library Module 
-      summary: collected book to member
+      summary: It is collect particular book from member (VERIFIED ✔)
       consumes:
         - application/json
       produces:
@@ -19709,7 +19746,7 @@ paths:
           name: lid
           required: true
           type: string
-          description: Enter Issued Id
+          description: It is a Issued Id that is provided in particular issue card section
         - in : body
           name: body
           schema:
@@ -19717,9 +19754,10 @@ paths:
             properties:
               chargeBy:
                 type: string
+                description: It is a selection of type of charges you want ot add when collect a book ("" || Damaged ||Lost ) three type of value
               fineCharge:
                 type: integer
-                description: book id
+                description: It is a charges apply based upon selection of chargeBy
       responses:
         "200":
           description: OK     
@@ -19729,7 +19767,7 @@ paths:
     get:
       tags:
         - Library Module 
-      summary: one detail book
+      summary: It is give detail of on collected books, who has taken this book (VERIFIED ✔)
       consumes:
         - application/json
       produces:
@@ -19739,7 +19777,7 @@ paths:
           name: cid
           required: true
           type: string
-          description: Enter collect Id  
+          description: It is a collected Id  
       responses:
         "200":
           description: OK     
@@ -19748,7 +19786,177 @@ paths:
     get:
       tags:
         - Library Module 
-      summary: All list of member
+      summary: Give the all members list in librarian head and institute side. (VERIFIED ✔)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: It is a library Id  
+        - in: query
+          name: page
+          type: integer
+          description: Enter a page 
+        - in: query
+          name: limit
+          type: integer
+          description: Enter a limit   
+      responses:
+        "200":
+          description: OK  
+
+  /api/v1/library/member/{sid}/issued:
+    get:
+      tags:
+        - Library Module 
+      summary: It is give one member with all list of issue or borrow book in librarian or student side. (VERIFIED ✔)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is a student Id  
+        - in: query
+          name: page
+          type: integer
+          description: Enter a page 
+        - in: query
+          name: limit
+          type: integer
+          description: Enter a limit   
+      responses:
+        "200":
+          description: OK  
+
+  /api/v1/library/member/{sid}/history:
+    get:
+      tags:
+        - Library Module 
+      summary: It is give one member with all list of history or deposite book in librarian or student side. (VERIFIED ✔)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter student Id  
+        - in: query
+          name: page
+          type: integer
+          description: Enter a page 
+        - in: query
+          name: limit
+          type: integer
+          description: Enter a limit   
+      responses:
+        "200":
+          description: OK  
+
+
+
+# Some Edit and Delete Section Part
+  /api/v1/admission/{aid}/destroy/{appId}:
+    delete:
+      tags:
+        - Edit & Delete Module API
+      summary: New Application Delete When No One Applied -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Admission Id
+        - in: path
+          name: appId
+          required: true
+          type: string
+          description: Enter New Application Id   
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/edit/{appId}:
+    patch:
+      tags:
+        - Edit & Delete Module API
+      summary: New Application Edit with limited Data -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: appId
+          required: true
+          type: string
+          description: Enter New Application Id  
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/fees/{fid}/edit:
+    patch:
+      tags:
+        - Edit & Delete Module API
+      summary: Fees Edit with limited Data (name, date) -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: appId
+          required: true
+          type: string
+          description: Enter Fees Id  
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/fees/{fid}/destroy/{did}:
+    delete:
+      tags:
+        - Edit & Delete Module API
+      summary: Fees Delete When No One Paid for This -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Fees Id
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: Enter Department Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/checklist/{cid}/destroy/{did}:
+    delete:
+      tags:
+        - Edit & Delete Module API
+      summary: Checklist Delete When No Student Get Allotted Checklist -(verified)
       consumes:
         - application/json
       produces:
@@ -19758,70 +19966,12 @@ paths:
           name: cid
           required: true
           type: string
-          description: Enter collect Id  
-        - in: query
-          name: page
-          type: integer
-          description: Enter a page 
-        - in: query
-          name: limit
-          type: integer
-          description: Enter a limit   
-      responses:
-        "200":
-          description: OK  
-
-
-  /api/v1/library/members/{sid}/issued:
-    get:
-      tags:
-        - Library Module 
-      summary: All list of member issue books
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
+          description: Enter Checklist Id
         - in: path
-          name: sid
+          name: did
           required: true
           type: string
-          description: Enter student Id  
-        - in: query
-          name: page
-          type: integer
-          description: Enter a page 
-        - in: query
-          name: limit
-          type: integer
-          description: Enter a limit   
-      responses:
-        "200":
-          description: OK  
-
-  /api/v1/library/members/{sid}/history:
-    get:
-      tags:
-        - Library Module 
-      summary: All list of member of history books
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: sid
-          required: true
-          type: string
-          description: Enter student Id  
-        - in: query
-          name: page
-          type: integer
-          description: Enter a page 
-        - in: query
-          name: limit
-          type: integer
-          description: Enter a limit   
+          description: Enter Department Id
       responses:
         "200":
           description: OK

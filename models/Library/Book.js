@@ -9,13 +9,28 @@ const bookSchema = new mongoose.Schema({
   author: { type: String, required: true },
   publication: { type: String, required: true },
   language: { type: String, required: true },
-  totalPage: { type: Number, required: true, default: 0 },
-  price: { type: Number, required: true, default: 0 },
-  totalCopies: { type: Number, required: true, default: 0 },
-  leftCopies: { type: Number, required: true, default: 0 },
-  shellNumber: { type: String, required: true },
+  totalPage: { type: Number, default: 0, required: true },
+  price: { type: Number, default: 0, required: true },
+  totalCopies: { type: Number },
+  leftCopies: { type: Number },
+  shellNumber: { type: String },
   description: { type: String },
-  attachment: [],
+  attachment: [
+    {
+      documentType: {
+        type: String,
+      },
+      documentName: {
+        type: String,
+      },
+      documentSize: {
+        type: String,
+      },
+      documentKey: {
+        type: String,
+      },
+    },
+  ],
   photoId: { type: String },
   photo: { type: String },
   library: {

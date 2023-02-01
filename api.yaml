@@ -19006,11 +19006,11 @@ paths:
         "200":
           description: OK
 
-  /api/v1/finance/{fid}/dashboard/request/transport:
+  /api/v1/finance/{fid}/dashboard/cash/flow/transport/query:
     get:
       tags:
         - Transport Module Query
-      summary: Get All Finance Transport Request  (verified)
+      summary: Get All Finance Transport Cash Flow  (verified)
       consumes:
         - application/json
       produces:
@@ -19031,73 +19031,20 @@ paths:
           required: true
           type: string
           description: Enter Limit No.
+        - in: query
+          name: filter_by
+          required: true
+          type: string
+          description: Enter Filter Keywords ("ALL_REQUEST" || "ALL_SUBMIT" || "ALL_CANCEL")
       responses:
         "200":
           description: OK
 
-  /api/v1/finance/{fid}/dashboard/submit/transport:
-    get:
-      tags:
-        - Transport Module Query
-      summary: Get All Finance Transport Submit  (verified)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: fid
-          required: true
-          type: string
-          description: This is Finance id 
-        - in: query
-          name: page
-          required: true
-          type: string
-          description: Enter Page No.
-        - in: query
-          name: limit
-          required: true
-          type: string
-          description: Enter Limit No.
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/finance/{fid}/dashboard/reject/transport:
-    get:
-      tags:
-        - Transport Module Query
-      summary: Get All Finance Transport Reject  (verified)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: fid
-          required: true
-          type: string
-          description: This is Finance id 
-        - in: query
-          name: page
-          required: true
-          type: string
-          description: Enter Page No.
-        - in: query
-          name: limit
-          required: true
-          type: string
-          description: Enter Limit No.
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/finance/{fid}/transport/{tid}/submit/{rid}:
+  /api/v1/finance/{fid}/transport/{tid}/submit/{rid}/status:
     post:
       tags:
         - Transport Module Query
-      summary: Accept Transport Request At Finance  (verified)
+      summary: Accepted || Rejected Transport Request At Finance  (verified)
       consumes:
         - application/json
       produces:
@@ -19125,44 +19072,12 @@ paths:
             properties:
               amount:
                 type: number
-                description: Enter Amount 
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/finance/{fid}/transport/{tid}/incorrect/{rid}:
-    post:
-      tags:
-        - Transport Module Query
-      summary: Reject Transport Request At Finance  (verified)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: fid
-          required: true
-          type: string
-          description: This is Finance id 
-        - in: path
-          name: tid
-          required: true
-          type: string
-          description: This is Transport id 
-        - in: path
-          name: rid
-          required: true
-          type: string
-          description: This is Transport Request id 
-        - in : body
-          name: body
-          schema:
-            type: object
-            properties:
-              amount:
-                type: number
-                description: Enter Amount 
+                required: true
+                description: Enter Amount
+              status:
+                type: string
+                required: true
+                description: Enter Status ("Accepted" || "Rejected") 
       responses:
         "200":
           description: OK
@@ -19274,7 +19189,7 @@ paths:
   /api/v1/finance/{aid}/admission/request:
     post:
       tags:
-        - Finance Module Query
+        - Cash Flow Module Query
       summary: Request || Submit To Finance Manager  (verified)
       consumes:
         - application/json
@@ -19293,16 +19208,17 @@ paths:
             properties:
               amount:
                 type: number
+                required: true
                 description: Enter Amount 
       responses:
         "200":
           description: OK
 
-  /api/v1/finance/{fid}/dashboard/request/admission:
+  /api/v1/finance/{fid}/dashboard/cash/flow/admission/query:
     get:
       tags:
-        - Finance Module Query
-      summary: Get All Finance Admission Request  (verified)
+        - Cash Flow Module Query
+      summary: Get All Finance Admission Cash Flow  (verified)
       consumes:
         - application/json
       produces:
@@ -19323,73 +19239,20 @@ paths:
           required: true
           type: string
           description: Enter Limit No.
+        - in: query
+          name: filter_by
+          required: true
+          type: string
+          description: Enter Filter Keywords ("ALL_REQUEST" || "ALL_SUBMIT" || "ALL_CANCEL")
       responses:
         "200":
           description: OK
 
-  /api/v1/finance/{fid}/dashboard/submit/admission:
-    get:
-      tags:
-        - Finance Module Query
-      summary: Get All Finance Admission Submit  (verified)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: fid
-          required: true
-          type: string
-          description: This is Finance id 
-        - in: query
-          name: page
-          required: true
-          type: string
-          description: Enter Page No.
-        - in: query
-          name: limit
-          required: true
-          type: string
-          description: Enter Limit No.
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/finance/{fid}/dashboard/reject/admission:
-    get:
-      tags:
-        - Finance Module Query
-      summary: Get All Finance Admission Reject  (verified)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: fid
-          required: true
-          type: string
-          description: This is Finance id 
-        - in: query
-          name: page
-          required: true
-          type: string
-          description: Enter Page No.
-        - in: query
-          name: limit
-          required: true
-          type: string
-          description: Enter Limit No.
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/finance/{fid}/admission/{aid}/submit/{rid}:
+  /api/v1/finance/{fid}/admission/{aid}/submit/{rid}/status:
     post:
       tags:
-        - Finance Module Query
-      summary: Accept Admission Request At Finance  (verified)
+        - Cash Flow Module Query
+      summary: Accepted or Rejected Admission Request At Finance  (verified)
       consumes:
         - application/json
       produces:
@@ -19417,16 +19280,84 @@ paths:
             properties:
               amount:
                 type: number
+                required: true
+                description: Enter Amount 
+              status:
+                type: number
+                required: true
+                description: Enter Status ("Accepted" || "Rejected") 
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/finance/{lid}/library/request:
+    post:
+      tags:
+        - Cash Flow Module Query
+      summary: Request || Submit To Finance Manager  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: This is Library id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                required: true
                 description: Enter Amount 
       responses:
         "200":
           description: OK
 
-  /api/v1/finance/{fid}/admission/{aid}/incorrect/{rid}:
+  /api/v1/finance/{fid}/dashboard/cash/flow/library/query:
+    get:
+      tags:
+        - Cash Flow Module Query
+      summary: Get All Finance Library Cash Flow  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+        - in: query
+          name: filter_by
+          required: true
+          type: string
+          description: Enter Filter Keywords ("ALL_REQUEST" || "ALL_SUBMIT" || "ALL_CANCEL")
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/library/{lid}/submit/{rid}/status:
     post:
       tags:
-        - Finance Module Query
-      summary: Reject Admission Request At Finance  (verified)
+        - Cash Flow Module Query
+      summary: Accepted or Rejected Library Request At Finance  (verified)
       consumes:
         - application/json
       produces:
@@ -19438,10 +19369,10 @@ paths:
           type: string
           description: This is Finance id 
         - in: path
-          name: aid
+          name: lid
           required: true
           type: string
-          description: This is Admission id 
+          description: This is Library id 
         - in: path
           name: rid
           required: true
@@ -19454,7 +19385,12 @@ paths:
             properties:
               amount:
                 type: number
+                required: true
                 description: Enter Amount 
+              status:
+                type: number
+                required: true
+                description: Enter Status ("Accepted" || "Rejected") 
       responses:
         "200":
           description: OK

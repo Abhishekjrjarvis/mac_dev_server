@@ -29,6 +29,7 @@ const {
 } = require("../../config/redis-config");
 const moment = require("moment");
 const Admission = require("../../models/Admission/Admission");
+const Library = require("../../models/Library/Library");
 
 exports.getFinanceDepart = async (req, res) => {
   try {
@@ -1123,7 +1124,11 @@ exports.addFieldToPayroll = async (req, res) => {
         emp_pay: emp._id,
       });
       const notify = new StudentNotification({});
-      notify.notifyContent = `${staff?.staffFirstName} ${staff?.staffMiddleName ? staff?.staffMiddleName : ""} ${staff?.staffLastName} your payroll for ${moment(new Date(month)).format("MMMM")} month is ready check That.`;
+      notify.notifyContent = `${staff?.staffFirstName} ${
+        staff?.staffMiddleName ? staff?.staffMiddleName : ""
+      } ${staff?.staffLastName} your payroll for ${moment(
+        new Date(month)
+      ).format("MMMM")} month is ready check That.`;
       notify.notifySender = finance._id;
       notify.notifyReceiever = user._id;
       notify.notifyType = "Staff";
@@ -1598,97 +1603,55 @@ exports.retrieveRequestTransAtFinance = async (req, res) => {
     const { fid } = req.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const skip = (page - 1) * limit;
-    const finance = await Finance.findById({ _id: fid })
-      .select("financeName")
-      .populate({
-        path: "transport_request",
-      });
+    const filter_by = req.query;
+    if (filter_by === "ALL_REQUEST") {
+      const finance = await Finance.findById({ _id: fid })
+        .select("financeName")
+        .populate({
+          path: "transport_request",
+        });
 
-    const all_request = nested_document_limit(
-      page,
-      limit,
-      finance?.transport_request
-    );
-    if (all_request?.length > 0) {
+      var all_query = nested_document_limit(
+        page,
+        limit,
+        finance?.transport_request
+      );
+    } else if (filter_by === "ALL_SUBMIT") {
+      const finance = await Finance.findById({ _id: fid })
+        .select("financeName")
+        .populate({
+          path: "transport_submit",
+        });
+      var all_query = nested_document_limit(
+        page,
+        limit,
+        finance?.transport_submit
+      );
+    } else if (filter_by === "ALL_CANCEL") {
+      const finance = await Finance.findById({ _id: fid })
+        .select("financeName")
+        .populate({
+          path: "transport_cancelled",
+        });
+      var all_query = nested_document_limit(
+        page,
+        limit,
+        finance?.transport_cancelled
+      );
+    } else {
+      var all_query = [];
+    }
+    if (all_query?.length > 0) {
       res.status(200).send({
         message: "Get All Request from DB 🙌",
-        request: all_request,
-        requestCount: all_request.length,
+        query: all_query,
+        queryCount: all_query.length,
       });
     } else {
       res.status(200).send({
         message: "No Request from DB 🙌",
-        request: [],
-        requestCount: 0,
-      });
-    }
-  } catch (e) {
-    console.log(e);
-  }
-};
-
-exports.retrieveSubmitTransAtFinance = async (req, res) => {
-  try {
-    const { fid } = req.params;
-    const page = req.query.page ? parseInt(req.query.page) : 1;
-    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const skip = (page - 1) * limit;
-    const finance = await Finance.findById({ _id: fid })
-      .select("financeName")
-      .populate({
-        path: "transport_submit",
-      });
-    const all_submit = nested_document_limit(
-      page,
-      limit,
-      finance?.transport_submit
-    );
-    if (all_submit?.length > 0) {
-      res.status(200).send({
-        message: "Get All Submit from DB 🙌",
-        submit: all_submit,
-        submitCount: all_submit.length,
-      });
-    } else {
-      res.status(200).send({
-        message: "No Submit from DB 🙌",
-        submit: [],
-        submitCount: 0,
-      });
-    }
-  } catch (e) {
-    console.log(e);
-  }
-};
-
-exports.retrieveRejectTransAtFinance = async (req, res) => {
-  try {
-    const { fid } = req.params;
-    const page = req.query.page ? parseInt(req.query.page) : 1;
-    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const skip = (page - 1) * limit;
-    const finance = await Finance.findById({ _id: fid })
-      .select("financeName")
-      .populate({
-        path: "transport_cancelled",
-      });
-    const all_cancel = nested_document_limit(
-      page,
-      limit,
-      finance?.transport_cancelled
-    );
-    if (all_cancel?.length > 0) {
-      res.status(200).send({
-        message: "Get Reject",
-        reject: all_cancel,
-        rejectCount: all_cancel.length,
-      });
-    } else {
-      res.status(200).send({
-        message: "No Rejected Request",
-        reject: [],
-        rejectCount: 0,
+        query: [],
+        queryCount: 0,
       });
     }
   } catch (e) {
@@ -1699,73 +1662,68 @@ exports.retrieveRejectTransAtFinance = async (req, res) => {
 exports.submitTransportFeeQuery = async (req, res) => {
   try {
     const { fid, tid, rid } = req.params;
-    const { amount } = req.body;
-    if (!fid && !tid && !rid && !amount)
+    const { amount, status } = req.body;
+    if (!fid && !tid && !rid && !amount && !status)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
         access: false,
       });
-    const price = parseInt(amount);
-    var finance = await Finance.findById({ _id: fid });
-    var trans = await Transport.findById({ _id: tid });
-    for (var docs of finance.transport_request) {
-      if (`${docs?._id}` === `${rid}`) {
-        finance.transport_request.pull(docs?._id);
+    if (status === "Accepted") {
+      const price = parseInt(amount);
+      var finance = await Finance.findById({ _id: fid });
+      var trans = await Transport.findById({ _id: tid });
+      for (var docs of finance.transport_request) {
+        if (`${docs?._id}` === `${rid}`) {
+          finance.transport_request.pull(docs?._id);
+        }
       }
-    }
-    finance.transport_submit.push({
-      transport_module: trans?._id,
-      amount: price,
-      status: "Accepeted",
-    });
-    finance.requestArray.pull(trans._id);
-    finance.financeTotalBalance += price;
-    finance.financeSubmitBalance += price;
-    trans.requested_status = "Pending";
-    if (trans?.collected_fee >= price) {
-      trans.collected_fee -= price;
-    }
-    await Promise.all([trans.save(), finance.save()]);
-    res.status(200).send({
-      message: "Request Accepted",
-      access: true,
-      transLength: finance.transport_request.length,
-    });
-  } catch (e) {
-    console.log(e);
-  }
-};
-
-exports.rejectTransportFeeQuery = async (req, res) => {
-  try {
-    const { fid, tid, rid } = req.params;
-    const { amount } = req.body;
-    if (!fid && !tid && !rid && !amount)
-      return res.status(200).send({
-        message: "Their is a bug need to fix immediately 😡",
-        access: false,
+      finance.transport_submit.push({
+        transport_module: trans?._id,
+        amount: price,
+        status: "Accepeted",
       });
-    const price = parseInt(amount);
-    var finance = await Finance.findById({ _id: fid });
-    var trans = await Transport.findById({ _id: tid });
-    for (var docs of finance.transport_request) {
-      if (`${docs?._id}` === `${rid}`) {
-        finance.transport_request.pull(docs?._id);
+      finance.requestArray.pull(trans._id);
+      finance.financeTotalBalance += price;
+      finance.financeSubmitBalance += price;
+      trans.requested_status = "Pending";
+      if (trans?.collected_fee >= price) {
+        trans.collected_fee -= price;
       }
+      await Promise.all([trans.save(), finance.save()]);
+      res.status(200).send({
+        message: "Request Accepted",
+        access: true,
+        transLength: finance.transport_request.length,
+      });
+    } else if (status === "Rejected") {
+      const price = parseInt(amount);
+      var finance = await Finance.findById({ _id: fid });
+      var trans = await Transport.findById({ _id: tid });
+      for (var docs of finance.transport_request) {
+        if (`${docs?._id}` === `${rid}`) {
+          finance.transport_request.pull(docs?._id);
+        }
+      }
+      finance.transport_cancelled.push({
+        transport_module: trans?._id,
+        amount: price,
+        status: "Rejected",
+      });
+      finance.requestArray.pull(trans._id);
+      trans.requested_status = "Pending";
+      await Promise.all([trans.save(), finance.save()]);
+      res.status(200).send({
+        message: "Request Rejected",
+        access: true,
+        transLength: finance.transport_request.length,
+      });
+    } else {
+      res.status(200).send({
+        message: "Request Rejected",
+        access: false,
+        transLength: 0,
+      });
     }
-    finance.transport_cancelled.push({
-      transport_module: trans?._id,
-      amount: price,
-      status: "Rejected",
-    });
-    finance.requestArray.pull(trans._id);
-    trans.requested_status = "Pending";
-    await Promise.all([trans.save(), finance.save()]);
-    res.status(200).send({
-      message: "Request Rejected",
-      access: true,
-      transLength: finance.transport_request.length,
-    });
   } catch (e) {
     console.log(e);
   }
@@ -1862,99 +1820,64 @@ exports.renderFinanceOneInventoryQuery = async (req, res) => {
 exports.retrieveRequestAdmissionAtFinance = async (req, res) => {
   try {
     const { fid } = req.params;
+    if (!fid)
+      return res.status(200).send({
+        message: "There is a bug need to fixed immediately 😡",
+        access: false,
+      });
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const skip = (page - 1) * limit;
-    const finance = await Finance.findById({ _id: fid })
-      .select("financeName")
-      .populate({
-        path: "admission_request",
-      });
+    const { filter_by } = req.query;
+    if (filter_by === "ALL_REQUEST") {
+      const finance = await Finance.findById({ _id: fid })
+        .select("financeName")
+        .populate({
+          path: "admission_request",
+        });
 
-    const all_request = nested_document_limit(
-      page,
-      limit,
-      finance?.admission_request
-    );
-    if (all_request?.length > 0) {
-      res.status(200).send({
-        message: "Get All Request from DB 🙌",
-        request: all_request,
-        requestCount: all_request.length,
-      });
+      var all_array = nested_document_limit(
+        page,
+        limit,
+        finance?.admission_request
+      );
+    } else if (filter_by === "ALL_SUBMIT") {
+      const finance = await Finance.findById({ _id: fid })
+        .select("financeName")
+        .populate({
+          path: "admission_submit",
+        });
+      var all_array = nested_document_limit(
+        page,
+        limit,
+        finance?.admission_submit
+      );
+    } else if (filter_by === "ALL_CANCEL") {
+      const finance = await Finance.findById({ _id: fid })
+        .select("financeName")
+        .populate({
+          path: "admission_cancelled",
+        });
+      const all_cancel = nested_document_limit(
+        page,
+        limit,
+        finance?.admission_cancelled
+      );
     } else {
-      res.status(200).send({
-        message: "No Request from DB 🙌",
-        request: [],
-        requestCount: 0,
-      });
+      var all_array = [];
     }
-  } catch (e) {
-    console.log(e);
-  }
-};
-
-exports.retrieveSubmitAdmissionAtFinance = async (req, res) => {
-  try {
-    const { fid } = req.params;
-    const page = req.query.page ? parseInt(req.query.page) : 1;
-    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const skip = (page - 1) * limit;
-    const finance = await Finance.findById({ _id: fid })
-      .select("financeName")
-      .populate({
-        path: "admission_submit",
-      });
-    const all_submit = nested_document_limit(
-      page,
-      limit,
-      finance?.admission_submit
-    );
-    if (all_submit?.length > 0) {
+    if (all_array?.length > 0) {
       res.status(200).send({
-        message: "Get All Submit from DB 🙌",
-        submit: all_submit,
-        submitCount: all_submit.length,
+        message: "Get All Admission Cash Flow from DB 🙌",
+        arr: all_array,
+        arrCount: all_array.length,
+        access: true,
       });
     } else {
       res.status(200).send({
-        message: "No Submit from DB 🙌",
-        submit: [],
-        submitCount: 0,
-      });
-    }
-  } catch (e) {
-    console.log(e);
-  }
-};
-
-exports.retrieveRejectAdmissionAtFinance = async (req, res) => {
-  try {
-    const { fid } = req.params;
-    const page = req.query.page ? parseInt(req.query.page) : 1;
-    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const skip = (page - 1) * limit;
-    const finance = await Finance.findById({ _id: fid })
-      .select("financeName")
-      .populate({
-        path: "admission_cancelled",
-      });
-    const all_cancel = nested_document_limit(
-      page,
-      limit,
-      finance?.admission_cancelled
-    );
-    if (all_cancel?.length > 0) {
-      res.status(200).send({
-        message: "Get Reject",
-        reject: all_cancel,
-        rejectCount: all_cancel.length,
-      });
-    } else {
-      res.status(200).send({
-        message: "No Rejected Request",
-        reject: [],
-        rejectCount: 0,
+        message: "No Admission Cash Flow from DB 🙌",
+        arr: [],
+        arrCount: 0,
+        access: false,
       });
     }
   } catch (e) {
@@ -2009,73 +1932,250 @@ exports.renderAdmissionRequestFundsQuery = async (req, res) => {
 exports.submitAdmissionFeeQuery = async (req, res) => {
   try {
     const { fid, aid, rid } = req.params;
-    const { amount } = req.body;
-    if (!fid && !aid && !rid && !amount)
+    const { amount, status } = req.body;
+    if (!fid && !aid && !rid && !amount && !status)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
         access: false,
       });
-    const price = parseInt(amount);
-    var finance = await Finance.findById({ _id: fid });
-    var ads = await Admission.findById({ _id: aid });
-    for (var docs of finance.admission_request) {
-      if (`${docs?._id}` === `${rid}`) {
-        finance.admission_request.pull(docs?._id);
+    if (status === "Accepted") {
+      const price = parseInt(amount);
+      var finance = await Finance.findById({ _id: fid });
+      var ads = await Admission.findById({ _id: aid });
+      for (var docs of finance.admission_request) {
+        if (`${docs?._id}` === `${rid}`) {
+          finance.admission_request.pull(docs?._id);
+        }
       }
+      finance.admission_submit.push({
+        admission: ads?._id,
+        amount: price,
+        status: "Accepeted",
+      });
+      finance.requestArray.pull(ads._id);
+      finance.financeTotalBalance += price;
+      finance.financeSubmitBalance += price;
+      ads.requested_status = "Pending";
+      if (ads?.collected_fee >= price) {
+        ads.collected_fee -= price;
+      }
+      await Promise.all([ads.save(), finance.save()]);
+      res.status(200).send({
+        message: "Request Accepted",
+        access: true,
+        adsCount: finance.admission_request.length,
+      });
+    } else if (status === "Rejected") {
+      const price = parseInt(amount);
+      var finance = await Finance.findById({ _id: fid });
+      var ads = await Admission.findById({ _id: aid });
+      for (var docs of finance.admission_request) {
+        if (`${docs?._id}` === `${rid}`) {
+          finance.admission_request.pull(docs?._id);
+        }
+      }
+      finance.admission_cancelled.push({
+        admission: ads?._id,
+        amount: price,
+        status: "Rejected",
+      });
+      finance.requestArray.pull(ads._id);
+      ads.requested_status = "Pending";
+      await Promise.all([ads.save(), finance.save()]);
+      res.status(200).send({
+        message: "Request Rejected",
+        access: true,
+        adsCount: finance.admission_request.length,
+      });
+    } else {
+      res.status(200).send({
+        message: "I Think you lost in the space 😁",
+        access: false,
+        adsCount: 0,
+      });
     }
-    finance.admission_submit.push({
-      admission: ads?._id,
-      amount: price,
-      status: "Accepeted",
-    });
-    finance.requestArray.pull(ads._id);
-    finance.financeTotalBalance += price;
-    finance.financeSubmitBalance += price;
-    ads.requested_status = "Pending";
-    if (ads?.collected_fee >= price) {
-      ads.collected_fee -= price;
-    }
-    await Promise.all([ads.save(), finance.save()]);
-    res.status(200).send({
-      message: "Request Accepted",
-      access: true,
-      adsCount: finance.admission_request.length,
-    });
   } catch (e) {
     console.log(e);
   }
 };
 
-exports.rejectAdmissionFeeQuery = async (req, res) => {
+exports.retrieveRequestLibraryAtFinance = async (req, res) => {
   try {
-    const { fid, aid, rid } = req.params;
+    const { fid } = req.params;
+    if (!fid)
+      return res.status(200).send({
+        message: "There is a bug need to fixed immediately 😡",
+        access: false,
+      });
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const { filter_by } = req.query;
+    if (filter_by === "ALL_REQUEST") {
+      const finance = await Finance.findById({ _id: fid })
+        .select("financeName")
+        .populate({
+          path: "library_request",
+        });
+
+      var all_array = nested_document_limit(
+        page,
+        limit,
+        finance?.library_request
+      );
+    } else if (filter_by === "ALL_SUBMIT") {
+      const finance = await Finance.findById({ _id: fid })
+        .select("financeName")
+        .populate({
+          path: "library_submit",
+        });
+      var all_array = nested_document_limit(
+        page,
+        limit,
+        finance?.library_submit
+      );
+    } else if (filter_by === "ALL_CANCEL") {
+      const finance = await Finance.findById({ _id: fid })
+        .select("financeName")
+        .populate({
+          path: "library_cancelled",
+        });
+      const all_cancel = nested_document_limit(
+        page,
+        limit,
+        finance?.library_cancelled
+      );
+    } else {
+      var all_array = [];
+    }
+    if (all_array?.length > 0) {
+      res.status(200).send({
+        message: "Get All Library Cash Flow from DB 🙌",
+        arr: all_array,
+        arrCount: all_array.length,
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Library Cash Flow from DB 🙌",
+        arr: [],
+        arrCount: 0,
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderLibraryRequestFundsQuery = async (req, res) => {
+  try {
+    const { lid } = req.params;
     const { amount } = req.body;
-    if (!fid && !aid && !rid && !amount)
+    if (!lid && !amount)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
         access: false,
       });
     const price = parseInt(amount);
-    var finance = await Finance.findById({ _id: fid });
-    var ads = await Admission.findById({ _id: aid });
-    for (var docs of finance.admission_request) {
-      if (`${docs?._id}` === `${rid}`) {
-        finance.admission_request.pull(docs?._id);
-      }
+    const libs = await Library.findById({ _id: lid });
+    const one_ins = await InstituteAdmin.findById({
+      _id: `${libs?.institute}`,
+    });
+    const finance = await Finance.findById({
+      _id: `${one_ins?.financeDepart[0]}`,
+    });
+    if (
+      finance?.requestArray?.length > 0 &&
+      finance?.requestArray?.includes(`${libs?._id}`)
+    ) {
+      res.status(200).send({
+        message: "Already requested for processing 🔍",
+        access: false,
+      });
+    } else {
+      finance.requestArray.push(libs?._id);
+      finance.library_request.push({
+        library: libs?._id,
+        amount: price,
+        status: "Requested",
+      });
+      libs.requestStatus = "Requested";
+      await Promise.all([finance.save(), libs.save()]);
+      res.status(200).send({
+        message: "Installment Operation Completed 😀",
+        access: true,
+      });
     }
-    finance.admission_cancelled.push({
-      admission: ads?._id,
-      amount: price,
-      status: "Rejected",
-    });
-    finance.requestArray.pull(ads._id);
-    ads.requested_status = "Pending";
-    await Promise.all([ads.save(), finance.save()]);
-    res.status(200).send({
-      message: "Request Rejected",
-      access: true,
-      adsCount: finance.admission_request.length,
-    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.submitLibraryFeeQuery = async (req, res) => {
+  try {
+    const { fid, lid, rid } = req.params;
+    const { amount, status } = req.body;
+    if (!fid && !lid && !rid && !amount && !status)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    if (status === "Accepted") {
+      const price = parseInt(amount);
+      var finance = await Finance.findById({ _id: fid });
+      var libs = await Library.findById({ _id: lid });
+      for (var docs of finance.library_request) {
+        if (`${docs?._id}` === `${rid}`) {
+          finance.library_request.pull(docs?._id);
+        }
+      }
+      finance.library_submit.push({
+        library: libs?._id,
+        amount: price,
+        status: "Accepeted",
+      });
+      finance.requestArray.pull(libs._id);
+      finance.financeTotalBalance += price;
+      finance.financeSubmitBalance += price;
+      libs.requestStatus = "Pending";
+      if (libs?.collectedFine >= price) {
+        libs.collectedFine -= price;
+      }
+      await Promise.all([libs.save(), finance.save()]);
+      res.status(200).send({
+        message: "Request Accepted",
+        access: true,
+        libsCount: finance.library_request.length,
+      });
+    } else if (status === "Rejected") {
+      const price = parseInt(amount);
+      var finance = await Finance.findById({ _id: fid });
+      var libs = await Library.findById({ _id: aid });
+      for (var docs of finance.library_request) {
+        if (`${docs?._id}` === `${rid}`) {
+          finance.library_request.pull(docs?._id);
+        }
+      }
+      finance.library_cancelled.push({
+        library: libs?._id,
+        amount: price,
+        status: "Rejected",
+      });
+      finance.requestArray.pull(libs._id);
+      libs.requestStatus = "Pending";
+      await Promise.all([libs.save(), finance.save()]);
+      res.status(200).send({
+        message: "Request Rejected",
+        access: true,
+        libsCount: finance.library_request.length,
+      });
+    } else {
+      res.status(200).send({
+        message: "I Think you lost in the space 😁",
+        access: false,
+        adsCount: 0,
+      });
+    }
   } catch (e) {
     console.log(e);
   }

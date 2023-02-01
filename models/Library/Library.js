@@ -36,6 +36,18 @@ const librarySchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  collectedFine: {
+    type: Number,
+    default: 0,
+  },
+  requestStatus: {
+    type: String,
+    default: "Pending",
+  },
+  exemptFine: {
+    type: Number,
+    default: 0,
+  },
   createdAt: { type: Date, default: Date.now },
 });
 

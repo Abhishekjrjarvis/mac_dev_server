@@ -2429,7 +2429,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
         apply.save(),
         institute.save(),
         admission.save(),
-        finance.save()
+        finance.save(),
       ]);
       res.status(200).send({
         message:
@@ -2447,3 +2447,31 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+// const webESMS = (mob, sName, iName, cName) => {
+//   const message = `Hello, ${sName} Welcome to ${iName}. You are studying in class ${cName} . Login to your account with following below steps:
+// 1. Download app 'Qviple Community To Learn' from play store click on the link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple
+// 2. Open App and enter your Mobile no. (${mob})
+// 3. Verify Mobile no. with otp
+// 4. Select your Existing account & proceed to login
+// 5. You will be redirected to Dashboard`;
+//   const url = `https://web-wapp.in/api/send.php?number=91${mob}&type=media&message=${message}&media_url=https://d3dqpu54js2vfl.cloudfront.net/3d-avatar/3D12.jpg&filename=file_test.jpg&instance_id=63D7C834B820F&access_token=91e482f7e128d555b2eca66109b2ce29`;
+//   // const url = `https://web-wapp.in/api/send.php?number=91${mob}&type=text&message=${message}&instance_id=63D7C834B820F&access_token=91e482f7e128d555b2eca66109b2ce29`;
+//   axios
+//     .post(url)
+//     .then((res) => {
+//       // if ((res && res.data.includes("success")) || res.data.includes("sent")) {
+//       // console.log("M-messsage Sent Successfully");
+//       // } else {
+//       //   console.log("M-something went wrong");
+//       // }
+//     })
+//     .catch((e) => {
+//       console.log(e);
+//     });
+//   return true;
+// };
+
+// console.log(
+//   webESMS(8329911939, "Pankaj Phad", "Qviple Official", "CA Student")
+// );

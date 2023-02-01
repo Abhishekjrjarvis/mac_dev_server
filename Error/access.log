@@ -650,3 +650,23 @@
 {"level":"info","message":{"amount":"30","fileArray":[],"mode":"Offline","optionalSubject":[],"sample_pic":"3D7.jpg","studentDOB":"2000-11-20","studentFirstName":"SomeOne","studentGender":"Male","studentLastName":"Daughter","studentMiddleName":"Odin","type":"F_I_P"},"timestamp":"2023-01-31T10:34:05.295Z"}
 {"access":true,"level":"info","message":"Account Creation Process Completed & message: Taste a bite of sweets till your application is selected, \ud83d\ude00✨","timestamp":"2023-01-31T10:34:08.646Z"}
 {"level":"info","message":"{\"message\":\"Account Creation Process Completed & message: Taste a bite of sweets till your application is selected, \ud83d\ude00✨\",\"access\":true,\"level\":\"info\"}","timestamp":"2023-01-31T10:34:08.649Z"}
+{"level":"info","message":{"amount":200},"timestamp":"2023-02-01T03:07:16.241Z"}
+{"level":"info","message":{"amount":200},"timestamp":"2023-02-01T03:08:12.158Z"}
+{"access":true,"level":"info","message":"Installment Operation Completed 😀","timestamp":"2023-02-01T03:08:12.596Z"}
+{"level":"info","message":"{\"message\":\"Installment Operation Completed 😀\",\"access\":true,\"level\":\"info\"}","timestamp":"2023-02-01T03:08:12.599Z"}
+{"level":"info","message":{},"timestamp":"2023-02-01T03:13:49.955Z"}
+{"access":false,"arr":[],"arrCount":0,"level":"info","message":"No Library Cash Flow from DB 🙌","timestamp":"2023-02-01T03:13:49.968Z"}
+{"level":"info","message":"{\"message\":\"No Library Cash Flow from DB 🙌\",\"arr\":[],\"arrCount\":0,\"access\":false,\"level\":\"info\"}","timestamp":"2023-02-01T03:13:49.969Z"}
+{"level":"info","message":{},"timestamp":"2023-02-01T03:14:14.042Z"}
+{"level":"info","message":{},"timestamp":"2023-02-01T03:24:31.064Z"}
+{"access":true,"arr":[{"_id":"63d9d79c6d53fa79ce1d84b0","amount":200,"createdAt":"2023-02-01T03:08:12.487Z","library":"63d7d2ad2d81d053c5e05e5f","status":"Requested"}],"arrCount":1,"level":"info","message":"Get All Library Cash Flow from DB 🙌","timestamp":"2023-02-01T03:24:31.234Z"}
+{"level":"info","message":"{\"message\":\"Get All Library Cash Flow from DB \ud83d\ude4c\",\"arr\":[{\"library\":\"63d7d2ad2d81d053c5e05e5f\",\"amount\":200,\"status\":\"Requested\",\"_id\":\"63d9d79c6d53fa79ce1d84b0\",\"createdAt\":\"2023-02-01T03:08:12.487Z\"}],\"arrCount\":1,\"access\":true,\"level\":\"info\"}","timestamp":"2023-02-01T03:24:31.238Z"}
+{"level":"info","message":{},"timestamp":"2023-02-01T03:24:38.438Z"}
+{"access":false,"arr":[],"arrCount":0,"level":"info","message":"No Library Cash Flow from DB 🙌","timestamp":"2023-02-01T03:24:38.567Z"}
+{"level":"info","message":"{\"message\":\"No Library Cash Flow from DB 🙌\",\"arr\":[],\"arrCount\":0,\"access\":false,\"level\":\"info\"}","timestamp":"2023-02-01T03:24:38.569Z"}
+{"level":"info","message":{},"timestamp":"2023-02-01T03:24:46.205Z"}
+{"access":false,"arr":[],"arrCount":0,"level":"info","message":"No Library Cash Flow from DB 🙌","timestamp":"2023-02-01T03:24:46.314Z"}
+{"level":"info","message":"{\"message\":\"No Library Cash Flow from DB 🙌\",\"arr\":[],\"arrCount\":0,\"access\":false,\"level\":\"info\"}","timestamp":"2023-02-01T03:24:46.315Z"}
+{"level":"info","message":{},"timestamp":"2023-02-01T03:24:52.134Z"}
+{"access":true,"arr":[{"_id":"63d9d79c6d53fa79ce1d84b0","amount":200,"createdAt":"2023-02-01T03:08:12.487Z","library":"63d7d2ad2d81d053c5e05e5f","status":"Requested"}],"arrCount":1,"level":"info","message":"Get All Library Cash Flow from DB 🙌","timestamp":"2023-02-01T03:24:52.219Z"}
+{"level":"info","message":"{\"message\":\"Get All Library Cash Flow from DB \ud83d\ude4c\",\"arr\":[{\"library\":\"63d7d2ad2d81d053c5e05e5f\",\"amount\":200,\"status\":\"Requested\",\"_id\":\"63d9d79c6d53fa79ce1d84b0\",\"createdAt\":\"2023-02-01T03:08:12.487Z\"}],\"arrCount\":1,\"access\":true,\"level\":\"info\"}","timestamp":"2023-02-01T03:24:52.221Z"}

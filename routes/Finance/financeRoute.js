@@ -214,33 +214,15 @@ router.get(
 );
 
 router.get(
-  "/:fid/dashboard/request/transport",
+  "/:fid/dashboard/cash/flow/transport/query",
   // isLoggedIn,
   catchAsync(Finance.retrieveRequestTransAtFinance)
 );
 
-router.get(
-  "/:fid/dashboard/submit/transport",
-  // isLoggedIn,
-  catchAsync(Finance.retrieveSubmitTransAtFinance)
-);
-
-router.get(
-  "/:fid/dashboard/reject/transport",
-  // isLoggedIn,
-  catchAsync(Finance.retrieveRejectTransAtFinance)
-);
-
 router.post(
-  "/:fid/transport/:tid/submit/:rid",
+  "/:fid/transport/:tid/submit/:rid/status",
   // isLoggedIn,
   catchAsync(Finance.submitTransportFeeQuery)
-);
-
-router.post(
-  "/:fid/transport/:tid/incorrect/:rid",
-  // isLoggedIn,
-  catchAsync(Finance.rejectTransportFeeQuery)
 );
 
 router.get(
@@ -256,39 +238,39 @@ router.get(
 );
 
 router.get(
-  "/:fid/dashboard/request/admission",
+  "/:fid/dashboard/cash/flow/admission/query",
   // isLoggedIn,
   catchAsync(Finance.retrieveRequestAdmissionAtFinance)
 );
 
-router.get(
-  "/:fid/dashboard/submit/admission",
-  // isLoggedIn,
-  catchAsync(Finance.retrieveSubmitAdmissionAtFinance)
-);
-
-router.get(
-  "/:fid/dashboard/reject/admission",
-  // isLoggedIn,
-  catchAsync(Finance.retrieveRejectAdmissionAtFinance)
-);
-
 router.post(
-  "/:fid/admission/request",
+  "/:aid/admission/request",
   // isLoggedIn,
   catchAsync(Finance.renderAdmissionRequestFundsQuery)
 );
 
 router.post(
-  "/:fid/admission/:tid/submit/:rid",
+  "/:fid/admission/:aid/submit/:rid/status",
   // isLoggedIn,
   catchAsync(Finance.submitAdmissionFeeQuery)
 );
 
-router.post(
-  "/:fid/admission/:tid/incorrect/:rid",
+router.get(
+  "/:fid/dashboard/cash/flow/library/query",
   // isLoggedIn,
-  catchAsync(Finance.rejectAdmissionFeeQuery)
+  catchAsync(Finance.retrieveRequestLibraryAtFinance)
+);
+
+router.post(
+  "/:lid/library/request",
+  // isLoggedIn,
+  catchAsync(Finance.renderLibraryRequestFundsQuery)
+);
+
+router.post(
+  "/:fid/library/:lid/submit/:rid/status",
+  // isLoggedIn,
+  catchAsync(Finance.submitLibraryFeeQuery)
 );
 
 module.exports = router;

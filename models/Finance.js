@@ -280,6 +280,39 @@ const financeSchema = new mongoose.Schema(
         status: { type: String },
       },
     ],
+    library_request: [
+      {
+        library: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Library",
+        },
+        createdAt: { type: Date, default: Date.now },
+        amount: { type: Number, default: 0 },
+        status: { type: String },
+      },
+    ],
+    library_submit: [
+      {
+        library: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Library",
+        },
+        createdAt: { type: Date, default: Date.now },
+        amount: { type: Number, default: 0 },
+        status: { type: String },
+      },
+    ],
+    library_cancelled: [
+      {
+        library: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Library",
+        },
+        createdAt: { type: Date, default: Date.now },
+        amount: { type: Number, default: 0 },
+        status: { type: String },
+      },
+    ],
   },
   { timestamps: true }
 );

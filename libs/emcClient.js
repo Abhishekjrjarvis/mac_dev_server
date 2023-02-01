@@ -1,4 +1,4 @@
-import { MediaConvertClient } from "@aws-sdk/client-mediaconvert";
+const MediaConvertClient = require("@aws-sdk/client-mediaconvert");
 // Set the account end point.
 const ENDPOINT = {
   endpoint: "https://ENDPOINT_UNIQUE_STRING.mediaconvert.REGION.amazonaws.com",

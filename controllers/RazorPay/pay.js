@@ -95,7 +95,7 @@ exports.verifyRazorPayment = async (req, res) => {
       payment_installment,
       razor_key, // Razor KEY Secret
       razor_author, // Boolean
-      ad_install
+      ad_install,
     } = req.query;
     const data_key = handle_undefined(razor_key);
     var refactor_amount = parseFloat(payment_amount) / 100;
@@ -266,15 +266,6 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
           path: "payment_to_end_user_id",
           select: "insName photoId insProfilePhoto",
         });
-      // .populate({
-      //   path: "payment_expense_by_end_user_id",
-      //   select: "insName photoId insProfilePhoto",
-      // })
-      // .populate({
-      //   path: "payment_expense_to_end_user_id",
-      //   select: "userLegalName photoId profilePhoto",
-      // });
-
       if (order?.length > 0) {
         // const oEncrypt = await encryptionPayload(order);
         res.status(200).send({ message: "User Pay History", history: order });
@@ -317,24 +308,9 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
           path: "payment_to_end_user_id",
           select: "insName photoId insProfilePhoto",
         });
-      // .populate({
-      //   path: "payment_expense_by_end_user_id",
-      //   select: "insName photoId insProfilePhoto",
-      // })
-      // .populate({
-      //   path: "payment_expense_to_end_user_id",
-      //   select: "userLegalName photoId profilePhoto",
-      // });
-      for (var filteredData of order) {
-        if (`${filteredData?.payment_module_type}` != "Expense") {
-          filtered_array.push(filteredData);
-        }
-      }
-      if (filtered_array?.length > 0) {
-        // const oEncrypt = await encryptionPayload(filtered_array);
-        res
-          .status(200)
-          .send({ message: "User Pay History", history: filtered_array });
+      if (order?.length > 0) {
+        // const oEncrypt = await encryptionPayload(order);
+        res.status(200).send({ message: "User Pay History", history: order });
       } else {
         res.status(200).send({ message: "No User Pay History", history: [] });
       }

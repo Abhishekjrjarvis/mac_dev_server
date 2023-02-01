@@ -19465,7 +19465,11 @@ paths:
         - in: query
           name: limit
           type: integer
-          description: Enter a limit   
+          description: Enter a limit  
+        - in: query
+          name: search
+          type: string
+          description: here type book name or author name of publication base search 
       responses:
         "200":
           description: OK                             
@@ -19755,6 +19759,9 @@ paths:
               fineCharge:
                 type: integer
                 description: It is a charges apply based upon selection of chargeBy
+              paymentType:
+                type: string
+                description: It is a payment mode type that is "Offline" or "Online"
       responses:
         "200":
           description: OK     
@@ -19859,6 +19866,33 @@ paths:
       responses:
         "200":
           description: OK  
+
+  /api/v1/library/all/fine/history/{lid}:
+    get:
+      tags:
+        - Library Module 
+      summary: Give the list of all collected book fine charges in particular librarian head  (VERIFIED ✔)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: It is a Library Id  
+        - in: query
+          name: page
+          type: integer
+          description: Enter a page 
+        - in: query
+          name: limit
+          type: integer
+          description: Enter a limit   
+      responses:
+        "200":
+          description: OK
 
 
 

@@ -48,6 +48,12 @@ const librarySchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  charge_history: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "CollectBook",
+    },
+  ],
   createdAt: { type: Date, default: Date.now },
 });
 

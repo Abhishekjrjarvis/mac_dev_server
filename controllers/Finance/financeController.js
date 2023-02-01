@@ -1953,8 +1953,8 @@ exports.submitAdmissionFeeQuery = async (req, res) => {
         status: "Accepeted",
       });
       finance.requestArray.pull(ads._id);
-      finance.financeTotalBalance += price;
-      finance.financeSubmitBalance += price;
+      // finance.financeTotalBalance += price;
+      // finance.financeSubmitBalance += price;
       ads.requested_status = "Pending";
       if (ads?.collected_fee >= price) {
         ads.collected_fee -= price;

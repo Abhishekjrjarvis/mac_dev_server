@@ -94,27 +94,60 @@ exports.libraryByStaffSide = async (req, res) => {
 //     });
 //   }
 // };
-
 exports.allBookByStaffSide = async (req, res) => {
   try {
     if (!req.params.lid) throw "Please send Library id to perform task";
     const getPage = req.query.page ? parseInt(req.query.page) : 1;
     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
     const dropItem = (getPage - 1) * itemPerPage;
-    const library = await Library.findById(req.params.lid)
-      .populate({
-        path: "books",
-        select: "bookName photoId photo author language bookStatus",
-        skip: dropItem,
-        limit: itemPerPage,
-      })
-      .select("books")
-      .lean()
-      .exec();
-    res.status(200).send({
-      message: "List of All Books",
-      books: library.books?.length ? library.books : [],
-    });
+    if (
+      req.query.search ||
+      req.query.search.trim() !== "" ||
+      req.query.search !== undefined
+    ) {
+      const library = await Library.findById(req.params.lid)
+        .populate({
+          path: "books",
+          match: {
+            $or: [
+              {
+                bookName: { $regex: req.query.search, $options: "i" },
+              },
+              {
+                author: { $regex: req.query.search, $options: "i" },
+              },
+              {
+                publication: { $regex: req.query.search, $options: "i" },
+              },
+            ],
+          },
+          select: "bookName photoId photo author language bookStatus",
+          skip: dropItem,
+          limit: itemPerPage,
+        })
+        .select("books")
+        .lean()
+        .exec();
+      res.status(200).send({
+        message: "List of All Books with pagination search",
+        books: library.books?.length ? library.books : [],
+      });
+    } else {
+      const library = await Library.findById(req.params.lid)
+        .populate({
+          path: "books",
+          select: "bookName photoId photo author language bookStatus",
+          skip: dropItem,
+          limit: itemPerPage,
+        })
+        .select("books")
+        .lean()
+        .exec();
+      res.status(200).send({
+        message: "List of All Books",
+        books: library.books?.length ? library.books : [],
+      });
+    }
   } catch (e) {
     res.status(200).send({
       message: e.message,
@@ -449,6 +482,50 @@ exports.oneMemberHistoryByStaffSide = async (req, res) => {
       message: "List of all history book for one member in Library",
       history: student?.deposite,
     });
+  } catch (e) {
+    res.status(200).send({
+      message: e.message,
+    });
+  }
+};
+
+exports.allHistoryOfCollectByStaffSide = async (req, res) => {
+  try {
+    if (!req.params.lid) throw "Please send library id to perform task";
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+    const library = await Library.findById(req.params.lid)
+      .populate({
+        path: "charge_history",
+        populate: {
+          path: "book",
+          select: "bookName author language photoId photo",
+        },
+        select: "book member createdAt",
+        skip: dropItem,
+        limit: itemPerPage,
+      })
+      .populate({
+        path: "charge_history",
+        populate: {
+          path: "member",
+          select:
+            "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName studentGRNO",
+        },
+        select: "book member createdAt",
+        skip: dropItem,
+        limit: itemPerPage,
+      })
+      .select("charge_history")
+      .lean()
+      .exec();
+    res
+      .status(200)
+      .send({
+        message: "List of all history of payment when collect the books",
+        charge_history: library.charge_history,
+      });
   } catch (e) {
     res.status(200).send({
       message: e.message,

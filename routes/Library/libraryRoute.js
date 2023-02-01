@@ -60,4 +60,11 @@ router
   .route("/member/:sid/history")
   .get(catchAsync(libraryController.oneMemberHistoryByStaffSide));
 
+router
+  .route("/all/fine/history/:lid")
+  .get(
+    isLoggedIn,
+    catchAsync(libraryController.allHistoryOfCollectByStaffSide)
+  );
+
 module.exports = router;

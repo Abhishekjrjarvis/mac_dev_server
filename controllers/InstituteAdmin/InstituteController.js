@@ -1861,7 +1861,7 @@ exports.fetchOneStaffDepartmentInfo = async (req, res) => {
     } else {
       res.status(404).send({ message: "Failure" });
     }
-  } catch {
+  } catch(e) {
     console.log(e);
   }
 };
@@ -1887,7 +1887,9 @@ exports.updateOneStaffClassInfo = async (req, res) => {
     await Class.findByIdAndUpdate(cid, req.body);
     // const cEncrypt = await encryptionPayload(classInfo);
     res.status(200).send({ message: "Class Info Updated" });
-  } catch {}
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 exports.allStaffDepartmentClassList = async (req, res) => {

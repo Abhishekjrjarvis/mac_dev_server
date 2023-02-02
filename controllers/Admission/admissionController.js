@@ -51,6 +51,7 @@ const {
   render_installment,
   add_total_installment,
 } = require("../../helper/Installment");
+const { whats_app_sms_payload } = require("../../WhatsAppSMS/payload");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
@@ -2325,6 +2326,8 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
       user._id,
       user.deviceToken
     );
+    const studentName = `${student?.studentFirstName} ${student?.studentMiddleName ? studentMiddleName : ""} ${student?.studentLastName}`
+    await whats_app_sms_payload(user?.userPhoneNumber, studentName, institute?.insName, null, "ASCAS", institute?.insType, student.admissionPaidFeeCount, student.admissionRemainFeeCount, institute?.sms_lang)
   } catch (e) {
     console.log(e);
   }

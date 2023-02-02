@@ -103,4 +103,6 @@ router.post(
   catchAsync(Auth.renderDirectAppJoinConfirmQuery)
 );
 
+router.get("/select/account", catchAsync(Auth.renderSelectAccountQuery));
+
 module.exports = router;

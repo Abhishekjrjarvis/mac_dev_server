@@ -1296,8 +1296,8 @@ exports.retrieveRecoveryMailUser = async (req, res) => {
     await Promise.all([user.save()]);
     // const mEncrypt = await encryptionPayload(user.recoveryMail);
     res.status(200).send({ message: "Success", mail: user.recoveryMail });
-  } catch (e){
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
 };
 
@@ -1449,6 +1449,15 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
               "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
           },
         })
+        .populate({
+          path: "library",
+          select: "coverId cover institute",
+          populate: {
+            path: "libraryHead",
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+          },
+        })
         .lean()
         .exec();
       if (staff?.staffDocuments?.length > 0) {
@@ -1579,6 +1588,15 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
             "vehicle_count transport_staff_count transport_photo photoId passenger_count online_fee offline_fee remaining_fee",
           populate: {
             path: "transport_manager",
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+          },
+        })
+        .populate({
+          path: "library",
+          select: "coverId cover institute",
+          populate: {
+            path: "libraryHead",
             select:
               "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
           },

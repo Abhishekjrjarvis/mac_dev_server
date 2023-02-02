@@ -123,6 +123,25 @@ paths:
         "200":
           description: OK
 
+  /api/v1/auth/select/account:
+    get:
+      tags:
+        - Login And Logout Api
+      summary: All A / C Lists -(verified)
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: query
+          name: phoneKey
+          required: true
+          type: string
+          description: Enter a valid Phone Number 👍
+      responses:
+        "200":
+          description: OK
+
   /api/v1/auth/login:
     post:
       tags:

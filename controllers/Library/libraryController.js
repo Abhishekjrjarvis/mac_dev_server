@@ -315,6 +315,7 @@ exports.bookColletedByStaffSide = async (req, res) => {
       library: library._id,
       chargeBy: req.body?.chargeBy || "",
       fineCharge: req.body?.fineCharge || 0,
+      paymentType: req.body?.paymentType,
       issuedDate: issue.createdAt,
     });
     student?.borrow?.pull(issue._id);
@@ -322,7 +323,18 @@ exports.bookColletedByStaffSide = async (req, res) => {
     library?.issued?.pull(issue._id);
     library?.collected?.push(collect._id);
     if (book.bookStatus === "Offline") book.leftCopies += 1;
-    library?.charge_history?.push(collect._id);
+
+    if (req.body?.chargeBy === "Damaged" || req.body?.chargeBy === "Lost") {
+      library.totalFine += req.body?.fineCharge;
+      library.charge_history.push(collect?._id);
+      if (req.body?.paymentType === "Offline") {
+        library.offlineFine += req.body?.fineCharge;
+        library.collectedFine += req.body?.fineCharge;
+        // library.exemptFine +=req.body?.exemptFine
+      } else {
+        library.onlineFine += req.body?.fineCharge;
+      }
+    }
     await Promise.all([
       collect.save(),
       issue.save(),
@@ -336,7 +348,6 @@ exports.bookColletedByStaffSide = async (req, res) => {
       message: e.message,
     });
   }
-};
 
 exports.allBookCollectedLogsByStaffSide = async (req, res) => {
   try {

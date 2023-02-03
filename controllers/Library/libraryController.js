@@ -322,6 +322,7 @@ exports.bookColletedByStaffSide = async (req, res) => {
     library?.issued?.pull(issue._id);
     library?.collected?.push(collect._id);
     if (book.bookStatus === "Offline") book.leftCopies += 1;
+    library?.charge_history?.push(collect._id);
     await Promise.all([
       collect.save(),
       issue.save(),

@@ -308,9 +308,16 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
           path: "payment_to_end_user_id",
           select: "insName photoId insProfilePhoto",
         });
-      if (order?.length > 0) {
-        // const oEncrypt = await encryptionPayload(order);
-        res.status(200).send({ message: "User Pay History", history: order });
+      for (var filteredData of order) {
+        if (`${filteredData?.payment_module_type}` != "Expense") {
+          filtered_array.push(filteredData);
+        }
+      }
+      if (filtered_array?.length > 0) {
+        // const oEncrypt = await encryptionPayload(filtered_array);
+        res
+          .status(200)
+          .send({ message: "User Pay History", history: filtered_array });
       } else {
         res.status(200).send({ message: "No User Pay History", history: [] });
       }

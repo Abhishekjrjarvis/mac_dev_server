@@ -1967,7 +1967,11 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       batch.ApproveStudent.push(student._id);
       student.batches = batch._id;
       student.batchCount += 1;
-      notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? ` ${student.studentMiddleName}` : ""} ${student.studentLastName} joined as a Student of Class ${classes.className} of ${batch.batchName}`;
+      notify.notifyContent = `${student.studentFirstName} ${
+        student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+      } ${student.studentLastName} joined as a Student of Class ${
+        classes.className
+      } of ${batch.batchName}`;
       notify.notifySender = cid;
       notify.notifyReceiever = user._id;
       notify.notifyCategory = "Approve Student";
@@ -2062,8 +2066,20 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
         message: `Direct Institute Account Creation Process Completed ${student.studentFirstName} ${student.studentLastName} 😀✨`,
         status: true,
       });
-      const studentName = `${student.studentFirstName} ${student.studentMiddleName ? ` ${student.studentMiddleName}` : ""} ${student.studentLastName}`
-      await whats_app_sms_payload(user?.userPhoneNumber, studentName, institute?.insName, classes?.className, "ADSIS", institute?.insType, 0, 0, institute?.sms_lang)
+      const studentName = `${student.studentFirstName} ${
+        student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+      } ${student.studentLastName}`;
+      await whats_app_sms_payload(
+        user?.userPhoneNumber,
+        studentName,
+        institute?.insName,
+        classes?.className,
+        "ADSIS",
+        institute?.insType,
+        0,
+        0,
+        institute?.sms_lang
+      );
     } else {
       res.status(200).send({
         message: "Bug in the direct joining process 😡",
@@ -2219,7 +2235,9 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
       institute.joinedUserList.push(user._id);
       staff.staffROLLNO = institute.ApproveStaff.length;
       staff.staffJoinDate = new Date().toISOString();
-      notify.notifyContent = `Congrats ${staff.staffFirstName} ${staff.staffMiddleName ? `${staff.staffMiddleName}` : ""} ${staff.staffLastName} for joined as a staff at ${institute.insName}`;
+      notify.notifyContent = `Congrats ${staff.staffFirstName} ${
+        staff.staffMiddleName ? `${staff.staffMiddleName}` : ""
+      } ${staff.staffLastName} for joined as a staff at ${institute.insName}`;
       notify.notifySender = id;
       notify.notifyReceiever = user._id;
       notify.notifyCategory = "Approve Staff";
@@ -2293,8 +2311,20 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
         message: "Direct Institute Account Creation Process Completed 😀✨",
         status: true,
       });
-      const staffName = `${staff.staffFirstName} ${staff.staffMiddleName ? `${staff.staffMiddleName}` : ""} ${staff.staffLastName}`
-      await whats_app_sms_payload(user?.userPhoneNumber, staffName, institute?.insName, null, "ADMIS", institute?.insType, 0, 0, institute?.sms_lang)
+      const staffName = `${staff.staffFirstName} ${
+        staff.staffMiddleName ? `${staff.staffMiddleName}` : ""
+      } ${staff.staffLastName}`;
+      await whats_app_sms_payload(
+        user?.userPhoneNumber,
+        staffName,
+        institute?.insName,
+        null,
+        "ADMIS",
+        institute?.insType,
+        0,
+        0,
+        institute?.sms_lang
+      );
     } else {
       res.status(200).send({
         message: "Bug in the direct joining process 😡",
@@ -2310,7 +2340,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
   try {
     const { id, aid } = req.params;
     const { existingUser } = req.query;
-    var existingUser = handle_undefined(existingUser);
+    var existing = handle_undefined(existingUser);
     const { sample_pic, fileArray, type, mode, amount } = req.body;
     if (
       !id &&
@@ -2338,13 +2368,13 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
     const finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
-    if (!existingUser) {
+    if (!existing) {
       var valid = await filter_unique_username(
         req.body.studentFirstName,
         req.body.studentDOB
       );
     }
-    if (!existingUser) {
+    if (!existing) {
       if (!valid?.exist) {
         const genUserPass = bcrypt.genSaltSync(12);
         const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
@@ -2371,7 +2401,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       } else {
       }
     } else {
-      var user = await User.findById({ _id: `${existingUser}` });
+      var user = await User.findById({ _id: `${existing}` });
     }
     const student = new Student({ ...req.body });
     const studentOptionalSubject = req.body?.optionalSubject
@@ -2445,8 +2475,20 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       access: true,
     });
     await ignite_multiple_alarm(user);
-    const studentName = `${student?.studentFirstName} ${student?.studentMiddleName ? studentMiddleName : ""} ${student?.studentLastName}`
-    await whats_app_sms_payload(user?.userPhoneNumber, studentName, institute?.insName, null, "ASCAS", institute?.insType, student.admissionPaidFeeCount, student.admissionRemainFeeCount, institute?.sms_lang)
+    const studentName = `${student?.studentFirstName} ${
+      student?.studentMiddleName ? studentMiddleName : ""
+    } ${student?.studentLastName}`;
+    await whats_app_sms_payload(
+      user?.userPhoneNumber,
+      studentName,
+      institute?.insName,
+      null,
+      "ASCAS",
+      institute?.insType,
+      student.admissionPaidFeeCount,
+      student.admissionRemainFeeCount,
+      institute?.sms_lang
+    );
   } catch (e) {
     console.log(e);
   }
@@ -2456,34 +2498,27 @@ exports.renderSelectAccountQuery = async (req, res) => {
   try {
     const valid_key = handle_undefined(req.query.phoneKey);
     if (!valid_key)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fix immediately 😡",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
     const all_account = await User.find({ userPhoneNumber: valid_key }).select(
       "userLegalName username profilePhoto"
     );
     if (all_account?.length > 0) {
-      res
-        .status(200)
-        .send({
-          message: "Lot's of choices select one 😁",
-          access: true,
-          all_account,
-        });
+      res.status(200).send({
+        message: "Lot's of choices select one 😁",
+        access: true,
+        all_account,
+      });
     } else {
-      res
-        .status(200)
-        .send({
-          message: "No choices left create one 😁",
-          access: false,
-          all_account: [],
-        });
+      res.status(200).send({
+        message: "No choices left create one 😁",
+        access: false,
+        all_account: [],
+      });
     }
   } catch (e) {
     console.log(e);
   }
 };
-

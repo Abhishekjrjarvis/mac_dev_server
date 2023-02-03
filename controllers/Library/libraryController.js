@@ -68,7 +68,7 @@ exports.libraryByStaffSide = async (req, res) => {
           "staffProfilePhoto photoId staffFirstName staffMiddleName staffLastName",
       })
       .select(
-        "libraryHead libraryHeadTitle emailId phoneNumber about photoId photo coverId cover bookCount memberCount totalFine offlineFine onlineFine"
+        "libraryHead libraryHeadTitle emailId phoneNumber about photoId photo coverId cover bookCount memberCount totalFine collectedFine requestStatus offlineFine onlineFine"
       )
       .lean()
       .exec();

@@ -1649,7 +1649,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           })
           .populate({
             path: "institute",
-            select: "insName name photoId insProfilePhoto",
+            select: "insName name photoId insProfilePhoto library",
           })
           .populate({
             path: "user",
@@ -1688,7 +1688,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
               path: "vehicle_no_conductor",
               select: "userLegalName userPhoneNumber",
             },
-          })
+          });
         if (student?.studentDocuments?.length > 0) {
           for (var docs of student.studentDocuments) {
             student.incomeCertificate =
@@ -1728,7 +1728,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
       } else {
         var student = await Student.findById({ _id: sid })
           .select(
-            "batchCount extraPoints studentFirstName library studentBankAccountHolderName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
+            "batchCount extraPoints studentFirstName studentBankAccountHolderName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
           )
           .populate({
             path: "studentClass",
@@ -1740,7 +1740,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           })
           .populate({
             path: "institute",
-            select: "insName name photoId insProfilePhoto",
+            select: "insName name photoId insProfilePhoto library",
           })
           .populate({
             path: "user",

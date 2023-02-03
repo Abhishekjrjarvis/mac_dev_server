@@ -500,21 +500,11 @@ exports.allHistoryOfCollectByStaffSide = async (req, res) => {
       .populate({
         path: "charge_history",
         populate: {
-          path: "book",
-          select: "bookName author language photoId photo",
-        },
-        select: "book member createdAt",
-        skip: dropItem,
-        limit: itemPerPage,
-      })
-      .populate({
-        path: "charge_history",
-        populate: {
           path: "member",
           select:
             "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName studentGRNO",
         },
-        select: "book member createdAt",
+        select: "member createdAt chargeBy fineCharge",
         skip: dropItem,
         limit: itemPerPage,
       })

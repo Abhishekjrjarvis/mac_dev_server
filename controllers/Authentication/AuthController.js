@@ -59,6 +59,7 @@ const {
   insert_multiple_status,
 } = require("../../helper/multipleStatus");
 const { whats_app_sms_payload } = require("../../WhatsAppSMS/payload");
+const { handle_undefined } = require("../../Handler/customError");
 
 const generateQR = async (encodeData, Id) => {
   try {
@@ -2309,6 +2310,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
   try {
     const { id, aid } = req.params;
     const { existingUser } = req.query;
+    var existingUser = handle_undefined(existingUser);
     const { sample_pic, fileArray, type, mode, amount } = req.body;
     if (
       !id &&
@@ -2461,7 +2463,7 @@ exports.renderSelectAccountQuery = async (req, res) => {
           access: false,
         });
     const all_account = await User.find({ userPhoneNumber: valid_key }).select(
-      "userLegalName username profilePhoto userPassword"
+      "userLegalName username profilePhoto"
     );
     if (all_account?.length > 0) {
       res

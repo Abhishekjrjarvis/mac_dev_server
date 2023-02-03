@@ -179,7 +179,7 @@ exports.renderAdministratorQuery = async (req, res) => {
       });
     const manage = await ManageAdmin.findById({ _id: mid })
       .select(
-        "affiliation_name affiliation_admin affiliation_institute_approve_count photoId photo"
+        "affiliation_name affiliation_username affiliation_admin affiliation_institute_approve_count photoId photo"
       )
       .populate({
         path: "affiliation_admin",

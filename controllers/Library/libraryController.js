@@ -435,7 +435,7 @@ exports.oneMemberIssuedByStaffSide = async (req, res) => {
         path: "borrow",
         populate: {
           path: "book",
-          select: "bookName author language photo photoId",
+          select: "bookName author createdAt language photo photoId",
         },
         select: "book",
         skip: dropItem,
@@ -469,7 +469,7 @@ exports.oneMemberHistoryByStaffSide = async (req, res) => {
         path: "deposite",
         populate: {
           path: "book",
-          select: "bookName photoId photo",
+          select: "bookName photoId photo createdAt",
         },
         select: "book issuedDate createdAt",
         skip: dropItem,
@@ -520,12 +520,10 @@ exports.allHistoryOfCollectByStaffSide = async (req, res) => {
       .select("charge_history")
       .lean()
       .exec();
-    res
-      .status(200)
-      .send({
-        message: "List of all history of payment when collect the books",
-        charge_history: library.charge_history,
-      });
+    res.status(200).send({
+      message: "List of all history of payment when collect the books",
+      charge_history: library.charge_history,
+    });
   } catch (e) {
     res.status(200).send({
       message: e.message,

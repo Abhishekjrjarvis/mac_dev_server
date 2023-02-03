@@ -62,9 +62,6 @@ router
 
 router
   .route("/all/fine/history/:lid")
-  .get(
-    isLoggedIn,
-    catchAsync(libraryController.allHistoryOfCollectByStaffSide)
-  );
+  .get(catchAsync(libraryController.allHistoryOfCollectByStaffSide));
 
 module.exports = router;

@@ -348,6 +348,7 @@ exports.bookColletedByStaffSide = async (req, res) => {
       message: e.message,
     });
   }
+};
 
 exports.allBookCollectedLogsByStaffSide = async (req, res) => {
   try {

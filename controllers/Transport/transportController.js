@@ -17,6 +17,7 @@ const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
+const { designation_alarm } = require("../../WhatsAppSMS/payload");
 
 exports.renderNewTransportManager = async (req, res) => {
   try {
@@ -65,6 +66,14 @@ exports.renderNewTransportManager = async (req, res) => {
       transport: transport._id,
       access: true,
     });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "TRANSPORT",
+      institute?.sms_lang,
+      "",
+      "",
+      ""
+    );
   } catch (e) {
     console.log(e);
   }

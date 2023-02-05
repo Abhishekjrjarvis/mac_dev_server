@@ -1650,7 +1650,7 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
         // post: cached.post,
         // postCount: cached.postCount,
         // totalPage: cached.totalPage,
-        post: post,
+        post: post.reverse(),
         postCount: postCount.length,
         totalPage: totalPage,
       });

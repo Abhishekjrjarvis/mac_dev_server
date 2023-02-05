@@ -236,14 +236,14 @@ const instituteAdminSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "ELearning",
-    }
+    },
   ],
   libraryActivate: { type: String, default: "Disable" },
   library: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Library",
-    }
+    },
   ],
   adminRepayAmount: {
     type: Number,
@@ -630,6 +630,9 @@ const instituteAdminSchema = new mongoose.Schema({
   transportStatus: {
     type: String,
     default: "Disable",
+  },
+  gr_initials: {
+    type: String,
   },
 });
 

@@ -1957,7 +1957,7 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       classes.strength += 1;
       classes.ApproveStudent.push(student._id);
       classes.studentCount += 1;
-      student.studentGRNO = `Q${institute.ApproveStudent.length}`;
+      student.studentGRNO = `${institute?.gr_initials ? institute?.gr_initials : Q}${institute.ApproveStudent.length}`;
       student.studentROLLNO = classes.ApproveStudent.length;
       student.studentClass = classes._id;
       student.studentAdmissionDate = new Date().toISOString();
@@ -2069,7 +2069,7 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       const studentName = `${student.studentFirstName} ${
         student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
       } ${student.studentLastName}`;
-      await whats_app_sms_payload(
+      whats_app_sms_payload(
         user?.userPhoneNumber,
         studentName,
         institute?.insName,
@@ -2314,7 +2314,7 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
       const staffName = `${staff.staffFirstName} ${
         staff.staffMiddleName ? `${staff.staffMiddleName}` : ""
       } ${staff.staffLastName}`;
-      await whats_app_sms_payload(
+      whats_app_sms_payload(
         user?.userPhoneNumber,
         staffName,
         institute?.insName,
@@ -2476,9 +2476,9 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
     });
     await ignite_multiple_alarm(user);
     const studentName = `${student?.studentFirstName} ${
-      student?.studentMiddleName ? studentMiddleName : ""
+      student?.studentMiddleName ? student?.studentMiddleName : ""
     } ${student?.studentLastName}`;
-    await whats_app_sms_payload(
+    whats_app_sms_payload(
       user?.userPhoneNumber,
       studentName,
       institute?.insName,
@@ -2522,3 +2522,17 @@ exports.renderSelectAccountQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+// console.log(
+//   whats_app_sms_payload(
+//     7007023972,
+//     "Abhishek Singh",
+//     "Qviple Official",
+//     null,
+//     "ASCAS",
+//     "College/Polytechnic",
+//     19000,
+//     10000,
+//     "en"
+//   )
+// );

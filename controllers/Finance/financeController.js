@@ -23,6 +23,7 @@ const BusinessTC = require("../../models/Finance/BToC");
 const Transport = require("../../models/Transport/transport");
 const Store = require("../../models/Finance/Inventory");
 const { nested_document_limit } = require("../../helper/databaseFunction");
+const { designation_alarm } = require("../../WhatsAppSMS/payload");
 const {
   connect_redis_hit,
   connect_redis_miss,
@@ -75,6 +76,14 @@ exports.getFinanceDepart = async (req, res) => {
       finance: finance._id,
       status: true,
     });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "FINANCE",
+      institute?.sms_lang,
+      "",
+      "",
+      ""
+    );
   } catch (e) {}
 };
 

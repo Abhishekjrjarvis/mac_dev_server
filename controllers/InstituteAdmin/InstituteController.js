@@ -33,12 +33,13 @@ const { randomSixCode } = require("../../Service/close");
 const unlinkFile = util.promisify(fs.unlink);
 const { file_to_aws } = require("../../Utilities/uploadFileAws");
 const { shuffleArray } = require("../../Utilities/Shuffle");
+const { designation_alarm } = require("../../WhatsAppSMS/payload")
 
 exports.getDashOneQuery = async (req, res) => {
   try {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id }).select(
-      "insName name insAbout photoId blockStatus insProfileCoverPhoto coverId block_institute blockedBy sportStatus sportClassStatus sportDepart sportClassDepart staff_privacy email_privacy followers_critiria initial_Unlock_Amount contact_privacy sms_lang followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount libraryActivate library accessFeature activateStatus"
+      "insName name insAbout photoId blockStatus gr_initials insProfileCoverPhoto coverId block_institute blockedBy sportStatus sportClassStatus sportDepart sportClassDepart staff_privacy email_privacy followers_critiria initial_Unlock_Amount contact_privacy sms_lang followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount libraryActivate library accessFeature activateStatus"
     );
     const encrypt = await encryptionPayload(institute);
     res.status(200).send({
@@ -54,7 +55,7 @@ exports.getProfileOneQuery = async (req, res) => {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName status photoId insProfilePhoto sportStatus sms_lang sportClassStatus blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement followers userFollowersList admissionCount request_at affiliation_by"
+        "insName status photoId insProfilePhoto gr_initials sportStatus sms_lang sportClassStatus blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement followers userFollowersList admissionCount request_at affiliation_by"
       )
       .populate({
         path: "request_at",
@@ -320,6 +321,7 @@ exports.getUpdatePhone = async (req, res) => {
 exports.getUpdatePersonalIns = async (req, res) => {
   try {
     const { id } = req.params;
+    const { old_initials } = req.query
     await InstituteAdmin.findByIdAndUpdate(id, req.body);
     res.status(200).send({ message: "Personal Info Updated" });
     var institute = await InstituteAdmin.findById({ _id: id });
@@ -343,6 +345,13 @@ exports.getUpdatePersonalIns = async (req, res) => {
       reply.authorName = institute.insName;
       await reply.save();
     });
+    const all_students = await Student.find({ $and: [{ studentStatus: "Approved"}, { institute: `${institute._id}`}]}).select("studentGRNO")
+    for(var all of all_students){
+      if(all?.studentGRNO?.startsWith(`${old_initials}`)){
+        all.studentGRNO = institute?.gr_initials + all?.studentGRNO?.slice(old_initials?.length)
+        await all.save()
+      }
+    }
   } catch (e) {
     console.log(e);
   }
@@ -529,7 +538,9 @@ exports.updateApproveStaff = async (req, res) => {
     institute.joinedUserList.push(user._id);
     staffs.staffROLLNO = institute.ApproveStaff.length;
     staffs.staffJoinDate = new Date().toISOString();
-    notify.notifyContent = `Congrats ${staffs.staffFirstName} ${staffs.staffMiddleName ? `${staffs.staffMiddleName}` : ""} ${staffs.staffLastName} for joined as a staff at ${institute.insName}`;
+    notify.notifyContent = `Congrats ${staffs.staffFirstName} ${
+      staffs.staffMiddleName ? `${staffs.staffMiddleName}` : ""
+    } ${staffs.staffLastName} for joined as a staff at ${institute.insName}`;
     notify.notifySender = id;
     notify.notifyReceiever = user._id;
     notify.notifyCategory = "Approve Staff";
@@ -611,7 +622,7 @@ exports.updateRejectStaff = async (req, res) => {
     const staffs = await Staff.findById({ _id: sid });
     const user = await User.findById({ _id: uid });
     const aStatus = new Status({});
-    const notify = new Notification({})
+    const notify = new Notification({});
     staffs.staffStatus = req.body.status;
     institute.staff.pull(sid);
     notify.notifyContent = `your request for the role of staff is rejected contact at connect@qviple.com`;
@@ -704,6 +715,14 @@ exports.getNewDepartment = async (req, res) => {
       message: "Successfully Created Department",
       department: department._id,
     });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "DHEAD",
+      institute?.sms_lang,
+      department?.dName,
+      department?.dTitle,
+      ""
+    );
   } catch (e) {}
 };
 
@@ -987,7 +1006,9 @@ exports.fillStudentForm = async (req, res) => {
     }
     student.institute = institute._id;
     student.user = user._id;
-    notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? ` ${student.studentMiddleName}` : ""} ${student.studentLastName} has been applied for role of student`;
+    notify.notifyContent = `${student.studentFirstName} ${
+      student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+    } ${student.studentLastName} has been applied for role of student`;
     notify.notifySender = student._id;
     notify.notifyReceiever = classUser._id;
     institute.iNotify.push(notify._id);
@@ -1157,7 +1178,7 @@ exports.retrieveApproveStudentList = async (req, res) => {
       const limit = req.query.limit ? parseInt(req.query.limit) : 10;
       const skip = (page - 1) * limit;
       const student_ins = await InstituteAdmin.findById({ _id: id }).select(
-        "ApproveStudent insName"
+        "ApproveStudent insName gr_initials"
       );
       const studentIns = await Student.find({
         _id: { $in: student_ins?.ApproveStudent },
@@ -1179,8 +1200,8 @@ exports.retrieveApproveStudentList = async (req, res) => {
         // const sEncrypt = await encryptionPayload(studentIns);
         studentIns.sort(function (st1, st2) {
           return (
-            parseInt(st1.studentGRNO.slice(1)) -
-            parseInt(st2.studentGRNO.slice(1))
+            parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
+            parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
           );
         });
         res.status(200).send({ message: "All Student with limit", studentIns });
@@ -1189,7 +1210,7 @@ exports.retrieveApproveStudentList = async (req, res) => {
       }
     } else {
       const student_ins = await InstituteAdmin.findById({ _id: id }).select(
-        "ApproveStudent insName"
+        "ApproveStudent insName gr_initials"
       );
       const studentIns = await Student.find({
         _id: { $in: student_ins?.ApproveStudent },
@@ -1209,8 +1230,8 @@ exports.retrieveApproveStudentList = async (req, res) => {
         // const sEncrypt = await encryptionPayload(studentIns);
         studentIns.sort(function (st1, st2) {
           return (
-            parseInt(st1.studentGRNO.slice(1)) -
-            parseInt(st2.studentGRNO.slice(1))
+            parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
+            parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
           );
         });
         res.status(200).send({ message: "Without Limit", studentIns });
@@ -1622,6 +1643,14 @@ exports.retrieveNewClass = async (req, res) => {
         message: "Successfully Created Class",
         classRoom: classRoom._id,
       });
+      designation_alarm(
+        user?.userPhoneNumber,
+        "CLASS",
+        institute?.sms_lang,
+        classRoom?.className,
+        classRoom?.classTitle,
+        ""
+      );
     }
   } catch (e) {
     console.log(e);
@@ -1711,6 +1740,14 @@ exports.retrieveNewSubject = async (req, res) => {
       message: "Successfully Created Subject",
       subject,
     });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "DHEAD",
+      institute?.sms_lang,
+      subject?.subjectName,
+      subject?.subjectTitle,
+      classes?.classTitle
+    );
   } catch (e) {
     console.log(e);
   }
@@ -1861,7 +1898,7 @@ exports.fetchOneStaffDepartmentInfo = async (req, res) => {
     } else {
       res.status(404).send({ message: "Failure" });
     }
-  } catch(e) {
+  } catch (e) {
     console.log(e);
   }
 };
@@ -1887,8 +1924,8 @@ exports.updateOneStaffClassInfo = async (req, res) => {
     await Class.findByIdAndUpdate(cid, req.body);
     // const cEncrypt = await encryptionPayload(classInfo);
     res.status(200).send({ message: "Class Info Updated" });
-  } catch(e) {
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
 };
 
@@ -2559,7 +2596,7 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     classes.ApproveStudent.push(student._id);
     classes.studentCount += 1;
     classes.student.pull(sid);
-    student.studentGRNO = `Q${institute.ApproveStudent.length}`;
+    student.studentGRNO = `${institute?.gr_initials ? institute?.gr_initials : Q}${institute.ApproveStudent.length}`;
     student.studentROLLNO = classes.ApproveStudent.length;
     student.studentClass = classes._id;
     student.studentAdmissionDate = new Date().toISOString();

@@ -8,6 +8,10 @@ const Staff = require("../../models/Staff");
 const User = require("../../models/User");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 const Notification = require("../../models/notification");
+const Admin = require("../../models/superAdmin");
+const OrderPayment = require("../../models/RazorPay/orderPayment");
+const Finance = require("../../models/Finance");
+const { designation_alarm } = require("../../WhatsAppSMS/payload");
 
 //for Institute side Activate library
 exports.activateLibrary = async (req, res) => {
@@ -49,6 +53,14 @@ exports.activateLibrary = async (req, res) => {
       notify.save(),
     ]);
     res.status(201).send({ message: "Library Head is assign" });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "LIBRARY",
+      institute?.sms_lang,
+      "",
+      "",
+      ""
+    );
   } catch (e) {
     res.status(200).send({
       message: e.message,
@@ -306,15 +318,26 @@ exports.bookColletedByStaffSide = async (req, res) => {
   try {
     if (!req.params.lid) throw "Please send issued id to perform task";
     const issue = await IssueBook.findById(req.params.lid);
+    const s_admin = await Admin.findById({
+      _id: `${process.env.S_ADMIN_ID}`,
+    }).select("invoice_count");
     const library = await Library.findById(issue.library);
+    const institute = await InstituteAdmin.findById({
+      _id: `${library?.institute}`,
+    });
+    const finance = await Finance.findById({
+      _id: `${institute.financeDepart[0]}`,
+    });
     const book = await Book.findById(issue.book);
     const student = await Student.findById(issue.member);
+    const user = await User.findById({ _id: `${student?.user}` });
+    const price = parseInt(req.body?.fineCharge);
     const collect = new CollectBook({
       member: issue.member,
       book: issue.book,
       library: library._id,
       chargeBy: req.body?.chargeBy || "",
-      fineCharge: req.body?.fineCharge || 0,
+      fineCharge: price || 0,
       paymentType: req.body?.paymentType,
       issuedDate: issue.createdAt,
     });
@@ -322,17 +345,35 @@ exports.bookColletedByStaffSide = async (req, res) => {
     student?.deposite?.push(collect._id);
     library?.issued?.pull(issue._id);
     library?.collected?.push(collect._id);
+    const order = new OrderPayment({});
+    order.payment_module_type = "Library Fine";
+    order.payment_to_end_user_id = institute?._id;
+    order.payment_by_end_user_id = user._id;
+    order.payment_module_id = library._id;
+    order.payment_amount = parseInt(price);
+    order.payment_status = "Captured";
+    order.payment_flag_to = "Credit";
+    order.payment_flag_by = "Debit";
+    order.payment_mode = req.body?.paymentType;
+    order.payment_admission = library._id;
+    order.payment_from = student._id;
+    s_admin.invoice_count += 1;
+    order.payment_invoice_number = s_admin.invoice_count;
+    user.payment_history.push(order._id);
+    institute.payment_history.push(order._id);
     if (book.bookStatus === "Offline") book.leftCopies += 1;
 
     if (req.body?.chargeBy === "Damaged" || req.body?.chargeBy === "Lost") {
-      library.totalFine += req.body?.fineCharge;
+      library.totalFine += price;
       library.charge_history.push(collect?._id);
       if (req.body?.paymentType === "Offline") {
-        library.offlineFine += req.body?.fineCharge;
-        library.collectedFine += req.body?.fineCharge;
+        library.offlineFine += price;
+        library.collectedFine += price;
         // library.exemptFine +=req.body?.exemptFine
       } else {
-        library.onlineFine += req.body?.fineCharge;
+        library.onlineFine += price;
+        finance.financeTotalBalance += price;
+        finance.financeBankBalance += price;
       }
     }
     await Promise.all([
@@ -341,6 +382,11 @@ exports.bookColletedByStaffSide = async (req, res) => {
       student.save(),
       book.save(),
       library.save(),
+      user.save(),
+      institute.save(),
+      s_admin.save(),
+      order.save(),
+      finance.save(),
     ]);
     res.status(201).send({ message: "book collected by librarian 😊😊" });
   } catch (e) {

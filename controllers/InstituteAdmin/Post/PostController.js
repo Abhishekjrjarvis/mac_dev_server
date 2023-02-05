@@ -1257,7 +1257,7 @@ exports.retrieveSavedAllPosts = async (req, res) => {
         // Add Another Encryption
         res.status(200).send({
           message: "Success",
-          post,
+          post: post.reverse(),
           postCount: postCount.length,
           totalPage: totalPage,
         });

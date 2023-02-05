@@ -14,6 +14,7 @@ const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
+const { designation_alarm } = require("../../WhatsAppSMS/payload");
 
 exports.getSportDepart = async (req, res) => {
   try {
@@ -59,6 +60,14 @@ exports.getSportDepart = async (req, res) => {
       sport: sport._id,
       status: true,
     });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "SPORTSHEAD",
+      institute?.sms_lang,
+      "",
+      "",
+      ""
+    );
   } catch (e) {
     console.log(e);
   }
@@ -216,6 +225,14 @@ exports.getSportClass = async (req, res) => {
       sportClasses: sportClasses._id,
       status: true,
     });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "SPORTSCLASS",
+      institute?.sms_lang,
+      sportClasses?.sportClassName,
+      "",
+      ""
+    );
   } catch (e) {
     console.log(e);
   }

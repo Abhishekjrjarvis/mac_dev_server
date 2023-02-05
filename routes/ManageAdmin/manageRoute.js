@@ -69,4 +69,9 @@ router.get("/all", catchAsync(Manage.renderAdministratorAllManageAdmin));
 
 router.get("/all/user", catchAsync(Manage.renderAdministratorAllUser));
 
+router.get(
+  "/one/institute/:id",
+  catchAsync(Manage.renderAdministratorOneInstituteProfile)
+);
+
 module.exports = router;

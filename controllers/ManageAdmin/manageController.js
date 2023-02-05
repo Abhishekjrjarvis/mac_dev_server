@@ -13,6 +13,9 @@ const InstituteAdmin = require("../../models/InstituteAdmin");
 const Finance = require("../../models/Finance");
 const Student = require("../../models/Student");
 const Admission = require("../../models/Admission/Admission");
+const Sport = require("../../models/Sport");
+const Library = require("../../models/Library/Library");
+const Transport = require("../../models/Transport/transport");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 function generateAccessManageToken(manage_name, manage_id, manage_pass) {
@@ -472,6 +475,53 @@ exports.renderAdministratorAllUser = async (req, res) => {
     } else {
       res.status(404).send({ message: "Renovation at user", user: [] });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAdministratorOneInstituteProfile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id)
+      return res.status(200).send({
+        message: "There is a bug need to fixed immediately 😀",
+        query: false,
+      });
+    const institute = await InstituteAdmin.findById({ _id: id })
+      .select(
+        "insName status photoId insProfilePhoto sportStatus sms_lang sportClassStatus blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement admissionCount request_at affiliation_by"
+      )
+      .populate({
+        path: "displayPersonList",
+        select: "displayTitle createdAt",
+        populate: {
+          path: "displayUser",
+          select: "userLegalName username profilePhoto",
+        },
+      })
+      .lean()
+      .exec();
+
+    const finance = await Finance.findOne({ institute: institute?._id }).select(
+      "financeTotalBalance"
+    );
+    const sport = await Sport.findOne({ institute: institute?._id }).select(
+      "sportEventCount"
+    );
+    const library = await Library.findOne({ institute: institute?._id }).select(
+      "bookCount"
+    );
+    const transport = await Transport.findOne({
+      institute: institute?._id,
+    }).select("vehicle_count");
+    const count = {
+      totalBalance: finance?.financeTotalBalance,
+      ongoingEvent: sport?.sportEventCount,
+      totalBooks: library?.bookCount,
+      totalVehicles: transport?.vehicle_count,
+    };
+    res.status(200).send({ message: "Limit Post Ins", institute, count });
   } catch (e) {
     console.log(e);
   }

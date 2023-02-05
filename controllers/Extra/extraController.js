@@ -15,6 +15,7 @@ const Finance = require("../../models/Finance");
 const Admission = require("../../models/Admission/Admission");
 const { chatCount } = require("../../Firebase/dailyChat");
 const { getFirestore } = require("firebase-admin/firestore");
+const { valid_initials } = require("../../Custom/checkInitials");
 // const { staff_id_card_format } = require("../../export/IdCard");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
@@ -126,8 +127,13 @@ exports.retrieveBonafideGRNO = async (req, res) => {
     const { gr, id } = req.params;
     var download = true;
     const { reason } = req.body;
+    const institute = await InstituteAdmin.findById({
+      _id: id,
+    });
+    const validGR = valid_initials(institute?.gr_initials, gr);
+    if(!validGR) return res.status(200).send({ message: "I Think you lost in space"})
     const student = await Student.findOne({
-      $and: [{ studentGRNO: `${gr}` }, { institute: id }],
+      $and: [{ studentGRNO: `${validGR}` }, { institute: id }],
     })
       .select(
         "studentFirstName studentGRNO studentMiddleName certificateBonaFideCopy studentAdmissionDate studentLastName photoId studentProfilePhoto studentDOB"
@@ -145,9 +151,6 @@ exports.retrieveBonafideGRNO = async (req, res) => {
         select:
           "insName insAddress insState insDistrict insPhoneNumber insPincode photoId insProfilePhoto",
       });
-    const institute = await InstituteAdmin.findById({
-      _id: `${student?.institute?._id}`,
-    });
     student.studentReason = reason;
     student.studentBonaStatus = "Ready";
     institute.b_certificate_count += 1;
@@ -183,8 +186,13 @@ exports.retrieveLeavingGRNO = async (req, res) => {
     var download = true;
     const { reason, study, previous, behaviour, remark, uidaiNumber, bookNO } =
       req.body;
+    const institute = await InstituteAdmin.findById({
+      _id: id,
+    });
+    const validGR = valid_initials(institute?.gr_initials, gr);
+    if(!validGR) return res.status(200).send({ message: "I Think you lost in space"})
     const student = await Student.findOne({
-      $and: [{ studentGRNO: `${gr}` }, { institute: id }],
+      $and: [{ studentGRNO: `${validGR}` }, { institute: id }],
     })
       .select(
         "studentFirstName studentLeavingPreviousYear studentPreviousSchool studentUidaiNumber studentGRNO studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB"
@@ -202,9 +210,6 @@ exports.retrieveLeavingGRNO = async (req, res) => {
         select:
           "insName insAddress insState studentFormSetting.previousSchoolAndDocument.previousSchoolDocument insDistrict insAffiliated insEditableText insEditableTexts insPhoneNumber insPincode photoId insProfilePhoto",
       });
-    const institute = await InstituteAdmin.findById({
-      _id: `${student.institute._id}`,
-    });
     if (
       !institute.studentFormSetting.previousSchoolAndDocument
         .previousSchoolDocument

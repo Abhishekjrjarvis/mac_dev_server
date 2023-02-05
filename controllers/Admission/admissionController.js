@@ -13,6 +13,7 @@ const Department = require("../../models/Department");
 const Class = require("../../models/Class");
 const Admin = require("../../models/superAdmin");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
+const { designation_alarm } = require("../../WhatsAppSMS/payload");
 const {
   uploadDocFile,
   uploadFile,
@@ -101,6 +102,14 @@ exports.retrieveAdmissionAdminHead = async (req, res) => {
       admission: admission._id,
       status: true,
     });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "ADMISSION",
+      institute?.sms_lang,
+      "",
+      "",
+      ""
+    );
   } catch (e) {
     console.log(e);
   }
@@ -1651,7 +1660,7 @@ exports.retrieveClassAllotQuery = async (req, res) => {
         classes.strength += 1;
         classes.ApproveStudent.push(student._id);
         classes.studentCount += 1;
-        student.studentGRNO = `Q${institute.ApproveStudent.length}`;
+        student.studentGRNO = `${institute?.gr_initials ? institute?.gr_initials : Q}${institute.ApproveStudent.length}`;
         student.studentROLLNO = classes.ApproveStudent.length;
         student.studentClass = classes._id;
         student.studentAdmissionDate = new Date().toISOString();
@@ -2326,8 +2335,20 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
       user._id,
       user.deviceToken
     );
-    const studentName = `${student?.studentFirstName} ${student?.studentMiddleName ? studentMiddleName : ""} ${student?.studentLastName}`
-    await whats_app_sms_payload(user?.userPhoneNumber, studentName, institute?.insName, null, "ASCAS", institute?.insType, student.admissionPaidFeeCount, student.admissionRemainFeeCount, institute?.sms_lang)
+    const studentName = `${student?.studentFirstName} ${
+      student?.studentMiddleName ? studentMiddleName : ""
+    } ${student?.studentLastName}`;
+    await whats_app_sms_payload(
+      user?.userPhoneNumber,
+      studentName,
+      institute?.insName,
+      null,
+      "ASCAS",
+      institute?.insType,
+      student.admissionPaidFeeCount,
+      student.admissionRemainFeeCount,
+      institute?.sms_lang
+    );
   } catch (e) {
     console.log(e);
   }
@@ -2668,12 +2689,10 @@ exports.renderAppEditQuery = async (req, res) => {
   try {
     const { appId } = req.params;
     if (!appId)
-      return res
-        .status(200)
-        .send({
-          message: "There is a bug need to fixed immediately 😡",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "There is a bug need to fixed immediately 😡",
+        access: false,
+      });
     await NewApplication.findByIdAndUpdate(appId, req.body);
     res
       .status(200)
@@ -2705,12 +2724,10 @@ exports.renderAppDeleteQuery = async (req, res) => {
   try {
     const { aid, appId } = req.params;
     if (!appId && !aid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately 😡",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately 😡",
+        access: false,
+      });
     const ads_admin = await Admission.findById({ _id: aid });
     const ads_app = await NewApplication.findById({ _id: appId });
     const institute = await InstituteAdmin.findById({
@@ -2719,13 +2736,11 @@ exports.renderAppDeleteQuery = async (req, res) => {
     const post = await Post.findOne({ new_application: ads_app?._id });
     const flag_status = await nested_function_app(ads_app);
     if (flag_status) {
-      res
-        .status(200)
-        .send({
-          message:
-            "Deletion Operation Denied Some Student Already Applied for this Application 😥",
-          access: false,
-        });
+      res.status(200).send({
+        message:
+          "Deletion Operation Denied Some Student Already Applied for this Application 😥",
+        access: false,
+      });
     } else {
       ads_admin.newApplication.pull(ads_app?._id);
       if (ads_admin?.newAppCount > 0) {

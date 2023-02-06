@@ -161,9 +161,7 @@ exports.allBookByStaffSide = async (req, res) => {
       });
     }
   } catch (e) {
-    res.status(200).send({
-      message: e.message,
-    });
+    console.log(e)
   }
 };
 

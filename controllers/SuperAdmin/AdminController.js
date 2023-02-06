@@ -950,8 +950,22 @@ exports.retrieveOneInstituteQuery = async (req, res) => {
       .exec();
     // const insEncrypt = await encryptionPayload(institute);
     res.status(200).send({ message: "One Institute Profile Data", institute });
-  } catch {}
+  } catch(e) {
+    console.log(e)
+  }
 };
+
+// exports.uploadAdmissionApplicationCharges = async(req, res) => {
+//   try{
+//     const { id } = req.params
+//     if(!id) return res.status(200).send({ message: "Their is a bug need to fixed immediatley 😡", access: false})
+//     const one_institute = await InstituteAdmin.findById({_id: id})
+//     one_institute.
+//   }
+//   catch(e){
+
+//   }
+// }
 
 exports.retrieveOnePostBlock = async (req, res) => {
   try {

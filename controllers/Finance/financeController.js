@@ -1311,6 +1311,7 @@ exports.retrieveRemainFeeList = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
     const finance = await Finance.findById({ _id: fid });
+    var sorted_zero = []
     const studentList = await InstituteAdmin.findById({
       _id: `${finance.institute}`,
     }).select("_id ApproveStudent");
@@ -1335,8 +1336,18 @@ exports.retrieveRemainFeeList = async (req, res) => {
         path: "user",
         select: "username userLegalName",
       });
+      for(var match of student){
+        if(match?.studentRemainingFeeCount > 0){
+          sorted_zero.push(match)
+        }
+      }
     // const sEncrypt = await encryptionPayload(student);
-    res.status(200).send({ message: "Remaining Fee List", list: student });
+    if(sorted_zero?.length > 0){
+      res.status(200).send({ message: "Remaining Fee List", list: sorted_zero });
+    }
+    else{
+      res.status(200).send({ message: "No Remaining Fee List", list: [] });
+    }
   } catch (e) {
     console.log(e);
   }

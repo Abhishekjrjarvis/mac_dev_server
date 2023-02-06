@@ -145,17 +145,17 @@ exports.whats_app_sms_payload = (
     if (
       content.content &&
       content.extension &&
-      content.message &&
-      process.env.IS_GLOBAL
+      content.message
     ) {
       const url = `https://web-wapp.in/api/send.php?number=91${margs}&type=media&message=${content.message}&media_url=${process.env.CDN_LINK}${content.content}&filename=${process.env.SMS_FILE_TYPE}${content.extension}&instance_id=${process.env.SMS_INSTANCE_ID}&access_token=${process.env.SMS_INSTANCE_TOKEN}`;
+      const encodeURL = encodeURI(url)
       axios
-        .post(url)
+        .post(encodeURL)
         .then((res) => {
           console.log("Sended Successfully");
         })
         .catch((e) => {
-          console.log("SMS API Bug", e.message);
+          console.log("SMS API Bug", e);
         });
       return true;
     } else {

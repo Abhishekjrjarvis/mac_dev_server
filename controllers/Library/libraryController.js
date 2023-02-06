@@ -113,9 +113,9 @@ exports.allBookByStaffSide = async (req, res) => {
     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
     const dropItem = (getPage - 1) * itemPerPage;
     if (
-      req.query.search ||
-      req.query.search.trim() !== "" ||
-      req.query.search !== undefined
+      req.query?.search ||
+      req.query?.search?.trim() !== "" ||
+      req.query?.search !== undefined
     ) {
       const library = await Library.findById(req.params.lid)
         .populate({

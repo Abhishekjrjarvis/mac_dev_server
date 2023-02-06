@@ -634,6 +634,10 @@ const instituteAdminSchema = new mongoose.Schema({
   gr_initials: {
     type: String,
   },
+  application_fee_charges: {
+    type: Number, 
+    default: 0
+  }
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

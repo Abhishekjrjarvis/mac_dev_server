@@ -55,7 +55,7 @@ exports.getProfileOneQuery = async (req, res) => {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName status photoId insProfilePhoto gr_initials sportStatus sms_lang sportClassStatus blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement followers userFollowersList admissionCount request_at affiliation_by"
+        "insName status photoId insProfilePhoto gr_initials application_fee_charges sportStatus sms_lang sportClassStatus blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement followers userFollowersList admissionCount request_at affiliation_by"
       )
       .populate({
         path: "request_at",
@@ -1711,7 +1711,7 @@ exports.retrieveNewSubject = async (req, res) => {
       subjects: subject._id,
     });
     subject.subjectTeacherName = staff._id;
-    notify.notifyContent = `you got the designation of ${subject.subjectName} of ${classes.classTitle} as ${subject.subjectTitle}`;
+    notify.notifyContent = `you got the designation of ${subject.subjectName} of ${classes.className} as ${subject.subjectTitle}`;
     notify.notifySender = id;
     notify.notifyReceiever = user._id;
     notify.notifyCategory = "Subject Designation";
@@ -1746,7 +1746,7 @@ exports.retrieveNewSubject = async (req, res) => {
       institute?.sms_lang,
       subject?.subjectName,
       subject?.subjectTitle,
-      classes?.classTitle
+      classes?.className
     );
   } catch (e) {
     console.log(e);

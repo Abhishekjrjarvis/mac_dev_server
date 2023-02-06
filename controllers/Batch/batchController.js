@@ -18,6 +18,7 @@ const invokeFirebaseNotification = require("../../Firebase/firebase");
 const User = require("../../models/User");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
+const { designation_alarm } = require("../../WhatsAppSMS/payload")
 
 exports.preformedStructure = async (req, res) => {
   try {
@@ -84,6 +85,14 @@ exports.preformedStructure = async (req, res) => {
         class_user._id,
         class_user.deviceToken
       );
+      designation_alarm(
+        class_user?.userPhoneNumber,
+        "CLASS",
+        institute?.sms_lang,
+        identicalClass.className,
+        identicalClass.classHeadTitle,
+        ""
+      );
       for (let oneSubject of oneClass?.subject) {
         const subjectMaster = await SubjectMaster.findById(
           oneSubject?.subjectMasterName
@@ -110,7 +119,7 @@ exports.preformedStructure = async (req, res) => {
         subjectMaster?.subjects.push(identicalSubject._id);
         subjectMaster.subjectCount += 1;
         identicalClass?.subject.push(identicalSubject?._id);
-        notify_subject.notifyContent = `you got the designation of ${identicalSubject.subjectName} as ${identicalSubject.subjectTitle}`;
+        notify_subject.notifyContent = `you got the designation of ${identicalSubject.subjectName} of ${identicalClass?.className} as ${identicalSubject.subjectTitle}`;
         notify_subject.notifySender = batch?.institute;
         notify_subject.notifyReceiever = subject_user._id;
         notify.notifyCategory = "Subject Designation";
@@ -123,6 +132,14 @@ exports.preformedStructure = async (req, res) => {
           institute.insName,
           subject_user._id,
           subject_user.deviceToken
+        );
+        designation_alarm(
+          subject_user?.userPhoneNumber,
+          "SUBJECT",
+          institute?.sms_lang,
+          identicalSubject.subjectName,
+          identicalSubject.subjectTitle,
+          identicalClass?.classTitle
         );
         await Promise.all([
           identicalSubject.save(),

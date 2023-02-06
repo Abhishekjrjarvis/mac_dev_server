@@ -10,6 +10,7 @@ const User = require("../../models/User");
 const DisplayPerson = require("../../models/DisplayPerson");
 const Notification = require("../../models/notification");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
+const { designation_alarm } = require("../../WhatsAppSMS/payload")
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 // const StudentPreviousData = require("../../models/StudentPreviousData");
@@ -79,6 +80,14 @@ exports.departmentEdit = async (req, res) => {
     res.status(200).send({
       message: "department edited successfully👍",
     });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "DHEAD",
+      institute?.sms_lang,
+      department?.dName,
+      department?.dTitle,
+      ""
+    );
   } catch (e) {
     console.log(e);
   }
@@ -352,6 +361,14 @@ exports.classEdit = async (req, res) => {
     res.status(200).send({
       message: "class edited successfully👍",
     });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "DHEAD",
+      institute?.sms_lang,
+      classes?.className,
+      classes?.classTitle,
+      ""
+    );
   } catch (e) {
     res.status(200).send({
       message: e,
@@ -476,6 +493,7 @@ exports.subjectEdit = async (req, res) => {
   try {
     if (!req.params.sid) throw "Please send subject id to perform task";
     const subject = await Subject.findById(req.params.sid);
+    const classes = await Class.findById({_id: `${subject?.class}`})
     if (req.body?.subjectTitle) {
       subject.subjectTitle = req.body?.subjectTitle;
     }
@@ -504,7 +522,7 @@ exports.subjectEdit = async (req, res) => {
       staff.staffDesignationCount += 1;
       staff.recentDesignation = subject.subjectTitle;
       subject.subjectTeacherName = staff._id;
-      notify.notifyContent = `you got the designation of ${subject.subjectName} as ${subject.subjectTitle}`;
+      notify.notifyContent = `you got the designation of ${subject.subjectName} of ${classes?.className} as ${subject.subjectTitle}`;
       notify.notifySender = institute._id;
       notify.notifyCategory = "Subject Designation";
       notify.notifyReceiever = user._id;
@@ -530,6 +548,14 @@ exports.subjectEdit = async (req, res) => {
     res.status(200).send({
       message: "Subject edited successfully👍",
     });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "DHEAD",
+      institute?.sms_lang,
+      subject?.subjectName,
+      subject?.subjectTitle,
+      classes?.className
+    );
   } catch (e) {
     res.status(200).send({
       message: e,

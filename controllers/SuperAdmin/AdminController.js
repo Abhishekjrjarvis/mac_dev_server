@@ -937,7 +937,7 @@ exports.retrieveOneInstituteQuery = async (req, res) => {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName photoId insProfilePhoto status blockStatus one_line_about bankAccountNumber bankAccountHolderName bankIfscCode bankAccountType bankAccountPhoneNumber paymentBankStatus questionCount pollCount insEditableText insEditableTexts coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAchievement "
+        "insName photoId insProfilePhoto status blockStatus application_fee_charges one_line_about bankAccountNumber bankAccountHolderName bankIfscCode bankAccountType bankAccountPhoneNumber paymentBankStatus questionCount pollCount insEditableText insEditableTexts coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAchievement "
       )
       .populate({
         path: "displayPersonList",
@@ -955,17 +955,20 @@ exports.retrieveOneInstituteQuery = async (req, res) => {
   }
 };
 
-// exports.uploadAdmissionApplicationCharges = async(req, res) => {
-//   try{
-//     const { id } = req.params
-//     if(!id) return res.status(200).send({ message: "Their is a bug need to fixed immediatley 😡", access: false})
-//     const one_institute = await InstituteAdmin.findById({_id: id})
-//     one_institute.
-//   }
-//   catch(e){
+exports.uploadAdmissionApplicationCharges = async(req, res) => {
+  try{
+    const { id } = req.params
+    const { charges } = req.body
+    if(!id && !charges) return res.status(200).send({ message: "Their is a bug need to fixed immediatley 😡", access: false})
+    const one_institute = await InstituteAdmin.findById({_id: id})
+    one_institute.application_fee_charges = parseInt(charges)
+    await one_institute.save()
+    res.status(200).send({ message: "New Charges Available 👍", access: true})
+  }
+  catch(e){
 
-//   }
-// }
+  }
+}
 
 exports.retrieveOnePostBlock = async (req, res) => {
   try {

@@ -13,6 +13,7 @@ const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 const { deleteFile, uploadFile } = require("../../S3Configuration");
 const { chart_category } = require("../../Custom/staffChart");
+const { designation_alarm } = require("../../WhatsAppSMS/payload");
 
 exports.photoEditByStaff = async (req, res) => {
   try {
@@ -104,7 +105,7 @@ exports.renderFinanceStaffQuery = async (req, res) => {
       _id: `${oldStaff?.institute?.financeDepart[0]}`,
     }).populate({
       path: "institute",
-      select: "insName",
+      select: "insName sms_lang",
     });
     const notify = new Notification({});
     newStaff.financeDepartment.push(finance._id);
@@ -143,6 +144,14 @@ exports.renderFinanceStaffQuery = async (req, res) => {
       message: "Successfully Assigned Finance Manager",
       status: true,
     });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "FINANCE",
+      finance?.institute?.sms_lang,
+      "",
+      "",
+      ""
+    );
   } catch (e) {
     console.log(e);
   }
@@ -167,7 +176,7 @@ exports.renderAdmissionStaffQuery = async (req, res) => {
       _id: `${oldStaff?.institute?.admissionDepart[0]}`,
     }).populate({
       path: "institute",
-      select: "insName",
+      select: "insName sms_lang",
     });
     const notify = new Notification({});
     newStaff.admissionDepartment.push(admission._id);
@@ -205,6 +214,14 @@ exports.renderAdmissionStaffQuery = async (req, res) => {
       message: "Successfully Assigned Admission Admin",
       status: true,
     });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "ADMISSION",
+      admission?.institute?.sms_lang,
+      "",
+      "",
+      ""
+    );
   } catch (e) {
     console.log(e);
   }
@@ -229,7 +246,7 @@ exports.renderSportStaffQuery = async (req, res) => {
       _id: `${oldStaff?.institute?.sportDepart[0]}`,
     }).populate({
       path: "institute",
-      select: "insName",
+      select: "insName sms_lang",
     });
     const notify = new Notification({});
     newStaff.sportDepartment.push(sport._id);
@@ -268,6 +285,14 @@ exports.renderSportStaffQuery = async (req, res) => {
       message: "Successfully Assigned Sport & Arts Head",
       status: true,
     });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "SPORTSHEAD",
+      sport?.institute?.sms_lang,
+      "",
+      "",
+      ""
+    );
   } catch (e) {
     console.log(e);
   }
@@ -292,7 +317,7 @@ exports.renderSportStaffClassQuery = async (req, res) => {
       _id: `${oldStaff?.institute?.sportClassDepart[0]}`,
     }).populate({
       path: "institute",
-      select: "insName",
+      select: "insName sms_lang",
     });
     const notify = new Notification({});
     newStaff.staffSportClass.push(sportClasses._id);
@@ -331,6 +356,14 @@ exports.renderSportStaffClassQuery = async (req, res) => {
       message: "Successfully Created Sport & Arts Class Head",
       status: true,
     });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "SPORTSCLASS",
+      sportClasses?.institute?.sms_lang,
+      sportClasses?.sportClassName,
+      "",
+      ""
+    );
   } catch (e) {
     console.log(e);
   }
@@ -355,7 +388,7 @@ exports.renderLibraryStaffQuery = async (req, res) => {
       _id: `${oldStaff?.institute?.library[0]}`,
     }).populate({
       path: "institute",
-      select: "insName",
+      select: "insName sms_lang",
     });
     const notify = new Notification({});
     newStaff.library.push(library._id);
@@ -392,6 +425,14 @@ exports.renderLibraryStaffQuery = async (req, res) => {
       message: "Successfully Assigned Library Head",
       status: true,
     });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "LIBRARY",
+      library?.institute?.sms_lang,
+      "",
+      "",
+      ""
+    );
   } catch (e) {
     console.log(e);
   }

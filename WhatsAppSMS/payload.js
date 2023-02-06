@@ -131,36 +131,41 @@ exports.whats_app_sms_payload = (
   largs
 ) => {
   try {
-    const content = payload_type_content(
-      margs,
-      sargs,
-      iargs,
-      cargs,
-      targs,
-      vargs,
-      pargs,
-      rargs,
-      largs
-    );
-    if (
-      content.content &&
-      content.extension &&
-      content.message
-    ) {
-      const url = `https://web-wapp.in/api/send.php?number=91${margs}&type=media&message=${content.message}&media_url=${process.env.CDN_LINK}${content.content}&filename=${process.env.SMS_FILE_TYPE}${content.extension}&instance_id=${process.env.SMS_INSTANCE_ID}&access_token=${process.env.SMS_INSTANCE_TOKEN}`;
-      const encodeURL = encodeURI(url)
-      axios
-        .post(encodeURL)
-        .then((res) => {
-          console.log("Sended Successfully");
-        })
-        .catch((e) => {
-          console.log("SMS API Bug", e);
-        });
-      return true;
-    } else {
-      return false;
-    }
+      if(process.env.IS_GLOBAL == true){
+        const content = payload_type_content(
+          margs,
+          sargs,
+          iargs,
+          cargs,
+          targs,
+          vargs,
+          pargs,
+          rargs,
+          largs
+        );
+        if (
+          content.content &&
+          content.extension &&
+          content.message
+        ) {
+          const url = `https://web-wapp.in/api/send.php?number=91${margs}&type=media&message=${content.message}&media_url=${process.env.CDN_LINK}${content.content}&filename=${process.env.SMS_FILE_TYPE}${content.extension}&instance_id=${process.env.SMS_INSTANCE_ID}&access_token=${process.env.SMS_INSTANCE_TOKEN}`;
+          const encodeURL = encodeURI(url)
+          axios
+            .post(encodeURL)
+            .then((res) => {
+              console.log("Sended Successfully");
+            })
+            .catch((e) => {
+              console.log("SMS API Bug", e);
+            });
+          return true;
+        } else {
+          return false;
+        }
+      }
+      else{
+
+      }
   } catch (e) {
     console.log(e);
   }
@@ -168,12 +173,12 @@ exports.whats_app_sms_payload = (
 
 const designation_alarm = (mob, type, lang, name, title, cTitle) => {
   try {
+    if(process.env.IS_GLOBAL == true){
     const value = dynamic_designation(name, title, cTitle);
     var valid = "";
     for (var val of value) {
       if (`${type}` === `${val?.type}`) {
         valid = val;
-        return val;
       }
     }
     var message =
@@ -184,10 +189,10 @@ const designation_alarm = (mob, type, lang, name, title, cTitle) => {
         : lang === "mt"
         ? valid?.m_text
         : "";
-    if (message) {
       const url = `https://web-wapp.in/api/send.php?number=91${mob}&type=media&message=${message}&media_url=${process.env.CDN_LINK}${valid.content}&filename=${process.env.SMS_FILE_TYPE}${valid.extension}&instance_id=${process.env.SMS_INSTANCE_ID}&access_token=${process.env.SMS_INSTANCE_TOKEN}`;
+      const encodeUrl = encodeURI(url)
       axios
-        .post(url)
+        .post(encodeUrl)
         .then((res) => {
           console.log("Sended Successfully");
         })
@@ -196,13 +201,14 @@ const designation_alarm = (mob, type, lang, name, title, cTitle) => {
         });
       return true;
     }
-    return false;
-    // console.log(valid);
+    else{
+
+    }
   } catch (e) {
     console.log(e);
   }
 };
 
-// console.log(designation_alarm(7007023972, "DHEAD", "en", "Physics", "HOD", ""));
+// console.log(designation_alarm(8787264007, "ADMISSION", "en", "", "", ""));
 
 // const url = `https://web-wapp.in/api/send.php?number=917007023972&type=text&message=Hello&instance_id=63D7C834B820F&access_token=91e482f7e128d555b2eca66109b2ce29`;

@@ -195,6 +195,8 @@ router.get(
   catchAsync(Admin.retrieveOneInstituteQuery)
 );
 
+router.patch("/one/institute/:id/profile/charges", catchAsync(Admin.uploadAdmissionApplicationCharges))
+
 router.patch(
   "/post/:pid/block",
   isLoggedIn,

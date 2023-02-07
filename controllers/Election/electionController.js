@@ -462,3 +462,81 @@ exports.retrieveVoteElectionDepartment = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.retrieveAllStudentElectionArray = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if(!sid) return res.status(200).send({
+      message: "Their is a bug need to fix immendiatley 😡",
+      access: false,
+    });
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const student = await Student.findById({ _id: sid})
+    .select("election_candidate")
+
+    const all_event = await Election.find({ _id: { $in: student?.election_candidate }})
+        .sort("-created_at")
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "election_position election_app_start_date"
+        );
+    if (all_event?.length > 0) {
+      // const allStudentEncrypt = await encryptionPayload(all_event);
+      res.status(200).send({
+        message: "All Election Event Array 😀",
+        all: all_event,
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Election Event Array 😡",
+        all: [],
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveAllStudentElectionArray = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if(!sid) return res.status(200).send({
+      message: "Their is a bug need to fix immendiatley 😡",
+      access: false,
+    });
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const student = await Student.findById({ _id: sid})
+    .select("election_candidate")
+
+    const all_event = await Election.find({ _id: { $in: student?.election_candidate }})
+        .sort("-created_at")
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "election_position election_app_start_date"
+        );
+    if (all_event?.length > 0) {
+      // const allStudentEncrypt = await encryptionPayload(all_event);
+      res.status(200).send({
+        message: "All Election Event Array 😀",
+        all: all_event,
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Election Event Array 😡",
+        all: [],
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

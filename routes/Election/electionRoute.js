@@ -64,7 +64,7 @@ router.get(
 router.get(
   "/all/:sid/query",
   // isLoggedIn,
-  catchAsync(Election.retrieveAllElectionArray)
+  catchAsync(Election.retrieveAllStudentElectionArray)
 );
 
 module.exports = router;

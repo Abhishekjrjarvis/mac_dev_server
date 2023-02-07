@@ -637,6 +637,14 @@ const instituteAdminSchema = new mongoose.Schema({
   application_fee_charges: {
     type: Number, 
     default: 0
+  },
+  total_application_amount: {
+    type: Number,
+    default: 0
+  },
+  return_to_qviple: {
+    type: Number,
+    default: 0
   }
 });
 

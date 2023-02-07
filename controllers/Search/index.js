@@ -727,6 +727,7 @@ exports.searchSubject = async (req, res) => {
 };
 exports.searchStudent = async (req, res) => {
   try {
+    var institute = await InstituteAdmin.findById({_id: req.params.id})
     if (req.query.search) {
       const search = req.query.search
         ? {
@@ -759,16 +760,12 @@ exports.searchStudent = async (req, res) => {
           path: "studentClass",
           select: "className",
         })
-        .populate({
-          path: "institute",
-          select: "gr_initials"
-        })
         .lean()
         .exec();
         student.sort(function (st1, st2) {
           return (
-            parseInt(st1.studentGRNO.slice(student?.institute?.gr_initials?.length)) -
-            parseInt(st2.studentGRNO.slice(student?.institute?.gr_initials?.length))
+            parseInt(st1.studentGRNO.slice(institute?.gr_initials?.length)) -
+            parseInt(st2.studentGRNO.slice(institute?.gr_initials?.length))
           );
         });
       res
@@ -792,16 +789,12 @@ exports.searchStudent = async (req, res) => {
           path: "studentClass",
           select: "className",
         })
-        .populate({
-          path: "institute",
-          select: "gr_initials"
-        })
         .lean()
         .exec();
         student.sort(function (st1, st2) {
           return (
-            parseInt(st1.studentGRNO.slice(student?.institute?.gr_initials?.length)) -
-            parseInt(st2.studentGRNO.slice(student?.institute?.gr_initials?.length))
+            parseInt(st1.studentGRNO.slice(institute?.gr_initials?.length)) -
+            parseInt(st2.studentGRNO.slice(institute?.gr_initials?.length))
           );
         });
       if (!student.length) {

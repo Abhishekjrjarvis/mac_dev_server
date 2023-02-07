@@ -17489,16 +17489,21 @@ paths:
         "200":
           description: OK
 
-  /api/v1/election/event/all/query:
+  /api/v1/election/event/{did}/all/query:
     get:
       tags:
         - Election Event Query
-      summary: All Election Event Array (verified)
+      summary: All Election Event Array of Department (verified)
       consumes:
         - application/json
       produces:
         - application/json
       parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: Enter Department ID
         - in: query
           name: page
           required: true
@@ -17528,6 +17533,35 @@ paths:
           required: true
           type: string
           description: Enter Election Event Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/election/event/one/{eid}/all/candidate:
+    get:
+      tags:
+        - Election Event Query
+      summary: One Election Event All Candidate Detail (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: Enter Election Event Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
       responses:
         "200":
           description: OK
@@ -17640,6 +17674,70 @@ paths:
           required: true
           type: string
           description: Enter Student Notification Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/election/event/{did}/one/institute:
+    get:
+      tags:
+        - Election Event Query
+      summary: One Election Event All Students List Detail (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: Enter Department Id
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/election/event/all/{sid}/query:
+    get:
+      tags:
+        - Election Event Query
+      summary: One Student All Election Event List Detail (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Student Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
       responses:
         "200":
           description: OK

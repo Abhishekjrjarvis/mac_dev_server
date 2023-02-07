@@ -2,12 +2,12 @@
 const { CreateJobCommand } = require("@aws-sdk/client-mediaconvert");
 const { emcClient } = require("./libs/emcClient.js");
 
-const params = {
-  Queue: "JOB_QUEUE_ARN", //JOB_QUEUE_ARN
+var params = {
+  Queue: `${process.env.AWS_JOB_QUEUE_ARN}`, //JOB_QUEUE_ARN
   UserMetadata: {
     Customer: "Amazon",
   },
-  Role: "IAM_ROLE_ARN", //IAM_ROLE_ARN
+  Role: `${process.env.AWS_IAM_ROLE_ARN}`, //IAM_ROLE_ARN
   Settings: {
     OutputGroups: [
       {
@@ -15,7 +15,7 @@ const params = {
         OutputGroupSettings: {
           Type: "FILE_GROUP_SETTINGS",
           FileGroupSettings: {
-            Destination: "OUTPUT_BUCKET_NAME", //OUTPUT_BUCKET_NAME, e.g., "s3://BUCKET_NAME/"
+            Destination: `s3://${process.env.AWS_OUTPUT_BUCKET}/`, //OUTPUT_BUCKET_NAME, e.g., "s3://BUCKET_NAME/"
           },
         },
         Outputs: [
@@ -132,9 +132,11 @@ const params = {
   },
 };
 
-const run = async () => {
+const run = async (file_key) => {
   try {
-    const data = await emcClient.send(new CreateJobCommand(params));
+    params.Settings.Inputs[0].FileInput = `s3://${process.env.AWS_INPUT_BUCKET}/${file_key}`
+    var new_params = params
+    const data = await emcClient.send(new CreateJobCommand(new_params));
     console.log("Job created!", data);
     return data;
   } catch (err) {

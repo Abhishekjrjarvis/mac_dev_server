@@ -10,6 +10,7 @@ const {
   admissionInstituteFunction,
   participateEventFunction,
   transportFunction,
+  applicationFunction
 } = require("./paymentModule");
 const { handle_undefined } = require("../../Handler/customError");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
@@ -206,6 +207,24 @@ exports.verifyRazorPayment = async (req, res) => {
         }
         res.redirect(
           `${process.env.FRONT_REDIRECT_URL}/q/${trans_status}/memberstab`
+        );
+      } else if (payment_module_type === "Application Fees") {
+        const app_status = await applicationFunction(
+          order_payment?._id,
+          payment_by_end_user_id,
+          refactor_amount_nocharges,
+          refactor_amount,
+          payment_module_id,
+          Boolean(razor_author)
+        );
+        if (isApk) {
+          res.status(200).send({
+            message: "Success with Razorpay Participate 😀",
+            check: true,
+          });
+        }
+        res.redirect(
+          `${process.env.FRONT_REDIRECT_URL}/q/${app_status}/feed`
         );
       } else {
       }

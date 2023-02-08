@@ -207,12 +207,19 @@ exports.getAlldailyUpdateStudent = async (req, res) => {
       const dailyUpdate = await SubjectUpdate.find({
         _id: { $in: student.dailyUpdate },
       })
-        .select("updateDate updateDescription date upadateImage createdAt")
-        .skip(dropItem)
-        .limit(itemPerPage)
         .sort({ createdAt: -1 })
-        .lean()
-        .exec();
+        .limit(itemPerPage)
+        .skip(dropItem)
+        .select("updateDate updateDescription date upadateImage createdAt")
+        .populate({
+          path: "subject",
+          select: "subjectTeacherName",
+          populate: {
+            path: "subjectTeacherName",
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+          },
+        });
       // const allEncrypt = await encryptionPayload(dailyUpdate);
       res.status(200).send({
         message: "all daily subject update list in student side",

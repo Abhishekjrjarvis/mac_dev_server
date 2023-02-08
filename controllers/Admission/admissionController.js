@@ -53,6 +53,9 @@ const {
   add_total_installment,
 } = require("../../helper/Installment");
 const { whats_app_sms_payload } = require("../../WhatsAppSMS/payload");
+const {
+  render_admission_current_role,
+} = require("../Moderator/roleController");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
@@ -118,7 +121,7 @@ exports.retrieveAdmissionAdminHead = async (req, res) => {
 exports.retrieveAdmissionDetailInfo = async (req, res) => {
   try {
     const { aid } = req.params;
-    const { sid } = req.params;
+    const { sid } = req.query;
     // const is_cache = await connect_redis_hit(`Admission-Detail-${aid}`);
     // if (is_cache?.hit)
     //   return res.status(200).send({
@@ -143,11 +146,17 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
     //   `Admission-Detail-${aid}`,
     //   admission
     // );
-    const value = await render_admission_current_role();
+    if(req?.query?.sid){
+      var value = await render_admission_current_role(
+        admission?.moderator_role,
+        sid
+      );
+    }
     res.status(200).send({
       message: "All Detail Admission Admin from DB 🙌",
       // admission: cached.admission,
       admission: admission,
+      roles: req?.query?.sid ? value : "",
     });
   } catch (e) {
     console.log(e);

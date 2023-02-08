@@ -18,5 +18,8 @@ router
   .route("/setting/:cid/report")
   .patch(isLoggedIn, catchAsync(classController.classReportSetting));
 
+router
+  .route("/:sid/all/active/mentors")
+  .get(catchAsync(classController.renderAllStudentMentors));
 // router.route("/checklist/:cid").post(isLoggedIn,catchAsync(classController.createClassChecklist));
 module.exports = router;

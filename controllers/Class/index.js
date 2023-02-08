@@ -1,6 +1,8 @@
 const Class = require("../../models/Class");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const encryptionPayload = require("../../Utilities/Encrypt/payload");
+const Subject = require("../../models/Subject");
+const Student = require("../../models/Student");
 // const Checklist = require("../../models/Checklist");
 
 exports.getOneInstitute = async (req, res) => {
@@ -97,6 +99,49 @@ exports.classReportSetting = async (req, res) => {
   } catch {}
 };
 
+exports.renderAllStudentMentors = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const student = await Student.findOne({});
+    const classes = await Class.findOne({ _id: `${student?.studentClass}` })
+      .select("subject classTeacher")
+      .populate({
+        path: "classTeacher",
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+      });
+    const all_subjects = await Subject.find({ _id: { $in: classes?.subject } })
+      .select("subjectTeacherName subjectName")
+      .populate({
+        path: "subjectTeacherName",
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+      });
+
+    if (all_subjects?.length > 0 || classes) {
+      res.status(200).send({
+        message: "All Active Mentors ClassTeacher / Subject Teacher",
+        access: true,
+        classes: classes?.classTeacher,
+        all_subjects: all_subjects,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Active Mentors",
+        access: false,
+        all_subjects: [],
+        classes: null,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
 // exports.createClassChecklist = async (req, res) => {
 //   try {
 //     const checklist = new Checklist(req.body);

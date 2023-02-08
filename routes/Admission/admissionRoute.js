@@ -17,7 +17,7 @@ router.post(
 // All Detail
 router.get(
   "/:aid/dashboard/query",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Admission.retrieveAdmissionDetailInfo)
 );
 
@@ -283,5 +283,8 @@ router.post(
 
 router.patch("/edit/:appId", catchAsync(Admission.renderAppEditQuery));
 
-router.delete("/:aid/destroy/:appId", catchAsync(Admission.renderAppDeleteQuery));
+router.delete(
+  "/:aid/destroy/:appId",
+  catchAsync(Admission.renderAppDeleteQuery)
+);
 module.exports = router;

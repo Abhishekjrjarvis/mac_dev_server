@@ -7,24 +7,31 @@ const Notification = require("../../models/notification");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 const { all_access_role } = require("./accessRole");
 const InstituteAdmin = require("../../models/InstituteAdmin");
+const { nested_document_limit } = require("../../helper/databaseFunction");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.render_admission_current_role = async (ads_admin, sid) => {
   try {
-    var permission = {};
+    var sorted = [];
     var all_role = all_access_role();
     const one_staff = await Staff.findById({ _id: sid });
-    for (var mod of ads_admin?.moderator_role) {
+    for (var mod of ads_admin) {
       for (ref of all_role) {
         if (
           `${mod?.staff}` === `${one_staff?._id}` &&
-          ref?.role === del?.hello?.role
+          one_staff?.permission.admission?.includes(ref?.role)
         ) {
           const val = ref;
-          val.permission.appArray.push(del?.hello?.apps);
+          val.permission.appArray.push(mod?.application);
           sorted.push(val);
         }
       }
+    }
+    var permission = { ...sorted };
+    if (permission) {
+      return permission;
+    } else {
+      return {};
     }
   } catch (e) {
     console.log(e);
@@ -101,28 +108,55 @@ exports.addAdmissionAppModerator = async (req, res) => {
   }
 };
 
-const data = () => {
-  var sorted = [];
-  var all_role = all_access_role();
-  const arr = [
-    {
-      hello: {
-        staff: "hey",
-        apps: "hello",
-        role: "FULL_ACCESS",
-      },
-    },
-    {
-      hello: {
-        staff: "hey",
-        apps: "hello",
-        role: "INQUIRY_ACCESS",
-      },
-    },
-  ];
+exports.renderAdmissionAllAppModeratorArray = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
 
-  const value = { ...sorted };
-  console.log(value);
+    const ads_admin = await Admission.findById({ _id: aid })
+      .select("moderator_role")
+      .populate({
+        path: "moderator_role",
+        populate: {
+          path: "application",
+          select: "applicationName",
+        },
+      })
+      .populate({
+        path: "moderator_role",
+        populate: {
+          path: "staff",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        },
+      });
+
+    const all_admins = nested_document_limit(
+      page,
+      limit,
+      ads_admin?.moderator_role
+    );
+    if (all_admins) {
+      // const allEncrypt = await encryptionPayload(all_admins);
+      res.status(200).send({
+        message: "All Admin / Moderator List 😀",
+        all_admins,
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Admin / Moderator List 😀",
+        all_admins: [],
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
 };
-
-// console.log(data());

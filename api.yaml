@@ -7921,6 +7921,25 @@ paths:
         "200":
           description: OK
 
+  /api/v1/class/{sid}/all/active/mentors:
+    get:
+      tags:
+        - Class Related Api
+      summary: All Mentors of One Student (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
+      responses:
+        "200":
+          description: OK
+
   /api/v1/attendance/department/{did}/holiday:
     post:
       tags:

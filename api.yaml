@@ -18262,6 +18262,31 @@ paths:
           description: OK
 
 
+  /api/v1/edit/staff/transport/staff/{osid}:
+    patch:
+      tags:
+        - Edit Admins
+      summary: Update Transport Admins (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: osid
+          required: true
+          type: string
+          description: Enter Old staff id
+        - in: query
+          name: nsid
+          required: true
+          type: string
+          description: Enter New staff id
+      responses:
+        "200":
+          description: OK
+
+
 # Backlog Api Module
 
   /api/v1/exam/backlog/class/master/{did}:

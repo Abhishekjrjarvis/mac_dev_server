@@ -38,4 +38,8 @@ router
   .route("/library/staff/:osid")
   .patch(isLoggedIn, catchAsync(staffMember.renderLibraryStaffQuery));
 
+router
+  .route("/transport/staff/:osid")
+  .patch(isLoggedIn, catchAsync(staffMember.renderTransportStaffQuery));
+
 module.exports = router;

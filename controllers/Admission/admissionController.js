@@ -118,6 +118,7 @@ exports.retrieveAdmissionAdminHead = async (req, res) => {
 exports.retrieveAdmissionDetailInfo = async (req, res) => {
   try {
     const { aid } = req.params;
+    const { sid } = req.params;
     // const is_cache = await connect_redis_hit(`Admission-Detail-${aid}`);
     // if (is_cache?.hit)
     //   return res.status(200).send({
@@ -126,7 +127,7 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
     //   });
     const admission = await Admission.findById({ _id: aid })
       .select(
-        "admissionAdminEmail admissionAdminPhoneNumber completedCount exemptAmount requested_status collected_fee remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount"
+        "admissionAdminEmail admissionAdminPhoneNumber moderator_role completedCount exemptAmount requested_status collected_fee remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount"
       )
       .populate({
         path: "admissionAdminHead",
@@ -142,6 +143,7 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
     //   `Admission-Detail-${aid}`,
     //   admission
     // );
+    const value = await render_admission_current_role();
     res.status(200).send({
       message: "All Detail Admission Admin from DB 🙌",
       // admission: cached.admission,
@@ -1660,7 +1662,9 @@ exports.retrieveClassAllotQuery = async (req, res) => {
         classes.strength += 1;
         classes.ApproveStudent.push(student._id);
         classes.studentCount += 1;
-        student.studentGRNO = `${institute?.gr_initials ? institute?.gr_initials : `Q`}${institute.ApproveStudent.length}`;
+        student.studentGRNO = `${
+          institute?.gr_initials ? institute?.gr_initials : `Q`
+        }${institute.ApproveStudent.length}`;
         student.studentROLLNO = classes.ApproveStudent.length;
         student.studentClass = classes._id;
         student.studentAdmissionDate = new Date().toISOString();

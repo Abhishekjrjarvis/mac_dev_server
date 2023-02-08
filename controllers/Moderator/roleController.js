@@ -6,9 +6,10 @@ const { designation_alarm } = require("../../WhatsAppSMS/payload");
 const Notification = require("../../models/notification");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 const { all_access_role } = require("./accessRole");
+const InstituteAdmin = require("../../models/InstituteAdmin");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
-exports.renderAdmissionCurrentRole = async (ads_admin, sid) => {
+exports.render_admission_current_role = async (ads_admin, sid) => {
   try {
     var permission = {};
     var all_role = all_access_role();
@@ -61,7 +62,7 @@ exports.addAdmissionAppModerator = async (req, res) => {
     staff.staffDesignationCount += 1;
     staff.recentDesignation = "Admission Admin Moderator";
     notify.notifyContent = `you got the designation of Admission Admin Moderator 🎉🎉`;
-    notify.notifySender = id;
+    notify.notifySender = institute?._id;
     notify.notifyReceiever = user._id;
     notify.notifyCategory = "Admission Designation";
     user.uNotify.push(notify._id);

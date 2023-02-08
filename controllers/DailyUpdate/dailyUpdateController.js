@@ -105,10 +105,10 @@ exports.createDailyUpdate = async (req, res) => {
       notify.notifyType = "Student";
       notify.notifyPublisher = student._id;
       student_user.activity_tab.push(notify._id);
-      notify.notifyBySubjectPhoto.subject_id = subject?._id
-      notify.notifyBySubjectPhoto.subject_name = subject.subjectName
-      notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png"
-      notify.notifyBySubjectPhoto.subject_title = subject.subjectTitle
+      notify.notifyBySubjectPhoto.subject_id = subject?._id;
+      notify.notifyBySubjectPhoto.subject_name = subject.subjectName;
+      notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
+      notify.notifyBySubjectPhoto.subject_title = subject.subjectTitle;
       notify.notifyCategory = "Daily Update";
       notify.redirectIndex = 14;
       //
@@ -137,7 +137,7 @@ exports.createDailyUpdate = async (req, res) => {
       await students.save();
     });
   } catch (e) {
-    console.log(e)
+    console.log(e);
   }
 };
 
@@ -185,12 +185,19 @@ exports.getAlldailyUpdateStudent = async (req, res) => {
         _id: { $in: student.dailyUpdate },
         subject: { $eq: `${req.query?.subjectId}` },
       })
-        .select("updateDate updateDescription date upadateImage createdAt")
-        .skip(dropItem)
-        .limit(itemPerPage)
         .sort({ createdAt: -1 })
-        .lean()
-        .exec();
+        .limit(itemPerPage)
+        .skip(dropItem)
+        .select("updateDate updateDescription date upadateImage createdAt")
+        .populate({
+          path: "subject",
+          select: "subjectTeacherName",
+          populate: {
+            path: "subjectTeacherName",
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+          },
+        });
       // const allEncrypt = await encryptionPayload(dailyUpdate);
       res.status(200).send({
         message: "all daily subject update list in student side",

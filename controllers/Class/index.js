@@ -109,14 +109,14 @@ exports.renderAllStudentMentors = async (req, res) => {
       });
     const student = await Student.findOne({});
     const classes = await Class.findOne({ _id: `${student?.studentClass}` })
-      .select("subject classTeacher")
+      .select("subject classTeacher classHeadTitle")
       .populate({
         path: "classTeacher",
         select:
           "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
       });
     const all_subjects = await Subject.find({ _id: { $in: classes?.subject } })
-      .select("subjectTeacherName subjectName")
+      .select("subjectTeacherName subjectName subjectTitle")
       .populate({
         path: "subjectTeacherName",
         select:

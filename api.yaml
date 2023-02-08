@@ -18881,6 +18881,11 @@ paths:
           required: true
           type: string
           description: Enter Limit No.
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
       responses:
         "200":
           description: OK
@@ -18910,6 +18915,11 @@ paths:
           required: true
           type: string
           description: Enter Limit No.
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
         - in: query
           name: filter_by
           required: true
@@ -18992,6 +19002,11 @@ paths:
           required: true
           type: string
           description: This is Vehicle id 
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
       responses:
         "200":
           description: OK

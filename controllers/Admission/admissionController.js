@@ -1660,7 +1660,7 @@ exports.retrieveClassAllotQuery = async (req, res) => {
         classes.strength += 1;
         classes.ApproveStudent.push(student._id);
         classes.studentCount += 1;
-        student.studentGRNO = `${institute?.gr_initials ? institute?.gr_initials : Q}${institute.ApproveStudent.length}`;
+        student.studentGRNO = `${institute?.gr_initials ? institute?.gr_initials : `Q`}${institute.ApproveStudent.length}`;
         student.studentROLLNO = classes.ApproveStudent.length;
         student.studentClass = classes._id;
         student.studentAdmissionDate = new Date().toISOString();

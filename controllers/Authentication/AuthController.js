@@ -1957,7 +1957,7 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       classes.strength += 1;
       classes.ApproveStudent.push(student._id);
       classes.studentCount += 1;
-      student.studentGRNO = `${institute?.gr_initials ? institute?.gr_initials : Q}${institute.ApproveStudent.length}`;
+      student.studentGRNO = `${institute?.gr_initials ? institute?.gr_initials : `Q`}${institute.ApproveStudent.length}`;
       student.studentROLLNO = classes.ApproveStudent.length;
       student.studentClass = classes._id;
       student.studentAdmissionDate = new Date().toISOString();
@@ -2040,7 +2040,7 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
             student.studentMiddleName ? student.studentMiddleName : ""
           } ${student.studentLastName}`,
           institute?.insName,
-          classes?.classTitle
+          classes?.classTitle,
         );
       } else if (institute.sms_lang === "hi") {
         await directHSMSQuery(
@@ -2051,14 +2051,14 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
           institute?.insName,
           classes?.classTitle
         );
-      } else if (institute.sms_lang === "mr") {
+      } else if (institute.sms_lang === "mr" || institute.sms_lang === "mt") {
         await directMSMSQuery(
           user?.userPhoneNumber,
           `${student.studentFirstName} ${
             student.studentMiddleName ? student.studentMiddleName : ""
           } ${student.studentLastName}`,
           institute?.insName,
-          classes?.classTitle
+          classes?.classTitle,
         );
       } else {
       }

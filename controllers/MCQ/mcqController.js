@@ -769,12 +769,10 @@ exports.takeTestSet = async (req, res) => {
       notify.notifyPublisher = student._id;
       user.activity_tab.push(notify._id);
       student.notification.push(notify._id);
-      notify.notifyBySubjectPhoto = {
-        subject_id: subject?._id,
-        subject_name: subject.subjectName,
-        subject_cover: "subject-cover.png",
-        subject_title: subject.subjectTitle,
-      };
+      notify.notifyBySubjectPhoto.subject_id = subject?._id
+      notify.notifyBySubjectPhoto.subject_name = subject.subjectName
+      notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png"
+      notify.notifyBySubjectPhoto.subject_title = subject.subjectTitle
       notify.notifyCategory = "MCQ";
       notify.redirectIndex = 6;
       invokeMemberTabNotification(
@@ -1486,8 +1484,7 @@ exports.createAssignment = async (req, res) => {
         const studentTestSet = new StudentTestSet(obj);
         studentAssignment.testSet.push(studentTestSet._id);
         await studentTestSet.save();
-      }notifyBySubjectPhoto
-
+      }
       stu.assignments.push(studentAssignment._id);
       const notify = new StudentNotification({});
       notify.notifyContent = `New ${studentAssignment.assignmentName} is created for ${subject.subjectName} , check your members tab`;
@@ -1499,12 +1496,10 @@ exports.createAssignment = async (req, res) => {
       notify.notifyPublisher = stu._id;
       user.activity_tab.push(notify._id);
       stu.notification.push(notify._id);
-      notify.notifyBySubjectPhoto = {
-        subject_id: subject?._id,
-        subject_name: subject.subjectName,
-        subject_cover: "subject-cover.png",
-        subject_title: subject.subjectTitle,
-      };
+      notify.notifyBySubjectPhoto.subject_id = subject?._id
+      notify.notifyBySubjectPhoto.subject_name = subject.subjectName
+      notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png"
+      notify.notifyBySubjectPhoto.subject_title = subject.subjectTitle
       notify.notifyCategory = "Assignment";
       notify.redirectIndex = 7;
       //
@@ -1680,12 +1675,10 @@ exports.getOneAssignmentOneStudentCompleteAssignment = async (req, res) => {
     notify.subjectId = subjectAssignment?.subject._id;
     notify.notifyType = "Student";
     notify.notifyPublisher = student._id;
-    notify.notifyBySubjectPhoto = {
-      subject_id: subjectAssignment?.subject._id,
-      subject_name: subjectAssignment?.subject.subjectName,
-      subject_cover: "subject-cover.png",
-      subject_title: subjectAssignment?.subject.subjectTitle,
-    };
+    notify.notifyBySubjectPhoto.subject_id = subjectAssignment?.subject._id
+    notify.notifyBySubjectPhoto.subject_name = subjectAssignment?.subject.subjectName
+    notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png"
+    notify.notifyBySubjectPhoto.subject_title = subjectAssignment?.subject.subjectTitle
     user.activity_tab.push(notify._id);
     // notify.notifyByDepartPhoto = department._id;
     if (req.body.assignmentSubmit === true) {

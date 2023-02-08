@@ -162,6 +162,15 @@ const staffSchema = new mongoose.Schema({
       ref: "Admission",
     },
   ],
+  admissionModeratorDepartment: [
+    {
+      admission: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Admission",
+      },
+      type: { type: String, default: "Admission Admin" },
+    },
+  ],
   isAdmin: {
     type: Boolean,
     default: false,
@@ -227,6 +236,10 @@ const staffSchema = new mongoose.Schema({
   vehicle_category: {
     type: String,
   },
+  permission: {
+    admission: [],
+    finance: []
+  }
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

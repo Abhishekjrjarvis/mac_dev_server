@@ -43,6 +43,7 @@ const checkout = require("../routes/RazorPay/payCheckoutRoute");
 const hashtag = require("../routes/HashTag/hashtagRoute");
 const manage = require("../routes/ManageAdmin/manageRoute");
 const transport = require("../routes/Transport/transportRoute");
+const permission = require("../routes/Moderator/roleRoute");
 
 // Api Middleware Func
 
@@ -87,6 +88,7 @@ router.use("/api/v1/pay", checkout);
 router.use("/api/v1/hashtag", hashtag);
 router.use("/api/v1/manage/admin", manage);
 router.use("/api/v1/transport", transport);
+router.use("/api/v1/role/permission", permission);
 
 router.use("/api/v1/prod/access", prod);
 

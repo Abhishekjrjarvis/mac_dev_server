@@ -9,13 +9,12 @@ const { isLoggedIn } = require("../../middleware");
 // Fix Daily Update Create
 router
   .route("/subject/:sid")
-  .get(isLoggedIn, catchAsync(dailyUpdateController.getAlldailyUpdate))
+  .get(catchAsync(dailyUpdateController.getAlldailyUpdate))
   .post(
     upload.array("file"),
-    isLoggedIn,
     catchAsync(dailyUpdateController.createDailyUpdate)
   )
-  .patch(isLoggedIn, catchAsync(dailyUpdateController.editDailyUpdate));
+  .patch(catchAsync(dailyUpdateController.editDailyUpdate));
 
 // Student Side Daily Update
 router

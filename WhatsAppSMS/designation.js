@@ -41,6 +41,14 @@ exports.dynamic_designation = (name, title, cTitle) => {
       content: "SMS_Assests/admission-role.png",
     },
     {
+      type: "ADMISSION_MODERATOR",
+      e_text: "you got the designation of Admission Admin Moderator",
+      h_text: "आपको प्रवेश व्यवस्थापक मध्यस्थ का पदनाम मिला है",
+      m_text: "तुम्हाला Admission Admin Moderator हे पद मिळाले आहे",
+      extension: ".png",
+      content: "SMS_Assests/admission-role.png",
+    },
+    {
       type: "SPORTSHEAD",
       e_text: "you got the designation as Sport & Arts Head",
       h_text: "आपको खेल और कला प्रमुख प्रशिक्षक के रूप में पदनाम मिला है |",

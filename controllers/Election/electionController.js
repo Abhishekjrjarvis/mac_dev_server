@@ -141,7 +141,7 @@ exports.retrieveAllElectionQuery = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "election_position election_app_start_date election_voting_date election_status"
+        "election_position election_app_start_date election_voting_date election_status election_status"
       );
     if (elect?.length > 0) {
       // const electEncrypt = await encryptionPayload(elect);
@@ -162,7 +162,7 @@ exports.retrieveOneElectionQuery = async (req, res) => {
     const { eid } = req.params;
     const elect = await Election.findById({ _id: eid })
       .select(
-        "election_position election_app_start_date election_app_end_date election_selection_date election_campaign_last_date election_campaign_date election_result_date election_voting_date election_status"
+        "election_position election_status election_app_start_date election_app_end_date election_selection_date election_campaign_last_date election_campaign_date election_result_date election_voting_date election_status"
       )
       .populate({
         path: "election_candidate",
@@ -520,7 +520,7 @@ exports.retrieveAllStudentElectionArray = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "election_position election_app_start_date"
+          "election_position election_app_start_date election_status"
         );
     if (all_event?.length > 0) {
       // const allStudentEncrypt = await encryptionPayload(all_event);

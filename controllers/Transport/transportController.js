@@ -300,6 +300,7 @@ exports.renderTransportAllVehicle = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
+    const { search } = req.query;
     if (!tid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -308,32 +309,63 @@ exports.renderTransportAllVehicle = async (req, res) => {
     const trans = await Transport.findById({ _id: tid }).select(
       "transport_vehicles"
     );
-
-    const all_vehicles = await Vehicle.find({
-      _id: { $in: trans?.transport_vehicles },
-    })
-      .limit(limit)
-      .skip(skip)
-      .select(
-        "vehicle_number passenger_count vehicle_type vehicle_photo photoId"
-      )
-      .populate({
-        path: "vehicle_conductor",
-        select: "staffFirstName staffMiddleName staffLastName",
+    if (search) {
+      var all_vehicles = await Vehicle.find({
+        $and: [{ _id: { $in: trans?.transport_vehicles } }],
+        $or: [
+          {
+            vehicle_number: { $regex: search, $options: "i" },
+          },
+          {
+            vehicle_type: { $regex: search, $options: "i" },
+          },
+        ],
       })
-      .populate({
-        path: "vehicle_driver",
-        select: "staffFirstName staffMiddleName staffLastName",
+        .select(
+          "vehicle_number passenger_count vehicle_type vehicle_photo photoId"
+        )
+        .populate({
+          path: "vehicle_conductor",
+          select: "staffFirstName staffMiddleName staffLastName",
+        })
+        .populate({
+          path: "vehicle_driver",
+          select: "staffFirstName staffMiddleName staffLastName",
+        })
+        .populate({
+          path: "vehicle_no_driver",
+          select: "userLegalName",
+        })
+        .populate({
+          path: "vehicle_no_conductor",
+          select: "userLegalName",
+        });
+    } else {
+      var all_vehicles = await Vehicle.find({
+        _id: { $in: trans?.transport_vehicles },
       })
-      .populate({
-        path: "vehicle_no_driver",
-        select: "userLegalName",
-      })
-      .populate({
-        path: "vehicle_no_conductor",
-        select: "userLegalName",
-      });
-
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "vehicle_number passenger_count vehicle_type vehicle_photo photoId"
+        )
+        .populate({
+          path: "vehicle_conductor",
+          select: "staffFirstName staffMiddleName staffLastName",
+        })
+        .populate({
+          path: "vehicle_driver",
+          select: "staffFirstName staffMiddleName staffLastName",
+        })
+        .populate({
+          path: "vehicle_no_driver",
+          select: "userLegalName",
+        })
+        .populate({
+          path: "vehicle_no_conductor",
+          select: "userLegalName",
+        });
+    }
     if (all_vehicles?.length > 0) {
       res.status(200).send({
         message: "Lot's of vehicles 😀",
@@ -358,7 +390,7 @@ exports.renderTransportAllPassenger = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { filter_by } = req.query;
+    const { filter_by, search } = req.query;
     if (!tid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -369,32 +401,81 @@ exports.renderTransportAllPassenger = async (req, res) => {
     );
 
     if (filter_by) {
-      var all_passengers = await Student.find({
-        _id: { $in: trans?.transport_passengers },
-      })
-        .sort("-vehicleRemainFeeCount")
-        .limit(limit)
-        .skip(skip)
-        .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
-        )
-        .populate({
-          path: "studentClass",
-          select: "className classTitle",
-        });
+      if (search) {
+        var all_passengers = await Student.find({
+          $and: [{ _id: { $in: trans?.transport_passengers } }],
+          $or: [
+            {
+              studentFirstName: { $regex: search, $options: "i" },
+            },
+            {
+              studentMiddleName: { $regex: search, $options: "i" },
+            },
+            {
+              studentLastName: { $regex: search, $options: "i" },
+            },
+          ],
+        })
+          .sort("-vehicleRemainFeeCount")
+          .select(
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+          )
+          .populate({
+            path: "studentClass",
+            select: "className classTitle",
+          });
+      } else {
+        var all_passengers = await Student.find({
+          _id: { $in: trans?.transport_passengers },
+        })
+          .sort("-vehicleRemainFeeCount")
+          .limit(limit)
+          .skip(skip)
+          .select(
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+          )
+          .populate({
+            path: "studentClass",
+            select: "className classTitle",
+          });
+      }
     } else {
-      var all_passengers = await Student.find({
-        _id: { $in: trans?.transport_passengers },
-      })
-        .limit(limit)
-        .skip(skip)
-        .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
-        )
-        .populate({
-          path: "studentClass",
-          select: "className classTitle",
-        });
+      if (search) {
+        var all_passengers = await Student.find({
+          $and: [{ _id: { $in: trans?.transport_passengers } }],
+          $or: [
+            {
+              studentFirstName: { $regex: search, $options: "i" },
+            },
+            {
+              studentMiddleName: { $regex: search, $options: "i" },
+            },
+            {
+              studentLastName: { $regex: search, $options: "i" },
+            },
+          ],
+        })
+          .select(
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+          )
+          .populate({
+            path: "studentClass",
+            select: "className classTitle",
+          });
+      } else {
+        var all_passengers = await Student.find({
+          _id: { $in: trans?.transport_passengers },
+        })
+          .limit(limit)
+          .skip(skip)
+          .select(
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+          )
+          .populate({
+            path: "studentClass",
+            select: "className classTitle",
+          });
+      }
     }
     if (all_passengers?.length > 0) {
       res.status(200).send({
@@ -507,6 +588,10 @@ exports.renderTransportOneVehicleQuery = async (req, res) => {
       .populate({
         path: "vehicle_no_conductor",
         select: "userLegalName",
+      })
+      .populate({
+        path: "transport",
+        select: "institute",
       });
 
     const all_passengers = await Student.find({

@@ -1,5 +1,6 @@
 const Subject = require("../../models/Subject");
 const Student = require("../../models/Student");
+const User = require("../../models/User");
 const SubjectUpdate = require("../../models/SubjectUpdate");
 const { uploadDocFile, deleteFile } = require("../../S3Configuration");
 const fs = require("fs");
@@ -104,8 +105,10 @@ exports.createDailyUpdate = async (req, res) => {
       notify.notifyType = "Student";
       notify.notifyPublisher = student._id;
       student_user.activity_tab.push(notify._id);
-      student.notification.push(notify._id);
-      notify.notifyByDepartPhoto = department._id;
+      notify.notifyBySubjectPhoto.subject_id = subject?._id
+      notify.notifyBySubjectPhoto.subject_name = subject.subjectName
+      notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png"
+      notify.notifyBySubjectPhoto.subject_title = subject.subjectTitle
       notify.notifyCategory = "Daily Update";
       notify.redirectIndex = 14;
       //
@@ -134,9 +137,7 @@ exports.createDailyUpdate = async (req, res) => {
       await students.save();
     });
   } catch (e) {
-    res.status(200).send({
-      message: e,
-    });
+    console.log(e)
   }
 };
 

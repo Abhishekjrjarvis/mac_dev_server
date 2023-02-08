@@ -1356,7 +1356,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
     if (isApk) {
       var staff = await Staff.findById({ _id: sid })
         .select(
-          "staffFirstName staffDesignationCount staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber"
+          "staffFirstName staffDesignationCount vehicle_category staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber"
         )
         .populate({
           path: "staffDepartment",
@@ -1441,13 +1441,16 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "transportDepartment",
-          select:
-            "vehicle_count transport_staff_count transport_photo photoId passenger_count online_fee offline_fee remaining_fee",
+          select: "vehicle_count",
           populate: {
             path: "transport_manager",
             select:
               "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
           },
+        })
+        .populate({
+          path: "vehicle",
+          select: "_id",
         })
         .populate({
           path: "library",
@@ -1499,7 +1502,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
     } else {
       var staff = await Staff.findById({ _id: sid })
         .select(
-          "staffFirstName staffDesignationCount staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber"
+          "staffFirstName staffDesignationCount vehicle_category staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber"
         )
         .populate({
           path: "staffDepartment",
@@ -1584,13 +1587,16 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "transportDepartment",
-          select:
-            "vehicle_count transport_staff_count transport_photo photoId passenger_count online_fee offline_fee remaining_fee",
+          select: "vehicle_count",
           populate: {
             path: "transport_manager",
             select:
               "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
           },
+        })
+        .populate({
+          path: "vehicle",
+          select: "_id",
         })
         .populate({
           path: "library",
@@ -1657,37 +1663,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           })
           .populate({
             path: "vehicle",
-            select: "vehicle_number vehicle_type vehicle_photo photoId",
-            populate: {
-              path: "vehicle_conductor",
-              select:
-                "staffFirstName staffMiddleName staffLastName staffPhoneNumber",
-            },
-          })
-          .populate({
-            path: "vehicle",
-            select: "vehicle_number vehicle_type vehicle_photo photoId",
-            populate: {
-              path: "vehicle_driver",
-              select:
-                "staffFirstName staffMiddleName staffLastName staffPhoneNumber",
-            },
-          })
-          .populate({
-            path: "vehicle",
-            select: "vehicle_number vehicle_type vehicle_photo photoId",
-            populate: {
-              path: "vehicle_no_driver",
-              select: "userLegalName userPhoneNumber",
-            },
-          })
-          .populate({
-            path: "vehicle",
-            select: "vehicle_number vehicle_type vehicle_photo photoId",
-            populate: {
-              path: "vehicle_no_conductor",
-              select: "userLegalName userPhoneNumber",
-            },
+            select: "_id",
           });
         if (student?.studentDocuments?.length > 0) {
           for (var docs of student.studentDocuments) {
@@ -1748,37 +1724,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           })
           .populate({
             path: "vehicle",
-            select: "vehicle_number vehicle_type vehicle_photo photoId",
-            populate: {
-              path: "vehicle_conductor",
-              select:
-                "staffFirstName staffMiddleName staffLastName staffPhoneNumber",
-            },
-          })
-          .populate({
-            path: "vehicle",
-            select: "vehicle_number vehicle_type vehicle_photo photoId",
-            populate: {
-              path: "vehicle_driver",
-              select:
-                "staffFirstName staffMiddleName staffLastName staffPhoneNumber",
-            },
-          })
-          .populate({
-            path: "vehicle",
-            select: "vehicle_number vehicle_type vehicle_photo photoId",
-            populate: {
-              path: "vehicle_no_driver",
-              select: "userLegalName userPhoneNumber",
-            },
-          })
-          .populate({
-            path: "vehicle",
-            select: "vehicle_number vehicle_type vehicle_photo photoId",
-            populate: {
-              path: "vehicle_no_conductor",
-              select: "userLegalName userPhoneNumber",
-            },
+            select: "_id",
           });
       }
       average_points += student.extraPoints / student.batchCount;

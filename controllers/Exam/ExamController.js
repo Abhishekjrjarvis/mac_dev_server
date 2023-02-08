@@ -468,12 +468,10 @@ exports.allStudentMarksBySubjectTeacher = async (req, res) => {
       notify.notifyPublisher = student._id;
       notify.subjectId = subjectData._id;
       user.activity_tab.push(notify._id);
-      notify.notifyBySubjectPhoto = {
-        subject_id: subjectData._id,
-        subject_name: subjectData.subjectName,
-        subject_cover: "subject-cover.png",
-        subject_title: subjectData.subjectTitle,
-      };
+      notify.notifyBySubjectPhoto.subject_id = subjectData?._id
+      notify.notifyBySubjectPhoto.subject_name = subjectData.subjectName
+      notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png"
+      notify.notifyBySubjectPhoto.subject_title = subjectData.subjectTitle
       notifyByExamPhoto = {
         exam_id: exam_data?._id,
         exam_name: exam_data?.examName,

@@ -37,7 +37,7 @@ const payload_type_content = (
 3. मोबाईल क्रमांक OTP सह सत्यापित करा. 
 4. तुमचे खाते निवडा आणि लॉगिन करा.`;
     var message =
-      lang === "en" ? text : lang === "hi" ? hext : lang === "mt" ? mext : "";
+      lang === "en" ? text : lang === "hi" ? hext : lang === "mt" || lang === "mr"  ? mext : "";
     if (value === "College/Polytechnic") {
       var content = "SMS_Assests/Add_Student_College.png";
       var extension = ".png";
@@ -82,7 +82,7 @@ ${iName} में आपका स्वागत है।
 3. मोबाईल क्रमांक OTP सह सत्यापित करा. 
 4. तुमचे खाते निवडा आणि लॉगिन करा.`;
     var message =
-      lang === "en" ? text : lang === "hi" ? hext : lang === "mt" ? mext : "";
+      lang === "en" ? text : lang === "hi" ? hext : lang === "mt" || lang === "mr" ? mext : "";
     if (value === "College/Polytechnic") {
       var content = "SMS_Assests/Add_Student_College.png";
       var extension = ".png";
@@ -112,7 +112,7 @@ ${iName} में आपका स्वागत है।
 3. मोबाईल क्रमांक OTP सह सत्यापित करा. 
 4. तुमचे खाते निवडा आणि लॉगिन करा.`;
     var message =
-      lang === "en" ? text : lang === "hi" ? hext : lang === "mt" ? mext : "";
+      lang === "en" ? text : lang === "hi" ? hext : lang === "mt" || lang === "mr" ? mext : "";
     var content = "SMS_Assests/Institute_Add_Staff.jpeg";
     var extension = ".jpeg";
   }
@@ -131,66 +131,60 @@ exports.whats_app_sms_payload = (
   largs
 ) => {
   try {
-      if(process.env.IS_GLOBAL == true){
-        const content = payload_type_content(
-          margs,
-          sargs,
-          iargs,
-          cargs,
-          targs,
-          vargs,
-          pargs,
-          rargs,
-          largs
-        );
-        if (
-          content.content &&
-          content.extension &&
-          content.message
-        ) {
-          const url = `https://web-wapp.in/api/send.php?number=91${margs}&type=media&message=${content.message}&media_url=${process.env.CDN_LINK}${content.content}&filename=${process.env.SMS_FILE_TYPE}${content.extension}&instance_id=${process.env.SMS_INSTANCE_ID}&access_token=${process.env.SMS_INSTANCE_TOKEN}`;
-          const encodeURL = encodeURI(url)
-          axios
-            .post(encodeURL)
-            .then((res) => {
-              console.log("Sended Successfully");
-            })
-            .catch((e) => {
-              console.log("SMS API Bug", e);
-            });
-          return true;
-        } else {
-          return false;
-        }
+    if (process.env.IS_GLOBAL == true) {
+      const content = payload_type_content(
+        margs,
+        sargs,
+        iargs,
+        cargs,
+        targs,
+        vargs,
+        pargs,
+        rargs,
+        largs
+      );
+      if (content.content && content.extension && content.message) {
+        const url = `https://web-wapp.in/api/send.php?number=91${margs}&type=media&message=${content.message}&media_url=${process.env.CDN_LINK}${content.content}&filename=${process.env.SMS_FILE_TYPE}${content.extension}&instance_id=${process.env.SMS_INSTANCE_ID}&access_token=${process.env.SMS_INSTANCE_TOKEN}`;
+        const encodeURL = encodeURI(url);
+        axios
+          .post(encodeURL)
+          .then((res) => {
+            console.log("Sended Successfully");
+          })
+          .catch((e) => {
+            console.log("SMS API Bug", e);
+          });
+        return true;
+      } else {
+        return false;
       }
-      else{
-
-      }
+    } else {
+    }
   } catch (e) {
     console.log(e);
   }
 };
 
-const designation_alarm = (mob, type, lang, name, title, cTitle) => {
+exports.designation_alarm = (mob, type, lang, name, title, cTitle) => {
   try {
-    if(process.env.IS_GLOBAL == true){
-    const value = dynamic_designation(name, title, cTitle);
-    var valid = "";
-    for (var val of value) {
-      if (`${type}` === `${val?.type}`) {
-        valid = val;
+    if (process.env.IS_GLOBAL == true) {
+      const value = dynamic_designation(name, title, cTitle);
+      var valid = "";
+      for (var val of value) {
+        if (`${type}` === `${val?.type}`) {
+          valid = val;
+        }
       }
-    }
-    var message =
-      lang === "en"
-        ? valid?.e_text
-        : lang === "hi"
-        ? valid?.h_text
-        : lang === "mt"
-        ? valid?.m_text
-        : "";
+      var message =
+        lang === "en"
+          ? valid?.e_text
+          : lang === "hi"
+          ? valid?.h_text
+          : lang === "mt" || lang === "mr"
+          ? valid?.m_text
+          : "";
       const url = `https://web-wapp.in/api/send.php?number=91${mob}&type=media&message=${message}&media_url=${process.env.CDN_LINK}${valid.content}&filename=${process.env.SMS_FILE_TYPE}${valid.extension}&instance_id=${process.env.SMS_INSTANCE_ID}&access_token=${process.env.SMS_INSTANCE_TOKEN}`;
-      const encodeUrl = encodeURI(url)
+      const encodeUrl = encodeURI(url);
       axios
         .post(encodeUrl)
         .then((res) => {
@@ -200,9 +194,7 @@ const designation_alarm = (mob, type, lang, name, title, cTitle) => {
           console.log("SMS API Bug", e.message);
         });
       return true;
-    }
-    else{
-
+    } else {
     }
   } catch (e) {
     console.log(e);

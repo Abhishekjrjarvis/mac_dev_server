@@ -131,7 +131,8 @@ exports.retrieveBonafideGRNO = async (req, res) => {
       _id: id,
     });
     const validGR = valid_initials(institute?.gr_initials, gr);
-    if(!validGR) return res.status(200).send({ message: "I Think you lost in space"})
+    if (!validGR)
+      return res.status(200).send({ message: "I Think you lost in space" });
     const student = await Student.findOne({
       $and: [{ studentGRNO: `${validGR}` }, { institute: id }],
     })
@@ -190,7 +191,8 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       _id: id,
     });
     const validGR = valid_initials(institute?.gr_initials, gr);
-    if(!validGR) return res.status(200).send({ message: "I Think you lost in space"})
+    if (!validGR)
+      return res.status(200).send({ message: "I Think you lost in space" });
     const student = await Student.findOne({
       $and: [{ studentGRNO: `${validGR}` }, { institute: id }],
     })
@@ -793,11 +795,13 @@ exports.retrieveActiveMemberRole = async (req, res) => {
         : active_user?.student?.length > 0
         ? active_user?.student[0]
         : "";
-    if (!active_user?.active_member_role) {
-      active_user.active_member_role = role;
+    if (active_user?.active_member_role) {
+      active_user.active_member_role = active_member_role
+        ? active_member_role
+        : active_user.active_member_role;
       await active_user.save();
-    } else if (active_user?.active_member_role) {
-      active_user.active_member_role = active_member_role;
+    } else {
+      active_user.active_member_role = role;
       await active_user.save();
     }
 

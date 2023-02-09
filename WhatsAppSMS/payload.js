@@ -187,7 +187,8 @@ exports.whats_app_sms_payload = (
 
 exports.designation_alarm = (mob, type, lang, name, title, cTitle) => {
   try {
-    if (process.env.IS_GLOBAL == true) {
+    const bool = process.env.IS_GLOBAL;
+    if (bool) {
       const value = dynamic_designation(name, title, cTitle);
       var valid = "";
       for (var val of value) {
@@ -215,6 +216,7 @@ exports.designation_alarm = (mob, type, lang, name, title, cTitle) => {
         });
       return true;
     } else {
+      console.log("18 Dev");
     }
   } catch (e) {
     console.log(e);

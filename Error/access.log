@@ -3828,3 +3828,36 @@
 {"level":"info","message":{},"timestamp":"2023-02-09T05:04:06.363Z"}
 {"access":true,"all_subjects":[{"_id":"63e32c6116c6531ede3c239e","subjectName":"DSA","subjectTeacherName":{"_id":"63e32aae16c6531ede3c22e2","photoId":"0","staffFirstName":"Birat","staffLastName":"Dhar ","staffMiddleName":"Kumar","staffProfilePhoto":"9cbdf8ba757dae70543e1e5578a3970e"},"subjectTitle":"Subject Teacher"}],"classes":{"_id":"63e32aae16c6531ede3c22e2","photoId":"0","staffFirstName":"Birat","staffLastName":"Dhar ","staffMiddleName":"Kumar","staffProfilePhoto":"9cbdf8ba757dae70543e1e5578a3970e"},"level":"info","message":"All Active Mentors ClassTeacher / Subject Teacher","timestamp":"2023-02-09T05:04:06.708Z"}
 {"level":"info","message":"{\"message\":\"All Active Mentors ClassTeacher / Subject Teacher\",\"access\":true,\"classes\":{\"_id\":\"63e32aae16c6531ede3c22e2\",\"staffFirstName\":\"Birat\",\"staffMiddleName\":\"Kumar\",\"staffLastName\":\"Dhar \",\"photoId\":\"0\",\"staffProfilePhoto\":\"9cbdf8ba757dae70543e1e5578a3970e\"},\"all_subjects\":[{\"_id\":\"63e32c6116c6531ede3c239e\",\"subjectName\":\"DSA\",\"subjectTitle\":\"Subject Teacher\",\"subjectTeacherName\":{\"_id\":\"63e32aae16c6531ede3c22e2\",\"staffFirstName\":\"Birat\",\"staffMiddleName\":\"Kumar\",\"staffLastName\":\"Dhar \",\"photoId\":\"0\",\"staffProfilePhoto\":\"9cbdf8ba757dae70543e1e5578a3970e\"}}],\"level\":\"info\"}","timestamp":"2023-02-09T05:04:06.712Z"}
+{"level":"info","message":{"fileArray":[{"key":"3D12.jpg","name":"file","type":""}],"sample_pic":"","staffDOB":"2000-10-10","staffFirstName":"Pankaj","staffGender":"Male","staffLastName":"Qviple","staffMiddleName":"Bharat"},"timestamp":"2023-02-09T05:06:59.229Z"}
+{"level":"info","message":"Direct Institute Account Creation Process Completed 😀✨","status":true,"timestamp":"2023-02-09T05:07:01.806Z"}
+{"level":"info","message":"{\"message\":\"Direct Institute Account Creation Process Completed 😀✨\",\"status\":true,\"level\":\"info\"}","timestamp":"2023-02-09T05:07:01.810Z"}
+{"level":"info","message":{"fileArray":[{"key":"3D12.jpg","name":"file","type":""}],"sample_pic":"","staffDOB":"2000-10-10","staffFirstName":"Pankaj","staffGender":"Male","staffLastName":"Qviple","staffMiddleName":"Bharat"},"timestamp":"2023-02-09T05:08:52.368Z"}
+{"level":"info","message":"Direct Institute Account Creation Process Completed 😀✨","status":true,"timestamp":"2023-02-09T05:08:54.846Z"}
+{"level":"info","message":"{\"message\":\"Direct Institute Account Creation Process Completed 😀✨\",\"status\":true,\"level\":\"info\"}","timestamp":"2023-02-09T05:08:54.848Z"}
+{"level":"info","message":{"fileArray":[{"key":"3D12.jpg","name":"file","type":""}],"sample_pic":"","staffDOB":"2000-10-10","staffFirstName":"Pankaj","staffGender":"Male","staffLastName":"Qviple","staffMiddleName":"Bharat"},"timestamp":"2023-02-09T05:09:55.652Z"}
+{"level":"info","message":"Direct Institute Account Creation Process Completed 😀✨","status":true,"timestamp":"2023-02-09T05:09:59.118Z"}
+{"level":"info","message":"{\"message\":\"Direct Institute Account Creation Process Completed 😀✨\",\"status\":true,\"level\":\"info\"}","timestamp":"2023-02-09T05:09:59.120Z"}
+{"level":"info","message":{},"timestamp":"2023-02-09T05:22:05.614Z"}
+{"level":"info","message":"Unauthorized","timestamp":"2023-02-09T05:22:05.623Z"}
+{"level":"info","message":{},"timestamp":"2023-02-09T05:22:54.816Z"}
+{"level":"info","message":{},"timestamp":"2023-02-09T05:23:37.971Z"}
+{"level":"info","message":"No Recommendation / Suggestion","recommend":false,"recommend_ins_array":[],"refresh_recommend_user":[],"timestamp":"2023-02-09T05:23:38.130Z"}
+{"level":"info","message":"{\"message\":\"No Recommendation / Suggestion\",\"recommend_ins_array\":[],\"recommend\":false,\"refresh_recommend_user\":[],\"level\":\"info\"}","timestamp":"2023-02-09T05:23:38.134Z"}
+{"level":"info","message":{},"timestamp":"2023-02-09T05:31:54.368Z"}
+{"level":"info","message":"No Recommendation / Suggestion","recommend":false,"recommend_ins_array":[],"refresh_recommend_user":[],"timestamp":"2023-02-09T05:31:54.463Z"}
+{"level":"info","message":"{\"message\":\"No Recommendation / Suggestion\",\"recommend_ins_array\":[],\"recommend\":false,\"refresh_recommend_user\":[],\"level\":\"info\"}","timestamp":"2023-02-09T05:31:54.465Z"}
+{"level":"info","message":{},"timestamp":"2023-02-09T05:31:58.205Z"}
+{"level":"info","message":"No Recommendation / Suggestion","recommend":false,"recommend_ins_array":[],"refresh_recommend_user":[],"timestamp":"2023-02-09T05:31:58.284Z"}
+{"level":"info","message":"{\"message\":\"No Recommendation / Suggestion\",\"recommend_ins_array\":[],\"recommend\":false,\"refresh_recommend_user\":[],\"level\":\"info\"}","timestamp":"2023-02-09T05:31:58.285Z"}
+{"level":"info","message":{},"timestamp":"2023-02-09T05:32:09.116Z"}
+{"level":"info","message":"No Recommendation / Suggestion","recommend":false,"recommend_ins_array":[],"refresh_recommend_user":[],"timestamp":"2023-02-09T05:32:09.196Z"}
+{"level":"info","message":"{\"message\":\"No Recommendation / Suggestion\",\"recommend_ins_array\":[],\"recommend\":false,\"refresh_recommend_user\":[],\"level\":\"info\"}","timestamp":"2023-02-09T05:32:09.196Z"}
+{"level":"info","message":{},"timestamp":"2023-02-09T05:42:00.469Z"}
+{"level":"info","message":"Recommended Institute for follow and Joined","recommend":true,"recommend_ins_array":[],"refresh_recommend_user":[],"timestamp":"2023-02-09T05:42:00.673Z"}
+{"level":"info","message":"{\"message\":\"Recommended Institute for follow and Joined\",\"recommend_ins_array\":[],\"recommend\":true,\"refresh_recommend_user\":[],\"level\":\"info\"}","timestamp":"2023-02-09T05:42:00.676Z"}
+{"level":"info","message":{},"timestamp":"2023-02-09T05:42:09.401Z"}
+{"level":"info","message":"Recommended Institute for follow and Joined","recommend":true,"recommend_ins_array":[],"refresh_recommend_user":[],"timestamp":"2023-02-09T05:42:09.558Z"}
+{"level":"info","message":"{\"message\":\"Recommended Institute for follow and Joined\",\"recommend_ins_array\":[],\"recommend\":true,\"refresh_recommend_user\":[],\"level\":\"info\"}","timestamp":"2023-02-09T05:42:09.559Z"}
+{"level":"info","message":{},"timestamp":"2023-02-09T05:42:22.452Z"}
+{"level":"info","message":"Recommended Institute for follow and Joined","recommend":true,"recommend_ins_array":[],"refresh_recommend_user":[],"timestamp":"2023-02-09T05:42:22.636Z"}
+{"level":"info","message":"{\"message\":\"Recommended Institute for follow and Joined\",\"recommend_ins_array\":[],\"recommend\":true,\"refresh_recommend_user\":[],\"level\":\"info\"}","timestamp":"2023-02-09T05:42:22.638Z"}

@@ -580,9 +580,6 @@ exports.renderTransportAllVehicleStaffQuery = async (req, res) => {
 exports.renderTransportOneVehicleQuery = async (req, res) => {
   try {
     const { vid } = req.params;
-    const page = req.query.page ? parseInt(req.query.page) : 1;
-    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const skip = (page - 1) * limit;
     if (!vid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -593,7 +590,7 @@ exports.renderTransportOneVehicleQuery = async (req, res) => {
       _id: vid,
     })
       .select(
-        "vehicle_number passenger_count vehicle_type vehicle_photo photoId remaining_fee passenger_array"
+        "vehicle_number passenger_count vehicle_type vehicle_photo photoId remaining_fee"
       )
       .populate({
         path: "vehicle_conductor",
@@ -616,6 +613,39 @@ exports.renderTransportOneVehicleQuery = async (req, res) => {
         select: "institute",
       });
 
+    if (one_vehicle) {
+      res.status(200).send({
+        message: "One Vehicle with Lot's of Passengers / Student 😀",
+        access: true,
+        one_vehicle: one_vehicle,
+      });
+    } else {
+      res.status(200).send({
+        message: " One Vehicle with No Passengers / Student found 😥",
+        access: false,
+        one_vehicle: {},
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderTransportOneVehicleQueryAllPassengers = async (req, res) => {
+  try {
+    const { vid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!vid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+
+    const one_vehicle = await Vehicle.findById({
+      _id: vid,
+    }).select("passenger_array");
     const all_passengers = await Student.find({
       _id: { $in: one_vehicle?.passenger_array },
     })
@@ -629,18 +659,16 @@ exports.renderTransportOneVehicleQuery = async (req, res) => {
         select: "className classTitle",
       });
 
-    if (one_vehicle) {
+    if (all_passengers?.length > 0) {
       res.status(200).send({
         message: "One Vehicle with Lot's of Passengers / Student 😀",
         access: true,
         all_passengers: all_passengers,
-        one_vehicle: one_vehicle,
       });
     } else {
       res.status(200).send({
         message: " One Vehicle with No Passengers / Student found 😥",
         access: false,
-        one_vehicle: {},
         all_passengers: [],
       });
     }

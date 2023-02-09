@@ -68,6 +68,12 @@ router.get(
 );
 
 router.get(
+  "/one/vehicle/:vid/query/all/passengers",
+  // isLoggedIn,
+  catchAsync(Transport.renderTransportOneVehicleQueryAllPassengers)
+);
+
+router.get(
   "/one/vehicle/:vid/route",
   // isLoggedIn,
   catchAsync(Transport.renderTransportOneVehicleRoute)

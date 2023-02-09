@@ -398,7 +398,7 @@ exports.recommendedAllIns = async (req, res) => {
     );
 
     const ins = await InstituteAdmin.find({
-      _id: { $in: user.userInstituteFollowing },
+      _id: { $in: user?.userInstituteFollowing },
     }).select("joinedUserList");
     if (ins?.length > 0) {
       var refresh_recommend_user = [];

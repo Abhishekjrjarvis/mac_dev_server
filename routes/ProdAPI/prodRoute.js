@@ -17,7 +17,7 @@ router.get("/all/institute", catchAsync(Prod.allIns));
 router.get("/all/institute/staff", catchAsync(Prod.allInsStaff));
 router.get(
   "/all/recommendation/ins/user/by/:uid",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Recommend.recommendedAllIns)
 );
 router.get(

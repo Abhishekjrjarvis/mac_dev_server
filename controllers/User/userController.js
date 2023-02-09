@@ -1450,7 +1450,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "vehicle",
-          select: "_id",
+          select: "_id vehicle_number",
         })
         .populate({
           path: "library",
@@ -1596,7 +1596,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "vehicle",
-          select: "_id",
+          select: "_id vehicle_number",
         })
         .populate({
           path: "library",
@@ -1663,7 +1663,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           })
           .populate({
             path: "vehicle",
-            select: "_id",
+            select: "_id vehicle_number",
           });
         if (student?.studentDocuments?.length > 0) {
           for (var docs of student.studentDocuments) {
@@ -1724,7 +1724,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           })
           .populate({
             path: "vehicle",
-            select: "_id",
+            select: "_id vehicle_number",
           });
       }
       average_points += student.extraPoints / student.batchCount;

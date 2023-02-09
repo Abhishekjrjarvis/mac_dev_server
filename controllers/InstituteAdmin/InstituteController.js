@@ -1449,7 +1449,7 @@ exports.getOneDepartment = async (req, res) => {
     } else {
       const department = await Department.findById({ _id: did })
         .select(
-          "dName dAbout dTitle dEmail staffCount studentCount classCount dPhoneNumber photoId photo coverId cover dSpeaker dVicePrinciple dAdminClerk dOperatingAdmin dStudentPresident"
+          "dName dAbout dTitle dEmail staffCount studentCount classCount dPhoneNumber photoId photo coverId cover election_date_setting"
         )
         .populate({
           path: "dHead",

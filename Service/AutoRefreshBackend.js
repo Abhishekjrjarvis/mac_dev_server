@@ -72,8 +72,8 @@ exports.election_vote_day = async (req, res) => {
             }).select("user notification");
           } else {
           }
-          var notify = new StudentNotification({});
           all_student?.forEach(async (ele) => {
+            var notify = new StudentNotification({});
             const user = await User.findById({ _id: `${ele?.user}` }).select(
               "activity_tab deviceToken"
             );
@@ -98,9 +98,8 @@ exports.election_vote_day = async (req, res) => {
               "Student",
               notify
             );
-            await Promise.all([ele.save(), user.save()]);
+            await Promise.all([ele.save(), user.save(), notify.save()]);
           });
-          await notify.save();
           elect.vote_notification = "Opened";
           await elect.save();
           // console.log("Done");
@@ -167,8 +166,8 @@ exports.election_result_day = async (req, res) => {
             }).select("user notification");
           } else {
           }
-          var notify = new StudentNotification({});
           all_student?.forEach(async (ele) => {
+            var notify = new StudentNotification({});
             const user = await User.findById({ _id: `${ele?.user}` }).select(
               "activity_tab deviceToken"
             );
@@ -194,9 +193,8 @@ exports.election_result_day = async (req, res) => {
               "Student",
               notify
             );
-            await Promise.all([ele.save(), user.save()]);
+            await Promise.all([ele.save(), user.save(), notify.save()]);
           });
-          await notify.save();
           elect.result_notification = "Declare";
           elect.election_candidate?.forEach(async (ele) => {
             if (`${ele.student}` === `${query.winner}`) {

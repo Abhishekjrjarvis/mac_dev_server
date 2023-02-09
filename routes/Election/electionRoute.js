@@ -67,4 +67,10 @@ router.get(
   catchAsync(Election.retrieveAllStudentElectionArray)
 );
 
+router.patch(
+  "/department/:did/setting",
+  // isLoggedIn,
+  catchAsync(Election.renderElectionDepartmentSettingQuery)
+);
+
 module.exports = router;

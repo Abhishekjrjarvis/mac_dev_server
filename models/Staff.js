@@ -168,6 +168,10 @@ const staffSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Admission",
       },
+      accessApp: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NewApplication",
+      },
       type: { type: String, default: "Admission Admin" },
     },
   ],
@@ -238,8 +242,8 @@ const staffSchema = new mongoose.Schema({
   },
   permission: {
     admission: [],
-    finance: []
-  }
+    finance: [],
+  },
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

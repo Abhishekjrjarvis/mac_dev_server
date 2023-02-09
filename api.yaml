@@ -17813,6 +17813,61 @@ paths:
         "200":
           description: OK
 
+  /api/v1/election/event/department/{did}/setting:
+    patch:
+      tags:
+        - Election Event Query
+      summary: Department Head Update Election Event Date Setting Field (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: Enter Department Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              election_date_setting:
+                type: object
+                properties:
+                  start_date:
+                    type: number
+                    description: Enter Start Date Count
+                    required: true
+                  end_date:
+                    type: number
+                    description: Enter End Date Count
+                    required: true
+                  select_date:
+                    type: number
+                    description: Enter Select Date Count
+                    required: true
+                  campaign_date:
+                    type: number
+                    description: Enter Campaign Date Count
+                    required: true
+                  campaign_last_date:
+                    type: number
+                    description: Enter Campaign Last Date Count
+                    required: true
+                  vote_date:
+                    type: number
+                    description: Enter Vote Date Count
+                    required: true
+                  result_date:
+                    type: number
+                    description: Enter Result Date Count
+                    required: true
+      responses:
+        "200":
+          description: OK
+
 
 #Participate Event
   /api/v1/participate/event/new/{did}:
@@ -20231,6 +20286,175 @@ paths:
           required: true
           type: string
           description: Enter Department Id
+      responses:
+        "200":
+          description: OK
+
+
+# Moderator Section Module
+
+  /api/v1/role/permission/{aid}/new/app/mod:
+    post:
+      tags:
+        - Moderator Role & Permission
+      summary: Add New Moderator Role (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Admission Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              mod_role:
+                type: string
+                description: Enter Role as per given 
+                required: true
+              sid:
+                type: string
+                description: Enter Staff Id
+                required: true 
+              appId:
+                type: string
+                description: Enter App Id
+                required: true  
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/role/permission/{aid}/all/moderator:
+    get:
+      tags:
+        - Moderator Role & Permission
+      summary: All Moderator Role of Admission Super Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Admission Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/role/permission/{aid}/update/app/mod/{mid}:
+    patch:
+      tags:
+        - Moderator Role & Permission
+      summary: Edit One Moderator Role By Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Admission Id
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: Enter One Moderator Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              mod_role:
+                type: string
+                description: Enter Role as per given 
+                required: true
+              osid:
+                type: string
+                description: Enter Old Staff Id
+                required: true 
+              appId:
+                type: string
+                description: Enter Old App Id
+                required: true 
+              new_roles:
+                type: string
+                description: Enter New Role as per given 
+                required: false
+              new_staff:
+                type: string
+                description: Enter New Staff Id
+                required: false
+              new_apps:
+                type: string
+                description: Enter New App Id
+                required: false
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/role/permission/{aid}/destroy/app/mod/{mid}:
+    delete:
+      tags:
+        - Moderator Role & Permission
+      summary: Delete One Moderator Role By Admission Super Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Admission Id
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: Enter One Moderator Id
+      responses:
+        "200":
+          description: OK
+
+  Same AS Admission Admin Get Admission Detail API:
+    get:
+      tags:
+        - Moderator Role & Permission
+      summary: Old Admission Dashboard Info API pass sid in query for moderator role (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Admission Id
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: Enter One Moderator Id
       responses:
         "200":
           description: OK

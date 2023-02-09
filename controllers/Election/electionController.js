@@ -264,7 +264,13 @@ exports.retrieveApplyElectionQuery = async (req, res) => {
       const user = await User.findById({
         _id: `${student_support?.user}`,
       }).select("activity_tab deviceToken");
-      notify.notifyContent = `You have been choosen as supporting member for ${elect?.election_position} by ${student.studentFirstName} ${student.studentMiddleName ? student.studentMiddleName : ""} ${student.studentLastName}. (If you have not supporting please contact with respective department)`;
+      notify.notifyContent = `You have been choosen as supporting member for ${
+        elect?.election_position
+      } by ${student.studentFirstName} ${
+        student.studentMiddleName ? student.studentMiddleName : ""
+      } ${
+        student.studentLastName
+      }. (If you have not supporting please contact with respective department)`;
       notify.notifySender = student._id;
       notify.notifyReceiever = user._id;
       notify.electionId = elect?._id;
@@ -318,7 +324,15 @@ exports.retrieveStatusElectionQuery = async (req, res) => {
     const user = await User.findById({ _id: `${student?.user}` }).select(
       "activity_tab deviceToken"
     );
-    notify.notifyContent = `Apply from ${moment(elect?.election_app_start_date).format("LL")} to ${moment(elect?.election_app_end_date).format("LL")} , Voting Date ${moment(elect?.election_voting_date).format("LL")}.Your application for ${elect?.election_position} is ${status} by authorities`;
+    notify.notifyContent = `Apply from ${moment(
+      elect?.election_app_start_date
+    ).format("LL")} to ${moment(elect?.election_app_end_date).format(
+      "LL"
+    )} , Voting Date ${moment(elect?.election_voting_date).format(
+      "LL"
+    )}.Your application for ${
+      elect?.election_position
+    } is ${status} by authorities`;
     notify.notifySender = depart._id;
     notify.notifyReceiever = user._id;
     notify.electionId = elect?._id;
@@ -466,23 +480,25 @@ exports.retrieveVoteElectionDepartment = async (req, res) => {
 exports.retrieveAllStudentElectionArray = async (req, res) => {
   try {
     const { sid } = req.params;
-    if(!sid) return res.status(200).send({
-      message: "Their is a bug need to fix immendiatley 😡",
-      access: false,
-    });
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immendiatley 😡",
+        access: false,
+      });
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const student = await Student.findById({ _id: sid})
-    .select("election_candidate")
+    const student = await Student.findById({ _id: sid }).select(
+      "election_candidate"
+    );
 
-    const all_event = await Election.find({ _id: { $in: student?.election_candidate }})
-        .sort("-created_at")
-        .limit(limit)
-        .skip(skip)
-        .select(
-          "election_position election_app_start_date"
-        );
+    const all_event = await Election.find({
+      _id: { $in: student?.election_candidate },
+    })
+      .sort("-created_at")
+      .limit(limit)
+      .skip(skip)
+      .select("election_position election_app_start_date");
     if (all_event?.length > 0) {
       // const allStudentEncrypt = await encryptionPayload(all_event);
       res.status(200).send({
@@ -505,23 +521,25 @@ exports.retrieveAllStudentElectionArray = async (req, res) => {
 exports.retrieveAllStudentElectionArray = async (req, res) => {
   try {
     const { sid } = req.params;
-    if(!sid) return res.status(200).send({
-      message: "Their is a bug need to fix immendiatley 😡",
-      access: false,
-    });
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immendiatley 😡",
+        access: false,
+      });
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const student = await Student.findById({ _id: sid})
-    .select("election_candidate")
+    const student = await Student.findById({ _id: sid }).select(
+      "election_candidate"
+    );
 
-    const all_event = await Election.find({ _id: { $in: student?.election_candidate }})
-        .sort("-created_at")
-        .limit(limit)
-        .skip(skip)
-        .select(
-          "election_position election_app_start_date election_status"
-        );
+    const all_event = await Election.find({
+      _id: { $in: student?.election_candidate },
+    })
+      .sort("-created_at")
+      .limit(limit)
+      .skip(skip)
+      .select("election_position election_app_start_date election_status");
     if (all_event?.length > 0) {
       // const allStudentEncrypt = await encryptionPayload(all_event);
       res.status(200).send({
@@ -536,6 +554,23 @@ exports.retrieveAllStudentElectionArray = async (req, res) => {
         access: false,
       });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderElectionDepartmentSettingQuery = async (req, res) => {
+  try {
+    const { did } = req.params;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immendiatley 😡",
+        access: false,
+      });
+    await Department.findByIdAndUpdate(did, req.body);
+    res
+      .status(200)
+      .send({ message: "Election Event Setting Refetched 👍", access: true });
   } catch (e) {
     console.log(e);
   }

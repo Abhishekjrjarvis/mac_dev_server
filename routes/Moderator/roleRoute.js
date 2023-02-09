@@ -11,4 +11,14 @@ router.get(
   catchAsync(Role.renderAdmissionAllAppModeratorArray)
 );
 
+router.patch(
+  "/:aid/update/app/mod/:mid",
+  catchAsync(Role.updateAdmissionAppModeratorQuery)
+);
+
+router.delete(
+  "/:aid/destroy/app/mod/:mid",
+  catchAsync(Role.destroyAdmissionAppModeratorQuery)
+);
+
 module.exports = router;

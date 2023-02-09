@@ -192,6 +192,15 @@ const departmentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  election_date_setting: {
+    start_date: { type: Number, default: 0 },
+    end_date: { type: Number, default: 3 },
+    select_date: { type: Number, default: 2 },
+    campaign_date: { type: Number, default: 1 },
+    campaign_last_date: { type: Number, default: 6 },
+    vote_date: { type: Number, default: 1 },
+    result_date: { type: Number, default: 1 },
+  },
 });
 
 const Department = mongoose.model("Department", departmentSchema);

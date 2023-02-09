@@ -6,7 +6,7 @@ const { isLoggedIn } = require("../../middleware");
 
 router
   .route("/department-class/fee/:did")
-  .post(isLoggedIn, catchAsync(feesController.createFess));
+  .post(catchAsync(feesController.createFess));
 
 router
   .route("/:feesId")
@@ -45,11 +45,10 @@ router
 
 router
   .route("/:fid/destroy/:did")
-  .delete( catchAsync(feesController.renderFeesDeleteQuery));
+  .delete(catchAsync(feesController.renderFeesDeleteQuery));
 
 router
   .route("/:fid/edit")
-  .delete( catchAsync(feesController.renderFeesEditQuery));
-
+  .delete(catchAsync(feesController.renderFeesEditQuery));
 
 module.exports = router;

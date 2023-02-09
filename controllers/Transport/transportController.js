@@ -966,9 +966,9 @@ exports.destroyOneVehicleRouteQuery = async (req, res) => {
 
     const vehicle = await Vehicle.findById({ _id: vid });
     const route = await Direction.findById({ _id: `${vehicle.vehicle_route}` });
-    if (route?.direction_route?.length > 0) {
-      for (var path of route.direction_route) {
-        if (path?.passenger_list?.length > 0) {
+    for (var path of route?.direction_route) {
+      if (`${path?._id}` === `${rid}`) {
+        if (path?.passenger_list?.length >= 1) {
         } else {
           route.direction_route.pull(rid);
           if (vehicle?.route_count > 0) {
@@ -978,7 +978,7 @@ exports.destroyOneVehicleRouteQuery = async (req, res) => {
         }
       }
     }
-
+    await Promise.all([vehicle.save(), route.save()]);
     res.status(200).send({
       message: "Route / Path Deletion Operation Completed ",
       access: true,

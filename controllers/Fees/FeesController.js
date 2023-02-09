@@ -17,29 +17,24 @@ const OrderPayment = require("../../models/RazorPay/orderPayment");
 exports.createFess = async (req, res) => {
   try {
     const { ClassId } = req.body;
-    const department = await Department.findById(req.params.did).select(
-      "_id ApproveStudent fees institute"
-    );
+    const department = await Department.findById(req.params.did);
     var feeData = new Fees({ ...req.body });
     department.fees.push(feeData._id);
     feeData.feeDepartment = department._id;
-    await department.save();
     for (let i = 0; i < ClassId.length; i++) {
       const classes = await Class.findById({ _id: ClassId[i] });
       classes.fee.push(feeData._id);
-      await Promise.all([classes.save(), feeData.save()]);
+      await classes.save();
     }
+
+    await Promise.all([feeData.save(), department.save()]);
+    res.status(201).send({ message: `${feeData.feeName} Fees Raised` });
     for (let i = 0; i < department.ApproveStudent.length; i++) {
       const student = await Student.findById({
         _id: department.ApproveStudent[i],
-      })
-        .populate({
-          path: "user",
-          select: "_id",
-        })
-        .select("_id");
-      const user = await User.findById({ _id: `${student.user._id}` });
+      });
       const notify = new StudentNotification({});
+      const user = await User.findById({ _id: `${student.user}` });
       notify.notifyContent = `New ${feeData.feeName} (fee) has been created. check your member's Tab`;
       notify.notify_hi_content = `नवीन ${feeData.feeName} (fee) बनाई गई है। अपना सदस्य टैब देखे |`;
       notify.notify_mr_content = `नवीन ${feeData.feeName} (fee) तयार केली आहे. तुमच्या सदस्याचा टॅब तपासा.`;
@@ -65,7 +60,6 @@ exports.createFess = async (req, res) => {
       //
       await Promise.all([user.save(), notify.save()]);
     }
-    res.status(201).send({ message: `${feeData.feeName} Fees Raised` });
     //
     for (let i = 0; i < ClassId.length; i++) {
       const classes = await Class.findById({ _id: ClassId[i] });
@@ -181,7 +175,11 @@ exports.feesPaidByStudent = async (req, res) => {
           user.payment_history.push(order._id);
           institute.payment_history.push(order._id);
           const notify = new StudentNotification({});
-          notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} ${student.studentLastName} your transaction is successfull for ${fData?.feeName} ${fData.feeAmount}`;
+          notify.notifyContent = `${student.studentFirstName} ${
+            student.studentMiddleName ? `${student.studentMiddleName} ` : ""
+          } ${student.studentLastName} your transaction is successfull for ${
+            fData?.feeName
+          } ${fData.feeAmount}`;
           notify.notifySender = classes.classTeacher._id;
           notify.notifyReceiever = user._id;
           notify.notifyType = "Student";
@@ -243,7 +241,11 @@ exports.feesPaidByStudent = async (req, res) => {
             feeId: fData._id,
           });
           const notify = new StudentNotification({});
-          notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} ${student.studentLastName} you get exempted ${fData?.feeName} ${fData.feeAmount} on this fee.`;
+          notify.notifyContent = `${student.studentFirstName} ${
+            student.studentMiddleName ? `${student.studentMiddleName} ` : ""
+          } ${student.studentLastName} you get exempted ${fData?.feeName} ${
+            fData.feeAmount
+          } on this fee.`;
           notify.notifySender = classes.classTeacher._id;
           notify.notifyReceiever = user._id;
           notify.notifyType = "Student";
@@ -548,77 +550,87 @@ exports.retrieveStudentQuery = async (req, res) => {
   }
 };
 
-const nested_function_fee = async(arr, fee) => {
-  var flag = false
-  const all_students = await Student.find({ studentClass: { $in: arr }})
-  for(var nest of all_students){
-    if(nest?.onlineFeeList?.includes(`${fee}`)){
-      flag = true
+const nested_function_fee = async (arr, fee) => {
+  var flag = false;
+  const all_students = await Student.find({ studentClass: { $in: arr } });
+  for (var nest of all_students) {
+    if (nest?.onlineFeeList?.includes(`${fee}`)) {
+      flag = true;
       break;
-    }
-    else if(nest?.offlineFeeList?.includes(`${fee}`)){
-      flag = true
+    } else if (nest?.offlineFeeList?.includes(`${fee}`)) {
+      flag = true;
       break;
-    }
-    else if(nest?.exemptFeeList?.includes(`${fee}`)){
-      flag = true
+    } else if (nest?.exemptFeeList?.includes(`${fee}`)) {
+      flag = true;
       break;
-    }
-    else{
-      flag = false
+    } else {
+      flag = false;
     }
   }
-  return flag
-}
+  return flag;
+};
 
-exports.renderFeesDeleteQuery = async(req, res) => {
-  try{
-    const { did, fid } = req.params
-    if(!fid) return res.status(200).send({ message: "Their is a bug need to fixed immediately 😡", access: false})
-    const depart = await Department.findById({_id: did})
-    const finance = await Finance.findOne({ institute: `${depart?.institute}`})
-    const price = await Fees.findById({_id: fid})
-    const flag_status = await nested_function_fee(depart.class, fid)
-    if(flag_status){
-      res.status(200).send({ message: "Deletion Operation Denied Some Student Already Paid 😥", access: false})
-    }
-    else{
-      depart.fees.pull(fid)
-      for(var cal of depart.class){
-        const classes = await Class.findById({ _id: cal})
-        for(var val of classes?.ApproveStudent){
-          const student = await Student.findById({ _id: val})
-          if(student?.studentRemainingFeeCount >= price?.feeAmount){
-            student.studentRemainingFeeCount -= price.feeAmount
+exports.renderFeesDeleteQuery = async (req, res) => {
+  try {
+    const { did, fid } = req.params;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately 😡",
+        access: false,
+      });
+    const depart = await Department.findById({ _id: did });
+    const finance = await Finance.findOne({
+      institute: `${depart?.institute}`,
+    });
+    const price = await Fees.findById({ _id: fid });
+    const flag_status = await nested_function_fee(depart.class, fid);
+    if (flag_status) {
+      res.status(200).send({
+        message: "Deletion Operation Denied Some Student Already Paid 😥",
+        access: false,
+      });
+    } else {
+      depart.fees.pull(fid);
+      for (var cal of depart.class) {
+        const classes = await Class.findById({ _id: cal });
+        for (var val of classes?.ApproveStudent) {
+          const student = await Student.findById({ _id: val });
+          if (student?.studentRemainingFeeCount >= price?.feeAmount) {
+            student.studentRemainingFeeCount -= price.feeAmount;
           }
-          if(finance?.financeRaisedBalance >= price?.feeAmount){
-            finance.financeRaisedBalance -= price.feeAmount
+          if (finance?.financeRaisedBalance >= price?.feeAmount) {
+            finance.financeRaisedBalance -= price.feeAmount;
           }
-          await student.save()
+          await student.save();
         }
-        classes.fee.pull(fid)
-        await classes.save()
+        classes.fee.pull(fid);
+        await classes.save();
       }
-      await Promise.all([ finance.save(), depart.save()])
-      await Fees.findByIdAndDelete(fid)
-      res.status(200).send({ 
-        message: "Deletion Operation Completed 😁", 
+      await Promise.all([finance.save(), depart.save()]);
+      await Fees.findByIdAndDelete(fid);
+      res.status(200).send({
+        message: "Deletion Operation Completed 😁",
         access: true,
-      })
+      });
     }
-  }catch(e){
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
-}
+};
 
-exports.renderFeesEditQuery = async(req, res) => {
-  try{
-    const { fid } = req.params
-    if(!fid) return res.status(200).send({ message: "There is a bug need to fix immediately", access: false})
-    await Fees.findByIdAndUpdate(fid, req.body)
-    res.status(200).send({ message: "I think you correct your mistake 👍", access: true})
+exports.renderFeesEditQuery = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    if (!fid)
+      return res.status(200).send({
+        message: "There is a bug need to fix immediately",
+        access: false,
+      });
+    await Fees.findByIdAndUpdate(fid, req.body);
+    res
+      .status(200)
+      .send({ message: "I think you correct your mistake 👍", access: true });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};

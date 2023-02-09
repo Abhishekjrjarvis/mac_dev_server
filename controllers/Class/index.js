@@ -3,6 +3,7 @@ const InstituteAdmin = require("../../models/InstituteAdmin");
 const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const Subject = require("../../models/Subject");
 const Student = require("../../models/Student");
+const { handle_undefined } = require("../../Handler/customError");
 // const Checklist = require("../../models/Checklist");
 
 exports.getOneInstitute = async (req, res) => {
@@ -102,12 +103,13 @@ exports.classReportSetting = async (req, res) => {
 exports.renderAllStudentMentors = async (req, res) => {
   try {
     const { sid } = req.params;
-    if (!sid)
+    const stu = handle_undefined(sid);
+    if (!stu)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
-    const student = await Student.findOne({});
+    const student = await Student.findById({ _id: stu });
     const classes = await Class.findOne({ _id: `${student?.studentClass}` })
       .select("subject classTeacher classHeadTitle")
       .populate({

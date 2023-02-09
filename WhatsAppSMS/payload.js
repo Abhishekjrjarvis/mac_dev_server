@@ -37,7 +37,13 @@ const payload_type_content = (
 3. मोबाईल क्रमांक OTP सह सत्यापित करा. 
 4. तुमचे खाते निवडा आणि लॉगिन करा.`;
     var message =
-      lang === "en" ? text : lang === "hi" ? hext : lang === "mt" || lang === "mr"  ? mext : "";
+      lang === "en"
+        ? text
+        : lang === "hi"
+        ? hext
+        : lang === "mt" || lang === "mr"
+        ? mext
+        : "";
     if (value === "College/Polytechnic") {
       var content = "SMS_Assests/Add_Student_College.png";
       var extension = ".png";
@@ -82,7 +88,13 @@ ${iName} में आपका स्वागत है।
 3. मोबाईल क्रमांक OTP सह सत्यापित करा. 
 4. तुमचे खाते निवडा आणि लॉगिन करा.`;
     var message =
-      lang === "en" ? text : lang === "hi" ? hext : lang === "mt" || lang === "mr" ? mext : "";
+      lang === "en"
+        ? text
+        : lang === "hi"
+        ? hext
+        : lang === "mt" || lang === "mr"
+        ? mext
+        : "";
     if (value === "College/Polytechnic") {
       var content = "SMS_Assests/Add_Student_College.png";
       var extension = ".png";
@@ -112,7 +124,13 @@ ${iName} में आपका स्वागत है।
 3. मोबाईल क्रमांक OTP सह सत्यापित करा. 
 4. तुमचे खाते निवडा आणि लॉगिन करा.`;
     var message =
-      lang === "en" ? text : lang === "hi" ? hext : lang === "mt" || lang === "mr" ? mext : "";
+      lang === "en"
+        ? text
+        : lang === "hi"
+        ? hext
+        : lang === "mt" || lang === "mr"
+        ? mext
+        : "";
     var content = "SMS_Assests/Institute_Add_Staff.jpeg";
     var extension = ".jpeg";
   }
@@ -131,7 +149,8 @@ exports.whats_app_sms_payload = (
   largs
 ) => {
   try {
-    if (process.env.IS_GLOBAL == true) {
+    const bool = process.env.IS_GLOBAL;
+    if (bool) {
       const content = payload_type_content(
         margs,
         sargs,
@@ -159,6 +178,7 @@ exports.whats_app_sms_payload = (
         return false;
       }
     } else {
+      console.log("18 Dev");
     }
   } catch (e) {
     console.log(e);

@@ -657,6 +657,10 @@ exports.renderTransportOneVehicleQueryAllPassengers = async (req, res) => {
       .populate({
         path: "studentClass",
         select: "className classTitle",
+      })
+      .populate({
+        path: "user",
+        select: "userPhoneNumber",
       });
 
     if (all_passengers?.length > 0) {
@@ -946,6 +950,39 @@ exports.renderTransportFundsQuery = async (req, res) => {
         access: true,
       });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.destroyOneVehicleRouteQuery = async (req, res) => {
+  try {
+    const { vid, rid } = req.params;
+    if (!vid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+
+    const vehicle = await Vehicle.findById({ _id: vid });
+    const route = await Direction.findById({ _id: `${vehicle.vehicle_route}` });
+    if (route?.direction_route?.length > 0) {
+      for (var path of route.direction_route) {
+        if (path?.passenger_list?.length > 0) {
+        } else {
+          route.direction_route.pull(rid);
+          if (vehicle?.route_count > 0) {
+            vehicle.route_count -= 1;
+          }
+          break;
+        }
+      }
+    }
+
+    res.status(200).send({
+      message: "Route / Path Deletion Operation Completed ",
+      access: true,
+    });
   } catch (e) {
     console.log(e);
   }

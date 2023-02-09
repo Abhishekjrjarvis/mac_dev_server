@@ -109,4 +109,10 @@ router.patch(
   catchAsync(Transport.renderTransportFundsQuery)
 );
 
+router.delete(
+  "/vehicle/:vid/route/:rid/destroy",
+  // isLoggedIn,
+  catchAsync(Transport.destroyOneVehicleRouteQuery)
+);
+
 module.exports = router;

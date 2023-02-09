@@ -11,20 +11,20 @@ const InstituteAdmin = require("../../models/InstituteAdmin");
 const { nested_document_limit } = require("../../helper/databaseFunction");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
-const date_renew = (s_date, type) => {
+const date_renew = (s_date, type, d_set) => {
   var r_l_date = new Date(s_date);
   if (type === "End") {
-    r_l_date.setDate(r_l_date.getDate() + 3);
+    r_l_date.setDate(r_l_date.getDate() + `${d_set.end_date}`);
   } else if (type === "Select") {
-    r_l_date.setDate(r_l_date.getDate() + 2);
+    r_l_date.setDate(r_l_date.getDate() + `${d_set.select_date}`);
   } else if (type === "Compaign") {
-    r_l_date.setDate(r_l_date.getDate() + 1);
+    r_l_date.setDate(r_l_date.getDate() + `${d_set.campaign_date}`);
   } else if (type === "Compaign Last") {
-    r_l_date.setDate(r_l_date.getDate() + 6);
+    r_l_date.setDate(r_l_date.getDate() + `${d_set.campaign_last_date}`);
   } else if (type === "Vote") {
-    r_l_date.setDate(r_l_date.getDate() + 1);
+    r_l_date.setDate(r_l_date.getDate() + `${d_set.vote_date}`);
   } else if (type === "Result") {
-    r_l_date.setDate(r_l_date.getDate() + 1);
+    r_l_date.setDate(r_l_date.getDate() + `${d_set.result_date}`);
   } else {
   }
   var r_l_day = r_l_date.getDate();
@@ -48,36 +48,42 @@ exports.retrieveNewElectionQuery = async (req, res) => {
     depart.election_event_count += 1;
     elect.department = depart._id;
     elect.election_app_start_date = new Date(`${req.body?.date}`);
-    await Promise.all([depart.save(), elect.save()]);
+    // await Promise.all([depart.save(), elect.save()]);
     res.status(201).send({
       message: "New Election Application will be available",
       status: true,
     });
     elect.election_app_end_date = date_renew(
       elect.election_app_start_date,
-      "End"
+      "End",
+      depart?.election_date_setting
     );
     elect.election_selection_date = date_renew(
       elect.election_app_end_date,
-      "Select"
+      "Select",
+      depart?.election_date_setting
     );
     elect.election_campaign_date = date_renew(
       elect.election_selection_date,
-      "Compaign"
+      "Compaign",
+      depart?.election_date_setting
     );
     elect.election_campaign_last_date = date_renew(
       elect.election_campaign_date,
-      "Compaign Last"
+      "Compaign Last",
+      depart?.election_date_setting
     );
     elect.election_voting_date = date_renew(
       elect.election_campaign_last_date,
-      "Vote"
+      "Vote",
+      depart?.election_date_setting
     );
     elect.election_result_date = date_renew(
       elect.election_voting_date,
-      "Result"
+      "Result",
+      depart?.election_date_setting
     );
-    await elect.save();
+    // await elect.save();
 
     if (elect?.election_visible === "Only Institute") {
       var all_student = await Student.find({
@@ -120,7 +126,7 @@ exports.retrieveNewElectionQuery = async (req, res) => {
         "Student",
         notify
       );
-      await Promise.all([ele.save(), notify.save(), user.save()]);
+      // await Promise.all([ele.save(), notify.save(), user.save()]);
     });
   } catch (e) {
     console.log(e);

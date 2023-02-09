@@ -423,6 +423,10 @@ exports.renderTransportAllPassenger = async (req, res) => {
           .populate({
             path: "studentClass",
             select: "className classTitle",
+          })
+          .populate({
+            path: "user",
+            select: "userPhoneNumber",
           });
       } else {
         var all_passengers = await Student.find({
@@ -437,6 +441,10 @@ exports.renderTransportAllPassenger = async (req, res) => {
           .populate({
             path: "studentClass",
             select: "className classTitle",
+          })
+          .populate({
+            path: "user",
+            select: "userPhoneNumber",
           });
       }
     } else {
@@ -461,6 +469,10 @@ exports.renderTransportAllPassenger = async (req, res) => {
           .populate({
             path: "studentClass",
             select: "className classTitle",
+          })
+          .populate({
+            path: "user",
+            select: "userPhoneNumber",
           });
       } else {
         var all_passengers = await Student.find({
@@ -474,6 +486,10 @@ exports.renderTransportAllPassenger = async (req, res) => {
           .populate({
             path: "studentClass",
             select: "className classTitle",
+          })
+          .populate({
+            path: "user",
+            select: "userPhoneNumber",
           });
       }
     }
@@ -524,6 +540,10 @@ exports.renderTransportAllVehicleStaffQuery = async (req, res) => {
       .populate({
         path: "vehicle",
         select: "vehicle_number vehicle_type",
+      })
+      .populate({
+        path: "user",
+        select: "userPhoneNumber",
       });
 
     const all_dcUser = await User.find({
@@ -531,7 +551,9 @@ exports.renderTransportAllVehicleStaffQuery = async (req, res) => {
     })
       .limit(limit)
       .skip(skip)
-      .select("userLegalName photoId profilePhoto userDateOfBirth userGender")
+      .select(
+        "userLegalName photoId profilePhoto userDateOfBirth userPhoneNumber userGender"
+      )
       .populate({
         path: "vehicle",
         select: "vehicle_number vehicle_type",

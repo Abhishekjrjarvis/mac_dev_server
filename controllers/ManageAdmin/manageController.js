@@ -3,7 +3,7 @@ const User = require("../../models/User");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 const bcrypt = require("bcryptjs");
 const Notification = require("../../models/notification");
-const { uploadDocFile } = require("../../S3Configuration");
+const { uploadDocFile, deleteFile } = require("../../S3Configuration");
 const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
@@ -14,8 +14,10 @@ const Finance = require("../../models/Finance");
 const Student = require("../../models/Student");
 const Admission = require("../../models/Admission/Admission");
 const Sport = require("../../models/Sport");
+const Staff = require("../../models/Staff");
 const Library = require("../../models/Library/Library");
 const Transport = require("../../models/Transport/transport");
+const { handle_undefined } = require("../../Handler/customError");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 function generateAccessManageToken(manage_name, manage_id, manage_pass) {
@@ -522,6 +524,192 @@ exports.renderAdministratorOneInstituteProfile = async (req, res) => {
       totalVehicles: transport?.vehicle_count,
     };
     res.status(200).send({ message: "Limit Post Ins", institute, count });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAdministratorAllMentorsArray = async (req, res) => {
+  try {
+    const { mid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (!mid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    var manage = await ManageAdmin.findById({ _id: mid }).select(
+      "affiliation_institute_approve"
+    );
+    if (search) {
+      var all_staff = await Staff.find({
+        $and: [
+          { institute: { $in: manage?.affiliation_institute_approve } },
+          { staffStatus: "Approved" },
+        ],
+        $or: [
+          {
+            staffFirstName: { $regex: search, $options: "i" },
+          },
+          {
+            staffMiddleName: { $regex: search, $options: "i" },
+          },
+          {
+            staffLastName: { $regex: search, $options: "i" },
+          },
+        ],
+      })
+        .select(
+          "staffFirstName staffMiddleNamr staffLastName photoId staffProfilePhoto staffJoinDate staffGender"
+        )
+        .populate({
+          path: "user",
+          select: "userPhoneNumber",
+        })
+        .populate({
+          path: "institute",
+          select: "insName name photoId insProfilePhoto",
+        });
+    } else {
+      var all_staff = await Staff.find({
+        $and: [
+          { institute: { $in: manage?.affiliation_institute_approve } },
+          { staffStatus: "Approved" },
+        ],
+      })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "staffFirstName staffMiddleNamr staffLastName photoId staffProfilePhoto staffJoinDate staffGender"
+        )
+        .populate({
+          path: "user",
+          select: "userPhoneNumber",
+        })
+        .populate({
+          path: "institute",
+          select: "insName name photoId insProfilePhoto",
+        });
+    }
+    if (all_staff?.length > 0) {
+      res.status(200).send({
+        message: "Lot's of Mentors Available",
+        access: true,
+        all_staff: all_staff,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Mentors Available",
+        access: false,
+        all_staff: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAdministratorAllStudentsArray = async (req, res) => {
+  try {
+    const { mid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (!mid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    var manage = await ManageAdmin.findById({ _id: mid }).select(
+      "affiliation_institute_approve"
+    );
+    if (search) {
+      var all_student = await Student.find({
+        $and: [
+          { institute: { $in: manage?.affiliation_institute_approve } },
+          { studentStatus: "Approved" },
+        ],
+        $or: [
+          {
+            studentFirstName: { $regex: search, $options: "i" },
+          },
+          {
+            studentMiddleName: { $regex: search, $options: "i" },
+          },
+          {
+            studentLastName: { $regex: search, $options: "i" },
+          },
+        ],
+      })
+        .select(
+          "studentFirstName studentMiddleNamr studentLastName photoId studentProfilePhoto studentAdmissionDate studentGender"
+        )
+        .populate({
+          path: "user",
+          select: "userPhoneNumber",
+        })
+        .populate({
+          path: "institute",
+          select: "insName name photoId insProfilePhoto",
+        });
+    } else {
+      var all_student = await Student.find({
+        $and: [
+          { institute: { $in: manage?.affiliation_institute_approve } },
+          { studentStatus: "Approved" },
+        ],
+      })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "studentFirstName studentMiddleNamr studentLastName photoId studentProfilePhoto studentAdmissionDate studentGender"
+        )
+        .populate({
+          path: "user",
+          select: "userPhoneNumber",
+        })
+        .populate({
+          path: "institute",
+          select: "insName name photoId insProfilePhoto",
+        });
+    }
+    if (all_student?.length > 0) {
+      res.status(200).send({
+        message: "Lot's of Students Available",
+        access: true,
+        all_student: all_student,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Students Available",
+        access: false,
+        all_student: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAdministratorPersonalQuery = async (req, res) => {
+  try {
+    const { mid } = req.params;
+    const { delete_pic } = req.query;
+    const image = handle_undefined(delete_pic);
+    if (!mid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    await ManageAdmin.findByIdAndUpdate(mid, req.body);
+    if (image) {
+      await deleteFile(image);
+    }
   } catch (e) {
     console.log(e);
   }

@@ -67,6 +67,12 @@ router.get(
   catchAsync(Election.retrieveAllStudentElectionArray)
 );
 
+router.get(
+  "/:sid/query/one/election/:eid",
+  // isLoggedIn,
+  catchAsync(Election.retrieveOneStudentOneElectionArray)
+);
+
 router.patch(
   "/department/:did/setting",
   // isLoggedIn,

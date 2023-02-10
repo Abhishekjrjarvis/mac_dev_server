@@ -20502,3 +20502,100 @@ paths:
       responses:
         "200":
           description: OK
+
+
+#Manage Admin Module
+
+  /api/v1/manage/admin/{mid}/all/mentors:
+    get:
+      tags:
+        - Manage Admin Affiliation
+      summary: All Mentors / Staff of Affiliated Institute (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: Enter Manage Admin Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit 
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/manage/admin/{mid}/all/students:
+    get:
+      tags:
+        - Manage Admin Affiliation
+      summary: All Students of Affiliated Institute (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: Enter Manage Admin Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit 
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/manage/admin/{mid}/personal/query:
+    patch:
+      tags:
+        - Manage Admin Affiliation
+      summary: Edit Manage Admin Profile (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: Enter Manage Admin Id
+        - in: query
+          name: delete_pic
+          required: true
+          type: string
+          description: Enter Old Profile Photo
+      responses:
+        "200":
+          description: OK
+

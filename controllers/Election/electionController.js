@@ -565,6 +565,46 @@ exports.retrieveAllStudentElectionArray = async (req, res) => {
   }
 };
 
+exports.retrieveOneStudentOneElectionArray = async (req, res) => {
+  try {
+    const { sid, eid } = req.params;
+    if (!sid && !eid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    // const one_student = await Student.findById({ _id: sid });
+    const one_election = await Election.findById({ _id: eid }).populate({
+      path: "election_candidate",
+      select:
+        "election_result_status election_tag_line election_description election_vote_receieved",
+      populate: {
+        path: "election_supporting_member",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+      },
+    });
+    var flag;
+    for (var elect of one_election?.election_candidate) {
+      if (`${elect?.student}` === `${sid}`) {
+        flag = elect;
+        break;
+      }
+    }
+    if (flag) {
+      res
+        .status(200)
+        .send({ message: "Check your election detail 😁", access: true, flag });
+    } else {
+      res
+        .status(200)
+        .send({ message: "No election detail 😁", access: false, flag: null });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.renderElectionDepartmentSettingQuery = async (req, res) => {
   try {
     const { did } = req.params;

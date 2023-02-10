@@ -74,4 +74,19 @@ router.get(
   catchAsync(Manage.renderAdministratorOneInstituteProfile)
 );
 
+router.get(
+  "/:mid/all/mentors",
+  catchAsync(Manage.renderAdministratorAllMentorsArray)
+);
+
+router.get(
+  "/:mid/all/students",
+  catchAsync(Manage.renderAdministratorAllStudentsArray)
+);
+
+router.patch(
+  "/:mid/personal/query",
+  catchAsync(Manage.renderAdministratorPersonalQuery)
+);
+
 module.exports = router;

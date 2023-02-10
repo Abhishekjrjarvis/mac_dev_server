@@ -19153,6 +19153,11 @@ paths:
           required: true
           type: string
           description: Enter Limit No.
+        - in: query
+          name: search
+          required: true
+          type: string
+          description: Enter Search Query
       responses:
         "200":
           description: OK

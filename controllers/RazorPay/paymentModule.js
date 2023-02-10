@@ -597,7 +597,7 @@ exports.transportFunction = async (
     }
     // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount_ad);
     trans.online_fee += parseInt(tx_amount_ad);
-    trans.collected_fee += parseInt(tx_amount_ad);
+    // trans.collected_fee += parseInt(tx_amount_ad);
     if (trans.remaining_fee > parseInt(tx_amount_ad)) {
       trans.remaining_fee -= parseInt(tx_amount_ad);
     }

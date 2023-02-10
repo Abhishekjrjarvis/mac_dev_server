@@ -274,7 +274,11 @@ exports.renderVehicleNewPassenger = async (req, res) => {
       if (`${path?._id}` === `${rid}`) {
         path.passenger_list.push(student?._id);
         path.passenger_count += 1;
-        student.routes.push(path?._id);
+        student.routes.push({
+          routeId: path?._id,
+          routePath: path?.route_stop,
+        });
+        student.active_routes = path?.route_stop;
         student.vehicleRemainFeeCount += path?.route_fees;
         vehicle.remaining_fee += path?.route_fees;
         trans.remaining_fee += path?.route_fees;
@@ -418,7 +422,7 @@ exports.renderTransportAllPassenger = async (req, res) => {
         })
           .sort("-vehicleRemainFeeCount")
           .select(
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+            "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
           )
           .populate({
             path: "studentClass",
@@ -436,7 +440,7 @@ exports.renderTransportAllPassenger = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+            "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
           )
           .populate({
             path: "studentClass",
@@ -464,7 +468,7 @@ exports.renderTransportAllPassenger = async (req, res) => {
           ],
         })
           .select(
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+            "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
           )
           .populate({
             path: "studentClass",
@@ -481,7 +485,7 @@ exports.renderTransportAllPassenger = async (req, res) => {
           .limit(limit)
           .skip(skip)
           .select(
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+            "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
           )
           .populate({
             path: "studentClass",
@@ -637,31 +641,60 @@ exports.renderTransportOneVehicleQueryAllPassengers = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
+    const { search } = req.query;
     if (!vid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
         access: false,
       });
 
-    const one_vehicle = await Vehicle.findById({
+    var one_vehicle = await Vehicle.findById({
       _id: vid,
     }).select("passenger_array");
-    const all_passengers = await Student.find({
-      _id: { $in: one_vehicle?.passenger_array },
-    })
-      .limit(limit)
-      .skip(skip)
-      .select(
-        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
-      )
-      .populate({
-        path: "studentClass",
-        select: "className classTitle",
+    if (search) {
+      var all_passengers = await Student.find({
+        $and: [{ _id: { $in: one_vehicle?.passenger_array } }],
+        $or: [
+          {
+            studentFirstName: { $regex: search, $options: "i" },
+          },
+          {
+            studentMiddleName: { $regex: search, $options: "i" },
+          },
+          {
+            studentLastName: { $regex: search, $options: "i" },
+          },
+        ],
       })
-      .populate({
-        path: "user",
-        select: "userPhoneNumber",
-      });
+        .select(
+          "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+        )
+        .populate({
+          path: "studentClass",
+          select: "className classTitle",
+        })
+        .populate({
+          path: "user",
+          select: "userPhoneNumber",
+        });
+    } else {
+      var all_passengers = await Student.find({
+        _id: { $in: one_vehicle?.passenger_array },
+      })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+        )
+        .populate({
+          path: "studentClass",
+          select: "className classTitle",
+        })
+        .populate({
+          path: "user",
+          select: "userPhoneNumber",
+        });
+    }
 
     if (all_passengers?.length > 0) {
       res.status(200).send({
@@ -737,8 +770,10 @@ exports.renderTransportVehicleStudentRoute = async (req, res) => {
     const student = await Student.findById({ _id: sid }).select("routes");
 
     for (var path of route.direction_route) {
-      if (student?.routes?.includes(`${path?._id}`)) {
-        all_routes.push(path);
+      for (var stu of student.routes) {
+        if (`${stu?.routeId}` === `${path?._id}`) {
+          all_routes.push(path);
+        }
       }
     }
     if (all_routes?.length > 0) {

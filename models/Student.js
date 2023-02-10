@@ -386,7 +386,15 @@ const studentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  routes: [],
+  routes: [
+    {
+      routeId: { type: String },
+      routePath: { type: String },
+    },
+  ],
+  active_routes: {
+    type: String,
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema);

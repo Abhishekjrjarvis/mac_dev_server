@@ -17836,10 +17836,6 @@ paths:
               election_date_setting:
                 type: object
                 properties:
-                  start_date:
-                    type: number
-                    description: Enter Start Date Count
-                    required: true
                   end_date:
                     type: number
                     description: Enter End Date Count
@@ -17864,6 +17860,31 @@ paths:
                     type: number
                     description: Enter Result Date Count
                     required: true
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/election/event/{sid}/query/one/election/{eid}:
+    get:
+      tags:
+        - Election Event Query
+      summary: One Student One Election Event List Detail (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Student Id
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: Enter Election Id
       responses:
         "200":
           description: OK

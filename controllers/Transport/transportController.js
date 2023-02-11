@@ -338,11 +338,11 @@ exports.renderTransportAllVehicle = async (req, res) => {
         })
         .populate({
           path: "vehicle_no_driver",
-          select: "userLegalName",
+          select: "userLegalName userPhoneNumber",
         })
         .populate({
           path: "vehicle_no_conductor",
-          select: "userLegalName",
+          select: "userLegalName userPhoneNumber",
         });
     } else {
       var all_vehicles = await Vehicle.find({
@@ -363,11 +363,11 @@ exports.renderTransportAllVehicle = async (req, res) => {
         })
         .populate({
           path: "vehicle_no_driver",
-          select: "userLegalName",
+          select: "userLegalName userPhoneNumber",
         })
         .populate({
           path: "vehicle_no_conductor",
-          select: "userLegalName",
+          select: "userLegalName userPhoneNumber",
         });
     }
     if (all_vehicles?.length > 0) {
@@ -606,11 +606,11 @@ exports.renderTransportOneVehicleQuery = async (req, res) => {
       })
       .populate({
         path: "vehicle_no_driver",
-        select: "userLegalName",
+        select: "userLegalName userPhoneNumber",
       })
       .populate({
         path: "vehicle_no_conductor",
-        select: "userLegalName",
+        select: "userLegalName userPhoneNumber",
       })
       .populate({
         path: "transport",
@@ -722,17 +722,14 @@ exports.renderTransportOneVehicleRoute = async (req, res) => {
         message: "Their is a bug need to fix immediately 😡",
         access: false,
       });
-    const vehicle = await Vehicle.findById({ _id: vid }).select(
-      "vehicle_route route_count"
-    );
-    const route = await Direction.findById({
-      _id: `${vehicle?.vehicle_route}`,
+    const route = await Direction.findOne({
+      vehicle: vid,
     }).select("direction_route");
 
     if (route) {
       const refactor_path = {
         boarding_points: route?.direction_route,
-        boarding_count: vehicle?.route_count,
+        boarding_count: route?.direction_route?.length,
       };
       res.status(200).send({
         message: "Lot's of Boarding Points 😀",

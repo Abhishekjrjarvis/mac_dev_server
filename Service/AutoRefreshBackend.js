@@ -9,6 +9,7 @@ const invokeMemberTabNotification = require("../Firebase/MemberTab");
 const Post = require("../models/Post");
 const Department = require("../models/Department");
 const { custom_date_time } = require("../helper/dayTimer");
+const { large_vote_candidate } = require("../Custom/checkInitials");
 
 exports.check_poll_status = async (req, res) => {
   var r_date = new Date();
@@ -111,29 +112,6 @@ exports.election_vote_day = async (req, res) => {
   } catch (e) {
     console.log(e);
   }
-};
-
-const large_vote_candidate = (arr) => {
-  let first_vote = -1,
-    second_vote = -1;
-  let winner = "";
-  for (let i = 0; i <= arr.length - 1; i++) {
-    if (arr[i].election_vote_receieved > first_vote) {
-      second_vote = first_vote;
-      first_vote = arr[i].election_vote_receieved;
-      winner = arr[i].student;
-    } else if (
-      arr[i].election_vote_receieved > second_vote &&
-      arr[i].election_vote_receieved != first_vote
-    ) {
-      second_vote = arr[i].election_vote_receieved;
-    }
-  }
-  var data = {
-    max_votes: first_vote - second_vote,
-    winner: winner,
-  };
-  return data;
 };
 
 exports.election_result_day = async (req, res) => {
@@ -396,20 +374,23 @@ exports.recommendedAllIns = async (req, res) => {
     var user = await User.findById({ _id: uid }).select(
       "user_latitude user_longitude userInstituteFollowing userFollowers userCircle userFollowing"
     );
-
     const ins = await InstituteAdmin.find({
       _id: { $in: user?.userInstituteFollowing },
     }).select("joinedUserList");
     if (ins?.length > 0) {
       var refresh_recommend_user = [];
-      ins?.forEach((recommend) => {
-        if (recommend?.joinedUserList.includes(user?._id)) return;
-        refresh_recommend_user.push(...recommend?.joinedUserList);
-      });
+      for (var recommend of ins) {
+        for (var ref_rec of recommend?.joinedUserList) {
+          if (`${ref_rec}` === `${user?._id}`) {
+          } else {
+            refresh_recommend_user.push(ref_rec);
+          }
+        }
+      }
       var refresh_recommend_ref = refresh_recommend_user?.filter(function (
         user_ref
       ) {
-        return `${user_ref}` === `${user?._id}`;
+        return `${user_ref}` !== `${user?._id}`;
         // return `${user_ref}` !== `${user?._id}`;
       });
       var valid_recommend_user = remove_redundancy_recommend(

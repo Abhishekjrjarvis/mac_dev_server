@@ -710,6 +710,7 @@ exports.renderAdministratorPersonalQuery = async (req, res) => {
     if (image) {
       await deleteFile(image);
     }
+    res.status(200).send({ message: "Successfully Updated", access: true });
   } catch (e) {
     console.log(e);
   }

@@ -53,7 +53,12 @@ exports.retrieveAdminQuery = async (req, res) => {
     const genPassword = bcrypt.genSaltSync(12);
     const hashPassword = bcrypt.hashSync(adminPassword, genPassword);
     const admin = new Admin({ ...req.body });
-    (admin.adminPassword = hashPassword), await admin.save();
+    // var valid_invoice = `${
+    //   new Date().getMonth() + 1
+    // }${new Date().getFullYear()}0`;
+    // admin.invoice_count += parseInt(valid_invoice);
+    admin.adminPassword = hashPassword;
+    await admin.save();
     res.redirect("/");
   } catch {}
 };
@@ -329,7 +334,8 @@ exports.getApproveIns = async (req, res) => {
       institute.activateStatus = "Activated";
       institute.activateDate = new Date();
     }
-    notify.notifyContent = "Your institute is verified and approved for further managing operations";
+    notify.notifyContent =
+      "Your institute is verified and approved for further managing operations";
     notify.notifySender = admin._id;
     notify.notifyCategory = "Approve Institute";
     //
@@ -950,25 +956,26 @@ exports.retrieveOneInstituteQuery = async (req, res) => {
       .exec();
     // const insEncrypt = await encryptionPayload(institute);
     res.status(200).send({ message: "One Institute Profile Data", institute });
-  } catch(e) {
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
 };
 
-exports.uploadAdmissionApplicationCharges = async(req, res) => {
-  try{
-    const { id } = req.params
-    const { charges } = req.body
-    if(!id && !charges) return res.status(200).send({ message: "Their is a bug need to fixed immediatley 😡", access: false})
-    const one_institute = await InstituteAdmin.findById({_id: id})
-    one_institute.application_fee_charges = parseInt(charges)
-    await one_institute.save()
-    res.status(200).send({ message: "New Charges Available 👍", access: true})
-  }
-  catch(e){
-
-  }
-}
+exports.uploadAdmissionApplicationCharges = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { charges } = req.body;
+    if (!id && !charges)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley 😡",
+        access: false,
+      });
+    const one_institute = await InstituteAdmin.findById({ _id: id });
+    one_institute.application_fee_charges = parseInt(charges);
+    await one_institute.save();
+    res.status(200).send({ message: "New Charges Available 👍", access: true });
+  } catch (e) {}
+};
 
 exports.retrieveOnePostBlock = async (req, res) => {
   try {

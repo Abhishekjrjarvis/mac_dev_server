@@ -175,7 +175,7 @@ exports.retrieveOneElectionQuery = async (req, res) => {
     const { eid } = req.params;
     const elect = await Election.findById({ _id: eid })
       .select(
-        "election_position election_status election_app_start_date election_app_end_date election_selection_date election_campaign_last_date election_campaign_date election_result_date election_voting_date election_status"
+        "election_position election_status election_app_start_date election_app_end_date election_selection_date election_campaign_last_date election_campaign_date election_result_date election_voting_date election_status election_total_voter election_vote_cast result_notification"
       )
       .populate({
         path: "election_candidate",
@@ -183,6 +183,10 @@ exports.retrieveOneElectionQuery = async (req, res) => {
           path: "student",
           select:
             "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
+            populate: {
+              path: "user",
+              select: "username"
+            }
         },
         select:
           "election_candidate_status election_result_status election_vote_receieved election_tag_line election_description",
@@ -193,11 +197,21 @@ exports.retrieveOneElectionQuery = async (req, res) => {
           path: "election_supporting_member",
           select:
             "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
+            populate: {
+              path: "user",
+              select: "username"
+            }
         },
         select:
           "election_candidate_status election_result_status election_vote_receieved election_tag_line election_description",
       });
     // const oneElectEncrypt = await encryptionPayload(elect);
+    elect?.election_candidate.sort(function (st1, st2) {
+      return (
+        parseInt(st1.election_vote_receieved) -
+        parseInt(st2.election_vote_receieved)
+      );
+    });
     res
       .status(200)
       .send({ message: "One Election Event Process Query ", elect: elect });
@@ -212,7 +226,7 @@ exports.retrieveOneElectionQueryCandidate = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const { eid } = req.params;
     const all_candidate = await Election.findById({ _id: eid })
-      .select("_id")
+      .select("_id election_total_voter election_vote_cast result_notification")
       .populate({
         path: "election_candidate",
         populate: {
@@ -405,7 +419,7 @@ exports.retrieveVoteElectionQuery = async (req, res) => {
     student.notification.push(notify._id);
     notify.notifyByDepartPhoto = elect?.department;
     notify.notifyCategory = "Election Status";
-    notify.redirectIndex = E12;
+    notify.redirectIndex = '23';
     invokeMemberTabNotification(
       "Student Activity",
       notify,

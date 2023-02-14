@@ -86,6 +86,43 @@ const admissionAdminSchema = new mongoose.Schema({
       createdAt: { type: Date, default: Date.now },
     },
   ],
+  request_array: [],
+  fee_receipt_request: [
+    {
+      receipt: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeReceipt",
+      },
+      status: { type: String, default: "Pending" },
+      created_at: { type: Date, default: Date.now },
+    },
+  ],
+  fee_receipt_approve: [
+    {
+      receipt: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeReceipt",
+      },
+      status: { type: String, default: "Pending" },
+      created_at: { type: Date, default: Date.now },
+      over_status: { type: String },
+    },
+  ],
+  fee_receipt_reject: [
+    {
+      receipt: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeReceipt",
+      },
+      status: { type: String, default: "Pending" },
+      created_at: { type: Date, default: Date.now },
+      reason: { type: String },
+    },
+  ],
+  alarm_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("Admission", admissionAdminSchema);

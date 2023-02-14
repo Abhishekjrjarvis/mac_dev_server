@@ -20625,3 +20625,685 @@ paths:
         "200":
           description: OK
 
+
+#New Flow Finance + Admission 
+  /api/v1/finance/{fid}/bank/flow/query:
+    patch:
+      tags:
+        - New Flow Finance + Admission
+      summary: Add Bank Details By Finance Manager in body ("finance_bank_account_number", "finance_bank_name", "finance_bank_account_name", "finance_bank_ifsc_code", "finance_bank_branch_address", "finance_bank_upi_id", "finance_bank_upi_qrcode") (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+        - in: query
+          name: delete_pic
+          required: true
+          type: string
+          description: Enter Old Qr Photo
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/bank/flow/query:
+    patch:
+      tags:
+        - New Flow Finance + Admission
+      summary: Add Bank Details By Finance Manager in body ("finance_bank_account_number", "finance_bank_name", "finance_bank_account_name", "finance_bank_ifsc_code", "finance_bank_branch_address", "finance_bank_upi_id", "finance_bank_upi_qrcode") (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+        - in: query
+          name: delete_pic
+          required: true
+          type: string
+          description: Enter Old Qr Photo
+      responses:
+        "200":
+          description: OK
+
+
+  Get From Finance Master API:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Get Bank Details from Finance Master API (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/all/fee/category/query:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Get All Fees Category (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/fee/category/new:
+    post:
+      tags:
+        - New Flow Finance + Admission
+      summary: Add New Fees Category (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              category_name:
+                type: string
+                description: Enter Category as per given
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  Old All Internal Department API:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Get All Internal Department from Previous API (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      responses:
+        "200":
+          description: OK
+  
+  Old One Internal Department All Class Master API:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Get One Internal Department All Class Master from Previous API (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/fee/structure/new/{did}:
+    post:
+      tags:
+        - New Flow Finance + Admission
+      summary: Add New Fees Structure By Finance (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: Enter Department Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              category_master:
+                type: string
+                description: Enter Fees Category Id
+                required: true
+              class_master:
+                type: string
+                description: Enter Class Master Id
+                required: true
+              due_date:
+                type: string
+                description: Enter Due Date ("2023-01-02")
+                required: false
+              total_admission_fees:
+                type: number
+                description: Enter Admission Fees
+                required: true
+              total_installments:
+                type: string
+                description: Enter Total Installments
+                required: true
+              one_installments:
+                type: string
+                description: Enter One Installments if available pass all installments same as
+                required: false
+              heads:
+                type: array
+                description: Enter "[{ "name": "Library Fees", "price": 1000 }, {"name": "Tution Fees", "price": 1000}]"
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/depart/{did}/all/fee/structure:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Get All Fees Structures (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: Enter Department Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: filter_by
+          required: false
+          type: string
+          description: Enter Class Master ID from Admission Side
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/finance/{fid}/all/exempt/query:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Get All Exempted Array (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/all/government/query:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Get All Government Grants Array (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/finance/{frid}/one/receipt:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Get One Receipt Query (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: frid
+          required: true
+          type: string
+          description: Enter Fee Receipt Id
+      responses:
+        "200":
+          description: OK
+
+  Old Admission Select Student API Same as:
+    post:
+      tags:
+        - New Flow Finance + Admission
+      summary: Get Select Student API Same as fee_struct (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_struct:
+                type: string
+                description: Enter Fee Structure Id
+                required: true
+      parameters:
+      responses:
+        "200":
+          description: OK
+
+  Old Admission Mode Selection By Student Side:
+    post:
+      tags:
+        - New Flow Finance + Admission
+      summary: Select Mode From Student Side if mode is cash pass fee_payment_mode "By Cash" other no mention fields are required (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_payment_mode:
+                type: string
+                description: Enter Fee Mode ("By Cash") || ("UPI Transfer") || ("Demand Draft") || ("Cheque") || ("RTGS/NEFT/IMPS")
+                required: false
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: false
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: false
+              fee_bank_name:
+                type: string
+                description: Enter Bank Name e.g SBI
+                required: false
+              fee_bank_holder:
+                type: string
+                description: Enter Bank Holder Name e.g Mithkal
+                required: false
+              fee_utr_reference:
+                type: string
+                description: Enter Fee Unique Transaction Reference Number (UTR)
+                required: false
+      parameters:
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/all/receipts/by:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Get All Requested Receipts || Approved Receipts || Rejected Receipts (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Admission Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: filter_by
+          required: true
+          type: string
+          description: Enter Filter Query for ("ALL_REQUEST") || ("ALL_APPROVE") || ("ALL_REJECT")
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/one/receipts/{rid}/status:
+    patch:
+      tags:
+        - New Flow Finance + Admission
+      summary: Update One Receipts By Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Admission Id
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: Enter Receipt Id
+        - in: query
+          name: status
+          required: true
+          type: string
+          description: Enter Status As Mention for Operation ("Approved") || ("Rejected") || ("Over_Rejection")
+        - in: query
+          name: reqId
+          required: true
+          type: string
+          description: Enter Receipts Holding Document Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              reason:
+                type: string
+                description: Enter Reason if Receipt is going for Rejected
+                required: false
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{sid}/re/apply/receipts/{rid}:
+    patch:
+      tags:
+        - New Flow Finance + Admission
+      summary: Re-Apply Receipt From Student Application Status Tab Receipt Content is Updated not created (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Status Id
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: Enter Receipt Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_payment_mode:
+                type: string
+                description: Enter Fee Mode ("By Cash") || ("UPI Transfer") || ("Demand Draft") || ("Cheque") || ("RTGS/NEFT/IMPS")
+                required: false
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: false
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: false
+              fee_bank_name:
+                type: string
+                description: Enter Bank Name e.g SBI
+                required: false
+              fee_bank_holder:
+                type: string
+                description: Enter Bank Holder Name e.g Mithkal
+                required: false
+              fee_utr_reference:
+                type: string
+                description: Enter Fee Unique Transaction Reference Number (UTR)
+                required: false
+      responses:
+        "200":
+          description: OK
+
+  Old Admission Pay Offline Confirm Same as:
+    post:
+      tags:
+        - New Flow Finance + Admission
+      summary: Old Pay Offline Confirm API all previous things + add body content (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_payment_mode:
+                type: string
+                description: Enter Fee Mode ("By Cash") || ("UPI Transfer") || ("Demand Draft") || ("Cheque") || ("RTGS/NEFT/IMPS")
+                required: false
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: false
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: false
+              fee_bank_name:
+                type: string
+                description: Enter Bank Name e.g SBI
+                required: false
+              fee_bank_holder:
+                type: string
+                description: Enter Bank Holder Name e.g Mithkal
+                required: false
+              fee_utr_reference:
+                type: string
+                description: Enter Fee Unique Transaction Reference Number (UTR)
+                required: false
+      parameters:
+      responses:
+        "200":
+          description: OK
+
+  Old Admission Collect Docs Type is pass for One Time Fees Same as for Installment:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Old Collect Docs Type is pass for One Time Fees Same as for Installment (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      responses:
+        "200":
+          description: OK
+
+  Old Admission Cancel & Refund API Same as:
+    post:
+      tags:
+        - New Flow Finance + Admission
+      summary: Old Cancel & Refund API all previous things + add body content (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_payment_mode:
+                type: string
+                description: Enter Fee Mode ("By Cash") || ("UPI Transfer") || ("Demand Draft") || ("Cheque") || ("RTGS/NEFT/IMPS")
+                required: false
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: false
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: false
+              fee_bank_name:
+                type: string
+                description: Enter Bank Name e.g SBI
+                required: false
+              fee_bank_holder:
+                type: string
+                description: Enter Bank Holder Name e.g Mithkal
+                required: false
+              fee_utr_reference:
+                type: string
+                description: Enter Fee Unique Transaction Reference Number (UTR)
+                required: false
+      parameters:
+      responses:
+        "200":
+          description: OK
+
+  Old Admission All Admission Fees At Fees Data TAB Same as:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Old All Admission Fees At Fees Data TAB response is changed (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      responses:
+        "200":
+          description: OK
+
+
+  Old Admission Mark Remaining Fees API at Fees Data Tab Same as:
+    post:
+      tags:
+        - New Flow Finance + Admission
+      summary: Old Mark Remaining Fees API at Fees Data Tab all previous things + add body content (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_payment_mode:
+                type: string
+                description: Enter Fee Mode ("By Cash") || ("UPI Transfer") || ("Demand Draft") || ("Cheque") || ("RTGS/NEFT/IMPS") || ("Exempted/Unrecovered") || ("Government/Scholarship")
+                required: false
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: false
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: false
+              fee_bank_name:
+                type: string
+                description: Enter Bank Name e.g SBI
+                required: false
+              fee_bank_holder:
+                type: string
+                description: Enter Bank Holder Name e.g Mithkal
+                required: false
+              fee_utr_reference:
+                type: string
+                description: Enter Fee Unique Transaction Reference Number (UTR)
+                required: false
+      parameters:
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/trigger/alarm:
+    post:
+      tags:
+        - New Flow Finance + Admission
+      summary: Create a new Alarm only 3 Attempts - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Admission Id
+      responses:
+        "200":
+          description: OK

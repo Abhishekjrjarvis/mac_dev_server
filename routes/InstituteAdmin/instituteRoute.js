@@ -204,7 +204,7 @@ router.get(
 
 router.get(
   "/:id/department",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Institute.retrieveDepartmentList)
 );
 

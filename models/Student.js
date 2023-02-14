@@ -324,18 +324,22 @@ const studentSchema = new mongoose.Schema({
   ],
   remainingFeeList: [
     {
-      remainAmount: { type: Number, default: 0 },
-      appId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "NewApplication",
-      },
-      status: { type: String, default: "Not Paid" },
-      instituteId: { type: String },
-      installmentValue: { type: String },
-      isEnable: { type: Boolean, default: false },
-      mode: { type: String },
-      originalFee: { type: Number, default: 0 },
-      dueDate: { type: String },
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "RemainingList",
+    },
+  ],
+  fee_structure: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "FeeStructure",
+  },
+  active_fee_heads: [
+    {
+      appId: { type: mongoose.Schema.Types.ObjectId, ref: "NewApplication" },
+      head_name: { type: String },
+      created_at: { type: Date, default: Date.now },
+      applicable_fee: { type: Number, default: 0 },
+      remain_fee: { type: Number, default: 0 },
+      paid_fee: { type: Number, default: 0 },
     },
   ],
   certificateBonaFideCopy: {
@@ -386,6 +390,14 @@ const studentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  vehicle_payment_status: [
+    {
+      vehicle: { type: mongoose.Schema.Types.ObjectId, ref: "Vehicle" },
+      status: { type: String, default: "Not Paid" },
+      created_at: { type: Date, default: Date.now },
+      amount: { type: Number, default: 0 },
+    },
+  ],
   routes: [
     {
       routeId: { type: String },

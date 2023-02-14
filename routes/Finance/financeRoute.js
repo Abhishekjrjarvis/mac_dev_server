@@ -34,7 +34,7 @@ router.patch(
 // Fetch Finance Details
 router.get(
   "/:fid/dashboard",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Finance.retrieveFinanceQuery)
 );
 
@@ -271,6 +271,56 @@ router.post(
   "/:fid/library/:lid/submit/:rid/status",
   // isLoggedIn,
   catchAsync(Finance.submitLibraryFeeQuery)
+);
+
+// Add Bank Details in New Flow
+
+router.patch(
+  "/:fid/bank/flow/query",
+  // isLoggedIn,
+  catchAsync(Finance.renderFinanceBankUpdateQuery)
+);
+
+router.get(
+  "/:fid/all/fee/category/query",
+  // isLoggedIn,
+  catchAsync(Finance.renderFinanceAllFeeCategoryQuery)
+);
+
+router.post(
+  "/:fid/fee/category/new",
+  // isLoggedIn,
+  catchAsync(Finance.renderFinanceAddFeeCategory)
+);
+
+router.post(
+  "/:fid/fee/structure/new/:did",
+  // isLoggedIn,
+  catchAsync(Finance.renderFinanceAddFeeStructure)
+);
+
+router.get(
+  "/depart/:did/all/fee/structure",
+  // isLoggedIn,
+  catchAsync(Finance.renderDepartmentAllFeeStructure)
+);
+
+router.get(
+  "/:fid/all/exempt/query",
+  // isLoggedIn,
+  catchAsync(Finance.renderAllFinanceExempt)
+);
+
+router.get(
+  "/:fid/all/government/query",
+  // isLoggedIn,
+  catchAsync(Finance.renderAllFinanceGovernment)
+);
+
+router.get(
+  "/:frid/one/receipt",
+  // isLoggedIn,
+  catchAsync(Finance.renderOneFeeReceipt)
 );
 
 module.exports = router;

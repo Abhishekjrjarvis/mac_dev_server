@@ -200,6 +200,16 @@ const departmentSchema = new mongoose.Schema({
     vote_date: { type: Number, default: 1 },
     result_date: { type: Number, default: 1 },
   },
+  fees_structures: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FeeStructure",
+    },
+  ],
+  fees_structures_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Department = mongoose.model("Department", departmentSchema);

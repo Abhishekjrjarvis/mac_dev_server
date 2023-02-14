@@ -313,6 +313,57 @@ const financeSchema = new mongoose.Schema(
         status: { type: String },
       },
     ],
+    finance_bank_account_number: {
+      type: String,
+    },
+    finance_bank_name: {
+      type: String,
+    },
+    finance_bank_account_name: {
+      type: String,
+    },
+    finance_bank_ifsc_code: {
+      type: String,
+    },
+    finance_bank_branch_address: {
+      type: String,
+    },
+    finance_bank_upi_id: {
+      type: String,
+    },
+    finance_bank_upi_qrcode: {
+      type: String,
+    },
+    fees_category: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeCategory",
+      },
+    ],
+    fees_category_count: {
+      type: Number,
+      default: 0,
+    },
+    exempt_receipt: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeReceipt",
+      },
+    ],
+    exempt_receipt_count: {
+      type: Number,
+      default: 0,
+    },
+    government_receipt: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeReceipt",
+      },
+    ],
+    government_receipt_count: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

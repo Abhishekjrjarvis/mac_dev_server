@@ -161,7 +161,7 @@ exports.allBookByStaffSide = async (req, res) => {
       });
     }
   } catch (e) {
-    console.log(e)
+    console.log(e);
   }
 };
 
@@ -356,7 +356,9 @@ exports.bookColletedByStaffSide = async (req, res) => {
     order.payment_admission = library._id;
     order.payment_from = student._id;
     s_admin.invoice_count += 1;
-    order.payment_invoice_number = s_admin.invoice_count;
+    order.payment_invoice_number = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${s_admin.invoice_count}`;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     if (book.bookStatus === "Offline") book.leftCopies += 1;

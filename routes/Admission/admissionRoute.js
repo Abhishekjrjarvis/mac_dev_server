@@ -120,7 +120,7 @@ router.get(
 // One Student Select at Selected
 router.post(
   "/:sid/student/:aid/select",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Admission.retrieveAdmissionSelectedApplication)
 );
 
@@ -134,21 +134,21 @@ router.post(
 // Student Confirmation Select Pay Mode
 router.post(
   "/:sid/student/pay/mode/:aid/apply/status/:statusId",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Admission.retrieveAdmissionPayMode)
 );
 
 // One Student Pay Offline Mark
 router.post(
   "/:sid/student/:aid/pay/offline/confirm",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Admission.payOfflineAdmissionFee)
 );
 
 // Check At Last
 router.post(
   "/:sid/student/:aid/pay/refund",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Admission.cancelAdmissionApplication)
 );
 
@@ -197,7 +197,7 @@ router.get(
 // Paid Remaining Fee By Student
 router.post(
   "/:aid/paid/remaining/fee/:sid/student/:appId",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Admission.paidRemainingFeeStudent)
 );
 
@@ -245,13 +245,13 @@ router.patch(
 
 router.get(
   "/:sid/fees",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Admission.retrieveStudentAdmissionFees)
 );
 
 router.post(
   "/:sid/student/:aid/collect/docs",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Admission.retrieveAdmissionCollectDocs)
 );
 
@@ -287,4 +287,25 @@ router.delete(
   "/:aid/destroy/:appId",
   catchAsync(Admission.renderAppDeleteQuery)
 );
+
+router.get(
+  "/:aid/all/receipts/by",
+  catchAsync(Admission.renderAllReceiptsQuery)
+);
+
+router.patch(
+  "/:aid/one/receipts/:rid/status",
+  catchAsync(Admission.renderOneReceiptStatus)
+);
+
+router.patch(
+  "/:sid/re/apply/receipts/:rid",
+  catchAsync(Admission.renderOneReceiptReApply)
+);
+
+router.post(
+  "/:aid/trigger/alarm",
+  catchAsync(Admission.renderTriggerAlarmQuery)
+);
+
 module.exports = router;

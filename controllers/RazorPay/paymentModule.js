@@ -614,6 +614,25 @@ exports.transportFunction = async (
       amount: parseInt(tx_amount_ad),
       mode: "Online",
     });
+    // if(student.vehicle_payment_status?.length > 0){
+    //   for(var ele of student.vehicle_payment_status){
+    //     if(`${ele?.vehicle}` === `${vehicle?._id}` ){
+    //       ele.amount += parseInt(tx_amount_ad)
+
+    //     }
+    //   }
+    //   student.vehicle_payment_status.push({
+    //     vehicle: vehicle?._id,
+    //     status: "Paid",
+    //     amount: parseInt(tx_amount_ad)
+    //   })
+    // } else{
+      student.vehicle_payment_status.push({
+        vehicle: vehicle?._id,
+        status: "Paid",
+        amount: parseInt(tx_amount_ad)
+      })
+    // }
     notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} ${student.studentLastName} your transaction is successfull for ${vehicle.vehicle_number} ${parseInt(tx_amount_ad)} Fees`;
     notify.notifySender = trans._id;
     notify.notifyReceiever = user._id;

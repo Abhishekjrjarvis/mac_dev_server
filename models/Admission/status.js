@@ -22,6 +22,24 @@ const statusSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteAdmin",
   },
+  feeStructure: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "FeeStructure",
+  },
+  finance: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Finance",
+  },
+  sub_payment_mode: {
+    type: String,
+  },
+  receipt_status: {
+    type: String,
+  },
+  receipt: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "FeeReceipt"
+  }
 });
 
 module.exports = mongoose.model("Status", statusSchema);

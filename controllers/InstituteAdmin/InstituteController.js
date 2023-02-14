@@ -1424,7 +1424,7 @@ exports.retrieveDepartmentList = async (req, res) => {
       .select("insName")
       .populate({
         path: "depart",
-        select: "dName photo photoId dTitle",
+        select: "dName photo photoId dTitle classMasterCount",
         populate: {
           path: "dHead",
           select:

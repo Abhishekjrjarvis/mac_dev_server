@@ -10,7 +10,7 @@ const {
   admissionInstituteFunction,
   participateEventFunction,
   transportFunction,
-  applicationFunction
+  applicationFunction,
 } = require("./paymentModule");
 const { handle_undefined } = require("../../Handler/customError");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
@@ -118,7 +118,9 @@ exports.verifyRazorPayment = async (req, res) => {
       order_payment.payment_amount = refactor_amount_nocharges;
       order_payment.payment_status = "Captured";
       s_admin.invoice_count += 1;
-      order_payment.payment_invoice_number = s_admin.invoice_count;
+      order_payment.payment_invoice_number = `${
+        new Date().getMonth() + 1
+      }${new Date().getFullYear()}${s_admin.invoice_count}`;
       await Promise.all([order_payment.save(), s_admin.save()]);
       if (payment_module_type === "Unlock") {
         const unlock_status = await unlockInstituteFunction(
@@ -223,9 +225,7 @@ exports.verifyRazorPayment = async (req, res) => {
             check: true,
           });
         }
-        res.redirect(
-          `${process.env.FRONT_REDIRECT_URL}/q/${app_status}/feed`
-        );
+        res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${app_status}/feed`);
       } else {
       }
     } else {

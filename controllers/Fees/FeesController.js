@@ -171,7 +171,9 @@ exports.feesPaidByStudent = async (req, res) => {
           order.payment_fee = fData._id;
           order.payment_from = student._id;
           s_admin.invoice_count += 1;
-          order.payment_invoice_number = s_admin.invoice_count;
+          order.payment_invoice_number = `${
+            new Date().getMonth() + 1
+          }${new Date().getFullYear()}${s_admin.invoice_count}`;
           user.payment_history.push(order._id);
           institute.payment_history.push(order._id);
           const notify = new StudentNotification({});

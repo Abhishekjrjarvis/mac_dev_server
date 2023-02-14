@@ -1,18 +1,23 @@
 const invokeSpecificRegister = require("../Firebase/specific");
 const Student = require("../models/Student");
+const RemainingList = require("../models/Admission/RemainingList");
 const moment = require("moment");
 
 exports.dueDateAlarm = async () => {
   try {
     const alarmTrigger = moment(new Date()).format("YYYY-MM-DD");
-    const all_students = await Student.find({})
-      .select("remainingFeeList")
+    const all_remains = await RemainingList({})
+      .select("remaining_array")
       .populate({
-        path: "user",
-        select: "deviceToken",
+        path: "student",
+        select: "user",
+        populate: {
+          path: "user",
+          select: "deviceToken",
+        },
       });
-    for (let remind of all_students) {
-      for (let set of remind.remainingFeeList) {
+    for (let remind of all_remains) {
+      for (let set of remind.remaining_array) {
         if (
           set?.status === "Not Paid" &&
           // `${alarmTrigger}` <= `${set?.dueDate}` &&
@@ -25,10 +30,10 @@ exports.dueDateAlarm = async () => {
         ) {
           invokeSpecificRegister(
             "Specific Notification",
-            `Admission Fee Installment is due on ${set?.dueDate}`,
+            `Admission ${set?.installmentValue} is due on ${set?.dueDate}`,
             "Fees Reminder",
-            remind?.user._id,
-            remind?.user.deviceToken
+            remind?.student?.user._id,
+            remind?.student?.user.deviceToken
           );
         }
       }

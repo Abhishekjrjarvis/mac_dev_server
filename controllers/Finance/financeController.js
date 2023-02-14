@@ -10,7 +10,12 @@ const Income = require("../../models/Income");
 const Expense = require("../../models/Expense");
 const Class = require("../../models/Class");
 const Fees = require("../../models/Fees");
-const { uploadDocFile, getFileStream } = require("../../S3Configuration");
+const Department = require("../../models/Department");
+const {
+  uploadDocFile,
+  getFileStream,
+  deleteFile,
+} = require("../../S3Configuration");
 const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
@@ -19,6 +24,8 @@ const StudentNotification = require("../../models/Marks/StudentNotification");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 const BusinessTC = require("../../models/Finance/BToC");
+const FeeCategory = require("../../models/Finance/FeesCategory");
+const FeeStructure = require("../../models/Finance/FeesStructure");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const Transport = require("../../models/Transport/transport");
 const Store = require("../../models/Finance/Inventory");
@@ -31,6 +38,8 @@ const {
 const moment = require("moment");
 const Admission = require("../../models/Admission/Admission");
 const Library = require("../../models/Library/Library");
+const { handle_undefined } = require("../../Handler/customError");
+const FeeReceipt = require("../../models/RazorPay/feeReceipt");
 
 exports.getFinanceDepart = async (req, res) => {
   try {
@@ -205,7 +214,7 @@ exports.retrieveFinanceQuery = async (req, res) => {
     //   });
     const finance = await Finance.findById({ _id: fid })
       .select(
-        "financeName financeEmail financePhoneNumber financeAbout photoId photo cover coverId financeCollectedBankBalance financeTotalBalance financeRaisedBalance financeExemptBalance financeCollectedSBalance financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance"
+        "financeName financeEmail financePhoneNumber financeAbout photoId photo cover coverId financeCollectedBankBalance financeTotalBalance financeRaisedBalance financeExemptBalance financeCollectedSBalance financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode fees_category_count exempt_receipt_count government_receipt_count"
       )
       .populate({
         path: "institute",
@@ -265,7 +274,9 @@ exports.getIncome = async (req, res) => {
     order.payment_income = incomes._id;
     f_user.payment_history.push(order._id);
     s_admin.invoice_count += 1;
-    order.payment_invoice_number = s_admin.invoice_count;
+    order.payment_invoice_number = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${s_admin.invoice_count}`;
     if (user) {
       order.payment_by_end_user_id = user._id;
       order.payment_flag_by = "Debit";
@@ -365,7 +376,9 @@ exports.getExpense = async (req, res) => {
       order.payment_flag_by = "Debit";
       order.payment_mode = expenses.expenseAccount;
       s_admin.invoice_count += 1;
-      order.payment_invoice_number = s_admin.invoice_count;
+      order.payment_invoice_number = `${
+        new Date().getMonth() + 1
+      }${new Date().getFullYear()}${s_admin.invoice_count}`;
       order.payment_expense = expenses._id;
       f_user.payment_history.push(order._id);
       if (user) {
@@ -1311,7 +1324,7 @@ exports.retrieveRemainFeeList = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
     const finance = await Finance.findById({ _id: fid });
-    var sorted_zero = []
+    var sorted_zero = [];
     const studentList = await InstituteAdmin.findById({
       _id: `${finance.institute}`,
     }).select("_id ApproveStudent");
@@ -1336,16 +1349,17 @@ exports.retrieveRemainFeeList = async (req, res) => {
         path: "user",
         select: "username userLegalName",
       });
-      for(var match of student){
-        if(match?.studentRemainingFeeCount > 0){
-          sorted_zero.push(match)
-        }
+    for (var match of student) {
+      if (match?.studentRemainingFeeCount > 0) {
+        sorted_zero.push(match);
       }
-    // const sEncrypt = await encryptionPayload(student);
-    if(sorted_zero?.length > 0){
-      res.status(200).send({ message: "Remaining Fee List", list: sorted_zero });
     }
-    else{
+    // const sEncrypt = await encryptionPayload(student);
+    if (sorted_zero?.length > 0) {
+      res
+        .status(200)
+        .send({ message: "Remaining Fee List", list: sorted_zero });
+    } else {
       res.status(200).send({ message: "No Remaining Fee List", list: [] });
     }
   } catch (e) {
@@ -2196,6 +2210,363 @@ exports.submitLibraryFeeQuery = async (req, res) => {
         adsCount: 0,
       });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceBankUpdateQuery = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    const { delete_pic } = req.query;
+    const image = handle_undefined(delete_pic);
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    await Finance.findByIdAndUpdate(fid, req.body);
+    if (image) {
+      await deleteFile(image);
+    }
+    res
+      .status(200)
+      .send({ message: "Finance / Bank Query Resolved 😁", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceAllFeeCategoryQuery = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    // const page = req.query.page ? parseInt(req.query.page) : 1;
+    // const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    // const skip = (page - 1) * limit;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const finance = await Finance.findById({ _id: fid }).select(
+      "fees_category"
+    );
+
+    const all_fees_format = await FeeCategory.find({
+      _id: { $in: finance?.fees_category },
+    })
+      // .limit(limit)
+      // .skip(skip)
+      .select("category_name created_at");
+
+    if (all_fees_format?.length > 0) {
+      res.status(200).send({
+        message: "Lot's of Fees Category Available 👍",
+        access: true,
+        all_fees_format: all_fees_format,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Fees Category Available 👍",
+        access: true,
+        all_fees_format: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceAddFeeCategory = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const finance = await Finance.findById({ _id: fid });
+    const feeQuery = new FeeCategory({ ...req.body });
+    finance.fees_category.push(feeQuery?._id);
+    finance.fees_category_count += 1;
+    feeQuery.finance = finance?._id;
+    await Promise.all([finance.save(), feeQuery.save()]);
+    res.status(200).send({
+      message: "Add new Category to bucket",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceAddFeeStructure = async (req, res) => {
+  try {
+    const { fid, did } = req.params;
+    const { heads } = req.body;
+    if (!fid && !did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const finance = await Finance.findById({ _id: fid });
+    const depart = await Department.findById({ _id: did });
+    const struct_query = new FeeStructure({ ...req.body });
+    struct_query.finance = finance?._id;
+    struct_query.department = depart?._id;
+    depart.fees_structures.push(struct_query?._id);
+    depart.fees_structures_count += 1;
+    if (heads?.length > 0) {
+      for (var ref of heads) {
+        struct_query.fees_heads.push({
+          head_name: ref?.name,
+          head_amount: ref?.price,
+        });
+        struct_query.fees_heads_count += 1;
+      }
+    }
+    await Promise.all([depart.save(), struct_query.save()]);
+    res.status(200).send({
+      message: "Add new Structure to bucket",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderDepartmentAllFeeStructure = async (req, res) => {
+  try {
+    const { did } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { filter_by } = req.query;
+    const master_query = handle_undefined(filter_by); // master Id
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const depart = await Department.findById({ _id: did }).select(
+      "fees_structures"
+    );
+    if (master_query) {
+      var all_structures = await FeeStructure.find({
+        $and: [
+          { _id: { $in: depart?.fees_structures } },
+          { class_master: master_query },
+        ],
+      })
+        .limit(limit)
+        .skip(skip)
+        .select("total_admission_fees")
+        .populate({
+          path: "category_master",
+          select: "category_name",
+        })
+        .populate({
+          path: "class_master",
+          select: "className",
+        });
+    } else {
+      var all_structures = await FeeStructure.find({
+        _id: { $in: depart?.fees_structures },
+      })
+        .limit(limit)
+        .skip(skip)
+        .select("total_admission_fees")
+        .populate({
+          path: "category_master",
+          select: "category_name",
+        })
+        .populate({
+          path: "class_master",
+          select: "className",
+        });
+    }
+    if (all_structures?.length > 0) {
+      res.status(200).send({
+        message: "Lot's of Fees Structures Available 👍",
+        access: true,
+        all_structures: all_structures,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Fees Structures Available 👍",
+        access: true,
+        all_structures: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllFinanceExempt = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const finance = await Finance.findById({ _id: fid }).select(
+      "exempt_receipt"
+    );
+    const all_exempt = await FeeReceipt.find({
+      _id: { $in: finance?.exempt_receipt },
+    })
+      .limit(limit)
+      .skip(skip)
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+        populate: {
+          path: "fee_structure",
+          select: "category_master",
+          populate: {
+            path: "category_master",
+            select: "category_name",
+          },
+        },
+      })
+      .populate({
+        path: "application",
+        select: "applicationName",
+      });
+
+    if (all_exempt?.length > 0) {
+      res.status(200).send({
+        message: "Lot's of Exempted Volume Receipts",
+        access: true,
+        all_exempt: all_exempt,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Exempted Volume Receipts",
+        access: false,
+        all_exempt: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllFinanceGovernment = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const finance = await Finance.findById({ _id: fid }).select(
+      "government_receipt"
+    );
+    const all_exempt = await FeeReceipt.find({
+      _id: { $in: finance?.government_receipt },
+    })
+      .limit(limit)
+      .skip(skip)
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+        populate: {
+          path: "fee_structure",
+          select: "category_master",
+          populate: {
+            path: "category_master",
+            select: "category_name",
+          },
+        },
+      })
+      .populate({
+        path: "application",
+        select: "applicationName",
+      });
+
+    if (all_exempt?.length > 0) {
+      res.status(200).send({
+        message: "Lot's of Government / Scholarships Volume Receipts",
+        access: true,
+        all_exempt: all_exempt,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Government / Scholarships Volume Receipts",
+        access: false,
+        all_exempt: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneFeeReceipt = async (req, res) => {
+  try {
+    const { frid } = req.params;
+    if (!frid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const receipt = await FeeReceipt.findById({ _id: frid })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName active_fee_heads",
+      })
+      .populate({
+        path: "finance",
+        select:
+          "finance_bank_account_number finance_bank_name finance_bank_ifsc_code finance_bank_account_name finance_bank_branch_address finance_bank_upi_id",
+        populate: {
+          path: "financeHead",
+          select: "staffFirstName staffMiddleName staffLastName",
+        },
+      })
+      .populate({
+        path: "application",
+        select: "applicationName",
+        populate: {
+          path: "admissionAdmin",
+          select: "_id",
+          populate: {
+            path: "institute",
+            select:
+              "insName name insAddress insPhoneNumber insEmail insState insDistrict insProfilePhoto photoId",
+            populate: {
+              path: "displayPersonList",
+              select: "displayTitle",
+              populate: {
+                path: "displayUser",
+                select: "userLegalName",
+              },
+            },
+          },
+        },
+      });
+
+    res
+      .status(200)
+      .send({ message: "Come up with Tea and Snacks", access: true, receipt });
   } catch (e) {
     console.log(e);
   }

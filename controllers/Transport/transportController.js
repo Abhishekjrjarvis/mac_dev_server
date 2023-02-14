@@ -89,7 +89,7 @@ exports.renderTransportManagerDashboard = async (req, res) => {
       });
     const trans_panel = await Transport.findById({ _id: tid })
       .select(
-        "vehicle_count transport_staff_count transport_photo photoId passenger_count collected_fee exempt_fee online_fee offline_fee remaining_fee"
+        "vehicle_count transport_staff_count transport_photo photoId passenger_count requested_status collected_fee exempt_fee online_fee offline_fee remaining_fee"
       )
       .populate({
         path: "transport_manager",
@@ -599,10 +599,18 @@ exports.renderTransportOneVehicleQuery = async (req, res) => {
       .populate({
         path: "vehicle_conductor",
         select: "staffFirstName staffMiddleName staffLastName",
+        populate: {
+          path: "user",
+          select: "userPhoneNumber",
+        },
       })
       .populate({
         path: "vehicle_driver",
         select: "staffFirstName staffMiddleName staffLastName",
+        populate: {
+          path: "user",
+          select: "userPhoneNumber",
+        },
       })
       .populate({
         path: "vehicle_no_driver",
@@ -764,7 +772,9 @@ exports.renderTransportVehicleStudentRoute = async (req, res) => {
       _id: `${vehicle?.vehicle_route}`,
     }).select("direction_route");
 
-    const student = await Student.findById({ _id: sid }).select("routes");
+    const student = await Student.findById({ _id: sid }).select(
+      "routes vehicleRemainFeeCount vehiclePaidFeeCount"
+    );
 
     for (var path of route.direction_route) {
       for (var stu of student.routes) {
@@ -778,12 +788,14 @@ exports.renderTransportVehicleStudentRoute = async (req, res) => {
         message: "It is Students Boarding Points 🙄",
         access: true,
         all_routes: all_routes,
+        student: student,
       });
     } else {
       res.status(200).send({
         message: "No Boarding Points 🙄",
         access: true,
         all_routes: [],
+        student: student,
       });
     }
   } catch (e) {

@@ -306,6 +306,12 @@ router.get(
 );
 
 router.get(
+  "/one/:fsid/structure",
+  // isLoggedIn,
+  catchAsync(Finance.renderOneFeeStructure)
+);
+
+router.get(
   "/:fid/all/exempt/query",
   // isLoggedIn,
   catchAsync(Finance.renderAllFinanceExempt)

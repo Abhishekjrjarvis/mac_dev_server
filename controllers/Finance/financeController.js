@@ -2571,3 +2571,32 @@ exports.renderOneFeeReceipt = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderOneFeeStructure = async (req, res) => {
+  try {
+    const { fsid } = req.params;
+    if (!fsid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const structure = await FeeStructure.findById({ _id: fsid })
+      .select(
+        "one_installments two_installments three_installments four_installments five_installments six_installments seven_installments eight_installments nine_installments ten_installments eleven_installments tweleve_installments total_installments total_admission_fees due_date fees_heads"
+      )
+      .populate({
+        path: "category_master",
+        select: "category_name",
+      })
+      .populate({
+        path: "class_master",
+        select: "className",
+      });
+    res
+      .status(200)
+      .send({ message: "Explore One Fees Structure", access: true, structure });
+  } catch (e) {
+    console.log(e);
+  }
+};

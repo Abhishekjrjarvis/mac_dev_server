@@ -211,6 +211,7 @@ exports.election_result_day = async (req, res) => {
               await candidate_student.save();
             }
           });
+          election_status = "Completed";
           await elect.save();
           console.log("done");
         } else {

@@ -183,10 +183,10 @@ exports.retrieveOneElectionQuery = async (req, res) => {
           path: "student",
           select:
             "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
-            populate: {
-              path: "user",
-              select: "username"
-            }
+          populate: {
+            path: "user",
+            select: "username",
+          },
         },
         select:
           "election_candidate_status election_result_status election_vote_receieved election_tag_line election_description",
@@ -197,10 +197,10 @@ exports.retrieveOneElectionQuery = async (req, res) => {
           path: "election_supporting_member",
           select:
             "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
-            populate: {
-              path: "user",
-              select: "username"
-            }
+          populate: {
+            path: "user",
+            select: "username",
+          },
         },
         select:
           "election_candidate_status election_result_status election_vote_receieved election_tag_line election_description",
@@ -233,6 +233,10 @@ exports.retrieveOneElectionQueryCandidate = async (req, res) => {
           path: "student",
           select:
             "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
+          populate: {
+            path: "user",
+            select: "username",
+          },
         },
       })
       .populate({
@@ -241,6 +245,10 @@ exports.retrieveOneElectionQueryCandidate = async (req, res) => {
           path: "election_supporting_member",
           select:
             "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
+          populate: {
+            path: "user",
+            select: "username",
+          },
         },
       });
 
@@ -419,7 +427,7 @@ exports.retrieveVoteElectionQuery = async (req, res) => {
     student.notification.push(notify._id);
     notify.notifyByDepartPhoto = elect?.department;
     notify.notifyCategory = "Election Status";
-    notify.redirectIndex = '23';
+    notify.redirectIndex = "23";
     invokeMemberTabNotification(
       "Student Activity",
       notify,
@@ -595,7 +603,7 @@ exports.retrieveOneStudentOneElectionArray = async (req, res) => {
         access: false,
       });
     const one_election = await Election.findById({ _id: eid })
-      .select("election_vote_cast election_total_voter")
+      .select("election_vote_cast election_total_voter election_position")
       .populate({
         path: "election_candidate",
         select:

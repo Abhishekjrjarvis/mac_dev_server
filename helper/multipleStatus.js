@@ -98,10 +98,6 @@ exports.fee_reordering = async (
       finance.financeExemptBalance +=
         apply.admissionFee == price ? 0 : apply.admissionFee - price;
       admission.remainingFee.pull(student._id);
-      admission.exemptAmount +=
-        apply.admissionFee == price ? 0 : apply.admissionFee - price;
-      apply.exemptAmount +=
-        apply.admissionFee == price ? 0 : apply.admissionFee - price;
     } else if (type === "F_I_P" && price > 0) {
       admission.remainingFee.push(student._id);
       student.admissionRemainFeeCount += total_amount - price;

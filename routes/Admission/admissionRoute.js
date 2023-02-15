@@ -308,4 +308,14 @@ router.post(
   catchAsync(Admission.renderTriggerAlarmQuery)
 );
 
+router.post(
+  "/:aid/select/student/mode/:sid",
+  catchAsync(Admission.renderAdminSelectMode)
+);
+
+router.post(
+  "/:aid/cancel/select/student/:sid",
+  catchAsync(Admission.renderAdminStudentCancelSelectQuery)
+);
+
 module.exports = router;

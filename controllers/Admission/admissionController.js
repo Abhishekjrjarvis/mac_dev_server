@@ -1074,6 +1074,7 @@ exports.retrieveAdmissionSelectedApplication = async (req, res) => {
     student.fee_structure = structure?._id;
     status.finance = finance?._id;
     user.applicationStatus.push(status._id);
+    student.active_status.push(status?._id);
     await Promise.all([
       apply.save(),
       student.save(),
@@ -1316,6 +1317,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
         installmentValue: "First Installment",
         mode: mode,
         isEnable: true,
+        fee_receipt: new_receipt?._id,
       });
       new_remainFee.paid_fee += price;
       new_remainFee.remaining_fee += total_amount - price;
@@ -1342,6 +1344,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
         installmentValue: "One Time Fees",
         mode: mode,
         isEnable: true,
+        fee_receipt: new_receipt?._id,
       });
       new_remainFee.paid_fee += price;
       new_remainFee.remaining_fee +=
@@ -1578,6 +1581,17 @@ exports.cancelAdmissionApplication = async (req, res) => {
           ele.remain_fee = 0;
         }
       }
+      all_remain_fee_list.remaining_array.push({
+        remainAmount: price,
+        appId: apply._id,
+        status: "Paid",
+        instituteId: institute._id,
+        installmentValue: "Cancellation & Refunded",
+        mode: mode,
+        isEnable: true,
+        fee_receipt: new_receipt?._id,
+        refund_status: "Refunded",
+      });
       order.payment_module_type = "Expense";
       order.payment_to_end_user_id = institute._id;
       order.payment_by_end_user_id = user._id;
@@ -2083,7 +2097,8 @@ exports.paidRemainingFeeStudent = async (req, res) => {
         price,
         admin_ins,
         student?.fee_structure,
-        remaining_fee_lists
+        remaining_fee_lists,
+        new_receipt
       );
       remaining_fee_lists.paid_fee += price;
       if (remaining_fee_lists.remaining_fee >= price) {
@@ -2134,7 +2149,8 @@ exports.paidRemainingFeeStudent = async (req, res) => {
         apply,
         institute,
         student,
-        price
+        price,
+        new_receipt
       );
     }
     await Promise.all([
@@ -2460,6 +2476,9 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
     })
       .limit(limit)
       .skip(skip)
+      .select(
+        "applicable_fee remaining_fee exempted_fee paid_fee refund_fee status created_at"
+      )
       .populate({
         path: "appId",
         select: "applicationName applicationBatch",
@@ -2469,7 +2488,14 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
         },
       })
       .populate({
-        path: "fee_receipts",
+        path: "remaining_array",
+        populate: {
+          path: "fee_receipt",
+        },
+      })
+      .populate({
+        path: "student",
+        select: "studentFirstName studentMiddleName studentLastName",
       });
 
     if (all_remain?.length > 0) {
@@ -3157,6 +3183,9 @@ exports.renderOneReceiptReApply = async (req, res) => {
     const one_app = await NewApplication.findById({
       _id: `${one_receipt?.application}`,
     });
+    const ads_admin = await Admission.findById({
+      _id: `${one_app?.admissionAdmin}`,
+    }).select("fee_receipt_reject");
     one_receipt.re_apply = true;
     status.receipt_status = "Requested";
     await Promise.all([status.save(), one_receipt.save()]);
@@ -3169,6 +3198,13 @@ exports.renderOneReceiptReApply = async (req, res) => {
       }
     }
     await one_app.save();
+    for (var all of ads_admin?.fee_receipt_reject) {
+      if (`${all?.receipt}` === `${one_receipt?._id}`) {
+        ads_admin.fee_receipt_reject.pull(all?._id);
+        ads_admin.fee_receipt_reject.unshift(all?._id);
+      }
+    }
+    await ads_admin.save();
   } catch (e) {
     console.log(e);
   }
@@ -3188,24 +3224,180 @@ exports.renderTriggerAlarmQuery = async (req, res) => {
     );
 
     if (alarm_count > 3) {
-      res
-        .status(200)
-        .send({
-          message:
-            "You have only three attempts of sending notification to students for more contact Qviple",
-          access: false,
-        });
+      res.status(200).send({
+        message:
+          "You have only three attempts of sending notification to students for more contact Qviple",
+        access: false,
+      });
     } else {
       await dueDateAlarm();
       ads_admin.alarm_count += 1;
       await ads_admin.save();
-      res
-        .status(200)
-        .send({
-          message: `Fees Alarm is triggered successfully remaining ${ads_admin.alarm_count} attempts`,
-          access: true,
-        });
+      res.status(200).send({
+        message: `Fees Alarm is triggered successfully remaining ${ads_admin.alarm_count} attempts`,
+        access: true,
+      });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAdminSelectMode = async (req, res) => {
+  try {
+    const { aid, sid } = req.params;
+    const { fee_payment_mode } = req.body;
+    if (!aid && !sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const s_admin = await Admin.findById({
+      _id: `${process.env.S_ADMIN_ID}`,
+    }).select("invoice_count");
+    const apply = await NewApplication.findById({ _id: aid }).select(
+      "selectedApplication admissionAdmin"
+    );
+    const student = await Student.findById({ _id: sid });
+    const aStatus = new Status({});
+    const status = await Status.findOne({
+      $and: [{ _id: student?.active_status }, { applicationId: apply?._id }],
+    });
+    const user = await User.findById({ _id: `${student.user}` });
+    const admin_ins = await Admission.findById({
+      _id: `${apply.admissionAdmin}`,
+    });
+    const institute = await InstituteAdmin.findById({
+      _id: `${admin_ins.institute}`,
+    });
+    if (status) {
+      if (apply?.selectedApplication?.length > 0) {
+        apply?.selectedApplication?.forEach((ele) => {
+          if (`${ele.student}` === `${student._id}`) {
+            ele.payment_status = fee_payment_mode
+              ? "Receipt Requested"
+              : "offline";
+          }
+        });
+        await apply.save();
+      }
+      if (!fee_payment_mode) {
+        status.payMode = "offline";
+        status.sub_payment_mode = "By Cash";
+      } else {
+        status.sub_payment_mode = fee_payment_mode;
+        status.payMode = "online";
+        var receipt = new FeeReceipt({ ...req.body });
+        receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
+        receipt.student = student?._id;
+        receipt.application = apply?._id;
+        receipt.app_status = status?._id;
+        status.receipt = receipt?._id;
+        receipt.finance = institute?.financeDepart[0];
+        if (admin_ins?.request_array?.includes(`${receipt?._id}`)) {
+        } else {
+          admin_ins.request_array.push(receipt?._id);
+          admin_ins.fee_receipt_request.push({
+            receipt: receipt?._id,
+            status: "Requested",
+          });
+          status.receipt_status = "Requested";
+        }
+        s_admin.invoice_count += 1;
+        receipt.invoice_count = `${
+          new Date().getMonth() + 1
+        }${new Date().getFullYear()}${s_admin.invoice_count}`;
+        await Promise.all([receipt.save(), s_admin.save()]);
+      }
+      status.isPaid = "Not Paid";
+      status.for_selection = "No";
+      aStatus.content = `Your admission is on hold please visit ${institute.insName}, ${institute.insDistrict}. with required fees or contact institute if neccessory`;
+      aStatus.applicationId = apply._id;
+      user.applicationStatus.push(aStatus._id);
+      aStatus.instituteId = institute._id;
+      student.active_status.pull(status?._id);
+      await Promise.all([
+        status.save(),
+        aStatus.save(),
+        user.save(),
+        admin_ins.save(),
+        student.save(),
+      ]);
+      res.status(200).send({
+        message: "Lets do some excercise visit institute",
+        access: true,
+      });
+      invokeMemberTabNotification(
+        "Admission Status",
+        aStatus.content,
+        "Application Status",
+        user._id,
+        user.deviceToken
+      );
+    } else {
+      res.status(200).send({
+        message: "You lost in space",
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAdminStudentCancelSelectQuery = async (req, res) => {
+  try {
+    const { sid, aid } = req.params;
+    if (!sid && !aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        cancel_status: false,
+      });
+    const apply = await NewApplication.findById({ _id: aid });
+    const admission_admin = await Admission.findById({
+      _id: `${apply?.admissionAdmin}`,
+    }).select("institute");
+    const student = await Student.findById({ _id: sid });
+    const user = await User.findById({ _id: `${student.user}` });
+    const status = new Status({});
+    const aStatus = await Status.findOne({
+      $and: [{ _id: student?.active_status }, { applicationId: apply?._id }],
+    });
+    for (let app of apply.selectedApplication) {
+      if (`${app.student}` === `${student._id}`) {
+        apply.selectedApplication.pull(app._id);
+      } else {
+      }
+    }
+    if (apply.selectCount > 0) {
+      apply.selectCount -= 1;
+    }
+    aStatus.isPaid = "Not Paid";
+    aStatus.for_selection = "No";
+    status.content = `You admission is cancelled for ${apply.applicationName}. Due to no further activity `;
+    status.applicationId = apply._id;
+    status.studentId = student._id;
+    user.applicationStatus.push(status._id);
+    status.instituteId = admission_admin?.institute;
+    student.active_status.pull(aStatus?._id);
+    await Promise.all([
+      apply.save(),
+      student.save(),
+      user.save(),
+      status.save(),
+      aStatus.save(),
+    ]);
+    res.status(200).send({
+      message: `Best of luck for next time 😥`,
+      cancel_status: true,
+    });
+    invokeMemberTabNotification(
+      "Admission Status",
+      status.content,
+      "Application Status",
+      user._id,
+      user.deviceToken
+    );
   } catch (e) {
     console.log(e);
   }

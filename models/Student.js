@@ -407,6 +407,7 @@ const studentSchema = new mongoose.Schema({
   active_routes: {
     type: String,
   },
+  active_status: [],
 });
 
 const Student = mongoose.model("Student", studentSchema);

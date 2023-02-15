@@ -21327,3 +21327,80 @@ paths:
       responses:
         "200":
           description: OK
+
+  /api/v1/admission/{aid}/select/student/mode/{sid}:
+    post:
+      tags:
+        - New Flow Finance + Admission
+      summary: Confirm Student Mode By Admission Admin - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Application Id
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Student Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_payment_mode:
+                type: string
+                description: Enter Fee Mode ("By Cash") || ("UPI Transfer") || ("Demand Draft") || ("Cheque") || ("RTGS/NEFT/IMPS") || ("Exempted/Unrecovered") || ("Government/Scholarship")
+                required: false
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: false
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: false
+              fee_bank_name:
+                type: string
+                description: Enter Bank Name e.g SBI
+                required: false
+              fee_bank_holder:
+                type: string
+                description: Enter Bank Holder Name e.g Mithkal
+                required: false
+              fee_utr_reference:
+                type: string
+                description: Enter Fee Unique Transaction Reference Number (UTR)
+                required: false
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/cancel/select/student/{sid}:
+    post:
+      tags:
+        - New Flow Finance + Admission
+      summary: Cancel Student Admission Mode By Admission Admin - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Application Id
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Student Id
+      responses:
+        "200":
+          description: OK

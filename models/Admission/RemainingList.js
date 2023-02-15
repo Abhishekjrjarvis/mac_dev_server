@@ -25,6 +25,11 @@ const remainingFeeListSchema = new mongoose.Schema({
       originalFee: { type: Number, default: 0 },
       dueDate: { type: String },
       exempt_status: { type: String, default: "Not Exempted" },
+      fee_receipt: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeReceipt",
+      },
+      refund_status: { type: String , default: "Not Refunded"}
     },
   ],
   fee_receipts: [

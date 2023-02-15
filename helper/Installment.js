@@ -120,7 +120,15 @@ exports.add_all_installment = async (arg1, arg2, arg3, amount, arg4) => {
   }
 };
 
-const second_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
+const second_payable = async (
+  arg1,
+  arg2,
+  mode,
+  amount,
+  arg4,
+  arg5,
+  receipt_args
+) => {
   try {
     var flex_two = 0;
     if (arg1?.remaining_array?.length > 0) {
@@ -135,6 +143,7 @@ const second_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
           ele.isEnable = true;
+          ele.fee_receipt = receipt_args?._id;
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -158,7 +167,15 @@ const second_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
   } catch {}
 };
 
-const third_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
+const third_payable = async (
+  arg1,
+  arg2,
+  mode,
+  amount,
+  arg4,
+  arg5,
+  receipt_args
+) => {
   try {
     var flex_three = 0;
     if (arg1?.remaining_array?.length > 0) {
@@ -173,6 +190,7 @@ const third_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
           ele.isEnable = true;
+          ele.fee_receipt = receipt_args?._id;
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -196,7 +214,15 @@ const third_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
   } catch {}
 };
 
-const four_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
+const four_payable = async (
+  arg1,
+  arg2,
+  mode,
+  amount,
+  arg4,
+  arg5,
+  receipt_args
+) => {
   try {
     var flex_four = 0;
     if (arg1?.remaining_array?.length > 0) {
@@ -211,6 +237,7 @@ const four_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
           ele.isEnable = true;
+          ele.fee_receipt = receipt_args?._id;
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -236,7 +263,15 @@ const four_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
   }
 };
 
-const five_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
+const five_payable = async (
+  arg1,
+  arg2,
+  mode,
+  amount,
+  arg4,
+  arg5,
+  receipt_args
+) => {
   try {
     var flex_five = 0;
     if (arg1?.remaining_array?.length > 0) {
@@ -251,6 +286,7 @@ const five_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
           ele.isEnable = true;
+          ele.fee_receipt = receipt_args?._id;
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -274,7 +310,15 @@ const five_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
   } catch {}
 };
 
-const six_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
+const six_payable = async (
+  arg1,
+  arg2,
+  mode,
+  amount,
+  arg4,
+  arg5,
+  receipt_args
+) => {
   try {
     var flex_six = 0;
     if (arg1?.remaining_array?.length > 0) {
@@ -289,6 +333,7 @@ const six_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
           ele.isEnable = true;
+          ele.fee_receipt = receipt_args?._id;
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -314,7 +359,15 @@ const six_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
   }
 };
 
-const seven_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
+const seven_payable = async (
+  arg1,
+  arg2,
+  mode,
+  amount,
+  arg4,
+  arg5,
+  receipt_args
+) => {
   try {
     var flex_seven = 0;
     if (arg1?.remaining_array?.length > 0) {
@@ -329,6 +382,7 @@ const seven_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
           ele.isEnable = true;
+          ele.fee_receipt = receipt_args?._id;
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -352,7 +406,15 @@ const seven_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
   } catch {}
 };
 
-const eight_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
+const eight_payable = async (
+  arg1,
+  arg2,
+  mode,
+  amount,
+  arg4,
+  arg5,
+  receipt_args
+) => {
   try {
     var flex_eight = 0;
     if (arg1?.remaining_array?.length > 0) {
@@ -367,6 +429,7 @@ const eight_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
           ele.isEnable = true;
+          ele.fee_receipt = receipt_args?._id;
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -390,7 +453,15 @@ const eight_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
   } catch {}
 };
 
-const nine_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
+const nine_payable = async (
+  arg1,
+  arg2,
+  mode,
+  amount,
+  arg4,
+  arg5,
+  receipt_args
+) => {
   try {
     var flex_nine = 0;
     if (arg1?.remaining_array?.length > 0) {
@@ -405,6 +476,7 @@ const nine_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
           ele.isEnable = true;
+          ele.fee_receipt = receipt_args?._id;
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -428,7 +500,15 @@ const nine_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
   } catch {}
 };
 
-const ten_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
+const ten_payable = async (
+  arg1,
+  arg2,
+  mode,
+  amount,
+  arg4,
+  arg5,
+  receipt_args
+) => {
   try {
     var flex_ten = 0;
     if (arg1?.remaining_array?.length > 0) {
@@ -443,6 +523,7 @@ const ten_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
           ele.isEnable = true;
+          ele.fee_receipt = receipt_args?._id;
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -466,7 +547,15 @@ const ten_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
   } catch {}
 };
 
-const eleven_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
+const eleven_payable = async (
+  arg1,
+  arg2,
+  mode,
+  amount,
+  arg4,
+  arg5,
+  receipt_args
+) => {
   try {
     var flex_eleven = 0;
     if (arg1?.remaining_array?.length > 0) {
@@ -481,6 +570,7 @@ const eleven_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
           ele.isEnable = true;
+          ele.fee_receipt = receipt_args?._id;
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -508,7 +598,15 @@ const eleven_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
   } catch {}
 };
 
-const tweleve_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
+const tweleve_payable = async (
+  arg1,
+  arg2,
+  mode,
+  amount,
+  arg4,
+  arg5,
+  receipt_args
+) => {
   try {
     if (arg1?.remaining_array?.length > 0) {
       arg1?.remaining_array.forEach(async (ele) => {
@@ -521,6 +619,7 @@ const tweleve_payable = async (arg1, arg2, mode, amount, arg4, arg5) => {
           ele.mode = mode;
           ele.originalFee = arg2.total_admission_fees;
           ele.isEnable = true;
+          ele.fee_receipt = receipt_args?._id;
         }
       });
     }
@@ -544,7 +643,8 @@ exports.render_installment = async (
   price,
   admin_ins,
   structure,
-  remainList
+  remainList,
+  receipt
 ) => {
   try {
     if (type === "Second Installment") {
@@ -554,7 +654,8 @@ exports.render_installment = async (
         mode,
         price,
         admin_ins,
-        student
+        student,
+        receipt
       );
     } else if (type === "Third Installment") {
       await third_payable(
@@ -563,7 +664,8 @@ exports.render_installment = async (
         mode,
         price,
         admin_ins,
-        student
+        student,
+        receipt
       );
     } else if (type === "Four Installment") {
       await four_payable(
@@ -572,7 +674,8 @@ exports.render_installment = async (
         mode,
         price,
         admin_ins,
-        student
+        student,
+        receipt
       );
     } else if (type === "Five Installment") {
       await five_payable(
@@ -581,7 +684,8 @@ exports.render_installment = async (
         mode,
         price,
         admin_ins,
-        student
+        student,
+        receipt
       );
     } else if (type === "Six Installment") {
       await six_payable(remainList, structure, mode, price, admin_ins, student);
@@ -592,7 +696,8 @@ exports.render_installment = async (
         mode,
         price,
         admin_ins,
-        student
+        student,
+        receipt
       );
     } else if (type === "Eight Installment") {
       await eight_payable(
@@ -601,7 +706,8 @@ exports.render_installment = async (
         mode,
         price,
         admin_ins,
-        student
+        student,
+        receipt
       );
     } else if (type === "Nine Installment") {
       await nine_payable(
@@ -610,7 +716,8 @@ exports.render_installment = async (
         mode,
         price,
         admin_ins,
-        student
+        student,
+        receipt
       );
     } else if (type === "Ten Installment") {
       await ten_payable(remainList, structure, mode, price, admin_ins, student);
@@ -621,7 +728,8 @@ exports.render_installment = async (
         mode,
         price,
         admin_ins,
-        student
+        student,
+        receipt
       );
     } else if (type === "Tweleve Installment") {
       await tweleve_payable(
@@ -630,7 +738,8 @@ exports.render_installment = async (
         mode,
         price,
         admin_ins,
-        student
+        student,
+        receipt
       );
     } else {
     }
@@ -669,7 +778,8 @@ exports.remain_one_time_query = async (
   apply_args,
   ins_args,
   student_args,
-  price
+  price,
+  receipt_args
 ) => {
   try {
     const filter_student_install = remain_args?.remaining_array?.filter(
@@ -696,6 +806,7 @@ exports.remain_one_time_query = async (
         stu.status = "Paid";
         stu.installmentValue = "One Time Fees";
         remain_args.status = "Paid";
+        stu.fee_receipt = receipt_args?._id;
         ads_args.remainingFee.pull(student_args?._id);
       }
     }
@@ -727,6 +838,7 @@ exports.exempt_installment = async (
     for (var ref of filter_student_install) {
       ref.status = "Paid";
       ref.exempt_status = "Exempted";
+      ref.fee_receipt = receipt_args?._id;
       await ref.save();
       real_price += ref?.remainAmount;
     }

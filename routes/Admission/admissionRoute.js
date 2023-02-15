@@ -318,4 +318,9 @@ router.post(
   catchAsync(Admission.renderAdminStudentCancelSelectQuery)
 );
 
+router.get(
+  "/:aid/all/completed/app/query",
+  catchAsync(Admission.renderInstituteCompletedAppQuery)
+);
+
 module.exports = router;

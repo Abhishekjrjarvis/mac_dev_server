@@ -96,6 +96,7 @@ const newApplicationSchema = new mongoose.Schema({
       alloted_status: { type: String, default: "Not Alloted" },
       fee_remain: { type: Number, default: 0 },
       paid_status: { type: "String" },
+      install_type: { type: String },
       second_pay_mode: { type: "String" },
     },
   ],
@@ -114,57 +115,6 @@ const newApplicationSchema = new mongoose.Schema({
   gst_number: { type: String },
   business_name: { type: String },
   business_address: { type: String },
-  one_installments: {
-    fees: { type: Number, default: 0 },
-    dueDate: { type: String },
-  },
-  two_installments: {
-    fees: { type: Number, default: 0 },
-    dueDate: { type: String },
-  },
-  three_installments: {
-    fees: { type: Number, default: 0 },
-    dueDate: { type: String },
-  },
-  four_installments: {
-    fees: { type: Number, default: 0 },
-    dueDate: { type: String },
-  },
-  five_installments: {
-    fees: { type: Number, default: 0 },
-    dueDate: { type: String },
-  },
-  six_installments: {
-    fees: { type: Number, default: 0 },
-    dueDate: { type: String },
-  },
-  seven_installments: {
-    fees: { type: Number, default: 0 },
-    dueDate: { type: String },
-  },
-  eight_installments: {
-    fees: { type: Number, default: 0 },
-    dueDate: { type: String },
-  },
-  nine_installments: {
-    fees: { type: Number, default: 0 },
-    dueDate: { type: String },
-  },
-  ten_installments: {
-    fees: { type: Number, default: 0 },
-    dueDate: { type: String },
-  },
-  eleven_installments: {
-    fees: { type: Number, default: 0 },
-    dueDate: { type: String },
-  },
-  tweleve_installments: {
-    fees: { type: Number, default: 0 },
-    dueDate: { type: String },
-  },
-  total_installments: {
-    type: String,
-  },
 });
 
 module.exports = mongoose.model("NewApplication", newApplicationSchema);

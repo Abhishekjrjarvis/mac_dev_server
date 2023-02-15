@@ -2338,6 +2338,53 @@ exports.renderFinanceAddFeeStructure = async (req, res) => {
   }
 };
 
+exports.renderFeeStructureRetroQuery = async (req, res) => {
+  try {
+    const { fsid } = req.params;
+    const { heads } = req.body;
+    if (!fsid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const previous_struct = await FeeStructure.findById({ _id: fsid });
+    const finance = await Finance.findById({
+      _id: `${previous_struct?.finance}`,
+    });
+    const depart = await Department.findById({
+      _id: `${previous_struct?.department}`,
+    });
+    const struct_query = new FeeStructure({ ...req.body });
+    struct_query.finance = finance?._id;
+    struct_query.department = depart?._id;
+    depart.fees_structures.push(struct_query?._id);
+    depart.modify_fees_structures_count += 1;
+    previous_struct.document_update = true;
+    previous_struct.migrate_to.push(struct_query?._id);
+    if (heads?.length > 0) {
+      for (var ref of heads) {
+        struct_query.fees_heads.push({
+          head_name: ref?.name,
+          head_amount: ref?.price,
+        });
+        struct_query.fees_heads_count += 1;
+      }
+    }
+    await Promise.all([
+      depart.save(),
+      struct_query.save(),
+      previous_struct.save(),
+    ]);
+    res.status(200).send({
+      message: "Update Fees Structure to retro bucket",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.renderDepartmentAllFeeStructure = async (req, res) => {
   try {
     const { did } = req.params;
@@ -2359,6 +2406,7 @@ exports.renderDepartmentAllFeeStructure = async (req, res) => {
         $and: [
           { _id: { $in: depart?.fees_structures } },
           { class_master: master_query },
+          { document_update: false },
         ],
       })
         .limit(limit)
@@ -2596,6 +2644,22 @@ exports.renderOneFeeStructure = async (req, res) => {
     res
       .status(200)
       .send({ message: "Explore One Fees Structure", access: true, structure });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.addBody = async (req, res) => {
+  try {
+    if (req.body) {
+      res.status(200).send({
+        message: "Your Body is",
+        body: req.body,
+        content: req.get("Content-Type"),
+      });
+    } else {
+      res.status(200).send({ message: "Your Body is Empty", body: {} });
+    }
   } catch (e) {
     console.log(e);
   }

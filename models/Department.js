@@ -210,6 +210,10 @@ const departmentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  modify_fees_structures_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Department = mongoose.model("Department", departmentSchema);

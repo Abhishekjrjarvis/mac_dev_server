@@ -299,6 +299,13 @@ router.post(
   catchAsync(Finance.renderFinanceAddFeeStructure)
 );
 
+// Update Retrospective Based
+router.patch(
+  "/fee/structure/:fsid/retro/query",
+  // isLoggedIn,
+  catchAsync(Finance.renderFeeStructureRetroQuery)
+);
+
 router.get(
   "/depart/:did/all/fee/structure",
   // isLoggedIn,
@@ -328,5 +335,7 @@ router.get(
   // isLoggedIn,
   catchAsync(Finance.renderOneFeeReceipt)
 );
+
+router.post("/add/body", catchAsync(Finance.addBody));
 
 module.exports = router;

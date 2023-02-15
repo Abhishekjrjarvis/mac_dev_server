@@ -57,9 +57,11 @@ const {
   ignite_multiple_alarm,
   fee_reordering,
   insert_multiple_status,
+  fee_reordering_direct_student,
 } = require("../../helper/multipleStatus");
 const { whats_app_sms_payload } = require("../../WhatsAppSMS/payload");
 const { handle_undefined } = require("../../Handler/customError");
+const FeeReceipt = require("../../models/RazorPay/feeReceipt");
 
 const generateQR = async (encodeData, Id) => {
   try {
@@ -1802,7 +1804,7 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
 exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
   try {
     const { id, cid } = req.params;
-    const { sample_pic, fileArray } = req.body;
+    const { sample_pic, fileArray, appId, fee_struct, amount } = req.body;
     if (
       !id &&
       !cid &&
@@ -1815,7 +1817,12 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
         message: "Their is a bug need to fix immediately 😡",
         access: false,
       });
+    var price = parseInt(amount);
     const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const apply = await NewApplication.findById({ _id: appId });
+    const admission = await Admission.findById({
+      _id: `${apply?.admissionAdmin}`,
+    });
     const valid = await filter_unique_username(
       req.body.studentFirstName,
       req.body.studentDOB
@@ -1949,7 +1956,7 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       }
       student.institute = institute._id;
       student.user = user._id;
-      student.studentStatus = req.body.status;
+      student.studentStatus = "Approved";
       institute.ApproveStudent.push(student._id);
       admins.studentArray.push(student._id);
       admins.studentCount += 1;
@@ -1957,7 +1964,9 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       classes.strength += 1;
       classes.ApproveStudent.push(student._id);
       classes.studentCount += 1;
-      student.studentGRNO = `${institute?.gr_initials ? institute?.gr_initials : `Q`}${institute.ApproveStudent.length}`;
+      student.studentGRNO = `${
+        institute?.gr_initials ? institute?.gr_initials : `Q`
+      }${institute.ApproveStudent.length}`;
       student.studentROLLNO = classes.ApproveStudent.length;
       student.studentClass = classes._id;
       student.studentAdmissionDate = new Date().toISOString();
@@ -1976,19 +1985,28 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       notify.notifyReceiever = user._id;
       notify.notifyCategory = "Approve Student";
       institute.iNotify.push(notify._id);
-      notify.institute = institute._id;
       user.uNotify.push(notify._id);
       notify.user = user._id;
       notify.notifyByStudentPhoto = student._id;
       aStatus.content = `Welcome to ${institute.insName}. Your application for joining as student  has been accepted by ${institute.insName}. Enjoy your learning in ${classes.className} - ${classes.classTitle}.`;
       user.applicationStatus.push(aStatus._id);
       aStatus.instituteId = institute._id;
+      user.applyApplication.push(apply._id);
+      student.fee_structure = fee_struct;
+      await student.save();
       invokeFirebaseNotification(
         "Student Approval",
         notify,
         institute.insName,
         user._id,
         user.deviceToken
+      );
+      await fee_reordering_direct_student(
+        price,
+        student,
+        apply,
+        institute,
+        admission
       );
       await Promise.all([
         admins.save(),
@@ -2000,6 +2018,8 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
         user.save(),
         notify.save(),
         aStatus.save(),
+        admission.save(),
+        apply.save(),
       ]);
       if (student.studentGender === "Male") {
         classes.boyCount += 1;
@@ -2040,7 +2060,7 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
             student.studentMiddleName ? student.studentMiddleName : ""
           } ${student.studentLastName}`,
           institute?.insName,
-          classes?.classTitle,
+          classes?.classTitle
         );
       } else if (institute.sms_lang === "hi") {
         await directHSMSQuery(
@@ -2058,7 +2078,7 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
             student.studentMiddleName ? student.studentMiddleName : ""
           } ${student.studentLastName}`,
           institute?.insName,
-          classes?.classTitle,
+          classes?.classTitle
         );
       } else {
       }
@@ -2341,7 +2361,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
     const { id, aid } = req.params;
     const { existingUser } = req.query;
     var existing = handle_undefined(existingUser);
-    const { sample_pic, fileArray, type, mode, amount } = req.body;
+    const { sample_pic, fileArray, type, mode, amount, fee_struct } = req.body;
     if (
       !id &&
       !aid &&
@@ -2359,6 +2379,10 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       });
     const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     const apply = await NewApplication.findById({ _id: aid });
+    var new_receipt = new FeeReceipt({ ...req.body });
+    new_receipt.fee_transaction_date = new Date(
+      `${req.body?.transaction_date}`
+    );
     const admission = await Admission.findById({
       _id: `${apply.admissionAdmin}`,
     });
@@ -2439,6 +2463,8 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
     user.student.push(student._id);
     user.applyApplication.push(apply._id);
     student.user = user._id;
+    student.fee_structure = fee_struct;
+    await student.save();
     await insert_multiple_status(apply, user, institute, student?._id);
     apply.receievedCount += 1;
     apply.selectCount += 1;
@@ -2451,7 +2477,10 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       apply,
       institute,
       finance,
-      admission
+      admission,
+      admins,
+      new_receipt,
+      user
     );
     if (institute.userFollowersList.includes(user?._id)) {
     } else {
@@ -2460,7 +2489,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       institute.userFollowersList.push(user?._id);
       institute.followersCount += 1;
     }
-    await insert_multiple_status(apply, user, institute, student?._id);
+    // await insert_multiple_status(apply, user, institute, student?._id);
     await Promise.all([
       student.save(),
       user.save(),

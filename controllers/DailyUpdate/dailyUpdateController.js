@@ -94,8 +94,8 @@ exports.createDailyUpdate = async (req, res) => {
       }
     }
     subject.dailyUpdate?.push(dailyUpdate._id);
-    var notify = new StudentNotification({});
     for (let stu of subject?.class?.ApproveStudent) {
+      var notify = new StudentNotification({});
       const student = await Student.findById({ _id: `${stu}` });
       const student_user = await User.findById({ _id: `${student?.user}` });
       notify.notifyContent = `Check out the recent daily updates of ${subject?.subjectName}`;
@@ -121,9 +121,9 @@ exports.createDailyUpdate = async (req, res) => {
         "Student",
         notify
       );
-      await Promise.all([student.save(), student_user.save()]);
+      await Promise.all([student.save(), student_user.save(), notify.save()]);
     }
-    await Promise.all([dailyUpdate.save(), subject.save(), notify.save()]);
+    await Promise.all([dailyUpdate.save(), subject.save()]);
     // const dEncrypt = await encryptionPayload(dailyUpdate);
     res.status(201).send({
       message: "Daily updates created successfully 👍",

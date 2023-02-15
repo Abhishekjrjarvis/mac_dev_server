@@ -403,43 +403,6 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
     admission.newAppCount += 1;
     newApply.admissionAdmin = admission._id;
     institute.admissionCount += 1;
-    newApply.one_installments = req.body.one_installments
-      ? JSON.parse(req.body.one_installments)
-      : newApply.one_installments;
-    newApply.two_installments = req.body.two_installments
-      ? JSON.parse(req.body.two_installments)
-      : newApply.two_installments;
-    newApply.three_installments = req.body.three_installments
-      ? JSON.parse(req.body.three_installments)
-      : newApply.three_installments;
-    newApply.four_installments = req.body.four_installments
-      ? JSON.parse(req.body.four_installments)
-      : newApply.four_installments;
-    newApply.five_installments = req.body.five_installments
-      ? JSON.parse(req.body.five_installments)
-      : newApply.five_installments;
-    newApply.six_installments = req.body.six_installments
-      ? JSON.parse(req.body.six_installments)
-      : newApply.six_installments;
-    newApply.seven_installments = req.body.seven_installments
-      ? JSON.parse(req.body.seven_installments)
-      : newApply.seven_installments;
-    newApply.eight_installments = req.body.eight_installments
-      ? JSON.parse(req.body.eight_installments)
-      : newApply.eight_installments;
-    newApply.nine_installments = req.body.nine_installments
-      ? JSON.parse(req.body.nine_installments)
-      : newApply.nine_installments;
-    newApply.ten_installments = req.body.ten_installments
-      ? JSON.parse(req.body.ten_installments)
-      : newApply.ten_installments;
-    newApply.eleven_installments = req.body.eleven_installments
-      ? JSON.parse(req.body.eleven_installments)
-      : newApply.eleven_installments;
-    newApply.tweleve_installments = req.body.tweleve_installments
-      ? JSON.parse(req.body.tweleve_installments)
-      : newApply.tweleve_installments;
-    newApply.total_installments = req.body.total_installments;
     await Promise.all([admission.save(), newApply.save(), institute.save()]);
     if (req.file) {
       await unlinkFile(req.file?.path);
@@ -1294,7 +1257,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     var is_install;
     if (
       price <= student?.fee_structure?.total_admission_fees &&
-      price >= student?.fee_structure?.one_installments?.fees
+      price > student?.fee_structure?.one_installments?.fees
     ) {
       is_install = false;
     } else {
@@ -2264,7 +2227,7 @@ exports.retrieveOneApplicationQuery = async (req, res) => {
     //   });
     const oneApply = await NewApplication.findById({ _id: aid })
       .select(
-        "applicationName applicationType applicationAbout admissionProcess applicationEndDate applicationStartDate admissionFee applicationPhoto photoId applicationSeats receievedCount selectCount confirmCount applicationStatus cancelCount allotCount onlineFee offlineFee remainingFee collectedFeeCount total_installments one_installments two_installments"
+        "applicationName applicationType applicationAbout admissionProcess applicationEndDate applicationStartDate admissionFee applicationPhoto photoId applicationSeats receievedCount selectCount confirmCount applicationStatus cancelCount allotCount onlineFee offlineFee remainingFee collectedFeeCount"
       )
       .populate({
         path: "applicationDepartment",
@@ -3398,6 +3361,47 @@ exports.renderAdminStudentCancelSelectQuery = async (req, res) => {
       user._id,
       user.deviceToken
     );
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderInstituteCompletedAppQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const { search } = req.query;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        cancel_status: false,
+      });
+
+    const ads_admin = await Admission.findById({
+      _id: aid,
+    }).select("newApplication");
+
+    const all_completed = await NewApplication.find({
+      $and: [
+        { _id: { $in: ads_admin?.newApplication } },
+        { applicationStatus: "Completed" },
+      ],
+      $or: [{ applicationName: { $regex: search, $options: "i" } }],
+    }).select(
+      "applicationName applicationDepartment applicationMaster applicationBatch"
+    );
+    if (all_completed?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Completed Array",
+        access: true,
+        all_completed: all_completed,
+      });
+    } else {
+      res.status(200).send({
+        message: "Explore All Completed Array",
+        access: false,
+        all_completed: [],
+      });
+    }
   } catch (e) {
     console.log(e);
   }

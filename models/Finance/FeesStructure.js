@@ -91,6 +91,11 @@ const feeStructureSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  document_update: {
+    type: Boolean,
+    default: false,
+  },
+  migrate_to: [],
 });
 
 module.exports = mongoose.model("FeeStructure", feeStructureSchema);

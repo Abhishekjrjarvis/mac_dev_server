@@ -364,6 +364,13 @@ const financeSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    payment_modes_type: {
+      cash: { type: Boolean, default: true },
+      upi_transfer: { type: Boolean, default: true },
+      net_banking: { type: Boolean, default: true },
+      cheque: { type: Boolean, default: true },
+      demand_draft: { type: Boolean, default: true },
+    },
   },
   { timestamps: true }
 );

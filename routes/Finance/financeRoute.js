@@ -336,6 +336,18 @@ router.get(
   catchAsync(Finance.renderOneFeeReceipt)
 );
 
+router.patch(
+  "/:fid/update/payment/mode",
+  // isLoggedIn,
+  catchAsync(Finance.renderUpdatePaymentModeQuery)
+);
+
+router.get(
+  "/:fid/all/bank/details",
+  // isLoggedIn,
+  catchAsync(Finance.renderFinanceAllBankDetails)
+);
+
 router.post("/add/body", catchAsync(Finance.addBody));
 
 module.exports = router;

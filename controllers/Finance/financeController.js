@@ -214,7 +214,7 @@ exports.retrieveFinanceQuery = async (req, res) => {
     //   });
     const finance = await Finance.findById({ _id: fid })
       .select(
-        "financeName financeEmail financePhoneNumber financeAbout photoId photo cover coverId financeCollectedBankBalance financeTotalBalance financeRaisedBalance financeExemptBalance financeCollectedSBalance financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode fees_category_count exempt_receipt_count government_receipt_count"
+        "financeName financeEmail financePhoneNumber financeAbout photoId photo cover coverId financeCollectedBankBalance financeTotalBalance financeRaisedBalance financeExemptBalance financeCollectedSBalance financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance payment_modes_type finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode fees_category_count exempt_receipt_count government_receipt_count"
       )
       .populate({
         path: "institute",
@@ -2644,6 +2644,49 @@ exports.renderOneFeeStructure = async (req, res) => {
     res
       .status(200)
       .send({ message: "Explore One Fees Structure", access: true, structure });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderUpdatePaymentModeQuery = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    await Finance.findByIdAndUpdate(fid, req.body);
+    res
+      .status(200)
+      .send({ message: "Successfully Update Modes", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceAllBankDetails = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const bank_query = await Finance.findById({ _id: fid }).select(
+      "payment_modes_type finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode "
+    );
+
+    res
+      .status(200)
+      .send({
+        message: "Explore Transaction Query",
+        access: true,
+        bank_query: bank_query,
+      });
   } catch (e) {
     console.log(e);
   }

@@ -21509,3 +21509,69 @@ paths:
       responses:
         "200":
           description: OK
+
+  /api/v1/finance/{fid}/update/payment/mode:
+    patch:
+      tags:
+        - New Flow Finance + Admission
+      summary: Update Finance Payment Modes for Students - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              payment_modes_type:
+                type: object
+                properties:
+                  cash:
+                    type: boolean
+                    description: Default Cash To true update to false if not required
+                    required: false
+                  upi_transfer:
+                    type: boolean
+                    description: Default UPI Transfer To true update to false if not required
+                    required: false
+                  net_banking:
+                    type: boolean
+                    description: Default Netbanking To true update to false if not required
+                    required: false
+                  cheque:
+                    type: boolean
+                    description: Default Cheque To true update to false if not required
+                    required: false
+                  demand_draft:
+                    type: boolean
+                    description: Default Demand Draft To true update to false if not required
+                    required: false
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/all/bank/details:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: get Finance Payment Modes + Bank Details for Students Side - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+      responses:
+        "200":
+          description: OK

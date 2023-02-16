@@ -123,6 +123,10 @@ paths:
                 type: string
                 description: Enter Fee Structure Id
                 required: true
+              batchId:
+                type: string
+                description: Enter Batch Id
+                required: true
               fee_payment_mode:
                 type: string
                 description: Enter Fee Mode ("By Cash") || ("UPI Transfer") || ("Demand Draft") || ("Cheque") || ("RTGS/NEFT/IMPS") || ("Exempted/Unrecovered") || ("Government/Scholarship")

@@ -252,7 +252,8 @@ exports.fee_reordering_direct_student = async (
   stu_query,
   apply,
   institute,
-  admission
+  admission,
+  batch
 ) => {
   try {
     var student = await Student.findById({ _id: `${stu_query?._id}` }).populate(
@@ -341,6 +342,7 @@ exports.fee_reordering_direct_student = async (
         : student?.fee_structure?.total_admission_fees - price,
     });
     apply.allotCount += 1;
+    new_remainFee.batchId = batch
     await new_remainFee.save();
   } catch (e) {
     console.log(e);

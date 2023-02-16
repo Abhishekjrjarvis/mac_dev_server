@@ -1804,7 +1804,7 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
 exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
   try {
     const { id, cid } = req.params;
-    const { sample_pic, fileArray, appId, fee_struct, amount } = req.body;
+    const { sample_pic, fileArray, appId, fee_struct, amount, batchId } = req.body;
     if (
       !id &&
       !cid &&
@@ -2006,7 +2006,8 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
         student,
         apply,
         institute,
-        admission
+        admission,
+        batchId
       );
       await Promise.all([
         admins.save(),

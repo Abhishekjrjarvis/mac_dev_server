@@ -5,6 +5,10 @@ const remainingFeeListSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "NewApplication",
   },
+  batchId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Batch"
+  },
   applicable_fee: { type: Number, default: 0 },
   remaining_fee: { type: Number, default: 0 },
   exempted_fee: { type: Number, default: 0 },

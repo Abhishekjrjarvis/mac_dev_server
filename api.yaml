@@ -21624,3 +21624,132 @@ paths:
       responses:
         "200":
           description: OK
+
+  /api/v1/admission/{aid}/add/document/flow:
+    post:
+      tags:
+        - New Flow Finance + Admission
+      summary: Add Required Documents by the Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission id 
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - doc_name
+              - doc_key
+            properties:
+              doc_name:
+                type: string
+                description: Enter Document Name
+              doc_key:
+                type: string
+                description: Enter Document Key
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/all/document/array:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Get All Required Documents by the Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/edit/document/flow:
+    patch:
+      tags:
+        - New Flow Finance + Admission
+      summary: Update Existing Required Documents by the Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              doc:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Enter Document "_id"
+                    required: true
+                  name:
+                    type: string
+                    description: Enter Changed Document Name
+                    required: true
+                  newKey:
+                    type: string
+                    description: send existing old key if no new document is available
+                    required: true
+                  oldKey:
+                    type: string
+                    description: if available New Upload Document Key if available then send existing old key
+                    required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/delete/document/{docId}:
+    delete:
+      tags:
+        - New Flow Finance + Admission
+      summary: Delete Existing Required Document by the Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission id 
+        - in: path
+          name: docId
+          required: true
+          type: string
+          description: This is Document id 
+      responses:
+        "200":
+          description: OK

@@ -18,7 +18,7 @@ exports.retrieveNewParticipateQuery = async (req, res) => {
     part.department = depart._id;
     part.event_app_last_date = new Date(`${req.body?.lastDate}`).toISOString();
     part.event_date = new Date(`${req.body?.date}`).toISOString();
-    part.event_classes.push(req.body?.classes);
+    part.event_classes.push(...req.body?.classes);
     await Promise.all([depart.save(), part.save()]);
     res.status(200).send({
       message: "New Participate Event Application will be available",

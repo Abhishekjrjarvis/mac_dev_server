@@ -15,7 +15,6 @@ const participateEventSchema = new mongoose.Schema({
   },
   event_about: {
     type: String,
-    required: true,
   },
   event_classes: [
     {

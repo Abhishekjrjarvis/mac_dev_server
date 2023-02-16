@@ -36,6 +36,7 @@ exports.insert_multiple_status = async (args, uargs, iargs, sid) => {
         content: `Welcome to Institute ${iargs.insName}, ${iargs.insDistrict}.Please visit with Required Documents to confirm your admission`,
         applicationId: args?._id,
         instituteId: iargs?._id,
+        document_visible: true,
       },
       {
         content: `Your seat has been confirmed, You will be alloted your class shortly, Stay Update!`,

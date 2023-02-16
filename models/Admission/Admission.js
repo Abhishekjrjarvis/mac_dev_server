@@ -123,6 +123,16 @@ const admissionAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  required_document: [
+    {
+      document_name: { type: String },
+      document_key: { type: String },
+    },
+  ],
+  required_document_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("Admission", admissionAdminSchema);

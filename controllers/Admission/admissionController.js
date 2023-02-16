@@ -1387,6 +1387,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     status.applicationId = apply._id;
     user.applicationStatus.push(status._id);
     status.instituteId = institute._id;
+    status.document_visible = true;
     await Promise.all([
       admission.save(),
       apply.save(),
@@ -3433,6 +3434,138 @@ exports.renderEditStudentFeeStructureQuery = async (req, res) => {
         access: true,
       });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAddDocumentQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const { doc_name, doc_key } = req.body;
+    if (!aid && !doc_name && !doc_key)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const ads_admin = await Admission.findById({ _id: aid });
+    ads_admin.required_document.push({
+      document_name: doc_name,
+      document_key: doc_key,
+    });
+    ads_admin.required_document_count += 1;
+    await ads_admin.save();
+    res.status(200).send({
+      message: "New Document Added to Required Document",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllDocumentArray = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const ads_admin = await Admission.findById({ _id: aid }).select(
+      "required_document"
+    );
+
+    const all_docs = await nested_document_limit(
+      page,
+      limit,
+      ads_admin?.required_document
+    );
+    if (all_docs?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Documents",
+        access: true,
+        all_docs: all_docs,
+        count: ads_admin?.required_document?.length,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Document Available",
+        access: false,
+        all_docs: [],
+        count: 0,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderEditDocumentQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const { doc } = req.body;
+    if (!aid && !doc)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const ads_admin = await Admission.findById({ _id: aid }).select(
+      "required_document"
+    );
+
+    for (var ref of ads_admin?.required_document) {
+      if (`${ref?._id}` === `${doc?.id}`) {
+        ref.document_name = doc.name;
+        ref.document_key = doc.newKey;
+      }
+    }
+    if (doc?.oldKey) {
+      await deleteFile(doc?.oldKey);
+    }
+    await ads_admin.save();
+    res.status(200).send({
+      message: "Document Updated",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderDeleteExistingDocument = async (req, res) => {
+  try {
+    const { aid, docId } = req.params;
+    var old_image;
+    if (!aid && !docId)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const ads_admin = await Admission.findById({ _id: aid }).select(
+      "required_document"
+    );
+
+    for (var ref of ads_admin?.required_document) {
+      if (`${ref?._id}` === `${docId}`) {
+        old_image = ref?.document_key;
+        ads_admin.required_document.pull(ref?._id);
+        if (ads_admin?.required_document_count > 0) {
+          ads_admin.required_document_count -= 1;
+        }
+      }
+    }
+
+    if (old_image) {
+      await deleteFile(old_image);
+    }
+    await ads_admin.save();
+    res.status(200).send({
+      message: "Deletion Operation Completed",
+      access: true,
+    });
   } catch (e) {
     console.log(e);
   }

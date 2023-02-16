@@ -328,4 +328,29 @@ router.patch(
   catchAsync(Admission.renderEditStudentFeeStructureQuery)
 );
 
+router.patch(
+  "/:aid/student/:sid/edit/structure",
+  catchAsync(Admission.renderEditStudentFeeStructureQuery)
+);
+
+router.post(
+  "/:aid/add/document/flow",
+  catchAsync(Admission.renderAddDocumentQuery)
+);
+
+router.get(
+  "/:aid/all/document/array",
+  catchAsync(Admission.renderAllDocumentArray)
+);
+
+router.patch(
+  "/:aid/edit/document/flow",
+  catchAsync(Admission.renderEditDocumentQuery)
+);
+
+router.delete(
+  "/:aid/delete/document/:docId",
+  catchAsync(Admission.renderDeleteExistingDocument)
+);
+
 module.exports = router;

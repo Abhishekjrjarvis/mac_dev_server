@@ -38,8 +38,12 @@ const statusSchema = new mongoose.Schema({
   },
   receipt: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "FeeReceipt"
-  }
+    ref: "FeeReceipt",
+  },
+  document_visible: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = mongoose.model("Status", statusSchema);

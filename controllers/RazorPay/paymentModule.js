@@ -427,6 +427,7 @@ exports.admissionInstituteFunction = async (
         });
       aStatus.content = `Welcome to Institute ${ins.insName}, ${ins.insDistrict}.Please visit with Required Documents to confirm your admission`
       aStatus.applicationId = apply._id;
+      aStatus.document_visible = true;
       user.applicationStatus.push(aStatus._id);
       aStatus.instituteId = ins._id;
       user.payment_history.push(order);

@@ -378,9 +378,8 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
         status: false,
       });
     const { expand } = req.query;
-    req.body.admissionFee = parseInt(req.body.admissionFee);
-    req.body.applicationSeats = req.body.applicationSeats
-      ? parseInt(req.body.applicationSeats)
+    req.body.applicationSeats = req.body?.applicationSeats
+      ? parseInt(req.body?.applicationSeats)
       : 0;
     var admission = await Admission.findById({ _id: aid });
     var institute = await InstituteAdmin.findById({

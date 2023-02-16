@@ -737,14 +737,14 @@ exports.fetchAllSelectApplication = async (req, res) => {
             path: "student",
             select:
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
+            populate: {
+              path: "fee_structure",
+              select: "total_admission_fees",
               populate: {
-                path: "fee_structure",
-                select: "total_admission_fees",
-                populate: {
-                  path: "category_master",
-                  select: "category_name",
-                },
+                path: "category_master",
+                select: "category_name",
               },
+            },
           },
         });
       if (apply?.selectedApplication?.length > 0) {
@@ -1756,7 +1756,12 @@ exports.retrieveClassAllotQuery = async (req, res) => {
     if (array?.length > 0) {
       for (var sid of array) {
         const student = await Student.findById({ _id: sid });
-        const remain_list = await RemainingList.findOne({ $and: [{ _id: { $in: student?.remainingFeeList } }, { appId: apply?._id }]})
+        const remain_list = await RemainingList.findOne({
+          $and: [
+            { _id: { $in: student?.remainingFeeList } },
+            { appId: apply?._id },
+          ],
+        });
         const user = await User.findById({ _id: `${student.user}` });
         const notify = new Notification({});
         const aStatus = new Status({});
@@ -1775,7 +1780,7 @@ exports.retrieveClassAllotQuery = async (req, res) => {
           paid_status:
             student.admissionRemainFeeCount == 0 ? "Paid" : "Not Paid",
         });
-        remain_list.batchId = batch?._id
+        remain_list.batchId = batch?._id;
         apply.allotCount += 1;
         // student.confirmApplication.pull(apply._id)
         student.studentStatus = "Approved";
@@ -1826,7 +1831,7 @@ exports.retrieveClassAllotQuery = async (req, res) => {
           depart.save(),
           batch.save(),
           notify.save(),
-          remain_list.save()
+          remain_list.save(),
         ]);
         if (student.studentGender === "Male") {
           classes.boyCount += 1;
@@ -2468,8 +2473,8 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       })
       .populate({
         path: "batchId",
-        select: "batchName"
-      })
+        select: "batchName",
+      });
 
     if (all_remain?.length > 0) {
       // const arrayEncrypt = await encryptionPayload(all_remain);
@@ -3399,7 +3404,6 @@ exports.renderEditStudentFeeStructureQuery = async (req, res) => {
       $and: [
         { _id: { $in: student?.remainingFeeList } },
         { appId: apply?._id },
-        { student: student?._id },
       ],
     });
     const structure = await FeeStructure.findById({ _id: fee_struct });
@@ -3407,12 +3411,14 @@ exports.renderEditStudentFeeStructureQuery = async (req, res) => {
       $and: [{ _id: student?.active_status }, { applicationId: apply?._id }],
     });
     var flag = false;
-    for (var ref of remain_list?.remaining_array) {
-      if (`${ref?.appId}` === `${apply?._id}` && ref.status === "Paid") {
-        flag = true;
-        break;
-      } else {
-        flag = false;
+    if (remain_list) {
+      for (var ref of remain_list?.remaining_array) {
+        if (`${ref?.appId}` === `${apply?._id}` && ref.status === "Paid") {
+          flag = true;
+          break;
+        } else {
+          flag = false;
+        }
       }
     }
     if (flag) {

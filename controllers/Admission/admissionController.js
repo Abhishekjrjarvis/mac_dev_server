@@ -3209,15 +3209,11 @@ exports.renderTriggerAlarmQuery = async (req, res) => {
 exports.renderAdminSelectMode = async (req, res) => {
   try {
     const { aid, sid } = req.params;
-    const { fee_payment_mode } = req.body;
     if (!aid && !sid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
-    const s_admin = await Admin.findById({
-      _id: `${process.env.S_ADMIN_ID}`,
-    }).select("invoice_count");
     const apply = await NewApplication.findById({ _id: aid }).select(
       "selectedApplication admissionAdmin"
     );
@@ -3237,41 +3233,13 @@ exports.renderAdminSelectMode = async (req, res) => {
       if (apply?.selectedApplication?.length > 0) {
         apply?.selectedApplication?.forEach((ele) => {
           if (`${ele.student}` === `${student._id}`) {
-            ele.payment_status = fee_payment_mode
-              ? "Receipt Requested"
-              : "offline";
+            ele.payment_status = "offline";
           }
         });
         await apply.save();
       }
-      if (!fee_payment_mode) {
-        status.payMode = "offline";
-        status.sub_payment_mode = "By Cash";
-      } else {
-        status.sub_payment_mode = fee_payment_mode;
-        status.payMode = "online";
-        var receipt = new FeeReceipt({ ...req.body });
-        receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
-        receipt.student = student?._id;
-        receipt.application = apply?._id;
-        receipt.app_status = status?._id;
-        status.receipt = receipt?._id;
-        receipt.finance = institute?.financeDepart[0];
-        if (admin_ins?.request_array?.includes(`${receipt?._id}`)) {
-        } else {
-          admin_ins.request_array.push(receipt?._id);
-          admin_ins.fee_receipt_request.push({
-            receipt: receipt?._id,
-            status: "Requested",
-          });
-          status.receipt_status = "Requested";
-        }
-        s_admin.invoice_count += 1;
-        receipt.invoice_count = `${
-          new Date().getMonth() + 1
-        }${new Date().getFullYear()}${s_admin.invoice_count}`;
-        await Promise.all([receipt.save(), s_admin.save()]);
-      }
+      status.payMode = "offline";
+      status.sub_payment_mode = "By Cash";
       status.isPaid = "Not Paid";
       status.for_selection = "No";
       aStatus.content = `Your admission is on hold please visit ${institute.insName}, ${institute.insDistrict}. with required fees or contact institute if neccessory`;
@@ -3283,7 +3251,6 @@ exports.renderAdminSelectMode = async (req, res) => {
         status.save(),
         aStatus.save(),
         user.save(),
-        admin_ins.save(),
         student.save(),
       ]);
       res.status(200).send({

@@ -59,7 +59,7 @@ router.patch(
 router.post(
   "/:aid/new/application",
   // isLoggedIn,
-  upload.single("file"),
+  // upload.single("file"),
   catchAsync(Admission.retrieveAdmissionNewApplication)
 );
 

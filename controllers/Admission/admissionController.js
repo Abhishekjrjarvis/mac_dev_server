@@ -397,9 +397,6 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
     newApply.admissionAdmin = admission._id;
     institute.admissionCount += 1;
     await Promise.all([admission.save(), newApply.save(), institute.save()]);
-    if (req.file) {
-      await unlinkFile(req.file?.path);
-    }
     res
       .status(200)
       .send({ message: "New Application is ongoing 👍", status: true });

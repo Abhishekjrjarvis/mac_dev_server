@@ -323,4 +323,9 @@ router.get(
   catchAsync(Admission.renderInstituteCompletedAppQuery)
 );
 
+router.patch(
+  "/:aid/student/:sid/edit/structure",
+  catchAsync(Admission.renderEditStudentFeeStructureQuery)
+);
+
 module.exports = router;

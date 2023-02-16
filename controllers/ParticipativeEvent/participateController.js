@@ -14,6 +14,7 @@ exports.retrieveNewParticipateQuery = async (req, res) => {
     var part = new Participate({ ...req.body });
     depart.participate_event.push(part._id);
     depart.participate_event_count += 1;
+    part.event_fee = parseInt(req.body?.event_fee);
     part.department = depart._id;
     part.event_app_last_date = new Date(`${req.body?.lastDate}`).toISOString();
     part.event_date = new Date(`${req.body?.date}`).toISOString();
@@ -62,10 +63,14 @@ exports.retrieveNewParticipateQuery = async (req, res) => {
 
 exports.retrieveAllParticipateEventQuery = async (req, res) => {
   try {
+    const { did } = req.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const part = await Participate.find({})
+    const depart = await Department.findById({ _id: did });
+    const part = await Participate.find({
+      _id: { $in: depart?.participate_event },
+    })
       .sort("-created_at")
       .limit(limit)
       .skip(skip)
@@ -88,7 +93,7 @@ exports.retrieveAllParticipateEventQuery = async (req, res) => {
 exports.retrieveOneParticipateEventQuery = async (req, res) => {
   try {
     const { pid } = req.params;
-    const part = await Participate.find({ _id: pid })
+    const part = await Participate.findById({ _id: pid })
       .select(
         "event_name event_date event_fee event_about event_app_last_date event_fee_critiria event_checklist_critiria event_ranking_critiria"
       )
@@ -109,27 +114,38 @@ exports.retrieveAllParticipateEventStudent = async (req, res) => {
   try {
     var event = [];
     const { pid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
     const part = await Participate.findById({ _id: pid })
       .select("id")
       .populate({
         path: "event_classes",
-        populate: {
-          path: "ApproveStudent",
-          select:
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
-        },
-        select: "_id",
+        select: "_id ApproveStudent",
       });
     part?.event_classes?.forEach(async (classId) => {
       event.push(...classId?.ApproveStudent);
     });
-    if (event?.length >= 0) {
-      // const eventEncrypt = await encryptionPayload(event);
-      res.status(200).send({ message: "All Participate Event Student", event });
+
+    const all_students = await Student.find({ _id: { $in: event } })
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO"
+      );
+    if (all_students?.length > 0) {
+      // const eventEncrypt = await encryptionPayload(all_students);
+      res.status(200).send({
+        message: "All Participate Event Student",
+        access: true,
+        all_students: all_students,
+      });
     } else {
-      res
-        .status(200)
-        .send({ message: "No Participate Event Student", event: [] });
+      res.status(200).send({
+        message: "No Participate Event Student",
+        access: false,
+        all_students: [],
+      });
     }
   } catch (e) {
     console.log(e);
@@ -158,7 +174,7 @@ exports.retrieveChecklistParticipateEventStudent = async (req, res) => {
       const user = await User.findById({ _id: `${student?.user}` }).select(
         "activity_tab deviceToken"
       );
-      notify.notifyContent = `New Checklist Item assigned for ${part.event_name} on ${event_date}`;
+      notify.notifyContent = `New Checklist Item assigned for ${part.event_name} on ${part.event_date}`;
       notify.notifySender = depart._id;
       notify.notifyReceiever = user._id;
       notify.participateEventId = part?._id;

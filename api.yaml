@@ -15296,6 +15296,16 @@ paths:
           required: true
           type: string
           description: This is Application id 
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - fee_struct
+            properties:
+              fee_struct:
+                type: string
+                description: Enter Fee Structure Id
       responses:
         "200":
           description: OK
@@ -18020,7 +18030,7 @@ paths:
         "200":
           description: OK
 
-  /api/v1/participate/event/all/query:
+  /api/v1/participate/event/all/query/{did}:
     get:
       tags:
         - Participate Event Query
@@ -18030,6 +18040,11 @@ paths:
       produces:
         - application/json
       parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: Enter Department ID
         - in: query
           name: page
           required: true
@@ -21572,6 +21587,40 @@ paths:
           required: true
           type: string
           description: Enter Finance Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/student/{sid}/edit/structure:
+    patch:
+      tags:
+        - New Flow Finance + Admission
+      summary: Edit Fee Structure After Select by the Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id 
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application id 
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - fee_struct
+            properties:
+              fee_struct:
+                type: string
+                description: Enter Fee Structure Id
       responses:
         "200":
           description: OK

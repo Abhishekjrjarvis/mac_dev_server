@@ -708,6 +708,14 @@ exports.fetchAllSelectApplication = async (req, res) => {
             },
             select:
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
+            populate: {
+              path: "fee_structure",
+              select: "total_admission_fees",
+              populate: {
+                path: "category_master",
+                select: "category_name",
+              },
+            },
           },
         });
       for (let data of apply.selectedApplication) {
@@ -3246,12 +3254,12 @@ exports.renderAdminSelectMode = async (req, res) => {
       aStatus.applicationId = apply._id;
       user.applicationStatus.push(aStatus._id);
       aStatus.instituteId = institute._id;
-      student.active_status.pull(status?._id);
+      // student.active_status.pull(status?._id);
       await Promise.all([
         status.save(),
         aStatus.save(),
         user.save(),
-        student.save(),
+        // student.save(),
       ]);
       res.status(200).send({
         message: "Lets do some excercise visit institute",
@@ -3309,10 +3317,10 @@ exports.renderAdminStudentCancelSelectQuery = async (req, res) => {
     status.studentId = student._id;
     user.applicationStatus.push(status._id);
     status.instituteId = admission_admin?.institute;
-    student.active_status.pull(aStatus?._id);
+    // student.active_status.pull(aStatus?._id);
     await Promise.all([
       apply.save(),
-      student.save(),
+      // student.save(),
       user.save(),
       status.save(),
       aStatus.save(),
@@ -3367,6 +3375,62 @@ exports.renderInstituteCompletedAppQuery = async (req, res) => {
         message: "Explore All Completed Array",
         access: false,
         all_completed: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderEditStudentFeeStructureQuery = async (req, res) => {
+  try {
+    const { sid, aid } = req.params;
+    const { fee_struct } = req.body;
+    if (!sid && !aid && !fee_struct)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const apply = await NewApplication.findById({ _id: aid });
+    const student = await Student.findById({ _id: sid });
+    const remain_list = await RemainingList.findOne({
+      $and: [
+        { _id: { $in: student?.remainingFeeList } },
+        { appId: apply?._id },
+        { student: student?._id },
+      ],
+    });
+    const structure = await FeeStructure.findById({ _id: fee_struct });
+    const status = await Status.findOne({
+      $and: [{ _id: student?.active_status }, { applicationId: apply?._id }],
+    });
+    var flag = false;
+    for (var ref of remain_list?.remaining_array) {
+      if (`${ref?.appId}` === `${apply?._id}` && ref.status === "Paid") {
+        flag = true;
+        break;
+      } else {
+        flag = false;
+      }
+    }
+    if (flag) {
+      res.status(200).send({
+        message: `Student Already Paid the Fees Sorry Structure Change is not possible`,
+        access: true,
+      });
+    } else {
+      for (let app of apply.selectedApplication) {
+        if (`${app.student}` === `${student._id}`) {
+          app.fee_remain = structure.total_admission_fees;
+        }
+      }
+      status.admissionFee = structure.total_admission_fees;
+      status.feeStructure = structure?._id;
+      student.fee_structure = structure?._id;
+      await Promise.all([apply.save(), student.save(), status.save()]);
+      res.status(200).send({
+        message: `congrats for new fee structure `,
+        access: true,
       });
     }
   } catch (e) {

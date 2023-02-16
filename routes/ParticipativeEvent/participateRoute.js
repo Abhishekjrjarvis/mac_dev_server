@@ -7,42 +7,42 @@ const { isLoggedIn } = require("../../middleware");
 // Create Participate Event
 router.post(
   "/new/:did",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Event.retrieveNewParticipateQuery)
 );
 
 // Get All Participate Event
 router.get(
-  "/all/query",
-  isLoggedIn,
+  "/all/query/:did",
+  // isLoggedIn,
   catchAsync(Event.retrieveAllParticipateEventQuery)
 );
 
 // Get One Participate Event
 router.get(
   "/one/:pid",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Event.retrieveOneParticipateEventQuery)
 );
 
 // Get One Participate Event
 router.get(
   "/one/:pid/student/array",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Event.retrieveAllParticipateEventStudent)
 );
 
 // Assign Checklist
 router.patch(
   "/one/:pid/student/:sid/checklist",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Event.retrieveChecklistParticipateEventStudent)
 );
 
 // Result Declaration
 router.patch(
   "/one/:pid/student/:sid/result",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Event.retrieveResultParticipateEventStudent)
 );
 

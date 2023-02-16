@@ -386,12 +386,6 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
       _id: `${admission.institute}`,
     });
     const newApply = new NewApplication({ ...req.body });
-    if (req.file) {
-      const file = req.file;
-      const results = await uploadPostImageFile(file);
-      newApply.applicationPhoto = results.key;
-      newApply.photoId = "0";
-    }
     // const child = JSON?.parse(req.body.applicationChildTypes);
     // if (child) {
     //   for (var i = 0; i < child.length; i++) {

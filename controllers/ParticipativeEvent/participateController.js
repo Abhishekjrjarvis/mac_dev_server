@@ -131,7 +131,7 @@ exports.retrieveAllParticipateEventStudent = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO"
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO participate_event checkList_participate_event"
       );
     if (all_students?.length > 0) {
       // const eventEncrypt = await encryptionPayload(all_students);
@@ -163,6 +163,7 @@ exports.retrieveChecklistParticipateEventStudent = async (req, res) => {
         student: student._id,
         checklist_status: "Alloted",
       });
+      student.checkList_participate_event.push(part?._id)
       part.assigned_checklist_count += 1;
       await part.save();
       res.status(200).send({
@@ -182,7 +183,6 @@ exports.retrieveChecklistParticipateEventStudent = async (req, res) => {
       notify.participate_event_type = "New Participate Event Checklist";
       notify.notifyPublisher = student._id;
       user.activity_tab.push(notify._id);
-      student.notification.push(notify._id);
       notify.notifyByDepartPhoto = depart._id;
       notify.notifyCategory = "Participate Event Assign";
       notify.redirectIndex = 13;

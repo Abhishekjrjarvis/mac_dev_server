@@ -629,6 +629,7 @@ exports.participateEventFunction = async (
       student: student._id,
       fee_status: "Paid",
     });
+    student.participate_event.push(event?._id)
     event.paid_participant += 1;
     notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} ${student.studentLastName} your transaction is successfull for ${event.event_name} ${parseInt(tx_amount_ad)}`;
     notify.notifySender = depart._id;

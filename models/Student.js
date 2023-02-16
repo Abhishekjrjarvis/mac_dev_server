@@ -372,6 +372,7 @@ const studentSchema = new mongoose.Schema({
       ref: "Participate",
     },
   ],
+  checkList_participate_event: [],
   backlog: [
     {
       type: mongoose.Schema.Types.ObjectId,

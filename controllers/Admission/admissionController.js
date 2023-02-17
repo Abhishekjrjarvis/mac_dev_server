@@ -700,7 +700,7 @@ exports.fetchAllSelectApplication = async (req, res) => {
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
             populate: {
               path: "fee_structure",
-              select: "total_admission_fees",
+              select: "total_admission_fees one_installments",
               populate: {
                 path: "category_master",
                 select: "category_name",

@@ -41,6 +41,7 @@ const generate_date = (cal) => {
 
 exports.retrieveNewElectionQuery = async (req, res) => {
   try {
+    console.log(req.body.date);
     const { did } = req.params;
     var depart = await Department.findById({ _id: did });
     var elect = new Election({

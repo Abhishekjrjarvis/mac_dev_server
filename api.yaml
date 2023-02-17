@@ -18135,7 +18135,7 @@ paths:
         "200":
           description: OK
 
-  /api/v1/participate/event/one/{pid}/student/{sid}/result:
+  /api/v1/participate/event/one/{pid}/result:
     patch:
       tags:
         - Participate Event Query
@@ -18150,16 +18150,20 @@ paths:
           required: true
           type: string
           description: Enter Participate Event Id
-        - in: path
-          name: sid
-          required: true
-          type: string
-          description: Enter Student Id
-        - in: query
-          name: rank
-          required: true
-          type: string
-          description: Enter Rank ("Winner" || "Ist Runner" || "IInd Runner")
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              result_set:
+                type: array
+                description: Array of Objects
+                sid:
+                  type: string
+                  description: Enter Student Id
+                rank:
+                  type: string
+                  description: Enter Enter Rank ("Winner" || "Ist Runner" || "IInd Runner")
       responses:
         "200":
           description: OK

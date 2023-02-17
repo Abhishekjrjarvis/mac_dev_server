@@ -1918,7 +1918,15 @@ exports.retrieveUserApplicationStatus = async (req, res) => {
           select: "insName name photoId insProfilePhoto",
         },
         options,
-      });
+      })
+      .populate({
+        path: "applicationStatus",
+        populate: {
+          path: "feeStructure",
+          select: "one_installments total_admission_fees"
+        },
+        options,
+      })
     // const appEncrypt = await encryptionPayload(user.applicationStatus);
     res.status(200).send({
       message: "user Application Status",

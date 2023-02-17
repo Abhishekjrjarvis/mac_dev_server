@@ -373,6 +373,13 @@ const studentSchema = new mongoose.Schema({
     },
   ],
   checkList_participate_event: [],
+  participate_result: [
+    {
+      event: { type: mongoose.Schema.Types.ObjectId, ref: "Participate" },
+      rank: { type: String },
+      created_at: { type: Date, default: Date.now },
+    },
+  ],
   backlog: [
     {
       type: mongoose.Schema.Types.ObjectId,

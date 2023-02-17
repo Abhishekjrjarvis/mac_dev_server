@@ -131,8 +131,8 @@ exports.retrieveAllParticipateEventStudent = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO participate_event checkList_participate_event"
-      );
+        "studentFirstName studentMiddleName participate_result studentLastName photoId studentProfilePhoto studentGRNO participate_event checkList_participate_event"
+      )
     if (all_students?.length > 0) {
       // const eventEncrypt = await encryptionPayload(all_students);
       res.status(200).send({
@@ -163,7 +163,7 @@ exports.retrieveChecklistParticipateEventStudent = async (req, res) => {
         student: student._id,
         checklist_status: "Alloted",
       });
-      student.checkList_participate_event.push(part?._id)
+      student.checkList_participate_event.push(part?._id);
       part.assigned_checklist_count += 1;
       await part.save();
       res.status(200).send({
@@ -207,36 +207,48 @@ exports.retrieveChecklistParticipateEventStudent = async (req, res) => {
 // Student Participant Extra Point Remain Given Result Declare (AutoRefresh)
 exports.retrieveResultParticipateEventStudent = async (req, res) => {
   try {
-    const { pid, sid } = req.params;
-    const { rank } = req.query;
+    const { pid } = req.params;
+    var result_array = [];
+    const { result_set } = req.body;
     var part = await Participate.findById({ _id: pid });
     var depart = await Department.findById({ _id: `${part.department}` });
-    var student = await Student.findById({ _id: sid });
-    if (part.event_ranking_critiria === "Yes") {
-      part.event_rank.push({
-        student: student._id,
-        rank_title: rank,
-        points:
-          rank === "Winner"
-            ? 25
-            : rank === "Ist Runner"
-            ? 15
-            : rank === "IInd Runner"
-            ? 5
-            : 5,
-      });
-      if (rank === "Winner") {
-        student.extraPoints += 20;
-      } else if (rank === "Ist Runner") {
-        student.extraPoints += 10;
-      } else {
+    if (part.event_ranking_critiria === "Yes" && result_set?.length > 0) {
+      for (var ref of result_set) {
+        var student = await Student.findById({ _id: ref?.sid });
+        part.event_rank.push({
+          student: student._id,
+          rank_title: ref.rank,
+          points:
+            ref.rank === "Winner"
+              ? 25
+              : ref.rank === "Ist Runner"
+              ? 15
+              : ref.rank === "IInd Runner"
+              ? 5
+              : 5,
+        });
+        student.participate_result.push({
+          event: part?._id,
+          rank: ref?.rank,
+        });
+        result_array.push({
+          name: `${student?.studentFirstName} ${student?.studentMiddleName}`,
+          rank: ref?.rank,
+        });
+        if (ref.rank === "Winner") {
+          student.extraPoints += 25;
+        } else if (ref.rank === "Ist Runner") {
+          student.extraPoints += 15;
+        } else if (ref.rank === "IInd Runner") {
+          student.extraPoints += 5;
+        } else {
+        }
+        await student.save();
       }
-      await Promise.all([part.save(), student.save()]);
-      res.status(200).send({
-        message: "Result Declared By Department Head for Participative Event",
-        result: true,
-      });
-
+      await part.save();
+      res
+        .status(200)
+        .send({ message: "Explore The Announced Result ", result: true });
       var all_student = await Student.find({
         _id: { $in: depart?.ApproveStudent },
       }).select("user studentFirstName notification");
@@ -245,7 +257,7 @@ exports.retrieveResultParticipateEventStudent = async (req, res) => {
         const user = await User.findById({ _id: `${ele?.user}` }).select(
           "activity_tab deviceToken"
         );
-        notify.notifyContent = `${ele.studentFirstName} is the ${rank} of ${part.event_name}`;
+        notify.notifyContent = `${result_array ? result_array[0]?.name : ""} is the ${result_array ? result_array[0]?.rank : ""} of ${part.event_name}`;
         notify.notifySender = depart._id;
         notify.notifyReceiever = user._id;
         notify.participateEventId = part?._id;

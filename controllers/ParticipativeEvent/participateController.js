@@ -74,7 +74,7 @@ exports.retrieveAllParticipateEventQuery = async (req, res) => {
       .sort("-created_at")
       .limit(limit)
       .skip(skip)
-      .select("event_name event_fee event_app_last_date event_date");
+      .select("event_name event_fee event_app_last_date event_date result_notification");
     if (part?.length > 0) {
       // const partEncrypt = await encryptionPayload(part);
       res
@@ -95,7 +95,7 @@ exports.retrieveOneParticipateEventQuery = async (req, res) => {
     const { pid } = req.params;
     const part = await Participate.findById({ _id: pid })
       .select(
-        "event_name event_date event_fee event_about event_app_last_date event_fee_critiria event_checklist_critiria event_ranking_critiria"
+        "event_name event_date event_fee result_notification event_about event_app_last_date event_fee_critiria event_checklist_critiria event_ranking_critiria"
       )
       .populate({
         path: "event_classes",
@@ -245,6 +245,7 @@ exports.retrieveResultParticipateEventStudent = async (req, res) => {
         }
         await student.save();
       }
+      part.result_notification = "Declared"
       await part.save();
       res
         .status(200)

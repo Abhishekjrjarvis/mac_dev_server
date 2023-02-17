@@ -2531,7 +2531,7 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
       student: student._id,
       payment_status: mode,
       install_type: type,
-      fee_remain: parseInt(amount),
+      fee_remain: amount,
     });
     apply.confirmCount += 1;
     status.content = `Your seat has been confirmed, You will be alloted your class shortly, Stay Update!`;

@@ -1473,7 +1473,7 @@ exports.cancelAdmissionApplication = async (req, res) => {
     new_receipt.student = student?._id;
     new_receipt.application = apply?._id;
     new_receipt.finance = finance?._id;
-    new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
+    new_receipt.fee_transaction_date = new Date();
     if (
       price &&
       price > finance.financeTotalBalance &&

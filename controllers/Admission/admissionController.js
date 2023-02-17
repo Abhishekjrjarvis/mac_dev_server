@@ -786,6 +786,14 @@ exports.fetchAllConfirmApplication = async (req, res) => {
             },
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
+            populate: {
+              path: "fee_structure",
+              select: "total_admission_fees one_installments",
+              populate: {
+                path: "category_master",
+                select: "category_name",
+              },
+            },
           },
         });
       for (let data of apply.confirmedApplication) {
@@ -817,6 +825,14 @@ exports.fetchAllConfirmApplication = async (req, res) => {
             path: "student",
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
+            populate: {
+              path: "fee_structure",
+              select: "total_admission_fees one_installments",
+              populate: {
+                path: "category_master",
+                select: "category_name",
+              },
+            },
           },
         });
       if (apply?.confirmedApplication?.length > 0) {

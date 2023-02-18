@@ -64,6 +64,7 @@ const FeeStructure = require("../../models/Finance/FeesStructure");
 const { nested_document_limit } = require("../../helper/databaseFunction");
 const RemainingList = require("../../models/Admission/RemainingList");
 const { dueDateAlarm } = require("../../Service/alarm");
+const { handle_undefined } = require("../../Handler/customError");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
@@ -1305,6 +1306,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
         fee_receipt: new_receipt?._id,
       });
       new_remainFee.paid_fee += price;
+      new_remainFee.fee_structure = student?.fee_structure?._id;
       new_remainFee.remaining_fee += total_amount - price;
       student.remainingFeeList.push(new_remainFee?._id);
       new_remainFee.student = student?._id;
@@ -1332,6 +1334,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
         fee_receipt: new_receipt?._id,
       });
       new_remainFee.paid_fee += price;
+      new_remainFee.fee_structure = student?.fee_structure?._id;
       new_remainFee.remaining_fee +=
         student?.fee_structure?.total_admission_fees - price;
       student.remainingFeeList.push(new_remainFee?._id);
@@ -1543,6 +1546,7 @@ exports.cancelAdmissionApplication = async (req, res) => {
         refund_status: "Refund",
         refund_reason: "Cancellation of Admission",
         refund_amount: price,
+        refund_from: apply?._id,
       });
       const all_remain_fee_list = await RemainingList.findOne({
         $and: [{ student: student?._id }, { appId: apply?._id }],
@@ -2025,6 +2029,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
         paid: false,
       });
     var price = parseInt(amount);
+    var extra_price = 0;
     const s_admin = await Admin.findById({
       _id: `${process.env.S_ADMIN_ID}`,
     }).select("invoice_count");
@@ -2053,12 +2058,28 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       $and: [{ student: student?._id }, { appId: apply?._id }],
     });
     remaining_fee_lists.fee_receipts.push(new_receipt?._id);
-    const order = new OrderPayment({});
+    if (req?.body?.fee_payment_mode === "Government/Scholarship") {
+      finance.government_receipt.push(new_receipt?._id);
+      finance.government_receipt_count += 1;
+      if (price > remaining_fee_lists?.remaining_fee) {
+        extra_price += price - remaining_fee_lists?.remaining_fee;
+        price = remaining_fee_lists?.remaining_fee;
+        remaining_fee_lists.paid_fee += extra_price;
+        student.admissionPaidFeeCount += extra_price;
+        for (var stu of student.paidFeeList) {
+          if (`${stu.appId}` === `${apply._id}`) {
+            stu.paidAmount += extra_price;
+          }
+        }
+      } else {
+      }
+    }
+    var order = new OrderPayment({});
     order.payment_module_type = "Admission Fees";
     order.payment_to_end_user_id = institute._id;
     order.payment_by_end_user_id = user._id;
     order.payment_module_id = apply._id;
-    order.payment_amount = price;
+    order.payment_amount = extra_price;
     order.payment_status = "Captured";
     order.payment_flag_to = "Credit";
     order.payment_flag_by = "Debit";
@@ -2099,10 +2120,6 @@ exports.paidRemainingFeeStudent = async (req, res) => {
         remaining_fee_lists.remaining_fee -= price;
       }
     }
-    if (req?.body?.fee_payment_mode === "Government/Scholarship") {
-      finance.government_receipt.push(new_receipt?._id);
-      finance.government_receipt_count += 1;
-    }
     if (admin_ins?.remainingFeeCount >= price) {
       admin_ins.remainingFeeCount -= price;
     }
@@ -2114,20 +2131,20 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     }
     student.admissionPaidFeeCount += price;
     if (mode === "Online") {
-      admin_ins.onlineFee += price;
-      apply.onlineFee += price;
-      apply.collectedFeeCount += price;
-      finance.financeTotalBalance += price;
-      finance.financeAdmissionBalance += price;
-      finance.financeBankBalance += price;
+      admin_ins.onlineFee += price + extra_price;
+      apply.onlineFee += price + extra_price;
+      apply.collectedFeeCount += price + extra_price;
+      finance.financeTotalBalance += price + extra_price;
+      finance.financeAdmissionBalance += price + extra_price;
+      finance.financeBankBalance += price + extra_price;
     } else if (mode === "Offline") {
-      admin_ins.offlineFee += price;
-      apply.offlineFee += price;
-      apply.collectedFeeCount += price;
-      admin_ins.collected_fee += price;
-      finance.financeTotalBalance += price;
-      finance.financeAdmissionBalance += price;
-      finance.financeSubmitBalance += price;
+      admin_ins.offlineFee += price + extra_price;
+      apply.offlineFee += price + extra_price;
+      apply.collectedFeeCount += price + extra_price;
+      admin_ins.collected_fee += price + extra_price;
+      finance.financeTotalBalance += price + extra_price;
+      finance.financeAdmissionBalance += price + extra_price;
+      finance.financeSubmitBalance += price + extra_price;
     } else {
     }
     await set_fee_head_query(student, price, apply);
@@ -2189,9 +2206,6 @@ exports.paidRemainingFeeStudent = async (req, res) => {
           // ele.fee_remain = ele.fee_remain >= price ? ele.fee_remain - price : 0;
           ele.paid_status = "Paid";
           ele.second_pay_mode = mode;
-          // if (apply?.remainingFee >= price) {
-          //   apply.remainingFee -= price;
-          // }
         }
       });
       await apply.save();
@@ -2207,13 +2221,176 @@ exports.paidRemainingFeeStudent = async (req, res) => {
               : 0;
           ele.paid_status = "Paid";
           ele.second_pay_mode = mode;
-          // if (apply?.remainingFee >= price) {
-          //   apply.remainingFee -= price;
-          // }
         }
       });
       await apply.save();
     }
+    if (apply?.gstSlab > 0) {
+      var business_data = new BusinessTC({});
+      business_data.b_to_c_month = new Date().toISOString();
+      business_data.b_to_c_i_slab = parseInt(apply?.gstSlab) / 2;
+      business_data.b_to_c_s_slab = parseInt(apply?.gstSlab) / 2;
+      business_data.finance = finance._id;
+      business_data.b_to_c_name = "Admission Fees";
+      finance.gst_format.b_to_c.push(business_data?._id);
+      business_data.b_to_c_total_amount = price + extra_price;
+      await Promise.all([finance.save(), business_data.save()]);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
+  try {
+    const { aid, sid, appId } = req.params;
+    const { amount, mode } = req.body;
+    if (!sid && !aid && !appId && !amount && !mode)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        paid: false,
+      });
+    var price = parseInt(amount);
+    const s_admin = await Admin.findById({
+      _id: `${process.env.S_ADMIN_ID}`,
+    }).select("invoice_count");
+    var admin_ins = await Admission.findById({ _id: aid }).populate({
+      path: "admissionAdminHead",
+      select: "user",
+    });
+    var student = await Student.findById({ _id: sid });
+    var institute = await InstituteAdmin.findById({
+      _id: `${admin_ins.institute}`,
+    }).select("insName financeDepart gstSlab payment_history");
+    var finance = await Finance.findById({
+      _id: `${institute?.financeDepart[0]}`,
+    });
+    var user = await User.findById({ _id: `${student.user}` }).select(
+      "deviceToken payment_history activity_tab"
+    );
+    var apply = await NewApplication.findById({ _id: appId });
+    const new_receipt = new FeeReceipt({ ...req.body });
+    new_receipt.student = student?._id;
+    new_receipt.refund_status = "Refunded";
+    new_receipt.application = apply?._id;
+    new_receipt.finance = finance?._id;
+    new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
+    const notify = new StudentNotification({});
+    const remaining_fee_lists = await RemainingList.findOne({
+      $and: [{ student: student?._id }, { appId: apply?._id }],
+    });
+    remaining_fee_lists.fee_receipts.push(new_receipt?._id);
+    var order = new OrderPayment({});
+    order.payment_module_type = "Expense";
+    order.payment_to_end_user_id = institute._id;
+    order.payment_by_end_user_id = user._id;
+    order.payment_module_id = apply._id;
+    order.payment_amount = price;
+    order.payment_status = "Captured";
+    order.payment_flag_to = "Credit";
+    order.payment_flag_by = "Debit";
+    order.payment_mode = mode;
+    order.payment_admission = apply._id;
+    order.payment_from = student._id;
+    s_admin.invoice_count += 1;
+    order.payment_invoice_number = s_admin.invoice_count;
+    user.payment_history.push(order._id);
+    institute.payment_history.push(order._id);
+    new_receipt.invoice_count = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${s_admin.invoice_count}`;
+    student.refundAdmission.push({
+      refund_status: "Refund",
+      refund_reason: "Extra Amount Paid Or Grant Some Scholarships",
+      refund_amount: price,
+      refund_from: apply?._id,
+    });
+    if (remaining_fee_lists?.paid_fee >= price) {
+      remaining_fee_lists.paid_fee -= price;
+    }
+    remaining_fee_lists.refund_fee += price;
+    if (student?.admissionPaidFeeCount >= price) {
+      student.admissionPaidFeeCount -= price;
+    }
+    if (mode === "Online") {
+      if (admin_ins.onlineFee >= price) {
+        admin_ins.onlineFee -= price;
+      }
+      if (apply.onlineFee >= price) {
+        apply.onlineFee -= price;
+      }
+      if (apply.collectedFeeCount >= price) {
+        apply.collectedFeeCount -= price;
+      }
+      if (finance.financeTotalBalance >= price) {
+        finance.financeTotalBalance -= price;
+      }
+      if (finance.financeAdmissionBalance >= price) {
+        finance.financeAdmissionBalance -= price;
+      }
+      if (finance.financeBankBalance >= price) {
+        finance.financeBankBalance -= price;
+      }
+    } else if (mode === "Offline") {
+      if (admin_ins.offlineFee >= price) {
+        admin_ins.offlineFee -= price;
+      }
+      if (apply.offlineFee >= price) {
+        apply.offlineFee -= price;
+      }
+      if (apply.collectedFeeCount >= price) {
+        apply.collectedFeeCount -= price;
+      }
+      if (admin_ins.collected_fee >= price) {
+        admin_ins.collected_fee -= price;
+      }
+      if (finance.financeTotalBalance >= price) {
+        finance.financeTotalBalance -= price;
+      }
+      if (finance.financeAdmissionBalance >= price) {
+        finance.financeAdmissionBalance -= price;
+      }
+      if (finance.financeSubmitBalance >= price) {
+        finance.financeSubmitBalance -= price;
+      }
+    } else {
+    }
+    await Promise.all([
+      admin_ins.save(),
+      student.save(),
+      apply.save(),
+      finance.save(),
+      institute.save(),
+      order.save(),
+      s_admin.save(),
+      remaining_fee_lists.save(),
+      new_receipt.save(),
+    ]);
+    res.status(200).send({
+      message: "Balance Pool increasing with price Operation complete",
+      paid: true,
+    });
+    notify.notifyContent = `${student.studentFirstName} ${
+      student.studentMiddleName ? `${student.studentMiddleName} ` : ""
+    } ${student.studentLastName} your transaction is successfull for ${
+      apply?.applicationName
+    } ${price}`;
+    notify.notifySender = admin_ins?.admissionAdminHead?.user;
+    notify.notifyReceiever = user._id;
+    notify.notifyType = "Student";
+    notify.notifyPublisher = student._id;
+    user.activity_tab.push(notify._id);
+    notify.notifyByAdmissionPhoto = admin_ins._id;
+    notify.notifyCategory = "Refund By Admission Admin";
+    notify.redirectIndex = 18;
+    invokeMemberTabNotification(
+      "Admission Status",
+      `Payment Refund`,
+      "Application Status",
+      user._id,
+      user.deviceToken
+    );
+    await Promise.all([user.save(), notify.save()]);
     if (apply?.gstSlab > 0) {
       var business_data = new BusinessTC({});
       business_data.b_to_c_month = new Date().toISOString();
@@ -2490,6 +2667,10 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       .populate({
         path: "batchId",
         select: "batchName",
+      })
+      .populate({
+        path: "fee_structure",
+        select: "total_admission_fees",
       });
 
     if (all_remain?.length > 0) {
@@ -3019,6 +3200,11 @@ exports.renderAllReceiptsQuery = async (req, res) => {
           path: "fee_receipt_request",
           populate: {
             path: "receipt",
+            populate: {
+              path: "student",
+              select:
+                "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+            },
           },
         });
 
@@ -3034,6 +3220,11 @@ exports.renderAllReceiptsQuery = async (req, res) => {
           path: "fee_receipt_approve",
           populate: {
             path: "receipt",
+            populate: {
+              path: "student",
+              select:
+                "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+            },
           },
         });
 
@@ -3049,6 +3240,11 @@ exports.renderAllReceiptsQuery = async (req, res) => {
           path: "fee_receipt_reject",
           populate: {
             path: "receipt",
+            populate: {
+              path: "student",
+              select:
+                "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+            },
           },
         });
 
@@ -3090,8 +3286,15 @@ exports.renderOneReceiptStatus = async (req, res) => {
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
-    var ads_admin = await Admission.findById({ _id: aid });
-    var one_receipt = await FeeReceipt.findById({ _id: rid });
+    var ads_admin = await Admission.findById({ _id: aid }).populate({
+      path: "admissionAdminHead",
+      select: "user",
+    });
+    var one_receipt = await FeeReceipt.findById({ _id: rid }).populate({
+      path: "student",
+      select: "user",
+    });
+    const user = await User.findById({ _id: `${one_receipt?.student?.user}` });
     var one_app = await NewApplication.findById({
       _id: `${one_receipt?.application}`,
     });
@@ -3127,6 +3330,8 @@ exports.renderOneReceiptStatus = async (req, res) => {
         status: "Rejected",
         reason: reason,
       });
+      one_receipt.reason = reason;
+      await one_receipt.save();
       one_status.receipt_status = "Rejected";
       for (var ref of one_app?.selectedApplication) {
         if (`${ref.student}` === `${one_receipt?.student}`) {
@@ -3152,6 +3357,39 @@ exports.renderOneReceiptStatus = async (req, res) => {
         }
       }
       await one_receipt.save();
+    } else if (status === "Rejection_Notify") {
+      one_status.receipt_status = "Rejected";
+      one_receipt.re_apply = false;
+      for (var ref of one_app?.selectedApplication) {
+        if (`${ref.student}` === `${one_receipt?.student}`) {
+          ref.payment_status = "Receipt Rejected";
+        }
+      }
+      for (var ele of ads_admin?.fee_receipt_reject) {
+        if (`${ele._id}` === `${reqId}`) {
+          ele.reason = reason;
+        }
+      }
+      one_receipt.reason = reason;
+      await one_receipt.save();
+      const notify = new StudentNotification({});
+      notify.notifyContent = `Your Receipt was cancelled By Admission Admin`;
+      notify.notifySender = ads_admin?.admissionAdminHead?.user;
+      notify.notifyReceiever = user._id;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = one_receipt?.student?._id;
+      user.activity_tab.push(notify._id);
+      notify.notifyByAdmissionPhoto = ads_admin._id;
+      notify.notifyCategory = "Receipt Reject";
+      notify.redirectIndex = 28;
+      invokeMemberTabNotification(
+        "Admission Status",
+        `Payment Receipt Reject`,
+        "Application Status",
+        user._id,
+        user.deviceToken
+      );
+      await Promise.all([user.save(), notify.save()]);
     } else {
     }
     await Promise.all([ads_admin.save(), one_status.save(), one_app.save()]);
@@ -3166,6 +3404,9 @@ exports.renderOneReceiptStatus = async (req, res) => {
 exports.renderOneReceiptReApply = async (req, res) => {
   try {
     const { sid, rid } = req.params;
+    const { delete_pic } = req.query;
+    const { transaction_date } = req.body;
+    const image = handle_undefined(delete_pic);
     if (!sid && !rid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -3173,6 +3414,10 @@ exports.renderOneReceiptReApply = async (req, res) => {
       });
 
     const one_receipt = await FeeReceipt.findByIdAndUpdate(rid, req.body);
+    one_receipt.fee_transaction_date = new Date(`${transaction_date}`);
+    if (image) {
+      await deleteFile(image);
+    }
     const status = await Status.findById({ _id: sid });
     const one_app = await NewApplication.findById({
       _id: `${one_receipt?.application}`,
@@ -3185,7 +3430,7 @@ exports.renderOneReceiptReApply = async (req, res) => {
     await Promise.all([status.save(), one_receipt.save()]);
     res
       .status(200)
-      .send({ message: "Your Receipts Under Processing", access: "true" });
+      .send({ message: "Your Receipts Under Processing", access: true });
     for (var ref of one_app?.selectedApplication) {
       if (`${ref.student}` === `${one_receipt?.student}`) {
         ref.payment_status = "Receipt Requested";
@@ -3195,7 +3440,10 @@ exports.renderOneReceiptReApply = async (req, res) => {
     for (var all of ads_admin?.fee_receipt_reject) {
       if (`${all?.receipt}` === `${one_receipt?._id}`) {
         ads_admin.fee_receipt_reject.pull(all?._id);
-        ads_admin.fee_receipt_reject.unshift(all?._id);
+        ads_admin.fee_receipt_reject.unshift({
+          receipt: one_receipt?._id,
+          status: "Rejected",
+        });
       }
     }
     await ads_admin.save();

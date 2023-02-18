@@ -116,3 +116,38 @@ exports.notify_attendence_provider = (value) => {
     )}`;
   }
 };
+
+exports.date_renew = async (s_date, type, d_set) => {
+  if (type === "End") {
+    s_date.setDate(s_date.getDate() + d_set.end_date);
+  } else if (type === "Select") {
+    s_date.setDate(s_date.getDate() + d_set.select_date);
+  } else if (type === "Compaign") {
+    s_date.setDate(s_date.getDate() + d_set.campaign_date);
+  } else if (type === "Compaign_Last") {
+    s_date.setDate(s_date.getDate() + d_set.campaign_last_date);
+  } else if (type === "Vote") {
+    s_date.setDate(s_date.getDate() + d_set.vote_date);
+  } else if (type === "Result") {
+    s_date.setDate(s_date.getDate() + d_set.result_date);
+  } else {
+  }
+  return new Date(s_date).toISOString();
+};
+
+exports.generate_date = (cal) => {
+  const hours =
+    new Date().getHours() > 10
+      ? new Date().getHours()
+      : `0${new Date().getHours()}`;
+  const minutes =
+    new Date().getMinutes() > 10
+      ? new Date().getMinutes()
+      : `0${new Date().getMinutes()}`;
+  const seconds =
+    new Date().getSeconds() > 10
+      ? new Date().getSeconds()
+      : `0${new Date().getSeconds()}`;
+  var start_date_format = `${cal}T${hours}:${minutes}:${seconds}.${new Date().getMilliseconds()}Z`;
+  return start_date_format;
+};

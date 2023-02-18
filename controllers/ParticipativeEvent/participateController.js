@@ -41,7 +41,6 @@ exports.retrieveNewParticipateQuery = async (req, res) => {
       notify.participate_event_type = "New Participate Event App";
       notify.notifyPublisher = ele._id;
       user.activity_tab.push(notify._id);
-      ele.notification.push(notify._id);
       notify.notifyByDepartPhoto = depart._id;
       notify.notifyCategory = "Participate Event App";
       notify.redirectIndex = 13;
@@ -54,7 +53,7 @@ exports.retrieveNewParticipateQuery = async (req, res) => {
         "Student",
         notify
       );
-      await Promise.all([ele.save(), notify.save(), user.save()]);
+      await Promise.all([notify.save(), user.save()]);
     });
   } catch (e) {
     console.log(e);
@@ -74,7 +73,9 @@ exports.retrieveAllParticipateEventQuery = async (req, res) => {
       .sort("-created_at")
       .limit(limit)
       .skip(skip)
-      .select("event_name event_fee event_app_last_date event_date result_notification");
+      .select(
+        "event_name event_fee event_app_last_date event_date result_notification"
+      );
     if (part?.length > 0) {
       // const partEncrypt = await encryptionPayload(part);
       res
@@ -100,6 +101,10 @@ exports.retrieveOneParticipateEventQuery = async (req, res) => {
       .populate({
         path: "event_classes",
         select: "className classTitle studentCount",
+      })
+      .populate({
+        path: "department",
+        select: "institute",
       });
     // const partEncrypt = await encryptionPayload(part);
     res
@@ -132,7 +137,7 @@ exports.retrieveAllParticipateEventStudent = async (req, res) => {
       .skip(skip)
       .select(
         "studentFirstName studentMiddleName participate_result studentLastName photoId studentProfilePhoto studentGRNO participate_event checkList_participate_event"
-      )
+      );
     if (all_students?.length > 0) {
       // const eventEncrypt = await encryptionPayload(all_students);
       res.status(200).send({
@@ -245,7 +250,7 @@ exports.retrieveResultParticipateEventStudent = async (req, res) => {
         }
         await student.save();
       }
-      part.result_notification = "Declared"
+      part.result_notification = "Declared";
       await part.save();
       res
         .status(200)
@@ -258,7 +263,11 @@ exports.retrieveResultParticipateEventStudent = async (req, res) => {
         const user = await User.findById({ _id: `${ele?.user}` }).select(
           "activity_tab deviceToken"
         );
-        notify.notifyContent = `${result_array ? result_array[0]?.name : ""} is the ${result_array ? result_array[0]?.rank : ""} of ${part.event_name}`;
+        notify.notifyContent = `${
+          result_array ? result_array[0]?.name : ""
+        } is the ${result_array ? result_array[0]?.rank : ""} of ${
+          part.event_name
+        }`;
         notify.notifySender = depart._id;
         notify.notifyReceiever = user._id;
         notify.participateEventId = part?._id;
@@ -266,7 +275,6 @@ exports.retrieveResultParticipateEventStudent = async (req, res) => {
         notify.participate_event_type = "Result Participate Event";
         notify.notifyPublisher = ele._id;
         user.activity_tab.push(notify._id);
-        ele.notification.push(notify._id);
         notify.notifyByDepartPhoto = depart._id;
         notify.notifyCategory = "Participate Event Result";
         notify.redirectIndex = 13;
@@ -279,7 +287,7 @@ exports.retrieveResultParticipateEventStudent = async (req, res) => {
           "Student",
           notify
         );
-        await Promise.all([ele.save(), notify.save(), user.save()]);
+        await Promise.all([notify.save(), user.save()]);
       });
     } else {
       res.status(200).send({ message: "Result Not Declared", result: false });

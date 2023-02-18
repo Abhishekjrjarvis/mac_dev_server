@@ -46,6 +46,9 @@ const feeReceiptSchema = new mongoose.Schema({
     type: String,
     default: "No Refund",
   },
+  reason: {
+    type: String,
+  },
   // applicable_fee: {
   //   type: Number,
   //   default: 0,

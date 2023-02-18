@@ -1804,7 +1804,8 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
 exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
   try {
     const { id, cid } = req.params;
-    const { sample_pic, fileArray, appId, fee_struct, amount, batchId } = req.body;
+    const { sample_pic, fileArray, batch_set, is_remain, fee_struct } =
+      req.body;
     if (
       !id &&
       !cid &&
@@ -1817,12 +1818,7 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
         message: "Their is a bug need to fix immediately 😡",
         access: false,
       });
-    var price = parseInt(amount);
     const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-    const apply = await NewApplication.findById({ _id: appId });
-    const admission = await Admission.findById({
-      _id: `${apply?.admissionAdmin}`,
-    });
     const valid = await filter_unique_username(
       req.body.studentFirstName,
       req.body.studentDOB
@@ -1991,8 +1987,8 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       aStatus.content = `Welcome to ${institute.insName}. Your application for joining as student  has been accepted by ${institute.insName}. Enjoy your learning in ${classes.className} - ${classes.classTitle}.`;
       user.applicationStatus.push(aStatus._id);
       aStatus.instituteId = institute._id;
-      user.applyApplication.push(apply._id);
-      student.fee_structure = fee_struct;
+      student.fee_structure =
+        is_remain === "No" ? fee_struct : batch_set[0]?.fee_struct;
       await student.save();
       invokeFirebaseNotification(
         "Student Approval",
@@ -2001,14 +1997,14 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
         user._id,
         user.deviceToken
       );
-      await fee_reordering_direct_student(
-        price,
-        student,
-        apply,
-        institute,
-        admission,
-        batchId
-      );
+      if (batch_set?.length > 0) {
+        await fee_reordering_direct_student(
+          student,
+          institute,
+          batch_set,
+          user
+        );
+      }
       await Promise.all([
         admins.save(),
         classes.save(),
@@ -2019,8 +2015,6 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
         user.save(),
         notify.save(),
         aStatus.save(),
-        admission.save(),
-        apply.save(),
       ]);
       if (student.studentGender === "Male") {
         classes.boyCount += 1;

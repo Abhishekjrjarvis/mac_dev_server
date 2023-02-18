@@ -625,20 +625,25 @@ paths:
           required: false
           description: This is for default Avatar
         - in: formData
+          name: is_remain
+          type: string
+          required: false
+          description: Enter Remain Value if remain amount > 0  ("Yes" || "No")
+        - in: formData
           name: fee_struct
           type: string
           required: false
-          description: Enter Fee Structure Id
+          description: Enter Fee Structure Id if remain amount is "No"
         - in: formData
-          name: amount
-          type: number
-          required: false
-          description: Enter Amount
-        - in: formData
-          name: appId
+          name: student_prn_enroll_number
           type: string
           required: false
-          description: Enter Selected Application Id
+          description: Enter Student PRN/ENROLL Number
+        - in: formData
+          name: batch_set
+          type: array
+          required: false
+          description: Enter Array of Objects
       responses:
         "200":
           description: OK
@@ -21236,7 +21241,7 @@ paths:
           name: status
           required: true
           type: string
-          description: Enter Status As Mention for Operation ("Approved") || ("Rejected") || ("Over_Rejection")
+          description: Enter Status As Mention for Operation ("Approved") || ("Rejected") || ("Over_Rejection") || ("Rejection_Notify")
         - in: query
           name: reqId
           required: true

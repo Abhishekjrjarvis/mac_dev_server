@@ -204,6 +204,10 @@ const previousSchema = new mongoose.Schema({
       refund_reason: { type: String },
       refund_amount: { type: Number, default: 0 },
       refund_on: { type: Date, default: Date.now },
+      refund_from: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NewApplication",
+      },
     },
   ],
   remainingFeeList: [

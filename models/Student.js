@@ -320,6 +320,10 @@ const studentSchema = new mongoose.Schema({
       refund_reason: { type: String },
       refund_amount: { type: Number, default: 0 },
       refund_on: { type: Date, default: Date.now },
+      refund_from: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NewApplication",
+      },
     },
   ],
   remainingFeeList: [
@@ -416,6 +420,9 @@ const studentSchema = new mongoose.Schema({
     type: String,
   },
   active_status: [],
+  student_prn_enroll_number: {
+    type: String,
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema);

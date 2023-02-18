@@ -1907,7 +1907,7 @@ exports.retrieveUserApplicationStatus = async (req, res) => {
         path: "applicationStatus",
         populate: {
           path: "applicationId",
-          select: "one_installments admissionAdmin",
+          select: "one_installments admissionAdmin applicationName",
         },
         options,
       })
@@ -1930,7 +1930,7 @@ exports.retrieveUserApplicationStatus = async (req, res) => {
           },
         },
         options,
-      })
+      });
     // const appEncrypt = await encryptionPayload(user.applicationStatus);
     res.status(200).send({
       message: "user Application Status",

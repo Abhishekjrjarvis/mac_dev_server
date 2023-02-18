@@ -122,9 +122,21 @@ exports.feeInstituteFunction = async (
             admin.returnAmount += tx_amount_charges;
           }
           // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount);
-          notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? ` ${student.studentMiddleName}` : ""} ${student.studentLastName} paid the ${fData.feeName}/ (Rs.${parseInt(tx_amount)}) successfully`;
-          notify.notify_hi_content = `${student.studentFirstName} ${student.studentMiddleName ? ` ${student.studentMiddleName}` : ""} ${student.studentLastName} ने ${fData.feeName}/ (Rs.${parseInt(tx_amount)}) का सफलतापूर्वक पेमेंट किया |`;
-          notify.notify_mr_content = `${student.studentFirstName} ${student.studentMiddleName ? ` ${student.studentMiddleName}` : ""} ${student.studentLastName} ने ${fData.feeName}/ (रु.${parseInt(tx_amount)}) यशस्वीरित्या भरले`;
+          notify.notifyContent = `${student.studentFirstName} ${
+            student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+          } ${student.studentLastName} paid the ${
+            fData.feeName
+          }/ (Rs.${parseInt(tx_amount)}) successfully`;
+          notify.notify_hi_content = `${student.studentFirstName} ${
+            student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+          } ${student.studentLastName} ने ${fData.feeName}/ (Rs.${parseInt(
+            tx_amount
+          )}) का सफलतापूर्वक पेमेंट किया |`;
+          notify.notify_mr_content = `${student.studentFirstName} ${
+            student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+          } ${student.studentLastName} ने ${fData.feeName}/ (रु.${parseInt(
+            tx_amount
+          )}) यशस्वीरित्या भरले`;
           notify.notifySender = student._id;
           notify.notifyReceiever = user._id;
           notify.notifyCategory = "Online Fee";
@@ -196,9 +208,21 @@ exports.feeInstituteFunction = async (
             admin.returnAmount += tx_amount_charges;
           }
           // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount);
-          notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? ` ${student.studentMiddleName}` : ""} ${student.studentLastName} paid the ${checklistData.checklistName}/ (Rs.${parseInt(tx_amount)}) successfully`;
-          notify.notify_hi_content = `${student.studentFirstName} ${student.studentMiddleName ? ` ${student.studentMiddleName}` : ""} ${student.studentLastName} ने ${checklistData.checklistName}/ (Rs.${parseInt(tx_amount)}) का सफलतापूर्वक पेमेंट किया |`;
-          notify.notify_mr_content = `${student.studentFirstName} ${student.studentMiddleName ? ` ${student.studentMiddleName}` : ""} ${student.studentLastName} ने ${checklistData.checklistName}/ (रु.${parseInt(tx_amount)}) यशस्वीरित्या भरले`;
+          notify.notifyContent = `${student.studentFirstName} ${
+            student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+          } ${student.studentLastName} paid the ${
+            checklistData.checklistName
+          }/ (Rs.${parseInt(tx_amount)}) successfully`;
+          notify.notify_hi_content = `${student.studentFirstName} ${
+            student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+          } ${student.studentLastName} ने ${
+            checklistData.checklistName
+          }/ (Rs.${parseInt(tx_amount)}) का सफलतापूर्वक पेमेंट किया |`;
+          notify.notify_mr_content = `${student.studentFirstName} ${
+            student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+          } ${student.studentLastName} ने ${
+            checklistData.checklistName
+          }/ (रु.${parseInt(tx_amount)}) यशस्वीरित्या भरले`;
           notify.notifySender = student._id;
           notify.notifyReceiever = user._id;
           // institute.iNotify.push(notify._id);
@@ -252,11 +276,10 @@ exports.admissionInstituteFunction = async (
   statusId,
   paidTo,
   type,
-  is_author,
+  is_author
 ) => {
   try {
-    var student = await Student.findById({ _id: paidBy })
-    .populate({
+    var student = await Student.findById({ _id: paidBy }).populate({
       path: "fee_structure",
     });
     var user = await User.findById({ _id: `${student.user}` });
@@ -294,18 +317,18 @@ exports.admissionInstituteFunction = async (
       await business_data.save();
     }
     if (statusId) {
-      var total_amount = add_total_installment(student)
+      var total_amount = add_total_installment(student);
       const status = await Status.findById({ _id: statusId });
       const aStatus = new Status({});
       const new_receipt = new FeeReceipt({
         fee_payment_mode: "Payment Gateway / Online",
         fee_payment_amount: parseInt(tx_amount_ad),
-      })
+      });
       new_receipt.student = student?._id;
       new_receipt.fee_transaction_date = new Date();
       new_receipt.application = apply?._id;
       new_receipt.finance = finance?._id;
-      admin.invoice_count += 1
+      admin.invoice_count += 1;
       new_receipt.invoice_count = `${
         new Date().getMonth() + 1
       }${new Date().getFullYear()}${admin.invoice_count}`;
@@ -329,7 +352,8 @@ exports.admissionInstituteFunction = async (
       // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount_ad);
       if (parseInt(tx_amount_ad) > 0 && is_install) {
         admission.remainingFee.push(student._id);
-        student.admissionRemainFeeCount += total_amount - parseInt(tx_amount_ad);
+        student.admissionRemainFeeCount +=
+          total_amount - parseInt(tx_amount_ad);
         apply.remainingFee += total_amount - parseInt(tx_amount_ad);
         admission.remainingFeeCount += total_amount - parseInt(tx_amount_ad);
         var new_remainFee = new RemainingList({
@@ -343,9 +367,10 @@ exports.admissionInstituteFunction = async (
           instituteId: ins._id,
           installmentValue: "First Installment",
           mode: "online",
-          fee_receipt: new_receipt?._id
+          fee_receipt: new_receipt?._id,
         });
         new_remainFee.paid_fee += parseInt(tx_amount_ad);
+        new_remainFee.fee_structure = student?.fee_structure?._id;
         new_remainFee.remaining_fee += total_amount - parseInt(tx_amount_ad);
         student.remainingFeeList.push(new_remainFee?._id);
         new_remainFee.student = student?._id;
@@ -369,9 +394,10 @@ exports.admissionInstituteFunction = async (
           instituteId: ins._id,
           installmentValue: "One Time Fees",
           mode: "online",
-          fee_receipt: new_receipt?._id
+          fee_receipt: new_receipt?._id,
         });
         new_remainFee.paid_fee += parseInt(tx_amount_ad);
+        new_remainFee.fee_structure = student?.fee_structure?._id;
         new_remainFee.remaining_fee +=
           student?.fee_structure?.total_admission_fees - parseInt(tx_amount_ad);
         student.remainingFeeList.push(new_remainFee?._id);
@@ -385,14 +411,18 @@ exports.admissionInstituteFunction = async (
         admission.remainingFeeCount +=
           student?.fee_structure?.total_admission_fees - parseInt(tx_amount_ad);
         const valid_one_time_fees =
-          student?.fee_structure?.total_admission_fees - parseInt(tx_amount_ad) == 0
+          student?.fee_structure?.total_admission_fees -
+            parseInt(tx_amount_ad) ==
+          0
             ? true
             : false;
         if (valid_one_time_fees) {
           admission.remainingFee.pull(student._id);
         } else {
           new_remainFee.remaining_array.push({
-            remainAmount: student?.fee_structure?.total_admission_fees - parseInt(tx_amount_ad),
+            remainAmount:
+              student?.fee_structure?.total_admission_fees -
+              parseInt(tx_amount_ad),
             appId: apply._id,
             status: "Not Paid",
             instituteId: institute._id,
@@ -411,7 +441,9 @@ exports.admissionInstituteFunction = async (
             app.fee_remain = total_amount - parseInt(tx_amount_ad);
           } else {
             app.install_type = "One Time Fees Paid";
-            app.fee_remain = student?.fee_structure?.total_admission_fees - parseInt(tx_amount_ad);
+            app.fee_remain =
+              student?.fee_structure?.total_admission_fees -
+              parseInt(tx_amount_ad);
           }
         } else {
         }
@@ -421,11 +453,11 @@ exports.admissionInstituteFunction = async (
       //     match.paidAmount += parseInt(tx_amount_ad);
       //   }
       // }
-       student.paidFeeList.push({
-          paidAmount: parseInt(tx_amount_ad),
-          appId: apply._id,
-        });
-      aStatus.content = `Welcome to Institute ${ins.insName}, ${ins.insDistrict}.Please visit with Required Documents to confirm your admission`
+      student.paidFeeList.push({
+        paidAmount: parseInt(tx_amount_ad),
+        appId: apply._id,
+      });
+      aStatus.content = `Welcome to Institute ${ins.insName}, ${ins.insDistrict}.Please visit with Required Documents to confirm your admission`;
       aStatus.applicationId = apply._id;
       aStatus.document_visible = true;
       user.applicationStatus.push(aStatus._id);
@@ -433,9 +465,23 @@ exports.admissionInstituteFunction = async (
       user.payment_history.push(order);
       (status.payMode = "online"), (status.isPaid = "Paid");
       status.for_selection = "No";
-      notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} ${student.studentLastName} your transaction is successfull for Admission Fee ${parseInt(tx_amount_ad)}`;
-      notify.notify_hi_content = `${student.studentFirstName} ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} ${student.studentLastName} प्रवेश शुल्क ${parseInt(tx_amount_ad)} के लिए आपका लेन-देन सफल है |`;
-      notify.notify_mr_content = `प्रवेश शुल्कासाठी ${student.studentFirstName} ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} ${student.studentLastName} तुमचा व्यवहार यशस्वी झाला आहे ${parseInt(tx_amount_ad)}`;
+      notify.notifyContent = `${student.studentFirstName} ${
+        student.studentMiddleName ? `${student.studentMiddleName} ` : ""
+      } ${
+        student.studentLastName
+      } your transaction is successfull for Admission Fee ${parseInt(
+        tx_amount_ad
+      )}`;
+      notify.notify_hi_content = `${student.studentFirstName} ${
+        student.studentMiddleName ? `${student.studentMiddleName} ` : ""
+      } ${student.studentLastName} प्रवेश शुल्क ${parseInt(
+        tx_amount_ad
+      )} के लिए आपका लेन-देन सफल है |`;
+      notify.notify_mr_content = `प्रवेश शुल्कासाठी ${
+        student.studentFirstName
+      } ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} ${
+        student.studentLastName
+      } तुमचा व्यवहार यशस्वी झाला आहे ${parseInt(tx_amount_ad)}`;
       notify.notifySender = admission._id;
       notify.notifyReceiever = user._id;
       // ins.iNotify.push(notify._id);
@@ -460,13 +506,13 @@ exports.admissionInstituteFunction = async (
         notify.save(),
         orderPay.save(),
         new_receipt.save(),
-        new_remainFee.save()
+        new_remainFee.save(),
       ]);
     } else {
-      const new_receipt = new FeeReceipt({ 
+      const new_receipt = new FeeReceipt({
         fee_payment_mode: "Payment Gateway / Online",
         fee_payment_amount: parseInt(tx_amount_ad),
-       });
+      });
       new_receipt.student = student?._id;
       new_receipt.application = apply?._id;
       new_receipt.finance = finance?._id;
@@ -475,7 +521,7 @@ exports.admissionInstituteFunction = async (
         $and: [{ student: student?._id }, { appId: apply?._id }],
       });
       remaining_fee_lists.fee_receipts.push(new_receipt?._id);
-      admin.invoice_count += 1
+      admin.invoice_count += 1;
       new_receipt.invoice_count = `${
         new Date().getMonth() + 1
       }${new Date().getFullYear()}${admin.invoice_count}`;
@@ -575,7 +621,7 @@ exports.admissionInstituteFunction = async (
         orderPay.save(),
         admin.save(),
         new_receipt.save(),
-        remaining_fee_lists.save()
+        remaining_fee_lists.save(),
       ]);
     }
     return `${user?.username}`;
@@ -602,7 +648,7 @@ exports.participateEventFunction = async (
     const depart = await Department.findById({ _id: `${event.department}` });
     const ins = await InstituteAdmin.findById({ _id: `${depart.institute}` });
     const finance = await Finance.findById({
-      _id: `${institute?.financeDepart[0]}`,
+      _id: `${ins?.financeDepart[0]}`,
     }).populate({
       path: "financeHead",
       select: "user",
@@ -618,7 +664,7 @@ exports.participateEventFunction = async (
         finance.financeBankBalance + parseInt(tx_amount_ad);
       finance.financeTotalBalance =
         finance.financeTotalBalance + parseInt(tx_amount_ad);
-      ins.insBankBalance = institute.insBankBalance + parseInt(tx_amount_ad);
+      ins.insBankBalance = ins.insBankBalance + parseInt(tx_amount_ad);
     } else {
       admin.returnAmount += tx_amount_ad_charges;
       ins.adminRepayAmount += parseInt(tx_amount_ad);
@@ -629,9 +675,13 @@ exports.participateEventFunction = async (
       student: student._id,
       fee_status: "Paid",
     });
-    student.participate_event.push(event?._id)
+    student.participate_event.push(event?._id);
     event.paid_participant += 1;
-    notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} ${student.studentLastName} your transaction is successfull for ${event.event_name} ${parseInt(tx_amount_ad)}`;
+    notify.notifyContent = `${student.studentFirstName} ${
+      student.studentMiddleName ? `${student.studentMiddleName} ` : ""
+    } ${student.studentLastName} your transaction is successfull for ${
+      event.event_name
+    } ${parseInt(tx_amount_ad)}`;
     notify.notifySender = depart._id;
     notify.notifyReceiever = user._id;
     user.activity_tab.push(notify._id);
@@ -640,6 +690,7 @@ exports.participateEventFunction = async (
     notify.notifyType = "Student";
     notify.notifyCategory = "Participate Event Payment";
     notify.redirectIndex = 13;
+    notify.participateEventId = event?._id;
     student.notification.push(notify._id);
     user.payment_history.push(order);
     ins.payment_history.push(order);
@@ -724,12 +775,16 @@ exports.transportFunction = async (
       amount: parseInt(tx_amount_ad),
       mode: "Online",
     });
-      student.vehicle_payment_status.push({
-        vehicle: vehicle?._id,
-        status: "Paid",
-        amount: parseInt(tx_amount_ad)
-      })
-    notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? `${student.studentMiddleName} ` : ""} ${student.studentLastName} your transaction is successfull for ${vehicle.vehicle_number} ${parseInt(tx_amount_ad)} Fees`;
+    student.vehicle_payment_status.push({
+      vehicle: vehicle?._id,
+      status: "Paid",
+      amount: parseInt(tx_amount_ad),
+    });
+    notify.notifyContent = `${student.studentFirstName} ${
+      student.studentMiddleName ? `${student.studentMiddleName} ` : ""
+    } ${student.studentLastName} your transaction is successfull for ${
+      vehicle.vehicle_number
+    } ${parseInt(tx_amount_ad)} Fees`;
     notify.notifySender = trans._id;
     notify.notifyReceiever = user._id;
     user.activity_tab.push(notify._id);

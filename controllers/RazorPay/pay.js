@@ -15,13 +15,12 @@ const {
 const { handle_undefined } = require("../../Handler/customError");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
-var instance;
-// = new Razorpay({
-//   key_id: process.env.RAZOR_KEY_ID,
-//   key_secret: process.env.RAZOR_KEY_SECRET,
-// });
+var instance = new Razorpay({
+  key_id: process.env.RAZOR_KEY_ID,
+  key_secret: process.env.RAZOR_KEY_SECRET,
+});
 
-// var razor_author = false;
+var razor_author = false;
 
 exports.institute_merchant_replace = async (req, res) => {
   try {
@@ -29,14 +28,14 @@ exports.institute_merchant_replace = async (req, res) => {
     const institute = await InstituteAdmin.findById({ _id: id }).select(
       "razor_key razor_id"
     );
-    instance = new Razorpay({
-      key_id: institute?.razor_id
-        ? institute?.razor_id
-        : process.env.RAZOR_KEY_ID,
-      key_secret: institute?.razor_key
-        ? institute?.razor_key
-        : process.env.RAZOR_KEY_SECRET,
-    });
+    // instance = new Razorpay({
+    //   key_id: institute?.razor_id
+    //     ? institute?.razor_id
+    //     : process.env.RAZOR_KEY_ID,
+    //   key_secret: institute?.razor_key
+    //     ? institute?.razor_key
+    //     : process.env.RAZOR_KEY_SECRET,
+    // });
     res.status(200).send({
       message: "Proceed with Account Instance 👍",
       status: true,
@@ -94,16 +93,16 @@ exports.verifyRazorPayment = async (req, res) => {
       ad_status_id,
       isApk,
       payment_installment,
-      razor_key, // Razor KEY Secret
-      razor_author, // Boolean
+      // razor_key, // Razor KEY Secret
+      // razor_author, // Boolean
       ad_install,
     } = req.query;
-    const data_key = handle_undefined(razor_key);
+    // const data_key = handle_undefined(razor_key);
     var refactor_amount = parseFloat(payment_amount) / 100;
     var refactor_amount_nocharges = parseInt(payment_amount_charges) / 100;
     const body = razorpay_order_id + "|" + razorpay_payment_id;
     var expectedSignature = crypto
-      .createHmac("sha256", data_key ? data_key : process.env.RAZOR_KEY_SECRET)
+      .createHmac("sha256", process.env.RAZOR_KEY_SECRET)
       .update(body.toString())
       .digest("hex");
     const is_authenticated = expectedSignature === razorpay_signature;

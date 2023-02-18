@@ -1,6 +1,10 @@
 const invokeMemberTabNotification = require("../Firebase/MemberTab");
 const Status = require("../models/Admission/status");
 const Student = require("../models/Student");
+const Batch = require("../models/Batch");
+const NewApplication = require("../models/Admission/NewApplication");
+const Admission = require("../models/Admission/Admission");
+const FeeStructure = require("../models/Finance/FeesStructure");
 const RemainingList = require("../models/Admission/RemainingList");
 const OrderPayment = require("../models/RazorPay/orderPayment");
 const {
@@ -138,6 +142,7 @@ exports.fee_reordering = async (
       new_remainFee.student = student?._id;
       new_remainFee.fee_receipts.push(new_receipt?._id);
       admission.remainingFee.push(student._id);
+      new_remainFee.fee_structure = student?.fee_structure?._id;
       student.admissionRemainFeeCount +=
         student?.fee_structure?.total_admission_fees - price;
       apply.remainingFee +=
@@ -184,6 +189,7 @@ exports.fee_reordering = async (
       student.remainingFeeList.push(new_remainFee?._id);
       new_remainFee.student = student?._id;
       new_remainFee.fee_receipts.push(new_receipt?._id);
+      new_remainFee.fee_structure = student?.fee_structure?._id;
       await add_all_installment(
         apply,
         institute._id,
@@ -248,102 +254,108 @@ exports.fee_reordering = async (
 };
 
 exports.fee_reordering_direct_student = async (
-  price,
-  stu_query,
-  apply,
+  student,
   institute,
-  admission,
-  batch
+  batchSet,
+  user
 ) => {
   try {
-    var student = await Student.findById({ _id: `${stu_query?._id}` }).populate(
-      {
-        path: "fee_structure",
-      }
-    );
-    var is_install;
-    if (
-      price <= student?.fee_structure?.total_admission_fees &&
-      price > student?.fee_structure?.one_installments?.fees
-    ) {
-      is_install = false;
-    } else {
-      is_install = true;
-    }
-    var total_amount = add_total_installment(student);
-    if (price > 0 && !is_install) {
-      var new_remainFee = new RemainingList({
-        appId: apply._id,
-        applicable_fee: student?.fee_structure?.total_admission_fees,
+    for (var ref of batchSet) {
+      // var student = await Student.findById({ _id: stu_query?._id });
+      var price = parseInt(ref.amount);
+      var apply = await NewApplication.findById({ _id: ref?.appId });
+      var admission = await Admission.findById({
+        _id: `${apply?.admissionAdmin}`,
       });
-      new_remainFee.paid_fee += price;
-      new_remainFee.remaining_fee +=
-        student?.fee_structure?.total_admission_fees - price;
-      student.remainingFeeList.push(new_remainFee?._id);
-      new_remainFee.student = student?._id;
-      admission.remainingFee.push(student._id);
-      student.admissionRemainFeeCount +=
-        student?.fee_structure?.total_admission_fees - price;
-      apply.remainingFee +=
-        student?.fee_structure?.total_admission_fees - price;
-      admission.remainingFeeCount +=
-        student?.fee_structure?.total_admission_fees - price;
-      const valid_one_time_fees =
-        student?.fee_structure?.total_admission_fees - price == 0
-          ? true
-          : false;
-      if (valid_one_time_fees) {
-        admission.remainingFee.pull(student._id);
+      var batch = await Batch.findById({ _id: ref?.batchId });
+      var fee_structure = await FeeStructure.findById({ _id: ref?.fee_struct });
+      var student_structure = {
+        fee_structure: fee_structure,
+      };
+      var is_install;
+      if (
+        price <= fee_structure?.total_admission_fees &&
+        price > fee_structure?.one_installments?.fees
+      ) {
+        is_install = false;
       } else {
-        new_remainFee.remaining_array.push({
-          remainAmount: student?.fee_structure?.total_admission_fees - price,
-          appId: apply._id,
-          status: "Not Paid",
-          instituteId: institute._id,
-          installmentValue: "One Time Fees Remain",
-          isEnable: true,
-        });
+        is_install = true;
       }
-    } else if (is_install && price > 0) {
-      admission.remainingFee.push(student._id);
-      student.admissionRemainFeeCount += total_amount - price;
-      apply.remainingFee += total_amount - price;
-      admission.remainingFeeCount += total_amount - price;
-      var new_remainFee = new RemainingList({
+      var total_amount = add_total_installment(student_structure);
+      if (price > 0 && !is_install) {
+        var new_remainFee = new RemainingList({
+          appId: apply._id,
+          applicable_fee: fee_structure?.total_admission_fees,
+        });
+        new_remainFee.paid_fee += price;
+        new_remainFee.fee_structure = fee_structure?._id;
+        new_remainFee.remaining_fee +=
+          fee_structure?.total_admission_fees - price;
+        student.remainingFeeList.push(new_remainFee?._id);
+        new_remainFee.student = student?._id;
+        admission.remainingFee.push(student._id);
+        student.admissionRemainFeeCount +=
+          fee_structure?.total_admission_fees - price;
+        apply.remainingFee += fee_structure?.total_admission_fees - price;
+        admission.remainingFeeCount +=
+          fee_structure?.total_admission_fees - price;
+        const valid_one_time_fees =
+          fee_structure?.total_admission_fees - price == 0 ? true : false;
+        if (valid_one_time_fees) {
+          admission.remainingFee.pull(student._id);
+        } else {
+          new_remainFee.remaining_array.push({
+            remainAmount: fee_structure?.total_admission_fees - price,
+            appId: apply._id,
+            status: "Not Paid",
+            instituteId: institute._id,
+            installmentValue: "One Time Fees Remain",
+            isEnable: true,
+          });
+        }
+      } else if (is_install && price > 0) {
+        admission.remainingFee.push(student._id);
+        student.admissionRemainFeeCount += total_amount - price;
+        apply.remainingFee += total_amount - price;
+        admission.remainingFeeCount += total_amount - price;
+        var new_remainFee = new RemainingList({
+          appId: apply._id,
+          applicable_fee: total_amount,
+        });
+        new_remainFee.paid_fee += price;
+        new_remainFee.fee_structure = fee_structure?._id;
+        new_remainFee.remaining_fee += total_amount - price;
+        student.remainingFeeList.push(new_remainFee?._id);
+        new_remainFee.student = student?._id;
+        await add_all_installment(
+          apply,
+          institute._id,
+          new_remainFee,
+          price,
+          student_structure
+        );
+      }
+      student.admissionPaidFeeCount += price;
+      student.paidFeeList.push({
+        paidAmount: price,
         appId: apply._id,
-        applicable_fee: total_amount,
       });
-      new_remainFee.paid_fee += price;
-      new_remainFee.remaining_fee += total_amount - price;
-      student.remainingFeeList.push(new_remainFee?._id);
-      new_remainFee.student = student?._id;
-      await add_all_installment(
-        apply,
-        institute._id,
-        new_remainFee,
-        price,
-        student
-      );
+      await set_fee_head_query(student, price, apply, fee_structure);
+      apply.allottedApplication.push({
+        student: student._id,
+        payment_status: "Offline",
+        install_type: is_install
+          ? "First Installment Paid"
+          : "One Time Fees Paid",
+        fee_remain: is_install
+          ? total_amount - price
+          : fee_structure?.total_admission_fees - price,
+      });
+      apply.allotCount += 1;
+      new_remainFee.batchId = batch?._id;
+      user.applyApplication.push(apply._id);
+      await Promise.all([new_remainFee.save(), apply.save(), admission.save()]);
     }
-    student.admissionPaidFeeCount += price;
-    student.paidFeeList.push({
-      paidAmount: price,
-      appId: apply._id,
-    });
-    await set_fee_head_query(student, price, apply);
-    apply.allottedApplication.push({
-      student: student._id,
-      payment_status: "Offline",
-      install_type: is_install
-        ? "First Installment Paid"
-        : "One Time Fees Paid",
-      fee_remain: is_install
-        ? total_amount - price
-        : student?.fee_structure?.total_admission_fees - price,
-    });
-    apply.allotCount += 1;
-    new_remainFee.batchId = batch
-    await new_remainFee.save();
   } catch (e) {
     console.log(e);
   }

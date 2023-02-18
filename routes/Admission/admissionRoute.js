@@ -201,6 +201,12 @@ router.post(
   catchAsync(Admission.paidRemainingFeeStudent)
 );
 
+router.patch(
+  "/:aid/paid/remaining/fee/:sid/student/:appId/refund/by",
+  // isLoggedIn,
+  catchAsync(Admission.paidRemainingFeeStudentRefundBy)
+);
+
 // Fetch By App status
 router.get(
   "/application",
@@ -328,10 +334,10 @@ router.patch(
   catchAsync(Admission.renderEditStudentFeeStructureQuery)
 );
 
-router.patch(
-  "/:aid/student/:sid/edit/structure",
-  catchAsync(Admission.renderEditStudentFeeStructureQuery)
-);
+// router.patch(
+//   "/:aid/student/:sid/edit/structure",
+//   catchAsync(Admission.renderEditStudentFeeStructureQuery)
+// );
 
 router.post(
   "/:aid/add/document/flow",

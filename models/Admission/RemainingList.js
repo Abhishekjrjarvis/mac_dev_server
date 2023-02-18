@@ -7,7 +7,7 @@ const remainingFeeListSchema = new mongoose.Schema({
   },
   batchId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Batch"
+    ref: "Batch",
   },
   applicable_fee: { type: Number, default: 0 },
   remaining_fee: { type: Number, default: 0 },
@@ -33,7 +33,7 @@ const remainingFeeListSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "FeeReceipt",
       },
-      refund_status: { type: String , default: "Not Refunded"}
+      refund_status: { type: String, default: "Not Refunded" },
     },
   ],
   fee_receipts: [
@@ -50,6 +50,10 @@ const remainingFeeListSchema = new mongoose.Schema({
   created_at: {
     type: Date,
     default: Date.now,
+  },
+  fee_structure: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "FeeStructure",
   },
 });
 

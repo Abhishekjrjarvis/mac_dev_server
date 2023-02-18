@@ -10,38 +10,13 @@ const moment = require("moment");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const { nested_document_limit } = require("../../helper/databaseFunction");
 const { large_vote_candidate } = require("../../Custom/checkInitials");
+const { date_renew, generate_date } = require("../../helper/dayTimer");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
-
-const date_renew = async (s_date, type, d_set) => {
-  if (type === "End") {
-    s_date.setDate(s_date.getDate() + d_set.end_date);
-  } else if (type === "Select") {
-    s_date.setDate(s_date.getDate() + d_set.select_date);
-  } else if (type === "Compaign") {
-    s_date.setDate(s_date.getDate() + d_set.campaign_date);
-  } else if (type === "Compaign Last") {
-    s_date.setDate(s_date.getDate() + d_set.campaign_last_date);
-  } else if (type === "Vote") {
-    s_date.setDate(s_date.getDate() + d_set.vote_date);
-  } else if (type === "Result") {
-    s_date.setDate(s_date.getDate() + d_set.result_date);
-  } else {
-  }
-  return new Date(s_date).toISOString();
-};
-
-const generate_date = (cal) => {
-  var start_date_format = new Date(
-    `${cal}T${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}.${new Date().getMilliseconds()}Z`
-  );
-  return start_date_format;
-};
 
 //Bug In Date Format
 
 exports.retrieveNewElectionQuery = async (req, res) => {
   try {
-    console.log(req.body.date);
     const { did } = req.params;
     var depart = await Department.findById({ _id: did });
     var elect = new Election({
@@ -58,41 +33,45 @@ exports.retrieveNewElectionQuery = async (req, res) => {
       "End",
       depart?.election_date_setting
     );
+    // console.log("End", elect.election_app_end_date);
     elect.election_selection_date = await date_renew(
       elect?.election_app_end_date,
       "Select",
       depart?.election_date_setting
     );
+    // console.log("Select", elect.election_selection_date);
     elect.election_campaign_date = await date_renew(
       elect?.election_selection_date,
       "Compaign",
       depart?.election_date_setting
     );
+    // console.log("Compaign", elect.election_campaign_date);
     elect.election_campaign_last_date = await date_renew(
       elect?.election_campaign_date,
-      "Compaign Last",
+      "Compaign_Last",
       depart?.election_date_setting
     );
-    // console.log("Last", elect?.election_campaign_last_date)
-    elect.election_voting_date = await date_renew(
-      elect?.election_campaign_last_date,
-      "Vote",
-      depart?.election_date_setting
-    );
-    // console.log("Vote", elect?.election_voting_date)
-    elect.election_result_date = await date_renew(
-      elect?.election_voting_date,
-      "Result",
-      depart?.election_date_setting
-    );
-    // console.log("res", elect.election_result_date)
     await elect.save();
     res.status(201).send({
       message: "New Election Application will be available",
       status: true,
       elect,
     });
-
+    // console.log("Last", elect?.election_campaign_last_date);
+    elect.election_voting_date = await date_renew(
+      elect?.election_campaign_last_date,
+      "Vote",
+      depart?.election_date_setting
+    );
+    await elect.save();
+    // console.log("Vote", elect?.election_voting_date);
+    elect.election_result_date = await date_renew(
+      elect?.election_voting_date,
+      "Result",
+      depart?.election_date_setting
+    );
+    // console.log("res", elect.election_result_date);
+    await elect.save();
     if (elect?.election_visible === "Only Institute") {
       var all_student = await Student.find({
         $and: [{ institute: depart?.institute }, { studentStatus: "Approved" }],
@@ -121,7 +100,6 @@ exports.retrieveNewElectionQuery = async (req, res) => {
       notify.election_type = "New Election App";
       notify.notifyPublisher = ele._id;
       user.activity_tab.push(notify._id);
-      ele.notification.push(notify._id);
       notify.notifyByDepartPhoto = depart._id;
       notify.notifyCategory = "Election";
       notify.redirectIndex = 12;
@@ -134,7 +112,7 @@ exports.retrieveNewElectionQuery = async (req, res) => {
         "Student",
         notify
       );
-      // await Promise.all([ele.save(), notify.save(), user.save()]);
+      await Promise.all([notify.save(), user.save()]);
     });
   } catch (e) {
     console.log(e);

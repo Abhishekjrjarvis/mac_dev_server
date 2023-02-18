@@ -878,13 +878,25 @@ exports.exempt_installment = async (
   }
 };
 
-exports.set_fee_head_query = async (student_args, price, apply_args) => {
+exports.set_fee_head_query = async (
+  student_args,
+  price,
+  apply_args,
+  direct_args
+) => {
   try {
     var price_query = price;
-    var parent_head = {
-      ...student_args.fee_structure?.fees_heads,
-      count: student_args.fee_structure?.fees_heads?.length,
-    };
+    if (direct_args) {
+      var parent_head = {
+        ...direct_args?.fees_heads,
+        count: direct_args?.fees_heads?.length,
+      };
+    } else {
+      var parent_head = {
+        ...student_args.fee_structure?.fees_heads,
+        count: student_args.fee_structure?.fees_heads?.length,
+      };
+    }
     if (student_args?.active_fee_heads?.length > 0) {
       for (var val = 0; val <= student_args?.active_fee_heads?.length; val++) {
         if (

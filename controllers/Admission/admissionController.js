@@ -2355,6 +2355,22 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
       }
     } else {
     }
+    for (var stu of student.paidFeeList) {
+      if (`${stu.appId}` === `${apply._id}`) {
+        if(stu.paidAmount >= price){
+          stu.paidAmount -= price;
+        }
+      }
+    }
+    remaining_fee_lists.remaining_array.push({
+      appId: apply?._id,
+      remainAmount: price,
+      status: "Paid",
+      instituteId: institute?._id,
+      installmentValue: "Refund From Admission Admin",
+      isEnable: true,
+      refund_status: "Refunded",
+    });
     await Promise.all([
       admin_ins.save(),
       student.save(),

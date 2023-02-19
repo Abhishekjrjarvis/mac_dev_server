@@ -903,8 +903,8 @@ exports.getAllTotalCount = async (req, res) => {
       })
       .lean()
       .exec();
-    for (let num of announcements) {
-      if (num?.insAnnViewUser?.includes(id)) {
+    for (var num of announcements) {
+      if (num.insAnnViewUser?.includes(`${user?._id}`)) {
         // console.log(true);
       } else {
         counts = counts + 1;

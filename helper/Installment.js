@@ -787,13 +787,13 @@ exports.remain_one_time_query = async (
         if (
           `${stu.appId}` === `${apply_args._id}` &&
           stu.status === "Not Paid" &&
-          installmentValue === "One Time Fees Remain"
+          stu.installmentValue === "One Time Fees Remain"
         )
           return stu;
       }
     );
     for (var stu of filter_student_install) {
-      if (price <= stu?.remainAmount) {
+      if (price < stu?.remainAmount) {
         remain_args.remaining_array.push({
           appId: apply_args?._id,
           remainAmount: stu?.remainAmount - price,

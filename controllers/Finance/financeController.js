@@ -2544,7 +2544,7 @@ exports.renderAllFinanceGovernment = async (req, res) => {
       });
 
     const finance = await Finance.findById({ _id: fid }).select(
-      "government_receipt"
+      "government_receipt financeGovernmentScholarBalance"
     );
     const all_exempt = await FeeReceipt.find({
       _id: { $in: finance?.government_receipt },
@@ -2592,12 +2592,14 @@ exports.renderAllFinanceGovernment = async (req, res) => {
         message: "Lot's of Government / Scholarships Volume Receipts",
         access: true,
         all_exempt: all_exempt,
+        all_exempt_count: finance?.financeGovernmentScholarBalance
       });
     } else {
       res.status(200).send({
         message: "No Government / Scholarships Volume Receipts",
         access: false,
         all_exempt: [],
+        all_exempt_count: 0
       });
     }
   } catch (e) {

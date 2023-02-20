@@ -55,7 +55,7 @@ const {
   exempt_installment,
   set_fee_head_query,
   remain_one_time_query,
-  remain_one_time_query_government
+  remain_one_time_query_government,
 } = require("../../helper/Installment");
 const { whats_app_sms_payload } = require("../../WhatsAppSMS/payload");
 const {
@@ -2061,6 +2061,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     remaining_fee_lists.fee_receipts.push(new_receipt?._id);
     if (req?.body?.fee_payment_mode === "Government/Scholarship") {
       finance.government_receipt.push(new_receipt?._id);
+      finance.financeGovernmentScholarBalance += price;
       finance.government_receipt_count += 1;
       if (price > remaining_fee_lists?.remaining_fee) {
         extra_price += price - remaining_fee_lists?.remaining_fee;
@@ -2072,13 +2073,15 @@ exports.paidRemainingFeeStudent = async (req, res) => {
             stu.paidAmount += extra_price;
           }
         }
-        await remain_one_time_query_government(admin_ins,
+        await remain_one_time_query_government(
+          admin_ins,
           remaining_fee_lists,
           apply,
           institute,
           student,
           price,
-          new_receipt)
+          new_receipt
+        );
       } else {
       }
     }
@@ -2113,28 +2116,27 @@ exports.paidRemainingFeeStudent = async (req, res) => {
         new_receipt
       );
     } else {
-      if(req?.body?.fee_payment_mode === "Government/Scholarship"){
+      if (req?.body?.fee_payment_mode === "Government/Scholarship") {
+        remaining_fee_lists.paid_fee += price;
+        if (remaining_fee_lists.remaining_fee >= price) {
+          remaining_fee_lists.remaining_fee -= price;
+        }
+      } else {
+        await render_installment(
+          type,
+          student,
+          mode,
+          price,
+          admin_ins,
+          student?.fee_structure,
+          remaining_fee_lists,
+          new_receipt
+        );
         remaining_fee_lists.paid_fee += price;
         if (remaining_fee_lists.remaining_fee >= price) {
           remaining_fee_lists.remaining_fee -= price;
         }
       }
-      else{
-      await render_installment(
-        type,
-        student,
-        mode,
-        price,
-        admin_ins,
-        student?.fee_structure,
-        remaining_fee_lists,
-        new_receipt
-      );
-      remaining_fee_lists.paid_fee += price;
-      if (remaining_fee_lists.remaining_fee >= price) {
-        remaining_fee_lists.remaining_fee -= price;
-      }
-    }
     }
     if (admin_ins?.remainingFeeCount >= price) {
       admin_ins.remainingFeeCount -= price;

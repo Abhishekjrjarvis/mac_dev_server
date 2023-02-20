@@ -119,6 +119,10 @@ const financeSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    financeGovernmentScholarBalance: {
+      type: Number,
+      default: 0,
+    },
     financeExpenseBankBalance: {
       type: Number,
       default: 0,

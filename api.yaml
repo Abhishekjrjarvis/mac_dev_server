@@ -15570,7 +15570,55 @@ paths:
     post:
       tags:
         - Admission Admin Module Query
-      summary: Mark Remaining Fee paid by Admission Admin (verified)
+      summary: Mark Remaining Fee paid by Admission Admin + add body content (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission id 
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
+        - in: path
+          name: appId
+          required: true
+          type: string
+          description: This is Application id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - amount
+              - mode
+              - type
+            properties:
+              amount:
+                type: number
+                description: Enter amount
+              mode:
+                type: string
+                description: Enter payment mode ("Online" | "Offline" | "Exempted")
+              type:
+                type: string
+                description: Enter Installment Value
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/admission/{aid}/paid/remaining/fee/{sid}/student/{appId}/refund/by:
+    patch:
+      tags:
+        - Admission Admin Module Query
+      summary: Mark Refund Fee paid by Admission Admin (verified)
       consumes:
         - application/json
       produces:
@@ -15605,6 +15653,9 @@ paths:
               mode:
                 type: string
                 description: Enter payment mode ("Online" | "Offline")
+              fee_payment_mode:
+                type: string
+                description: Default "Refunded"
       responses:
         "200":
           description: OK

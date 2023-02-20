@@ -2119,6 +2119,17 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       if (remaining_fee_lists.remaining_fee >= price) {
         remaining_fee_lists.remaining_fee -= price;
       }
+      if (type === "One Time Fees Remain") {
+        await remain_one_time_query(
+          admin_ins,
+          remaining_fee_lists,
+          apply,
+          institute,
+          student,
+          price,
+          new_receipt
+        );
+      }
     }
     if (admin_ins?.remainingFeeCount >= price) {
       admin_ins.remainingFeeCount -= price;
@@ -2152,17 +2163,6 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       if (`${stu.appId}` === `${apply._id}`) {
         stu.paidAmount += price;
       }
-    }
-    if (type === "One Time Fees Remain") {
-      await remain_one_time_query(
-        admin_ins,
-        remaining_fee_lists,
-        apply,
-        institute,
-        student,
-        price,
-        new_receipt
-      );
     }
     await Promise.all([
       admin_ins.save(),
@@ -2357,7 +2357,7 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
     }
     for (var stu of student.paidFeeList) {
       if (`${stu.appId}` === `${apply._id}`) {
-        if(stu.paidAmount >= price){
+        if (stu.paidAmount >= price) {
           stu.paidAmount -= price;
         }
       }

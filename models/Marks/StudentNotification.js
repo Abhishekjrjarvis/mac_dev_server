@@ -77,6 +77,7 @@ const studentNotificationSchema = new mongoose.Schema({
   participateEventId: { type: String },
   participate_event_type: { type: String },
   event_payment_status: { type: String },
+  mentorId: { type: String },
 });
 
 module.exports = mongoose.model(

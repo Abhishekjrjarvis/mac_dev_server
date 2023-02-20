@@ -857,6 +857,7 @@ exports.exempt_installment = async (
       finance_args.exempt_receipt_count += 1;
     }
     remain_args.exempted_fee += real_price;
+    remain_args.status = "Paid"
     if (remain_args?.remaining_fee >= real_price) {
       remain_args.remaining_fee -= real_price;
     }

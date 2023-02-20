@@ -214,6 +214,20 @@ const departmentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  mentor: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Mentor",
+    },
+  ],
+  mentor_count: {
+    type: Number,
+    default: 0,
+  },
+  mentees_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Department = mongoose.model("Department", departmentSchema);

@@ -423,6 +423,20 @@ const studentSchema = new mongoose.Schema({
   student_prn_enroll_number: {
     type: String,
   },
+  query_count: {
+    type: Number,
+    default: 0,
+  },
+  mentor: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Mentor",
+  },
+  queries: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Queries",
+    },
+  ],
 });
 
 const Student = mongoose.model("Student", studentSchema);

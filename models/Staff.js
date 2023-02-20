@@ -244,6 +244,12 @@ const staffSchema = new mongoose.Schema({
     admission: [],
     finance: [],
   },
+  mentorDepartment: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Mentor",
+    },
+  ],
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

@@ -21816,3 +21816,22 @@ paths:
       responses:
         "200":
           description: OK
+
+  /api/v1/admission/{sid}/fees:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Get All Fees by the Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID 
+      responses:
+        "200":
+          description: OK

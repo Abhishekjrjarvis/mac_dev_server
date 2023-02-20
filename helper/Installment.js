@@ -816,6 +816,35 @@ exports.remain_one_time_query = async (
   }
 };
 
+exports.remain_one_time_query_government = async (
+  ads_args,
+  remain_args,
+  apply_args,
+  ins_args,
+  student_args,
+  price,
+  receipt_args
+) => {
+  try {
+    const filter_student_install = remain_args?.remaining_array?.filter(
+      (stu) => {
+        if (`${stu.appId}` === `${apply_args._id}` && stu.status === "Not Paid")
+          return stu;
+      }
+    );
+    for (var stu of filter_student_install) {
+      stu.status = "Paid";
+      stu.installmentValue = stu.installmentValue;
+      remain_args.status = "Paid";
+      stu.fee_receipt = receipt_args?._id;
+      ads_args.remainingFee.pull(student_args?._id);
+    }
+    await Promise.all([remain_args.save(), ads_args.save()]);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.exempt_installment = async (
   pay_type,
   remain_args,
@@ -857,7 +886,7 @@ exports.exempt_installment = async (
       finance_args.exempt_receipt_count += 1;
     }
     remain_args.exempted_fee += real_price;
-    remain_args.status = "Paid"
+    remain_args.status = "Paid";
     if (remain_args?.remaining_fee >= real_price) {
       remain_args.remaining_fee -= real_price;
     }

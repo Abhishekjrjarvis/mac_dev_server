@@ -27,4 +27,8 @@ router.post(
 
 router.patch("/:mid/new/query:sid", catchAsync(Mentor.renderNewMenteeQuery));
 
+router.get("/one/query/:qid", catchAsync(Mentor.renderOneQueryDetail));
+
+router.get("/:sid/all/query", catchAsync(Mentor.renderAllStudentQuery));
+
 module.exports = router;

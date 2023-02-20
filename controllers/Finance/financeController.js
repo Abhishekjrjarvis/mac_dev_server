@@ -40,6 +40,7 @@ const Admission = require("../../models/Admission/Admission");
 const Library = require("../../models/Library/Library");
 const { handle_undefined } = require("../../Handler/customError");
 const FeeReceipt = require("../../models/RazorPay/feeReceipt");
+const RemainingList = require("../../models/Admission/RemainingList");
 
 exports.getFinanceDepart = async (req, res) => {
   try {
@@ -2467,7 +2468,7 @@ exports.renderAllFinanceExempt = async (req, res) => {
       });
 
     const finance = await Finance.findById({ _id: fid }).select(
-      "exempt_receipt"
+      "exempt_receipt financeExemptBalance"
     );
     const all_exempt = await FeeReceipt.find({
       _id: { $in: finance?.exempt_receipt },
@@ -2488,6 +2489,24 @@ exports.renderAllFinanceExempt = async (req, res) => {
         },
       })
       .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+        populate: {
+          path: "studentClass",
+          select: "className classTitle",
+        },
+      })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+        populate: {
+          path: "batches",
+          select: "batchName",
+        },
+      })
+      .populate({
         path: "application",
         select: "applicationName",
       });
@@ -2497,12 +2516,14 @@ exports.renderAllFinanceExempt = async (req, res) => {
         message: "Lot's of Exempted Volume Receipts",
         access: true,
         all_exempt: all_exempt,
+        all_exempt_count: finance?.financeExemptBalance
       });
     } else {
       res.status(200).send({
         message: "No Exempted Volume Receipts",
         access: false,
         all_exempt: [],
+        all_exempt_count: 0
       });
     }
   } catch (e) {
@@ -2544,6 +2565,24 @@ exports.renderAllFinanceGovernment = async (req, res) => {
         },
       })
       .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+        populate: {
+          path: "studentClass",
+          select: "className classTitle",
+        },
+      })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+        populate: {
+          path: "batches",
+          select: "batchName",
+        },
+      })
+      .populate({
         path: "application",
         select: "applicationName",
       });
@@ -2580,6 +2619,10 @@ exports.renderOneFeeReceipt = async (req, res) => {
         path: "student",
         select:
           "studentFirstName studentMiddleName studentLastName active_fee_heads",
+        populate: {
+          path: "remainingFeeList",
+          select: "appId",
+        },
       })
       .populate({
         path: "finance",
@@ -2612,9 +2655,25 @@ exports.renderOneFeeReceipt = async (req, res) => {
         },
       });
 
-    res
-      .status(200)
-      .send({ message: "Come up with Tea and Snacks", access: true, receipt });
+    var ref = receipt?.student?.remainingFeeList?.filter((ele) => {
+      if (`${ele?.appId}` === `${receipt?.application?._id}`) return ele;
+    });
+
+    if (ref?.length > 0) {
+      var all_remain = await RemainingList.findById({ _id: ref[0]?._id })
+        .select("applicable_fee paid_fee remaining_fee refund_fee")
+        .populate({
+          path: "batchId",
+          select: "batchName",
+        });
+    }
+
+    res.status(200).send({
+      message: "Come up with Tea and Snacks",
+      access: true,
+      receipt,
+      all_remain: all_remain,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -2680,13 +2739,11 @@ exports.renderFinanceAllBankDetails = async (req, res) => {
       "payment_modes_type finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode "
     );
 
-    res
-      .status(200)
-      .send({
-        message: "Explore Transaction Query",
-        access: true,
-        bank_query: bank_query,
-      });
+    res.status(200).send({
+      message: "Explore Transaction Query",
+      access: true,
+      bank_query: bank_query,
+    });
   } catch (e) {
     console.log(e);
   }

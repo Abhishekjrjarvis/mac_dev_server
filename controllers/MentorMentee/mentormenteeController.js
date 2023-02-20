@@ -2,6 +2,7 @@ const Staff = require("../../models/Staff");
 const Student = require("../../models/Student");
 const Department = require("../../models/Department");
 const Mentor = require("../../models/MentorMentee/mentor");
+const Queries = require("../../models/MentorMentee/queries");
 const Notification = require("../../models/notification");
 const User = require("../../models/User");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
@@ -248,8 +249,108 @@ exports.renderNewMenteeQuery = async (req, res) => {
         access: false,
       });
     const student = await Student.findById({ _id: sid });
-    const mentor = await Mentor.findById({ _id: mid });
+    const mentor = await Mentor.findById({ _id: mid }).populate({
+      path: "mentor_head",
+      select: "user",
+    });
+    const user = await User.findById({ _id: mentor?.mentor_head?.user });
     const new_query = new Queries({ ...req.body });
+    const notify = new StudentNotification({});
+    new_query.raised_on = new Date().toISOString();
+    new_query.student = student?._id;
+    mentor.queries.push(new_query?._id);
+    mentor.total_query_count += 1;
+    mentor.pending_query_count += 1;
+    student.queries.push(new_query?._id);
+    student.total_query += 1;
+    new_query.mentor = mentor?._id;
+
+    notify.notifyContent = `${student?.studentFirstName} ${
+      student?.studentMiddleName ? student?.studentMiddleName : ""
+    } ${student?.studentLastName} raised a query`;
+    notify.notifySender = student._id;
+    notify.notifyReceiever = user._id;
+    notify.notifyType = "Staff";
+    notify.notifyPublisher = mentor.mentor_head?._id;
+    notify.mentorId = mentor._id;
+    user.activity_tab.push(notify._id);
+    notify.notifyByStudentPhoto = student._id;
+    notify.notifyCategory = "Raise Query";
+    notify.redirectIndex = 30;
+
+    await Promise.all([
+      student.save(),
+      mentor.save(),
+      new_query.save(),
+      user.save(),
+      notify.save(),
+    ]);
+    res.status(200).send({ message: "New Query Raised 😁", access: true });
+
+    invokeMemberTabNotification(
+      "Staff Activity",
+      notify,
+      "Query Raised",
+      user._id,
+      user.deviceToken,
+      "Staff",
+      notify
+    );
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneQueryDetail = async (req, res) => {
+  try {
+    const { qid } = req.params;
+    if (!qid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const query = await Queries.findById({ _id: qid }).populate({
+      path: "student",
+      select:
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+    });
+
+    res.status(200).send({ message: "Explore Query", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllStudentQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const student = await Student.findById({ _id: sid }).select("queries");
+
+    const all_query = await Queries.find({
+      _id: { $in: student?.queries },
+    }).select("created_at query_status");
+
+    if (all_query?.length > 0) {
+      res.status(200).send({
+        message: "Lot's of Query Asked",
+        access: true,
+        all_query: all_query,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "No Query Asked", access: false, all_query: [] });
+    }
   } catch (e) {
     console.log(e);
   }

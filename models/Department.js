@@ -228,6 +228,12 @@ const departmentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  query: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Queries",
+    },
+  ],
 });
 
 const Department = mongoose.model("Department", departmentSchema);

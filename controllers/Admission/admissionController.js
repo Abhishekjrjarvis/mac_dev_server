@@ -55,6 +55,7 @@ const {
   exempt_installment,
   set_fee_head_query,
   remain_one_time_query,
+  remain_one_time_query_government
 } = require("../../helper/Installment");
 const { whats_app_sms_payload } = require("../../WhatsAppSMS/payload");
 const {
@@ -2071,6 +2072,13 @@ exports.paidRemainingFeeStudent = async (req, res) => {
             stu.paidAmount += extra_price;
           }
         }
+        await remain_one_time_query_government(admin_ins,
+          remaining_fee_lists,
+          apply,
+          institute,
+          student,
+          price,
+          new_receipt)
       } else {
       }
     }
@@ -2105,6 +2113,13 @@ exports.paidRemainingFeeStudent = async (req, res) => {
         new_receipt
       );
     } else {
+      if(req?.body?.fee_payment_mode === "Government/Scholarship"){
+        remaining_fee_lists.paid_fee += price;
+        if (remaining_fee_lists.remaining_fee >= price) {
+          remaining_fee_lists.remaining_fee -= price;
+        }
+      }
+      else{
       await render_installment(
         type,
         student,
@@ -2119,17 +2134,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       if (remaining_fee_lists.remaining_fee >= price) {
         remaining_fee_lists.remaining_fee -= price;
       }
-      if (type === "One Time Fees Remain") {
-        await remain_one_time_query(
-          admin_ins,
-          remaining_fee_lists,
-          apply,
-          institute,
-          student,
-          price,
-          new_receipt
-        );
-      }
+    }
     }
     if (admin_ins?.remainingFeeCount >= price) {
       admin_ins.remainingFeeCount -= price;
@@ -2163,6 +2168,17 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       if (`${stu.appId}` === `${apply._id}`) {
         stu.paidAmount += price;
       }
+    }
+    if (type === "One Time Fees Remain") {
+      await remain_one_time_query(
+        admin_ins,
+        remaining_fee_lists,
+        apply,
+        institute,
+        student,
+        price,
+        new_receipt
+      );
     }
     await Promise.all([
       admin_ins.save(),

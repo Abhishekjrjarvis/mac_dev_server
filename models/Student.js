@@ -437,6 +437,10 @@ const studentSchema = new mongoose.Schema({
       ref: "Queries",
     },
   ],
+  total_query: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema);

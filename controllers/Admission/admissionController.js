@@ -56,6 +56,7 @@ const {
   set_fee_head_query,
   remain_one_time_query,
   remain_one_time_query_government,
+  remain_government_installment,
 } = require("../../helper/Installment");
 const { whats_app_sms_payload } = require("../../WhatsAppSMS/payload");
 const {
@@ -2063,7 +2064,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       finance.government_receipt.push(new_receipt?._id);
       finance.financeGovernmentScholarBalance += price;
       finance.government_receipt_count += 1;
-      if (price > remaining_fee_lists?.remaining_fee) {
+      if (price >= remaining_fee_lists?.remaining_fee) {
         extra_price += price - remaining_fee_lists?.remaining_fee;
         price = remaining_fee_lists?.remaining_fee;
         remaining_fee_lists.paid_fee += extra_price;
@@ -2083,6 +2084,19 @@ exports.paidRemainingFeeStudent = async (req, res) => {
           new_receipt
         );
       } else {
+        if (type === "One Time Fees Remain") {
+        } else {
+          await remain_government_installment(
+            admin_ins,
+            remaining_fee_lists,
+            apply,
+            institute,
+            student,
+            price,
+            new_receipt,
+            type
+          );
+        }
       }
     }
     var order = new OrderPayment({});

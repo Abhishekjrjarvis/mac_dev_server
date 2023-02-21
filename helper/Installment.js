@@ -852,7 +852,8 @@ exports.remain_government_installment = async (
   ins_args,
   student_args,
   price,
-  receipt_args
+  receipt_args,
+  type
 ) => {
   try {
     const filter_student_install = remain_args?.remaining_array?.filter(
@@ -868,13 +869,28 @@ exports.remain_government_installment = async (
           holding_price += price - filter_student_install[ref].remainAmount;
           filter_student_install[ref].status = "Paid";
         } else {
-          filter_student_install[ref].remainAmount -= price;
+          filter_student_install[ref].remainAmount -= holding_price;
+        }
+      } else {
+        if (filter_student_install[ref].remainAmount < holding_price) {
+          holding_price +=
+            holding_price - filter_student_install[ref].remainAmount;
+          filter_student_install[ref].status = "Paid";
+        } else {
+          filter_student_install[ref].remainAmount -= holding_price;
         }
       }
-      remain_args.status = "Paid";
-      stu.fee_receipt = receipt_args?._id;
-      ads_args.remainingFee.pull(student_args?._id);
     }
+    student_args.fee_receipt = receipt_args?._id;
+    // for(var ele of filter_student_install){
+    //   if(ele.status === "Not Paid"){
+
+    //   }
+    //   else{
+    //   remain_args.status = "Paid";
+    //   ads_args.remainingFee.pull(student_args?._id);
+    //   }
+    // }
     await Promise.all([remain_args.save(), ads_args.save()]);
   } catch (e) {
     console.log(e);

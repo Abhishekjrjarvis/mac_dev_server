@@ -316,7 +316,7 @@ exports.renderOneQueryDetail = async (req, res) => {
         "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
     });
 
-    res.status(200).send({ message: "Explore Query", access: true });
+    res.status(200).send({ message: "Explore Query", access: true, query });
   } catch (e) {
     console.log(e);
   }
@@ -351,6 +351,73 @@ exports.renderAllStudentQuery = async (req, res) => {
         .status(200)
         .send({ message: "No Query Asked", access: false, all_query: [] });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllMentorQueryByStatus = async (req, res) => {
+  try {
+    const { mid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { status } = req.query;
+    if (!mid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const mentor = await Mentor.findById({ _id: mid }).select("queries");
+
+    const all_query = await Queries.find({
+      $and: [{ _id: { $in: mentor?.queries } }, { query_status: status }],
+    })
+      .limit(limit)
+      .skip(skip)
+      .select("created_at query_status")
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+      });
+
+    if (all_query?.length > 0) {
+      res.status(200).send({
+        message: "Lot's of Pending Query",
+        access: true,
+        all_query: all_query,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "No Pending Query", access: false, all_query: [] });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneQueryRemark = async (req, res) => {
+  try {
+    const { qid } = req.params;
+    const { remark } = req.body;
+    if (!qid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const one_query = await Queries.findById({
+      _id: qid,
+    });
+    one_query.remark = remark;
+    one_query.remark_by_mentor = true;
+    one_query.query_status = "Solved";
+
+    await one_query.save();
+    res.status(200).send({ message: "Your query was resolved", access: true });
   } catch (e) {
     console.log(e);
   }

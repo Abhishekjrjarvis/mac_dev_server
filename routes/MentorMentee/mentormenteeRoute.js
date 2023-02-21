@@ -31,4 +31,13 @@ router.get("/one/query/:qid", catchAsync(Mentor.renderOneQueryDetail));
 
 router.get("/:sid/all/query", catchAsync(Mentor.renderAllStudentQuery));
 
+router.get(
+  "/:mid/all/query/by",
+  catchAsync(Mentor.renderAllMentorQueryByStatus)
+);
+
+router.get("/one/query/:qid/remark", catchAsync(Mentor.renderOneQueryRemark));
+
+// router.get("/one/query/:qid/remark", catchAsync(Mentor.renderOneQueryRemark));
+
 module.exports = router;

@@ -3338,11 +3338,20 @@ exports.renderOneReceiptStatus = async (req, res) => {
       path: "admissionAdminHead",
       select: "user",
     });
+    var s_admin = await Admin.findById({
+      _id: `${process.env.S_ADMIN_ID}`,
+    }).select("invoice_count");
+    var institute = await InstituteAdmin.findById({ _id: `${ads_admin?.institute}`})
+    var finance = await Finance.findById({ _id: `${institute?.financeDepart[0]}`})
     var one_receipt = await FeeReceipt.findById({ _id: rid }).populate({
       path: "student",
       select: "user",
     });
-    const user = await User.findById({ _id: `${one_receipt?.student?.user}` });
+    var student = await Student.findById({_id: `${one_receipt?.student?._id}`})
+    .populate({
+      path: "fee_structure"
+    })
+    var user = await User.findById({ _id: `${student?.user}` });
     var one_app = await NewApplication.findById({
       _id: `${one_receipt?.application}`,
     });
@@ -3361,11 +3370,11 @@ exports.renderOneReceiptStatus = async (req, res) => {
         status: "Approved",
       });
       one_status.receipt_status = "Approved";
-      for (var ref of one_app?.selectedApplication) {
-        if (`${ref.student}` === `${one_receipt?.student}`) {
-          ref.payment_status = "Receipt Approved";
-        }
-      }
+      // for (var ref of one_app?.selectedApplication) {
+      //   if (`${ref.student}` === `${one_receipt?.student}`) {
+      //     ref.payment_status = "Receipt Approved";
+      //   }
+      // }
     } else if (status === "Rejected") {
       for (var ele of ads_admin?.fee_receipt_request) {
         if (`${ele._id}` === `${reqId}`) {
@@ -3399,11 +3408,11 @@ exports.renderOneReceiptStatus = async (req, res) => {
       });
       one_status.receipt_status = "Approved";
       one_receipt.re_apply = false;
-      for (var ref of one_app?.selectedApplication) {
-        if (`${ref.student}` === `${one_receipt?.student}`) {
-          ref.payment_status = "Receipt Approved";
-        }
-      }
+      // for (var ref of one_app?.selectedApplication) {
+      //   if (`${ref.student}` === `${one_receipt?.student}`) {
+      //     ref.payment_status = "Receipt Approved";
+      //   }
+      // }
       await one_receipt.save();
     } else if (status === "Rejection_Notify") {
       one_status.receipt_status = "Rejected";
@@ -3444,6 +3453,178 @@ exports.renderOneReceiptStatus = async (req, res) => {
     res
       .status(200)
       .send({ message: `Receipts ${status} by Admission Admin`, access: true });
+
+    if (status === "Approved" || status === "Over_Rejection") {
+      var is_install;
+      var price = one_receipt?.fee_payment_amount
+      var mode = one_receipt?.fee_payment_mode === "By Cash" ? "Offline" : "Online"
+      var total_amount = add_total_installment(student);
+      if (
+        price <= student?.fee_structure?.total_admission_fees &&
+        price > student?.fee_structure?.one_installments?.fees
+      ) {
+        is_install = false;
+      } else {
+        is_install = true;
+      }
+      if (price > 0 && is_install) {
+        ads_admin.remainingFee.push(student._id);
+        student.admissionRemainFeeCount += total_amount - price;
+        one_app.remainingFee += total_amount - price;
+        ads_admin.remainingFeeCount += total_amount - price;
+        var new_remainFee = new RemainingList({
+          appId: one_app._id,
+          applicable_fee: total_amount,
+        });
+        new_remainFee.remaining_array.push({
+          remainAmount: price,
+          appId: one_app._id,
+          status: "Paid",
+          instituteId: institute._id,
+          installmentValue: "First Installment",
+          mode: mode,
+          isEnable: true,
+          fee_receipt: one_receipt?._id,
+        });
+        new_remainFee.paid_fee += price;
+        new_remainFee.fee_structure = student?.fee_structure?._id;
+        new_remainFee.remaining_fee += total_amount - price;
+        student.remainingFeeList.push(new_remainFee?._id);
+        new_remainFee.student = student?._id;
+        new_remainFee.fee_receipts.push(one_receipt?._id);
+        await add_all_installment(
+          one_app,
+          institute._id,
+          new_remainFee,
+          price,
+          student
+        );
+      } else if (price > 0 && !is_install) {
+        var new_remainFee = new RemainingList({
+          appId: one_app._id,
+          applicable_fee: student?.fee_structure?.total_admission_fees,
+        });
+        new_remainFee.remaining_array.push({
+          remainAmount: price,
+          appId: one_app._id,
+          status: "Paid",
+          instituteId: institute._id,
+          installmentValue: "One Time Fees",
+          mode: mode,
+          isEnable: true,
+          fee_receipt: one_receipt?._id,
+        });
+        new_remainFee.paid_fee += price;
+        new_remainFee.fee_structure = student?.fee_structure?._id;
+        new_remainFee.remaining_fee +=
+          student?.fee_structure?.total_admission_fees - price;
+        student.remainingFeeList.push(new_remainFee?._id);
+        new_remainFee.student = student?._id;
+        new_remainFee.fee_receipts.push(one_receipt?._id);
+        ads_admin.remainingFee.push(student._id);
+        student.admissionRemainFeeCount +=
+          student?.fee_structure?.total_admission_fees - price;
+        one_app.remainingFee +=
+          student?.fee_structure?.total_admission_fees - price;
+        ads_admin.remainingFeeCount +=
+          student?.fee_structure?.total_admission_fees - price;
+        const valid_one_time_fees =
+          student?.fee_structure?.total_admission_fees - price == 0
+            ? true
+            : false;
+        if (valid_one_time_fees) {
+          ads_admin.remainingFee.pull(student._id);
+        } else {
+          new_remainFee.remaining_array.push({
+            remainAmount: student?.fee_structure?.total_admission_fees - price,
+            appId: one_app._id,
+            status: "Not Paid",
+            instituteId: institute._id,
+            installmentValue: "One Time Fees Remain",
+            isEnable: true,
+          });
+        }
+      }
+      if (mode === "Offline") {
+        ads_admin.offlineFee += price;
+        one_app.collectedFeeCount += price;
+        one_app.offlineFee += price;
+        ads_admin.collected_fee += price;
+        finance.financeAdmissionBalance += price;
+        finance.financeTotalBalance += price;
+        finance.financeSubmitBalance += price;
+      } else if (mode === "Online") {
+        ads_admin.onlineFee += price;
+        one_app.collectedFeeCount += price;
+        one_app.onlineFee += price;
+        finance.financeAdmissionBalance += price;
+        finance.financeTotalBalance += price;
+        finance.financeBankBalance += price;
+      } else {
+      }
+      await set_fee_head_query(student, price, one_app);
+      for (let app of one_app.selectedApplication) {
+        if (`${app.student}` === `${student._id}`) {
+          app.payment_status = mode;
+          if (is_install) {
+            app.install_type = "First Installment Paid";
+            app.fee_remain = total_amount - price;
+          } else {
+            app.install_type = "One Time Fees Paid";
+            app.fee_remain = student?.fee_structure?.total_admission_fees - price;
+          }
+        } else {
+        }
+      }
+      student.admissionPaidFeeCount += price;
+      student.paidFeeList.push({
+        paidAmount: price,
+        appId: one_app._id,
+      });
+      const status = new Status({});
+      const order = new OrderPayment({});
+      order.payment_module_type = "Admission Fees";
+      order.payment_to_end_user_id = institute?._id;
+      order.payment_by_end_user_id = user._id;
+      order.payment_module_id = one_app._id;
+      order.payment_amount = price;
+      order.payment_status = "Captured";
+      order.payment_flag_to = "Credit";
+      order.payment_flag_by = "Debit";
+      order.payment_mode = mode;
+      order.payment_admission = one_app._id;
+      order.payment_from = student._id;
+      s_admin.invoice_count += 1;
+      order.payment_invoice_number = s_admin.invoice_count;
+      user.payment_history.push(order._id);
+      institute.payment_history.push(order._id);
+      status.content = `Welcome to Institute ${institute.insName}, ${institute.insDistrict}.Please visit with Required Documents to confirm your admission`;
+      status.applicationId = one_app._id;
+      user.applicationStatus.push(status._id);
+      status.instituteId = institute._id;
+      status.document_visible = true;
+      await Promise.all([
+        ads_admin.save(),
+        one_app.save(),
+        student.save(),
+        finance.save(),
+        user.save(),
+        order.save(),
+        institute.save(),
+        s_admin.save(),
+        new_remainFee.save(),
+        one_receipt.save(),
+      ]);
+      invokeMemberTabNotification(
+        "Admission Status",
+        status.content,
+        "Application Status",
+        user._id,
+        user.deviceToken
+      );
+    } else {
+
+    }
   } catch (e) {
     console.log(e);
   }

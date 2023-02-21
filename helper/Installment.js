@@ -845,6 +845,42 @@ exports.remain_one_time_query_government = async (
   }
 };
 
+exports.remain_government_installment = async (
+  ads_args,
+  remain_args,
+  apply_args,
+  ins_args,
+  student_args,
+  price,
+  receipt_args
+) => {
+  try {
+    const filter_student_install = remain_args?.remaining_array?.filter(
+      (stu) => {
+        if (`${stu.appId}` === `${apply_args._id}` && stu.status === "Not Paid")
+          return stu;
+      }
+    );
+    var holding_price = 0;
+    for (var ref = 0; ref < filter_student_install?.length; ref++) {
+      if (filter_student_install[ref].installmentValue === type) {
+        if (filter_student_install[ref].remainAmount < price) {
+          holding_price += price - filter_student_install[ref].remainAmount;
+          filter_student_install[ref].status = "Paid";
+        } else {
+          filter_student_install[ref].remainAmount -= price;
+        }
+      }
+      remain_args.status = "Paid";
+      stu.fee_receipt = receipt_args?._id;
+      ads_args.remainingFee.pull(student_args?._id);
+    }
+    await Promise.all([remain_args.save(), ads_args.save()]);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.exempt_installment = async (
   pay_type,
   remain_args,

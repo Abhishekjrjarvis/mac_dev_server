@@ -3046,12 +3046,13 @@ exports.getStudentFormQuery = async (req, res) => {
       throw "Please send institute id to perform task of student form setting";
     const { id } = req.params;
     const institute = await InstituteAdmin.findById(id).select(
-      "studentFormSetting"
+      "studentFormSetting admissionDepart"
     );
     // const sEncrypt = await encryptionPayload(institute.studentFormSetting);
     res.status(200).send({
       message: "Student form setting details",
       studentFormSetting: institute.studentFormSetting,
+      admissionId: institute?.admissionDepart
     });
   } catch (e) {
     res.status(400).send({

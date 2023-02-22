@@ -422,3 +422,28 @@ exports.renderOneQueryRemark = async (req, res) => {
     console.log(e);
   }
 };
+
+// exports.renderOneQueryReport = async (req, res) => {
+//   try {
+//     const { qid } = req.params;
+//     if (!qid)
+//       return res.status(200).send({
+//         message: "Their is a bug need to fixed immediately",
+//         access: false,
+//       });
+
+//     const one_query = await Queries.findById({
+//       _id: qid,
+//     })
+
+//     const depart = await Department.findById({_id: qid })
+//     one_query.remark = remark;
+//     one_query.remark_by_mentor = true;
+//     one_query.query_status = "Solved";
+
+//     await one_query.save();
+//     res.status(200).send({ message: "Your query was resolved", access: true });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };

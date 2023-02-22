@@ -2516,14 +2516,14 @@ exports.renderAllFinanceExempt = async (req, res) => {
         message: "Lot's of Exempted Volume Receipts",
         access: true,
         all_exempt: all_exempt,
-        all_exempt_count: finance?.financeExemptBalance
+        all_exempt_count: finance?.financeExemptBalance,
       });
     } else {
       res.status(200).send({
         message: "No Exempted Volume Receipts",
         access: false,
         all_exempt: [],
-        all_exempt_count: 0
+        all_exempt_count: 0,
       });
     }
   } catch (e) {
@@ -2592,14 +2592,14 @@ exports.renderAllFinanceGovernment = async (req, res) => {
         message: "Lot's of Government / Scholarships Volume Receipts",
         access: true,
         all_exempt: all_exempt,
-        all_exempt_count: finance?.financeGovernmentScholarBalance
+        all_exempt_count: finance?.financeGovernmentScholarBalance,
       });
     } else {
       res.status(200).send({
         message: "No Government / Scholarships Volume Receipts",
         access: false,
         all_exempt: [],
-        all_exempt_count: 0
+        all_exempt_count: 0,
       });
     }
   } catch (e) {
@@ -2624,6 +2624,19 @@ exports.renderOneFeeReceipt = async (req, res) => {
         populate: {
           path: "remainingFeeList",
           select: "appId",
+        },
+      })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName active_fee_heads",
+        populate: {
+          path: "fee_structure",
+          select: "category_master",
+          populate: {
+            path: "category_master",
+            select: "category_name",
+          },
         },
       })
       .populate({

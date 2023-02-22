@@ -36,8 +36,8 @@ router.get(
   catchAsync(Mentor.renderAllMentorQueryByStatus)
 );
 
-router.get("/one/query/:qid/remark", catchAsync(Mentor.renderOneQueryRemark));
+router.patch("/one/query/:qid/remark", catchAsync(Mentor.renderOneQueryRemark));
 
-// router.get("/one/query/:qid/remark", catchAsync(Mentor.renderOneQueryRemark));
+// router.patch("/one/query/:qid/report", catchAsync(Mentor.renderOneQueryReport));
 
 module.exports = router;

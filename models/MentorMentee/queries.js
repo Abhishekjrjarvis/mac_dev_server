@@ -29,6 +29,7 @@ const querySchema = new mongoose.Schema({
   },
   report_by: {
     type: String,
+    default: "Not Report",
   },
   created_at: {
     type: Date,

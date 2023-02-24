@@ -987,9 +987,13 @@ exports.set_fee_head_query = async (
         ) {
           student_args.active_fee_heads[val].remain_fee =
             student_args.active_fee_heads[val].remain_fee > 0
-              ? price_query > student_args.active_fee_heads[val].remain_fee
-                ? price_query - student_args.active_fee_heads[val].remain_fee
+              ? price_query >= student_args.active_fee_heads[val].remain_fee
+                ? 0
                 : student_args.active_fee_heads[val].remain_fee - price_query
+              : 0;
+          price_query =
+            price_query >= student_args.active_fee_heads[val]?.remain_fee
+              ? price_query - student_args.active_fee_heads[val]?.remain_fee
               : 0;
           student_args.active_fee_heads[val].paid_fee =
             student_args.active_fee_heads[val]?.paid_fee ==
@@ -997,10 +1001,6 @@ exports.set_fee_head_query = async (
               ? parent_head[`${val}`].head_amount
               : price_query + student_args.active_fee_heads[val].paid_fee;
         }
-        price_query =
-          price_query > student_args.active_fee_heads[val]?.remain_fee
-            ? price_query - student_args.active_fee_heads[val]?.remain_fee
-            : 0;
       }
     } else {
       for (var i = 0; i < parent_head?.count; i++) {
@@ -1009,18 +1009,18 @@ exports.set_fee_head_query = async (
           head_name: parent_head[`${i}`]?.head_name,
           applicable_fee: parent_head[`${i}`]?.head_amount,
           remain_fee:
-            price_query > parent_head[`${i}`]?.head_amount
+            price_query >= parent_head[`${i}`]?.head_amount
               ? 0
               : parent_head[`${i}`].head_amount - price_query,
           paid_fee:
-            price_query > parent_head[`${i}`]?.head_amount
+            price_query >= parent_head[`${i}`]?.head_amount
               ? parent_head[`${i}`].head_amount
               : price_query,
         });
         price_query =
-          price_query > parent_head[`${i}`].head_amount
+          price_query >= parent_head[`${i}`].head_amount
             ? price_query - parent_head[`${i}`].head_amount
-            : 0;
+            : parent_head[`${i}`].head_amount - price_query;
       }
     }
     await student_args.save();

@@ -123,6 +123,7 @@ exports.renderOneEventManagerAllEvents = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
+    const { search } = req.query;
     if (!eid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -131,13 +132,24 @@ exports.renderOneEventManagerAllEvents = async (req, res) => {
 
     const manager = await EventManager.findById({ _id: eid }).select("events");
 
-    const all_events = await Events.find({ _id: { $in: manager?.events } })
-      .limit(limit)
-      .skip(skip)
-      .select(
+    if (search) {
+      var all_events = await Events.find({
+        $and: [{ _id: { $in: manager?.events } }],
+        $or: [
+          { event_name: { $regex: search, $options: "i" } },
+          { event_place: { $regex: search, $options: "i" } },
+        ],
+      }).select(
         "event_banner event_name event_guest event_date event_time event_status"
       );
-
+    } else {
+      var all_events = await Events.find({ _id: { $in: manager?.events } })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "event_banner event_name event_guest event_date event_time event_status"
+        );
+    }
     if (all_events?.length > 0) {
       res.status(200).send({
         message: "Explore All Events",
@@ -162,6 +174,7 @@ exports.renderOneEventManagerAllSeminars = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
+    const { search } = req.query;
     if (!eid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -171,13 +184,24 @@ exports.renderOneEventManagerAllSeminars = async (req, res) => {
     const manager = await EventManager.findById({ _id: eid }).select(
       "seminars"
     );
-
-    const all_seminars = await Seminar.find({ _id: { $in: manager?.seminars } })
-      .limit(limit)
-      .skip(skip)
-      .select(
+    if (search) {
+      var all_seminars = await Seminar.find({
+        $and: [{ _id: { $in: manager?.seminars } }],
+        $or: [
+          { seminar_name: { $regex: search, $options: "i" } },
+          { seminar_place: { $regex: search, $options: "i" } },
+        ],
+      }).select(
         "seminar_banner seminar_name seminar_guest seminar_date seminar_time seminar_status seminar_mode"
       );
+    } else {
+      var all_seminars = await Seminar.find({ _id: { $in: manager?.seminars } })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "seminar_banner seminar_name seminar_guest seminar_date seminar_time seminar_status seminar_mode"
+        );
+    }
 
     if (all_seminars?.length > 0) {
       res.status(200).send({
@@ -252,7 +276,7 @@ exports.renderOneEventManagerNewSeminar = async (req, res) => {
     new_seminar.event_manager = manager?._id;
     new_seminar.seminar_date = new Date(`${req.body?.seminar_date}`);
     new_seminar.seminar_time = new Date(
-      `${req.body?.event_date}T${req.body?.seminar_time}:${seconds}.${mill}Z`
+      `${req.body?.seminar_date}T${req.body?.seminar_time}:${seconds}.${mill}Z`
     );
     manager.seminars.push(new_seminar?._id);
     manager.seminar_count += 1;
@@ -317,6 +341,7 @@ exports.renderOneDepartmentAllEvents = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
+    const { search } = req.query;
     if (!did)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -324,14 +349,24 @@ exports.renderOneDepartmentAllEvents = async (req, res) => {
       });
 
     const depart = await Department.findById({ _id: did }).select("events");
-
-    const all_events = await Events.find({ _id: { $in: depart?.events } })
-      .limit(limit)
-      .skip(skip)
-      .select(
+    if (search) {
+      var all_events = await Events.find({
+        $and: [{ _id: { $in: depart?.events } }],
+        $or: [
+          { event_name: { $regex: search, $options: "i" } },
+          { event_place: { $regex: search, $options: "i" } },
+        ],
+      }).select(
         "event_banner event_name event_guest event_date event_time event_status"
       );
-
+    } else {
+      var all_events = await Events.find({ _id: { $in: depart?.events } })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "event_banner event_name event_guest event_date event_time event_status"
+        );
+    }
     if (all_events?.length > 0) {
       res.status(200).send({
         message: "Explore All Events",
@@ -356,6 +391,7 @@ exports.renderOneDepartmentAllSeminars = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
+    const { search } = req.query;
     if (!did)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -364,13 +400,24 @@ exports.renderOneDepartmentAllSeminars = async (req, res) => {
 
     const depart = await Department.findById({ _id: did }).select("seminars");
 
-    const all_seminars = await Seminar.find({ _id: { $in: depart?.seminars } })
-      .limit(limit)
-      .skip(skip)
-      .select(
+    if (search) {
+      var all_seminars = await Seminar.find({
+        $and: [{ _id: { $in: depart?.seminars } }],
+        $or: [
+          { event_name: { $regex: search, $options: "i" } },
+          { event_place: { $regex: search, $options: "i" } },
+        ],
+      }).select(
         "seminar_banner seminar_name seminar_guest seminar_date seminar_time seminar_status seminar_mode"
       );
-
+    } else {
+      var all_seminars = await Seminar.find({ _id: { $in: depart?.seminars } })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "seminar_banner seminar_name seminar_guest seminar_date seminar_time seminar_status seminar_mode"
+        );
+    }
     if (all_seminars?.length > 0) {
       res.status(200).send({
         message: "Explore All Seminars",

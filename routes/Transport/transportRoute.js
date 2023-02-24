@@ -43,6 +43,12 @@ router.post(
   catchAsync(Transport.renderVehicleNewPassenger)
 );
 
+router.delete(
+  "/vehicle/:vid/destroy/passenger/:sid",
+  // isLoggedIn,
+  catchAsync(Transport.renderVehicleDestroyPassenger)
+);
+
 router.get(
   "/:tid/all/vehicles",
   // isLoggedIn,

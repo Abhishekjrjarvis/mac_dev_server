@@ -435,3 +435,175 @@ exports.renderOneDepartmentAllSeminars = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderOneEventUpdateQuery = async (req, res) => {
+  try {
+    const { eid } = req.params;
+    const { date, time, new_depart, deleteDepart, delete_pic } = req.body;
+    const image = handle_undefined(delete_pic);
+    if (!eid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const seconds = new Date().getSeconds();
+    const mill = new Date().getMilliseconds();
+    const event_query = await Events.findByIdAndUpdate(eid, req.body);
+    if (date) {
+      event_query.event_date = new Date(`${date}`);
+    }
+    if (time) {
+      event_query.event_time = new Date(`${date}T${time}:${seconds}.${mill}Z`);
+    }
+    if (image) {
+      await deleteFile(image);
+    }
+    res
+      .status(200)
+      .send({ message: "Update Successfully Event", access: true });
+    if (new_depart?.length > 0) {
+      for (var ele of new_depart) {
+        const department = await Department.findById({ _id: ele });
+        event_query.for_department.push(department?._id);
+        department.events.push(event_query?._id);
+        department.events_count += 1;
+        await department.save();
+      }
+    }
+    if (deleteDepart?.length > 0) {
+      for (var ref of deleteDepart) {
+        const department = await Department.findById({ _id: ref });
+        event_query.for_department.pull(department?._id);
+        department.events.pull(event_query?._id);
+        if (department.events_count > 0) {
+          department.events_count -= 1;
+        }
+        await department.save();
+      }
+    }
+    await event_query.save();
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneSeminarUpdateQuery = async (req, res) => {
+  try {
+    const { smid } = req.params;
+    const { date, time, new_depart, deleteDepart, delete_pic } = req.body;
+    const image = handle_undefined(delete_pic);
+    if (!smid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const seconds = new Date().getSeconds();
+    const mill = new Date().getMilliseconds();
+    const seminar_query = await Seminar.findByIdAndUpdate(smid, req.body);
+    if (date) {
+      seminar_query.seminar_date = new Date(`${date}`);
+    }
+    if (time) {
+      seminar_query.seminar_time = new Date(
+        `${date}T${time}:${seconds}.${mill}Z`
+      );
+    }
+    if (image) {
+      await deleteFile(image);
+    }
+    res
+      .status(200)
+      .send({ message: "Update Successfully Seminar", access: true });
+    if (new_depart?.length > 0) {
+      for (var ele of new_depart) {
+        const department = await Department.findById({ _id: ele });
+        seminar_query.for_department.push(department?._id);
+        department.seminars.push(seminar_query?._id);
+        department.seminars_count += 1;
+        await department.save();
+      }
+    }
+    if (deleteDepart?.length > 0) {
+      for (var ref of deleteDepart) {
+        const department = await Department.findById({ _id: ref });
+        seminar_query.for_department.pull(department?._id);
+        department.seminars.pull(seminar_query?._id);
+        if (department.seminars_count > 0) {
+          department.seminars_count -= 1;
+        }
+        await department.save();
+      }
+    }
+    await seminar_query.save();
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneEventDestroyQuery = async (req, res) => {
+  try {
+    const { eid } = req.params;
+    if (!eid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const event_query = await Events.findById({ _id: eid });
+    const manager = await EventManager.findById({
+      _id: `${event_query?.event_manager}`,
+    });
+    manager.events.pull(event_query?._id);
+    if (manager?.event_count > 0) {
+      manager.event_count -= 1;
+    }
+    await manager.save();
+    for (var ref of event_query?.for_department) {
+      const depart = await Department.findById({ _id: ref });
+      depart.events.pull(event_query?._id);
+      if (depart?.events_count > 0) {
+        depart.events_count -= 1;
+      }
+      await depart.save();
+    }
+    await Events.findByIdAndDelete(eid);
+    res
+      .status(200)
+      .send({ message: "Event Deletion Operation Completed", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneSeminarDestroyQuery = async (req, res) => {
+  try {
+    const { smid } = req.params;
+    if (!smid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const seminar_query = await Seminar.findById({ _id: smid });
+    const manager = await EventManager.findById({
+      _id: `${seminar_query?.event_manager}`,
+    });
+    manager.seminars.pull(seminar_query?._id);
+    if (manager?.seminar_count > 0) {
+      manager.seminar_count -= 1;
+    }
+    await manager.save();
+    for (var ref of seminar_query?.for_department) {
+      const depart = await Department.findById({ _id: ref });
+      depart.seminars.pull(seminar_query?._id);
+      if (depart?.seminars_count > 0) {
+        depart.seminars_count -= 1;
+      }
+      await depart.save();
+    }
+    await Seminar.findByIdAndDelete(smid);
+    res
+      .status(200)
+      .send({ message: "Seminar Deletion Operation Completed", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};

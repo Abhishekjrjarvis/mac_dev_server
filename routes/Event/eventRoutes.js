@@ -46,4 +46,24 @@ router.get(
   catchAsync(Event.renderOneDepartmentAllEvents)
 );
 
+router.patch(
+  "/one/event/:eid/edit",
+  catchAsync(Event.renderOneEventUpdateQuery)
+);
+
+router.patch(
+  "/one/seminar/:smid/edit",
+  catchAsync(Event.renderOneSeminarUpdateQuery)
+);
+
+router.delete(
+  "/one/event/:eid/destroy",
+  catchAsync(Event.renderOneEventDestroyQuery)
+);
+
+router.delete(
+  "/one/seminar/:smid/destroy",
+  catchAsync(Event.renderOneSeminarDestroyQuery)
+);
+
 module.exports = router;

@@ -19149,6 +19149,9 @@ paths:
               rid:
                 type: string
                 description: Enter Route Id
+              amount:
+                type: number
+                description: Enter Remain Fees
       responses:
         "200":
           description: OK
@@ -19556,6 +19559,30 @@ paths:
           required: true
           type: string
           description: Enter Route Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/vehicle/{vid}/destroy/passenger/{sid}:
+    delete:
+      tags:
+        - Transport Module Query
+      summary: Delete One Passenger From vehicle  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: vid
+          required: true
+          type: string
+          description: This is Vehicle id 
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Student Id
       responses:
         "200":
           description: OK
@@ -22198,6 +22225,180 @@ paths:
                 type: array
                 description: Enter Array of Department ID's ["823487328748", "987348973878"]
                 required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/event/process/manager/one/event/{eid}/destroy:
+    delete:
+      tags:
+        - Event Manager Query
+      summary: Delete One Event By Event Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: This Event ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/event/process/manager/one/seminar/{smid}/destroy:
+    delete:
+      tags:
+        - Event Manager Query
+      summary: Delete One Seminar By Event Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: smid
+          required: true
+          type: string
+          description: This Seminar ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/event/process/manager/one/seminar/{smid}/edit:
+    patch:
+      tags:
+        - Event Manager Query
+      summary: Edit Seminar By Event Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: smid
+          required: true
+          type: string
+          description: This Seminar ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              seminar_name:
+                type: string
+                description: Enter Event Name / Title
+                required: true
+              seminar_guest:
+                type: string
+                description: Enter Guest
+                required: true
+              date:
+                type: string
+                description: Enter new Date Date Like ("2023-02-02")
+                required: false
+              time:
+                type: string
+                description: Enter new Time Time Like ("13:10")
+                required: false
+              seminar_place:
+                type: string
+                description: Enter Seminar Place / Location if seminar mode is OFFLINE
+                required: false
+              seminar_joining_link:
+                type: string
+                description: Enter Seminar Joining LINK if seminar mode is Virtual / ONline
+                required: false
+              seminar_mode:
+                type: string
+                description: Enter Seminar Mode  ("Offline" || "Online" || "Virtual")
+                required: true
+              seminar_description:
+                type: string
+                description: Enter Seminar Description
+                required: false
+              seminar_banner:
+                type: string
+                description: Enter new Banner KEY
+                required: false
+              delete_pic:
+                type: string
+                description: Enter old Banner KEY
+                required: false
+              deletedepart:
+                type: array
+                description: Enter Array of old remove / unselect Department ID's ["823487328748", "987348973878"]
+                required: false
+              new_depart:
+                type: array
+                description: Enter Array of new add Department ID's ["823487328748", "987348973878"]
+                required: false
+      responses:
+        "200":
+          description: OK
+        
+  /api/v1/event/process/manager/one/event/{eid}/edit:
+    patch:
+      tags:
+        - Event Manager Query
+      summary: Edit Event By Event Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: This Event ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              event_name:
+                type: string
+                description: Enter Event Name / Title
+                required: true
+              event_guest:
+                type: string
+                description: Enter Guest
+                required: true
+              date:
+                type: string
+                description: Enter new Date Date Like ("2023-02-02")
+                required: false
+              time:
+                type: string
+                description: Enter new Time Time Like ("13:10")
+                required: false
+              event_place:
+                type: string
+                description: Enter Event Place / Location
+                required: false
+              event_description:
+                type: string
+                description: Enter Event Description
+                required: false
+              event_banner:
+                type: string
+                description: Enter new Banner KEY
+                required: false
+              delete_pic:
+                type: string
+                description: Enter old Banner KEY
+                required: false
+              deletedepart:
+                type: array
+                description: Enter Array of old remove / unselect Department ID's ["823487328748", "987348973878"]
+                required: false
+              new_depart:
+                type: array
+                description: Enter Array of new add Department ID's ["823487328748", "987348973878"]
+                required: false
       responses:
         "200":
           description: OK

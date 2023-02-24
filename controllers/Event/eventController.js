@@ -205,7 +205,8 @@ exports.renderOneEventManagerNewEvent = async (req, res) => {
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
-
+    const seconds = new Date().getSeconds();
+    const mill = new Date().getMilliseconds();
     const manager = await EventManager.findById({ _id: eid });
     const new_event = new Events({ ...req.body });
     for (var ref of req?.body?.depart) {
@@ -218,9 +219,7 @@ exports.renderOneEventManagerNewEvent = async (req, res) => {
     new_event.event_manager = manager?._id;
     new_event.event_date = new Date(`${req.body?.event_date}`);
     new_event.event_time = new Date(
-      `${req.body?.event_date}T${
-        req.body?.event_time
-      }:${new Date().getSeconds()}.${new Date().getMilliseconds}Z`
+      `${req.body?.event_date}T${req.body?.event_time}:${seconds}.${mill}Z`
     );
     manager.events.push(new_event?._id);
     manager.event_count += 1;
@@ -239,7 +238,8 @@ exports.renderOneEventManagerNewSeminar = async (req, res) => {
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
-
+    const seconds = new Date().getSeconds();
+    const mill = new Date().getMilliseconds();
     const manager = await EventManager.findById({ _id: eid });
     const new_seminar = new Seminar({ ...req.body });
     for (var ref of req?.body?.depart) {
@@ -252,9 +252,7 @@ exports.renderOneEventManagerNewSeminar = async (req, res) => {
     new_seminar.event_manager = manager?._id;
     new_seminar.seminar_date = new Date(`${req.body?.seminar_date}`);
     new_seminar.seminar_time = new Date(
-      `${req.body?.event_date}T${
-        req.body?.seminar_time
-      }:${new Date().getSeconds()}.${new Date().getMilliseconds}Z`
+      `${req.body?.event_date}T${req.body?.seminar_time}:${seconds}.${mill}Z`
     );
     manager.seminars.push(new_seminar?._id);
     manager.seminar_count += 1;

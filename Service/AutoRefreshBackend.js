@@ -7,6 +7,9 @@ const Student = require("../models/Student");
 const StudentNotification = require("../models/Marks/StudentNotification");
 const invokeMemberTabNotification = require("../Firebase/MemberTab");
 const Post = require("../models/Post");
+const Department = require("../models/Department");
+const { custom_date_time } = require("../helper/dayTimer");
+const { large_vote_candidate } = require("../Custom/checkInitials");
 
 exports.check_poll_status = async (req, res) => {
   var r_date = new Date();
@@ -42,21 +45,20 @@ exports.check_poll_status = async (req, res) => {
 };
 
 exports.election_vote_day = async (req, res) => {
-  var v_date = new Date();
-  var v_day = v_date.getDate();
-  var v_month = v_date.getMonth() + 1;
-  var v_year = v_date.getFullYear();
-  if (v_day < 10) {
-    v_day = `0${v_day}`;
-  }
-  if (v_month < 10) {
-    v_month = `0${v_month}`;
-  }
-  var date_format = new Date(`${v_year}-${v_month}-${v_day}`);
+  var today = custom_date_time(0);
+  var next = custom_date_time(1);
   try {
-    const elect_app = await Election.find({ election_voting_day: date_format });
+    const elect_app = await Election.find({
+      election_voting_date: {
+        $gte: new Date(today),
+        $lt: new Date(next),
+      },
+    });
     if (elect_app.length >= 1) {
       elect_app.forEach(async (elect) => {
+        var depart = await Department.findById({
+          _id: `${elect?.department}`,
+        });
         if (elect?.vote_notification === "Close") {
           if (elect?.election_visible === "Only Institute") {
             var all_student = await Student.find({
@@ -72,7 +74,7 @@ exports.election_vote_day = async (req, res) => {
           } else {
           }
           all_student?.forEach(async (ele) => {
-            const notify = new StudentNotification({});
+            var notify = new StudentNotification({});
             const user = await User.findById({ _id: `${ele?.user}` }).select(
               "activity_tab deviceToken"
             );
@@ -97,58 +99,37 @@ exports.election_vote_day = async (req, res) => {
               "Student",
               notify
             );
-            await Promise.all([ele.save(), notify.save(), user.save()]);
+            await Promise.all([ele.save(), user.save(), notify.save()]);
           });
           elect.vote_notification = "Opened";
           await elect.save();
+          // console.log("Done");
         } else {
         }
       });
     } else {
     }
-  } catch {}
-};
-
-const large_vote_candidate = (arr) => {
-  let first_vote = -1,
-    second_vote = -1;
-  let winner = "";
-  for (let i = 0; i <= arr.length - 1; i++) {
-    if (arr[i].election_vote_receieved > first_vote) {
-      second_vote = first_vote;
-      first_vote = arr[i].election_vote_receieved;
-      winner = arr[i].student;
-    } else if (
-      arr[i].election_vote_receieved > second_vote &&
-      arr[i].election_vote_receieved != first_vote
-    ) {
-      second_vote = arr[i].election_vote_receieved;
-    }
+  } catch (e) {
+    console.log(e);
   }
-  var data = {
-    max_votes: first_vote - second_vote,
-    winner: winner,
-  };
-  return data;
 };
 
 exports.election_result_day = async (req, res) => {
-  var v_date = new Date();
-  var v_day = v_date.getDate();
-  var v_month = v_date.getMonth() + 1;
-  var v_year = v_date.getFullYear();
-  if (v_day < 10) {
-    v_day = `0${v_day}`;
-  }
-  if (v_month < 10) {
-    v_month = `0${v_month}`;
-  }
-  var date_format = new Date(`${v_year}-${v_month}-${v_day}`);
+  var today = custom_date_time(0);
+  var next = custom_date_time(1);
   try {
-    const elect_app = await Election.find({ election_result_day: date_format });
+    const elect_app = await Election.find({
+      election_result_day: {
+        $gte: new Date(today),
+        $lt: new Date(next),
+      },
+    });
     if (elect_app.length >= 1) {
       elect_app.forEach(async (elect) => {
-        if (elect?.vote_notification === "Not Declare") {
+        var depart = await Department.findById({
+          _id: `${elect?.department}`,
+        });
+        if (elect?.result_notification === "Not Declare") {
           var query = large_vote_candidate(elect?.election_candidate);
           if (elect?.election_visible === "Only Institute") {
             var all_student = await Student.find({
@@ -164,12 +145,12 @@ exports.election_result_day = async (req, res) => {
           } else {
           }
           all_student?.forEach(async (ele) => {
-            const notify = new StudentNotification({});
+            var notify = new StudentNotification({});
             const user = await User.findById({ _id: `${ele?.user}` }).select(
               "activity_tab deviceToken"
             );
             notify.notifyContent = `Is winner with ${query.max_votes} votes`;
-            notify.election_winner = query.student;
+            notify.election_winner = query.winner;
             notify.notifySender = depart._id;
             notify.notifyReceiever = user._id;
             notify.electionId = elect?._id;
@@ -184,17 +165,17 @@ exports.election_result_day = async (req, res) => {
             invokeMemberTabNotification(
               "Student Activity",
               notify,
-              "Voting Day",
+              "Result Announcement",
               user._id,
               user.deviceToken,
               "Student",
               notify
             );
-            await Promise.all([ele.save(), notify.save(), user.save()]);
+            await Promise.all([ele.save(), user.save(), notify.save()]);
           });
-          elect.vote_notification = "Declare";
+          elect.result_notification = "Declare";
           elect.election_candidate?.forEach(async (ele) => {
-            if (`${ele.student}` === `${query.student}`) {
+            if (`${ele.student}` === `${query.winner}`) {
               const winner_student_voters = await Student.find({
                 _id: { $in: ele.voted_student },
               });
@@ -208,11 +189,12 @@ exports.election_result_day = async (req, res) => {
               });
               winner_student.extraPoints += 5;
               winner_student.election_candidate.push(elect._id);
-              await winner_student.save();
+              ele.election_result_status = "Winner";
+              await Promise.all([winner_student.save(), ele.save()]);
             }
           });
           elect.election_candidate?.forEach(async (ele) => {
-            if (`${ele.student}` !== `${query.student}`) {
+            if (`${ele.student}` !== `${query.winner}`) {
               const candidate_student_voters = await Student.find({
                 _id: { $in: ele.voted_student },
               });
@@ -229,13 +211,18 @@ exports.election_result_day = async (req, res) => {
               await candidate_student.save();
             }
           });
+          election_status = "Completed";
           await elect.save();
+          console.log("done");
         } else {
         }
       });
     } else {
+      console.log("DOne");
     }
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const distanceRecommend = (lat1, lon1, lat2, lon2, distanceId, expand) => {
@@ -388,20 +375,24 @@ exports.recommendedAllIns = async (req, res) => {
     var user = await User.findById({ _id: uid }).select(
       "user_latitude user_longitude userInstituteFollowing userFollowers userCircle userFollowing"
     );
-
     const ins = await InstituteAdmin.find({
-      _id: { $in: user.userInstituteFollowing },
+      _id: { $in: user?.userInstituteFollowing },
     }).select("joinedUserList");
     if (ins?.length > 0) {
       var refresh_recommend_user = [];
-      ins?.forEach((recommend) => {
-        if (recommend?.joinedUserList.includes(user?._id)) return;
-        refresh_recommend_user.push(...recommend?.joinedUserList);
-      });
+      for (var recommend of ins) {
+        for (var ref_rec of recommend?.joinedUserList) {
+          if (`${ref_rec}` === `${user?._id}`) {
+          } else {
+            refresh_recommend_user.push(ref_rec);
+          }
+        }
+      }
       var refresh_recommend_ref = refresh_recommend_user?.filter(function (
         user_ref
       ) {
         return `${user_ref}` !== `${user?._id}`;
+        // return `${user_ref}` !== `${user?._id}`;
       });
       var valid_recommend_user = remove_redundancy_recommend(
         refresh_recommend_ref,

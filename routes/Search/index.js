@@ -29,7 +29,6 @@ const {
   searchLibraryBookIssue,
   searchLibraryBookCollect,
   searchLibraryBookMember,
-  searchUserChat,
 } = require("../../controllers/Search/index");
 
 router.route("/institute").get(searchInstitute);

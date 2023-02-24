@@ -5,6 +5,7 @@ const loggers = createLogger({
   transports: [
     new transports.File({
       filename: "./Error/access.log",
+      maxFiles: "7d",
       level: "info",
       format: format.combine(format.timestamp(), format.json()),
     }),

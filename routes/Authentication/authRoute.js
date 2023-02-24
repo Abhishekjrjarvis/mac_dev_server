@@ -62,7 +62,7 @@ router.post("/login/google", catchAsync(Auth.authenticationGoogle));
 // Logout By End User
 router.get("/logout", catchAsync(Auth.getLogout));
 
-router.post(
+router.get(
   "/email/check/redundant",
   catchAsync(Auth.retrieveEmailRedundantQuery)
 );
@@ -75,140 +75,34 @@ router.get("/classcode/search", catchAsync(Auth.searchByClassCode));
 
 router.post(
   "/direct/join/student/:id",
-  upload.fields([
-    {
-      name: "file",
-    },
-    {
-      name: "addharFrontCard",
-    },
-    {
-      name: "addharBackCard",
-    },
-    {
-      name: "bankPassbook",
-    },
-    {
-      name: "casteCertificate",
-    },
-    {
-      name: "identityDocument",
-    },
-    {
-      name: "joiningTransferLetter",
-    },
-    {
-      name: "leavingTransferCertificate",
-    },
-    {
-      name: "incomeCertificate",
-    },
-    {
-      name: "lastYearMarksheet",
-    },
-    {
-      name: "nationalityCertificate",
-    },
-    {
-      name: "domicileCertificate",
-    },
-    {
-      name: "nonCreamyLayerCertificate",
-    },
-  ]),
   catchAsync(Auth.retrieveDirectJoinQuery)
 );
 
 router.post(
   "/direct/join/staff/:id",
-  upload.fields([
-    {
-      name: "file",
-    },
-    {
-      name: "addharFrontCard",
-    },
-    {
-      name: "addharBackCard",
-    },
-    {
-      name: "bankPassbook",
-    },
-    {
-      name: "casteCertificate",
-    },
-    {
-      name: "identityDocument",
-    },
-    {
-      name: "joiningTransferLetter",
-    },
-    {
-      name: "leavingTransferCertificate",
-    },
-    {
-      name: "incomeCertificate",
-    },
-    {
-      name: "lastYearMarksheet",
-    },
-    {
-      name: "nationalityCertificate",
-    },
-    {
-      name: "domicileCertificate",
-    },
-    {
-      name: "nonCreamyLayerCertificate",
-    },
-  ]),
   catchAsync(Auth.retrieveDirectJoinStaffQuery)
 );
 
 router.post(
   "/direct/join/admission/:id/apply/:aid",
-  upload.fields([
-    {
-      name: "file",
-    },
-    {
-      name: "addharFrontCard",
-    },
-    {
-      name: "addharBackCard",
-    },
-    {
-      name: "bankPassbook",
-    },
-    {
-      name: "casteCertificate",
-    },
-    {
-      name: "identityDocument",
-    },
-    {
-      name: "joiningTransferLetter",
-    },
-    {
-      name: "leavingTransferCertificate",
-    },
-    {
-      name: "incomeCertificate",
-    },
-    {
-      name: "lastYearMarksheet",
-    },
-    {
-      name: "nationalityCertificate",
-    },
-    {
-      name: "domicileCertificate",
-    },
-    {
-      name: "nonCreamyLayerCertificate",
-    },
-  ]),
   catchAsync(Auth.retrieveDirectJoinAdmissionQuery)
 );
+
+router.post(
+  "/direct/institute/join/student/:id/class/:cid",
+  catchAsync(Auth.retrieveInstituteDirectJoinQuery)
+);
+
+router.post(
+  "/direct/join/staff/:id/institute/:insId",
+  catchAsync(Auth.retrieveInstituteDirectJoinStaffQuery)
+);
+
+router.post(
+  "/direct/confirm/join/:id/apply/:aid",
+  catchAsync(Auth.renderDirectAppJoinConfirmQuery)
+);
+
+router.get("/select/account", catchAsync(Auth.renderSelectAccountQuery));
 
 module.exports = router;

@@ -172,6 +172,10 @@ const superAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  application_charges_collection: {
+    type: Number,
+    default: 0,
+  },
   careerCount: {
     type: Number,
     default: 0,
@@ -273,6 +277,9 @@ const superAdminSchema = new mongoose.Schema({
   invoice_count: {
     type: Number,
     default: 0,
+  },
+  dynamic_invoice_count: {
+    type: String,
   },
 });
 

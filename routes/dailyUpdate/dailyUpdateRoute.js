@@ -4,8 +4,9 @@ const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 const dailyUpdateController = require("../../controllers/DailyUpdate/dailyUpdateController");
 const catchAsync = require("../../Utilities/catchAsync");
-// const { isLoggedIn } = require("../../middleware");
+const { isLoggedIn } = require("../../middleware");
 
+// Fix Daily Update Create
 router
   .route("/subject/:sid")
   .get(catchAsync(dailyUpdateController.getAlldailyUpdate))
@@ -15,7 +16,8 @@ router
   )
   .patch(catchAsync(dailyUpdateController.editDailyUpdate));
 
+// Student Side Daily Update
 router
   .route("/student/:sid")
-  .get(catchAsync(dailyUpdateController.getAlldailyUpdateStudent));
+  .get(isLoggedIn, catchAsync(dailyUpdateController.getAlldailyUpdateStudent));
 module.exports = router;

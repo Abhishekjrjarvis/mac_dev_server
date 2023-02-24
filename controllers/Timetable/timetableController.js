@@ -9,6 +9,7 @@ const {
   // staffSideFromTimeComparison,
 } = require("../../Utilities/timeComparison");
 // const Student = require("../../models/Student");
+// const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.getDayWiseSchedule = async (req, res) => {
   try {
@@ -27,13 +28,18 @@ exports.getDayWiseSchedule = async (req, res) => {
       .select("timetableDayWise")
       .lean()
       .exec();
-
-    res.status(200).send({
-      message: "Day wise all schedule list",
-      dayList: classes.timetableDayWise?.[0]
-        ? classes.timetableDayWise?.[0]
-        : [],
-    });
+    if (classes?.timetableDayWise?.[0]) {
+      // const cEncrypt = await encryptionPayload(classes.timetableDayWise?.[0]);
+      res.status(200).send({
+        message: "Day wise all schedule list",
+        dayList: classes.timetableDayWise?.[0],
+      });
+    } else {
+      res.status(200).send({
+        message: "Day wise all schedule list",
+        dayList: [],
+      });
+    }
   } catch (e) {
     res.status(200).send({
       message: e,
@@ -90,7 +96,7 @@ exports.addDayWiseSchedule = async (req, res) => {
       //   classes: classes.timetableDayWise,
     });
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     res.status(200).send({
       message: e,
     });
@@ -134,7 +140,6 @@ exports.addDateWiseSchedule = async (req, res) => {
         assignStaff: subject.subjectTeacherName,
       });
       await classes.timetableDateWise[0].save();
-      // console.log("hi", classes.timetableDayWise);
     }
     res.status(201).send({
       message: "New schedule is added ✔✔",
@@ -190,21 +195,23 @@ exports.getDateWiseSchedule = async (req, res) => {
         }
       }
     }
-
-    res.status(200).send({
-      message: "Day wise all schedule list",
-      // dayList: classes.timetableDateWise?.[0]
-      //   ? classes.timetableDateWise?.[0]
-      //   : [],
-      dateList: classesDay.timetableDayWise?.[0]
-        ? classesDay.timetableDayWise?.[0]
-        : [],
-    });
+    if (classesDay.timetableDayWise?.[0]) {
+      // const classesEncrypt = await encryptionPayload(classesDay.timetableDayWise?.[0]);
+      res.status(200).send({
+        message: "Day wise all schedule list",
+        dateList: classesDay.timetableDayWise?.[0],
+      });
+    } else {
+      res.status(200).send({
+        message: "Day wise all schedule list",
+        dateList: [],
+      });
+    }
   } catch (e) {
     res.status(200).send({
       message: e,
     });
-    console.log(e);
+    // console.log(e);
   }
 };
 
@@ -280,6 +287,7 @@ exports.getOneStaffAllSchedule = async (req, res) => {
         });
       }
     });
+    // const sEncrypt = await encryptionPayload(scheduleList);
     res.status(200).send({
       message: "Staff schedule list of particular date",
       // subjects,
@@ -400,6 +408,7 @@ exports.getInstituteAllotStaff = async (req, res) => {
     const offStaff = await Staff.find({ _id: { $in: offStaffList } }).select(
       "staffFirstName staffMiddleName staffLastName staffProfilePhoto staffROLLNO"
     );
+    // const oEncrypt = await encryptionPayload(offStaff);
     res.status(200).send({
       message: "Staff schedule replaced by other staff  ✔✔",
       // offStaffList,
@@ -407,7 +416,7 @@ exports.getInstituteAllotStaff = async (req, res) => {
       offStaff,
     });
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     res.status(200).send({
       message: e,
       //   classes: classes.timetableDayWise,
@@ -478,14 +487,14 @@ exports.getStaffSideDateWise = async (req, res) => {
         }
       }
     }
-
+    // const staffScheduleEncrypt = await encryptionPayload(staffSchedlue);
     res.status(200).send({
       message: "Staff side all schedule list",
       staffSchedlue,
     });
   } catch (e) {
     res.status(200).send({ message: e });
-    console.log(e);
+    // console.log(e);
   }
 };
 
@@ -555,12 +564,13 @@ exports.getStudentSideDateWise = async (req, res) => {
         offStaff: sched?.offStaff,
       });
     }
+    // const studentEncrypt = await encryptionPayload(studentScheduleList);
     res.status(200).send({
       message: "Student side all schedule list",
       studentScheduleList,
     });
   } catch (e) {
     res.status(200).send({ message: e });
-    console.log(e);
+    // console.log(e);
   }
 };

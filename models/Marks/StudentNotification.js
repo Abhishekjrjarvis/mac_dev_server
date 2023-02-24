@@ -29,11 +29,22 @@ const studentNotificationSchema = new mongoose.Schema({
     ref: "Student",
   },
   notifyBySubjectPhoto: {
-    type: String,
+    subject_id: { type: String },
+    subject_name: { type: String },
+    subject_cover: { type: String },
+    subject_title: { type: String },
+  },
+  notifyByExamPhoto: {
+    exam_id: { type: String },
+    exam_name: { type: String },
   },
   notifyByFinancePhoto: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Finance",
+  },
+  notifyByAdmissionPhoto: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Admission",
   },
   notifyType: {
     type: String,
@@ -49,6 +60,7 @@ const studentNotificationSchema = new mongoose.Schema({
   financeId: { type: String },
   classId: { type: String },
   departmentId: { type: String },
+  subjectId: { type: String },
   dailyUpdateId: { type: String },
   batchId: { type: String },
   instituteId: { type: String },
@@ -65,6 +77,7 @@ const studentNotificationSchema = new mongoose.Schema({
   participateEventId: { type: String },
   participate_event_type: { type: String },
   event_payment_status: { type: String },
+  mentorId: { type: String },
 });
 
 module.exports = mongoose.model(

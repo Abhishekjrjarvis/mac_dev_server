@@ -4,25 +4,25 @@ const mcqController = require("../../controllers/MCQ/mcqController");
 const catchAsync = require("../../Utilities/catchAsync");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
-
+const { isLoggedIn } = require("../../middleware");
 router
   .route("/subject/profile/:sid")
-  .get(catchAsync(mcqController.getUniversalSubjectProfile))
-  .patch(catchAsync(mcqController.updateUniversalSubjectProfile));
+  .get(isLoggedIn, catchAsync(mcqController.getUniversalSubjectProfile))
+  .patch(isLoggedIn, catchAsync(mcqController.updateUniversalSubjectProfile));
 
 router
   .route("/universal/department")
-  .get(catchAsync(mcqController.getUniversalDepartment));
+  .get(isLoggedIn, catchAsync(mcqController.getUniversalDepartment));
 router
   .route("/universal/class/:did")
-  .get(catchAsync(mcqController.getUniversalClass));
+  .get(isLoggedIn, catchAsync(mcqController.getUniversalClass));
 router
   .route("/universal/subject/:cid")
-  .get(catchAsync(mcqController.getUniversalSubject));
+  .get(isLoggedIn, catchAsync(mcqController.getUniversalSubject));
 
 router
   .route("/:smid/question/:cmid")
-  .get(catchAsync(mcqController.getQuestion))
+  .get(isLoggedIn, catchAsync(mcqController.getQuestion))
   .post(
     upload.fields([
       {
@@ -32,97 +32,107 @@ router
         name: "answerImage",
       },
     ]),
+    isLoggedIn,
     catchAsync(mcqController.addQuestion)
   );
 
 router
   .route("/question/:qid/one")
-  .get(catchAsync(mcqController.getOneQuestion));
+  .get(isLoggedIn, catchAsync(mcqController.getOneQuestion));
 // depricated -> changed
 router
   .route("/:smid/question/count/:cmid")
-  .get(catchAsync(mcqController.getQuestionAddTestSet));
+  .get(isLoggedIn, catchAsync(mcqController.getQuestionAddTestSet));
 
 router
   .route("/question/:smid/testset/:cmid")
-  .get(catchAsync(mcqController.allSaveTestSet))
-  .post(catchAsync(mcqController.saveTestSet));
+  .get(isLoggedIn, catchAsync(mcqController.allSaveTestSet))
+  .post(isLoggedIn, catchAsync(mcqController.saveTestSet));
 router
   .route("/testset/:tsid/detail")
-  .get(catchAsync(mcqController.oneTestSetDetail))
-  .patch(catchAsync(mcqController.editSaveTestSet));
+  .get(isLoggedIn, catchAsync(mcqController.oneTestSetDetail))
+  .patch(isLoggedIn, catchAsync(mcqController.editSaveTestSet));
 
 router
   .route("/subject/:sid/take/testset")
-  .post(catchAsync(mcqController.takeTestSet));
+  .post(isLoggedIn, catchAsync(mcqController.takeTestSet));
 
 router
   .route("/subject/:sid/taken/alltestset")
-  .get(catchAsync(mcqController.subjectAllotedTestSet));
+  .get(isLoggedIn, catchAsync(mcqController.subjectAllotedTestSet));
 
 router
   .route("/subject/alloted/:atsid/testset/student")
-  .get(catchAsync(mcqController.subjectGivenStudentTestSet));
+  .get(isLoggedIn, catchAsync(mcqController.subjectGivenStudentTestSet));
 
 router
   .route("/student/:sid/alltestset")
-  .get(catchAsync(mcqController.studentAllTestSet));
+  .get(isLoggedIn, catchAsync(mcqController.studentAllTestSet));
 
 router
   .route("/student/testset/:tsid/detail")
-  .get(catchAsync(mcqController.studentOneTestSet));
+  .get(isLoggedIn, catchAsync(mcqController.studentOneTestSet));
 
 router
   .route("/student/testset/paper/:tsid")
-  .get(catchAsync(mcqController.studentTestSet))
-  .patch(catchAsync(mcqController.studentTestSetQuestionSave));
+  .get(isLoggedIn, catchAsync(mcqController.studentTestSet))
+  .patch(isLoggedIn, catchAsync(mcqController.studentTestSetQuestionSave));
 
 router
   .route("/student/testset/:tsid/complete")
-  .get(catchAsync(mcqController.studentTestSetResult))
-  .patch(catchAsync(mcqController.studentTestSetComplete));
+  .get(isLoggedIn, catchAsync(mcqController.studentTestSetResult))
+  .patch(isLoggedIn, catchAsync(mcqController.studentTestSetComplete));
 
 router
   .route("/exam/class/:cmid/subject/:smid/alltestset")
-  .get(catchAsync(mcqController.allTestSetExamCreationWithSubjectMaster));
+  .get(
+    isLoggedIn,
+    catchAsync(mcqController.allTestSetExamCreationWithSubjectMaster)
+  );
 
 router
   .route("/exam/create/batch/:bid")
-  .post(catchAsync(mcqController.createExam));
+  .post(isLoggedIn, catchAsync(mcqController.createExam));
 
 //=========for the assignment related ================
 router
   .route("/subject/:sid/assignment")
-  .get(catchAsync(mcqController.getAssignment))
-  .post(upload.array("file"), catchAsync(mcqController.createAssignment));
+  .get(isLoggedIn, catchAsync(mcqController.getAssignment))
+  .post(
+    upload.array("file"),
+    isLoggedIn,
+    catchAsync(mcqController.createAssignment)
+  );
 
 router
   .route("/subject/count/assignment/:aid")
-  .get(catchAsync(mcqController.getOneAssignmentCount));
+  .get(isLoggedIn, catchAsync(mcqController.getOneAssignmentCount));
 router
   .route("/subject/assignment/:aid")
-  .get(catchAsync(mcqController.getOneAssignment));
+  .get(isLoggedIn, catchAsync(mcqController.getOneAssignment));
 
 router
   .route("/subject/assignment/:aid/student/:sid")
-  .get(catchAsync(mcqController.getOneAssignmentOneStudentDetail))
+  .get(isLoggedIn, catchAsync(mcqController.getOneAssignmentOneStudentDetail))
   .patch(
+    isLoggedIn,
     catchAsync(mcqController.getOneAssignmentOneStudentCompleteAssignment)
   );
 
 router
   .route("/student/:sid/count/assignment")
-  .get(catchAsync(mcqController.getStudentAssignmentCount));
+  .get(isLoggedIn, catchAsync(mcqController.getStudentAssignmentCount));
 
 router
   .route("/student/:sid/assignment")
-  .get(catchAsync(mcqController.getStudentAssignment));
+  .get(isLoggedIn, catchAsync(mcqController.getStudentAssignment));
 
 router
   .route("/student/assignment/:aid")
-  .get(catchAsync(mcqController.getStudentOneAssignmentDetail))
+  .get(isLoggedIn, catchAsync(mcqController.getStudentOneAssignmentDetail))
   .patch(
     upload.array("file"),
+    isLoggedIn,
     catchAsync(mcqController.getStudentOneAssignmentSubmit)
   );
 

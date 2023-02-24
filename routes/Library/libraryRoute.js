@@ -1,33 +1,35 @@
 const express = require("express");
 const router = express.Router();
-const multer = require("multer");
-const upload = multer({ dest: "uploads/" });
-// const {} = require("../../middleware");
+const { isLoggedIn } = require("../../middleware");
 const libraryController = require("../../controllers/Library/libraryController");
 const catchAsync = require("../../Utilities/catchAsync");
 
 router
   .route("/activate/:id")
-  .get(catchAsync(libraryController.activateLibrary));
+  .post(catchAsync(libraryController.activateLibrary));
 
 router
   .route("/info/:lid")
-  .get(catchAsync(libraryController.libraryByStaffSide))
-  .patch(catchAsync(libraryController.libraryAbout));
+  .get(catchAsync(libraryController.libraryByStaffSide));
+// .patch(
+//
+//   catchAsync(libraryController.libraryAbout)
+// );
 
 router
   .route("/books/:lid")
   .get(catchAsync(libraryController.allBookByStaffSide))
   .post(
-    upload.array("file"),
+    // upload.array("file"),
     catchAsync(libraryController.createBookByStaffSide)
   );
 
 router
-  .route("/book/:bid")
+  .route("/book/detail/:bid")
   .get(catchAsync(libraryController.getStaffOneBookDetail))
   .patch(
-    upload.array("file"),
+    // upload.array("file"),
+
     catchAsync(libraryController.editBookByStaffSide)
   );
 
@@ -56,5 +58,9 @@ router
 router
   .route("/member/:sid/history")
   .get(catchAsync(libraryController.oneMemberHistoryByStaffSide));
+
+router
+  .route("/all/fine/history/:lid")
+  .get(catchAsync(libraryController.allHistoryOfCollectByStaffSide));
 
 module.exports = router;

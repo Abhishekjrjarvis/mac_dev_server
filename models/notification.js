@@ -53,6 +53,9 @@ const notificationSchema = new mongoose.Schema({
   notifyCategory: { type: String },
   notify_hi_content: { type: String },
   notify_mr_content: { type: String },
+  module_id: { type: String },
+  publisher_id: { type: String },
+  module_title: { type: String },
 });
 
 module.exports = mongoose.model("Notification", notificationSchema);

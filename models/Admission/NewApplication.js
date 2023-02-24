@@ -12,15 +12,21 @@ const newApplicationSchema = new mongoose.Schema({
     ref: "Batch",
     required: true,
   },
+  applicationMaster: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "ClassMaster",
+  },
+  applicationParentType: { type: String },
+  applicationChildType: [],
   applicationSeats: { type: Number, default: 0 },
   applicationType: { type: String, default: "Plain Application" },
   applicationStartDate: { type: String },
   applicationEndDate: { type: String },
-  admissionFee: { type: Number, required: true },
+  admissionFee: { type: Number, default: 0 },
   admissionDueDate: { type: String },
   // applicationFee: { type: Number, required: true },
   remainingFee: { type: Number, default: 0 },
-  applicationAbout: { type: String, required: true },
+  applicationAbout: { type: String },
   admissionProcess: { type: String },
   applicationStatus: { type: String, default: "Ongoing" },
   receievedCount: { type: Number, default: 0 },
@@ -30,7 +36,8 @@ const newApplicationSchema = new mongoose.Schema({
   allotCount: { type: Number, default: 0 },
   collectedFeeCount: { type: Number, default: 0 },
   applicationPhoto: { type: String },
-  photoId: { type: String, default: "1" },
+  photoId: { type: String, default: "0" },
+  exemptAmount: { type: Number, default: 0 },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -59,6 +66,7 @@ const newApplicationSchema = new mongoose.Schema({
       },
       select_on: { type: Date, default: Date.now },
       payment_status: { type: String, default: "Pending" },
+      install_type: { type: String },
       fee_remain: { type: Number, default: 0 },
     },
   ],
@@ -72,6 +80,7 @@ const newApplicationSchema = new mongoose.Schema({
       payment_status: { type: String, default: "Pending" },
       fee_remain: { type: Number, default: 0 },
       paid_status: { type: "String" },
+      install_type: { type: String },
       second_pay_mode: { type: "String" },
     },
   ],
@@ -87,6 +96,7 @@ const newApplicationSchema = new mongoose.Schema({
       alloted_status: { type: String, default: "Not Alloted" },
       fee_remain: { type: Number, default: 0 },
       paid_status: { type: "String" },
+      install_type: { type: String },
       second_pay_mode: { type: "String" },
     },
   ],
@@ -105,58 +115,6 @@ const newApplicationSchema = new mongoose.Schema({
   gst_number: { type: String },
   business_name: { type: String },
   business_address: { type: String },
-  one_installments: {
-    fees: { type: Number, default: 0 },
-    dueDate: { type: String },
-  },
-  two_installments: {
-    fees: { type: Number, default: 0 },
-    dueDate: { type: String },
-  },
-  three_installments: {
-    fees: { type: Number, default: 0 },
-    dueDate: { type: String },
-  },
-  four_installments: {
-    fees: { type: Number, default: 0 },
-    dueDate: { type: String },
-  },
-  five_installments: {
-    fees: { type: Number, default: 0 },
-    dueDate: { type: String },
-  },
-  six_installments: {
-    fees: { type: Number, default: 0 },
-    dueDate: { type: String },
-  },
-  seven_installments: {
-    fees: { type: Number, default: 0 },
-    dueDate: { type: String },
-  },
-  eight_installments: {
-    fees: { type: Number, default: 0 },
-    dueDate: { type: String },
-  },
-  nine_installments: {
-    fees: { type: Number, default: 0 },
-    dueDate: { type: String },
-  },
-  ten_installments: {
-    fees: { type: Number, default: 0 },
-    dueDate: { type: String },
-  },
-  eleven_installments: {
-    fees: { type: Number, default: 0 },
-    dueDate: { type: String },
-  },
-  tweleve_installments: {
-    fees: { type: Number, default: 0 },
-    dueDate: { type: String },
-  },
-  total_installments: {
-    type: Number,
-    default: 0,
-  },
 });
 
 module.exports = mongoose.model("NewApplication", newApplicationSchema);

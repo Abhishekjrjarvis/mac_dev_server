@@ -8,69 +8,70 @@ const Student = require("../../models/Student");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const moment = require("moment");
 const InstituteAdmin = require("../../models/InstituteAdmin");
+const { nested_document_limit } = require("../../helper/databaseFunction");
+const { large_vote_candidate } = require("../../Custom/checkInitials");
+const { date_renew, generate_date } = require("../../helper/dayTimer");
+// const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
-const date_renew = (s_date, type) => {
-  var r_l_date = new Date(s_date);
-  if (type === "End") {
-    r_l_date.setDate(r_l_date.getDate() + 3);
-  } else if (type === "Select") {
-    r_l_date.setDate(r_l_date.getDate() + 2);
-  } else if (type === "Compaign") {
-    r_l_date.setDate(r_l_date.getDate() + 7);
-  } else if (type === "Vote") {
-    r_l_date.setDate(r_l_date.getDate() + 1);
-  } else if (type === "Result") {
-    r_l_date.setDate(r_l_date.getDate() + 1);
-  } else {
-  }
-  var r_l_day = r_l_date.getDate();
-  var r_l_month = r_l_date.getMonth() + 1;
-  var r_l_year = r_l_date.getFullYear();
-  if (r_l_month < 10) {
-    r_l_month = `0${r_l_month}`;
-  }
-  if (r_l_day <= 9) {
-    r_l_day = `0${r_l_day}`;
-  }
-  return new Date(`${r_l_year}-${r_l_month}-${r_l_day}`);
-};
+//Bug In Date Format
 
 exports.retrieveNewElectionQuery = async (req, res) => {
   try {
     const { did } = req.params;
     var depart = await Department.findById({ _id: did });
-    var elect = new Election({ ...req.body });
+    var elect = new Election({
+      election_position: req?.body.election_position,
+      election_visible: req?.body.election_visible,
+    });
     depart.election_event.push(elect._id);
     depart.election_event_count += 1;
     elect.department = depart._id;
-    elect.election_app_start_date = new Date(`${req.body?.date}`).toISOString();
+    elect.election_app_start_date = generate_date(`${req.body?.date}`);
     await Promise.all([depart.save(), elect.save()]);
+    elect.election_app_end_date = await date_renew(
+      elect?.election_app_start_date,
+      "End",
+      depart?.election_date_setting
+    );
+    // console.log("End", elect.election_app_end_date);
+    elect.election_selection_date = await date_renew(
+      elect?.election_app_end_date,
+      "Select",
+      depart?.election_date_setting
+    );
+    // console.log("Select", elect.election_selection_date);
+    elect.election_campaign_date = await date_renew(
+      elect?.election_selection_date,
+      "Compaign",
+      depart?.election_date_setting
+    );
+    // console.log("Compaign", elect.election_campaign_date);
+    elect.election_campaign_last_date = await date_renew(
+      elect?.election_campaign_date,
+      "Compaign_Last",
+      depart?.election_date_setting
+    );
+    await elect.save();
     res.status(201).send({
       message: "New Election Application will be available",
       status: true,
+      elect,
     });
-    elect.election_app_end_date = date_renew(
-      elect.election_app_start_date,
-      "End"
-    ).toISOString();
-    elect.election_selection_date = date_renew(
-      elect.election_app_end_date,
-      "Select"
-    ).toISOString();
-    elect.election_campaign_date = date_renew(
-      elect.election_selection_date,
-      "Compaign"
-    ).toISOString();
-    elect.election_voting_date = date_renew(
-      elect.election_campaign_date,
-      "Vote"
-    ).toISOString();
-    elect.election_result_date = date_renew(
-      elect.election_voting_date,
-      "Result"
-    ).toISOString();
+    // console.log("Last", elect?.election_campaign_last_date);
+    elect.election_voting_date = await date_renew(
+      elect?.election_campaign_last_date,
+      "Vote",
+      depart?.election_date_setting
+    );
     await elect.save();
-
+    // console.log("Vote", elect?.election_voting_date);
+    elect.election_result_date = await date_renew(
+      elect?.election_voting_date,
+      "Result",
+      depart?.election_date_setting
+    );
+    // console.log("res", elect.election_result_date);
+    await elect.save();
     if (elect?.election_visible === "Only Institute") {
       var all_student = await Student.find({
         $and: [{ institute: depart?.institute }, { studentStatus: "Approved" }],
@@ -99,7 +100,6 @@ exports.retrieveNewElectionQuery = async (req, res) => {
       notify.election_type = "New Election App";
       notify.notifyPublisher = ele._id;
       user.activity_tab.push(notify._id);
-      ele.notification.push(notify._id);
       notify.notifyByDepartPhoto = depart._id;
       notify.notifyCategory = "Election";
       notify.redirectIndex = 12;
@@ -112,7 +112,7 @@ exports.retrieveNewElectionQuery = async (req, res) => {
         "Student",
         notify
       );
-      await Promise.all([ele.save(), notify.save(), user.save()]);
+      await Promise.all([notify.save(), user.save()]);
     });
   } catch (e) {
     console.log(e);
@@ -133,9 +133,10 @@ exports.retrieveAllElectionQuery = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "election_position election_app_start_date election_voting_date election_status"
+        "election_position election_app_start_date election_voting_date election_status election_status"
       );
     if (elect?.length > 0) {
+      // const electEncrypt = await encryptionPayload(elect);
       res
         .status(200)
         .send({ message: "All Upcoming Election Event", elect: elect });
@@ -153,7 +154,7 @@ exports.retrieveOneElectionQuery = async (req, res) => {
     const { eid } = req.params;
     const elect = await Election.findById({ _id: eid })
       .select(
-        "election_position election_app_start_date election_app_end_date election_selection_date election_campaign_date election_result_date election_voting_date election_status"
+        "election_position election_status election_app_start_date election_app_end_date election_selection_date election_campaign_last_date election_campaign_date election_result_date election_voting_date election_status election_total_voter election_vote_cast result_notification"
       )
       .populate({
         path: "election_candidate",
@@ -161,10 +162,35 @@ exports.retrieveOneElectionQuery = async (req, res) => {
           path: "student",
           select:
             "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
+          populate: {
+            path: "user",
+            select: "username",
+          },
+        },
+        select:
+          "election_candidate_status election_result_status election_vote_receieved election_tag_line election_description",
+      })
+      .populate({
+        path: "election_candidate",
+        populate: {
+          path: "election_supporting_member",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
+          populate: {
+            path: "user",
+            select: "username",
+          },
         },
         select:
           "election_candidate_status election_result_status election_vote_receieved election_tag_line election_description",
       });
+    // const oneElectEncrypt = await encryptionPayload(elect);
+    elect?.election_candidate.sort(function (st1, st2) {
+      return (
+        parseInt(st1.election_vote_receieved) -
+        parseInt(st2.election_vote_receieved)
+      );
+    });
     res
       .status(200)
       .send({ message: "One Election Event Process Query ", elect: elect });
@@ -177,30 +203,50 @@ exports.retrieveOneElectionQueryCandidate = async (req, res) => {
   try {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const skip = (page - 1) * limit;
     const { eid } = req.params;
-    const all_candidate = await Election.findById({ _id: eid }).populate({
-      path: "election_candidate",
-      options: {
-        limit: limit,
-        skip: skip,
-      },
-      populate: {
-        path: "student",
-        select:
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
-      },
-    });
-    if (all_candidate?.election_candidate?.length > 0) {
+    const all_candidate = await Election.findById({ _id: eid })
+      .select("_id election_total_voter election_vote_cast result_notification")
+      .populate({
+        path: "election_candidate",
+        populate: {
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
+          populate: {
+            path: "user",
+            select: "username",
+          },
+        },
+      })
+      .populate({
+        path: "election_candidate",
+        populate: {
+          path: "election_supporting_member",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
+          populate: {
+            path: "user",
+            select: "username",
+          },
+        },
+      });
+
+    const all_candidates = nested_document_limit(
+      page,
+      limit,
+      all_candidate?.election_candidate
+    );
+    if (all_candidates) {
+      // const allEncrypt = await encryptionPayload(all_candidate);
       res.status(200).send({
         message: "All Candidate List 😀",
-        all_candidate,
+        all_candidates,
         status: true,
       });
     } else {
       res.status(200).send({
         message: "No Candidate List 😀",
-        all_candidate: [],
+        all_candidates: [],
         status: false,
       });
     }
@@ -238,7 +284,7 @@ exports.retrieveApplyElectionQuery = async (req, res) => {
         student.studentMiddleName ? student.studentMiddleName : ""
       } ${
         student.studentLastName
-      }. (If you have not supporting please contact with respectiv department)`;
+      }. (If you have not supporting please contact with respective department)`;
       notify.notifySender = student._id;
       notify.notifyReceiever = user._id;
       notify.electionId = elect?._id;
@@ -248,7 +294,7 @@ exports.retrieveApplyElectionQuery = async (req, res) => {
       user.activity_tab.push(notify._id);
       student_support.notification.push(notify._id);
       notify.notifyByStudentPhoto = student._id;
-      notify.notifyCategory = "Election";
+      notify.notifyCategory = "Election Member";
       notify.redirectIndex = 12;
       invokeMemberTabNotification(
         "Student Activity",
@@ -296,10 +342,11 @@ exports.retrieveStatusElectionQuery = async (req, res) => {
       elect?.election_app_start_date
     ).format("LL")} to ${moment(elect?.election_app_end_date).format(
       "LL"
-    )} , Voting Date ${moment(elect?.election_voting_date).format("LL")}.
-        Your application for ${
-          elect?.election_position
-        } is ${status} by authorities`;
+    )} , Voting Date ${moment(elect?.election_voting_date).format(
+      "LL"
+    )}.Your application for ${
+      elect?.election_position
+    } is ${status} by authorities`;
     notify.notifySender = depart._id;
     notify.notifyReceiever = user._id;
     notify.electionId = elect?._id;
@@ -309,7 +356,7 @@ exports.retrieveStatusElectionQuery = async (req, res) => {
     user.activity_tab.push(notify._id);
     student.notification.push(notify._id);
     notify.notifyByDepartPhoto = depart._id;
-    notify.notifyCategory = "Election";
+    notify.notifyCategory = "Election Status";
     notify.redirectIndex = 12;
     invokeMemberTabNotification(
       "Student Activity",
@@ -331,17 +378,51 @@ exports.retrieveVoteElectionQuery = async (req, res) => {
     const { eid, applyId, sid, nid } = req.params;
     var elect = await Election.findById({ _id: eid });
     var student = await Student.findById({ _id: sid });
-    const notify = await StudentNotification.findById({ _id: nid });
+    const p_notify = await StudentNotification.findById({ _id: nid });
     elect?.election_candidate?.forEach(async (ele) => {
       if (`${ele?._id}` === `${applyId}`) {
-        ele.election_vote_receieved += 1;
-        ele.voted_student.push(student?._id);
+        if (ele.voted_student.includes(student?._id)) {
+        } else {
+          ele.election_vote_receieved += 1;
+          ele.voted_student.push(student?._id);
+          elect.election_vote_cast += 1;
+        }
       }
     });
     elect.election_total_voter += 1;
-    elect.election_vote_cast += 1;
-    notify.vote_status = "Voted";
-    await Promise.all([notify.save(), elect.save()]);
+    p_notify.vote_status = "Voted";
+    const notify = new StudentNotification({});
+    const user = await User.findById({ _id: `${student?.user}` }).select(
+      "activity_tab deviceToken"
+    );
+    notify.notifyContent = `Your vote have been casted`;
+    notify.notifySender = elect?.department;
+    notify.notifyReceiever = user._id;
+    notify.electionId = elect?._id;
+    notify.notifyType = "Student";
+    notify.election_type = "Election Vote Casted";
+    notify.notifyPublisher = student._id;
+    user.activity_tab.push(notify._id);
+    student.notification.push(notify._id);
+    notify.notifyByDepartPhoto = elect?.department;
+    notify.notifyCategory = "Election Status";
+    notify.redirectIndex = "23";
+    invokeMemberTabNotification(
+      "Student Activity",
+      notify,
+      "Vote Casted",
+      user._id,
+      user.deviceToken,
+      "Student",
+      notify
+    );
+    await Promise.all([
+      notify.save(),
+      elect.save(),
+      user.save(),
+      p_notify.save(),
+      student.save(),
+    ]);
     res.status(200).send({ message: "Vote Done 👍✨😀 ", voted: true });
   } catch (e) {
     console.log(e);
@@ -392,6 +473,7 @@ exports.retrieveVoteElectionDepartment = async (req, res) => {
         );
     }
     if (all_student?.length > 0) {
+      // const allStudentEncrypt = await encryptionPayload(all_student);
       res.status(200).send({
         message: "All Supporting Member Array 😀",
         all: all_student,
@@ -404,6 +486,161 @@ exports.retrieveVoteElectionDepartment = async (req, res) => {
         status: false,
       });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveAllStudentElectionArray = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immendiatley 😡",
+        access: false,
+      });
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const student = await Student.findById({ _id: sid }).select(
+      "election_candidate"
+    );
+
+    const all_event = await Election.find({
+      _id: { $in: student?.election_candidate },
+    })
+      .sort("-created_at")
+      .limit(limit)
+      .skip(skip)
+      .select("election_position election_app_start_date");
+    if (all_event?.length > 0) {
+      // const allStudentEncrypt = await encryptionPayload(all_event);
+      res.status(200).send({
+        message: "All Election Event Array 😀",
+        all: all_event,
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Election Event Array 😡",
+        all: [],
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveAllStudentElectionArray = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immendiatley 😡",
+        access: false,
+      });
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const student = await Student.findById({ _id: sid }).select(
+      "election_candidate"
+    );
+
+    const all_event = await Election.find({
+      _id: { $in: student?.election_candidate },
+    })
+      .sort("-created_at")
+      .limit(limit)
+      .skip(skip)
+      .select("election_position election_app_start_date election_status");
+    if (all_event?.length > 0) {
+      // const allStudentEncrypt = await encryptionPayload(all_event);
+      res.status(200).send({
+        message: "All Election Event Array 😀",
+        all: all_event,
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Election Event Array 😡",
+        all: [],
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveOneStudentOneElectionArray = async (req, res) => {
+  try {
+    const { sid, eid } = req.params;
+    if (!sid && !eid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const one_election = await Election.findById({ _id: eid })
+      .select("election_vote_cast election_total_voter election_position")
+      .populate({
+        path: "election_candidate",
+        select:
+          "election_result_status election_tag_line election_description election_vote_receieved",
+        populate: {
+          path: "election_supporting_member",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+        },
+      });
+    var flag;
+    var max = large_vote_candidate(one_election?.election_candidate);
+    for (var elect of one_election?.election_candidate) {
+      if (`${elect?.student}` === `${sid}`) {
+        flag = {
+          _id: elect?._id,
+          election_tag_line: elect?.election_tag_line,
+          election_result_status: elect?.election_result_status,
+          election_vote_receieved: elect?.election_vote_receieved,
+          election_description: elect?.election_description,
+          election_supporting_member: elect?.election_supporting_member,
+          maxVotes: max,
+          election_position: one_election?.election_position,
+          total_voter: one_election?.election_total_voter,
+        };
+        break;
+      }
+    }
+    if (flag) {
+      res.status(200).send({
+        message: "Check your election detail 😁",
+        access: true,
+        flag,
+      });
+    } else {
+      res.status(200).send({
+        message: "No election detail 😁",
+        access: false,
+        flag: null,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderElectionDepartmentSettingQuery = async (req, res) => {
+  try {
+    const { did } = req.params;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immendiatley 😡",
+        access: false,
+      });
+    await Department.findByIdAndUpdate(did, req.body);
+    res
+      .status(200)
+      .send({ message: "Election Event Setting Refetched 👍", access: true });
   } catch (e) {
     console.log(e);
   }

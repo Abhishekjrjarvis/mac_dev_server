@@ -231,16 +231,20 @@ const instituteAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  elearningActivate: { type: String, default: "Not Activated" },
-  elearning: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "ELearning",
-  },
-  libraryActivate: { type: String, default: "Not Activated" },
-  library: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Library",
-  },
+  elearningStatus: { type: String, default: "Disable" },
+  elearningDepart: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ELearning",
+    },
+  ],
+  libraryActivate: { type: String, default: "Disable" },
+  library: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Library",
+    },
+  ],
   adminRepayAmount: {
     type: Number,
     default: 0,
@@ -414,6 +418,10 @@ const instituteAdminSchema = new mongoose.Schema({
   tag_privacy: {
     type: String,
     default: "Every one",
+  },
+  sms_lang: {
+    type: String,
+    default: "en",
   },
   ins_latitude: {
     type: Number,
@@ -606,6 +614,38 @@ const instituteAdminSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "ManageAdmin",
   },
+  partial_pay_amount: {
+    type: Number,
+    default: 0,
+  },
+  razor_key: { type: String },
+  razor_id: { type: String },
+  razor_account: { type: Boolean, default: false },
+  transportDepart: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Transport",
+    },
+  ],
+  transportStatus: {
+    type: String,
+    default: "Disable",
+  },
+  gr_initials: {
+    type: String,
+  },
+  application_fee_charges: {
+    type: Number, 
+    default: 0
+  },
+  total_application_amount: {
+    type: Number,
+    default: 0
+  },
+  return_to_qviple: {
+    type: Number,
+    default: 0
+  }
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

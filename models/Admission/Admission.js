@@ -47,6 +47,7 @@ const admissionAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  exemptAmount: { type: Number, default: 0 },
   remainingFee: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -63,6 +64,75 @@ const admissionAdminSchema = new mongoose.Schema({
       ref: "Inquiry",
     },
   ],
+  requested_status: {
+    type: String,
+    default: "Pending",
+  },
+  collected_fee: {
+    type: Number,
+    default: 0,
+  },
+  moderator_role: [
+    {
+      role: { type: String, default: "NO_ACCESS" },
+      application: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NewApplication",
+      },
+      staff: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Staff",
+      },
+      createdAt: { type: Date, default: Date.now },
+    },
+  ],
+  request_array: [],
+  fee_receipt_request: [
+    {
+      receipt: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeReceipt",
+      },
+      status: { type: String, default: "Pending" },
+      created_at: { type: Date, default: Date.now },
+    },
+  ],
+  fee_receipt_approve: [
+    {
+      receipt: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeReceipt",
+      },
+      status: { type: String, default: "Pending" },
+      created_at: { type: Date, default: Date.now },
+      over_status: { type: String },
+    },
+  ],
+  fee_receipt_reject: [
+    {
+      receipt: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeReceipt",
+      },
+      status: { type: String, default: "Pending" },
+      created_at: { type: Date, default: Date.now },
+      reason: { type: String },
+    },
+  ],
+  alarm_count: {
+    type: Number,
+    default: 0,
+  },
+  required_document: [
+    {
+      document_name: { type: String },
+      document_key: { type: String },
+    },
+  ],
+  required_document_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("Admission", admissionAdminSchema);

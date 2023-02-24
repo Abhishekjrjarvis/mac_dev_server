@@ -102,16 +102,29 @@ router.post(
   catchAsync(User.getReportPostUser)
 );
 
-router.get("/dashboard/:id/notify", catchAsync(User.getNotifications));
+router.get(
+  "/dashboard/:id/notify",
+  isLoggedIn,
+  catchAsync(User.getNotifications)
+);
 //
-router.get("/:id/activity", catchAsync(User.getAllUserActivity));
+router.get("/:id/activity", isLoggedIn, catchAsync(User.getAllUserActivity));
 
-router.get("/:id/activity/total/notify", catchAsync(User.getAllTotalCount));
+router.get(
+  "/:id/activity/total/notify",
+  // isLoggedIn,
+  catchAsync(User.getAllTotalCount)
+);
 
-router.patch("/:id/mark/viewed", catchAsync(User.retrieveMarkAllView));
+router.patch(
+  "/:id/mark/viewed",
+  // isLoggedIn,
+  catchAsync(User.retrieveMarkAllView)
+);
 
 router.patch(
   "/read/notify/user/:rid",
+  isLoggedIn,
   catchAsync(User.updateReadNotifications)
 );
 
@@ -173,11 +186,13 @@ router.get(
 
 router.get(
   "/staffdesignationdata/:sid",
+  // isLoggedIn,
   catchAsync(User.retrieveStaffDesignationArray)
 );
 
 router.get(
   "/studentdesignationdata/:sid",
+  // isLoggedIn,
   catchAsync(User.retrieveStudentDesignationArray)
 );
 
@@ -193,21 +208,35 @@ router.get(
   catchAsync(User.retrieveUserKnowQuery)
 );
 
-router.get("/:uid/circle/array/query", catchAsync(User.circleArrayQuery));
+router.get(
+  "/:uid/circle/array/query",
+  isLoggedIn,
+  catchAsync(User.circleArrayQuery)
+);
 
 router.get("/circle/user", isLoggedIn, catchAsync(User.allCircleUsers));
 
-router.get("/:uid/subject/chat", catchAsync(User.retrieveUserSubjectChat));
+router.get(
+  "/:uid/subject/chat",
+  isLoggedIn,
+  catchAsync(User.retrieveUserSubjectChat)
+);
 
-router.get("/:uid/class/chat", catchAsync(User.retrieveUserClassChat));
+router.get(
+  "/:uid/class/chat",
+  isLoggedIn,
+  catchAsync(User.retrieveUserClassChat)
+);
 
 router.get(
   "/:uid/department/chat",
+  isLoggedIn,
   catchAsync(User.retrieveUserDepartmentChat)
 );
 
 router.get(
   "/:uid/application/status",
+  isLoggedIn,
   catchAsync(User.retrieveUserApplicationStatus)
 );
 
@@ -219,6 +248,7 @@ router.get(
 
 router.get(
   "/staff/:sid/sal/history",
+  isLoggedIn,
   catchAsync(User.retrieveStaffSalaryHistory)
 );
 
@@ -246,20 +276,26 @@ router.patch(
 
 router.patch(
   "/:uid/location/permission",
+  isLoggedIn,
   catchAsync(User.retrieveUserLocationPermission)
 );
 
 // User Switch Staff & Student
-router.get("/:uid/staff/student/role", catchAsync(User.retrieveUserRoleQuery));
+router.get(
+  "/:uid/staff/student/role",
+  isLoggedIn,
+  catchAsync(User.retrieveUserRoleQuery)
+);
 
 // User Switch Boolean
 router.get(
   "/:uid/staff/student/role/query/format",
+  isLoggedIn,
   catchAsync(User.retrieveUserRoleQueryFormat)
 );
 
-// router.get("/:id/all/three/section/notify", catchAsync(User.getAllThreeCount));
+// router.get("/:id/all/three/section/notify",isLoggedIn, catchAsync(User.getAllThreeCount));
 
-// router.patch("/:id/mark/viewed", catchAsync(User.retrieveMarkAllThree));
+// router.patch("/:id/mark/viewed",isLoggedIn, catchAsync(User.retrieveMarkAllThree));
 
 module.exports = router;

@@ -1,7 +1,7 @@
 const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
-const { uploadDocFile } = require("../S3Configuration");
+const { uploadDocFile, deleteFile } = require("../S3Configuration");
 
 exports.file_to_aws = async (file) => {
   try {
@@ -20,6 +20,20 @@ exports.file_to_aws = async (file) => {
     obj.documentKey = results.Key;
     await unlinkFile(file.path);
     return obj;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.file_to_aws_and_deleted_previous = async (file, previousKey) => {
+  try {
+    if (previousKey) {
+      await deleteFile(previousKey);
+    }
+    const results = await uploadDocFile(file);
+    const imageKey = results.Key;
+    await unlinkFile(file.path);
+    return imageKey;
   } catch (e) {
     console.log(e);
   }

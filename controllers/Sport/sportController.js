@@ -13,6 +13,8 @@ const { uploadDocFile } = require("../../S3Configuration");
 const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
+// const encryptionPayload = require("../../Utilities/Encrypt/payload");
+const { designation_alarm } = require("../../WhatsAppSMS/payload");
 
 exports.getSportDepart = async (req, res) => {
   try {
@@ -34,6 +36,7 @@ exports.getSportDepart = async (req, res) => {
     notify.notify_mr_content = `तुम्हाला क्रीडा आणि कला मुख्य प्रशिक्षक म्हणून पद मिळाले आहे.`;
     notify.notifySender = id;
     notify.notifyReceiever = user._id;
+    notify.notifyCategory = "Sports Head Designation";
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByInsPhoto = institute._id;
@@ -51,11 +54,20 @@ exports.getSportDepart = async (req, res) => {
       user.save(),
       notify.save(),
     ]);
+    // const sEncrypt = await encryptionPayload(sport._id);
     res.status(200).send({
       message: "Successfully Assigned Staff",
       sport: sport._id,
       status: true,
     });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "SPORTSHEAD",
+      institute?.sms_lang,
+      "",
+      "",
+      ""
+    );
   } catch (e) {
     console.log(e);
   }
@@ -79,6 +91,7 @@ exports.retrieveSportDetail = async (req, res) => {
       })
       .lean()
       .exec();
+    // const sEncrypt = await encryptionPayload(sport);
     res.status(200).send({ message: "All Master Sport Details  👍", sport });
   } catch (e) {
     console.log(e);
@@ -120,6 +133,7 @@ exports.retrieveSportDetailEvent = async (req, res) => {
         );
     }
     if (event?.length > 0) {
+      // const eEncrypt = await encryptionPayload(event);
       res
         .status(200)
         .send({ message: "Let's Explore Sport Event data 👍", event });
@@ -149,6 +163,7 @@ exports.retrieveSportDetailClass = async (req, res) => {
       .select("sportClassName photoId coverId photo cover");
 
     if (classes?.length > 0) {
+      // const cEncrypt = await encryptionPayload(classes);
       res
         .status(200)
         .send({ message: "Let's Explore Sport Class data 👍", classes });
@@ -184,6 +199,7 @@ exports.getSportClass = async (req, res) => {
     notify.notify_hi_content = `आपको प्रशिक्षक के रूप में ${sportClasses.sportClassName} का पदनाम मिला है |`;
     notify.notify_mr_content = `तुम्हाला ${sportClasses.sportClassName} चे प्रशिक्षक म्हणून पद मिळाले आहे`;
     notify.notifySender = id;
+    notify.notifyCategory = "Sports Class Head Designation";
     notify.notifyReceiever = user._id;
     user.uNotify.push(notify._id);
     notify.user = user._id;
@@ -203,11 +219,20 @@ exports.getSportClass = async (req, res) => {
       user.save(),
       notify.save(),
     ]);
+    // const sEncrypt = await encryptionPayload(sportClasses._id);
     res.status(200).send({
       message: "Successfully Created Sport Class",
       sportClasses: sportClasses._id,
       status: true,
     });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "SPORTSCLASS",
+      institute?.sms_lang,
+      sportClasses?.sportClassName,
+      "",
+      ""
+    );
   } catch (e) {
     console.log(e);
   }
@@ -227,6 +252,7 @@ exports.getSportEvent = async (req, res) => {
     event.photoId = "1";
     await Promise.all([sport.save(), event.save()]);
     await unlinkFile(file.path);
+    // const eEncrypt = await encryptionPayload(event._id);
     res.status(200).send({
       message: `${event.sportEventName} Event Created`,
       event: event._id,
@@ -245,6 +271,7 @@ exports.getSportEvent = async (req, res) => {
     notify.notify_hi_content = `मौज-मस्ती और आनंद के लिए तैयार हो जाइए ${event.sportEventName} का आयोजन ${event.sportEventDate} को ${event.sportEventPlace} पर किया जाता है`;
     notify.notify_mr_content = `मनोरंजनासाठी सज्ज व्हा आणि आनंद घ्या ${event.sportEventName} ${event.sportEventDate} रोजी ${event.sportEventPlace} येथे आयोजित केले आहे`;
     notify.notifySender = sport._id;
+    notify.notifyCategory = "Sport Event";
     notify.notifyByInsPhoto = institute._id;
     for (let i = 0; i < student.length; i++) {
       student[i].sportEvent.push(event._id);
@@ -290,9 +317,10 @@ exports.retrieveSportEventDetail = async (req, res) => {
         path: "sportDepartment",
         select: "_id",
       });
+    // const eEncrypt = await encryptionPayload(event);
     res.status(200).send({ message: "One Event Detail", event });
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(e);
   }
 };
 
@@ -340,6 +368,7 @@ exports.retrieveSportEventQuery = async (req, res) => {
       });
 
     if (match_query?.length > 0) {
+      // const mEncrypt = await encryptionPayload(match_query);
       res.status(200).send({ message: "Awesome Event", match_query });
     } else {
       res.status(200).send({ message: "Awesome Event", match_query: [] });
@@ -370,6 +399,7 @@ exports.getIntraMatchEvent = async (req, res) => {
     event.sportEventMatchCount += 1;
     match.sportEvent = event._id;
     await Promise.all([event.save(), match.save()]);
+    // const mEncrypt = await encryptionPayload(match._id);
     res
       .status(200)
       .send({ message: "Match Created", match: match._id, status: true });
@@ -440,6 +470,7 @@ exports.getIntraMatchEvent = async (req, res) => {
     notify.notify_hi_content = `${match.sportEventMatchName} (${match.sportEventMatchCategory}) ${match.sportEventMatchDate} को ${event.sportEventName} में आयोजित किया जाता है`;
     notify.notify_mr_content = `${match.sportEventMatchName} (${match.sportEventMatchCategory}) ${event.sportEventName} मध्ये ${match.sportEventMatchDate} रोजी आयोजित केले आहे`;
     notify.notifySender = sportStaff._id;
+    notify.notifyCategory = "Sport Match";
     notify.notifyByInsPhoto = sport.institute;
     student.forEach(async (ele) => {
       notify.notifyReceiever = ele.user._id;
@@ -478,6 +509,7 @@ exports.getInterMatchEvent = async (req, res) => {
     event.sportEventMatchCount += 1;
     match.sportEvent = event._id;
     await Promise.all([event.save(), match.save()]);
+    // const mEncrypt = await encryptionPayload(match);
     res
       .status(200)
       .send({ message: "Inter Match Created", match: match, status: true });
@@ -531,6 +563,7 @@ exports.getInterMatchEvent = async (req, res) => {
     notify.notify_hi_content = `${match.sportEventMatchName} (${match.sportEventMatchCategory}) ${match.sportEventMatchDate} को ${event.sportEventName} में आयोजित किया जाता है`;
     notify.notify_mr_content = `${match.sportEventMatchName} (${match.sportEventMatchCategory}) ${event.sportEventName} मध्ये ${match.sportEventMatchDate} रोजी आयोजित केले आहे`;
     notify.notifySender = sportStaff._id;
+    notify.notifyCategory = "Sport Match";
     notify.notifyByInsPhoto = sport.institute;
     student.forEach(async (ele) => {
       notify.notifyReceiever = ele.user._id;
@@ -574,6 +607,7 @@ exports.retrieveSportClassDetail = async (req, res) => {
       })
       .lean()
       .exec();
+    // const cEncrypt = await encryptionPayload(classes);
     res.status(200).send({ message: "One Sport Class Data", classes });
   } catch (e) {
     console.log(e);
@@ -598,6 +632,7 @@ exports.updateStudentSportClass = async (req, res) => {
         await student.save();
       }
       await Promise.all([classes.save(), sport_depart.save()]);
+      // const cEncrypt = await encryptionPayload(classes._id);
       res.status(200).send({
         message: "Student added to sports class",
         classes: classes._id,
@@ -633,6 +668,7 @@ exports.retrieveAllSportStudent = async (req, res) => {
       );
 
     if (student_query?.length > 0) {
+      // const sEncrypt = await encryptionPayload(student_query);
       res
         .status(200)
         .send({ message: "All student of Sport Classes", student_query });
@@ -668,6 +704,7 @@ exports.retrieveAllSportTeam = async (req, res) => {
       });
 
     if (team_query?.length > 0) {
+      // const tEncrypt = await encryptionPayload(team_query);
       res
         .status(200)
         .send({ message: "All Team of Sport Classes", team_query });
@@ -711,6 +748,7 @@ exports.removeStudentSportClass = async (req, res) => {
         await student.save();
       }
       await Promise.all([classes.save(), sport_depart.save()]);
+      // const cEncrypt = await encryptionPayload(classes._id);
       res.status(200).send({
         message: "Student Remove from sports class",
         classes: classes._id,
@@ -756,6 +794,7 @@ exports.updateSportTeam = async (req, res) => {
       team.sportClass = classes._id;
       team.sportTeamCaptain = `${captain}`;
       await Promise.all([classes.save(), team.save(), sport.save()]);
+      // const tEncrypt = await encryptionPayload(team._id);
       res
         .status(200)
         .send({ message: "Team Created", team: team._id, status: true });
@@ -828,6 +867,7 @@ exports.retrieveMatchDetail = async (req, res) => {
         select:
           "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
       });
+    // const mEncrypt = await encryptionPayload(match);
     res.status(200).send({ message: "One Match Data", match });
   } catch (e) {
     console.log(e);
@@ -839,7 +879,7 @@ exports.updateIntraMatchIndividual = async (req, res) => {
     const { mid } = req.params;
     const { studentWinner, studentRunner } = req.body;
     var match = await SportEventMatch.findById({ _id: mid });
-    var event = await SportEvent.findById({ _id: `${match.sportEvent}` });
+    // var event = await SportEvent.findById({ _id: `${match.sportEvent}` });
     var student1 = await Student.findById({ _id: `${studentWinner}` });
     var student2 = await Student.findById({ _id: `${studentRunner}` });
     match.sportWinner = student1._id;
@@ -849,9 +889,10 @@ exports.updateIntraMatchIndividual = async (req, res) => {
       student1.extraPoints += 25;
       student2.extraPoints += 15;
       await Promise.all([student1.save(), student2.save()]);
-      event.sportEventStatus = "Completed";
+      // event.sportEventStatus = "Completed";
     }
-    await Promise.all([match.save(), event.save()]);
+    await match.save();
+    // await Promise.all([match.save(), event.save()]);
     res.status(200).send({
       message: "Its Party Time Everyone Enjoy...",
       match_status: true,
@@ -878,7 +919,7 @@ exports.updateInterMatchIndividual = async (req, res) => {
     const { mid } = req.params;
     const { studentPlayer, studentRankTitle, studentOpponentPlayer } = req.body;
     var match = await SportEventMatch.findById({ _id: mid });
-    var event = await SportEvent.findById({ _id: `${match.sportEvent}` });
+    // var event = await SportEvent.findById({ _id: `${match.sportEvent}` });
     var student = await Student.findById({ _id: `${studentPlayer}` });
     match.sportOpponentPlayer = studentOpponentPlayer;
     match.matchStatus = "Completed";
@@ -891,9 +932,10 @@ exports.updateInterMatchIndividual = async (req, res) => {
         student.extraPoints += 25;
         match.sportRunner = student._id;
       }
-      event.sportEventStatus = "Completed";
+      // event.sportEventStatus = "Completed";
     }
-    await Promise.all([match.save(), student.save(), event.save()]);
+    // event.save()
+    await Promise.all([match.save(), student.save()]);
     res
       .status(200)
       .send({ message: "Inter Match Result Updated", match_status: true });
@@ -913,7 +955,7 @@ exports.updateIntraMatchTeam = async (req, res) => {
     const { mid } = req.params;
     const { teamWinner, teamRunner } = req.body;
     var match = await SportEventMatch.findById({ _id: mid });
-    var event = await SportEvent.findById({ _id: `${match.sportEvent}` });
+    // var event = await SportEvent.findById({ _id: `${match.sportEvent}` });
     var team1 = await SportTeam.findById({ _id: `${teamWinner}` }).populate({
       path: "sportTeamStudent",
       select: "studentSportsEventMatch",
@@ -952,8 +994,8 @@ exports.updateIntraMatchTeam = async (req, res) => {
         student2.extraPoints += 15;
         await student2.save();
       }
-      event.sportEventStatus = "Completed";
-      await event.save();
+      // event.sportEventStatus = "Completed";
+      // await event.save();
     }
     res
       .status(200)
@@ -990,7 +1032,7 @@ exports.updateInterMatchTeam = async (req, res) => {
     const { mid } = req.params;
     const { teamPlayer, studentRankTitle, teamOpponentPlayer } = req.body;
     var match = await SportEventMatch.findById({ _id: mid });
-    var event = await SportEvent.findById({ _id: `${match.sportEvent}` });
+    // var event = await SportEvent.findById({ _id: `${match.sportEvent}` });
     var team = await SportTeam.findById({ _id: `${teamPlayer}` }).populate({
       path: "sportTeamStudent",
       select: "studentSportsEventMatch",
@@ -1025,9 +1067,10 @@ exports.updateInterMatchTeam = async (req, res) => {
         }
         match.sportRunnerTeam = team._id;
       }
-      event.sportEventStatus = "Completed";
+      // event.sportEventStatus = "Completed";
     }
-    await Promise.all([match.save(), team.save(), event.save()]);
+    // event.save()
+    await Promise.all([match.save(), team.save()]);
     res
       .status(200)
       .send({ message: "Inter Team Match Result Updated", match_status: true });
@@ -1052,18 +1095,18 @@ exports.updateIntraMatchFree = async (req, res) => {
     const { mid } = req.params;
     const { studentWinner, studentRunner, studentParticipants } = req.body;
     var match = await SportEventMatch.findById({ _id: mid });
-    var event = await SportEvent.findById({ _id: `${match.sportEvent}` });
+    // var event = await SportEvent.findById({ _id: `${match.sportEvent}` });
     var student1 = await Student.findById({ _id: `${studentWinner}` });
     var student2 = await Student.findById({ _id: `${studentRunner}` });
     match.sportWinner = student1._id;
     match.sportRunner = student2._id;
     match.matchStatus = "Completed";
-    event.sportEventStatus = "Completed";
+    // event.sportEventStatus = "Completed";
     if (match.sportEventMatchCategoryLevel === "Final") {
       student1.extraPoints += 25;
       student2.extraPoints += 15;
       await Promise.all([student1.save(), student2.save()]);
-      event.sportEventStatus = "Completed";
+      // event.sportEventStatus = "Completed";
     }
     if (studentParticipants.length >= 1) {
       for (let i = 0; i < studentParticipants.length; i++) {
@@ -1076,7 +1119,8 @@ exports.updateIntraMatchFree = async (req, res) => {
         await match.save();
       }
     }
-    await Promise.all([match.save(), event.save()]);
+    await match.save();
+    // await Promise.all([match.save(), event.save()]);
     res
       .status(200)
       .send({ message: "Intra Match Free Updated", match_status: true });
@@ -1117,7 +1161,7 @@ exports.updateInterMatchFree = async (req, res) => {
       studentOpponentPlayer,
     } = req.body;
     var match = await SportEventMatch.findById({ _id: mid });
-    var event = await SportEvent.findById({ _id: `${match.sportEvent}` });
+    // var event = await SportEvent.findById({ _id: `${match.sportEvent}` });
     var student = await Student.findById({ _id: `${studentPlayer}` });
     match.sportOpponentPlayer = studentOpponentPlayer;
     match.rankMatch = studentRankTitle;
@@ -1130,9 +1174,10 @@ exports.updateInterMatchFree = async (req, res) => {
         student.extraPoints += 25;
         match.sportRunner = student._id;
       }
-      event.sportEventStatus = "Completed";
-    } 
-    await Promise.all([match.save(), student.save(), event.save()]);
+      // event.sportEventStatus = "Completed";
+    }
+    // event.save()
+    await Promise.all([match.save(), student.save()]);
     if (studentParticipants.length >= 1) {
       for (let i = 0; i < studentParticipants.length; i++) {
         const student = await Student.findById({ _id: studentParticipants[i] });
@@ -1227,6 +1272,7 @@ exports.renderStudentSideEvent = async (req, res) => {
       })
       .lean()
       .exec();
+    // const sEncrypt = await encryptionPayload(student);
     res
       .status(200)
       .send({ message: "Event Detail Query", event_query: student });
@@ -1285,6 +1331,7 @@ exports.renderStudentSideMatch = async (req, res) => {
     }
 
     if (sorted_match?.length > 0) {
+      // const mEncrypt = await encryptionPayload(sorted_match);
       res.status(200).send({
         message: "Match Detail Query",
         match_query: sorted_match,
@@ -1322,6 +1369,7 @@ exports.renderStudentSideClass = async (req, res) => {
       });
 
     if (classes?.length > 0) {
+      // const cEncrypt = await encryptionPayload(classes);
       res.status(200).send({
         message: "Student Not Take Part In Event Match",
         classes: classes,
@@ -1373,6 +1421,7 @@ exports.renderStudentSideTeam = async (req, res) => {
     });
 
     if (per_team) {
+      // const pEncrypt = await encryptionPayload(per_team);
       res.status(200).send({
         message: "personal team 😀",
         team: per_team,
@@ -1405,6 +1454,7 @@ exports.renderOneTeamQuery = async (req, res) => {
             "studentFirstName studentMiddleName studentLastName studentGRNO photoId studentProfilePhoto",
         },
       });
+    // const tEncrypt = await encryptionPayload(team);
     res
       .status(200)
       .send({ message: "One Team Query 😀", access: true, team: team });

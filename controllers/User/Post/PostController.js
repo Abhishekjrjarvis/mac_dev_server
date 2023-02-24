@@ -16,6 +16,11 @@ const util = require("util");
 // const { suffle_search_list } = require("../../../Utilities/randomFunction");
 const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require("../../../Firebase/firebase");
+const {
+  connect_redis_hit,
+  connect_redis_miss,
+} = require("../../../config/redis-config");
+// const encryptionPayload = require("../../../Utilities/Encrypt/payload");
 
 exports.postWithText = async (req, res) => {
   try {
@@ -46,6 +51,7 @@ exports.postWithText = async (req, res) => {
     post.isUser = "user";
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([user.save(), post.save()]);
+    // const postEncrypt = await encryptionPayload(post);
     res.status(201).send({ message: "post is create", post });
     if (user.userFollowers.length >= 1) {
       if (post.postStatus === "Anyone") {
@@ -172,6 +178,7 @@ exports.postWithImage = async (req, res) => {
     post.isUser = "user";
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([user.save(), post.save()]);
+    // const postEncrypt = await encryptionPayload(post);
     res.status(201).send({ message: "post is create", post });
     if (user.userFollowers.length >= 1) {
       if (post.postStatus === "Anyone") {
@@ -273,6 +280,7 @@ exports.postWithVideo = async (req, res) => {
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([user.save(), post.save()]);
     await unlinkFile(file.path);
+    // const postEncrypt = await encryptionPayload(post);
     res.status(201).send({ message: "post created", post });
     if (user.userFollowers.length >= 1) {
       if (post.postStatus === "Anyone") {
@@ -485,6 +493,7 @@ exports.postLike = async (req, res) => {
           post.likeCount -= 1;
         }
         await post.save();
+        // const likeEncrypt = await encryptionPayload(post.likeCount);
         res
           .status(200)
           .send({ message: "Removed from Likes", likeCount: post.likeCount });
@@ -492,6 +501,7 @@ exports.postLike = async (req, res) => {
         post.endUserLike.push(user_session);
         post.likeCount += 1;
         await post.save();
+        // const likeEncrypt = await encryptionPayload(post.likeCount);
         res
           .status(200)
           .send({ message: "Added To Likes", likeCount: post.likeCount });
@@ -566,6 +576,7 @@ exports.postComment = async (req, res) => {
     post.commentCount += 1;
     comment.post = post._id;
     await Promise.all([post.save(), comment.save()]);
+    // const commentEncrypt = await encryptionPayload(comment);
     res.status(201).send({ message: "comment created", comment });
     var notify = new Notification({});
     var author_user = await User.findOne({ _id: `${post?.author}` });
@@ -584,6 +595,7 @@ exports.postComment = async (req, res) => {
         ? req.tokenData.insId
         : "";
       notify.notifyReceiever = author_user?._id;
+      notify.notifyCategory = "Comment";
       author_user?.uNotify.push(notify._id);
       notify.user = author_user?._id;
       if (req?.tokenData?.userId) {
@@ -646,18 +658,23 @@ exports.postComment = async (req, res) => {
 
 exports.retrieveAllUserPosts = async (req, res) => {
   try {
+    const id = req.params.id;
     const page = req.query.page ? parseInt(req.query.page) : 1;
+    // const is_cache = await connect_redis_hit(`USER-All-${id}-${page}`);
+    // if (is_cache?.hit)
+    //   return res.status(200).send({
+    //     message: "All Feed from Cache 🙌",
+    //     post: is_cache.post,
+    //     postCount: is_cache.postCount,
+    //     totalPage: is_cache.totalPage,
+    //   });
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const p_types = req.query.p_type ? req.query.p_type : "";
     const query_search = req.query.search_key ? req.query.search_key : "";
-    const id = req.params.id;
     const skip = (page - 1) * limit;
     const user = await User.findById(id).select(
       "id ageRestrict userPosts userInstituteFollowing"
     );
-    // .populate({
-    //   path: "userPosts",
-    // });
     if (user && user.userPosts.length >= 1) {
       //
       if (query_search.trim() === "") {
@@ -923,15 +940,28 @@ exports.retrieveAllUserPosts = async (req, res) => {
           0,
           data_ads
         );
+        // const bind_data = {
+        //   post: post,
+        //   postCount: postCount.length,
+        //   totalPage: totalPage,
+        // };
+        // const cached = await connect_redis_miss(
+        //   `USER-All-${id}-${page}`,
+        //   bind_data
+        // );
+        // Add Another Encryption
         res.status(200).send({
-          message: "Success",
-          post,
+          message: "All Feed from DB",
+          // post: cached.post,
+          // postCount: cached.postCount,
+          // totalPage: cached.totalPage,
+          post: post,
           postCount: postCount.length,
           totalPage: totalPage,
         });
       } else {
         res.status(200).send({
-          message: "Failure",
+          message: "No Feed Available",
           post: [],
           postCount: 0,
           totalPage: 0,
@@ -952,11 +982,18 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
     const id = req.params.id;
     const skip = (page - 1) * limit;
     const user = await User.findById(id).select(
-      "id ageRestrict userPosts userInstituteFollowing"
+      "id ageRestrict username userPosts userInstituteFollowing"
     );
-    // .populate({
-    //   path: "userPosts",
-    // });
+    // const is_cache = await connect_redis_hit(
+    //   `USER-WEB${user?.username}-${page}`
+    // );
+    // if (is_cache?.hit)
+    //   return res.status(200).send({
+    //     message: "All Web Feed from Cache 🙌",
+    //     post: is_cache.post,
+    //     postCount: is_cache.postCount,
+    //     totalPage: is_cache.totalPage,
+    //   });
     if (user && user.userPosts.length >= 1) {
       //
       if (query_search.trim() === "") {
@@ -1132,15 +1169,28 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
         var totalPage = page + 1;
       }
       if (post?.length > 0) {
+        // const bind_data = {
+        //   post: post,
+        //   postCount: postCount.length,
+        //   totalPage: totalPage,
+        // };
+        // const cached = await connect_redis_miss(
+        //   `USER-WEB${user?.username}-${page}`,
+        //   bind_data
+        // );
+        // Add Another Encryption
         res.status(200).send({
-          message: "Success",
-          post,
+          message: "All Web Feed from DB",
+          // post: cached.post,
+          // postCount: cached.postCount,
+          // totalPage: cached.totalPage,
+          post: post,
           postCount: postCount.length,
           totalPage: totalPage,
         });
       } else {
         res.status(200).send({
-          message: "Failure",
+          message: "No Feed Available",
           post: [],
           postCount: 0,
           totalPage: 0,
@@ -1154,14 +1204,20 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
 
 exports.retrieveAllUserProfilePosts = async (req, res) => {
   try {
+    const id = req.params.id;
     const page = req.query.page ? parseInt(req.query.page) : 1;
+    // const is_cache = await connect_redis_hit(`USER-Profile-${id}-${page}`);
+    // if (is_cache?.hit)
+    //   return res.status(200).send({
+    //     message: "All Profile Feed from Cache 🙌",
+    //     post: is_cache.post,
+    //     postCount: is_cache.postCount,
+    //     totalPage: is_cache.totalPage,
+    //   });
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const p_types = req.query.p_type ? req.query.p_type : "";
-    const id = req.params.id;
     const skip = (page - 1) * limit;
-    const user = await User.findById(id).select("id").populate({
-      path: "userPosts",
-    });
+    const user = await User.findById(id).select("id username userPosts");
     if (user && user.userPosts.length >= 1) {
       if (p_types !== "") {
         var post = await Post.find({ author: id, postType: p_types })
@@ -1241,9 +1297,22 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
       } else {
         var totalPage = page + 1;
       }
+      // const bind_data = {
+      //   post: post,
+      //   postCount: postCount.length,
+      //   totalPage: totalPage,
+      // };
+      // const cached = await connect_redis_miss(
+      //   `USER-Profile-${id}-${page}`,
+      //   bind_data
+      // );
+      // Add Another Encryption
       res.status(200).send({
-        message: "Success",
-        post,
+        message: "All Profile Feed from DB",
+        // post: cached.post,
+        // postCount: cached.postCount,
+        // totalPage: cached.totalPage,
+        post: post,
         postCount: postCount.length,
         totalPage: totalPage,
       });
@@ -1260,6 +1329,12 @@ exports.getComment = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const pid = req.params.id;
     const skip = (page - 1) * limit;
+    // const is_cache = await connect_redis_hit(`parentComment-${pid}-${page}`);
+    // if (is_cache?.hit)
+    //   return res.status(200).send({
+    //     message: "All Comment Feed from Cache 🙌",
+    //     replyComment: is_cache.comment,
+    //   });
     const insPost = await Post.findById(pid);
     const comment = await Comment.find({
       _id: { $in: insPost.comment },
@@ -1270,11 +1345,16 @@ exports.getComment = async (req, res) => {
       .select(
         "commentDescription createdAt allLikeCount parentCommentLike allChildCommentCount authorOneLine author authorName authorUserName authorPhotoId authorProfilePhoto"
       );
-    // .populate({
-    //   path: "users",
-    //   select: "userLegalName photoId profilePhoto ",
-    // });
-    res.status(200).send({ message: "Sucess", comment });
+    // const commentEncrypt = await encryptionPayload(comment);
+    // const cached = await connect_redis_miss(
+    //   `parentComment-${pid}-${page}`,
+    //   comment
+    // );
+    res.status(200).send({
+      message: "All Parent Comment Feed from DB 🙌",
+      // comment: cached.comment,
+      comment: comment,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -1287,6 +1367,12 @@ exports.getCommentChild = async (req, res) => {
     const getPage = req.query.page ? parseInt(req.query.page) : 1;
     const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
     const dropItem = (getPage - 1) * itemPerPage;
+    // const is_cache = await connect_redis_hit(`childComment-${pcid}-${getPage}`);
+    // if (is_cache?.hit)
+    //   return res.status(200).send({
+    //     message: "All Child Comment Feed from Cache 🙌",
+    //     replyComment: is_cache.comment,
+    //   });
     const comment = await Comment.findById(pcid)
       .populate({
         path: "childComment",
@@ -1305,7 +1391,16 @@ exports.getCommentChild = async (req, res) => {
       res.status(200).send({ message: "no any child", replyComment: [] });
     }
     const replyComment = userPagination(comment.childComment);
-    res.status(200).send({ replyComment });
+    // const replyEncrypt = await encryptionPayload(replyComment);
+    // const cached = await connect_redis_miss(
+    //   `childComment-${pcid}-${getPage}`,
+    //   replyComment
+    // );
+    res.status(200).send({
+      message: "All Child Comment Feed from DB 🙌",
+      // replyComment: cached.replyComment,
+      replyComment: replyComment,
+    });
   } catch {}
 };
 
@@ -1343,6 +1438,7 @@ exports.postCommentChild = async (req, res) => {
         authorProfilePhoto: user.profilePhoto,
         authorOneLine: user.one_line_about,
       };
+      // Add Another Encryption
       res.status(201).send({
         childReplyComment,
         allChildCommentCount: parentComment.allChildCommentCount,
@@ -1365,6 +1461,7 @@ exports.likeCommentChild = async (req, res) => {
         comment.parentCommentLike.push(id);
         comment.allLikeCount += 1;
         await comment.save();
+        // const likeEncrypt = await encryptionPayload(comment.allLikeCount);
         res.status(200).send({
           message: "liked by User",
           allLikeCount: comment.allLikeCount,
@@ -1375,6 +1472,7 @@ exports.likeCommentChild = async (req, res) => {
           comment.allLikeCount -= 1;
         }
         await comment.save();
+        // const likeEncrypt = await encryptionPayload(comment.allLikeCount);
         res.status(200).send({
           message: "disliked by user",
           allLikeCount: comment.allLikeCount,
@@ -1406,6 +1504,7 @@ exports.reactionPost = async (req, res) => {
       .select("userLegalName photoId username profilePhoto userBio")
       .lean()
       .exec();
+    // const userEncrypt = await encryptionPayload(users);
     res.status(200).send({
       reactionList: users,
     });
@@ -1467,6 +1566,7 @@ exports.circleList = async (req, res) => {
     // .exec();
     // console.log(tagUser);
     // const tagInstituteList = suffle_search_list(tagUser, tagInstitute);
+    // const tagEncrypt = await encryptionPayload(tagUser);
     res.status(200).send({
       tagUserList: tagUser,
       // tagUser,
@@ -1479,13 +1579,19 @@ exports.circleList = async (req, res) => {
 
 exports.retrieveAllUserSavedPosts = async (req, res) => {
   try {
-    const page = req.query.page ? parseInt(req.query.page) : 1;
-    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const id = req.params.id;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    // const is_cache = await connect_redis_hit(`USER-Saved-${id}-${page}`);
+    // if (is_cache?.hit)
+    //   return res.status(200).send({
+    //     message: "All Saved Post Feed from Cache 🙌",
+    //     post: is_cache.post,
+    //     postCount: is_cache.postCount,
+    //     totalPage: is_cache.totalPage,
+    //   });
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const user = await User.findById(id).select("id").populate({
-      path: "user_saved_post",
-    });
+    const user = await User.findById(id).select("id user_saved_post");
     if (user && user.user_saved_post.length >= 1) {
       var post = await Post.find({
         $and: [{ _id: { $in: user.user_saved_post } }],
@@ -1529,14 +1635,29 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
       } else {
         var totalPage = page + 1;
       }
+      // const bind_data = {
+      //   post: post,
+      //   postCount: postCount.length,
+      //   totalPage: totalPage,
+      // };
+      // const cached = await connect_redis_miss(
+      //   `USER-Saved-${id}-${page}`,
+      //   bind_data
+      // );
+      // Add Another Encryption
       res.status(200).send({
-        message: "Success",
-        post,
+        message: "All Saved Feed from DB 🙌",
+        // post: cached.post,
+        // postCount: cached.postCount,
+        // totalPage: cached.totalPage,
+        post: post.reverse(),
         postCount: postCount.length,
         totalPage: totalPage,
       });
     } else {
-      res.status(200).send({ message: "No Post Found", post: [] });
+      res
+        .status(200)
+        .send({ message: "No Post Found", post: [], postCount: 0 });
     }
   } catch (e) {
     console.log(e);
@@ -1545,9 +1666,17 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
 
 exports.retrieveAllUserTagPosts = async (req, res) => {
   try {
-    const page = req.query.page ? parseInt(req.query.page) : 1;
-    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const id = req.params.id;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    // const is_cache = await connect_redis_hit(`USER-Tag-${id}-${page}`);
+    // if (is_cache?.hit)
+    //   return res.status(200).send({
+    //     message: "All Tag Post Feed from Cache 🙌",
+    //     post: is_cache.post,
+    //     postCount: is_cache.postCount,
+    //     totalPage: is_cache.totalPage,
+    //   });
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
     const user = await User.findById(id).select("id").populate({
       path: "tag_post",
@@ -1595,9 +1724,22 @@ exports.retrieveAllUserTagPosts = async (req, res) => {
       } else {
         var totalPage = page + 1;
       }
+      // const bind_data = {
+      //   post: post,
+      //   postCount: postCount.length,
+      //   totalPage: totalPage,
+      // };
+      // const cached = await connect_redis_miss(
+      //   `USER-Tag-${id}-${page}`,
+      //   bind_data
+      // );
+      // Add Another Encryption
       res.status(200).send({
-        message: "Success Tag Post",
-        post,
+        message: "All Tag Feed from DB 🙌",
+        // post: cached.post,
+        // postCount: cached.postCount,
+        // totalPage: cached.totalPage,
+        post: post,
         postCount: postCount.length,
         totalPage: totalPage,
       });
@@ -1611,9 +1753,17 @@ exports.retrieveAllUserTagPosts = async (req, res) => {
 
 exports.retrieveAllUserReposts = async (req, res) => {
   try {
-    const page = req.query.page ? parseInt(req.query.page) : 1;
-    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const id = req.params.id;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    // const is_cache = await connect_redis_hit(`USER-Repost-${id}-${page}`);
+    // if (is_cache?.hit)
+    //   return res.status(200).send({
+    //     message: "All Repost Feed from Cache 🙌",
+    //     post: is_cache.post,
+    //     postCount: is_cache.postCount,
+    //     totalPage: is_cache.totalPage,
+    //   });
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
     const user = await User.findById(id).select("id");
     var repost = await Post.find({
@@ -1653,9 +1803,23 @@ exports.retrieveAllUserReposts = async (req, res) => {
       });
 
     if (repost && repost.length >= 1) {
-      res
-        .status(200)
-        .send({ message: "Success", repost, count: repost.length });
+      // Add Another Encryption
+      // const bind_data = {
+      //   repost: repost,
+      //   count: count,
+      // };
+      // const cached = await connect_redis_miss(
+      //   `USER-Repost-${id}-${page}`,
+      //   bind_data
+      // );
+      // Add Another Encryption
+      res.status(200).send({
+        message: "All Repost Feed from DB 🙌",
+        // repost: cached.repost,
+        // count: cached.count,
+        repost: repost,
+        count: repost?.length,
+      });
     } else {
       res.status(200).send({ message: "No Post found", repost: [] });
     }
@@ -1748,6 +1912,13 @@ exports.renderOnePostQuery = async (req, res) => {
         message: "You're breaking rules of API fetching 😡",
         access: false,
       });
+    // const is_cache = await connect_redis_hit(`One-Post-${pid}`);
+    // if (is_cache?.hit)
+    //   return res.status(200).send({
+    //     message: "One Post Feed from Cache 🙌",
+    //     one_post: is_cache.one_post,
+    //     access: true,
+    //   });
     const one_post = await Post.findById({ _id: pid })
       .select(
         "postTitle postText question_visibility is_hashtag postQuestion post_question_transcript post_description_transcript comment_turned isHelpful needCount authorOneLine authorFollowersCount needUser isNeed answerCount tagPeople isUser isInstitute answerUpVoteCount postDescription endUserSave postType trend_category createdAt postImage postVideo imageId postStatus likeCount commentCount author authorName authorUserName authorPhotoId authorProfilePhoto endUserLike postType"
@@ -1785,7 +1956,14 @@ exports.renderOnePostQuery = async (req, res) => {
         select: "hashtag_name hashtag_profile_photo",
       });
     if (one_post) {
-      res.status(200).send({ message: "One Post Details 😡", access: true });
+      // const oneEncrypt = await encryptionPayload(one_post);
+      // const cached = await connect_redis_miss(`One-Post-${pid}`, one_post);
+      res.status(200).send({
+        message: "One Post Feed from DB 🙌",
+        // one_post: cached.one_post,
+        one_post: one_post,
+        access: true,
+      });
     } else {
       res
         .status(200)

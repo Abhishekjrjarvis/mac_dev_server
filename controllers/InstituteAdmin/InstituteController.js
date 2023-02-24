@@ -29,21 +29,23 @@ const fs = require("fs");
 const util = require("util");
 const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const { todayDate } = require("../../Utilities/timeComparison");
-const { file_to_aws } = require("../../Utilities/uploadFileAws");
 const { randomSixCode } = require("../../Service/close");
 const unlinkFile = util.promisify(fs.unlink);
+const { file_to_aws } = require("../../Utilities/uploadFileAws");
+const { shuffleArray } = require("../../Utilities/Shuffle");
+const { designation_alarm } = require("../../WhatsAppSMS/payload")
 
 exports.getDashOneQuery = async (req, res) => {
   try {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id }).select(
-      "insName name insAbout photoId blockStatus insProfileCoverPhoto coverId block_institute blockedBy sportStatus sportClassStatus sportDepart sportClassDepart staff_privacy email_privacy followers_critiria initial_Unlock_Amount contact_privacy followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount accessFeature activateStatus"
+      "insName name insAbout photoId blockStatus gr_initials insProfileCoverPhoto coverId block_institute blockedBy sportStatus sportClassStatus sportDepart sportClassDepart staff_privacy email_privacy followers_critiria initial_Unlock_Amount contact_privacy sms_lang followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount transportStatus transportDepart libraryActivate library accessFeature activateStatus"
     );
     const encrypt = await encryptionPayload(institute);
     res.status(200).send({
       message: "limit Ins Data",
       institute: institute,
-      eData: encrypt,
+      // eData: encrypt,
     });
   } catch {}
 };
@@ -53,7 +55,7 @@ exports.getProfileOneQuery = async (req, res) => {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName status photoId insProfilePhoto sportStatus sportClassStatus blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement admissionCount request_at affiliation_by"
+        "insName status photoId insProfilePhoto gr_initials application_fee_charges sportStatus sms_lang sportClassStatus blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement followers userFollowersList admissionCount request_at affiliation_by"
       )
       .populate({
         path: "request_at",
@@ -82,6 +84,7 @@ exports.getSettingPersonal = async (req, res) => {
       .lean()
       .exec();
     if (institute) {
+      // const iEncrypt = await encryptionPayload(institute);
       res
         .status(200)
         .send({ message: "Success for retrieving Setting ✨", institute });
@@ -107,6 +110,7 @@ exports.getSwitchAccounts = async (req, res) => {
       .lean()
       .exec();
     if (institute) {
+      // const iEncrypt = await encryptionPayload(institute);
       res.status(200).send({ message: "Success", institute });
     } else {
       res.status(404).send({ message: "Failure" });
@@ -136,6 +140,7 @@ exports.getCQCoins = async (req, res) => {
       .lean()
       .exec();
     if (institute) {
+      // const iEncrypt = await encryptionPayload(institute);
       res.status(200).send({ message: "Success", institute });
     } else {
       res.status(404).send({ message: "Failure" });
@@ -169,6 +174,7 @@ exports.getAnnouncementArray = async (req, res) => {
       .sort("-createdAt")
       .limit(limit)
       .skip(skip);
+    // const aEncrypt = await encryptionPayload(announcement);
     res.status(200).send({ message: "all announcement list", announcement });
   } catch (e) {
     console.log(e);
@@ -208,6 +214,7 @@ exports.getNotificationIns = async (req, res) => {
         path: "notifyByDepartPhoto",
         select: "photoId photo",
       });
+    // const nEncrypt = await encryptionPayload(notify);
     res.status(200).send({ message: "Notification Data ✨", notify });
   } catch (e) {
     console.log("Error", e.message);
@@ -230,7 +237,7 @@ exports.getAllTotalCount = async (req, res) => {
       ],
     });
     total = total + notify?.length;
-
+    // const tEncrypt = await encryptionPayload(total);
     res.status(200).send({ message: "Not Viewed Notification", count: total });
   } catch (e) {
     console.log(e);
@@ -269,32 +276,32 @@ exports.getNotifyReadIns = async (req, res) => {
     await read.save();
     res.status(200).send({ message: "updated" });
   } catch (e) {
-    console.log("Error", e.message);
+    console.log(e);
   }
 };
 
 exports.getDeleteNotifyIns = async (req, res) => {
   try {
     const { id, nid } = req.params;
-    const institute = await InstituteAdmin.findByIdAndUpdate(id, {
+    await InstituteAdmin.findByIdAndUpdate(id, {
       $pull: { iNotify: nid },
     });
-    const notify = await Notification.findByIdAndDelete({ _id: nid });
-    res.status(200).send({ message: "Deleted" });
+    await Notification.findByIdAndDelete({ _id: nid });
+    res.status(200).send({ message: "Deleted Notification 😀" });
   } catch (e) {
-    console.log("Error", e.message);
+    console.log(e);
   }
 };
 
 exports.getHideNotifyIns = async (req, res) => {
   try {
-    const { id, nid } = req.params;
+    const { nid } = req.params;
     const notify = await Notification.findById({ _id: nid });
     notify.notifyVisibility = "hide";
     await notify.save();
-    res.status(200).send({ message: "Hide" });
+    res.status(200).send({ message: "Hide Notification 😀" });
   } catch (e) {
-    console.log("Error", e.message);
+    console.log(e);
   }
 };
 
@@ -307,15 +314,15 @@ exports.getUpdatePhone = async (req, res) => {
     await institute.save();
     res.status(200).send({ message: "Mobile No Updated", status: true });
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(e);
   }
 };
 
 exports.getUpdatePersonalIns = async (req, res) => {
   try {
     const { id } = req.params;
+    const { old_initials } = req.query
     await InstituteAdmin.findByIdAndUpdate(id, req.body);
-    // await institute.save();
     res.status(200).send({ message: "Personal Info Updated" });
     var institute = await InstituteAdmin.findById({ _id: id });
     const post = await Post.find({ author: `${institute._id}` });
@@ -338,6 +345,13 @@ exports.getUpdatePersonalIns = async (req, res) => {
       reply.authorName = institute.insName;
       await reply.save();
     });
+    const all_students = await Student.find({ $and: [{ studentStatus: "Approved"}, { institute: `${institute._id}`}]}).select("studentGRNO")
+    for(var all of all_students){
+      if(all?.studentGRNO?.startsWith(`${old_initials}`)){
+        all.studentGRNO = institute?.gr_initials + all?.studentGRNO?.slice(old_initials?.length)
+        await all.save()
+      }
+    }
   } catch (e) {
     console.log(e);
   }
@@ -364,9 +378,26 @@ exports.getUpdateAnnouncement = async (req, res) => {
       await unlinkFile(file.path);
     }
     await Promise.all([institute.save(), announcements.save()]);
+    // const aEncrypt = await encryptionPayload(announcements);
     res.status(200).send({ message: "Successfully Created", announcements });
+    for (var num of institute.userFollowersList) {
+      const user = await User.findById({ _id: `${num}` });
+      if (user?.followInsAnnouncement?.includes(announcements?._id)) {
+      } else {
+        user.followInsAnnouncement.push(announcements?._id);
+        await user.save();
+      }
+    }
+    for (var arr of institute.joinedUserList) {
+      const user = await User.findById({ _id: `${arr}` });
+      if (user?.followInsAnnouncement?.includes(announcements?._id)) {
+      } else {
+        user.followInsAnnouncement.push(announcements?._id);
+        await user.save();
+      }
+    }
   } catch (e) {
-    console.log(`Error`, e);
+    console.log(e);
   }
 };
 
@@ -380,9 +411,11 @@ exports.getAnnouncement = async (req, res) => {
       })
       .lean()
       .exec();
+    // const aEncrypt = await encryptionPayload(announcement);
+
     res.status(200).send({ message: "Announcement Detail", announcement });
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(e);
   }
 };
 
@@ -402,13 +435,14 @@ exports.updateFollowIns = async (req, res) => {
           .status(200)
           .send({ message: "You Already Following This Institute" });
       } else {
-        const notify = await new Notification({});
+        const notify = new Notification({});
         sinstitute.followers.push(institute_session);
         institutes.following.push(req.body.followId);
         institutes.followingCount += 1;
         sinstitute.followersCount += 1;
-        notify.notifyContent = `${institutes.insName} started to following you`;
+        notify.notifyContent = `${institutes.insName} started following you`;
         notify.notifyReceiever = sinstitute._id;
+        notify.notifyCategory = "Institute Follow";
         sinstitute.iNotify.push(notify._id);
         notify.institute = sinstitute._id;
         notify.notifyByInsPhoto = institutes._id;
@@ -435,7 +469,7 @@ exports.updateFollowIns = async (req, res) => {
         .send({ message: "Institute is Not Approved, you will not follow" });
     }
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(e);
   }
 };
 
@@ -482,7 +516,7 @@ exports.removeFollowIns = async (req, res) => {
         .send({ message: "Institute is Not Approved, you will not follow" });
     }
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(e);
   }
 };
 
@@ -509,6 +543,7 @@ exports.updateApproveStaff = async (req, res) => {
     } ${staffs.staffLastName} for joined as a staff at ${institute.insName}`;
     notify.notifySender = id;
     notify.notifyReceiever = user._id;
+    notify.notifyCategory = "Approve Staff";
     institute.iNotify.push(notify._id);
     notify.institute = institute._id;
     user.uNotify.push(notify._id);
@@ -516,6 +551,7 @@ exports.updateApproveStaff = async (req, res) => {
     notify.notifyByStaffPhoto = staffs._id;
     aStatus.content = `Welcome to ${institute.insName}.Your application for joining as staff  has been accepted by ${institute.insName}.`;
     user.applicationStatus.push(aStatus._id);
+    aStatus.instituteId = institute._id;
     invokeFirebaseNotification(
       "Staff Approval",
       notify,
@@ -531,6 +567,7 @@ exports.updateApproveStaff = async (req, res) => {
       notify.save(),
       aStatus.save(),
     ]);
+    // const iEncrypt = await encryptionPayload(institute.ApproveStaff);
     res.status(200).send({
       message: `Welcome To The Institute ${staffs.staffFirstName} ${staffs.staffLastName}`,
       institute: institute.ApproveStaff,
@@ -550,8 +587,9 @@ exports.updateApproveStaff = async (req, res) => {
       institute.staff_category.boyCount += 1;
     } else if (staffs.staffGender === "Female") {
       institute.staff_category.girlCount += 1;
-    } else {
+    } else if (staffs.staffGender === "Other") {
       institute.staff_category.otherCount += 1;
+    } else {
     }
     if (staffs.staffCastCategory === "General") {
       institute.staff_category.generalCount += 1;
@@ -584,17 +622,26 @@ exports.updateRejectStaff = async (req, res) => {
     const staffs = await Staff.findById({ _id: sid });
     const user = await User.findById({ _id: uid });
     const aStatus = new Status({});
+    const notify = new Notification({});
     staffs.staffStatus = req.body.status;
     institute.staff.pull(sid);
     notify.notifyContent = `your request for the role of staff is rejected contact at connect@qviple.com`;
     notify.notifySender = id;
     notify.notifyReceiever = user._id;
-    user.uNotify.push(notify);
+    user.uNotify.push(notify._id);
     notify.user = user;
     notify.notifyPid = "1";
     notify.notifyPhoto = institute.insProfilePhoto;
     aStatus.content = `Your application for joining as staff in ${institute.insName} is being rejected. Please follow up with institute for any queries.`;
     user.applicationStatus.push(aStatus._id);
+    aStatus.instituteId = institute._id;
+    invokeFirebaseNotification(
+      "Designation Allocation",
+      notify,
+      institute.insName,
+      user._id,
+      user.deviceToken
+    );
     await Promise.all([
       institute.save(),
       staffs.save(),
@@ -602,12 +649,13 @@ exports.updateRejectStaff = async (req, res) => {
       notify.save(),
       aStatus.save(),
     ]);
+    // const iEncrypt = await encryptionPayload(institute);
     res.status(200).send({
       message: `Application Rejected ${staffs.staffFirstName} ${staffs.staffLastName}`,
       institute,
     });
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(e);
   }
 };
 
@@ -647,6 +695,7 @@ exports.getNewDepartment = async (req, res) => {
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByInsPhoto = institute._id;
+    notify.notifyCategory = "Department Designation";
     invokeFirebaseNotification(
       "Designation Allocation",
       notify,
@@ -661,10 +710,19 @@ exports.getNewDepartment = async (req, res) => {
       user.save(),
       notify.save(),
     ]);
+    // const dEncrypt = await encryptionPayload(department._id);
     res.status(200).send({
       message: "Successfully Created Department",
       department: department._id,
     });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "DHEAD",
+      institute?.sms_lang,
+      department?.dName,
+      department?.dTitle,
+      ""
+    );
   } catch (e) {}
 };
 
@@ -677,6 +735,7 @@ exports.getNewStaffJoinCodeIns = async (req, res) => {
       const institute = await InstituteAdmin.findById({ _id: id });
       institute.staffJoinCode = await randomSixCode();
       await institute.save();
+      // const iEncrypt = await encryptionPayload(institute.staffJoinCode);
       res.status(200).send({
         message: "New Random Staff joining code",
         institute: institute.staffJoinCode,
@@ -685,13 +744,14 @@ exports.getNewStaffJoinCodeIns = async (req, res) => {
       const institute = await InstituteAdmin.findById({ _id: id });
       institute.staffJoinCode = code;
       await institute.save();
+      // const iEncrypt = await encryptionPayload(institute.staffJoinCode);
       res.status(200).send({
         message: "Staff joining code",
         institute: institute.staffJoinCode,
       });
     }
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(e);
   }
 };
 
@@ -702,11 +762,11 @@ exports.AddAccountByIns = async (req, res) => {
     const instituteNew = await InstituteAdmin.findById({ _id: iid });
     institute.addInstitute.push(instituteNew);
     instituteNew.addInstitute.push(institute);
-    await institute.save();
-    await instituteNew.save();
+    await Promise.all([institute.save(), instituteNew.save()]);
+    // Add Another Encryption
     res.status(200).send({ message: "Added", institute, instituteNew });
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(e);
   }
 };
 
@@ -717,11 +777,11 @@ exports.AddAccountByUser = async (req, res) => {
     const user = await User.findById({ _id: iid });
     institute.addInstituteUser.push(user);
     user.addUserInstitute.push(institute);
-    await institute.save();
-    await user.save();
+    await Promise.all([institute.save(), user.save()]);
+    // Add Another Encryption
     res.status(200).send({ message: "Added", institute, user });
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(e);
   }
 };
 
@@ -739,9 +799,10 @@ exports.reportPostByUser = async (req, res) => {
     report.reportBy = user._id;
     user.userPosts?.pull(post?._id);
     await Promise.all([admin.save(), report.save(), user.save()]);
+    // const rEncrypt = await encryptionPayload(reportStatus);
     res.status(200).send({ message: "reported", report: reportStatus });
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(e);
   }
 };
 
@@ -752,7 +813,7 @@ exports.sendForPrintID = async (req, res) => {
     const institute = await InstituteAdmin.findById({ _id: id });
     const batch = await Batch.findById({ _id: bid });
     const admin = await Admin.findById({ _id: `62596c3a47690fe0d371f5b4` });
-    const notify = await new Notification({});
+    const notify = new Notification({});
     admin.idCardPrinting.push(batch);
     batch.idCardStatus = status;
     notify.notifyContent = `Id Card for ${batch.batchName} is send for Printing`;
@@ -768,7 +829,7 @@ exports.sendForPrintID = async (req, res) => {
     await notify.save();
     res.status(200).send({ message: "Send for Printing", admin, batch });
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(e);
   }
 };
 
@@ -778,7 +839,7 @@ exports.unSendForPrintID = async (req, res) => {
     const institute = await InstituteAdmin.findById({ _id: id });
     const batch = await Batch.findById({ _id: bid });
     const admin = await Admin.findById({ _id: `62596c3a47690fe0d371f5b4` });
-    const notify = await new Notification({});
+    const notify = new Notification({});
     admin.idCardPrinting.pull(batch);
     batch.idCardStatus = "";
     notify.notifyContent = `Id Card for ${batch.batchName} is not send for Printing Contact at connect@qviple.com`;
@@ -804,7 +865,7 @@ exports.printedBySuperAdmin = async (req, res) => {
     const institute = await InstituteAdmin.findById({ _id: id });
     const batch = await Batch.findById({ _id: bid });
     const admin = await Admin.findById({ _id: `62596c3a47690fe0d371f5b4` });
-    const notify = await new Notification({});
+    const notify = new Notification({});
     admin.idCardPrinted.push(batch);
     admin.idCardPrinting.pull(batch);
     batch.idCardStatus = status;
@@ -830,33 +891,23 @@ exports.fillStaffForm = async (req, res) => {
     const institute = await InstituteAdmin.findById({ _id: id });
     const user = await User.findById({ _id: uid });
     const staff = new Staff({ ...req.body });
-    for (let fileObject in req.files) {
-      for (let singleFile of req.files[fileObject]) {
-        if (fileObject === "file") {
-          const width = 200;
-          const height = 200;
-          const results = await uploadFile(singleFile, width, height);
-          staff.photoId = "0";
-          staff.staffProfilePhoto = results.Key;
-          await unlinkFile(file.path);
-        } else {
-          const uploadedFile = await file_to_aws(singleFile);
-          if (fileObject === "addharFrontCard")
-            staff.staffAadharFrontCard = uploadedFile.documentKey;
-          else if (fileObject === "addharBackCard")
-            staff.staffAadharBackCard = uploadedFile.documentKey;
-          else if (fileObject === "bankPassbook")
-            staff.staffBankPassbook = uploadedFile.documentKey;
-          else if (fileObject === "casteCertificate")
-            staff.staffCasteCertificatePhoto = uploadedFile.documentKey;
-          else {
-            staff.staffDocuments.push({
-              documentName: fileObject,
-              documentKey: uploadedFile.documentKey,
-              documentType: uploadedFile.documentType,
-            });
-          }
-        }
+    for (var file of req.body?.fileArray) {
+      if (file.name === "file") {
+        staff.photoId = "0";
+        staff.staffProfilePhoto = file.key;
+      } else if (file.name === "addharFrontCard")
+        staff.staffAadharFrontCard = file.key;
+      else if (file.name === "addharBackCard")
+        staff.staffAadharBackCard = file.key;
+      else if (file.name === "bankPassbook") staff.staffBankPassbook = file.key;
+      else if (file.name === "casteCertificate")
+        staff.staffCasteCertificatePhoto = file.key;
+      else {
+        staff.staffDocuments.push({
+          documentName: file.name,
+          documentKey: file.key,
+          documentType: file.type,
+        });
       }
     }
     const notify = new Notification({});
@@ -880,11 +931,13 @@ exports.fillStaffForm = async (req, res) => {
     } ${staff.staffLastName} has been applied for role of Staff`;
     notify.notifySender = staff._id;
     notify.notifyReceiever = institute._id;
+    notify.notifyCategory = "Request Staff";
     institute.iNotify.push(notify._id);
     notify.institute = institute._id;
     notify.notifyByStaffPhoto = staff._id;
     aStatus.content = `Your application for joining as staff in ${institute.insName} is filled successfully..`;
     user.applicationStatus.push(aStatus._id);
+    aStatus.instituteId = institute._id;
     await Promise.all([
       staff.save(),
       institute.save(),
@@ -892,6 +945,7 @@ exports.fillStaffForm = async (req, res) => {
       notify.save(),
       aStatus.save(),
     ]);
+    // const sEncrypt = await encryptionPayload(staff);
     res
       .status(201)
       .send({ message: "Staff form is applied", staff, status: true });
@@ -910,38 +964,31 @@ exports.fillStudentForm = async (req, res) => {
     const classStaff = await Staff.findById({ _id: `${classes.classTeacher}` });
     const classUser = await User.findById({ _id: `${classStaff.user}` });
     const studentOptionalSubject = req.body?.optionalSubject
-      ? JSON.parse(req.body?.optionalSubject)
+      ? req.body?.optionalSubject
       : [];
-    for (let fileObject in req.files) {
-      for (let singleFile of req.files[fileObject]) {
-        if (fileObject === "file") {
-          const width = 200;
-          const height = 200;
-          const results = await uploadFile(singleFile, width, height);
-          student.photoId = "0";
-          student.studentProfilePhoto = results.Key;
-          await unlinkFile(file.path);
-        } else {
-          const uploadedFile = await file_to_aws(singleFile);
-          if (fileObject === "addharFrontCard")
-            student.studentAadharFrontCard = uploadedFile.documentKey;
-          else if (fileObject === "addharBackCard")
-            student.studentAadharBackCard = uploadedFile.documentKey;
-          else if (fileObject === "bankPassbook")
-            student.studentBankPassbook = uploadedFile.documentKey;
-          else if (fileObject === "casteCertificate")
-            student.studentCasteCertificatePhoto = uploadedFile.documentKey;
-          else {
-            student.studentDocuments.push({
-              documentName: fileObject,
-              documentKey: uploadedFile.documentKey,
-              documentType: uploadedFile.documentType,
-            });
-          }
-        }
+    for (var file of req.body?.fileArray) {
+      if (file.name === "file") {
+        student.photoId = "0";
+        student.studentProfilePhoto = file.key;
+      } else if (file.name === "addharFrontCard")
+        student.studentAadharFrontCard = file.key;
+      else if (file.name === "addharBackCard")
+        student.studentAadharBackCard = file.key;
+      else if (file.name === "bankPassbook")
+        student.studentBankPassbook = file.key;
+      else if (file.name === "casteCertificate")
+        student.studentCasteCertificatePhoto = file.key;
+      else {
+        student.studentDocuments.push({
+          documentName: file.name,
+          documentKey: file.key,
+          documentType: file.type,
+        });
       }
     }
-    student.studentOptionalSubject.push(...studentOptionalSubject);
+    if (studentOptionalSubject?.length > 0) {
+      student.studentOptionalSubject.push(...studentOptionalSubject);
+    }
     const notify = new StudentNotification({});
     const aStatus = new Status({});
     institute.student.push(student._id);
@@ -959,7 +1006,7 @@ exports.fillStudentForm = async (req, res) => {
     }
     student.institute = institute._id;
     student.user = user._id;
-    notify.notifyContent = `${student.studentFirstName}${
+    notify.notifyContent = `${student.studentFirstName} ${
       student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
     } ${student.studentLastName} has been applied for role of student`;
     notify.notifySender = student._id;
@@ -976,6 +1023,7 @@ exports.fillStudentForm = async (req, res) => {
     notify.batchId = classes?.batch;
     aStatus.content = `Your application for joining as student in ${institute.insName} is filled successfully. Stay updated to check status of your application.`;
     user.applicationStatus.push(aStatus._id);
+    aStatus.instituteId = institute._id;
     //
     invokeMemberTabNotification(
       "Staff Activity",
@@ -996,6 +1044,7 @@ exports.fillStudentForm = async (req, res) => {
       aStatus.save(),
       classUser.save(),
     ]);
+    // const sEncrypt = await encryptionPayload(student);
     res
       .status(201)
       .send({ message: "student form is applied", student, status: true });
@@ -1021,6 +1070,7 @@ exports.retrievePendingStaffList = async (req, res) => {
       .lean()
       .exec();
     if (staffIns) {
+      // const sEncrypt = await encryptionPayload(staffIns);
       res.status(200).send({ message: "Success", staffIns });
     } else {
       res.status(404).send({ message: "Failure" });
@@ -1041,7 +1091,6 @@ exports.retrieveApproveStaffList = async (req, res) => {
       const staffIns = await Staff.find({
         _id: { $in: staff_ins?.ApproveStaff },
       })
-        .sort("staffROLLNO")
         .limit(limit)
         .skip(skip)
         .select(
@@ -1052,6 +1101,10 @@ exports.retrieveApproveStaffList = async (req, res) => {
           select: "userLegalName userEmail userPhoneNumber",
         });
       if (staffIns) {
+        // const sEncrypt = await encryptionPayload(staffIns);
+        staffIns.sort(function (st1, st2) {
+          return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
+        });
         res.status(200).send({ message: "All Staff With Limit ", staffIns });
       } else {
         res.status(404).send({ message: "Failure", staffIns: [] });
@@ -1064,7 +1117,6 @@ exports.retrieveApproveStaffList = async (req, res) => {
         const staffIns = await Staff.find({
           _id: { $in: staff_ins?.ApproveStaff },
         })
-          .sort("staffROLLNO")
           .select(
             "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
           )
@@ -1080,6 +1132,10 @@ exports.retrieveApproveStaffList = async (req, res) => {
             select: "_id date",
           });
         if (staffIns) {
+          // const sEncrypt = await encryptionPayload(staffIns);
+          staffIns.sort(function (st1, st2) {
+            return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
+          });
           res.status(200).send({ message: "Without Limit", staffIns });
         } else {
           res.status(404).send({ message: "Failure", staffIns: [] });
@@ -1091,7 +1147,6 @@ exports.retrieveApproveStaffList = async (req, res) => {
         const staffIns = await Staff.find({
           _id: { $in: staff_ins?.ApproveStaff },
         })
-          .sort("staffROLLNO")
           .select(
             "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
           )
@@ -1100,6 +1155,10 @@ exports.retrieveApproveStaffList = async (req, res) => {
             select: "userLegalName userEmail userPhoneNumber",
           });
         if (staffIns) {
+          // const sEncrypt = await encryptionPayload(staffIns);
+          staffIns.sort(function (st1, st2) {
+            return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
+          });
           res.status(200).send({ message: "Without Limit", staffIns });
         } else {
           res.status(404).send({ message: "Failure", staffIns: [] });
@@ -1119,12 +1178,11 @@ exports.retrieveApproveStudentList = async (req, res) => {
       const limit = req.query.limit ? parseInt(req.query.limit) : 10;
       const skip = (page - 1) * limit;
       const student_ins = await InstituteAdmin.findById({ _id: id }).select(
-        "ApproveStudent insName"
+        "ApproveStudent insName gr_initials"
       );
       const studentIns = await Student.find({
         _id: { $in: student_ins?.ApproveStudent },
       })
-        .sort({ studentGRNO: 1 })
         .limit(limit)
         .skip(skip)
         .select(
@@ -1139,18 +1197,24 @@ exports.retrieveApproveStudentList = async (req, res) => {
           select: "className classStatus",
         });
       if (studentIns) {
+        // const sEncrypt = await encryptionPayload(studentIns);
+        studentIns.sort(function (st1, st2) {
+          return (
+            parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
+            parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
+          );
+        });
         res.status(200).send({ message: "All Student with limit", studentIns });
       } else {
         res.status(404).send({ message: "Failure", studentIns: [] });
       }
     } else {
       const student_ins = await InstituteAdmin.findById({ _id: id }).select(
-        "ApproveStudent insName"
+        "ApproveStudent insName gr_initials"
       );
       const studentIns = await Student.find({
         _id: { $in: student_ins?.ApproveStudent },
       })
-        .sort("-createdAt")
         .select(
           "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate"
         )
@@ -1163,6 +1227,13 @@ exports.retrieveApproveStudentList = async (req, res) => {
           select: "className classStatus",
         });
       if (studentIns) {
+        // const sEncrypt = await encryptionPayload(studentIns);
+        studentIns.sort(function (st1, st2) {
+          return (
+            parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
+            parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
+          );
+        });
         res.status(200).send({ message: "Without Limit", studentIns });
       } else {
         res.status(404).send({ message: "Failure", studentIns: [] });
@@ -1176,21 +1247,74 @@ exports.retrieveApproveStudentList = async (req, res) => {
 exports.getFullStaffInfo = async (req, res) => {
   try {
     const { id } = req.params;
-    const staff = await Staff.findById({ _id: id })
-      .select(
-        "staffFirstName staffDesignationCount staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber"
-      )
-      .populate({
-        path: "user",
-        select: "userLegalName userEmail",
-      })
-      .populate({
-        path: "institute",
-        select: "insName",
-      })
-      .lean()
-      .exec();
+    const { isApk } = req.query;
+    if (isApk) {
+      var staff = await Staff.findById({ _id: id })
+        .select(
+          "staffFirstName staffDesignationCount staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName userEmail",
+        })
+        .populate({
+          path: "institute",
+          select: "insName",
+        })
+        .lean()
+        .exec();
+      for (var docs of staff.staffDocuments) {
+        staff.incomeCertificate =
+          docs.documentName === "incomeCertificate"
+            ? docs.documentKey
+            : staff.incomeCertificate;
+        staff.leavingTransferCertificate =
+          docs.documentName === "leavingTransferCertificate"
+            ? docs.documentKey
+            : staff.leavingTransferCertificate;
+        staff.nonCreamyLayerCertificate =
+          docs.documentName === "nonCreamyLayerCertificate"
+            ? docs.documentKey
+            : staff.nonCreamyLayerCertificate;
+        staff.domicileCertificate =
+          docs.documentName === "domicileCertificate"
+            ? docs.documentKey
+            : staff.domicileCertificate;
+        staff.nationalityCertificate =
+          docs.documentName === "nationalityCertificate"
+            ? docs.documentKey
+            : staff.nationalityCertificate;
+        staff.lastYearMarksheet =
+          docs.documentName === "lastYearMarksheet"
+            ? docs.documentKey
+            : staff.lastYearMarksheet;
+        staff.joiningTransferLetter =
+          docs.documentName === "joiningTransferLetter"
+            ? docs.documentKey
+            : staff.joiningTransferLetter;
+        staff.identityDocument =
+          docs.documentName === "identityDocument"
+            ? docs.documentKey
+            : staff.identityDocument;
+      }
+    } else {
+      var staff = await Staff.findById({ _id: id })
+        .select(
+          "staffFirstName staffDesignationCount staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName userEmail",
+        })
+        .populate({
+          path: "institute",
+          select: "insName",
+        })
+        .lean()
+        .exec();
+    }
     if (staff) {
+      // const sEncrypt = await encryptionPayload(staff);
       res.status(200).send({ message: "Staff Data To Member", staff });
     } else {
       res.status(404).send({ message: "Failure" });
@@ -1202,31 +1326,95 @@ exports.getFullStaffInfo = async (req, res) => {
 
 exports.getFullStudentInfo = async (req, res) => {
   try {
+    var average_points = 0;
     const { id } = req.params;
-    const student = await Student.findById({ _id: id })
-      .select(
-        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
-      )
-      .populate({
-        path: "user",
-        select: "userLegalName userEmail",
-      })
-      .populate({
-        path: "institute",
-        select: "insName",
-      })
-      .populate({
-        path: "studentClass",
-        select: "className classStatus",
-      })
-      .lean()
-      .exec();
+    const { isApk } = req.query;
+    if (isApk) {
+      var student = await Student.findById({ _id: id })
+        .select(
+          "studentFirstName extraPoints batchCount studentMiddleName studentBankAccountHolderName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName userEmail",
+        })
+        .populate({
+          path: "institute",
+          select: "insName",
+        })
+        .populate({
+          path: "studentClass",
+          select: "className classStatus",
+        })
+        .lean()
+        .exec();
+
+      for (var docs of student.studentDocuments) {
+        student.incomeCertificate =
+          docs.documentName === "incomeCertificate"
+            ? docs.documentKey
+            : student.incomeCertificate;
+        student.leavingTransferCertificate =
+          docs.documentName === "leavingTransferCertificate"
+            ? docs.documentKey
+            : student.leavingTransferCertificate;
+        student.nonCreamyLayerCertificate =
+          docs.documentName === "nonCreamyLayerCertificate"
+            ? docs.documentKey
+            : student.nonCreamyLayerCertificate;
+        student.domicileCertificate =
+          docs.documentName === "domicileCertificate"
+            ? docs.documentKey
+            : student.domicileCertificate;
+        student.nationalityCertificate =
+          docs.documentName === "nationalityCertificate"
+            ? docs.documentKey
+            : student.nationalityCertificate;
+        student.lastYearMarksheet =
+          docs.documentName === "lastYearMarksheet"
+            ? docs.documentKey
+            : student.lastYearMarksheet;
+        student.joiningTransferLetter =
+          docs.documentName === "joiningTransferLetter"
+            ? docs.documentKey
+            : student.joiningTransferLetter;
+        student.identityDocument =
+          docs.documentName === "identityDocument"
+            ? docs.documentKey
+            : student.identityDocument;
+      }
+    } else {
+      var student = await Student.findById({ _id: id })
+        .select(
+          "studentFirstName extraPoints batchCount studentMiddleName studentBankAccountHolderName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
+        )
+        .populate({
+          path: "user",
+          select: "userLegalName userEmail",
+        })
+        .populate({
+          path: "institute",
+          select: "insName",
+        })
+        .populate({
+          path: "studentClass",
+          select: "className classStatus",
+        })
+        .lean()
+        .exec();
+    }
+    average_points += student.extraPoints / student.batchCount;
     if (student) {
-      res.status(200).send({ message: "Student Data To Member", student });
+      // Add Another Encryption
+      res
+        .status(200)
+        .send({ message: "Student Data To Member", student, average_points });
     } else {
       res.status(404).send({ message: "Failure" });
     }
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.retrieveDepartmentList = async (req, res) => {
@@ -1236,7 +1424,7 @@ exports.retrieveDepartmentList = async (req, res) => {
       .select("insName")
       .populate({
         path: "depart",
-        select: "dName photo photoId dTitle",
+        select: "dName photo photoId dTitle classMasterCount",
         populate: {
           path: "dHead",
           select:
@@ -1246,6 +1434,7 @@ exports.retrieveDepartmentList = async (req, res) => {
       .lean()
       .exec();
     if (institute) {
+      // const iEncrypt = await encryptionPayload(institute);
       res.status(200).send({ message: "Success", institute });
     } else {
       res.status(404).send({ message: "Failure" });
@@ -1260,7 +1449,7 @@ exports.getOneDepartment = async (req, res) => {
     } else {
       const department = await Department.findById({ _id: did })
         .select(
-          "dName dAbout dTitle dEmail staffCount studentCount classCount dPhoneNumber photoId photo coverId cover dSpeaker dVicePrinciple dAdminClerk dOperatingAdmin dStudentPresident"
+          "dName dAbout dTitle dEmail staffCount studentCount classCount dPhoneNumber photoId photo coverId cover election_date_setting"
         )
         .populate({
           path: "dHead",
@@ -1295,6 +1484,7 @@ exports.getOneDepartment = async (req, res) => {
         .lean()
         .exec();
       if (department) {
+        // const oneEncrypt = await encryptionPayload(department);
         res.status(200).send({ message: "Success", department });
       } else {
         res.status(404).send({ message: "Failure" });
@@ -1317,6 +1507,7 @@ exports.retrieveCurrentBatchData = async (req, res) => {
       .lean()
       .exec();
     if (batches) {
+      // const bEncrypt = await encryptionPayload(batches);
       res.status(200).send({ message: "Success", batches });
     } else {
       res.status(404).send({ message: "Failure" });
@@ -1336,6 +1527,7 @@ exports.retrieveClassMaster = async (req, res) => {
       .lean()
       .exec();
     if (classMaster) {
+      // const cEncrypt = await encryptionPayload(classMaster);
       res.status(200).send({ message: "ClassMaster Are here", classMaster });
     } else {
       res.status(404).send({ message: "Failure" });
@@ -1349,13 +1541,14 @@ exports.retrieveNewClass = async (req, res) => {
     const c_2 = Math.floor(Math.random() * 9) + 1;
     const c_3 = Math.floor(Math.random() * 9) + 1;
     const c_4 = Math.floor(Math.random() * 9) + 1;
-    var r_class_code = `${c_1}${c_2}${c_3}${c_4}`;
+    const c_5 = Math.floor(Math.random() * 9) + 1;
+    const c_6 = Math.floor(Math.random() * 9) + 1;
+    var r_class_code = `${c_1}${c_2}${c_3}${c_4}${c_5}${c_6}`;
     return r_class_code;
   };
 
   var result = classRandomCodeHandler();
   try {
-    // console.log(req.body)
     const { id, did, bid } = req.params;
     const {
       sid,
@@ -1377,7 +1570,6 @@ exports.retrieveNewClass = async (req, res) => {
       path: "dHead",
     });
     if (institute.classCodeList.includes(`${result}`)) {
-      // res.status(404).send({ message: 'Something wrong with autogenerated code'})
     } else {
       const notify = new Notification({});
       const date = await todayDate();
@@ -1389,11 +1581,9 @@ exports.retrieveNewClass = async (req, res) => {
         classCode: `${result}`,
         classStartDate: date,
         finalReportsSettings: {
-          aggregatePassingPercentage: aggregatePassingPercentage
-            ? aggregatePassingPercentage
-            : 0,
+          aggregatePassingPercentage: aggregatePassingPercentage,
         },
-        optionalSubjectCount: optionalSubjectCount ? optionalSubjectCount : 0,
+        optionalSubjectCount: optionalSubjectCount,
       });
       institute.classCodeList.push(`${result}`);
       institute.classRooms.push(classRoom._id);
@@ -1427,6 +1617,7 @@ exports.retrieveNewClass = async (req, res) => {
       notify.notifyContent = `you got the designation of ${classRoom.className} as ${classRoom.classHeadTitle}`;
       notify.notifySender = id;
       notify.notifyReceiever = user._id;
+      notify.notifyCategory = "Class Designation";
       user.uNotify.push(notify._id);
       notify.user = user._id;
       notify.notifyByInsPhoto = institute._id;
@@ -1447,10 +1638,19 @@ exports.retrieveNewClass = async (req, res) => {
         user.save(),
         notify.save(),
       ]);
+      // const classEncrypt = await encryptionPayload(classRoom._id);
       res.status(200).send({
         message: "Successfully Created Class",
         classRoom: classRoom._id,
       });
+      designation_alarm(
+        user?.userPhoneNumber,
+        "CLASS",
+        institute?.sms_lang,
+        classRoom?.className,
+        classRoom?.classTitle,
+        ""
+      );
     }
   } catch (e) {
     console.log(e);
@@ -1511,9 +1711,10 @@ exports.retrieveNewSubject = async (req, res) => {
       subjects: subject._id,
     });
     subject.subjectTeacherName = staff._id;
-    notify.notifyContent = `you got the designation of ${subject.subjectName} of ${classes.classTitle} as ${subject.subjectTitle}`;
+    notify.notifyContent = `you got the designation of ${subject.subjectName} of ${classes.className} as ${subject.subjectTitle}`;
     notify.notifySender = id;
     notify.notifyReceiever = user._id;
+    notify.notifyCategory = "Subject Designation";
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByInsPhoto = institute._id;
@@ -1534,10 +1735,19 @@ exports.retrieveNewSubject = async (req, res) => {
       user.save(),
       notify.save(),
     ]);
+    // const sEncrypt = await encryptionPayload(subject);
     res.status(200).send({
       message: "Successfully Created Subject",
       subject,
     });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "DHEAD",
+      institute?.sms_lang,
+      subject?.subjectName,
+      subject?.subjectTitle,
+      classes?.className
+    );
   } catch (e) {
     console.log(e);
   }
@@ -1547,10 +1757,11 @@ exports.retrieveSubjectMaster = async (req, res) => {
   try {
     const { did } = req.params;
     const subjectMaster = await SubjectMaster.find({ department: did })
-      .select("subjectName subjectType subjects")
+      .select("subjectName subjects subjectType")
       .lean()
       .exec();
     if (subjectMaster) {
+      // const sEncrypt = await encryptionPayload(subjectMaster);
       res
         .status(200)
         .send({ message: "SubjectMaster Are here", subjectMaster });
@@ -1578,6 +1789,7 @@ exports.retrieveClassArray = async (req, res) => {
       .lean()
       .exec();
     if (batch) {
+      // const bEncrypt = await encryptionPayload(batch);
       res.status(200).send({ message: "Classes Are here", batch });
     } else {
       res.status(404).send({ message: "Failure" });
@@ -1618,6 +1830,7 @@ exports.retrieveClassProfileSubject = async (req, res) => {
       .lean()
       .exec();
     if (classes) {
+      // const cEncrypt = await encryptionPayload(classes);
       res.status(200).send({ message: "create class data", classes });
     } else {
       res.status(404).send({ message: "Failure" });
@@ -1632,11 +1845,12 @@ exports.retrieveClassSubject = async (req, res) => {
       .select("className classTitle classHeadTitle classAbout classStatus")
       .populate({
         path: "subject",
-        select: "subjectName subjectOptional subjectTitle subjectStatus",
+        select: "subjectName subjectTitle subjectStatus subjectOptional",
       })
       .lean()
       .exec();
     if (classes) {
+      // const cEncrypt = await encryptionPayload(classes);
       res.status(200).send({ message: "create class data", classes });
     } else {
       res.status(404).send({ message: "Failure" });
@@ -1679,12 +1893,13 @@ exports.fetchOneStaffDepartmentInfo = async (req, res) => {
       .lean()
       .exec();
     if (department) {
+      // const dEncrypt = await encryptionPayload(department);
       res.status(200).send({ message: "Department Profile Data", department });
     } else {
       res.status(404).send({ message: "Failure" });
     }
-  } catch {
-    console.log(`SomeThing Went Wrong at this EndPoint(/staffdepartment/:did)`);
+  } catch (e) {
+    console.log(e);
   }
 };
 
@@ -1706,12 +1921,12 @@ exports.updateOneStaffDepartmentInfo = async (req, res) => {
 exports.updateOneStaffClassInfo = async (req, res) => {
   try {
     const { cid } = req.params;
-    const { classAbout } = req.body;
-    const classInfo = await Class.findById({ _id: cid });
-    classInfo.classAbout = classAbout;
-    await classInfo.save();
-    res.status(200).send({ message: "Class Info Updated", classInfo });
-  } catch {}
+    await Class.findByIdAndUpdate(cid, req.body);
+    // const cEncrypt = await encryptionPayload(classInfo);
+    res.status(200).send({ message: "Class Info Updated" });
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.allStaffDepartmentClassList = async (req, res) => {
@@ -1722,10 +1937,16 @@ exports.allStaffDepartmentClassList = async (req, res) => {
       .populate({
         path: "classroom",
         select: "className classTitle classStatus photoId photo coverId cover",
+        populate: {
+          path: "classTeacher",
+          select:
+            "staffFirstName staffMiddleName staffLastName staffProfilePhoto",
+        },
       })
       .lean()
       .exec();
     if (batch) {
+      // const bEncrypt = await encryptionPayload(batch);
       res.status(200).send({ message: "Success", batch });
     } else {
       res.status(404).send({ message: "Failure" });
@@ -1745,6 +1966,7 @@ exports.retrieveNewBatch = async (req, res) => {
     institute.batches.push(batch._id);
     batch.institute = institute;
     await Promise.all([department.save(), batch.save(), institute.save()]);
+    // const bEncrypt = await encryptionPayload(batch._id);
     res.status(200).send({ message: "batch data", batch: batch._id });
   } catch {}
 };
@@ -1763,6 +1985,7 @@ exports.retrieveNewClassMaster = async (req, res) => {
     department.departmentClassMasters.push(classroomMaster._id);
     department.classMasterCount += 1;
     await Promise.all([classroomMaster.save(), department.save()]);
+    // const cEncrypt = await encryptionPayload(classroomMaster);
     res.status(200).send({
       message: "Successfully Created MasterClasses",
       classroomMaster,
@@ -1778,13 +2001,14 @@ exports.retrieveNewSubjectMaster = async (req, res) => {
     const departmentData = await Department.findById({ _id: did });
     const subjectMaster = new SubjectMaster({
       subjectName: subjectName,
-      subjectType: subjectType,
       institute: institute._id,
       department: did,
+      subjectType: subjectType,
     });
     departmentData.departmentSubjectMasters.push(subjectMaster._id);
     departmentData.subjectMasterCount += 1;
     await Promise.all([departmentData.save(), subjectMaster.save()]);
+    // const sEncrypt = await encryptionPayload(subjectMaster);
     res.status(200).send({
       message: "Successfully Created Master Subject",
       subjectMaster,
@@ -1801,6 +2025,7 @@ exports.retrieveCurrentSelectBatch = async (req, res) => {
     department.userBatch = batches._id;
     batches.activeBatch = "Active";
     await Promise.all([department.save(), batches.save()]);
+    // Add Another Encryption
     res.status(200).send({
       message: "Batch Detail Data",
       batches: batches._id,
@@ -1821,6 +2046,11 @@ exports.retrieveClass = async (req, res) => {
       .populate({
         path: "subject",
         select: "subjectName subjectTitle subjectStatus",
+        populate: {
+          path: "subjectTeacherName",
+          select:
+            "staffFirstName staffMiddleName staffLastName staffProfilePhoto",
+        },
       })
       .populate({
         path: "batch",
@@ -1850,12 +2080,13 @@ exports.retrieveClass = async (req, res) => {
       .lean()
       .exec();
     if (classes) {
+      // const cEncrypt = await encryptionPayload(classes);
       res.status(200).send({ message: "Class Profile Data", classes });
     } else {
       res.status(404).send({ message: "Failure" });
     }
-  } catch {
-    console.log(`SomeThing Went Wrong at this EndPoint(/staffclass/:sid)`);
+  } catch (e) {
+    console.log(e);
   }
 };
 
@@ -1884,6 +2115,7 @@ exports.retrieveClassRequestArray = async (req, res) => {
         exempt += exe.fee;
       }
     });
+    // Add Another Encryption
     res.status(200).send({
       message: "Class One Fee Amount Details",
       oneFeeRequestStatus: classes.requestFeeStatus,
@@ -1913,6 +2145,7 @@ exports.retrieveSubject = async (req, res) => {
       .lean()
       .exec();
     if (subData) {
+      // const sEncrypt = await encryptionPayload(subData);
       res
         .status(200)
         .send({ message: " Subject same as class catalog", subData });
@@ -1930,6 +2163,7 @@ exports.retrieveStaffCode = async (req, res) => {
       .lean()
       .exec();
     if (institute) {
+      // const iEncrypt = await encryptionPayload(institute);
       res.status(200).send({ message: "Success", institute });
     } else {
       res.status(404).send({ message: "Failure" });
@@ -1945,6 +2179,7 @@ exports.retrieveStudentCode = async (req, res) => {
       .lean()
       .exec();
     if (institute) {
+      // const iEncrypt = await encryptionPayload(institute);
       res.status(200).send({ message: "Success", institute });
     } else {
       res.status(404).send({ message: "Failure" });
@@ -1984,6 +2219,7 @@ exports.retrieveStaffProfileStatus = async (req, res) => {
       .lean()
       .exec();
     if (staff) {
+      // const sEncrypt = await encryptionPayload(staff);
       res.status(200).send({ message: "Success", staff });
     } else {
       res.status(404).send({ message: "Failure" });
@@ -1999,6 +2235,7 @@ exports.retrieveStudentProfileStatus = async (req, res) => {
       .lean()
       .exec();
     if (student) {
+      // const sEncrypt = await encryptionPayload(student);
       res.status(200).send({ message: "Success", student });
     } else {
       res.status(404).send({ message: "Failure" });
@@ -2022,6 +2259,7 @@ exports.retrieveDisplayPersonArray = async (req, res) => {
       .lean()
       .exec();
     if (institute) {
+      // const iEncrypt = await encryptionPayload(institute);
       res.status(200).send({ message: "Success", institute });
     } else {
       res.status(404).send({ message: "Failure" });
@@ -2046,6 +2284,7 @@ exports.updateDisplayPersonArray = async (req, res) => {
     notify.notifyContent = `Congrats 🎉 for ${req.body.displayTitle} of the ${institute.insName}`;
     notify.notifySender = institute._id;
     notify.notifyReceiever = user._id;
+    notify.notifyCategory = "Display Person";
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByPhoto = user._id;
@@ -2055,6 +2294,7 @@ exports.updateDisplayPersonArray = async (req, res) => {
       user.save(),
       notify.save(),
     ]);
+    // const dEncrypt = await encryptionPayload(display);
     res.status(200).send({ message: "Success", display });
   } catch (e) {
     console.log(e);
@@ -2155,6 +2395,7 @@ exports.retrieveAllStarArray = async (req, res) => {
       .sort("-createdAt")
       .limit(limit)
       .skip(skip);
+    // const aEncrypt = await encryptionPayload(announcement);
     res.status(200).send({ message: "Success", announcement });
   } catch (e) {
     console.log(e);
@@ -2186,6 +2427,7 @@ exports.retrieveAllStarAnnouncement = async (req, res) => {
       })
       .lean()
       .exec();
+    // const iEncrypt = await encryptionPayload(institute);
     res.status(200).send({ message: "Success", institute });
   } catch {}
 };
@@ -2197,6 +2439,7 @@ exports.retrieveRecoveryMailIns = async (req, res) => {
     const institute = await InstituteAdmin.findById({ _id: id });
     institute.recoveryMail = recoveryMail;
     await Promise.all([institute.save()]);
+    // const iEncrypt = await encryptionPayload(institute.recoveryMail);
     res.status(200).send({
       message: "Recovery Mail updated",
       mail: institute.recoveryMail,
@@ -2228,10 +2471,14 @@ exports.retrieveInsFollowersArray = async (req, res) => {
       .select("userLegalName photoId profilePhoto username blockStatus")
       .limit(limit)
       .skip(skip);
+    // Add Another Encryption
+    var mergeArray = [...followers, ...uFollowers];
+    var get_array = shuffleArray(mergeArray);
     res.status(200).send({
       message: "Followers List",
       iFollowers: followers,
       uFollowers: uFollowers,
+      mergerArray: get_array,
     });
   } catch (e) {
     console.log(e);
@@ -2245,7 +2492,7 @@ exports.retrieveInsFollowersArrayWithId = async (req, res) => {
       .select("followers")
       .lean()
       .exec();
-
+    // const iEncrypt = await encryptionPayload(institute?.followers);
     res.status(200).send({
       message: "Followers List",
       iFollowers: institute?.followers ? institute?.followers : [],
@@ -2271,7 +2518,7 @@ exports.retrieveInsFollowingArray = async (req, res) => {
       .select("insName photoId insProfilePhoto name blockStatus")
       .limit(limit)
       .skip(skip);
-
+    // const iEncrypt = await encryptionPayload(following);
     res.status(200).send({ message: "Following List", following: following });
   } catch {}
 };
@@ -2306,6 +2553,7 @@ exports.retrieveDepartmentAllBatch = async (req, res) => {
       .lean()
       .exec();
     if (department) {
+      // Add Another Encryption
       res.status(200).send({
         message: "Success",
         departmentActiveBatch: department.departmentSelectBatch,
@@ -2348,7 +2596,7 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     classes.ApproveStudent.push(student._id);
     classes.studentCount += 1;
     classes.student.pull(sid);
-    student.studentGRNO = `Q${institute.ApproveStudent.length}`;
+    student.studentGRNO = `${institute?.gr_initials ? institute?.gr_initials : `Q`}${institute.ApproveStudent.length}`;
     student.studentROLLNO = classes.ApproveStudent.length;
     student.studentClass = classes._id;
     student.studentAdmissionDate = new Date().toISOString();
@@ -2365,6 +2613,7 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     } of ${batch.batchName}`;
     notify.notifySender = cid;
     notify.notifyReceiever = user._id;
+    notify.notifyCategory = "Approve Student";
     institute.iNotify.push(notify._id);
     notify.institute = institute._id;
     user.uNotify.push(notify._id);
@@ -2372,6 +2621,7 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     notify.notifyByStudentPhoto = student._id;
     aStatus.content = `Welcome to ${institute.insName}. Your application for joining as student  has been accepted by ${institute.insName}. Enjoy your learning in ${classes.className} - ${classes.classTitle}.`;
     user.applicationStatus.push(aStatus._id);
+    aStatus.instituteId = institute._id;
     invokeFirebaseNotification(
       "Student Approval",
       notify,
@@ -2390,6 +2640,7 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
       notify.save(),
       aStatus.save(),
     ]);
+    // const cEncrypt = await encryptionPayload(classes._id);
     res.status(200).send({
       message: `Welcome To The Institute ${student.studentFirstName} ${student.studentLastName}`,
       classes: classes._id,
@@ -2400,9 +2651,10 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     } else if (student.studentGender === "Female") {
       classes.girlCount += 1;
       batch.student_category.girlCount += 1;
-    } else {
+    } else if (student.studentGender === "Other") {
       classes.otherCount += 1;
       batch.student_category.otherCount += 1;
+    } else {
     }
     if (student.studentCastCategory === "General") {
       batch.student_category.generalCount += 1;
@@ -2443,6 +2695,7 @@ exports.retrieveRejectStudentRequest = async (req, res) => {
     classes.student.pull(sid);
     aStatus.content = `Your application for joining as student in ${institute.insName} is being rejected. Please follow up with institute for any queries.`;
     user.applicationStatus.push(aStatus._id);
+    aStatus.instituteId = institute._id;
     await Promise.all([
       institute.save(),
       classes.save(),
@@ -2450,6 +2703,7 @@ exports.retrieveRejectStudentRequest = async (req, res) => {
       user.save(),
       aStatus.save(),
     ]);
+    // const cEncrypt = await encryptionPayload(classes._id);
     res.status(200).send({
       message: `Application Rejected ${student.studentFirstName} ${student.studentLastName}`,
       classes: classes._id,
@@ -2471,6 +2725,7 @@ exports.retrievePendingRequestArray = async (req, res) => {
       })
       .lean()
       .exec();
+    // const cEncrypt = await encryptionPayload(classes);
     res.status(200).send({ message: "Pending Request", classes });
   } catch (e) {
     console.log(e);
@@ -2519,6 +2774,7 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
     classes?.ApproveStudent.sort(function (st1, st2) {
       return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
     });
+    // const cEncrypt = await encryptionPayload(classes);
     res.status(200).send({ message: "Approve catalog", classes: classes });
   } catch (e) {
     console.log(e);
@@ -2539,6 +2795,7 @@ exports.retrieveDepartmentStaffArray = async (req, res) => {
           select: "username userLegalName photoId profilePhoto",
         },
       });
+    // const dEncrypt = await encryptionPayload(department);
     res.status(200).send({ message: "Department Staff List", department });
   } catch {}
 };
@@ -2549,6 +2806,7 @@ exports.retrieveInstituteTwoArray = async (req, res) => {
     const institute = await InstituteAdmin.findById({ _id: id }).select(
       "id followers following"
     );
+    // const iEncrypt = await encryptionPayload(institute);
     res.status(200).send({ message: "2-List Array", institute });
   } catch {}
 };
@@ -2584,6 +2842,7 @@ exports.retrieveOneAnnouncement = async (req, res) => {
         path: "announcementDocument",
         select: "documentType documentName documentKey",
       });
+    // const aEncrypt = await encryptionPayload(announcement);
     res.status(200).send({ message: "One Announcement", announcement });
   } catch (e) {
     console.log(e);
@@ -2606,6 +2865,7 @@ exports.updateDepartmentDisplayPersonArray = async (req, res) => {
 
     notify.notifyContent = `Congrats 🎉 for ${req.body.displayTitle} of the ${department.dName}`;
     notify.notifySender = department._id;
+    notify.notifyCategory = "Display Person";
     notify.notifyReceiever = user._id;
     user.uNotify.push(notify._id);
     notify.user = user._id;
@@ -2616,6 +2876,7 @@ exports.updateDepartmentDisplayPersonArray = async (req, res) => {
       user.save(),
       notify.save(),
     ]);
+    // const dEncrypt = await encryptionPayload(display);
     res.status(200).send({ message: "Success", display });
   } catch (e) {
     console.log(e);
@@ -2639,6 +2900,7 @@ exports.updateClassDisplayPersonArray = async (req, res) => {
     notify.notifyContent = `Congrats 🎉 for ${req.body.displayTitle} of the ${classes.className}`;
     notify.notifySender = classes._id;
     notify.notifyReceiever = user._id;
+    notify.notifyCategory = "Display Person";
     user.uNotify.push(notify._id);
     notify.user = user._id;
     notify.notifyByPhoto = user._id;
@@ -2648,6 +2910,7 @@ exports.updateClassDisplayPersonArray = async (req, res) => {
       user.save(),
       notify.save(),
     ]);
+    // const dEncrypt = await encryptionPayload(display);
     res.status(200).send({ message: "Success", display });
   } catch (e) {
     console.log(e);
@@ -2683,6 +2946,7 @@ exports.getProfileOneQueryUsername = async (req, res) => {
       )
       .lean()
       .exec();
+    // const iEncrypt = await encryptionPayload(institute);
     res.status(200).send({ message: "Limit Post Ins", institute });
   } catch {}
 };
@@ -2697,6 +2961,7 @@ exports.deactivateInstituteAccount = async (req, res) => {
       institute.activeStatus = status;
       institute.activeDate = ddate;
       await institute.save();
+      // const iEncrypt = await encryptionPayload(institute.activeStatus);
       res.status(200).send({
         message: "Deactivated Account",
         status: institute.activeStatus,
@@ -2742,7 +3007,7 @@ exports.retrieveMergeStaffStudent = async (req, res) => {
       });
 
     var mergeDepart = [...staff, ...student];
-
+    // const mEncrypt = await encryptionPayload(mergeDepart);
     res
       .status(200)
       .send({ message: "Merge Staff and Student", merge: mergeDepart });
@@ -2758,6 +3023,7 @@ exports.retrieveCertificateEditableDetailQuery = async (req, res) => {
       .select("insAffiliated insEditableText_one insEditableText_two")
       .lean()
       .exec();
+    // const dEncrypt = await encryptionPayload(detail);
     res.status(200).send({ message: "Editable Detail 👏", detail: detail });
   } catch (e) {
     console.log(e);
@@ -2780,14 +3046,15 @@ exports.getStudentFormQuery = async (req, res) => {
       throw "Please send institute id to perform task of student form setting";
     const { id } = req.params;
     const institute = await InstituteAdmin.findById(id).select(
-      "studentFormSetting"
+      "studentFormSetting admissionDepart"
     );
+    // const sEncrypt = await encryptionPayload(institute.studentFormSetting);
     res.status(200).send({
       message: "Student form setting details",
       studentFormSetting: institute.studentFormSetting,
+      admissionId: institute?.admissionDepart
     });
   } catch (e) {
-    console.log(e);
     res.status(400).send({
       message: e,
     });
@@ -2802,12 +3069,12 @@ exports.getStaffFormQuery = async (req, res) => {
     const institute = await InstituteAdmin.findById(id).select(
       "staffFormSetting"
     );
+    // const sEncrypt = await encryptionPayload(institute.staffFormSetting);
     res.status(200).send({
       message: "Staff form setting details",
       staffFormSetting: institute.staffFormSetting,
     });
   } catch (e) {
-    console.log(e);
     res.status(400).send({
       message: e,
     });
@@ -2822,7 +3089,6 @@ exports.settingFormUpdate = async (req, res) => {
       message: "form updated successfully 👏",
     });
   } catch (e) {
-    console.log(e);
     res.status(400).send({
       message: e,
     });
@@ -2935,7 +3201,7 @@ exports.renderStats = async (req, res) => {
         access: false,
       });
     const stats = await InstituteAdmin.findById({ _id: id }).select(
-      "departmentCount staffCount studentCount insProfileCoverPhoto"
+      "departmentCount staffCount studentCount insProfileCoverPhoto insProfilePhoto"
     );
     // const statsEncrypt = await encryptionPayload(stats);
     res.status(200).send({

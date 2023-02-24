@@ -8,6 +8,7 @@ const InstituteAdmin = require("../../models/InstituteAdmin");
 const Batch = require("../../models/Batch");
 const Video = require("../../models/Video");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
+// const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.getAllStaff = async (req, res) => {
   try {
@@ -30,6 +31,7 @@ exports.getAllStaff = async (req, res) => {
         path: "institute",
         select: "insName name photoId insProfilePhoto one_line_about",
       });
+    // const sEncrypt = await encryptionPayload(staff);
     res.status(200).send({ message: "staff data", sRandom: staff });
   } catch (e) {
     console.log(`Error`, e.message);
@@ -46,6 +48,7 @@ exports.getAllStudent = async (req, res) => {
         path: "institute",
         select: "insName photoId insProfilePhoto",
       });
+    // const studentEncrypt = await encryptionPayload(student);
     res.status(200).send({ message: "Student data", student });
   } catch (e) {
     console.log(`Error`, e.message);
@@ -64,6 +67,7 @@ exports.getAllUser = async (req, res) => {
       .select(
         "userLegalName username photoId profilePhoto userStatus one_line_about followerCount coverId profileCoverPhoto"
       );
+    // const userEncrypt = await encryptionPayload(user);
     res.status(200).send({ message: "User data", uRandom: user });
   } catch (e) {
     console.log(`Error`, e.message);
@@ -80,6 +84,7 @@ exports.getAllPlaylist = async (req, res) => {
           "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
       },
     });
+    // const playEncrypt = await encryptionPayload(playlist);
     res.status(200).send({ message: "playlist data", playlist });
   } catch (e) {
     console.log(`Error`, e.message);
@@ -89,6 +94,7 @@ exports.getAllPlaylist = async (req, res) => {
 exports.getAllFee = async (req, res) => {
   try {
     const fee = await Fees.find({});
+    // const feeEncrypt = await encryptionPayload(fee);
     res.status(200).send({ message: "Fee data", fee });
   } catch (e) {
     console.log(`Error`, e.message);
@@ -98,6 +104,7 @@ exports.getAllFee = async (req, res) => {
 exports.getAllChecklist = async (req, res) => {
   try {
     const checklist = await Checklist.find({});
+    // const checkEncrypt = await encryptionPayload(checklist);
     res.status(200).send({ message: "checklist data", checklist });
   } catch (e) {
     console.log(`Error`, e.message);
@@ -124,6 +131,7 @@ exports.getAllInstitute = async (req, res) => {
           select: "userLegalName username photoId profilePhoto",
         },
       });
+    // const iEncrypt = await encryptionPayload(institute);
     res.status(200).send({ message: "Institute data", iRandom: institute });
   } catch (e) {
     console.log(`Error`, e.message);
@@ -162,6 +170,7 @@ exports.getAllPayments = async (req, res) => {
         path: "payment_to_end_user_id",
         select: "insName photoId insProfilePhoto",
       });
+    // const payEncrypt = await encryptionPayload(all);
     res.status(200).send({ message: "Payment Data", allPayment: all });
   } catch (e) {
     console.log(e);
@@ -171,6 +180,7 @@ exports.getAllPayments = async (req, res) => {
 exports.getAllBatch = async (req, res) => {
   try {
     const batch = await Batch.find({});
+    // const batchEncrypt = await encryptionPayload(batch);
     res.status(200).send({ message: "Batch data", batch });
   } catch (e) {
     console.log(`Error`, e.message);
@@ -180,6 +190,7 @@ exports.getAllBatch = async (req, res) => {
 exports.getAllVideo = async (req, res) => {
   try {
     const video = await Video.find({});
+    // const vEncrypt = await encryptionPayload(video);
     res.status(200).send({ message: "Video Data", video });
   } catch (e) {
     console.log(`Error`, e.message);

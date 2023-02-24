@@ -21,6 +21,9 @@ const orderPaymentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteAdmin",
   },
+  payment_by_end_user_id_name: {
+    type: String,
+  },
   payment_module_id: {
     type: String,
   },
@@ -73,8 +76,16 @@ const orderPaymentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Participate",
   },
+  payment_transport: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Vehicle",
+  },
   payment_from: {
     type: String,
+  },
+  payout_enable: {
+    type: String,
+    default: "Not Paid",
   },
   // payment_expense_by_end_user_id: {
   //   type: mongoose.Schema.Types.ObjectId,

@@ -6,8 +6,9 @@ const { uploadPostImageFile } = require("../../../S3Configuration");
 const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
-const end_poll = require("../../../Service/close");
+const Close = require("../../../Service/close");
 const HashTag = require("../../../models/HashTag/hashTag");
+// const encryptionPayload = require("../../../Utilities/Encrypt/payload");
 
 exports.postQuestionText = async (req, res) => {
   try {
@@ -50,6 +51,7 @@ exports.postQuestionText = async (req, res) => {
     post.postType = "Question";
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([institute.save(), post.save()]);
+    // const postEncrypt = await encryptionPayload(post);
     res.status(201).send({ message: "post Question is created", post });
     if (institute.isUniversal === "Not Assigned") {
       if (institute.followers.length >= 1) {
@@ -177,8 +179,9 @@ exports.retrievePollQuestionText = async (req, res) => {
       post.postType = "Poll";
       post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
       post.poll_query = poll;
-      poll.duration_date = end_poll(req.body.day);
+      poll.duration_date = Close.end_poll(req.body.day);
       await Promise.all([institute.save(), post.save(), poll.save()]);
+      // Add Another Encryption
       res.status(201).send({ message: "poll is created", poll, post });
       if (institute.isUniversal === "Not Assigned") {
         if (institute.followers.length >= 1) {

@@ -54,6 +54,150 @@ paths:
         "200":
           description: OK
 
+  /api/v1/auth/direct/confirm/join/{id}/apply/{aid}:
+    post:
+      tags:
+        - Login And Logout Api
+      summary: Add Student Direct By Admission Admin Module + Direct A/c Creation + Status -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: Enter User Phone Number
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Application Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              studentFirstName:
+                type: string
+                required: true
+                description: Enter Student First Name
+              studentMiddleName:
+                type: string
+                required: false
+                description: Enter Student Middle Name
+              studentLastName:
+                type: string
+                required: true
+                description: Enter Student Last Name
+              studentDOB:
+                type: string
+                required: true
+                description: Enter Student Date of Birth (2000-01-01)
+              studentGender:
+                type: string
+                required: true
+                description: Enter Student Gender
+              type:
+                type: string
+                required: true
+                description: Enter Type of Payment ( for One Time Fees --> "O_T_F") || (for First Installment --> "F_I_P")
+              mode:
+                type: string
+                required: true
+                description: Enter Payment Mode ("Online" || "Offline")
+              amount:
+                type: number
+                required: true
+                description: Enter Price / Amount 
+              sample_pic:
+                type: number
+                required: true
+                description: Enter CDN Avatar File Path
+              fileArray:
+                type: array
+                required: false
+                description: Enter Array of Objects 
+              fee_struct:
+                type: string
+                description: Enter Fee Structure Id
+                required: true
+              batchId:
+                type: string
+                description: Enter Batch Id
+                required: true
+              fee_payment_mode:
+                type: string
+                description: Enter Fee Mode ("By Cash") || ("UPI Transfer") || ("Demand Draft") || ("Cheque") || ("RTGS/NEFT/IMPS") || ("Exempted/Unrecovered") || ("Government/Scholarship")
+                required: true
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: true
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: true
+              fee_bank_name:
+                type: string
+                description: Enter Bank Name e.g SBI
+                required: false
+              fee_bank_holder:
+                type: string
+                description: Enter Bank Holder Name e.g Mithkal
+                required: false
+              fee_utr_reference:
+                type: string
+                description: Enter Fee Unique Transaction Reference Number (UTR)
+                required: false
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/all/completed/app/query:
+    get:
+      tags:
+        - Login And Logout Api
+      summary: All Completed Application -(verified)
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Admission Id
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK  
+
+  /api/v1/auth/select/account:
+    get:
+      tags:
+        - Login And Logout Api
+      summary: All A / C Lists -(verified)
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: query
+          name: phoneKey
+          required: true
+          type: string
+          description: Enter a valid Phone Number 👍
+      responses:
+        "200":
+          description: OK
+
   /api/v1/auth/login:
     post:
       tags:
@@ -410,6 +554,174 @@ paths:
         "200":
           description: OK
 
+  /api/v1/auth/direct/institute/join/student/{id}/class/{cid}:
+    post:
+      tags:
+        - Login And Logout Api
+      summary: In Institute Admin Side Direct Student joining in class + creation with user A/c -(verified )
+      produces:
+        - application/json
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is user phone number
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This Class Id
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your student profile photo
+        - in: formData
+          name: studentFirstName
+          type: string
+          required: true
+          description: student first name
+        - in: formData
+          name: studentMiddleName
+          type: string
+          required: true
+          description: student middle name
+        - in: formData
+          name: studentLastName
+          type: string
+          required: true
+          description: student last name
+        - in: formData
+          name: studentDOB
+          type: string
+          required: true
+          description: student studentDOB
+        - in: formData
+          name: studentGender
+          type: string
+          required: true
+          description: student studentGender
+        - in: formData
+          name: studentMotherName
+          type: string
+          required: true
+          description: student studentMotherName
+        - in: formData
+          name: studentCastCategory
+          type: string
+          required: true
+          description: student studentCastCategory
+        - in: formData
+          name: studentReligion
+          type: string
+          required: true
+          description: student studentReligion
+        - in: formData
+          name: sample_pic
+          type: string
+          required: false
+          description: This is for default Avatar
+        - in: formData
+          name: is_remain
+          type: string
+          required: false
+          description: Enter Remain Value if remain amount > 0  ("Yes" || "No")
+        - in: formData
+          name: fee_struct
+          type: string
+          required: false
+          description: Enter Fee Structure Id if remain amount is "No"
+        - in: formData
+          name: student_prn_enroll_number
+          type: string
+          required: false
+          description: Enter Student PRN/ENROLL Number
+        - in: formData
+          name: batch_set
+          type: array
+          required: false
+          description: Enter Array of Objects
+      responses:
+        "200":
+          description: OK
+  
+  /api/v1/auth/direct/join/staff/{id}/institute/{insId}:
+    post:
+      tags:
+        - Login And Logout Api
+      summary: In Institute Side Add Direct Staff joining + creation with user A/c -(verified )
+      produces:
+        - application/json
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is user phone number
+        - in: path
+          name: insId
+          required: true
+          type: string
+          description: This is Institute Id
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your staff profile photo
+        - in: formData
+          name: staffFirstName
+          type: string
+          required: true
+          description: staff first name
+        - in: formData
+          name: staffMiddleName
+          type: string
+          required: true
+          description: staff middle name
+        - in: formData
+          name: staffLastName
+          type: string
+          required: true
+          description: staff last name
+        - in: formData
+          name: staffDOB
+          type: string
+          required: true
+          description: staff staffDOB
+        - in: formData
+          name: staffGender
+          type: string
+          required: true
+          description: staff staffGender
+        - in: formData
+          name: staffMotherName
+          type: string
+          required: true
+          description: staff staffMotherName
+        - in: formData
+          name: staffCastCategory
+          type: string
+          required: true
+          description: staff staffCastCategory
+        - in: formData
+          name: staffReligion
+          type: string
+          required: true
+          description: staff staffReligion
+        - in: formData
+          name: sample_pic
+          type: string
+          required: false
+          description: This is for default Avatar
+      responses:
+        "200":
+          description: OK
+
     #This is for all account forget process 
 
   /api/v1/auth/user/forgot:
@@ -634,6 +946,26 @@ paths:
               userRePassword:
                 type: string
                 description: Enter confirm Password
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/auth/email/check/redundant:
+    get:
+      tags:
+        - User Authentication
+      summary: Check Existing Email -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: email
+          required: true
+          type: string
+          description: Enter Email In Query
       responses:
         "200":
           description: OK
@@ -2028,285 +2360,28 @@ paths:
                   description: studentId bioId
       responses:
         "200":
-          description: OK
+          description: OK  
 
-  /api/v1/extra/export/staff/{id}/card/format:
-    patch:
+  /api/v1/extra/{uid}/active/member/role:
+    get:
       tags:
         - Setting Control API
-      summary: Staff Id Card Export Data Toggle -(verified)
+      summary: User Active Role for Dashboard Feed -(verified)
       consumes:
         - application/json
       produces:
         - application/json
       parameters:
         - in: path
-          name: id
+          name: uid
           required: true
           type: string
-          description: Enter Institute Id
-        - in: body
-          name: body
-          schema:
-            type: object
-            properties:
-              export_staff_data:
-                type: object
-                required:  true
-                description: here pass all staff id card export data boolean
-                properties:
-                  fullName:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffDOB:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffGender:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffNationality:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffMTongue:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffMotherName:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffCast:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffCastCategory:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffReligion:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffBirthPlace:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffDistrict:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffState:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffAddress:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffPhoneNumber:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffAadharNumber:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffQualification:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffAadharFrontCard:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffAadharBackCard:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffPanNumber:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffBankDetails:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffUpiId:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffHeight:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffWeight:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  staffBMI:
-                    type: boolean
-                    description: here pass value "true" or "false"                                                      
-                  staffCasteCertificate:
-                    type: boolean
-                    description: here pass value "true" or "false"      
-      responses:
-        "200":
-          description: OK
-  
-  /api/v1/extra/export/student/{id}/card/format:
-    patch:
-      tags:
-        - Setting Control API
-      summary: Student Id Card Export Data Toggle -(verified)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: id
-          required: true
-          type: string
-          description: Enter Institute Id
-        - in: body
-          name: body
-          schema:
-            type: object
-            properties:
-              export_student_data:
-                type: object
-                required:  true
-                description: here pass all student id card export data toggle boolean
-                properties:
-                  fullName:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentDOB:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentGender:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentNationality:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentMTongue:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentMotherName:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentCast:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentCastCategory:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentReligion:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentBirthPlace:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentDistrict:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentState:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentAddress:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentPhoneNumber:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentAadharNumber:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentAadharFrontCard:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentAadharBackCard:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentPanNumber:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentBankDetails:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentCasteCertificate:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentParentsName:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentParentsPhoneNumber:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentHeight:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentWeight:
-                    type: boolean
-                    description: here pass value "true" or "false"
-                  studentBMI:
-                    type: boolean
-                    description: here pass value "true" or "false"  
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/extra/export/staff/card:
-    get:
-      tags:
-        - Setting Control API
-      summary: Get Staff Exported Data -(verified)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
+          description: This is user id
         - in: query
-          name: did
+          name: active_member_role
           required: true
           type: string
-          description: Enter Department Id
-        - in: query
-          name: id
-          required: true
-          type: string
-          description: Enter institute Id
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/extra/export/student/card:
-    get:
-      tags:
-        - Setting Control API
-      summary: Get Student Exported Data -(verified)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: query
-          name: id
-          required: true
-          type: string
-          description: Enter institute Id
-        - in : body
-          name: body
-          schema:
-            type: object
-            properties:
-              request:
-                type: array
-                description: Array of Objects like ["6360aea051d30672ae8cfe80"]   
-                items:
-                  type: string
-                  description: Enter Class Id
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/extra/export/student/all:
-    get:
-      tags:
-        - Setting Control API
-      summary: Get All Students Exported Data -(verified)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: query
-          name: id
-          required: true
-          type: string
-          description: Enter institute Id
+          description: This is id of active (staff || student)
       responses:
         "200":
           description: OK
@@ -3232,7 +3307,7 @@ paths:
         - application/json
       parameters:
         - in: path
-          name: uid 
+          name: uid
           required: true
           type: string
           description: This is user id which apply to institute as staff
@@ -3312,30 +3387,10 @@ paths:
           required: true
           description: staff staffBirthPlace
         - in: formData
-          name: staffBirthPlacePincode
-          type: string
-          required: true
-          description: staff staffBirthPlacePincode
-        - in: formData
-          name: staffBirthPlaceState
-          type: string
-          required: true
-          description: staff staffBirthPlaceState          
-        - in: formData
-          name: staffBirthPlaceDistrict
-          type: string
-          required: true
-          description: staff staffBirthPlaceDistrict
-        - in: formData
           name: staffDistrict
           type: string
           required: true
           description: staff staffDistrict
-        - in: formData
-          name: staffPincode
-          type: string
-          required: true
-          description: staff staffPincode          
         - in: formData
           name: staffState
           type: string
@@ -3346,26 +3401,6 @@ paths:
           type: string
           required: true
           description: staff staffAddress
-        - in: formData
-          name: staffCurrentPincode
-          type: string
-          required: true
-          description: staff staffCurrentPincode
-        - in: formData
-          name: staffCurrentDistrict
-          type: string
-          required: true
-          description: staff staffCurrentDistrict          
-        - in: formData
-          name: staffCurrentState
-          type: string
-          required: true
-          description: staff staffCurrentState
-        - in: formData
-          name: staffCurrentAddress
-          type: string
-          required: true
-          description: staff staffCurrentAddress
         - in: formData
           name: staffPhoneNumber
           type: string
@@ -3382,95 +3417,15 @@ paths:
           required: true
           description: staff staffQualification
         - in: formData
-          name: addharFrontCard
+          name: file
           type: file
           required: true
           description: upload your addhar card front side photo  
         - in: formData
-          name: addharBackCard
+          name: file
           type: file
           required: true
-          description: upload your addhar card back side photo 
-        - in: formData
-          name: staffPreviousSchool
-          type: string
-          required: true
-          description: staff staffPreviousSchool          
-        - in: formData
-          name: staffPanNumber
-          type: string
-          required: true
-          description: staff staffPanNumber 
-        - in: formData
-          name: staffBankName
-          type: string
-          required: true
-          description: staff staffBankName
-        - in: formData
-          name: staffBankAccount
-          type: string
-          required: true
-          description: staff staffBankAccount 
-        - in: formData
-          name: staffBankAccountHolderName
-          type: string
-          required: true
-          description: staff staffBankAccountHolderName                   
-        - in: formData
-          name: staffBankIfsc
-          type: string
-          required: true
-          description: staff staffBankIfsc
-        - in: formData
-          name: bankPassbook
-          type: file
-          required: true
-          description: staff staffBankPassbook 
-        - in: formData
-          name: casteCertificate
-          type: file
-          required: true
-          description: staff staffCasteCertificatePhoto 
-        - in: formData
-          name: identityDocument
-          type: file
-          required: true
-          description: staff staffidentityDocument 
-        - in: formData
-          name: joiningTransferLetter
-          type: file
-          required: true
-          description: staff staffjoiningTransferLetter   
-        - in: formData
-          name: leavingTransferCertificate
-          type: file
-          required: true
-          description: staff staffleavingTransferCertificate 
-        - in: formData
-          name: incomeCertificate
-          type: file
-          required: true
-          description: staff staffincomeCertificate  
-        - in: formData
-          name: lastYearMarksheet
-          type: file
-          required: true
-          description: staff stafflastYearMarksheet 
-        - in: formData
-          name: nationalityCertificate
-          type: file
-          required: true
-          description: staff staffnationalityCertificate   
-        - in: formData
-          name: domicileCertificate
-          type: file
-          required: true
-          description: staff staffdomicileCertificate 
-        - in: formData
-          name: nonCreamyLayerCertificate
-          type: file
-          required: true
-          description: staff staffnonCreamyLayerCertificate                       
+          description: upload your addhar card back side photo           
       responses:
         "200":
           description: OK 
@@ -3585,10 +3540,6 @@ paths:
           required: true
           description: student studentMotherName
         - in: formData
-          name: optionalSubject
-          type: string
-          description: student list of optional subject ids like ["6452364","783567343gj","327856735476"] hints(JSON FORM ENCODE)         
-        - in: formData
           name: studentCast
           type: string
           required: true
@@ -3609,30 +3560,10 @@ paths:
           required: true
           description: student studentBirthPlace
         - in: formData
-          name: studentBirthPlacePincode
-          type: string
-          required: true
-          description: student studentBirthPlacePincode
-        - in: formData
-          name: studentBirthPlaceState
-          type: string
-          required: true
-          description: student studentBirthPlaceState          
-        - in: formData
-          name: studentBirthPlaceDistrict
-          type: string
-          required: true
-          description: student studentBirthPlaceDistrict          
-        - in: formData
           name: studentDistrict
           type: string
           required: true
           description: student studentDistrict
-        - in: formData
-          name: studentPincode
-          type: string
-          required: true
-          description: student studentPincode           
         - in: formData
           name: studentState
           type: string
@@ -3643,26 +3574,6 @@ paths:
           type: string
           required: true
           description: student studentAddress
-        - in: formData
-          name: studentCurrentPincode
-          type: string
-          required: true
-          description: student studentCurrentPincode
-        - in: formData
-          name: studentCurrentDistrict
-          type: string
-          required: true
-          description: student studentCurrentDistrict          
-        - in: formData
-          name: studentCurrentState
-          type: string
-          required: true
-          description: student studentCurrentState
-        - in: formData
-          name: studentCurrentAddress
-          type: string
-          required: true
-          description: student studentCurrentAddress          
         - in: formData
           name: studentPhoneNumber
           type: string
@@ -3684,110 +3595,15 @@ paths:
           required: true
           description: student studentParentsPhoneNumber
         - in: formData
-          name: studentFatherRationCardColor
-          type: string
-          required: true
-          description: student studentFatherRationCardColor          
-        - in: formData
-          name: studentParentsOccupation
-          type: string
-          required: true
-          description: student studentParentsOccupation
-        - in: formData
-          name: studentParentsAnnualIncom
-          type: string
-          required: true
-          description: student studentParentsAnnualIncom           
-        - in: formData
-          name: addharFrontCard
+          name: file
           type: file
           required: true
           description: upload your addhar card front side photo  
         - in: formData
-          name: addharBackCard
+          name: file
           type: file
           required: true
-          description: upload your addhar card back side photo  
-        - in: formData
-          name: studentPreviousSchool
-          type: string
-          required: true
-          description: student studentPreviousSchool
-        - in: formData
-          name: studentPanNumber
-          type: string
-          required: true
-          description: student studentPanNumber 
-        - in: formData
-          name: studentBankName
-          type: string
-          required: true
-          description: student studentBankName
-        - in: formData
-          name: studentBankAccount
-          type: string
-          required: true
-          description: student studentBankAccount 
-        - in: formData
-          name: studentBankAccountHolderName
-          type: string
-          required: true
-          description: student studentBankAccountHolderName                      
-        - in: formData
-          name: studentBankIfsc
-          type: string
-          required: true
-          description: student studentBankIfsc
-        - in: formData
-          name: bankPassbook
-          type: file
-          required: true
-          description: student studentBankPassbook 
-        - in: formData
-          name: casteCertificate
-          type: file
-          required: true
-          description: student studentCasteCertificatePhoto 
-        - in: formData
-          name: identityDocument
-          type: file
-          required: true
-          description: student studentidentityDocument 
-        - in: formData
-          name: joiningTransferLetter
-          type: file
-          required: true
-          description: student studentjoiningTransferLetter   
-        - in: formData
-          name: leavingTransferCertificate
-          type: file
-          required: true
-          description: student studentleavingTransferCertificate 
-        - in: formData
-          name: incomeCertificate
-          type: file
-          required: true
-          description: student studentincomeCertificate  
-        - in: formData
-          name: lastYearMarksheet
-          type: file
-          required: true
-          description: student studentlastYearMarksheet 
-        - in: formData
-          name: nationalityCertificate
-          type: file
-          required: true
-          description: student studentnationalityCertificate   
-        - in: formData
-          name: domicileCertificate
-          type: file
-          required: true
-          description: student studentdomicileCertificate 
-        - in: formData
-          name: nonCreamyLayerCertificate
-          type: file
-          required: true
-          description: student studentnonCreamyLayerCertificate                        
+          description: upload your addhar card back side photo     
       responses:
         "200":
           description: OK
@@ -7556,6 +7372,58 @@ paths:
         "200":
           description: OK
 
+  /api/v1/all-images/{vid}/vehicle/cover:
+    patch:
+      tags:
+        - To get All Images, Videos and Documents
+      summary:
+        - To upload Vehicle cover photo
+      consumes:
+        - application/json
+      produces:
+        - application/json'
+      parameters:
+        - in: path
+          name: vid
+          required: true
+          schema:
+            type: string
+          description: This is Vehicle ID
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your image with images extenstion
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/all-images/{tid}/transport/cover:
+    patch:
+      tags:
+        - To get All Images, Videos and Documents
+      summary:
+        - To upload Transport cover photo
+      consumes:
+        - application/json
+      produces:
+        - application/json'
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          schema:
+            type: string
+          description: This is Transport ID
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your image with images extenstion
+      responses:
+        "200":
+          description: OK
+
 
   /api/v1/all/todevice/token:
     post:
@@ -8125,6 +7993,25 @@ paths:
                     type: integer
                     description: if it is true then class Teacher side show the report card other wise not show                                                            
                 description: It is class setting for the report card related function
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/class/{sid}/all/active/mentors:
+    get:
+      tags:
+        - Class Related Api
+      summary: All Mentors of One Student (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
       responses:
         "200":
           description: OK
@@ -10857,11 +10744,6 @@ paths:
           required: true
           description: Enter Type of Income Account (By Cash / By Bank )
         - in: formData
-          name: incomePurpose
-          type: string
-          required: false
-          description: Enter Income Purpose
-        - in: formData
           name: incomeAmount
           type: number
           required: true
@@ -10871,6 +10753,11 @@ paths:
           type: string
           required: true
           description: Enter Sender of Income 
+        - in: formData
+          name: incomeFromUser
+          type: string
+          required: false
+          description: Enter Sender of Income User Id
         - in: formData
           name: incomeDesc
           type: string
@@ -10899,7 +10786,7 @@ paths:
         - in: formData
           name: file
           type: file
-          required: true
+          required: false
           description: upload Income Acknowledge Report / Receipt
       responses:
         "200":
@@ -10942,16 +10829,16 @@ paths:
           required: true
           type: string
           description: This is Finance id 
+        - in: query
+          name: is_inventory
+          required: false
+          type: string
+          description: This is Boolean (true || false)
         - in: formData
           name: expenseAccount
           type: string
           required: true
           description: Enter Type of Expense Account (By Cash / By Bank )
-        - in: formData
-          name: expensePurpose
-          type: string
-          required: false
-          description: Enter Expense Purpose
         - in: formData
           name: expenseAmount
           type: number
@@ -10962,6 +10849,11 @@ paths:
           type: string
           required: true
           description: Enter Sender of Expense 
+        - in: formData
+          name: expensePaidUser
+          type: string
+          required: false
+          description: Enter Sender of Expense User Id 
         - in: formData
           name: expenseDesc
           type: string
@@ -10990,8 +10882,23 @@ paths:
         - in: formData
           name: file
           type: file
-          required: true
+          required: false
           description: upload Expense Acknowledge Report / Receipt
+        - in: formData
+          name: expense_quantity
+          type: number
+          required: false
+          description: Enter Expense Quantity
+        - in: formData
+          name: expense_good_name
+          type: string
+          required: false
+          description: Enter Expense Good Name
+        - in: formData
+          name: expense_hsn_code
+          type: string
+          required: false
+          description: Enter Expense HSN Code Good 
       responses:
         "200":
           description: OK
@@ -14688,57 +14595,70 @@ paths:
                 required:  true
                 description: here pass all staff form setting boolean
                 properties:
-                  personalInfo:
+                  staffNationality:
                     type: boolean
                     description: here pass value "true" or "false"
-                  otherPersonalInfo:
+                  staffMTongue:
                     type: boolean
                     description: here pass value "true" or "false"
-                  addressInfo:
+                  staffMotherName:
                     type: boolean
                     description: here pass value "true" or "false"
-                  identityDetails:
+                  staffCast:
                     type: boolean
-                    description: here pass value "true" or "false"                    
-                  previousSchoolAndDocument:
-                    type: object
-                    required: true,
-                    description: previous schools and document related toggle
-                    properties:
-                      previousSchoolDocument:
-                        type: boolean
-                        description: here pass value "true" or "false"
-                      aadharCard:
-                        type: boolean
-                        description: here pass value "true" or "false"
-                      identityDocument:
-                        type: boolean
-                        description: here pass value "true" or "false"
-                      casteCertificate:
-                        type: boolean
-                        description: here pass value "true" or "false"
-                      joiningTransferLetter:
-                        type: boolean
-                        description: here pass value "true" or "false"
-                      leavingTransferCertificate:
-                        type: boolean
-                        description: here pass value "true" or "false"
-                      incomeCertificate:
-                        type: boolean
-                        description: here pass value "true" or "false"
-                      lastYearMarksheet:
-                        type: boolean
-                        description: here pass value "true" or "false"
-                      nationalityCertificate:
-                        type: boolean
-                        description: here pass value "true" or "false"
-                      domicileCertificate:
-                        type: boolean
-                        description: here pass value "true" or "false"
-                      nonCreamyLayerCertificate:
-                        type: boolean
-                        description: here pass value "true" or "false"
-                  bankDetails:
+                    description: here pass value "true" or "false"
+                  staffCastCategory:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffReligion:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffBirthPlace:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffDistrict:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffState:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffAddress:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffPhoneNumber:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffAadharNumber:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffQualification:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffAadharFrontCard:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffAadharBackCard:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffPanNumber:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffBankDetails:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffUpiId:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffHeight:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffWeight:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  staffBMI:
+                    type: boolean
+                    description: here pass value "true" or "false"                                                      
+                  staffCasteCertificate:
                     type: boolean
                     description: here pass value "true" or "false"      
               studentFormSetting:
@@ -14746,59 +14666,72 @@ paths:
                 required:  true
                 description: here pass all student form setting boolean
                 properties:
-                  personalInfo:
+                  studentNationality:
                     type: boolean
                     description: here pass value "true" or "false"
-                  otherPersonalInfo:
+                  studentMTongue:
                     type: boolean
                     description: here pass value "true" or "false"
-                  addressInfo:
+                  studentMotherName:
                     type: boolean
                     description: here pass value "true" or "false"
-                  identityDetails:
+                  studentCast:
                     type: boolean
-                    description: here pass value "true" or "false"                       
-                  previousSchoolAndDocument:
-                    type: object
-                    required: true,
-                    description: previous schools and document related toggle
-                    properties:
-                      previousSchoolDocument:
-                        type: boolean
-                        description: here pass value "true" or "false"
-                      aadharCard:
-                        type: boolean
-                        description: here pass value "true" or "false"
-                      identityDocument:
-                        type: boolean
-                        description: here pass value "true" or "false"
-                      casteCertificate:
-                        type: boolean
-                        description: here pass value "true" or "false"
-                      joiningTransferLetter:
-                        type: boolean
-                        description: here pass value "true" or "false"
-                      leavingTransferCertificate:
-                        type: boolean
-                        description: here pass value "true" or "false"
-                      incomeCertificate:
-                        type: boolean
-                        description: here pass value "true" or "false"
-                      lastYearMarksheet:
-                        type: boolean
-                        description: here pass value "true" or "false"
-                      nationalityCertificate:
-                        type: boolean
-                        description: here pass value "true" or "false"
-                      domicileCertificate:
-                        type: boolean
-                        description: here pass value "true" or "false"
-                      nonCreamyLayerCertificate:
-                        type: boolean
-                        description: here pass value "true" or "false"
-                  bankDetails:
+                    description: here pass value "true" or "false"
+                  studentCastCategory:
                     type: boolean
-                    description: here pass value "true" or "false"                         
+                    description: here pass value "true" or "false"
+                  studentReligion:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentBirthPlace:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentDistrict:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentState:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentAddress:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentPhoneNumber:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentAadharNumber:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentAadharFrontCard:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentAadharBackCard:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentPanNumber:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentBankDetails:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentCasteCertificate:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentParentsName:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentParentsPhoneNumber:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentHeight:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentWeight:
+                    type: boolean
+                    description: here pass value "true" or "false"
+                  studentBMI:
+                    type: boolean
+                    description: here pass value "true" or "false"                     
       responses:
         "200":
           description: OK
@@ -15251,6 +15184,11 @@ paths:
           required: true
           type: string
           description: This is limit count 
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: This Search Query
       responses:
         "200":
           description: OK
@@ -15280,6 +15218,11 @@ paths:
           required: true
           type: string
           description: This is limit count 
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: This Search Query
       responses:
         "200":
           description: OK
@@ -15309,6 +15252,35 @@ paths:
           required: true
           type: string
           description: This is limit count 
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: This Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/confirmed/application/all/payload:
+    get:
+      tags:
+        - Admission Admin Module Query
+      summary: Get All Confirmed Application (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application id 
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: This Search Query
       responses:
         "200":
           description: OK
@@ -15318,6 +15290,40 @@ paths:
       tags:
         - Admission Admin Module Query
       summary: Mark Application Select by the Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id 
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application id 
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - fee_struct
+            properties:
+              fee_struct:
+                type: string
+                description: Enter Fee Structure Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{sid}/student/{aid}/cancel/app:
+    post:
+      tags:
+        - Admission Admin Module Query
+      summary: Mark Student Application Cancel || Reject by the Admission Admin (verified)
       consumes:
         - application/json
       produces:
@@ -15564,7 +15570,7 @@ paths:
     post:
       tags:
         - Admission Admin Module Query
-      summary: Mark Remaining Fee paid by Admission Admin (verified)
+      summary: Mark Remaining Fee paid by Admission Admin + add body content (verified)
       consumes:
         - application/json
       produces:
@@ -15592,118 +15598,17 @@ paths:
             required:
               - amount
               - mode
+              - type
             properties:
               amount:
                 type: number
                 description: Enter amount
               mode:
                 type: string
-                description: Enter payment mode ("Online" | "Offline")
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/admission/{aid}/student/{uid}/inquiry:
-    post:
-      tags:
-        - Admission Admin Module Query
-      summary: Ask your Query from Admission Admin (verified)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: aid
-          required: true
-          type: string
-          description: This is Admission id 
-        - in: path
-          name: uid
-          required: true
-          type: string
-          description: This is User id
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - reasonType
-              - content
-              - replyBy
-            properties:
-              reasonType:
+                description: Enter payment mode ("Online" | "Offline" | "Exempted")
+              type:
                 type: string
-                description: Enter Reason
-              content:
-                type: string
-                description: Enter Detailed Content
-              replyBy:
-                type: string
-                description: Enter Reply By ("User" || "Admin")
-      responses:
-        "200":
-          description: OK
-
-  /api/v1/admission/{aid}/student/inquiry/array:
-    get:
-      tags:
-        - Admission Admin Module Query
-      summary: Get All List of Inquiry (verified)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: aid
-          required: true
-          type: string
-          description: This is Admission id 
-        - in: query
-          name: page
-          required: true
-          type: string
-          description: This is page count
-        - in: query
-          name: limit
-          required: true
-          type: string
-          description: This is limit count 
-      responses:
-        "200":
-          description: OK
-  
-  /api/v1/admission/inquiry/reply/{qid}:
-    patch:
-      tags:
-        - Admission Admin Module Query
-      summary: Chat with Admission Admin (verified)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: qid
-          required: true
-          type: string
-          description: This is Inquiry id 
-        - in: query
-          name: author
-          required: true
-          type: string
-          description: Enter Author Query ("User" || "Admin")
-        - in: body
-          name: body
-          schema:
-            type: object
-            required:
-              - content
-            properties:
-              content:
-                type: string
-                description: Enter Detailed Content
+                description: Enter Installment Value
       responses:
         "200":
           description: OK
@@ -17745,16 +17650,21 @@ paths:
         "200":
           description: OK
 
-  /api/v1/election/event/all/query:
+  /api/v1/election/event/{did}/all/query:
     get:
       tags:
         - Election Event Query
-      summary: All Election Event Array (verified)
+      summary: All Election Event Array of Department (verified)
       consumes:
         - application/json
       produces:
         - application/json
       parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: Enter Department ID
         - in: query
           name: page
           required: true
@@ -17784,6 +17694,35 @@ paths:
           required: true
           type: string
           description: Enter Election Event Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/election/event/one/{eid}/all/candidate:
+    get:
+      tags:
+        - Election Event Query
+      summary: One Election Event All Candidate Detail (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: Enter Election Event Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
       responses:
         "200":
           description: OK
@@ -17900,6 +17839,146 @@ paths:
         "200":
           description: OK
 
+  /api/v1/election/event/{did}/one/institute:
+    get:
+      tags:
+        - Election Event Query
+      summary: One Election Event All Students List Detail (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: Enter Department Id
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/election/event/all/{sid}/query:
+    get:
+      tags:
+        - Election Event Query
+      summary: One Student All Election Event List Detail (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Student Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/election/event/department/{did}/setting:
+    patch:
+      tags:
+        - Election Event Query
+      summary: Department Head Update Election Event Date Setting Field (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: Enter Department Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              election_date_setting:
+                type: object
+                properties:
+                  end_date:
+                    type: number
+                    description: Enter End Date Count
+                    required: true
+                  select_date:
+                    type: number
+                    description: Enter Select Date Count
+                    required: true
+                  campaign_date:
+                    type: number
+                    description: Enter Campaign Date Count
+                    required: true
+                  campaign_last_date:
+                    type: number
+                    description: Enter Campaign Last Date Count
+                    required: true
+                  vote_date:
+                    type: number
+                    description: Enter Vote Date Count
+                    required: true
+                  result_date:
+                    type: number
+                    description: Enter Result Date Count
+                    required: true
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/election/event/{sid}/query/one/election/{eid}:
+    get:
+      tags:
+        - Election Event Query
+      summary: One Student One Election Event List Detail (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Student Id
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: Enter Election Id
+      responses:
+        "200":
+          description: OK
+
 
 #Participate Event
   /api/v1/participate/event/new/{did}:
@@ -17964,7 +18043,7 @@ paths:
         "200":
           description: OK
 
-  /api/v1/participate/event/all/query:
+  /api/v1/participate/event/all/query/{did}:
     get:
       tags:
         - Participate Event Query
@@ -17974,6 +18053,11 @@ paths:
       produces:
         - application/json
       parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: Enter Department ID
         - in: query
           name: page
           required: true
@@ -18060,7 +18144,7 @@ paths:
         "200":
           description: OK
 
-  /api/v1/participate/event/one/{pid}/student/{sid}/result:
+  /api/v1/participate/event/one/{pid}/result:
     patch:
       tags:
         - Participate Event Query
@@ -18075,16 +18159,20 @@ paths:
           required: true
           type: string
           description: Enter Participate Event Id
-        - in: path
-          name: sid
-          required: true
-          type: string
-          description: Enter Student Id
-        - in: query
-          name: rank
-          required: true
-          type: string
-          description: Enter Rank ("Winner" || "Ist Runner" || "IInd Runner")
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              result_set:
+                type: array
+                description: Array of Objects
+                sid:
+                  type: string
+                  description: Enter Student Id
+                rank:
+                  type: string
+                  description: Enter Enter Rank ("Winner" || "Ist Runner" || "IInd Runner")
       responses:
         "200":
           description: OK
@@ -18180,7 +18268,25 @@ paths:
         "200":
           description: OK
 
-  
+  /api/v1/pay/merchant/author/{id}:
+    get:
+      tags:
+        - Payment History
+      summary: Create a order instance from Merchant Owner (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: Enter Institute Id
+      responses:
+        "200":
+          description: OK
+
 # Sorted By Alpha || Gender
 
   /api/v1/feed/filter/by/class/catalog/{cid}:
@@ -18203,6 +18309,3529 @@ paths:
           required: true
           type: string
           description: for only gender -> ("Gender"), for only Alphabetical -> ("Alpha"), for both -> ("Gender_Alpha")
+      responses:
+        "200":
+          description: OK
+
+
+# Edit Admins of Department (Finance,Admission, Sport Head || Class Head, Library)
+  /api/v1/edit/staff/finance/staff/{osid}:
+    patch:
+      tags:
+        - Edit Admins
+      summary: Update Finance Admins (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: osid
+          required: true
+          type: string
+          description: Enter Old staff id
+        - in: query
+          name: nsid
+          required: true
+          type: string
+          description: Enter New staff id
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/edit/staff/admission/staff/{osid}:
+    patch:
+      tags:
+        - Edit Admins
+      summary: Update Admission Admins (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: osid
+          required: true
+          type: string
+          description: Enter Old staff id
+        - in: query
+          name: nsid
+          required: true
+          type: string
+          description: Enter New staff id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/edit/staff/sport/arts/staff/{osid}:
+    patch:
+      tags:
+        - Edit Admins
+      summary: Update Sport Head Admins (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: osid
+          required: true
+          type: string
+          description: Enter Old staff id
+        - in: query
+          name: nsid
+          required: true
+          type: string
+          description: Enter New staff id
+      responses:
+        "200":
+          description: OK
+  
+  /api/v1/edit/staff/sport/arts/class/staff/{osid}:
+    patch:
+      tags:
+        - Edit Admins
+      summary: Update Sport Class Head Admins (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: osid
+          required: true
+          type: string
+          description: Enter Old staff id
+        - in: query
+          name: nsid
+          required: true
+          type: string
+          description: Enter New staff id
+      responses:
+        "200":
+          description: OK
+  
+  /api/v1/edit/staff/library/staff/{osid}:
+    patch:
+      tags:
+        - Edit Admins
+      summary: Update Library Admins (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: osid
+          required: true
+          type: string
+          description: Enter Old staff id
+        - in: query
+          name: nsid
+          required: true
+          type: string
+          description: Enter New staff id
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/edit/staff/transport/staff/{osid}:
+    patch:
+      tags:
+        - Edit Admins
+      summary: Update Transport Admins (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: osid
+          required: true
+          type: string
+          description: Enter Old staff id
+        - in: query
+          name: nsid
+          required: true
+          type: string
+          description: Enter New staff id
+      responses:
+        "200":
+          description: OK
+
+
+# Backlog Api Module
+
+  /api/v1/exam/backlog/class/master/{did}:
+    get:
+      tags:
+        - Backlog Module
+      summary: Get All Masters - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: Enter Department Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/backlog/one/master/{cmid}/subjects:
+    get:
+      tags:
+        - Backlog Module
+      summary: Get All Subjects Of One Class Master - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cmid
+          required: true
+          type: string
+          description: Enter One Class Master Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/backlog/one/subject/{smid}/students:
+    get:
+      tags:
+        - Backlog Module
+      summary: Get All Students Of One Selected Subject Master - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: smid
+          required: true
+          type: string
+          description: Enter Subject Master Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/backlog/one/subject/{smid}/students/dropout:
+    get:
+      tags:
+        - Backlog Module
+      summary: Get All Drop Students Of One Selected Subject Master - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: smid
+          required: true
+          type: string
+          description: Enter Subject Master Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/backlog/one/previous/student/{sid}/subject:
+    get:
+      tags:
+        - Backlog Module
+      summary: Get All Subjects Of One Selected Previous Students - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Student Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/backlog/one/previous/student/{sid}/mark/status:
+    patch:
+      tags:
+        - Backlog Module
+      summary: Mark Clear || Dropout Backlog of One Student - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Student Id
+        - in: query
+          name: smid
+          required: true
+          type: string
+          description: Enter Subject Master Id
+        - in: query
+          name: status
+          required: true
+          type: string
+          description: Enter Status ("Clear" || "Dropout")
+      responses:
+        "200":
+          description: OK
+
+#Inquiry of Admission Module
+
+  /api/v1/admission/{aid}/new/inquiry:
+    post:
+      tags:
+        - Admission Inquiry Module 
+      summary: New Inquiry from Inside App || Web - (verified)
+      produces:
+        - application/json
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Application Id
+        - in: query
+          name: flow_status
+          required: true
+          type: string
+          description: Enter Flow Status ("By Admission Admin" || "By Existing User")
+        - in: query
+          name: uid
+          required: false
+          type: string
+          description: Enter User Id if flow_status is "By Existing User"
+        - in: formData
+          name: inquiry_student_name
+          type: string
+          required: true
+          description: Enter Student Name
+        - in: formData
+          name: inquiry_student_gender
+          type: string
+          required: true
+          description: Enter Student Gender
+        - in: formData
+          name: inquiry_student_dob
+          type: string
+          required: true
+          description: Enter Date of Birth
+        - in: formData
+          name: inquiry_student_address
+          type: string
+          required: true
+          description: Enter Student Address
+        - in: formData
+          name: file
+          type: string
+          required: true
+          description: Enter Student Profile Photo
+        - in: formData
+          name: inquiry_student_previous
+          type: string
+          required: false
+          description: Enter Student Previous School
+        - in: formData
+          name: inquiry_student_mobileNo
+          type: string
+          required: false
+          description: Enter Student Mobile No.
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/direct/{id}/inquiry:
+    post:
+      tags:
+        - Admission Inquiry Module 
+      summary: New Inquiry from Direct Qr Code Scan + User Account Creation - (verified)
+      produces:
+        - application/json
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Application Id
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: Enter User Phone Number
+        - in: formData
+          name: inquiry_student_name
+          type: string
+          required: true
+          description: Enter Student Name
+        - in: formData
+          name: inquiry_student_gender
+          type: string
+          required: true
+          description: Enter Student Gender
+        - in: formData
+          name: inquiry_student_dob
+          type: string
+          required: true
+          description: Enter Date of Birth
+        - in: formData
+          name: inquiry_student_address
+          type: string
+          required: true
+          description: Enter Student Address
+        - in: formData
+          name: file
+          type: string
+          required: true
+          description: Enter Student Profile Photo
+        - in: formData
+          name: inquiry_student_previous
+          type: string
+          required: false
+          description: Enter Student Previous School
+        - in: formData
+          name: sample_pic
+          type: string
+          required: false
+          description: Enter CDN Avatar
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/all/inquiry:
+    get:
+      tags:
+        - Admission Inquiry Module 
+      summary: Get All Inquiry List - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Admission Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+        - in: query
+          name: status
+          required: true
+          type: string
+          description: Enter Status ("Ongoing" || "Reviewed")
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{id}/one/inquiry:
+    get:
+      tags:
+        - Admission Inquiry Module 
+      summary: Get One Inquiry Detail - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: Enter Inquiry Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{id}/inquiry/remark:
+    patch:
+      tags:
+        - Admission Inquiry Module 
+      summary: Mark Remark of One Inquiry - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: Enter Inquiry Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              remark:
+                type: string
+                description: Enter Remark
+                required: true
+      responses:
+        "200":
+          description: OK
+
+#Inventory Module
+
+  /api/v1/finance/{fid}/all/inventory/query:
+    get:
+      tags:
+        - Inventory Module 
+      summary: All Stores of Inventory - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/one/inventory/{inid}/query:
+    get:
+      tags:
+        - Inventory Module 
+      summary: One Store of All Expenses Inventory - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: inid
+          required: true
+          type: string
+          description: Enter Store Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/manage/admin/all/user:
+    get:
+      tags:
+        - Inventory Module 
+      summary: All Users of Platform - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+#Transport Module
+
+  /api/v1/transport/ins/{id}/staff/{sid}:
+    post:
+      tags:
+        - Transport Module Query
+      summary: Assign and Activate Transport Module By The Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id 
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is staff id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/{tid}/dashboard:
+    get:
+      tags:
+        - Transport Module Query
+      summary: Get Dashboard Detail of Transport  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This is Transport id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/{tid}/new/vehicle:
+    post:
+      tags:
+        - Transport Module Query
+      summary: Add New Vehicle To Transport Module  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This is Transport id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              dsid:
+                type: string
+                description: Enter Driver Staff Id if(vehicle Type is "Own")
+              csid:
+                type: string
+                description: Enter Conductor Staff Id if(vehicle Type is "Own")
+              duid:
+                type: string
+                description: Enter Driver User Id if(vehicle Type is "Outsider")
+              cuid:
+                type: string
+                decription: Enter Conductor User Id if(vehicle Type is "Outsider")
+              vehicle_number:
+                type: string
+                description: Enter Vehicle Number (Required)
+              vehicle_type:
+                type: string
+                description: Enter Vehicle Type (Required) ("Own" || "Outsider")
+              vehicle_tracking_id:
+                type: string
+                description: Enter Vehicle Tracking Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/vehicle/{vid}/new/route:
+    post:
+      tags:
+        - Transport Module Query
+      summary: Add New Route To One Vehicle  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: vid
+          required: true
+          type: string
+          description: This is Vehicle id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              route_path:
+                type: array
+                description: Array of Objects { "stop": "Singar Nagar", "fee": 100 }
+                items:
+                  type: string
+                  description: Stop, Fees
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/vehicle/{vid}/route/update:
+    patch:
+      tags:
+        - Transport Module Query
+      summary: Update Previous Route || Add New Route To One Vehicle  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: vid
+          required: true
+          type: string
+          description: This is Vehicle id 
+        - in: query
+          name: route_status
+          required: true
+          type: string
+          description: Enter Route Status ("Renaming_Route" || "Add_New_Stop_Point")
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              edit_path:
+                type: array
+                description: Array of Objects { "stop": "Vidhan Sabha", "fee": 210, "index": 9 }
+                items:
+                  type: string
+                  description: Stop, Fees & Index
+              rid:
+                type: string
+                description: Enter Route Id
+              route_stop:
+                type: string
+                description: Enter Route Stop
+              route_fees:
+                type: number
+                description: Enter Route Fees
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/vehicle/{vid}/new/passenger:
+    post:
+      tags:
+        - Transport Module Query
+      summary: Add New Passenger To One Vehicle  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: vid
+          required: true
+          type: string
+          description: This is Vehicle id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              sid:
+                type: string
+                description: Enter Student Id
+              rid:
+                type: string
+                description: Enter Route Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/{tid}/all/vehicles:
+    get:
+      tags:
+        - Transport Module Query
+      summary: Get All Vehicles of Transport Module  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This is Transport id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/{tid}/all/passengers:
+    get:
+      tags:
+        - Transport Module Query
+      summary: Get All Passengers of Transport Module  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This is Transport id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+        - in: query
+          name: filter_by
+          required: true
+          type: boolean
+          description: Enter Boolean (true for Transport Side User) (false for Institute Transport Side)
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/{tid}/all/vehicles/staff:
+    get:
+      tags:
+        - Transport Module Query
+      summary: Get All Drivers / Conductors of Transport Module  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This is Transport id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/one/vehicle/{vid}/query:
+    get:
+      tags:
+        - Transport Module Query
+      summary: Get One Vehicle Details With Students List  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: vid
+          required: true
+          type: string
+          description: This is Vehicle id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/one/vehicle/{vid}/query/all/passengers:
+    get:
+      tags:
+        - Transport Module Query
+      summary: Get One Vehicle Details With All Passengers  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: vid
+          required: true
+          type: string
+          description: This is Vehicle id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+        - in: query
+          name: search
+          required: true
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/one/vehicle/{vid}/route:
+    get:
+      tags:
+        - Transport Module Query
+      summary: Get One Vehicle All Routes   (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: vid
+          required: true
+          type: string
+          description: This is Vehicle id 
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/vehicle/{vid}/student/{sid}/route:
+    get:
+      tags:
+        - Transport Module Query
+      summary: Get One Vehicle Details Of One Students   (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: vid
+          required: true
+          type: string
+          description: This is Vehicle id 
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/staff/{sid}/manage:
+    get:
+      tags:
+        - Transport Module Query
+      summary: Access Transport Profile From Staff Side   (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Staff id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/user/{uid}/manage:
+    get:
+      tags:
+        - Transport Module Query
+      summary: Access Transport Profile From User Side   (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is Staff id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/{tid}/students/{sid}/collect/offline:
+    post:
+      tags:
+        - Transport Module Query
+      summary: Collect Transport Fees  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This is Transport id 
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                description: Enter Amount 
+              mode:
+                type: string
+                description: Enter Mode ("Online" || "Offline")
+              is_install:
+                type: boolean
+                description: Enter Boolean (true || false)
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/{tid}/request/finance:
+    patch:
+      tags:
+        - Transport Module Query
+      summary: Request || Submit To Finance Manager  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This is Transport id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                description: Enter Amount 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/dashboard/cash/flow/transport/query:
+    get:
+      tags:
+        - Transport Module Query
+      summary: Get All Finance Transport Cash Flow  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+        - in: query
+          name: filter_by
+          required: true
+          type: string
+          description: Enter Filter Keywords ("ALL_REQUEST" || "ALL_SUBMIT" || "ALL_CANCEL")
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/transport/{tid}/submit/{rid}/status:
+    post:
+      tags:
+        - Transport Module Query
+      summary: Accepted || Rejected Transport Request At Finance  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This is Transport id 
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: This is Transport Request id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                required: true
+                description: Enter Amount
+              status:
+                type: string
+                required: true
+                description: Enter Status ("Accepted" || "Rejected") 
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/transport/vehicle/{vid}/route/{rid}/destroy:
+    delete:
+      tags:
+        - Transport Module Query
+      summary: Delete One Route of vehicle if no passenger available at this route (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: vid
+          required: true
+          type: string
+          description: This is Vehicle id 
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: Enter Route Id
+      responses:
+        "200":
+          description: OK
+
+
+# Export Module All Data
+
+  /api/v1/extra/export/student/all/admission/{aid}:
+    get:
+      tags:
+        - Export Data Module
+      summary: Get All Students Remaining Fee At Admission Module Exported Data -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Admission Module Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/extra/export/student/all/{fid}:
+    get:
+      tags:
+        - Export Data Module
+      summary: Get All Students Remaining Fee At Finance Exported Data -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/extra/export/student/all/{id}:
+    get:
+      tags:
+        - Export Data Module
+      summary: Get All Students Exported Data -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: Enter institute Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/extra/export/student/card:
+    post:
+      tags:
+        - Setting Control API
+      summary: Get Id Card Student Exported Data -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              request:
+                type: string
+                description: Enter Array of Class Id ["987482734878274387328", "893728947892374872847"]
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/extra/export/staff/card/{did}:
+    get:
+      tags:
+        - Setting Control API
+      summary: Get All Staff Exported Data -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: Enter Institute Id
+      responses:
+        "200":
+          description: OK
+
+
+# Admission To Finance
+
+  /api/v1/finance/{aid}/admission/request:
+    post:
+      tags:
+        - Cash Flow Module Query
+      summary: Request || Submit To Finance Manager  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                required: true
+                description: Enter Amount 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/dashboard/cash/flow/admission/query:
+    get:
+      tags:
+        - Cash Flow Module Query
+      summary: Get All Finance Admission Cash Flow  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+        - in: query
+          name: filter_by
+          required: true
+          type: string
+          description: Enter Filter Keywords ("ALL_REQUEST" || "ALL_SUBMIT" || "ALL_CANCEL")
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/admission/{aid}/submit/{rid}/status:
+    post:
+      tags:
+        - Cash Flow Module Query
+      summary: Accepted or Rejected Admission Request At Finance  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission id 
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: This is Admission Request id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                required: true
+                description: Enter Amount 
+              status:
+                type: number
+                required: true
+                description: Enter Status ("Accepted" || "Rejected") 
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/finance/{lid}/library/request:
+    post:
+      tags:
+        - Cash Flow Module Query
+      summary: Request || Submit To Finance Manager  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: This is Library id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                required: true
+                description: Enter Amount 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/dashboard/cash/flow/library/query:
+    get:
+      tags:
+        - Cash Flow Module Query
+      summary: Get All Finance Library Cash Flow  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+        - in: query
+          name: filter_by
+          required: true
+          type: string
+          description: Enter Filter Keywords ("ALL_REQUEST" || "ALL_SUBMIT" || "ALL_CANCEL")
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/library/{lid}/submit/{rid}/status:
+    post:
+      tags:
+        - Cash Flow Module Query
+      summary: Accepted or Rejected Library Request At Finance  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: This is Library id 
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: This is Admission Request id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                required: true
+                description: Enter Amount 
+              status:
+                type: number
+                required: true
+                description: Enter Status ("Accepted" || "Rejected") 
+      responses:
+        "200":
+          description: OK
+
+# library side all list
+  /api/v1/library/activate/{id}:
+    post:
+      tags:
+        - Library Module 
+      summary: Assign library Head (VERIFIED ✔)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: Enter Institute Id to activate library
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              sid:
+                type: string
+                description: It is a staff id 
+                required: true
+      responses:
+        "200":
+          description: OK          
+
+  /api/v1/library/info/{lid}:
+    get:
+      tags:
+        - Library Module 
+      summary: Give library Info like (count of book, members and etc) (VERIFIED ✔)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: It is a library id
+      responses:
+        "200":
+          description: OK    
+
+  /api/v1/library/books/{lid}:
+    get:
+      tags:
+        - Library Module 
+      summary: List of all books that is created at particular institute side (VERIFIED ✔)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: It is a library id 
+        - in: query
+          name: page
+          type: integer
+          description: Enter a page 
+        - in: query
+          name: limit
+          type: integer
+          description: Enter a limit  
+        - in: query
+          name: search
+          type: string
+          description: here type book name or author name of publication base search 
+      responses:
+        "200":
+          description: OK                             
+    
+    post:
+      tags:
+        - Library Module 
+      summary: create a book to a particular library (VERIFIED ✔)
+      consumes:
+        - application/json      
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: It is a library Id
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              bookName:
+                type: string
+                description: Here type the book name
+                required: true
+              bookStatus:
+                type: string
+                description: It is a book type that is a (Offline or Online)  
+                required: true  
+              author:
+                type: string
+                description: Here type the book author name
+                required: true
+              publication:
+                type: string
+                description: It is a book type book publication name  
+              language:
+                type: string
+                description: Here type the language of book written in (hindi, english)
+                required: true
+              totalPage:
+                type: integer
+                description: Here type total number of pages that book contains  
+              price:
+                type: integer
+                description: Here type the price of book
+              totalCopies:
+                type: integer
+                description: Here type the total book copy available (Note-It is only for the bookStatus Offline)  
+              shellNumber:
+                type: string
+                description: Here type the  book shell number where book is place.  
+              description:
+                type: string
+                description: Here type the  book description.  
+              photo:
+                type: string
+                description: Here type the key of particular uploaded image of thumbnail of book.  
+              attachment:
+                type: array
+                description: It is contain file key when bookStatus is Online only.
+                items: 
+                  type: object
+                  description: one file in list.
+                  properties:
+                    documentType:
+                      type: string
+                      description: It is a uploaded document type
+                    documentName:
+                      type: string
+                      description: it is a uploaded document file name
+                    documentSize:
+                      type: string
+                      description: It is a file size
+                    documentKey: 
+                      type: string
+                      description: Here type the key of particular uploaded image thumbnail of book.  
+      responses:
+        "200":
+          description: OK  
+
+  /api/v1/library/book/detail/{bid}:
+    get:
+      tags:
+        - Library Module 
+      summary: It is give the particular book details (VERIFIED ✔)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: bid
+          required: true
+          type: string
+          description: It is a book Id 
+      responses:
+        "200":
+          description: OK    
+    patch:
+      tags:
+        - Library Module 
+      summary: It is updated particular book (VERIFIED ✔)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: bid
+          required: true
+          type: string
+          description: It is a book Id
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              bookName:
+                type: string
+                description: Here type the book name
+                required: true
+              bookStatus:
+                type: string
+                description: It is a book type that is a (Offline or Online)  
+                required: true  
+              author:
+                type: string
+                description: Here type the book author name
+                required: true
+              publication:
+                type: string
+                description: It is a book type book publication name  
+              language:
+                type: string
+                description: Here type the language of book written in (hindi, english)
+                required: true
+              totalPage:
+                type: integer
+                description: Here type total number of pages that book contains  
+              price:
+                type: integer
+                description: Here type the price of book
+              totalCopies:
+                type: integer
+                description: Here type the total book copy available (Note-It is only for the bookStatus Offline)  
+              shellNumber:
+                type: string
+                description: Here type the  book shell number where book is place.  
+              description:
+                type: string
+                description: Here type the  book description.  
+              photo:
+                type: string
+                description: Here type the key of particular uploaded image of thumbnail of book.  
+              attachment:
+                type: array
+                description: It is contain file key when bookStatus is Online only.
+                items: 
+                  type: object
+                  description: one file in list.
+                  properties:
+                    documentType:
+                      type: string
+                      description: It is a uploaded document type
+                    documentName:
+                      type: string
+                      description: it is a uploaded document file name
+                    documentSize:
+                      type: string
+                      description: It is a file size
+                    documentKey: 
+                      type: string
+                      description: Here type the key of particular uploaded image thumbnail of book.  
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/library/issued/{lid}:
+    get:
+      tags:
+        - Library Module 
+      summary: Give the list of all issue book in particular librarian head  (VERIFIED ✔)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: It is a Library Id  
+        - in: query
+          name: page
+          type: integer
+          description: Enter a page 
+        - in: query
+          name: limit
+          type: integer
+          description: Enter a limit   
+      responses:
+        "200":
+          description: OK    
+    
+    patch:
+      tags:
+        - Library Module 
+      summary: It is issue a book to any particular member (VERIFIED ✔)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: It is a Library Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              memberId:
+                type: string
+                description: It is a particular member(student) Id
+                required: true
+              bookId:
+                type: string
+                description: It is a book id that is selected
+                required: true                
+      responses:
+        "200":
+          description: OK     
+
+  /api/v1/library/collected/{lid}:
+    get:
+      tags:
+        - Library Module 
+      summary: Give the list of all collected book in particular librarian head  (VERIFIED ✔)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: It is a Library Id  
+        - in: query
+          name: page
+          type: integer
+          description: Enter a page 
+        - in: query
+          name: limit
+          type: integer
+          description: Enter a limit   
+      responses:
+        "200":
+          description: OK    
+    patch:
+      tags:
+        - Library Module 
+      summary: It is collect particular book from member (VERIFIED ✔)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: It is a Issued Id that is provided in particular issue card section
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              chargeBy:
+                type: string
+                description: It is a selection of type of charges you want ot add when collect a book ("" || Damaged ||Lost ) three type of value
+              fineCharge:
+                type: integer
+                description: It is a charges apply based upon selection of chargeBy
+              paymentType:
+                type: string
+                description: It is a payment mode type that is "Offline" or "Online"
+      responses:
+        "200":
+          description: OK     
+
+
+  /api/v1/library/onecollected/{cid}:
+    get:
+      tags:
+        - Library Module 
+      summary: It is give detail of on collected books, who has taken this book (VERIFIED ✔)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: It is a collected Id  
+      responses:
+        "200":
+          description: OK     
+
+  /api/v1/library/members/{lid}:
+    get:
+      tags:
+        - Library Module 
+      summary: Give the all members list in librarian head and institute side. (VERIFIED ✔)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: It is a library Id  
+        - in: query
+          name: page
+          type: integer
+          description: Enter a page 
+        - in: query
+          name: limit
+          type: integer
+          description: Enter a limit   
+      responses:
+        "200":
+          description: OK  
+
+  /api/v1/library/member/{sid}/issued:
+    get:
+      tags:
+        - Library Module 
+      summary: It is give one member with all list of issue or borrow book in librarian or student side. (VERIFIED ✔)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: It is a student Id  
+        - in: query
+          name: page
+          type: integer
+          description: Enter a page 
+        - in: query
+          name: limit
+          type: integer
+          description: Enter a limit   
+      responses:
+        "200":
+          description: OK  
+
+  /api/v1/library/member/{sid}/history:
+    get:
+      tags:
+        - Library Module 
+      summary: It is give one member with all list of history or deposite book in librarian or student side. (VERIFIED ✔)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter student Id  
+        - in: query
+          name: page
+          type: integer
+          description: Enter a page 
+        - in: query
+          name: limit
+          type: integer
+          description: Enter a limit   
+      responses:
+        "200":
+          description: OK  
+
+  /api/v1/library/all/fine/history/{lid}:
+    get:
+      tags:
+        - Library Module 
+      summary: Give the list of all collected book fine charges in particular librarian head  (VERIFIED ✔)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: It is a Library Id  
+        - in: query
+          name: page
+          type: integer
+          description: Enter a page 
+        - in: query
+          name: limit
+          type: integer
+          description: Enter a limit   
+      responses:
+        "200":
+          description: OK
+
+
+
+# Some Edit and Delete Section Part
+  /api/v1/admission/{aid}/destroy/{appId}:
+    delete:
+      tags:
+        - Edit & Delete Module API
+      summary: New Application Delete When No One Applied -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Admission Id
+        - in: path
+          name: appId
+          required: true
+          type: string
+          description: Enter New Application Id   
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/edit/{appId}:
+    patch:
+      tags:
+        - Edit & Delete Module API
+      summary: New Application Edit with limited Data -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: appId
+          required: true
+          type: string
+          description: Enter New Application Id  
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/fees/{fid}/edit:
+    patch:
+      tags:
+        - Edit & Delete Module API
+      summary: Fees Edit with limited Data (name, date) -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: appId
+          required: true
+          type: string
+          description: Enter Fees Id  
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/fees/{fid}/destroy/{did}:
+    delete:
+      tags:
+        - Edit & Delete Module API
+      summary: Fees Delete When No One Paid for This -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Fees Id
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: Enter Department Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/checklist/{cid}/destroy/{did}:
+    delete:
+      tags:
+        - Edit & Delete Module API
+      summary: Checklist Delete When No Student Get Allotted Checklist -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: Enter Checklist Id
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: Enter Department Id
+      responses:
+        "200":
+          description: OK
+
+
+# Moderator Section Module
+
+  /api/v1/role/permission/{aid}/new/app/mod:
+    post:
+      tags:
+        - Moderator Role & Permission
+      summary: Add New Moderator Role (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Admission Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              mod_role:
+                type: string
+                description: Enter Role as per given 
+                required: true
+              sid:
+                type: string
+                description: Enter Staff Id
+                required: true 
+              appId:
+                type: string
+                description: Enter App Id
+                required: true  
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/role/permission/{aid}/all/moderator:
+    get:
+      tags:
+        - Moderator Role & Permission
+      summary: All Moderator Role of Admission Super Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Admission Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/role/permission/{aid}/update/app/mod/{mid}:
+    patch:
+      tags:
+        - Moderator Role & Permission
+      summary: Edit One Moderator Role By Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Admission Id
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: Enter One Moderator Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              mod_role:
+                type: string
+                description: Enter Role as per given 
+                required: true
+              osid:
+                type: string
+                description: Enter Old Staff Id
+                required: true 
+              appId:
+                type: string
+                description: Enter Old App Id
+                required: true 
+              new_roles:
+                type: string
+                description: Enter New Role as per given 
+                required: false
+              new_staff:
+                type: string
+                description: Enter New Staff Id
+                required: false
+              new_apps:
+                type: string
+                description: Enter New App Id
+                required: false
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/role/permission/{aid}/destroy/app/mod/{mid}:
+    delete:
+      tags:
+        - Moderator Role & Permission
+      summary: Delete One Moderator Role By Admission Super Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Admission Id
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: Enter One Moderator Id
+      responses:
+        "200":
+          description: OK
+
+  Same AS Admission Admin Get Admission Detail API:
+    get:
+      tags:
+        - Moderator Role & Permission
+      summary: Old Admission Dashboard Info API pass sid in query for moderator role (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Admission Id
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: Enter One Moderator Id
+      responses:
+        "200":
+          description: OK
+
+
+#Manage Admin Module
+
+  /api/v1/manage/admin/{mid}/all/mentors:
+    get:
+      tags:
+        - Manage Admin Affiliation
+      summary: All Mentors / Staff of Affiliated Institute (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: Enter Manage Admin Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit 
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/manage/admin/{mid}/all/students:
+    get:
+      tags:
+        - Manage Admin Affiliation
+      summary: All Students of Affiliated Institute (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: Enter Manage Admin Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit 
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/manage/admin/{mid}/personal/query:
+    patch:
+      tags:
+        - Manage Admin Affiliation
+      summary: Edit Manage Admin Profile (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: Enter Manage Admin Id
+        - in: query
+          name: delete_pic
+          required: true
+          type: string
+          description: Enter Old Profile Photo
+      responses:
+        "200":
+          description: OK
+
+
+#New Flow Finance + Admission 
+  /api/v1/finance/{fid}/bank/flow/query:
+    patch:
+      tags:
+        - New Flow Finance + Admission
+      summary: Add Bank Details By Finance Manager in body ("finance_bank_account_number", "finance_bank_name", "finance_bank_account_name", "finance_bank_ifsc_code", "finance_bank_branch_address", "finance_bank_upi_id", "finance_bank_upi_qrcode") (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+        - in: query
+          name: delete_pic
+          required: true
+          type: string
+          description: Enter Old Qr Photo
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/bank/flow/query:
+    patch:
+      tags:
+        - New Flow Finance + Admission
+      summary: Add Bank Details By Finance Manager in body ("finance_bank_account_number", "finance_bank_name", "finance_bank_account_name", "finance_bank_ifsc_code", "finance_bank_branch_address", "finance_bank_upi_id", "finance_bank_upi_qrcode") (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+        - in: query
+          name: delete_pic
+          required: true
+          type: string
+          description: Enter Old Qr Photo
+      responses:
+        "200":
+          description: OK
+
+
+  Get From Finance Master API:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Get Bank Details from Finance Master API (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/all/fee/category/query:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Get All Fees Category (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/fee/category/new:
+    post:
+      tags:
+        - New Flow Finance + Admission
+      summary: Add New Fees Category (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              category_name:
+                type: string
+                description: Enter Category as per given
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  Old All Internal Department API:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Get All Internal Department from Previous API (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      responses:
+        "200":
+          description: OK
+  
+  Old One Internal Department All Class Master API:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Get One Internal Department All Class Master from Previous API (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/fee/structure/new/{did}:
+    post:
+      tags:
+        - New Flow Finance + Admission
+      summary: Add New Fees Structure By Finance (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: Enter Department Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              category_master:
+                type: string
+                description: Enter Fees Category Id
+                required: true
+              class_master:
+                type: string
+                description: Enter Class Master Id
+                required: true
+              due_date:
+                type: string
+                description: Enter Due Date ("2023-01-02")
+                required: false
+              total_admission_fees:
+                type: number
+                description: Enter Admission Fees
+                required: true
+              total_installments:
+                type: string
+                description: Enter Total Installments
+                required: true
+              one_installments:
+                type: object
+                properties:
+                  fees:
+                    type: number
+                    description: Enter Fees
+                    required: true
+                  dueDate:
+                    type: string
+                    description: Enter Date ("2023-01-01")
+                    required: false
+              heads:
+                type: array
+                description: Enter "[{ "name": "Library Fees", "price": 1000 }, {"name": "Tution Fees", "price": 1000}]"
+                required: true
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/finance/fee/structure/{fsid}/retro/query:
+    patch:
+      tags:
+        - New Flow Finance + Admission
+      summary: Update Fees Structure By Finance (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fsid
+          required: true
+          type: string
+          description: Enter Fees Structure Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              category_master:
+                type: string
+                description: Enter Fees Category Id
+                required: true
+              class_master:
+                type: string
+                description: Enter Class Master Id
+                required: true
+              due_date:
+                type: string
+                description: Enter Due Date ("2023-01-02")
+                required: false
+              total_admission_fees:
+                type: number
+                description: Enter Admission Fees
+                required: true
+              total_installments:
+                type: string
+                description: Enter Total Installments
+                required: true
+              one_installments:
+                type: object
+                properties:
+                  fees:
+                    type: number
+                    description: Enter Fees
+                    required: true
+                  dueDate:
+                    type: string
+                    description: Enter Date ("2023-01-01")
+                    required: false
+              heads:
+                type: array
+                description: Enter "[{ "name": "Library Fees", "price": 1000 }, {"name": "Tution Fees", "price": 1000}]"
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/depart/{did}/all/fee/structure:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Get All Fees Structures (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: Enter Department Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: filter_by
+          required: false
+          type: string
+          description: Enter Class Master ID from Admission Side
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/finance/one/{fsid}/structure:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Get One Fees Structures (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fsid
+          required: true
+          type: string
+          description: Enter Fees Structure Id
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/finance/{fid}/all/exempt/query:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Get All Exempted Array (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/all/government/query:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Get All Government Grants Array (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/finance/{frid}/one/receipt:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Get One Receipt Query (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: frid
+          required: true
+          type: string
+          description: Enter Fee Receipt Id
+      responses:
+        "200":
+          description: OK
+
+  Old Admission Select Student API Same as:
+    post:
+      tags:
+        - New Flow Finance + Admission
+      summary: Get Select Student API Same as fee_struct (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_struct:
+                type: string
+                description: Enter Fee Structure Id
+                required: true
+      parameters:
+      responses:
+        "200":
+          description: OK
+
+  Old Admission Mode Selection By Student Side:
+    post:
+      tags:
+        - New Flow Finance + Admission
+      summary: Select Mode From Student Side if mode is cash pass fee_payment_mode "By Cash" other no mention fields are required (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_payment_mode:
+                type: string
+                description: Enter Fee Mode ("By Cash") || ("UPI Transfer") || ("Demand Draft") || ("Cheque") || ("RTGS/NEFT/IMPS")
+                required: false
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: false
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: false
+              fee_bank_name:
+                type: string
+                description: Enter Bank Name e.g SBI
+                required: false
+              fee_bank_holder:
+                type: string
+                description: Enter Bank Holder Name e.g Mithkal
+                required: false
+              fee_utr_reference:
+                type: string
+                description: Enter Fee Unique Transaction Reference Number (UTR)
+                required: false
+      parameters:
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/all/receipts/by:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Get All Requested Receipts || Approved Receipts || Rejected Receipts (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Admission Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: filter_by
+          required: true
+          type: string
+          description: Enter Filter Query for ("ALL_REQUEST") || ("ALL_APPROVE") || ("ALL_REJECT")
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/one/receipts/{rid}/status:
+    patch:
+      tags:
+        - New Flow Finance + Admission
+      summary: Update One Receipts By Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Admission Id
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: Enter Receipt Id
+        - in: query
+          name: status
+          required: true
+          type: string
+          description: Enter Status As Mention for Operation ("Approved") || ("Rejected") || ("Over_Rejection") || ("Rejection_Notify")
+        - in: query
+          name: reqId
+          required: true
+          type: string
+          description: Enter Receipts Holding Document Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              reason:
+                type: string
+                description: Enter Reason if Receipt is going for Rejected
+                required: false
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{sid}/re/apply/receipts/{rid}:
+    patch:
+      tags:
+        - New Flow Finance + Admission
+      summary: Re-Apply Receipt From Student Application Status Tab Receipt Content is Updated not created (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Status Id
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: Enter Receipt Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_payment_mode:
+                type: string
+                description: Enter Fee Mode ("By Cash") || ("UPI Transfer") || ("Demand Draft") || ("Cheque") || ("RTGS/NEFT/IMPS")
+                required: false
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: false
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: false
+              fee_bank_name:
+                type: string
+                description: Enter Bank Name e.g SBI
+                required: false
+              fee_bank_holder:
+                type: string
+                description: Enter Bank Holder Name e.g Mithkal
+                required: false
+              fee_utr_reference:
+                type: string
+                description: Enter Fee Unique Transaction Reference Number (UTR)
+                required: false
+      responses:
+        "200":
+          description: OK
+
+  Old Admission Pay Offline Confirm Same as:
+    post:
+      tags:
+        - New Flow Finance + Admission
+      summary: Old Pay Offline Confirm API all previous things + add body content (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_payment_mode:
+                type: string
+                description: Enter Fee Mode ("By Cash") || ("UPI Transfer") || ("Demand Draft") || ("Cheque") || ("RTGS/NEFT/IMPS")
+                required: false
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: false
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: false
+              fee_bank_name:
+                type: string
+                description: Enter Bank Name e.g SBI
+                required: false
+              fee_bank_holder:
+                type: string
+                description: Enter Bank Holder Name e.g Mithkal
+                required: false
+              fee_utr_reference:
+                type: string
+                description: Enter Fee Unique Transaction Reference Number (UTR)
+                required: false
+      parameters:
+      responses:
+        "200":
+          description: OK
+
+  Old Admission Collect Docs Type is pass for One Time Fees Same as for Installment:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Old Collect Docs Type is pass for One Time Fees Same as for Installment (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      responses:
+        "200":
+          description: OK
+
+  Old Admission Cancel & Refund API Same as:
+    post:
+      tags:
+        - New Flow Finance + Admission
+      summary: Old Cancel & Refund API all previous things + add body content (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_payment_mode:
+                type: string
+                description: Enter Fee Mode ("By Cash") || ("UPI Transfer") || ("Demand Draft") || ("Cheque") || ("RTGS/NEFT/IMPS")
+                required: false
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: false
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: false
+              fee_bank_name:
+                type: string
+                description: Enter Bank Name e.g SBI
+                required: false
+              fee_bank_holder:
+                type: string
+                description: Enter Bank Holder Name e.g Mithkal
+                required: false
+              fee_utr_reference:
+                type: string
+                description: Enter Fee Unique Transaction Reference Number (UTR)
+                required: false
+      parameters:
+      responses:
+        "200":
+          description: OK
+
+  Old Admission All Admission Fees At Fees Data TAB Same as:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Old All Admission Fees At Fees Data TAB response is changed (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      responses:
+        "200":
+          description: OK
+
+
+  Old Admission Mark Remaining Fees API at Fees Data Tab Same as:
+    post:
+      tags:
+        - New Flow Finance + Admission
+      summary: Old Mark Remaining Fees API at Fees Data Tab all previous things + add body content (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_payment_mode:
+                type: string
+                description: Enter Fee Mode ("By Cash") || ("UPI Transfer") || ("Demand Draft") || ("Cheque") || ("RTGS/NEFT/IMPS") || ("Exempted/Unrecovered") || ("Government/Scholarship")
+                required: false
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: false
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: false
+              fee_bank_name:
+                type: string
+                description: Enter Bank Name e.g SBI
+                required: false
+              fee_bank_holder:
+                type: string
+                description: Enter Bank Holder Name e.g Mithkal
+                required: false
+              fee_utr_reference:
+                type: string
+                description: Enter Fee Unique Transaction Reference Number (UTR)
+                required: false
+      parameters:
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/trigger/alarm:
+    post:
+      tags:
+        - New Flow Finance + Admission
+      summary: Create a new Alarm only 3 Attempts - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Admission Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/select/student/mode/{sid}:
+    post:
+      tags:
+        - New Flow Finance + Admission
+      summary: Confirm Student Mode By Admission Admin - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Application Id
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Student Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/cancel/select/student/{sid}:
+    post:
+      tags:
+        - New Flow Finance + Admission
+      summary: Cancel Student Admission Mode By Admission Admin - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Application Id
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Student Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/update/payment/mode:
+    patch:
+      tags:
+        - New Flow Finance + Admission
+      summary: Update Finance Payment Modes for Students - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              payment_modes_type:
+                type: object
+                properties:
+                  cash:
+                    type: boolean
+                    description: Default Cash To true update to false if not required
+                    required: false
+                  upi_transfer:
+                    type: boolean
+                    description: Default UPI Transfer To true update to false if not required
+                    required: false
+                  net_banking:
+                    type: boolean
+                    description: Default Netbanking To true update to false if not required
+                    required: false
+                  cheque:
+                    type: boolean
+                    description: Default Cheque To true update to false if not required
+                    required: false
+                  demand_draft:
+                    type: boolean
+                    description: Default Demand Draft To true update to false if not required
+                    required: false
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/all/bank/details:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: get Finance Payment Modes + Bank Details for Students Side - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/student/{sid}/edit/structure:
+    patch:
+      tags:
+        - New Flow Finance + Admission
+      summary: Edit Fee Structure After Select by the Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id 
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application id 
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - fee_struct
+            properties:
+              fee_struct:
+                type: string
+                description: Enter Fee Structure Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/add/document/flow:
+    post:
+      tags:
+        - New Flow Finance + Admission
+      summary: Add Required Documents by the Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission id 
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - doc_name
+              - doc_key
+            properties:
+              doc_name:
+                type: string
+                description: Enter Document Name
+              doc_key:
+                type: string
+                description: Enter Document Key
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/all/document/array:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Get All Required Documents by the Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/edit/document/flow:
+    patch:
+      tags:
+        - New Flow Finance + Admission
+      summary: Update Existing Required Documents by the Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              doc:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Enter Document "_id"
+                    required: true
+                  name:
+                    type: string
+                    description: Enter Changed Document Name
+                    required: true
+                  newKey:
+                    type: string
+                    description: send existing old key if no new document is available
+                    required: true
+                  oldKey:
+                    type: string
+                    description: if available New Upload Document Key if available then send existing old key
+                    required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/delete/document/{docId}:
+    delete:
+      tags:
+        - New Flow Finance + Admission
+      summary: Delete Existing Required Document by the Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission id 
+        - in: path
+          name: docId
+          required: true
+          type: string
+          description: This is Document id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/paid/remaining/fee/{sid}/student/{appId}/refund/by:
+    patch:
+      tags:
+        - New Flow Finance + Admission
+      summary: Mark Refund Fee paid by Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission id 
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
+        - in: path
+          name: appId
+          required: true
+          type: string
+          description: This is Application id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - amount
+              - mode
+            properties:
+              amount:
+                type: number
+                description: Enter amount
+              mode:
+                type: string
+                description: Enter payment mode ("Online" | "Offline")
+              fee_payment_mode:
+                type: string
+                description: Default "Refunded"
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{sid}/fees:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Get All Fees by the Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID 
       responses:
         "200":
           description: OK

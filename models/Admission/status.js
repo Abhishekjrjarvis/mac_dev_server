@@ -13,9 +13,36 @@ const statusSchema = new mongoose.Schema({
   studentId: { type: String },
   admissionFee: { type: Number },
   see_secure: { type: Boolean, default: false },
+  oneInstallments: { type: Number },
   createdAt: {
     type: Date,
     default: Date.now,
+  },
+  instituteId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "InstituteAdmin",
+  },
+  feeStructure: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "FeeStructure",
+  },
+  finance: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Finance",
+  },
+  sub_payment_mode: {
+    type: String,
+  },
+  receipt_status: {
+    type: String,
+  },
+  receipt: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "FeeReceipt",
+  },
+  document_visible: {
+    type: Boolean,
+    default: false,
   },
 });
 

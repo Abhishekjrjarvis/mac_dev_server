@@ -8,95 +8,13 @@ const upload = multer({ dest: "uploads/" });
 
 router.post(
   "/:uid/staffform/:id",
-  isLoggedIn,
-  upload.fields([
-    {
-      name: "file",
-    },
-    {
-      name: "addharFrontCard",
-    },
-    {
-      name: "addharBackCard",
-    },
-    {
-      name: "bankPassbook",
-    },
-    {
-      name: "casteCertificate",
-    },
-    {
-      name: "identityDocument",
-    },
-    {
-      name: "joiningTransferLetter",
-    },
-    {
-      name: "leavingTransferCertificate",
-    },
-    {
-      name: "incomeCertificate",
-    },
-    {
-      name: "lastYearMarksheet",
-    },
-    {
-      name: "nationalityCertificate",
-    },
-    {
-      name: "domicileCertificate",
-    },
-    {
-      name: "nonCreamyLayerCertificate",
-    },
-  ]),
+  // isLoggedIn,
   catchAsync(Institute.fillStaffForm)
 );
 
 router.post(
   "/:uid/studentform/:id",
-  isLoggedIn,
-  upload.fields([
-    {
-      name: "file",
-    },
-    {
-      name: "addharFrontCard",
-    },
-    {
-      name: "addharBackCard",
-    },
-    {
-      name: "bankPassbook",
-    },
-    {
-      name: "casteCertificate",
-    },
-    {
-      name: "identityDocument",
-    },
-    {
-      name: "joiningTransferLetter",
-    },
-    {
-      name: "leavingTransferCertificate",
-    },
-    {
-      name: "incomeCertificate",
-    },
-    {
-      name: "lastYearMarksheet",
-    },
-    {
-      name: "nationalityCertificate",
-    },
-    {
-      name: "domicileCertificate",
-    },
-    {
-      name: "nonCreamyLayerCertificate",
-    },
-  ]),
+  // isLoggedIn,
   catchAsync(Institute.fillStudentForm)
 );
 
@@ -110,7 +28,7 @@ router.get(
 
 router.get(
   "/:id/setting/personal",
-  // isLoggedIn,
+  isLoggedIn,
   catchAsync(Institute.getSettingPersonal)
 );
 
@@ -124,22 +42,27 @@ router.get("/:id/credit/q-coins", isLoggedIn, catchAsync(Institute.getCQCoins));
 
 router.get(
   "/:id/announcemnt",
-  // isLoggedIn,
+  isLoggedIn,
   catchAsync(Institute.getAnnouncementArray)
 );
 
 router.get(
   "/dashboard/:id/notify",
-  // isLoggedIn,
+  isLoggedIn,
   catchAsync(Institute.getNotificationIns)
 );
 
 router.get(
   "/:id/activity/total/notify",
+  isLoggedIn,
   catchAsync(Institute.getAllTotalCount)
 );
 
-router.patch("/:id/mark/viewed", catchAsync(Institute.retrieveMarkAllView));
+router.patch(
+  "/:id/mark/viewed",
+  isLoggedIn,
+  catchAsync(Institute.retrieveMarkAllView)
+);
 
 router.post(
   "/read/notify/:rid",
@@ -281,7 +204,7 @@ router.get(
 
 router.get(
   "/:id/department",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Institute.retrieveDepartmentList)
 );
 
@@ -385,6 +308,7 @@ router.get("/staffclass/:cid", isLoggedIn, catchAsync(Institute.retrieveClass));
 
 router.get(
   "/staffclass/:cid/fee/:fid/query",
+  isLoggedIn,
   catchAsync(Institute.retrieveClassRequestArray)
 );
 
@@ -510,6 +434,7 @@ router.get(
 
 router.get(
   "/:cid/student/catalog",
+  isLoggedIn,
   catchAsync(Institute.retrieveApproveCatalogArray)
 );
 
@@ -545,6 +470,7 @@ router.post(
 
 router.patch(
   "/:id/leaving/editable",
+  isLoggedIn,
   catchAsync(Institute.updateLeavingCertificateQuery)
 );
 
@@ -567,6 +493,7 @@ router.get(
 
 router.patch(
   "/:id/location/permission",
+  isLoggedIn,
   catchAsync(Institute.retrieveLocationPermission)
 );
 
@@ -578,22 +505,34 @@ router.post(
 
 router.get(
   "/:did/staff/merge/student",
+  isLoggedIn,
   catchAsync(Institute.retrieveMergeStaffStudent)
 );
 
 router.get(
   "/:id/certificate/editable/detail",
+  isLoggedIn,
   catchAsync(Institute.retrieveCertificateEditableDetailQuery)
 );
 
 router.patch(
   "/:id/certificate/editable",
+  isLoggedIn,
   catchAsync(Institute.retrieveCertificateEditableQuery)
 );
-router.get("/:id/student/form", catchAsync(Institute.getStudentFormQuery));
-router.get("/:id/staff/form", catchAsync(Institute.getStaffFormQuery));
+router.get(
+  "/:id/student/form",
+  // isLoggedIn,
+  catchAsync(Institute.getStudentFormQuery)
+);
+router.get(
+  "/:id/staff/form",
+  // isLoggedIn,
+  catchAsync(Institute.getStaffFormQuery)
+);
 router.patch(
   "/:id/form/setting/update",
+  isLoggedIn,
   catchAsync(Institute.settingFormUpdate)
 );
 
@@ -608,6 +547,7 @@ router.patch(
   isLoggedIn,
   catchAsync(Institute.retrieveInstituteReportBlock)
 );
+
 router.get("/:id/stats", isLoggedIn, catchAsync(Institute.renderStats));
 
 module.exports = router;

@@ -15,77 +15,17 @@ const cluster = require("cluster");
 const http = require("http");
 const numCPUs = require("os").cpus().length;
 
-//======================== All Routes ========================
-const {
-  check_poll_status,
-  election_vote_day,
-  election_result_day,
-} = require("./Service/AutoRefreshBackend");
-const uploadRoute = require("./routes/UploadContent/index");
-const elearningRoute = require("./routes/Elearning/index");
-const libraryRoute = require("./routes/Library/libraryRoute");
-const searchRoute = require("./routes/Search/index");
-const adminNew = require("./routes/SuperAdmin/adminRoute");
-const instituteNew = require("./routes/InstituteAdmin/instituteRoute");
-const authNew = require("./routes/Authentication/authRoute");
-const financeNew = require("./routes/Finance/financeRoute");
-const sportNew = require("./routes/Sport/sportRoute");
-const miscellaneousNew = require("./routes/Miscellaneous/miscellaneousRoute");
-const userNew = require("./routes/User/userRoute");
-const availNew = require("./routes/Attendence/indexRoute");
-const landingNew = require("./routes/LandingRoute/indexRoute");
-const feesNew = require("./routes/Fees/feesRoute");
-const extraNew = require("./routes/Extra/extraRoute");
-const institutePostRoute = require("./routes/InstituteAdmin/Post/PostRoute");
-const userPostRoute = require("./routes/User/Post/PostRoute");
-const superAdminPostRoute = require("./routes/SuperAdmin/Post/PostRoute");
-const classRoute = require("./routes/Class/classRoute");
-const checklistRoute = require("./routes/Checklist/checklistRoute");
-const examRoute = require("./routes/Exam/examRoute");
-const mcqRoute = require("./routes/MCQ/mcqRoute");
-const batchRoute = require("./routes/Batch/batchRoute");
-const complaintLeaveRoute = require("./routes/ComplaintLeave/complaintLeaveRoute");
-const questionNew = require("./routes/User/Post/QuestionRoute");
-const admissionNew = require("./routes/Admission/admissionRoute");
-const pollNew = require("./routes/User/Post/PollsRoute");
-const iQuestionNew = require("./routes/InstituteAdmin/Post/QuestionRoute");
-const instituteMemberRoute = require("./routes/Edit/instituteMemberRoute");
-const staffMemberRoute = require("./routes/Edit/staffMemberRoute");
-const studentMemberRoute = require("./routes/Edit/studentMemberRoute");
-const userMemberRoute = require("./routes/Edit/userMemberRoute");
-const filterNew = require("./routes/Filterization/filterRoute");
-const dailyUpdateRoute = require("./routes/dailyUpdate/dailyUpdateRoute");
-const timetableRoute = require("./routes/Timetable/timetableRoute");
-const prod = require("./routes/ProdAPI/prodRoute");
-const election = require("./routes/Election/electionRoute");
-const participate = require("./routes/ParticipativeEvent/participateRoute");
-const checkout = require("./routes/RazorPay/payCheckoutRoute");
-const hashtag = require("./routes/HashTag/hashtagRoute");
-const manage = require("./routes/ManageAdmin/manageRoute");
+const apiFunc = require("./config/api-config");
+const { timerFunction } = require("./config/timer-config");
+const dburl = require("./config/db-config");
 
-// ============================= DB Configuration ==============================
-// const dburl = `${process.env.TESTING_DATABASE_URL}`; // Testing
-const dburl = `${process.env.DB_URL2}`; // Development
-// const dburl = `${process.env.DB_URL}`; // Production
-
-mongoose
-  .connect(dburl, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then((data) => {
-    console.log("Database Successfully Connected...");
-  })
-  .catch((e) => {
-    console.log("Something Went Wrong...", e);
-  });
+app.use(compression());
 
 app.use(mongoSanitize());
 // app.use(helmet({ contentSecurityPolicy: false }));
 app.use(
   helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false })
 );
-app.use(compression());
 
 const swaggerUI = require("swagger-ui-express");
 const YAML = require("yamljs");
@@ -117,7 +57,7 @@ const store = new MongoStore({
 });
 
 store.on("error", function (e) {
-  console.log("some", e);
+  console.log("Store Connection Disabled", e);
 });
 
 app.use(cookieParser());
@@ -146,64 +86,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// ================================ API Endpoints =============================
+app.use(apiFunc);
 
-app.use("/api/v1/search", searchRoute);
-app.use("/api/v1/all-images", uploadRoute);
-app.use("/api/v1/elearning", elearningRoute);
-app.use("/api/v1/library", libraryRoute);
-app.use("/api/v1/class", classRoute);
-app.use("/api/v1/checklist", checklistRoute);
-app.use("/api/v1/exam", examRoute);
-app.use("/api/v1/mcq", mcqRoute);
-app.use("/api/v1/batch", batchRoute);
-app.use("/api/v1/compleave", complaintLeaveRoute);
-app.use("/api/v1/admin", adminNew);
-app.use("/api/v1/ins", instituteNew);
-app.use("/api/v1/ins/post", institutePostRoute);
-app.use("/api/v1/admin/post", superAdminPostRoute);
-app.use("/api/v1/auth", authNew);
-app.use("/api/v1/finance", financeNew);
-app.use("/api/v1/sport/arts", sportNew);
-app.use("/api/v1/all", miscellaneousNew);
-app.use("/api/v1/user", userNew);
-app.use("/api/v1/user/post", userPostRoute);
-app.use("/api/v1/attendance", availNew);
-app.use("/api/v1/landing", landingNew);
-app.use("/api/v1/fees", feesNew);
-app.use("/api/v1/extra", extraNew);
-app.use("/api/v1/post/question", questionNew);
-app.use("/api/v1/poll", pollNew);
-app.use("/api/v1/ins/post/question", iQuestionNew);
-app.use("/api/v1/feed/filter", filterNew);
-app.use("/api/v1/edit/institute", instituteMemberRoute);
-app.use("/api/v1/edit/staff", staffMemberRoute);
-app.use("/api/v1/edit/student", studentMemberRoute);
-app.use("/api/v1/edit/user", userMemberRoute);
-app.use("/api/v1/admission", admissionNew);
-app.use("/api/v1/dailyupdate", dailyUpdateRoute);
-app.use("/api/v1/timetable", timetableRoute);
-app.use("/api/v1/election/event", election);
-app.use("/api/v1/participate/event", participate);
-app.use("/api/v1/pay", checkout);
-app.use("/api/v1/hashtag", hashtag);
-app.use("/api/v1/manage/admin", manage);
-
-app.use("/api/v1/prod/access", prod);
-
-// ============================================================================
-
-// setInterval(async () => {
-//   await election_vote_day();
-// }, 30000);
-
-// setInterval(async () => {
-//   await election_result_day();
-// }, 30000);
-
-// setInterval(async () => {
-//   await participate_result_day();
-// }, 30000);
+// timerFunction();
 
 app.get("*", (req, res) => {
   res.status(404).send("Page Not Found...");

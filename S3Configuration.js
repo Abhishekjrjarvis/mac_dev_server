@@ -13,7 +13,6 @@ const s3 = new S3({
   secretAccessKey,
 });
 
-
 const sharpify = async (file, width, height) => {
   try {
     const image = sharp(file.path);
@@ -50,6 +49,7 @@ async function uploadFile(file, width, height) {
     Bucket: bucketName,
     Body: newFile,
     Key: file.filename,
+    ContentType: file.mimetype,
   };
   return s3.upload(uploadParams).promise();
 }
@@ -62,6 +62,7 @@ async function uploadVideo(file) {
     Bucket: bucketName,
     Body: fileStream,
     Key: file.filename,
+    ContentType: file.mimetype,
   };
   return s3.upload(uploadParams).promise();
 }
@@ -101,6 +102,7 @@ async function uploadPostImageFile(file) {
     Bucket: bucketName,
     Body: newFile,
     Key: file.filename,
+    ContentType: file.mimetype,
   };
   return s3.upload(uploadParams).promise();
 }
@@ -113,6 +115,7 @@ function uploadDocFile(file) {
     Bucket: bucketName,
     Body: fileStream,
     Key: file.filename,
+    ContentType: file.mimetype,
   };
   return s3.upload(uploadParams).promise();
 }

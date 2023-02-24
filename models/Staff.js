@@ -52,7 +52,6 @@ const staffSchema = new mongoose.Schema({
       },
     },
   ],
-
   staffStatus: { type: String, default: "Not Approved" },
   staffROLLNO: { type: String },
   staffDepartment: [
@@ -163,6 +162,19 @@ const staffSchema = new mongoose.Schema({
       ref: "Admission",
     },
   ],
+  admissionModeratorDepartment: [
+    {
+      admission: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Admission",
+      },
+      accessApp: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NewApplication",
+      },
+      type: { type: String, default: "Admission Admin" },
+    },
+  ],
   isAdmin: {
     type: Boolean,
     default: false,
@@ -213,6 +225,31 @@ const staffSchema = new mongoose.Schema({
     },
   ],
   staff_biometric_id: { type: String },
+  transportDepartment: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Transport",
+    },
+  ],
+  vehicle: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Vehicle",
+    },
+  ],
+  vehicle_category: {
+    type: String,
+  },
+  permission: {
+    admission: [],
+    finance: [],
+  },
+  mentorDepartment: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Mentor",
+    },
+  ],
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

@@ -1,9 +1,14 @@
 const Class = require("../../models/Class");
 const InstituteAdmin = require("../../models/InstituteAdmin");
+const encryptionPayload = require("../../Utilities/Encrypt/payload");
+const Subject = require("../../models/Subject");
+const Student = require("../../models/Student");
+const { handle_undefined } = require("../../Handler/customError");
 // const Checklist = require("../../models/Checklist");
 
 exports.getOneInstitute = async (req, res) => {
   const classDetail = await InstituteAdmin.findById(req.params.id);
+  // const classDetailEncrypt = await encryptionPayload(classDetail.classCodeList);
   res.status(200).send({
     message: "code is refreshed",
     classDetail: classDetail.classCodeList,
@@ -12,6 +17,7 @@ exports.getOneInstitute = async (req, res) => {
 
 exports.getOneClass = async (req, res) => {
   const classDetail = await Class.findById(req.params.cid);
+  // const classEncrypt = await encryptionPayload(classDetail);
   res
     .status(200)
     .send({ message: "code is refreshed", classDetail: classDetail });
@@ -25,7 +31,9 @@ exports.classRefreshCode = async (req, res) => {
       const c_2 = Math.floor(Math.random() * 9) + 1;
       const c_3 = Math.floor(Math.random() * 9) + 1;
       const c_4 = Math.floor(Math.random() * 9) + 1;
-      var r_class_code = `${c_1}${c_2}${c_3}${c_4}`;
+      const c_5 = Math.floor(Math.random() * 9) + 1;
+      const c_6 = Math.floor(Math.random() * 9) + 1;
+      var r_class_code = `${c_1}${c_2}${c_3}${c_4}${c_5}${c_6}`;
       return r_class_code;
     };
     const code = classRandomCodeHandler();
@@ -38,6 +46,7 @@ exports.classRefreshCode = async (req, res) => {
     classDetail.classCode = code;
 
     await Promise.all([institute.save(), classDetail.save()]);
+    // const classCodeEncrypt = await encryptionPayload(code);
     res.status(200).send({ message: "code is refreshed", classCode: code });
   } catch {}
 };
@@ -91,6 +100,50 @@ exports.classReportSetting = async (req, res) => {
   } catch {}
 };
 
+exports.renderAllStudentMentors = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const stu = handle_undefined(sid);
+    if (!stu)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const student = await Student.findById({ _id: stu });
+    const classes = await Class.findOne({ _id: `${student?.studentClass}` })
+      .select("subject classTeacher classHeadTitle")
+      .populate({
+        path: "classTeacher",
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+      });
+    const all_subjects = await Subject.find({ _id: { $in: classes?.subject } })
+      .select("subjectTeacherName subjectName subjectTitle")
+      .populate({
+        path: "subjectTeacherName",
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+      });
+
+    if (all_subjects?.length > 0 || classes) {
+      res.status(200).send({
+        message: "All Active Mentors ClassTeacher / Subject Teacher",
+        access: true,
+        classes: classes?.classTeacher,
+        all_subjects: all_subjects,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Active Mentors",
+        access: false,
+        all_subjects: [],
+        classes: null,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
 // exports.createClassChecklist = async (req, res) => {
 //   try {
 //     const checklist = new Checklist(req.body);

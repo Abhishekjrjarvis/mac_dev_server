@@ -12,6 +12,8 @@ const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const { deleteFile, uploadFile } = require("../../S3Configuration");
+const { chart_category_student } = require("../../Custom/studentChart");
+// const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.photoEditByStudent = async (req, res) => {
   try {
@@ -43,46 +45,51 @@ exports.photoEditByStudent = async (req, res) => {
 exports.formEditByClassTeacher = async (req, res) => {
   try {
     if (!req.params.sid) throw "Please send student id to perform task";
-    const one_student = await Student.findByIdAndUpdate(
-      req.params.sid,
-      req.body
-    );
+    const old_data = {
+      gender: "",
+      caste: "",
+    };
+    const new_data = {
+      gender: "",
+      caste: "",
+    };
+    const one_student = await Student.findById(req.params.sid);
+    old_data.gender = one_student?.studentGender;
+    old_data.caste = one_student?.studentCastCategory;
+    for (let file of req.body?.fileArray) {
+      if (file.name === "addharFrontCard")
+        one_student.studentAadharFrontCard = file.key;
+      else if (file.name === "addharBackCard")
+        one_student.studentAadharBackCard = file.key;
+      else if (file.name === "bankPassbook")
+        one_student.studentBankPassbook = file.key;
+      else if (file.name === "casteCertificate")
+        one_student.studentCasteCertificatePhoto = file.key;
+      else {
+        const filterDocument = one_student.studentDocuments?.filter(
+          (val) => val.documentName !== file.name
+        );
+        one_student.studentDocuments = [
+          ...filterDocument,
+          {
+            documentName: file.name,
+            documentKey: file.key,
+            documentType: file.type,
+          },
+        ];
+      }
+    }
+    for (let studentObj in req.body?.student) {
+      one_student[`${studentObj}`] = req.body?.student[studentObj];
+    }
+    await one_student.save();
     res.status(200).send({
       message: "Student form edited successfully👍",
+      one_student
     });
-    const classes = await Class.findById({ _id: one_student?.studentClass });
-    const batch = await Batch.findById({ _id: one_student?.batches });
-    if (one_student.studentGender === "Male") {
-      classes.boyCount += 1;
-      batch.student_category.boyCount += 1;
-    } else if (one_student.studentGender === "Female") {
-      classes.girlCount += 1;
-      batch.student_category.girlCount += 1;
-    } else {
-      classes.otherCount += 1;
-      batch.student_category.otherCount += 1;
-    }
-    if (one_student.studentCastCategory === "General") {
-      batch.student_category.generalCount += 1;
-    } else if (one_student.studentCastCategory === "OBC") {
-      batch.student_category.obcCount += 1;
-    } else if (one_student.studentCastCategory === "SC") {
-      batch.student_category.scCount += 1;
-    } else if (one_student.studentCastCategory === "ST") {
-      batch.student_category.stCount += 1;
-    } else if (one_student.studentCastCategory === "NT-A") {
-      batch.student_category.ntaCount += 1;
-    } else if (one_student.studentCastCategory === "NT-B") {
-      batch.student_category.ntbCount += 1;
-    } else if (one_student.studentCastCategory === "NT-C") {
-      batch.student_category.ntcCount += 1;
-    } else if (one_student.studentCastCategory === "NT-D") {
-      batch.student_category.ntdCount += 1;
-    } else if (one_student.studentCastCategory === "VJ") {
-      batch.student_category.vjCount += 1;
-    } else {
-    }
-    await Promise.all([classes.save(), batch.save()]);
+    new_data.gender = one_student?.studentGender;
+    new_data.caste = one_student?.studentCastCategory;
+    await chart_category_student(one_student?.batches, "Edit_Student", old_data, new_data, one_student?.studentClass);
   } catch (e) {
     console.log(e);
   }
@@ -247,7 +254,7 @@ exports.removeByClassTeacher = async (req, res) => {
       message: "student removed form class successfully👍",
     });
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     res.status(200).send({
       message: e,
     });
@@ -281,6 +288,7 @@ exports.getAllPreviousYear = async (req, res) => {
         .select("class batch")
         .lean()
         .exec();
+      // const preEncrypt = await encryptionPayload(previousData);
       res.status(200).send({
         message: "Student previous year detail all list 👍",
         previousData,
@@ -292,7 +300,7 @@ exports.getAllPreviousYear = async (req, res) => {
       });
     }
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     res.status(424).send({
       message: e,
     });
@@ -314,13 +322,14 @@ exports.previousYearReportCard = async (req, res) => {
       .select("finalReport studentROLLNO")
       .lean()
       .exec();
+    // Add Another Encryption
     res.status(200).send({
       message: "Student previous year detail all list 👍",
       finalReport: previousData?.finalReport,
       studentROLLNO: previousData?.studentROLLNO,
     });
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     res.status(424).send({
       message: e,
     });

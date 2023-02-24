@@ -10,14 +10,6 @@ const librarySchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteAdmin",
   },
-  libraryHeadTitle: {
-    type: String,
-  },
-  emailId: { type: String },
-  phoneNumber: { type: String },
-  about: { type: String },
-  photoId: { type: String },
-  photo: { type: String },
   coverId: { type: String },
   cover: { type: String },
   members: [{ type: mongoose.Schema.Types.ObjectId, ref: "Student" }],
@@ -44,6 +36,24 @@ const librarySchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  collectedFine: {
+    type: Number,
+    default: 0,
+  },
+  requestStatus: {
+    type: String,
+    default: "Pending",
+  },
+  exemptFine: {
+    type: Number,
+    default: 0,
+  },
+  charge_history: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "CollectBook",
+    },
+  ],
   createdAt: { type: Date, default: Date.now },
 });
 

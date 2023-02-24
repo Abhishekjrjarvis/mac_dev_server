@@ -72,7 +72,9 @@ exports.classCodeFunction = async () => {
   const c_2 = Math.floor(Math.random() * 9) + 1;
   const c_3 = Math.floor(Math.random() * 9) + 1;
   const c_4 = Math.floor(Math.random() * 9) + 1;
-  var r_class_code = `${c_1}${c_2}${c_3}${c_4}`;
+  const c_5 = Math.floor(Math.random() * 9) + 1;
+  const c_6 = Math.floor(Math.random() * 9) + 1;
+  var r_class_code = `${c_1}${c_2}${c_3}${c_4}${c_5}${c_6}`;
   return r_class_code;
 };
 

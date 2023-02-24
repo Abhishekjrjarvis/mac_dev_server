@@ -7,20 +7,39 @@ const bookSchema = new mongoose.Schema({
     default: "Offline",
   },
   author: { type: String, required: true },
-  publication: { type: String, required: true },
+  publication: { type: String },
   language: { type: String, required: true },
-  totalPage: { type: Number, required: true },
-  price: { type: Number, required: true, default: 0 },
-  totalCopies: { type: Number, required: true },
-  leftCopies: { type: Number, required: true },
-  shellNumber: { type: String, required: true },
+  totalPage: { type: Number, default: 0 },
+  price: { type: Number, default: 0 },
+  totalCopies: { type: Number, default: 0 },
+  leftCopies: { type: Number, default: 0 },
+  shellNumber: { type: String },
   description: { type: String },
-  attachment: [],
+  attachment: [
+    {
+      documentType: {
+        type: String,
+      },
+      documentName: {
+        type: String,
+      },
+      documentSize: {
+        type: String,
+      },
+      documentKey: {
+        type: String,
+      },
+    },
+  ],
   photoId: { type: String },
   photo: { type: String },
   library: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Library",
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
   },
 });
 

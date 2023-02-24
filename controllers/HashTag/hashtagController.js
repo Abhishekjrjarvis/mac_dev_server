@@ -6,6 +6,7 @@ const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const { shuffleArray } = require("../../Utilities/Shuffle");
+// const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 const addHashtag = () => {
   var hashTag = [
@@ -70,6 +71,7 @@ exports.renderHashtag = async (req, res) => {
     const hash = await HashTag.findById({ _id: hid }).select(
       "hashtag_name hashtag_profile_photo hashtag_follower_count hashtag_trend hashtag_about hashtag_question_count hashtag_repost_count hashtag_poll_count"
     );
+    // const hasEncrypt = await encryptionPayload(hash);
     res.status(200).send({
       message: "Explore your favourite hashtag 😀",
       in: true,
@@ -127,6 +129,7 @@ exports.renderHashtagPost = async (req, res) => {
     } else {
       totalPage = page + 1;
     }
+    // Add Another Encryption
     res.status(200).send({
       message: "Explore your favourite hashtag 😀",
       in: true,
@@ -201,6 +204,7 @@ exports.arrayHashtag = async (req, res) => {
           "hashtag_name hashtag_profile_photo hashtag_photo_id hashtag_follower_count"
         );
         if (hash?.length > 0) {
+          // const aEncrypt = await encryptionPayload(hash);
           res.status(200).send({
             message: "All Array of Hashtag by follower 🔍",
             hash: hash,
@@ -231,6 +235,7 @@ exports.arrayHashtag = async (req, res) => {
           );
         var get_array = shuffleArray(hash);
         if (get_array?.length > 0) {
+          // const aEncrypt = await encryptionPayload(get_array);
           res.status(200).send({
             message: "All Array of Hashtag by follower 😀",
             hash: get_array,

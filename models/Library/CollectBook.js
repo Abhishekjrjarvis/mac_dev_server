@@ -16,8 +16,12 @@ const collectBookSchema = new mongoose.Schema({
   chargeBy: {
     type: String,
   },
+  paymentType: {
+    type: String,
+  },
   fineCharge: {
     type: Number,
+    default: 0,
   },
   issuedDate: {
     type: Date,

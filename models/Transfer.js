@@ -21,6 +21,10 @@ const transferSchema = new mongoose.Schema({
     type: String,
     default: "Requested",
   },
+  replaceBystaff: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Staff",
+  },
 });
 
 const Transfer = mongoose.model("Transfer", transferSchema);

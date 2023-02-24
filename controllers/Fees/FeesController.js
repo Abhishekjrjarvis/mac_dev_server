@@ -12,33 +12,29 @@ const BusinessTC = require("../../models/Finance/BToC");
 const moment = require("moment");
 const Admin = require("../../models/superAdmin");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
+// const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.createFess = async (req, res) => {
   try {
     const { ClassId } = req.body;
-    const department = await Department.findById(req.params.did).select(
-      "_id ApproveStudent fees institute"
-    );
+    const department = await Department.findById(req.params.did);
     var feeData = new Fees({ ...req.body });
     department.fees.push(feeData._id);
     feeData.feeDepartment = department._id;
-    await department.save();
     for (let i = 0; i < ClassId.length; i++) {
       const classes = await Class.findById({ _id: ClassId[i] });
       classes.fee.push(feeData._id);
-      await Promise.all([classes.save(), feeData.save()]);
+      await classes.save();
     }
+
+    await Promise.all([feeData.save(), department.save()]);
+    res.status(201).send({ message: `${feeData.feeName} Fees Raised` });
     for (let i = 0; i < department.ApproveStudent.length; i++) {
       const student = await Student.findById({
         _id: department.ApproveStudent[i],
-      })
-        .populate({
-          path: "user",
-          select: "_id",
-        })
-        .select("_id");
-      const user = await User.findById({ _id: `${student.user._id}` });
+      });
       const notify = new StudentNotification({});
+      const user = await User.findById({ _id: `${student.user}` });
       notify.notifyContent = `New ${feeData.feeName} (fee) has been created. check your member's Tab`;
       notify.notify_hi_content = `नवीन ${feeData.feeName} (fee) बनाई गई है। अपना सदस्य टैब देखे |`;
       notify.notify_mr_content = `नवीन ${feeData.feeName} (fee) तयार केली आहे. तुमच्या सदस्याचा टॅब तपासा.`;
@@ -64,7 +60,6 @@ exports.createFess = async (req, res) => {
       //
       await Promise.all([user.save(), notify.save()]);
     }
-    res.status(201).send({ message: `${feeData.feeName} Fees Raised` });
     //
     for (let i = 0; i < ClassId.length; i++) {
       const classes = await Class.findById({ _id: ClassId[i] });
@@ -115,26 +110,7 @@ exports.getOneFeesDetail = async (req, res) => {
     if (feeData?.onlineList?.length >= 1) {
       total += feeData?.onlineList?.length * feeData.feeAmount;
     }
-    // .populate({
-    //   path: "feeDepartment",
-    //   select: 'dName dTitle'
-    // })
-    // .populate({
-    //   path: "feeStudent",
-    //   select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO'
-    // })
-    // .populate({
-    //   path: "offlineStudentsList",
-    //   select: 'id'
-    // })
-    // .populate({
-    //   path: "studentExemptList",
-    //   select: 'studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO'
-    // });
-    // .populate({
-    //   path: "studentsList",
-    //   select: 'id'
-    // })
+    // Add Another Encryption
     res
       .status(200)
       .send({ message: "Fees Data", feeData, onlineOffline: total });
@@ -142,13 +118,15 @@ exports.getOneFeesDetail = async (req, res) => {
 };
 
 exports.feesPaidByStudent = async (req, res) => {
-  // try fro check this route
   try {
     const { cid, id } = req.params;
     const { offlineQuery, exemptQuery } = req.body;
     let off_status = "Pending";
     let exe_status = "Pending";
-    const classes = await Class.findById({ _id: cid });
+    const classes = await Class.findById({ _id: cid }).populate({
+      path: "classTeacher",
+      select: "user",
+    });
     const fData = await Fees.findById({ _id: id });
     const s_admin = await Admin.findById({
       _id: `${process.env.S_ADMIN_ID}`,
@@ -193,14 +171,41 @@ exports.feesPaidByStudent = async (req, res) => {
           order.payment_fee = fData._id;
           order.payment_from = student._id;
           s_admin.invoice_count += 1;
-          order.payment_invoice_number = s_admin.invoice_count;
+          order.payment_invoice_number = `${
+            new Date().getMonth() + 1
+          }${new Date().getFullYear()}${s_admin.invoice_count}`;
           user.payment_history.push(order._id);
           institute.payment_history.push(order._id);
+          const notify = new StudentNotification({});
+          notify.notifyContent = `${student.studentFirstName} ${
+            student.studentMiddleName ? `${student.studentMiddleName} ` : ""
+          } ${student.studentLastName} your transaction is successfull for ${
+            fData?.feeName
+          } ${fData.feeAmount}`;
+          notify.notifySender = classes.classTeacher._id;
+          notify.notifyReceiever = user._id;
+          notify.notifyType = "Student";
+          notify.notifyPublisher = student._id;
+          user.activity_tab.push(notify._id);
+          notify.notifyByClassPhoto = classes._id;
+          notify.notifyCategory = "Offline Fees";
+          notify.redirectIndex = 16;
+          //
+          invokeMemberTabNotification(
+            "Student Activity",
+            notify,
+            "Offline Payment",
+            user._id,
+            user.deviceToken,
+            "Student",
+            notify
+          );
           await Promise.all([
             student.save(),
             user.save(),
             order.save(),
             s_admin.save(),
+            notify.save(),
           ]);
         }
       }
@@ -219,6 +224,7 @@ exports.feesPaidByStudent = async (req, res) => {
     if (exemptQuery?.length > 0) {
       for (let exe of exemptQuery) {
         const student = await Student.findById({ _id: `${exe}` });
+        const user = await User.findById({ _id: `${student.user}` });
         if (
           fData.studentExemptList.length >= 1 &&
           fData.studentExemptList.includes(String(student._id))
@@ -236,7 +242,31 @@ exports.feesPaidByStudent = async (req, res) => {
             fee: fData.feeAmount,
             feeId: fData._id,
           });
-          await student.save();
+          const notify = new StudentNotification({});
+          notify.notifyContent = `${student.studentFirstName} ${
+            student.studentMiddleName ? `${student.studentMiddleName} ` : ""
+          } ${student.studentLastName} you get exempted ${fData?.feeName} ${
+            fData.feeAmount
+          } on this fee.`;
+          notify.notifySender = classes.classTeacher._id;
+          notify.notifyReceiever = user._id;
+          notify.notifyType = "Student";
+          notify.notifyPublisher = student._id;
+          user.activity_tab.push(notify._id);
+          notify.notifyByClassPhoto = classes._id;
+          notify.notifyCategory = "Exempt Fees";
+          notify.redirectIndex = 16;
+          //
+          invokeMemberTabNotification(
+            "Student Activity",
+            notify,
+            "Offline Payment",
+            user._id,
+            user.deviceToken,
+            "Student",
+            notify
+          );
+          await Promise.all([student.save(), user.save(), notify.save()]);
         }
       }
       exe_status = "Done";
@@ -268,6 +298,7 @@ exports.retrieveStudentFeeStatus = async (req, res) => {
     const student = await Student.findById({ _id: studentId }).select(
       "studentFirstName studentMiddleName studentLastName studentROLLNO photoId studentProfilePhoto"
     );
+    // const sEncrypt = await encryptionPayload(student);
     res.status(200).send({ message: "Student Detail Data", student });
   } catch {}
 };
@@ -281,6 +312,7 @@ exports.retrieveDepartmentFeeArray = async (req, res) => {
         path: "fees",
         select: "feeName feeAmount feeDate createdAt",
       });
+    // const dEncrypt = await encryptionPayload(depart);
     res.status(200).send({ message: "Department Fee Data ", depart });
   } catch {}
 };
@@ -311,7 +343,7 @@ exports.retrieveClassFeeArray = async (req, res) => {
         path: "fee",
         select: "feeName feeAmount feeDate createdAt",
       });
-
+    // Enable At Optimize
     //   var sorted_student = [];
     // for (var fee of classes?.fee) {
     //   for (var stu of classes?.ApproveStudent) {
@@ -329,6 +361,7 @@ exports.retrieveClassFeeArray = async (req, res) => {
     classes?.ApproveStudent.sort(function (st1, st2) {
       return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
     });
+    // const cEncrypt = await encryptionPayload(classes);
     res.status(200).send({ message: "Class Fee Data ", classes });
   } catch {}
 };
@@ -429,6 +462,7 @@ exports.retrieveStudentCountQuery = async (req, res) => {
         }
       });
     }
+    // Add Another Encryption
     res.status(200).send({
       message: "Total Paid Fee & Remaining Fee",
       paid: paid,
@@ -444,7 +478,7 @@ exports.retrieveStudentQuery = async (req, res) => {
     const { sid } = req.params;
     const student = await Student.findById({ _id: sid })
       .select(
-        "id onlineFeeList offlineFeeList exemptFeeList studentAdmissionDate admissionRemainFeeCount onlineCheckList offlineCheckList studentRemainingFeeCount studentPaidFeeCount"
+        "id onlineFeeList offlineFeeList exemptFeeList studentAdmissionDate admissionRemainFeeCount admissionPaidFeeCount onlineCheckList offlineCheckList studentRemainingFeeCount studentPaidFeeCount"
       )
       .populate({
         path: "institute",
@@ -500,23 +534,104 @@ exports.retrieveStudentQuery = async (req, res) => {
         .lean();
     } else {
     }
-    if (institute && institute.financeDepart.length >= 1) {
-      var finance = await Finance.findById({
-        _id: `${institute?.financeDepart[0]}`,
-      })
-        .select("_id")
-        .lean();
+    if (student) {
+      // Add Another Encryption
       res.status(200).send({
         message: "Student Fee and Checklist",
         student,
         mergePay: mergePay,
-        financeId: finance?._id,
+        financeId: institute?.financeDepart[0],
       });
     } else {
       res
         .status(200)
         .send({ message: "No Fee Data Available Currently...", mergePay: [] });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const nested_function_fee = async (arr, fee) => {
+  var flag = false;
+  const all_students = await Student.find({ studentClass: { $in: arr } });
+  for (var nest of all_students) {
+    if (nest?.onlineFeeList?.includes(`${fee}`)) {
+      flag = true;
+      break;
+    } else if (nest?.offlineFeeList?.includes(`${fee}`)) {
+      flag = true;
+      break;
+    } else if (nest?.exemptFeeList?.includes(`${fee}`)) {
+      flag = true;
+      break;
+    } else {
+      flag = false;
+    }
+  }
+  return flag;
+};
+
+exports.renderFeesDeleteQuery = async (req, res) => {
+  try {
+    const { did, fid } = req.params;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately 😡",
+        access: false,
+      });
+    const depart = await Department.findById({ _id: did });
+    const finance = await Finance.findOne({
+      institute: `${depart?.institute}`,
+    });
+    const price = await Fees.findById({ _id: fid });
+    const flag_status = await nested_function_fee(depart.class, fid);
+    if (flag_status) {
+      res.status(200).send({
+        message: "Deletion Operation Denied Some Student Already Paid 😥",
+        access: false,
+      });
+    } else {
+      depart.fees.pull(fid);
+      for (var cal of depart.class) {
+        const classes = await Class.findById({ _id: cal });
+        for (var val of classes?.ApproveStudent) {
+          const student = await Student.findById({ _id: val });
+          if (student?.studentRemainingFeeCount >= price?.feeAmount) {
+            student.studentRemainingFeeCount -= price.feeAmount;
+          }
+          if (finance?.financeRaisedBalance >= price?.feeAmount) {
+            finance.financeRaisedBalance -= price.feeAmount;
+          }
+          await student.save();
+        }
+        classes.fee.pull(fid);
+        await classes.save();
+      }
+      await Promise.all([finance.save(), depart.save()]);
+      await Fees.findByIdAndDelete(fid);
+      res.status(200).send({
+        message: "Deletion Operation Completed 😁",
+        access: true,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFeesEditQuery = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    if (!fid)
+      return res.status(200).send({
+        message: "There is a bug need to fix immediately",
+        access: false,
+      });
+    await Fees.findByIdAndUpdate(fid, req.body);
+    res
+      .status(200)
+      .send({ message: "I think you correct your mistake 👍", access: true });
   } catch (e) {
     console.log(e);
   }

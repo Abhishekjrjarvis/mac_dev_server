@@ -19,6 +19,7 @@ const Referral = require("../../models/QCoins/Referral");
 const QRCode = require("qrcode");
 const moment = require("moment");
 const invokeSpecificRegister = require("../../Firebase/specific");
+const Finance = require("../../models/Finance");
 const Answer = require("../../models/Question/Answer");
 const Post = require("../../models/Post");
 const Comment = require("../../models/Comment");
@@ -30,32 +31,37 @@ const Staff = require("../../models/Staff");
 const Student = require("../../models/Student");
 const Class = require("../../models/Class");
 const StudentNotification = require("../../models/Marks/StudentNotification");
+const { file_to_aws } = require("../../Utilities/uploadFileAws");
 const Notification = require("../../models/notification");
 const Status = require("../../models/Admission/status");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
-const { file_to_aws } = require("../../Utilities/uploadFileAws");
+// const encryptionPayload = require("../../Utilities/Encrypt/payload");
+const {
+  random_password,
+  filter_unique_username,
+  generateAccessAdminToken,
+  generateAccessInsToken,
+  generateAccessToken,
+} = require("../../helper/functions");
 
-function generateAccessToken(username, userId, userPassword) {
-  return jwt.sign(
-    { username, userId, userPassword },
-    process.env.TOKEN_SECRET,
-    { expiresIn: "1y" }
-  );
-}
-
-function generateAccessInsToken(name, insId, insPassword) {
-  return jwt.sign({ name, insId, insPassword }, process.env.TOKEN_SECRET, {
-    expiresIn: "1y",
-  });
-}
-
-function generateAccessAdminToken(adminUserName, adminId, adminPassword) {
-  return jwt.sign(
-    { adminUserName, adminId, adminPassword },
-    process.env.TOKEN_SECRET,
-    { expiresIn: "1y" }
-  );
-}
+const { user_date_of_birth } = require("../../helper/dayTimer");
+const { studentsListQuery, ClassIds } = require("../../addons");
+const invokeFirebaseNotification = require("../../Firebase/firebase");
+const { randomSixCode } = require("../../Service/close");
+const Department = require("../../models/Department");
+const Batch = require("../../models/Batch");
+const Subject = require("../../models/Subject");
+const { universal_account_creation_feed } = require("../../Post/globalFeed");
+const { student_form_loop } = require("../../helper/studentLoop");
+const {
+  ignite_multiple_alarm,
+  fee_reordering,
+  insert_multiple_status,
+  fee_reordering_direct_student,
+} = require("../../helper/multipleStatus");
+const { whats_app_sms_payload } = require("../../WhatsAppSMS/payload");
+const { handle_undefined } = require("../../Handler/customError");
+const FeeReceipt = require("../../models/RazorPay/feeReceipt");
 
 const generateQR = async (encodeData, Id) => {
   try {
@@ -111,6 +117,7 @@ exports.getRegisterIns = async (req, res) => {
         res.send({ message: "Institute Existing with this Username" });
       } else {
         const institute = new InstituteAdmin({ ...req.body });
+        institute.staffJoinCode = await randomSixCode();
         if (req.body.userId !== "") {
           const user = await User.findOne({ username: req.body.userId });
           if (user) {
@@ -127,6 +134,7 @@ exports.getRegisterIns = async (req, res) => {
         }
         institute.photoId = "1";
         institute.coverId = "2";
+        institute.insProfilePhoto = "institute-default-avatar.svg";
         institute.profileURL = `https://qviple.com/q/${institute.name}/profile`;
         // institute.modal_activate = payment_modal_activate();
         institute.next_date = `${new Date().getFullYear()}-${
@@ -141,6 +149,7 @@ exports.getRegisterIns = async (req, res) => {
         admins.instituteList.push(institute);
         admins.requestInstituteCount += 1;
         await Promise.all([admins.save(), institute.save()]);
+        // const iEncrypt = await encryptionPayload(institute);
         res.status(201).send({ message: "Institute", institute });
         const uInstitute = await InstituteAdmin.findOne({
           isUniversal: "Universal",
@@ -203,6 +212,7 @@ exports.getPassIns = async (req, res) => {
         institute?._id,
         institute?.insPassword
       );
+      // const iPassEncrypt = await encryptionPayload(institute);
       res.json({ token: `Bearer ${token}`, institute: institute, login: true });
     } else {
       res.send({ message: "Invalid Combination", login: false });
@@ -235,12 +245,68 @@ const generateOTP = async (mob) => {
     )
     .then((res) => {
       if ((res && res.data.includes("success")) || res.data.includes("sent")) {
-        // console.log("messsage Sent Successfully", res.data);
+        console.log("messsage Sent Successfully", res.data);
       } else {
-        // console.log("something went wrong");
+        console.log("something went wrong");
       }
     });
   return OTP;
+};
+
+const directESMSQuery = async (mob, sName, iName, cName) => {
+  const e_message = `Hi ${sName}. You are studying in ${cName} of ${iName}. Login by downloading app 'Qviple Community' through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From Qviple`;
+  const url = `http://mobicomm.dove-sms.com//submitsms.jsp?user=Mithkal&key=4c3168d558XX&mobile=+91${mob}&message=${e_message}&senderid=QVIPLE&accusage=6&entityid=1701164286216096677&tempid=1707167282706976266`;
+  axios
+    .post(url)
+    .then((res) => {
+      if ((res && res.data.includes("success")) || res.data.includes("sent")) {
+        console.log("E-messsage Sent Successfully", res.data);
+      } else {
+        console.log("E-something went wrong");
+      }
+    })
+    .catch((e) => {
+      console.log(e);
+    });
+  return true;
+};
+
+const directHSMSQuery = async (mob, sName, iName, cName) => {
+  const e_message = `${sName}, आप ${iName} के ${cName} में पढ़ रहे हैं। लिंक के माध्यम से 'Qviple Community' ऐप डाउनलोड करके लॉग इन करें: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - Qviple से`;
+  const encodeURL = encodeURI(e_message);
+  const url = `http://mobicomm.dove-sms.com//submitsms.jsp?user=Mithkal&key=4c3168d558XX&mobile=+91${mob}&message=${encodeURL}&senderid=QVIPLE&accusage=6&entityid=1701164286216096677&tempid=1707167283483347066&unicode=1`;
+  axios
+    .get(url)
+    .then((res) => {
+      if ((res && res.data.includes("success")) || res.data.includes("sent")) {
+        console.log("H-messsage Sent Successfully", res.data);
+      } else {
+        console.log("H-something went wrong");
+      }
+    })
+    .catch((e) => {
+      console.log(e);
+    });
+  return true;
+};
+
+const directMSMSQuery = async (mob, sName, iName, cName) => {
+  const e_message = `${sName}, तुम्ही ${iName} मधील ${cName} मध्ये शिकत आहात. लिंकद्वारे 'Qviple Community' app डाउनलोड करून लॉग इन करा: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - Qviple`;
+  const encodeURL = encodeURI(e_message);
+  const url = `http://mobicomm.dove-sms.com//submitsms.jsp?user=Mithkal&key=4c3168d558XX&mobile=+91${mob}&message=${encodeURL}&senderid=QVIPLE&accusage=6&entityid=1701164286216096677&tempid=1707167283508579573&unicode=1`;
+  axios
+    .get(url)
+    .then((res) => {
+      if ((res && res.data.includes("success")) || res.data.includes("sent")) {
+        console.log("M-messsage Sent Successfully", res.data);
+      } else {
+        console.log("M-something went wrong");
+      }
+    })
+    .catch((e) => {
+      console.log(e);
+    });
+  return true;
 };
 
 exports.getOtpAtUser = async (req, res) => {
@@ -255,6 +321,7 @@ exports.getOtpAtUser = async (req, res) => {
           otp_code: `${code}`,
         });
         await otpCode.save();
+        // const uPhoneEncrypt = await encryptionPayload(userPhoneNumber);
         res.status(200).send({
           message: "code will be send to registered mobile number",
           userPhoneNumber,
@@ -282,9 +349,9 @@ const generateInsOTP = async (mob) => {
     )
     .then((res) => {
       if ((res && res.data.includes("success")) || res.data.includes("sent")) {
-        // console.log("messsage Sent Successfully", res.data);
+        console.log("messsage Sent Successfully", res.data);
       } else {
-        // console.log("something went wrong");
+        console.log("something went wrong");
       }
     })
     .catch(() => {});
@@ -303,6 +370,7 @@ exports.getOtpAtIns = async (req, res) => {
           otp_code: `${code}`,
         });
         await otpCode.save();
+        // const iPhoneEncrypt = await encryptionPayload(insPhoneNumber);
         res.status(200).send({
           message: "code will be send to registered mobile number",
           insPhoneNumber,
@@ -344,6 +412,7 @@ exports.verifyOtpByUser = async (req, res) => {
       req.body.userOtpCode === `${valid_otp?.otp_code}`
     ) {
       var userStatus = "approved";
+      // Add Another Encryption
       res.send({
         message: "OTP verified",
         id,
@@ -369,6 +438,7 @@ exports.verifyOtpByIns = async (req, res) => {
       req.body.insOtpCode === `${valid_otp?.otp_code}`
     ) {
       var insMobileStatus = "approved";
+      // Add Another Encryption
       res.send({ message: "OTP verified", id, insMobileStatus });
       await OTPCode.findByIdAndDelete(valid_otp?._id);
     } else {
@@ -383,8 +453,11 @@ var date = new Date();
 var p_date = date.getDate();
 var p_month = date.getMonth() + 1;
 var p_year = date.getFullYear();
-if (p_month <= 10) {
+if (p_month < 10) {
   p_month = `0${p_month}`;
+}
+if (p_date < 10) {
+  p_date = `0${p_date}`;
 }
 var c_date = `${p_year}-${p_month}-${p_date}`;
 //
@@ -412,7 +485,7 @@ exports.profileByUser = async (req, res) => {
           userLegalName: userLegalName,
           userGender: userGender,
           userDateOfBirth: userDateOfBirth,
-          username: username,
+          username: username?.trim(),
           userStatus: "Approved",
           userPhoneNumber: id,
           photoId: "0",
@@ -436,6 +509,7 @@ exports.profileByUser = async (req, res) => {
           await unlinkFile(req.file.path);
         }
         const token = generateAccessToken(user?.username, user?._id);
+        // const uLoginEncrypt = await encryptionPayload(user);
         res.status(200).send({
           message: "Profile Successfully Created...",
           user,
@@ -520,7 +594,7 @@ exports.profileByGoogle = async (req, res) => {
       userLegalName: userLegalName,
       userGender: userGender,
       userDateOfBirth: userDateOfBirth,
-      username: username,
+      username: username?.trim(),
       userStatus: "Approved",
       userEmail: userEmail,
       google_avatar: pic_url,
@@ -572,6 +646,7 @@ exports.getUserPassword = async (req, res) => {
           user?._id,
           user?.userPassword
         );
+        // const uPassEncrypt = await encryptionPayload(user);
         res.json({ token: `Bearer ${token}`, user: user, login: true });
       } else {
         res.send({ message: "Invalid Password Combination", login: false });
@@ -597,6 +672,7 @@ exports.forgotPasswordSendOtp = async (req, res) => {
         otp_code: `${code}`,
       });
       await otpCode.save();
+      // const fEncrypt = await encryptionPayload(user);
       res.status(200).send({
         message: "code will be send to registered mobile number",
         user,
@@ -609,6 +685,7 @@ exports.forgotPasswordSendOtp = async (req, res) => {
         otp_code: `${code}`,
       });
       await otpCode.save();
+      // const fEncrypt = await encryptionPayload(institute);
       res.status(200).send({
         message: "code will be send to registered mobile number",
         institute,
@@ -634,10 +711,11 @@ exports.forgotPasswordVerifyOtp = async (req, res) => {
         req.body.userOtpCode &&
         req.body.userOtpCode === `${valid_otp_user?.otp_code}`
       ) {
-        res.status(200).send({ message: "Otp verified", user });
+        // const oEncrypt = await encryptionPayload(user);
+        res.status(200).send({ message: "Otp verified", user, access: true });
         await OTPCode.findByIdAndDelete(valid_otp_user?._id);
       } else {
-        console.log("Invalid OTP By User F");
+        res.status(200).send({ message: "Invalid OTP", access: false });
       }
     } else if (institute) {
       const valid_otp_ins = await OTPCode.findOne({
@@ -647,10 +725,13 @@ exports.forgotPasswordVerifyOtp = async (req, res) => {
         req.body.userOtpCode &&
         req.body.userOtpCode === `${valid_otp_ins?.otp_code}`
       ) {
-        res.status(200).send({ message: "Otp verified", institute });
+        // const oEncrypt = await encryptionPayload(institute);
+        res
+          .status(200)
+          .send({ message: "Otp verified", institute, access: true });
         await OTPCode.findByIdAndDelete(valid_otp_ins?._id);
       } else {
-        console.log("Invalid OTP By Institute F");
+        res.status(200).send({ message: "Invalid OTP", access: false });
       }
     } else {
     }
@@ -671,6 +752,7 @@ exports.getNewPassword = async (req, res) => {
       if (userPassword === userRePassword) {
         user.userPassword = hashUserPass;
         await user.save();
+        // const nEncrypt = await encryptionPayload(user);
         res
           .status(200)
           .send({ message: "Password Changed Successfully", user });
@@ -681,6 +763,7 @@ exports.getNewPassword = async (req, res) => {
       if (userPassword === userRePassword) {
         institute.insPassword = hashUserPass;
         await institute.save();
+        // const nEncrypt = await encryptionPayload(institute);
         res
           .status(200)
           .send({ message: "Password Changed Successfully", institute });
@@ -755,6 +838,7 @@ module.exports.authentication = async (req, res) => {
             institute?._id,
             institute?.insPassword
           );
+          // const loginEncrypt = await encryptionPayload(institute);
           res.json({
             token: `Bearer ${token}`,
             institute: institute,
@@ -766,6 +850,7 @@ module.exports.authentication = async (req, res) => {
             institute?._id,
             institute?.insPassword
           );
+          // const loginEncrypt = await encryptionPayload(institute);
           res.json({
             token: `Bearer ${token}`,
             institute: institute,
@@ -789,6 +874,7 @@ module.exports.authentication = async (req, res) => {
           admin?._id,
           admin?.userPassword
         );
+        // const loginEncrypt = await encryptionPayload(admin);
         res.json({ token: `Bearer ${token}`, admin: admin, login: true });
       } else {
         res.send({ message: "Invalid Credentials", login: false });
@@ -812,6 +898,7 @@ module.exports.authentication = async (req, res) => {
               user?._id,
               user?.userPassword
             );
+            // const loginEncrypt = await encryptionPayload(user);
             res.json({
               token: `Bearer ${token}`,
               user: user,
@@ -823,6 +910,7 @@ module.exports.authentication = async (req, res) => {
               user?._id,
               user?.userPassword
             );
+            // const loginEncrypt = await encryptionPayload(user);
             res.json({
               token: `Bearer ${token}`,
               user: user,
@@ -878,7 +966,7 @@ module.exports.getLogout = async (req, res) => {
 
 exports.retrieveEmailRedundantQuery = async (req, res) => {
   try {
-    const { email } = req.body;
+    const { email } = req.query;
     const check_ins = await InstituteAdmin.findOne({ insEmail: email }).select(
       "id"
     );
@@ -887,21 +975,31 @@ exports.retrieveEmailRedundantQuery = async (req, res) => {
     var flag_email = false;
     if (check_ins) {
       flag_email = true;
-      res
-        .status(200)
-        .send({ message: "Email Already Registered", flag: flag_email });
+      res.status(200).send({
+        message: "Email Already Registered",
+        flag: flag_email,
+        valid_flag: { flag: true, emailId: check_ins?._id },
+      });
     } else if (check_user) {
       flag_email = true;
-      res
-        .status(200)
-        .send({ message: "Email Already Registered", flag: flag_email });
+      res.status(200).send({
+        message: "Email Already Registered",
+        flag: flag_email,
+        valid_flag: { flag: true, emailId: check_user?._id },
+      });
     } else if (check_admin) {
       flag_email = true;
-      res
-        .status(200)
-        .send({ message: "Email Already Registered", flag: flag_email });
+      res.status(200).send({
+        message: "Email Already Registered",
+        flag: flag_email,
+        valid_flag: { flag: true, emailId: check_admin?._id },
+      });
     } else {
-      res.status(200).send({ message: "Valid Email", flag: flag_email });
+      res.status(200).send({
+        message: "Valid Email",
+        flag: flag_email,
+        valid_flag: { flag: false, emailId: "" },
+      });
     }
   } catch (e) {
     console.log(e);
@@ -958,9 +1056,9 @@ exports.retrieveUsernameEditQuery = async (req, res) => {
         });
       } else {
         res.status(200).send({
-          message: `Ins Username Rejected for next update is available at ${moment(
+          message: `You will be able to change your username once in 45 days. next change available at ${moment(
             new Date(check_ins.next_date).toISOString()
-          ).format("MMM Do YY")} 😀👍`,
+          ).format("MMM Do YYYY")} 😀👍`,
           flag: false,
         });
       }
@@ -1005,9 +1103,9 @@ exports.retrieveUsernameEditQuery = async (req, res) => {
         });
       } else {
         res.status(200).send({
-          message: `User Username Rejected for next update is available at ${moment(
+          message: `You will be able to change your username once in 45 days. next change available at ${moment(
             new Date(check_user.next_date).toISOString()
-          ).format("MMM Do YY")} 😀👍`,
+          ).format("MMM Do YYYY")} 😀👍`,
           flag: false,
         });
       }
@@ -1028,7 +1126,7 @@ exports.retrieveUsernameEditQuery = async (req, res) => {
 
 exports.searchByUsernameQuery = async (req, res) => {
   try {
-    if (req.query.u_name.trim() === "") {
+    if (req.query.u_name?.trim() === "") {
       res.status(202).send({ message: "Please Provide a username to search" });
     } else {
       const one_ins = await InstituteAdmin.findOne({
@@ -1045,19 +1143,21 @@ exports.searchByUsernameQuery = async (req, res) => {
         .lean()
         .exec();
 
-      if (one_ins)
+      if (one_ins) {
+        // const insEncrypt = await encryptionPayload(one_ins);
         res.status(202).send({
           message: "Username already exists 🙄",
           seen: true,
           username: one_ins,
         });
-      else if (one_user)
+      } else if (one_user) {
+        // const userEncrypt = await encryptionPayload(one_user);
         res.status(202).send({
           message: "Username already exists 🙄",
           seen: true,
           username: one_user,
         });
-      else {
+      } else {
         res.status(200).send({
           message: "this username does not exists in lake 🔍",
           seen: false,
@@ -1071,7 +1171,7 @@ exports.searchByUsernameQuery = async (req, res) => {
 
 exports.searchByClassCode = async (req, res) => {
   try {
-    if (req.query.search.trim() === "") {
+    if (req.query.search?.trim() === "") {
       res.status(202).send({ message: "Please Provide a code to search" });
     } else {
       if (req.query.author === "Student") {
@@ -1085,31 +1185,34 @@ exports.searchByClassCode = async (req, res) => {
             },
             select: "subjectName",
           })
-          .select("classCode classTitle className optionalSubjectCount");
+          .select(
+            "classCode classStatus classTitle className optionalSubjectCount"
+          );
         var one_ins = await InstituteAdmin.findOne({
           classCodeList: { $in: [req.query.search] },
         })
-          .select("insName insProfilePhoto photoId classCodeList")
+          .select("insName name insProfilePhoto photoId classCodeList")
           .lean()
           .exec();
       } else if (req.query.author === "Staff") {
         var one_ins = await InstituteAdmin.findOne({
           staffJoinCode: req.query.search,
         })
-          .select("insName insProfilePhoto photoId staffJoinCode")
+          .select("insName name insProfilePhoto photoId staffJoinCode")
           .lean()
           .exec();
       } else {
       }
     }
-    if (one_ins)
-      res.status(202).send({
+    if (one_ins) {
+      // Add Another Encryption
+      res.status(200).send({
         message: "Check All Details 🔍",
         seen: true,
         one_ins,
-        classes,
+        classes: classes?.classStatus === "UnCompleted" ? classes : null,
       });
-    else {
+    } else {
       res.status(200).send({
         message: "this code does not exists in lake 🔍",
         seen: false,
@@ -1120,73 +1223,10 @@ exports.searchByClassCode = async (req, res) => {
   }
 };
 
-const random_password = () => {
-  const upperCase = ["A", "B", "C", "D", "E", "F", "G", "H", "Z"];
-  const lowerCase = ["i", "j", "k", "l", "m", "n", "o", "p", "W"];
-  const digits = ["0", "1", "2", "3", "4", "5", "6", "7", "8"];
-  const exp = [".", "_", "@", "#", "$", "!", "%", "&", "*"];
-  const u_1 = Math.floor(Math.random() * 9);
-  const u_2 = Math.floor(Math.random() * 9);
-  const u_3 = Math.floor(Math.random() * 9);
-  const u_4 = Math.floor(Math.random() * 9);
-  const u_5 = Math.floor(Math.random() * 9);
-  const u_6 = Math.floor(Math.random() * 9);
-  const u_7 = Math.floor(Math.random() * 9);
-  const u_8 = Math.floor(Math.random() * 9);
-  const u_9 = Math.floor(Math.random() * 9);
-  const userExp = `${lowerCase[u_1]}${upperCase[u_2]}${digits[u_3]}${upperCase[u_4]}${exp[u_6]}${digits[u_5]}${lowerCase[u_8]}${exp[u_7]}${exp[u_9]}`;
-  return userExp;
-};
-
-const filter_unique_username = async (name, dob) => {
-  const new_query = `${dob?.substring(5, 7)}${dob?.substring(8, 10)}`.split("");
-  const shuffle_date = shuffleArray(new_query);
-  const combined_name = `${name}_${shuffle_date.join("")}`;
-  const username = combined_name;
-  const existAdmin = await Admin.findOne({ adminUserName: username });
-  const existInstitute = await InstituteAdmin.findOne({ name: username });
-  const existUser = await User.findOne({ username: username });
-  if (existAdmin) {
-    const combined_name_one = `${name}_${new_query}`.split("");
-    const username_one = shuffleArray(combined_name_one);
-    const valid_username_one = {
-      username: username_one.join(""),
-      password: random_password(),
-      exist: false,
-    };
-    return valid_username_one;
-  } else if (existInstitute) {
-    const combined_name_two = `${name}_${new_query}`.split("");
-    const username_two = shuffleArray(combined_name_two);
-    const valid_username_two = {
-      username: username_two.join(""),
-      password: random_password(),
-      exist: false,
-    };
-    return valid_username_two;
-  } else if (existUser) {
-    const combined_name_three = `${name}_${new_query}`.split("");
-    const username_three = shuffleArray(combined_name_three);
-    const valid_username_three = {
-      username: username_three.join(""),
-      password: random_password(),
-      exist: false,
-    };
-    return valid_username_three;
-  } else {
-    const valid_username = {
-      username: username,
-      password: random_password(),
-      exist: false,
-    };
-    return valid_username;
-  }
-};
-
 exports.retrieveDirectJoinQuery = async (req, res) => {
   try {
     const { id } = req.params;
-    const { sample_pic } = req.body;
+    const { sample_pic, fileArray } = req.body;
     if (
       !id &&
       !req.body.studentCode &&
@@ -1208,7 +1248,9 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
       const genUserPass = bcrypt.genSaltSync(12);
       const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
       var user = new User({
-        userLegalName: req.body.studentFirstName,
+        userLegalName: `${req.body.studentFirstName} ${
+          req.body.studentMiddleName ? req.body.studentMiddleName : ""
+        } ${req.body.studentLastName ? req.body.studentLastName : ""}`,
         userGender: req.body.studentGender,
         userDateOfBirth: req.body.studentDOB,
         username: valid?.username,
@@ -1281,39 +1323,32 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
       });
       const classUser = await User.findById({ _id: `${classStaff.user}` });
       const studentOptionalSubject = req.body?.optionalSubject
-        ? JSON.parse(req.body?.optionalSubject)
+        ? req.body?.optionalSubject
         : [];
-      for (let fileObject in req.files) {
-        for (let singleFile of req.files[fileObject]) {
-          if (fileObject === "file") {
-            const width = 200;
-            const height = 200;
-            const results = await uploadFile(singleFile, width, height);
-            student.photoId = "0";
-            student.studentProfilePhoto = results.Key;
-            user.profilePhoto = results.Key;
-            await unlinkFile(file.path);
-          } else {
-            const uploadedFile = await file_to_aws(singleFile);
-            if (fileObject === "addharFrontCard")
-              student.studentAadharFrontCard = uploadedFile.documentKey;
-            else if (fileObject === "addharBackCard")
-              student.studentAadharBackCard = uploadedFile.documentKey;
-            else if (fileObject === "bankPassbook")
-              student.studentBankPassbook = uploadedFile.documentKey;
-            else if (fileObject === "casteCertificate")
-              student.studentCasteCertificatePhoto = uploadedFile.documentKey;
-            else {
-              student.studentDocuments.push({
-                documentName: fileObject,
-                documentKey: uploadedFile.documentKey,
-                documentType: uploadedFile.documentType,
-              });
-            }
-          }
+      for (var file of fileArray) {
+        if (file.name === "file") {
+          student.photoId = "0";
+          student.studentProfilePhoto = file.key;
+          user.profilePhoto = file.key;
+        } else if (file.name === "addharFrontCard")
+          student.studentAadharFrontCard = file.key;
+        else if (file.name === "addharBackCard")
+          student.studentAadharBackCard = file.key;
+        else if (file.name === "bankPassbook")
+          student.studentBankPassbook = file.key;
+        else if (file.name === "casteCertificate")
+          student.studentCasteCertificatePhoto = file.key;
+        else {
+          student.studentDocuments.push({
+            documentName: file.name,
+            documentKey: file.key,
+            documentType: file.type,
+          });
         }
       }
-      student.studentOptionalSubject.push(...studentOptionalSubject);
+      if (studentOptionalSubject?.length > 0) {
+        student.studentOptionalSubject.push(...studentOptionalSubject);
+      }
       if (sample_pic) {
         user.profilePhoto = sample_pic;
         student.photoId = "0";
@@ -1337,7 +1372,7 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
       }
       student.institute = institute._id;
       student.user = user._id;
-      notify.notifyContent = `${student.studentFirstName}${
+      notify.notifyContent = `${student.studentFirstName} ${
         student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
       } ${student.studentLastName} has been applied for role of student`;
       notify.notifySender = student._id;
@@ -1355,6 +1390,7 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
       aStatus.content = `Your application for joining as student in ${institute.insName} is filled successfully. Stay updated to check status of your application.Tap here to see username ${user?.username}`;
       aStatus.see_secure = true;
       user.applicationStatus.push(aStatus._id);
+      aStatus.instituteId = institute._id;
       //
       invokeMemberTabNotification(
         "Staff Activity",
@@ -1401,7 +1437,7 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
 exports.retrieveDirectJoinStaffQuery = async (req, res) => {
   try {
     const { id } = req.params;
-    const { sample_pic } = req.body;
+    const { sample_pic, fileArray } = req.body;
     if (
       !id &&
       !req.body.staffCode &&
@@ -1423,7 +1459,9 @@ exports.retrieveDirectJoinStaffQuery = async (req, res) => {
       const genUserPass = bcrypt.genSaltSync(12);
       const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
       var user = new User({
-        userLegalName: req.body.staffFirstName,
+        userLegalName: `${req.body.staffFirstName} ${
+          req.body.staffMiddleName ? req.body.staffMiddleName : ""
+        } ${req.body.staffLastName ? req.body.staffLastName : ""}`,
         userGender: req.body.staffGender,
         userDateOfBirth: req.body.staffDOB,
         username: valid?.username,
@@ -1490,34 +1528,25 @@ exports.retrieveDirectJoinStaffQuery = async (req, res) => {
         staffJoinCode: req.body.staffCode,
       });
       const staff = new Staff({ ...req.body });
-      for (let fileObject in req.files) {
-        for (let singleFile of req.files[fileObject]) {
-          if (fileObject === "file") {
-            const width = 200;
-            const height = 200;
-            const results = await uploadFile(singleFile, width, height);
-            staff.photoId = "0";
-            staff.staffProfilePhoto = results.Key;
-            user.profilePhoto = results.Key;
-            await unlinkFile(file.path);
-          } else {
-            const uploadedFile = await file_to_aws(singleFile);
-            if (fileObject === "addharFrontCard")
-              staff.staffAadharFrontCard = uploadedFile.documentKey;
-            else if (fileObject === "addharBackCard")
-              staff.staffAadharBackCard = uploadedFile.documentKey;
-            else if (fileObject === "bankPassbook")
-              staff.staffBankPassbook = uploadedFile.documentKey;
-            else if (fileObject === "casteCertificate")
-              staff.staffCasteCertificatePhoto = uploadedFile.documentKey;
-            else {
-              staff.staffDocuments.push({
-                documentName: fileObject,
-                documentKey: uploadedFile.documentKey,
-                documentType: uploadedFile.documentType,
-              });
-            }
-          }
+      for (var file of fileArray) {
+        if (file.name === "file") {
+          staff.photoId = "0";
+          staff.staffProfilePhoto = file.key;
+          user.profilePhoto = file.key;
+        } else if (file.name === "addharFrontCard")
+          staff.staffAadharFrontCard = file.key;
+        else if (file.name === "addharBackCard")
+          staff.staffAadharBackCard = file.key;
+        else if (file.name === "bankPassbook")
+          staff.staffBankPassbook = file.key;
+        else if (file.name === "casteCertificate")
+          staff.staffCasteCertificatePhoto = file.key;
+        else {
+          staff.staffDocuments.push({
+            documentName: file.name,
+            documentKey: file.key,
+            documentType: file.type,
+          });
         }
       }
       if (sample_pic) {
@@ -1549,8 +1578,10 @@ exports.retrieveDirectJoinStaffQuery = async (req, res) => {
       institute.iNotify.push(notify._id);
       notify.institute = institute._id;
       notify.notifyByStaffPhoto = staff._id;
+      notify.notifyCategory = "Request Staff";
       aStatus.content = `Your application for joining as staff in ${institute.insName} is filled successfully.Tap here to see username ${user?.username}`;
       user.applicationStatus.push(aStatus._id);
+      aStatus.instituteId = institute._id;
       aStatus.see_secure = true;
       await Promise.all([
         staff.save(),
@@ -1585,7 +1616,7 @@ exports.retrieveDirectJoinStaffQuery = async (req, res) => {
 exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
   try {
     const { id, aid } = req.params;
-    const { sample_pic } = req.body;
+    const { sample_pic, fileArray } = req.body;
     if (
       !id &&
       !aid &&
@@ -1607,7 +1638,9 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
       const genUserPass = bcrypt.genSaltSync(12);
       const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
       var user = new User({
-        userLegalName: req.body.studentFirstName,
+        userLegalName: `${req.body.studentFirstName} ${
+          req.body.studentMiddleName ? req.body.studentMiddleName : ""
+        } ${req.body.studentLastName ? req.body.studentLastName : ""}`,
         userGender: req.body.studentGender,
         userDateOfBirth: req.body.studentDOB,
         username: valid?.username,
@@ -1680,39 +1713,32 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
       });
       const status = new Status({});
       const studentOptionalSubject = req.body?.optionalSubject
-        ? JSON.parse(req.body?.optionalSubject)
+        ? req.body?.optionalSubject
         : [];
-      for (let fileObject in req.files) {
-        for (let singleFile of req.files[fileObject]) {
-          if (fileObject === "file") {
-            const width = 200;
-            const height = 200;
-            const results = await uploadFile(singleFile, width, height);
-            student.photoId = "0";
-            student.studentProfilePhoto = results.Key;
-            user.profilePhoto = results.Key;
-            await unlinkFile(file.path);
-          } else {
-            const uploadedFile = await file_to_aws(singleFile);
-            if (fileObject === "addharFrontCard")
-              student.studentAadharFrontCard = uploadedFile.documentKey;
-            else if (fileObject === "addharBackCard")
-              student.studentAadharBackCard = uploadedFile.documentKey;
-            else if (fileObject === "bankPassbook")
-              student.studentBankPassbook = uploadedFile.documentKey;
-            else if (fileObject === "casteCertificate")
-              student.studentCasteCertificatePhoto = uploadedFile.documentKey;
-            else {
-              student.studentDocuments.push({
-                documentName: fileObject,
-                documentKey: uploadedFile.documentKey,
-                documentType: uploadedFile.documentType,
-              });
-            }
-          }
+      for (var file of fileArray) {
+        if (file.name === "file") {
+          student.photoId = "0";
+          student.studentProfilePhoto = file.key;
+          user.profilePhoto = file.key;
+        } else if (file.name === "addharFrontCard")
+          student.studentAadharFrontCard = file.key;
+        else if (file.name === "addharBackCard")
+          student.studentAadharBackCard = file.key;
+        else if (file.name === "bankPassbook")
+          student.studentBankPassbook = file.key;
+        else if (file.name === "casteCertificate")
+          student.studentCasteCertificatePhoto = file.key;
+        else {
+          student.studentDocuments.push({
+            documentName: file.name,
+            documentKey: file.key,
+            documentType: file.type,
+          });
         }
       }
-      student.studentOptionalSubject.push(...studentOptionalSubject);
+      if (studentOptionalSubject?.length > 0) {
+        student.studentOptionalSubject.push(...studentOptionalSubject);
+      }
       if (sample_pic) {
         user.profilePhoto = sample_pic;
         student.photoId = "0";
@@ -1724,6 +1750,7 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
       user.applyApplication.push(apply._id);
       student.user = user._id;
       user.applicationStatus.push(status._id);
+      status.instituteId = institute._id;
       apply.receievedApplication.push({
         student: student._id,
         fee_remain: apply.admissionFee,
@@ -1773,3 +1800,763 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
+  try {
+    const { id, cid } = req.params;
+    const { sample_pic, fileArray, batch_set, is_remain, fee_struct } =
+      req.body;
+    if (
+      !id &&
+      !cid &&
+      !req.body.studentFirstName &&
+      !req.body.studentLastName &&
+      !req.body.studentGender &&
+      !req.body.studentDOB
+    )
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const valid = await filter_unique_username(
+      req.body.studentFirstName,
+      req.body.studentDOB
+    );
+    if (!valid?.exist) {
+      const genUserPass = bcrypt.genSaltSync(12);
+      const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
+      var user = new User({
+        userLegalName: `${req.body.studentFirstName} ${
+          req.body.studentMiddleName ? req.body.studentMiddleName : ""
+        } ${req.body.studentLastName ? req.body.studentLastName : ""}`,
+        userGender: req.body.studentGender,
+        userDateOfBirth: req.body.studentDOB,
+        username: valid?.username,
+        userStatus: "Approved",
+        userPhoneNumber: id,
+        userPassword: hashUserPass,
+        photoId: "0",
+        coverId: "2",
+        remindLater: rDate,
+        next_date: c_date,
+      });
+      admins.users.push(user);
+      admins.userCount += 1;
+      await Promise.all([admins.save(), user.save()]);
+      var uInstitute = await InstituteAdmin.findOne({
+        isUniversal: "Universal",
+      })
+        .select("id userFollowersList followersCount")
+        .populate({ path: "posts" });
+      if (uInstitute && uInstitute.posts && uInstitute.posts.length >= 1) {
+        const post = await Post.find({
+          _id: { $in: uInstitute.posts },
+          postStatus: "Anyone",
+        });
+        post.forEach(async (ele) => {
+          user.userPosts.push(ele);
+        });
+        await user.save();
+      }
+      //
+      var b_date = user.userDateOfBirth?.slice(8, 10);
+      var b_month = user.userDateOfBirth?.slice(5, 7);
+      var b_year = user.userDateOfBirth?.slice(0, 4);
+      if (b_date > p_date) {
+        p_date = p_date + month[b_month - 1];
+        p_month = p_month - 1;
+      }
+      if (b_month > p_month) {
+        p_year = p_year - 1;
+        p_month = p_month + 12;
+      }
+      var get_cal_year = p_year - b_year;
+      if (get_cal_year > 13) {
+        user.ageRestrict = "No";
+      } else {
+        user.ageRestrict = "Yes";
+      }
+      await user.save();
+      //
+      if (uInstitute?.userFollowersList?.includes(`${user._id}`)) {
+      } else {
+        uInstitute.userFollowersList.push(user._id);
+        uInstitute.followersCount += 1;
+        user.userInstituteFollowing.push(uInstitute._id);
+        user.followingUICount += 1;
+        await Promise.all([uInstitute.save(), user.save()]);
+        const posts = await Post.find({ author: `${uInstitute._id}` });
+        posts.forEach(async (ele) => {
+          ele.authorFollowersCount = uInstitute.followersCount;
+          await ele.save();
+        });
+      }
+
+      const classes = await Class.findById({ _id: cid });
+      const batch = await Batch.findById({ _id: `${classes?.batch}` });
+      const depart = await Department.findById({ _id: `${batch?.department}` });
+      const institute = await InstituteAdmin.findById({
+        _id: `${depart?.institute}`,
+      });
+      const student = new Student({ ...req.body });
+      student.studentCode = classes.classCode;
+      const studentOptionalSubject = req.body?.optionalSubject
+        ? req.body?.optionalSubject
+        : [];
+      for (var file of fileArray) {
+        if (file.name === "file") {
+          student.photoId = "0";
+          student.studentProfilePhoto = file.key;
+          user.profilePhoto = file.key;
+        } else if (file.name === "addharFrontCard")
+          student.studentAadharFrontCard = file.key;
+        else if (file.name === "addharBackCard")
+          student.studentAadharBackCard = file.key;
+        else if (file.name === "bankPassbook")
+          student.studentBankPassbook = file.key;
+        else if (file.name === "casteCertificate")
+          student.studentCasteCertificatePhoto = file.key;
+        else {
+          student.studentDocuments.push({
+            documentName: file.name,
+            documentKey: file.key,
+            documentType: file.type,
+          });
+        }
+      }
+      if (studentOptionalSubject?.length > 0) {
+        student.studentOptionalSubject.push(...studentOptionalSubject);
+      }
+      if (sample_pic) {
+        user.profilePhoto = sample_pic;
+        student.photoId = "0";
+        student.studentProfilePhoto = sample_pic;
+      }
+      for (let subjChoose of student?.studentOptionalSubject) {
+        const subject = await Subject.findById(subjChoose);
+        subject.optionalStudent.push(student?._id);
+        await subject.save();
+      }
+      const notify = new StudentNotification({});
+      const aStatus = new Status({});
+      user.student.push(student._id);
+      user.is_mentor = true;
+      institute.joinedPost.push(user._id);
+      if (institute.userFollowersList.includes(user?._id)) {
+      } else {
+        user.userInstituteFollowing.push(institute?._id);
+        user.followingUICount += 1;
+        institute.userFollowersList.push(user?._id);
+        institute.followersCount += 1;
+      }
+      student.institute = institute._id;
+      student.user = user._id;
+      student.studentStatus = "Approved";
+      institute.ApproveStudent.push(student._id);
+      admins.studentArray.push(student._id);
+      admins.studentCount += 1;
+      institute.studentCount += 1;
+      classes.strength += 1;
+      classes.ApproveStudent.push(student._id);
+      classes.studentCount += 1;
+      student.studentGRNO = `${
+        institute?.gr_initials ? institute?.gr_initials : `Q`
+      }${institute.ApproveStudent.length}`;
+      student.studentROLLNO = classes.ApproveStudent.length;
+      student.studentClass = classes._id;
+      student.studentAdmissionDate = new Date().toISOString();
+      depart.ApproveStudent.push(student._id);
+      depart.studentCount += 1;
+      student.department = depart._id;
+      batch.ApproveStudent.push(student._id);
+      student.batches = batch._id;
+      student.batchCount += 1;
+      notify.notifyContent = `${student.studentFirstName} ${
+        student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+      } ${student.studentLastName} joined as a Student of Class ${
+        classes.className
+      } of ${batch.batchName}`;
+      notify.notifySender = cid;
+      notify.notifyReceiever = user._id;
+      notify.notifyCategory = "Approve Student";
+      institute.iNotify.push(notify._id);
+      user.uNotify.push(notify._id);
+      notify.user = user._id;
+      notify.notifyByStudentPhoto = student._id;
+      aStatus.content = `Welcome to ${institute.insName}. Your application for joining as student  has been accepted by ${institute.insName}. Enjoy your learning in ${classes.className} - ${classes.classTitle}.`;
+      user.applicationStatus.push(aStatus._id);
+      aStatus.instituteId = institute._id;
+      student.fee_structure =
+        is_remain === "No" ? fee_struct : batch_set[0]?.fee_struct;
+      await student.save();
+      invokeFirebaseNotification(
+        "Student Approval",
+        notify,
+        institute.insName,
+        user._id,
+        user.deviceToken
+      );
+      if (batch_set?.length > 0) {
+        await fee_reordering_direct_student(
+          student,
+          institute,
+          batch_set,
+          user
+        );
+      }
+      await Promise.all([
+        admins.save(),
+        classes.save(),
+        depart.save(),
+        batch.save(),
+        student.save(),
+        institute.save(),
+        user.save(),
+        notify.save(),
+        aStatus.save(),
+      ]);
+      if (student.studentGender === "Male") {
+        classes.boyCount += 1;
+        batch.student_category.boyCount += 1;
+      } else if (student.studentGender === "Female") {
+        classes.girlCount += 1;
+        batch.student_category.girlCount += 1;
+      } else if (student.studentGender === "Other") {
+        classes.otherCount += 1;
+        batch.student_category.otherCount += 1;
+      } else {
+      }
+      if (student.studentCastCategory === "General") {
+        batch.student_category.generalCount += 1;
+      } else if (student.studentCastCategory === "OBC") {
+        batch.student_category.obcCount += 1;
+      } else if (student.studentCastCategory === "SC") {
+        batch.student_category.scCount += 1;
+      } else if (student.studentCastCategory === "ST") {
+        batch.student_category.stCount += 1;
+      } else if (student.studentCastCategory === "NT-A") {
+        batch.student_category.ntaCount += 1;
+      } else if (student.studentCastCategory === "NT-B") {
+        batch.student_category.ntbCount += 1;
+      } else if (student.studentCastCategory === "NT-C") {
+        batch.student_category.ntcCount += 1;
+      } else if (student.studentCastCategory === "NT-D") {
+        batch.student_category.ntdCount += 1;
+      } else if (student.studentCastCategory === "VJ") {
+        batch.student_category.vjCount += 1;
+      } else {
+      }
+      await Promise.all([classes.save(), batch.save()]);
+      if (institute.sms_lang === "en") {
+        await directESMSQuery(
+          user?.userPhoneNumber,
+          `${student.studentFirstName} ${
+            student.studentMiddleName ? student.studentMiddleName : ""
+          } ${student.studentLastName}`,
+          institute?.insName,
+          classes?.classTitle
+        );
+      } else if (institute.sms_lang === "hi") {
+        await directHSMSQuery(
+          user?.userPhoneNumber,
+          `${student.studentFirstName} ${
+            student.studentMiddleName ? student.studentMiddleName : ""
+          } ${student.studentLastName}`,
+          institute?.insName,
+          classes?.classTitle
+        );
+      } else if (institute.sms_lang === "mr" || institute.sms_lang === "mt") {
+        await directMSMSQuery(
+          user?.userPhoneNumber,
+          `${student.studentFirstName} ${
+            student.studentMiddleName ? student.studentMiddleName : ""
+          } ${student.studentLastName}`,
+          institute?.insName,
+          classes?.classTitle
+        );
+      } else {
+      }
+      res.status(200).send({
+        message: `Direct Institute Account Creation Process Completed ${student.studentFirstName} ${student.studentLastName} 😀✨`,
+        status: true,
+      });
+      const studentName = `${student.studentFirstName} ${
+        student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+      } ${student.studentLastName}`;
+      whats_app_sms_payload(
+        user?.userPhoneNumber,
+        studentName,
+        institute?.insName,
+        classes?.className,
+        "ADSIS",
+        institute?.insType,
+        0,
+        0,
+        institute?.sms_lang
+      );
+    } else {
+      res.status(200).send({
+        message: "Bug in the direct joining process 😡",
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
+  try {
+    const { id, insId } = req.params;
+    const { sample_pic, fileArray } = req.body;
+    if (
+      !id &&
+      !insId &&
+      !req.body.staffFirstName &&
+      !req.body.staffLastName &&
+      !req.body.staffGender &&
+      !req.body.staffDOB
+    )
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const valid = await filter_unique_username(
+      req.body.staffFirstName,
+      req.body.staffDOB
+    );
+    if (!valid?.exist) {
+      const genUserPass = bcrypt.genSaltSync(12);
+      const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
+      var user = new User({
+        userLegalName: `${req.body.staffFirstName} ${
+          req.body.staffMiddleName ? req.body.staffMiddleName : ""
+        } ${req.body.staffLastName ? req.body.staffLastName : ""}`,
+        userGender: req.body.staffGender,
+        userDateOfBirth: req.body.staffDOB,
+        username: valid?.username,
+        userStatus: "Approved",
+        userPhoneNumber: id,
+        userPassword: hashUserPass,
+        photoId: "0",
+        coverId: "2",
+        remindLater: rDate,
+        next_date: c_date,
+      });
+      admins.users.push(user);
+      admins.userCount += 1;
+      await Promise.all([admins.save(), user.save()]);
+      var uInstitute = await InstituteAdmin.findOne({
+        isUniversal: "Universal",
+      })
+        .select("id userFollowersList followersCount")
+        .populate({ path: "posts" });
+      if (uInstitute && uInstitute.posts && uInstitute.posts.length >= 1) {
+        const post = await Post.find({
+          _id: { $in: uInstitute.posts },
+          postStatus: "Anyone",
+        });
+        post.forEach(async (ele) => {
+          user.userPosts.push(ele);
+        });
+        await user.save();
+      }
+      //
+      var b_date = user.userDateOfBirth?.slice(8, 10);
+      var b_month = user.userDateOfBirth?.slice(5, 7);
+      var b_year = user.userDateOfBirth?.slice(0, 4);
+      if (b_date > p_date) {
+        p_date = p_date + month[b_month - 1];
+        p_month = p_month - 1;
+      }
+      if (b_month > p_month) {
+        p_year = p_year - 1;
+        p_month = p_month + 12;
+      }
+      var get_cal_year = p_year - b_year;
+      if (get_cal_year > 13) {
+        user.ageRestrict = "No";
+      } else {
+        user.ageRestrict = "Yes";
+      }
+      await user.save();
+      //
+      if (uInstitute?.userFollowersList?.includes(`${user._id}`)) {
+      } else {
+        uInstitute.userFollowersList.push(user._id);
+        uInstitute.followersCount += 1;
+        user.userInstituteFollowing.push(uInstitute._id);
+        user.followingUICount += 1;
+        await Promise.all([uInstitute.save(), user.save()]);
+        const posts = await Post.find({ author: `${uInstitute._id}` });
+        posts.forEach(async (ele) => {
+          ele.authorFollowersCount = uInstitute.followersCount;
+          await ele.save();
+        });
+      }
+      const institute = await InstituteAdmin.findById({
+        _id: insId,
+      });
+      const staff = new Staff({ ...req.body });
+      for (var file of fileArray) {
+        if (file.name === "file") {
+          staff.photoId = "0";
+          staff.staffProfilePhoto = file.key;
+          user.profilePhoto = file.key;
+        } else if (file.name === "addharFrontCard")
+          staff.staffAadharFrontCard = file.key;
+        else if (file.name === "addharBackCard")
+          staff.staffAadharBackCard = file.key;
+        else if (file.name === "bankPassbook")
+          staff.staffBankPassbook = file.key;
+        else if (file.name === "casteCertificate")
+          staff.staffCasteCertificatePhoto = file.key;
+        else {
+          staff.staffDocuments.push({
+            documentName: file.name,
+            documentKey: file.key,
+            documentType: file.type,
+          });
+        }
+      }
+      if (sample_pic) {
+        user.profilePhoto = sample_pic;
+        staff.photoId = "0";
+        staff.staffProfilePhoto = sample_pic;
+      }
+
+      const notify = new Notification({});
+      const aStatus = new Status({});
+      user.staff.push(staff._id);
+      user.is_mentor = true;
+      institute.joinedPost.push(user._id);
+      if (institute.userFollowersList.includes(user?._id)) {
+      } else {
+        user.userInstituteFollowing.push(institute?._id);
+        user.followingUICount += 1;
+        institute.userFollowersList.push(user?._id);
+        institute.followersCount += 1;
+      }
+      staff.institute = institute._id;
+      staff.staffApplyDate = new Date().toISOString();
+      staff.user = user._id;
+      staff.staffStatus = "Approved";
+      institute.ApproveStaff.push(staff._id);
+      institute.staffCount += 1;
+      admins.staffArray.push(staff._id);
+      admins.staffCount += 1;
+      institute.joinedUserList.push(user._id);
+      staff.staffROLLNO = institute.ApproveStaff.length;
+      staff.staffJoinDate = new Date().toISOString();
+      notify.notifyContent = `Congrats ${staff.staffFirstName} ${
+        staff.staffMiddleName ? `${staff.staffMiddleName}` : ""
+      } ${staff.staffLastName} for joined as a staff at ${institute.insName}`;
+      notify.notifySender = id;
+      notify.notifyReceiever = user._id;
+      notify.notifyCategory = "Approve Staff";
+      institute.iNotify.push(notify._id);
+      notify.institute = institute._id;
+      user.uNotify.push(notify._id);
+      notify.user = user._id;
+      notify.notifyByStaffPhoto = staff._id;
+      aStatus.content = `Welcome to ${institute.insName}.Your application for joining as staff  has been accepted by ${institute.insName}.`;
+      user.applicationStatus.push(aStatus._id);
+      aStatus.instituteId = institute._id;
+      invokeFirebaseNotification(
+        "Staff Approval",
+        notify,
+        institute.insName,
+        user._id,
+        user.deviceToken
+      );
+      await Promise.all([
+        staff.save(),
+        institute.save(),
+        admins.save(),
+        user.save(),
+        notify.save(),
+        aStatus.save(),
+      ]);
+      if (institute.isUniversal === "Not Assigned") {
+        const post = await Post.find({ author: institute._id });
+        post.forEach(async (pt) => {
+          if (
+            user.userPosts.length >= 1 &&
+            user.userPosts.includes(String(pt))
+          ) {
+          } else {
+            user.userPosts.push(pt);
+          }
+        });
+        await user.save();
+      } else {
+      }
+      if (staff.staffGender === "Male") {
+        institute.staff_category.boyCount += 1;
+      } else if (staff.staffGender === "Female") {
+        institute.staff_category.girlCount += 1;
+      } else if (staff.staffGender === "Other") {
+        institute.staff_category.otherCount += 1;
+      } else {
+      }
+      if (staff.staffCastCategory === "General") {
+        institute.staff_category.generalCount += 1;
+      } else if (staff.staffCastCategory === "OBC") {
+        institute.staff_category.obcCount += 1;
+      } else if (staff.staffCastCategory === "SC") {
+        institute.staff_category.scCount += 1;
+      } else if (staff.staffCastCategory === "ST") {
+        institute.staff_category.stCount += 1;
+      } else if (staff.staffCastCategory === "NT-A") {
+        institute.staff_category.ntaCount += 1;
+      } else if (staff.staffCastCategory === "NT-B") {
+        institute.staff_category.ntbCount += 1;
+      } else if (staff.staffCastCategory === "NT-C") {
+        institute.staff_category.ntcCount += 1;
+      } else if (staff.staffCastCategory === "NT-D") {
+        institute.staff_category.ntdCount += 1;
+      } else if (staff.staffCastCategory === "VJ") {
+        institute.staff_category.vjCount += 1;
+      } else {
+      }
+      await Promise.all([institute.save()]);
+      res.status(200).send({
+        message: "Direct Institute Account Creation Process Completed 😀✨",
+        status: true,
+      });
+      const staffName = `${staff.staffFirstName} ${
+        staff.staffMiddleName ? `${staff.staffMiddleName}` : ""
+      } ${staff.staffLastName}`;
+      whats_app_sms_payload(
+        user?.userPhoneNumber,
+        staffName,
+        institute?.insName,
+        null,
+        "ADMIS",
+        institute?.insType,
+        0,
+        0,
+        institute?.sms_lang
+      );
+    } else {
+      res.status(200).send({
+        message: "Bug in the direct joining process 😡",
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
+  try {
+    const { id, aid } = req.params;
+    const { existingUser } = req.query;
+    var existing = handle_undefined(existingUser);
+    const { sample_pic, fileArray, type, mode, amount, fee_struct } = req.body;
+    if (
+      !id &&
+      !aid &&
+      !req.body.studentFirstName &&
+      !req.body.studentLastName &&
+      !req.body.studentGender &&
+      !req.body.studentDOB &&
+      !type &&
+      !mode &&
+      !amount
+    )
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const apply = await NewApplication.findById({ _id: aid });
+    var new_receipt = new FeeReceipt({ ...req.body });
+    new_receipt.fee_transaction_date = new Date(
+      `${req.body?.transaction_date}`
+    );
+    const admission = await Admission.findById({
+      _id: `${apply.admissionAdmin}`,
+    });
+    const institute = await InstituteAdmin.findById({
+      _id: `${admission.institute}`,
+    });
+    const finance = await Finance.findById({
+      _id: `${institute?.financeDepart[0]}`,
+    });
+    if (!existing) {
+      var valid = await filter_unique_username(
+        req.body.studentFirstName,
+        req.body.studentDOB
+      );
+    }
+    if (!existing) {
+      if (!valid?.exist) {
+        const genUserPass = bcrypt.genSaltSync(12);
+        const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
+        var user = new User({
+          userLegalName: `${req.body.studentFirstName} ${
+            req.body.studentMiddleName ? req.body.studentMiddleName : ""
+          } ${req.body.studentLastName ? req.body.studentLastName : ""}`,
+          userGender: req.body.studentGender,
+          userDateOfBirth: req.body.studentDOB,
+          username: valid?.username,
+          userStatus: "Approved",
+          userPhoneNumber: id,
+          userPassword: hashUserPass,
+          photoId: "0",
+          coverId: "2",
+          remindLater: rDate,
+          next_date: c_date,
+        });
+        admins.users.push(user);
+        admins.userCount += 1;
+        await Promise.all([admins.save(), user.save()]);
+        await universal_account_creation_feed(user);
+        await user_date_of_birth(user);
+      } else {
+      }
+    } else {
+      var user = await User.findById({ _id: `${existing}` });
+    }
+    const student = new Student({ ...req.body });
+    const studentOptionalSubject = req.body?.optionalSubject
+      ? req.body?.optionalSubject
+      : [];
+    for (var file of fileArray) {
+      if (file.name === "file") {
+        student.photoId = "0";
+        student.studentProfilePhoto = file.key;
+        user.profilePhoto = file.key;
+      } else if (file.name === "addharFrontCard")
+        student.studentAadharFrontCard = file.key;
+      else if (file.name === "addharBackCard")
+        student.studentAadharBackCard = file.key;
+      else if (file.name === "bankPassbook")
+        student.studentBankPassbook = file.key;
+      else if (file.name === "casteCertificate")
+        student.studentCasteCertificatePhoto = file.key;
+      else {
+        student.studentDocuments.push({
+          documentName: file.name,
+          documentKey: file.key,
+          documentType: file.type,
+        });
+      }
+    }
+    if (studentOptionalSubject?.length > 0) {
+      student.studentOptionalSubject.push(...studentOptionalSubject);
+    }
+    if (sample_pic) {
+      user.profilePhoto = sample_pic;
+      student.photoId = "0";
+      student.studentProfilePhoto = sample_pic;
+    }
+    user.student.push(student._id);
+    user.applyApplication.push(apply._id);
+    student.user = user._id;
+    student.fee_structure = fee_struct;
+    await student.save();
+    await insert_multiple_status(apply, user, institute, student?._id);
+    apply.receievedCount += 1;
+    apply.selectCount += 1;
+    apply.confirmCount += 1;
+    await fee_reordering(
+      type,
+      mode,
+      parseInt(amount),
+      student,
+      apply,
+      institute,
+      finance,
+      admission,
+      admins,
+      new_receipt,
+      user
+    );
+    if (institute.userFollowersList.includes(user?._id)) {
+    } else {
+      user.userInstituteFollowing.push(institute._id);
+      user.followingUICount += 1;
+      institute.userFollowersList.push(user?._id);
+      institute.followersCount += 1;
+    }
+    // await insert_multiple_status(apply, user, institute, student?._id);
+    await Promise.all([
+      student.save(),
+      user.save(),
+      apply.save(),
+      institute.save(),
+      admission.save(),
+      finance.save(),
+    ]);
+    res.status(200).send({
+      message:
+        "Account Creation Process Completed & message: Taste a bite of sweets till your application is selected, 😀✨",
+      access: true,
+    });
+    await ignite_multiple_alarm(user);
+    const studentName = `${student?.studentFirstName} ${
+      student?.studentMiddleName ? student?.studentMiddleName : ""
+    } ${student?.studentLastName}`;
+    whats_app_sms_payload(
+      user?.userPhoneNumber,
+      studentName,
+      institute?.insName,
+      null,
+      "ASCAS",
+      institute?.insType,
+      student.admissionPaidFeeCount,
+      student.admissionRemainFeeCount,
+      institute?.sms_lang
+    );
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderSelectAccountQuery = async (req, res) => {
+  try {
+    const valid_key = handle_undefined(req.query.phoneKey);
+    if (!valid_key)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const all_account = await User.find({ userPhoneNumber: valid_key }).select(
+      "userLegalName username profilePhoto"
+    );
+    if (all_account?.length > 0) {
+      res.status(200).send({
+        message: "Lot's of choices select one 😁",
+        access: true,
+        all_account,
+      });
+    } else {
+      res.status(200).send({
+        message: "No choices left create one 😁",
+        access: false,
+        all_account: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// console.log(
+//   whats_app_sms_payload(
+//     7007023972,
+//     "Abhishek Singh",
+//     "Qviple Official",
+//     null,
+//     "ASCAS",
+//     "College/Polytechnic",
+//     19000,
+//     10000,
+//     "en"
+//   )
+// );

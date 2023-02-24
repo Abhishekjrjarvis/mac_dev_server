@@ -22,6 +22,8 @@ const Answer = require("../../models/Question/Answer");
 const AnswerReply = require("../../models/Question/AnswerReply");
 const SportTeam = require("../../models/SportTeam");
 const SportClass = require("../../models/SportClass");
+const Transport = require("../../models/Transport/transport");
+const Vehicle = require("../../models/Transport/vehicle");
 
 const {
   getFileStream,
@@ -29,6 +31,9 @@ const {
   uploadFile,
   uploadDocFile,
 } = require("../../S3Configuration");
+const {
+  file_to_aws_and_deleted_previous,
+} = require("../../Utilities/uploadFileAws");
 
 exports.getImage = async (req, res) => {
   try {
@@ -570,6 +575,44 @@ exports.patchSportTeamImageCover = async (req, res) => {
   }
 };
 
+exports.patchVehicleImageCover = async (req, res) => {
+  try {
+    const { vid } = req.params;
+    const vehicle = await Vehicle.findById({ _id: vid });
+    if (vehicle.vehicle_photo) await deleteFile(vehicle.vehicle_photo);
+    const width = 375;
+    const height = 245;
+    const file = req.file;
+    const results = await uploadFile(file, width, height);
+    vehicle.vehicle_photo = results.key;
+    vehicle.photoId = "0";
+    await vehicle.save();
+    await unlinkFile(file.path);
+    res.status(201).send({ message: "updated photo" });
+  } catch (err) {
+    console.log(err.message);
+  }
+};
+
+exports.patchTransportImageCover = async (req, res) => {
+  try {
+    const { tid } = req.params;
+    const trans = await Transport.findById({ _id: tid });
+    if (trans.transport_photo) await deleteFile(trans.transport_photo);
+    const width = 375;
+    const height = 245;
+    const file = req.file;
+    const results = await uploadFile(file, width, height);
+    trans.transport_photo = results.key;
+    trans.photoId = "0";
+    await trans.save();
+    await unlinkFile(file.path);
+    res.status(201).send({ message: "updated photo" });
+  } catch (err) {
+    console.log(err.message);
+  }
+};
+
 exports.patchStaffImagePhoto = async (req, res) => {
   try {
     const sid = req.params.id;
@@ -632,5 +675,20 @@ exports.patchStudentAddharDoc = async (req, res) => {
     res.status(201).send({ message: "Uploaded" });
   } catch (err) {
     console.log(err.message);
+  }
+};
+
+exports.uploadOneWithDeletedPreviousImage = async (req, res) => {
+  try {
+    const file = req?.file;
+    const previousKey = req.body?.previousKey || "";
+    if (!file) throw "Please send to file to upload server";
+    const imageKey = await file_to_aws_and_deleted_previous(file, previousKey);
+    res.status(200).send({
+      message: "File deleted and Uploaded file Successfully",
+      imageKey,
+    });
+  } catch (err) {
+    console.log(err);
   }
 };

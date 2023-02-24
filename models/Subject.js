@@ -13,6 +13,10 @@ const subjectSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  subjectOptional: {
+    type: String,
+    default: "Mandatory",
+  },
   subjectTeacherName: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Staff",
@@ -20,10 +24,6 @@ const subjectSchema = new mongoose.Schema({
   subjectMasterName: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "SubjectMaster",
-  },
-  subjectOptional: {
-    type: String,
-    default: "Mandatory",
   },
   exams: [
     {
@@ -79,19 +79,7 @@ const subjectSchema = new mongoose.Schema({
       ref: "AllotedTestSet",
     },
   ],
-  backlog: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Student",
-    },
-  ],
   pass: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Student",
-    },
-  ],
-  optionalStudent: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Student",
@@ -101,6 +89,12 @@ const subjectSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  optionalStudent: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
 });
 
 const Subject = mongoose.model("Subject", subjectSchema);

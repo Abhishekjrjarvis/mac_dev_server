@@ -2,32 +2,32 @@ const express = require("express");
 const router = express.Router();
 const timetable = require("../../controllers/Timetable/timetableController");
 const catchAsync = require("../../Utilities/catchAsync");
-
+const { isLoggedIn } = require("../../middleware");
 router
   .route("/:cid/day/timetable")
-  .get(catchAsync(timetable.getDayWiseSchedule))
-  .patch(catchAsync(timetable.addDayWiseSchedule));
+  .get(isLoggedIn, catchAsync(timetable.getDayWiseSchedule))
+  .patch(isLoggedIn, catchAsync(timetable.addDayWiseSchedule));
 
 router
   .route("/:cid/date/timetable")
-  .get(catchAsync(timetable.getDateWiseSchedule))
-  .patch(catchAsync(timetable.addDateWiseSchedule));
+  .get(isLoggedIn, catchAsync(timetable.getDateWiseSchedule))
+  .patch(isLoggedIn, catchAsync(timetable.addDateWiseSchedule));
 
 router
   .route("/staff/:sid/schedule")
-  .get(catchAsync(timetable.getOneStaffAllSchedule))
-  .patch(catchAsync(timetable.replaceOneStaffSchedule));
+  .get(isLoggedIn, catchAsync(timetable.getOneStaffAllSchedule))
+  .patch(isLoggedIn, catchAsync(timetable.replaceOneStaffSchedule));
 
 router
   .route("/institute/:id/allot/staff")
-  .get(catchAsync(timetable.getInstituteAllotStaff));
+  .get(isLoggedIn, catchAsync(timetable.getInstituteAllotStaff));
 
 router
   .route("/staff/:sid/schedule/list")
-  .get(catchAsync(timetable.getStaffSideDateWise));
+  .get(isLoggedIn, catchAsync(timetable.getStaffSideDateWise));
 
 router
   .route("/student/:cid/schedule/list")
-  .get(catchAsync(timetable.getStudentSideDateWise));
+  .get(isLoggedIn, catchAsync(timetable.getStudentSideDateWise));
 
 module.exports = router;

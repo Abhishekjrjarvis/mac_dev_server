@@ -23,31 +23,70 @@ router.post(
   catchAsync(Manage.renderAdministratorAuthentication)
 );
 
-router.get("/:mid/query", catchAsync(Manage.renderAdministratorQuery));
+router.get(
+  "/:mid/query",
+  isLoggedIn,
+  catchAsync(Manage.renderAdministratorQuery)
+);
 // Send Notify
-router.post("/:mid/add", catchAsync(Manage.renderAdministratorAddInstitute));
+router.post(
+  "/:mid/add",
+  isLoggedIn,
+  catchAsync(Manage.renderAdministratorAddInstitute)
+);
 
-router.post("/:mid/status", catchAsync(Manage.renderAdministratorStatus));
+router.post(
+  "/:mid/status",
+  isLoggedIn,
+  catchAsync(Manage.renderAdministratorStatus)
+);
 
 router.get(
   "/:mid/all/ins/query",
+  isLoggedIn,
   catchAsync(Manage.renderAdministratorAllInsQuery)
 );
 
 router.get(
   "/:mid/all/request",
+  isLoggedIn,
   catchAsync(Manage.renderAdministratorAllRequest)
 );
 
-router.get("/:mid/finance", catchAsync(Manage.renderAdministratorAllFinance));
+router.get(
+  "/:mid/finance",
+  isLoggedIn,
+  catchAsync(Manage.renderAdministratorAllFinance)
+);
 
 router.get(
   "/:mid/admission",
+  isLoggedIn,
   catchAsync(Manage.renderAdministratorAllAdmission)
 );
 
 router.get("/all", catchAsync(Manage.renderAdministratorAllManageAdmin));
 
 router.get("/all/user", catchAsync(Manage.renderAdministratorAllUser));
+
+router.get(
+  "/one/institute/:id",
+  catchAsync(Manage.renderAdministratorOneInstituteProfile)
+);
+
+router.get(
+  "/:mid/all/mentors",
+  catchAsync(Manage.renderAdministratorAllMentorsArray)
+);
+
+router.get(
+  "/:mid/all/students",
+  catchAsync(Manage.renderAdministratorAllStudentsArray)
+);
+
+router.patch(
+  "/:mid/personal/query",
+  catchAsync(Manage.renderAdministratorPersonalQuery)
+);
 
 module.exports = router;

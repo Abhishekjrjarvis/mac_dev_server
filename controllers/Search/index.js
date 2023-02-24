@@ -45,7 +45,10 @@ exports.searchUserUniversalWeb = async (req, res) => {
         .exec();
 
       const users = await User.find({
-        $and: [{ _id: { $ne: [req.params.id] } }],
+        $and: [
+          { _id: { $ne: [req.params.id] } },
+          { activeStatus: "Activated" },
+        ],
         $or: [
           { userLegalName: { $regex: req.query.search, $options: "i" } },
           { username: { $regex: req.query.search, $options: "i" } },
@@ -312,7 +315,10 @@ exports.searchUserUniversal = async (req, res) => {
         .exec();
 
       const users = await User.find({
-        $and: [{ _id: { $ne: [req.params.id] } }],
+        $and: [
+          { _id: { $ne: [req.params.id] } },
+          { activeStatus: "Activated" },
+        ],
         $or: [
           { userLegalName: { $regex: req.query.search, $options: "i" } },
           { username: { $regex: req.query.search, $options: "i" } },
@@ -545,6 +551,7 @@ exports.searchUser = async (req, res) => {
     } else {
       const search = req.query.search
         ? {
+            $and: [{ activeStatus: "Activated" }],
             $or: [
               { userLegalName: { $regex: req.query.search, $options: "i" } },
               { username: { $regex: req.query.search, $options: "i" } },
@@ -720,28 +727,8 @@ exports.searchSubject = async (req, res) => {
 };
 exports.searchStudent = async (req, res) => {
   try {
-    if (req.query.search.trim() === "") {
-      const student = await Student.find({
-        $and: [{ institute: req.params.id }, { studentStatus: "Approved" }],
-      })
-        .sort("createdAt")
-        .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender"
-        )
-        .populate({
-          path: "user",
-          select: "_id userPhoneNumber",
-        })
-        .populate({
-          path: "studentClass",
-          select: "className",
-        })
-        .lean()
-        .exec();
-      res
-        .status(200)
-        .send({ message: "Without Query All Student", student: student });
-    } else {
+    var institute = await InstituteAdmin.findById({_id: req.params.id})
+    if (req.query.search) {
       const search = req.query.search
         ? {
             $and: [
@@ -761,10 +748,7 @@ exports.searchStudent = async (req, res) => {
             ],
           }
         : {};
-      const getPage = req.query.page ? parseInt(req.query.page) : 1;
-      const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
-      const dropItem = (getPage - 1) * itemPerPage;
-      const student = await Student.find(search)
+      var student = await Student.find(search)
         .select(
           "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender"
         )
@@ -776,10 +760,43 @@ exports.searchStudent = async (req, res) => {
           path: "studentClass",
           select: "className",
         })
-        .limit(itemPerPage)
-        .skip(dropItem)
         .lean()
         .exec();
+        student.sort(function (st1, st2) {
+          return (
+            parseInt(st1.studentGRNO.slice(institute?.gr_initials?.length)) -
+            parseInt(st2.studentGRNO.slice(institute?.gr_initials?.length))
+          );
+        });
+      res
+        .status(200)
+        .send({ message: "Without Query All Student", student: student });
+    } else {
+      const getPage = req.query.page ? parseInt(req.query.page) : 1;
+      const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+      const dropItem = (getPage - 1) * itemPerPage;
+      var student = await Student.find({$and: [{ institute: req.params.id }, { studentStatus: "Approved" }],})
+      .limit(itemPerPage)
+      .skip(dropItem)
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender"
+        )
+        .populate({
+          path: "user",
+          select: "_id userPhoneNumber",
+        })
+        .populate({
+          path: "studentClass",
+          select: "className",
+        })
+        .lean()
+        .exec();
+        student.sort(function (st1, st2) {
+          return (
+            parseInt(st1.studentGRNO.slice(institute?.gr_initials?.length)) -
+            parseInt(st2.studentGRNO.slice(institute?.gr_initials?.length))
+          );
+        });
       if (!student.length) {
         res.status(202).send({ message: "Not found any search" });
       } else {
@@ -796,51 +813,8 @@ exports.searchStudent = async (req, res) => {
 exports.searchStaff = async (req, res) => {
   // change here this api add absent function
   try {
-    if (!req.query.search?.trim()) {
-      if (req.query.date) {
-        const staff = await Staff.find({
-          $and: [{ institute: req.params.id }, { staffStatus: "Approved" }],
-        })
-          .sort("-createdAt")
-          .select(
-            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
-          )
-          .populate({
-            path: "user",
-            select: "_id userLegalName userPhoneNumber",
-          })
-          .populate({
-            path: "staffLeave",
-            match: {
-              date: { $eq: req.query?.date },
-            },
-            select: "_id date",
-          })
-          .lean()
-          .exec();
-        res
-          .status(200)
-          .send({ message: "Without Query All Staff", staff: staff });
-      } else {
-        const staff = await Staff.find({
-          $and: [{ institute: req.params.id }, { staffStatus: "Approved" }],
-        })
-          .sort("-createdAt")
-          .select(
-            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
-          )
-          .populate({
-            path: "user",
-            select: "_id userLegalName userPhoneNumber",
-          })
-          .lean()
-          .exec();
-        res
-          .status(200)
-          .send({ message: "Without Query All Staff", staff: staff });
-      }
-    } else {
-      const search = req.query.search
+    if (req.query.search) {
+      var search = req.query.search
         ? {
             $and: [
               {
@@ -859,10 +833,55 @@ exports.searchStaff = async (req, res) => {
             ],
           }
         : {};
+      if (req.query.date) {
+        const staff = await Staff.find(search)
+          .select(
+            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
+          )
+          .populate({
+            path: "user",
+            select: "_id userLegalName userPhoneNumber",
+          })
+          .populate({
+            path: "staffLeave",
+            match: {
+              date: { $eq: req.query?.date },
+            },
+            select: "_id date",
+          })
+          .lean()
+          .exec();
+          staff.sort(function (st1, st2) {
+            return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
+          });
+        res
+          .status(200)
+          .send({ message: "Without Query All Staff", staff: staff });
+      } else {
+        const staff = await Staff.find(search)
+          .select(
+            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
+          )
+          .populate({
+            path: "user",
+            select: "_id userLegalName userPhoneNumber",
+          })
+          .lean()
+          .exec();
+          staff.sort(function (st1, st2) {
+            return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
+          });
+        res
+          .status(200)
+          .send({ message: "Without Query All Staff", staff: staff });
+      }
+    } else {
       const getPage = req.query.page ? parseInt(req.query.page) : 1;
       const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
       const dropItem = (getPage - 1) * itemPerPage;
-      const staff = await Staff.find(search)
+      const staff = await Staff.find({
+        $and: [{ institute: req.params.id }, { staffStatus: "Approved" }],
+      })
         .select(
           "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
         )
@@ -874,6 +893,9 @@ exports.searchStaff = async (req, res) => {
         .skip(dropItem)
         .lean()
         .exec();
+        staff.sort(function (st1, st2) {
+          return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
+        });
       if (!staff.length) {
         res.status(202).send({ message: "Not found any search", staff: [] });
       } else {

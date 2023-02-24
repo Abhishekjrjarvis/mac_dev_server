@@ -4,25 +4,29 @@ const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 const studentMember = require("../../controllers/Edit/studentMember");
 const catchAsync = require("../../Utilities/catchAsync");
-// const { isLoggedIn } = require("../../middleware");
+const { isLoggedIn } = require("../../middleware");
 
 router
   .route("/form/photo/:sid")
-  .patch(upload.single("file"), catchAsync(studentMember.photoEditByStudent));
+  .patch(
+    upload.single("file"),
+    isLoggedIn,
+    catchAsync(studentMember.photoEditByStudent)
+  );
 
 router
   .route("/form/detail/:sid")
-  .patch(catchAsync(studentMember.formEditByClassTeacher));
+  .patch( catchAsync(studentMember.formEditByClassTeacher));
 
 router
   .route("/remove/:sid")
-  .patch(catchAsync(studentMember.removeByClassTeacher));
+  .patch(isLoggedIn, catchAsync(studentMember.removeByClassTeacher));
 
 router
   .route("/:sid/previous")
-  .get(catchAsync(studentMember.getAllPreviousYear));
+  .get(isLoggedIn, catchAsync(studentMember.getAllPreviousYear));
 router
   .route("/:pid/previous/report")
-  .get(catchAsync(studentMember.previousYearReportCard));
+  .get(isLoggedIn, catchAsync(studentMember.previousYearReportCard));
 
 module.exports = router;

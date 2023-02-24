@@ -1,28 +1,54 @@
 const express = require("express");
 const router = express.Router();
 const feesController = require("../../controllers/Fees/FeesController");
+const catchAsync = require("../../Utilities/catchAsync");
+const { isLoggedIn } = require("../../middleware");
 
-router.route("/department-class/fee/:did").post(feesController.createFess);
+router
+  .route("/department-class/fee/:did")
+  .post(catchAsync(feesController.createFess));
 
-router.route("/:feesId").get(feesController.getOneFeesDetail);
+router
+  .route("/:feesId")
+  .get(isLoggedIn, catchAsync(feesController.getOneFeesDetail));
 
-router.route("/class/:cid/student/fee/:id/all").post(feesController.feesPaidByStudent);
+router
+  .route("/class/:cid/student/fee/:id/all")
+  .post(isLoggedIn, catchAsync(feesController.feesPaidByStudent));
 
-// router.route("/class/:cid/student/:sid/exempt/fee/:id").post(feesController.exemptFeesPaidByStudent);
+// router.route("/class/:cid/student/:sid/exempt/fee/:id").post(isLoggedIn,catchAsync(feesController.exemptFeesPaidByStudent));
 
 // One Student Creadentials
-router.route('/student/status').post(feesController.retrieveStudentFeeStatus)
+router
+  .route("/student/status")
+  .post(isLoggedIn, catchAsync(feesController.retrieveStudentFeeStatus));
 
 // All Fees In Department
-router.route('/department/:did/query').get(feesController.retrieveDepartmentFeeArray)
+router
+  .route("/department/:did/query")
+  .get(isLoggedIn, catchAsync(feesController.retrieveDepartmentFeeArray));
 
 // All Fees In Class
-router.route('/class/:cid/query').get(feesController.retrieveClassFeeArray)
+router
+  .route("/class/:cid/query")
+  .get(isLoggedIn, catchAsync(feesController.retrieveClassFeeArray));
 
-// Student Pay Online Fees and Checklists 
-router.route('/student/:sid/count').get(feesController.retrieveStudentCountQuery)
+// Student Pay Online Fees and Checklists
+router
+  .route("/student/:sid/count")
+  .get(isLoggedIn, catchAsync(feesController.retrieveStudentCountQuery));
 
-// Student Pay Online Fees and Checklists 
-router.route('/student/:sid').get(feesController.retrieveStudentQuery)
+// Student Pay Online Fees and Checklists
+router
+  .route("/student/:sid")
+  .get(isLoggedIn, catchAsync(feesController.retrieveStudentQuery));
+
+router
+  .route("/:fid/destroy/:did")
+  .delete(catchAsync(feesController.renderFeesDeleteQuery));
+
+router
+  .route("/:fid/edit")
+  .delete(catchAsync(feesController.renderFeesEditQuery));
 
 module.exports = router;

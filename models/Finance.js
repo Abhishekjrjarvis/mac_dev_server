@@ -119,6 +119,10 @@ const financeSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    financeGovernmentScholarBalance: {
+      type: Number,
+      default: 0,
+    },
     financeExpenseBankBalance: {
       type: Number,
       default: 0,
@@ -128,6 +132,10 @@ const financeSchema = new mongoose.Schema(
       default: Date.now,
     },
     financeCollectedSBalance: {
+      type: Number,
+      default: 0,
+    },
+    financeCollectedBankBalance: {
       type: Number,
       default: 0,
     },
@@ -199,6 +207,173 @@ const financeSchema = new mongoose.Schema(
           ref: "BusinessTC",
         },
       ],
+    },
+    transport_request: [
+      {
+        transport_module: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Transport",
+        },
+        createdAt: { type: Date, default: Date.now },
+        amount: { type: Number, default: 0 },
+        status: { type: String },
+      },
+    ],
+    transport_submit: [
+      {
+        transport_module: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Transport",
+        },
+        createdAt: { type: Date, default: Date.now },
+        amount: { type: Number, default: 0 },
+        status: { type: String },
+      },
+    ],
+    transport_cancelled: [
+      {
+        transport_module: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Transport",
+        },
+        createdAt: { type: Date, default: Date.now },
+        amount: { type: Number, default: 0 },
+        status: { type: String },
+      },
+    ],
+    finance_inventory: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Store",
+      },
+    ],
+    finance_inventory_count: {
+      type: Number,
+      default: 0,
+    },
+    admission_request: [
+      {
+        admission: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Admission",
+        },
+        createdAt: { type: Date, default: Date.now },
+        amount: { type: Number, default: 0 },
+        status: { type: String },
+      },
+    ],
+    admission_submit: [
+      {
+        admission: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Admission",
+        },
+        createdAt: { type: Date, default: Date.now },
+        amount: { type: Number, default: 0 },
+        status: { type: String },
+      },
+    ],
+    admission_cancelled: [
+      {
+        admission: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Admission",
+        },
+        createdAt: { type: Date, default: Date.now },
+        amount: { type: Number, default: 0 },
+        status: { type: String },
+      },
+    ],
+    library_request: [
+      {
+        library: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Library",
+        },
+        createdAt: { type: Date, default: Date.now },
+        amount: { type: Number, default: 0 },
+        status: { type: String },
+      },
+    ],
+    library_submit: [
+      {
+        library: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Library",
+        },
+        createdAt: { type: Date, default: Date.now },
+        amount: { type: Number, default: 0 },
+        status: { type: String },
+      },
+    ],
+    library_cancelled: [
+      {
+        library: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Library",
+        },
+        createdAt: { type: Date, default: Date.now },
+        amount: { type: Number, default: 0 },
+        status: { type: String },
+      },
+    ],
+    finance_bank_account_number: {
+      type: String,
+    },
+    finance_bank_name: {
+      type: String,
+    },
+    finance_bank_account_name: {
+      type: String,
+    },
+    finance_bank_ifsc_code: {
+      type: String,
+    },
+    finance_bank_branch_address: {
+      type: String,
+    },
+    finance_bank_upi_id: {
+      type: String,
+    },
+    finance_bank_upi_qrcode: {
+      type: String,
+    },
+    fees_category: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeCategory",
+      },
+    ],
+    fees_category_count: {
+      type: Number,
+      default: 0,
+    },
+    exempt_receipt: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeReceipt",
+      },
+    ],
+    exempt_receipt_count: {
+      type: Number,
+      default: 0,
+    },
+    government_receipt: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeReceipt",
+      },
+    ],
+    government_receipt_count: {
+      type: Number,
+      default: 0,
+    },
+    payment_modes_type: {
+      cash: { type: Boolean, default: true },
+      upi_transfer: { type: Boolean, default: true },
+      net_banking: { type: Boolean, default: true },
+      cheque: { type: Boolean, default: true },
+      demand_draft: { type: Boolean, default: true },
     },
   },
   { timestamps: true }

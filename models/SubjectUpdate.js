@@ -7,7 +7,6 @@ const subjectUpdateSchema = new mongoose.Schema({
   },
   updateDescription: {
     type: String,
-    required: true,
   },
   date: {
     type: Date,

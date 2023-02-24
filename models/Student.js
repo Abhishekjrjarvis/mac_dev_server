@@ -44,6 +44,7 @@ const studentSchema = new mongoose.Schema({
   studentBankIfsc: { type: String },
   studentBankPassbook: { type: String },
   studentCasteCertificatePhoto: { type: String },
+  studentUidaiNumber: { type: String },
   studentDocuments: [
     {
       documentName: {
@@ -173,16 +174,12 @@ const studentSchema = new mongoose.Schema({
     },
   ],
 
-  checklist: [
+  allottedChecklist: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Checklist",
     },
   ],
-  checklistAllottedStatus: {
-    type: String,
-    default: "Not Allotted",
-  },
   department: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department",
@@ -203,12 +200,6 @@ const studentSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Fees",
-    },
-  ],
-  offlineCheckList: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Checklist",
     },
   ],
   sportClass: [
@@ -257,12 +248,6 @@ const studentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  studentChecklist: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Checklist",
-    },
-  ],
   leave: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -316,18 +301,17 @@ const studentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  admissionPaymentStatus: [
+  admissionPaidFeeCount: {
+    type: Number,
+    default: 0,
+  },
+  paidFeeList: [
     {
-      applicationId: {
+      paidAmount: { type: Number, default: 0 },
+      appId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "NewApplication",
       },
-      status: { type: String, default: "Pending" },
-      mode: { type: String },
-      installment: { type: String, default: "No Installment" },
-      firstInstallment: { type: Number, default: 0 },
-      secondInstallment: { type: Number, default: 0 },
-      fee: { type: Number, default: 0 },
     },
   ],
   refundAdmission: [
@@ -336,14 +320,30 @@ const studentSchema = new mongoose.Schema({
       refund_reason: { type: String },
       refund_amount: { type: Number, default: 0 },
       refund_on: { type: Date, default: Date.now },
+      refund_from: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "NewApplication",
+      },
     },
   ],
   remainingFeeList: [
     {
-      remainAmount: { type: String },
-      appId: { type: String },
-      status: { type: String, default: "Not Paid" },
-      instituteId: { type: String },
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "RemainingList",
+    },
+  ],
+  fee_structure: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "FeeStructure",
+  },
+  active_fee_heads: [
+    {
+      appId: { type: mongoose.Schema.Types.ObjectId, ref: "NewApplication" },
+      head_name: { type: String },
+      created_at: { type: Date, default: Date.now },
+      applicable_fee: { type: Number, default: 0 },
+      remain_fee: { type: Number, default: 0 },
+      paid_fee: { type: Number, default: 0 },
     },
   ],
   certificateBonaFideCopy: {
@@ -376,12 +376,73 @@ const studentSchema = new mongoose.Schema({
       ref: "Participate",
     },
   ],
+  checkList_participate_event: [],
+  participate_result: [
+    {
+      event: { type: mongoose.Schema.Types.ObjectId, ref: "Participate" },
+      rank: { type: String },
+      created_at: { type: Date, default: Date.now },
+    },
+  ],
+  backlog: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Backlog",
+    },
+  ],
+  vehicle: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Vehicle",
+  },
+  vehicleRemainFeeCount: {
+    type: Number,
+    default: 0,
+  },
+  vehiclePaidFeeCount: {
+    type: Number,
+    default: 0,
+  },
+  vehicle_payment_status: [
+    {
+      vehicle: { type: mongoose.Schema.Types.ObjectId, ref: "Vehicle" },
+      status: { type: String, default: "Not Paid" },
+      created_at: { type: Date, default: Date.now },
+      amount: { type: Number, default: 0 },
+    },
+  ],
+  routes: [
+    {
+      routeId: { type: String },
+      routePath: { type: String },
+    },
+  ],
+  active_routes: {
+    type: String,
+  },
+  active_status: [],
+  student_prn_enroll_number: {
+    type: String,
+  },
+  query_count: {
+    type: Number,
+    default: 0,
+  },
+  mentor: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Mentor",
+  },
+  queries: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Queries",
+    },
+  ],
+  total_query: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema);
 
 module.exports = Student;
-
-// "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
-
-// "staffFirstName staffDesignationCount staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber"

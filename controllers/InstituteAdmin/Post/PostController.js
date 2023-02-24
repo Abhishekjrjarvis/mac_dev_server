@@ -15,6 +15,7 @@ const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require("../../../Firebase/firebase");
 const Notification = require("../../../models/notification");
+// const encryptionPayload = require("../../../Utilities/Encrypt/payload");
 
 exports.postWithText = async (req, res) => {
   try {
@@ -46,6 +47,7 @@ exports.postWithText = async (req, res) => {
     post.isInstitute = "institute";
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([institute.save(), post.save()]);
+    // const postEncrypt = await encryptionPayload(post);
     res.status(201).send({ message: "post is create", post });
     if (institute.isUniversal === "Not Assigned") {
       if (institute.followers.length >= 1) {
@@ -176,6 +178,7 @@ exports.postWithImage = async (req, res) => {
     post.isInstitute = "institute";
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([institute.save(), post.save()]);
+    // const postEncrypt = await encryptionPayload(post);
     res.status(201).send({ message: "post is create", post });
     if (institute.isUniversal === "Not Assigned") {
       if (institute.followers.length >= 1) {
@@ -297,6 +300,7 @@ exports.postWithVideo = async (req, res) => {
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([institute.save(), post.save()]);
     await unlinkFile(file.path);
+    // const postEncrypt = await encryptionPayload(post);
     res.status(201).send({ message: "post created", post });
     if (institute.isUniversal === "Not Assigned") {
       if (institute.followers.length >= 1) {
@@ -650,6 +654,7 @@ exports.postLike = async (req, res) => {
           post.likeCount -= 1;
         }
         await post.save();
+        // const likeEncrypt = await encryptionPayload(post.likeCount);
         res
           .status(200)
           .send({ message: "Removed from Likes", likeCount: post.likeCount });
@@ -657,6 +662,7 @@ exports.postLike = async (req, res) => {
         post.endUserLike.push(institute_session);
         post.likeCount += 1;
         await post.save();
+        // const likeEncrypt = await encryptionPayload(post.likeCount);
         res
           .status(200)
           .send({ message: "Added To Likes", likeCount: post.likeCount });
@@ -671,6 +677,7 @@ exports.postLike = async (req, res) => {
           post.likeCount -= 1;
         }
         await post.save();
+        // const likeEncrypt = await encryptionPayload(post.likeCount);
         res
           .status(200)
           .send({ message: "Removed from Likes", likeCount: post.likeCount });
@@ -678,6 +685,7 @@ exports.postLike = async (req, res) => {
         post.endUserLike.push(user_session);
         post.likeCount += 1;
         await post.save();
+        // const likeEncrypt = await encryptionPayload(post.likeCount);
         res
           .status(200)
           .send({ message: "Added To Likes", likeCount: post.likeCount });
@@ -774,6 +782,7 @@ exports.postComment = async (req, res) => {
     post.commentCount += 1;
     comment.post = post._id;
     await Promise.all([post.save(), comment.save()]);
+    // const commentEncrypt = await encryptionPayload(comment);
     res.status(201).send({ message: "comment created", comment });
     var notify = new Notification({});
     var author_ins = await InstituteAdmin.findById({ _id: `${post.author}` });
@@ -790,6 +799,7 @@ exports.postComment = async (req, res) => {
       ? req.tokenData.insId
       : "";
     notify.notifyReceiever = author_ins._id;
+    notify.notifyCategory = "Comment";
     author_ins.iNotify.push(notify._id);
     notify.institute = author_ins._id;
     if (req?.tokenData?.userId) {
@@ -876,6 +886,7 @@ exports.retrieveAllPosts = async (req, res) => {
         } else {
           var totalPage = page + 1;
         }
+        // Add Another Encryption
         res.status(200).send({
           message: "Success",
           post,
@@ -925,6 +936,7 @@ exports.retreiveAllProfilePosts = async (req, res) => {
       } else {
         var totalPage = page + 1;
       }
+      // Add Another Encryption
       res.status(200).send({
         message: "Success",
         post,
@@ -954,6 +966,7 @@ exports.getComment = async (req, res) => {
       .select(
         "commentDescription createdAt allLikeCount parentCommentLike allChildCommentCount authorOneLine author authorName authorUserName authorPhotoId authorProfilePhoto"
       );
+    // const commentEncrypt = await encryptionPayload(comment);
     res.status(200).send({ message: "Sucess", comment });
   } catch (e) {
     console.log(e);
@@ -986,6 +999,7 @@ exports.getCommentChild = async (req, res) => {
       res.status(204).send({ message: "no any child" });
     }
     const replyComment = userPagination(comment.childComment);
+    // const commentEncrypt = await encryptionPayload(replyComment);
     res.status(200).send({ replyComment });
   } catch (e) {
     console.log(e);
@@ -1028,6 +1042,7 @@ exports.postCommentChild = async (req, res) => {
         authorProfilePhoto: institutes.insProfilePhoto,
         authorOneLine: institutes.one_line_about,
       };
+      // Add Another Encryption
       res.status(201).send({
         childReplyComment,
         commentCount: parentComment.allChildCommentCount,
@@ -1062,6 +1077,7 @@ exports.postCommentChild = async (req, res) => {
         authorProfilePhoto: user.profilePhoto,
         authorOneLine: user.one_line_about,
       };
+      // Add Another Encryption
       res.status(201).send({
         childReplyComment,
         commentCount: parentComment.allChildCommentCount,
@@ -1084,7 +1100,7 @@ exports.likeCommentChild = async (req, res) => {
         comment.parentCommentLike.push(id);
         comment.allLikeCount += 1;
         await comment.save();
-
+        // const likeEncrypt = await encryptionPayload(comment.allLikeCount);
         res.status(200).send({
           message: "liked by Institute",
           allLikeCount: comment.allLikeCount,
@@ -1095,7 +1111,7 @@ exports.likeCommentChild = async (req, res) => {
           comment.allLikeCount -= 1;
         }
         await comment.save();
-
+        // const likeEncrypt = await encryptionPayload(comment.allLikeCount);
         res.status(200).send({
           message: "diliked by Institute",
           allLikeCount: comment.allLikeCount,
@@ -1106,6 +1122,7 @@ exports.likeCommentChild = async (req, res) => {
         comment.parentCommentLike.push(id);
         comment.allLikeCount += 1;
         await comment.save();
+        // const likeEncrypt = await encryptionPayload(comment.allLikeCount);
         res.status(200).send({
           message: "liked by User",
           allLikeCount: comment.allLikeCount,
@@ -1116,6 +1133,7 @@ exports.likeCommentChild = async (req, res) => {
           comment.allLikeCount -= 1;
         }
         await comment.save();
+        // const likeEncrypt = await encryptionPayload(comment.allLikeCount);
         res.status(200).send({
           message: "diliked by user",
           allLikeCount: comment.allLikeCount,
@@ -1158,6 +1176,7 @@ exports.reactionPost = async (req, res) => {
     circleUserData.insUserLike || circleUserData.insLike
       ? institutePagination(circleUserData)
       : "";
+  // const reactionEncrypt = await encryptionPayload(reactionList);
   res.status(200).send({
     reactionList,
   });
@@ -1189,6 +1208,7 @@ exports.circleList = async (req, res) => {
       .exec();
 
     // const tagInstituteList = random_list_generator(tagInstitute);
+    // const tagEncrypt = await encryptionPayload(tagInstitute);
     res.status(200).send({
       tagInstituteList: tagInstitute,
     });
@@ -1234,9 +1254,10 @@ exports.retrieveSavedAllPosts = async (req, res) => {
         } else {
           var totalPage = page + 1;
         }
+        // Add Another Encryption
         res.status(200).send({
           message: "Success",
-          post,
+          post: post.reverse(),
           postCount: postCount.length,
           totalPage: totalPage,
         });
@@ -1288,6 +1309,7 @@ exports.retrieveTagAllPosts = async (req, res) => {
         } else {
           var totalPage = page + 1;
         }
+        // Add Another Encryption
         res.status(200).send({
           message: "Success Tag Post",
           post,

@@ -18,6 +18,8 @@ const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const StudentPreviousData = require("../../models/StudentPreviousData");
+const Backlog = require("../../models/BacklogStudent/backlog");
+// const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.getClassMaster = async (req, res) => {
   try {
@@ -32,6 +34,7 @@ exports.getClassMaster = async (req, res) => {
       })
       .lean()
       .exec();
+    // const cMasterEncrypt = await encryptionPayload(classMaster);
     res.status(200).send({ classMaster });
   } catch {}
 };
@@ -77,6 +80,7 @@ exports.getSubjectMaster = async (req, res) => {
       }
       arr1.push(subjectObject);
     }
+    // const arrEncrypt = await encryptionPayload(arr1);
     res.status(200).send({ classMaster: arr1 });
   } catch {}
 };
@@ -232,6 +236,7 @@ exports.allExam = async (req, res) => {
   const exam = await Exam.find({
     department: { $eq: `${req.params.did}` },
   }).select("examName examWeight examMode createdAt examType");
+  // const examEncrypt = await encryptionPayload(exam);
   res.status(200).send({ exam });
 };
 
@@ -303,7 +308,7 @@ exports.examById = async (req, res) => {
       }
       oneExamDetail.push(obj);
     }
-
+    // Add Another Encryption
     res.status(200).send({
       oneExamDetail,
       exam: {
@@ -344,7 +349,7 @@ exports.allExamSubjectTeacher = async (req, res) => {
         }
       });
     });
-
+    // const sEncrypt = await encryptionPayload(subject);
     res.status(200).send({ subject });
   } catch (e) {
     console.log(e);
@@ -424,6 +429,7 @@ exports.allStudentInSubjectTeacher = async (req, res) => {
     students.sort((st1, st2) => {
       return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
     });
+    // const studentsEncrypt = await encryptionPayload(students);
     res.status(200).send({ students });
   } catch (e) {
     console.log(e);
@@ -433,6 +439,8 @@ exports.allStudentInSubjectTeacher = async (req, res) => {
 exports.allStudentMarksBySubjectTeacher = async (req, res) => {
   try {
     const { examId, marks } = req.body;
+    const subjectData = await Subject.findById({ _id: req.params.sid });
+    const exam_data = await Exam.findById({ _id: examId });
     for (let studt of marks) {
       const student = await Student.findById(studt.studentId)
         .populate({
@@ -441,8 +449,8 @@ exports.allStudentMarksBySubjectTeacher = async (req, res) => {
             subject: { $eq: req.params.sid },
           },
         })
-        .select("subjectMarks _id");
-
+        .select("subjectMarks _id user");
+      const user = await User.findById({ _id: `${student.user}` });
       const subjectMarks1 = await SubjectMarks.findById(
         student?.subjectMarks[0]?._id
       );
@@ -452,8 +460,36 @@ exports.allStudentMarksBySubjectTeacher = async (req, res) => {
           await subjectMarks1.save();
         }
       }
+      var notify = new StudentNotification({});
+      notify.notifyContent = `${subjectData?.subjectName} marks updated.`;
+      notify.notifySender = subjectData._id;
+      notify.notifyReceiever = user._id;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student._id;
+      notify.subjectId = subjectData._id;
+      user.activity_tab.push(notify._id);
+      notify.notifyBySubjectPhoto.subject_id = subjectData?._id
+      notify.notifyBySubjectPhoto.subject_name = subjectData.subjectName
+      notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png"
+      notify.notifyBySubjectPhoto.subject_title = subjectData.subjectTitle
+      notifyByExamPhoto = {
+        exam_id: exam_data?._id,
+        exam_name: exam_data?.examName,
+      };
+      notify.notifyCategory = "Marks";
+      notify.redirectIndex = 21;
+      //
+      invokeMemberTabNotification(
+        "Student Activity",
+        notify,
+        `${subjectData.subjectName} Marks`,
+        user._id,
+        user.deviceToken,
+        "Student",
+        notify
+      );
+      await Promise.all([student.save(), user.save(), notify.save()]);
     }
-
     res.status(200).send({ message: "updated" });
   } catch (e) {
     console.log(e);
@@ -558,6 +594,7 @@ exports.allExamInStudent = async (req, res) => {
         exams.push(examObj);
       }
     }
+    // const eEncrypt = await encryptionPayload(exams);
     res.status(200).send({ exams });
   } catch (e) {
     console.log(e);
@@ -604,6 +641,7 @@ exports.oneExamAllSubjectInStudent = async (req, res) => {
         }
       });
     });
+    // const subEncrypt = await encryptionPayload(subjects);
     res.status(200).send({ subjects });
   } catch (e) {
     console.log(e);
@@ -647,10 +685,12 @@ exports.oneExamOneSubjectAnswersheetInStudent = async (req, res) => {
             totalMarks: exammarks.totalMarks,
             answersheet: exammarks.answerSheet,
             present: flag,
+            weightage: exammarks.examWeight,
           };
         }
       }
     }
+    // const submarksEncrypt = await encryptionPayload(subjects);
     res.status(200).send({ subjects });
   } catch (e) {
     console.log(e);
@@ -661,6 +701,7 @@ exports.oneClassSettings = async (req, res) => {
     const classes = await Class.findById(req.params.cid).select(
       "finalReportsSettings"
     );
+    // const fEncrypt = await encryptionPayload(classes.finalReportsSettings);
     res
       .status(200)
       .send({ finalReportsSettings: classes.finalReportsSettings });
@@ -795,7 +836,7 @@ exports.oneStudentReportCardClassTeacher = async (req, res) => {
     });
     const totalPercantage =
       (total.allSubjectTotal * 100) / (100 * subjects.length);
-
+    // Add Another Encryption
     res.status(200).send({
       subjects,
       total,
@@ -847,6 +888,7 @@ exports.oneStudentAllYearAttendance = async (req, res) => {
       (attendance.totalPresent * 100) /
       attendance.totalAttendance
     ).toFixed(2);
+    // const aEncrypt = await encryptionPayload(attendence);
     res.status(200).send({ attendance });
   } catch (e) {
     console.log(e);
@@ -874,7 +916,7 @@ exports.oneStudentReletedNecessaryData = async (req, res) => {
         path: "batches",
         select: "_id batchName",
       });
-
+    // const studentEncrypt = await encryptionPayload(student);
     res.status(200).send({ student });
   } catch (e) {
     console.log(e);
@@ -889,6 +931,7 @@ exports.oneStudentBehaviourReportCard = async (req, res) => {
         select: "improvements ratings lackIn",
       })
       .select("_id studentBehaviour");
+    // const bEncrypt = await encryptionPayload(student.studentBehaviour);
     res.status(200).send({ student: student.studentBehaviour });
   } catch (e) {
     console.log(e);
@@ -898,7 +941,7 @@ exports.oneStudentBehaviourReportCard = async (req, res) => {
 exports.oneStudentReportCardFinalize = async (req, res) => {
   try {
     const student = await Student.findById(req.params.sid).select(
-      "_id finalReport finalReportStatus studentClass"
+      "_id finalReport finalReportStatus studentClass backlog"
     );
     if (student.finalReportStatus === "Yes") {
       throw "Report card is already finalize";
@@ -949,9 +992,22 @@ exports.oneStudentReportCardFinalize = async (req, res) => {
             : "PASS",
       });
       const backlogSub = await Subject.findById(subject._id);
-      if (subject.subjectCutoff > Math.round(subject.obtainTotalMarks))
-        backlogSub.backlog.push(req.params.sid);
-      else backlogSub.pass.push(req.params.sid);
+      const backlogSubMaster = await SubjectMaster.findById({
+        _id: backlogSub?.subjectMasterName,
+      });
+      if (subject.subjectCutoff > Math.round(subject.obtainTotalMarks)) {
+        const new_backlog = new Backlog({});
+        new_backlog.backlog_subject = backlogSub?._id;
+        new_backlog.backlog_class = student?.studentClass;
+        new_backlog.backlog_batch = student?.batches;
+        backlogSubMaster.backlog.push(new_backlog?._id);
+        backlogSubMaster.backlogStudentCount += 1;
+        new_backlog.backlog_students = req.params.sid;
+        student.backlog.push(new_backlog._id);
+        await Promise.all([backlogSubMaster.save(), new_backlog.save()]);
+      } else {
+        backlogSub.pass.push(req.params.sid);
+      }
       await backlogSub.save();
     }
     const classes = await Class.findById(student?.studentClass);
@@ -980,12 +1036,13 @@ exports.oneStudentReportCardGraceUpdate = async (req, res) => {
       }
       await subMarks.save();
     }
+    // const graceEncrypt = await encryptionPayload(student);
     res.status(200).send({
       message: "grace marks updated successfully...😋😊😊😋😋",
       student,
     });
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     res.status(424).send({ message: e });
   }
 };
@@ -1043,9 +1100,340 @@ exports.oneStudentReportCardFinalizeGraceUpdate = async (req, res) => {
         ? "FAIL"
         : "PASS";
     await Promise.all([finalize.save()]);
+    // const finalizeEncrypt = await encryptionPayload(finalize);
     res.status(200).send({ finalize });
   } catch (e) {
     console.log(e);
     res.status(424).send({ message: e });
+  }
+};
+
+exports.retrieveBacklogClassMaster = async (req, res) => {
+  try {
+    const { did } = req.params;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const depart = await Department.findById({ _id: did }).select(
+      "departmentClassMasters"
+    );
+
+    const class_masters = await ClassMaster.find({
+      _id: { $in: depart?.departmentClassMasters },
+    })
+      .limit(limit)
+      .skip(skip)
+      .select("className classCount");
+
+    if (class_masters?.length > 0) {
+      // const cMasterEncrypt = await encryptionPayload(class_masters)
+      res.status(200).send({
+        message: "Bulk of Class Masters Heavy Load 😀",
+        access: true,
+        masters: class_masters,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Class Masters Avaliable 😡",
+        access: false,
+        masters: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveOneBacklogClassMasterSubjects = async (req, res) => {
+  try {
+    const { cmid } = req.params;
+    var subject_array = [];
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!cmid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const classes = await Class.find({ masterClassName: cmid }).populate({
+      path: "subject",
+    });
+    for (var cli of classes) {
+      for (var sli of cli?.subject) {
+        subject_array.push(sli?.subjectMasterName);
+      }
+    }
+
+    const subjects = await SubjectMaster.find({
+      _id: { $in: subject_array },
+    })
+      .limit(limit)
+      .skip(skip)
+      .select("subjectName backlogStudentCount");
+
+    if (subjects?.length > 0) {
+      // const sMasterEncrypt = await encryptionPayload(subjects)
+      res.status(200).send({
+        message: "Lot's of work due to many subjects 😀",
+        access: true,
+        subjects: subjects,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Available Subjects 😡",
+        access: false,
+        subjects: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveBacklogOneSubjectStudent = async (req, res) => {
+  try {
+    var back_list = [];
+    const { smid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!smid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+
+    const subject_master = await SubjectMaster.findById({ _id: smid }).select(
+      "backlog"
+    );
+
+    const all_backlogs = await Backlog.find({
+      _id: { $in: subject_master?.backlog },
+    }).select("backlog_students");
+
+    for (var back of all_backlogs) {
+      if (back?.backlog_students != null) {
+        back_list.push(back?.backlog_students);
+      }
+    }
+
+    const student_array = await Student.find({
+      _id: { $in: back_list },
+    })
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto"
+      )
+      .populate({
+        path: "studentClass",
+        select: "className classTitle",
+      })
+      .populate({
+        path: "batches",
+        select: "batchName",
+      });
+
+    if (student_array?.length > 0) {
+      // const sEncrypt = await encryptionPayload(student_array)
+      res.status(200).send({
+        message: "Lot's of work due to many backlog students 😀",
+        access: true,
+        student_array: student_array,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Available backlog students 😡",
+        access: false,
+        student_array: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveBacklogOneSubjectDropStudent = async (req, res) => {
+  try {
+    var back_drop = [];
+    const { smid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!smid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+
+    const subject_master = await SubjectMaster.findById({ _id: smid }).select(
+      "backlog"
+    );
+
+    const all_backlogs = await Backlog.find({
+      _id: { $in: subject_master?.backlog },
+    }).select("backlog_dropout");
+
+    for (var back of all_backlogs) {
+      if (back?.backlog_dropout?.length > 0) {
+        back_drop.push(...back?.backlog_dropout);
+      }
+    }
+
+    const student_array = await Student.find({
+      _id: { $in: back_drop },
+    })
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto"
+      )
+      .populate({
+        path: "studentClass",
+        select: "className classTitle",
+      })
+      .populate({
+        path: "batches",
+        select: "batchName",
+      });
+
+    if (student_array?.length > 0) {
+      // const sEncrypt = await encryptionPayload(student_array)
+      res.status(200).send({
+        message: "Lot's of work due to many backlog Drop students 😀",
+        access: true,
+        student_array: student_array,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Available backlog drop students 😡",
+        access: false,
+        student_array: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveBacklogOneStudentSubjects = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+
+    const one_student = await Student.findById({
+      _id: sid,
+    }).select("backlog");
+
+    const all_back = await Backlog.find({
+      $and: [{ _id: { $in: one_student?.backlog } }],
+    })
+      .limit(limit)
+      .skip(skip)
+      .select("createdAt backlog_symbol")
+      .populate({
+        path: "backlog_subject",
+        select: "subjectName",
+      })
+      .populate({
+        path: "backlog_class",
+        select: "className classTitle",
+      })
+      .populate({
+        path: "backlog_batch",
+        select: "batchName",
+      });
+
+    if (all_back?.length > 0) {
+      // const finalEncrypt = await encryptionPayload(all_back)
+      res.status(200).send({
+        message: "Get Ready for Preparation once again 😀",
+        access: true,
+        subjects: all_back,
+      });
+    } else {
+      res.status(200).send({
+        message: "Yeah enjoy party 😡",
+        access: false,
+        subjects: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveBacklogOneStudentMarkStatus = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const { smid, status } = req.query;
+    if (!sid && !smid && !status)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+
+    const subject_master = await SubjectMaster.findById({ _id: smid }).select(
+      "backlog"
+    );
+
+    const backlogs = await Backlog.findOne({
+      $and: [
+        { _id: { $in: subject_master?.backlog } },
+        { backlog_students: sid },
+        { backlog_status: "Not Mark" },
+      ],
+    });
+    // const previous_data = await StudentPreviousData.findOne({
+    //   student: sid,
+    // }).select("finalReport");
+
+    // const final_data = await FinalReport.findById({
+    //   _id: previous_data?.finalReport[0],
+    // });
+
+    // for (let match_subject of final_data?.subjects) {
+    //   if (match_subject?.subject === backlogs?.backlog_subject) {
+    //     if (status === "Clear") {
+    //       match_subject.clearBacklog = status;
+    //       backlogs.backlog_clear.push(sid);
+    //       backlogs.backlog_students = null;
+    //     } else if (status === "Dropout") {
+    //       match_subject.dropoutBacklog = status;
+    //       backlogs.backlog_dropout.push(sid);
+    //       backlogs.backlog_students = null;
+    //     }
+    //   }
+    // }
+    if (status === "Clear") {
+      backlogs.backlog_clear.push(sid);
+      backlogs.backlog_students = null;
+      backlogs.backlog_symbol = "Clear";
+    } else if (status === "Dropout") {
+      backlogs.backlog_dropout.push(sid);
+      backlogs.backlog_students = null;
+      backlogs.backlog_symbol = "Dropout";
+    } else {
+    }
+    backlogs.backlog_status = "Mark";
+    await backlogs.save();
+    res
+      .status(200)
+      .send({ message: `Backlog ${status} 😥`, access: true, backlogs });
+  } catch (e) {
+    console.log(e);
   }
 };

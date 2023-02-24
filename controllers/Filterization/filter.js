@@ -6,6 +6,7 @@ const Batch = require("../../models/Batch");
 const User = require("../../models/User");
 const Class = require("../../models/Class");
 const Student = require("../../models/Student");
+// const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 var trendingQuery = (trends, cat, type, page) => {
   if (cat !== "" && page === 1) {
@@ -78,6 +79,7 @@ exports.retrieveByLearnQuery = async (req, res) => {
     } else {
       var order_by_learn = post.sort(sortRepostUpvote("rePostAnswer"));
       var learn_data = trendingQuery(order_by_learn, category, "Repost", page);
+      // const learnEncrypt = await encryptionPayload(learn_data);
       res
         .status(200)
         .send({ message: "filter By Learn", filteredLearn: learn_data });
@@ -126,6 +128,7 @@ exports.retrieveByAnswerQuery = async (req, res) => {
         .send({ message: "filter By Answer", filteredQuestion: [] });
     } else {
       var data = trendingQuery(post, category, "Question", page);
+      // const answerEncrypt = await encryptionPayload(data);
       res
         .status(200)
         .send({ message: "filter By Answer", filteredQuestion: data });
@@ -179,6 +182,7 @@ exports.retrieveByParticipateQuery = async (req, res) => {
     } else {
       var order_by_poll = post.sort(sortPollVote("poll_query"));
       var data = trendingQuery(order_by_poll, category, "Poll", page);
+      // const pollEncrypt = await encryptionPayload(data);
       res
         .status(200)
         .send({ message: "filter By Participate", filteredPoll: data });
@@ -197,6 +201,7 @@ exports.filterByDate = async (req, res) => {
         $lt: new Date(`${year}-${l_month}-01T00:00:00.000Z`),
       },
     }).select("userLegalName username");
+    // const userEncrypt = await encryptionPayload(user);
     res.status(200).send({ message: "user", filter: user });
   } catch (e) {
     console.log(e);
@@ -235,6 +240,7 @@ exports.filterByDateIncomes = async (req, res) => {
       total: cash + bank,
     };
     if (incomes?.length >= 1) {
+      // Add Another Encryption
       res
         .status(200)
         .send({ message: "Filter Incomes", f_incomes: incomes, stats: stats });
@@ -282,6 +288,7 @@ exports.filterByDateExpenses = async (req, res) => {
       total: cash + bank,
     };
     if (expenses?.length >= 1) {
+      // Add Another Encryption
       res.status(200).send({
         message: "Filter Expenses",
         f_expenses: expenses,
@@ -298,7 +305,7 @@ exports.filterByDateExpenses = async (req, res) => {
     console.log(e);
   }
 };
-
+// Add Another Encryption
 exports.retrieveByActiveStudent = async (req, res) => {
   try {
     const { id } = req.params;
@@ -399,7 +406,7 @@ exports.retrieveByActiveStudent = async (req, res) => {
     console.log(e);
   }
 };
-
+// Add Another Encryption
 exports.retrieveByActiveStaff = async (req, res) => {
   try {
     const { id } = req.params;
@@ -579,7 +586,7 @@ const sorted_by_both_gender_and_aplha = async (arr, day, month, year) => {
   }
   return sorted_ga;
 };
-
+// Add Another Encryption
 exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
   try {
     const { cid } = req.params;

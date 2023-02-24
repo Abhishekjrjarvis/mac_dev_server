@@ -997,7 +997,7 @@ exports.set_fee_head_query = async (
               : 0;
           if (
             student_args.active_fee_heads[val]?.paid_fee ==
-            parent_head[`${val}`]?.head_amount
+            student_args.active_fee_heads[val]?.applicable_fee
           ) {
           } else {
             student_args.active_fee_heads[val].paid_fee =

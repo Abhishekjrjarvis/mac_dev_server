@@ -995,11 +995,17 @@ exports.set_fee_head_query = async (
             price_query >= student_args.active_fee_heads[val]?.remain_fee
               ? price_query - student_args.active_fee_heads[val]?.remain_fee
               : 0;
-          student_args.active_fee_heads[val].paid_fee =
+          if (
             student_args.active_fee_heads[val]?.paid_fee ==
             parent_head[`${val}`]?.head_amount
-              ? parent_head[`${val}`].head_amount
-              : price_query + student_args.active_fee_heads[val].paid_fee;
+          ) {
+          } else {
+            student_args.active_fee_heads[val].paid_fee =
+              student_args.active_fee_heads[val]?.paid_fee ==
+              parent_head[`${val}`]?.head_amount
+                ? parent_head[`${val}`].head_amount
+                : price_query + student_args.active_fee_heads[val].paid_fee;
+          }
         }
       }
     } else {

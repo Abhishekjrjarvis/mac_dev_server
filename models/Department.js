@@ -234,6 +234,26 @@ const departmentSchema = new mongoose.Schema({
       ref: "Queries",
     },
   ],
+  events: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Events",
+    },
+  ],
+  events_count: {
+    type: Number,
+    default: 0,
+  },
+  seminars: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Seminar",
+    },
+  ],
+  seminars_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Department = mongoose.model("Department", departmentSchema);

@@ -7424,6 +7424,32 @@ paths:
         "200":
           description: OK
 
+  /api/v1/all-images/{eid}/event/manager/cover:
+    patch:
+      tags:
+        - To get All Images, Videos and Documents
+      summary:
+        - To upload Event Manager cover photo
+      consumes:
+        - application/json
+      produces:
+        - application/json'
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          schema:
+            type: string
+          description: This is Event Manager Module ID
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your image with images extenstion
+      responses:
+        "200":
+          description: OK
+
 
   /api/v1/all/todevice/token:
     post:
@@ -21832,6 +21858,346 @@ paths:
           required: true
           type: string
           description: This is Student ID 
+      responses:
+        "200":
+          description: OK
+
+
+#Events & Seminars
+
+  /api/v1/event/process/ins/{id}/staff/{sid}/manager:
+    post:
+      tags:
+        - Event Manager Query
+      summary: Activate Event Manager / Administrator (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This Institute ID
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This Staff ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/event/process/manager/{eid}:
+    get:
+      tags:
+        - Event Manager Query
+      summary: Get Master Data from Event Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: This Event Manager Module ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/event/process/manager/{eid}/all/events:
+    get:
+      tags:
+        - Event Manager Query
+      summary: Get All Events from Event Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: This Event Manager Module ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit Number
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/event/process/manager/{eid}/all/seminars:
+    get:
+      tags:
+        - Event Manager Query
+      summary: Get All Seminars from Event Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: This Event Manager Module ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit Number
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/event/process/department/{did}/all/events:
+    get:
+      tags:
+        - Event Manager Query
+      summary: Get All Events from Department Side (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This Department Module ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit Number
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/event/process/department/{did}/all/seminars:
+    get:
+      tags:
+        - Event Manager Query
+      summary: Get All Seminars from Department Side (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This Department Module ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit Number
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/event/process/one/event/{evid}:
+    get:
+      tags:
+        - Event Manager Query
+      summary: Get One Event Details Query (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: evid
+          required: true
+          type: string
+          description: This Event ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/event/process/one/seminar/{smid}:
+    get:
+      tags:
+        - Event Manager Query
+      summary: Get One Seminar Details Query (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: smid
+          required: true
+          type: string
+          description: This Seminar ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/event/process/manager/{eid}/new/event:
+    post:
+      tags:
+        - Event Manager Query
+      summary: New Event By Event Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: This Event Manager Module ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              event_name:
+                type: string
+                description: Enter Event Name / Title
+                required: true
+              event_guest:
+                type: string
+                description: Enter Guest Optional
+                required: false
+              event_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: true
+              event_time:
+                type: string
+                description: Enter Time Like ("13:10")
+                required: true
+              event_place:
+                type: string
+                description: Enter Event Place / Location
+                required: false
+              event_description:
+                type: string
+                description: Enter Event Description
+                required: false
+              event_banner:
+                type: string
+                description: Enter Banner KEY
+                required: false
+              depart:
+                type: array
+                description: Enter Array of Department ID's ["823487328748", "987348973878"]
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/event/process/manager/{eid}/new/seminar:
+    post:
+      tags:
+        - Event Manager Query
+      summary: New Seminar By Event Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: This Event Manager Module ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              seminar_name:
+                type: string
+                description: Enter Event Name / Title
+                required: true
+              seminar_guest:
+                type: string
+                description: Enter Guest
+                required: true
+              seminar_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: true
+              seminar_time:
+                type: string
+                description: Enter Time Like ("13:10")
+                required: true
+              seminar_place:
+                type: string
+                description: Enter Seminar Place / Location if seminar mode is OFFLINE
+                required: false
+              seminar_joining_link:
+                type: string
+                description: Enter Seminar Joining LINK if seminar mode is Virtual / ONline
+                required: false
+              seminar_mode:
+                type: string
+                description: Enter Seminar Mode  ("Offline" || "Online" || "Virtual")
+                required: true
+              seminar_description:
+                type: string
+                description: Enter Seminar Description
+                required: false
+              seminar_banner:
+                type: string
+                description: Enter Banner KEY
+                required: false
+              depart:
+                type: array
+                description: Enter Array of Department ID's ["823487328748", "987348973878"]
+                required: true
       responses:
         "200":
           description: OK

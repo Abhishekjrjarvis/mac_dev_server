@@ -250,6 +250,12 @@ const staffSchema = new mongoose.Schema({
       ref: "Mentor",
     },
   ],
+  eventManagerDepartment: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "EventManager",
+    },
+  ],
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

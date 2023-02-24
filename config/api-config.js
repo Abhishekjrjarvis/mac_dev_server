@@ -45,6 +45,7 @@ const manage = require("../routes/ManageAdmin/manageRoute");
 const transport = require("../routes/Transport/transportRoute");
 const permission = require("../routes/Moderator/roleRoute");
 const mentor_mentee = require("../routes/MentorMentee/mentormenteeRoute");
+const event_manager = require("../routes/Event/eventRoutes");
 
 // Api Middleware Func
 
@@ -91,6 +92,7 @@ router.use("/api/v1/manage/admin", manage);
 router.use("/api/v1/transport", transport);
 router.use("/api/v1/role/permission", permission);
 router.use("/api/v1/mentor/mentee", mentor_mentee);
+router.use("/api/v1/event/process", event_manager);
 
 router.use("/api/v1/prod/access", prod);
 

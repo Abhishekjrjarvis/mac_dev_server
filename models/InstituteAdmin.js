@@ -635,17 +635,27 @@ const instituteAdminSchema = new mongoose.Schema({
     type: String,
   },
   application_fee_charges: {
-    type: Number, 
-    default: 0
+    type: Number,
+    default: 0,
   },
   total_application_amount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   return_to_qviple: {
     type: Number,
-    default: 0
-  }
+    default: 0,
+  },
+  eventManagerStatus: {
+    type: String,
+    default: "Disable",
+  },
+  eventManagerDepart: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "EventManager",
+    },
+  ],
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

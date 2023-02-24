@@ -35,6 +35,7 @@ const {
   uploadOneWithDeletedPreviousImage,
   patchVehicleImageCover,
   patchTransportImageCover,
+  patchEventManagerImageCover,
   // patchStaffImagePhoto,
   // patchStaffAddharDoc,
   // patchStudentImagePhoto,
@@ -150,6 +151,10 @@ router
 router
   .route("/:tid/transport/cover")
   .patch(isLoggedIn, upload.single("file"), patchTransportImageCover);
+
+router
+  .route("/:eid/event/manager/cover")
+  .patch(isLoggedIn, upload.single("file"), patchEventManagerImageCover);
 // router
 //   .route("/:id/staff/photo")
 //   .patch(isLoggedIn, upload.single("file"), patchStaffImagePhoto);

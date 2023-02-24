@@ -130,7 +130,9 @@ exports.renderOneEventManagerAllEvents = async (req, res) => {
         access: false,
       });
 
-    const manager = await EventManager.findById({ _id: eid }).select("events");
+    const manager = await EventManager.findById({ _id: eid }).select(
+      "events event_count"
+    );
 
     if (search) {
       var all_events = await Events.find({
@@ -155,12 +157,14 @@ exports.renderOneEventManagerAllEvents = async (req, res) => {
         message: "Explore All Events",
         access: true,
         all_events: all_events,
+        count: manager?.event_count,
       });
     } else {
       res.status(200).send({
         message: "No Upcoming Event",
         access: false,
         all_events: [],
+        count: 0,
       });
     }
   } catch (e) {
@@ -182,7 +186,7 @@ exports.renderOneEventManagerAllSeminars = async (req, res) => {
       });
 
     const manager = await EventManager.findById({ _id: eid }).select(
-      "seminars"
+      "seminars seminar_count"
     );
     if (search) {
       var all_seminars = await Seminar.find({
@@ -208,12 +212,14 @@ exports.renderOneEventManagerAllSeminars = async (req, res) => {
         message: "Explore All Seminars",
         access: true,
         all_seminars: all_seminars,
+        count: manager?.seminar_count,
       });
     } else {
       res.status(200).send({
         message: "No Upcoming Seminar",
         access: false,
         all_seminars: [],
+        count: 0,
       });
     }
   } catch (e) {
@@ -348,7 +354,9 @@ exports.renderOneDepartmentAllEvents = async (req, res) => {
         access: false,
       });
 
-    const depart = await Department.findById({ _id: did }).select("events");
+    const depart = await Department.findById({ _id: did }).select(
+      "events events_count"
+    );
     if (search) {
       var all_events = await Events.find({
         $and: [{ _id: { $in: depart?.events } }],
@@ -372,12 +380,14 @@ exports.renderOneDepartmentAllEvents = async (req, res) => {
         message: "Explore All Events",
         access: true,
         all_events: all_events,
+        count: depart?.events_count,
       });
     } else {
       res.status(200).send({
         message: "No Upcoming Event",
         access: false,
         all_events: [],
+        count: 0,
       });
     }
   } catch (e) {
@@ -398,7 +408,9 @@ exports.renderOneDepartmentAllSeminars = async (req, res) => {
         access: false,
       });
 
-    const depart = await Department.findById({ _id: did }).select("seminars");
+    const depart = await Department.findById({ _id: did }).select(
+      "seminars seminars_count"
+    );
 
     if (search) {
       var all_seminars = await Seminar.find({
@@ -423,12 +435,14 @@ exports.renderOneDepartmentAllSeminars = async (req, res) => {
         message: "Explore All Seminars",
         access: true,
         all_seminars: all_seminars,
+        count: depart?.seminars_count,
       });
     } else {
       res.status(200).send({
         message: "No Upcoming Seminar",
         access: false,
         all_seminars: [],
+        count: 0,
       });
     }
   } catch (e) {

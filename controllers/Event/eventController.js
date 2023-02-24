@@ -95,7 +95,7 @@ exports.renderOneEventManagerQuery = async (req, res) => {
 
     const manager = await EventManager.findById({ _id: eid })
       .select(
-        "event_count created_at seminar_count election_count participate_count remaining_fee"
+        "event_count created_at seminar_count election_count participate_count remaining_fee event_photo"
       )
       .populate({
         path: "event_head",

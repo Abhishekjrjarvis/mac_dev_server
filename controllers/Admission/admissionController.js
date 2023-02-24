@@ -1418,6 +1418,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       s_admin.save(),
       new_remainFee.save(),
       new_receipt.save(),
+      status.save()
     ]);
     res.status(200).send({
       message: "Look like a party mood",
@@ -1539,7 +1540,7 @@ exports.cancelAdmissionApplication = async (req, res) => {
       if (admission.remainingFeeCount >= parseInt(remainAmount)) {
         admission.remainingFeeCount -= parseInt(remainAmount);
       }
-      aStatus.content = `Your application for ${apply?.applicationDepartment?.dName} has been rejected. Best Of Luck for next time`;
+      aStatus.content = `our admission has been cancelled successfully with refund of Rs. ${price}`;
       aStatus.applicationId = apply._id;
       user.applicationStatus.push(aStatus._id);
       aStatus.instituteId = institute._id;
@@ -3614,6 +3615,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
         s_admin.save(),
         new_remainFee.save(),
         one_receipt.save(),
+        status.save()
       ]);
       invokeMemberTabNotification(
         "Admission Status",

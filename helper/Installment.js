@@ -162,10 +162,12 @@ const second_payable = async (
           remainAmount: flex_two,
           appId: app_args._id,
           status: "Not Paid",
-          instituteId: ins_args,
+          instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
         });
+        console.log("Bug");
       } else {
+        console.log("TRigger");
         arg4.remainingFee.pull(arg5._id);
         arg1.status = "Paid";
       }
@@ -221,7 +223,7 @@ const third_payable = async (
           remainAmount: flex_three,
           appId: app_args._id,
           status: "Not Paid",
-          instituteId: ins_args,
+          instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
         });
       } else {
@@ -280,7 +282,7 @@ const four_payable = async (
           remainAmount: flex_four,
           appId: app_args._id,
           status: "Not Paid",
-          instituteId: ins_args,
+          instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
         });
       } else {
@@ -341,7 +343,7 @@ const five_payable = async (
           remainAmount: flex_five,
           appId: app_args._id,
           status: "Not Paid",
-          instituteId: ins_args,
+          instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
         });
       } else {
@@ -400,7 +402,7 @@ const six_payable = async (
           remainAmount: flex_six,
           appId: app_args._id,
           status: "Not Paid",
-          instituteId: ins_args,
+          instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
         });
       } else {
@@ -461,7 +463,7 @@ const seven_payable = async (
           remainAmount: flex_seven,
           appId: app_args._id,
           status: "Not Paid",
-          instituteId: ins_args,
+          instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
         });
       } else {
@@ -520,7 +522,7 @@ const eight_payable = async (
           remainAmount: flex_eight,
           appId: app_args._id,
           status: "Not Paid",
-          instituteId: ins_args,
+          instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
         });
       } else {
@@ -579,7 +581,7 @@ const nine_payable = async (
           remainAmount: flex_nine,
           appId: app_args._id,
           status: "Not Paid",
-          instituteId: ins_args,
+          instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
         });
       } else {
@@ -638,7 +640,7 @@ const ten_payable = async (
           remainAmount: flex_ten,
           appId: app_args._id,
           status: "Not Paid",
-          instituteId: ins_args,
+          instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
         });
       } else {
@@ -697,7 +699,7 @@ const eleven_payable = async (
           remainAmount: flex_eleven,
           appId: app_args._id,
           status: "Not Paid",
-          instituteId: ins_args,
+          instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
         });
       } else {
@@ -749,7 +751,7 @@ const tweleve_payable = async (
           remainAmount: flex_tweleve,
           appId: app_args._id,
           status: "Not Paid",
-          instituteId: ins_args,
+          instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
         });
       } else {
@@ -793,7 +795,7 @@ const installment_remain = async (
           remainAmount: ref.remainAmount - amount,
           appId: app_args._id,
           status: "Not Paid",
-          instituteId: ins_args,
+          instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
         });
         ref.status = "Paid";

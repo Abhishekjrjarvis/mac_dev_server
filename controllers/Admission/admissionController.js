@@ -2225,6 +2225,16 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       message: "Balance Pool increasing with price Operation complete",
       paid: true,
     });
+    var is_refund =
+      remaining_fee_lists?.paid_fee - remaining_fee_lists?.applicable_fee;
+    if (is_refund > 0) {
+      admin_ins.refundFeeList.push({
+        student: student?._id,
+        refund: is_refund,
+      });
+      admin_ins.refundCount += is_refund;
+    }
+    await admin_ins.save()
     notify.notifyContent = `${student.studentFirstName} ${
       student.studentMiddleName ? `${student.studentMiddleName} ` : ""
     } ${student.studentLastName} your transaction is successfull for ${

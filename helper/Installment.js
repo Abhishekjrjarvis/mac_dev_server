@@ -178,7 +178,9 @@ const second_payable = async (
       }
     }
     await Promise.all([arg5.save(), arg4.save(), arg1.save()]);
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const third_payable = async (
@@ -237,7 +239,9 @@ const third_payable = async (
     ) {
     }
     await Promise.all([arg5.save(), arg1.save(), arg4.save()]);
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const four_payable = async (
@@ -357,7 +361,9 @@ const five_payable = async (
     ) {
     }
     await Promise.all([arg1.save(), arg5.save(), arg4.save()]);
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const six_payable = async (
@@ -477,7 +483,9 @@ const seven_payable = async (
     ) {
     }
     await Promise.all([arg1.save(), arg5.save(), arg4.save()]);
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const eight_payable = async (
@@ -536,7 +544,9 @@ const eight_payable = async (
     ) {
     }
     await Promise.all([arg1.save(), arg5.save(), arg4.save()]);
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const nine_payable = async (
@@ -595,7 +605,9 @@ const nine_payable = async (
     ) {
     }
     await Promise.all([arg1.save(), arg5.save(), arg4.save()]);
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const ten_payable = async (
@@ -654,7 +666,9 @@ const ten_payable = async (
     ) {
     }
     await Promise.all([arg1.save(), arg5.save(), arg4.save()]);
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const eleven_payable = async (
@@ -713,7 +727,9 @@ const eleven_payable = async (
     ) {
     }
     await Promise.all([arg1.save(), arg5.save(), arg4.save()]);
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const tweleve_payable = async (
@@ -765,7 +781,9 @@ const tweleve_payable = async (
     ) {
     }
     await Promise.all([arg1.save(), arg5.save(), arg4.save()]);
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 const installment_remain = async (
@@ -812,7 +830,9 @@ const installment_remain = async (
       }
     }
     await Promise.all([arg1.save(), arg4.save()]);
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.render_installment = async (

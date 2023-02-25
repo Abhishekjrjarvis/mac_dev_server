@@ -2082,7 +2082,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
           apply,
           institute,
           student,
-          price,
+          price + extra_price,
           new_receipt
         );
       } else {

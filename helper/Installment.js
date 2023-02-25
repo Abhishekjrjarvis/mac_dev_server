@@ -984,7 +984,6 @@ exports.set_fee_head_query = async (
         count: student_args.fee_structure?.fees_heads?.length,
       };
     }
-
     for (var i = 0; i < parent_head?.count; i++) {
       student_args.active_fee_heads.push({
         appId: apply_args?._id,
@@ -1002,7 +1001,7 @@ exports.set_fee_head_query = async (
       price_query =
         price_query >= parent_head[`${i}`].head_amount
           ? price_query - parent_head[`${i}`].head_amount
-          : parent_head[`${i}`].head_amount - price_query;
+          : 0;
     }
     await student_args.save();
     price_query = 0;
@@ -1019,44 +1018,42 @@ exports.update_fee_head_query = async (student_args, price, apply_args) => {
       ...student_args.fee_structure?.fees_heads,
       count: student_args.fee_structure?.fees_heads?.length,
     };
-    if (student_args?.active_fee_heads?.length > 0) {
-      for (var val = 0; val <= student_args?.active_fee_heads?.length; val++) {
-        if (
-          `${student_args.active_fee_heads[val]?.appId}` ===
-          `${apply_args?._id}`
-        ) {
-          if (
-            student_args.active_fee_heads[val]?.paid_fee ==
-            student_args.active_fee_heads[val]?.applicable_fee
-          ) {
-          } else {
-            student_args.active_fee_heads[val].remain_fee =
-              student_args.active_fee_heads[val].remain_fee > 0
-                ? price_query >= student_args.active_fee_heads[val].remain_fee
-                  ? 0
-                  : student_args.active_fee_heads[val].remain_fee - price_query
-                : 0;
+    const filter_student_heads = student_args?.active_fee_heads?.filter(
+      (stu) => {
+        if (`${stu.appId}` === `${apply_args._id}` && stu.remain_fee > 0)
+          return stu;
+      }
+    );
+    for (var val = 0; val <= filter_student_heads?.length; val++) {
+      if (
+        filter_student_heads[val]?.paid_fee ==
+        filter_student_heads[val]?.applicable_fee
+      ) {
+      } else {
+        filter_student_heads[val].remain_fee =
+          filter_student_heads[val].remain_fee > 0
+            ? price_query >= filter_student_heads[val].remain_fee
+              ? 0
+              : filter_student_heads[val].remain_fee - price_query
+            : 0;
 
-            price_query =
-              price_query >= student_args.active_fee_heads[val]?.remain_fee
-                ? price_query - student_args.active_fee_heads[val]?.remain_fee
-                : 0;
-            if (
-              student_args.active_fee_heads[val]?.paid_fee ==
-                student_args.active_fee_heads[val]?.applicable_fee &&
-              price_query <= 0
-            ) {
-            } else {
-              student_args.active_fee_heads[val].paid_fee =
-                student_args.active_fee_heads[val]?.paid_fee ==
-                parent_head[`${val}`]?.head_amount
-                  ? parent_head[`${val}`].head_amount
-                  : price_query >=
-                    student_args.active_fee_heads[val]?.applicable_fee
-                  ? student_args.active_fee_heads[val].paid_fee
-                  : student_args.active_fee_heads[val].paid_fee + price_query;
-            }
-          }
+        price_query =
+          price_query >= filter_student_heads[val]?.remain_fee
+            ? price_query - filter_student_heads[val]?.remain_fee
+            : 0;
+        if (
+          filter_student_heads[val]?.paid_fee ==
+            filter_student_heads[val]?.applicable_fee &&
+          price_query <= 0
+        ) {
+        } else {
+          filter_student_heads[val].paid_fee =
+            filter_student_heads[val]?.paid_fee ==
+            parent_head[`${val}`]?.head_amount
+              ? parent_head[`${val}`].head_amount
+              : price_query >= filter_student_heads[val]?.applicable_fee
+              ? filter_student_heads[val].paid_fee
+              : filter_student_heads[val].paid_fee + price_query;
         }
       }
     }

@@ -57,6 +57,7 @@ const {
   remain_one_time_query,
   remain_one_time_query_government,
   remain_government_installment,
+  update_fee_head_query,
 } = require("../../helper/Installment");
 const { whats_app_sms_payload } = require("../../WhatsAppSMS/payload");
 const {
@@ -1418,7 +1419,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       s_admin.save(),
       new_remainFee.save(),
       new_receipt.save(),
-      status.save()
+      status.save(),
     ]);
     res.status(200).send({
       message: "Look like a party mood",
@@ -2180,7 +2181,8 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       finance.financeSubmitBalance += price + extra_price;
     } else {
     }
-    await set_fee_head_query(student, price, apply);
+    // await set_fee_head_query(student, price, apply);
+    await update_fee_head_query(student, price, apply);
     for (var stu of student.paidFeeList) {
       if (`${stu.appId}` === `${apply._id}`) {
         stu.paidAmount += price;
@@ -3342,16 +3344,21 @@ exports.renderOneReceiptStatus = async (req, res) => {
     var s_admin = await Admin.findById({
       _id: `${process.env.S_ADMIN_ID}`,
     }).select("invoice_count");
-    var institute = await InstituteAdmin.findById({ _id: `${ads_admin?.institute}`})
-    var finance = await Finance.findById({ _id: `${institute?.financeDepart[0]}`})
+    var institute = await InstituteAdmin.findById({
+      _id: `${ads_admin?.institute}`,
+    });
+    var finance = await Finance.findById({
+      _id: `${institute?.financeDepart[0]}`,
+    });
     var one_receipt = await FeeReceipt.findById({ _id: rid }).populate({
       path: "student",
       select: "user",
     });
-    var student = await Student.findById({_id: `${one_receipt?.student?._id}`})
-    .populate({
-      path: "fee_structure"
-    })
+    var student = await Student.findById({
+      _id: `${one_receipt?.student?._id}`,
+    }).populate({
+      path: "fee_structure",
+    });
     var user = await User.findById({ _id: `${student?.user}` });
     var one_app = await NewApplication.findById({
       _id: `${one_receipt?.application}`,
@@ -3457,8 +3464,9 @@ exports.renderOneReceiptStatus = async (req, res) => {
 
     if (status === "Approved" || status === "Over_Rejection") {
       var is_install;
-      var price = one_receipt?.fee_payment_amount
-      var mode = one_receipt?.fee_payment_mode === "By Cash" ? "Offline" : "Online"
+      var price = one_receipt?.fee_payment_amount;
+      var mode =
+        one_receipt?.fee_payment_mode === "By Cash" ? "Offline" : "Online";
       var total_amount = add_total_installment(student);
       if (
         price <= student?.fee_structure?.total_admission_fees &&
@@ -3572,7 +3580,8 @@ exports.renderOneReceiptStatus = async (req, res) => {
             app.fee_remain = total_amount - price;
           } else {
             app.install_type = "One Time Fees Paid";
-            app.fee_remain = student?.fee_structure?.total_admission_fees - price;
+            app.fee_remain =
+              student?.fee_structure?.total_admission_fees - price;
           }
         } else {
         }
@@ -3615,7 +3624,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
         s_admin.save(),
         new_remainFee.save(),
         one_receipt.save(),
-        status.save()
+        status.save(),
       ]);
       invokeMemberTabNotification(
         "Admission Status",
@@ -3625,7 +3634,6 @@ exports.renderOneReceiptStatus = async (req, res) => {
         user.deviceToken
       );
     } else {
-
     }
   } catch (e) {
     console.log(e);

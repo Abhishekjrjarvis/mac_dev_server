@@ -839,9 +839,9 @@ exports.remain_one_time_query_government = async (
       }
     );
     for (var stu of filter_student_install) {
-      if (receipt_args.fee_payment_mode === "Government/Scholarship") {
-        stu.remainAmount = price;
-      }
+      // if (receipt_args.fee_payment_mode === "Government/Scholarship") {
+      stu.remainAmount = price;
+      // }
       stu.status = "Paid";
       stu.installmentValue = stu.installmentValue;
       remain_args.status = "Paid";

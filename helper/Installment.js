@@ -802,6 +802,9 @@ exports.remain_one_time_query = async (
           installmentValue: "One Time Fees Remain",
           isEnable: true,
         });
+        stu.remainAmount = price;
+        stu.status = "Paid";
+        stu.installmentValue = "One Time Fees";
       } else {
         stu.status = "Paid";
         stu.installmentValue = "One Time Fees";

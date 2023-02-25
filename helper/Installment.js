@@ -806,6 +806,9 @@ exports.remain_one_time_query = async (
         stu.status = "Paid";
         stu.installmentValue = "One Time Fees";
       } else {
+        if (receipt_args?.fee_payment_mode === "Government/Scholarship") {
+          stu.remainAmount = price;
+        }
         stu.status = "Paid";
         stu.installmentValue = "One Time Fees";
         remain_args.status = "Paid";
@@ -982,6 +985,41 @@ exports.set_fee_head_query = async (
         count: student_args.fee_structure?.fees_heads?.length,
       };
     }
+
+    for (var i = 0; i < parent_head?.count; i++) {
+      student_args.active_fee_heads.push({
+        appId: apply_args?._id,
+        head_name: parent_head[`${i}`]?.head_name,
+        applicable_fee: parent_head[`${i}`]?.head_amount,
+        remain_fee:
+          price_query >= parent_head[`${i}`]?.head_amount
+            ? 0
+            : parent_head[`${i}`].head_amount - price_query,
+        paid_fee:
+          price_query >= parent_head[`${i}`]?.head_amount
+            ? parent_head[`${i}`].head_amount
+            : price_query,
+      });
+      price_query =
+        price_query >= parent_head[`${i}`].head_amount
+          ? price_query - parent_head[`${i}`].head_amount
+          : parent_head[`${i}`].head_amount - price_query;
+    }
+    await student_args.save();
+    price_query = 0;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.update_fee_head_query = async (student_args, price, apply_args) => {
+  try {
+    var price_query = price;
+
+    var parent_head = {
+      ...student_args.fee_structure?.fees_heads,
+      count: student_args.fee_structure?.fees_heads?.length,
+    };
     if (student_args?.active_fee_heads?.length > 0) {
       for (var val = 0; val <= student_args?.active_fee_heads?.length; val++) {
         if (
@@ -1014,29 +1052,7 @@ exports.set_fee_head_query = async (
           }
         }
       }
-    } else {
-      for (var i = 0; i < parent_head?.count; i++) {
-        student_args.active_fee_heads.push({
-          appId: apply_args?._id,
-          head_name: parent_head[`${i}`]?.head_name,
-          applicable_fee: parent_head[`${i}`]?.head_amount,
-          remain_fee:
-            price_query >= parent_head[`${i}`]?.head_amount
-              ? 0
-              : parent_head[`${i}`].head_amount - price_query,
-          paid_fee:
-            price_query >= parent_head[`${i}`]?.head_amount
-              ? parent_head[`${i}`].head_amount
-              : price_query,
-        });
-        price_query =
-          price_query >= parent_head[`${i}`].head_amount
-            ? price_query - parent_head[`${i}`].head_amount
-            : parent_head[`${i}`].head_amount - price_query;
-      }
     }
-    await student_args.save();
-    price_query = 0;
   } catch (e) {
     console.log(e);
   }

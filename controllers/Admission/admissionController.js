@@ -2203,15 +2203,6 @@ exports.paidRemainingFeeStudent = async (req, res) => {
         new_receipt
       );
     }
-    var is_refund =
-      remaining_fee_lists?.paid_fee - remaining_fee_lists?.applicable_fee;
-    if (is_refund > 0) {
-      admin_ins.refundFeeList.push({
-        student: student?._id,
-        refund: is_refund,
-      });
-      admin_ins.refundCount += is_refund;
-    }
     await Promise.all([
       admin_ins.save(),
       student.save(),
@@ -2231,16 +2222,20 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     var is_refund =
       remaining_fee_lists?.paid_fee - remaining_fee_lists?.applicable_fee;
     if (is_refund > 0) {
-      for (var data of admin_ins?.refundFeeList) {
-        if (`${data?.student}` === `${student?._id}`) {
+      const filter_student_refund = admin_ins?.refundFeeList?.filter((stu) => {
+        if (`${stu.student}` === `${student?._id}`) return stu;
+      });
+      if (filter_student_refund?.length > 0) {
+        for (var data of filter_student_refund) {
           data.refund += is_refund;
-        } else {
-          admin_ins.refundFeeList.push({
-            student: student?._id,
-            refund: is_refund,
-          });
           admin_ins.refundCount += is_refund;
         }
+      } else {
+        admin_ins.refundFeeList.push({
+          student: student?._id,
+          refund: is_refund,
+        });
+        admin_ins.refundCount += is_refund;
       }
     }
     await admin_ins.save();
@@ -4140,14 +4135,12 @@ exports.renderRefundArrayQuery = async (req, res) => {
         refundCount: ads_admin?.refundCount,
       });
     } else {
-      res
-        .status(200)
-        .send({
-          message: "No Returns",
-          access: false,
-          all_refund_list: [],
-          refundCount: 0,
-        });
+      res.status(200).send({
+        message: "No Returns",
+        access: false,
+        all_refund_list: [],
+        refundCount: 0,
+      });
     }
   } catch (e) {
     console.log(e);

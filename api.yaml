@@ -21870,6 +21870,35 @@ paths:
         "200":
           description: OK
 
+  /api/v1/admission/{aid}/refund/array:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: All Refund List - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Admission Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit Number
+      responses:
+        "200":
+          description: OK
+
   /api/v1/admission/{sid}/fees:
     get:
       tags:

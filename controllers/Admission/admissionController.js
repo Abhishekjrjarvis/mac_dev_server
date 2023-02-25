@@ -2146,7 +2146,9 @@ exports.paidRemainingFeeStudent = async (req, res) => {
           admin_ins,
           student?.fee_structure,
           remaining_fee_lists,
-          new_receipt
+          new_receipt,
+          apply,
+          institute
         );
         remaining_fee_lists.paid_fee += price;
         if (remaining_fee_lists.remaining_fee >= price) {

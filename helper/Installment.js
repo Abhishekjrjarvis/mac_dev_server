@@ -127,7 +127,9 @@ const second_payable = async (
   amount,
   arg4,
   arg5,
-  receipt_args
+  receipt_args,
+  app_args,
+  ins_args
 ) => {
   try {
     var flex_two = 0;
@@ -155,8 +157,18 @@ const second_payable = async (
       });
     }
     if (arg2.total_installments == "2") {
-      arg4.remainingFee.pull(arg5._id);
-      arg1.status = "Paid";
+      if (arg1.remaining_fee > 0) {
+        arg1.remaining_array.push({
+          remainAmount: flex_two,
+          appId: app_args._id,
+          status: "Not Paid",
+          instituteId: ins_args,
+          installmentValue: "Installment Remain",
+        });
+      } else {
+        arg4.remainingFee.pull(arg5._id);
+        arg1.status = "Paid";
+      }
       if (
         arg2.two_installments.fees != amount &&
         arg5.admissionRemainFeeCount >= amount
@@ -174,7 +186,9 @@ const third_payable = async (
   amount,
   arg4,
   arg5,
-  receipt_args
+  receipt_args,
+  app_args,
+  ins_args
 ) => {
   try {
     var flex_three = 0;
@@ -202,8 +216,18 @@ const third_payable = async (
       });
     }
     if (arg2.total_installments == "3") {
-      arg4.remainingFee.pull(arg5._id);
-      arg1.status = "Paid";
+      if (arg1.remaining_fee > 0) {
+        arg1.remaining_array.push({
+          remainAmount: flex_three,
+          appId: app_args._id,
+          status: "Not Paid",
+          instituteId: ins_args,
+          installmentValue: "Installment Remain",
+        });
+      } else {
+        arg4.remainingFee.pull(arg5._id);
+        arg1.status = "Paid";
+      }
     }
     if (
       arg2.three_installments.fees != amount &&
@@ -221,7 +245,9 @@ const four_payable = async (
   amount,
   arg4,
   arg5,
-  receipt_args
+  receipt_args,
+  app_args,
+  ins_args
 ) => {
   try {
     var flex_four = 0;
@@ -249,8 +275,18 @@ const four_payable = async (
       });
     }
     if (arg2.total_installments == "4") {
-      arg4.remainingFee.pull(arg5._id);
-      arg1.status = "Paid";
+      if (arg1.remaining_fee > 0) {
+        arg1.remaining_array.push({
+          remainAmount: flex_four,
+          appId: app_args._id,
+          status: "Not Paid",
+          instituteId: ins_args,
+          installmentValue: "Installment Remain",
+        });
+      } else {
+        arg4.remainingFee.pull(arg5._id);
+        arg1.status = "Paid";
+      }
     }
     if (
       arg2.four_installments.fees != amount &&
@@ -270,7 +306,9 @@ const five_payable = async (
   amount,
   arg4,
   arg5,
-  receipt_args
+  receipt_args,
+  app_args,
+  ins_args
 ) => {
   try {
     var flex_five = 0;
@@ -298,8 +336,18 @@ const five_payable = async (
       });
     }
     if (arg2.total_installments == "5") {
-      arg4.remainingFee.pull(arg5._id);
-      arg1.status = "Paid";
+      if (arg1.remaining_fee > 0) {
+        arg1.remaining_array.push({
+          remainAmount: flex_five,
+          appId: app_args._id,
+          status: "Not Paid",
+          instituteId: ins_args,
+          installmentValue: "Installment Remain",
+        });
+      } else {
+        arg4.remainingFee.pull(arg5._id);
+        arg1.status = "Paid";
+      }
     }
     if (
       arg2.five_installments.fees != amount &&
@@ -317,7 +365,9 @@ const six_payable = async (
   amount,
   arg4,
   arg5,
-  receipt_args
+  receipt_args,
+  app_args,
+  ins_args
 ) => {
   try {
     var flex_six = 0;
@@ -345,8 +395,18 @@ const six_payable = async (
       });
     }
     if (arg2.total_installments == "6") {
-      arg4.remainingFee.pull(arg5._id);
-      arg1.status = "Paid";
+      if (arg1.remaining_fee > 0) {
+        arg1.remaining_array.push({
+          remainAmount: flex_six,
+          appId: app_args._id,
+          status: "Not Paid",
+          instituteId: ins_args,
+          installmentValue: "Installment Remain",
+        });
+      } else {
+        arg4.remainingFee.pull(arg5._id);
+        arg1.status = "Paid";
+      }
     }
     if (
       arg2.six_installments.fees != amount &&
@@ -366,7 +426,9 @@ const seven_payable = async (
   amount,
   arg4,
   arg5,
-  receipt_args
+  receipt_args,
+  app_args,
+  ins_args
 ) => {
   try {
     var flex_seven = 0;
@@ -394,8 +456,18 @@ const seven_payable = async (
       });
     }
     if (arg2.total_installments == "7") {
-      arg4.remainingFee.pull(arg5._id);
-      arg1.status = "Paid";
+      if (arg1.remaining_fee > 0) {
+        arg1.remaining_array.push({
+          remainAmount: flex_seven,
+          appId: app_args._id,
+          status: "Not Paid",
+          instituteId: ins_args,
+          installmentValue: "Installment Remain",
+        });
+      } else {
+        arg4.remainingFee.pull(arg5._id);
+        arg1.status = "Paid";
+      }
     }
     if (
       arg2.seven_installments.fees != amount &&
@@ -413,7 +485,9 @@ const eight_payable = async (
   amount,
   arg4,
   arg5,
-  receipt_args
+  receipt_args,
+  app_args,
+  ins_args
 ) => {
   try {
     var flex_eight = 0;
@@ -441,8 +515,18 @@ const eight_payable = async (
       });
     }
     if (arg2.total_installments == "8") {
-      arg4.remainingFee.pull(arg5._id);
-      arg1.status = "Paid";
+      if (arg1.remaining_fee > 0) {
+        arg1.remaining_array.push({
+          remainAmount: flex_eight,
+          appId: app_args._id,
+          status: "Not Paid",
+          instituteId: ins_args,
+          installmentValue: "Installment Remain",
+        });
+      } else {
+        arg4.remainingFee.pull(arg5._id);
+        arg1.status = "Paid";
+      }
     }
     if (
       arg2.eight_installments.fees != amount &&
@@ -460,7 +544,9 @@ const nine_payable = async (
   amount,
   arg4,
   arg5,
-  receipt_args
+  receipt_args,
+  app_args,
+  ins_args
 ) => {
   try {
     var flex_nine = 0;
@@ -488,8 +574,18 @@ const nine_payable = async (
       });
     }
     if (arg2.total_installments == "9") {
-      arg4.remainingFee.pull(arg5._id);
-      arg1.status = "Paid";
+      if (arg1.remaining_fee > 0) {
+        arg1.remaining_array.push({
+          remainAmount: flex_nine,
+          appId: app_args._id,
+          status: "Not Paid",
+          instituteId: ins_args,
+          installmentValue: "Installment Remain",
+        });
+      } else {
+        arg4.remainingFee.pull(arg5._id);
+        arg1.status = "Paid";
+      }
     }
     if (
       arg2.nine_installments.fees != amount &&
@@ -507,7 +603,9 @@ const ten_payable = async (
   amount,
   arg4,
   arg5,
-  receipt_args
+  receipt_args,
+  app_args,
+  ins_args
 ) => {
   try {
     var flex_ten = 0;
@@ -535,8 +633,18 @@ const ten_payable = async (
       });
     }
     if (arg2.total_installments == "10") {
-      arg4.remainingFee.pull(arg5._id);
-      arg1.status = "Paid";
+      if (arg1.remaining_fee > 0) {
+        arg1.remaining_array.push({
+          remainAmount: flex_ten,
+          appId: app_args._id,
+          status: "Not Paid",
+          instituteId: ins_args,
+          installmentValue: "Installment Remain",
+        });
+      } else {
+        arg4.remainingFee.pull(arg5._id);
+        arg1.status = "Paid";
+      }
     }
     if (
       arg2.ten_installments.fees != amount &&
@@ -554,7 +662,9 @@ const eleven_payable = async (
   amount,
   arg4,
   arg5,
-  receipt_args
+  receipt_args,
+  app_args,
+  ins_args
 ) => {
   try {
     var flex_eleven = 0;
@@ -582,12 +692,18 @@ const eleven_payable = async (
       });
     }
     if (arg2.total_installments == "11") {
-      // kwargs.financeExemptBalance +=
-      //   arg2.eleven_installments.fees == amount
-      //     ? 0
-      //     : arg2.eleven_installments.fees - amount;
-      arg4.remainingFee.pull(arg5._id);
-      arg1.status = "Paid";
+      if (arg1.remaining_fee > 0) {
+        arg1.remaining_array.push({
+          remainAmount: flex_eleven,
+          appId: app_args._id,
+          status: "Not Paid",
+          instituteId: ins_args,
+          installmentValue: "Installment Remain",
+        });
+      } else {
+        arg4.remainingFee.pull(arg5._id);
+        arg1.status = "Paid";
+      }
     }
     if (
       arg2.eleven_installments.fees != amount &&
@@ -605,9 +721,12 @@ const tweleve_payable = async (
   amount,
   arg4,
   arg5,
-  receipt_args
+  receipt_args,
+  app_args,
+  ins_args
 ) => {
   try {
+    var flex_tweleve = 0;
     if (arg1?.remaining_array?.length > 0) {
       arg1?.remaining_array.forEach(async (ele) => {
         if (
@@ -621,11 +740,22 @@ const tweleve_payable = async (
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
         }
+        flex_tweleve = ele.remainAmount - amount;
       });
     }
     if (arg2.total_installments == "12") {
-      arg4.remainingFee.pull(arg5._id);
-      arg1.status = "Paid";
+      if (arg1.remaining_fee > 0) {
+        arg1.remaining_array.push({
+          remainAmount: flex_tweleve,
+          appId: app_args._id,
+          status: "Not Paid",
+          instituteId: ins_args,
+          installmentValue: "Installment Remain",
+        });
+      } else {
+        arg4.remainingFee.pull(arg5._id);
+        arg1.status = "Paid";
+      }
     }
     if (
       arg2.tweleve_installments.fees != amount &&
@@ -633,6 +763,53 @@ const tweleve_payable = async (
     ) {
     }
     await Promise.all([arg1.save(), arg5.save(), arg4.save()]);
+  } catch {}
+};
+
+const installment_remain = async (
+  arg1,
+  arg2,
+  mode,
+  amount,
+  arg4,
+  arg5,
+  receipt_args,
+  app_args,
+  ins_args
+) => {
+  try {
+    const filter_student_install = arg1?.remaining_array?.filter((stu) => {
+      if (
+        `${stu.appId}` === `${app_args._id}` &&
+        stu.status === "Not Paid" &&
+        stu.status === "Installment Remain"
+      )
+        return stu;
+    });
+
+    for (var ref of filter_student_install) {
+      if (amount < ref?.remainAmount) {
+        arg1.remaining_array.push({
+          remainAmount: ref.remainAmount - amount,
+          appId: app_args._id,
+          status: "Not Paid",
+          instituteId: ins_args,
+          installmentValue: "Installment Remain",
+        });
+        ref.status = "Paid";
+        ref.installmentValue = "All Installment Paid";
+        ref.mode = mode;
+        ref.fee_receipt = receipt_args?._id;
+      } else {
+        ref.status = "Paid";
+        ref.installmentValue = "All Installment Paid";
+        ref.mode = mode;
+        arg4.remainingFee.pull(arg5._id);
+        arg1.status = "Paid";
+        ref.fee_receipt = receipt_args?._id;
+      }
+    }
+    await Promise.all([arg1.save(), arg4.save()]);
   } catch {}
 };
 
@@ -644,7 +821,9 @@ exports.render_installment = async (
   admin_ins,
   structure,
   remainList,
-  receipt
+  receipt,
+  apply,
+  institute
 ) => {
   try {
     if (type === "Second Installment") {
@@ -655,7 +834,9 @@ exports.render_installment = async (
         price,
         admin_ins,
         student,
-        receipt
+        receipt,
+        apply,
+        institute
       );
     } else if (type === "Third Installment") {
       await third_payable(
@@ -665,7 +846,9 @@ exports.render_installment = async (
         price,
         admin_ins,
         student,
-        receipt
+        receipt,
+        apply,
+        institute
       );
     } else if (type === "Four Installment") {
       await four_payable(
@@ -675,7 +858,9 @@ exports.render_installment = async (
         price,
         admin_ins,
         student,
-        receipt
+        receipt,
+        apply,
+        institute
       );
     } else if (type === "Five Installment") {
       await five_payable(
@@ -685,10 +870,21 @@ exports.render_installment = async (
         price,
         admin_ins,
         student,
-        receipt
+        receipt,
+        apply,
+        institute
       );
     } else if (type === "Six Installment") {
-      await six_payable(remainList, structure, mode, price, admin_ins, student);
+      await six_payable(
+        remainList,
+        structure,
+        mode,
+        price,
+        admin_ins,
+        student,
+        apply,
+        institute
+      );
     } else if (type === "Seven Installment") {
       await seven_payable(
         remainList,
@@ -697,7 +893,9 @@ exports.render_installment = async (
         price,
         admin_ins,
         student,
-        receipt
+        receipt,
+        apply,
+        institute
       );
     } else if (type === "Eight Installment") {
       await eight_payable(
@@ -707,7 +905,9 @@ exports.render_installment = async (
         price,
         admin_ins,
         student,
-        receipt
+        receipt,
+        apply,
+        institute
       );
     } else if (type === "Nine Installment") {
       await nine_payable(
@@ -717,7 +917,9 @@ exports.render_installment = async (
         price,
         admin_ins,
         student,
-        receipt
+        receipt,
+        apply,
+        institute
       );
     } else if (type === "Ten Installment") {
       await ten_payable(remainList, structure, mode, price, admin_ins, student);
@@ -729,7 +931,9 @@ exports.render_installment = async (
         price,
         admin_ins,
         student,
-        receipt
+        receipt,
+        apply,
+        institute
       );
     } else if (type === "Tweleve Installment") {
       await tweleve_payable(
@@ -739,7 +943,21 @@ exports.render_installment = async (
         price,
         admin_ins,
         student,
-        receipt
+        receipt,
+        apply,
+        institute
+      );
+    } else if (type === "Installment Remain") {
+      await installment_remain(
+        remainList,
+        structure,
+        mode,
+        price,
+        admin_ins,
+        student,
+        receipt,
+        apply,
+        institute
       );
     } else {
     }

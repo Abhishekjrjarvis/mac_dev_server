@@ -7,6 +7,7 @@ const Admission = require("../models/Admission/Admission");
 const FeeStructure = require("../models/Finance/FeesStructure");
 const RemainingList = require("../models/Admission/RemainingList");
 const OrderPayment = require("../models/RazorPay/orderPayment");
+const FeeReceipt = require("../models/RazorPay/feeReceipt");
 const {
   add_all_installment,
   add_total_installment,
@@ -257,11 +258,16 @@ exports.fee_reordering_direct_student = async (
   student,
   institute,
   batchSet,
-  user
+  user,
+  finance
 ) => {
   try {
     for (var ref of batchSet) {
       // var student = await Student.findById({ _id: stu_query?._id });
+      const new_receipt = new FeeReceipt({
+        fee_payment_mode: "Offline",
+        fee_payment_amount: ref?.amount,
+      });
       var price = parseInt(ref.amount);
       var apply = await NewApplication.findById({ _id: ref?.appId });
       var admission = await Admission.findById({
@@ -272,6 +278,10 @@ exports.fee_reordering_direct_student = async (
       var student_structure = {
         fee_structure: fee_structure,
       };
+      new_receipt.student = student?._id;
+      new_receipt.application = apply?._id;
+      new_receipt.finance = finance?._id;
+      new_receipt.fee_transaction_date = new Date();
       var is_install;
       if (
         price <= fee_structure?.total_admission_fees &&
@@ -296,9 +306,20 @@ exports.fee_reordering_direct_student = async (
         admission.remainingFee.push(student._id);
         student.admissionRemainFeeCount +=
           fee_structure?.total_admission_fees - price;
+        new_remainFee.fee_receipts.push(new_receipt?._id);
         apply.remainingFee += fee_structure?.total_admission_fees - price;
         admission.remainingFeeCount +=
           fee_structure?.total_admission_fees - price;
+        new_remainFee.remaining_array.push({
+          remainAmount: price,
+          appId: apply._id,
+          status: "Paid",
+          instituteId: institute._id,
+          installmentValue: "One Time Fees",
+          mode: "Offline",
+          isEnable: true,
+          fee_receipt: new_receipt?._id,
+        });
         const valid_one_time_fees =
           fee_structure?.total_admission_fees - price == 0 ? true : false;
         if (valid_one_time_fees) {
@@ -326,7 +347,18 @@ exports.fee_reordering_direct_student = async (
         new_remainFee.fee_structure = fee_structure?._id;
         new_remainFee.remaining_fee += total_amount - price;
         student.remainingFeeList.push(new_remainFee?._id);
+        new_remainFee.fee_receipts.push(new_receipt?._id);
         new_remainFee.student = student?._id;
+        new_remainFee.remaining_array.push({
+          remainAmount: price,
+          appId: apply._id,
+          status: "Paid",
+          instituteId: institute._id,
+          installmentValue: "First Installment",
+          mode: "Offline",
+          isEnable: true,
+          fee_receipt: new_receipt?._id,
+        });
         await add_all_installment(
           apply,
           institute._id,
@@ -354,7 +386,12 @@ exports.fee_reordering_direct_student = async (
       apply.allotCount += 1;
       new_remainFee.batchId = batch?._id;
       user.applyApplication.push(apply._id);
-      await Promise.all([new_remainFee.save(), apply.save(), admission.save()]);
+      await Promise.all([
+        new_remainFee.save(),
+        apply.save(),
+        admission.save(),
+        new_receipt.save(),
+      ]);
     }
   } catch (e) {
     console.log(e);

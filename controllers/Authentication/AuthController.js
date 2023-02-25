@@ -1899,6 +1899,9 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       const institute = await InstituteAdmin.findById({
         _id: `${depart?.institute}`,
       });
+      var finance = await Finance.findById({
+        _id: `${institute?.financeDepart[0]}`,
+      });
       const student = new Student({ ...req.body });
       student.studentCode = classes.classCode;
       const studentOptionalSubject = req.body?.optionalSubject
@@ -2002,7 +2005,8 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
           student,
           institute,
           batch_set,
-          user
+          user,
+          finance
         );
       }
       await Promise.all([

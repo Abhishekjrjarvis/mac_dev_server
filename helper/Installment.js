@@ -165,9 +165,7 @@ const second_payable = async (
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
         });
-        console.log("Bug");
       } else {
-        console.log("TRigger");
         arg4.remainingFee.pull(arg5._id);
         arg1.status = "Paid";
       }
@@ -802,7 +800,7 @@ const installment_remain = async (
       if (
         `${stu.appId}` === `${app_args._id}` &&
         stu.status === "Not Paid" &&
-        stu.status === "Installment Remain"
+        stu.installmentValue === "Installment Remain"
       )
         return stu;
     });
@@ -817,7 +815,8 @@ const installment_remain = async (
           installmentValue: "Installment Remain",
         });
         ref.status = "Paid";
-        ref.installmentValue = "All Installment Paid";
+        ref.remainAmount = amount;
+        ref.installmentValue = "Installment Paid";
         ref.mode = mode;
         ref.fee_receipt = receipt_args?._id;
       } else {

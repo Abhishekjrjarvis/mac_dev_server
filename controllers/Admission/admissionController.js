@@ -2041,7 +2041,9 @@ exports.paidRemainingFeeStudent = async (req, res) => {
       path: "admissionAdminHead",
       select: "user",
     });
-    var student = await Student.findById({ _id: sid });
+    var student = await Student.findById({ _id: sid }).populate({
+      path: "fee_structure",
+    });
     var institute = await InstituteAdmin.findById({
       _id: `${admin_ins.institute}`,
     }).select("insName financeDepart gstSlab payment_history");
@@ -2224,17 +2226,24 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     res.status(200).send({
       message: "Balance Pool increasing with price Operation complete",
       paid: true,
+      remaining_fee_lists,
     });
     var is_refund =
       remaining_fee_lists?.paid_fee - remaining_fee_lists?.applicable_fee;
     if (is_refund > 0) {
-      admin_ins.refundFeeList.push({
-        student: student?._id,
-        refund: is_refund,
-      });
-      admin_ins.refundCount += is_refund;
+      for (var data of admin_ins?.refundFeeList) {
+        if (`${data?.student}` === `${student?._id}`) {
+          data.refund += is_refund;
+        } else {
+          admin_ins.refundFeeList.push({
+            student: student?._id,
+            refund: is_refund,
+          });
+          admin_ins.refundCount += is_refund;
+        }
+      }
     }
-    await admin_ins.save()
+    await admin_ins.save();
     notify.notifyContent = `${student.studentFirstName} ${
       student.studentMiddleName ? `${student.studentMiddleName} ` : ""
     } ${student.studentLastName} your transaction is successfull for ${
@@ -4108,12 +4117,10 @@ exports.renderRefundArrayQuery = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     if (!aid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     const ads_admin = await Admission.findById({ _id: aid }).select(
       "refundFeeList refundCount"
@@ -4126,17 +4133,21 @@ exports.renderRefundArrayQuery = async (req, res) => {
     );
 
     if (all_refund_list?.length > 0) {
-      res
-        .status(200)
-        .send({
-          message: "Explore All Returns",
-          access: true,
-          all_refund_list: all_refund_list,
-        });
+      res.status(200).send({
+        message: "Explore All Returns",
+        access: true,
+        all_refund_list: all_refund_list,
+        refundCount: ads_admin?.refundCount,
+      });
     } else {
       res
         .status(200)
-        .send({ message: "No Returns", access: false, all_refund_list: [] });
+        .send({
+          message: "No Returns",
+          access: false,
+          all_refund_list: [],
+          refundCount: 0,
+        });
     }
   } catch (e) {
     console.log(e);

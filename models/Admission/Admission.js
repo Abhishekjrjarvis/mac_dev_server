@@ -54,6 +54,19 @@ const admissionAdminSchema = new mongoose.Schema({
       ref: "Student",
     },
   ],
+  refundFeeList: [
+    {
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+      },
+      refund: { type: Number, default: 0 },
+    },
+  ],
+  refundCount: {
+    type: Number,
+    default: 0,
+  },
   remainingFeeCount: {
     type: Number,
     default: 0,

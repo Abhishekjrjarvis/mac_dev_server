@@ -2201,6 +2201,15 @@ exports.paidRemainingFeeStudent = async (req, res) => {
         new_receipt
       );
     }
+    var is_refund =
+      remaining_fee_lists?.paid_fee - remaining_fee_lists?.applicable_fee;
+    if (is_refund > 0) {
+      admin_ins.refundFeeList.push({
+        student: student?._id,
+        refund: is_refund,
+      });
+      admin_ins.refundCount += is_refund;
+    }
     await Promise.all([
       admin_ins.save(),
       student.save(),
@@ -4078,6 +4087,47 @@ exports.renderDeleteExistingDocument = async (req, res) => {
       message: "Deletion Operation Completed",
       access: true,
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderRefundArrayQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    if (!aid)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately",
+          access: false,
+        });
+
+    const ads_admin = await Admission.findById({ _id: aid }).select(
+      "refundFeeList refundCount"
+    );
+
+    var all_refund_list = await nested_document_limit(
+      page,
+      limit,
+      ads_admin?.refundFeeList
+    );
+
+    if (all_refund_list?.length > 0) {
+      res
+        .status(200)
+        .send({
+          message: "Explore All Returns",
+          access: true,
+          all_refund_list: all_refund_list,
+        });
+    } else {
+      res
+        .status(200)
+        .send({ message: "No Returns", access: false, all_refund_list: [] });
+    }
   } catch (e) {
     console.log(e);
   }

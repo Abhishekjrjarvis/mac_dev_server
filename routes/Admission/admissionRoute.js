@@ -359,4 +359,6 @@ router.delete(
   catchAsync(Admission.renderDeleteExistingDocument)
 );
 
+router.get("/:aid/refund/array", catchAsync(Admission.renderRefundArrayQuery));
+
 module.exports = router;

@@ -1644,6 +1644,15 @@ exports.retrieveRequestTransAtFinance = async (req, res) => {
         .select("financeName")
         .populate({
           path: "transport_request",
+          populate: {
+            path: "transport_module",
+            select: "transport_manager",
+            populate: {
+              path: "transport_manager",
+              select:
+                "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+            },
+          },
         });
 
       var all_query = nested_document_limit(
@@ -1656,6 +1665,15 @@ exports.retrieveRequestTransAtFinance = async (req, res) => {
         .select("financeName")
         .populate({
           path: "transport_submit",
+          populate: {
+            path: "transport_module",
+            select: "transport_manager",
+            populate: {
+              path: "transport_manager",
+              select:
+                "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+            },
+          },
         });
       var all_query = nested_document_limit(
         page,
@@ -1667,6 +1685,15 @@ exports.retrieveRequestTransAtFinance = async (req, res) => {
         .select("financeName")
         .populate({
           path: "transport_cancelled",
+          populate: {
+            path: "transport_module",
+            select: "transport_manager",
+            populate: {
+              path: "transport_manager",
+              select:
+                "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+            },
+          },
         });
       var all_query = nested_document_limit(
         page,
@@ -1868,6 +1895,15 @@ exports.retrieveRequestAdmissionAtFinance = async (req, res) => {
         .select("financeName")
         .populate({
           path: "admission_request",
+          populate: {
+            path: "admission",
+            select: "admissionAdminHead",
+            populate: {
+              path: "admissionAdminHead",
+              select:
+                "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+            },
+          },
         });
 
       var all_array = nested_document_limit(
@@ -1880,6 +1916,15 @@ exports.retrieveRequestAdmissionAtFinance = async (req, res) => {
         .select("financeName")
         .populate({
           path: "admission_submit",
+          populate: {
+            path: "admission",
+            select: "admissionAdminHead",
+            populate: {
+              path: "admissionAdminHead",
+              select:
+                "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+            },
+          },
         });
       var all_array = nested_document_limit(
         page,
@@ -1891,8 +1936,17 @@ exports.retrieveRequestAdmissionAtFinance = async (req, res) => {
         .select("financeName")
         .populate({
           path: "admission_cancelled",
+          populate: {
+            path: "admission",
+            select: "admissionAdminHead",
+            populate: {
+              path: "admissionAdminHead",
+              select:
+                "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+            },
+          },
         });
-      const all_cancel = nested_document_limit(
+      const all_array = nested_document_limit(
         page,
         limit,
         finance?.admission_cancelled
@@ -2050,6 +2104,15 @@ exports.retrieveRequestLibraryAtFinance = async (req, res) => {
         .select("financeName")
         .populate({
           path: "library_request",
+          populate: {
+            path: "library",
+            select: "libraryHead",
+            populate: {
+              path: "libraryHead",
+              select:
+                "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+            },
+          },
         });
 
       var all_array = nested_document_limit(
@@ -2062,6 +2125,15 @@ exports.retrieveRequestLibraryAtFinance = async (req, res) => {
         .select("financeName")
         .populate({
           path: "library_submit",
+          populate: {
+            path: "library",
+            select: "libraryHead",
+            populate: {
+              path: "libraryHead",
+              select:
+                "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+            },
+          },
         });
       var all_array = nested_document_limit(
         page,
@@ -2073,8 +2145,17 @@ exports.retrieveRequestLibraryAtFinance = async (req, res) => {
         .select("financeName")
         .populate({
           path: "library_cancelled",
+          populate: {
+            path: "library",
+            select: "libraryHead",
+            populate: {
+              path: "libraryHead",
+              select:
+                "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+            },
+          },
         });
-      const all_cancel = nested_document_limit(
+      const all_array = nested_document_limit(
         page,
         limit,
         finance?.library_cancelled

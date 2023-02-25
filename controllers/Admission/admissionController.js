@@ -4117,15 +4117,16 @@ exports.renderRefundArrayQuery = async (req, res) => {
         access: false,
       });
 
-    const ads_admin = await Admission.findById({ _id: aid }).select(
-      "refundCount"
-    ).populate({
-      path: "refundFeeList",
-      populate: {
-        path: "student",
-        select: "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto"
-      }
-    })
+    const ads_admin = await Admission.findById({ _id: aid })
+      .select("refundCount")
+      .populate({
+        path: "refundFeeList",
+        populate: {
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+        },
+      });
 
     var all_refund_list = await nested_document_limit(
       page,

@@ -806,9 +806,7 @@ exports.remain_one_time_query = async (
         stu.status = "Paid";
         stu.installmentValue = "One Time Fees";
       } else {
-        if (receipt_args?.fee_payment_mode === "Government/Scholarship") {
-          stu.remainAmount = price;
-        }
+        stu.remainAmount = price;
         stu.status = "Paid";
         stu.installmentValue = "One Time Fees";
         remain_args.status = "Paid";

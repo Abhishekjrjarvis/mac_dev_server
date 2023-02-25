@@ -1036,25 +1036,21 @@ exports.update_fee_head_query = async (student_args, price, apply_args) => {
               ? 0
               : filter_student_heads[val].remain_fee - price_query
             : 0;
+        filter_student_heads[val].paid_fee =
+          filter_student_heads[val]?.paid_fee ==
+          parent_head[`${val}`]?.head_amount
+            ? parent_head[`${val}`].head_amount
+            : price_query >= filter_student_heads[val]?.applicable_fee
+            ? filter_student_heads[val].paid_fee
+            : filter_student_heads[val].paid_fee + price_query >=
+              filter_student_heads[val]?.applicable_fee
+            ? filter_student_heads[val]?.applicable_fee
+            : filter_student_heads[val].paid_fee + price_query;
 
         price_query =
           price_query >= filter_student_heads[val]?.remain_fee
             ? price_query - filter_student_heads[val]?.remain_fee
             : 0;
-        if (
-          filter_student_heads[val]?.paid_fee ==
-            filter_student_heads[val]?.applicable_fee &&
-          price_query <= 0
-        ) {
-        } else {
-          filter_student_heads[val].paid_fee =
-            filter_student_heads[val]?.paid_fee ==
-            parent_head[`${val}`]?.head_amount
-              ? parent_head[`${val}`].head_amount
-              : price_query >= filter_student_heads[val]?.applicable_fee
-              ? filter_student_heads[val].paid_fee
-              : filter_student_heads[val].paid_fee + price_query;
-        }
       }
     }
   } catch (e) {

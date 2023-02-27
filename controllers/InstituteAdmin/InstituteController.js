@@ -33,7 +33,7 @@ const { randomSixCode } = require("../../Service/close");
 const unlinkFile = util.promisify(fs.unlink);
 const { file_to_aws } = require("../../Utilities/uploadFileAws");
 const { shuffleArray } = require("../../Utilities/Shuffle");
-const { designation_alarm } = require("../../WhatsAppSMS/payload")
+const { designation_alarm } = require("../../WhatsAppSMS/payload");
 
 exports.getDashOneQuery = async (req, res) => {
   try {
@@ -321,7 +321,7 @@ exports.getUpdatePhone = async (req, res) => {
 exports.getUpdatePersonalIns = async (req, res) => {
   try {
     const { id } = req.params;
-    const { old_initials } = req.query
+    const { old_initials } = req.query;
     await InstituteAdmin.findByIdAndUpdate(id, req.body);
     res.status(200).send({ message: "Personal Info Updated" });
     var institute = await InstituteAdmin.findById({ _id: id });
@@ -345,11 +345,15 @@ exports.getUpdatePersonalIns = async (req, res) => {
       reply.authorName = institute.insName;
       await reply.save();
     });
-    const all_students = await Student.find({ $and: [{ studentStatus: "Approved"}, { institute: `${institute._id}`}]}).select("studentGRNO")
-    for(var all of all_students){
-      if(all?.studentGRNO?.startsWith(`${old_initials}`)){
-        all.studentGRNO = institute?.gr_initials + all?.studentGRNO?.slice(old_initials?.length)
-        await all.save()
+    const all_students = await Student.find({
+      $and: [{ studentStatus: "Approved" }, { institute: `${institute._id}` }],
+    }).select("studentGRNO");
+    for (var all of all_students) {
+      if (all?.studentGRNO?.startsWith(`${old_initials}`)) {
+        all.studentGRNO =
+          institute?.gr_initials +
+          all?.studentGRNO?.slice(old_initials?.length);
+        await all.save();
       }
     }
   } catch (e) {
@@ -1332,7 +1336,7 @@ exports.getFullStudentInfo = async (req, res) => {
     if (isApk) {
       var student = await Student.findById({ _id: id })
         .select(
-          "studentFirstName extraPoints batchCount studentMiddleName studentBankAccountHolderName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
+          "studentFirstName extraPoints batchCount studentMiddleName studentBankAccountHolderName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO student_prn_enroll_number"
         )
         .populate({
           path: "user",
@@ -1386,7 +1390,7 @@ exports.getFullStudentInfo = async (req, res) => {
     } else {
       var student = await Student.findById({ _id: id })
         .select(
-          "studentFirstName extraPoints batchCount studentMiddleName studentBankAccountHolderName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
+          "studentFirstName extraPoints batchCount studentMiddleName studentBankAccountHolderName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO student_prn_enroll_number"
         )
         .populate({
           path: "user",
@@ -2596,7 +2600,9 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     classes.ApproveStudent.push(student._id);
     classes.studentCount += 1;
     classes.student.pull(sid);
-    student.studentGRNO = `${institute?.gr_initials ? institute?.gr_initials : `Q`}${institute.ApproveStudent.length}`;
+    student.studentGRNO = `${
+      institute?.gr_initials ? institute?.gr_initials : `Q`
+    }${institute.ApproveStudent.length}`;
     student.studentROLLNO = classes.ApproveStudent.length;
     student.studentClass = classes._id;
     student.studentAdmissionDate = new Date().toISOString();
@@ -3052,7 +3058,7 @@ exports.getStudentFormQuery = async (req, res) => {
     res.status(200).send({
       message: "Student form setting details",
       studentFormSetting: institute.studentFormSetting,
-      admissionId: institute?.admissionDepart
+      admissionId: institute?.admissionDepart,
     });
   } catch (e) {
     res.status(400).send({

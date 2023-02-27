@@ -501,6 +501,7 @@ const instituteAdminSchema = new mongoose.Schema({
   },
   studentFormSetting: {
     personalInfo: { type: Boolean, default: true },
+    enrollmentPrn: { type: Boolean, default: false },
     otherPersonalInfo: { type: Boolean, default: false },
     identityDetails: { type: Boolean, default: false },
     addressInfo: { type: Boolean, default: false },
@@ -635,17 +636,17 @@ const instituteAdminSchema = new mongoose.Schema({
     type: String,
   },
   application_fee_charges: {
-    type: Number, 
-    default: 0
+    type: Number,
+    default: 0,
   },
   total_application_amount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   return_to_qviple: {
     type: Number,
-    default: 0
-  }
+    default: 0,
+  },
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

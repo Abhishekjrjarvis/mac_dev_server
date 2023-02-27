@@ -727,7 +727,7 @@ exports.searchSubject = async (req, res) => {
 };
 exports.searchStudent = async (req, res) => {
   try {
-    var institute = await InstituteAdmin.findById({_id: req.params.id})
+    var institute = await InstituteAdmin.findById({ _id: req.params.id });
     if (req.query.search) {
       const search = req.query.search
         ? {
@@ -745,6 +745,12 @@ exports.searchStudent = async (req, res) => {
                 studentMiddleName: { $regex: req.query.search, $options: "i" },
               },
               { studentLastName: { $regex: req.query.search, $options: "i" } },
+              {
+                student_prn_enroll_number: {
+                  $regex: req.query.search,
+                  $options: "i",
+                },
+              },
             ],
           }
         : {};
@@ -762,12 +768,12 @@ exports.searchStudent = async (req, res) => {
         })
         .lean()
         .exec();
-        student.sort(function (st1, st2) {
-          return (
-            parseInt(st1.studentGRNO.slice(institute?.gr_initials?.length)) -
-            parseInt(st2.studentGRNO.slice(institute?.gr_initials?.length))
-          );
-        });
+      student.sort(function (st1, st2) {
+        return (
+          parseInt(st1.studentGRNO.slice(institute?.gr_initials?.length)) -
+          parseInt(st2.studentGRNO.slice(institute?.gr_initials?.length))
+        );
+      });
       res
         .status(200)
         .send({ message: "Without Query All Student", student: student });
@@ -775,9 +781,11 @@ exports.searchStudent = async (req, res) => {
       const getPage = req.query.page ? parseInt(req.query.page) : 1;
       const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
       const dropItem = (getPage - 1) * itemPerPage;
-      var student = await Student.find({$and: [{ institute: req.params.id }, { studentStatus: "Approved" }],})
-      .limit(itemPerPage)
-      .skip(dropItem)
+      var student = await Student.find({
+        $and: [{ institute: req.params.id }, { studentStatus: "Approved" }],
+      })
+        .limit(itemPerPage)
+        .skip(dropItem)
         .select(
           "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender"
         )
@@ -791,12 +799,12 @@ exports.searchStudent = async (req, res) => {
         })
         .lean()
         .exec();
-        student.sort(function (st1, st2) {
-          return (
-            parseInt(st1.studentGRNO.slice(institute?.gr_initials?.length)) -
-            parseInt(st2.studentGRNO.slice(institute?.gr_initials?.length))
-          );
-        });
+      student.sort(function (st1, st2) {
+        return (
+          parseInt(st1.studentGRNO.slice(institute?.gr_initials?.length)) -
+          parseInt(st2.studentGRNO.slice(institute?.gr_initials?.length))
+        );
+      });
       if (!student.length) {
         res.status(202).send({ message: "Not found any search" });
       } else {
@@ -851,9 +859,9 @@ exports.searchStaff = async (req, res) => {
           })
           .lean()
           .exec();
-          staff.sort(function (st1, st2) {
-            return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
-          });
+        staff.sort(function (st1, st2) {
+          return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
+        });
         res
           .status(200)
           .send({ message: "Without Query All Staff", staff: staff });
@@ -868,9 +876,9 @@ exports.searchStaff = async (req, res) => {
           })
           .lean()
           .exec();
-          staff.sort(function (st1, st2) {
-            return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
-          });
+        staff.sort(function (st1, st2) {
+          return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
+        });
         res
           .status(200)
           .send({ message: "Without Query All Staff", staff: staff });
@@ -893,9 +901,9 @@ exports.searchStaff = async (req, res) => {
         .skip(dropItem)
         .lean()
         .exec();
-        staff.sort(function (st1, st2) {
-          return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
-        });
+      staff.sort(function (st1, st2) {
+        return parseInt(st1.staffROLLNO) - parseInt(st2.staffROLLNO);
+      });
       if (!staff.length) {
         res.status(202).send({ message: "Not found any search", staff: [] });
       } else {

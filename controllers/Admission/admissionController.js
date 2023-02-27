@@ -2738,7 +2738,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "applicable_fee remaining_fee exempted_fee paid_fee refund_fee status created_at"
+        "applicable_fee remaining_fee exempted_fee paid_fee refund_fee status created_at remark"
       )
       .populate({
         path: "appId",

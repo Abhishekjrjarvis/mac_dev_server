@@ -660,7 +660,8 @@ exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
 exports.retrievePendingFeeFilter = async (req, res) => {
   try {
     const { aid } = req.params;
-    const { depart, batch, gender, category, classes, is_all } = req.query;
+    const { depart, batch, gender, category, classes, is_all, fee_struct } =
+      req.query;
     if (!aid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -671,20 +672,40 @@ exports.retrievePendingFeeFilter = async (req, res) => {
       "remainingFee"
     );
 
-    const all = is_all ? {} : { admissionRemainFeeCount: { $gte: 1 } };
-    const all_students = await Student.find({
+    var all_students = await Student.find({
       $and: [{ _id: { $in: ads_admin?.remainingFee } }],
       $or: [
         { department: depart },
         { batches: batch },
-        { studentGender: gender },
-        { studentCastCategory: category },
+        { studentGender: { $regex: gender, $options: "i" } },
+        { studentCastCategory: { $regex: category, $options: "i" } },
         { studentClass: classes },
-        all,
+        { fee_structure: fee_struct },
+        { admissionRemainFeeCount: { $gt: 0 } },
       ],
     })
       .sort({ admissionRemainFeeCount: "-1" })
-      .select("studentFirstName admissionRemainFeeCount");
+      .select(
+        "studentFirstName admissionRemainFeeCount studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentNationality studentCastCategory studentReligion studentMotherName studentMTongue studentPincode studentAddress studentPhoneNumber"
+      )
+      .populate({
+        path: "department",
+        select: "dName",
+      })
+      .populate({
+        path: "studentClass",
+        select: "className classTitle",
+      })
+      .populate({
+        path: "batches",
+        select: "batchName",
+      });
+
+    if (!is_all) {
+      all_students = all_students?.filter((ref) => {
+        if (ref.admissionRemainFeeCount > 0) return ref;
+      });
+    }
 
     if (all_students?.length > 0) {
       res.status(200).send({

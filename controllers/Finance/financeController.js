@@ -2155,7 +2155,7 @@ exports.retrieveRequestLibraryAtFinance = async (req, res) => {
             },
           },
         });
-      const all_array = nested_document_limit(
+      var all_array = nested_document_limit(
         page,
         limit,
         finance?.library_cancelled

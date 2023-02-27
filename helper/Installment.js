@@ -1078,6 +1078,7 @@ exports.remain_one_time_query_government = async (
     for (var stu of filter_student_install) {
       stu.remainAmount = price;
       stu.status = "Paid";
+      stu.mode = receipt_args?.fee_payment_mode;
       stu.installmentValue = stu.installmentValue;
       remain_args.status = "Paid";
       stu.fee_receipt = receipt_args?._id;
@@ -1112,6 +1113,7 @@ exports.remain_government_installment = async (
         if (filter_student_install[ref].remainAmount < price) {
           holding_price += price - filter_student_install[ref].remainAmount;
           filter_student_install[ref].status = "Paid";
+          filter_student_install[ref].mode = fee_receipt?.fee_payment_mode;
         } else {
           filter_student_install[ref].remainAmount -= holding_price;
         }
@@ -1120,6 +1122,7 @@ exports.remain_government_installment = async (
           holding_price +=
             holding_price - filter_student_install[ref].remainAmount;
           filter_student_install[ref].status = "Paid";
+          filter_student_install[ref].mode = fee_receipt?.fee_payment_mode;
         } else {
           filter_student_install[ref].remainAmount -= holding_price;
         }

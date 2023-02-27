@@ -5,6 +5,7 @@ const InstituteAdmin = require("../../models/InstituteAdmin");
 const Batch = require("../../models/Batch");
 const User = require("../../models/User");
 const Class = require("../../models/Class");
+const Admission = require("../../models/Admission/Admission");
 const Student = require("../../models/Student");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
@@ -650,6 +651,53 @@ exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
       res
         .status(200)
         .send({ message: "You're breaking sorting rules 😡", access: false });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrievePendingFeeFilter = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const { depart, batch, gender, category, classes, is_all } = req.query;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const ads_admin = await Admission.findById({ _id: aid }).select(
+      "remainingFee"
+    );
+
+    const all = is_all ? {} : { admissionRemainFeeCount: { $gte: 1 } };
+    const all_students = await Student.find({
+      $and: [{ _id: { $in: ads_admin?.remainingFee } }],
+      $or: [
+        { department: depart },
+        { batches: batch },
+        { studentGender: gender },
+        { studentCastCategory: category },
+        { studentClass: classes },
+        all,
+      ],
+    })
+      .sort({ admissionRemainFeeCount: "-1" })
+      .select("studentFirstName admissionRemainFeeCount");
+
+    if (all_students?.length > 0) {
+      res.status(200).send({
+        message: "Explore New Excel Exports ",
+        access: true,
+        all_students: all_students,
+      });
+    } else {
+      res.status(200).send({
+        message: "No New Excel Exports ",
+        access: false,
+        all_students: [],
+      });
     }
   } catch (e) {
     console.log(e);

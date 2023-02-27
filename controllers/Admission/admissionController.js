@@ -940,35 +940,68 @@ exports.fetchAllAllotApplication = async (req, res) => {
     //   });
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const apply = await NewApplication.findById({ _id: aid })
-      .limit(limit)
-      .skip(skip)
-      .select("allotCount")
-      .populate({
-        path: "allottedApplication",
-        populate: {
-          path: "student",
-          select:
-            "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
-        },
-      });
-
-    if (apply?.allottedApplication?.length > 0) {
-      // const allotEncrypt = await encryptionPayload(apply);
-      // const cached = await connect_redis_miss(
-      //   `All-Allot-App-${aid}-${page}`,
-      //   apply
-      // );
-      res.status(200).send({
-        message: "Lots of Allotted Application from DB 😥",
-        // allot: cached.apply,
-        allot: apply,
-      });
+    const { search } = req.query;
+    if (search) {
+      var filter_allot = [];
+      var apply = await NewApplication.findById({ _id: aid })
+        .select("allotCount")
+        .populate({
+          path: "allottedApplication",
+          populate: {
+            path: "student",
+            match: {
+              studentFirstName: { $regex: `${search}`, $options: "i" },
+            },
+            select:
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
+          },
+        });
+      for (let data of apply.allottedApplication) {
+        if (data.student !== null) {
+          filter_allot.push(data);
+        }
+      }
+      if (filter_allot?.length > 0) {
+        res.status(200).send({
+          message: "Lots of Allotted Application from DB 😥",
+          allot: filter_allot,
+        });
+      } else {
+        res.status(200).send({
+          message: "Go To Outside for Dinner",
+          allot: [],
+        });
+      }
     } else {
-      res.status(200).send({
-        message: "Go To Outside for Dinner",
-        allot: { allottedApplication: [] },
-      });
+      var apply = await NewApplication.findById({ _id: aid })
+        .limit(limit)
+        .skip(skip)
+        .select("allotCount")
+        .populate({
+          path: "allottedApplication",
+          populate: {
+            path: "student",
+            select:
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
+          },
+        });
+      if (apply?.allottedApplication?.length > 0) {
+        // const allotEncrypt = await encryptionPayload(apply);
+        // const cached = await connect_redis_miss(
+        //   `All-Allot-App-${aid}-${page}`,
+        //   apply
+        // );
+        res.status(200).send({
+          message: "Lots of Allotted Application from DB 😥",
+          // allot: cached.apply,
+          allot: apply?.allottedApplication,
+        });
+      } else {
+        res.status(200).send({
+          message: "Go To Outside for Dinner",
+          allot: [],
+        });
+      }
     }
   } catch (e) {
     console.log(e);
@@ -987,35 +1020,71 @@ exports.fetchAllCancelApplication = async (req, res) => {
     //   });
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const apply = await NewApplication.findById({ _id: aid })
-      .limit(limit)
-      .skip(skip)
-      .select("cancelCount")
-      .populate({
-        path: "cancelApplication",
-        populate: {
-          path: "student",
-          select:
-            "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
-        },
-      });
-
-    if (apply?.cancelApplication?.length > 0) {
-      // const cancelEncrypt = await encryptionPayload(apply);
-      // const cached = await connect_redis_miss(
-      //   `All-Cancel-App-${aid}-${page}`,
-      //   apply
-      // );
-      res.status(200).send({
-        message: "Lots of Cancel Application from DB 😂😂",
-        // cancel: cached.apply,
-        cancel: apply,
-      });
+    const { search } = req.query;
+    if (search) {
+      var filter_cancel = [];
+      var apply = await NewApplication.findById({ _id: aid })
+        .limit(limit)
+        .skip(skip)
+        .select("cancelCount")
+        .populate({
+          path: "cancelApplication",
+          populate: {
+            path: "student",
+            match: {
+              studentFirstName: { $regex: `${search}`, $options: "i" },
+            },
+            select:
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
+          },
+        });
+      for (let data of apply?.cancelApplication) {
+        if (data.student !== null) {
+          filter_cancel.push(data);
+        }
+      }
+      if (filter_cancel?.length > 0) {
+        res.status(200).send({
+          message: "Lots of Cancel Application from DB 😂😂",
+          cancel: filter_cancel,
+        });
+      } else {
+        res.status(200).send({
+          message: "Go To Outside for Dinner",
+          cancel: [],
+        });
+      }
     } else {
-      res.status(200).send({
-        message: "Go To Outside for Dinner",
-        cancel: { cancelApplication: [] },
-      });
+      var apply = await NewApplication.findById({ _id: aid })
+        .limit(limit)
+        .skip(skip)
+        .select("cancelCount")
+        .populate({
+          path: "cancelApplication",
+          populate: {
+            path: "student",
+            select:
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
+          },
+        });
+
+      if (apply?.cancelApplication?.length > 0) {
+        // const cancelEncrypt = await encryptionPayload(apply);
+        // const cached = await connect_redis_miss(
+        //   `All-Cancel-App-${aid}-${page}`,
+        //   apply
+        // );
+        res.status(200).send({
+          message: "Lots of Cancel Application from DB 😂😂",
+          // cancel: cached.apply,
+          cancel: apply?.cancelApplication,
+        });
+      } else {
+        res.status(200).send({
+          message: "Go To Outside for Dinner",
+          cancel: [],
+        });
+      }
     }
   } catch (e) {
     console.log(e);
@@ -1964,22 +2033,42 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
     //   });
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
+    const { search } = req.query;
     const admin_ins = await Admission.findById({ _id: aid }).select(
       "remainingFee"
     );
-    const student = await Student.find({
-      _id: { $in: admin_ins?.remainingFee },
-    })
-      .sort("-admissionRemainFeeCount")
-      .limit(limit)
-      .skip(skip)
-      .select(
-        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionRemainFeeCount"
-      )
-      .populate({
-        path: "department",
-        select: "dName",
-      });
+    if (search) {
+      var student = await Student.find({
+        $and: [{ _id: { $in: admin_ins?.remainingFee } }],
+        $or: [
+          { studentFirstName: { $regex: search, $options: "i" } },
+          { studentMiddleName: { $regex: search, $options: "i" } },
+          { studentLastName: { $regex: search, $options: "i" } },
+        ],
+      })
+        .sort("-admissionRemainFeeCount")
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionRemainFeeCount"
+        )
+        .populate({
+          path: "department",
+          select: "dName",
+        });
+    } else {
+      var student = await Student.find({
+        _id: { $in: admin_ins?.remainingFee },
+      })
+        .sort("-admissionRemainFeeCount")
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionRemainFeeCount"
+        )
+        .populate({
+          path: "department",
+          select: "dName",
+        });
+    }
     if (student?.length > 0) {
       // Add Another Encryption
       // const bind_remain = {

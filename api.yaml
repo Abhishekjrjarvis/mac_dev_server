@@ -15287,6 +15287,74 @@ paths:
         "200":
           description: OK
 
+  /api/v1/admission/{aid}/allotted/application:
+    get:
+      tags:
+        - Admission Admin Module Query
+      summary: Get All Allotted Application (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: This is page count
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: This is limit count 
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: This Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/cancelled/application:
+    get:
+      tags:
+        - Admission Admin Module Query
+      summary: Get All Cancelled Application (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: This is page count
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: This is limit count 
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: This Search Query
+      responses:
+        "200":
+          description: OK
+
   /api/v1/admission/{aid}/confirmed/application/all/payload:
     get:
       tags:
@@ -16446,8 +16514,6 @@ paths:
       responses:
         "200":
           description: OK
-
-
 
 
 # Recommendation API
@@ -22553,6 +22619,62 @@ paths:
                 type: string
                 description: Enter Key here
                 required: true
+      responses:
+        "200":
+          description: OK
+
+# New Filter
+
+  /api/v1/feed/filter/pending/fee/{aid}:
+    get:
+      tags:
+        - New Custom Filter
+      summary: Get All Filtered Student Pending Fees (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission ID
+        - in: query
+          name: depart
+          required: true
+          type: string
+          description: This is Department ID
+        - in: query
+          name: classes
+          required: false
+          type: string
+          description: This is Class ID
+        - in: query
+          name: batch
+          required: false
+          type: string
+          description: This is batch ID
+        - in: query
+          name: fee_struct
+          required: false
+          type: string
+          description: This is Fee Structure ID
+        - in: query
+          name: gender
+          required: false
+          type: string
+          description: This is Gender ("Male" || "Female" || "Other")
+        - in: query
+          name: category
+          required: false
+          type: string
+          description: This is Cast Category 
+        - in: query
+          name: is_all
+          required: false
+          type: string
+          description: This is ("false" || "true")
       responses:
         "200":
           description: OK

@@ -672,21 +672,59 @@ exports.retrievePendingFeeFilter = async (req, res) => {
       "remainingFee"
     );
 
-    var all_students = await Student.find({
-      $and: [{ _id: { $in: ads_admin?.remainingFee } }],
-      $or: [
-        { department: depart },
-        { batches: batch },
-        { studentGender: { $regex: gender, $options: "i" } },
-        { studentCastCategory: { $regex: category, $options: "i" } },
-        { studentClass: classes },
-        { fee_structure: fee_struct },
-        { admissionRemainFeeCount: { $gt: 0 } },
-      ],
-    })
-      .sort({ admissionRemainFeeCount: "-1" })
+    var valid_all = is_all == "false" ? false : true;
+
+    if (depart) {
+      var all_students = await Student.find({
+        $and: [
+          { _id: { $in: ads_admin?.remainingFee } },
+          { admissionRemainFeeCount: valid_all ? { $gte: 0 } : { $gt: 0 } },
+          { department: depart },
+        ],
+      }).select(
+        "fee_structure studentClass batches department studentGender studentCastCategory"
+      );
+    }
+
+    if (category) {
+      all_students = all_students?.filter((ref) => {
+        if (`${ref?.studentCastCategory}` === `${category}`) return ref;
+      });
+    }
+
+    if (gender) {
+      all_students = all_students?.filter((ref) => {
+        if (`${ref?.studentGender}` === `${gender}`) return ref;
+      });
+    }
+
+    if (fee_struct) {
+      all_students = all_students?.filter((ref) => {
+        if (`${ref?.fee_structure}` === `${fee_struct}`) return ref;
+      });
+    }
+
+    if (classes) {
+      all_students = all_students?.filter((ref) => {
+        if (`${ref?.studentClass}` === `${classes}`) return ref;
+      });
+    }
+
+    if (batch) {
+      all_students = all_students?.filter((ref) => {
+        if (`${ref?.batches}` === `${batch}`) return ref;
+      });
+    }
+
+    var sorted_list = [];
+    for (var ref of all_students) {
+      sorted_list.push(ref?._id);
+    }
+
+    const valid_all_students = await Student.find({ _id: { $in: sorted_list } })
+      .sort({ admissionRemainFeeCount: -1 })
       .select(
-        "studentFirstName admissionRemainFeeCount studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentNationality studentCastCategory studentReligion studentMotherName studentMTongue studentPincode studentAddress studentPhoneNumber"
+        "studentFirstName studentMiddleName studentLastName studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto admissionRemainFeeCount"
       )
       .populate({
         path: "department",
@@ -699,25 +737,24 @@ exports.retrievePendingFeeFilter = async (req, res) => {
       .populate({
         path: "batches",
         select: "batchName",
+      })
+      .populate({
+        path: "fee_structure",
+        select: "structure_name",
       });
-
-    if (!is_all) {
-      all_students = all_students?.filter((ref) => {
-        if (ref.admissionRemainFeeCount > 0) return ref;
-      });
-    }
-
-    if (all_students?.length > 0) {
+    if (valid_all_students?.length > 0) {
       res.status(200).send({
         message: "Explore New Excel Exports ",
         access: true,
-        all_students: all_students,
+        valid_all_students: valid_all_students,
+        strength: valid_all_students?.length,
       });
     } else {
       res.status(200).send({
         message: "No New Excel Exports ",
         access: false,
-        all_students: [],
+        valid_all_students: [],
+        strength: 0,
       });
     }
   } catch (e) {

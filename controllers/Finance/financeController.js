@@ -1638,7 +1638,7 @@ exports.retrieveRequestTransAtFinance = async (req, res) => {
     const { fid } = req.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const filter_by = req.query;
+    const { filter_by } = req.query;
     if (filter_by === "ALL_REQUEST") {
       const finance = await Finance.findById({ _id: fid })
         .select("financeName")
@@ -1654,7 +1654,6 @@ exports.retrieveRequestTransAtFinance = async (req, res) => {
             },
           },
         });
-
       var all_query = nested_document_limit(
         page,
         limit,

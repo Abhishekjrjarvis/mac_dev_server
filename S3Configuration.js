@@ -144,3 +144,12 @@ function deleteFile(fileKey) {
   return s3.deleteObject(params).promise();
 }
 exports.deleteFile = deleteFile;
+
+exports.simple_object = async (fileKey) => {
+  const query_params = {
+    Bucket: bucketName,
+    Key: fileKey,
+  };
+  let file = await s3.getObject(query_params).promise();
+  return file;
+};

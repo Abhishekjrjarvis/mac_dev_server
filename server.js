@@ -29,6 +29,7 @@ app.use(
 
 const swaggerUI = require("swagger-ui-express");
 const YAML = require("yamljs");
+const { generate_excel_to_json } = require("./Custom/excelToJSON");
 const swaggerJSDocs = YAML.load("./api.yaml");
 app.set("view engine", "ejs");
 app.set("/views", path.join(__dirname, "/views"));
@@ -89,6 +90,8 @@ app.use((req, res, next) => {
 app.use(apiFunc);
 
 // timerFunction();
+
+// generate_excel_to_json();
 
 app.get("*", (req, res) => {
   res.status(404).send("Page Not Found...");

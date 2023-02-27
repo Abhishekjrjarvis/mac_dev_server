@@ -117,6 +117,16 @@ exports.notify_attendence_provider = (value) => {
   }
 };
 
+exports.replace_query = (value) => {
+  const replaceIndexValue = value.replace("/", "-");
+  const replaceSecondIndexValue = replaceIndexValue.replace("/", "-");
+  const reverseYear = `${replaceSecondIndexValue.substring(6, 10)}`;
+  const reverseMonth = `${replaceSecondIndexValue.substring(3, 5)}`;
+  const reverseDay = `${replaceSecondIndexValue.substring(0, 2)}`;
+  const reverseReplaceSecondIndexValue = `${reverseYear}-${reverseMonth}-${reverseDay}`;
+  return reverseReplaceSecondIndexValue;
+};
+
 exports.date_renew = async (s_date, type, d_set) => {
   if (type === "End") {
     s_date.setDate(s_date.getDate() + d_set.end_date);

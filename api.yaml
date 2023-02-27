@@ -20950,6 +20950,10 @@ paths:
                 type: string
                 description: Enter Class Master Id
                 required: true
+              structure_name:
+                type: string
+                description: Enter Structure Name
+                required: true
               due_date:
                 type: string
                 description: Enter Due Date ("2023-01-02")
@@ -21918,6 +21922,96 @@ paths:
         "200":
           description: OK
 
+  /api/v1/admission/paid/government/grant/fee/{sid}/student/{appId}:
+    post:
+      tags:
+        - New Flow Finance + Admission
+      summary: Mark Government Grant Fee paid by Finance Manager + add body content (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
+        - in: path
+          name: appId
+          required: true
+          type: string
+          description: This is Application id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_payment_mode:
+                type: string
+                description: Enter Fee Mode ("Government/Scholarship")
+                required: false
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: false
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: false
+              fee_bank_name:
+                type: string
+                description: Enter Bank Name e.g SBI
+                required: false
+              fee_bank_holder:
+                type: string
+                description: Enter Bank Holder Name e.g Mithkal
+                required: false
+              fee_utr_reference:
+                type: string
+                description: Enter Fee Unique Transaction Reference Number (UTR)
+                required: false
+              amount:
+                type: number
+                description: Enter amount
+              mode:
+                type: string
+                description: Enter payment mode ("Online" | "Offline" | "Exempted")
+              type:
+                type: string
+                description: Enter Installment Value
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{rid}/remark/query:
+    patch:
+      tags:
+        - New Flow Finance + Admission
+      summary: Update Remark By Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: This is Remaining List Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              remark:
+                type: string
+                description: Enter remark
+                required: true
+      responses:
+        "200":
+          description: OK
+
 
 #Events & Seminars
 
@@ -22428,6 +22522,37 @@ paths:
                 type: array
                 description: Enter Array of new add Department ID's ["823487328748", "987348973878"]
                 required: false
+      responses:
+        "200":
+          description: OK
+
+
+#Upload Excel and Process Data
+
+  /api/v1/extra/excel/to/json/query/{cid}:
+    patch:
+      tags:
+        - Process Excel + Database Processing
+      summary: Upload One Excel File To Directly Current Class (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This Class ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              excel_file:
+                type: string
+                description: Enter Key here
+                required: true
       responses:
         "200":
           description: OK

@@ -105,4 +105,9 @@ router.post(
 
 router.get("/select/account", catchAsync(Auth.renderSelectAccountQuery));
 
+// router.post(
+//   "/direct/institute/join/student/:id/class/:cid/payload",
+//   catchAsync(Auth.retrieveInstituteDirectJoinQueryPayload)
+// );
+
 module.exports = router;

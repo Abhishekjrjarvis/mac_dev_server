@@ -55,6 +55,9 @@ const remainingFeeListSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "FeeStructure",
   },
+  remark: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.model("RemainingList", remainingFeeListSchema);

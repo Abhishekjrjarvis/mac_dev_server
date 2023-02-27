@@ -1252,46 +1252,36 @@ exports.set_fee_head_query = async (
 exports.update_fee_head_query = async (student_args, price, apply_args) => {
   try {
     var price_query = price;
-
-    var parent_head = {
-      ...student_args.fee_structure?.fees_heads,
-      count: student_args.fee_structure?.fees_heads?.length,
-    };
     const filter_student_heads = student_args?.active_fee_heads?.filter(
       (stu) => {
         if (`${stu.appId}` === `${apply_args._id}` && stu.remain_fee > 0)
           return stu;
       }
     );
-    for (var val = 0; val <= filter_student_heads?.length; val++) {
-      if (
-        filter_student_heads[val]?.paid_fee ==
-        filter_student_heads[val]?.applicable_fee
-      ) {
+    for (var ele of filter_student_heads) {
+      if (ele?.paid_fee == ele?.applicable_fee) {
       } else {
-        filter_student_heads[val].remain_fee =
-          filter_student_heads[val].remain_fee > 0
-            ? price_query >= filter_student_heads[val].remain_fee
-              ? 0
-              : filter_student_heads[val].remain_fee - price_query
-            : 0;
-        filter_student_heads[val].paid_fee =
-          filter_student_heads[val]?.paid_fee ==
-          parent_head[`${val}`]?.head_amount
-            ? parent_head[`${val}`].head_amount
-            : price_query >= filter_student_heads[val]?.applicable_fee
-            ? filter_student_heads[val].paid_fee
-            : filter_student_heads[val].paid_fee + price_query >=
-              filter_student_heads[val]?.applicable_fee
-            ? filter_student_heads[val]?.applicable_fee
-            : filter_student_heads[val].paid_fee + price_query;
+        if (price_query >= ele?.applicable_fee) {
+          ele.paid_fee = ele?.applicable_fee;
+        } else {
+          if (ele.paid_fee + price_query >= ele?.applicable_fee) {
+            ele.paid_fee = ele?.applicable_fee;
+          } else {
+            ele.paid_fee = ele.paid_fee + price_query;
+          }
+        }
+        ele.remain_fee =
+          price_query >= ele.remain_fee ? 0 : ele.remain_fee - price_query;
 
-        price_query =
-          price_query >= filter_student_heads[val]?.remain_fee
-            ? price_query - filter_student_heads[val]?.remain_fee
-            : 0;
+        var price_second =
+          price_query >= ele?.remain_fee ? price_query - ele?.remain_fee : 0;
+        console.log("O", price_query);
+        price_query = price_second;
+        console.log("S", price_query);
       }
     }
+    await student_args.save();
+    return student_args;
   } catch (e) {
     console.log(e);
   }

@@ -656,6 +656,16 @@ const instituteAdminSchema = new mongoose.Schema({
       ref: "EventManager",
     },
   ],
+  excel_data_query: [
+    {
+      excel_file: { type: String },
+      classId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Class",
+      },
+      status: { type: String, default: "Not Uploaded" },
+    },
+  ],
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

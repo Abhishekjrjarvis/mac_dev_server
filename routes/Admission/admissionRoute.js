@@ -361,4 +361,16 @@ router.delete(
 
 router.get("/:aid/refund/array", catchAsync(Admission.renderRefundArrayQuery));
 
+router.post(
+  "/paid/government/grant/fee/:sid/student/:appId",
+  // isLoggedIn,
+  catchAsync(Admission.paidRemainingFeeStudentFinanceQuery)
+);
+
+router.patch(
+  "/:rid/remark/query",
+  // isLoggedIn,
+  catchAsync(Admission.renderStudentRemarkQuery)
+);
+
 module.exports = router;

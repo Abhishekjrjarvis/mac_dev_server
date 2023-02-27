@@ -16,6 +16,11 @@ const Admission = require("../../models/Admission/Admission");
 const { chatCount } = require("../../Firebase/dailyChat");
 const { getFirestore } = require("firebase-admin/firestore");
 const { valid_initials } = require("../../Custom/checkInitials");
+const { simple_object } = require("../../S3Configuration");
+const { generate_excel_to_json } = require("../../Custom/excelToJSON");
+const {
+  retrieveInstituteDirectJoinQueryPayload,
+} = require("../Authentication/AuthController");
 // const { staff_id_card_format } = require("../../export/IdCard");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
@@ -917,6 +922,59 @@ exports.retrieveRecentChatCount = async (req, res) => {
       show: true,
       data,
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderExcelToJSONQuery = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    const { excel_file } = req.body;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const one_class = await Class.findById({ _id: cid });
+    const one_ins = await InstituteAdmin.findById({
+      _id: `${one_class?.institute}`,
+    });
+    one_ins.excel_data_query.push({
+      excel_file: excel_file,
+      classId: one_class?._id,
+      status: "Uploaded",
+    });
+    await one_ins.save();
+    res.status(200).send({
+      message: "Update Excel To Backend Wait for Operation Completed",
+      access: true,
+    });
+
+    const update_ins = await InstituteAdmin.findById({
+      _id: `${one_class?.institute}`,
+    });
+    var key;
+    for (var ref of update_ins?.excel_data_query) {
+      if (
+        `${ref.status}` === "Uploaded" &&
+        `${ref?.classId}` === `${one_class?._id}`
+      ) {
+        key = ref?.excel_file;
+      }
+    }
+    const val = await simple_object(key);
+
+    const is_converted = await generate_excel_to_json(val);
+    if (is_converted?.value) {
+      await retrieveInstituteDirectJoinQueryPayload(
+        cid,
+        is_converted?.student_array
+      );
+    } else {
+      console.log("false");
+    }
   } catch (e) {
     console.log(e);
   }

@@ -2266,7 +2266,7 @@ exports.submitLibraryFeeQuery = async (req, res) => {
     } else if (status === "Rejected") {
       const price = parseInt(amount);
       var finance = await Finance.findById({ _id: fid });
-      var libs = await Library.findById({ _id: aid });
+      var libs = await Library.findById({ _id: lid });
       for (var docs of finance.library_request) {
         if (`${docs?._id}` === `${rid}`) {
           finance.library_request.pull(docs?._id);

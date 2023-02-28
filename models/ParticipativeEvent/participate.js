@@ -94,6 +94,16 @@ const participateEventSchema = new mongoose.Schema({
     type: String,
     default: "Not Declare",
   },
+  apply_student: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
+  apply_student_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("Participate", participateEventSchema);

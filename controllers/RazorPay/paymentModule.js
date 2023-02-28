@@ -672,11 +672,13 @@ exports.participateEventFunction = async (
     }
     // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount_ad);
     status.event_payment_status = "Paid";
+    event.apply_student.push(student?._id);
+    event.apply_student_count += 1;
     event.event_fee_array.push({
       student: student._id,
       fee_status: "Paid",
     });
-    student.participate_event.push(event?._id);
+    student.eventicipate_event.push(event?._id);
     event.paid_participant += 1;
     notify.notifyContent = `${student.studentFirstName} ${
       student.studentMiddleName ? `${student.studentMiddleName} ` : ""

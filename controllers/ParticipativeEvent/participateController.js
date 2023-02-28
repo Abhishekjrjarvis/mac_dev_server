@@ -96,7 +96,7 @@ exports.retrieveOneParticipateEventQuery = async (req, res) => {
     const { pid } = req.params;
     const part = await Participate.findById({ _id: pid })
       .select(
-        "event_name event_date event_fee result_notification event_about event_app_last_date event_fee_critiria event_checklist_critiria event_ranking_critiria"
+        "event_name event_date event_fee result_notification event_about event_app_last_date event_fee_critiria event_checklist_critiria event_ranking_critiria apply_student_count"
       )
       .populate({
         path: "event_classes",
@@ -292,6 +292,33 @@ exports.retrieveResultParticipateEventStudent = async (req, res) => {
     } else {
       res.status(200).send({ message: "Result Not Declared", result: false });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveApplyParticipateEventStudent = async (req, res) => {
+  try {
+    const { pid, sid, statusId } = req.params;
+    if (!pid && !sid && !statusId)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const part = await Participate.findById({ _id: pid });
+    const student = await Student.findById({ _id: sid });
+    const status = await StudentNotification.findById({ _id: statusId });
+    status.event_payment_status = "Applied";
+    part.apply_student.push(student?._id);
+    part.apply_student_count += 1;
+    // student.participate_event.push(part?._id);
+
+    await Promise.all([part.save(), status.save()]);
+
+    res
+      .status(200)
+      .send({ message: "Explore Current Participate", access: true });
   } catch (e) {
     console.log(e);
   }

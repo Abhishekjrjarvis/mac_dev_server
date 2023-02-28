@@ -18236,6 +18236,36 @@ paths:
         "200":
           description: OK
 
+
+  /api/v1/participate/event/one/{pid}/apply/{sid}/activity/{statusId}:
+    patch:
+      tags:
+        - Participate Event Query
+      summary: Apply By Student (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          type: string
+          description: Enter Participate Event Id
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Student Id
+        - in: path
+          name: statusId
+          required: true
+          type: string
+          description: Enter Student Notification Id
+      responses:
+        "200":
+          description: OK
+
   /api/v1/participate/event/one/{pid}/result:
     patch:
       tags:

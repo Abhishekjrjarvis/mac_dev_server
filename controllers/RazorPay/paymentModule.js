@@ -27,6 +27,7 @@ const {
   exempt_installment,
   set_fee_head_query,
   remain_one_time_query,
+  update_fee_head_query,
 } = require("../../helper/Installment");
 
 exports.unlockInstituteFunction = async (order, paidBy, tx_amounts) => {
@@ -567,7 +568,7 @@ exports.admissionInstituteFunction = async (
         ins.adminRepayAmount += parseInt(tx_amount_ad);
       }
       // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount_ad);
-      await set_fee_head_query(student, parseInt(tx_amount_ad), apply);
+      await update_fee_head_query(student, parseInt(tx_amount_ad), apply);
       for (var match of student.paidFeeList) {
         if (`${match.appId}` === `${apply._id}`) {
           match.paidAmount += parseInt(tx_amount_ad);

@@ -306,6 +306,12 @@ router.patch(
   catchAsync(Finance.renderFeeStructureRetroQuery)
 );
 
+router.delete(
+  "/fee/structure/:fsid/retro/delete",
+  // isLoggedIn,
+  catchAsync(Finance.renderFeeStructureDeleteRetroQuery)
+);
+
 router.get(
   "/depart/:did/all/fee/structure",
   // isLoggedIn,

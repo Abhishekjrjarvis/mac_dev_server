@@ -704,7 +704,7 @@ exports.fetchAllSelectApplication = async (req, res) => {
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
             populate: {
               path: "fee_structure",
-              select: "total_admission_fees one_installments",
+              select: "total_admission_fees one_installments structure_name",
               populate: {
                 path: "category_master",
                 select: "category_name",
@@ -743,7 +743,7 @@ exports.fetchAllSelectApplication = async (req, res) => {
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
             populate: {
               path: "fee_structure",
-              select: "total_admission_fees one_installments",
+              select: "total_admission_fees one_installments structure_name",
               populate: {
                 path: "category_master",
                 select: "category_name",
@@ -792,7 +792,7 @@ exports.fetchAllConfirmApplication = async (req, res) => {
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
             populate: {
               path: "fee_structure",
-              select: "total_admission_fees one_installments",
+              select: "total_admission_fees one_installments structure_name",
               populate: {
                 path: "category_master",
                 select: "category_name",
@@ -831,7 +831,7 @@ exports.fetchAllConfirmApplication = async (req, res) => {
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
             populate: {
               path: "fee_structure",
-              select: "total_admission_fees one_installments",
+              select: "total_admission_fees one_installments structure_name",
               populate: {
                 path: "category_master",
                 select: "category_name",
@@ -3124,7 +3124,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       })
       .populate({
         path: "fee_structure",
-        select: "total_admission_fees",
+        select: "total_admission_fees structure_name",
       });
 
     if (all_remain?.length > 0) {

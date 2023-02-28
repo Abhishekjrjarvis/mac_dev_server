@@ -2466,6 +2466,34 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
   }
 };
 
+exports.renderFeeStructureDeleteRetroQuery = async (req, res) => {
+  try {
+    const { fsid } = req.params;
+    if (!fsid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const previous_struct = await FeeStructure.findById({ _id: fsid });
+    const depart = await Department.findById({
+      _id: `${previous_struct?.department}`,
+    });
+    depart.modify_fees_structures_count += 1;
+    previous_struct.document_update = true;
+    if (depart.fees_structures_count > 0) {
+      depart.fees_structures_count -= 1;
+    }
+    await Promise.all([depart.save(), previous_struct.save()]);
+    res.status(200).send({
+      message: "Fees Structure retro bucket Deletion",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.renderDepartmentAllFeeStructure = async (req, res) => {
   try {
     const { did } = req.params;
@@ -2492,7 +2520,7 @@ exports.renderDepartmentAllFeeStructure = async (req, res) => {
       })
         .limit(limit)
         .skip(skip)
-        .select("total_admission_fees")
+        .select("total_admission_fees structure_name")
         .populate({
           path: "category_master",
           select: "category_name",
@@ -2503,7 +2531,10 @@ exports.renderDepartmentAllFeeStructure = async (req, res) => {
         });
     } else {
       var all_structures = await FeeStructure.find({
-        _id: { $in: depart?.fees_structures },
+        $and: [
+          { _id: { $in: depart?.fees_structures } },
+          { document_update: false },
+        ],
       })
         .limit(limit)
         .skip(skip)
@@ -2561,7 +2592,7 @@ exports.renderAllFinanceExempt = async (req, res) => {
           "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
         populate: {
           path: "fee_structure",
-          select: "category_master",
+          select: "category_master structure_name",
           populate: {
             path: "category_master",
             select: "category_name",
@@ -2637,7 +2668,7 @@ exports.renderAllFinanceGovernment = async (req, res) => {
           "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
         populate: {
           path: "fee_structure",
-          select: "category_master",
+          select: "category_master structure_name",
           populate: {
             path: "category_master",
             select: "category_name",
@@ -2712,7 +2743,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
           "studentFirstName studentMiddleName studentLastName active_fee_heads",
         populate: {
           path: "fee_structure",
-          select: "category_master",
+          select: "category_master structure_name",
           populate: {
             path: "category_master",
             select: "category_name",
@@ -2785,7 +2816,7 @@ exports.renderOneFeeStructure = async (req, res) => {
 
     const structure = await FeeStructure.findById({ _id: fsid })
       .select(
-        "one_installments two_installments three_installments four_installments five_installments six_installments seven_installments eight_installments nine_installments ten_installments eleven_installments tweleve_installments total_installments total_admission_fees due_date fees_heads"
+        "one_installments two_installments structure_name three_installments four_installments five_installments six_installments seven_installments eight_installments nine_installments ten_installments eleven_installments tweleve_installments total_installments total_admission_fees due_date fees_heads"
       )
       .populate({
         path: "category_master",

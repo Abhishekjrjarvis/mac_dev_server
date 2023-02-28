@@ -352,6 +352,16 @@ const financeSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    fee_master_array: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeMaster",
+      },
+    ],
+    fee_master_array_count: {
+      type: Number,
+      default: 0,
+    },
     exempt_receipt: [
       {
         type: mongoose.Schema.Types.ObjectId,

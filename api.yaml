@@ -22211,6 +22211,129 @@ paths:
         "200":
           description: OK
 
+  /api/v1/finance/{fid}/fee/master/new:
+    post:
+      tags:
+        - New Flow Finance + Admission
+      summary: New Master Head By Finance Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              master_name:
+                type: string
+                description: Enter Master Head Name
+                required: true
+              master_amount:
+                type: number
+                description: Enter Master Price
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/all/master/head/query:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Get All Master Head By Finance Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: This is Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: This is Limit
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: This is Search Query
+      responses:
+        "200":
+          description: OK
+  
+  /api/v1/finance/fee/master/{fmid}/edit/query:
+    patch:
+      tags:
+        - New Flow Finance + Admission
+      summary: Edit Master Head By Finance Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fmid
+          required: true
+          type: string
+          description: This is Master Head Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              master_name:
+                type: string
+                description: Enter Master Head Name
+                required: true
+              master_amount:
+                type: number
+                description: Enter Master Price
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/finance/{fid}/fee/master/{fmid}/destroy/query:
+    delete:
+      tags:
+        - New Flow Finance + Admission
+      summary: Delete Master Head By Finance Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance Id
+        - in: path
+          name: fmid
+          required: true
+          type: string
+          description: This is Master Head ID
+      responses:
+        "200":
+          description: OK
+
 #Events & Seminars
 
   /api/v1/event/process/ins/{id}/staff/{sid}/manager:

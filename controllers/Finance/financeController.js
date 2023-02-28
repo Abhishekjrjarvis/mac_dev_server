@@ -26,6 +26,7 @@ const invokeFirebaseNotification = require("../../Firebase/firebase");
 const BusinessTC = require("../../models/Finance/BToC");
 const FeeCategory = require("../../models/Finance/FeesCategory");
 const FeeStructure = require("../../models/Finance/FeesStructure");
+const FeeMaster = require("../../models/Finance/FeeMaster");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const Transport = require("../../models/Transport/transport");
 const Store = require("../../models/Finance/Inventory");
@@ -215,7 +216,7 @@ exports.retrieveFinanceQuery = async (req, res) => {
     //   });
     const finance = await Finance.findById({ _id: fid })
       .select(
-        "financeName financeEmail financePhoneNumber financeAbout photoId photo cover coverId financeCollectedBankBalance financeTotalBalance financeRaisedBalance financeExemptBalance financeCollectedSBalance financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance payment_modes_type finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode fees_category_count exempt_receipt_count government_receipt_count"
+        "financeName financeEmail financePhoneNumber financeAbout photoId photo cover coverId financeCollectedBankBalance financeTotalBalance financeRaisedBalance financeExemptBalance financeCollectedSBalance financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance payment_modes_type finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode fees_category_count exempt_receipt_count government_receipt_count fee_master_array_count"
       )
       .populate({
         path: "institute",
@@ -2915,6 +2916,124 @@ exports.addBody = async (req, res) => {
     } else {
       res.status(200).send({ message: "Your Body is Empty", body: {} });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceAddFeeMaster = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const finance = await Finance.findById({ _id: fid });
+    const master = new FeeMaster({ ...req.body });
+    master.finance = finance?._id;
+    finance.fee_master_array.push(master?._id);
+    finance.fee_master_array_count += 1;
+    await Promise.all([master.save(), finance.save()]);
+    res
+      .status(200)
+      .send({ message: "I Think Fees Master Problem Solved", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceAllMasterHeadQuery = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const finance = await Finance.findById({ _id: fid }).select(
+      "fee_master_array"
+    );
+
+    if (search) {
+      var all_master = await FeeMaster.find({
+        $and: [{ _id: { $in: finance?.fee_master_array } }],
+        $or: [{ master_name: { $regex: search, $options: "i" } }],
+      }).select("master_name master_amount created_at");
+    } else {
+      var all_master = await FeeMaster.find({
+        _id: { $in: finance?.fee_master_array },
+      })
+        .sort("-1")
+        .limit(limit)
+        .skip(skip)
+        .select("master_name master_amount created_at");
+    }
+
+    if (all_master?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Master Heads",
+        access: true,
+        all_master: all_master,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Master Heads",
+        access: true,
+        all_master: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceEditFeeMasterQuery = async (req, res) => {
+  try {
+    const { fmid } = req.params;
+    if (!fmid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    await FeeMaster.findByIdAndUpdate(fmid, req.body);
+    res
+      .status(200)
+      .send({ message: "New Existing Master Head ", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceDeleteFeeMasterQuery = async (req, res) => {
+  try {
+    const { fid, fmid } = req.params;
+    if (!fid && !fmid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const finance = await Finance.findById({ _id: fid });
+    const master = await FeeMaster.findById({ _id: fmid });
+
+    finance.fee_master_array.pull(master?._id);
+    if (finance.fee_master_array_count > 0) {
+      finance.fee_master_array_count -= 1;
+    }
+
+    await finance.save();
+    await FeeMaster.findByIdAndDelete(fmid);
+    res.status(200).send({
+      message: "Deletion Operation of Existing Master Head ",
+      access: true,
+    });
   } catch (e) {
     console.log(e);
   }

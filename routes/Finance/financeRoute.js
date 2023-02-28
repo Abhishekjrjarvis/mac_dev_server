@@ -362,4 +362,28 @@ router.get(
 
 router.post("/add/body", catchAsync(Finance.addBody));
 
+router.post(
+  "/:fid/fee/master/new",
+  // isLoggedIn,
+  catchAsync(Finance.renderFinanceAddFeeMaster)
+);
+
+router.get(
+  "/:fid/all/master/head/query",
+  // isLoggedIn,
+  catchAsync(Finance.renderFinanceAllMasterHeadQuery)
+);
+
+router.patch(
+  "/fee/master/:fmid/edit/query",
+  // isLoggedIn,
+  catchAsync(Finance.renderFinanceEditFeeMasterQuery)
+);
+
+router.delete(
+  "/:fid/fee/master/:fmid/destroy/query",
+  // isLoggedIn,
+  catchAsync(Finance.renderFinanceDeleteFeeMasterQuery)
+);
+
 module.exports = router;

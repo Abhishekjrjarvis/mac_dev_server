@@ -2335,7 +2335,10 @@ exports.renderFinanceAllFeeCategoryQuery = async (req, res) => {
     );
 
     const all_fees_format = await FeeCategory.find({
-      _id: { $in: finance?.fees_category },
+      $and: [
+        { _id: { $in: finance?.fees_category } },
+        { document_update: false },
+      ],
     })
       // .limit(limit)
       // .skip(skip)
@@ -2376,6 +2379,32 @@ exports.renderFinanceAddFeeCategory = async (req, res) => {
     await Promise.all([finance.save(), feeQuery.save()]);
     res.status(200).send({
       message: "Add new Category to bucket",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceFeeCategoryDeleteQuery = async (req, res) => {
+  try {
+    const { fcid } = req.params;
+    if (!fcid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const feeQuery = await FeeCategory.findById({ _id: fcid });
+    const finance = await Finance.findById({ _id: `${feeQuery?.finance}` });
+    if (finance.fees_category_count > 0) {
+      finance.fees_category_count -= 1;
+    }
+    feeQuery.document_update = true;
+    finance.modify_fees_category_count += 1;
+    await Promise.all([finance.save(), feeQuery.save()]);
+    res.status(200).send({
+      message: "Deletion Operation Fees Category to bucket",
       access: true,
     });
   } catch (e) {

@@ -22143,6 +22143,43 @@ paths:
         "200":
           description: OK
 
+  /api/v1/finance/fee/structure/{fsid}/retro/delete:
+    delete:
+      tags:
+        - New Flow Finance + Admission
+      summary: Delete Fees Structure By Finance Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fsid
+          required: true
+          type: string
+          description: This is Fee Structure Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fcid}/fee/category/delete/query:
+    delete:
+      tags:
+        - New Flow Finance + Admission
+      summary: Delete Fees Category By Finance Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fcid
+          required: true
+          type: string
+          description: This is Fee Category Id
+      responses:
+        "200":
+          description: OK
 
 #Events & Seminars
 

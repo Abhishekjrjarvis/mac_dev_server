@@ -293,6 +293,12 @@ router.post(
   catchAsync(Finance.renderFinanceAddFeeCategory)
 );
 
+router.delete(
+  "/:fcid/fee/category/delete/query",
+  // isLoggedIn,
+  catchAsync(Finance.renderFinanceFeeCategoryDeleteQuery)
+);
+
 router.post(
   "/:fid/fee/structure/new/:did",
   // isLoggedIn,

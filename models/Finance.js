@@ -348,6 +348,10 @@ const financeSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    modify_fees_category_count: {
+      type: Number,
+      default: 0,
+    },
     exempt_receipt: [
       {
         type: mongoose.Schema.Types.ObjectId,

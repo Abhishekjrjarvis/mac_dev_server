@@ -17,6 +17,10 @@ const feeCategorySchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department",
   },
+  document_update: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = mongoose.model("FeeCategory", feeCategorySchema);

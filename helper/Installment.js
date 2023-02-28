@@ -1261,26 +1261,18 @@ exports.update_fee_head_query = async (student_args, price, apply_args) => {
           return stu;
       }
     );
+
     for (var ele of filter_student_heads) {
       if (ele?.paid_fee == ele?.applicable_fee) {
       } else {
-        if (price_query >= ele?.applicable_fee) {
-          ele.paid_fee = ele?.applicable_fee;
-        } else {
-          if (ele.paid_fee + price_query >= ele?.applicable_fee) {
-            ele.paid_fee = ele?.applicable_fee;
-          } else {
-            ele.paid_fee = ele.paid_fee + price_query;
-          }
-        }
+        ele.paid_fee +=
+          price_query >= ele.remain_fee ? ele.remain_fee : price_query;
+        price_query =
+          price_query >= ele.remain_fee ? price_query - ele.remain_fee : 0;
         ele.remain_fee =
-          price_query >= ele.remain_fee ? 0 : ele.remain_fee - price_query;
-
-        var price_second =
-          price_query >= ele?.remain_fee ? price_query - ele?.remain_fee : 0;
-        // console.log("O", price_query);
-        price_query = price_second;
-        // console.log("S", price_query);
+          ele.paid_fee == ele.applicable_fee
+            ? 0
+            : ele.applicable_fee - ele.paid_fee;
       }
     }
     await student_args.save();

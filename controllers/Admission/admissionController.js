@@ -2275,7 +2275,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     } else {
     }
     // await set_fee_head_query(student, price, apply);
-    const result = await update_fee_head_query(student, price, apply);
+    await update_fee_head_query(student, price, apply);
     for (var stu of student.paidFeeList) {
       if (`${stu.appId}` === `${apply._id}`) {
         stu.paidAmount += price;
@@ -2306,7 +2306,6 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     res.status(200).send({
       message: "Balance Pool increasing with price Operation complete",
       paid: true,
-      result,
     });
     var is_refund =
       remaining_fee_lists?.paid_fee - remaining_fee_lists?.applicable_fee;
@@ -2743,7 +2742,7 @@ const request_mode_query_by_student = async (
     } else {
     }
     // await set_fee_head_query(student, price, apply);
-    const result = await update_fee_head_query(student, price, apply);
+    await update_fee_head_query(student, price, apply);
     for (var stu of student.paidFeeList) {
       if (`${stu.appId}` === `${apply._id}`) {
         stu.paidAmount += price;
@@ -4756,7 +4755,7 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
     } else {
     }
     // await set_fee_head_query(student, price, apply);
-    const result = await update_fee_head_query(student, price, apply);
+    await update_fee_head_query(student, price, apply);
     for (var stu of student.paidFeeList) {
       if (`${stu.appId}` === `${apply._id}`) {
         stu.paidAmount += price;
@@ -4787,7 +4786,6 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
     res.status(200).send({
       message: "Balance Pool increasing with price Operation complete",
       paid: true,
-      result,
     });
     var is_refund =
       remaining_fee_lists?.paid_fee - remaining_fee_lists?.applicable_fee;

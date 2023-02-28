@@ -34,6 +34,7 @@ const remainingFeeListSchema = new mongoose.Schema({
         ref: "FeeReceipt",
       },
       refund_status: { type: String, default: "Not Refunded" },
+      reject_reason: { type: String },
     },
   ],
   fee_receipts: [

@@ -373,4 +373,10 @@ router.patch(
   catchAsync(Admission.renderStudentRemarkQuery)
 );
 
+router.patch(
+  "/:sid/go/offline/receipt/:appId",
+  // isLoggedIn,
+  catchAsync(Admission.renderStudentGoOfflineReceiptQuery)
+);
+
 module.exports = router;

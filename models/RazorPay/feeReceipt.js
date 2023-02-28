@@ -49,6 +49,9 @@ const feeReceiptSchema = new mongoose.Schema({
   reason: {
     type: String,
   },
+  fee_payment_type: {
+    type: String,
+  },
   // applicable_fee: {
   //   type: Number,
   //   default: 0,
@@ -60,6 +63,9 @@ const feeReceiptSchema = new mongoose.Schema({
   finance: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Finance",
+  },
+  fee_request_remain_card: {
+    type: String,
   },
 });
 

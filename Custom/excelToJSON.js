@@ -54,9 +54,10 @@ exports.generate_excel_to_json = async (file) => {
           studentMiddleName: name_query[1],
           studentLastName: name_query[2],
           fee_struct: ref?.fee_struct,
-          is_remain: "Yes",
+          is_remain: ref?.isremain,
           fileArray: [],
           sample_pic: "",
+          fee_struct: ref?.fee_struct,
         });
       } else {
         new_data_query.push({
@@ -65,9 +66,10 @@ exports.generate_excel_to_json = async (file) => {
           studentFirstName: name_query[0],
           studentLastName: name_query[1],
           fee_struct: ref?.fee_struct,
-          is_remain: "Yes",
+          is_remain: ref?.isremain,
           fileArray: [],
           sample_pic: "",
+          fee_struct: ref?.fee_struct,
         });
       }
     });

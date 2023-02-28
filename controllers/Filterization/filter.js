@@ -7,6 +7,8 @@ const User = require("../../models/User");
 const Class = require("../../models/Class");
 const Admission = require("../../models/Admission/Admission");
 const Student = require("../../models/Student");
+const Department = require("../../models/Department");
+const ClassMaster = require("../../models/ClassMaster");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 var trendingQuery = (trends, cat, type, page) => {
@@ -660,8 +662,8 @@ exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
 exports.retrievePendingFeeFilter = async (req, res) => {
   try {
     const { aid } = req.params;
-    const { depart, batch, gender, category, classes, is_all, fee_struct } =
-      req.query;
+    const { gender, category, is_all, all_depart, batch_status } = req.query;
+    const { depart, batch, master, fee_struct } = req.body;
     if (!aid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -669,21 +671,70 @@ exports.retrievePendingFeeFilter = async (req, res) => {
       });
 
     const ads_admin = await Admission.findById({ _id: aid }).select(
-      "remainingFee"
+      "remainingFee institute"
     );
 
-    var valid_all = is_all == "false" ? false : true;
+    var valid_all = is_all === "false" ? false : true;
 
-    if (depart) {
+    if (all_depart === "All") {
+      var sorted_batch = [];
+      const institute = await InstituteAdmin.findById({
+        _id: `${ads_admin?.institute}`,
+      }).select("depart");
+
+      if (batch_status === "All") {
+        var all_department = await Department.find({
+          _id: { $in: institute?.depart },
+        }).select("batches");
+        for (var ref of all_department) {
+          sorted_batch.push(...ref?.batches);
+        }
+      } else if (batch_status === "Current") {
+        var all_department = await Department.find({
+          _id: { $in: institute?.depart },
+        }).select("departmentSelectBatch");
+        for (var ref of all_department) {
+          sorted_batch.push(ref?.departmentSelectBatch);
+        }
+      }
       var all_students = await Student.find({
         $and: [
-          { _id: { $in: ads_admin?.remainingFee } },
+          { batches: { $in: sorted_batch } },
           { admissionRemainFeeCount: valid_all ? { $gte: 0 } : { $gt: 0 } },
-          { department: depart },
         ],
       }).select(
         "fee_structure studentClass batches department studentGender studentCastCategory"
       );
+    } else if (all_depart === "Particular") {
+      var all_students = await Student.find({
+        $and: [
+          { _id: { $in: ads_admin?.remainingFee } },
+          { admissionRemainFeeCount: valid_all ? { $gte: 0 } : { $gt: 0 } },
+        ],
+      }).select(
+        "fee_structure studentClass batches department studentGender studentCastCategory"
+      );
+      if (depart) {
+        all_students = all_students?.filter((ref) => {
+          if (`${ref?.department}` === `${depart}`) return ref;
+        });
+      }
+      if (batch) {
+        all_students = all_students?.filter((ref) => {
+          if (`${ref?.batches}` === `${batch}`) return ref;
+        });
+      }
+      var select_classes = [];
+      const all_master = await ClassMaster.find({
+        _id: { $in: master },
+      }).select("classDivision");
+
+      for (var ref of all_master) {
+        select_classes.push(...ref?.classDivision);
+      }
+      all_students = all_students?.filter((ref) => {
+        if (select_classes?.includes(`${ref?.studentClass}`)) return ref;
+      });
     }
 
     if (category) {
@@ -701,18 +752,6 @@ exports.retrievePendingFeeFilter = async (req, res) => {
     if (fee_struct) {
       all_students = all_students?.filter((ref) => {
         if (`${ref?.fee_structure}` === `${fee_struct}`) return ref;
-      });
-    }
-
-    if (classes) {
-      all_students = all_students?.filter((ref) => {
-        if (`${ref?.studentClass}` === `${classes}`) return ref;
-      });
-    }
-
-    if (batch) {
-      all_students = all_students?.filter((ref) => {
-        if (`${ref?.batches}` === `${batch}`) return ref;
       });
     }
 

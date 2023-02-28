@@ -1278,9 +1278,9 @@ exports.update_fee_head_query = async (student_args, price, apply_args) => {
 
         var price_second =
           price_query >= ele?.remain_fee ? price_query - ele?.remain_fee : 0;
-        console.log("O", price_query);
+        // console.log("O", price_query);
         price_query = price_second;
-        console.log("S", price_query);
+        // console.log("S", price_query);
       }
     }
     await student_args.save();

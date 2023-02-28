@@ -22078,6 +22078,71 @@ paths:
         "200":
           description: OK
 
+  /api/v1/admission/{sid}/go/offline/receipt/{appId}:
+    patch:
+      tags:
+        - New Flow Finance + Admission
+      summary: Request for Offline Procedure (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student Id
+        - in: path
+          name: appId
+          required: true
+          type: string
+          description: This is Application Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_payment_type:
+                type: string
+                description: Enter payment Type (i.e installmentValue)
+                required: true
+              fee_payment_mode:
+                type: string
+                description: Enter payment Mode except "By Cash"
+                required: true
+              fee_payment_amount:
+                type: number
+                description: Enter payment Amount
+                required: true
+              transaction_date:
+                type: string
+                description: Enter Date ("2023-02-02")
+                required: true
+              fee_bank_name:
+                type: string
+                description: Enter Bank Name e.g SBI
+                required: false
+              fee_bank_holder:
+                type: string
+                description: Enter Bank Holder Name e.g Mithkal
+                required: false
+              fee_utr_reference:
+                type: string
+                description: Enter Fee Unique Transaction Reference Number (UTR)
+                required: false
+              rid:
+                type: string
+                description: Enter Remaining List ID
+                required: true
+              raid:
+                type: string
+                description: Enter Remaining Array ID i.e coming from installmentValue Card
+                required: true
+      responses:
+        "200":
+          description: OK
+
 
 #Events & Seminars
 
@@ -22641,26 +22706,6 @@ paths:
           type: string
           description: This is Admission ID
         - in: query
-          name: depart
-          required: true
-          type: string
-          description: This is Department ID
-        - in: query
-          name: classes
-          required: false
-          type: string
-          description: This is Class ID
-        - in: query
-          name: batch
-          required: false
-          type: string
-          description: This is batch ID
-        - in: query
-          name: fee_struct
-          required: false
-          type: string
-          description: This is Fee Structure ID
-        - in: query
           name: gender
           required: false
           type: string
@@ -22675,6 +22720,37 @@ paths:
           required: false
           type: string
           description: This is ("false" || "true")
+        - in: query
+          name: all_depart
+          required: false
+          type: string
+          description: This is All Department ("All" || "Particular")
+        - in: query
+          name: batch_status
+          required: false
+          type: string
+          description: This is ("All" || "Current")
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              depart:
+                type: string
+                description: Enter Department ID if all_depart is "Particular"
+                required: true
+              batch:
+                type: string
+                description: Enter Batch ID if all_depart is "Particular"
+                required: true
+              master:
+                type: string
+                description: Enter Array of Object ID's if all_depart is "Particular"
+                required: false
+              fee_struct:
+                type: string
+                description: Enter Fee Structures ID
+                required: false
       responses:
         "200":
           description: OK

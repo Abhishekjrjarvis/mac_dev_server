@@ -2629,7 +2629,9 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
           userDateOfBirth: query.studentDOB,
           username: valid?.username,
           userStatus: "Approved",
-          userPhoneNumber: 0,
+          userPhoneNumber: query?.userPhoneNumber
+            ? parseInt(query?.userPhoneNumber)
+            : 0,
           userEmail: query.userEmail,
           userPassword: hashUserPass,
           photoId: "0",

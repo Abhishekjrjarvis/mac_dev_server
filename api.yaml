@@ -22910,7 +22910,7 @@ paths:
 # New Filter
 
   /api/v1/feed/filter/pending/fee/{aid}:
-    get:
+    patch:
       tags:
         - New Custom Filter
       summary: Get All Filtered Student Pending Fees (verified)

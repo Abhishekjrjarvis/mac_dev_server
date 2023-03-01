@@ -379,4 +379,9 @@ router.patch(
   catchAsync(Admission.renderStudentGoOfflineReceiptQuery)
 );
 
+router.get(
+  "/:aid/all/export/excel/array",
+  catchAsync(Admission.renderAllExportExcelArrayQuery)
+);
+
 module.exports = router;

@@ -9,6 +9,7 @@ const Admission = require("../../models/Admission/Admission");
 const Student = require("../../models/Student");
 const Department = require("../../models/Department");
 const ClassMaster = require("../../models/ClassMaster");
+const { json_to_excel_query } = require("../../Custom/JSONToExcel");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 var trendingQuery = (trends, cat, type, page) => {
@@ -760,10 +761,22 @@ exports.retrievePendingFeeFilter = async (req, res) => {
       sorted_list.push(ref?._id);
     }
 
+    if (sorted_list?.length > 0) {
+      res.status(200).send({
+        message: "Explore New Excel Exports Wait for Some Time To Process",
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No New Excel Exports ",
+        access: false,
+      });
+    }
+
     const valid_all_students = await Student.find({ _id: { $in: sorted_list } })
       .sort({ admissionRemainFeeCount: -1 })
       .select(
-        "studentFirstName studentMiddleName studentLastName studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto admissionRemainFeeCount"
+        "studentFirstName studentMiddleName studentLastName studentDOB studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto admissionRemainFeeCount"
       )
       .populate({
         path: "department",
@@ -780,22 +793,95 @@ exports.retrievePendingFeeFilter = async (req, res) => {
       .populate({
         path: "fee_structure",
         select: "structure_name",
+      })
+      .populate({
+        path: "remainingFeeList",
+        populate: {
+          path: "batchId",
+          select: "batchName",
+        },
+      })
+      .populate({
+        path: "remainingFeeList",
+        populate: {
+          path: "appId",
+          select: "applicationName",
+        },
+      })
+      .populate({
+        path: "remainingFeeList",
+        populate: {
+          path: "fee_structure",
+          select:
+            "structure_name category_master total_admission_fees one_installments",
+          populate: {
+            path: "category_master",
+            select: "category_name",
+          },
+        },
       });
-    if (valid_all_students?.length > 0) {
-      res.status(200).send({
-        message: "Explore New Excel Exports ",
-        access: true,
-        valid_all_students: valid_all_students,
-        strength: valid_all_students?.length,
-      });
-    } else {
-      res.status(200).send({
-        message: "No New Excel Exports ",
-        access: false,
-        valid_all_students: [],
-        strength: 0,
-      });
+    const buildObject = async (arr) => {
+      const obj = {};
+      for (let i = 0; i < arr.length; i++) {
+        const { amount, price, paymode, mode } = arr[i];
+        obj[amount] = price;
+        obj[paymode] = mode;
+      }
+      return obj;
+    };
+    var excel_list = [];
+    var remain_array = [];
+    for (var ref of valid_all_students) {
+      for (var val of ref?.remainingFeeList) {
+        for (var num of val?.remaining_array) {
+          var i = 0;
+          if (num.status === "Paid") {
+            remain_array.push({
+              amount: `${i + 1}-Payment`,
+              price: num?.remainAmount,
+              paymode: `${i + 1}-Mode`,
+              mode: num?.mode,
+            });
+          }
+          i = val?.remaining_array?.length - i + 1;
+        }
+        var result = await buildObject(remain_array);
+
+        excel_list.push({
+          GRNO: ref?.studentGRNO ?? "#NA",
+          Name: `${ref?.studentFirstName} ${
+            ref?.studentMiddleName ? ref?.studentMiddleName : ""
+          } ${ref?.studentLastName}`,
+          DOB: ref?.studentDOB ?? "#NA",
+          Gender: ref?.studentGender ?? "#NA",
+          Caste: ref?.studentCastCategory ?? "#NA",
+          Religion: ref?.studentReligion ?? "#NA",
+          MotherName: `${ref?.studentMotherName}` ?? "#NA",
+          Address: `${ref?.studentAddress}` ?? "#NA",
+          Class:
+            `${ref?.studentClass?.className}-${ref?.studentClass.classTitle}` ??
+            "#NA",
+          Batch: `${val?.batchId?.batchName}` ?? "#NA",
+          RemainingFees: `${val?.remaining_fee}` ?? "0",
+          ApplicableFees: `${val?.applicable_fee}` ?? "0",
+          ActualFees: `${val?.fee_structure?.one_installments?.fees}` ?? "0",
+          ApplicationName: `${val?.appId?.applicationName}` ?? "#NA",
+          TotalPaidFees: `${val?.paid_fee}` ?? "0",
+          FeeStructure:
+            `${val?.fee_structure?.category_master?.category_name}` ?? "#NA",
+          ...result,
+        });
+      }
     }
+    await json_to_excel_query(
+      excel_list,
+      all_depart,
+      batch_status,
+      category,
+      gender,
+      valid_all,
+      aid
+    );
   } catch (e) {
     console.log(e);
   }

@@ -142,7 +142,7 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
     //   });
     const admission = await Admission.findById({ _id: aid })
       .select(
-        "admissionAdminEmail admissionAdminPhoneNumber moderator_role completedCount exemptAmount requested_status collected_fee remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount"
+        "admissionAdminEmail admissionAdminPhoneNumber moderator_role completedCount exemptAmount requested_status collected_fee remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount export_collection_count"
       )
       .populate({
         path: "admissionAdminHead",
@@ -4944,6 +4944,45 @@ exports.renderStudentGoOfflineReceiptQuery = async (req, res) => {
     }
     await Promise.all([ads_admin.save(), remain_list.save()]);
     res.status(200).send({ message: "Wait For Approval", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllExportExcelArrayQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const ads_admin = await Admission.findById({ _id: aid }).select(
+      "export_collection"
+    );
+
+    const all_excel = await nested_document_limit(
+      page,
+      limit,
+      ads_admin?.export_collection
+    );
+    if (all_excel?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Exported Excel",
+        access: true,
+        all_excel: all_excel,
+        count: ads_admin?.export_collection?.length,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Exported Excel Available",
+        access: false,
+        all_excel: [],
+        count: 0,
+      });
+    }
   } catch (e) {
     console.log(e);
   }

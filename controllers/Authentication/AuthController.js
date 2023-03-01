@@ -42,6 +42,7 @@ const {
   generateAccessAdminToken,
   generateAccessInsToken,
   generateAccessToken,
+  send_email_authentication,
 } = require("../../helper/functions");
 
 const { user_date_of_birth } = require("../../helper/dayTimer");
@@ -313,18 +314,46 @@ const directMSMSQuery = async (mob, sName, iName, cName) => {
 exports.getOtpAtUser = async (req, res) => {
   try {
     const { userPhoneNumber, status } = req.body;
-    if (userPhoneNumber) {
+    const valid_phone = !userPhoneNumber?.includes("@")
+      ? userPhoneNumber?.length === 10
+        ? parseInt(userPhoneNumber)
+        : ""
+      : "";
+    if (!valid_phone) {
+      var valid_email = userPhoneNumber?.includes("@")
+        ? userPhoneNumber
+        : false;
+    }
+    if (valid_phone) {
       if (status === "Not Verified") {
-        await OTPCode.deleteMany({ otp_number: userPhoneNumber });
-        const code = await generateOTP(userPhoneNumber);
+        var valid_user = parseInt(userPhoneNumber);
+        await OTPCode.deleteMany({ otp_number: valid_user });
+        const code = await generateOTP(valid_user);
         const otpCode = new OTPCode({
-          otp_number: userPhoneNumber,
+          otp_number: valid_user,
+          otp_code: `${code}`,
+        });
+        await otpCode.save();
+        // const uPhoneEncrypt = await encryptionPayload(valid_user);
+        res.status(200).send({
+          message: "code will be send to registered mobile number",
+          valid_user,
+        });
+      } else {
+        res.send({ message: "User will be verified..." });
+      }
+    } else if (valid_email) {
+      if (status === "Not Verified") {
+        await OTPCode.deleteMany({ otp_email: userPhoneNumber });
+        const code = await send_email_authentication(userPhoneNumber);
+        const otpCode = new OTPCode({
+          otp_email: userPhoneNumber,
           otp_code: `${code}`,
         });
         await otpCode.save();
         // const uPhoneEncrypt = await encryptionPayload(userPhoneNumber);
         res.status(200).send({
-          message: "code will be send to registered mobile number",
+          message: "code will be send to entered Email",
           userPhoneNumber,
         });
       } else {
@@ -334,7 +363,7 @@ exports.getOtpAtUser = async (req, res) => {
       res.send({ message: "Invalid Phone No." });
     }
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(`Error`, e);
   }
 };
 
@@ -362,19 +391,20 @@ const generateInsOTP = async (mob) => {
 exports.getOtpAtIns = async (req, res) => {
   try {
     const { insPhoneNumber, status } = req.body;
+    var valid_ins = parseInt(insPhoneNumber);
     if (insPhoneNumber) {
       if (status === "Not Verified") {
-        await OTPCode.deleteMany({ otp_number: insPhoneNumber });
-        const code = await generateInsOTP(insPhoneNumber);
+        await OTPCode.deleteMany({ otp_number: valid_ins });
+        const code = await generateInsOTP(valid_ins);
         const otpCode = new OTPCode({
-          otp_number: insPhoneNumber,
+          otp_number: valid_ins,
           otp_code: `${code}`,
         });
         await otpCode.save();
-        // const iPhoneEncrypt = await encryptionPayload(insPhoneNumber);
+        // const iPhoneEncrypt = await encryptionPayload(valid_ins);
         res.status(200).send({
           message: "code will be send to registered mobile number",
-          insPhoneNumber,
+          valid_ins,
         });
       } else {
         res.send({ message: "Institute Phone Number will be verified..." });
@@ -392,26 +422,29 @@ exports.verifyOtpByUser = async (req, res) => {
     var account_linked = [];
     const { id } = req.params;
     const valid_otp = await OTPCode.findOne({ otp_number: `${id}` });
-    const all_account = await User.find({ userPhoneNumber: id }).select(
-      "userLegalName username profilePhoto userPassword"
-    );
-    const all_account_email = await User.find({ userEmail: id }).select(
-      "userLegalName username profilePhoto userPassword"
-    );
-    if (all_account?.length > 0) {
-      for (let all of all_account) {
-        const token = generateAccessToken(
-          all?.username,
-          all?._id,
-          all?.userPassword
-        );
-        account_linked.push({
-          user: all,
-          login: true,
-          token: `Bearer ${token}`,
-        });
+    const valid_otp_email = await OTPCode.findOne({ otp_email: `${id}` });
+    if (valid_otp) {
+      var all_account = await User.find({ userPhoneNumber: id }).select(
+        "userLegalName username profilePhoto userPassword"
+      );
+      if (all_account?.length > 0) {
+        for (let all of all_account) {
+          const token = generateAccessToken(
+            all?.username,
+            all?._id,
+            all?.userPassword
+          );
+          account_linked.push({
+            user: all,
+            login: true,
+            token: `Bearer ${token}`,
+          });
+        }
       }
     } else {
+      var all_account_email = await User.find({ userEmail: id }).select(
+        "userLegalName username profilePhoto userPassword"
+      );
       if (all_account_email?.length > 0) {
         for (let all of all_account_email) {
           const token = generateAccessToken(
@@ -428,8 +461,10 @@ exports.verifyOtpByUser = async (req, res) => {
       }
     }
     if (
-      req.body.userOtpCode &&
-      req.body.userOtpCode === `${valid_otp?.otp_code}`
+      (req.body.userOtpCode &&
+        req.body.userOtpCode === `${valid_otp?.otp_code}`) ||
+      (req.body.userOtpCode &&
+        req.body.userOtpCode === `${valid_otp_email?.otp_code}`)
     ) {
       var userStatus = "approved";
       // Add Another Encryption
@@ -440,12 +475,16 @@ exports.verifyOtpByUser = async (req, res) => {
         accounts: account_linked,
         count: account_linked?.length,
       });
-      await OTPCode.findByIdAndDelete(valid_otp?._id);
+      if (valid_otp) {
+        await OTPCode.findByIdAndDelete(valid_otp?._id);
+      } else {
+        await OTPCode.findByIdAndDelete(valid_otp_email?._id);
+      }
     } else {
       res.send({ message: "Invalid OTP" });
     }
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(`Error`, e);
   }
 };
 

@@ -21,7 +21,6 @@ const { generate_excel_to_json } = require("../../Custom/excelToJSON");
 const {
   retrieveInstituteDirectJoinQueryPayload,
 } = require("../Authentication/AuthController");
-// const { staff_id_card_format } = require("../../export/IdCard");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {

@@ -3,6 +3,7 @@ const Admin = require("../models/superAdmin");
 const InstituteAdmin = require("../models/InstituteAdmin");
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
+const axios = require("axios");
 
 const random_password = () => {
   const upperCase = ["A", "B", "C", "D", "E", "F", "G", "H", "Z"];
@@ -87,4 +88,25 @@ exports.generateAccessAdminToken = (adminUserName, adminId, adminPassword) => {
     process.env.TOKEN_SECRET,
     { expiresIn: "1y" }
   );
+};
+
+exports.send_email_authentication = async (email) => {
+  let rand1 = Math.floor(Math.random() * 9) + 1;
+  let rand2 = Math.floor(Math.random() * 9) + 1;
+  let rand3 = Math.floor(Math.random() * 9) + 1;
+  let rand4 = Math.floor(Math.random() * 9) + 1;
+  const OTP = `${rand1}${rand2}${rand3}${rand4}`;
+  const subject = "OTP Verification";
+  const message = `Welcome to Qviple, Your Qviple account verification OTP is ${OTP} Mithkal Minds Pvt Ltd.`;
+  const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
+  const encodeURL = encodeURI(url);
+  axios
+    .post(encodeURL)
+    .then((res) => {
+      console.log("Sended Successfully");
+    })
+    .catch((e) => {
+      console.log("SMS API Bug", e);
+    });
+  return OTP;
 };

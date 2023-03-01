@@ -153,3 +153,23 @@ exports.simple_object = async (fileKey) => {
   let file = await s3.getObject(query_params).promise();
   return file;
 };
+
+exports.uploadExcelFile = async (fileName) => {
+  var file = `./export/${fileName}`;
+  var value = `export-file/${fileName}`;
+  fs.readFile(file, (err, data) => {
+    if (err) throw err;
+    const params_query = {
+      Bucket: bucketName,
+      Key: `export-file/${fileName}`,
+      Body: data,
+    };
+    s3.upload(params_query, function (s3Err, data) {
+      if (s3Err) throw s3Err;
+      fs.unlink(file, (err, data) => {
+        if (err) throw err;
+      });
+    });
+  });
+  return value;
+};

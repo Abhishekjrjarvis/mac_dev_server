@@ -4997,3 +4997,59 @@ exports.renderAllExportExcelArrayQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderEditOneExcel = async (req, res) => {
+  try {
+    const { aid, exid } = req.params;
+    const { excel_file_name } = req.body;
+    if (!aid && !exid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const ads_admin = await Admission.findById({ _id: aid }).select(
+      "export_collection"
+    );
+    for (var exe of ads_admin?.export_collection) {
+      if (`${exe?._id}` === `${exid}`) {
+        exe.excel_file_name = excel_file_name;
+      }
+    }
+    await ads_admin.save();
+    res.status(200).send({
+      message: "Exported Excel Updated",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderDeleteOneExcel = async (req, res) => {
+  try {
+    const { aid, exid } = req.params;
+    if (!aid && !exid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const ads_admin = await Admission.findById({ _id: aid }).select(
+      "export_collection export_collection_count"
+    );
+    for (var exe of ads_admin?.export_collection) {
+      if (`${exe?._id}` === `${exid}`) {
+        ads_admin?.export_collection.pull(exid);
+        if (ads_admin?.export_collection_count > 0) {
+          ads_admin.export_collection_count -= 1;
+        }
+      }
+    }
+    await ads_admin.save();
+    res.status(200).send({
+      message: "Exported Excel Deletion Operation Completed",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

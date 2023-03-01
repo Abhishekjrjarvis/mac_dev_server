@@ -22907,6 +22907,58 @@ paths:
         "200":
           description: OK
 
+  /api/v1/admission/{aid}/export/excel/{exid}/edit:
+    patch:
+      tags:
+        - Process Excel + Database Processing
+      summary: Edit One Exported Excel Downloadable File (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: exid
+          required: true
+          type: string
+          description: This Export Excel ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              excel_file_name:
+                type: string
+                description: Enter Name Here
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/export/excel/{exid}/destroy/query:
+    delete:
+      tags:
+        - Process Excel + Database Processing
+      summary: Delete One Exported Excel Downloadable File By Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This Admission ID
+        - in: path
+          name: exid
+          required: true
+          type: string
+          description: This Export Excel ID
+      responses:
+        "200":
+          description: OK
+
 # New Filter
 
   /api/v1/feed/filter/pending/fee/{aid}:

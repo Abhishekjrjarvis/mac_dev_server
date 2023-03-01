@@ -384,4 +384,14 @@ router.get(
   catchAsync(Admission.renderAllExportExcelArrayQuery)
 );
 
+router.patch(
+  "/:aid/export/excel/:exid/edit",
+  catchAsync(Admission.renderEditOneExcel)
+);
+
+router.delete(
+  "/:aid/export/excel/:exid/destroy/query",
+  catchAsync(Admission.renderDeleteOneExcel)
+);
+
 module.exports = router;

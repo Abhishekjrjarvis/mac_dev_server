@@ -142,7 +142,7 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
     //   });
     const admission = await Admission.findById({ _id: aid })
       .select(
-        "admissionAdminEmail admissionAdminPhoneNumber moderator_role completedCount exemptAmount requested_status collected_fee remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount export_collection_count"
+        "admissionAdminEmail admissionAdminPhoneNumber moderator_role completedCount exemptAmount requested_status collected_fee remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount refundCount export_collection_count"
       )
       .populate({
         path: "admissionAdminHead",
@@ -1381,6 +1381,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       new_remainFee.fee_structure = student?.fee_structure?._id;
       new_remainFee.remaining_fee += total_amount - price;
       student.remainingFeeList.push(new_remainFee?._id);
+      student.remainingFeeList_count += 1;
       new_remainFee.student = student?._id;
       new_remainFee.fee_receipts.push(new_receipt?._id);
       await add_all_installment(
@@ -1410,6 +1411,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       new_remainFee.remaining_fee +=
         student?.fee_structure?.total_admission_fees - price;
       student.remainingFeeList.push(new_remainFee?._id);
+      student.remainingFeeList_count += 1;
       new_remainFee.student = student?._id;
       new_remainFee.fee_receipts.push(new_receipt?._id);
       admission.remainingFee.push(student._id);
@@ -2503,13 +2505,13 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
       }
     } else {
     }
-    for (var stu of student.paidFeeList) {
-      if (`${stu.appId}` === `${apply._id}`) {
-        if (stu.paidAmount >= price) {
-          stu.paidAmount -= price;
-        }
-      }
-    }
+    // for (var stu of student.paidFeeList) {
+    //   if (`${stu.appId}` === `${apply._id}`) {
+    //     if (stu.paidAmount >= price) {
+    //       stu.paidAmount -= price;
+    //     }
+    //   }
+    // }
     remaining_fee_lists.remaining_array.push({
       appId: apply?._id,
       remainAmount: price,
@@ -2518,6 +2520,7 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
       installmentValue: "Refund From Admission Admin",
       isEnable: true,
       refund_status: "Refunded",
+      fee_receipt: new_receipt?._id,
     });
     const filter_student_refund = admin_ins?.refundFeeList?.filter((stu) => {
       if (`${stu.student}` === `${student?._id}`) return stu;
@@ -2531,7 +2534,11 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
           admin_ins.refundCount -= price;
         }
       }
-      admin_ins.refundFeeList.pull(student?._id);
+      for (var ref of admin_ins.refundFeeList) {
+        if (`${ref?.student}` === `${student?._id}`) {
+          admin_ins.refundFeeList.pull(student?._id);
+        }
+      }
     }
     await Promise.all([
       admin_ins.save(),
@@ -3123,7 +3130,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       })
       .populate({
         path: "fee_structure",
-        select: "total_admission_fees structure_name",
+        select: "total_admission_fees structure_name one_installments",
       });
 
     if (all_remain?.length > 0) {
@@ -3959,6 +3966,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
         new_remainFee.fee_structure = student?.fee_structure?._id;
         new_remainFee.remaining_fee += total_amount - price;
         student.remainingFeeList.push(new_remainFee?._id);
+        student.remainingFeeList_count += 1;
         new_remainFee.student = student?._id;
         new_remainFee.fee_receipts.push(one_receipt?._id);
         await add_all_installment(
@@ -3988,6 +3996,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
         new_remainFee.remaining_fee +=
           student?.fee_structure?.total_admission_fees - price;
         student.remainingFeeList.push(new_remainFee?._id);
+        student.remainingFeeList_count += 1;
         new_remainFee.student = student?._id;
         new_remainFee.fee_receipts.push(one_receipt?._id);
         ads_admin.remainingFee.push(student._id);
@@ -4546,6 +4555,7 @@ exports.renderRefundArrayQuery = async (req, res) => {
     const { aid } = req.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const { search } = req.query;
     if (!aid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",

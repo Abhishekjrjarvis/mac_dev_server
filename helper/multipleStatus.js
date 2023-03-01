@@ -140,6 +140,7 @@ exports.fee_reordering = async (
       new_remainFee.remaining_fee +=
         student?.fee_structure?.total_admission_fees - price;
       student.remainingFeeList.push(new_remainFee?._id);
+      student.remainingFeeList_count += 1;
       new_remainFee.student = student?._id;
       new_remainFee.fee_receipts.push(new_receipt?._id);
       admission.remainingFee.push(student._id);
@@ -188,6 +189,7 @@ exports.fee_reordering = async (
       new_remainFee.paid_fee += price;
       new_remainFee.remaining_fee += total_amount - price;
       student.remainingFeeList.push(new_remainFee?._id);
+      student.remainingFeeList_count += 1;
       new_remainFee.student = student?._id;
       new_remainFee.fee_receipts.push(new_receipt?._id);
       new_remainFee.fee_structure = student?.fee_structure?._id;
@@ -302,6 +304,7 @@ exports.fee_reordering_direct_student = async (
         new_remainFee.remaining_fee +=
           fee_structure?.total_admission_fees - price;
         student.remainingFeeList.push(new_remainFee?._id);
+        student.remainingFeeList_count += 1;
         new_remainFee.student = student?._id;
         admission.remainingFee.push(student._id);
         student.admissionRemainFeeCount +=
@@ -347,6 +350,7 @@ exports.fee_reordering_direct_student = async (
         new_remainFee.fee_structure = fee_structure?._id;
         new_remainFee.remaining_fee += total_amount - price;
         student.remainingFeeList.push(new_remainFee?._id);
+        student.remainingFeeList_count += 1;
         new_remainFee.fee_receipts.push(new_receipt?._id);
         new_remainFee.student = student?._id;
         new_remainFee.remaining_array.push({
@@ -463,6 +467,7 @@ exports.fee_reordering_direct_student_payload = async (
           new_remainFee.remaining_fee +=
             fee_structure?.total_admission_fees - price;
           student.remainingFeeList.push(new_remainFee?._id);
+          student.remainingFeeList_count += 1;
           new_remainFee.student = student?._id;
           admission.remainingFee.push(student._id);
           student.admissionRemainFeeCount +=
@@ -571,6 +576,7 @@ exports.fee_reordering_direct_student_payload = async (
         new_remainFee.remaining_fee +=
           total_amount - price > 0 ? total_amount - price : 0;
         student.remainingFeeList.push(new_remainFee?._id);
+        student.remainingFeeList_count += 1;
         if (new_remainFee.remaining_fee > 0) {
         } else {
           new_remainFee.status = "Paid";

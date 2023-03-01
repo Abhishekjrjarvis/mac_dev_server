@@ -374,6 +374,7 @@ exports.admissionInstituteFunction = async (
         new_remainFee.fee_structure = student?.fee_structure?._id;
         new_remainFee.remaining_fee += total_amount - parseInt(tx_amount_ad);
         student.remainingFeeList.push(new_remainFee?._id);
+        student.remainingFeeList_count += 1
         new_remainFee.student = student?._id;
         new_remainFee.fee_receipts.push(new_receipt?._id);
         await add_all_installment(
@@ -402,6 +403,7 @@ exports.admissionInstituteFunction = async (
         new_remainFee.remaining_fee +=
           student?.fee_structure?.total_admission_fees - parseInt(tx_amount_ad);
         student.remainingFeeList.push(new_remainFee?._id);
+        student.remainingFeeList_count += 1
         new_remainFee.student = student?._id;
         new_remainFee.fee_receipts.push(new_receipt?._id);
         admission.remainingFee.push(student._id);

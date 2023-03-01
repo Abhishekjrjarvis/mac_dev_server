@@ -332,6 +332,10 @@ const studentSchema = new mongoose.Schema({
       ref: "RemainingList",
     },
   ],
+  remainingFeeList_count: {
+    type: Number,
+    default: 0,
+  },
   fee_structure: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "FeeStructure",

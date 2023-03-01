@@ -2433,8 +2433,8 @@ exports.renderFinanceAddFeeStructure = async (req, res) => {
     if (heads?.length > 0) {
       for (var ref of heads) {
         struct_query.fees_heads.push({
-          head_name: ref?.name,
-          head_amount: ref?.price,
+          head_name: ref?.head_name,
+          head_amount: ref?.head_amount,
         });
         struct_query.fees_heads_count += 1;
       }
@@ -2476,8 +2476,8 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
     if (heads?.length > 0) {
       for (var ref of heads) {
         struct_query.fees_heads.push({
-          head_name: ref?.name,
-          head_amount: ref?.price,
+          head_name: ref?.head_name,
+          head_amount: ref?.head_amount,
         });
         struct_query.fees_heads_count += 1;
       }

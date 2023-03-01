@@ -774,9 +774,9 @@ exports.retrievePendingFeeFilter = async (req, res) => {
     }
 
     const valid_all_students = await Student.find({ _id: { $in: sorted_list } })
-      .sort({ admissionRemainFeeCount: -1 })
+      .sort({ remainingFeeList_count: -1 })
       .select(
-        "studentFirstName studentMiddleName studentLastName studentDOB studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto admissionRemainFeeCount"
+        "studentFirstName studentMiddleName remainingFeeList_count studentLastName studentDOB studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto admissionRemainFeeCount"
       )
       .populate({
         path: "department",
@@ -820,6 +820,12 @@ exports.retrievePendingFeeFilter = async (req, res) => {
           },
         },
       });
+    valid_all_students.sort(function (st1, st2) {
+      return (
+        parseInt(st1?.studentGRNO?.slice(1)) -
+        parseInt(st2?.studentGRNO?.slice(1))
+      );
+    });
     const buildObject = async (arr) => {
       const obj = {};
       for (let i = 0; i < arr.length; i++) {
@@ -857,20 +863,21 @@ exports.retrievePendingFeeFilter = async (req, res) => {
           Caste: ref?.studentCastCategory ?? "#NA",
           Religion: ref?.studentReligion ?? "#NA",
           MotherName: `${ref?.studentMotherName}` ?? "#NA",
-          Address: `${ref?.studentAddress}` ?? "#NA",
           Class:
             `${ref?.studentClass?.className}-${ref?.studentClass.classTitle}` ??
             "#NA",
           Batch: `${val?.batchId?.batchName}` ?? "#NA",
-          RemainingFees: `${val?.remaining_fee}` ?? "0",
-          ApplicableFees: `${val?.applicable_fee}` ?? "0",
           ActualFees: `${val?.fee_structure?.one_installments?.fees}` ?? "0",
+          ApplicableFees: `${val?.applicable_fee}` ?? "0",
+          RemainingFees: `${val?.remaining_fee}` ?? "0",
           ApplicationName: `${val?.appId?.applicationName}` ?? "#NA",
           TotalPaidFees: `${val?.paid_fee}` ?? "0",
           FeeStructure:
             `${val?.fee_structure?.category_master?.category_name}` ?? "#NA",
           ...result,
+          Address: `${ref?.studentAddress}` ?? "#NA",
         });
+        remain_array = [];
       }
     }
     await json_to_excel_query(
@@ -885,4 +892,17 @@ exports.retrievePendingFeeFilter = async (req, res) => {
   } catch (e) {
     console.log(e);
   }
+};
+
+// ref?.remainingFeeList.sort(function (st1, st2) {
+//   return st1?.remaining_array?.length - st2?.remaining_array?.length;
+// });
+
+exports.renderUpdate = async (req, res) => {
+  const all_student = await Student.find({}).select("remainingFeeList_count");
+  for (var ref of all_student) {
+    ref.remainingFeeList_count = 1;
+    await ref.save();
+  }
+  res.status(200).send({ message: "updated", access: true });
 };

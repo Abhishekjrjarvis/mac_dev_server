@@ -22968,7 +22968,7 @@ paths:
                 required: false
               fee_struct:
                 type: string
-                description: Enter Fee Structures ID
+                description: Enter Fee Category ID
                 required: false
       responses:
         "200":

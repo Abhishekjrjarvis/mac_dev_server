@@ -151,7 +151,7 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
       })
       .populate({
         path: "institute",
-        select: "_id insName insProfilePhoto status",
+        select: "_id insName insProfilePhoto status financeDepart",
       });
     // const adsEncrypt = await encryptionPayload(admission);
     // const cached = await connect_redis_miss(

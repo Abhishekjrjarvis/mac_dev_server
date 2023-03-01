@@ -703,18 +703,26 @@ exports.retrievePendingFeeFilter = async (req, res) => {
           { batches: { $in: sorted_batch } },
           { admissionRemainFeeCount: valid_all ? { $gte: 0 } : { $gt: 0 } },
         ],
-      }).select(
-        "fee_structure studentClass batches department studentGender studentCastCategory"
-      );
+      })
+        .select(
+          "studentClass batches department studentGender studentCastCategory"
+        )
+        .populate({
+          path: "fee_structure",
+        });
     } else if (all_depart === "Particular") {
       var all_students = await Student.find({
         $and: [
           { _id: { $in: ads_admin?.remainingFee } },
           { admissionRemainFeeCount: valid_all ? { $gte: 0 } : { $gt: 0 } },
         ],
-      }).select(
-        "fee_structure studentClass batches department studentGender studentCastCategory"
-      );
+      })
+        .select(
+          "studentClass batches department studentGender studentCastCategory"
+        )
+        .populate({
+          path: "fee_structure",
+        });
       if (depart) {
         all_students = all_students?.filter((ref) => {
           if (`${ref?.department}` === `${depart}`) return ref;
@@ -752,7 +760,8 @@ exports.retrievePendingFeeFilter = async (req, res) => {
 
     if (fee_struct) {
       all_students = all_students?.filter((ref) => {
-        if (`${ref?.fee_structure}` === `${fee_struct}`) return ref;
+        if (`${ref?.fee_structure?.category_master}` === `${fee_struct}`)
+          return ref;
       });
     }
 

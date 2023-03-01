@@ -19,9 +19,10 @@ Array.prototype.skip = skip;
 exports.nested_document_limit = (page, limit, nested_array) => {
   try {
     const skip = (page - 1) * limit;
-    const limit_array = nested_array.limit(limit);
-    const skip_array = limit_array.skip(skip);
+    var limit_array = nested_array.limit(limit);
+    var skip_array = limit_array.skip(skip);
     return skip_array;
+    console.log(skip_array?.length);
   } catch (e) {
     console.log(e);
   }

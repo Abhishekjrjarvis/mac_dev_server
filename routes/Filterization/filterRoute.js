@@ -46,7 +46,7 @@ router.get(
   catchAsync(Filter.retrieveApproveCatalogArrayFilter)
 );
 
-router.get(
+router.patch(
   "/pending/fee/:aid",
   // isLoggedIn,
   catchAsync(Filter.retrievePendingFeeFilter)

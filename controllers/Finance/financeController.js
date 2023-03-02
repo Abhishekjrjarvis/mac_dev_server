@@ -2969,7 +2969,7 @@ exports.renderFinanceAllMasterHeadQuery = async (req, res) => {
       var all_master = await FeeMaster.find({
         _id: { $in: finance?.fee_master_array },
       })
-        .sort("-1")
+        // .sort("-1")
         .limit(limit)
         .skip(skip)
         .select("master_name master_amount created_at");

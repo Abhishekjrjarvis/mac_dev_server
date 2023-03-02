@@ -1226,27 +1226,35 @@ exports.set_fee_head_query = async (
         count: student_args.fee_structure?.fees_heads?.length,
       };
     }
-    for (var i = 0; i < parent_head?.count; i++) {
-      student_args.active_fee_heads.push({
-        appId: apply_args?._id,
-        head_name: parent_head[`${i}`]?.head_name,
-        applicable_fee: parent_head[`${i}`]?.head_amount,
-        remain_fee:
-          price_query >= parent_head[`${i}`]?.head_amount
-            ? 0
-            : parent_head[`${i}`].head_amount - price_query,
-        paid_fee:
-          price_query >= parent_head[`${i}`]?.head_amount
-            ? parent_head[`${i}`].head_amount
-            : price_query,
-      });
-      price_query =
-        price_query >= parent_head[`${i}`].head_amount
-          ? price_query - parent_head[`${i}`].head_amount
-          : 0;
+    var exist_filter_student_heads = student_args?.active_fee_heads?.filter(
+      (stu) => {
+        if (`${stu.appId}` === `${apply_args._id}`) return stu;
+      }
+    );
+    if (exist_filter_student_heads?.length > 0) {
+    } else {
+      for (var i = 0; i < parent_head?.count; i++) {
+        student_args.active_fee_heads.push({
+          appId: apply_args?._id,
+          head_name: parent_head[`${i}`]?.head_name,
+          applicable_fee: parent_head[`${i}`]?.head_amount,
+          remain_fee:
+            price_query >= parent_head[`${i}`]?.head_amount
+              ? 0
+              : parent_head[`${i}`].head_amount - price_query,
+          paid_fee:
+            price_query >= parent_head[`${i}`]?.head_amount
+              ? parent_head[`${i}`].head_amount
+              : price_query,
+        });
+        price_query =
+          price_query >= parent_head[`${i}`].head_amount
+            ? price_query - parent_head[`${i}`].head_amount
+            : 0;
+      }
+      await student_args.save();
+      price_query = 0;
     }
-    await student_args.save();
-    price_query = 0;
   } catch (e) {
     console.log(e);
   }

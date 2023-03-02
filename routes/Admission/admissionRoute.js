@@ -394,4 +394,6 @@ router.delete(
   catchAsync(Admission.renderDeleteOneExcel)
 );
 
+router.patch("/:id/update", catchAsync(Admission.renderData));
+
 module.exports = router;

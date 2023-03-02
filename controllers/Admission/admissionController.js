@@ -2410,7 +2410,7 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
     });
     var student = await Student.findById({ _id: sid });
     var institute = await InstituteAdmin.findById({
-      _id: `${admin_ins.institute}`,
+      _id: `${admin_ins?.institute}`,
     }).select("insName financeDepart gstSlab payment_history");
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
@@ -4573,17 +4573,17 @@ exports.renderRefundArrayQuery = async (req, res) => {
         },
       });
 
-    var all_refund_list = await nested_document_limit(
-      page,
-      limit,
-      ads_admin?.refundFeeList
-    );
+    // var all_refund_list = await nested_document_limit(
+    //   page,
+    //   limit,
+    //   ads_admin?.refundFeeList
+    // );
 
-    if (all_refund_list?.length > 0) {
+    if (ads_admin?.refundFeeList?.length > 0) {
       res.status(200).send({
         message: "Explore All Returns",
         access: true,
-        all_refund_list: all_refund_list,
+        all_refund_list: ads_admin?.refundFeeList,
         refundCount: ads_admin?.refundCount,
       });
     } else {
@@ -4973,16 +4973,16 @@ exports.renderAllExportExcelArrayQuery = async (req, res) => {
       "export_collection"
     );
 
-    const all_excel = await nested_document_limit(
-      page,
-      limit,
-      ads_admin?.export_collection
-    );
-    if (all_excel?.length > 0) {
+    // var all_excel = await nested_document_limit(
+    //   page,
+    //   limit,
+    //   ads_admin?.export_collection
+    // );
+    if (ads_admin?.export_collection?.length > 0) {
       res.status(200).send({
         message: "Explore All Exported Excel",
         access: true,
-        all_excel: all_excel,
+        all_excel: ads_admin?.export_collection,
         count: ads_admin?.export_collection?.length,
       });
     } else {
@@ -5053,3 +5053,33 @@ exports.renderDeleteOneExcel = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderData = async(req, res) => {
+  try{
+    const { id } = req.params
+    const student = await Student.findById({ _id: id})
+    .select("active_fee_heads")
+    // var s_admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}`})
+    // const institute = await InstituteAdmin.findById({ _id: id})
+    // .select("ApproveStudent")
+
+    // const all_student = await Student.find({ _id: { $in: institute?.ApproveStudent }})
+    // .select("studentFirstName")
+
+    // for(var ref of all_student){
+    //   var receipt = await FeeReceipt.find({ student: ref?._id})
+    //   for(var val of receipt){
+    //     s_admin.invoice_count += 1
+    //     val.invoice_count = `${
+    //       new Date().getMonth() + 1
+    //     }${new Date().getFullYear()}${s_admin.invoice_count}`;
+    //     await Promise.all([ s_admin.save(), val.save()])
+    //   }
+    // }
+
+    res.status(200).send({ message: "Download receipt", access: true, student})
+  }
+  catch(e){
+    console.log(e)
+  }
+}

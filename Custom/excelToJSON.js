@@ -34,6 +34,7 @@ exports.generate_excel_to_json = async (file) => {
           appId: ref[`appId_${i}`],
           fee_struct: ref[`fee_struct_${i}`],
           amount: ref[`amount${i}`],
+          remark: ref[`remark${i}`],
           remain_array: [...remain_array],
         });
         remain_array = [];

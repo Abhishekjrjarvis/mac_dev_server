@@ -8,6 +8,7 @@ const FeeStructure = require("../models/Finance/FeesStructure");
 const RemainingList = require("../models/Admission/RemainingList");
 const OrderPayment = require("../models/RazorPay/orderPayment");
 const FeeReceipt = require("../models/RazorPay/feeReceipt");
+const Admin = require("../models/superAdmin");
 const {
   add_all_installment,
   add_total_installment,
@@ -438,6 +439,9 @@ exports.fee_reordering_direct_student_payload = async (
           applicable_fee: fee_structure?.total_admission_fees,
         });
         for (var nest of ref?.remain_array) {
+          const s_admin = await Admin.findById({
+            _id: `${process.env.S_ADMIN_ID}`,
+          }).select("invoice_count");
           const nestPrice = parseInt(nest?.amount);
           const new_receipt = new FeeReceipt({
             fee_payment_mode: nest?.mode,
@@ -447,7 +451,10 @@ exports.fee_reordering_direct_student_payload = async (
           new_receipt.application = apply?._id;
           new_receipt.finance = finance?._id;
           new_receipt.fee_transaction_date = new Date();
-
+          s_admin.invoice_count += 1;
+          new_receipt.invoice_count = `${
+            new Date().getMonth() + 1
+          }${new Date().getFullYear()}${s_admin.invoice_count}`;
           new_remainFee.fee_receipts.push(new_receipt?._id);
           new_remainFee.remaining_array.push({
             remainAmount: nestPrice,
@@ -459,7 +466,7 @@ exports.fee_reordering_direct_student_payload = async (
             isEnable: true,
             fee_receipt: new_receipt?._id,
           });
-          await new_receipt.save();
+          await Promise.all([new_receipt.save(), s_admin.save()]);
         }
         new_remainFee.paid_fee += price;
         new_remainFee.fee_structure = fee_structure?._id;
@@ -547,6 +554,9 @@ exports.fee_reordering_direct_student_payload = async (
         });
 
         for (var nest of ref?.remain_array) {
+          const s_admin = await Admin.findById({
+            _id: `${process.env.S_ADMIN_ID}`,
+          }).select("invoice_count");
           var nestPrice = parseInt(nest?.amount);
           const new_receipt = new FeeReceipt({
             fee_payment_mode: nest?.mode,
@@ -556,7 +566,10 @@ exports.fee_reordering_direct_student_payload = async (
           new_receipt.application = apply?._id;
           new_receipt.finance = finance?._id;
           new_receipt.fee_transaction_date = new Date();
-
+          s_admin.invoice_count += 1;
+          new_receipt.invoice_count = `${
+            new Date().getMonth() + 1
+          }${new Date().getFullYear()}${s_admin.invoice_count}`;
           new_remainFee.fee_receipts.push(new_receipt?._id);
           new_remainFee.remaining_array.push({
             remainAmount: nestPrice,
@@ -568,7 +581,7 @@ exports.fee_reordering_direct_student_payload = async (
             isEnable: true,
             fee_receipt: new_receipt?._id,
           });
-          await new_receipt.save();
+          await Promise.all([new_receipt.save(), s_admin.save()]);
         }
 
         new_remainFee.paid_fee += price;
@@ -612,6 +625,7 @@ exports.fee_reordering_direct_student_payload = async (
       });
       apply.allotCount += 1;
       new_remainFee.batchId = batch?._id;
+      new_remainFee.remark = ref?.remark;
       user.applyApplication.push(apply._id);
       await Promise.all([
         new_remainFee.save(),

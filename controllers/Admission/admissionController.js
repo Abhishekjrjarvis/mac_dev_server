@@ -4165,12 +4165,14 @@ exports.renderOneReceiptReApply = async (req, res) => {
     res
       .status(200)
       .send({ message: "Your Receipts Under Processing", access: true });
-    for (var ref of one_app?.selectedApplication) {
-      if (`${ref.student}` === `${one_receipt?.student}`) {
-        ref.payment_status = "Receipt Requested";
+    if (status) {
+      for (var ref of one_app?.selectedApplication) {
+        if (`${ref.student}` === `${one_receipt?.student}`) {
+          ref.payment_status = "Receipt Requested";
+        }
       }
+      await one_app.save();
     }
-    await one_app.save();
     for (var all of ads_admin?.fee_receipt_reject) {
       if (`${all?.receipt}` === `${one_receipt?._id}`) {
         ads_admin.fee_receipt_reject.pull(all?._id);

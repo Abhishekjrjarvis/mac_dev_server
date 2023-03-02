@@ -139,12 +139,11 @@ exports.renderAdmissionAllAppModeratorArray = async (req, res) => {
         },
       });
 
-    const all_admins = ads_admin?.moderator_role;
-    // nested_document_limit(
-    //   page,
-    //   limit,
-    //   ads_admin?.moderator_role
-    // );
+    const all_admins = nested_document_limit(
+      page,
+      limit,
+      ads_admin?.moderator_role
+    );
     if (all_admins) {
       // const allEncrypt = await encryptionPayload(all_admins);
       res.status(200).send({

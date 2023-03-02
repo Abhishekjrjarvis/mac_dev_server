@@ -652,8 +652,6 @@ exports.fetchAllRequestApplication = async (req, res) => {
       }
     } else {
       var apply = await NewApplication.findById({ _id: aid })
-        .limit(limit)
-        .skip(skip)
         .select("receievedCount")
         .populate({
           path: "receievedApplication",
@@ -663,12 +661,17 @@ exports.fetchAllRequestApplication = async (req, res) => {
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
           },
         });
-      if (apply.receievedApplication?.length > 0) {
+        var all_request_query = nested_document_limit(
+          page,
+          limit,
+          apply?.receievedApplication
+        )
+      if (all_request_query?.length > 0) {
         // const requestEncrypt = await encryptionPayload(apply);
         res.status(200).send({
           message:
             "Lots of Request arrived make sure you come up with Tea and Snack from DB 🙌",
-          request: apply.receievedApplication,
+          request:all_request_query,
         });
       } else {
         res.status(200).send({
@@ -732,8 +735,6 @@ exports.fetchAllSelectApplication = async (req, res) => {
       }
     } else {
       var apply = await NewApplication.findById({ _id: aid })
-        .limit(limit)
-        .skip(skip)
         .select("selectCount")
         .populate({
           path: "selectedApplication",
@@ -751,12 +752,17 @@ exports.fetchAllSelectApplication = async (req, res) => {
             },
           },
         });
-      if (apply?.selectedApplication?.length > 0) {
+        var all_select_query = nested_document_limit(
+          page,
+          limit,
+          apply?.selectedApplication
+        )
+      if (all_select_query?.length > 0) {
         // const selectEncrypt = await encryptionPayload(apply);
         res.status(200).send({
           message:
             "Lots of Selection required make sure you come up with Tea and Snack from DB 🙌",
-          select: apply.selectedApplication,
+          select: all_select_query,
         });
       } else {
         res.status(200).send({
@@ -820,8 +826,6 @@ exports.fetchAllConfirmApplication = async (req, res) => {
       }
     } else {
       const apply = await NewApplication.findById({ _id: aid })
-        .limit(limit)
-        .skip(skip)
         .select("confirmCount")
         .populate({
           path: "confirmedApplication",
@@ -839,12 +843,17 @@ exports.fetchAllConfirmApplication = async (req, res) => {
             },
           },
         });
-      if (apply?.confirmedApplication?.length > 0) {
+        var all_confirm_query = nested_document_limit(
+          page,
+          limit,
+          apply?.confirmedApplication
+        )
+      if (all_confirm_query?.length > 0) {
         // const confirmEncrypt = await encryptionPayload(apply);
         res.status(200).send({
           message:
             "Lots of Confirmation and class allot required make sure you come up with Tea and Snack from DB 🙌",
-          confirm: apply.confirmedApplication,
+          confirm: all_confirm_query,
         });
       } else {
         res.status(200).send({
@@ -974,8 +983,6 @@ exports.fetchAllAllotApplication = async (req, res) => {
       }
     } else {
       var apply = await NewApplication.findById({ _id: aid })
-        .limit(limit)
-        .skip(skip)
         .select("allotCount")
         .populate({
           path: "allottedApplication",
@@ -985,7 +992,12 @@ exports.fetchAllAllotApplication = async (req, res) => {
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
           },
         });
-      if (apply?.allottedApplication?.length > 0) {
+        var all_allot_query = nested_document_limit(
+          page,
+          limit,
+          apply?.allottedApplication
+        )
+      if (all_allot_query?.length > 0) {
         // const allotEncrypt = await encryptionPayload(apply);
         // const cached = await connect_redis_miss(
         //   `All-Allot-App-${aid}-${page}`,
@@ -994,7 +1006,7 @@ exports.fetchAllAllotApplication = async (req, res) => {
         res.status(200).send({
           message: "Lots of Allotted Application from DB 😥",
           // allot: cached.apply,
-          allot: apply?.allottedApplication,
+          allot: all_allot_query,
         });
       } else {
         res.status(200).send({
@@ -1024,8 +1036,6 @@ exports.fetchAllCancelApplication = async (req, res) => {
     if (search) {
       var filter_cancel = [];
       var apply = await NewApplication.findById({ _id: aid })
-        .limit(limit)
-        .skip(skip)
         .select("cancelCount")
         .populate({
           path: "cancelApplication",
@@ -1056,8 +1066,6 @@ exports.fetchAllCancelApplication = async (req, res) => {
       }
     } else {
       var apply = await NewApplication.findById({ _id: aid })
-        .limit(limit)
-        .skip(skip)
         .select("cancelCount")
         .populate({
           path: "cancelApplication",
@@ -1067,8 +1075,12 @@ exports.fetchAllCancelApplication = async (req, res) => {
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
           },
         });
-
-      if (apply?.cancelApplication?.length > 0) {
+        var all_cancel_query = nested_document_limit(
+          page,
+          limit,
+          apply?.cancelApplication
+        )
+      if (all_cancel_query?.length > 0) {
         // const cancelEncrypt = await encryptionPayload(apply);
         // const cached = await connect_redis_miss(
         //   `All-Cancel-App-${aid}-${page}`,
@@ -1077,7 +1089,7 @@ exports.fetchAllCancelApplication = async (req, res) => {
         res.status(200).send({
           message: "Lots of Cancel Application from DB 😂😂",
           // cancel: cached.apply,
-          cancel: apply?.cancelApplication,
+          cancel: all_cancel_query,
         });
       } else {
         res.status(200).send({
@@ -3673,12 +3685,11 @@ exports.renderAllReceiptsQuery = async (req, res) => {
           },
         });
 
-      var all_requests = ads_admin?.fee_receipt_request;
-      // await nested_document_limit(
-      //   page,
-      //   limit,
-      //   ads_admin?.fee_receipt_request
-      // );
+      var all_requests = await nested_document_limit(
+        page,
+        limit,
+        ads_admin?.fee_receipt_request
+      );
     } else if (filter_by === "ALL_APPROVE") {
       const ads_admin = await Admission.findById({ _id: aid })
         .select("fee_receipt_approve")
@@ -3694,12 +3705,11 @@ exports.renderAllReceiptsQuery = async (req, res) => {
           },
         });
 
-      var all_requests = ads_admin?.fee_receipt_approve;
-      // await nested_document_limit(
-      //   page,
-      //   limit,
-      //   ads_admin?.fee_receipt_approve
-      // );
+      var all_requests = await nested_document_limit(
+        page,
+        limit,
+        ads_admin?.fee_receipt_approve
+      );
     } else if (filter_by === "ALL_REJECT") {
       const ads_admin = await Admission.findById({ _id: aid })
         .select("fee_receipt_reject")
@@ -3715,12 +3725,11 @@ exports.renderAllReceiptsQuery = async (req, res) => {
           },
         });
 
-      var all_requests = ads_admin?.fee_receipt_reject;
-      // await nested_document_limit(
-      //   page,
-      //   limit,
-      //   ads_admin?.fee_receipt_reject
-      // );
+      var all_requests = await nested_document_limit(
+        page,
+        limit,
+        ads_admin?.fee_receipt_reject
+      );
     } else {
       var all_requests = [];
     }
@@ -4488,12 +4497,11 @@ exports.renderAllDocumentArray = async (req, res) => {
       "required_document"
     );
 
-    const all_docs = ads_admin?.required_document;
-    // await nested_document_limit(
-    //   page,
-    //   limit,
-    //   ads_admin?.required_document
-    // );
+    const all_docs = await nested_document_limit(
+      page,
+      limit,
+      ads_admin?.required_document
+    );
     if (all_docs?.length > 0) {
       res.status(200).send({
         message: "Explore All Documents",
@@ -4605,12 +4613,11 @@ exports.renderRefundArrayQuery = async (req, res) => {
         },
       });
 
-    var all_refund_list = ads_admin?.refundFeeList;
-    // await nested_document_limit(
-    //   page,
-    //   limit,
-    //   ads_admin?.refundFeeList
-    // );
+    var all_refund_list = await nested_document_limit(
+      page,
+      limit,
+      ads_admin?.refundFeeList
+    );
 
     if (all_refund_list?.length > 0) {
       res.status(200).send({

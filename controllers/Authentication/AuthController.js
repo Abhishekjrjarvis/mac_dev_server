@@ -731,18 +731,33 @@ exports.forgotPasswordSendOtp = async (req, res) => {
     const user = await User.findOne({ username: username });
     const institute = await InstituteAdmin.findOne({ name: username });
     if (user) {
-      await OTPCode.deleteMany({ otp_number: user.userPhoneNumber });
-      const code = await generateOTP(user.userPhoneNumber);
-      const otpCode = new OTPCode({
-        otp_number: user.userPhoneNumber,
-        otp_code: `${code}`,
-      });
-      await otpCode.save();
-      // const fEncrypt = await encryptionPayload(user);
-      res.status(200).send({
-        message: "code will be send to registered mobile number",
-        user,
-      });
+      if (user?.userPhoneNumber) {
+        await OTPCode.deleteMany({ otp_number: user.userPhoneNumber });
+        const code = await generateOTP(user.userPhoneNumber);
+        const otpCode = new OTPCode({
+          otp_number: user.userPhoneNumber,
+          otp_code: `${code}`,
+        });
+        await otpCode.save();
+        // const fEncrypt = await encryptionPayload(user);
+        res.status(200).send({
+          message: "code will be send to registered mobile number",
+          user,
+        });
+      } else if (user?.userEmail) {
+        await OTPCode.deleteMany({ otp_email: user?.userEmail });
+        const code = await send_email_authentication(user?.userEmail);
+        const otpCode = new OTPCode({
+          otp_email: user?.userEmail,
+          otp_code: `${code}`,
+        });
+        await otpCode.save();
+        // const fEncrypt = await encryptionPayload(user);
+        res.status(200).send({
+          message: "code will be send to registered email",
+        });
+      } else {
+      }
     } else if (institute) {
       await OTPCode.deleteMany({ otp_number: institute.insPhoneNumber });
       const code = await generateOTP(institute.insPhoneNumber);

@@ -3673,11 +3673,12 @@ exports.renderAllReceiptsQuery = async (req, res) => {
           },
         });
 
-      var all_requests = await nested_document_limit(
-        page,
-        limit,
-        ads_admin?.fee_receipt_request
-      );
+      var all_requests = ads_admin?.fee_receipt_request;
+      // await nested_document_limit(
+      //   page,
+      //   limit,
+      //   ads_admin?.fee_receipt_request
+      // );
     } else if (filter_by === "ALL_APPROVE") {
       const ads_admin = await Admission.findById({ _id: aid })
         .select("fee_receipt_approve")
@@ -3693,11 +3694,12 @@ exports.renderAllReceiptsQuery = async (req, res) => {
           },
         });
 
-      var all_requests = await nested_document_limit(
-        page,
-        limit,
-        ads_admin?.fee_receipt_approve
-      );
+      var all_requests = ads_admin?.fee_receipt_approve;
+      // await nested_document_limit(
+      //   page,
+      //   limit,
+      //   ads_admin?.fee_receipt_approve
+      // );
     } else if (filter_by === "ALL_REJECT") {
       const ads_admin = await Admission.findById({ _id: aid })
         .select("fee_receipt_reject")
@@ -3713,11 +3715,12 @@ exports.renderAllReceiptsQuery = async (req, res) => {
           },
         });
 
-      var all_requests = await nested_document_limit(
-        page,
-        limit,
-        ads_admin?.fee_receipt_reject
-      );
+      var all_requests = ads_admin?.fee_receipt_reject;
+      // await nested_document_limit(
+      //   page,
+      //   limit,
+      //   ads_admin?.fee_receipt_reject
+      // );
     } else {
       var all_requests = [];
     }
@@ -4485,11 +4488,12 @@ exports.renderAllDocumentArray = async (req, res) => {
       "required_document"
     );
 
-    const all_docs = await nested_document_limit(
-      page,
-      limit,
-      ads_admin?.required_document
-    );
+    const all_docs = ads_admin?.required_document;
+    // await nested_document_limit(
+    //   page,
+    //   limit,
+    //   ads_admin?.required_document
+    // );
     if (all_docs?.length > 0) {
       res.status(200).send({
         message: "Explore All Documents",
@@ -4601,17 +4605,18 @@ exports.renderRefundArrayQuery = async (req, res) => {
         },
       });
 
-    // var all_refund_list = await nested_document_limit(
+    var all_refund_list = ads_admin?.refundFeeList;
+    // await nested_document_limit(
     //   page,
     //   limit,
     //   ads_admin?.refundFeeList
     // );
 
-    if (ads_admin?.refundFeeList?.length > 0) {
+    if (all_refund_list?.length > 0) {
       res.status(200).send({
         message: "Explore All Returns",
         access: true,
-        all_refund_list: ads_admin?.refundFeeList,
+        all_refund_list: all_refund_list,
         refundCount: ads_admin?.refundCount,
       });
     } else {

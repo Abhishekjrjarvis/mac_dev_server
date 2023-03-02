@@ -231,11 +231,12 @@ exports.retrieveOneElectionQueryCandidate = async (req, res) => {
         },
       });
 
-    const all_candidates = nested_document_limit(
-      page,
-      limit,
-      all_candidate?.election_candidate
-    );
+    const all_candidates = all_candidate?.election_candidate;
+    // nested_document_limit(
+    //   page,
+    //   limit,
+    //   all_candidate?.election_candidate
+    // );
     if (all_candidates) {
       // const allEncrypt = await encryptionPayload(all_candidate);
       res.status(200).send({

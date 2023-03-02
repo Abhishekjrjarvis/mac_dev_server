@@ -1655,11 +1655,12 @@ exports.retrieveRequestTransAtFinance = async (req, res) => {
             },
           },
         });
-      var all_query = nested_document_limit(
-        page,
-        limit,
-        finance?.transport_request
-      );
+      var all_query = finance?.transport_request;
+      // nested_document_limit(
+      //   page,
+      //   limit,
+      //   finance?.transport_request
+      // );
     } else if (filter_by === "ALL_SUBMIT") {
       const finance = await Finance.findById({ _id: fid })
         .select("financeName")
@@ -1675,11 +1676,12 @@ exports.retrieveRequestTransAtFinance = async (req, res) => {
             },
           },
         });
-      var all_query = nested_document_limit(
-        page,
-        limit,
-        finance?.transport_submit
-      );
+      var all_query = finance?.transport_submit;
+      // nested_document_limit(
+      //   page,
+      //   limit,
+      //   finance?.transport_submit
+      // );
     } else if (filter_by === "ALL_CANCEL") {
       const finance = await Finance.findById({ _id: fid })
         .select("financeName")
@@ -1695,11 +1697,12 @@ exports.retrieveRequestTransAtFinance = async (req, res) => {
             },
           },
         });
-      var all_query = nested_document_limit(
-        page,
-        limit,
-        finance?.transport_cancelled
-      );
+      var all_query = finance?.transport_cancelled;
+      // nested_document_limit(
+      //   page,
+      //   limit,
+      //   finance?.transport_cancelled
+      // );
     } else {
       var all_query = [];
     }
@@ -1906,11 +1909,12 @@ exports.retrieveRequestAdmissionAtFinance = async (req, res) => {
           },
         });
 
-      var all_array = nested_document_limit(
-        page,
-        limit,
-        finance?.admission_request
-      );
+      var all_array = finance?.admission_request;
+      // nested_document_limit(
+      //   page,
+      //   limit,
+      //   finance?.admission_request
+      // );
     } else if (filter_by === "ALL_SUBMIT") {
       const finance = await Finance.findById({ _id: fid })
         .select("financeName")
@@ -1926,11 +1930,12 @@ exports.retrieveRequestAdmissionAtFinance = async (req, res) => {
             },
           },
         });
-      var all_array = nested_document_limit(
-        page,
-        limit,
-        finance?.admission_submit
-      );
+      var all_array = finance?.admission_submit;
+      // nested_document_limit(
+      //   page,
+      //   limit,
+      //   finance?.admission_submit
+      // );
     } else if (filter_by === "ALL_CANCEL") {
       const finance = await Finance.findById({ _id: fid })
         .select("financeName")
@@ -1946,11 +1951,12 @@ exports.retrieveRequestAdmissionAtFinance = async (req, res) => {
             },
           },
         });
-      const all_array = nested_document_limit(
-        page,
-        limit,
-        finance?.admission_cancelled
-      );
+      const all_array = finance?.admission_cancelled;
+      // nested_document_limit(
+      //   page,
+      //   limit,
+      //   finance?.admission_cancelled
+      // );
     } else {
       var all_array = [];
     }
@@ -2115,11 +2121,12 @@ exports.retrieveRequestLibraryAtFinance = async (req, res) => {
           },
         });
 
-      var all_array = nested_document_limit(
-        page,
-        limit,
-        finance?.library_request
-      );
+      var all_array = finance?.library_request;
+      // nested_document_limit(
+      //   page,
+      //   limit,
+      //   finance?.library_request
+      // );
     } else if (filter_by === "ALL_SUBMIT") {
       const finance = await Finance.findById({ _id: fid })
         .select("financeName")
@@ -2135,11 +2142,12 @@ exports.retrieveRequestLibraryAtFinance = async (req, res) => {
             },
           },
         });
-      var all_array = nested_document_limit(
-        page,
-        limit,
-        finance?.library_submit
-      );
+      var all_array = finance?.library_submit;
+      // nested_document_limit(
+      //   page,
+      //   limit,
+      //   finance?.library_submit
+      // );
     } else if (filter_by === "ALL_CANCEL") {
       const finance = await Finance.findById({ _id: fid })
         .select("financeName")
@@ -2155,11 +2163,12 @@ exports.retrieveRequestLibraryAtFinance = async (req, res) => {
             },
           },
         });
-      var all_array = nested_document_limit(
-        page,
-        limit,
-        finance?.library_cancelled
-      );
+      var all_array = finance?.library_cancelled;
+      // nested_document_limit(
+      //   page,
+      //   limit,
+      //   finance?.library_cancelled
+      // );
     } else {
       var all_array = [];
     }

@@ -3130,7 +3130,11 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       })
       .populate({
         path: "fee_structure",
-        select: "total_admission_fees structure_name one_installments",
+        select: "total_admission_fees structure_name one_installments category_master",
+        populate: {
+          path: "category_master",
+          select: "category_name"
+        }
       });
 
     if (all_remain?.length > 0) {

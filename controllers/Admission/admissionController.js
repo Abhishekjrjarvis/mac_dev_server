@@ -3130,11 +3130,12 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       })
       .populate({
         path: "fee_structure",
-        select: "total_admission_fees structure_name one_installments category_master",
+        select:
+          "total_admission_fees structure_name one_installments category_master",
         populate: {
           path: "category_master",
-          select: "category_name"
-        }
+          select: "category_name",
+        },
       });
 
     if (all_remain?.length > 0) {
@@ -4130,16 +4131,36 @@ exports.renderOneReceiptReApply = async (req, res) => {
     if (image) {
       await deleteFile(image);
     }
-    const status = await Status.findById({ _id: sid });
     const one_app = await NewApplication.findById({
       _id: `${one_receipt?.application}`,
     });
     const ads_admin = await Admission.findById({
       _id: `${one_app?.admissionAdmin}`,
     }).select("fee_receipt_reject");
+    var status = await Status.findOne({ _id: sid });
+    var student = await Student.findOne({ _id: sid });
+    if (student) {
+      var remaining_lists = await RemainingList.findOne({
+        $and: [{ student: student?._id }, { appId: one_app?._id }],
+      });
+    }
+    if (status) {
+      status.receipt_status = "Requested";
+    }
     one_receipt.re_apply = true;
-    status.receipt_status = "Requested";
-    await Promise.all([status.save(), one_receipt.save()]);
+    if (remaining_lists) {
+      for (var ref of remaining_lists?.remaining_array) {
+        if (`${ref?._id}` == `${one_receipt?.fee_request_remain_card}`) {
+          ref.status = "Receipt Requested";
+        }
+      }
+    }
+    if (status) {
+      await Promise.all([status.save(), one_receipt.save()]);
+    } else if (remaining_lists) {
+      await Promise.all([remaining_lists.save(), one_receipt.save()]);
+    } else {
+    }
     res
       .status(200)
       .send({ message: "Your Receipts Under Processing", access: true });
@@ -5058,11 +5079,12 @@ exports.renderDeleteOneExcel = async (req, res) => {
   }
 };
 
-exports.renderData = async(req, res) => {
-  try{
-    const { id } = req.params
-    const student = await Student.findById({ _id: id})
-    .select("active_fee_heads")
+exports.renderData = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const student = await Student.findById({ _id: id }).select(
+      "active_fee_heads"
+    );
     // var s_admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}`})
     // const institute = await InstituteAdmin.findById({ _id: id})
     // .select("ApproveStudent")
@@ -5081,9 +5103,10 @@ exports.renderData = async(req, res) => {
     //   }
     // }
 
-    res.status(200).send({ message: "Download receipt", access: true, student})
+    res
+      .status(200)
+      .send({ message: "Download receipt", access: true, student });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};

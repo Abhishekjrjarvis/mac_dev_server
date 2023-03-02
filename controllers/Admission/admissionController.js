@@ -4137,15 +4137,16 @@ exports.renderOneReceiptReApply = async (req, res) => {
     const ads_admin = await Admission.findById({
       _id: `${one_app?.admissionAdmin}`,
     }).select("fee_receipt_reject");
-    var status = await Status.findOne({ _id: sid });
-    var student = await Student.findOne({ _id: sid });
-    if (student) {
-      var remaining_lists = await RemainingList.findOne({
-        $and: [{ student: student?._id }, { appId: one_app?._id }],
-      });
-    }
+    var status = await Status.findOne({ receipt: one_receipt?._id });
     if (status) {
       status.receipt_status = "Requested";
+    } else {
+      var student = await Student.findById({ _id: sid });
+      if (student) {
+        var remaining_lists = await RemainingList.findOne({
+          $and: [{ student: student?._id }, { appId: one_app?._id }],
+        });
+      }
     }
     one_receipt.re_apply = true;
     if (remaining_lists) {

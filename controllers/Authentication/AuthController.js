@@ -337,7 +337,7 @@ exports.getOtpAtUser = async (req, res) => {
         // const uPhoneEncrypt = await encryptionPayload(valid_user);
         res.status(200).send({
           message: "code will be send to registered mobile number",
-          valid_user,
+          userPhoneNumber,
         });
       } else {
         res.send({ message: "User will be verified..." });
@@ -404,7 +404,7 @@ exports.getOtpAtIns = async (req, res) => {
         // const iPhoneEncrypt = await encryptionPayload(valid_ins);
         res.status(200).send({
           message: "code will be send to registered mobile number",
-          valid_ins,
+          insPhoneNumber,
         });
       } else {
         res.send({ message: "Institute Phone Number will be verified..." });

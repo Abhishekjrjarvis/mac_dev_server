@@ -23357,7 +23357,7 @@ paths:
             properties:
               interview_type:
                 type: string
-                description: Enter Type ("" || "")
+                description: Enter Type ("Virtual Interview" || "In Person Interview")
                 required: true
               interview_date:
                 type: string

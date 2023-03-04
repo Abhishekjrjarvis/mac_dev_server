@@ -23091,3 +23091,275 @@ paths:
       responses:
         "200":
           description: OK
+
+
+#Landing Career
+
+  /api/v1/landing/ins/{id}/activate:
+    post:
+      tags:
+        - Landing Career Page Query
+      summary: Activate Career Module By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This Institute Admin ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/career/{lcid}:
+    get:
+      tags:
+        - Landing Career Page Query
+      summary: One Career Module Details By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lcid
+          required: true
+          type: string
+          description: This Landing Career Module ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/career/{lcid}/new/vacancy:
+    post:
+      tags:
+        - Landing Career Page Query
+      summary: New Vacancies Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lcid
+          required: true
+          type: string
+          description: This Landing Career Module ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              vacancy_job_type:
+                type: string
+                description: Enter Vacancy JOB Type ("Administrative Job" || "Teaching Job" || "Other")
+                required: true
+              vacancy_position:
+                type: string
+                description: Enter Vacancy Position
+                required: true
+              vacancy_package:
+                type: number
+                description: Enter Vacancy Package
+                required: false
+              vacancy_about:
+                type: string
+                description: Enter Vacancy Description
+                required: false
+              vacancy_banner:
+                type: string
+                description: Enter Vacancy Banner Key
+                required: false
+              department:
+                type: string
+                description: Enter Department Id
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/career/{lcid}/all/vacancy:
+    get:
+      tags:
+        - Landing Career Page Query
+      summary: All Career Module Vacancies Details By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lcid
+          required: true
+          type: string
+          description: This Landing Career Module ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: status
+          required: true
+          type: string
+          description: Enter Status ("Ongoing" || "Completed")
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/vacancy/{vid}/status:
+    patch:
+      tags:
+        - Landing Career Page Query
+      summary: Mark One Vacancies Completed By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: vid
+          required: true
+          type: string
+          description: This Vacancy ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/vacancy/{vid}/apply:
+    patch:
+      tags:
+        - Landing Career Page Query
+      summary: Apply On Vacancies Completed By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: vid
+          required: true
+          type: string
+          description: This Vacancy ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              endUserName:
+                type: string
+                description: Enter name here
+                required: true
+              endUserEmail:
+                type: string
+                description: Enter email here
+                required: true
+              endUserPhoneNumber:
+                type: string
+                description: Enter Phone Number
+                required: true
+              endUserAddress:
+                type: string
+                description: Enter address here
+                required: true
+              endUserResume:
+                type: string
+                description: Enter Resume Key
+                required: true
+              endUserDOB:
+                type: string
+                description: Enter DOB here
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/vacancy/{vid}/all/applications:
+    get:
+      tags:
+        - Landing Career Page Query
+      summary: All Applications By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: vid
+          required: true
+          type: string
+          description: This Vacancy Module ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: search
+          required: true
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/app/schedule/{acid}:
+    patch:
+      tags:
+        - Landing Career Page Query
+      summary: One Application Schedule By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: acid
+          required: true
+          type: string
+          description: This Applicant Candidate ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              interview_type:
+                type: string
+                description: Enter Type ("" || "")
+                required: true
+              interview_date:
+                type: string
+                description: Enter date ("2023-02-02")
+                required: true
+              interview_time:
+                type: string
+                description: Enter Time ("18:10")
+                required: true
+              interview_link:
+                type: string
+                description: Enter Link if (type is "Virtual")
+                required: false
+              interview_place:
+                type: string
+                description: Enter place here (if type is "In Person")
+                required: false
+              interview_guidelines:
+                type: string
+                description: Enter Guide Line
+                required: false
+      responses:
+        "200":
+          description: OK

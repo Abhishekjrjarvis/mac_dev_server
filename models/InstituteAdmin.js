@@ -670,6 +670,20 @@ const instituteAdminSchema = new mongoose.Schema({
       status: { type: String, default: "Not Uploaded" },
     },
   ],
+  careerStatus: {
+    type: String,
+    default: "Disable",
+  },
+  careerDepart: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "LandingCareer",
+    },
+  ],
+  career_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

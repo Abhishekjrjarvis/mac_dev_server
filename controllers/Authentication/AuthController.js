@@ -546,15 +546,23 @@ exports.profileByUser = async (req, res) => {
       if (existUser) {
         res.send({ message: "Username already exists" });
       } else {
+        const valid_phone = !id?.includes("@")
+          ? id?.length === 10
+            ? parseInt(id)
+            : ""
+          : "";
+        if (!valid_phone) {
+          var valid_email = id?.includes("@") ? id : false;
+        }
         var user = new User({
           userLegalName: userLegalName,
           userGender: userGender,
           userDateOfBirth: userDateOfBirth,
           username: username?.trim(),
           userStatus: "Approved",
-          userPhoneNumber: id,
+          userPhoneNumber: valid_phone ? id : 0,
           photoId: "0",
-          userEmail: userEmail,
+          userEmail: valid_email ? id : "",
           coverId: "2",
           remindLater: rDate,
           next_date: c_date,

@@ -11,8 +11,13 @@ router.get(
   catchAsync(Role.renderAdmissionAllAppModeratorArray)
 );
 
+router.get(
+  "/one/moderator/:mid/all/apps",
+  catchAsync(Role.renderOneModeratorAllAppsQuery)
+);
+
 router.patch(
-  "/:aid/update/app/mod/:mid",
+  "/update/app/mod/:mid",
   catchAsync(Role.updateAdmissionAppModeratorQuery)
 );
 

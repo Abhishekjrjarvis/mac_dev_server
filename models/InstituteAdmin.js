@@ -684,6 +684,20 @@ const instituteAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  tenderStatus: {
+    type: String,
+    default: "Disable",
+  },
+  tenderDepart: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "LandingTender",
+    },
+  ],
+  tender_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

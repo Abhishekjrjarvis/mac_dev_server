@@ -36,6 +36,8 @@ const {
   patchVehicleImageCover,
   patchTransportImageCover,
   patchEventManagerImageCover,
+  patchLandingCareerImageCover,
+  patchLandingTenderImageCover,
   // patchStaffImagePhoto,
   // patchStaffAddharDoc,
   // patchStudentImagePhoto,
@@ -155,6 +157,14 @@ router
 router
   .route("/:eid/event/manager/cover")
   .patch(isLoggedIn, upload.single("file"), patchEventManagerImageCover);
+
+router
+  .route("/:lcid/landing/career/cover")
+  .patch(isLoggedIn, upload.single("file"), patchLandingCareerImageCover);
+
+router
+  .route("/:ltid/landing/tender/cover")
+  .patch(isLoggedIn, upload.single("file"), patchLandingTenderImageCover);
 // router
 //   .route("/:id/staff/photo")
 //   .patch(isLoggedIn, upload.single("file"), patchStaffImagePhoto);

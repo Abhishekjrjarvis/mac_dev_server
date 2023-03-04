@@ -9,34 +9,23 @@ const { all_access_role } = require("./accessRole");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const { nested_document_limit } = require("../../helper/databaseFunction");
 const { handle_undefined } = require("../../Handler/customError");
+const AdmissionModerator = require("../../models/Moderator/AdmissionModerator");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
-exports.render_admission_current_role = async (ads_admin, sid) => {
+exports.render_admission_current_role = async (ads_admin, mid) => {
   try {
     var sorted = [];
-    var all_role = all_access_role();
-    const one_staff = await Staff.findById({ _id: sid });
     for (var mod of ads_admin) {
-      for (ref of all_role) {
-        if (
-          `${mod?.staff}` === `${one_staff?._id}` &&
-          one_staff?.permission.admission?.includes(ref?.role)
-        ) {
-          const val = ref;
-          val.permission.appArray.push(mod?.application);
-          sorted.push({
-            ...val,
-            modId: mod?._id,
-          });
-        }
+      if (`${mod}` === `${mid}`) {
+        sorted.push(mod);
       }
     }
-    var arr = [...new Set(sorted)];
-    var permission = { ...arr };
+    const one_mod = await AdmissionModerator.find({ _id: { $in: sorted } });
+    var permission = [...one_mod];
     if (permission) {
       return permission;
     } else {
-      return {};
+      return [];
     }
   } catch (e) {
     console.log(e);
@@ -47,83 +36,58 @@ exports.addAdmissionAppModerator = async (req, res) => {
   try {
     const { aid } = req.params;
     const { mod_role, sid, app_array } = req.body;
-    if (!aid && !mod_role && !sid && !appId)
+    if (!aid && !mod_role && !sid && !app_array)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
-
+    var all_role = all_access_role();
     const ads_admin = await Admission.findById({ _id: aid });
     const institute = await InstituteAdmin.findById({
       _id: `${ads_admin?.institute}`,
     });
     const staff = await Staff.findById({ _id: sid });
     const user = await User.findById({ _id: `${staff?.user}` });
-    if (app_array?.length > 0) {
-      ads_admin.moderator_role.push({
-        role: mod_role,
-        application: [...app_array],
-        staff: staff?._id,
-      });
-      for (var ref of app_array) {
-        const apps = await NewApplication.findById({ _id: ref });
-        const notify = new Notification({});
-        staff.admissionModeratorDepartment.push({
-          admission: ads_admin._id,
-          accessApp: apps?._id,
-          type: `Moderator of Admission Application - ${apps?.applicationName}`,
-        });
-        staff.permission.admission.push(mod_role);
-        staff.staffDesignationCount += 1;
-        staff.recentDesignation = "Admission Admin Moderator";
-        notify.notifyContent = `you got the designation of Admission Admin Moderator 🎉🎉`;
-        notify.notifySender = institute?._id;
-        notify.notifyReceiever = user._id;
-        notify.notifyCategory = "Admission Designation";
-        user.uNotify.push(notify._id);
-        notify.user = user._id;
-        notify.notifyPid = "1";
-        notify.notifyByInsPhoto = institute._id;
-        invokeFirebaseNotification(
-          "Designation Allocation",
-          notify,
-          institute.insName,
-          user._id,
-          user.deviceToken
-        );
-        await Promise.all([user.save(), notify.save()]);
-      }
-    } else {
-      ads_admin.moderator_role.push({
-        role: mod_role,
-        staff: staff?._id,
-      });
-      staff.admissionModeratorDepartment.push({
-        admission: ads_admin._id,
-        type: `Moderator of Admission For ${mod_role}`,
-      });
-      const notify = new Notification({});
-      staff.permission.admission.push(mod_role);
-      staff.staffDesignationCount += 1;
-      staff.recentDesignation = "Admission Admin Moderator";
-      notify.notifyContent = `you got the designation of Admission Admin Moderator 🎉🎉`;
-      notify.notifySender = institute?._id;
-      notify.notifyReceiever = user._id;
-      notify.notifyCategory = "Admission Designation";
-      user.uNotify.push(notify._id);
-      notify.user = user._id;
-      notify.notifyPid = "1";
-      notify.notifyByInsPhoto = institute._id;
-      invokeFirebaseNotification(
-        "Designation Allocation",
-        notify,
-        institute.insName,
-        user._id,
-        user.deviceToken
-      );
-      await Promise.all([user.save(), notify.save()]);
+    const notify = new Notification({});
+    const new_mod = new AdmissionModerator({});
+    new_mod.access_role = mod_role;
+    new_mod.access_staff = staff?._id;
+    if (mod_role === all_role[`${mod_role}`]?.role) {
+      new_mod.permission.bound = [
+        ...all_role[`${mod_role}`]?.permission?.bound,
+      ];
     }
-    await Promise.all([staff.save(), ads_admin.save()]);
+    if (app_array?.length > 0) {
+      new_mod.access_application.push(...app_array);
+    }
+    new_mod.admission = ads_admin?._id;
+    ads_admin.moderator_role.push(new_mod?._id);
+    ads_admin.moderator_role_count += 1;
+    staff.admissionModeratorDepartment.push(new_mod?._id);
+    staff.staffDesignationCount += 1;
+    staff.recentDesignation = `Admission Admin Moderator - ${mod_role}`;
+    notify.notifyContent = `you got the designation of Admission Admin Moderator for ${mod_role} 🎉🎉`;
+    notify.notifySender = institute?._id;
+    notify.notifyReceiever = user._id;
+    notify.notifyCategory = "Admission Moderator Designation";
+    user.uNotify.push(notify._id);
+    notify.user = user._id;
+    notify.notifyPid = "1";
+    notify.notifyByInsPhoto = institute._id;
+    invokeFirebaseNotification(
+      "Designation Allocation",
+      notify,
+      institute.insName,
+      user._id,
+      user.deviceToken
+    );
+    await Promise.all([
+      staff.save(),
+      ads_admin.save(),
+      new_mod.save(),
+      user.save(),
+      notify.save(),
+    ]);
     // const adsEncrypt = await encryptionPayload(ads_admin._id);
     res.status(200).send({
       message: "Successfully Assigned Admission Admin Moderator Staff",
@@ -143,51 +107,113 @@ exports.addAdmissionAppModerator = async (req, res) => {
   }
 };
 
+exports.renderOneModeratorAllAppsQuery = async (req, res) => {
+  try {
+    const { mid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (!mid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const one_moderator = await AdmissionModerator.findById({
+      _id: mid,
+    }).select("access_application");
+
+    if (search) {
+      var all_apps = await NewApplication.find({
+        $and: [{ _id: { $in: one_moderator?.access_application } }],
+        $or: [{ applicationName: { $regex: search, $options: "i" } }],
+      }).select("applicationName");
+    } else {
+      var all_apps = await NewApplication.find({
+        _id: { $in: one_moderator?.access_application },
+      })
+        .limit(limit)
+        .skip(skip)
+        .select("applicationName");
+    }
+    if (all_apps?.length > 0) {
+      // const allEncrypt = await encryptionPayload(all_apps);
+      res.status(200).send({
+        message: "All Application List 😀",
+        all_apps,
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Application List 😀",
+        all_apps: [],
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.renderAdmissionAllAppModeratorArray = async (req, res) => {
   try {
     const { aid } = req.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
     if (!aid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
 
-    const ads_admin = await Admission.findById({ _id: aid })
-      .select("moderator_role")
-      .populate({
-        path: "moderator_role",
-        populate: {
-          path: "application",
-          select: "applicationName",
-        },
-      })
-      .populate({
-        path: "moderator_role",
-        populate: {
-          path: "staff",
-          select:
-            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
-        },
-      });
-
-    const all_admins = nested_document_limit(
-      page,
-      limit,
-      ads_admin?.moderator_role
+    const ads_admin = await Admission.findById({ _id: aid }).select(
+      "moderator_role"
     );
-    if (all_admins) {
-      // const allEncrypt = await encryptionPayload(all_admins);
+
+    if (search) {
+      var all_mods = await AdmissionModerator.find({
+        $and: [{ _id: { $in: ads_admin?.moderator_role } }],
+        $or: [{ access_role: { $regex: search, $options: "i" } }],
+      })
+        .populate({
+          path: "access_staff",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        })
+        .populate({
+          path: "access_application",
+          select: "applicationName",
+        });
+    } else {
+      var all_mods = await AdmissionModerator.find({
+        _id: { $in: ads_admin?.moderator_role },
+      })
+        .limit(limit)
+        .skip(skip)
+        .populate({
+          path: "access_staff",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        })
+        .populate({
+          path: "access_application",
+          select: "applicationName",
+        });
+    }
+    if (all_mods) {
+      // const allEncrypt = await encryptionPayload(all_mods);
       res.status(200).send({
         message: "All Admin / Moderator List 😀",
-        all_admins,
+        all_mods,
         access: true,
       });
     } else {
       res.status(200).send({
         message: "No Admin / Moderator List 😀",
-        all_admins: [],
+        all_mods: [],
         access: false,
       });
     }
@@ -198,143 +224,92 @@ exports.renderAdmissionAllAppModeratorArray = async (req, res) => {
 
 exports.updateAdmissionAppModeratorQuery = async (req, res) => {
   try {
-    const { aid, mid } = req.params;
-    const { mod_role, new_roles, osid, appId, new_apps, new_staff } = req.body;
-    if (!aid && !mod_role && !osid && !appId && !mid && osid !== new_staff)
+    const { mid } = req.params;
+    const { role, staffId, app_array } = req.body;
+    if (!mid)
       return res.status(200).send({
-        message: "Their is a bug need to fixed immediatley",
+        message: "Their is a bug need to fixed immediately",
         access: false,
       });
-    var nsid = handle_undefined(new_staff);
-    var new_appId = handle_undefined(new_apps);
-    var new_mod_role = handle_undefined(new_roles);
-    var ads_admin = await Admission.findById({ _id: aid });
-    var apps = await NewApplication.findById({ _id: appId });
-    if (new_appId) {
-      var newApps = await NewApplication.findById({ _id: new_appId });
-    }
-    var institute = await InstituteAdmin.findById({
-      _id: `${ads_admin?.institute}`,
+    var sid = handle_undefined(staffId);
+    var all_role = all_access_role();
+    const one_moderator = await AdmissionModerator.findById({
+      _id: mid,
+    }).populate({
+      path: "admission",
+      select: "institute",
+      populate: {
+        path: "institute",
+        select: "insName sms_lang",
+      },
     });
-    var notify = new Notification({});
-    const staff = await Staff.findById({ _id: osid });
-    if (nsid) {
-      var newStaff = await Staff.findById({ _id: nsid });
-    }
-    if (nsid) {
-      for (var author of ads_admin?.moderator_role) {
-        if (`${author?._id}` === `${mid}`) {
-          author.role = new_mod_role ? new_mod_role : mod_role;
-          author.application.push(newApps?._id ? newApps?._id : apps?._id);
-          author.staff = newStaff?._id;
-        }
+    if (role) {
+      one_moderator.access_role = role;
+      one_moderator.permission.bound = [];
+      if (role === all_role[`${role}`]?.role) {
+        one_moderator.permission.bound = [
+          ...all_role[`${role}`]?.permission?.bound,
+        ];
       }
-      newStaff.admissionModeratorDepartment.push({
-        admission: ads_admin._id,
-        accessApp: newApps?._id ? newApps?._id : apps?._id,
-        type: `Moderator of Admission Application - ${
-          newApps?.applicationName
-            ? newApps?.applicationName
-            : apps?.applicationName
-        }`,
-      });
-      staff.admissionModeratorDepartment?.splice(
-        { accessApp: `${apps?._id}` },
-        1
-      );
-      if (staff?.staffDesignationCount > 0) {
-        staff.staffDesignationCount -= 1;
-      }
-      if (staff.permission.admission.includes(mod_role)) {
-        staff.permission.admission.pull(mod_role);
-      }
-      staff.recentDesignation = "";
-      if (new_mod_role) {
-        newStaff.permission.admission.pull(mod_role);
-        newStaff.permission.admission.push(new_mod_role);
+      if (
+        role === "MULTI_APP_ACCESS" ||
+        role === "INQUIRY_ACCESS" ||
+        role === "FULL_ACCESS"
+      ) {
       } else {
-        if (newStaff.permission.admission.includes(mod_role)) {
-        } else {
-          newStaff.permission.admission.push(mod_role);
+        var all_apps = await NewApplication.find({
+          _id: { $in: one_moderator?.access_application },
+        });
+        for (var val of all_apps) {
+          one_moderator.access_application.pull(val?._id);
         }
       }
-      newStaff.staffDesignationCount += 1;
-      newStaff.recentDesignation = "Admission Admin Moderator";
-      var user = await User.findById({ _id: `${newStaff?.user}` });
+    }
+    if (sid) {
+      var one_staff = await Staff.findById({
+        _id: `${one_moderator?.access_staff}`,
+      });
+      one_staff.admissionModeratorDepartment.pull(one_moderator?._id);
+      one_staff.recentDesignation = "";
+      if (one_staff?.staffDesignationCount > 0) {
+        one_staff.staffDesignationCount -= 1;
+      }
+      await one_staff.save();
+      var new_staff = await Staff.findById({ _id: sid });
+      new_staff.admissionModeratorDepartment.push(one_moderator?._id);
+      new_staff.recentDesignation = `Admission Admin Moderator - ${one_moderator?.access_role}`;
+      new_staff.staffDesignationCount += 1;
+      const notify = new Notification({});
+      var user = await User.findById({ _id: `${new_staff?.user}` });
       notify.notifyContent = `you got the designation of Admission Admin Moderator 🎉🎉`;
-      notify.notifySender = institute?._id;
+      notify.notifySender = one_moderator?.admission?._id;
       notify.notifyReceiever = user._id;
-      notify.notifyCategory = "Admission Designation";
+      notify.notifyCategory = "Admission Moderator Designation";
       user.uNotify.push(notify._id);
       notify.user = user._id;
-      notify.notifyPid = "1";
-      notify.notifyByInsPhoto = institute._id;
+      notify.notifyByInsPhoto = one_moderator?.admission?.institute?._id;
       invokeFirebaseNotification(
         "Designation Allocation",
         notify,
-        institute.insName,
+        one_moderator?.admission?.institute?.insName,
         user._id,
         user.deviceToken
       );
       designation_alarm(
         user?.userPhoneNumber,
         "ADMISSION_MODERATOR",
-        institute?.sms_lang,
+        one_moderator?.admission?.institute?.sms_lang,
         "",
         "",
         ""
       );
-      await Promise.all([newStaff.save(), staff.save()]);
-    } else {
-      for (var author of ads_admin?.moderator_role) {
-        if (`${author?._id}` === `${mid}`) {
-          author.role = new_mod_role ? new_mod_role : mod_role;
-          author.application.push(newApps?._id ? newApps?._id : apps?._id);
-        }
-      }
-      if (newApps) {
-        for (var ele of staff.admissionModeratorDepartment) {
-          if (`${ele?.accessApp}` === `${apps?._id}`) {
-            (ele.admission = ads_admin._id),
-              (ele.accessApp = newApps?._id),
-              (ele.type = `Moderator of Admission Application - ${newApps?.applicationName}`);
-          }
-        }
-      }
-      if (new_mod_role) {
-        staff.permission.admission.pull(mod_role);
-        staff.permission.admission.push(new_mod_role);
-      } else {
-        if (staff.permission.admission.includes(mod_role)) {
-        } else {
-          staff.permission.admission.push(mod_role);
-        }
-      }
-      var user = await User.findById({ _id: `${staff?.user}` });
-      notify.notifyContent = `you got the new permission for Admission Application`;
-      notify.notifySender = institute?._id;
-      notify.notifyReceiever = user._id;
-      notify.notifyCategory = "Admission Change Permission";
-      user.uNotify.push(notify._id);
-      notify.user = user._id;
-      notify.notifyPid = "1";
-      notify.notifyByInsPhoto = institute._id;
-      invokeFirebaseNotification(
-        "Designation Allocation",
-        notify,
-        institute.insName,
-        user._id,
-        user.deviceToken
-      );
-      await staff.save();
+      await Promise.all([new_staff.save(), user.save(), notify.save()]);
     }
-    await Promise.all([ads_admin.save(), user.save(), notify.save()]);
-    // const adsEncrypt = await encryptionPayload(ads_admin._id);
-    res.status(200).send({
-      message: "Successfully Assigned Admission Admin Moderator Staff",
-      admission: ads_admin._id,
-      access: true,
-    });
+    if (app_array?.length > 0) {
+      one_moderator.access_application.push(...app_array);
+    }
+    await one_moderator.save();
+    res.status(200).send({ message: "Explore Update Role", access: true });
   } catch (e) {
     console.log(e);
   }
@@ -348,28 +323,24 @@ exports.destroyAdmissionAppModeratorQuery = async (req, res) => {
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
+    const one_moderator = await AdmissionModerator.findById({ _id: mid });
+    const one_staff = await Staff.findById({
+      _id: `${one_moderator?.access_staff}`,
+    });
     var ads_admin = await Admission.findById({ _id: aid }).select(
       "moderator_role"
     );
-    for (var del of ads_admin?.moderator_role) {
-      if (`${del?._id}` === `${mid}`) {
-        var staff = await Staff.findById({ _id: `${del?.staff}` });
-        staff?.admissionModeratorDepartment.splice(
-          {
-            accessApp: `${del?.application}`,
-          },
-          1
-        );
-        staff.permission.admission.pull(`${del?.role}`);
-        if (staff.staffDesignationCount > 0) {
-          staff.staffDesignationCount -= 1;
-        }
-        staff.recentDesignation = "";
-        await staff.save();
-      }
+    ads_admin.moderator_role.pull(mid);
+    one_staff.admissionModeratorDepartment.pull(mid);
+    if (ads_admin.moderator_role_count > 0) {
+      ads_admin.moderator_role_count -= 1;
     }
-    ads_admin?.moderator_role.pull(mid);
-    await ads_admin.save();
+    if (one_staff.staffDesignationCount > 0) {
+      one_staff.staffDesignationCount -= 1;
+    }
+    one_staff.recentDesignation = "";
+    await Promise.all([one_staff.save(), ads_admin.save()]);
+    await AdmissionModerator.findByIdAndDelete(mid);
     res.status(200).send({
       message: "Deletion Operation Completed 👍",
       access: true,
@@ -378,27 +349,3 @@ exports.destroyAdmissionAppModeratorQuery = async (req, res) => {
     console.log(e);
   }
 };
-
-// const datas = () => {
-//   const arr = [
-//     {
-//       0: {
-//       key: "hello",
-//       value: "world",
-//       },
-//     },
-//     {
-//       1: {
-//       key: "Awesome",
-//       value: "Marvelous",
-//       },
-//     },
-//   ];
-
-//   let has = arr.some((vendor, index) => vendor.index.["key"] === "hello");
-//   console.log(has);
-//   if (has) return true;
-//   else return false;
-// };
-
-// console.log(datas());

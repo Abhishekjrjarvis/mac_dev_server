@@ -15,6 +15,7 @@ const { deleteFile, uploadFile } = require("../../S3Configuration");
 const { chart_category } = require("../../Custom/staffChart");
 const { designation_alarm } = require("../../WhatsAppSMS/payload");
 const Transport = require("../../models/Transport/transport");
+const EventManager = require("../../models/Event/eventManager");
 
 exports.photoEditByStaff = async (req, res) => {
   try {
@@ -499,6 +500,75 @@ exports.renderTransportStaffQuery = async (req, res) => {
       user?.userPhoneNumber,
       "TRANSPORT",
       trans?.institute?.sms_lang,
+      "",
+      "",
+      ""
+    );
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderEventManagerStaffQuery = async (req, res) => {
+  try {
+    const { osid } = req.params;
+    const { nsid } = req.query;
+    if (!osid && !nsid && osid !== nsid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        status: false,
+      });
+    const oldStaff = await Staff.findById({ _id: osid }).populate({
+      path: "institute",
+      select: "eventManagerDepart",
+    });
+    const newStaff = await Staff.findById({ _id: nsid });
+    const user = await User.findById({ _id: `${newStaff.user}` });
+    const event = await EventManager.findById({
+      _id: `${oldStaff?.institute?.eventManagerDepart[0]}`,
+    }).populate({
+      path: "institute",
+      select: "insName sms_lang",
+    });
+    const notify = new Notification({});
+    newStaff.eventManagerDepartment.push(event._id);
+    newStaff.staffDesignationCount += 1;
+    newStaff.recentDesignation = "Events / Seminar Administrator";
+    event.event_head = newStaff._id;
+    oldStaff.eventManagerDepartment.pull(event._id);
+    if (oldStaff.staffDesignationCount > 0) {
+      oldStaff.staffDesignationCount -= 1;
+    }
+    oldStaff.recentDesignation = "";
+    notify.notifyContent = `you got the designation of as Events / Seminar Administrator`;
+    notify.notifySender = event.institute._id;
+    notify.notifyReceiever = user._id;
+    notify.notifyCategory = "Event Manager Designation";
+    user.uNotify.push(notify._id);
+    notify.user = user._id;
+    notify.notifyByInsPhoto = event.institute._id;
+    invokeFirebaseNotification(
+      "Designation Allocation",
+      notify,
+      event.institute.insName,
+      user._id,
+      user.deviceToken
+    );
+    await Promise.all([
+      oldStaff.save(),
+      event.save(),
+      user.save(),
+      notify.save(),
+      newStaff.save(),
+    ]);
+    res.status(200).send({
+      message: "Successfully Assigned Event Manager",
+      status: true,
+    });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "EVENT_MANAGER",
+      event?.institute?.sms_lang,
       "",
       "",
       ""

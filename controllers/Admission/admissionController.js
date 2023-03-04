@@ -133,7 +133,7 @@ exports.retrieveAdmissionAdminHead = async (req, res) => {
 exports.retrieveAdmissionDetailInfo = async (req, res) => {
   try {
     const { aid } = req.params;
-    const { sid } = req.query;
+    const { mod_id } = req.query;
     // const is_cache = await connect_redis_hit(`Admission-Detail-${aid}`);
     // if (is_cache?.hit)
     //   return res.status(200).send({
@@ -142,7 +142,7 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
     //   });
     const admission = await Admission.findById({ _id: aid })
       .select(
-        "admissionAdminEmail admissionAdminPhoneNumber moderator_role completedCount exemptAmount requested_status collected_fee remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount refundCount export_collection_count"
+        "admissionAdminEmail admissionAdminPhoneNumber moderator_role moderator_role_count completedCount exemptAmount requested_status collected_fee remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount refundCount export_collection_count"
       )
       .populate({
         path: "admissionAdminHead",
@@ -158,17 +158,17 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
     //   `Admission-Detail-${aid}`,
     //   admission
     // );
-    if (req?.query?.sid) {
+    if (req?.query?.mod_id) {
       var value = await render_admission_current_role(
         admission?.moderator_role,
-        sid
+        mod_id
       );
     }
     res.status(200).send({
       message: "All Detail Admission Admin from DB 🙌",
       // admission: cached.admission,
       admission: admission,
-      roles: req?.query?.sid ? value : "",
+      roles: req?.query?.mod_id ? value : "",
     });
   } catch (e) {
     console.log(e);

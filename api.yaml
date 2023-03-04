@@ -7450,6 +7450,58 @@ paths:
         "200":
           description: OK
 
+  /api/v1/all-images/{lcid}/landing/career/cover:
+    patch:
+      tags:
+        - To get All Images, Videos and Documents
+      summary:
+        - To upload Landing Career cover photo
+      consumes:
+        - application/json
+      produces:
+        - application/json'
+      parameters:
+        - in: path
+          name: lcid
+          required: true
+          schema:
+            type: string
+          description: This is Landing Career Module ID
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your image with images extenstion
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/all-images/{ltid}/landing/tender/cover:
+    patch:
+      tags:
+        - To get All Images, Videos and Documents
+      summary:
+        - To upload Landing Tender cover photo
+      consumes:
+        - application/json
+      produces:
+        - application/json'
+      parameters:
+        - in: path
+          name: ltid
+          required: true
+          schema:
+            type: string
+          description: This is Landing Tender Module ID
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your image with images extenstion
+      responses:
+        "200":
+          description: OK
+
 
   /api/v1/all/todevice/token:
     post:
@@ -14846,6 +14898,11 @@ paths:
           required: true
           type: string
           description: This is Admission id 
+        - in: path
+          name: mod_id
+          required: true
+          type: string
+          description: This is Moderator id 
       responses:
         "200":
           description: OK
@@ -18588,6 +18645,30 @@ paths:
         "200":
           description: OK
 
+  /api/v1/edit/staff/event/manager/staff/{osid}:
+    patch:
+      tags:
+        - Edit Admins
+      summary: Update Event Manager Admins (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: osid
+          required: true
+          type: string
+          description: Enter Old staff id
+        - in: query
+          name: nsid
+          required: true
+          type: string
+          description: Enter New staff id
+      responses:
+        "200":
+          description: OK
+
 
 # Backlog Api Module
 
@@ -20644,9 +20725,9 @@ paths:
                 type: string
                 description: Enter Staff Id
                 required: true 
-              appId:
-                type: string
-                description: Enter App Id
+              app_array:
+                type: array
+                description: Enter Array of Application Id
                 required: true  
       responses:
         "200":
@@ -20677,11 +20758,16 @@ paths:
           required: true
           type: string
           description: Enter Limit
+        - in: query
+          name: search
+          required: true
+          type: string
+          description: Enter Search Query
       responses:
         "200":
           description: OK
 
-  /api/v1/role/permission/{aid}/update/app/mod/{mid}:
+  /api/v1/role/permission/update/app/mod/{mid}:
     patch:
       tags:
         - Moderator Role & Permission
@@ -20692,11 +20778,6 @@ paths:
         - application/json
       parameters:
         - in: path
-          name: aid
-          required: true
-          type: string
-          description: Enter Admission Id
-        - in: path
           name: mid
           required: true
           type: string
@@ -20706,30 +20787,18 @@ paths:
           schema:
             type: object
             properties:
-              mod_role:
+              role:
                 type: string
                 description: Enter Role as per given 
-                required: true
-              osid:
+                required: false
+              staffId:
                 type: string
-                description: Enter Old Staff Id
+                description: Enter Staff Id
                 required: true 
-              appId:
+              app_array:
                 type: string
-                description: Enter Old App Id
+                description: Enter Array of Application Id
                 required: true 
-              new_roles:
-                type: string
-                description: Enter New Role as per given 
-                required: false
-              new_staff:
-                type: string
-                description: Enter New Staff Id
-                required: false
-              new_apps:
-                type: string
-                description: Enter New App Id
-                required: false
       responses:
         "200":
           description: OK
@@ -20758,26 +20827,36 @@ paths:
         "200":
           description: OK
 
-  Same AS Admission Admin Get Admission Detail API:
+  /api/v1/role/permission/one/moderator/{mid}/all/apps:
     get:
       tags:
         - Moderator Role & Permission
-      summary: Old Admission Dashboard Info API pass sid in query for moderator role (verified)
+      summary: One Moderator Role All Applications (verified)
       consumes:
         - application/json
       produces:
         - application/json
       parameters:
         - in: path
-          name: aid
-          required: true
-          type: string
-          description: Enter Admission Id
-        - in: path
           name: mid
           required: true
           type: string
-          description: Enter One Moderator Id
+          description: Enter Moderator Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
       responses:
         "200":
           description: OK
@@ -23379,6 +23458,316 @@ paths:
                 type: string
                 description: Enter Guide Line
                 required: false
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/vacancy/{vid}/destroy:
+    delete:
+      tags:
+        - Landing Career Page Query
+      summary: Delete One Vacancy By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: vid
+          required: true
+          type: string
+          description: This Vacancy Module ID
+      responses:
+        "200":
+          description: OK
+
+
+# Landing Tender
+
+  /api/v1/landing/ins/{id}/activate/tender:
+    post:
+      tags:
+        - Landing Tender Page Query
+      summary: Activate Tender Module By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This Institute Admin ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/landing/tender/{ltid}:
+    get:
+      tags:
+        - Landing Tender Page Query
+      summary: One Landing Tender Module Details By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: ltid
+          required: true
+          type: string
+          description: This Landing Tender Module ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/{ltid}/new/tender:
+    post:
+      tags:
+        - Landing Tender Page Query
+      summary: New Tender Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: ltid
+          required: true
+          type: string
+          description: This Landing Tender Module ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              tender_requirement:
+                type: string
+                description: Enter Tender Requirement
+                required: true
+              tender_budget:
+                type: number
+                description: Enter Tender Budget
+                required: false
+              tender_about:
+                type: string
+                description: Enter Tender Description
+                required: false
+              tender_order:
+                type: string
+                description: Enter Tender Order Key
+                required: false
+              department:
+                type: string
+                description: Enter Department Id
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/{ltid}/all/tender:
+    get:
+      tags:
+        - Landing Tender Page Query
+      summary: All Landing Tender Module Tenders Details By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: ltid
+          required: true
+          type: string
+          description: This Landing Tender Module ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: status
+          required: true
+          type: string
+          description: Enter Status ("Open" || "Closed")
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/tender/{tid}/status:
+    patch:
+      tags:
+        - Landing Tender Page Query
+      summary: Mark One Tender Closed By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This Tender ID
+      responses:
+        "200":
+          description: OK
+  
+  /api/v1/landing/one/tender/{tid}/query:
+    get:
+      tags:
+        - Landing Tender Page Query
+      summary: One Tender (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This Tender ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/tender/{tid}/apply/bid:
+    patch:
+      tags:
+        - Landing Tender Page Query
+      summary: Bid On Tender Completed By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This Tender ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              bidder_name:
+                type: string
+                description: Enter name here
+                required: true
+              bidder_email:
+                type: string
+                description: Enter email here
+                required: true
+              bidder_phone_number:
+                type: string
+                description: Enter Phone Number
+                required: true
+              bidder_address:
+                type: string
+                description: Enter address here
+                required: true
+              bidder_quotation:
+                type: string
+                description: Enter Quotation Key
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/tender/{tid}/all/bidder:
+    get:
+      tags:
+        - Landing Tender Page Query
+      summary: All Bidder By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This Tender Module ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/tender/{tid}/bid/offer/{bid}:
+    patch:
+      tags:
+        - Landing Tender Page Query
+      summary: One Bidder Offer  By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This Tender ID
+        - in: path
+          name: bid
+          required: true
+          type: string
+          description: This Bidder ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              offer_price:
+                type: number
+                description: Enter Offer Price
+                required: true
+              order_detail:
+                type: string
+                description: Enter Order Details
+                required: false
+              purchase_order:
+                type: string
+                description: Enter Purchase Order
+                required: false
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/landing/one/tender/{tid}/destroy:
+    delete:
+      tags:
+        - Landing Tender Page Query
+      summary: Delete One Tender By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This Tender Module ID
       responses:
         "200":
           description: OK

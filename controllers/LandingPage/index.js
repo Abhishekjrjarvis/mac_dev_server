@@ -13,6 +13,9 @@ const invokeSpecificRegister = require("../../Firebase/specific");
 const moment = require("moment");
 const { generate_date } = require("../../helper/dayTimer");
 const InstituteAdmin = require("../../models/InstituteAdmin");
+const LandingTender = require("../../models/LandingModel/Tender/landingTender");
+const Tender = require("../../models/LandingModel/Tender/Tender");
+const { nested_document_limit } = require("../../helper/databaseFunction");
 
 exports.uploadGetTouchDetail = async (req, res) => {
   try {
@@ -136,14 +139,16 @@ exports.renderOneLandingCareerQuery = async (req, res) => {
         message: "Their is a bug nee to fixed immediatley",
         access: false,
       });
-    const career = await LandingCareer.findById({ _id: lcid });
+    const career = await LandingCareer.findById({ _id: lcid }).select(
+      "admin_vacancy_count staff_vacancy_count other_vacancy_count filled_vacancy_count career_photo"
+    );
     res.status(200).send({
       message: "Explore Career Module",
       access: true,
       career: career,
     });
   } catch (e) {
-    console.log();
+    console.log(e);
   }
 };
 
@@ -233,7 +238,7 @@ exports.renderOneVacancyStatusQuery = async (req, res) => {
       });
 
     const vacancy = await Vacancy.findById({ _id: vid });
-    const career = await Career.findById({ _id: `${vacancy?.career}` });
+    const career = await LandingCareer.findById({ _id: `${vacancy?.career}` });
     vacancy.vacancy_status = "Completed";
     if (vacancy?.vacancy_job_type === "Administrative Job") {
       if (career.admin_vacancy_count > 0) {
@@ -281,12 +286,10 @@ exports.renderOneVacancyQuery = async (req, res) => {
   try {
     const { vid } = req.query;
     if (!vid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediatley",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
     const vacancy = await Vacancy.findById({ _id: vid })
       .select(
         "vacancy_job_type vacancy_position vacancy_package vacancy_about vacancy_status vacancy_banner application_count"
@@ -355,7 +358,7 @@ exports.renderOneVacancyOneApplicationScheduleQuery = async (req, res) => {
         req.body?.interview_time
       }:${new Date().getSeconds()}.${new Date().getMilliseconds()}Z`
     ).toISOString();
-    const apply = await Career.findByIdAndUpdate({ _id: acid });
+    const apply = await Career.findById({ _id: acid });
     apply.interview_type = req.body?.interview_type;
     apply.interview_date = generate_date(req.body?.interview_date);
     apply.interview_time = date_query;
@@ -369,6 +372,336 @@ exports.renderOneVacancyOneApplicationScheduleQuery = async (req, res) => {
       ).format("DD-MM-YYYY")}`,
       access: true,
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneVacancyDestroyQuery = async (req, res) => {
+  try {
+    const { vid } = req.params;
+    if (!vid)
+      return res.status(200).send({
+        message: "Their is a bug nee to fixed immediatley",
+        access: false,
+      });
+    const vacancy = await Vacancy.findById({ _id: vid });
+    const landing_career = await LandingCareer.findById({
+      _id: `${vacancy?.career}`,
+    });
+    landing_career.vacancy.pull(vacancy?._id);
+    if (
+      vacancy?.vacancy_status === "Ongoing" &&
+      vacancy?.vacancy_job_type === "Administrative Job"
+    ) {
+      if (landing_career?.admin_vacancy_count > 0) {
+        landing_career.admin_vacancy_count -= 1;
+      }
+    } else if (
+      vacancy?.vacancy_status === "Ongoing" &&
+      vacancy?.vacancy_job_type === "Teaching Job"
+    ) {
+      if (landing_career?.staff_vacancy_count > 0) {
+        landing_career.staff_vacancy_count -= 1;
+      }
+    } else if (
+      vacancy?.vacancy_status === "Ongoing" &&
+      vacancy?.vacancy_job_type === "Other"
+    ) {
+      if (landing_career?.other_vacancy_count > 0) {
+        landing_career.other_vacancy_count -= 1;
+      }
+    } else {
+      if (landing_career?.filled_vacancy_count > 0) {
+        landing_career.filled_vacancy_count -= 1;
+      }
+    }
+    await landing_career.save();
+    await Vacancy.findByIdAndDelete(vid);
+    res
+      .status(200)
+      .send({ message: "Vacancy Deletion Operation Completed", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderActivateLandingTenderQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug nee to fixed immediatley",
+        access: false,
+      });
+    const institute = await InstituteAdmin.findById({ _id: id });
+    const tender = new LandingTender({});
+    institute.tenderDepart.push(tender?._id);
+    institute.tenderStatus = "Enable";
+    tender.institute = institute?._id;
+    institute.tender_count += 1;
+    await Promise.all([institute.save(), tender.save()]);
+    res.status(200).send({
+      message: "Successfully Activate Tender Module",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneLandingTenderQuery = async (req, res) => {
+  try {
+    const { ltid } = req.params;
+    if (!ltid)
+      return res.status(200).send({
+        message: "Their is a bug nee to fixed immediatley",
+        access: false,
+      });
+    const tender = await LandingTender.findById({ _id: ltid }).select(
+      "open_tender_count closed_tender_count tender_photo"
+    );
+    res.status(200).send({
+      message: "Explore Tender Module",
+      access: true,
+      tender: tender,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderTenderNewQuery = async (req, res) => {
+  try {
+    const { ltid } = req.params;
+    if (!ltid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const landing_tender = await LandingTender.findById({ _id: ltid });
+    const new_tender = new Tender({ ...req.body });
+    landing_tender.tender.push(new_tender?._id);
+    new_tender.landing_tender = landing_tender?._id;
+    landing_tender.open_tender_count += 1;
+    await Promise.all([landing_tender.save(), new_tender.save()]);
+    res.status(200).send({
+      message: "Explore New Open Tender",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllTenderQuery = async (req, res) => {
+  try {
+    const { ltid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { status } = req.query;
+    if (!ltid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const landing_tender = await LandingTender.findById({ _id: ltid }).select(
+      "tender"
+    );
+
+    const all_tender = await Tender.find({
+      $and: [
+        { _id: { $in: landing_tender?.tender } },
+        { tender_status: status },
+      ],
+    })
+      .limit(limit)
+      .skip(skip)
+      .select("tender_requirement tender_budget tender_status bid_count")
+      .populate({
+        path: "department",
+        select: "dName",
+      });
+
+    if (all_tender?.length > 0) {
+      res.status(200).send({
+        message: `Explore New ${status} Tender`,
+        access: true,
+        all_tender: all_tender,
+      });
+    } else {
+      res.status(200).send({
+        message: `No New ${status} Tender`,
+        access: false,
+        all_tender: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneTenderStatusQuery = async (req, res) => {
+  try {
+    const { tid } = req.params;
+    if (!tid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const tender = await Tender.findById({ _id: tid });
+    const landing_tender = await LandingTender.findById({
+      _id: `${tender?.landing_tender}`,
+    });
+    tender.tender_status = "Closed";
+    landing_tender.closed_tender_count += 1;
+    if (landing_tender.open_tender_count > 0) {
+      landing_tender.open_tender_count -= 1;
+    }
+    await Promise.all([landing_tender.save(), tender.save()]);
+    res.status(200).send({ message: "Explore Closed Tender", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneTenderBidQuery = async (req, res) => {
+  try {
+    const { tid } = req.params;
+    if (!tid)
+      return res.status(200).send({
+        message: "Their is a bug nee to fixed immediatley",
+        access: false,
+      });
+
+    const tender = await Tender.findById({ _id: tid });
+    tender.bid.push({
+      bidder_name: req.body?.bidder_name,
+      bidder_email: req.body?.bidder_email,
+      bidder_phone_number: req.body?.bidder_phone_number,
+      bidder_address: req.body?.bidder_address,
+      bidder_quotation: req.body?.bidder_quotation,
+    });
+    tender.bid_count += 1;
+    await tender.save();
+    res.status(200).send({ message: "Thanks for Biding", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneTenderQuery = async (req, res) => {
+  try {
+    const { tid } = req.query;
+    if (!tid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const tender = await Tender.findById({ _id: tid })
+      .select(
+        "tender_requirement tender_budget tender_about tender_status tender_order bid_count"
+      )
+      .populate({
+        path: "department",
+        select: "dName",
+      });
+    res
+      .status(200)
+      .send({ message: "Explore One Tender", access: true, tender });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneTenderAllBidderQuery = async (req, res) => {
+  try {
+    const { tid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!tid)
+      return res.status(200).send({
+        message: "Their is a bug nee to fixed immediatley",
+        access: false,
+      });
+    const tender = await Tender.findById({ _id: tid }).select("bid");
+
+    const all_bids = await nested_document_limit(page, limit, tender?.bid);
+
+    if (all_bids?.length > 0) {
+      res.status(200).send({
+        message: `Explore New Bidder`,
+        access: true,
+        all_bids: all_bids,
+      });
+    } else {
+      res.status(200).send({
+        message: `No New Bidder`,
+        access: false,
+        all_bids: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneTenderOneBidderOfferQuery = async (req, res) => {
+  try {
+    const { tid, bid } = req.params;
+    if (!tid && !bid)
+      return res.status(200).send({
+        message: "Their is a bug nee to fixed immediatley",
+        access: false,
+      });
+    const tender = await Tender.findById({ _id: tid });
+    for (var ref of tender?.bid) {
+      if (`${ref?._id}` === `${bid}`) {
+        ref.offer_price = req.body?.offer_price;
+        ref.order_detail = req.body?.order_detail;
+        ref.purchase_order = req.body?.purchase_order;
+      }
+    }
+    await tender.save();
+    res.status(200).send({
+      message: `Offer for You`,
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneTenderDestroyQuery = async (req, res) => {
+  try {
+    const { tid } = req.params;
+    if (!tid)
+      return res.status(200).send({
+        message: "Their is a bug nee to fixed immediatley",
+        access: false,
+      });
+    const tender = await Tender.findById({ _id: tid });
+    const landing_tender = await LandingTender.findById({
+      _id: `${tender?.landing_tender}`,
+    });
+    landing_tender.tender.pull(tender?._id);
+    if (tender?.tender_status === "Open") {
+      if (landing_tender?.open_tender_count > 0) {
+        landing_tender.open_tender_count -= 1;
+      }
+    } else {
+      if (landing_tender?.closed_tender_count > 0) {
+        landing_tender.closed_tender_count -= 1;
+      }
+    }
+    await landing_tender.save();
+    await Tender.findByIdAndDelete(tid);
+    res
+      .status(200)
+      .send({ message: "Tender Deletion Operation Completed", access: true });
   } catch (e) {
     console.log(e);
   }

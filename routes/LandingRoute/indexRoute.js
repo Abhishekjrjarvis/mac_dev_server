@@ -60,4 +60,50 @@ router.patch(
   catchAsync(Landing.renderOneVacancyOneApplicationScheduleQuery)
 );
 
+router.delete(
+  "/one/vacancy/:vid/destroy",
+  catchAsync(Landing.renderOneVacancyDestroyQuery)
+);
+
+router.post(
+  "/ins/:id/activate/tender",
+  catchAsync(Landing.renderActivateLandingTenderQuery)
+);
+
+router.get(
+  "/one/landing/tender/:ltid",
+  catchAsync(Landing.renderOneLandingTenderQuery)
+);
+
+router.post("/one/:ltid/new/tender", catchAsync(Landing.renderTenderNewQuery));
+
+router.get("/one/:ltid/all/tender", catchAsync(Landing.renderAllTenderQuery));
+
+router.patch(
+  "/one/tender/:tid/status",
+  catchAsync(Landing.renderOneTenderStatusQuery)
+);
+
+router.patch(
+  "/one/tender/:tid/apply/bid",
+  catchAsync(Landing.renderOneTenderBidQuery)
+);
+
+router.get("/one/tender/:tid/query", catchAsync(Landing.renderOneTenderQuery));
+
+router.get(
+  "/one/tender/:tid/all/bidder",
+  catchAsync(Landing.renderOneTenderAllBidderQuery)
+);
+
+router.patch(
+  "/one/tender/:tid/bid/offer/:bid",
+  catchAsync(Landing.renderOneTenderOneBidderOfferQuery)
+);
+
+router.delete(
+  "/one/tender/:tid/destroy",
+  catchAsync(Landing.renderOneTenderDestroyQuery)
+);
+
 module.exports = router;

@@ -661,17 +661,17 @@ exports.fetchAllRequestApplication = async (req, res) => {
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
           },
         });
-        var all_request_query = nested_document_limit(
-          page,
-          limit,
-          apply?.receievedApplication
-        )
+      var all_request_query = nested_document_limit(
+        page,
+        limit,
+        apply?.receievedApplication
+      );
       if (all_request_query?.length > 0) {
         // const requestEncrypt = await encryptionPayload(apply);
         res.status(200).send({
           message:
             "Lots of Request arrived make sure you come up with Tea and Snack from DB 🙌",
-          request:all_request_query,
+          request: all_request_query,
         });
       } else {
         res.status(200).send({
@@ -752,11 +752,11 @@ exports.fetchAllSelectApplication = async (req, res) => {
             },
           },
         });
-        var all_select_query = nested_document_limit(
-          page,
-          limit,
-          apply?.selectedApplication
-        )
+      var all_select_query = nested_document_limit(
+        page,
+        limit,
+        apply?.selectedApplication
+      );
       if (all_select_query?.length > 0) {
         // const selectEncrypt = await encryptionPayload(apply);
         res.status(200).send({
@@ -843,11 +843,11 @@ exports.fetchAllConfirmApplication = async (req, res) => {
             },
           },
         });
-        var all_confirm_query = nested_document_limit(
-          page,
-          limit,
-          apply?.confirmedApplication
-        )
+      var all_confirm_query = nested_document_limit(
+        page,
+        limit,
+        apply?.confirmedApplication
+      );
       if (all_confirm_query?.length > 0) {
         // const confirmEncrypt = await encryptionPayload(apply);
         res.status(200).send({
@@ -992,11 +992,11 @@ exports.fetchAllAllotApplication = async (req, res) => {
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
           },
         });
-        var all_allot_query = nested_document_limit(
-          page,
-          limit,
-          apply?.allottedApplication
-        )
+      var all_allot_query = nested_document_limit(
+        page,
+        limit,
+        apply?.allottedApplication
+      );
       if (all_allot_query?.length > 0) {
         // const allotEncrypt = await encryptionPayload(apply);
         // const cached = await connect_redis_miss(
@@ -1075,11 +1075,11 @@ exports.fetchAllCancelApplication = async (req, res) => {
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
           },
         });
-        var all_cancel_query = nested_document_limit(
-          page,
-          limit,
-          apply?.cancelApplication
-        )
+      var all_cancel_query = nested_document_limit(
+        page,
+        limit,
+        apply?.cancelApplication
+      );
       if (all_cancel_query?.length > 0) {
         // const cancelEncrypt = await encryptionPayload(apply);
         // const cached = await connect_redis_miss(
@@ -2548,7 +2548,7 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
       }
       for (var ref of admin_ins.refundFeeList) {
         if (`${ref?.student}` === `${student?._id}`) {
-          admin_ins.refundFeeList.pull(student?._id);
+          admin_ins.refundFeeList.pull(ref?._id);
         }
       }
     }
@@ -4602,22 +4602,45 @@ exports.renderRefundArrayQuery = async (req, res) => {
         access: false,
       });
 
-    const ads_admin = await Admission.findById({ _id: aid })
-      .select("refundCount")
-      .populate({
-        path: "refundFeeList",
-        populate: {
-          path: "student",
-          select:
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
-        },
-      });
+    if (search) {
+      var filter_refund = [];
+      var ads_admin = await Admission.findById({ _id: aid })
+        .select("refundCount")
+        .populate({
+          path: "refundFeeList",
+          populate: {
+            path: "student",
+            match: {
+              studentFirstName: { $regex: search, $options: "i" },
+            },
+            select:
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+          },
+        });
+      for (let data of ads_admin?.refundFeeList) {
+        if (data.student !== null) {
+          filter_refund.push(data);
+        }
+      }
+      var all_refund_list = [...filter_refund];
+    } else {
+      var ads_admin = await Admission.findById({ _id: aid })
+        .select("refundCount")
+        .populate({
+          path: "refundFeeList",
+          populate: {
+            path: "student",
+            select:
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+          },
+        });
 
-    var all_refund_list = await nested_document_limit(
-      page,
-      limit,
-      ads_admin?.refundFeeList
-    );
+      var all_refund_list = await nested_document_limit(
+        page,
+        limit,
+        ads_admin?.refundFeeList
+      );
+    }
 
     if (all_refund_list?.length > 0) {
       res.status(200).send({
@@ -5013,16 +5036,16 @@ exports.renderAllExportExcelArrayQuery = async (req, res) => {
       "export_collection"
     );
 
-    // var all_excel = await nested_document_limit(
-    //   page,
-    //   limit,
-    //   ads_admin?.export_collection
-    // );
-    if (ads_admin?.export_collection?.length > 0) {
+    var all_excel = await nested_document_limit(
+      page,
+      limit,
+      ads_admin?.export_collection
+    );
+    if (all_excel?.length > 0) {
       res.status(200).send({
         message: "Explore All Exported Excel",
         access: true,
-        all_excel: ads_admin?.export_collection,
+        all_excel: all_excel,
         count: ads_admin?.export_collection?.length,
       });
     } else {

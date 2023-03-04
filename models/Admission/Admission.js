@@ -88,10 +88,12 @@ const admissionAdminSchema = new mongoose.Schema({
   moderator_role: [
     {
       role: { type: String, default: "NO_ACCESS" },
-      application: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "NewApplication",
-      },
+      application: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "NewApplication",
+        },
+      ],
       staff: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Staff",

@@ -445,6 +445,10 @@ const studentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  feed_back_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema);

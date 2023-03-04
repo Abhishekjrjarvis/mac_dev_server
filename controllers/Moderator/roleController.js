@@ -28,7 +28,8 @@ exports.render_admission_current_role = async (ads_admin, sid) => {
         }
       }
     }
-    var permission = { ...sorted };
+    var arr = [...new Set(sorted)];
+    var permission = { ...arr };
     if (permission) {
       return permission;
     } else {
@@ -42,7 +43,7 @@ exports.render_admission_current_role = async (ads_admin, sid) => {
 exports.addAdmissionAppModerator = async (req, res) => {
   try {
     const { aid } = req.params;
-    const { mod_role, sid, appId } = req.body;
+    const { mod_role, sid, app_array } = req.body;
     if (!aid && !mod_role && !sid && !appId)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -50,47 +51,76 @@ exports.addAdmissionAppModerator = async (req, res) => {
       });
 
     const ads_admin = await Admission.findById({ _id: aid });
-    const apps = await NewApplication.findById({ _id: appId });
     const institute = await InstituteAdmin.findById({
       _id: `${ads_admin?.institute}`,
     });
     const staff = await Staff.findById({ _id: sid });
     const user = await User.findById({ _id: `${staff?.user}` });
-    const notify = new Notification({});
-    ads_admin.moderator_role.push({
-      role: mod_role,
-      application: apps?._id,
-      staff: staff?._id,
-    });
-    staff.admissionModeratorDepartment.push({
-      admission: ads_admin._id,
-      accessApp: apps?._id,
-      type: `Moderator of Admission Application - ${apps?.applicationName}`,
-    });
-    staff.permission.admission.push(mod_role);
-    staff.staffDesignationCount += 1;
-    staff.recentDesignation = "Admission Admin Moderator";
-    notify.notifyContent = `you got the designation of Admission Admin Moderator 🎉🎉`;
-    notify.notifySender = institute?._id;
-    notify.notifyReceiever = user._id;
-    notify.notifyCategory = "Admission Designation";
-    user.uNotify.push(notify._id);
-    notify.user = user._id;
-    notify.notifyPid = "1";
-    notify.notifyByInsPhoto = institute._id;
-    invokeFirebaseNotification(
-      "Designation Allocation",
-      notify,
-      institute.insName,
-      user._id,
-      user.deviceToken
-    );
-    await Promise.all([
-      staff.save(),
-      ads_admin.save(),
-      user.save(),
-      notify.save(),
-    ]);
+    if (app_array?.length > 0) {
+      ads_admin.moderator_role.push({
+        role: mod_role,
+        application: [...app_array],
+        staff: staff?._id,
+      });
+      for (var ref of app_array) {
+        const apps = await NewApplication.findById({ _id: ref });
+        const notify = new Notification({});
+        staff.admissionModeratorDepartment.push({
+          admission: ads_admin._id,
+          accessApp: apps?._id,
+          type: `Moderator of Admission Application - ${apps?.applicationName}`,
+        });
+        staff.permission.admission.push(mod_role);
+        staff.staffDesignationCount += 1;
+        staff.recentDesignation = "Admission Admin Moderator";
+        notify.notifyContent = `you got the designation of Admission Admin Moderator 🎉🎉`;
+        notify.notifySender = institute?._id;
+        notify.notifyReceiever = user._id;
+        notify.notifyCategory = "Admission Designation";
+        user.uNotify.push(notify._id);
+        notify.user = user._id;
+        notify.notifyPid = "1";
+        notify.notifyByInsPhoto = institute._id;
+        invokeFirebaseNotification(
+          "Designation Allocation",
+          notify,
+          institute.insName,
+          user._id,
+          user.deviceToken
+        );
+        await Promise.all([user.save(), notify.save()]);
+      }
+    } else {
+      ads_admin.moderator_role.push({
+        role: mod_role,
+        staff: staff?._id,
+      });
+      staff.admissionModeratorDepartment.push({
+        admission: ads_admin._id,
+        type: `Moderator of Admission For ${mod_role}`,
+      });
+      const notify = new Notification({});
+      staff.permission.admission.push(mod_role);
+      staff.staffDesignationCount += 1;
+      staff.recentDesignation = "Admission Admin Moderator";
+      notify.notifyContent = `you got the designation of Admission Admin Moderator 🎉🎉`;
+      notify.notifySender = institute?._id;
+      notify.notifyReceiever = user._id;
+      notify.notifyCategory = "Admission Designation";
+      user.uNotify.push(notify._id);
+      notify.user = user._id;
+      notify.notifyPid = "1";
+      notify.notifyByInsPhoto = institute._id;
+      invokeFirebaseNotification(
+        "Designation Allocation",
+        notify,
+        institute.insName,
+        user._id,
+        user.deviceToken
+      );
+      await Promise.all([user.save(), notify.save()]);
+    }
+    await Promise.all([staff.save(), ads_admin.save()]);
     // const adsEncrypt = await encryptionPayload(ads_admin._id);
     res.status(200).send({
       message: "Successfully Assigned Admission Admin Moderator Staff",
@@ -192,7 +222,7 @@ exports.updateAdmissionAppModeratorQuery = async (req, res) => {
       for (var author of ads_admin?.moderator_role) {
         if (`${author?._id}` === `${mid}`) {
           author.role = new_mod_role ? new_mod_role : mod_role;
-          author.application = newApps?._id ? newApps?._id : apps?._id;
+          author.application.push(newApps?._id ? newApps?._id : apps?._id);
           author.staff = newStaff?._id;
         }
       }
@@ -256,7 +286,7 @@ exports.updateAdmissionAppModeratorQuery = async (req, res) => {
       for (var author of ads_admin?.moderator_role) {
         if (`${author?._id}` === `${mid}`) {
           author.role = new_mod_role ? new_mod_role : mod_role;
-          author.application = newApps?._id ? newApps?._id : apps?._id;
+          author.application.push(newApps?._id ? newApps?._id : apps?._id);
         }
       }
       if (newApps) {

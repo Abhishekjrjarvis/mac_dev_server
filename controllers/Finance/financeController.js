@@ -1325,32 +1325,63 @@ exports.retrieveRemainFeeList = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const finance = await Finance.findById({ _id: fid });
+    const { search } = req.query;
     var sorted_zero = [];
+    const finance = await Finance.findById({ _id: fid });
     const studentList = await InstituteAdmin.findById({
-      _id: `${finance.institute}`,
+      _id: `${finance?.institute}`,
     }).select("_id ApproveStudent");
 
-    const student = await Student.find({
-      _id: { $in: studentList.ApproveStudent },
-    })
-      .limit(limit)
-      .skip(skip)
-      .select(
-        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentRemainingFeeCount studentPaidFeeCount studentGRNO"
-      )
-      .populate({
-        path: "department",
-        select: "dName",
+    if (search) {
+      var student = await Student.find({
+        $and: [{ _id: { $in: studentList?.ApproveStudent } }],
+        $or: [
+          { studentFirstName: { $regex: search, $options: "i" } },
+          {
+            studentMiddleName: { $regex: search, $options: "i" },
+          },
+          { studentLastName: { $regex: search, $options: "i" } },
+        ],
       })
-      .populate({
-        path: "studentClass",
-        select: "className classTitle",
+        .sort({ studentRemainingFeeCount: -1 })
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentRemainingFeeCount studentPaidFeeCount studentGRNO"
+        )
+        .populate({
+          path: "department",
+          select: "dName",
+        })
+        .populate({
+          path: "studentClass",
+          select: "className classTitle",
+        })
+        .populate({
+          path: "user",
+          select: "username userLegalName",
+        });
+    } else {
+      var student = await Student.find({
+        _id: { $in: studentList?.ApproveStudent },
       })
-      .populate({
-        path: "user",
-        select: "username userLegalName",
-      });
+        .sort({ studentRemainingFeeCount: -1 })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentRemainingFeeCount studentPaidFeeCount studentGRNO"
+        )
+        .populate({
+          path: "department",
+          select: "dName",
+        })
+        .populate({
+          path: "studentClass",
+          select: "className classTitle",
+        })
+        .populate({
+          path: "user",
+          select: "username userLegalName",
+        });
+    }
     for (var match of student) {
       if (match?.studentRemainingFeeCount > 0) {
         sorted_zero.push(match);
@@ -2387,6 +2418,23 @@ exports.renderFinanceAddFeeCategory = async (req, res) => {
   }
 };
 
+exports.renderFinanceAddFeeCategoryAutoQuery = async (fid, arr) => {
+  try {
+    for (var ref of arr) {
+      const finance = await Finance.findById({ _id: fid });
+      const feeQuery = new FeeCategory({
+        category_name: ref?.categoryName,
+      });
+      finance.fees_category.push(feeQuery?._id);
+      finance.fees_category_count += 1;
+      feeQuery.finance = finance?._id;
+      await Promise.all([finance.save(), feeQuery.save()]);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.renderFinanceFeeCategoryDeleteQuery = async (req, res) => {
   try {
     const { fcid } = req.params;
@@ -2602,6 +2650,7 @@ exports.renderAllFinanceExempt = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
+    const { search } = req.query;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -2611,47 +2660,90 @@ exports.renderAllFinanceExempt = async (req, res) => {
     const finance = await Finance.findById({ _id: fid }).select(
       "exempt_receipt financeExemptBalance"
     );
-    const all_exempt = await FeeReceipt.find({
-      _id: { $in: finance?.exempt_receipt },
-    })
-      .limit(limit)
-      .skip(skip)
-      .populate({
-        path: "student",
-        select:
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
-        populate: {
-          path: "fee_structure",
-          select: "category_master structure_name",
-          populate: {
-            path: "category_master",
-            select: "category_name",
+    if (search) {
+      var all_exempt = await FeeReceipt.find({
+        _id: { $in: finance?.exempt_receipt },
+      })
+        .populate({
+          path: "student",
+          match: {
+            studentFirstName: { $regex: search, $options: "i" },
           },
-        },
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+          populate: {
+            path: "fee_structure",
+            select: "category_master structure_name",
+            populate: {
+              path: "category_master",
+              select: "category_name",
+            },
+          },
+        })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+          populate: {
+            path: "studentClass",
+            select: "className classTitle",
+          },
+        })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+          populate: {
+            path: "batches",
+            select: "batchName",
+          },
+        })
+        .populate({
+          path: "application",
+          select: "applicationName",
+        });
+    } else {
+      var all_exempt = await FeeReceipt.find({
+        _id: { $in: finance?.exempt_receipt },
       })
-      .populate({
-        path: "student",
-        select:
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
-        populate: {
-          path: "studentClass",
-          select: "className classTitle",
-        },
-      })
-      .populate({
-        path: "student",
-        select:
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
-        populate: {
-          path: "batches",
-          select: "batchName",
-        },
-      })
-      .populate({
-        path: "application",
-        select: "applicationName",
-      });
-
+        .limit(limit)
+        .skip(skip)
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+          populate: {
+            path: "fee_structure",
+            select: "category_master structure_name",
+            populate: {
+              path: "category_master",
+              select: "category_name",
+            },
+          },
+        })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+          populate: {
+            path: "studentClass",
+            select: "className classTitle",
+          },
+        })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+          populate: {
+            path: "batches",
+            select: "batchName",
+          },
+        })
+        .populate({
+          path: "application",
+          select: "applicationName",
+        });
+    }
     if (all_exempt?.length > 0) {
       res.status(200).send({
         message: "Lot's of Exempted Volume Receipts",
@@ -2678,6 +2770,7 @@ exports.renderAllFinanceGovernment = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
+    const { search } = req.query;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -2687,47 +2780,90 @@ exports.renderAllFinanceGovernment = async (req, res) => {
     const finance = await Finance.findById({ _id: fid }).select(
       "government_receipt financeGovernmentScholarBalance"
     );
-    const all_exempt = await FeeReceipt.find({
-      _id: { $in: finance?.government_receipt },
-    })
-      .limit(limit)
-      .skip(skip)
-      .populate({
-        path: "student",
-        select:
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
-        populate: {
-          path: "fee_structure",
-          select: "category_master structure_name",
-          populate: {
-            path: "category_master",
-            select: "category_name",
+    if (search) {
+      var all_exempt = await FeeReceipt.find({
+        _id: { $in: finance?.government_receipt },
+      })
+        .populate({
+          path: "student",
+          match: {
+            studentFirstName: { $regex: search, $options: "i" },
           },
-        },
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+          populate: {
+            path: "fee_structure",
+            select: "category_master structure_name",
+            populate: {
+              path: "category_master",
+              select: "category_name",
+            },
+          },
+        })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+          populate: {
+            path: "studentClass",
+            select: "className classTitle",
+          },
+        })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+          populate: {
+            path: "batches",
+            select: "batchName",
+          },
+        })
+        .populate({
+          path: "application",
+          select: "applicationName",
+        });
+    } else {
+      var all_exempt = await FeeReceipt.find({
+        _id: { $in: finance?.government_receipt },
       })
-      .populate({
-        path: "student",
-        select:
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
-        populate: {
-          path: "studentClass",
-          select: "className classTitle",
-        },
-      })
-      .populate({
-        path: "student",
-        select:
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
-        populate: {
-          path: "batches",
-          select: "batchName",
-        },
-      })
-      .populate({
-        path: "application",
-        select: "applicationName",
-      });
-
+        .limit(limit)
+        .skip(skip)
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+          populate: {
+            path: "fee_structure",
+            select: "category_master structure_name",
+            populate: {
+              path: "category_master",
+              select: "category_name",
+            },
+          },
+        })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+          populate: {
+            path: "studentClass",
+            select: "className classTitle",
+          },
+        })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+          populate: {
+            path: "batches",
+            select: "batchName",
+          },
+        })
+        .populate({
+          path: "application",
+          select: "applicationName",
+        });
+    }
     if (all_exempt?.length > 0) {
       res.status(200).send({
         message: "Lot's of Government / Scholarships Volume Receipts",
@@ -2823,6 +2959,12 @@ exports.renderOneFeeReceipt = async (req, res) => {
           select: "batchName",
         });
     }
+
+    var new_format = receipt?.student?.active_fee_heads?.filter((ref) => {
+      if (`${ref?.appId}` === `${receipt?.application?._id}`) return ref;
+    });
+
+    receipt.student.active_fee_heads = [...new_format];
 
     res.status(200).send({
       message: "Come up with Tea and Snacks",
@@ -2939,6 +3081,24 @@ exports.renderFinanceAddFeeMaster = async (req, res) => {
     res
       .status(200)
       .send({ message: "I Think Fees Master Problem Solved", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceAddFeeMasterAutoQuery = async (fid, arr) => {
+  try {
+    for (var ref of arr) {
+      const finance = await Finance.findById({ _id: fid });
+      const master = new FeeMaster({
+        master_name: ref?.masterName,
+        master_amount: parseInt(ref?.masterAmount),
+      });
+      master.finance = finance?._id;
+      finance.fee_master_array.push(master?._id);
+      finance.fee_master_array_count += 1;
+      await Promise.all([master.save(), finance.save()]);
+    }
   } catch (e) {
     console.log(e);
   }

@@ -24,7 +24,10 @@ exports.render_admission_current_role = async (ads_admin, sid) => {
         ) {
           const val = ref;
           val.permission.appArray.push(mod?.application);
-          sorted.push(val);
+          sorted.push({
+            ...val,
+            modId: mod?._id,
+          });
         }
       }
     }

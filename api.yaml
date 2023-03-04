@@ -22888,6 +22888,62 @@ paths:
         "200":
           description: OK
 
+  /api/v1/extra/excel/to/json/query/fee/category/{fid}:
+    patch:
+      tags:
+        - Process Excel + Database Processing
+      summary: Upload One Excel File for Fee Category To Directly Finance Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This Finance ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              excel_file:
+                type: string
+                description: Enter Key here
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/extra/excel/to/json/query/fee/head/master/{fid}:
+    patch:
+      tags:
+        - Process Excel + Database Processing
+      summary: Upload One Excel File for Fee Head Master To Directly Finance Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This Finance ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              excel_file:
+                type: string
+                description: Enter Key here
+                required: true
+      responses:
+        "200":
+          description: OK
+
   /api/v1/admission/{aid}/all/export/excel/array:
     get:
       tags:

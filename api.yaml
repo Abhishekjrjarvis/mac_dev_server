@@ -23233,6 +23233,25 @@ paths:
       responses:
         "200":
           description: OK
+  
+  /api/v1/landing/one/vacancy/{vid}/query:
+    get:
+      tags:
+        - Landing Career Page Query
+      summary: One Vacancies (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: vid
+          required: true
+          type: string
+          description: This Vacancy ID
+      responses:
+        "200":
+          description: OK
 
   /api/v1/landing/one/vacancy/{vid}/apply:
     patch:

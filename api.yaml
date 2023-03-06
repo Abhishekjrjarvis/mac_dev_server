@@ -23771,3 +23771,285 @@ paths:
       responses:
         "200":
           description: OK
+
+
+#Landing Page Toggle
+  /api/v1/landing/{id}/website/looks:
+    patch:
+      tags:
+        - Landing Page Addons Query
+      summary: Update Web site Looks By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This Institute Admin ID 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              website_looks:
+                type: object
+                properties:
+                  logo:
+                    type: string
+                    description: Enter Your Logo Here...
+                    required: false
+                  background_image:
+                    type: string
+                    description: Enter Background Image Here...
+                    required: false
+                  vision:
+                    type: string
+                    description: Enter Institute Vision here...
+                    required: false
+                  mission:
+                    type: string
+                    description: Enter Institute Mission Here...
+                    required: false
+                  about:
+                    type: string
+                    description: Enter Institute About here
+                    required: false
+                  color:
+                    type: string
+                    description: Enter Selected Color Here...
+                    required: false
+                  leading_person:
+                    type: string
+                    description: Enter Institute Leading Person User Id
+                    required: false
+                  leading_person_position: 
+                    type: string
+                    description: Enter Institute Leading Person Position here...
+                    required: false
+                  leading_person_message: 
+                    type: string
+                    description: Enter Institute Leading Person Message here...
+                    required: false
+                  linkedin_link: 
+                    type: string
+                    description: Enter Social Media Linkedin Profile Link
+                    required: false
+                  instagram_link: 
+                    type: string
+                    description: Enter Social Media Instagram Profile Link
+                    required: false
+                  twitter_link: 
+                    type: string
+                    description: Enter Social Media Twitter Profile Link
+                    required: false
+                  qviple_link:
+                    type: string
+                    description: Enter Social Media Qviple Profile Link
+                    required: false
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/{id}/website/active/tabs:
+    patch:
+      tags:
+        - Landing Page Addons Query
+      summary: Update Web Active Tabs By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This Institute Admin ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              website_active_tab:
+                type: object
+                properties:
+                  home:
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  about:
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  department:
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  contact_us:
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  admission:
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  library:
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  announcements:
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  events: 
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  tender: 
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  career: 
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  alumini: 
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  tpo_cell: 
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  rnd_cell:
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  timetable:
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  student_projects:
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  student_articles:
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+      responses:
+        "200":
+          description: OK
+
+  # /api/v1/landing/{id}/website/contacts:
+  #   patch:
+  #     tags:
+  #       - Landing Page Addons Query
+  #     summary: Update Web Contacts By Institute Admin (verified)
+  #     consumes:
+  #       - application/json
+  #     produces:
+  #       - application/json
+  #     parameters:
+  #       - in: path
+  #         name: id
+  #         required: true
+  #         type: string
+  #         description: This Institute Admin ID
+  #       - in : body
+  #         name: body
+  #         schema:
+  #           type: object
+  #           properties:
+  #             website_active_tab:
+  #               type: object
+  #               properties:
+  #                 home:
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 about:
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 department:
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 contact_us:
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 admission:
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 library:
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 announcements:
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 events: 
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 tender: 
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 career: 
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 alumini: 
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 tpo_cell: 
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 rnd_cell:
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 timetable:
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 student_projects:
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 student_articles:
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #     responses:
+  #       "200":
+  #         description: OK
+
+  /api/v1/landing/{id}/one/web/profile:
+    get:
+      tags:
+        - Landing Page Addons Query
+      summary: One Web Profile By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This Institute Admin ID
+      responses:
+        "200":
+          description: OK

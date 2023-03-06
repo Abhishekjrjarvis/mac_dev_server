@@ -106,4 +106,18 @@ router.delete(
   catchAsync(Landing.renderOneTenderDestroyQuery)
 );
 
+router.patch("/:id/website/looks", catchAsync(Landing.rendeUpdateWebLooks));
+
+router.patch(
+  "/:id/website/active/tabs",
+  catchAsync(Landing.rendeUpdateWebTabs)
+);
+
+router.patch(
+  "/:id/website/contacts",
+  catchAsync(Landing.rendeUpdateWebContacts)
+);
+
+router.get("/:id/one/web/profile", catchAsync(Landing.renderOneWebProfile));
+
 module.exports = router;

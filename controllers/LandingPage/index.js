@@ -125,6 +125,7 @@ exports.renderActivateLandingCareerQuery = async (req, res) => {
     res.status(200).send({
       message: "Successfully Activate Career Module",
       access: true,
+      landing_career: career?._id
     });
   } catch (e) {
     console.log(e);
@@ -284,7 +285,7 @@ exports.renderOneVacancyApplyQuery = async (req, res) => {
 
 exports.renderOneVacancyQuery = async (req, res) => {
   try {
-    const { vid } = req.query;
+    const { vid } = req.params;
     if (!vid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -444,6 +445,7 @@ exports.renderActivateLandingTenderQuery = async (req, res) => {
     res.status(200).send({
       message: "Successfully Activate Tender Module",
       access: true,
+      landing_tender: tender?._id
     });
   } catch (e) {
     console.log(e);
@@ -702,6 +704,111 @@ exports.renderOneTenderDestroyQuery = async (req, res) => {
     res
       .status(200)
       .send({ message: "Tender Deletion Operation Completed", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.rendeUpdateWebLooks = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    await InstituteAdmin.findByIdAndUpdate(id, req.body);
+    res.status(200).send({
+      message: "Explore All New Look Up of Your's Website ",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.rendeUpdateWebTabs = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    await InstituteAdmin.findByIdAndUpdate(id, req.body);
+    res.status(200).send({
+      message: "Explore All New Active Tab of Your's Website ",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.rendeUpdateWebContacts = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { contact_array, edit_array } = req.body;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    await InstituteAdmin.findByIdAndUpdate(id, req.body);
+    res.status(200).send({
+      message: "Explore All New Active Tab of Your's Website ",
+      access: true,
+    });
+    if (contact_array?.length > 0) {
+      const one_ins = await InstituteAdmin.findById({ _id: id });
+      for (var ref of contact_array) {
+        one_ins.contact_list.persons.push({
+          department_name: ref?.departmentName,
+          person_name: ref?.personName,
+          person_phone_number: ref?.personPhoneNumber,
+          person_email: ref?.personEmail,
+        });
+      }
+      await one_ins.save();
+    }
+    if (edit_array?.length > 0) {
+      const one_ins = await InstituteAdmin.findById({ _id: id });
+      for (var ref of edit_array) {
+        for(var ele of one_ins?.contact_list?.persons){
+          if(`${ele?._id}` === `${ref?.personId}`){
+            ele.p
+          }
+        }
+      }
+      await one_ins.save();
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneWebProfile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const one_ins = await InstituteAdmin.findById({ _id: id }).select(
+      "insName name photoId insProfilePhoto contact_list website_looks website_active_tab"
+    );
+    res
+      .status(200)
+      .send({
+        message: "Explore One Institute All Profile Details",
+        access: true,
+        one_ins: one_ins,
+      });
   } catch (e) {
     console.log(e);
   }

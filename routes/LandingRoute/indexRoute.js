@@ -121,8 +121,8 @@ router.patch(
 router.get("/:id/one/web/profile", catchAsync(Landing.renderOneWebProfile));
 
 router.patch(
-  "/:id/update/career/passage",
-  catchAsync(Landing.renderOneCareerPassage)
+  "/:id/update/career/tender/passage",
+  catchAsync(Landing.renderOneCareerTenderPassage)
 );
 
 module.exports = router;

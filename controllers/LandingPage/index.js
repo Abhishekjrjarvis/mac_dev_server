@@ -801,7 +801,7 @@ exports.renderOneWebProfile = async (req, res) => {
 
     const one_ins = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName name photoId insProfilePhoto career_passage contact_list website_looks website_active_tab"
+        "insName name photoId insProfilePhoto career_passage tender_passage contact_list website_looks website_active_tab"
       )
       .populate({
         path: "website_looks.leading_person",
@@ -817,7 +817,7 @@ exports.renderOneWebProfile = async (req, res) => {
   }
 };
 
-exports.renderOneCareerPassage = async (req, res) => {
+exports.renderOneCareerTenderPassage = async (req, res) => {
   try {
     const { id } = req.params;
     if (!id)
@@ -826,9 +826,7 @@ exports.renderOneCareerPassage = async (req, res) => {
         access: false,
       });
 
-    const one_ins = await InstituteAdmin.findById({ _id: id });
-    one_ins.career_passage = req.body?.career_passage;
-    await one_ins.save();
+    const one_ins = await InstituteAdmin.findByIdAndUpdate(id, req.body);
     res.status(200).send({ message: "Explore Career Passage", access: true });
   } catch (e) {
     console.log(e);

@@ -24054,11 +24054,11 @@ paths:
         "200":
           description: OK
 
-  /api/v1/landing/{id}/update/career/passage:
+  /api/v1/landing/{id}/update/career/tender/passage:
     patch:
       tags:
         - Landing Page Addons Query
-      summary: One Web Profile Career Passage Refresh One Web Profile Get API By Institute Admin (verified)
+      summary: One Web Profile Career || Tender Passage Refresh One Web Profile Get API By Institute Admin (verified)
       consumes:
         - application/json
       produces:
@@ -24076,7 +24076,11 @@ paths:
             properties:
               career_passage:
                 type: string
-                description: Enter Career Passage
+                description: Enter Career Passage if career
+                required: true
+              tender_passage:
+                type: string
+                description: Enter Tender Passage if Tender
                 required: true
       responses:
         "200":

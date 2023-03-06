@@ -744,6 +744,9 @@ const instituteAdminSchema = new mongoose.Schema({
       },
     ],
   },
+  career_passage: {
+    type: String,
+  },
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

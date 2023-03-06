@@ -125,7 +125,7 @@ exports.renderActivateLandingCareerQuery = async (req, res) => {
     res.status(200).send({
       message: "Successfully Activate Career Module",
       access: true,
-      landing_career: career?._id
+      landing_career: career?._id,
     });
   } catch (e) {
     console.log(e);
@@ -445,7 +445,7 @@ exports.renderActivateLandingTenderQuery = async (req, res) => {
     res.status(200).send({
       message: "Successfully Activate Tender Module",
       access: true,
-      landing_tender: tender?._id
+      landing_tender: tender?._id,
     });
   } catch (e) {
     console.log(e);
@@ -777,9 +777,9 @@ exports.rendeUpdateWebContacts = async (req, res) => {
     if (edit_array?.length > 0) {
       const one_ins = await InstituteAdmin.findById({ _id: id });
       for (var ref of edit_array) {
-        for(var ele of one_ins?.contact_list?.persons){
-          if(`${ele?._id}` === `${ref?.personId}`){
-            ele.p
+        for (var ele of one_ins?.contact_list?.persons) {
+          if (`${ele?._id}` === `${ref?.personId}`) {
+            ele.p;
           }
         }
       }
@@ -799,16 +799,37 @@ exports.renderOneWebProfile = async (req, res) => {
         access: false,
       });
 
-    const one_ins = await InstituteAdmin.findById({ _id: id }).select(
-      "insName name photoId insProfilePhoto contact_list website_looks website_active_tab"
-    );
-    res
-      .status(200)
-      .send({
-        message: "Explore One Institute All Profile Details",
-        access: true,
-        one_ins: one_ins,
+    const one_ins = await InstituteAdmin.findById({ _id: id })
+      .select(
+        "insName name photoId insProfilePhoto career_passage contact_list website_looks website_active_tab"
+      )
+      .populate({
+        path: "website_looks.leading_person",
+        select: "userLegalName username photoId profilePhoto",
       });
+    res.status(200).send({
+      message: "Explore One Institute All Profile Details",
+      access: true,
+      one_ins: one_ins,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneCareerPassage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const one_ins = await InstituteAdmin.findById({ _id: id });
+    one_ins.career_passage = req.body?.career_passage;
+    await one_ins.save();
+    res.status(200).send({ message: "Explore Career Passage", access: true });
   } catch (e) {
     console.log(e);
   }

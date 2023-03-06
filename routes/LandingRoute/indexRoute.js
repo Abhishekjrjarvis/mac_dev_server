@@ -120,4 +120,9 @@ router.patch(
 
 router.get("/:id/one/web/profile", catchAsync(Landing.renderOneWebProfile));
 
+router.patch(
+  "/:id/update/career/passage",
+  catchAsync(Landing.renderOneCareerPassage)
+);
+
 module.exports = router;

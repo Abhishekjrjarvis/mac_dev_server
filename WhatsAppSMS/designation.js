@@ -86,7 +86,7 @@ exports.dynamic_designation = (name, title, cTitle) => {
       h_text: "आपको इवेंट्स / सेमिनार एडमिनिस्ट्रेटर का पदनाम मिला है",
       m_text: "तुम्हाला इव्हेंट्स / सेमिनार प्रशासक म्हणून पद मिळाले आहे",
       extension: ".png",
-      content: "SMS_Assests/event-manager-role.png",
+      content: "SMS_Assests/event-manager-role.jpeg",
     },
   ];
   return array;

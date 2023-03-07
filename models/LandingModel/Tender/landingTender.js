@@ -13,6 +13,9 @@ const landingTenderSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteAdmin",
   },
+  tender_passage: {
+    type: String,
+  },
   tender: [
     {
       type: mongoose.Schema.Types.ObjectId,

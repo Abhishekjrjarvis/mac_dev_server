@@ -25,6 +25,10 @@ const feeStructureSchema = new mongoose.Schema({
   structure_name: {
     type: String,
   },
+  applicable_fees: {
+    type: Number,
+    default: 0,
+  },
   one_installments: {
     fees: { type: Number, default: 0 },
     dueDate: { type: String },

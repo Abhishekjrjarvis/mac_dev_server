@@ -21134,6 +21134,10 @@ paths:
                 type: string
                 description: Enter Structure Name
                 required: true
+              applicable_fees:
+                type: string
+                description: Enter Applicable Fees Fee Head are not greater than Applicable Fees
+                required: true
               due_date:
                 type: string
                 description: Enter Due Date ("2023-01-02")

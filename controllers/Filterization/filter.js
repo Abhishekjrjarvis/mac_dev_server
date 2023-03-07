@@ -801,7 +801,7 @@ exports.retrievePendingFeeFilter = async (req, res) => {
       })
       .populate({
         path: "fee_structure",
-        select: "structure_name",
+        select: "structure_name applicable_fees",
       })
       .populate({
         path: "remainingFeeList",
@@ -822,7 +822,7 @@ exports.retrievePendingFeeFilter = async (req, res) => {
         populate: {
           path: "fee_structure",
           select:
-            "structure_name category_master total_admission_fees one_installments",
+            "structure_name category_master total_admission_fees one_installments applicable_fees",
           populate: {
             path: "category_master",
             select: "category_name",

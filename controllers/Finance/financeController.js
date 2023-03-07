@@ -2497,6 +2497,44 @@ exports.renderFinanceAddFeeStructure = async (req, res) => {
   }
 };
 
+exports.renderFinanceAddFeeStructureAutoQuery = async (
+  fid,
+  did,
+  structure_array
+) => {
+  try {
+    var finance = await Finance.findById({ _id: fid });
+    var depart = await Department.findById({ _id: did });
+    for (var ref of structure_array) {
+      const struct_query = new FeeStructure({
+        category_master: ref?.CategoryId,
+        class_master: ref?.StandardId,
+        structure_name: ref?.StructureName,
+        total_admission_fees: ref?.TotalFees,
+        total_installments: ref?.InstallCount,
+        applicable_fees: ref?.ApplicableFees,
+      });
+      struct_query.finance = finance?._id;
+      struct_query.department = depart?._id;
+      depart.fees_structures.push(struct_query?._id);
+      depart.fees_structures_count += 1;
+      if (ref?.heads?.length > 0) {
+        for (var val of ref?.heads) {
+          struct_query.fees_heads.push({
+            head_name: val?.head_name,
+            head_amount: val?.head_amount,
+          });
+          struct_query.fees_heads_count += 1;
+        }
+      }
+      await struct_query.save();
+    }
+    await depart.save();
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.renderFeeStructureRetroQuery = async (req, res) => {
   try {
     const { fsid } = req.params;
@@ -2598,7 +2636,7 @@ exports.renderDepartmentAllFeeStructure = async (req, res) => {
       })
         .limit(limit)
         .skip(skip)
-        .select("total_admission_fees structure_name")
+        .select("total_admission_fees structure_name applicable_fees")
         .populate({
           path: "category_master",
           select: "category_name",
@@ -2673,7 +2711,7 @@ exports.renderAllFinanceExempt = async (req, res) => {
             "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
           populate: {
             path: "fee_structure",
-            select: "category_master structure_name",
+            select: "category_master structure_name applicable_fees",
             populate: {
               path: "category_master",
               select: "category_name",
@@ -2714,7 +2752,7 @@ exports.renderAllFinanceExempt = async (req, res) => {
             "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
           populate: {
             path: "fee_structure",
-            select: "category_master structure_name",
+            select: "category_master structure_name applicable_fees",
             populate: {
               path: "category_master",
               select: "category_name",
@@ -2793,7 +2831,7 @@ exports.renderAllFinanceGovernment = async (req, res) => {
             "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
           populate: {
             path: "fee_structure",
-            select: "category_master structure_name",
+            select: "category_master structure_name applicable_fees",
             populate: {
               path: "category_master",
               select: "category_name",
@@ -2834,7 +2872,7 @@ exports.renderAllFinanceGovernment = async (req, res) => {
             "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
           populate: {
             path: "fee_structure",
-            select: "category_master structure_name",
+            select: "category_master structure_name applicable_fees",
             populate: {
               path: "category_master",
               select: "category_name",
@@ -2909,7 +2947,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
           "studentFirstName studentMiddleName studentLastName active_fee_heads",
         populate: {
           path: "fee_structure",
-          select: "category_master structure_name",
+          select: "category_master structure_name applicable_fees",
           populate: {
             path: "category_master",
             select: "category_name",
@@ -2988,7 +3026,7 @@ exports.renderOneFeeStructure = async (req, res) => {
 
     const structure = await FeeStructure.findById({ _id: fsid })
       .select(
-        "one_installments two_installments structure_name three_installments four_installments five_installments six_installments seven_installments eight_installments nine_installments ten_installments eleven_installments tweleve_installments total_installments total_admission_fees due_date fees_heads"
+        "one_installments two_installments structure_name applicable_fees three_installments four_installments five_installments six_installments seven_installments eight_installments nine_installments ten_installments eleven_installments tweleve_installments total_installments total_admission_fees due_date fees_heads"
       )
       .populate({
         path: "category_master",

@@ -21,13 +21,15 @@ const {
   generate_excel_to_json,
   generate_excel_to_json_fee_category,
   generate_excel_to_json_fee_head_master,
+  generate_excel_to_json_fee_structure,
 } = require("../../Custom/excelToJSON");
 const {
   retrieveInstituteDirectJoinQueryPayload,
 } = require("../Authentication/AuthController");
 const {
   renderFinanceAddFeeCategoryAutoQuery,
-  renderFinanceAddFeeMasterAutoQuery
+  renderFinanceAddFeeMasterAutoQuery,
+  renderFinanceAddFeeStructureAutoQuery,
 } = require("../Finance/financeController");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
@@ -1082,6 +1084,65 @@ exports.renderExcelToJSONFinanceHeadMasterQuery = async (req, res) => {
     const is_converted = await generate_excel_to_json_fee_head_master(val);
     if (is_converted?.value) {
       await renderFinanceAddFeeMasterAutoQuery(fid, is_converted?.master_array);
+    } else {
+      console.log("false");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderExcelToJSONFinanceStructureQuery = async (req, res) => {
+  try {
+    const { fid, did } = req.params;
+    const { excel_file } = req.body;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const one_finance = await Finance.findById({ _id: fid });
+    const one_ins = await InstituteAdmin.findById({
+      _id: `${one_finance?.institute}`,
+    });
+    one_ins.excel_data_query.push({
+      excel_file: excel_file,
+      financeId: one_finance?._id,
+      status: "Uploaded",
+    });
+    await one_ins.save();
+    res.status(200).send({
+      message: "Update Excel To Backend Wait for Operation Completed",
+      access: true,
+    });
+
+    const update_ins = await InstituteAdmin.findById({
+      _id: `${one_finance?.institute}`,
+    });
+    var key;
+    for (var ref of update_ins?.excel_data_query) {
+      if (
+        `${ref.status}` === "Uploaded" &&
+        `${ref?.financeId}` === `${one_finance?._id}`
+      ) {
+        key = ref?.excel_file;
+      }
+    }
+    const val = await simple_object(key);
+
+    const is_converted = await generate_excel_to_json_fee_structure(
+      val,
+      fid,
+      did
+    );
+    if (is_converted?.value) {
+      // console.log(is_converted?.structure_array);
+      await renderFinanceAddFeeStructureAutoQuery(
+        fid,
+        did,
+        is_converted?.structure_array
+      );
     } else {
       console.log("false");
     }

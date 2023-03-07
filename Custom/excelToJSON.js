@@ -86,10 +86,19 @@ exports.generate_excel_to_json = async (file) => {
   }
 };
 
-const generate_excel_to_json_fee_structure = (fid, did) => {
+const push_to_new_query = (ele) => {
   try {
-    const w_query = xlsx.readFile("./FeeStructure.xlsx");
-    // xlsx.read(file.Body);
+    var array = [];
+    array.push({ ...ele });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.generate_excel_to_json_fee_structure = async (file, fid, did) => {
+  try {
+    const w_query = xlsx.read(file.Body);
+    // xlsx.readFile("./FeeStructure.xlsx");
     const w_sheet = w_query.Sheets["FeeStructure"];
     const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
     var new_data_query = [];
@@ -127,62 +136,95 @@ const generate_excel_to_json_fee_structure = (fid, did) => {
       }
       if (install_count > 0) {
         struct.one_installments = {
-          fees: parseInt(struct?.one_installments) ?? 0,
+          fees: struct?.one_installments
+            ? parseInt(struct?.one_installments)
+            : 0,
+          dueDate: "",
         };
         struct.two_installments = {
-          fees: parseInt(struct?.two_installments) ?? 0,
+          fees: struct?.two_installments
+            ? parseInt(struct?.two_installments)
+            : 0,
+          dueDate: "",
         };
         struct.three_installments = {
-          fees: parseInt(struct?.three_installments) ?? 0,
+          fees: struct?.three_installments
+            ? parseInt(struct?.three_installments)
+            : 0,
+          dueDate: "",
         };
         struct.four_installments = {
-          fees: parseInt(struct?.four_installments) ?? 0,
+          fees: struct?.four_installments
+            ? parseInt(struct?.four_installments)
+            : 0,
+          dueDate: "",
         };
         struct.five_installments = {
-          fees: parseInt(struct?.five_installments) ?? 0,
+          fees: struct?.five_installments
+            ? parseInt(struct?.five_installments)
+            : 0,
+          dueDate: "",
         };
         struct.six_installments = {
-          fees: parseInt(struct?.six_installments) ?? 0,
+          fees: struct?.six_installments
+            ? parseInt(struct?.six_installments)
+            : 0,
+          dueDate: "",
         };
         struct.seven_installments = {
-          fees: parseInt(struct?.seven_installments) ?? 0,
+          fees: struct?.seven_installments
+            ? parseInt(struct?.seven_installments)
+            : 0,
+          dueDate: "",
         };
         struct.eight_installments = {
-          fees: parseInt(struct?.eight_installments) ?? 0,
+          fees: struct?.eight_installments
+            ? parseInt(struct?.eight_installments)
+            : 0,
+          dueDate: "",
         };
         struct.nine_installments = {
-          fees: parseInt(struct?.nine_installments) ?? 0,
+          fees: struct?.nine_installments
+            ? parseInt(struct?.nine_installments)
+            : 0,
+          dueDate: "",
         };
         struct.ten_installments = {
-          fees: parseInt(struct?.ten_installments) ?? 0,
+          fees: struct?.ten_installments
+            ? parseInt(struct?.ten_installments)
+            : 0,
+          dueDate: "",
         };
         struct.eleven_installments = {
-          fees: parseInt(struct?.eleven_installments) ?? 0,
+          fees: struct?.eleven_installments
+            ? parseInt(struct?.eleven_installments)
+            : 0,
+          dueDate: "",
         };
         struct.tweleve_installments = {
-          fees: parseInt(struct?.tweleve_installments) ?? 0,
+          fees: struct?.tweleve_installments
+            ? parseInt(struct?.tweleve_installments)
+            : 0,
+          dueDate: "",
         };
       }
       struct.heads = [...heads];
-      console.log(struct);
-      new_data_query.push({
-        ...struct,
-        CategoryId: fee_category?._id,
-        StandardId: master?._id,
-      });
+      struct.CategoryId = fee_category?._id;
+      struct.StandardId = master?._id;
+      if (struct) {
+        new_data_query.push({ ...struct });
+        console.log("push");
+      } else {
+        new_data_query = [];
+        console.log("Empty");
+      }
     });
-    fs.writeFileSync("../structure.json", JSON.stringify(data_query, null, 2));
-    // return { structure_array: new_data_query, value: true };
+    // fs.writeFileSync("../structure.json", JSON.stringify(data_query, null, 2));
+    return { structure_array: new_data_query, value: true };
   } catch (e) {
     console.log("Structure Excel Query Not Resolved", e);
   }
 };
-
-const data_params = generate_excel_to_json_fee_structure(
-  "63e7d006602c9998495e2335",
-  "64002f4fe3d12f9e1bf5e720"
-);
-console.log(data_params);
 
 exports.generate_excel_to_json_fee_category = async (file) => {
   try {

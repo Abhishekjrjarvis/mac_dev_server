@@ -198,4 +198,10 @@ router.patch(
   catchAsync(Extra.renderExcelToJSONFinanceHeadMasterQuery)
 );
 
+router.patch(
+  "/excel/to/json/:did/query/fee/structure/:fid",
+  // isLoggedIn,
+  catchAsync(Extra.renderExcelToJSONFinanceStructureQuery)
+);
+
 module.exports = router;

@@ -19,6 +19,9 @@ const landingCareerSchema = new mongoose.Schema({
       ref: "Vacancy",
     },
   ],
+  career_passage: {
+    type: String,
+  },
   admin_vacancy_count: {
     type: Number,
     default: 0,

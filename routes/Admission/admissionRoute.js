@@ -9,8 +9,8 @@ const upload = multer({ dest: "uploads/" });
 //Assign
 router.post(
   "/ins/:id/staff/:sid",
-  isLoggedIn,
-  isApproved,
+  // isLoggedIn,
+  // isApproved,
   catchAsync(Admission.retrieveAdmissionAdminHead)
 );
 
@@ -24,21 +24,21 @@ router.get(
 // Ongoing App
 router.get(
   "/:aid/all/ongoing/application",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Admission.retieveAdmissionAdminAllApplication)
 );
 
 // Completed App
 router.get(
   "/:aid/all/completed/application",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Admission.retieveAdmissionAdminAllCApplication)
 );
 
 // Completed App for Web
 router.get(
   "/:aid/all/completed/application/detail",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Admission.retieveAdmissionAdminAllCDetailApplication)
 );
 
@@ -51,7 +51,7 @@ router.get(
 // Admission Info
 router.patch(
   "/:aid/info/update",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Admission.fetchAdmissionQuery)
 );
 
@@ -127,7 +127,7 @@ router.post(
 // One Student Cancel at Selected
 router.post(
   "/:sid/student/:aid/cancel/app",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Admission.retrieveAdmissionCancelApplication)
 );
 
@@ -155,28 +155,28 @@ router.post(
 // All Batch For Allotment
 router.get(
   "/:aid/application/batch",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Admission.retrieveAdmissionApplicationBatch)
 );
 
 // All Class For Allotment
 router.get(
   "/:aid/application/class/:bid",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Admission.retrieveAdmissionApplicationClass)
 );
 
 // One Student Class Allot
 router.post(
   "/student/:aid/allot/class/:cid",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Admission.retrieveClassAllotQuery)
 );
 
 // Mark App Complete
 router.patch(
   "/:aid/application/complete",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Admission.completeAdmissionApplication)
 );
 
@@ -190,7 +190,7 @@ router.get(
 // One Student Fee
 router.get(
   "/:sid/student/view/fee",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Admission.oneStudentViewRemainingFee)
 );
 
@@ -210,42 +210,42 @@ router.patch(
 // Fetch By App status
 router.get(
   "/application",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Admission.retrieveAdmissionApplicationStatus)
 );
 
 // New Inquiry
 router.post(
   "/:aid/student/:uid/inquiry",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Admission.retrieveUserInquiryProcess)
 );
 
 // All Inquiry
 router.get(
   "/:aid/student/inquiry/array",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Admission.retrieveUserInquiryArray)
 );
 
 // One Inquiry Reply
 router.patch(
   "/inquiry/reply/:qid",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Admission.retrieveInquiryReplyQuery)
 );
 
 // Get All Department
 router.get(
   "/:aid/all/department",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Admission.retrieveAllDepartmentArray)
 );
 
 // Cancel Select Mode
 router.patch(
   "/:statusId/status/cancel/app/:aid/student/:sid",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Admission.retrieveStudentCancelAdmissionMode)
 );
 

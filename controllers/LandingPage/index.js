@@ -119,6 +119,7 @@ exports.renderActivateLandingCareerQuery = async (req, res) => {
     const career = new LandingCareer({});
     institute.careerDepart.push(career?._id);
     institute.careerStatus = "Enable";
+    institute.career_passage = req.body?.career_passage;
     career.institute = institute?._id;
     institute.career_count += 1;
     await Promise.all([institute.save(), career.save()]);
@@ -141,7 +142,7 @@ exports.renderOneLandingCareerQuery = async (req, res) => {
         access: false,
       });
     const career = await LandingCareer.findById({ _id: lcid }).select(
-      "admin_vacancy_count staff_vacancy_count other_vacancy_count filled_vacancy_count career_photo"
+      "admin_vacancy_count career_passage staff_vacancy_count other_vacancy_count filled_vacancy_count career_photo"
     );
     res.status(200).send({
       message: "Explore Career Module",
@@ -439,6 +440,7 @@ exports.renderActivateLandingTenderQuery = async (req, res) => {
     const tender = new LandingTender({});
     institute.tenderDepart.push(tender?._id);
     institute.tenderStatus = "Enable";
+    institute.tender_passage = req.body?.tender_passage;
     tender.institute = institute?._id;
     institute.tender_count += 1;
     await Promise.all([institute.save(), tender.save()]);
@@ -461,7 +463,7 @@ exports.renderOneLandingTenderQuery = async (req, res) => {
         access: false,
       });
     const tender = await LandingTender.findById({ _id: ltid }).select(
-      "open_tender_count closed_tender_count tender_photo"
+      "open_tender_count tender_passage closed_tender_count tender_photo"
     );
     res.status(200).send({
       message: "Explore Tender Module",
@@ -779,7 +781,10 @@ exports.rendeUpdateWebContacts = async (req, res) => {
       for (var ref of edit_array) {
         for (var ele of one_ins?.contact_list?.persons) {
           if (`${ele?._id}` === `${ref?.personId}`) {
-            ele.p;
+            ele.department_name = ref?.departmentName;
+            ele.person_name = ref?.personName;
+            ele.person_email = ref?.personEmail;
+            ele.person_phone_number = ref?.personPhoneNumber;
           }
         }
       }
@@ -812,22 +817,6 @@ exports.renderOneWebProfile = async (req, res) => {
       access: true,
       one_ins: one_ins,
     });
-  } catch (e) {
-    console.log(e);
-  }
-};
-
-exports.renderOneCareerTenderPassage = async (req, res) => {
-  try {
-    const { id } = req.params;
-    if (!id)
-      return res.status(200).send({
-        message: "Their is a bug need to fixed immediately",
-        access: false,
-      });
-
-    const one_ins = await InstituteAdmin.findByIdAndUpdate(id, req.body);
-    res.status(200).send({ message: "Explore Career Passage", access: true });
   } catch (e) {
     console.log(e);
   }

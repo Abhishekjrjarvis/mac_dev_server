@@ -596,7 +596,7 @@ exports.renderOneTenderBidQuery = async (req, res) => {
 
 exports.renderOneTenderQuery = async (req, res) => {
   try {
-    const { tid } = req.query;
+    const { tid } = req.params;
     if (!tid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",

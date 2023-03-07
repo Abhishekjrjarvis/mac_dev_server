@@ -126,33 +126,63 @@ const generate_excel_to_json_fee_structure = (fid, did) => {
         }
       }
       if (install_count > 0) {
-        // for (var i = 1; i <= install_count; i++) {
-        //   install.push({
-        //     install: struct[`FeeHeadName${i}`],
-        //     head_amount: struct[`FeeHeadAmount${i}`],
-        //   });
-        // }
+        struct.one_installments = {
+          fees: parseInt(struct?.one_installments) ?? 0,
+        };
+        struct.two_installments = {
+          fees: parseInt(struct?.two_installments) ?? 0,
+        };
+        struct.three_installments = {
+          fees: parseInt(struct?.three_installments) ?? 0,
+        };
+        struct.four_installments = {
+          fees: parseInt(struct?.four_installments) ?? 0,
+        };
+        struct.five_installments = {
+          fees: parseInt(struct?.five_installments) ?? 0,
+        };
+        struct.six_installments = {
+          fees: parseInt(struct?.six_installments) ?? 0,
+        };
+        struct.seven_installments = {
+          fees: parseInt(struct?.seven_installments) ?? 0,
+        };
+        struct.eight_installments = {
+          fees: parseInt(struct?.eight_installments) ?? 0,
+        };
+        struct.nine_installments = {
+          fees: parseInt(struct?.nine_installments) ?? 0,
+        };
+        struct.ten_installments = {
+          fees: parseInt(struct?.ten_installments) ?? 0,
+        };
+        struct.eleven_installments = {
+          fees: parseInt(struct?.eleven_installments) ?? 0,
+        };
+        struct.tweleve_installments = {
+          fees: parseInt(struct?.tweleve_installments) ?? 0,
+        };
       }
       struct.heads = [...heads];
-      // console.log(struct);
+      console.log(struct);
       new_data_query.push({
         ...struct,
         CategoryId: fee_category?._id,
         StandardId: master?._id,
       });
     });
-    // fs.writeFileSync("../structure.json", JSON.stringify(data_query, null, 2));
+    fs.writeFileSync("../structure.json", JSON.stringify(data_query, null, 2));
     // return { structure_array: new_data_query, value: true };
   } catch (e) {
     console.log("Structure Excel Query Not Resolved", e);
   }
 };
 
-// const data_params = generate_excel_to_json_fee_structure(
-//   "63e7d006602c9998495e2335",
-//   "64002f4fe3d12f9e1bf5e720"
-// );
-// console.log(data_params);
+const data_params = generate_excel_to_json_fee_structure(
+  "63e7d006602c9998495e2335",
+  "64002f4fe3d12f9e1bf5e720"
+);
+console.log(data_params);
 
 exports.generate_excel_to_json_fee_category = async (file) => {
   try {

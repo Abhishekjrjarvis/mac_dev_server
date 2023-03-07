@@ -2513,6 +2513,18 @@ exports.renderFinanceAddFeeStructureAutoQuery = async (
         total_admission_fees: ref?.TotalFees,
         total_installments: ref?.InstallCount,
         applicable_fees: ref?.ApplicableFees,
+        one_installments: ref?.one_installments,
+        two_installments: ref?.two_installments,
+        three_installments: ref?.three_installments,
+        four_installments: ref?.four_installments,
+        five_installments: ref?.five_installments,
+        six_installments: ref?.six_installments,
+        seven_installments: ref?.seven_installments,
+        eight_installments: ref?.eight_installments,
+        nine_installments: ref?.nine_installments,
+        ten_installments: ref?.ten_installments,
+        eleven_installments: ref?.eleven_installments,
+        tweleve_installments: ref?.tweleve_installments,
       });
       struct_query.finance = finance?._id;
       struct_query.department = depart?._id;

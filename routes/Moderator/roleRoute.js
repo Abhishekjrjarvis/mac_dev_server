@@ -26,4 +26,29 @@ router.delete(
   catchAsync(Role.destroyAdmissionAppModeratorQuery)
 );
 
+// router.post(
+//   "/:fid/finance/moderator",
+//   catchAsync(Role.addFinanceModeratorQuery)
+// );
+
+// router.get(
+//   "/:fid/all/finance/moderator",
+//   catchAsync(Role.renderFinanceAllAppModeratorArray)
+// );
+
+// router.get(
+//   "/one/moderator/:mid/all/apps",
+//   catchAsync(Role.renderOneModeratorAllAppsQuery)
+// );
+
+// router.patch(
+//   "/update/app/mod/:mid",
+//   catchAsync(Role.updateAdmissionAppModeratorQuery)
+// );
+
+// router.delete(
+//   "/:aid/destroy/app/mod/:mid",
+//   catchAsync(Role.destroyAdmissionAppModeratorQuery)
+// );
+
 module.exports = router;

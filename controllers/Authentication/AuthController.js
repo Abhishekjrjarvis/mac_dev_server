@@ -43,6 +43,7 @@ const {
   generateAccessInsToken,
   generateAccessToken,
   send_email_authentication,
+  generateAccessDesignationToken,
 } = require("../../helper/functions");
 
 const { user_date_of_birth } = require("../../helper/dayTimer");
@@ -2924,6 +2925,130 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
         console.log("Problem in Account Creation");
         // return false
       }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceAdmissionNewPassQuery = async (req, res) => {
+  try {
+    const { faid } = req.params;
+    const { flow } = req.query;
+    var rand1 = Math.floor(Math.random() * 9) + 1;
+    var rand2 = Math.floor(Math.random() * 9) + 1;
+    var rand3 = Math.floor(Math.random() * 9) + 1;
+    var rand4 = Math.floor(Math.random() * 9) + 1;
+    if (!faid && !flow)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    if (flow === "Finance_Login") {
+      const finance = await Finance.findById({ _id: faid });
+      var pass = `${rand1}${rand2}${rand3}${rand4}`;
+      const new_user_pass = bcrypt.genSaltSync(12);
+      const hash_user_pass = bcrypt.hashSync(pass, new_user_pass);
+      finance.designation_password = hash_user_pass;
+      finance.designation_status = "Locked";
+      await finance.save();
+      res
+        .status(200)
+        .send({
+          message: "Explore New Finance Designation Password",
+          access: true,
+          finance: finance?._id,
+        });
+    } else if (flow === "Admission_Login") {
+      const admission = await Admission.findById({ _id: faid });
+      var pass = `${rand1}${rand2}${rand3}${rand4}`;
+      const new_user_pass = bcrypt.genSaltSync(12);
+      const hash_user_pass = bcrypt.hashSync(pass, new_user_pass);
+      admission.designation_password = hash_user_pass;
+      admission.designation_status = "Locked";
+      await admission.save();
+      res
+        .status(200)
+        .send({
+          message: "Explore New Admission Designation Password",
+          access: true,
+          admission: admission?._id,
+        });
+    } else {
+      res.status(200).send({ message: "You lost in space", access: false });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceAdmissionDesignationLoginQuery = async (req, res) => {
+  try {
+    const { flow, protected_pin, flowId } = req.body;
+    if (!flow && !protected_pin)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    if (flow === "Finance_Login") {
+      var finance = await Finance.findById({ _id: flowId });
+      const check_finance = bcrypt.compareSync(
+        protected_pin,
+        finance.designation_password
+      );
+      if (check_finance) {
+        finance.designation_status = "UnLocked";
+        await finance.save();
+        const finance_token = await generateAccessDesignationToken(
+          finance?.designation_status,
+          finance?.designation_password
+        );
+        res.status(200).send({
+          message: "Explore Your Unlocked Account",
+          access: true,
+          token: `Bearer ${finance_token}`,
+          finance: finance?._id,
+        });
+      } else {
+        res.status(200).send({
+          message: "Designation Access Deneied",
+          access: false,
+          token: null,
+        });
+      }
+    } else if (flow === "Admission_Login") {
+      var admission = await Admission.findById({ _id: flowId });
+      const check_admission = bcrypt.compareSync(
+        protected_pin,
+        admission.designation_password
+      );
+      if (check_admission) {
+        admission.designation_status = "UnLocked";
+        await admission.save();
+        const admission_token = await generateAccessDesignationToken(
+          admission?.designation_status,
+          admission?.designation_password
+        );
+        res.status(200).send({
+          message: "Explore Your Unlocked Account",
+          access: true,
+          token: `Bearer ${admission_token}`,
+          admission: admission?._id,
+        });
+      } else {
+        res.status(200).send({
+          message: "Designation Access Deneied",
+          access: false,
+          token: null,
+        });
+      }
+    } else {
+      res.status(200).send({
+        message: "Bi-Directional Flow Breaked",
+        access: false,
+      });
     }
   } catch (e) {
     console.log(e);

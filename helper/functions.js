@@ -4,6 +4,7 @@ const InstituteAdmin = require("../models/InstituteAdmin");
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
+const bcrypt = require("bcryptjs");
 
 const random_password = () => {
   const upperCase = ["A", "B", "C", "D", "E", "F", "G", "H", "Z"];
@@ -88,6 +89,23 @@ exports.generateAccessAdminToken = (adminUserName, adminId, adminPassword) => {
     process.env.TOKEN_SECRET,
     { expiresIn: "1y" }
   );
+};
+
+exports.generateAccessDesignationToken = async (status, password) => {
+  return jwt.sign({ status, password }, process.env.TOKEN_SECRET, {
+    expiresIn: "2h",
+  });
+};
+
+exports.generate_hash_pass = async () => {
+  let rand1 = Math.floor(Math.random() * 9) + 1;
+  let rand2 = Math.floor(Math.random() * 9) + 1;
+  let rand3 = Math.floor(Math.random() * 9) + 1;
+  let rand4 = Math.floor(Math.random() * 9) + 1;
+  var pass = `${rand1}${rand2}${rand3}${rand4}`;
+  const new_user_pass = bcrypt.genSaltSync(12);
+  const hash_user_pass = bcrypt.hashSync(pass, new_user_pass);
+  return hash_user_pass;
 };
 
 exports.send_email_authentication = async (email) => {

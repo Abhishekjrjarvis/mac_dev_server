@@ -42,6 +42,7 @@ const {
 const {
   filter_unique_username,
   generateAccessToken,
+  generate_hash_pass,
 } = require("../../helper/functions");
 const {
   custom_date_time,
@@ -86,10 +87,11 @@ exports.retrieveAdmissionAdminHead = async (req, res) => {
     staff.staffDesignationCount += 1;
     staff.recentDesignation = "Admission Admin";
     admission.admissionAdminHead = staff._id;
+    admission.designation_password = await generate_hash_pass();
     institute.admissionDepart.push(admission._id);
     institute.admissionStatus = "Enable";
     admission.institute = institute._id;
-    notify.notifyContent = `you got the designation of Admission Admin 🎉🎉`;
+    notify.notifyContent = `you got the designation of Admission Admin A/c Access Pin - ${admission?.designation_password}`;
     notify.notifySender = id;
     notify.notifyReceiever = user._id;
     notify.notifyCategory = "Admission Designation";
@@ -142,7 +144,7 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
     //   });
     const admission = await Admission.findById({ _id: aid })
       .select(
-        "admissionAdminEmail admissionAdminPhoneNumber moderator_role moderator_role_count completedCount exemptAmount requested_status collected_fee remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount refundCount export_collection_count"
+        "admissionAdminEmail admissionAdminPhoneNumber moderator_role moderator_role_count completedCount exemptAmount requested_status collected_fee remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount refundCount export_collection_count designation_status"
       )
       .populate({
         path: "admissionAdminHead",
@@ -707,7 +709,8 @@ exports.fetchAllSelectApplication = async (req, res) => {
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
             populate: {
               path: "fee_structure",
-              select: "total_admission_fees one_installments structure_name applicable_fees",
+              select:
+                "total_admission_fees one_installments structure_name applicable_fees",
               populate: {
                 path: "category_master",
                 select: "category_name",
@@ -744,7 +747,8 @@ exports.fetchAllSelectApplication = async (req, res) => {
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
             populate: {
               path: "fee_structure",
-              select: "total_admission_fees one_installments structure_name applicable_fees",
+              select:
+                "total_admission_fees one_installments structure_name applicable_fees",
               populate: {
                 path: "category_master",
                 select: "category_name",
@@ -798,7 +802,8 @@ exports.fetchAllConfirmApplication = async (req, res) => {
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
             populate: {
               path: "fee_structure",
-              select: "total_admission_fees one_installments structure_name applicable_fees",
+              select:
+                "total_admission_fees one_installments structure_name applicable_fees",
               populate: {
                 path: "category_master",
                 select: "category_name",
@@ -835,7 +840,8 @@ exports.fetchAllConfirmApplication = async (req, res) => {
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
             populate: {
               path: "fee_structure",
-              select: "total_admission_fees one_installments structure_name applicable_fees",
+              select:
+                "total_admission_fees one_installments structure_name applicable_fees",
               populate: {
                 path: "category_master",
                 select: "category_name",

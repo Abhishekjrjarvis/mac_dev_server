@@ -389,6 +389,13 @@ const financeSchema = new mongoose.Schema(
       cheque: { type: Boolean, default: true },
       demand_draft: { type: Boolean, default: true },
     },
+    designation_password: {
+      type: String,
+    },
+    designation_status: {
+      type: String,
+      default: "Locked",
+    },
   },
   { timestamps: true }
 );

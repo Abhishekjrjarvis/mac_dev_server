@@ -153,6 +153,13 @@ const admissionAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  designation_password: {
+    type: String,
+  },
+  designation_status: {
+    type: String,
+    default: "Locked",
+  },
 });
 
 module.exports = mongoose.model("Admission", admissionAdminSchema);

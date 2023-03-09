@@ -1396,7 +1396,8 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "financeDepartment",
-          select: "financeName financeEmail financePhoneNumber",
+          select:
+            "financeName financeEmail financePhoneNumber designation_status designation_password",
           populate: {
             path: "financeHead",
             select: "staffFirstName staffMiddleName staffLastName",
@@ -1404,7 +1405,8 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "financeDepartment",
-          select: "financeName financeEmail financePhoneNumber",
+          select:
+            "financeName financeEmail financePhoneNumber designation_status designation_password",
           populate: {
             path: "institute",
             select: "financeStatus",
@@ -1413,7 +1415,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         .populate({
           path: "admissionDepartment",
           select:
-            "admissionAdminEmail admissionAdminPhoneNumber admissionAdminAbout",
+            "admissionAdminEmail admissionAdminPhoneNumber admissionAdminAbout designation_status designation_password",
           populate: {
             path: "admissionAdminHead",
             select:
@@ -1542,7 +1544,8 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "financeDepartment",
-          select: "financeName financeEmail financePhoneNumber",
+          select:
+            "financeName financeEmail financePhoneNumber designation_status designation_password",
           populate: {
             path: "financeHead",
             select: "staffFirstName staffMiddleName staffLastName",
@@ -1550,7 +1553,8 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "financeDepartment",
-          select: "financeName financeEmail financePhoneNumber",
+          select:
+            "financeName financeEmail financePhoneNumber designation_status designation_password",
           populate: {
             path: "institute",
             select: "financeStatus",
@@ -1559,7 +1563,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         .populate({
           path: "admissionDepartment",
           select:
-            "admissionAdminEmail admissionAdminPhoneNumber admissionAdminAbout",
+            "admissionAdminEmail admissionAdminPhoneNumber admissionAdminAbout designation_status designation_password",
           populate: {
             path: "admissionAdminHead",
             select:

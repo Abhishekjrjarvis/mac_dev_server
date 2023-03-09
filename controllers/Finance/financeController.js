@@ -42,6 +42,7 @@ const Library = require("../../models/Library/Library");
 const { handle_undefined } = require("../../Handler/customError");
 const FeeReceipt = require("../../models/RazorPay/feeReceipt");
 const RemainingList = require("../../models/Admission/RemainingList");
+const { generate_hash_pass } = require("../../helper/functions");
 
 exports.getFinanceDepart = async (req, res) => {
   try {
@@ -55,10 +56,11 @@ exports.getFinanceDepart = async (req, res) => {
     staff.staffDesignationCount += 1;
     staff.recentDesignation = "Finance Manager";
     finance.financeHead = staff._id;
+    finance.designation_password = await generate_hash_pass();
     institute.financeDepart.push(finance._id);
     institute.financeStatus = "Enable";
     finance.institute = institute._id;
-    notify.notifyContent = `you got the designation of as Finance Manager`;
+    notify.notifyContent = `you got the designation of as Finance Manager A/c Access Pin - ${finance?.designation_password}`;
     notify.notify_hi_content = `आपको वित्त व्यवस्थापक के रूप में पदनाम मिला है |`;
     notify.notify_mr_content = `तुम्हाला वित्त व्यवस्थापक म्हणून पद मिळाले आहे`;
     notify.notifySender = id;
@@ -216,7 +218,7 @@ exports.retrieveFinanceQuery = async (req, res) => {
     //   });
     const finance = await Finance.findById({ _id: fid })
       .select(
-        "financeName financeEmail financePhoneNumber financeAbout photoId photo cover coverId financeCollectedBankBalance financeTotalBalance financeRaisedBalance financeExemptBalance financeCollectedSBalance financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance payment_modes_type finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode fees_category_count exempt_receipt_count government_receipt_count fee_master_array_count"
+        "financeName financeEmail financePhoneNumber financeAbout photoId photo cover coverId financeCollectedBankBalance financeTotalBalance financeRaisedBalance financeExemptBalance financeCollectedSBalance financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance payment_modes_type finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode fees_category_count exempt_receipt_count government_receipt_count fee_master_array_count designation_status"
       )
       .populate({
         path: "institute",

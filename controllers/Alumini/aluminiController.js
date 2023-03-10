@@ -323,14 +323,13 @@ exports.renderAluminiNewFeedbackPollQuery = async (req, res) => {
 exports.renderAluminiPollVoteQuery = async (req, res) => {
   try {
     const { aid, pid } = req.params;
-    const { answerId, rate } = req.body;
+    const { answerId, rate, userPhoneNumber } = req.body;
     if (!pid && !answerId)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
-    var user_session =
-      req.tokenData && req.tokenData.userId ? req.tokenData.userId : "";
+    var user_session = userPhoneNumber;
     const poll = await Poll.findById({ _id: pid });
     const one_alumini = await Alumini.findById({ _id: aid });
     if (user_session) {
@@ -377,6 +376,33 @@ exports.renderAluminiPollVoteQuery = async (req, res) => {
     } else {
       res.status(401).send({ message: "UnAuthorised", access: false });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAluminiPollVoteFeedbackQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const one_alumini = await Alumini.findById({ _id: aid });
+    one_alumini.feedback_user.push({
+      email: req.body?.email,
+      name: req.body?.name,
+      phone_number: req.body?.phone_number,
+      graduation_department: req.body?.graduation_department,
+      pass_year: req.body?.pass_year,
+      additional_feedback: req.body?.additional_feedback,
+    });
+    await one_alumini.save();
+    res
+      .status(200)
+      .send({ message: "Explore One User Feedback Query", access: true });
   } catch (e) {
     console.log(e);
   }

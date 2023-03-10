@@ -806,11 +806,19 @@ exports.renderOneWebProfile = async (req, res) => {
 
     const one_ins = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName name photoId insProfilePhoto career_passage tender_passage contact_list website_looks website_active_tab"
+        "insName name photoId insProfilePhoto career_passage tender_passage contact_list website_looks website_active_tab insEstdDate insEmail insPhoneNumber insAddress insAffiliated"
       )
       .populate({
         path: "website_looks.leading_person",
-        select: "userLegalName username photoId profilePhoto",
+        select: "userLegalName username photoId profilePhoto userBio userAbout",
+      })
+      .populate({
+        path: "request_at",
+        select: "affiliation_name photo",
+      })
+      .populate({
+        path: "affiliation_by",
+        select: "affiliation_name photo",
       });
     res.status(200).send({
       message: "Explore One Institute All Profile Details",

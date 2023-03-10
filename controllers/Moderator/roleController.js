@@ -349,3 +349,75 @@ exports.destroyAdmissionAppModeratorQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+// exports.addFinanceModeratorQuery = async (req, res) => {
+//   try {
+//     const { fid } = req.params;
+//     const { mod_role, sid } = req.body;
+//     if (!fid && !mod_role && !sid)
+//       return res.status(200).send({
+//         message: "Their is a bug need to fixed immediatley",
+//         access: false,
+//       });
+//     var all_role = all_access_role();
+//     const finance = await Finance.findById({ _id: fid });
+//     const institute = await InstituteAdmin.findById({
+//       _id: `${finance?.institute}`,
+//     });
+//     const staff = await Staff.findById({ _id: sid });
+//     const user = await User.findById({ _id: `${staff?.user}` });
+//     const notify = new Notification({});
+//     const new_mod = new FinanceModerator({});
+//     new_mod.access_role = mod_role;
+//     new_mod.access_staff = staff?._id;
+//     if (mod_role === all_role[`${mod_role}`]?.role) {
+//       new_mod.permission.bound = [
+//         ...all_role[`${mod_role}`]?.permission?.bound,
+//       ];
+//     }
+//     new_mod.finance = finance?._id;
+//     finance.moderator_role.push(new_mod?._id);
+//     finance.moderator_role_count += 1;
+//     staff.financeModeratorDepartment.push(new_mod?._id);
+//     staff.staffDesignationCount += 1;
+//     staff.recentDesignation = `Finance Manager Moderator - ${mod_role}`;
+//     notify.notifyContent = `you got the designation of Admission Admin Moderator for ${mod_role} 🎉🎉`;
+//     notify.notifySender = institute?._id;
+//     notify.notifyReceiever = user._id;
+//     notify.notifyCategory = "Admission Moderator Designation";
+//     user.uNotify.push(notify._id);
+//     notify.user = user._id;
+//     notify.notifyPid = "1";
+//     notify.notifyByInsPhoto = institute._id;
+//     invokeFirebaseNotification(
+//       "Designation Allocation",
+//       notify,
+//       institute.insName,
+//       user._id,
+//       user.deviceToken
+//     );
+//     await Promise.all([
+//       staff.save(),
+//       ads_admin.save(),
+//       new_mod.save(),
+//       user.save(),
+//       notify.save(),
+//     ]);
+//     // const adsEncrypt = await encryptionPayload(ads_admin._id);
+//     res.status(200).send({
+//       message: "Successfully Assigned Admission Admin Moderator Staff",
+//       admission: ads_admin._id,
+//       access: true,
+//     });
+//     designation_alarm(
+//       user?.userPhoneNumber,
+//       "ADMISSION_MODERATOR",
+//       institute?.sms_lang,
+//       "",
+//       "",
+//       ""
+//     );
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };

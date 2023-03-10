@@ -396,4 +396,9 @@ router.delete(
 
 router.patch("/:id/update", catchAsync(Admission.renderData));
 
+router.get(
+  "/:aid/all/structures",
+  catchAsync(Admission.renderAllFeeStructureQuery)
+);
+
 module.exports = router;

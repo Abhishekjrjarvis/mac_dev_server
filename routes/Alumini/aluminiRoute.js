@@ -49,6 +49,11 @@ router.patch(
   catchAsync(Alumini.renderAluminiPollVoteQuery)
 );
 
+router.patch(
+  "/question/vote/:aid/feedback/query",
+  catchAsync(Alumini.renderAluminiPollVoteFeedbackQuery)
+);
+
 router.get(
   "/:aid/all/feed/question/array",
   catchAsync(Alumini.renderAluminiAllFeedQuestionArray)

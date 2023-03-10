@@ -149,7 +149,11 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
       .populate({
         path: "admissionAdminHead",
         select:
-          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto user",
+        populate: {
+          path: "user",
+          select: "userBio userAbout",
+        },
       })
       .populate({
         path: "institute",
@@ -205,7 +209,7 @@ exports.retieveAdmissionAdminAllApplication = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "applicationName applicationEndDate applicationStatus applicationSeats"
+        "applicationName applicationEndDate applicationStatus applicationSeats applicationAbout admissionProcess"
       )
       .populate({
         path: "applicationDepartment",
@@ -5150,6 +5154,64 @@ exports.renderData = async (req, res) => {
     res
       .status(200)
       .send({ message: "Download receipt", access: true, student });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllFeeStructureQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!aid)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediatley",
+          access: false,
+        });
+
+    const ads_admin = await Admission.findById({ _id: aid })
+      .select("institute")
+      .populate({
+        path: "institute",
+        select: "depart",
+      });
+
+    const all_structures = await FeeStructure.find({
+      department: { $in: ads_admin?.institute?.depart },
+    })
+      .limit(limit)
+      .skip(skip)
+      .select("structure_name total_admission_fees applicable_fees")
+      .populate({
+        path: "category_master",
+        select: "category_name",
+      })
+      .populate({
+        path: "class_master",
+        select: "className",
+      });
+
+    if (all_structures?.length > 0) {
+      res
+        .status(200)
+        .send({
+          message: "Explore All Structures Array",
+          access: true,
+          all_structures: all_structures,
+        });
+    } else {
+      res
+        .status(200)
+        .send({
+          message: "No Structures Array",
+          access: false,
+          all_structures: [],
+        });
+    }
   } catch (e) {
     console.log(e);
   }

@@ -21,6 +21,8 @@ const AluminiRegister = require("../../models/Alumini/AluminiRegister");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const { nested_document_limit } = require("../../helper/databaseFunction");
 const { designation_alarm } = require("../../WhatsAppSMS/payload");
+const Poll = require("../../models/Question/Poll");
+const Close = require("../../Service/close");
 const {
   connect_redis_hit,
   connect_redis_miss,
@@ -94,7 +96,7 @@ exports.renderAluminiDashboardQuery = async (req, res) => {
 
     const one_alumini = await Alumini.findById({ _id: aid })
       .select(
-        "certifcate_given_count register_form_count success_story_count alumini_passage created_at "
+        "certifcate_given_count register_form_count success_story_count alumini_passage created_at feed_back_received feed_question_count rating"
       )
       .populate({
         path: "alumini_head",
@@ -285,63 +287,136 @@ exports.renderAluminiNewProminentQuery = async (req, res) => {
   }
 };
 
-// exports.retrievePollQuestionText = async (req, res) => {
-//   try {
-//     const { aid } = req.params;
-//     if (!aid)
-//       return res.status(200).send({
-//         message: "Their is a bug need to fixed immediately",
-//         access: false,
-//       });
-//     const one_alumini = await Alumini.findById({ _id: aid })
-//     if (req.body.pollAnswer.length >= 2 && req.body.pollAnswer.length <= 5) {
-//       var poll = new Poll({ ...req.body });
-//       for (let i = 0; i < req.body.pollAnswer.length; i++) {
-//         poll.poll_answer.push({
-//           content: req.body.pollAnswer[i].content,
-//         });
-//       }
-//       one_alumini.feed_question.push(poll?._id)
-//       one_alumini.feed
-//       poll.duration_date = Close.end_poll(req.body.day);
-//       await Promise.all([user.save(), post.save(), poll.save()]);
-//       // Add Another Encryption
-//       res.status(201).send({ message: "Poll is create", poll, post });
-//       if (user.userFollowers.length >= 1) {
-//         user.userFollowers.forEach(async (ele) => {
-//           ele.userPosts.push(post._id);
-//           await ele.save();
-//         });
-//       }
-//       if (user.userCircle.length >= 1) {
-//         user.userCircle.forEach(async (ele) => {
-//           ele.userPosts.push(post._id);
-//           await ele.save();
-//         });
-//       }
-//       if (req.body?.hashtag?.length > 0) {
-//         req.body?.hashtag?.forEach(async (ele) => {
-//           const hash = await HashTag.findById({ _id: `${ele}` }).select(
-//             "hashtag_follower"
-//           );
-//           const users = await User.find({
-//             _id: { $in: hash?.hashtag_follower },
-//           });
-//           users?.forEach(async (user) => {
-//             if (user.userPosts?.includes(post._id)) {
-//             } else {
-//               user.userPosts.push(post._id);
-//             }
-//             await user.save();
-//           });
-//         });
-//       }
-//     } else {
-//       res
-//         .status(422)
-//         .send({ message: "Not Valid Poll Option Min Max Critiriea" });
-//     }
-//   } catch (e) {
-//     console.log(e);
-//   }
-// };
+exports.renderAluminiNewFeedbackPollQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const one_alumini = await Alumini.findById({ _id: aid });
+    if (req.body?.pollAnswer.length >= 2 && req.body?.pollAnswer.length <= 5) {
+      var poll = new Poll({ ...req.body });
+      for (let i = 0; i < req.body.pollAnswer.length; i++) {
+        poll.poll_answer.push({
+          content: req.body.pollAnswer[i].content,
+        });
+      }
+      one_alumini.feed_question.push(poll?._id);
+      one_alumini.feed_question_count += 1;
+      poll.duration_date = Close.end_poll(req.body.day);
+      await Promise.all([one_alumini.save(), poll.save()]);
+      res
+        .status(201)
+        .send({ message: "Feed back Poll is create", access: true });
+    } else {
+      res
+        .status(422)
+        .send({ message: "Not Valid Poll Option Min Max Critiriea" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAluminiPollVoteQuery = async (req, res) => {
+  try {
+    const { aid, pid } = req.params;
+    const { answerId, rate } = req.body;
+    if (!pid && !answerId)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    var user_session =
+      req.tokenData && req.tokenData.userId ? req.tokenData.userId : "";
+    const poll = await Poll.findById({ _id: pid });
+    const one_alumini = await Alumini.findById({ _id: aid });
+    if (user_session) {
+      if (
+        poll.answeredUser.length >= 1 &&
+        poll.answeredUser.includes(String(user_session))
+      ) {
+        res
+          .status(200)
+          .send({ message: "You're already voted", access: false });
+      } else {
+        for (let i = 0; i < poll.poll_answer.length; i++) {
+          if (`${poll.poll_answer[i]._id}` === `${answerId}`) {
+            if (
+              poll.poll_answer[i].users.length >= 1 &&
+              poll.poll_answer[i].users.includes(String(user_session))
+            ) {
+            } else {
+              poll.poll_answer[i].users.push(user_session);
+              poll.userPollCount += 1;
+              poll.poll_answer[i].percent_vote =
+                (poll.poll_answer[i].users.length / poll.userPollCount) * 100;
+              poll.total_votes += 1;
+              await poll.save();
+            }
+          }
+        }
+        poll.answeredUser.push(user_session);
+        for (let i = 0; i < poll.poll_answer.length; i++) {
+          poll.poll_answer[i].percent_vote =
+            (poll.poll_answer[i].users.length / poll.userPollCount) * 100;
+          await poll.save();
+        }
+        res.status(200).send({
+          message: "Added To Poll",
+          voteAtPoll: poll.total_votes,
+          access: true,
+        });
+        one_alumini.feed_back_received += 1;
+        one_alumini.rating =
+          (rate + one_alumini.rating) / one_alumini.feed_back_received;
+        await one_alumini.save();
+      }
+    } else {
+      res.status(401).send({ message: "UnAuthorised", access: false });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAluminiAllFeedQuestionArray = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const one_alumini = await Alumini.findById({ _id: aid }).select(
+      "feed_question"
+    );
+    const all_feedback_poll = await Poll.find({
+      _id: { $in: one_alumini?.feed_question },
+    })
+      .limit(limit)
+      .skip(skip);
+
+    if (all_feedback_poll?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Polls",
+        access: true,
+        all_feedback_poll: all_feedback_poll,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Polls",
+        access: false,
+        all_feedback_poll: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

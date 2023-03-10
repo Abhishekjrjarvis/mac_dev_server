@@ -1463,6 +1463,10 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
               "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
           },
         })
+        .populate({
+          path: "aluminiDepartment",
+          select: "_id",
+        })
         .lean()
         .exec();
       if (staff?.staffDocuments?.length > 0) {
@@ -1610,6 +1614,10 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
             select:
               "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
           },
+        })
+        .populate({
+          path: "aluminiDepartment",
+          select: "_id",
         })
         .lean()
         .exec();

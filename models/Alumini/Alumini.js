@@ -59,6 +59,10 @@ const aluminiSchema = new mongoose.Schema({
       ref: "Poll",
     },
   ],
+  rating: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("Alumini", aluminiSchema);

@@ -4,6 +4,7 @@ const Alumini = require("../../controllers/Alumini/aluminiController");
 const catchAsync = require("../../Utilities/catchAsync");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
+const { isLoggedIn } = require("../../middleware");
 
 router.post("/ins/:id/staff/:sid", catchAsync(Alumini.renderNewAluminiQuery));
 
@@ -35,6 +36,22 @@ router.get(
 router.post(
   "/:aid/new/prominent/query",
   catchAsync(Alumini.renderAluminiNewProminentQuery)
+);
+
+router.post(
+  "/question/:aid",
+  catchAsync(Alumini.renderAluminiNewFeedbackPollQuery)
+);
+
+router.patch(
+  "/question/vote/:pid",
+  isLoggedIn,
+  catchAsync(Alumini.renderAluminiPollVoteQuery)
+);
+
+router.get(
+  "/:aid/all/feed/question/array",
+  catchAsync(Alumini.renderAluminiAllFeedQuestionArray)
 );
 
 module.exports = router;

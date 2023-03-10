@@ -750,6 +750,16 @@ const instituteAdminSchema = new mongoose.Schema({
   tender_passage: {
     type: String,
   },
+  aluminiStatus: {
+    type: String,
+    default: "Disable",
+  },
+  aluminiDepart: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Alumini",
+    },
+  ],
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

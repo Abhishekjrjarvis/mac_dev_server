@@ -2935,6 +2935,7 @@ exports.renderFinanceAdmissionNewPassQuery = async (req, res) => {
   try {
     const { faid } = req.params;
     const { flow } = req.query;
+    const { old_pass } = req.body;
     var rand1 = Math.floor(Math.random() * 9) + 1;
     var rand2 = Math.floor(Math.random() * 9) + 1;
     var rand3 = Math.floor(Math.random() * 9) + 1;
@@ -2946,35 +2947,55 @@ exports.renderFinanceAdmissionNewPassQuery = async (req, res) => {
       });
 
     if (flow === "Finance_Login") {
-      const finance = await Finance.findById({ _id: faid });
-      var pass = `${rand1}${rand2}${rand3}${rand4}`;
-      const new_user_pass = bcrypt.genSaltSync(12);
-      const hash_user_pass = bcrypt.hashSync(pass, new_user_pass);
-      finance.designation_password = hash_user_pass;
-      finance.designation_status = "Locked";
-      await finance.save();
-      res
-        .status(200)
-        .send({
+      var finance = await Finance.findById({ _id: faid });
+      const compare_pass = bcrypt.compareSync(
+        old_pass,
+        finance.designation_password
+      );
+      if (compare_pass) {
+        var pass = `${rand1}${rand2}${rand3}${rand4}`;
+        const new_user_pass = bcrypt.genSaltSync(12);
+        const hash_user_pass = bcrypt.hashSync(pass, new_user_pass);
+        finance.designation_password = hash_user_pass;
+        finance.designation_status = "Locked";
+        await finance.save();
+        res.status(200).send({
           message: "Explore New Finance Designation Password",
           access: true,
           finance: finance?._id,
         });
+      } else {
+        res.status(200).send({
+          message: "Password Does'nt match",
+          access: false,
+          finance: finance?._id,
+        });
+      }
     } else if (flow === "Admission_Login") {
-      const admission = await Admission.findById({ _id: faid });
-      var pass = `${rand1}${rand2}${rand3}${rand4}`;
-      const new_user_pass = bcrypt.genSaltSync(12);
-      const hash_user_pass = bcrypt.hashSync(pass, new_user_pass);
-      admission.designation_password = hash_user_pass;
-      admission.designation_status = "Locked";
-      await admission.save();
-      res
-        .status(200)
-        .send({
+      var admission = await Admission.findById({ _id: faid });
+      const compare_pass = bcrypt.compareSync(
+        old_pass,
+        admission.designation_password
+      );
+      if (compare_pass) {
+        var pass = `${rand1}${rand2}${rand3}${rand4}`;
+        const new_user_pass = bcrypt.genSaltSync(12);
+        const hash_user_pass = bcrypt.hashSync(pass, new_user_pass);
+        admission.designation_password = hash_user_pass;
+        admission.designation_status = "Locked";
+        await admission.save();
+        res.status(200).send({
           message: "Explore New Admission Designation Password",
           access: true,
           admission: admission?._id,
         });
+      } else {
+        res.status(200).send({
+          message: "Password Does'nt match",
+          access: false,
+          admission: admission?._id,
+        });
+      }
     } else {
       res.status(200).send({ message: "You lost in space", access: false });
     }

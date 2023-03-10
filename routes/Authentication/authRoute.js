@@ -121,4 +121,9 @@ router.post(
 //   catchAsync(Auth.retrieveInstituteDirectJoinQueryPayload)
 // );
 
+router.get(
+  "/logout/designation",
+  catchAsync(Auth.renderLogoutDesignationQuery)
+);
+
 module.exports = router;

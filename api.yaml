@@ -24112,6 +24112,15 @@ paths:
           required: true
           type: string
           description: Enter for Finance ("Finance_Login") || for Admission ("Admission_Login")
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              old_pass:
+                type: string
+                description: Enter Old Password
+                required: true
       responses:
         "200":
           description: OK
@@ -24142,6 +24151,251 @@ paths:
               flowId:
                 type: string
                 description: Enter for Finance place finance Id || for Admission place Admission Id
+                required: true
+      responses:
+        "200":
+          description: OK
+
+
+# Alumini
+
+  /api/v1/alumini/ins/{id}/staff/{sid}:
+    post:
+      tags:
+        - Alumini Query
+      summary: Activate Alumini Module By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This Institute ID
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This Staff ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              alumini_passage:
+                type: string
+                description: Enter Alumini Passage || About
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/alumini/{aid}/dashboard/query:
+    get:
+      tags:
+        - Alumini Query
+      summary: One Alumini Details Module By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This Alumini ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/alumini/{aid}/new/register:
+    post:
+      tags:
+        - Alumini Query
+      summary: New Register Form At Alumini Module (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This Alumini ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                description: Enter Email
+                required: true
+              name:
+                type: string
+                description: Enter Name
+                required: true
+              phone_number:
+                type: string
+                description: Enter Phone Number
+                required: true
+              graduation_department:
+                type: string
+                description: Enter Graduation Department
+                required: true
+              pass_year:
+                type: string
+                description: Enter Pass Year
+                required: true
+              job_status:
+                type: string
+                description: Enter Job Status
+                required: true
+              company_name:
+                type: string
+                description: Enter Company Name
+                required: true
+              company_location:
+                type: string
+                description: Enter Company Location
+                required: true
+              higher_study:
+                type: string
+                description: Enter Higher Study
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/alumini/{aid}/all/registration/array:
+    get:
+      tags:
+        - Alumini Query
+      summary: One Alumini All Registration Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This Alumini ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: status
+          required: true
+          type: string
+          description: Enter Status ("Not Given" || "Given")
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/alumini/{rid}/give/certificate:
+    patch:
+      tags:
+        - Alumini Query
+      summary: One Alumini Give Certificate By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: This Alumini Registration Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/alumini/{aid}/all/prominent/array:
+    get:
+      tags:
+        - Alumini Query
+      summary: One Alumini All Prominent Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This Alumini ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/alumini/{aid}/new/prominent/query:
+    post:
+      tags:
+        - Alumini Query
+      summary: New Success Story Form At Alumini Module (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This Alumini ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              profile_photo:
+                type: string
+                description: Enter Pic
+                required: true
+              name:
+                type: string
+                description: Enter Name
+                required: true
+              batch:
+                type: string
+                description: Enter Batch Name
+                required: true
+              department:
+                type: string
+                description: Enter Department Id
+                required: true
+              company_name:
+                type: string
+                description: Enter Company Name
+                required: true
+              job_profile:
+                type: string
+                description: Enter Job Profile
                 required: true
       responses:
         "200":

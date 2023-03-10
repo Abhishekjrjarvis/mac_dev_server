@@ -249,6 +249,12 @@ const staffSchema = new mongoose.Schema({
       ref: "EventManager",
     },
   ],
+  aluminiDepartment: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Alumini",
+    },
+  ],
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

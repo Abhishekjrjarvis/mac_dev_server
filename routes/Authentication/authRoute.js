@@ -105,4 +105,25 @@ router.post(
 
 router.get("/select/account", catchAsync(Auth.renderSelectAccountQuery));
 
+router.patch(
+  "/reset/new/password/:faid",
+  catchAsync(Auth.renderFinanceAdmissionNewPassQuery)
+);
+
+router.post(
+  "/login/designation",
+  isLimit,
+  catchAsync(Auth.renderFinanceAdmissionDesignationLoginQuery)
+);
+
+// router.post(
+//   "/direct/institute/join/student/:id/class/:cid/payload",
+//   catchAsync(Auth.retrieveInstituteDirectJoinQueryPayload)
+// );
+
+router.get(
+  "/logout/designation",
+  catchAsync(Auth.renderLogoutDesignationQuery)
+);
+
 module.exports = router;

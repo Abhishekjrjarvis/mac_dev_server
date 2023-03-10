@@ -1,66 +1,55 @@
 exports.dateTimeComparison = (first, second) => {
-  const newFor = `${first.substr(1, 4)}-${first.substr(6, 2)}-${first.substr(
-    9,
-    2
-  )}`;
-  const argDate1 = new Date(newFor);
-  const argDate2 = new Date(
-    `${second.substr(6, 4)}-${second.substr(3, 2)}-${second.substr(0, 2)}`
-  );
-  const newTime1 = first?.substr(12, 8);
-  const newTime2 = second?.substr(11, 11);
-  let secondTime2 = "";
-  if (newTime2?.includes("Pm")) {
-    const splitValue = newTime2?.split(":");
-    splitValue[0] = +splitValue[0] + 12;
-    secondTime2 = `${splitValue[0]}:${splitValue[1]}:00`;
-  }
-  const argTime1 = new Date(`2022-03-25 ${newTime1}`);
-  const argTime2 = new Date(`2022-03-25 ${secondTime2}`);
-  if (argDate1.getTime() === argDate2.getTime()) {
-    if (argTime1.getTime() >= argTime2.getTime()) {
-      return true;
-    } else {
-      return false;
-    }
-  } else {
-    return false;
-  }
+  const year = +first.substr(1, 4) === +second.substr(6, 4);
+  const yearGreater = +first.substr(1, 4) > +second.substr(6, 4);
+  const month = +first.substr(6, 2) === +second.substr(3, 2);
+  const monthGreate = +first.substr(6, 2) > +second.substr(3, 2);
+  const day = +first.substr(9, 2) === +second.substr(0, 2);
+  const dayGreater = +first.substr(9, 2) > +second.substr(0, 2);
+  const hour = +first.substr(12, 2) === +second.substr(11, 2);
+  const hourGreater = +first.substr(12, 2) > +second.substr(11, 2);
+  const minute = +first.substr(15, 2) === +second.substr(14, 2);
+  const minuteGreater = +first.substr(15, 2) > +second.substr(14, 2);
+  const secondTime = +first.substr(18, 2) === +second.substr(17, 2);
+  const secondTimeGreater = +first.substr(18, 2) > +second.substr(17, 2);
+
+  if (yearGreater) return true;
+  else if (year)
+    if (monthGreate) return true;
+    else if (month)
+      if (dayGreater) return true;
+      else if (day)
+        if (hourGreater) return true;
+        else if (hour)
+          if (minuteGreater) return true;
+          else if (minute)
+            if (secondTimeGreater) return true;
+            else if (secondTime) return true;
+            else return false;
+          else return false;
+        else return false;
+      else return false;
+    else return false;
+  else return false;
 };
+
 exports.timeComparison = (first, second) => {
-  let first1 = "";
-  let second1 = "";
-  if (second?.includes("Pm")) {
-    const splitValue = second?.split(":");
-    splitValue[0] = +splitValue[0] + 12;
-    second1 = `${splitValue[0]}:${splitValue[1]}:00`;
-  }
-  // console.log(first, second);
-  first1 = first?.substring(12, 20);
-  if (first1 > second1) {
-    return true;
-  } else {
-    return false;
-  }
-  // console.log(second.substr(second?.length - 2));
-  // if (second.substr(second?.length - 2) ===currentT.substr(second?.length - 2) === "Pm") {
-  // } else {
-  // }
-  // const hour = +first.substr(12, 2) === +second.substr(0, 2);
-  // const hourGreater = +first.substr(12, 2) > +second.substr(0, 2);
-  // const minute = +first.substr(15, 2) === +second.substr(3, 2);
-  // const minuteGreater = +first.substr(15, 2) > +second.substr(3, 2);
-  // const secondTime = +first.substr(18, 2) === +second.substr(6, 2);
-  // const secondTimeGreater = +first.substr(18, 2) > +second.substr(6, 2);
-  // if (hourGreater) return true;
-  // else if (hour)
-  //   if (minuteGreater) return true;
-  //   else if (minute)
-  //     if (secondTimeGreater) return true;
-  //     else if (secondTime) return true;
-  //     else return false;
-  //   else return false;
-  // else return false;
+  // console.log(first);
+  // console.log(second);
+  const hour = +first.substr(12, 2) === +second.substr(0, 2);
+  const hourGreater = +first.substr(12, 2) > +second.substr(0, 2);
+  const minute = +first.substr(15, 2) === +second.substr(3, 2);
+  const minuteGreater = +first.substr(15, 2) > +second.substr(3, 2);
+  const secondTime = +first.substr(18, 2) === +second.substr(6, 2);
+  const secondTimeGreater = +first.substr(18, 2) > +second.substr(6, 2);
+  if (hourGreater) return true;
+  else if (hour)
+    if (minuteGreater) return true;
+    else if (minute)
+      if (secondTimeGreater) return true;
+      else if (secondTime) return true;
+      else return false;
+    else return false;
+  else return false;
 };
 
 exports.todayDate = async () => {

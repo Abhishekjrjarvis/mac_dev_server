@@ -46,4 +46,10 @@ router.patch(
   catchAsync(Event.retrieveResultParticipateEventStudent)
 );
 
+router.patch(
+  "/one/:pid/apply/:sid/activity/:statusId",
+  // isLoggedIn,
+  catchAsync(Event.retrieveApplyParticipateEventStudent)
+);
+
 module.exports = router;

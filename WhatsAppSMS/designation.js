@@ -80,6 +80,14 @@ exports.dynamic_designation = (name, title, cTitle) => {
       extension: ".png",
       content: "SMS_Assests/transport-role.png",
     },
+    {
+      type: "EVENT_MANAGER",
+      e_text: "you got the designation of as Events / Seminar Administrator",
+      h_text: "आपको इवेंट्स / सेमिनार एडमिनिस्ट्रेटर का पदनाम मिला है",
+      m_text: "तुम्हाला इव्हेंट्स / सेमिनार प्रशासक म्हणून पद मिळाले आहे",
+      extension: ".png",
+      content: "SMS_Assests/event-manager-role.jpeg",
+    },
   ];
   return array;
 };

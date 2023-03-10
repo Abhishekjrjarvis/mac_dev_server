@@ -46,5 +46,17 @@ router.get(
   catchAsync(Filter.retrieveApproveCatalogArrayFilter)
 );
 
+router.patch(
+  "/pending/fee/:aid",
+  // isLoggedIn,
+  catchAsync(Filter.retrievePendingFeeFilter)
+);
+
+router.patch(
+  "/update",
+  // isLoggedIn,
+  catchAsync(Filter.renderUpdate)
+);
+
 // router.get('/filter/by/date/funds',isLoggedIn, catchAsync(Filter.filterByDateFunds))
 module.exports = router;

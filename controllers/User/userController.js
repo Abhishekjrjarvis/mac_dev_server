@@ -1356,7 +1356,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
     if (isApk) {
       var staff = await Staff.findById({ _id: sid })
         .select(
-          "staffFirstName staffDesignationCount vehicle_category staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber"
+          "staffFirstName staffDesignationCount vehicle_category admissionModeratorDepartment staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber eventManagerDepartment"
         )
         .populate({
           path: "staffDepartment",
@@ -1396,7 +1396,8 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "financeDepartment",
-          select: "financeName financeEmail financePhoneNumber",
+          select:
+            "financeName financeEmail financePhoneNumber designation_status designation_password",
           populate: {
             path: "financeHead",
             select: "staffFirstName staffMiddleName staffLastName",
@@ -1404,7 +1405,8 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "financeDepartment",
-          select: "financeName financeEmail financePhoneNumber",
+          select:
+            "financeName financeEmail financePhoneNumber designation_status designation_password",
           populate: {
             path: "institute",
             select: "financeStatus",
@@ -1413,7 +1415,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         .populate({
           path: "admissionDepartment",
           select:
-            "admissionAdminEmail admissionAdminPhoneNumber admissionAdminAbout",
+            "admissionAdminEmail admissionAdminPhoneNumber admissionAdminAbout designation_status designation_password",
           populate: {
             path: "admissionAdminHead",
             select:
@@ -1460,6 +1462,10 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
             select:
               "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
           },
+        })
+        .populate({
+          path: "aluminiDepartment",
+          select: "_id",
         })
         .lean()
         .exec();
@@ -1502,7 +1508,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
     } else {
       var staff = await Staff.findById({ _id: sid })
         .select(
-          "staffFirstName staffDesignationCount vehicle_category staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber"
+          "staffFirstName staffDesignationCount vehicle_category admissionModeratorDepartment staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber eventManagerDepartment"
         )
         .populate({
           path: "staffDepartment",
@@ -1542,7 +1548,8 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "financeDepartment",
-          select: "financeName financeEmail financePhoneNumber",
+          select:
+            "financeName financeEmail financePhoneNumber designation_status designation_password",
           populate: {
             path: "financeHead",
             select: "staffFirstName staffMiddleName staffLastName",
@@ -1550,7 +1557,8 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "financeDepartment",
-          select: "financeName financeEmail financePhoneNumber",
+          select:
+            "financeName financeEmail financePhoneNumber designation_status designation_password",
           populate: {
             path: "institute",
             select: "financeStatus",
@@ -1559,7 +1567,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         .populate({
           path: "admissionDepartment",
           select:
-            "admissionAdminEmail admissionAdminPhoneNumber admissionAdminAbout",
+            "admissionAdminEmail admissionAdminPhoneNumber admissionAdminAbout designation_status designation_password",
           populate: {
             path: "admissionAdminHead",
             select:
@@ -1607,6 +1615,10 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
               "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
           },
         })
+        .populate({
+          path: "aluminiDepartment",
+          select: "_id",
+        })
         .lean()
         .exec();
     }
@@ -1643,7 +1655,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
       if (isApk) {
         var student = await Student.findById({ _id: sid })
           .select(
-            "batchCount extraPoints studentFirstName library studentBankAccountHolderName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO student_prn_enroll_number"
+            "batchCount extraPoints studentFirstName library studentBankAccountHolderName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName department studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
           )
           .populate({
             path: "studentClass",
@@ -1704,7 +1716,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
       } else {
         var student = await Student.findById({ _id: sid })
           .select(
-            "batchCount extraPoints studentFirstName studentBankAccountHolderName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO student_prn_enroll_number"
+            "batchCount extraPoints studentFirstName studentBankAccountHolderName department studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
           )
           .populate({
             path: "studentClass",

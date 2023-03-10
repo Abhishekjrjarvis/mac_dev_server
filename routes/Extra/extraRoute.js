@@ -3,6 +3,8 @@ const router = express.Router();
 const Extra = require("../../controllers/Extra/extraController");
 const catchAsync = require("../../Utilities/catchAsync");
 const { isLoggedIn } = require("../../middleware");
+const multer = require("multer");
+const upload = multer({ dest: "uploads/" });
 
 router.patch("/age/:uid", isLoggedIn, catchAsync(Extra.validateUserAge));
 
@@ -176,6 +178,30 @@ router.get(
   "/:uid/active/member/role",
   // isLoggedIn,
   catchAsync(Extra.retrieveActiveMemberRole)
+);
+
+router.patch(
+  "/excel/to/json/query/:cid",
+  // isLoggedIn,
+  catchAsync(Extra.renderExcelToJSONQuery)
+);
+
+router.patch(
+  "/excel/to/json/query/fee/category/:fid",
+  // isLoggedIn,
+  catchAsync(Extra.renderExcelToJSONFinanceQuery)
+);
+
+router.patch(
+  "/excel/to/json/query/fee/head/master/:fid",
+  // isLoggedIn,
+  catchAsync(Extra.renderExcelToJSONFinanceHeadMasterQuery)
+);
+
+router.patch(
+  "/excel/to/json/:did/query/fee/structure/:fid",
+  // isLoggedIn,
+  catchAsync(Extra.renderExcelToJSONFinanceStructureQuery)
 );
 
 module.exports = router;

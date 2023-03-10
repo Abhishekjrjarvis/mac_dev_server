@@ -6,6 +6,7 @@ const User = require("../../models/User");
 const Department = require("../../models/Department");
 const Class = require("../../models/Class");
 const Finance = require("../../models/Finance");
+const EventManager = require("../../models/Event/eventManager");
 const ELearning = require("../../models/ELearning");
 const Library = require("../../models/Library/Library");
 const Admission = require("../../models/Admission/Admission");
@@ -24,6 +25,8 @@ const SportTeam = require("../../models/SportTeam");
 const SportClass = require("../../models/SportClass");
 const Transport = require("../../models/Transport/transport");
 const Vehicle = require("../../models/Transport/vehicle");
+const LandingCareer = require("../../models/LandingModel/Career/landingCareer");
+const LandingTender = require("../../models/LandingModel/Tender/landingTender");
 
 const {
   getFileStream,
@@ -608,6 +611,63 @@ exports.patchTransportImageCover = async (req, res) => {
     await trans.save();
     await unlinkFile(file.path);
     res.status(201).send({ message: "updated photo" });
+  } catch (err) {
+    console.log(err.message);
+  }
+};
+
+exports.patchEventManagerImageCover = async (req, res) => {
+  try {
+    const { eid } = req.params;
+    const event = await EventManager.findById({ _id: eid });
+    if (event.event_photo) await deleteFile(event.event_photo);
+    const width = 375;
+    const height = 245;
+    const file = req.file;
+    const results = await uploadFile(file, width, height);
+    event.event_photo = results.key;
+    event.photoId = "0";
+    await event.save();
+    await unlinkFile(file.path);
+    res.status(201).send({ message: "updated photo" });
+  } catch (err) {
+    console.log(err.message);
+  }
+};
+
+exports.patchLandingCareerImageCover = async (req, res) => {
+  try {
+    const { lcid } = req.params;
+    const career = await LandingCareer.findById({ _id: lcid });
+    if (career.career_photo) await deleteFile(career.career_photo);
+    const width = 375;
+    const height = 245;
+    const file = req.file;
+    const results = await uploadFile(file, width, height);
+    career.career_photo = results.key;
+    career.photoId = "0";
+    await career.save();
+    await unlinkFile(file.path);
+    res.status(200).send({ message: "Explore New Landing Career photo" });
+  } catch (err) {
+    console.log(err.message);
+  }
+};
+
+exports.patchLandingTenderImageCover = async (req, res) => {
+  try {
+    const { ltid } = req.params;
+    const tender = await LandingTender.findById({ _id: ltid });
+    if (tender.tender_photo) await deleteFile(tender.tender_photo);
+    const width = 375;
+    const height = 245;
+    const file = req.file;
+    const results = await uploadFile(file, width, height);
+    tender.tender_photo = results.key;
+    tender.photoId = "0";
+    await tender.save();
+    await unlinkFile(file.path);
+    res.status(200).send({ message: "Explore New Landing Tender photo" });
   } catch (err) {
     console.log(err.message);
   }

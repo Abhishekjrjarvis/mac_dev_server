@@ -116,6 +116,6 @@ router.patch(
   catchAsync(Post.renderEditPostQuery)
 );
 
-router.get("/:pid/query", isLoggedIn, catchAsync(Post.renderOnePostQuery));
+router.get("/:pid/query", catchAsync(Post.renderOnePostQuery));
 
 module.exports = router;

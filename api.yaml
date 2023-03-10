@@ -7424,6 +7424,84 @@ paths:
         "200":
           description: OK
 
+  /api/v1/all-images/{eid}/event/manager/cover:
+    patch:
+      tags:
+        - To get All Images, Videos and Documents
+      summary:
+        - To upload Event Manager cover photo
+      consumes:
+        - application/json
+      produces:
+        - application/json'
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          schema:
+            type: string
+          description: This is Event Manager Module ID
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your image with images extenstion
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/all-images/{lcid}/landing/career/cover:
+    patch:
+      tags:
+        - To get All Images, Videos and Documents
+      summary:
+        - To upload Landing Career cover photo
+      consumes:
+        - application/json
+      produces:
+        - application/json'
+      parameters:
+        - in: path
+          name: lcid
+          required: true
+          schema:
+            type: string
+          description: This is Landing Career Module ID
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your image with images extenstion
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/all-images/{ltid}/landing/tender/cover:
+    patch:
+      tags:
+        - To get All Images, Videos and Documents
+      summary:
+        - To upload Landing Tender cover photo
+      consumes:
+        - application/json
+      produces:
+        - application/json'
+      parameters:
+        - in: path
+          name: ltid
+          required: true
+          schema:
+            type: string
+          description: This is Landing Tender Module ID
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your image with images extenstion
+      responses:
+        "200":
+          description: OK
+
 
   /api/v1/all/todevice/token:
     post:
@@ -11522,6 +11600,11 @@ paths:
           schema:
             type: integer
           description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: search
+          schema:
+            type: integer
+          description: The query which you want to search
       responses:
         "200":
           description: OK
@@ -14815,6 +14898,11 @@ paths:
           required: true
           type: string
           description: This is Admission id 
+        - in: path
+          name: mod_id
+          required: true
+          type: string
+          description: This is Moderator id 
       responses:
         "200":
           description: OK
@@ -15232,6 +15320,74 @@ paths:
       tags:
         - Admission Admin Module Query
       summary: Get All Confirmed Application (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: This is page count
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: This is limit count 
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: This Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/allotted/application:
+    get:
+      tags:
+        - Admission Admin Module Query
+      summary: Get All Allotted Application (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: This is page count
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: This is limit count 
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: This Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/cancelled/application:
+    get:
+      tags:
+        - Admission Admin Module Query
+      summary: Get All Cancelled Application (verified)
       consumes:
         - application/json
       produces:
@@ -16420,8 +16576,6 @@ paths:
       responses:
         "200":
           description: OK
-
-
 
 
 # Recommendation API
@@ -18144,6 +18298,36 @@ paths:
         "200":
           description: OK
 
+
+  /api/v1/participate/event/one/{pid}/apply/{sid}/activity/{statusId}:
+    patch:
+      tags:
+        - Participate Event Query
+      summary: Apply By Student (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          type: string
+          description: Enter Participate Event Id
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Student Id
+        - in: path
+          name: statusId
+          required: true
+          type: string
+          description: Enter Student Notification Id
+      responses:
+        "200":
+          description: OK
+
   /api/v1/participate/event/one/{pid}/result:
     patch:
       tags:
@@ -18442,6 +18626,30 @@ paths:
       tags:
         - Edit Admins
       summary: Update Transport Admins (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: osid
+          required: true
+          type: string
+          description: Enter Old staff id
+        - in: query
+          name: nsid
+          required: true
+          type: string
+          description: Enter New staff id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/edit/staff/event/manager/staff/{osid}:
+    patch:
+      tags:
+        - Edit Admins
+      summary: Update Event Manager Admins (verified)
       consumes:
         - application/json
       produces:
@@ -19123,6 +19331,9 @@ paths:
               rid:
                 type: string
                 description: Enter Route Id
+              amount:
+                type: number
+                description: Enter Remain Fees
       responses:
         "200":
           description: OK
@@ -19530,6 +19741,30 @@ paths:
           required: true
           type: string
           description: Enter Route Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/transport/vehicle/{vid}/destroy/passenger/{sid}:
+    delete:
+      tags:
+        - Transport Module Query
+      summary: Delete One Passenger From vehicle  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: vid
+          required: true
+          type: string
+          description: This is Vehicle id 
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Student Id
       responses:
         "200":
           description: OK
@@ -20490,9 +20725,9 @@ paths:
                 type: string
                 description: Enter Staff Id
                 required: true 
-              appId:
-                type: string
-                description: Enter App Id
+              app_array:
+                type: array
+                description: Enter Array of Application Id
                 required: true  
       responses:
         "200":
@@ -20523,11 +20758,16 @@ paths:
           required: true
           type: string
           description: Enter Limit
+        - in: query
+          name: search
+          required: true
+          type: string
+          description: Enter Search Query
       responses:
         "200":
           description: OK
 
-  /api/v1/role/permission/{aid}/update/app/mod/{mid}:
+  /api/v1/role/permission/update/app/mod/{mid}:
     patch:
       tags:
         - Moderator Role & Permission
@@ -20538,11 +20778,6 @@ paths:
         - application/json
       parameters:
         - in: path
-          name: aid
-          required: true
-          type: string
-          description: Enter Admission Id
-        - in: path
           name: mid
           required: true
           type: string
@@ -20552,30 +20787,18 @@ paths:
           schema:
             type: object
             properties:
-              mod_role:
+              role:
                 type: string
                 description: Enter Role as per given 
-                required: true
-              osid:
+                required: false
+              staffId:
                 type: string
-                description: Enter Old Staff Id
+                description: Enter Staff Id
                 required: true 
-              appId:
+              app_array:
                 type: string
-                description: Enter Old App Id
+                description: Enter Array of Application Id
                 required: true 
-              new_roles:
-                type: string
-                description: Enter New Role as per given 
-                required: false
-              new_staff:
-                type: string
-                description: Enter New Staff Id
-                required: false
-              new_apps:
-                type: string
-                description: Enter New App Id
-                required: false
       responses:
         "200":
           description: OK
@@ -20604,26 +20827,36 @@ paths:
         "200":
           description: OK
 
-  Same AS Admission Admin Get Admission Detail API:
+  /api/v1/role/permission/one/moderator/{mid}/all/apps:
     get:
       tags:
         - Moderator Role & Permission
-      summary: Old Admission Dashboard Info API pass sid in query for moderator role (verified)
+      summary: One Moderator Role All Applications (verified)
       consumes:
         - application/json
       produces:
         - application/json
       parameters:
         - in: path
-          name: aid
-          required: true
-          type: string
-          description: Enter Admission Id
-        - in: path
           name: mid
           required: true
           type: string
-          description: Enter One Moderator Id
+          description: Enter Moderator Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
       responses:
         "200":
           description: OK
@@ -20896,6 +21129,14 @@ paths:
               class_master:
                 type: string
                 description: Enter Class Master Id
+                required: true
+              structure_name:
+                type: string
+                description: Enter Structure Name
+                required: true
+              applicable_fees:
+                type: string
+                description: Enter Applicable Fees Fee Head are not greater than Applicable Fees
                 required: true
               due_date:
                 type: string
@@ -21817,6 +22058,40 @@ paths:
         "200":
           description: OK
 
+  /api/v1/admission/{aid}/refund/array:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: All Refund List - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: Enter Admission Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit Number
+        - in: query
+          name: search
+          required: true
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
   /api/v1/admission/{sid}/fees:
     get:
       tags:
@@ -21832,6 +22107,2410 @@ paths:
           required: true
           type: string
           description: This is Student ID 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/paid/government/grant/fee/{sid}/student/{appId}:
+    post:
+      tags:
+        - New Flow Finance + Admission
+      summary: Mark Government Grant Fee paid by Finance Manager + add body content (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
+        - in: path
+          name: appId
+          required: true
+          type: string
+          description: This is Application id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_payment_mode:
+                type: string
+                description: Enter Fee Mode ("Government/Scholarship")
+                required: false
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: false
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: false
+              fee_bank_name:
+                type: string
+                description: Enter Bank Name e.g SBI
+                required: false
+              fee_bank_holder:
+                type: string
+                description: Enter Bank Holder Name e.g Mithkal
+                required: false
+              fee_utr_reference:
+                type: string
+                description: Enter Fee Unique Transaction Reference Number (UTR)
+                required: false
+              amount:
+                type: number
+                description: Enter amount
+              mode:
+                type: string
+                description: Enter payment mode ("Online" | "Offline" | "Exempted")
+              type:
+                type: string
+                description: Enter Installment Value
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{rid}/remark/query:
+    patch:
+      tags:
+        - New Flow Finance + Admission
+      summary: Update Remark By Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: This is Remaining List Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              remark:
+                type: string
+                description: Enter remark
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{sid}/go/offline/receipt/{appId}:
+    patch:
+      tags:
+        - New Flow Finance + Admission
+      summary: Request for Offline Procedure (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student Id
+        - in: path
+          name: appId
+          required: true
+          type: string
+          description: This is Application Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_payment_type:
+                type: string
+                description: Enter payment Type (i.e installmentValue)
+                required: true
+              fee_payment_mode:
+                type: string
+                description: Enter payment Mode except "By Cash"
+                required: true
+              fee_payment_amount:
+                type: number
+                description: Enter payment Amount
+                required: true
+              transaction_date:
+                type: string
+                description: Enter Date ("2023-02-02")
+                required: true
+              fee_bank_name:
+                type: string
+                description: Enter Bank Name e.g SBI
+                required: false
+              fee_bank_holder:
+                type: string
+                description: Enter Bank Holder Name e.g Mithkal
+                required: false
+              fee_utr_reference:
+                type: string
+                description: Enter Fee Unique Transaction Reference Number (UTR)
+                required: false
+              rid:
+                type: string
+                description: Enter Remaining List ID
+                required: true
+              raid:
+                type: string
+                description: Enter Remaining Array ID i.e coming from installmentValue Card
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/fee/structure/{fsid}/retro/delete:
+    delete:
+      tags:
+        - New Flow Finance + Admission
+      summary: Delete Fees Structure By Finance Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fsid
+          required: true
+          type: string
+          description: This is Fee Structure Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fcid}/fee/category/delete/query:
+    delete:
+      tags:
+        - New Flow Finance + Admission
+      summary: Delete Fees Category By Finance Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fcid
+          required: true
+          type: string
+          description: This is Fee Category Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/fee/master/new:
+    post:
+      tags:
+        - New Flow Finance + Admission
+      summary: New Master Head By Finance Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              master_name:
+                type: string
+                description: Enter Master Head Name
+                required: true
+              master_amount:
+                type: number
+                description: Enter Master Price
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/all/master/head/query:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: Get All Master Head By Finance Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: This is Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: This is Limit
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: This is Search Query
+      responses:
+        "200":
+          description: OK
+  
+  /api/v1/finance/fee/master/{fmid}/edit/query:
+    patch:
+      tags:
+        - New Flow Finance + Admission
+      summary: Edit Master Head By Finance Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fmid
+          required: true
+          type: string
+          description: This is Master Head Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              master_name:
+                type: string
+                description: Enter Master Head Name
+                required: true
+              master_amount:
+                type: number
+                description: Enter Master Price
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/finance/{fid}/fee/master/{fmid}/destroy/query:
+    delete:
+      tags:
+        - New Flow Finance + Admission
+      summary: Delete Master Head By Finance Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance Id
+        - in: path
+          name: fmid
+          required: true
+          type: string
+          description: This is Master Head ID
+      responses:
+        "200":
+          description: OK
+
+#Events & Seminars
+
+  /api/v1/event/process/ins/{id}/staff/{sid}/manager:
+    post:
+      tags:
+        - Event Manager Query
+      summary: Activate Event Manager / Administrator (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This Institute ID
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This Staff ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/event/process/manager/{eid}:
+    get:
+      tags:
+        - Event Manager Query
+      summary: Get Master Data from Event Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: This Event Manager Module ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/event/process/manager/{eid}/all/events:
+    get:
+      tags:
+        - Event Manager Query
+      summary: Get All Events from Event Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: This Event Manager Module ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit Number
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/event/process/manager/{eid}/all/seminars:
+    get:
+      tags:
+        - Event Manager Query
+      summary: Get All Seminars from Event Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: This Event Manager Module ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit Number
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/event/process/department/{did}/all/events:
+    get:
+      tags:
+        - Event Manager Query
+      summary: Get All Events from Department Side (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This Department Module ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit Number
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/event/process/department/{did}/all/seminars:
+    get:
+      tags:
+        - Event Manager Query
+      summary: Get All Seminars from Department Side (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This Department Module ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit Number
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/event/process/one/event/{evid}:
+    get:
+      tags:
+        - Event Manager Query
+      summary: Get One Event Details Query (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: evid
+          required: true
+          type: string
+          description: This Event ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/event/process/one/seminar/{smid}:
+    get:
+      tags:
+        - Event Manager Query
+      summary: Get One Seminar Details Query (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: smid
+          required: true
+          type: string
+          description: This Seminar ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/event/process/manager/{eid}/new/event:
+    post:
+      tags:
+        - Event Manager Query
+      summary: New Event By Event Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: This Event Manager Module ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              event_name:
+                type: string
+                description: Enter Event Name / Title
+                required: true
+              event_guest:
+                type: string
+                description: Enter Guest Optional
+                required: false
+              event_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: true
+              event_time:
+                type: string
+                description: Enter Time Like ("13:10")
+                required: true
+              event_place:
+                type: string
+                description: Enter Event Place / Location
+                required: false
+              event_description:
+                type: string
+                description: Enter Event Description
+                required: false
+              event_banner:
+                type: string
+                description: Enter Banner KEY
+                required: false
+              depart:
+                type: array
+                description: Enter Array of Department ID's ["823487328748", "987348973878"]
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/event/process/manager/{eid}/new/seminar:
+    post:
+      tags:
+        - Event Manager Query
+      summary: New Seminar By Event Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: This Event Manager Module ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              seminar_name:
+                type: string
+                description: Enter Event Name / Title
+                required: true
+              seminar_guest:
+                type: string
+                description: Enter Guest
+                required: true
+              seminar_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: true
+              seminar_time:
+                type: string
+                description: Enter Time Like ("13:10")
+                required: true
+              seminar_place:
+                type: string
+                description: Enter Seminar Place / Location if seminar mode is OFFLINE
+                required: false
+              seminar_joining_link:
+                type: string
+                description: Enter Seminar Joining LINK if seminar mode is Virtual / ONline
+                required: false
+              seminar_mode:
+                type: string
+                description: Enter Seminar Mode  ("Offline" || "Online" || "Virtual")
+                required: true
+              seminar_description:
+                type: string
+                description: Enter Seminar Description
+                required: false
+              seminar_banner:
+                type: string
+                description: Enter Banner KEY
+                required: false
+              depart:
+                type: array
+                description: Enter Array of Department ID's ["823487328748", "987348973878"]
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/event/process/one/event/{eid}/destroy:
+    delete:
+      tags:
+        - Event Manager Query
+      summary: Delete One Event By Event Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: This Event ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/event/process/one/seminar/{smid}/destroy:
+    delete:
+      tags:
+        - Event Manager Query
+      summary: Delete One Seminar By Event Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: smid
+          required: true
+          type: string
+          description: This Seminar ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/event/process/one/seminar/{smid}/edit:
+    patch:
+      tags:
+        - Event Manager Query
+      summary: Edit Seminar By Event Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: smid
+          required: true
+          type: string
+          description: This Seminar ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              seminar_name:
+                type: string
+                description: Enter Event Name / Title
+                required: true
+              seminar_guest:
+                type: string
+                description: Enter Guest
+                required: true
+              date:
+                type: string
+                description: Enter new Date Date Like ("2023-02-02")
+                required: false
+              time:
+                type: string
+                description: Enter new Time Time Like ("13:10")
+                required: false
+              seminar_place:
+                type: string
+                description: Enter Seminar Place / Location if seminar mode is OFFLINE
+                required: false
+              seminar_joining_link:
+                type: string
+                description: Enter Seminar Joining LINK if seminar mode is Virtual / ONline
+                required: false
+              seminar_mode:
+                type: string
+                description: Enter Seminar Mode  ("Offline" || "Online" || "Virtual")
+                required: true
+              seminar_description:
+                type: string
+                description: Enter Seminar Description
+                required: false
+              seminar_banner:
+                type: string
+                description: Enter new Banner KEY
+                required: false
+              delete_pic:
+                type: string
+                description: Enter old Banner KEY
+                required: false
+              deletedepart:
+                type: array
+                description: Enter Array of old remove / unselect Department ID's ["823487328748", "987348973878"]
+                required: false
+              new_depart:
+                type: array
+                description: Enter Array of new add Department ID's ["823487328748", "987348973878"]
+                required: false
+      responses:
+        "200":
+          description: OK
+        
+  /api/v1/event/process/one/event/{eid}/edit:
+    patch:
+      tags:
+        - Event Manager Query
+      summary: Edit Event By Event Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: This Event ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              event_name:
+                type: string
+                description: Enter Event Name / Title
+                required: true
+              event_guest:
+                type: string
+                description: Enter Guest
+                required: true
+              date:
+                type: string
+                description: Enter new Date Date Like ("2023-02-02")
+                required: false
+              time:
+                type: string
+                description: Enter new Time Time Like ("13:10")
+                required: false
+              event_place:
+                type: string
+                description: Enter Event Place / Location
+                required: false
+              event_description:
+                type: string
+                description: Enter Event Description
+                required: false
+              event_banner:
+                type: string
+                description: Enter new Banner KEY
+                required: false
+              delete_pic:
+                type: string
+                description: Enter old Banner KEY
+                required: false
+              deletedepart:
+                type: array
+                description: Enter Array of old remove / unselect Department ID's ["823487328748", "987348973878"]
+                required: false
+              new_depart:
+                type: array
+                description: Enter Array of new add Department ID's ["823487328748", "987348973878"]
+                required: false
+      responses:
+        "200":
+          description: OK
+
+
+#Upload Excel and Process Data
+
+  /api/v1/extra/excel/to/json/query/{cid}:
+    patch:
+      tags:
+        - Process Excel + Database Processing
+      summary: Upload One Excel File To Directly Current Class (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This Class ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              excel_file:
+                type: string
+                description: Enter Key here
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/extra/excel/to/json/query/fee/category/{fid}:
+    patch:
+      tags:
+        - Process Excel + Database Processing
+      summary: Upload One Excel File for Fee Category To Directly Finance Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This Finance ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              excel_file:
+                type: string
+                description: Enter Key here
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/extra/excel/to/json/query/fee/head/master/{fid}:
+    patch:
+      tags:
+        - Process Excel + Database Processing
+      summary: Upload One Excel File for Fee Head Master To Directly Finance Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This Finance ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              excel_file:
+                type: string
+                description: Enter Key here
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/all/export/excel/array:
+    get:
+      tags:
+        - Process Excel + Database Processing
+      summary: All Exported Excel Downloadable File (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This Admission ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/export/excel/{exid}/edit:
+    patch:
+      tags:
+        - Process Excel + Database Processing
+      summary: Edit One Exported Excel Downloadable File (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: exid
+          required: true
+          type: string
+          description: This Export Excel ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              excel_file_name:
+                type: string
+                description: Enter Name Here
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/export/excel/{exid}/destroy/query:
+    delete:
+      tags:
+        - Process Excel + Database Processing
+      summary: Delete One Exported Excel Downloadable File By Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This Admission ID
+        - in: path
+          name: exid
+          required: true
+          type: string
+          description: This Export Excel ID
+      responses:
+        "200":
+          description: OK
+
+# New Filter
+
+  /api/v1/feed/filter/pending/fee/{aid}:
+    patch:
+      tags:
+        - New Custom Filter
+      summary: Get All Filtered Student Pending Fees (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission ID
+        - in: query
+          name: gender
+          required: false
+          type: string
+          description: This is Gender ("Male" || "Female" || "Other")
+        - in: query
+          name: category
+          required: false
+          type: string
+          description: This is Cast Category 
+        - in: query
+          name: is_all
+          required: false
+          type: string
+          description: This is ("false" || "true")
+        - in: query
+          name: all_depart
+          required: false
+          type: string
+          description: This is All Department ("All" || "Particular")
+        - in: query
+          name: batch_status
+          required: false
+          type: string
+          description: This is ("All" || "Current")
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              depart:
+                type: string
+                description: Enter Department ID if all_depart is "Particular"
+                required: true
+              batch:
+                type: string
+                description: Enter Batch ID if all_depart is "Particular"
+                required: true
+              master:
+                type: string
+                description: Enter Array of Object ID's if all_depart is "Particular"
+                required: false
+              fee_struct:
+                type: string
+                description: Enter Fee Category ID
+                required: false
+      responses:
+        "200":
+          description: OK
+
+
+#Landing Career
+
+  /api/v1/landing/ins/{id}/activate:
+    post:
+      tags:
+        - Landing Career Page Query
+      summary: Activate Career Module By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This Institute Admin ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/career/{lcid}:
+    get:
+      tags:
+        - Landing Career Page Query
+      summary: One Career Module Details By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lcid
+          required: true
+          type: string
+          description: This Landing Career Module ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/career/{lcid}/new/vacancy:
+    post:
+      tags:
+        - Landing Career Page Query
+      summary: New Vacancies Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lcid
+          required: true
+          type: string
+          description: This Landing Career Module ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              vacancy_job_type:
+                type: string
+                description: Enter Vacancy JOB Type ("Administrative Job" || "Teaching Job" || "Other")
+                required: true
+              vacancy_position:
+                type: string
+                description: Enter Vacancy Position
+                required: true
+              vacancy_package:
+                type: number
+                description: Enter Vacancy Package
+                required: false
+              vacancy_about:
+                type: string
+                description: Enter Vacancy Description
+                required: false
+              vacancy_banner:
+                type: string
+                description: Enter Vacancy Banner Key
+                required: false
+              department:
+                type: string
+                description: Enter Department Id
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/career/{lcid}/all/vacancy:
+    get:
+      tags:
+        - Landing Career Page Query
+      summary: All Career Module Vacancies Details By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lcid
+          required: true
+          type: string
+          description: This Landing Career Module ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: status
+          required: true
+          type: string
+          description: Enter Status ("Ongoing" || "Completed")
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/vacancy/{vid}/status:
+    patch:
+      tags:
+        - Landing Career Page Query
+      summary: Mark One Vacancies Completed By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: vid
+          required: true
+          type: string
+          description: This Vacancy ID
+      responses:
+        "200":
+          description: OK
+  
+  /api/v1/landing/one/vacancy/{vid}/query:
+    get:
+      tags:
+        - Landing Career Page Query
+      summary: One Vacancies (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: vid
+          required: true
+          type: string
+          description: This Vacancy ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/vacancy/{vid}/apply:
+    patch:
+      tags:
+        - Landing Career Page Query
+      summary: Apply On Vacancies Completed By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: vid
+          required: true
+          type: string
+          description: This Vacancy ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              endUserName:
+                type: string
+                description: Enter name here
+                required: true
+              endUserEmail:
+                type: string
+                description: Enter email here
+                required: true
+              endUserPhoneNumber:
+                type: string
+                description: Enter Phone Number
+                required: true
+              endUserAddress:
+                type: string
+                description: Enter address here
+                required: true
+              endUserResume:
+                type: string
+                description: Enter Resume Key
+                required: true
+              endUserDOB:
+                type: string
+                description: Enter DOB here
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/vacancy/{vid}/all/applications:
+    get:
+      tags:
+        - Landing Career Page Query
+      summary: All Applications By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: vid
+          required: true
+          type: string
+          description: This Vacancy Module ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: search
+          required: true
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/app/schedule/{acid}:
+    patch:
+      tags:
+        - Landing Career Page Query
+      summary: One Application Schedule By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: acid
+          required: true
+          type: string
+          description: This Applicant Candidate ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              interview_type:
+                type: string
+                description: Enter Type ("Virtual Interview" || "In Person Interview")
+                required: true
+              interview_date:
+                type: string
+                description: Enter date ("2023-02-02")
+                required: true
+              interview_time:
+                type: string
+                description: Enter Time ("18:10")
+                required: true
+              interview_link:
+                type: string
+                description: Enter Link if (type is "Virtual")
+                required: false
+              interview_place:
+                type: string
+                description: Enter place here (if type is "In Person")
+                required: false
+              interview_guidelines:
+                type: string
+                description: Enter Guide Line
+                required: false
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/vacancy/{vid}/destroy:
+    delete:
+      tags:
+        - Landing Career Page Query
+      summary: Delete One Vacancy By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: vid
+          required: true
+          type: string
+          description: This Vacancy Module ID
+      responses:
+        "200":
+          description: OK
+
+
+# Landing Tender
+
+  /api/v1/landing/ins/{id}/activate/tender:
+    post:
+      tags:
+        - Landing Tender Page Query
+      summary: Activate Tender Module By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This Institute Admin ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/landing/tender/{ltid}:
+    get:
+      tags:
+        - Landing Tender Page Query
+      summary: One Landing Tender Module Details By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: ltid
+          required: true
+          type: string
+          description: This Landing Tender Module ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/{ltid}/new/tender:
+    post:
+      tags:
+        - Landing Tender Page Query
+      summary: New Tender Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: ltid
+          required: true
+          type: string
+          description: This Landing Tender Module ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              tender_requirement:
+                type: string
+                description: Enter Tender Requirement
+                required: true
+              tender_budget:
+                type: number
+                description: Enter Tender Budget
+                required: false
+              tender_about:
+                type: string
+                description: Enter Tender Description
+                required: false
+              tender_order:
+                type: string
+                description: Enter Tender Order Key
+                required: false
+              department:
+                type: string
+                description: Enter Department Id
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/{ltid}/all/tender:
+    get:
+      tags:
+        - Landing Tender Page Query
+      summary: All Landing Tender Module Tenders Details By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: ltid
+          required: true
+          type: string
+          description: This Landing Tender Module ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: status
+          required: true
+          type: string
+          description: Enter Status ("Open" || "Closed")
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/tender/{tid}/status:
+    patch:
+      tags:
+        - Landing Tender Page Query
+      summary: Mark One Tender Closed By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This Tender ID
+      responses:
+        "200":
+          description: OK
+  
+  /api/v1/landing/one/tender/{tid}/query:
+    get:
+      tags:
+        - Landing Tender Page Query
+      summary: One Tender (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This Tender ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/tender/{tid}/apply/bid:
+    patch:
+      tags:
+        - Landing Tender Page Query
+      summary: Bid On Tender Completed By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This Tender ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              bidder_name:
+                type: string
+                description: Enter name here
+                required: true
+              bidder_email:
+                type: string
+                description: Enter email here
+                required: true
+              bidder_phone_number:
+                type: string
+                description: Enter Phone Number
+                required: true
+              bidder_address:
+                type: string
+                description: Enter address here
+                required: true
+              bidder_quotation:
+                type: string
+                description: Enter Quotation Key
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/tender/{tid}/all/bidder:
+    get:
+      tags:
+        - Landing Tender Page Query
+      summary: All Bidder By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This Tender Module ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/one/tender/{tid}/bid/offer/{bid}:
+    patch:
+      tags:
+        - Landing Tender Page Query
+      summary: One Bidder Offer  By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This Tender ID
+        - in: path
+          name: bid
+          required: true
+          type: string
+          description: This Bidder ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              offer_price:
+                type: number
+                description: Enter Offer Price
+                required: true
+              order_detail:
+                type: string
+                description: Enter Order Details
+                required: false
+              purchase_order:
+                type: string
+                description: Enter Purchase Order
+                required: false
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/landing/one/tender/{tid}/destroy:
+    delete:
+      tags:
+        - Landing Tender Page Query
+      summary: Delete One Tender By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: tid
+          required: true
+          type: string
+          description: This Tender Module ID
+      responses:
+        "200":
+          description: OK
+
+
+#Landing Page Toggle
+  /api/v1/landing/{id}/website/looks:
+    patch:
+      tags:
+        - Landing Page Addons Query
+      summary: Update Web site Looks By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This Institute Admin ID 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              website_looks:
+                type: object
+                properties:
+                  logo:
+                    type: string
+                    description: Enter Your Logo Here...
+                    required: false
+                  background_image:
+                    type: string
+                    description: Enter Background Image Here...
+                    required: false
+                  vision:
+                    type: string
+                    description: Enter Institute Vision here...
+                    required: false
+                  mission:
+                    type: string
+                    description: Enter Institute Mission Here...
+                    required: false
+                  about:
+                    type: string
+                    description: Enter Institute About here
+                    required: false
+                  color:
+                    type: string
+                    description: Enter Selected Color Here...
+                    required: false
+                  leading_person:
+                    type: string
+                    description: Enter Institute Leading Person User Id
+                    required: false
+                  leading_person_position: 
+                    type: string
+                    description: Enter Institute Leading Person Position here...
+                    required: false
+                  leading_person_message: 
+                    type: string
+                    description: Enter Institute Leading Person Message here...
+                    required: false
+                  linkedin_link: 
+                    type: string
+                    description: Enter Social Media Linkedin Profile Link
+                    required: false
+                  instagram_link: 
+                    type: string
+                    description: Enter Social Media Instagram Profile Link
+                    required: false
+                  twitter_link: 
+                    type: string
+                    description: Enter Social Media Twitter Profile Link
+                    required: false
+                  qviple_link:
+                    type: string
+                    description: Enter Social Media Qviple Profile Link
+                    required: false
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/{id}/website/active/tabs:
+    patch:
+      tags:
+        - Landing Page Addons Query
+      summary: Update Web Active Tabs By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This Institute Admin ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              website_active_tab:
+                type: object
+                properties:
+                  home:
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  about:
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  department:
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  contact_us:
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  admission:
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  library:
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  announcements:
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  events: 
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  tender: 
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  career: 
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  alumini: 
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  tpo_cell: 
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  rnd_cell:
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  timetable:
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  student_projects:
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+                  student_articles:
+                    type: boolean
+                    description: Select true of false for Toggle
+                    required: false
+      responses:
+        "200":
+          description: OK
+
+  # /api/v1/landing/{id}/website/contacts:
+  #   patch:
+  #     tags:
+  #       - Landing Page Addons Query
+  #     summary: Update Web Contacts By Institute Admin (verified)
+  #     consumes:
+  #       - application/json
+  #     produces:
+  #       - application/json
+  #     parameters:
+  #       - in: path
+  #         name: id
+  #         required: true
+  #         type: string
+  #         description: This Institute Admin ID
+  #       - in : body
+  #         name: body
+  #         schema:
+  #           type: object
+  #           properties:
+  #             website_active_tab:
+  #               type: object
+  #               properties:
+  #                 home:
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 about:
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 department:
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 contact_us:
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 admission:
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 library:
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 announcements:
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 events: 
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 tender: 
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 career: 
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 alumini: 
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 tpo_cell: 
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 rnd_cell:
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 timetable:
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 student_projects:
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #                 student_articles:
+  #                   type: boolean
+  #                   description: Select true of false for Toggle
+  #                   required: false
+  #     responses:
+  #       "200":
+  #         description: OK
+
+  /api/v1/landing/{id}/one/web/profile:
+    get:
+      tags:
+        - Landing Page Addons Query
+      summary: One Web Profile By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This Institute Admin ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/landing/{id}/update/career/tender/passage:
+    patch:
+      tags:
+        - Landing Page Addons Query
+      summary: One Web Profile Career || Tender Passage Refresh One Web Profile Get API By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This Institute Admin ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              career_passage:
+                type: string
+                description: Enter Career Passage if career
+                required: true
+              tender_passage:
+                type: string
+                description: Enter Tender Passage if Tender
+                required: true
+      responses:
+        "200":
+          description: OK
+
+# Designation Protection
+
+  /api/v1/auth/reset/new/password/{faid}:
+    patch:
+      tags:
+        - Designation Protection
+      summary: Reset || Forgot Password Pin for Admission || Finance (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: faid
+          required: true
+          type: string
+          description: This Finance || Admission ID
+        - in: query
+          name: flow
+          required: true
+          type: string
+          description: Enter for Finance ("Finance_Login") || for Admission ("Admission_Login")
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              old_pass:
+                type: string
+                description: Enter Old Password
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/auth/login/designation:
+    post:
+      tags:
+        - Designation Protection
+      summary: Designation Login for Admission || Finance (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              flow:
+                type: string
+                description: Enter for Finance ("Finance_Login") || for Admission ("Admission_Login")
+                required: true
+              protected_pin:
+                type: string
+                description: Enter Typed Password
+                required: true
+              flowId:
+                type: string
+                description: Enter for Finance place finance Id || for Admission place Admission Id
+                required: true
+      responses:
+        "200":
+          description: OK
+
+
+# Alumini
+
+  /api/v1/alumini/ins/{id}/staff/{sid}:
+    post:
+      tags:
+        - Alumini Query
+      summary: Activate Alumini Module By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This Institute ID
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This Staff ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              alumini_passage:
+                type: string
+                description: Enter Alumini Passage || About
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/alumini/{aid}/dashboard/query:
+    get:
+      tags:
+        - Alumini Query
+      summary: One Alumini Details Module By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This Alumini ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/alumini/{aid}/new/register:
+    post:
+      tags:
+        - Alumini Query
+      summary: New Register Form At Alumini Module (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This Alumini ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                description: Enter Email
+                required: true
+              name:
+                type: string
+                description: Enter Name
+                required: true
+              phone_number:
+                type: string
+                description: Enter Phone Number
+                required: true
+              graduation_department:
+                type: string
+                description: Enter Graduation Department
+                required: true
+              pass_year:
+                type: string
+                description: Enter Pass Year
+                required: true
+              job_status:
+                type: string
+                description: Enter Job Status
+                required: true
+              company_name:
+                type: string
+                description: Enter Company Name
+                required: true
+              company_location:
+                type: string
+                description: Enter Company Location
+                required: true
+              higher_study:
+                type: string
+                description: Enter Higher Study
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/alumini/{aid}/all/registration/array:
+    get:
+      tags:
+        - Alumini Query
+      summary: One Alumini All Registration Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This Alumini ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: status
+          required: true
+          type: string
+          description: Enter Status ("Not Given" || "Given")
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/alumini/{rid}/give/certificate:
+    patch:
+      tags:
+        - Alumini Query
+      summary: One Alumini Give Certificate By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: This Alumini Registration Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/alumini/{aid}/all/prominent/array:
+    get:
+      tags:
+        - Alumini Query
+      summary: One Alumini All Prominent Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This Alumini ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/alumini/{aid}/new/prominent/query:
+    post:
+      tags:
+        - Alumini Query
+      summary: New Success Story Form At Alumini Module (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This Alumini ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              profile_photo:
+                type: string
+                description: Enter Pic
+                required: true
+              name:
+                type: string
+                description: Enter Name
+                required: true
+              batch:
+                type: string
+                description: Enter Batch Name
+                required: true
+              department:
+                type: string
+                description: Enter Department Id
+                required: true
+              company_name:
+                type: string
+                description: Enter Company Name
+                required: true
+              job_profile:
+                type: string
+                description: Enter Job Profile
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/alumini/{aid}/all/feed/question/array:
+    get:
+      tags:
+        - Alumini Query
+      summary: One Alumini All FeedBack Polls Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This Alumini ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/alumini/question/{aid}:
+    post:
+      tags:
+        - Alumini Query
+      summary: Create FeedBack Poll Question
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Alumini id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              poll_question:
+                type: string
+                description: Enter Poll Question 
+              duration_date:
+                type: string
+                description: Enter Poll Close Duration Date
+              duration_time:
+                type: string
+                description: Enter Poll Close Duration Time
+              trend_category:
+                type: string
+                description: Enter Category as mentioned in Qviple User Figma
+              day:
+                type: string
+                description: Enter Number of Days
+              pollAnswer:
+                type: array
+                description: Enter min. two options & max four options
+                required: true 
+                items:
+                  type: object
+                  properties:
+                    content:
+                      type: string
+                      required: true 
+                      description: Enter Answer Content
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/alumini/question/vote/{pid}:
+    patch:
+      tags:
+        - Alumini Query
+      summary: Add Vote To Poll Answer
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pid
+          required: true
+          type: string
+          description: This is Poll ID
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Alumini ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              answerId:
+                type: string
+                description: Enter Answer id which we are voting 
+              rate:
+                type: number
+                description: Enter Number Rate
       responses:
         "200":
           description: OK

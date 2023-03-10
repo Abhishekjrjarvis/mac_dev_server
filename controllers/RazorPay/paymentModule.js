@@ -27,6 +27,7 @@ const {
   exempt_installment,
   set_fee_head_query,
   remain_one_time_query,
+  update_fee_head_query,
 } = require("../../helper/Installment");
 
 exports.unlockInstituteFunction = async (order, paidBy, tx_amounts) => {
@@ -373,6 +374,7 @@ exports.admissionInstituteFunction = async (
         new_remainFee.fee_structure = student?.fee_structure?._id;
         new_remainFee.remaining_fee += total_amount - parseInt(tx_amount_ad);
         student.remainingFeeList.push(new_remainFee?._id);
+        student.remainingFeeList_count += 1
         new_remainFee.student = student?._id;
         new_remainFee.fee_receipts.push(new_receipt?._id);
         await add_all_installment(
@@ -401,6 +403,7 @@ exports.admissionInstituteFunction = async (
         new_remainFee.remaining_fee +=
           student?.fee_structure?.total_admission_fees - parseInt(tx_amount_ad);
         student.remainingFeeList.push(new_remainFee?._id);
+        student.remainingFeeList_count += 1
         new_remainFee.student = student?._id;
         new_remainFee.fee_receipts.push(new_receipt?._id);
         admission.remainingFee.push(student._id);
@@ -567,7 +570,7 @@ exports.admissionInstituteFunction = async (
         ins.adminRepayAmount += parseInt(tx_amount_ad);
       }
       // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount_ad);
-      await set_fee_head_query(student, parseInt(tx_amount_ad), apply);
+      await update_fee_head_query(student, parseInt(tx_amount_ad), apply);
       for (var match of student.paidFeeList) {
         if (`${match.appId}` === `${apply._id}`) {
           match.paidAmount += parseInt(tx_amount_ad);
@@ -671,11 +674,13 @@ exports.participateEventFunction = async (
     }
     // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount_ad);
     status.event_payment_status = "Paid";
+    event.apply_student.push(student?._id);
+    event.apply_student_count += 1;
     event.event_fee_array.push({
       student: student._id,
       fee_status: "Paid",
     });
-    student.participate_event.push(event?._id);
+    student.eventicipate_event.push(event?._id);
     event.paid_participant += 1;
     notify.notifyContent = `${student.studentFirstName} ${
       student.studentMiddleName ? `${student.studentMiddleName} ` : ""

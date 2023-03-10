@@ -6,9 +6,9 @@ const instituteAdminSchema = new mongoose.Schema({
   insEmail: { type: String, required: true, unique: true },
   insPhoneNumber: { type: Number, required: true, maxlength: 10 },
   insMobileStatus: { type: String, default: "Not Verified" },
-  insState: { type: String, required: true },
-  insDistrict: { type: String, required: true },
-  insPincode: { type: Number, required: true },
+  insState: { type: String },
+  insDistrict: { type: String },
+  insPincode: { type: Number },
   insAddress: { type: String },
   insAbout: { type: String },
   insMode: { type: String, required: true },
@@ -501,7 +501,6 @@ const instituteAdminSchema = new mongoose.Schema({
   },
   studentFormSetting: {
     personalInfo: { type: Boolean, default: true },
-    enrollmentPrn: { type: Boolean, default: false },
     otherPersonalInfo: { type: Boolean, default: false },
     identityDetails: { type: Boolean, default: false },
     addressInfo: { type: Boolean, default: false },
@@ -647,6 +646,120 @@ const instituteAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  eventManagerStatus: {
+    type: String,
+    default: "Disable",
+  },
+  eventManagerDepart: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "EventManager",
+    },
+  ],
+  excel_data_query: [
+    {
+      excel_file: { type: String },
+      classId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Class",
+      },
+      financeId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Finance",
+      },
+      status: { type: String, default: "Not Uploaded" },
+    },
+  ],
+  careerStatus: {
+    type: String,
+    default: "Disable",
+  },
+  careerDepart: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "LandingCareer",
+    },
+  ],
+  career_count: {
+    type: Number,
+    default: 0,
+  },
+  tenderStatus: {
+    type: String,
+    default: "Disable",
+  },
+  tenderDepart: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "LandingTender",
+    },
+  ],
+  tender_count: {
+    type: Number,
+    default: 0,
+  },
+  website_looks: {
+    logo: { type: String },
+    background_image: { type: String },
+    vision: { type: String },
+    mission: { type: String },
+    about: { type: String },
+    color: { type: String },
+    leading_person: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    leading_person_position: { type: String },
+    leading_person_message: { type: String },
+    linkedin_link: { type: String },
+    instagram_link: { type: String },
+    twitter_link: { type: String },
+    qviple_link: { type: String },
+  },
+  website_active_tab: {
+    home: { type: Boolean, default: true },
+    about: { type: Boolean, default: true },
+    department: { type: Boolean, default: true },
+    contact_us: { type: Boolean, default: true },
+    admission: { type: Boolean, default: false },
+    library: { type: Boolean, default: false },
+    announcements: { type: Boolean, default: false },
+    events: { type: Boolean, default: false },
+    tender: { type: Boolean, default: false },
+    career: { type: Boolean, default: false },
+    alumini: { type: Boolean, default: false },
+    tpo_cell: { type: Boolean, default: false },
+    rnd_cell: { type: Boolean, default: false },
+    timetable: { type: Boolean, default: false },
+    student_projects: { type: Boolean, default: false },
+    student_articles: { type: Boolean, default: false },
+  },
+  contact_list: {
+    address: { type: String },
+    head_office_address: { type: String },
+    about: { type: String },
+    persons: [
+      {
+        department_name: { type: String },
+        person_name: { type: String },
+        person_phone_number: { type: String },
+        person_email: { type: String },
+      },
+    ],
+  },
+  career_passage: {
+    type: String,
+  },
+  tender_passage: {
+    type: String,
+  },
+  aluminiStatus: {
+    type: String,
+    default: "Disable",
+  },
+  aluminiDepart: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Alumini",
+    },
+  ],
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

@@ -38,7 +38,20 @@ const mentorSchema = new mongoose.Schema({
       ref: "Queries",
     },
   ],
-  feedback: [],
+  feed_question: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FeedQuestion",
+    },
+  ],
+  feed_question_count: {
+    type: Number,
+    default: 0,
+  },
+  total_feedback_count: {
+    type: Number,
+    default: 0,
+  },
   department: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department",

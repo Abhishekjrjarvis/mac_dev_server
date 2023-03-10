@@ -164,15 +164,8 @@ const staffSchema = new mongoose.Schema({
   ],
   admissionModeratorDepartment: [
     {
-      admission: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Admission",
-      },
-      accessApp: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "NewApplication",
-      },
-      type: { type: String, default: "Admission Admin" },
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "AdmissionModerator",
     },
   ],
   isAdmin: {
@@ -248,6 +241,18 @@ const staffSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Mentor",
+    },
+  ],
+  eventManagerDepartment: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "EventManager",
+    },
+  ],
+  aluminiDepartment: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Alumini",
     },
   ],
 });

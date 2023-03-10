@@ -408,11 +408,13 @@ exports.recommendedAllIns = async (req, res) => {
         )
         .lean()
         .exec();
+
+      var shuffle_query = shuffleArray(recommend_user);
       res.status(200).send({
         message: "Recommended Institute for follow and Joined",
         recommend_ins_array: [],
         recommend: true,
-        refresh_recommend_user: recommend_user,
+        refresh_recommend_user: shuffle_query,
       });
     } else {
       res.status(200).send({

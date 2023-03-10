@@ -585,7 +585,7 @@ exports.renderFeesDeleteQuery = async (req, res) => {
       institute: `${depart?.institute}`,
     });
     const price = await Fees.findById({ _id: fid });
-    const flag_status = await nested_function_fee(depart.class, fid);
+    const flag_status = await nested_function_fee(depart?.class, fid);
     if (flag_status) {
       res.status(200).send({
         message: "Deletion Operation Denied Some Student Already Paid 😥",
@@ -593,7 +593,7 @@ exports.renderFeesDeleteQuery = async (req, res) => {
       });
     } else {
       depart.fees.pull(fid);
-      for (var cal of depart.class) {
+      for (var cal of depart?.class) {
         const classes = await Class.findById({ _id: cal });
         for (var val of classes?.ApproveStudent) {
           const student = await Student.findById({ _id: val });

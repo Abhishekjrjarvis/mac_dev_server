@@ -39,7 +39,7 @@ exports.getDashOneQuery = async (req, res) => {
   try {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id }).select(
-      "insName name insAbout photoId blockStatus gr_initials insProfileCoverPhoto coverId block_institute blockedBy sportStatus sportClassStatus sportDepart sportClassDepart staff_privacy email_privacy followers_critiria initial_Unlock_Amount contact_privacy sms_lang followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount transportStatus transportDepart libraryActivate library accessFeature activateStatus"
+      "insName name insAbout photoId blockStatus gr_initials insProfileCoverPhoto coverId block_institute blockedBy sportStatus sportClassStatus sportDepart sportClassDepart staff_privacy email_privacy followers_critiria initial_Unlock_Amount contact_privacy sms_lang followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount transportStatus transportDepart libraryActivate library accessFeature activateStatus eventManagerStatus eventManagerDepart careerStatus careerDepart career_count tenderStatus tenderDepart tender_count aluminiStatus aluminiDepart"
     );
     const encrypt = await encryptionPayload(institute);
     res.status(200).send({
@@ -1336,7 +1336,7 @@ exports.getFullStudentInfo = async (req, res) => {
     if (isApk) {
       var student = await Student.findById({ _id: id })
         .select(
-          "studentFirstName extraPoints batchCount studentMiddleName studentBankAccountHolderName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO student_prn_enroll_number"
+          "studentFirstName extraPoints batchCount studentMiddleName studentBankAccountHolderName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
         )
         .populate({
           path: "user",
@@ -1390,7 +1390,7 @@ exports.getFullStudentInfo = async (req, res) => {
     } else {
       var student = await Student.findById({ _id: id })
         .select(
-          "studentFirstName extraPoints batchCount studentMiddleName studentBankAccountHolderName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO student_prn_enroll_number"
+          "studentFirstName extraPoints batchCount studentMiddleName studentBankAccountHolderName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
         )
         .populate({
           path: "user",
@@ -2790,44 +2790,19 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
 exports.retrieveDepartmentStaffArray = async (req, res) => {
   try {
     const { did } = req.params;
-    if (req.query.search) {
-      const department = await Department.findById({ _id: did })
-        .select("dName")
-        .populate({
-          path: "departmentChatGroup",
-          match: {
-            $or: [
-              { staffFirstName: { $regex: req.query.search, $options: "i" } },
-              { staffMiddleName: { $regex: req.query.search, $options: "i" } },
-              { staffLastName: { $regex: req.query.search, $options: "i" } },
-            ],
-          },
-          select:
-            "staffFirstName staff_biometric_id staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
-          populate: {
-            path: "user",
-            select: "username userLegalName photoId profilePhoto",
-          },
-        });
-      // const dEncrypt = await encryptionPayload(department);
-      res
-        .status(200)
-        .send({ message: "Department Staff List wit search", department });
-    } else {
-      const department = await Department.findById({ _id: did })
-        .select("dName")
-        .populate({
-          path: "departmentChatGroup",
-          select:
-            "staffFirstName staff_biometric_id staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
-          populate: {
-            path: "user",
-            select: "username userLegalName photoId profilePhoto",
-          },
-        });
-      // const dEncrypt = await encryptionPayload(department);
-      res.status(200).send({ message: "Department Staff List", department });
-    }
+    const department = await Department.findById({ _id: did })
+      .select("dName")
+      .populate({
+        path: "departmentChatGroup",
+        select:
+          "staffFirstName staff_biometric_id staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        populate: {
+          path: "user",
+          select: "username userLegalName photoId profilePhoto",
+        },
+      });
+    // const dEncrypt = await encryptionPayload(department);
+    res.status(200).send({ message: "Department Staff List", department });
   } catch {}
 };
 

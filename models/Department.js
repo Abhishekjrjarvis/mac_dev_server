@@ -234,6 +234,61 @@ const departmentSchema = new mongoose.Schema({
       ref: "Queries",
     },
   ],
+  query_count: {
+    type: Number,
+    default: 0,
+  },
+  feed_question: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FeedQuestion",
+    },
+  ],
+  feed_question_count: {
+    type: Number,
+    default: 0,
+  },
+  take_feedback: [
+    {
+      create_on: { type: Date },
+      created_at: { type: Date, default: Date.now },
+      total_feed: { type: Number, default: 0 },
+      collect_feed: { type: Number, default: 0 },
+      mentors: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Mentor",
+        },
+      ],
+    },
+  ],
+  take_feedback_count: {
+    type: Number,
+    default: 0,
+  },
+  next_feed_back: {
+    type: Date,
+  },
+  events: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Events",
+    },
+  ],
+  events_count: {
+    type: Number,
+    default: 0,
+  },
+  seminars: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Seminar",
+    },
+  ],
+  seminars_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Department = mongoose.model("Department", departmentSchema);

@@ -348,6 +348,20 @@ const financeSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    modify_fees_category_count: {
+      type: Number,
+      default: 0,
+    },
+    fee_master_array: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeMaster",
+      },
+    ],
+    fee_master_array_count: {
+      type: Number,
+      default: 0,
+    },
     exempt_receipt: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -374,6 +388,13 @@ const financeSchema = new mongoose.Schema(
       net_banking: { type: Boolean, default: true },
       cheque: { type: Boolean, default: true },
       demand_draft: { type: Boolean, default: true },
+    },
+    designation_password: {
+      type: String,
+    },
+    designation_status: {
+      type: String,
+      default: "Locked",
     },
   },
   { timestamps: true }

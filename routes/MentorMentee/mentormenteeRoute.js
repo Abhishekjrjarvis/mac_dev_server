@@ -32,12 +32,39 @@ router.get("/one/query/:qid", catchAsync(Mentor.renderOneQueryDetail));
 router.get("/:sid/all/query", catchAsync(Mentor.renderAllStudentQuery));
 
 router.get(
-  "/:mid/all/query/by",
+  "/:mid/all/query/by/flow",
   catchAsync(Mentor.renderAllMentorQueryByStatus)
 );
 
-router.patch("/one/query/:qid/remark", catchAsync(Mentor.renderOneQueryRemark));
+router.patch(
+  "/one/query/:qid/remark/flow",
+  catchAsync(Mentor.renderOneQueryRemark)
+);
 
-// router.patch("/one/query/:qid/report", catchAsync(Mentor.renderOneQueryReport));
+router.patch("/one/query/:qid/report", catchAsync(Mentor.renderOneQueryReport));
+
+router.post("/:did/new/question", catchAsync(Mentor.renderNewQuestionQuery));
+
+router.get("/:dmid/all/question", catchAsync(Mentor.renderAllQuestionQuery));
+
+router.post(
+  "/:did/new/feedback/query",
+  catchAsync(Mentor.renderNewFeedbackQuery)
+);
+
+router.get(
+  "/:did/all/feedback/query",
+  catchAsync(Mentor.renderAllFeedbackQuery)
+);
+
+router.get(
+  "/:did/one/:mid/feedback/:fid/detail/query",
+  catchAsync(Mentor.renderOneFeedbackDetailQuery)
+);
+
+// router.patch(
+//   "/:sid/give/feedback/:mid/query",
+//   catchAsync(Mentor.renderOneStudentGiveFeedbackQuery)
+// );
 
 module.exports = router;

@@ -332,6 +332,10 @@ const studentSchema = new mongoose.Schema({
       ref: "RemainingList",
     },
   ],
+  remainingFeeList_count: {
+    type: Number,
+    default: 0,
+  },
   fee_structure: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "FeeStructure",
@@ -438,6 +442,10 @@ const studentSchema = new mongoose.Schema({
     },
   ],
   total_query: {
+    type: Number,
+    default: 0,
+  },
+  feed_back_count: {
     type: Number,
     default: 0,
   },

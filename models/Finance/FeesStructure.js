@@ -22,6 +22,13 @@ const feeStructureSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department",
   },
+  structure_name: {
+    type: String,
+  },
+  applicable_fees: {
+    type: Number,
+    default: 0,
+  },
   one_installments: {
     fees: { type: Number, default: 0 },
     dueDate: { type: String },

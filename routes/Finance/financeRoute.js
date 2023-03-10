@@ -293,6 +293,12 @@ router.post(
   catchAsync(Finance.renderFinanceAddFeeCategory)
 );
 
+router.delete(
+  "/:fcid/fee/category/delete/query",
+  // isLoggedIn,
+  catchAsync(Finance.renderFinanceFeeCategoryDeleteQuery)
+);
+
 router.post(
   "/:fid/fee/structure/new/:did",
   // isLoggedIn,
@@ -304,6 +310,12 @@ router.patch(
   "/fee/structure/:fsid/retro/query",
   // isLoggedIn,
   catchAsync(Finance.renderFeeStructureRetroQuery)
+);
+
+router.delete(
+  "/fee/structure/:fsid/retro/delete",
+  // isLoggedIn,
+  catchAsync(Finance.renderFeeStructureDeleteRetroQuery)
 );
 
 router.get(
@@ -349,5 +361,29 @@ router.get(
 );
 
 router.post("/add/body", catchAsync(Finance.addBody));
+
+router.post(
+  "/:fid/fee/master/new",
+  // isLoggedIn,
+  catchAsync(Finance.renderFinanceAddFeeMaster)
+);
+
+router.get(
+  "/:fid/all/master/head/query",
+  // isLoggedIn,
+  catchAsync(Finance.renderFinanceAllMasterHeadQuery)
+);
+
+router.patch(
+  "/fee/master/:fmid/edit/query",
+  // isLoggedIn,
+  catchAsync(Finance.renderFinanceEditFeeMasterQuery)
+);
+
+router.delete(
+  "/:fid/fee/master/:fmid/destroy/query",
+  // isLoggedIn,
+  catchAsync(Finance.renderFinanceDeleteFeeMasterQuery)
+);
 
 module.exports = router;

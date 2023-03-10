@@ -5,7 +5,11 @@ const InstituteAdmin = require("../../models/InstituteAdmin");
 const Batch = require("../../models/Batch");
 const User = require("../../models/User");
 const Class = require("../../models/Class");
+const Admission = require("../../models/Admission/Admission");
 const Student = require("../../models/Student");
+const Department = require("../../models/Department");
+const ClassMaster = require("../../models/ClassMaster");
+const { json_to_excel_query } = require("../../Custom/JSONToExcel");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 var trendingQuery = (trends, cat, type, page) => {
@@ -654,4 +658,260 @@ exports.retrieveApproveCatalogArrayFilter = async (req, res) => {
   } catch (e) {
     console.log(e);
   }
+};
+
+exports.retrievePendingFeeFilter = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const { gender, category, is_all, all_depart, batch_status } = req.query;
+    const { depart, batch, master, fee_struct } = req.body;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const ads_admin = await Admission.findById({ _id: aid }).select(
+      "remainingFee institute"
+    );
+
+    var valid_all = is_all === "false" ? false : true;
+
+    if (all_depart === "All") {
+      var sorted_batch = [];
+      const institute = await InstituteAdmin.findById({
+        _id: `${ads_admin?.institute}`,
+      }).select("depart");
+
+      if (batch_status === "All") {
+        var all_department = await Department.find({
+          _id: { $in: institute?.depart },
+        }).select("batches");
+        for (var ref of all_department) {
+          sorted_batch.push(...ref?.batches);
+        }
+      } else if (batch_status === "Current") {
+        var all_department = await Department.find({
+          _id: { $in: institute?.depart },
+        }).select("departmentSelectBatch");
+        for (var ref of all_department) {
+          sorted_batch.push(ref?.departmentSelectBatch);
+        }
+      }
+      var all_students = await Student.find({
+        $and: [
+          { batches: { $in: sorted_batch } },
+          { admissionRemainFeeCount: valid_all ? { $gte: 0 } : { $gt: 0 } },
+        ],
+      })
+        .select(
+          "studentClass batches department studentGender studentCastCategory"
+        )
+        .populate({
+          path: "fee_structure",
+        });
+    } else if (all_depart === "Particular") {
+      var all_students = await Student.find({
+        $and: [
+          { _id: { $in: ads_admin?.remainingFee } },
+          { admissionRemainFeeCount: valid_all ? { $gte: 0 } : { $gt: 0 } },
+        ],
+      })
+        .select(
+          "studentClass batches department studentGender studentCastCategory"
+        )
+        .populate({
+          path: "fee_structure",
+        });
+      if (depart) {
+        all_students = all_students?.filter((ref) => {
+          if (`${ref?.department}` === `${depart}`) return ref;
+        });
+      }
+      if (batch) {
+        all_students = all_students?.filter((ref) => {
+          if (`${ref?.batches}` === `${batch}`) return ref;
+        });
+      }
+      var select_classes = [];
+      const all_master = await ClassMaster.find({
+        _id: { $in: master },
+      }).select("classDivision");
+
+      for (var ref of all_master) {
+        select_classes.push(...ref?.classDivision);
+      }
+      all_students = all_students?.filter((ref) => {
+        if (select_classes?.includes(`${ref?.studentClass}`)) return ref;
+      });
+    }
+
+    if (category) {
+      all_students = all_students?.filter((ref) => {
+        if (`${ref?.studentCastCategory}` === `${category}`) return ref;
+      });
+    }
+
+    if (gender) {
+      all_students = all_students?.filter((ref) => {
+        if (`${ref?.studentGender}` === `${gender}`) return ref;
+      });
+    }
+
+    if (fee_struct) {
+      all_students = all_students?.filter((ref) => {
+        if (`${ref?.fee_structure?.category_master}` === `${fee_struct}`)
+          return ref;
+      });
+    }
+
+    var sorted_list = [];
+    for (var ref of all_students) {
+      sorted_list.push(ref?._id);
+    }
+
+    if (sorted_list?.length > 0) {
+      res.status(200).send({
+        message: "Explore New Excel Exports Wait for Some Time To Process",
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No New Excel Exports ",
+        access: false,
+      });
+    }
+
+    const valid_all_students = await Student.find({ _id: { $in: sorted_list } })
+      .sort({ remainingFeeList_count: -1 })
+      .select(
+        "studentFirstName studentMiddleName remainingFeeList_count studentLastName studentDOB studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto admissionRemainFeeCount"
+      )
+      .populate({
+        path: "department",
+        select: "dName",
+      })
+      .populate({
+        path: "studentClass",
+        select: "className classTitle",
+      })
+      .populate({
+        path: "batches",
+        select: "batchName",
+      })
+      .populate({
+        path: "fee_structure",
+        select: "structure_name applicable_fees",
+      })
+      .populate({
+        path: "remainingFeeList",
+        populate: {
+          path: "batchId",
+          select: "batchName",
+        },
+      })
+      .populate({
+        path: "remainingFeeList",
+        populate: {
+          path: "appId",
+          select: "applicationName",
+        },
+      })
+      .populate({
+        path: "remainingFeeList",
+        populate: {
+          path: "fee_structure",
+          select:
+            "structure_name category_master total_admission_fees one_installments applicable_fees",
+          populate: {
+            path: "category_master",
+            select: "category_name",
+          },
+        },
+      });
+    valid_all_students.sort(function (st1, st2) {
+      return (
+        parseInt(st1?.studentGRNO?.slice(1)) -
+        parseInt(st2?.studentGRNO?.slice(1))
+      );
+    });
+    const buildObject = async (arr) => {
+      const obj = {};
+      for (let i = 0; i < arr.length; i++) {
+        const { amount, price, paymode, mode } = arr[i];
+        obj[amount] = price;
+        obj[paymode] = mode;
+      }
+      return obj;
+    };
+    var excel_list = [];
+    var remain_array = [];
+    for (var ref of valid_all_students) {
+      for (var val of ref?.remainingFeeList) {
+        for (var num of val?.remaining_array) {
+          var i = 0;
+          if (num.status === "Paid") {
+            remain_array.push({
+              amount: `${i + 1}-Payment`,
+              price: num?.remainAmount,
+              paymode: `${i + 1}-Mode`,
+              mode: num?.mode,
+            });
+          }
+          i = val?.remaining_array?.length - i + 1;
+        }
+        var result = await buildObject(remain_array);
+
+        excel_list.push({
+          GRNO: ref?.studentGRNO ?? "#NA",
+          Name: `${ref?.studentFirstName} ${
+            ref?.studentMiddleName ? ref?.studentMiddleName : ""
+          } ${ref?.studentLastName}`,
+          DOB: ref?.studentDOB ?? "#NA",
+          Gender: ref?.studentGender ?? "#NA",
+          Caste: ref?.studentCastCategory ?? "#NA",
+          Religion: ref?.studentReligion ?? "#NA",
+          MotherName: `${ref?.studentMotherName}` ?? "#NA",
+          Class:
+            `${ref?.studentClass?.className}-${ref?.studentClass.classTitle}` ??
+            "#NA",
+          Batch: `${val?.batchId?.batchName}` ?? "#NA",
+          ActualFees: `${val?.fee_structure?.one_installments?.fees}` ?? "0",
+          ApplicableFees: `${val?.applicable_fee}` ?? "0",
+          RemainingFees: `${val?.remaining_fee}` ?? "0",
+          ApplicationName: `${val?.appId?.applicationName}` ?? "#NA",
+          TotalPaidFees: `${val?.paid_fee}` ?? "0",
+          FeeStructure:
+            `${val?.fee_structure?.category_master?.category_name}` ?? "#NA",
+          ...result,
+          Address: `${ref?.studentAddress}` ?? "#NA",
+        });
+        remain_array = [];
+      }
+    }
+    await json_to_excel_query(
+      excel_list,
+      all_depart,
+      batch_status,
+      category,
+      gender,
+      valid_all,
+      aid
+    );
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// ref?.remainingFeeList.sort(function (st1, st2) {
+//   return st1?.remaining_array?.length - st2?.remaining_array?.length;
+// });
+
+exports.renderUpdate = async (req, res) => {
+  const all_student = await Student.find({}).select("remainingFeeList_count");
+  for (var ref of all_student) {
+    ref.remainingFeeList_count = 1;
+    await ref.save();
+  }
+  res.status(200).send({ message: "updated", access: true });
 };

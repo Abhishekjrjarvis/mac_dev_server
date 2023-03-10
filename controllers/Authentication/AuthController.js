@@ -42,6 +42,8 @@ const {
   generateAccessAdminToken,
   generateAccessInsToken,
   generateAccessToken,
+  send_email_authentication,
+  generateAccessDesignationToken,
 } = require("../../helper/functions");
 
 const { user_date_of_birth } = require("../../helper/dayTimer");
@@ -58,6 +60,7 @@ const {
   fee_reordering,
   insert_multiple_status,
   fee_reordering_direct_student,
+  fee_reordering_direct_student_payload,
 } = require("../../helper/multipleStatus");
 const { whats_app_sms_payload } = require("../../WhatsAppSMS/payload");
 const { handle_undefined } = require("../../Handler/customError");
@@ -312,18 +315,46 @@ const directMSMSQuery = async (mob, sName, iName, cName) => {
 exports.getOtpAtUser = async (req, res) => {
   try {
     const { userPhoneNumber, status } = req.body;
-    if (userPhoneNumber) {
+    const valid_phone = !userPhoneNumber?.includes("@")
+      ? userPhoneNumber?.length === 10
+        ? parseInt(userPhoneNumber)
+        : ""
+      : "";
+    if (!valid_phone) {
+      var valid_email = userPhoneNumber?.includes("@")
+        ? userPhoneNumber
+        : false;
+    }
+    if (valid_phone) {
       if (status === "Not Verified") {
-        await OTPCode.deleteMany({ otp_number: userPhoneNumber });
-        const code = await generateOTP(userPhoneNumber);
+        var valid_user = parseInt(userPhoneNumber);
+        await OTPCode.deleteMany({ otp_number: valid_user });
+        const code = await generateOTP(valid_user);
         const otpCode = new OTPCode({
-          otp_number: userPhoneNumber,
+          otp_number: valid_user,
+          otp_code: `${code}`,
+        });
+        await otpCode.save();
+        // const uPhoneEncrypt = await encryptionPayload(valid_user);
+        res.status(200).send({
+          message: "code will be send to registered mobile number",
+          userPhoneNumber,
+        });
+      } else {
+        res.send({ message: "User will be verified..." });
+      }
+    } else if (valid_email) {
+      if (status === "Not Verified") {
+        await OTPCode.deleteMany({ otp_email: userPhoneNumber });
+        const code = await send_email_authentication(userPhoneNumber);
+        const otpCode = new OTPCode({
+          otp_email: userPhoneNumber,
           otp_code: `${code}`,
         });
         await otpCode.save();
         // const uPhoneEncrypt = await encryptionPayload(userPhoneNumber);
         res.status(200).send({
-          message: "code will be send to registered mobile number",
+          message: "code will be send to entered Email",
           userPhoneNumber,
         });
       } else {
@@ -333,7 +364,7 @@ exports.getOtpAtUser = async (req, res) => {
       res.send({ message: "Invalid Phone No." });
     }
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(`Error`, e);
   }
 };
 
@@ -361,16 +392,17 @@ const generateInsOTP = async (mob) => {
 exports.getOtpAtIns = async (req, res) => {
   try {
     const { insPhoneNumber, status } = req.body;
+    var valid_ins = parseInt(insPhoneNumber);
     if (insPhoneNumber) {
       if (status === "Not Verified") {
-        await OTPCode.deleteMany({ otp_number: insPhoneNumber });
-        const code = await generateInsOTP(insPhoneNumber);
+        await OTPCode.deleteMany({ otp_number: valid_ins });
+        const code = await generateInsOTP(valid_ins);
         const otpCode = new OTPCode({
-          otp_number: insPhoneNumber,
+          otp_number: valid_ins,
           otp_code: `${code}`,
         });
         await otpCode.save();
-        // const iPhoneEncrypt = await encryptionPayload(insPhoneNumber);
+        // const iPhoneEncrypt = await encryptionPayload(valid_ins);
         res.status(200).send({
           message: "code will be send to registered mobile number",
           insPhoneNumber,
@@ -391,25 +423,49 @@ exports.verifyOtpByUser = async (req, res) => {
     var account_linked = [];
     const { id } = req.params;
     const valid_otp = await OTPCode.findOne({ otp_number: `${id}` });
-    const all_account = await User.find({ userPhoneNumber: id }).select(
-      "userLegalName username profilePhoto userPassword"
-    );
-
-    for (let all of all_account) {
-      const token = generateAccessToken(
-        all?.username,
-        all?._id,
-        all?.userPassword
+    const valid_otp_email = await OTPCode.findOne({ otp_email: `${id}` });
+    if (valid_otp) {
+      var all_account = await User.find({ userPhoneNumber: id }).select(
+        "userLegalName username profilePhoto userPassword"
       );
-      account_linked.push({
-        user: all,
-        login: true,
-        token: `Bearer ${token}`,
-      });
+      if (all_account?.length > 0) {
+        for (let all of all_account) {
+          const token = generateAccessToken(
+            all?.username,
+            all?._id,
+            all?.userPassword
+          );
+          account_linked.push({
+            user: all,
+            login: true,
+            token: `Bearer ${token}`,
+          });
+        }
+      }
+    } else {
+      var all_account_email = await User.find({ userEmail: id }).select(
+        "userLegalName username profilePhoto userPassword"
+      );
+      if (all_account_email?.length > 0) {
+        for (let all of all_account_email) {
+          const token = generateAccessToken(
+            all?.username,
+            all?._id,
+            all?.userPassword
+          );
+          account_linked.push({
+            user: all,
+            login: true,
+            token: `Bearer ${token}`,
+          });
+        }
+      }
     }
     if (
-      req.body.userOtpCode &&
-      req.body.userOtpCode === `${valid_otp?.otp_code}`
+      (req.body.userOtpCode &&
+        req.body.userOtpCode === `${valid_otp?.otp_code}`) ||
+      (req.body.userOtpCode &&
+        req.body.userOtpCode === `${valid_otp_email?.otp_code}`)
     ) {
       var userStatus = "approved";
       // Add Another Encryption
@@ -420,12 +476,16 @@ exports.verifyOtpByUser = async (req, res) => {
         accounts: account_linked,
         count: account_linked?.length,
       });
-      await OTPCode.findByIdAndDelete(valid_otp?._id);
+      if (valid_otp) {
+        await OTPCode.findByIdAndDelete(valid_otp?._id);
+      } else {
+        await OTPCode.findByIdAndDelete(valid_otp_email?._id);
+      }
     } else {
       res.send({ message: "Invalid OTP" });
     }
   } catch (e) {
-    console.log(`Error`, e.message);
+    console.log(`Error`, e);
   }
 };
 
@@ -468,8 +528,14 @@ exports.profileByUser = async (req, res) => {
   try {
     const { id } = req.params;
     const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-    const { userLegalName, userGender, userDateOfBirth, username, sample_pic } =
-      req.body;
+    const {
+      userLegalName,
+      userGender,
+      userDateOfBirth,
+      username,
+      sample_pic,
+      userEmail,
+    } = req.body;
     const existAdmin = await Admin.findOne({ adminUserName: username });
     const existInstitute = await InstituteAdmin.findOne({ name: username });
     const existUser = await User.findOne({ username: username });
@@ -481,14 +547,23 @@ exports.profileByUser = async (req, res) => {
       if (existUser) {
         res.send({ message: "Username already exists" });
       } else {
+        const valid_phone = !id?.includes("@")
+          ? id?.length === 10
+            ? parseInt(id)
+            : ""
+          : "";
+        if (!valid_phone) {
+          var valid_email = id?.includes("@") ? id : false;
+        }
         var user = new User({
           userLegalName: userLegalName,
           userGender: userGender,
           userDateOfBirth: userDateOfBirth,
           username: username?.trim(),
           userStatus: "Approved",
-          userPhoneNumber: id,
+          userPhoneNumber: valid_phone ? id : 0,
           photoId: "0",
+          userEmail: valid_email ? id : "",
           coverId: "2",
           remindLater: rDate,
           next_date: c_date,
@@ -665,19 +740,33 @@ exports.forgotPasswordSendOtp = async (req, res) => {
     const user = await User.findOne({ username: username });
     const institute = await InstituteAdmin.findOne({ name: username });
     if (user) {
-      await OTPCode.deleteMany({ otp_number: user.userPhoneNumber });
-      const code = await generateOTP(user.userPhoneNumber);
-      const otpCode = new OTPCode({
-        otp_number: user.userPhoneNumber,
-        otp_code: `${code}`,
-      });
-      await otpCode.save();
-      console.log(code);
-      // const fEncrypt = await encryptionPayload(user);
-      res.status(200).send({
-        message: "code will be send to registered mobile number",
-        user,
-      });
+      if (user?.userPhoneNumber) {
+        await OTPCode.deleteMany({ otp_number: user.userPhoneNumber });
+        const code = await generateOTP(user.userPhoneNumber);
+        const otpCode = new OTPCode({
+          otp_number: user.userPhoneNumber,
+          otp_code: `${code}`,
+        });
+        await otpCode.save();
+        // const fEncrypt = await encryptionPayload(user);
+        res.status(200).send({
+          message: "code will be send to registered mobile number",
+          user,
+        });
+      } else if (user?.userEmail) {
+        await OTPCode.deleteMany({ otp_email: user?.userEmail });
+        const code = await send_email_authentication(user?.userEmail);
+        const otpCode = new OTPCode({
+          otp_email: user?.userEmail,
+          otp_code: `${code}`,
+        });
+        await otpCode.save();
+        // const fEncrypt = await encryptionPayload(user);
+        res.status(200).send({
+          message: "code will be send to registered email",
+        });
+      } else {
+      }
     } else if (institute) {
       await OTPCode.deleteMany({ otp_number: institute.insPhoneNumber });
       const code = await generateOTP(institute.insPhoneNumber);
@@ -1900,6 +1989,9 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       const institute = await InstituteAdmin.findById({
         _id: `${depart?.institute}`,
       });
+      var finance = await Finance.findById({
+        _id: `${institute?.financeDepart[0]}`,
+      });
       const student = new Student({ ...req.body });
       student.studentCode = classes.classCode;
       const studentOptionalSubject = req.body?.optionalSubject
@@ -2003,7 +2095,8 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
           student,
           institute,
           batch_set,
-          user
+          user,
+          finance
         );
       }
       await Promise.all([
@@ -2530,17 +2623,452 @@ exports.renderSelectAccountQuery = async (req, res) => {
     const all_account = await User.find({ userPhoneNumber: valid_key }).select(
       "userLegalName username profilePhoto"
     );
+    const all_account_email = await User.find({ userEmail: valid_key }).select(
+      "userLegalName username profilePhoto"
+    );
     if (all_account?.length > 0) {
       res.status(200).send({
         message: "Lot's of choices select one 😁",
         access: true,
         all_account,
       });
+    } else if (all_account_email?.length > 0) {
+      res.status(200).send({
+        message: "Lot's of choices select one 😁",
+        access: true,
+        all_account_email,
+      });
     } else {
       res.status(200).send({
         message: "No choices left create one 😁",
         access: false,
         all_account: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveInstituteDirectJoinQueryPayload = async (
+  cid,
+  student_array
+) => {
+  try {
+    for (var query of student_array) {
+      var maleAvatar = [
+        "3D2.jpg",
+        "3D4.jpg",
+        "3D6.jpg",
+        "3D19.jpg",
+        "3D20.jpg",
+        "3D26.jpg",
+        "3D21.jpg",
+        "3D12.jpg",
+      ];
+      var femaleAvatar = [
+        "3D1.jpg",
+        "3D3.jpg",
+        "3D10.jpg",
+        "3D11.jpg",
+        "3D14.jpg",
+        "3D15.jpg",
+        "3D22.jpg",
+        "3D31.jpg",
+      ];
+      const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+      const valid = await filter_unique_username(
+        query.studentFirstName,
+        query.studentDOB
+      );
+      if (!valid?.exist) {
+        const genUserPass = bcrypt.genSaltSync(12);
+        const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
+        var user = new User({
+          userLegalName: `${query.studentFirstName} ${
+            query.studentMiddleName ? query.studentMiddleName : ""
+          } ${query.studentLastName ? query.studentLastName : ""}`,
+          userGender: query.studentGender,
+          userDateOfBirth: query.studentDOB,
+          username: valid?.username,
+          userStatus: "Approved",
+          userPhoneNumber: query?.userPhoneNumber
+            ? parseInt(query?.userPhoneNumber)
+            : 0,
+          userEmail: query.userEmail,
+          userPassword: hashUserPass,
+          photoId: "0",
+          coverId: "2",
+          remindLater: rDate,
+          next_date: c_date,
+        });
+        admins.users.push(user);
+        admins.userCount += 1;
+        await Promise.all([admins.save(), user.save()]);
+        var uInstitute = await InstituteAdmin.findOne({
+          isUniversal: "Universal",
+        })
+          .select("id userFollowersList followersCount")
+          .populate({ path: "posts" });
+        if (uInstitute && uInstitute.posts && uInstitute.posts.length >= 1) {
+          const post = await Post.find({
+            _id: { $in: uInstitute.posts },
+            postStatus: "Anyone",
+          });
+          post.forEach(async (ele) => {
+            user.userPosts.push(ele);
+          });
+          await user.save();
+        }
+        //
+        var b_date = user.userDateOfBirth?.slice(8, 10);
+        var b_month = user.userDateOfBirth?.slice(5, 7);
+        var b_year = user.userDateOfBirth?.slice(0, 4);
+        if (b_date > p_date) {
+          p_date = p_date + month[b_month - 1];
+          p_month = p_month - 1;
+        }
+        if (b_month > p_month) {
+          p_year = p_year - 1;
+          p_month = p_month + 12;
+        }
+        var get_cal_year = p_year - b_year;
+        if (get_cal_year > 13) {
+          user.ageRestrict = "No";
+        } else {
+          user.ageRestrict = "Yes";
+        }
+        await user.save();
+        //
+        if (uInstitute?.userFollowersList?.includes(`${user._id}`)) {
+        } else {
+          uInstitute.userFollowersList.push(user._id);
+          uInstitute.followersCount += 1;
+          user.userInstituteFollowing.push(uInstitute._id);
+          user.followingUICount += 1;
+          await Promise.all([uInstitute.save(), user.save()]);
+          const posts = await Post.find({ author: `${uInstitute._id}` });
+          posts.forEach(async (ele) => {
+            ele.authorFollowersCount = uInstitute.followersCount;
+            await ele.save();
+          });
+        }
+
+        const classes = await Class.findById({ _id: cid });
+        const batch = await Batch.findById({ _id: `${classes?.batch}` });
+        const depart = await Department.findById({
+          _id: `${batch?.department}`,
+        });
+        const institute = await InstituteAdmin.findById({
+          _id: `${depart?.institute}`,
+        });
+        var finance = await Finance.findById({
+          _id: `${institute?.financeDepart[0]}`,
+        });
+        const student = new Student({ ...query });
+        student.studentCode = classes.classCode;
+        const studentOptionalSubject = query?.optionalSubject
+          ? query?.optionalSubject
+          : [];
+        for (var file of query?.fileArray) {
+          if (file.name === "file") {
+            student.photoId = "0";
+            student.studentProfilePhoto = file.key;
+            user.profilePhoto = file.key;
+          } else if (file.name === "addharFrontCard")
+            student.studentAadharFrontCard = file.key;
+          else if (file.name === "addharBackCard")
+            student.studentAadharBackCard = file.key;
+          else if (file.name === "bankPassbook")
+            student.studentBankPassbook = file.key;
+          else if (file.name === "casteCertificate")
+            student.studentCasteCertificatePhoto = file.key;
+          else {
+            student.studentDocuments.push({
+              documentName: file.name,
+              documentKey: file.key,
+              documentType: file.type,
+            });
+          }
+        }
+        if (studentOptionalSubject?.length > 0) {
+          student.studentOptionalSubject.push(...studentOptionalSubject);
+        }
+        if (student.studentGender === "Male") {
+          user.profilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
+          student.studentProfilePhoto =
+            maleAvatar[Math.floor(Math.random() * 8)];
+        } else if (student.studentGender === "Female") {
+          user.profilePhoto = femaleAvatar[Math.floor(Math.random() * 8)];
+          student.studentProfilePhoto =
+            femaleAvatar[Math.floor(Math.random() * 8)];
+        } else {
+        }
+        for (let subjChoose of student?.studentOptionalSubject) {
+          const subject = await Subject.findById(subjChoose);
+          subject.optionalStudent.push(student?._id);
+          await subject.save();
+        }
+        const notify = new StudentNotification({});
+        const aStatus = new Status({});
+        user.student.push(student._id);
+        user.is_mentor = true;
+        institute.joinedPost.push(user._id);
+        if (institute.userFollowersList.includes(user?._id)) {
+        } else {
+          user.userInstituteFollowing.push(institute?._id);
+          user.followingUICount += 1;
+          institute.userFollowersList.push(user?._id);
+          institute.followersCount += 1;
+        }
+        student.institute = institute._id;
+        student.user = user._id;
+        student.studentStatus = "Approved";
+        institute.ApproveStudent.push(student._id);
+        admins.studentArray.push(student._id);
+        admins.studentCount += 1;
+        institute.studentCount += 1;
+        classes.strength += 1;
+        classes.ApproveStudent.push(student._id);
+        classes.studentCount += 1;
+        student.studentGRNO = query?.studentGRNO;
+        student.studentROLLNO = classes.ApproveStudent.length;
+        student.studentClass = classes._id;
+        student.studentAdmissionDate = new Date().toISOString();
+        depart.ApproveStudent.push(student._id);
+        depart.studentCount += 1;
+        student.department = depart._id;
+        batch.ApproveStudent.push(student._id);
+        student.batches = batch._id;
+        student.batchCount += 1;
+        notify.notifyContent = `${student.studentFirstName} ${
+          student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+        } ${student.studentLastName} joined as a Student of Class ${
+          classes.className
+        } of ${batch.batchName}`;
+        notify.notifySender = cid;
+        notify.notifyReceiever = user._id;
+        notify.notifyCategory = "Approve Student";
+        institute.iNotify.push(notify._id);
+        user.uNotify.push(notify._id);
+        notify.user = user._id;
+        notify.notifyByStudentPhoto = student._id;
+        aStatus.content = `Welcome to ${institute.insName}. Your application for joining as student  has been accepted by ${institute.insName}. Enjoy your learning in ${classes.className} - ${classes.classTitle}.`;
+        user.applicationStatus.push(aStatus._id);
+        aStatus.instituteId = institute._id;
+        student.fee_structure =
+          query?.is_remain === "No"
+            ? query?.fee_struct
+            : query?.batch_set[0]?.fee_struct;
+        await student.save();
+        invokeFirebaseNotification(
+          "Student Approval",
+          notify,
+          institute.insName,
+          user._id,
+          user.deviceToken
+        );
+        if (query?.batch_set?.length > 0) {
+          await fee_reordering_direct_student_payload(
+            student,
+            institute,
+            query?.batch_set,
+            user,
+            finance
+          );
+        }
+        await Promise.all([
+          admins.save(),
+          classes.save(),
+          depart.save(),
+          batch.save(),
+          student.save(),
+          institute.save(),
+          user.save(),
+          notify.save(),
+          aStatus.save(),
+        ]);
+        if (student.studentGender === "Male") {
+          classes.boyCount += 1;
+          batch.student_category.boyCount += 1;
+        } else if (student.studentGender === "Female") {
+          classes.girlCount += 1;
+          batch.student_category.girlCount += 1;
+        } else if (student.studentGender === "Other") {
+          classes.otherCount += 1;
+          batch.student_category.otherCount += 1;
+        } else {
+        }
+        if (student.studentCastCategory === "General") {
+          batch.student_category.generalCount += 1;
+        } else if (student.studentCastCategory === "OBC") {
+          batch.student_category.obcCount += 1;
+        } else if (student.studentCastCategory === "SC") {
+          batch.student_category.scCount += 1;
+        } else if (student.studentCastCategory === "ST") {
+          batch.student_category.stCount += 1;
+        } else if (student.studentCastCategory === "NT-A") {
+          batch.student_category.ntaCount += 1;
+        } else if (student.studentCastCategory === "NT-B") {
+          batch.student_category.ntbCount += 1;
+        } else if (student.studentCastCategory === "NT-C") {
+          batch.student_category.ntcCount += 1;
+        } else if (student.studentCastCategory === "NT-D") {
+          batch.student_category.ntdCount += 1;
+        } else if (student.studentCastCategory === "VJ") {
+          batch.student_category.vjCount += 1;
+        } else {
+        }
+        await Promise.all([classes.save(), batch.save()]);
+        // return true
+      } else {
+        console.log("Problem in Account Creation");
+        // return false
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceAdmissionNewPassQuery = async (req, res) => {
+  try {
+    const { faid } = req.params;
+    const { flow } = req.query;
+    const { old_pass } = req.body;
+    var rand1 = Math.floor(Math.random() * 9) + 1;
+    var rand2 = Math.floor(Math.random() * 9) + 1;
+    var rand3 = Math.floor(Math.random() * 9) + 1;
+    var rand4 = Math.floor(Math.random() * 9) + 1;
+    if (!faid && !flow)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    if (flow === "Finance_Login") {
+      var finance = await Finance.findById({ _id: faid });
+      const compare_pass = bcrypt.compareSync(
+        old_pass,
+        finance.designation_password
+      );
+      if (compare_pass) {
+        var pass = `${rand1}${rand2}${rand3}${rand4}`;
+        const new_user_pass = bcrypt.genSaltSync(12);
+        const hash_user_pass = bcrypt.hashSync(pass, new_user_pass);
+        finance.designation_password = hash_user_pass;
+        finance.designation_status = "Locked";
+        await finance.save();
+        res.status(200).send({
+          message: "Explore New Finance Designation Password",
+          access: true,
+          finance: finance?._id,
+        });
+      } else {
+        res.status(200).send({
+          message: "Password Does'nt match",
+          access: false,
+          finance: finance?._id,
+        });
+      }
+    } else if (flow === "Admission_Login") {
+      var admission = await Admission.findById({ _id: faid });
+      const compare_pass = bcrypt.compareSync(
+        old_pass,
+        admission.designation_password
+      );
+      if (compare_pass) {
+        var pass = `${rand1}${rand2}${rand3}${rand4}`;
+        const new_user_pass = bcrypt.genSaltSync(12);
+        const hash_user_pass = bcrypt.hashSync(pass, new_user_pass);
+        admission.designation_password = hash_user_pass;
+        admission.designation_status = "Locked";
+        await admission.save();
+        res.status(200).send({
+          message: "Explore New Admission Designation Password",
+          access: true,
+          admission: admission?._id,
+        });
+      } else {
+        res.status(200).send({
+          message: "Password Does'nt match",
+          access: false,
+          admission: admission?._id,
+        });
+      }
+    } else {
+      res.status(200).send({ message: "You lost in space", access: false });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceAdmissionDesignationLoginQuery = async (req, res) => {
+  try {
+    const { flow, protected_pin, flowId } = req.body;
+    if (!flow && !protected_pin)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    if (flow === "Finance_Login") {
+      var finance = await Finance.findById({ _id: flowId });
+      const check_finance = bcrypt.compareSync(
+        protected_pin,
+        finance.designation_password
+      );
+      if (check_finance) {
+        finance.designation_status = "UnLocked";
+        await finance.save();
+        const finance_token = await generateAccessDesignationToken(
+          finance?.designation_status,
+          finance?.designation_password
+        );
+        res.status(200).send({
+          message: "Explore Your Unlocked Account",
+          access: true,
+          token: `Bearer ${finance_token}`,
+          finance: finance?._id,
+        });
+      } else {
+        res.status(200).send({
+          message: "Designation Access Deneied",
+          access: false,
+          token: null,
+        });
+      }
+    } else if (flow === "Admission_Login") {
+      var admission = await Admission.findById({ _id: flowId });
+      const check_admission = bcrypt.compareSync(
+        protected_pin,
+        admission.designation_password
+      );
+      if (check_admission) {
+        admission.designation_status = "UnLocked";
+        await admission.save();
+        const admission_token = await generateAccessDesignationToken(
+          admission?.designation_status,
+          admission?.designation_password
+        );
+        res.status(200).send({
+          message: "Explore Your Unlocked Account",
+          access: true,
+          token: `Bearer ${admission_token}`,
+          admission: admission?._id,
+        });
+      } else {
+        res.status(200).send({
+          message: "Designation Access Deneied",
+          access: false,
+          token: null,
+        });
+      }
+    } else {
+      res.status(200).send({
+        message: "Bi-Directional Flow Breaked",
+        access: false,
       });
     }
   } catch (e) {

@@ -253,7 +253,8 @@ exports.renderVehicleUpdateRoute = async (req, res) => {
 exports.renderVehicleNewPassenger = async (req, res) => {
   try {
     const { vid } = req.params;
-    const { sid, rid } = req.body;
+    const { sid, rid, amount } = req.body;
+    var remain_fee = parseInt(amount)
     if (!vid && !sid && !rid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -279,9 +280,15 @@ exports.renderVehicleNewPassenger = async (req, res) => {
           routePath: path?.route_stop,
         });
         student.active_routes = path?.route_stop;
-        student.vehicleRemainFeeCount += path?.route_fees;
-        vehicle.remaining_fee += path?.route_fees;
-        trans.remaining_fee += path?.route_fees;
+        if (remain_fee) {
+          student.vehicleRemainFeeCount += remain_fee;
+          vehicle.remaining_fee += remain_fee;
+          trans.remaining_fee += remain_fee;
+        } else {
+          student.vehicleRemainFeeCount += path?.route_fees;
+          vehicle.remaining_fee += path?.route_fees;
+          trans.remaining_fee += path?.route_fees;
+        }
       }
     }
     await Promise.all([
@@ -293,6 +300,58 @@ exports.renderVehicleNewPassenger = async (req, res) => {
     res
       .status(200)
       .send({ message: "Awesome You Got a first Passenger 🎆", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderVehicleDestroyPassenger = async (req, res) => {
+  try {
+    const { vid, sid } = req.params;
+    if (!vid && !sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const vehicle = await Vehicle.findById({ _id: vid });
+    const trans = await Transport.findById({ _id: `${vehicle?.transport}` });
+    const route = await Direction.findById({
+      _id: `${vehicle?.vehicle_route}`,
+    });
+    const student = await Student.findById({ _id: sid });
+    if (trans.passenger_count > 0) {
+      trans.passenger_count -= 1;
+    }
+    trans.transport_passengers.pull(student?._id);
+    if (vehicle.passenger_count > 0) {
+      vehicle.passenger_count -= 1;
+    }
+    vehicle.passenger_array.pull(student?._id);
+    student.vehicle = null;
+    for (var path of route?.direction_route) {
+      for (var ref of student?.routes) {
+        if (`${path?._id}` === `${ref?.routeId}`) {
+          path.passenger_list.pull(student?._id);
+          if (path.passenger_count > 0) {
+            path.passenger_count -= 1;
+          }
+          student.routes.pull(ref?._id);
+          student.active_routes = null;
+          student.vehicleRemainFeeCount -= student.vehicleRemainFeeCount;
+          vehicle.remaining_fee -= student.vehicleRemainFeeCount;
+          trans.remaining_fee -= student.vehicleRemainFeeCount;
+        }
+      }
+    }
+    await Promise.all([
+      trans.save(),
+      vehicle.save(),
+      route.save(),
+      student.save(),
+    ]);
+    res
+      .status(200)
+      .send({ message: "Awesome You Remove your Passenger 🎆", access: true });
   } catch (e) {
     console.log(e);
   }

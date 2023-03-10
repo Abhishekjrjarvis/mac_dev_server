@@ -54,6 +54,19 @@ const admissionAdminSchema = new mongoose.Schema({
       ref: "Student",
     },
   ],
+  refundFeeList: [
+    {
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+      },
+      refund: { type: Number, default: 0 },
+    },
+  ],
+  refundCount: {
+    type: Number,
+    default: 0,
+  },
   remainingFeeCount: {
     type: Number,
     default: 0,
@@ -74,18 +87,14 @@ const admissionAdminSchema = new mongoose.Schema({
   },
   moderator_role: [
     {
-      role: { type: String, default: "NO_ACCESS" },
-      application: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "NewApplication",
-      },
-      staff: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Staff",
-      },
-      createdAt: { type: Date, default: Date.now },
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "AdmissionModerator",
     },
   ],
+  moderator_role_count: {
+    type: Number,
+    default: 0,
+  },
   request_array: [],
   fee_receipt_request: [
     {
@@ -132,6 +141,24 @@ const admissionAdminSchema = new mongoose.Schema({
   required_document_count: {
     type: Number,
     default: 0,
+  },
+  export_collection: [
+    {
+      excel_file: { type: String },
+      excel_file_name: { type: String },
+      created_at: { type: Date, default: Date.now },
+    },
+  ],
+  export_collection_count: {
+    type: Number,
+    default: 0,
+  },
+  designation_password: {
+    type: String,
+  },
+  designation_status: {
+    type: String,
+    default: "Locked",
   },
 });
 

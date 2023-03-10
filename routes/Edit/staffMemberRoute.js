@@ -42,4 +42,8 @@ router
   .route("/transport/staff/:osid")
   .patch(isLoggedIn, catchAsync(staffMember.renderTransportStaffQuery));
 
+router
+  .route("/event/manager/staff/:osid")
+  .patch(isLoggedIn, catchAsync(staffMember.renderEventManagerStaffQuery));
+
 module.exports = router;

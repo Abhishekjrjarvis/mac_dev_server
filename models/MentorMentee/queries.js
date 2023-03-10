@@ -27,9 +27,15 @@ const querySchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  remark_by_depart: {
+    type: String,
+  },
   report_by: {
     type: String,
     default: "Not Report",
+  },
+  report_on: {
+    type: Date,
   },
   created_at: {
     type: Date,

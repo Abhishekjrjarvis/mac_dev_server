@@ -672,6 +672,7 @@ exports.forgotPasswordSendOtp = async (req, res) => {
         otp_code: `${code}`,
       });
       await otpCode.save();
+      console.log(code);
       // const fEncrypt = await encryptionPayload(user);
       res.status(200).send({
         message: "code will be send to registered mobile number",

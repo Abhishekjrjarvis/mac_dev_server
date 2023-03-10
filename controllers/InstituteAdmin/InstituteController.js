@@ -2790,19 +2790,44 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
 exports.retrieveDepartmentStaffArray = async (req, res) => {
   try {
     const { did } = req.params;
-    const department = await Department.findById({ _id: did })
-      .select("dName")
-      .populate({
-        path: "departmentChatGroup",
-        select:
-          "staffFirstName staff_biometric_id staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
-        populate: {
-          path: "user",
-          select: "username userLegalName photoId profilePhoto",
-        },
-      });
-    // const dEncrypt = await encryptionPayload(department);
-    res.status(200).send({ message: "Department Staff List", department });
+    if (req.query.search) {
+      const department = await Department.findById({ _id: did })
+        .select("dName")
+        .populate({
+          path: "departmentChatGroup",
+          match: {
+            $or: [
+              { staffFirstName: { $regex: req.query.search, $options: "i" } },
+              { staffMiddleName: { $regex: req.query.search, $options: "i" } },
+              { staffLastName: { $regex: req.query.search, $options: "i" } },
+            ],
+          },
+          select:
+            "staffFirstName staff_biometric_id staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+          populate: {
+            path: "user",
+            select: "username userLegalName photoId profilePhoto",
+          },
+        });
+      // const dEncrypt = await encryptionPayload(department);
+      res
+        .status(200)
+        .send({ message: "Department Staff List wit search", department });
+    } else {
+      const department = await Department.findById({ _id: did })
+        .select("dName")
+        .populate({
+          path: "departmentChatGroup",
+          select:
+            "staffFirstName staff_biometric_id staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+          populate: {
+            path: "user",
+            select: "username userLegalName photoId profilePhoto",
+          },
+        });
+      // const dEncrypt = await encryptionPayload(department);
+      res.status(200).send({ message: "Department Staff List", department });
+    }
   } catch {}
 };
 

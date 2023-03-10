@@ -158,6 +158,7 @@ const admissionAdminSchema = new mongoose.Schema({
   designation_password: {
     type: String,
   },
+  enable_protection: { type: Boolean, default: true },
   designation_status: {
     type: String,
     default: "Locked",

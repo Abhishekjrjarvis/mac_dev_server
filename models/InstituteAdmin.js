@@ -667,6 +667,7 @@ const instituteAdminSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Finance",
       },
+      flow: { type: String },
       status: { type: String, default: "Not Uploaded" },
     },
   ],

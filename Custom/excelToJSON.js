@@ -247,3 +247,41 @@ exports.generate_excel_to_json_fee_head_master = async (file) => {
     console.log("Master Excel Query Not Resolved", e);
   }
 };
+
+exports.generate_excel_to_json_direct_staff = async (file) => {
+  try {
+    const w_query = xlsx.read(file.Body);
+    const w_sheet = w_query.Sheets["Staff"];
+    const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
+    var new_data_query = [];
+    data_query?.map((ref) => {
+      ref.staffDOB = replace_query(ref?.DOB);
+      ref.staffGender = ref?.Gender;
+      ref.staffMotherName = ref?.MotherName;
+      ref.staffPhoneNumber = ref?.PhoneNumber;
+      ref.userPhoneNumber = parseInt(ref?.PhoneNumber);
+      let name_query = ref?.Name?.split(" ");
+      if (name_query?.length > 2) {
+        new_data_query.push({
+          ...ref,
+          staffFirstName: name_query[0],
+          staffMiddleName: name_query[1],
+          staffLastName: name_query[2],
+          fileArray: [],
+          sample_pic: "",
+        });
+      } else {
+        new_data_query.push({
+          ...ref,
+          staffFirstName: name_query[0],
+          staffLastName: name_query[1],
+          fileArray: [],
+          sample_pic: "",
+        });
+      }
+    });
+    return { staff_array: new_data_query, value: true };
+  } catch (e) {
+    console.log("Staff Excel Query Not Resolved", e);
+  }
+};

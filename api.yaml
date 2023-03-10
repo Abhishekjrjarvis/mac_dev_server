@@ -23257,6 +23257,34 @@ paths:
         "200":
           description: OK
 
+  /api/v1/extra/excel/to/json/{id}/staff/query:
+    patch:
+      tags:
+        - Process Excel + Database Processing
+      summary: Upload One Excel File To Directly Institute (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: Enter Institute Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              excel_file:
+                type: string
+                description: Enter Key here
+                required: true
+      responses:
+        "200":
+          description: OK
+
 # New Filter
 
   /api/v1/feed/filter/pending/fee/{aid}:
@@ -24270,6 +24298,30 @@ paths:
                 type: string
                 description: Enter Old Password
                 required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/auth/enable/password/protection/{faid}:
+    patch:
+      tags:
+        - Designation Protection
+      summary: Enable || Disable Password Protection for Admission || Finance (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: faid
+          required: true
+          type: string
+          description: This Finance || Admission ID
+        - in: query
+          name: flow
+          required: true
+          type: string
+          description: Enter for Finance ("Finance_Login") || for Admission ("Admission_Login")
       responses:
         "200":
           description: OK

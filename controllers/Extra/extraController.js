@@ -22,9 +22,11 @@ const {
   generate_excel_to_json_fee_category,
   generate_excel_to_json_fee_head_master,
   generate_excel_to_json_fee_structure,
+  generate_excel_to_json_direct_staff,
 } = require("../../Custom/excelToJSON");
 const {
   retrieveInstituteDirectJoinQueryPayload,
+  retrieveInstituteDirectJoinStaffAutoQuery,
 } = require("../Authentication/AuthController");
 const {
   renderFinanceAddFeeCategoryAutoQuery,
@@ -1142,6 +1144,54 @@ exports.renderExcelToJSONFinanceStructureQuery = async (req, res) => {
         fid,
         did,
         is_converted?.structure_array
+      );
+    } else {
+      console.log("false");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderExcelToJSONStaffQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { excel_file } = req.body;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const one_ins = await InstituteAdmin.findById({
+      _id: id,
+    });
+    one_ins.excel_data_query.push({
+      excel_file: excel_file,
+      status: "Uploaded",
+      flow: "STAFF",
+    });
+    await one_ins.save();
+    res.status(200).send({
+      message: "Update Excel To Backend Wait for Operation Completed",
+      access: true,
+    });
+
+    const update_ins = await InstituteAdmin.findById({
+      _id: id,
+    });
+    var key;
+    for (var ref of update_ins?.excel_data_query) {
+      if (`${ref.status}` === "Uploaded" && `${ref?.flow}` === `STAFF`) {
+        key = ref?.excel_file;
+      }
+    }
+    const val = await simple_object(key);
+
+    const is_converted = await generate_excel_to_json_direct_staff(val);
+    if (is_converted?.value) {
+      await retrieveInstituteDirectJoinStaffAutoQuery(
+        id,
+        is_converted?.staff_array
       );
     } else {
       console.log("false");

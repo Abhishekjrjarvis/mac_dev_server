@@ -3004,6 +3004,44 @@ exports.renderFinanceAdmissionNewPassQuery = async (req, res) => {
   }
 };
 
+exports.renderFinanceAdmissionNewProtectionQuery = async (req, res) => {
+  try {
+    const { faid } = req.params;
+    const { flow } = req.query;
+    if (!faid && !flow)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    if (flow === "Finance_Login") {
+      const finance = await Finance.findById({ _id: faid });
+      finance.enable_protection = !finance.enable_protection;
+      await finance.save();
+      res.status(200).send({
+        message: `Finance Password Protection ${
+          finance?.enable_protection ? "Enable" : "Disbale"
+        }`,
+        access: false,
+      });
+    } else if (flow === "Admission_Login") {
+      const ads_admin = await Admission.findById({ _id: faid });
+      ads_admin.enable_protection = !ads_admin.enable_protection;
+      await ads_admin.save();
+      res.status(200).send({
+        message: `Admission Password Protection ${
+          ads_admin?.enable_protection ? "Enable" : "Disbale"
+        }`,
+        access: false,
+      });
+    } else {
+      res.status(200).send({ message: "You lost in space", access: false });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.renderFinanceAdmissionDesignationLoginQuery = async (req, res) => {
   try {
     const { flow, protected_pin, flowId } = req.body;
@@ -3070,6 +3108,243 @@ exports.renderFinanceAdmissionDesignationLoginQuery = async (req, res) => {
         message: "Bi-Directional Flow Breaked",
         access: false,
       });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveInstituteDirectJoinStaffAutoQuery = async (
+  insId,
+  staff_array
+) => {
+  try {
+    for (var ref of staff_array) {
+      const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+      const valid = await filter_unique_username(
+        ref?.staffFirstName,
+        ref?.staffDOB
+      );
+      if (!valid?.exist) {
+        const genUserPass = bcrypt.genSaltSync(12);
+        const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
+        var user = new User({
+          userLegalName: `${ref?.staffFirstName} ${
+            ref?.staffMiddleName ? ref?.staffMiddleName : ""
+          } ${ref?.staffLastName ? ref?.staffLastName : ""}`,
+          userGender: ref?.staffGender,
+          userDateOfBirth: ref?.staffDOB,
+          username: valid?.username,
+          userStatus: "Approved",
+          userPhoneNumber: ref?.userPhoneNumber,
+          userPassword: hashUserPass,
+          photoId: "0",
+          coverId: "2",
+          remindLater: rDate,
+          next_date: c_date,
+        });
+        admins.users.push(user);
+        admins.userCount += 1;
+        await Promise.all([admins.save(), user.save()]);
+        var uInstitute = await InstituteAdmin.findOne({
+          isUniversal: "Universal",
+        })
+          .select("id userFollowersList followersCount")
+          .populate({ path: "posts" });
+        if (uInstitute && uInstitute.posts && uInstitute.posts.length >= 1) {
+          const post = await Post.find({
+            _id: { $in: uInstitute.posts },
+            postStatus: "Anyone",
+          });
+          post.forEach(async (ele) => {
+            user.userPosts.push(ele);
+          });
+          await user.save();
+        }
+        //
+        var b_date = user.userDateOfBirth?.slice(8, 10);
+        var b_month = user.userDateOfBirth?.slice(5, 7);
+        var b_year = user.userDateOfBirth?.slice(0, 4);
+        if (b_date > p_date) {
+          p_date = p_date + month[b_month - 1];
+          p_month = p_month - 1;
+        }
+        if (b_month > p_month) {
+          p_year = p_year - 1;
+          p_month = p_month + 12;
+        }
+        var get_cal_year = p_year - b_year;
+        if (get_cal_year > 13) {
+          user.ageRestrict = "No";
+        } else {
+          user.ageRestrict = "Yes";
+        }
+        await user.save();
+        //
+        if (uInstitute?.userFollowersList?.includes(`${user._id}`)) {
+        } else {
+          uInstitute.userFollowersList.push(user._id);
+          uInstitute.followersCount += 1;
+          user.userInstituteFollowing.push(uInstitute._id);
+          user.followingUICount += 1;
+          await Promise.all([uInstitute.save(), user.save()]);
+          const posts = await Post.find({ author: `${uInstitute._id}` });
+          posts.forEach(async (ele) => {
+            ele.authorFollowersCount = uInstitute.followersCount;
+            await ele.save();
+          });
+        }
+        const institute = await InstituteAdmin.findById({
+          _id: insId,
+        });
+        const staff = new Staff({
+          staffFirstName: ref?.staffFirstName,
+          staffMiddleName: ref?.staffMiddleName,
+          staffLastName: ref?.staffLastName,
+          staffDOB: ref?.staffDOB,
+          staffGender: ref?.staffGender,
+          staffMotherName: ref?.staffMotherName,
+          staffPhoneNumber: ref?.staffPhoneNumber,
+        });
+        for (var file of ref?.fileArray) {
+          if (file.name === "file") {
+            staff.photoId = "0";
+            staff.staffProfilePhoto = file.key;
+            user.profilePhoto = file.key;
+          } else if (file.name === "addharFrontCard")
+            staff.staffAadharFrontCard = file.key;
+          else if (file.name === "addharBackCard")
+            staff.staffAadharBackCard = file.key;
+          else if (file.name === "bankPassbook")
+            staff.staffBankPassbook = file.key;
+          else if (file.name === "casteCertificate")
+            staff.staffCasteCertificatePhoto = file.key;
+          else {
+            staff.staffDocuments.push({
+              documentName: file.name,
+              documentKey: file.key,
+              documentType: file.type,
+            });
+          }
+        }
+        if (ref?.sample_pic) {
+          user.profilePhoto = ref?.sample_pic;
+          staff.photoId = "0";
+          staff.staffProfilePhoto = ref?.sample_pic;
+        }
+
+        const notify = new Notification({});
+        const aStatus = new Status({});
+        user.staff.push(staff._id);
+        user.is_mentor = true;
+        institute.joinedPost.push(user._id);
+        if (institute.userFollowersList.includes(user?._id)) {
+        } else {
+          user.userInstituteFollowing.push(institute?._id);
+          user.followingUICount += 1;
+          institute.userFollowersList.push(user?._id);
+          institute.followersCount += 1;
+        }
+        staff.institute = institute._id;
+        staff.staffApplyDate = new Date().toISOString();
+        staff.user = user._id;
+        staff.staffStatus = "Approved";
+        institute.ApproveStaff.push(staff._id);
+        institute.staffCount += 1;
+        admins.staffArray.push(staff._id);
+        admins.staffCount += 1;
+        institute.joinedUserList.push(user._id);
+        staff.staffROLLNO = institute.ApproveStaff.length;
+        staff.staffJoinDate = new Date().toISOString();
+        notify.notifyContent = `Congrats ${staff.staffFirstName} ${
+          staff.staffMiddleName ? `${staff.staffMiddleName}` : ""
+        } ${staff.staffLastName} for joined as a staff at ${institute.insName}`;
+        notify.notifySender = institute._id;
+        notify.notifyReceiever = user._id;
+        notify.notifyCategory = "Approve Staff";
+        institute.iNotify.push(notify._id);
+        notify.institute = institute._id;
+        user.uNotify.push(notify._id);
+        notify.user = user._id;
+        notify.notifyByStaffPhoto = staff._id;
+        aStatus.content = `Welcome to ${institute.insName}.Your application for joining as staff  has been accepted by ${institute.insName}.`;
+        user.applicationStatus.push(aStatus._id);
+        aStatus.instituteId = institute._id;
+        invokeFirebaseNotification(
+          "Staff Approval",
+          notify,
+          institute.insName,
+          user._id,
+          user.deviceToken
+        );
+        await Promise.all([
+          staff.save(),
+          institute.save(),
+          admins.save(),
+          user.save(),
+          notify.save(),
+          aStatus.save(),
+        ]);
+        if (institute.isUniversal === "Not Assigned") {
+          const post = await Post.find({ author: institute._id });
+          post.forEach(async (pt) => {
+            if (
+              user.userPosts.length >= 1 &&
+              user.userPosts.includes(String(pt))
+            ) {
+            } else {
+              user.userPosts.push(pt);
+            }
+          });
+          await user.save();
+        } else {
+        }
+        if (staff.staffGender === "Male") {
+          institute.staff_category.boyCount += 1;
+        } else if (staff.staffGender === "Female") {
+          institute.staff_category.girlCount += 1;
+        } else if (staff.staffGender === "Other") {
+          institute.staff_category.otherCount += 1;
+        } else {
+        }
+        if (staff.staffCastCategory === "General") {
+          institute.staff_category.generalCount += 1;
+        } else if (staff.staffCastCategory === "OBC") {
+          institute.staff_category.obcCount += 1;
+        } else if (staff.staffCastCategory === "SC") {
+          institute.staff_category.scCount += 1;
+        } else if (staff.staffCastCategory === "ST") {
+          institute.staff_category.stCount += 1;
+        } else if (staff.staffCastCategory === "NT-A") {
+          institute.staff_category.ntaCount += 1;
+        } else if (staff.staffCastCategory === "NT-B") {
+          institute.staff_category.ntbCount += 1;
+        } else if (staff.staffCastCategory === "NT-C") {
+          institute.staff_category.ntcCount += 1;
+        } else if (staff.staffCastCategory === "NT-D") {
+          institute.staff_category.ntdCount += 1;
+        } else if (staff.staffCastCategory === "VJ") {
+          institute.staff_category.vjCount += 1;
+        } else {
+        }
+        await Promise.all([institute.save()]);
+        const staffName = `${staff.staffFirstName} ${
+          staff.staffMiddleName ? `${staff.staffMiddleName}` : ""
+        } ${staff.staffLastName}`;
+        whats_app_sms_payload(
+          user?.userPhoneNumber,
+          staffName,
+          institute?.insName,
+          null,
+          "ADMIS",
+          institute?.insType,
+          0,
+          0,
+          institute?.sms_lang
+        );
+      } else {
+        console.log("Bug in the direct joining process");
+      }
     }
   } catch (e) {
     console.log(e);

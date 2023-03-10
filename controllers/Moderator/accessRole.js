@@ -50,6 +50,64 @@ exports.all_access_role = () => {
         appArray: [],
       },
     },
+    SCHOLARSHIP_ACCESS: {
+      role: "SCHOLARSHIP_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["Scholarship"],
+        addons: [],
+        accessStaff: "",
+        accessApplication: "",
+        appArray: [],
+      },
+    },
   };
   return access_role;
+};
+
+exports.all_access_role_finance = () => {
+  const access_role_finance = {
+    FULL_ACCESS: {
+      role: "FULL_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["NO"],
+        addons: [],
+        accessStaff: "",
+      },
+    },
+    CASH_RECEIPT_ACCESS: {
+      role: "CASH_RECEIPT_ACCESS",
+      permission: {
+        allow: true,
+        bound: [
+          "CLASS RECEIPT",
+          "TRANSPORT RECEIPT",
+          "ADMISSION RECEIPT",
+          "LIBRARY RECEIPT",
+        ],
+        addons: [],
+        accessStaff: "",
+      },
+    },
+    INVENTORY_ACCESS: {
+      role: "INVENTORY_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["INVENTORY"],
+        addons: [],
+        accessStaff: "",
+      },
+    },
+    FEE_MASTER_ACCESS: {
+      role: "FEE_MASTER_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["FEE CATEGORY", "FEE MASTER", "FEE STRUCTURE"],
+        addons: [],
+        accessStaff: "",
+      },
+    },
+  };
+  return access_role_finance;
 };

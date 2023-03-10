@@ -396,6 +396,16 @@ const financeSchema = new mongoose.Schema(
       type: String,
       default: "Locked",
     },
+    moderator_role: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FinanceModerator",
+      },
+    ],
+    moderator_role_count: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

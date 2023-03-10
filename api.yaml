@@ -20861,6 +20861,129 @@ paths:
         "200":
           description: OK
 
+  /api/v1/role/permission/{fid}/finance/moderator:
+    post:
+      tags:
+        - Moderator Role & Permission
+      summary: Add New Moderator Role (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              mod_role:
+                type: string
+                description: Enter Role as per given 
+                required: true
+              sid:
+                type: string
+                description: Enter Staff Id
+                required: true  
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/role/permission/{fid}/all/finance/moderator:
+    get:
+      tags:
+        - Moderator Role & Permission
+      summary: All Moderator Role of Finance Super Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: search
+          required: true
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/role/permission/update/finance/mod/{mid}:
+    patch:
+      tags:
+        - Moderator Role & Permission
+      summary: Edit One Moderator Role By Finance Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: Enter One Moderator Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              role:
+                type: string
+                description: Enter Role as per given 
+                required: false
+              staffId:
+                type: string
+                description: Enter Staff Id
+                required: true 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/role/permission/{fid}/destroy/finance/mod/{mid}:
+    delete:
+      tags:
+        - Moderator Role & Permission
+      summary: Delete One Moderator Role By Finance Super Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: Enter One Moderator Id
+      responses:
+        "200":
+          description: OK
+
 
 #Manage Admin Module
 
@@ -21912,6 +22035,9 @@ paths:
               doc_key:
                 type: string
                 description: Enter Document Key
+              applicable_to:
+                type: string
+                description: Enter Applicable To
       responses:
         "200":
           description: OK
@@ -21979,6 +22105,10 @@ paths:
                   newKey:
                     type: string
                     description: send existing old key if no new document is available
+                    required: true
+                  applicable_to:
+                    type: string
+                    description: Enter Applicable To
                     required: true
                   oldKey:
                     type: string

@@ -136,6 +136,8 @@ const admissionAdminSchema = new mongoose.Schema({
     {
       document_name: { type: String },
       document_key: { type: String },
+      applicable_to: { type: String },
+      created_at: { type: Date, default: Date.now },
     },
   ],
   required_document_count: {

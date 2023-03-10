@@ -1432,7 +1432,11 @@ exports.retrieveDepartmentList = async (req, res) => {
         populate: {
           path: "dHead",
           select:
-            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto user",
+          populate: {
+            path: "user",
+            select: "userBio userAbout"
+          }
         },
       })
       .lean()
@@ -1458,7 +1462,11 @@ exports.getOneDepartment = async (req, res) => {
         .populate({
           path: "dHead",
           select:
-            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto user",
+            populate: {
+              path: "user",
+              select: "userBio userAbout"
+            }
         })
         .populate({
           path: "batches",

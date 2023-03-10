@@ -4471,7 +4471,7 @@ exports.renderEditStudentFeeStructureQuery = async (req, res) => {
 exports.renderAddDocumentQuery = async (req, res) => {
   try {
     const { aid } = req.params;
-    const { doc_name, doc_key } = req.body;
+    const { doc_name, doc_key, applicable_to } = req.body;
     if (!aid && !doc_name && !doc_key)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -4481,6 +4481,7 @@ exports.renderAddDocumentQuery = async (req, res) => {
     ads_admin.required_document.push({
       document_name: doc_name,
       document_key: doc_key,
+      applicable_to: applicable_to,
     });
     ads_admin.required_document_count += 1;
     await ads_admin.save();
@@ -4549,6 +4550,7 @@ exports.renderEditDocumentQuery = async (req, res) => {
       if (`${ref?._id}` === `${doc?.id}`) {
         ref.document_name = doc.name;
         ref.document_key = doc.newKey;
+        ref.applicable_to = doc.applicable_to;
       }
     }
     if (doc?.oldKey) {
@@ -5166,12 +5168,10 @@ exports.renderAllFeeStructureQuery = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
     if (!aid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediatley",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
 
     const ads_admin = await Admission.findById({ _id: aid })
       .select("institute")
@@ -5196,21 +5196,17 @@ exports.renderAllFeeStructureQuery = async (req, res) => {
       });
 
     if (all_structures?.length > 0) {
-      res
-        .status(200)
-        .send({
-          message: "Explore All Structures Array",
-          access: true,
-          all_structures: all_structures,
-        });
+      res.status(200).send({
+        message: "Explore All Structures Array",
+        access: true,
+        all_structures: all_structures,
+      });
     } else {
-      res
-        .status(200)
-        .send({
-          message: "No Structures Array",
-          access: false,
-          all_structures: [],
-        });
+      res.status(200).send({
+        message: "No Structures Array",
+        access: false,
+        all_structures: [],
+      });
     }
   } catch (e) {
     console.log(e);

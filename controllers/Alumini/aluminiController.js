@@ -96,7 +96,7 @@ exports.renderAluminiDashboardQuery = async (req, res) => {
 
     const one_alumini = await Alumini.findById({ _id: aid })
       .select(
-        "certifcate_given_count register_form_count success_story_count alumini_passage created_at feed_back_received feed_question_count rating"
+        "certifcate_given_count register_form_count alumini_photo success_story_count alumini_passage created_at feed_back_received feed_question_count rating"
       )
       .populate({
         path: "alumini_head",

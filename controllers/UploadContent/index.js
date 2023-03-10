@@ -27,6 +27,7 @@ const Transport = require("../../models/Transport/transport");
 const Vehicle = require("../../models/Transport/vehicle");
 const LandingCareer = require("../../models/LandingModel/Career/landingCareer");
 const LandingTender = require("../../models/LandingModel/Tender/landingTender");
+const Alumini = require("../../models/Alumini/Alumini");
 
 const {
   getFileStream,
@@ -668,6 +669,25 @@ exports.patchLandingTenderImageCover = async (req, res) => {
     await tender.save();
     await unlinkFile(file.path);
     res.status(200).send({ message: "Explore New Landing Tender photo" });
+  } catch (err) {
+    console.log(err.message);
+  }
+};
+
+exports.patchAluminiImageCover = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const alumini = await Alumini.findById({ _id: aid });
+    if (alumini.alumini_photo) await deleteFile(alumini.alumini_photo);
+    const width = 375;
+    const height = 245;
+    const file = req.file;
+    const results = await uploadFile(file, width, height);
+    alumini.alumini_photo = results.key;
+    alumini.photoId = "0";
+    await alumini.save();
+    await unlinkFile(file.path);
+    res.status(200).send({ message: "Explore New Alumini photo" });
   } catch (err) {
     console.log(err.message);
   }

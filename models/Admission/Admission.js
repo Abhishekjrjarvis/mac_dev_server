@@ -160,6 +160,12 @@ const admissionAdminSchema = new mongoose.Schema({
     type: String,
     default: "Locked",
   },
+  site_info: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "AdmissionSite",
+    },
+  ],
 });
 
 module.exports = mongoose.model("Admission", admissionAdminSchema);

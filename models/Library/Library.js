@@ -55,6 +55,12 @@ const librarySchema = new mongoose.Schema({
     },
   ],
   createdAt: { type: Date, default: Date.now },
+  site_info: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "LibrarySite",
+    },
+  ],
 });
 
 module.exports = mongoose.model("Library", librarySchema);

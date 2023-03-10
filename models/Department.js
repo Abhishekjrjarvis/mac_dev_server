@@ -289,6 +289,12 @@ const departmentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  site_info: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "DepartmentSite",
+    },
+  ],
 });
 
 const Department = mongoose.model("Department", departmentSchema);

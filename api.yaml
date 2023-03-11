@@ -24822,6 +24822,9 @@ paths:
               scholarship_about:
                 type: string
                 description: Enter ScholarShip About
+              category_array:
+                type: array
+                description: Enter Array of Fees Category ID ["898984989", "49909204909"]
               scholarship_notification:
                 type: object
                 properties:
@@ -24840,9 +24843,6 @@ paths:
                   apply:
                     type: string
                     description: Enter Apply Attachment || Link
-              category_array:
-                type: array
-                description: Enter Array of Fees Category ID ["898984989", "49909204909"]
       responses:
         "200":
           description: OK

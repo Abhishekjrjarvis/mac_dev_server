@@ -401,4 +401,39 @@ router.get(
   catchAsync(Admission.renderAllFeeStructureQuery)
 );
 
+router.post(
+  "/:aid/new/scholarship",
+  catchAsync(Admission.renderNewScholarShipQuery)
+);
+
+router.get(
+  "/:aid/all/scholarship",
+  catchAsync(Admission.renderAllScholarShipQuery)
+);
+
+router.get(
+  "/:sid/scholarship/query",
+  catchAsync(Admission.renderScholarShipQuery)
+);
+
+router.post(
+  "/:aid/scholarship/new/corpus/:sid",
+  catchAsync(Admission.renderScholarShipNewFundCorpusQuery)
+);
+
+router.get(
+  "/:sid/all/allotted/candidates/government",
+  catchAsync(Admission.renderAllCandidatesGovernment)
+);
+
+router.get(
+  "/:sid/one/fund/corpus/history",
+  catchAsync(Admission.renderOneFundCorpusHistory)
+);
+
+router.patch(
+  "/:sid/status/query",
+  catchAsync(Admission.renderOneScholarShipStatusQuery)
+);
+
 module.exports = router;

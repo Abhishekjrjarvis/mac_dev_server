@@ -163,6 +163,20 @@ const admissionAdminSchema = new mongoose.Schema({
     type: String,
     default: "Locked",
   },
+  scholarship: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ScholarShip",
+    },
+  ],
+  scholarship_count: {
+    type: Number,
+    default: 0,
+  },
+  scholarship_completed_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("Admission", admissionAdminSchema);

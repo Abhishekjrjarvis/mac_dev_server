@@ -10892,6 +10892,11 @@ paths:
           type: file
           required: false
           description: upload Income Acknowledge Report / Receipt
+        - in: formData
+          name: income_utr
+          type: string
+          required: false
+          description: Add UTR Number
       responses:
         "200":
           description: OK
@@ -22325,6 +22330,10 @@ paths:
               type:
                 type: string
                 description: Enter Installment Value
+              scid:
+                type: string
+                description: Enter ScholarShip ID
+                required: true
       responses:
         "200":
           description: OK
@@ -24780,6 +24789,248 @@ paths:
               additional_feedback:
                 type: string
                 description: Enter Additional FeedBack
+      responses:
+        "200":
+          description: OK
+
+#ScholarShip Query
+
+  /api/v1/admission/{aid}/new/scholarship:
+    post:
+      tags:
+        - ScholarShip Query
+      summary: Add New ScholarShip By Admission Admin - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              scholarship_name:
+                type: string
+                description: Enter Scholarship Name
+                required: true
+              scholarship_about:
+                type: string
+                description: Enter ScholarShip About
+              scholarship_notification:
+                type: object
+                properties:
+                  flow:
+                    type: string
+                    description: Enter Flow ("Input" || "Link")
+                  notification:
+                    type: string
+                    description: Enter Notification Attachment || Link
+              scholarship_apply:
+                type: object
+                properties:
+                  flow:
+                    type: string
+                    description: Enter Flow ("Input" || "Link")
+                  apply:
+                    type: string
+                    description: Enter Apply Attachment || Link
+              category_array:
+                type: array
+                description: Enter Array of Fees Category ID ["898984989", "49909204909"]
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/all/scholarship:
+    get:
+      tags:
+        - ScholarShip Query
+      summary: One Admission All ScholarShip - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This Admission ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: status
+          required: true
+          type: string
+          description: Enter Status ("Not Completed" || "Completed")
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/alumini/{sid}/scholarship/query:
+    get:
+      tags:
+        - ScholarShip Query
+      summary: One ScholarShip - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This ScholarShip ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{sid}/all/allotted/candidates/government:
+    get:
+      tags:
+        - ScholarShip Query
+      summary: One ScholarShip All Candidates - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This ScholarShip ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: search
+          required: true
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/alumini/{sid}/status/query:
+    patch:
+      tags:
+        - ScholarShip Query
+      summary: One ScholarShip Mark Status Completed - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This ScholarShip ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/scholarship/new/corpus/{sid}:
+    post:
+      tags:
+        - ScholarShip Query
+      summary: Add New Fund Corpus In ScholarShip By Admission Admin - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission ID
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is ScholarShip ID
+        - in: query
+          name: user_query
+          required: true
+          type: string
+          description: This is User Id Similar Like Income Add In Finance
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              incomeAccount:
+                type: string
+                description: Enter Account Type ("By Bank" || "By Cash")
+                required: true
+              incomeAmount:
+                type: number
+                description: Enter Income Amount
+              incomeFrom:
+                type: string
+                description: Enter Income From User Name (if user Id then pass user_query)
+              income_utr:
+                type: string
+                description: Enter Income UTR
+              incomeDesc:
+                type: string
+                description: Enter Income Description
+              incomeAck:
+                type: string
+                description: Enter Income Acknowledge
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{sid}/one/fund/corpus/history:
+    get:
+      tags:
+        - ScholarShip Query
+      summary: One ScholarShip Fund Corpus All In Take History - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This ScholarShip ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
       responses:
         "200":
           description: OK

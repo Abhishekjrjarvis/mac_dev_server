@@ -24881,7 +24881,7 @@ paths:
         "200":
           description: OK
 
-  /api/v1/alumini/{sid}/scholarship/query:
+  /api/v1/admission/{sid}/scholarship/query:
     get:
       tags:
         - ScholarShip Query
@@ -24934,7 +24934,7 @@ paths:
         "200":
           description: OK
 
-  /api/v1/alumini/{sid}/status/query:
+  /api/v1/admission/{sid}/status/query:
     patch:
       tags:
         - ScholarShip Query

@@ -4711,8 +4711,10 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
-    const scholar = await ScholarShip.findById({ _id: scid })
-    const corpus = await FundCoprus.findById({ _id: `${scholar?.fund_coprus}`})
+    const scholar = await ScholarShip.findById({ _id: scid });
+    const corpus = await FundCoprus.findById({
+      _id: `${scholar?.fund_coprus}`,
+    });
     const new_receipt = new FeeReceipt({ ...req.body });
     new_receipt.student = student?._id;
     new_receipt.application = apply?._id;
@@ -4726,8 +4728,8 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
     if (req?.body?.fee_payment_mode === "Government/Scholarship") {
       finance.government_receipt.push(new_receipt?._id);
       finance.financeGovernmentScholarBalance += price;
-      scholar.scholarship_candidates.push(new_receipt?._id)
-      scholar.scholarship_candidates_count += 1
+      scholar.scholarship_candidates.push(new_receipt?._id);
+      scholar.scholarship_candidates_count += 1;
       finance.government_receipt_count += 1;
       if (price >= remaining_fee_lists?.remaining_fee) {
         extra_price += price - remaining_fee_lists?.remaining_fee;
@@ -4833,21 +4835,30 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
       admin_ins.onlineFee += price + extra_price;
       apply.onlineFee += price + extra_price;
       apply.collectedFeeCount += price + extra_price;
-      finance.financeTotalBalance += price + extra_price;
+      // finance.financeTotalBalance += price + extra_price;
       finance.financeAdmissionBalance += price + extra_price;
       finance.financeBankBalance += price + extra_price;
+      if (finance?.financeIncomeBankBalance >= price + extra_price) {
+        finance.financeIncomeBankBalance -= price + extra_price;
+      }
     } else if (mode === "Offline") {
       admin_ins.offlineFee += price + extra_price;
       apply.offlineFee += price + extra_price;
       apply.collectedFeeCount += price + extra_price;
       admin_ins.collected_fee += price + extra_price;
-      finance.financeTotalBalance += price + extra_price;
+      // finance.financeTotalBalance += price + extra_price;
       finance.financeAdmissionBalance += price + extra_price;
       finance.financeSubmitBalance += price + extra_price;
+      if (finance?.financeIncomeCashBalance >= price + extra_price) {
+        finance.financeIncomeCashBalance -= price + extra_price;
+      }
     } else {
     }
-    if(corpus.total_corpus >= price){
-      corpus.unused_corpus += total_corpus - price
+    if (corpus.total_corpus >= price) {
+      corpus.unused_corpus += total_corpus - price;
+    }
+    if (finance?.financeTotalBalance >= price + extra_price) {
+      finance.financeTotalBalance -= price + extra_price;
     }
     // await set_fee_head_query(student, price, apply);
     await update_fee_head_query(student, price, apply);
@@ -4878,7 +4889,7 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
       remaining_fee_lists.save(),
       new_receipt.save(),
       scholar.save(),
-      corpus.save()
+      corpus.save(),
     ]);
     res.status(200).send({
       message: "Balance Pool increasing with price Operation complete",
@@ -5592,25 +5603,24 @@ exports.renderOneFundCorpusHistory = async (req, res) => {
   }
 };
 
-exports.renderOneScholarShipStatusQuery = async(req, res) => {
-  try{
-    const { sid } = req.params
+exports.renderOneScholarShipStatusQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
     if (!sid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
 
-    const scholar = await ScholarShip.findById({ _id: sid })
-    scholar.scholarship_status = "Completed"
-    if(scholar?.scholarship_count > 0){
-      scholar.scholarship_count -= 1
+    const scholar = await ScholarShip.findById({ _id: sid });
+    scholar.scholarship_status = "Completed";
+    if (scholar?.scholarship_count > 0) {
+      scholar.scholarship_count -= 1;
     }
-    scholar.scholarship_completed_count += 1
-    await scholar.save()
-    res.status(200).send({ message: "Explore Completed ScholarShip"})
+    scholar.scholarship_completed_count += 1;
+    await scholar.save();
+    res.status(200).send({ message: "Explore Completed ScholarShip" });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};

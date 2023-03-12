@@ -2677,7 +2677,7 @@ exports.renderDepartmentAllFeeStructure = async (req, res) => {
       })
         .limit(limit)
         .skip(skip)
-        .select("total_admission_fees")
+        .select("total_admission_fees structure_name applicable_fees")
         .populate({
           path: "category_master",
           select: "category_name",

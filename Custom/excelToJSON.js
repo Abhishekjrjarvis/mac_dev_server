@@ -105,16 +105,17 @@ exports.generate_excel_to_json_fee_structure = async (file, fid, did) => {
     data_query?.map(async (struct) => {
       var heads = [];
       const fee_category = await FeeCategory.findOne({
-        $and: [{ finance: fid }],
-        $or: [
+        $and: [
+          { finance: fid },
           {
             category_name: { $regex: struct?.CategoryName, $options: "i" },
           },
         ],
       });
+      // console.log("ID's - ", fee_category?._id, struct?.CategoryName);
       const master = await ClassMaster.findOne({
-        $and: [{ department: did }],
-        $or: [
+        $and: [
+          { department: did },
           {
             className: { $regex: struct?.StandardName, $options: "i" },
           },
@@ -211,12 +212,11 @@ exports.generate_excel_to_json_fee_structure = async (file, fid, did) => {
       struct.heads = [...heads];
       struct.CategoryId = fee_category?._id;
       struct.StandardId = master?._id;
-      if (struct) {
+      if (struct?.CategoryId) {
         new_data_query.push({ ...struct });
-        console.log("push");
+        // console.log("push");
       } else {
-        new_data_query = [];
-        console.log("Empty");
+        // console.log("Empty");
       }
     });
     // fs.writeFileSync("../structure.json", JSON.stringify(data_query, null, 2));

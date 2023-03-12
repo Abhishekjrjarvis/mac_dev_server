@@ -61,6 +61,17 @@ exports.all_access_role = () => {
         appArray: [],
       },
     },
+    REFUND_ACCESS: {
+      role: "REFUND_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["GIVE REFUND"],
+        addons: [],
+        accessStaff: "",
+        accessApplication: "",
+        appArray: [],
+      },
+    },
   };
   return access_role;
 };
@@ -104,6 +115,15 @@ exports.all_access_role_finance = () => {
       permission: {
         allow: true,
         bound: ["FEE CATEGORY", "FEE MASTER", "FEE STRUCTURE"],
+        addons: [],
+        accessStaff: "",
+      },
+    },
+    PAYROLL_ACCESS: {
+      role: "PAYROLL_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["MARK PAYROLL", "DOWNLOAD PAYROLL"],
         addons: [],
         accessStaff: "",
       },

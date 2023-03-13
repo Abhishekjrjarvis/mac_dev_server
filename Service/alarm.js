@@ -5,7 +5,6 @@ const moment = require("moment");
 
 exports.dueDateAlarm = async () => {
   try {
-    const alarmTrigger = moment(new Date()).format("YYYY-MM-DD");
     const all_remains = await RemainingList({})
       .select("remaining_array")
       .populate({
@@ -18,19 +17,10 @@ exports.dueDateAlarm = async () => {
       });
     for (let remind of all_remains) {
       for (let set of remind.remaining_array) {
-        if (
-          set?.status === "Not Paid" &&
-          // `${alarmTrigger}` <= `${set?.dueDate}` &&
-          `${alarmTrigger}` >=
-            `${moment(
-              new Date(set?.dueDate).setDate(
-                new Date(set?.dueDate).getDate() - 3
-              )
-            ).format("YYYY-MM-DD")}`
-        ) {
+        if (set?.status === "Not Paid") {
           invokeSpecificRegister(
             "Specific Notification",
-            `Admission ${set?.installmentValue} is due on ${set?.dueDate}`,
+            `Admission Fees ${set?.installmentValue} is due. Paid As Soon As Possible.`,
             "Fees Reminder",
             remind?.student?.user._id,
             remind?.student?.user.deviceToken

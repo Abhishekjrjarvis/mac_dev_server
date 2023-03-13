@@ -761,6 +761,14 @@ const instituteAdminSchema = new mongoose.Schema({
       ref: "Alumini",
     },
   ],
+  sub_domain: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "SubDomain",
+  },
+  sub_domain_link_up_status: {
+    type: String,
+    default: "Not Linked",
+  },
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

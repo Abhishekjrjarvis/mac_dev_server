@@ -16,6 +16,7 @@ const smartPhrase = require("../../Service/smartRecoveryPhrase");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
 const invokeSpecificRegister = require("../../Firebase/specific");
+const SubDomain = require("../../models/Domain/sub-domain");
 const {
   connect_redis_hit,
   connect_redis_miss,
@@ -1078,6 +1079,114 @@ exports.renderPayouts = async (req, res) => {
       access: true,
       payout_price: payout_price + pay_ins.partial_pay_amount,
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAddSubDomainQuery = async (req, res) => {
+  try {
+    const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const domain = new SubDomain({ ...req.body });
+    admin.sub_domain_count += 1;
+    admin.sub_domain_array.push(domain?._id);
+    await Promise.all([admin.save(), domain.save()]);
+    res
+      .status(200)
+      .send({ message: "Explore New Sub Domain Landing Page", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllSubDomainArray = async (req, res) => {
+  try {
+    const admin = await Admin.findById({
+      _id: `${process.env.S_ADMIN_ID}`,
+    }).select("sub_domain_array");
+    const all_domain = await SubDomain.find({
+      $and: [{ _id: { $in: admin?.sub_domain_array } }, { status: "Allotted" }],
+    }).populate({
+      path: "link_up",
+      select: "insName name photoId profilePhoto",
+    });
+    if (all_domain?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Sub Domains",
+        access: true,
+        all_domain: all_domain,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Sub Domains",
+        access: false,
+        all_domain: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderSubDomainHostQuery = async (req, res) => {
+  try {
+    const { filter_by } = req.query;
+    if (!filter_by)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const admin = await Admin.findById({
+      _id: `${process.env.S_ADMIN_ID}`,
+    }).select("sub_domain_array");
+    const all_domain = await SubDomain.findOne({
+      $and: [
+        { _id: { $in: admin?.sub_domain_array } },
+        { sub_domain_path: { $regex: filter_by, $options: "i" } },
+      ],
+    }).populate({
+      path: "link_up",
+      select: "insName name photoId profilePhoto",
+    });
+    if (all_domain) {
+      res.status(200).send({
+        message: "Explore One Domain With Institute",
+        access: true,
+        all_domain: all_domain,
+      });
+    } else {
+      res.status(200).send({
+        message: "You are lost in space",
+        access: false,
+        all_domain: null,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderLinkSubDomainQuery = async (req, res) => {
+  try {
+    const { sdid } = req.params;
+    const { insId } = req.query;
+    if (!sdid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const one_domain = await SubDomain.findById({ _id: sdid });
+    const one_institute = await InstituteAdmin.findById({ _id: insId });
+
+    one_domain.link_up = one_institute?._id;
+    one_institute.sub_domain = one_domain?._id;
+    one_institute.sub_domain_link_up_status = "Linked";
+    one_domain.status = "Allotted and Linked";
+
+    await Promise.all([one_domain.save(), one_institute.save()]);
+    res.status(200).send({ message: "Successfully Linked Up", access: true });
   } catch (e) {
     console.log(e);
   }

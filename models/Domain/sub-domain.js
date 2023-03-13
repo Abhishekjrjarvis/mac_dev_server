@@ -8,16 +8,15 @@ const subdomainSchema = new mongoose.Schema({
     type: String,
   },
   link_up: {
-    type: String,
-  },
-  status: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "InstituteAdmin",
   },
   valid_up_to: {
     type: String,
   },
   ssl_secure: {
     type: String,
+    default: "Yes",
   },
   domain: {
     type: String,

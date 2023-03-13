@@ -1356,7 +1356,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
     if (isApk) {
       var staff = await Staff.findById({ _id: sid })
         .select(
-          "staffFirstName staffDesignationCount vehicle_category admissionModeratorDepartment financeModeratorDepartment staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber eventManagerDepartment"
+          "staffFirstName staffDesignationCount vehicle_category staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber eventManagerDepartment"
         )
         .populate({
           path: "staffDepartment",
@@ -1466,6 +1466,14 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         .populate({
           path: "aluminiDepartment",
           select: "_id",
+        })
+        .populate({
+          path: "admissionModeratorDepartment",
+          select: "admission access_role",
+        })
+        .populate({
+          path: "financeModeratorDepartment",
+          select: "finance access_role",
         })
         .lean()
         .exec();
@@ -1508,7 +1516,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
     } else {
       var staff = await Staff.findById({ _id: sid })
         .select(
-          "staffFirstName staffDesignationCount vehicle_category admissionModeratorDepartment financeModeratorDepartment staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber eventManagerDepartment"
+          "staffFirstName staffDesignationCount vehicle_category staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber eventManagerDepartment"
         )
         .populate({
           path: "staffDepartment",
@@ -1618,6 +1626,14 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         .populate({
           path: "aluminiDepartment",
           select: "_id",
+        })
+        .populate({
+          path: "admissionModeratorDepartment",
+          select: "admission access_role",
+        })
+        .populate({
+          path: "financeModeratorDepartment",
+          select: "finance access_role",
         })
         .lean()
         .exec();
@@ -1935,7 +1951,7 @@ exports.retrieveUserApplicationStatus = async (req, res) => {
         path: "applicationStatus",
         populate: {
           path: "feeStructure",
-          select: "one_installments total_admission_fees",
+          select: "one_installments total_admission_fees applicable_fees",
           populate: {
             path: "category_master",
             select: "category_name",
@@ -2256,24 +2272,20 @@ exports.retrieveStaffAllDesignationQuery = async (req, res) => {
   try {
     const { sid } = req.params;
     if (!sid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediatley",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
 
     const one_staff = await Staff.findById({ _id: sid }).select(
       "designation_array staffDesignationCount"
     );
 
-    res
-      .status(200)
-      .send({
-        message: "Explore All Designation for Staff",
-        access: true,
-        one_staff: one_staff,
-      });
+    res.status(200).send({
+      message: "Explore All Designation for Staff",
+      access: true,
+      one_staff: one_staff,
+    });
   } catch (e) {
     console.log(e);
   }

@@ -25040,7 +25040,7 @@ paths:
   /api/v1/user/{sid}/staff/all/designation:
     get:
       tags:
-        - All Designation Query
+        - All Designation + Domain Query
       summary: One Staff All Designation - (verified)
       consumes:
         - application/json
@@ -25052,6 +25052,63 @@ paths:
           required: true
           type: string
           description: This Staff ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admin/all/sub/domain/array:
+    get:
+      tags:
+        - All Designation + Domain Query
+      summary: All Allotted Sub Domain - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admin/sub/domain/by/host:
+    get:
+      tags:
+        - All Designation + Domain Query
+      summary: Filter Sub Domain By HostName - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: filter_by
+          required: true
+          type: string
+          description: Enter Host Name
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admin/link/sub/domain/{sdid}:
+    patch:
+      tags:
+        - All Designation + Domain Query
+      summary: Link Sub Domain By Institute Admin - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sdid
+          required: true
+          type: string
+          description: Enter Sub Domain ID
+        - in: query
+          name: insId
+          required: true
+          type: string
+          description: Enter Institute ID
       responses:
         "200":
           description: OK

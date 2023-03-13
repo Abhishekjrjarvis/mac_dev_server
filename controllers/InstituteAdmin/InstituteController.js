@@ -55,7 +55,7 @@ exports.getProfileOneQuery = async (req, res) => {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName status photoId insProfilePhoto gr_initials application_fee_charges sportStatus sms_lang sportClassStatus blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement followers userFollowersList admissionCount request_at affiliation_by"
+        "insName status photoId insProfilePhoto gr_initials sub_domain_link_up_status application_fee_charges sportStatus sms_lang sportClassStatus blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement followers userFollowersList admissionCount request_at affiliation_by"
       )
       .populate({
         path: "request_at",
@@ -64,6 +64,10 @@ exports.getProfileOneQuery = async (req, res) => {
       .populate({
         path: "affiliation_by",
         select: "affiliation_name photo",
+      })
+      .populate({
+        path: "sub_domain",
+        select: "sub_domain_path sub_domain_name status",
       })
       .lean()
       .exec();
@@ -1439,8 +1443,8 @@ exports.retrieveDepartmentList = async (req, res) => {
             "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto user",
           populate: {
             path: "user",
-            select: "userBio userAbout"
-          }
+            select: "userBio userAbout",
+          },
         },
       })
       .lean()
@@ -1467,10 +1471,10 @@ exports.getOneDepartment = async (req, res) => {
           path: "dHead",
           select:
             "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto user",
-            populate: {
-              path: "user",
-              select: "userBio userAbout"
-            }
+          populate: {
+            path: "user",
+            select: "userBio userAbout",
+          },
         })
         .populate({
           path: "batches",

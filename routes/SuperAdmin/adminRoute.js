@@ -195,7 +195,10 @@ router.get(
   catchAsync(Admin.retrieveOneInstituteQuery)
 );
 
-router.patch("/one/institute/:id/profile/charges", catchAsync(Admin.uploadAdmissionApplicationCharges))
+router.patch(
+  "/one/institute/:id/profile/charges",
+  catchAsync(Admin.uploadAdmissionApplicationCharges)
+);
 
 router.patch(
   "/post/:pid/block",
@@ -216,6 +219,17 @@ router.patch(
 );
 
 router.get("/payout/:pid", isLoggedIn, catchAsync(Admin.renderPayouts));
+
+router.patch("/add/sub/domain", catchAsync(Admin.renderAddSubDomainQuery));
+
+router.get("/all/sub/domain/array", catchAsync(Admin.renderAllSubDomainArray));
+
+router.get("/sub/domain/by/host", catchAsync(Admin.renderSubDomainHostQuery));
+
+router.patch(
+  "/link/sub/domain/:sdid",
+  catchAsync(Admin.renderLinkSubDomainQuery)
+);
 
 // router.post(
 //   "/payout/:pid/done",

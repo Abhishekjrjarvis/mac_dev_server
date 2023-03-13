@@ -579,3 +579,78 @@ exports.allHistoryOfCollectByStaffSide = async (req, res) => {
     });
   }
 };
+
+exports.allOnlineBookLandingPage = async (req, res) => {
+  try {
+    if (!req.params.lid) throw "Please send Library id to perform task";
+    const getPage = req.query.page ? parseInt(req.query.page) : 1;
+    const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
+    const dropItem = (getPage - 1) * itemPerPage;
+    if (
+      req.query?.search ||
+      req.query?.search?.trim() !== "" ||
+      req.query?.search !== undefined
+    ) {
+      const library = await Library.findById(req.params.lid)
+        .populate({
+          path: "books",
+          match: {
+            $and: [
+              {
+                bookStatus: { $eq: "Online" },
+              },
+              {
+                $or: [
+                  {
+                    bookName: { $regex: req.query.search, $options: "i" },
+                  },
+                  {
+                    author: { $regex: req.query.search, $options: "i" },
+                  },
+                  {
+                    publication: { $regex: req.query.search, $options: "i" },
+                  },
+                ],
+              },
+            ],
+          },
+          select:
+            "bookName photoId photo author language bookStatus publication totalPage totalCopies price shellNumber description attachment",
+          // skip: dropItem,
+          // limit: itemPerPage,
+        })
+        .select("books")
+        .lean()
+        .exec();
+      res.status(200).send({
+        message: "List of All Books without pagination search",
+        books: library.books?.length ? library.books : [],
+      });
+    } else {
+      const library = await Library.findById(req.params.lid)
+        .populate({
+          path: "books",
+          match: {
+            $and: [
+              {
+                bookStatus: { $eq: "Online" },
+              },
+            ],
+          },
+          select:
+            "bookName photoId photo author language bookStatus publication totalPage totalCopies price shellNumber description attachment",
+          skip: dropItem,
+          limit: itemPerPage,
+        })
+        .select("books")
+        .lean()
+        .exec();
+      res.status(200).send({
+        message: "List of All Books",
+        books: library.books?.length ? library.books : [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

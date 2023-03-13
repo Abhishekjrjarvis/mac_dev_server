@@ -63,4 +63,8 @@ router
   .route("/all/fine/history/:lid")
   .get(catchAsync(libraryController.allHistoryOfCollectByStaffSide));
 
+router
+  .route("/site/books/:lid")
+  .get(catchAsync(libraryController.allOnlineBookLandingPage));
+
 module.exports = router;

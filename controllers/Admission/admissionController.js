@@ -205,7 +205,7 @@ exports.retieveAdmissionAdminAllApplication = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "applicationName applicationEndDate applicationStatus applicationSeats"
+        "applicationName applicationEndDate applicationStatus applicationSeats applicationMaster applicationAbout"
       )
       .populate({
         path: "applicationDepartment",

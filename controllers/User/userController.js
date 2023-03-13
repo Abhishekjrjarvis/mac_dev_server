@@ -1423,6 +1423,10 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
           },
         })
         .populate({
+          path: "admissionModeratorDepartment",
+          select: "access_role admission",
+        })
+        .populate({
           path: "sportDepartment",
           select: "sportEmail sportPhoneNumber sportAbout sportName",
           populate: {
@@ -1573,6 +1577,10 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
             select:
               "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
           },
+        })
+        .populate({
+          path: "admissionModeratorDepartment",
+          select: "access_role admission",
         })
         .populate({
           path: "sportDepartment",

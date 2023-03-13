@@ -14,11 +14,11 @@ router.get(
   catchAsync(Filter.retrieveByParticipateQuery)
 );
 
-router.get("/by/date", isLoggedIn, catchAsync(Filter.filterByDate));
+router.get("/by/date", catchAsync(Filter.filterByDate));
 
 router.get(
   "/by/date/incomes",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Filter.filterByDateIncomes)
 );
 
@@ -50,6 +50,12 @@ router.patch(
   "/pending/fee/:aid",
   // isLoggedIn,
   catchAsync(Filter.retrievePendingFeeFilter)
+);
+
+router.get(
+  "/transaction/history/:id",
+  // isLoggedIn,
+  catchAsync(Filter.renderFinanceTransactionHistoryQuery)
 );
 
 router.patch(

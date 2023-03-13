@@ -161,3 +161,51 @@ exports.generate_date = (cal) => {
   var start_date_format = `${cal}T${hours}:${minutes}:${seconds}.${new Date().getMilliseconds()}Z`;
   return start_date_format;
 };
+
+exports.custom_date_time_reverse = (arg) => {
+  const date = new Date(new Date());
+  date.setDate(date.getDate() - arg);
+  var day = date.getDate();
+  var month = date.getMonth() + 1;
+  var year = date.getFullYear();
+  if (month < 10) {
+    month = `0${month}`;
+  }
+  if (day < 10) {
+    day = `0${day}`;
+  }
+  const date_pattern = `${year}-${month}-${day}`;
+  return date_pattern;
+};
+
+exports.custom_month_reverse = (arg) => {
+  const date = new Date(new Date());
+  date.setMonth(date.getMonth() - arg);
+  var day = date.getDate();
+  var month = date.getMonth() + 1;
+  var year = date.getFullYear();
+  if (month < 10) {
+    month = `0${month}`;
+  }
+  if (day < 10) {
+    day = `0${day}`;
+  }
+  const date_pattern = `${year}-${month}-${day}`;
+  return date_pattern;
+};
+
+exports.custom_year_reverse = (arg) => {
+  const date = new Date(new Date());
+  date.setFullYear(date.getFullYear() - arg);
+  var day = date.getDate();
+  var month = date.getMonth() + 1;
+  var year = date.getFullYear();
+  if (month < 10) {
+    month = `0${month}`;
+  }
+  if (day < 10) {
+    day = `0${day}`;
+  }
+  const date_pattern = `${year}-${month}-${day}`;
+  return date_pattern;
+};

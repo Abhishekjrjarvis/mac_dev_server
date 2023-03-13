@@ -89,7 +89,6 @@ exports.retrieveAdmissionAdminHead = async (req, res) => {
     staff.admissionDepartment.push(admission._id);
     staff.staffDesignationCount += 1;
     staff.recentDesignation = "Admission Admin";
-    staff.designation_array.push("Admission Admin");
     staff.designation_array.push({
       role: "Admission Admin",
       role_id: admission?._id,
@@ -5618,12 +5617,13 @@ exports.renderOneScholarShipStatusQuery = async (req, res) => {
       });
 
     const scholar = await ScholarShip.findById({ _id: sid });
+    const ads_admin = await Admission.findById({ _id: `${scholar?.admission}`})
     scholar.scholarship_status = "Completed";
-    if (scholar?.scholarship_count > 0) {
-      scholar.scholarship_count -= 1;
+    if (ads_admin?.scholarship_count > 0) {
+      ads_admin.scholarship_count -= 1;
     }
-    scholar.scholarship_completed_count += 1;
-    await scholar.save();
+    ads_admin.scholarship_completed_count += 1;
+    await Promise.all([ scholar.save(), ads_admin.save() ]);
     res.status(200).send({ message: "Explore Completed ScholarShip" });
   } catch (e) {
     console.log(e);

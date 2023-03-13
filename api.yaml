@@ -23388,6 +23388,61 @@ paths:
           description: OK
 
 
+  /api/v1/feed/filter/transaction/history/{id}:
+    get:
+      tags:
+        - New Custom Filter
+      summary: Get All Transaction History (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute ID
+        - in: query
+          name: tab_flow
+          required: true
+          type: string
+          description: This is Tab Flow ("BY_DATE" || "BY_FEE_TYPE" || "BY_EXPENSES" || "BY_INCOMES")
+        - in: query
+          name: timeline
+          required: true
+          type: string
+          description: This is TimeLine ("true" || "false") 
+        - in: query
+          name: timeline_content
+          required: false
+          type: string
+          description: This is TimeLine Content if timeline is true
+        - in: query
+          name: from
+          required: false
+          type: string
+          description: This is From Date Like ("2023-02-02") if timeline is false
+        - in: query
+          name: to
+          required: false
+          type: string
+          description: This is To Date Like ("2023-02-02") if timeline is false
+        - in: query
+          name: fee_type
+          required: false
+          type: string
+          description: This is Fees Type ("Admission Fees" || "Expense" || "Income" || "Internal Fees") if Tab Flow is "BY_FEE_TYPE"
+        - in: query
+          name: fee_mode
+          required: false
+          type: string
+          description: This is Fees Mode ("Online" || "Offline" || "By Bank" || "By Cash") if Tab Flow is "BY_FEE_TYPE"
+      responses:
+        "200":
+          description: OK
+
+
 #Landing Career
 
   /api/v1/landing/ins/{id}/activate:
@@ -24689,15 +24744,6 @@ paths:
               poll_question:
                 type: string
                 description: Enter Poll Question 
-              duration_date:
-                type: string
-                description: Enter Poll Close Duration Date
-              duration_time:
-                type: string
-                description: Enter Poll Close Duration Time
-              trend_category:
-                type: string
-                description: Enter Category as mentioned in Qviple User Figma
               day:
                 type: string
                 description: Enter Number of Days

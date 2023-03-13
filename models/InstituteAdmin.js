@@ -769,6 +769,17 @@ const instituteAdminSchema = new mongoose.Schema({
     type: String,
     default: "Not Linked",
   },
+  export_collection: [
+    {
+      excel_file: { type: String },
+      excel_file_name: { type: String },
+      created_at: { type: Date, default: Date.now },
+    },
+  ],
+  export_collection_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

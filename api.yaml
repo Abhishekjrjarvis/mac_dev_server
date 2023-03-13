@@ -25034,3 +25034,24 @@ paths:
       responses:
         "200":
           description: OK
+
+#All Designation Array
+
+  /api/v1/user/{sid}/staff/all/designation:
+    get:
+      tags:
+        - All Designation Query
+      summary: One Staff All Designation - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This Staff ID
+      responses:
+        "200":
+          description: OK

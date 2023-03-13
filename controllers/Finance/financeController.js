@@ -56,6 +56,10 @@ exports.getFinanceDepart = async (req, res) => {
     staff.financeDepartment.push(finance._id);
     staff.staffDesignationCount += 1;
     staff.recentDesignation = "Finance Manager";
+    staff.designation_array.push({
+      role: "Finance Manager",
+      role_id: finance?._id,
+    });
     finance.financeHead = staff._id;
     finance.designation_password = await generate_hash_pass();
     institute.financeDepart.push(finance._id);
@@ -2543,11 +2547,16 @@ exports.renderFinanceAddFeeStructureAutoQuery = async (
       depart.fees_structures_count += 1;
       if (ref?.heads?.length > 0) {
         for (var val of ref?.heads) {
-          struct_query.fees_heads.push({
-            head_name: val?.head_name,
-            head_amount: val?.head_amount,
-          });
-          struct_query.fees_heads_count += 1;
+          var valid_name = handle_undefined(val?.head_name);
+          var valid_amount = handle_undefined(val?.head_amount);
+          if (valid_name && valid_amount) {
+            struct_query.fees_heads.push({
+              head_name: valid_name,
+              head_amount: valid_amount,
+            });
+            struct_query.fees_heads_count += 1;
+          } else {
+          }
         }
       }
       await struct_query.save();

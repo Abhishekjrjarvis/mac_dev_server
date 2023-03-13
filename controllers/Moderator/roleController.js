@@ -87,6 +87,10 @@ exports.addAdmissionAppModerator = async (req, res) => {
     staff.admissionModeratorDepartment.push(new_mod?._id);
     staff.staffDesignationCount += 1;
     staff.recentDesignation = `Admission Admin Moderator - ${mod_role}`;
+    staff.designation_array.push({
+      role: "Admission Admin Moderator",
+      role_id: new_mod?._id,
+    });
     notify.notifyContent = `you got the designation of Admission Admin Moderator for ${mod_role} 🎉🎉`;
     notify.notifySender = institute?._id;
     notify.notifyReceiever = user._id;
@@ -402,6 +406,10 @@ exports.addFinanceModeratorQuery = async (req, res) => {
     staff.financeModeratorDepartment.push(new_mod?._id);
     staff.staffDesignationCount += 1;
     staff.recentDesignation = `Finance Manager Moderator - ${mod_role}`;
+    staff.designation_array.push({
+      role: "Finance Manager Moderator",
+      role_id: new_mod?._id,
+    });
     notify.notifyContent = `you got the designation of Finance Manager Moderator for ${mod_role} 🎉🎉`;
     notify.notifySender = institute?._id;
     notify.notifyReceiever = user._id;

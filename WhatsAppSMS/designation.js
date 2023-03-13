@@ -26,9 +26,17 @@ exports.dynamic_designation = (name, title, cTitle) => {
     },
     {
       type: "FINANCE",
-      e_text: "you got the designation of as Finance Manager",
+      e_text: "you got the designation of Finance Manager",
       h_text: "आपको वित्त व्यवस्थापक के रूप में पदनाम मिला है |",
       m_text: "तुम्हाला वित्त व्यवस्थापक म्हणून पद मिळाले आहे",
+      extension: ".png",
+      content: "SMS_Assests/finance-role.png",
+    },
+    {
+      type: "FINANCE_MODERATOR",
+      e_text: "you got the designation of Finance Manager Moderator",
+      h_text: "आपको वित्त प्रबंधक मॉडरेटर का पदनाम मिला है",
+      m_text: "तुम्हाला फायनान्स मॅनेजर मॉडरेटर हे पद मिळाले आहे",
       extension: ".png",
       content: "SMS_Assests/finance-role.png",
     },

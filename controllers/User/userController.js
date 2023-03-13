@@ -2252,6 +2252,33 @@ exports.retrieveUserRoleQueryFormat = async (req, res) => {
   }
 };
 
+exports.retrieveStaffAllDesignationQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediatley",
+          access: false,
+        });
+
+    const one_staff = await Staff.findById({ _id: sid }).select(
+      "designation_array staffDesignationCount"
+    );
+
+    res
+      .status(200)
+      .send({
+        message: "Explore All Designation for Staff",
+        access: true,
+        one_staff: one_staff,
+      });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.updateUserUnBlockInstitute = async (req, res) => {
   try {
     var user_session = req.tokenData && req.tokenData.userId;

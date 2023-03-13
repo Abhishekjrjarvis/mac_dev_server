@@ -261,6 +261,12 @@ const staffSchema = new mongoose.Schema({
       ref: "Alumini",
     },
   ],
+  designation_array: [
+    {
+      role: { type: String },
+      role_id: { type: String },
+    },
+  ],
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

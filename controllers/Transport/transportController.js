@@ -35,6 +35,10 @@ exports.renderNewTransportManager = async (req, res) => {
     staff.transportDepartment.push(transport._id);
     staff.staffDesignationCount += 1;
     staff.recentDesignation = "Transportation Manager";
+    staff.designation_array.push({
+      role: "Transportation Manager",
+      role_id: transport?._id,
+    });
     transport.transport_manager = staff._id;
     institute.transportDepart.push(transport._id);
     institute.transportStatus = "Enable";
@@ -254,7 +258,7 @@ exports.renderVehicleNewPassenger = async (req, res) => {
   try {
     const { vid } = req.params;
     const { sid, rid, amount } = req.body;
-    var remain_fee = parseInt(amount)
+    var remain_fee = parseInt(amount);
     if (!vid && !sid && !rid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",

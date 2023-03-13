@@ -41,6 +41,10 @@ exports.renderNewEventManagerQuery = async (req, res) => {
     staff.eventManagerDepartment.push(event_manager._id);
     staff.staffDesignationCount += 1;
     staff.recentDesignation = "Events / Seminar Administrator";
+    staff.designation_array.push({
+      role: "Events / Seminar Administrator",
+      role_id: event_manager?._id,
+    });
     event_manager.event_head = staff._id;
     institute.eventManagerDepart.push(event_manager._id);
     institute.eventManagerStatus = "Enable";

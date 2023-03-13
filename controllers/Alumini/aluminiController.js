@@ -41,6 +41,10 @@ exports.renderNewAluminiQuery = async (req, res) => {
     staff.aluminiDepartment.push(alumini?._id);
     staff.staffDesignationCount += 1;
     staff.recentDesignation = "Alumini Head";
+    staff.designation_array.push({
+      role: "Alumini Head",
+      role_id: alumini?._id,
+    });
     alumini.alumini_head = staff._id;
     institute.aluminiDepart.push(alumini?._id);
     institute.aluminiStatus = "Enable";
@@ -236,7 +240,7 @@ exports.renderAluminiAllProminentArray = async (req, res) => {
           select: "dName",
         },
       });
-    const all_prominent = await nested_document_limit(
+    var all_prominent = await nested_document_limit(
       page,
       limit,
       one_alumini?.prominent_alumini
@@ -279,6 +283,7 @@ exports.renderAluminiNewProminentQuery = async (req, res) => {
       job_profile: req.body?.job_profile,
     });
     one_alumini.success_story_count += 1;
+    await one_alumini.save();
     res
       .status(200)
       .send({ message: "Explore New Success Story", access: true });

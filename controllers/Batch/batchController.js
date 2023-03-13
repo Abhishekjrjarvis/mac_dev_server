@@ -75,6 +75,10 @@ exports.preformedStructure = async (req, res) => {
         staff?.staffClass.push(identicalClass._id);
         staff.staffDesignationCount += 1;
         staff.recentDesignation = identicalClass?.classHeadTitle;
+        staff.designation_array.push({
+          role: "Class Teacher",
+          role_id: identicalClass?._id,
+        });
         const notify = new Notification({});
         notify.notifyContent = `you got the designation of ${identicalClass.className} as ${identicalClass.classHeadTitle}`;
         notify.notifySender = oneClass?.institute;
@@ -120,6 +124,10 @@ exports.preformedStructure = async (req, res) => {
           sujectStaff?.staffSubject.push(identicalSubject._id);
           sujectStaff.staffDesignationCount += 1;
           sujectStaff.recentDesignation = identicalSubject?.subjectTitle;
+          sujectStaff.designation_array.push({
+            role: "Subject Teacher",
+            role_id: identicalSubject?._id,
+          });
           const notify_subject = new Notification({});
           notify_subject.notifyContent = `you got the designation of ${identicalSubject.subjectName} as ${identicalSubject.subjectTitle}`;
           notify_subject.notifySender = batch?.institute;

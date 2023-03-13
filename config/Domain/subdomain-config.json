@@ -1,0 +1,12 @@
+{
+    "sub_domain_name": {
+        "sub_name": "demo",
+        "path": "https://demo.qviple.com",
+        "link_up": "Institute ID",
+        "status": "Allotted & Set",
+        "allotted_at": "",
+        "valid_up_to": "27 April 2024",
+        "domain": "qviple",
+        "ssl_secure": true
+    }
+}

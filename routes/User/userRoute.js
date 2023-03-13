@@ -294,6 +294,11 @@ router.get(
   catchAsync(User.retrieveUserRoleQueryFormat)
 );
 
+router.get(
+  "/:sid/staff/all/designation",
+  catchAsync(User.retrieveStaffAllDesignationQuery)
+);
+
 // router.get("/:id/all/three/section/notify",isLoggedIn, catchAsync(User.getAllThreeCount));
 
 // router.patch("/:id/mark/viewed",isLoggedIn, catchAsync(User.retrieveMarkAllThree));

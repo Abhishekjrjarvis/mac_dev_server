@@ -680,6 +680,10 @@ exports.getNewDepartment = async (req, res) => {
     staff.staffDepartment.push(department._id);
     staff.staffDesignationCount += 1;
     staff.recentDesignation = req.body.dTitle;
+    staff.designation_array.push({
+      role: "Department Head",
+      role_id: department?._id,
+    });
     department.dHead = staff._id;
     department.staffCount += 1;
     user.departmentChat.push({
@@ -1618,6 +1622,10 @@ exports.retrieveNewClass = async (req, res) => {
       staff.staffClass.push(classRoom._id);
       staff.staffDesignationCount += 1;
       staff.recentDesignation = classHeadTitle;
+      staff.designation_array.push({
+        role: "Class Teacher",
+        role_id: classRoom?._id,
+      });
       classRoom.classTeacher = staff._id;
       depart.class.push(classRoom._id);
       depart.classCount += 1;
@@ -1718,6 +1726,10 @@ exports.retrieveNewSubject = async (req, res) => {
     staff.staffSubject.push(subject._id);
     staff.staffDesignationCount += 1;
     staff.recentDesignation = subjectTitle;
+    staff.designation_array.push({
+      role: "Subject Teacher",
+      role_id: subject?._id,
+    });
     user.subjectChat.push({
       isSubjectTeacher: "Yes",
       subjects: subject._id,

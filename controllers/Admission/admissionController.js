@@ -89,6 +89,11 @@ exports.retrieveAdmissionAdminHead = async (req, res) => {
     staff.admissionDepartment.push(admission._id);
     staff.staffDesignationCount += 1;
     staff.recentDesignation = "Admission Admin";
+    staff.designation_array.push("Admission Admin");
+    staff.designation_array.push({
+      role: "Admission Admin",
+      role_id: admission?._id,
+    });
     admission.admissionAdminHead = staff._id;
     admission.designation_password = await generate_hash_pass();
     institute.admissionDepart.push(admission._id);

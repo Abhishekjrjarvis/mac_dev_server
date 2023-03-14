@@ -421,6 +421,11 @@ router.post(
   catchAsync(Admission.renderScholarShipNewFundCorpusQuery)
 );
 
+router.post(
+  "/new/income/:fcid",
+  catchAsync(Admission.renderNewFundCorpusIncomeQuery)
+);
+
 router.get(
   "/:sid/all/allotted/candidates/government",
   catchAsync(Admission.renderAllCandidatesGovernment)

@@ -4716,7 +4716,7 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
       _id: `${institute?.financeDepart[0]}`,
     });
     const scholar = await ScholarShip.findById({ _id: scid });
-    const corpus = await FundCoprus.findById({
+    const corpus = await FundCorpus.findById({
       _id: `${scholar?.fund_coprus}`,
     });
     const new_receipt = new FeeReceipt({ ...req.body });
@@ -5374,6 +5374,99 @@ exports.renderScholarShipNewFundCorpusQuery = async (req, res) => {
     }
     var incomes = new Income({ ...req.body });
     const corpus = new FundCorpus({});
+    corpus.total_corpus += incomes?.incomeAmount;
+    corpus.scholarship = scholar?._id;
+    scholar.fund_corpus = corpus?._id;
+    corpus.fund_history.push(incomes?._id);
+    corpus.fund_history_count += 1;
+    var order = new OrderPayment({});
+    finance.incomeDepartment.push(incomes._id);
+    incomes.finances = finance._id;
+    incomes.invoice_number = finance.incomeDepartment?.length;
+    order.payment_module_type = "Income";
+    order.payment_to_end_user_id = f_user._id;
+    order.payment_module_id = incomes._id;
+    order.payment_amount = incomes.incomeAmount;
+    order.payment_status = "Captured";
+    order.payment_flag_to = "Credit";
+    order.payment_mode = incomes.incomeAccount;
+    order.payment_income = incomes._id;
+    f_user.payment_history.push(order._id);
+    s_admin.invoice_count += 1;
+    order.payment_invoice_number = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${s_admin.invoice_count}`;
+    if (user) {
+      order.payment_by_end_user_id = user._id;
+      order.payment_flag_by = "Debit";
+      user.payment_history.push(order._id);
+      incomes.incomeFromUser = user._id;
+      await user.save();
+    } else {
+      incomes.incomeFromUser = null;
+    }
+    if (req.body?.incomeFrom) {
+      incomes.incomeFrom = req.body?.incomeFrom;
+      order.payment_by_end_user_id_name = req.body?.incomeFrom;
+    }
+    if (req.body.incomeAccount === "By Cash") {
+      finance.financeIncomeCashBalance =
+        finance.financeIncomeCashBalance + incomes.incomeAmount;
+      finance.financeTotalBalance += incomes.incomeAmount;
+    } else if (req.body.incomeAccount === "By Bank") {
+      finance.financeIncomeBankBalance =
+        finance.financeIncomeBankBalance + incomes.incomeAmount;
+      finance.financeTotalBalance += incomes.incomeAmount;
+    }
+    if (incomes?.gstSlab > 0) {
+      finance.gst_format.liability.push(incomes._id);
+    }
+    await Promise.all([
+      finance.save(),
+      incomes.save(),
+      order.save(),
+      f_user.save(),
+      s_admin.save(),
+      corpus.save(),
+      scholar.save(),
+    ]);
+    res.status(200).send({
+      message: "Add New Income",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderNewFundCorpusIncomeQuery = async (req, res) => {
+  try {
+    const { fcid } = req.params;
+    const { user_query } = req.query;
+    if (!fcid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const corpus = await FundCorpus.findById({ _id: fcid });
+    const scholar = await ScholarShip.findById({ _id: `${corpus?.scholarship}` });
+    const ads_admin = await Admission.findById({ _id: `${scholar?.admission}` }).populate({
+      path: "institute",
+      select: "financeDepart",
+    });
+    const finance = await Finance.findById({
+      _id: `${ads_admin?.institute?.financeDepart[0]}`,
+    });
+    const s_admin = await Admin.findById({
+      _id: `${process.env.S_ADMIN_ID}`,
+    }).select("invoice_count");
+    var f_user = await InstituteAdmin.findById({ _id: `${finance.institute}` });
+    if (user_query) {
+      var user = await User.findOne({
+        _id: `${user_query}`,
+      }).select("_id payment_history");
+    }
+    var incomes = new Income({ ...req.body });
     corpus.total_corpus += incomes?.incomeAmount;
     corpus.scholarship = scholar?._id;
     scholar.fund_corpus = corpus?._id;

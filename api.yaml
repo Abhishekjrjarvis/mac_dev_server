@@ -25052,6 +25052,55 @@ paths:
         "200":
           description: OK
 
+
+  /api/v1/admission/new/income/{fcid}:
+    post:
+      tags:
+        - ScholarShip Query
+      summary: Add New Income In Fund Corpus By Admission Admin - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fcid
+          required: true
+          type: string
+          description: This is FundCorpus ID
+        - in: query
+          name: user_query
+          required: true
+          type: string
+          description: This is User Id Similar Like Income Add In Finance
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              incomeAccount:
+                type: string
+                description: Enter Account Type ("By Bank" || "By Cash")
+                required: true
+              incomeAmount:
+                type: number
+                description: Enter Income Amount
+              incomeFrom:
+                type: string
+                description: Enter Income From User Name (if user Id then pass user_query)
+              income_utr:
+                type: string
+                description: Enter Income UTR
+              incomeDesc:
+                type: string
+                description: Enter Income Description
+              incomeAck:
+                type: string
+                description: Enter Income Acknowledge
+      responses:
+        "200":
+          description: OK
+
   /api/v1/admission/{sid}/one/fund/corpus/history:
     get:
       tags:

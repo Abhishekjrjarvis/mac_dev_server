@@ -228,7 +228,7 @@ exports.retrieveFinanceQuery = async (req, res) => {
       )
       .populate({
         path: "institute",
-        select: "id adminRepayAmount insBankBalance",
+        select: "id adminRepayAmount insBankBalance admissionDepart",
       })
       .populate({
         path: "financeHead",

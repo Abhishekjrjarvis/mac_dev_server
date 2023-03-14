@@ -142,6 +142,19 @@ exports.postWithText = async (req, res) => {
   } catch {}
 };
 
+exports.postWithTextFile = async (req, res) => {
+  try {
+    const data = req.files;
+    res.status(200).send({
+      message: "Explore All Files",
+      first: data?.file1,
+      second: data?.file2,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.postWithImage = async (req, res) => {
   try {
     const { id } = req.params;
@@ -242,7 +255,118 @@ exports.postWithImage = async (req, res) => {
         }
       }
     }
-  } catch {}
+  } catch {
+    console.log(e);
+  }
+};
+
+exports.postWithImageAPK = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { postImageCount } = req.body;
+    const post = new Post({ ...req.body });
+    const user = await User.findById({ _id: id })
+      .populate({ path: "userFollowers" })
+      .populate({ path: "userCircle" });
+    const taggedPeople = req.body?.people ? JSON.parse(req.body?.people) : "";
+
+    if (Array.isArray(taggedPeople)) {
+      for (let val of taggedPeople) {
+        post.tagPeople.push({
+          tagId: val.tagId,
+          tagUserName: val.tagUserName,
+          tagType: val.tagType,
+        });
+      }
+    }
+    for (var i = 1; i <= parseInt(postImageCount); i++) {
+      var fileValue = req?.files[`file${i}`];
+      for (let file of fileValue) {
+        const results = await uploadPostImageFile(file);
+        post.postImage.push(results.Key);
+        await unlinkFile(file.path);
+      }
+    }
+    post.imageId = "0";
+    user.userPosts.push(post._id);
+    user.postCount += 1;
+    post.author = user._id;
+    post.authorName = user.userLegalName;
+    post.authorUserName = user.username;
+    post.authorPhotoId = user.photoId;
+    post.authorProfilePhoto = user.profilePhoto;
+    post.authorOneLine = user.one_line_about;
+    post.authorFollowersCount = user.followerCount;
+    post.isUser = "user";
+    post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
+    await Promise.all([user.save(), post.save()]);
+    // const postEncrypt = await encryptionPayload(post);
+    res.status(201).send({ message: "post is create", post });
+    if (user.userFollowers.length >= 1) {
+      if (post.postStatus === "Anyone") {
+        user.userFollowers.forEach(async (ele) => {
+          if (ele.userPosts.includes(post._id)) {
+          } else {
+            ele.userPosts.push(post._id);
+            await ele.save();
+          }
+        });
+      } else {
+      }
+    }
+    if (user.userCircle.length >= 1) {
+      user.userCircle.forEach(async (ele) => {
+        if (ele.userPosts.includes(post._id)) {
+        } else {
+          ele.userPosts.push(post._id);
+          await ele.save();
+        }
+      });
+    }
+    if (Array.isArray(taggedPeople)) {
+      if (post?.tagPeople?.length) {
+        for (let instit of taggedPeople) {
+          if (instit.tagType === "User") {
+            const userTag = await User.findById(instit.tagId)
+              .populate({ path: "userFollowers" })
+              .populate({ path: "userCircle" });
+            if (userTag?.userPosts.includes(post._id)) {
+            } else {
+              userTag.userPosts?.push(post._id);
+            }
+            userTag.tag_post?.push(post._id);
+            if (post.postStatus === "Anyone") {
+              userTag?.userFollowers?.forEach(async (ele) => {
+                if (ele?.userPosts?.includes(post._id)) {
+                } else {
+                  ele.userPosts.push(post._id);
+                  await ele.save();
+                }
+              });
+              userTag?.userCircle?.forEach(async (ele) => {
+                if (ele?.userPosts?.includes(post._id)) {
+                } else {
+                  ele.userPosts.push(post._id);
+                  await ele.save();
+                }
+              });
+            }
+            await userTag.save();
+          } else {
+            const institTag = await InstituteAdmin.findById(instit.tagId);
+            if (institTag?.posts.includes(post._id)) {
+            } else {
+              institTag.posts?.push(post._id);
+            }
+            institTag.tag_post?.push(post._id);
+            await institTag.save();
+          }
+        }
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.postWithVideo = async (req, res) => {

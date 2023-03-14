@@ -265,6 +265,133 @@ exports.postWithImage = async (req, res) => {
   }
 };
 
+exports.postWithImageAPK = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { postImageCount } = req.body;
+    const institute = await InstituteAdmin.findById({ _id: id })
+      .populate({ path: "followers" })
+      .populate({ path: "userFollowersList" })
+      .populate({ path: "joinedUserList" });
+    const post = new Post({ ...req.body });
+    const taggedPeople = req.body?.people ? JSON.parse(req.body?.people) : "";
+    if (Array.isArray(taggedPeople)) {
+      for (let val of taggedPeople) {
+        post.tagPeople.push({
+          tagId: val.tagId,
+          tagUserName: val.tagUserName,
+          tagType: val.tagType,
+        });
+      }
+    }
+    for (var i = 1; i <= parseInt(postImageCount); i++) {
+      var fileValue = req?.files[`file${i}`];
+      for (let file of fileValue) {
+        const results = await uploadPostImageFile(file);
+        post.postImage.push(results.Key);
+        await unlinkFile(file.path);
+      }
+    }
+    post.imageId = "0";
+    institute.posts.push(post._id);
+    institute.postCount += 1;
+    post.author = institute._id;
+    post.authorName = institute.insName;
+    post.authorUserName = institute.name;
+    post.authorPhotoId = institute.photoId;
+    post.authorProfilePhoto = institute.insProfilePhoto;
+    post.authorOneLine = institute.one_line_about;
+    post.authorFollowersCount = institute.followersCount;
+    post.isInstitute = "institute";
+    post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
+    await Promise.all([institute.save(), post.save()]);
+    // const postEncrypt = await encryptionPayload(post);
+    res.status(201).send({ message: "post is create", post });
+    if (institute.isUniversal === "Not Assigned") {
+      if (institute.followers.length >= 1) {
+        if (post.postStatus === "Anyone") {
+          institute.followers.forEach(async (ele) => {
+            ele.posts.push(post._id);
+            await ele.save();
+          });
+        } else {
+        }
+      }
+      if (institute.userFollowersList.length >= 1) {
+        if (post.postStatus === "Anyone") {
+          institute.userFollowersList.forEach(async (ele) => {
+            ele.userPosts.push(post._id);
+            await ele.save();
+          });
+        } else {
+          if (institute.joinedUserList.length >= 1) {
+            institute.joinedUserList.forEach(async (ele) => {
+              ele.userPosts.push(post._id);
+              await ele.save();
+            });
+          }
+        }
+      }
+    } else if (institute.isUniversal === "Universal") {
+      const all = await InstituteAdmin.find({ status: "Approved" });
+      const user = await User.find({ userStatus: "Approved" });
+      if (post.postStatus === "Anyone") {
+        all.forEach(async (el) => {
+          if (el._id !== institute._id) {
+            el.posts.push(post._id);
+            await el.save();
+          }
+        });
+        user.forEach(async (el) => {
+          el.userPosts.push(post._id);
+          await el.save();
+        });
+      }
+      if (post.postStatus === "Private") {
+        all.forEach(async (el) => {
+          if (el._id !== institute._id) {
+            el.posts.push(post._id);
+            await el.save();
+          }
+        });
+      }
+    }
+    if (Array.isArray(taggedPeople)) {
+      if (post?.tagPeople?.length) {
+        for (let instit of taggedPeople) {
+          const institTag = await InstituteAdmin.findById(instit.tagId)
+            .populate({ path: "followers" })
+            .populate({ path: "userFollowersList" });
+          if (institTag?.posts.includes(post._id)) {
+          } else {
+            institTag.posts?.push(post._id);
+          }
+          institTag.tag_post?.push(post._id);
+          if (post.postStatus === "Anyone") {
+            institTag?.followers?.forEach(async (ele) => {
+              if (ele?.posts?.includes(post._id)) {
+              } else {
+                ele.posts.push(post._id);
+                await ele.save();
+              }
+            });
+            institTag?.userFollowersList?.forEach(async (ele) => {
+              if (ele?.userPosts?.includes(post._id)) {
+              } else {
+                ele.userPosts.push(post._id);
+                await ele.save();
+              }
+            });
+          }
+          await institTag.save();
+        }
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.postWithVideo = async (req, res) => {
   try {
     const { id } = req.params;

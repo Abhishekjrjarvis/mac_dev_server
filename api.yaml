@@ -25207,3 +25207,132 @@ paths:
       responses:
         "200":
           description: OK
+
+#New Post Image
+
+  /api/v1/user/post/{id}/image/access/apk:
+    post:
+      tags:
+        - New Post Image
+      summary: User post create text and image (UPTO -> 10) -(verified)
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is User id
+        - in: formData
+          name: file1
+          type: file
+          required: true
+          description: upload your File 1
+        - in: formData
+          name: file2
+          type: file
+          required: true
+          description: upload your File 2
+        - in: formData
+          name: file3
+          type: file
+          required: true
+          description: upload your File 3
+        - in: formData
+          name: postImageCount
+          type: number
+          required: true
+          description: Enter Number of files
+        - in: formData
+          name: postTitle
+          type: string
+          description: type a text here for Title
+        - in: formData
+          name: postDescription
+          type: string
+          description: type a text here for Description
+        - in: formData
+          name: postText
+          type: string
+          description: type a text here for text
+        - in: formData
+          name: postStatus
+          type: string
+          required: true
+          description: status should be "Anyone" or "Private"
+        - in: formData
+          name: people
+          type: array
+          items:
+            type: string
+            description: one user id
+          description: This is all taged users ids
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/ins/post/{id}/image/access/apk:
+    post:
+      tags:
+        - New Post Image
+      summary: Institute post create text and image (UPTO -> 10) -(verified)
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id
+        - in: formData
+          name: file1
+          type: file
+          required: true
+          description: upload your File 1
+        - in: formData
+          name: file2
+          type: file
+          required: true
+          description: upload your File 2
+        - in: formData
+          name: file3
+          type: file
+          required: true
+          description: upload your File 3
+        - in: formData
+          name: postImageCount
+          type: number
+          required: true
+          description: Enter Number of files
+        - in: formData
+          name: postTitle
+          type: string
+          description: type a text here for Title
+        - in: formData
+          name: postDescription
+          type: string
+          description: type a text here for Description
+        - in: formData
+          name: postText
+          type: string
+          description: type a text here for text
+        - in: formData
+          name: postStatus
+          type: string
+          required: true
+          description: status should be "Anyone" or "Private"
+        - in: formData
+          name: people
+          type: array
+          items:
+            type: string
+            description: one user id
+          description: This is all taged users ids
+      responses:
+        "200":
+          description: OK

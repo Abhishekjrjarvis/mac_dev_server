@@ -41,6 +41,10 @@ exports.renderNewAluminiQuery = async (req, res) => {
     staff.aluminiDepartment.push(alumini?._id);
     staff.staffDesignationCount += 1;
     staff.recentDesignation = "Alumini Head";
+    staff.designation_array.push({
+      role: "Alumini Head",
+      role_id: alumini?._id,
+    });
     alumini.alumini_head = staff._id;
     institute.aluminiDepart.push(alumini?._id);
     institute.aluminiStatus = "Enable";
@@ -96,7 +100,7 @@ exports.renderAluminiDashboardQuery = async (req, res) => {
 
     const one_alumini = await Alumini.findById({ _id: aid })
       .select(
-        "certifcate_given_count register_form_count success_story_count alumini_passage created_at feed_back_received feed_question_count rating"
+        "certifcate_given_count register_form_count alumini_photo success_story_count alumini_passage created_at feed_back_received feed_question_count rating"
       )
       .populate({
         path: "alumini_head",
@@ -236,7 +240,7 @@ exports.renderAluminiAllProminentArray = async (req, res) => {
           select: "dName",
         },
       });
-    const all_prominent = await nested_document_limit(
+    var all_prominent = await nested_document_limit(
       page,
       limit,
       one_alumini?.prominent_alumini
@@ -279,6 +283,7 @@ exports.renderAluminiNewProminentQuery = async (req, res) => {
       job_profile: req.body?.job_profile,
     });
     one_alumini.success_story_count += 1;
+    await one_alumini.save();
     res
       .status(200)
       .send({ message: "Explore New Success Story", access: true });
@@ -323,14 +328,13 @@ exports.renderAluminiNewFeedbackPollQuery = async (req, res) => {
 exports.renderAluminiPollVoteQuery = async (req, res) => {
   try {
     const { aid, pid } = req.params;
-    const { answerId, rate } = req.body;
+    const { answerId, rate, userPhoneNumber } = req.body;
     if (!pid && !answerId)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
-    var user_session =
-      req.tokenData && req.tokenData.userId ? req.tokenData.userId : "";
+    var user_session = userPhoneNumber;
     const poll = await Poll.findById({ _id: pid });
     const one_alumini = await Alumini.findById({ _id: aid });
     if (user_session) {
@@ -377,6 +381,33 @@ exports.renderAluminiPollVoteQuery = async (req, res) => {
     } else {
       res.status(401).send({ message: "UnAuthorised", access: false });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAluminiPollVoteFeedbackQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const one_alumini = await Alumini.findById({ _id: aid });
+    one_alumini.feedback_user.push({
+      email: req.body?.email,
+      name: req.body?.name,
+      phone_number: req.body?.phone_number,
+      graduation_department: req.body?.graduation_department,
+      pass_year: req.body?.pass_year,
+      additional_feedback: req.body?.additional_feedback,
+    });
+    await one_alumini.save();
+    res
+      .status(200)
+      .send({ message: "Explore One User Feedback Query", access: true });
   } catch (e) {
     console.log(e);
   }

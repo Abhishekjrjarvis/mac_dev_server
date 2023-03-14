@@ -105,16 +105,17 @@ exports.generate_excel_to_json_fee_structure = async (file, fid, did) => {
     data_query?.map(async (struct) => {
       var heads = [];
       const fee_category = await FeeCategory.findOne({
-        $and: [{ finance: fid }],
-        $or: [
+        $and: [
+          { finance: fid },
           {
             category_name: { $regex: struct?.CategoryName, $options: "i" },
           },
         ],
       });
+      // console.log("ID's - ", fee_category?._id, struct?.CategoryName);
       const master = await ClassMaster.findOne({
-        $and: [{ department: did }],
-        $or: [
+        $and: [
+          { department: did },
           {
             className: { $regex: struct?.StandardName, $options: "i" },
           },
@@ -211,12 +212,11 @@ exports.generate_excel_to_json_fee_structure = async (file, fid, did) => {
       struct.heads = [...heads];
       struct.CategoryId = fee_category?._id;
       struct.StandardId = master?._id;
-      if (struct) {
+      if (struct?.CategoryId) {
         new_data_query.push({ ...struct });
-        console.log("push");
+        // console.log("push");
       } else {
-        new_data_query = [];
-        console.log("Empty");
+        // console.log("Empty");
       }
     });
     // fs.writeFileSync("../structure.json", JSON.stringify(data_query, null, 2));
@@ -245,5 +245,43 @@ exports.generate_excel_to_json_fee_head_master = async (file) => {
     return { master_array: data_query, value: true };
   } catch (e) {
     console.log("Master Excel Query Not Resolved", e);
+  }
+};
+
+exports.generate_excel_to_json_direct_staff = async (file) => {
+  try {
+    const w_query = xlsx.read(file.Body);
+    const w_sheet = w_query.Sheets["Staff"];
+    const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
+    var new_data_query = [];
+    data_query?.map((ref) => {
+      ref.staffDOB = replace_query(ref?.DOB);
+      ref.staffGender = ref?.Gender;
+      ref.staffMotherName = ref?.MotherName;
+      ref.staffPhoneNumber = ref?.PhoneNumber;
+      ref.userPhoneNumber = parseInt(ref?.PhoneNumber);
+      let name_query = ref?.Name?.split(" ");
+      if (name_query?.length > 2) {
+        new_data_query.push({
+          ...ref,
+          staffFirstName: name_query[0],
+          staffMiddleName: name_query[1],
+          staffLastName: name_query[2],
+          fileArray: [],
+          sample_pic: "",
+        });
+      } else {
+        new_data_query.push({
+          ...ref,
+          staffFirstName: name_query[0],
+          staffLastName: name_query[1],
+          fileArray: [],
+          sample_pic: "",
+        });
+      }
+    });
+    return { staff_array: new_data_query, value: true };
+  } catch (e) {
+    console.log("Staff Excel Query Not Resolved", e);
   }
 };

@@ -204,4 +204,10 @@ router.patch(
   catchAsync(Extra.renderExcelToJSONFinanceStructureQuery)
 );
 
+router.patch(
+  "/excel/to/json/:id/staff/query",
+  // isLoggedIn,
+  catchAsync(Extra.renderExcelToJSONStaffQuery)
+);
+
 module.exports = router;

@@ -55,7 +55,7 @@ exports.getProfileOneQuery = async (req, res) => {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName status photoId insProfilePhoto gr_initials application_fee_charges sportStatus sms_lang sportClassStatus blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement followers userFollowersList admissionCount request_at affiliation_by"
+        "insName status photoId insProfilePhoto gr_initials sub_domain_link_up_status application_fee_charges sportStatus sms_lang sportClassStatus blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement followers userFollowersList admissionCount request_at affiliation_by"
       )
       .populate({
         path: "request_at",
@@ -64,6 +64,10 @@ exports.getProfileOneQuery = async (req, res) => {
       .populate({
         path: "affiliation_by",
         select: "affiliation_name photo",
+      })
+      .populate({
+        path: "sub_domain",
+        select: "sub_domain_path sub_domain_name status",
       })
       .lean()
       .exec();
@@ -680,6 +684,10 @@ exports.getNewDepartment = async (req, res) => {
     staff.staffDepartment.push(department._id);
     staff.staffDesignationCount += 1;
     staff.recentDesignation = req.body.dTitle;
+    staff.designation_array.push({
+      role: "Department Head",
+      role_id: department?._id,
+    });
     department.dHead = staff._id;
     department.staffCount += 1;
     user.departmentChat.push({
@@ -1432,7 +1440,11 @@ exports.retrieveDepartmentList = async (req, res) => {
         populate: {
           path: "dHead",
           select:
-            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto user",
+          populate: {
+            path: "user",
+            select: "userBio userAbout",
+          },
         },
       })
       .lean()
@@ -1458,7 +1470,11 @@ exports.getOneDepartment = async (req, res) => {
         .populate({
           path: "dHead",
           select:
-            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto user",
+          populate: {
+            path: "user",
+            select: "userBio userAbout",
+          },
         })
         .populate({
           path: "batches",
@@ -1610,6 +1626,10 @@ exports.retrieveNewClass = async (req, res) => {
       staff.staffClass.push(classRoom._id);
       staff.staffDesignationCount += 1;
       staff.recentDesignation = classHeadTitle;
+      staff.designation_array.push({
+        role: "Class Teacher",
+        role_id: classRoom?._id,
+      });
       classRoom.classTeacher = staff._id;
       depart.class.push(classRoom._id);
       depart.classCount += 1;
@@ -1710,6 +1730,10 @@ exports.retrieveNewSubject = async (req, res) => {
     staff.staffSubject.push(subject._id);
     staff.staffDesignationCount += 1;
     staff.recentDesignation = subjectTitle;
+    staff.designation_array.push({
+      role: "Subject Teacher",
+      role_id: subject?._id,
+    });
     user.subjectChat.push({
       isSubjectTeacher: "Yes",
       subjects: subject._id,

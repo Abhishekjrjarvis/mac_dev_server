@@ -38,6 +38,9 @@ const incomeSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  income_utr: {
+    type: String,
+  },
 });
 
 const Income = mongoose.model("Income", incomeSchema);

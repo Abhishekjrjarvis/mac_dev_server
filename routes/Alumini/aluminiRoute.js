@@ -45,8 +45,12 @@ router.post(
 
 router.patch(
   "/question/vote/:pid",
-  isLoggedIn,
   catchAsync(Alumini.renderAluminiPollVoteQuery)
+);
+
+router.patch(
+  "/question/vote/:aid/feedback/query",
+  catchAsync(Alumini.renderAluminiPollVoteFeedbackQuery)
 );
 
 router.get(

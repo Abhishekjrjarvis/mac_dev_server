@@ -7502,6 +7502,32 @@ paths:
         "200":
           description: OK
 
+  /api/v1/all-images/{aid}/alumini/cover:
+    patch:
+      tags:
+        - To get All Images, Videos and Documents
+      summary:
+        - To upload Alumini cover photo
+      consumes:
+        - application/json
+      produces:
+        - application/json'
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          schema:
+            type: string
+          description: This is Alumini Module ID
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your image with images extenstion
+      responses:
+        "200":
+          description: OK
+
 
   /api/v1/all/todevice/token:
     post:
@@ -10866,6 +10892,11 @@ paths:
           type: file
           required: false
           description: upload Income Acknowledge Report / Receipt
+        - in: formData
+          name: income_utr
+          type: string
+          required: false
+          description: Add UTR Number
       responses:
         "200":
           description: OK
@@ -20861,6 +20892,129 @@ paths:
         "200":
           description: OK
 
+  /api/v1/role/permission/{fid}/finance/moderator:
+    post:
+      tags:
+        - Moderator Role & Permission
+      summary: Add New Moderator Role (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              mod_role:
+                type: string
+                description: Enter Role as per given 
+                required: true
+              sid:
+                type: string
+                description: Enter Staff Id
+                required: true  
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/role/permission/{fid}/all/finance/moderator:
+    get:
+      tags:
+        - Moderator Role & Permission
+      summary: All Moderator Role of Finance Super Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: search
+          required: true
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/role/permission/update/finance/mod/{mid}:
+    patch:
+      tags:
+        - Moderator Role & Permission
+      summary: Edit One Moderator Role By Finance Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: Enter One Moderator Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              role:
+                type: string
+                description: Enter Role as per given 
+                required: false
+              staffId:
+                type: string
+                description: Enter Staff Id
+                required: true 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/role/permission/{fid}/destroy/finance/mod/{mid}:
+    delete:
+      tags:
+        - Moderator Role & Permission
+      summary: Delete One Moderator Role By Finance Super Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: Enter One Moderator Id
+      responses:
+        "200":
+          description: OK
+
 
 #Manage Admin Module
 
@@ -21912,6 +22066,9 @@ paths:
               doc_key:
                 type: string
                 description: Enter Document Key
+              applicable_to:
+                type: string
+                description: Enter Applicable To
       responses:
         "200":
           description: OK
@@ -21979,6 +22136,10 @@ paths:
                   newKey:
                     type: string
                     description: send existing old key if no new document is available
+                    required: true
+                  applicable_to:
+                    type: string
+                    description: Enter Applicable To
                     required: true
                   oldKey:
                     type: string
@@ -22169,6 +22330,10 @@ paths:
               type:
                 type: string
                 description: Enter Installment Value
+              scid:
+                type: string
+                description: Enter ScholarShip ID
+                required: true
       responses:
         "200":
           description: OK
@@ -22423,6 +22588,25 @@ paths:
           required: true
           type: string
           description: This is Master Head ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/all/structures:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: All Fee Structure By Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission Id
       responses:
         "200":
           description: OK
@@ -23108,6 +23292,34 @@ paths:
         "200":
           description: OK
 
+  /api/v1/extra/excel/to/json/{id}/staff/query:
+    patch:
+      tags:
+        - Process Excel + Database Processing
+      summary: Upload One Excel File To Directly Institute (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: Enter Institute Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              excel_file:
+                type: string
+                description: Enter Key here
+                required: true
+      responses:
+        "200":
+          description: OK
+
 # New Filter
 
   /api/v1/feed/filter/pending/fee/{aid}:
@@ -23171,6 +23383,61 @@ paths:
                 type: string
                 description: Enter Fee Category ID
                 required: false
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/feed/filter/transaction/history/{id}:
+    get:
+      tags:
+        - New Custom Filter
+      summary: Get All Transaction History (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute ID
+        - in: query
+          name: tab_flow
+          required: true
+          type: string
+          description: This is Tab Flow ("BY_DATE" || "BY_FEE_TYPE" || "BY_EXPENSES" || "BY_INCOMES")
+        - in: query
+          name: timeline
+          required: true
+          type: string
+          description: This is TimeLine ("true" || "false") 
+        - in: query
+          name: timeline_content
+          required: false
+          type: string
+          description: This is TimeLine Content if timeline is true
+        - in: query
+          name: from
+          required: false
+          type: string
+          description: This is From Date Like ("2023-02-02") if timeline is false
+        - in: query
+          name: to
+          required: false
+          type: string
+          description: This is To Date Like ("2023-02-02") if timeline is false
+        - in: query
+          name: fee_type
+          required: false
+          type: string
+          description: This is Fees Type ("Admission Fees" || "Expense" || "Income" || "Internal Fees") if Tab Flow is "BY_FEE_TYPE"
+        - in: query
+          name: fee_mode
+          required: false
+          type: string
+          description: This is Fees Mode ("Online" || "Offline" || "By Bank" || "By Cash") if Tab Flow is "BY_FEE_TYPE"
       responses:
         "200":
           description: OK
@@ -24125,6 +24392,30 @@ paths:
         "200":
           description: OK
 
+  /api/v1/auth/enable/password/protection/{faid}:
+    patch:
+      tags:
+        - Designation Protection
+      summary: Enable || Disable Password Protection for Admission || Finance (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: faid
+          required: true
+          type: string
+          description: This Finance || Admission ID
+        - in: query
+          name: flow
+          required: true
+          type: string
+          description: Enter for Finance ("Finance_Login") || for Admission ("Admission_Login")
+      responses:
+        "200":
+          description: OK
+
   /api/v1/auth/login/designation:
     post:
       tags:
@@ -24453,15 +24744,6 @@ paths:
               poll_question:
                 type: string
                 description: Enter Poll Question 
-              duration_date:
-                type: string
-                description: Enter Poll Close Duration Date
-              duration_time:
-                type: string
-                description: Enter Poll Close Duration Time
-              trend_category:
-                type: string
-                description: Enter Category as mentioned in Qviple User Figma
               day:
                 type: string
                 description: Enter Number of Days
@@ -24511,6 +24793,368 @@ paths:
               rate:
                 type: number
                 description: Enter Number Rate
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/alumini/question/vote/{aid}/feedback/query:
+    patch:
+      tags:
+        - Alumini Query
+      summary: Add First Info Then Mark One Poll To Vote
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Alumini ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Enter Name
+              email:
+                type: string
+                description: Enter Email
+              pass_year:
+                type: string
+                description: Enter Pass Year
+              graduation_department:
+                type: string
+                description: Enter Graduation Department
+              phone_number:
+                type: string
+                description: Enter Phone Number
+              additional_feedback:
+                type: string
+                description: Enter Additional FeedBack
+      responses:
+        "200":
+          description: OK
+
+#ScholarShip Query
+
+  /api/v1/admission/{aid}/new/scholarship:
+    post:
+      tags:
+        - ScholarShip Query
+      summary: Add New ScholarShip By Admission Admin - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              scholarship_name:
+                type: string
+                description: Enter Scholarship Name
+                required: true
+              scholarship_about:
+                type: string
+                description: Enter ScholarShip About
+              category_array:
+                type: array
+                description: Enter Array of Fees Category ID ["898984989", "49909204909"]
+              scholarship_notification:
+                type: object
+                properties:
+                  flow:
+                    type: string
+                    description: Enter Flow ("Input" || "Link")
+                  notification:
+                    type: string
+                    description: Enter Notification Attachment || Link
+              scholarship_apply:
+                type: object
+                properties:
+                  flow:
+                    type: string
+                    description: Enter Flow ("Input" || "Link")
+                  apply:
+                    type: string
+                    description: Enter Apply Attachment || Link
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/all/scholarship:
+    get:
+      tags:
+        - ScholarShip Query
+      summary: One Admission All ScholarShip - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This Admission ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: status
+          required: true
+          type: string
+          description: Enter Status ("Not Completed" || "Completed")
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{sid}/scholarship/query:
+    get:
+      tags:
+        - ScholarShip Query
+      summary: One ScholarShip - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This ScholarShip ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{sid}/all/allotted/candidates/government:
+    get:
+      tags:
+        - ScholarShip Query
+      summary: One ScholarShip All Candidates - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This ScholarShip ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: search
+          required: true
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{sid}/status/query:
+    patch:
+      tags:
+        - ScholarShip Query
+      summary: One ScholarShip Mark Status Completed - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This ScholarShip ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/scholarship/new/corpus/{sid}:
+    post:
+      tags:
+        - ScholarShip Query
+      summary: Add New Fund Corpus In ScholarShip By Admission Admin - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission ID
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is ScholarShip ID
+        - in: query
+          name: user_query
+          required: true
+          type: string
+          description: This is User Id Similar Like Income Add In Finance
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              incomeAccount:
+                type: string
+                description: Enter Account Type ("By Bank" || "By Cash")
+                required: true
+              incomeAmount:
+                type: number
+                description: Enter Income Amount
+              incomeFrom:
+                type: string
+                description: Enter Income From User Name (if user Id then pass user_query)
+              income_utr:
+                type: string
+                description: Enter Income UTR
+              incomeDesc:
+                type: string
+                description: Enter Income Description
+              incomeAck:
+                type: string
+                description: Enter Income Acknowledge
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{sid}/one/fund/corpus/history:
+    get:
+      tags:
+        - ScholarShip Query
+      summary: One ScholarShip Fund Corpus All In Take History - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This ScholarShip ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+#All Designation Array
+
+  /api/v1/user/{sid}/staff/all/designation:
+    get:
+      tags:
+        - All Designation + Domain Query
+      summary: One Staff All Designation - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This Staff ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admin/all/sub/domain/array:
+    get:
+      tags:
+        - All Designation + Domain Query
+      summary: All Allotted Sub Domain - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admin/sub/domain/by/host:
+    get:
+      tags:
+        - All Designation + Domain Query
+      summary: Filter Sub Domain By HostName - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: filter_by
+          required: true
+          type: string
+          description: Enter Host Name
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admin/link/sub/domain/{sdid}:
+    patch:
+      tags:
+        - All Designation + Domain Query
+      summary: Link Sub Domain By Institute Admin - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sdid
+          required: true
+          type: string
+          description: Enter Sub Domain ID
+        - in: query
+          name: insId
+          required: true
+          type: string
+          description: Enter Institute ID
       responses:
         "200":
           description: OK

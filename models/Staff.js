@@ -168,6 +168,12 @@ const staffSchema = new mongoose.Schema({
       ref: "AdmissionModerator",
     },
   ],
+  financeModeratorDepartment: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FinanceModerator",
+    },
+  ],
   isAdmin: {
     type: Boolean,
     default: false,
@@ -253,6 +259,12 @@ const staffSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Alumini",
+    },
+  ],
+  designation_array: [
+    {
+      role: { type: String },
+      role_id: { type: String },
     },
   ],
 });

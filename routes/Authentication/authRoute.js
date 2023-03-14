@@ -110,6 +110,11 @@ router.patch(
   catchAsync(Auth.renderFinanceAdmissionNewPassQuery)
 );
 
+router.patch(
+  "/enable/password/protection/:faid",
+  catchAsync(Auth.renderFinanceAdmissionNewProtectionQuery)
+);
+
 router.post(
   "/login/designation",
   isLimit,

@@ -1,12 +1,15 @@
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const Staff = require("../../models/Staff");
 const Admission = require("../../models/Admission/Admission");
+const ScholarShip = require("../../models/Admission/Scholarship");
+const FundCorpus = require("../../models/Admission/FundCorpus");
 const Inquiry = require("../../models/Admission/Inquiry");
 const User = require("../../models/User");
 const Notification = require("../../models/notification");
 const NewApplication = require("../../models/Admission/NewApplication");
 const Student = require("../../models/Student");
 const Status = require("../../models/Admission/status");
+const Income = require("../../models/Income");
 const Finance = require("../../models/Finance");
 const Batch = require("../../models/Batch");
 const Department = require("../../models/Department");
@@ -86,6 +89,10 @@ exports.retrieveAdmissionAdminHead = async (req, res) => {
     staff.admissionDepartment.push(admission._id);
     staff.staffDesignationCount += 1;
     staff.recentDesignation = "Admission Admin";
+    staff.designation_array.push({
+      role: "Admission Admin",
+      role_id: admission?._id,
+    });
     admission.admissionAdminHead = staff._id;
     admission.designation_password = await generate_hash_pass();
     institute.admissionDepart.push(admission._id);
@@ -144,12 +151,16 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
     //   });
     const admission = await Admission.findById({ _id: aid })
       .select(
-        "admissionAdminEmail admissionAdminPhoneNumber moderator_role moderator_role_count completedCount exemptAmount requested_status collected_fee remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount refundCount export_collection_count designation_status"
+        "admissionAdminEmail admissionAdminPhoneNumber enable_protection moderator_role moderator_role_count completedCount exemptAmount requested_status collected_fee remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount refundCount export_collection_count designation_status"
       )
       .populate({
         path: "admissionAdminHead",
         select:
-          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto user",
+        populate: {
+          path: "user",
+          select: "userBio userAbout",
+        },
       })
       .populate({
         path: "institute",
@@ -205,7 +216,7 @@ exports.retieveAdmissionAdminAllApplication = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "applicationName applicationEndDate applicationStatus applicationSeats applicationMaster applicationAbout"
+        "applicationName applicationEndDate applicationStatus applicationSeats applicationMaster applicationAbout admissionProcess"
       )
       .populate({
         path: "applicationDepartment",
@@ -4467,7 +4478,7 @@ exports.renderEditStudentFeeStructureQuery = async (req, res) => {
 exports.renderAddDocumentQuery = async (req, res) => {
   try {
     const { aid } = req.params;
-    const { doc_name, doc_key } = req.body;
+    const { doc_name, doc_key, applicable_to } = req.body;
     if (!aid && !doc_name && !doc_key)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -4477,6 +4488,7 @@ exports.renderAddDocumentQuery = async (req, res) => {
     ads_admin.required_document.push({
       document_name: doc_name,
       document_key: doc_key,
+      applicable_to: applicable_to,
     });
     ads_admin.required_document_count += 1;
     await ads_admin.save();
@@ -4545,6 +4557,7 @@ exports.renderEditDocumentQuery = async (req, res) => {
       if (`${ref?._id}` === `${doc?.id}`) {
         ref.document_name = doc.name;
         ref.document_key = doc.newKey;
+        ref.applicable_to = doc.applicable_to;
       }
     }
     if (doc?.oldKey) {
@@ -4671,8 +4684,8 @@ exports.renderRefundArrayQuery = async (req, res) => {
 exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
   try {
     const { sid, appId } = req.params;
-    const { amount, mode, type } = req.body;
-    if (!sid && !appId && !amount && !mode && !type)
+    const { amount, mode, type, scid } = req.body;
+    if (!sid && !appId && !amount && !mode && !type && !scid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
         paid: false,
@@ -4702,6 +4715,10 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
     var finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
+    const scholar = await ScholarShip.findById({ _id: scid });
+    const corpus = await FundCoprus.findById({
+      _id: `${scholar?.fund_coprus}`,
+    });
     const new_receipt = new FeeReceipt({ ...req.body });
     new_receipt.student = student?._id;
     new_receipt.application = apply?._id;
@@ -4715,6 +4732,8 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
     if (req?.body?.fee_payment_mode === "Government/Scholarship") {
       finance.government_receipt.push(new_receipt?._id);
       finance.financeGovernmentScholarBalance += price;
+      scholar.scholarship_candidates.push(new_receipt?._id);
+      scholar.scholarship_candidates_count += 1;
       finance.government_receipt_count += 1;
       if (price >= remaining_fee_lists?.remaining_fee) {
         extra_price += price - remaining_fee_lists?.remaining_fee;
@@ -4820,18 +4839,30 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
       admin_ins.onlineFee += price + extra_price;
       apply.onlineFee += price + extra_price;
       apply.collectedFeeCount += price + extra_price;
-      finance.financeTotalBalance += price + extra_price;
+      // finance.financeTotalBalance += price + extra_price;
       finance.financeAdmissionBalance += price + extra_price;
       finance.financeBankBalance += price + extra_price;
+      if (finance?.financeIncomeBankBalance >= price + extra_price) {
+        finance.financeIncomeBankBalance -= price + extra_price;
+      }
     } else if (mode === "Offline") {
       admin_ins.offlineFee += price + extra_price;
       apply.offlineFee += price + extra_price;
       apply.collectedFeeCount += price + extra_price;
       admin_ins.collected_fee += price + extra_price;
-      finance.financeTotalBalance += price + extra_price;
+      // finance.financeTotalBalance += price + extra_price;
       finance.financeAdmissionBalance += price + extra_price;
       finance.financeSubmitBalance += price + extra_price;
+      if (finance?.financeIncomeCashBalance >= price + extra_price) {
+        finance.financeIncomeCashBalance -= price + extra_price;
+      }
     } else {
+    }
+    if (corpus.total_corpus >= price) {
+      corpus.unused_corpus += total_corpus - price;
+    }
+    if (finance?.financeTotalBalance >= price + extra_price) {
+      finance.financeTotalBalance -= price + extra_price;
     }
     // await set_fee_head_query(student, price, apply);
     await update_fee_head_query(student, price, apply);
@@ -4861,6 +4892,8 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
       s_admin.save(),
       remaining_fee_lists.save(),
       new_receipt.save(),
+      scholar.save(),
+      corpus.save(),
     ]);
     res.status(200).send({
       message: "Balance Pool increasing with price Operation complete",
@@ -5150,6 +5183,453 @@ exports.renderData = async (req, res) => {
     res
       .status(200)
       .send({ message: "Download receipt", access: true, student });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllFeeStructureQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const ads_admin = await Admission.findById({ _id: aid })
+      .select("institute")
+      .populate({
+        path: "institute",
+        select: "depart",
+      });
+
+    const all_structures = await FeeStructure.find({
+      department: { $in: ads_admin?.institute?.depart },
+    })
+      .limit(limit)
+      .skip(skip)
+      .select("structure_name total_admission_fees applicable_fees")
+      .populate({
+        path: "category_master",
+        select: "category_name",
+      })
+      .populate({
+        path: "class_master",
+        select: "className",
+      });
+
+    if (all_structures?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Structures Array",
+        access: true,
+        all_structures: all_structures,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Structures Array",
+        access: false,
+        all_structures: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderNewScholarShipQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const { category_array } = req.body;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const ads_admin = await Admission.findById({ _id: aid });
+    const scholar = new ScholarShip({ ...req.body });
+    scholar.scholarship_fee_category.push(...category_array);
+    scholar.admission = ads_admin?._id;
+    ads_admin.scholarship.push(scholar?._id);
+    ads_admin.scholarship_count += 1;
+    await Promise.all([ads_admin.save(), scholar.save()]);
+    res.status(200).send({ message: "Explore New Scholar Ship", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllScholarShipQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { status } = req.query;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const ads_admin = await Admission.findById({ _id: aid }).select(
+      "scholarship"
+    );
+
+    const all_scholar = await ScholarShip.find({
+      $and: [
+        { _id: { $in: ads_admin?.scholarship } },
+        { scholarship_status: status },
+      ],
+    })
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "scholarship_name scholarship_about created_at scholarship_notification scholarship_apply scholarship_status scholarship_candidates_count"
+      )
+      .populate({
+        path: "fund_corpus",
+        select: "unused_corpus total_corpus created_at fund_history_count",
+      });
+
+    if (all_scholar?.length > 0) {
+      res.status(200).send({
+        message: "Explore All ScholarShip",
+        access: true,
+        all_scholar: all_scholar,
+      });
+    } else {
+      res.status(200).send({
+        message: "No ScholarShip",
+        access: false,
+        all_scholar: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderScholarShipQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const scholar = await ScholarShip.findById({ _id: sid })
+      .select(
+        "scholarship_name scholarship_about created_at scholarship_notification scholarship_apply scholarship_status scholarship_candidates_count"
+      )
+      .populate({
+        path: "scholarship_fee_category",
+        select: "category_name",
+      })
+      .populate({
+        path: "fund_corpus",
+        select: "unused_corpus total_corpus created_at fund_history_count",
+      });
+
+    res.status(200).send({
+      message: "Explore One ScholarShip",
+      access: true,
+      scholar: scholar,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderScholarShipNewFundCorpusQuery = async (req, res) => {
+  try {
+    const { aid, sid } = req.params;
+    const { user_query } = req.query;
+    if (!aid && !sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const ads_admin = await Admission.findById({ _id: aid }).populate({
+      path: "institute",
+      select: "financeDepart",
+    });
+    const finance = await Finance.findById({
+      _id: `${ads_admin?.institute?.financeDepart[0]}`,
+    });
+    const scholar = await ScholarShip.findById({ _id: sid });
+    const s_admin = await Admin.findById({
+      _id: `${process.env.S_ADMIN_ID}`,
+    }).select("invoice_count");
+    var f_user = await InstituteAdmin.findById({ _id: `${finance.institute}` });
+    if (user_query) {
+      var user = await User.findOne({
+        _id: `${user_query}`,
+      }).select("_id payment_history");
+    }
+    var incomes = new Income({ ...req.body });
+    const corpus = new FundCorpus({});
+    corpus.total_corpus += incomes?.incomeAmount;
+    corpus.scholarship = scholar?._id;
+    scholar.fund_corpus = corpus?._id;
+    corpus.fund_history.push(incomes?._id);
+    corpus.fund_history_count += 1;
+    var order = new OrderPayment({});
+    finance.incomeDepartment.push(incomes._id);
+    incomes.finances = finance._id;
+    incomes.invoice_number = finance.incomeDepartment?.length;
+    order.payment_module_type = "Income";
+    order.payment_to_end_user_id = f_user._id;
+    order.payment_module_id = incomes._id;
+    order.payment_amount = incomes.incomeAmount;
+    order.payment_status = "Captured";
+    order.payment_flag_to = "Credit";
+    order.payment_mode = incomes.incomeAccount;
+    order.payment_income = incomes._id;
+    f_user.payment_history.push(order._id);
+    s_admin.invoice_count += 1;
+    order.payment_invoice_number = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${s_admin.invoice_count}`;
+    if (user) {
+      order.payment_by_end_user_id = user._id;
+      order.payment_flag_by = "Debit";
+      user.payment_history.push(order._id);
+      incomes.incomeFromUser = user._id;
+      await user.save();
+    } else {
+      incomes.incomeFromUser = null;
+    }
+    if (req.body?.incomeFrom) {
+      incomes.incomeFrom = req.body?.incomeFrom;
+      order.payment_by_end_user_id_name = req.body?.incomeFrom;
+    }
+    if (req.body.incomeAccount === "By Cash") {
+      finance.financeIncomeCashBalance =
+        finance.financeIncomeCashBalance + incomes.incomeAmount;
+      finance.financeTotalBalance += incomes.incomeAmount;
+    } else if (req.body.incomeAccount === "By Bank") {
+      finance.financeIncomeBankBalance =
+        finance.financeIncomeBankBalance + incomes.incomeAmount;
+      finance.financeTotalBalance += incomes.incomeAmount;
+    }
+    if (incomes?.gstSlab > 0) {
+      finance.gst_format.liability.push(incomes._id);
+    }
+    await Promise.all([
+      finance.save(),
+      incomes.save(),
+      order.save(),
+      f_user.save(),
+      s_admin.save(),
+      corpus.save(),
+      scholar.save(),
+    ]);
+    res.status(200).send({
+      message: "Add New Income",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllCandidatesGovernment = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const scholar = await ScholarShip.findById({ _id: sid }).select(
+      "scholarship_candidates scholarship_candidates_count"
+    );
+    if (search) {
+      var all_exempt = await FeeReceipt.find({
+        _id: { $in: scholar?.scholarship_candidates },
+      })
+        .populate({
+          path: "student",
+          match: {
+            studentFirstName: { $regex: search, $options: "i" },
+          },
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+          populate: {
+            path: "fee_structure",
+            select: "category_master structure_name applicable_fees",
+            populate: {
+              path: "category_master",
+              select: "category_name",
+            },
+          },
+        })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+          populate: {
+            path: "studentClass",
+            select: "className classTitle",
+          },
+        })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+          populate: {
+            path: "batches",
+            select: "batchName",
+          },
+        })
+        .populate({
+          path: "application",
+          select: "applicationName",
+        });
+    } else {
+      var all_exempt = await FeeReceipt.find({
+        _id: { $in: scholar?.scholarship_candidates },
+      })
+        .limit(limit)
+        .skip(skip)
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+          populate: {
+            path: "fee_structure",
+            select: "category_master structure_name applicable_fees",
+            populate: {
+              path: "category_master",
+              select: "category_name",
+            },
+          },
+        })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+          populate: {
+            path: "studentClass",
+            select: "className classTitle",
+          },
+        })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+          populate: {
+            path: "batches",
+            select: "batchName",
+          },
+        })
+        .populate({
+          path: "application",
+          select: "applicationName",
+        });
+    }
+    if (all_exempt?.length > 0) {
+      res.status(200).send({
+        message: "Lot's of Government / Scholarships Volume Receipts",
+        access: true,
+        all_exempt: all_exempt,
+        all_exempt_count: scholar?.scholarship_candidates_count,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Government / Scholarships Volume Receipts",
+        access: false,
+        all_exempt: [],
+        all_exempt_count: 0,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneFundCorpusHistory = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const scholar = await ScholarShip.findById({ _id: sid }).select(
+      "fund_corpus"
+    );
+
+    if (scholar?.fund_corpus) {
+      const corpus = await FundCorpus.findById({
+        _id: `${scholar?.fund_corpus}`,
+      }).select("fund_history");
+
+      var all_incomes = await Income.find({
+        _id: { $in: corpus?.fund_history },
+      })
+        .limit(limit)
+        .skip(skip)
+        .populate({
+          path: "incomeFromUser",
+          select: "username userLegalName photoId profilePhoto",
+        });
+    } else {
+      var all_incomes = [];
+    }
+    if (all_incomes?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Incomes In Take History",
+        access: true,
+        all_incomes: all_incomes,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Income In Take History",
+        access: false,
+        all_incomes: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneScholarShipStatusQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const scholar = await ScholarShip.findById({ _id: sid });
+    const ads_admin = await Admission.findById({
+      _id: `${scholar?.admission}`,
+    });
+    scholar.scholarship_status = "Completed";
+    if (ads_admin?.scholarship_count > 0) {
+      ads_admin.scholarship_count -= 1;
+    }
+    ads_admin.scholarship_completed_count += 1;
+    await Promise.all([scholar.save(), ads_admin.save()]);
+    res.status(200).send({ message: "Explore Completed ScholarShip" });
   } catch (e) {
     console.log(e);
   }

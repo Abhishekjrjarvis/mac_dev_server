@@ -31,6 +31,12 @@ exports.activateLibrary = async (req, res) => {
     institute.libraryActivate = "Enable";
     institute.library.push(library._id);
     staff.library.push(library._id);
+    staff.recentDesignation = "Library Head";
+    staff.staffDesignationCount += 1;
+    staff.designation_array.push({
+      role: "Library Head",
+      role_id: library?._id,
+    });
     notify.notifyContent = `you got the designation of as Library Head`;
     notify.notifySender = institute._id;
     notify.notifyReceiever = user._id;

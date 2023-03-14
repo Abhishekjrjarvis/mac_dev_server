@@ -59,9 +59,25 @@ const aluminiSchema = new mongoose.Schema({
       ref: "Poll",
     },
   ],
+  feedback_user: [
+    {
+      email: { type: String },
+      name: { type: String },
+      phone_number: { type: String },
+      graduation_department: { type: String },
+      pass_year: { type: String },
+      additional_feedback: { type: String },
+    },
+  ],
   rating: {
     type: Number,
     default: 0,
+  },
+  alumini_photo: {
+    type: String,
+  },
+  photoId: {
+    type: String,
   },
 });
 

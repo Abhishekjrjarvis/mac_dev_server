@@ -27,6 +27,10 @@ exports.getSportDepart = async (req, res) => {
     staff.sportDepartment.push(sport._id);
     staff.staffDesignationCount += 1;
     staff.recentDesignation = "Sport & Arts Head";
+    staff.designation_array.push({
+      role: "Sport & Arts Head",
+      role_id: sport?._id,
+    });
     sport.sportHead = staff._id;
     institute.sportDepart.push(sport._id);
     institute.sportStatus = "Enable";
@@ -194,6 +198,10 @@ exports.getSportClass = async (req, res) => {
     staff.staffSportClass.push(sportClasses._id);
     staff.staffDesignationCount += 1;
     staff.recentDesignation = "Sport & Arts Class Head";
+    staff.designation_array.push({
+      role: "Sport & Arts Class Head",
+      role_id: sportClasses?._id,
+    });
     sportClasses.sportDepartment = sport._id;
     notify.notifyContent = `you got the designation of ${sportClasses.sportClassName} as Class Head`;
     notify.notify_hi_content = `आपको प्रशिक्षक के रूप में ${sportClasses.sportClassName} का पदनाम मिला है |`;

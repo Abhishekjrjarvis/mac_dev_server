@@ -281,6 +281,16 @@ const superAdminSchema = new mongoose.Schema({
   dynamic_invoice_count: {
     type: String,
   },
+  sub_domain_count: {
+    type: Number,
+    default: 0,
+  },
+  sub_domain_array: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubDomain",
+    },
+  ],
 });
 
 const Admin = mongoose.model("Admin", superAdminSchema);

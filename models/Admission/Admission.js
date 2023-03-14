@@ -136,6 +136,8 @@ const admissionAdminSchema = new mongoose.Schema({
     {
       document_name: { type: String },
       document_key: { type: String },
+      applicable_to: { type: String },
+      created_at: { type: Date, default: Date.now },
     },
   ],
   required_document_count: {
@@ -156,9 +158,24 @@ const admissionAdminSchema = new mongoose.Schema({
   designation_password: {
     type: String,
   },
+  enable_protection: { type: Boolean, default: true },
   designation_status: {
     type: String,
     default: "Locked",
+  },
+  scholarship: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ScholarShip",
+    },
+  ],
+  scholarship_count: {
+    type: Number,
+    default: 0,
+  },
+  scholarship_completed_count: {
+    type: Number,
+    default: 0,
   },
   site_info: [
     {

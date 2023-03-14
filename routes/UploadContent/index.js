@@ -38,6 +38,7 @@ const {
   patchEventManagerImageCover,
   patchLandingCareerImageCover,
   patchLandingTenderImageCover,
+  patchAluminiImageCover,
   // patchStaffImagePhoto,
   // patchStaffAddharDoc,
   // patchStudentImagePhoto,
@@ -165,6 +166,10 @@ router
 router
   .route("/:ltid/landing/tender/cover")
   .patch(isLoggedIn, upload.single("file"), patchLandingTenderImageCover);
+
+router
+  .route("/:aid/alumini/cover")
+  .patch(isLoggedIn, upload.single("file"), patchAluminiImageCover);
 // router
 //   .route("/:id/staff/photo")
 //   .patch(isLoggedIn, upload.single("file"), patchStaffImagePhoto);

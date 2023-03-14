@@ -4717,7 +4717,7 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
     });
     const scholar = await ScholarShip.findById({ _id: scid });
     const corpus = await FundCorpus.findById({
-      _id: `${scholar?.fund_coprus}`,
+      _id: `${scholar?.fund_corpus}`,
     });
     const new_receipt = new FeeReceipt({ ...req.body });
     new_receipt.student = student?._id;
@@ -5375,6 +5375,7 @@ exports.renderScholarShipNewFundCorpusQuery = async (req, res) => {
     var incomes = new Income({ ...req.body });
     const corpus = new FundCorpus({});
     corpus.total_corpus += incomes?.incomeAmount;
+    corpus.unused_corpus += incomes?.incomeAmount;
     corpus.scholarship = scholar?._id;
     scholar.fund_corpus = corpus?._id;
     corpus.fund_history.push(incomes?._id);
@@ -5449,8 +5450,12 @@ exports.renderNewFundCorpusIncomeQuery = async (req, res) => {
         access: false,
       });
     const corpus = await FundCorpus.findById({ _id: fcid });
-    const scholar = await ScholarShip.findById({ _id: `${corpus?.scholarship}` });
-    const ads_admin = await Admission.findById({ _id: `${scholar?.admission}` }).populate({
+    const scholar = await ScholarShip.findById({
+      _id: `${corpus?.scholarship}`,
+    });
+    const ads_admin = await Admission.findById({
+      _id: `${scholar?.admission}`,
+    }).populate({
       path: "institute",
       select: "financeDepart",
     });
@@ -5468,6 +5473,7 @@ exports.renderNewFundCorpusIncomeQuery = async (req, res) => {
     }
     var incomes = new Income({ ...req.body });
     corpus.total_corpus += incomes?.incomeAmount;
+    corpus.unused_corpus += incomes?.incomeAmount;
     corpus.scholarship = scholar?._id;
     scholar.fund_corpus = corpus?._id;
     corpus.fund_history.push(incomes?._id);

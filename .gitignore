@@ -2,4 +2,5 @@ node_modules
 .env
 ./Firebase
 username.txt
+./libs
 package-lock.json

@@ -44,7 +44,7 @@ router.post(
 );
 
 router.patch(
-  "/question/vote/:pid",
+  "/question/:aid/vote/:pid",
   catchAsync(Alumini.renderAluminiPollVoteQuery)
 );
 

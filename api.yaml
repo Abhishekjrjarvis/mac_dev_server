@@ -24762,7 +24762,7 @@ paths:
         "200":
           description: OK
 
-  /api/v1/alumini/question/vote/{pid}:
+  /api/v1/alumini/question/{aid}/vote/{pid}:
     patch:
       tags:
         - Alumini Query

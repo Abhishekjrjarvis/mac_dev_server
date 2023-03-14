@@ -5575,11 +5575,12 @@ exports.renderOneFundCorpusHistory = async (req, res) => {
       "fund_corpus"
     );
 
+    if(scholar?.fund_corpus){
     const corpus = await FundCorpus.findById({
       _id: `${scholar?.fund_corpus}`,
     }).select("fund_history");
 
-    const all_incomes = await Income.find({
+    var all_incomes = await Income.find({
       _id: { $in: corpus?.fund_history },
     })
       .limit(limit)
@@ -5588,7 +5589,10 @@ exports.renderOneFundCorpusHistory = async (req, res) => {
         path: "incomeFromUser",
         select: "username userLegalName photoId profilePhoto",
       });
-
+    }
+    else{
+      var all_incomes = []
+    }
     if (all_incomes?.length > 0) {
       res.status(200).send({
         message: "Explore All Incomes In Take History",

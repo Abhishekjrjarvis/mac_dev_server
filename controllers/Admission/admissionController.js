@@ -4858,8 +4858,8 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
       }
     } else {
     }
-    if (corpus.total_corpus >= price) {
-      corpus.unused_corpus += total_corpus - price;
+    if (corpus.unused_corpus >= price) {
+      corpus.unused_corpus -= price;
     }
     if (finance?.financeTotalBalance >= price + extra_price) {
       finance.financeTotalBalance -= price + extra_price;

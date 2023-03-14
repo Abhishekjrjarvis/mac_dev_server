@@ -885,7 +885,7 @@ exports.retrievePendingFeeFilter = async (req, res) => {
             `${ref?.studentClass?.className}-${ref?.studentClass.classTitle}` ??
             "#NA",
           Batch: `${val?.batchId?.batchName}` ?? "#NA",
-          ActualFees: `${val?.fee_structure?.one_installments?.fees}` ?? "0",
+          ActualFees: `${val?.fee_structure?.total_admission_fees}` ?? "0",
           ApplicableFees: `${val?.applicable_fee}` ?? "0",
           RemainingFees: `${val?.remaining_fee}` ?? "0",
           ApplicationName: `${val?.appId?.applicationName}` ?? "#NA",

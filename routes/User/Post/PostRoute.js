@@ -34,6 +34,8 @@ router.post(
   catchAsync(Post.postWithImage)
 );
 
+// router.post("/:id/image/access/apk", catchAsync(Post.postWithImageAPK));
+
 router.post(
   "/:id/video",
   isLoggedIn,

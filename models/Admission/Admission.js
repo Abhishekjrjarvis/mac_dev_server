@@ -177,6 +177,13 @@ const admissionAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  site_info: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "AdmissionSite",
+    },
+  ],
+
 });
 
 module.exports = mongoose.model("Admission", admissionAdminSchema);

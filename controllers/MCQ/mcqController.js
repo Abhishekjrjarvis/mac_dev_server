@@ -728,6 +728,7 @@ exports.takeTestSet = async (req, res) => {
     subject.takeTestSet.push(testSet._id);
     subject.allotedTestSet.push(alloted._id);
     await Promise.all([alloted.save(), subject.save(), testSet.save()]);
+
     const studentTestObject = {
       subjectMaster: testSet?.subjectMaster,
       classMaster: testSet?.classMaster,
@@ -745,6 +746,7 @@ exports.takeTestSet = async (req, res) => {
       questions: [],
       student: "",
     };
+
     for (let quest of testSet?.questions) {
       // another way of selecting item in array .option options.optionNumber options.image
       const getQuestion = await SubjectQuestion.findById(quest).select(
@@ -752,6 +754,11 @@ exports.takeTestSet = async (req, res) => {
       );
       studentTestObject.questions.push(getQuestion);
     }
+
+    // const oEncrypt = await encryptionPayload(subjectTestObject);
+    res.status(200).send({
+      message: "queston test set is assigned to student",
+    });
 
     for (stId of subject?.class?.ApproveStudent) {
       const student = await Student.findById(stId);
@@ -769,10 +776,10 @@ exports.takeTestSet = async (req, res) => {
       notify.notifyPublisher = student._id;
       user.activity_tab.push(notify._id);
       student.notification.push(notify._id);
-      notify.notifyBySubjectPhoto.subject_id = subject?._id
-      notify.notifyBySubjectPhoto.subject_name = subject.subjectName
-      notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png"
-      notify.notifyBySubjectPhoto.subject_title = subject.subjectTitle
+      notify.notifyBySubjectPhoto.subject_id = subject?._id;
+      notify.notifyBySubjectPhoto.subject_name = subject.subjectName;
+      notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
+      notify.notifyBySubjectPhoto.subject_title = subject.subjectTitle;
       notify.notifyCategory = "MCQ";
       notify.redirectIndex = 6;
       invokeMemberTabNotification(
@@ -791,11 +798,10 @@ exports.takeTestSet = async (req, res) => {
         user.save(),
       ]);
     }
-    // const oEncrypt = await encryptionPayload(subjectTestObject);
-    res.status(200).send({
-      message: "queston test set is assigned to student",
-      studentTestObject,
-    });
+    // // const oEncrypt = await encryptionPayload(subjectTestObject);
+    // res.status(200).send({
+    //   message: "queston test set is assigned to student",
+    // });
   } catch (e) {
     console.log(e);
   }
@@ -903,6 +909,7 @@ exports.studentAllTestSet = async (req, res) => {
 
 exports.studentOneTestSet = async (req, res) => {
   try {
+    // date form is "dd/mm/yyyy"
     const testset = await StudentTestSet.findById(req.params.tsid)
       .select(
         "testExamName testSubject testDate testStart testEnd testTotalNumber testDuration testObtainMarks testSetComplete"
@@ -919,8 +926,7 @@ exports.studentOneTestSet = async (req, res) => {
       testset?.testEnd
     );
     let startExamTime = false;
-    // console.log(currentDate.substr(11));
-    console.log(entryTime, "sgfsdghs === ", exitTime);
+    // console.log(entryTime, "and  === ", exitTime);
     if (entryTime && !exitTime) {
       startExamTime = true;
     } else startExamTime = false;
@@ -1496,10 +1502,10 @@ exports.createAssignment = async (req, res) => {
       notify.notifyPublisher = stu._id;
       user.activity_tab.push(notify._id);
       stu.notification.push(notify._id);
-      notify.notifyBySubjectPhoto.subject_id = subject?._id
-      notify.notifyBySubjectPhoto.subject_name = subject.subjectName
-      notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png"
-      notify.notifyBySubjectPhoto.subject_title = subject.subjectTitle
+      notify.notifyBySubjectPhoto.subject_id = subject?._id;
+      notify.notifyBySubjectPhoto.subject_name = subject.subjectName;
+      notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
+      notify.notifyBySubjectPhoto.subject_title = subject.subjectTitle;
       notify.notifyCategory = "Assignment";
       notify.redirectIndex = 7;
       //
@@ -1665,20 +1671,24 @@ exports.getOneAssignmentOneStudentCompleteAssignment = async (req, res) => {
       student?.assignments[0]._id
     );
     assignment.assignmentSubmit = req.body.assignmentSubmit;
-    const subjectAssignment = await Assignment.findById(assignment.assignment).populate({
+    const subjectAssignment = await Assignment.findById(
+      assignment.assignment
+    ).populate({
       path: "subject",
-      select: "subjectName subjectTitle"
-    })
+      select: "subjectName subjectTitle",
+    });
     var notify = new StudentNotification({});
     notify.notifySender = subjectAssignment?.subject._id;
     notify.notifyReceiever = user._id;
     notify.subjectId = subjectAssignment?.subject._id;
     notify.notifyType = "Student";
     notify.notifyPublisher = student._id;
-    notify.notifyBySubjectPhoto.subject_id = subjectAssignment?.subject._id
-    notify.notifyBySubjectPhoto.subject_name = subjectAssignment?.subject.subjectName
-    notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png"
-    notify.notifyBySubjectPhoto.subject_title = subjectAssignment?.subject.subjectTitle
+    notify.notifyBySubjectPhoto.subject_id = subjectAssignment?.subject._id;
+    notify.notifyBySubjectPhoto.subject_name =
+      subjectAssignment?.subject.subjectName;
+    notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
+    notify.notifyBySubjectPhoto.subject_title =
+      subjectAssignment?.subject.subjectTitle;
     user.activity_tab.push(notify._id);
     // notify.notifyByDepartPhoto = department._id;
     if (req.body.assignmentSubmit === true) {

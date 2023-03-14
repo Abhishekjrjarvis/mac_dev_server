@@ -99,6 +99,7 @@ exports.createExam = async (req, res) => {
     exam.department = department._id;
     exam.batch = batch._id;
 
+    res.status(201).send({ message: "Exam is created" });
     const allclasses = [
       ...new Set(req.body.allclasses?.map(JSON.stringify)),
     ].map(JSON.parse);
@@ -226,7 +227,6 @@ exports.createExam = async (req, res) => {
       }
     }
     await Promise.all([exam.save(), batch.save(), department.save()]);
-    res.status(201).send({ message: "Exam is created" });
   } catch (e) {
     console.log(e);
   }
@@ -468,10 +468,10 @@ exports.allStudentMarksBySubjectTeacher = async (req, res) => {
       notify.notifyPublisher = student._id;
       notify.subjectId = subjectData._id;
       user.activity_tab.push(notify._id);
-      notify.notifyBySubjectPhoto.subject_id = subjectData?._id
-      notify.notifyBySubjectPhoto.subject_name = subjectData.subjectName
-      notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png"
-      notify.notifyBySubjectPhoto.subject_title = subjectData.subjectTitle
+      notify.notifyBySubjectPhoto.subject_id = subjectData?._id;
+      notify.notifyBySubjectPhoto.subject_name = subjectData.subjectName;
+      notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
+      notify.notifyBySubjectPhoto.subject_title = subjectData.subjectTitle;
       notifyByExamPhoto = {
         exam_id: exam_data?._id,
         exam_name: exam_data?.examName,

@@ -295,6 +295,7 @@ const departmentSchema = new mongoose.Schema({
       ref: "DepartmentSite",
     },
   ],
+
 });
 
 const Department = mongoose.model("Department", departmentSchema);

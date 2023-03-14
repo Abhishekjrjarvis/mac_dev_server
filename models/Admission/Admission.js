@@ -183,6 +183,7 @@ const admissionAdminSchema = new mongoose.Schema({
       ref: "AdmissionSite",
     },
   ],
+
 });
 
 module.exports = mongoose.model("Admission", admissionAdminSchema);

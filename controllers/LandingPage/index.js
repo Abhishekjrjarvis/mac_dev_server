@@ -806,7 +806,7 @@ exports.renderOneWebProfile = async (req, res) => {
 
     const one_ins = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName name photoId insProfilePhoto career_passage tender_passage contact_list website_looks website_active_tab insEstdDate insEmail insPhoneNumber insAddress insAffiliated"
+        "insName name photoId insProfilePhoto sub_domain_link_up_status career_passage tender_passage contact_list website_looks website_active_tab insEstdDate insEmail insPhoneNumber insAddress insAffiliated"
       )
       .populate({
         path: "website_looks.leading_person",
@@ -819,6 +819,10 @@ exports.renderOneWebProfile = async (req, res) => {
       .populate({
         path: "affiliation_by",
         select: "affiliation_name photo",
+      })
+      .populate({
+        path: "sub_domain",
+        select: "sub_domain_path sub_domain_name status",
       });
     res.status(200).send({
       message: "Explore One Institute All Profile Details",

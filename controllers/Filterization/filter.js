@@ -9,6 +9,7 @@ const Admission = require("../../models/Admission/Admission");
 const Student = require("../../models/Student");
 const Department = require("../../models/Department");
 const ClassMaster = require("../../models/ClassMaster");
+const RemainingList = require("../../models/Admission/RemainingList");
 const {
   json_to_excel_query,
   transaction_json_to_excel_query,
@@ -1223,7 +1224,8 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
 exports.renderFeeHeadsStructureQuery = async (req, res) => {
   try {
     const { fsid } = req.params;
-    if (!fsid)
+    const { depart, appId } = req.query;
+    if (!fsid && !depart && !appId)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
@@ -1235,9 +1237,11 @@ exports.renderFeeHeadsStructureQuery = async (req, res) => {
         path: "category_master",
         select: "category_name",
       });
-    const all_students = await Student.find({ fee_structure: fsid })
+    const all_students = await Student.find({
+      $and: [{ fee_structure: fsid }, { department: depart }],
+    })
       .select(
-        "studentFirstName studentMiddleName studentLastName studentGRNO studentGender active_fee_heads"
+        "studentFirstName studentMiddleName studentLastName studentGRNO studentGender active_fee_heads remainingFeeList"
       )
       .populate({
         path: "fee_structure",
@@ -1247,6 +1251,14 @@ exports.renderFeeHeadsStructureQuery = async (req, res) => {
           path: "category_master",
           select: "category_name",
         },
+      })
+      .populate({
+        path: "studentClass",
+        select: "className classTitle",
+      })
+      .populate({
+        path: "batches",
+        select: "batchName",
       });
 
     if (all_students?.length > 0) {
@@ -1256,7 +1268,7 @@ exports.renderFeeHeadsStructureQuery = async (req, res) => {
       });
       var head_list = [];
       const buildStructureObject = async (arr) => {
-        const obj = {};
+        var obj = {};
         for (let i = 0; i < arr.length; i++) {
           const { HeadsName, PaidHeadFees } = arr[i];
           obj[HeadsName] = PaidHeadFees;
@@ -1265,24 +1277,37 @@ exports.renderFeeHeadsStructureQuery = async (req, res) => {
       };
       for (var ref of all_students) {
         var head_array = [];
+        var remain_list = await RemainingList.findOne({
+          $and: [{ _id: { $in: ref?.remainingFeeList } }, { appId: appId }],
+        });
         for (var val of ref?.active_fee_heads) {
-          head_array.push({
-            HeadsName: val?.head_name,
-            PaidHeadFees: val?.paid_fee,
-          });
+          if (`${val?.appId}` === appId) {
+            head_array.push({
+              HeadsName: val?.head_name,
+              PaidHeadFees: val?.paid_fee,
+            });
+          }
         }
         var result = await buildStructureObject(head_array);
-        head_list.push({
-          GRNO: ref?.studentGRNO ?? "#NA",
-          Name:
-            `${ref?.studentFirstName} ${
-              ref?.studentMiddleName ? ref?.studentMiddleName : ""
-            } ${ref?.studentLastName}` ?? "#NA",
-          Gender: ref?.studentGender ?? "#NA",
-          TotalFees: ref?.fee_structure?.total_admission_fees ?? "0",
-          ApplicableFees: ref?.fee_structure?.applicable_fees ?? "0",
-          ...result,
-        });
+        if (result && remain_list) {
+          head_list.push({
+            GRNO: ref?.studentGRNO ?? "#NA",
+            Name:
+              `${ref?.studentFirstName} ${
+                ref?.studentMiddleName ? ref?.studentMiddleName : ""
+              } ${ref?.studentLastName}` ?? "#NA",
+            Gender: ref?.studentGender ?? "#NA",
+            TotalFees: ref?.fee_structure?.total_admission_fees ?? "0",
+            ApplicableFees: ref?.fee_structure?.applicable_fees ?? "0",
+            TotalPaidFees: remain_list?.paid_fee,
+            RemainingFees: remain_list?.remaining_fee,
+            Class:
+              `${ref?.studentClass?.className}-${ref?.studentClass?.classTitle}` ??
+              "#NA",
+            Batch: ref?.batches?.batchName ?? "#NA",
+            ...result,
+          });
+        }
         head_array = [];
       }
 

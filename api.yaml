@@ -23503,7 +23503,7 @@ paths:
           name: timeline_content
           required: false
           type: string
-          description: This is TimeLine Content if timeline is true
+          description: This is TimeLine Content if timeline is true ("Past Week" || "Past Month" || "Past Year")
         - in: query
           name: from
           required: false
@@ -23524,6 +23524,36 @@ paths:
           required: false
           type: string
           description: This is Fees Mode ("Online" || "Offline" || "By Bank" || "By Cash") if Tab Flow is "BY_FEE_TYPE"
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/feed/filter/heads/by/{fsid}:
+    get:
+      tags:
+        - New Custom Filter
+      summary: Get All Student Fee Heads By Fee Structure + Department + Application (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fsid
+          required: true
+          type: string
+          description: This is Fee Structure ID
+        - in: query
+          name: depart
+          required: true
+          type: string
+          description: This is Department ID
+        - in: query
+          name: appId
+          required: true
+          type: string
+          description: This is Application ID
       responses:
         "200":
           description: OK

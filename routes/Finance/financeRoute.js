@@ -386,4 +386,19 @@ router.delete(
   catchAsync(Finance.renderFinanceDeleteFeeMasterQuery)
 );
 
+router.get(
+  "/:id/all/export/excel/array",
+  catchAsync(Finance.renderAllExportExcelArrayQuery)
+);
+
+router.patch(
+  "/:id/export/excel/:exid/edit",
+  catchAsync(Finance.renderEditOneExcel)
+);
+
+router.delete(
+  "/:id/export/excel/:exid/destroy/query",
+  catchAsync(Finance.renderDeleteOneExcel)
+);
+
 module.exports = router;

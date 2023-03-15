@@ -105,7 +105,11 @@ exports.generate_hash_pass = async () => {
   var pass = `${rand1}${rand2}${rand3}${rand4}`;
   const new_user_pass = bcrypt.genSaltSync(12);
   const hash_user_pass = bcrypt.hashSync(pass, new_user_pass);
-  return hash_user_pass;
+  var result = {
+    pass: hash_user_pass,
+    pin: pass,
+  };
+  return result;
 };
 
 exports.send_email_authentication = async (email) => {

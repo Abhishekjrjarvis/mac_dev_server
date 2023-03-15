@@ -12,6 +12,7 @@ const ClassMaster = require("../../models/ClassMaster");
 const {
   json_to_excel_query,
   transaction_json_to_excel_query,
+  fee_heads_json_to_excel_query,
 } = require("../../Custom/JSONToExcel");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
@@ -20,6 +21,8 @@ const {
   custom_year_reverse,
   custom_month_reverse,
 } = require("../../helper/dayTimer");
+const moment = require("moment");
+const FeeStructure = require("../../models/Finance/FeesStructure");
 
 var trendingQuery = (trends, cat, type, page) => {
   if (cat !== "" && page === 1) {
@@ -1202,8 +1205,12 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
           Name: user?.userLegalName ?? "#NA",
           PaymentAmount: ref?.payment_amount ?? "#NA",
           PaymentType: ref?.payment_module_type ?? "#NA",
-          PaymentMode: ref?.payment_mode ?? "#NA",
+          PaymentMode:
+            ref?.payment_mode === "By Bank" && ref?.razorpay_signature
+              ? "Payment Gateway"
+              : ref?.payment_mode ?? "#NA",
           PaymentStatus: ref?.payment_status ?? "#NA",
+          PaymentDate: moment(ref?.created_at).format("LL") ?? "#NA",
         });
       }
       await transaction_json_to_excel_query(trans_list, tab_flow, timeline, id);
@@ -1213,9 +1220,89 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
   }
 };
 
-// ref?.remainingFeeList.sort(function (st1, st2) {
-//   return st1?.remaining_array?.length - st2?.remaining_array?.length;
-// });
+exports.renderFeeHeadsStructureQuery = async (req, res) => {
+  try {
+    const { fsid } = req.params;
+    if (!fsid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const one_structure = await FeeStructure.findById({ _id: fsid })
+      .select("structure_name category_master finance")
+      .populate({
+        path: "category_master",
+        select: "category_name",
+      });
+    const all_students = await Student.find({ fee_structure: fsid })
+      .select(
+        "studentFirstName studentMiddleName studentLastName studentGRNO studentGender active_fee_heads"
+      )
+      .populate({
+        path: "fee_structure",
+        select:
+          "structure_name category_master total_admission_fees applicable_fees",
+        populate: {
+          path: "category_master",
+          select: "category_name",
+        },
+      });
+
+    if (all_students?.length > 0) {
+      res.status(200).send({
+        message: "Explore Fee Heads Structure Query",
+        access: true,
+      });
+      var head_list = [];
+      const buildStructureObject = async (arr) => {
+        const obj = {};
+        for (let i = 0; i < arr.length; i++) {
+          const { HeadsName, PaidHeadFees } = arr[i];
+          obj[HeadsName] = PaidHeadFees;
+        }
+        return obj;
+      };
+      for (var ref of all_students) {
+        var head_array = [];
+        for (var val of ref?.active_fee_heads) {
+          head_array.push({
+            HeadsName: val?.head_name,
+            PaidHeadFees: val?.paid_fee,
+          });
+        }
+        var result = await buildStructureObject(head_array);
+        head_list.push({
+          GRNO: ref?.studentGRNO ?? "#NA",
+          Name:
+            `${ref?.studentFirstName} ${
+              ref?.studentMiddleName ? ref?.studentMiddleName : ""
+            } ${ref?.studentLastName}` ?? "#NA",
+          Gender: ref?.studentGender ?? "#NA",
+          TotalFees: ref?.fee_structure?.total_admission_fees ?? "0",
+          ApplicableFees: ref?.fee_structure?.applicable_fees ?? "0",
+          ...result,
+        });
+        head_array = [];
+      }
+
+      await fee_heads_json_to_excel_query(
+        head_list,
+        one_structure?.structure_name,
+        one_structure?.category_master?.category_name,
+        one_structure?.finance
+      );
+    } else {
+      res.status(200).send({
+        message: "No Fee Heads Structure Query",
+        access: false,
+        all_students: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 exports.renderUpdate = async (req, res) => {
   const all_student = await Student.find({}).select("remainingFeeList_count");

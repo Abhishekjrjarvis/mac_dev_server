@@ -61,11 +61,12 @@ exports.getFinanceDepart = async (req, res) => {
       role_id: finance?._id,
     });
     finance.financeHead = staff._id;
-    finance.designation_password = await generate_hash_pass();
+    let password = await generate_hash_pass();
+    finance.designation_password = password?.pass;
     institute.financeDepart.push(finance._id);
     institute.financeStatus = "Enable";
     finance.institute = institute._id;
-    notify.notifyContent = `you got the designation of as Finance Manager A/c Access Pin - ${finance?.designation_password}`;
+    notify.notifyContent = `you got the designation of as Finance Manager A/c Access Pin - ${password?.pin}`;
     notify.notify_hi_content = `आपको वित्त व्यवस्थापक के रूप में पदनाम मिला है |`;
     notify.notify_mr_content = `तुम्हाला वित्त व्यवस्थापक म्हणून पद मिळाले आहे`;
     notify.notifySender = id;
@@ -3262,6 +3263,101 @@ exports.renderFinanceDeleteFeeMasterQuery = async (req, res) => {
     await FeeMaster.findByIdAndDelete(fmid);
     res.status(200).send({
       message: "Deletion Operation of Existing Master Head ",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllExportExcelArrayQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const ins_admin = await InstituteAdmin.findById({ _id: id }).select(
+      "export_collection"
+    );
+
+    var all_excel = await nested_document_limit(
+      page,
+      limit,
+      ins_admin?.export_collection
+    );
+    if (all_excel?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Exported Excel",
+        access: true,
+        all_excel: all_excel,
+        count: ins_admin?.export_collection?.length,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Exported Excel Available",
+        access: false,
+        all_excel: [],
+        count: 0,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderEditOneExcel = async (req, res) => {
+  try {
+    const { id, exid } = req.params;
+    const { excel_file_name } = req.body;
+    if (!id && !exid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const ins_admin = await InstituteAdmin.findById({ _id: id }).select(
+      "export_collection"
+    );
+    for (var exe of ins_admin?.export_collection) {
+      if (`${exe?._id}` === `${exid}`) {
+        exe.excel_file_name = excel_file_name;
+      }
+    }
+    await ins_admin.save();
+    res.status(200).send({
+      message: "Exported Excel Updated",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderDeleteOneExcel = async (req, res) => {
+  try {
+    const { id, exid } = req.params;
+    if (!id && !exid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const ins_admin = await InstituteAdmin.findById({ _id: id }).select(
+      "export_collection export_collection_count"
+    );
+    for (var exe of ins_admin?.export_collection) {
+      if (`${exe?._id}` === `${exid}`) {
+        ins_admin?.export_collection.pull(exid);
+        if (ins_admin?.export_collection_count > 0) {
+          ins_admin.export_collection_count -= 1;
+        }
+      }
+    }
+    await ins_admin.save();
+    res.status(200).send({
+      message: "Exported Excel Deletion Operation Completed",
       access: true,
     });
   } catch (e) {

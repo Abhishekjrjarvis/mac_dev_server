@@ -58,6 +58,12 @@ router.get(
   catchAsync(Filter.renderFinanceTransactionHistoryQuery)
 );
 
+router.get(
+  "/heads/by/:fsid",
+  // isLoggedIn,
+  catchAsync(Filter.renderFeeHeadsStructureQuery)
+);
+
 router.patch(
   "/update",
   // isLoggedIn,

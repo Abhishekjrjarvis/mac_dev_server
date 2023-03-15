@@ -23320,6 +23320,92 @@ paths:
         "200":
           description: OK
 
+  /api/v1/finance/{id}/all/export/excel/array:
+    get:
+      tags:
+        - Process Excel + Database Processing
+      summary: All Exported Excel Downloadable File (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This Institute Admin ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{id}/export/excel/{exid}/edit:
+    patch:
+      tags:
+        - Process Excel + Database Processing
+      summary: Edit One Exported Excel Downloadable File (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: exid
+          required: true
+          type: string
+          description: This Export Excel ID
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This Institute Admin ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              excel_file_name:
+                type: string
+                description: Enter Name Here
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{id}/export/excel/{exid}/destroy/query:
+    delete:
+      tags:
+        - Process Excel + Database Processing
+      summary: Delete One Exported Excel Downloadable File By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This Institute Admin ID
+        - in: path
+          name: exid
+          required: true
+          type: string
+          description: This Export Excel ID
+      responses:
+        "200":
+          description: OK
+
 # New Filter
 
   /api/v1/feed/filter/pending/fee/{aid}:

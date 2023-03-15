@@ -94,11 +94,12 @@ exports.retrieveAdmissionAdminHead = async (req, res) => {
       role_id: admission?._id,
     });
     admission.admissionAdminHead = staff._id;
-    admission.designation_password = await generate_hash_pass();
+    let password = await generate_hash_pass()
+    admission.designation_password = password?.pass;
     institute.admissionDepart.push(admission._id);
     institute.admissionStatus = "Enable";
     admission.institute = institute._id;
-    notify.notifyContent = `you got the designation of Admission Admin A/c Access Pin - ${admission?.designation_password}`;
+    notify.notifyContent = `you got the designation of Admission Admin A/c Access Pin - ${password?.pin}`;
     notify.notifySender = id;
     notify.notifyReceiever = user._id;
     notify.notifyCategory = "Admission Designation";

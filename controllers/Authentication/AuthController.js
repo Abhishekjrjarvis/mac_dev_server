@@ -3058,7 +3058,7 @@ exports.renderFinanceAdmissionDesignationLoginQuery = async (req, res) => {
         finance.designation_password
       );
       if (check_finance) {
-        finance.designation_status = "UnLocked";
+        finance.designation_status = "Locked";
         await finance.save();
         const finance_token = await generateAccessDesignationToken(
           finance?.designation_status,
@@ -3084,7 +3084,7 @@ exports.renderFinanceAdmissionDesignationLoginQuery = async (req, res) => {
         admission.designation_password
       );
       if (check_admission) {
-        admission.designation_status = "UnLocked";
+        admission.designation_status = "Locked";
         await admission.save();
         const admission_token = await generateAccessDesignationToken(
           admission?.designation_status,

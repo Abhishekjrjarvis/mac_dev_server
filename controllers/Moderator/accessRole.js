@@ -152,6 +152,30 @@ exports.all_access_role_ins = () => {
         accessStaff: "",
       },
     },
+    SOCIAL_MEDIA_ACCESS: {
+      role: "SOCIAL_MEDIA_ACCESS",
+      permission: {
+        allow: true,
+        bound: [
+          "HANDLE_SOCIAL",
+          "MAKE_POST",
+          "MAKE_POLL",
+          "MAKE_QUESTION",
+          "MAKE_ANSWER",
+        ],
+        addons: [],
+        accessStaff: "",
+      },
+    },
+    SITE_MANAGE_ACCESS: {
+      role: "SITE_MANAGE_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["SITE_OPENER", "EDIT_SITE_INFO"],
+        addons: [],
+        accessStaff: "",
+      },
+    },
   };
   return access_role_ins;
 };

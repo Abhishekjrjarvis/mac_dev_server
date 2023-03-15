@@ -34,17 +34,26 @@ const unlinkFile = util.promisify(fs.unlink);
 const { file_to_aws } = require("../../Utilities/uploadFileAws");
 const { shuffleArray } = require("../../Utilities/Shuffle");
 const { designation_alarm } = require("../../WhatsAppSMS/payload");
+const { render_institute_current_role } = require("../Moderator/roleController");
 
 exports.getDashOneQuery = async (req, res) => {
   try {
     const { id } = req.params;
+    const { mod_id } = req.query;
     const institute = await InstituteAdmin.findById({ _id: id }).select(
-      "insName name insAbout photoId blockStatus gr_initials insProfileCoverPhoto coverId block_institute blockedBy sportStatus sportClassStatus sportDepart sportClassDepart staff_privacy email_privacy followers_critiria initial_Unlock_Amount contact_privacy sms_lang followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount transportStatus transportDepart libraryActivate library accessFeature activateStatus eventManagerStatus eventManagerDepart careerStatus careerDepart career_count tenderStatus tenderDepart tender_count aluminiStatus aluminiDepart"
+      "insName name insAbout photoId blockStatus gr_initials moderator_role moderator_role_count insProfileCoverPhoto coverId block_institute blockedBy sportStatus sportClassStatus sportDepart sportClassDepart staff_privacy email_privacy followers_critiria initial_Unlock_Amount contact_privacy sms_lang followersCount tag_privacy status activateStatus insProfilePhoto recoveryMail insPhoneNumber financeDetailStatus financeStatus financeDepart admissionDepart admissionStatus unlockAmount transportStatus transportDepart libraryActivate library accessFeature activateStatus eventManagerStatus eventManagerDepart careerStatus careerDepart career_count tenderStatus tenderDepart tender_count aluminiStatus aluminiDepart"
     );
-    const encrypt = await encryptionPayload(institute);
+    // const encrypt = await encryptionPayload(institute);
+    if (req?.query?.mod_id) {
+      var value = await render_institute_current_role(
+        finance?.moderator_role,
+        mod_id
+      );
+    }
     res.status(200).send({
       message: "limit Ins Data",
       institute: institute,
+      roles: req?.query?.mod_id ? value : "",
       // eData: encrypt,
     });
   } catch {}

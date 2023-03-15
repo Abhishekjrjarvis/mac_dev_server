@@ -780,6 +780,16 @@ const instituteAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  moderator_role: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FinanceModerator",
+    },
+  ],
+  moderator_role_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

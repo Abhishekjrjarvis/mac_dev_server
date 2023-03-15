@@ -5,7 +5,11 @@ const User = require("../../models/User");
 const { designation_alarm } = require("../../WhatsAppSMS/payload");
 const Notification = require("../../models/notification");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
-const { all_access_role, all_access_role_finance } = require("./accessRole");
+const {
+  all_access_role,
+  all_access_role_finance,
+  all_access_role_ins,
+} = require("./accessRole");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const { nested_document_limit } = require("../../helper/databaseFunction");
 const { handle_undefined } = require("../../Handler/customError");
@@ -37,6 +41,26 @@ exports.render_finance_current_role = async (finance, mid) => {
   try {
     var sorted = [];
     for (var mod of finance) {
+      if (`${mod}` === `${mid}`) {
+        sorted.push(mod);
+      }
+    }
+    const one_mod = await FinanceModerator.find({ _id: { $in: sorted } });
+    var permission = [...one_mod];
+    if (permission) {
+      return permission;
+    } else {
+      return [];
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.render_institute_current_role = async (institute, mid) => {
+  try {
+    var sorted = [];
+    for (var mod of institute) {
       if (`${mod}` === `${mid}`) {
         sorted.push(mod);
       }
@@ -608,6 +632,246 @@ exports.destroyFinanceModeratorQuery = async (req, res) => {
     }
     one_staff.recentDesignation = "";
     await Promise.all([one_staff.save(), finance.save()]);
+    await FinanceModerator.findByIdAndDelete(mid);
+    res.status(200).send({
+      message: "Deletion Operation Completed 👍",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.addInstituteModeratorQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { mod_role, sid } = req.body;
+    if (!id && !mod_role && !sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    var all_role = all_access_role_ins();
+    const institute = await InstituteAdmin.findById({
+      _id: id,
+    });
+    const staff = await Staff.findById({ _id: sid });
+    const user = await User.findById({ _id: `${staff?.user}` });
+    const notify = new Notification({});
+    const new_mod = new FinanceModerator({});
+    new_mod.access_role = mod_role;
+    new_mod.access_staff = staff?._id;
+    if (mod_role === all_role[`${mod_role}`]?.role) {
+      new_mod.permission.bound = [
+        ...all_role[`${mod_role}`]?.permission?.bound,
+      ];
+    }
+    new_mod.institute = institute?._id;
+    institute.moderator_role.push(new_mod?._id);
+    institute.moderator_role_count += 1;
+    staff.instituteModeratorDepartment.push(new_mod?._id);
+    staff.staffDesignationCount += 1;
+    staff.recentDesignation = `Institute Admin Moderator - ${mod_role}`;
+    staff.designation_array.push({
+      role: "Institute Admin Moderator",
+      role_id: new_mod?._id,
+    });
+    notify.notifyContent = `you got the designation of Institute Admin Moderator for ${mod_role} 🎉🎉`;
+    notify.notifySender = institute?._id;
+    notify.notifyReceiever = user._id;
+    notify.notifyCategory = "Institute Moderator Designation";
+    user.uNotify.push(notify._id);
+    notify.user = user._id;
+    notify.notifyPid = "1";
+    notify.notifyByInsPhoto = institute._id;
+    invokeFirebaseNotification(
+      "Designation Allocation",
+      notify,
+      institute.insName,
+      user._id,
+      user.deviceToken
+    );
+    await Promise.all([
+      staff.save(),
+      institute.save(),
+      new_mod.save(),
+      user.save(),
+      notify.save(),
+    ]);
+    // const adsEncrypt = await encryptionPayload(institute._id);
+    res.status(200).send({
+      message: "Successfully Assigned Institute Moderator Staff",
+      institute: institute._id,
+      access: true,
+    });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "INSTITUTE_MODERATOR",
+      institute?.sms_lang,
+      "",
+      "",
+      ""
+    );
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderInstituteAllAppModeratorArray = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const institute = await Institute.findById({ _id: id }).select(
+      "moderator_role"
+    );
+
+    if (search) {
+      var all_mods = await FinanceModerator.find({
+        $and: [{ _id: { $in: institute?.moderator_role } }],
+        $or: [{ access_role: { $regex: search, $options: "i" } }],
+      }).populate({
+        path: "access_staff",
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+      });
+    } else {
+      var all_mods = await FinanceModerator.find({
+        _id: { $in: institute?.moderator_role },
+      })
+        .limit(limit)
+        .skip(skip)
+        .populate({
+          path: "access_staff",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        });
+    }
+    if (all_mods?.length > 0) {
+      // const allEncrypt = await encryptionPayload(all_mods);
+      res.status(200).send({
+        message: "All Admin / Moderator List 😀",
+        all_mods,
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Admin / Moderator List 😀",
+        all_mods: [],
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.updateInstituteAppModeratorQuery = async (req, res) => {
+  try {
+    const { mid } = req.params;
+    const { role, staffId } = req.body;
+    if (!mid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    var sid = handle_undefined(staffId);
+    var all_role = all_access_role_ins();
+    const one_moderator = await FinanceModerator.findById({
+      _id: mid,
+    }).populate({
+      path: "institute",
+      select: "insName sms_lang",
+    });
+    if (role) {
+      one_moderator.access_role = role;
+      one_moderator.permission.bound = [];
+      if (role === all_role[`${role}`]?.role) {
+        one_moderator.permission.bound = [
+          ...all_role[`${role}`]?.permission?.bound,
+        ];
+      }
+    }
+    if (sid) {
+      var one_staff = await Staff.findById({
+        _id: `${one_moderator?.access_staff}`,
+      });
+      one_staff.instituteModeratorDepartment.pull(one_moderator?._id);
+      one_staff.recentDesignation = "";
+      if (one_staff?.staffDesignationCount > 0) {
+        one_staff.staffDesignationCount -= 1;
+      }
+      await one_staff.save();
+      var new_staff = await Staff.findById({ _id: sid });
+      new_staff.instituteModeratorDepartment.push(one_moderator?._id);
+      new_staff.recentDesignation = `Institute Admin Moderator - ${one_moderator?.access_role}`;
+      new_staff.staffDesignationCount += 1;
+      const notify = new Notification({});
+      var user = await User.findById({ _id: `${new_staff?.user}` });
+      notify.notifyContent = `you got the designation of Institute Admin Moderator 🎉🎉`;
+      notify.notifySender = one_moderator?.institute?._id;
+      notify.notifyReceiever = user._id;
+      notify.notifyCategory = "Institute Moderator Designation";
+      user.uNotify.push(notify._id);
+      notify.user = user._id;
+      notify.notifyByInsPhoto = one_moderator?.institute?._id;
+      invokeFirebaseNotification(
+        "Designation Allocation",
+        notify,
+        one_moderator?.institute?.insName,
+        user._id,
+        user.deviceToken
+      );
+      designation_alarm(
+        user?.userPhoneNumber,
+        "INSTITUTE_MODERATOR",
+        one_moderator?.institute?.sms_lang,
+        "",
+        "",
+        ""
+      );
+      await Promise.all([new_staff.save(), user.save(), notify.save()]);
+    }
+    await one_moderator.save();
+    res.status(200).send({ message: "Explore Update Role", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.destroyInstituteModeratorQuery = async (req, res) => {
+  try {
+    const { id, mid } = req.params;
+    if (!id && !mid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const one_moderator = await FinanceModerator.findById({ _id: mid });
+    const one_staff = await Staff.findById({
+      _id: `${one_moderator?.access_staff}`,
+    });
+    var institute = await InstituteAdmin.findById({ _id: id }).select(
+      "moderator_role"
+    );
+    institute.moderator_role.pull(mid);
+    one_staff.instituteModeratorDepartment.pull(mid);
+    if (institute.moderator_role_count > 0) {
+      institute.moderator_role_count -= 1;
+    }
+    if (one_staff.staffDesignationCount > 0) {
+      one_staff.staffDesignationCount -= 1;
+    }
+    one_staff.recentDesignation = "";
+    await Promise.all([one_staff.save(), institute.save()]);
     await FinanceModerator.findByIdAndDelete(mid);
     res.status(200).send({
       message: "Deletion Operation Completed 👍",

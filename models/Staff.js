@@ -174,6 +174,12 @@ const staffSchema = new mongoose.Schema({
       ref: "FinanceModerator",
     },
   ],
+  instituteModeratorDepartment: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FinanceModerator",
+    },
+  ],
   isAdmin: {
     type: Boolean,
     default: false,

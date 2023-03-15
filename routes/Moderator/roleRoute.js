@@ -46,4 +46,21 @@ router.delete(
   catchAsync(Role.destroyFinanceModeratorQuery)
 );
 
+router.post("/:id/ins/moderator", catchAsync(Role.addInstituteModeratorQuery));
+
+router.get(
+  "/:id/all/ins/moderator",
+  catchAsync(Role.renderInstituteAllAppModeratorArray)
+);
+
+router.patch(
+  "/update/ins/mod/:mid",
+  catchAsync(Role.updateInstituteAppModeratorQuery)
+);
+
+router.delete(
+  "/:id/destroy/ins/mod/:mid",
+  catchAsync(Role.destroyInstituteModeratorQuery)
+);
+
 module.exports = router;

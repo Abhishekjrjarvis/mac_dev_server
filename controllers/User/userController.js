@@ -1475,6 +1475,10 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
           path: "financeModeratorDepartment",
           select: "finance access_role",
         })
+        .populate({
+          path: "instituteModeratorDepartment",
+          select: "institute access_role",
+        })
         .lean()
         .exec();
       if (staff?.staffDocuments?.length > 0) {
@@ -1634,6 +1638,10 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         .populate({
           path: "financeModeratorDepartment",
           select: "finance access_role",
+        })
+        .populate({
+          path: "instituteModeratorDepartment",
+          select: "institute access_role",
         })
         .lean()
         .exec();

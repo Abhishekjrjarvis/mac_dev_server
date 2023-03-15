@@ -4657,6 +4657,12 @@ paths:
           schema:
             type: string
           description: The institute ID
+        - in: query
+          name: mod_id # Note the name is the same as in the path
+          required: false
+          schema:
+            type: string
+          description: The Moderator ID
       responses:
         "200":
           description: OK
@@ -21006,6 +21012,130 @@ paths:
           required: true
           type: string
           description: Enter Finance Id
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: Enter One Moderator Id
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/role/permission/{id}/ins/moderator:
+    post:
+      tags:
+        - Moderator Role & Permission
+      summary: Add New Moderator Role ("CERTIFICATE_ACCESS" || "STUDENT_PROMOTE_ACCESS") (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: Enter Institute Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              mod_role:
+                type: string
+                description: Enter Role as per given 
+                required: true
+              sid:
+                type: string
+                description: Enter Staff Id
+                required: true  
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/role/permission/{id}/all/ins/moderator:
+    get:
+      tags:
+        - Moderator Role & Permission
+      summary: All Moderator Role of Institute Super Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: Enter Institute Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: search
+          required: true
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/role/permission/update/ins/mod/{mid}:
+    patch:
+      tags:
+        - Moderator Role & Permission
+      summary: Edit One Moderator Role By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: Enter One Moderator Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              role:
+                type: string
+                description: Enter Role as per given 
+                required: false
+              staffId:
+                type: string
+                description: Enter Staff Id
+                required: true 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/role/permission/{id}/destroy/ins/mod/{mid}:
+    delete:
+      tags:
+        - Moderator Role & Permission
+      summary: Delete One Moderator Role By Institute Super Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: Enter Institute Id
         - in: path
           name: mid
           required: true

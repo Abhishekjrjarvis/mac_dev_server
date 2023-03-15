@@ -131,3 +131,27 @@ exports.all_access_role_finance = () => {
   };
   return access_role_finance;
 };
+
+exports.all_access_role_ins = () => {
+  const access_role_ins = {
+    CERTIFICATE_ACCESS: {
+      role: "CERTIFICATE_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["MAKE CERTIFICATE", "DOWNLOAD CERTIFICATE"],
+        addons: [],
+        accessStaff: "",
+      },
+    },
+    STUDENT_PROMOTE_ACCESS: {
+      role: "STUDENT_PROMOTE_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["PROMOTE_STUDENT"],
+        addons: [],
+        accessStaff: "",
+      },
+    },
+  };
+  return access_role_ins;
+};

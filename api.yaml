@@ -21292,8 +21292,8 @@ paths:
         "200":
           description: OK
 
-  /api/v1/finance/{fid}/bank/flow/query:
-    patch:
+  /api/v1/finance/{fid}/add/bank/query:
+    post:
       tags:
         - New Flow Finance + Admission
       summary: Add Bank Details By Finance Manager in body ("finance_bank_account_number", "finance_bank_name", "finance_bank_account_name", "finance_bank_ifsc_code", "finance_bank_branch_address", "finance_bank_upi_id", "finance_bank_upi_qrcode") (verified)
@@ -21308,6 +21308,70 @@ paths:
           type: string
           description: Enter Finance Id
         - in: query
+          name: flow
+          required: true
+          type: string
+          description: Enter Flow Status ("Department" || "Transport" || "Library")
+        - in: query
+          name: flow_id
+          required: true
+          type: string
+          description: Enter Flow ID
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/finance/{fid}/all/bank/account:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: All Bank Account By Finance Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: search
+          required: true
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{acid}/bank/account/query:
+    patch:
+      tags:
+        - New Flow Finance + Admission
+      summary: Add Bank Details By Finance Manager in body ("finance_bank_account_number", "finance_bank_name", "finance_bank_account_name", "finance_bank_ifsc_code", "finance_bank_branch_address", "finance_bank_upi_id", "finance_bank_upi_qrcode") (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: acid
+          required: true
+          type: string
+          description: Enter Bank Account Id
+        - in: query
           name: delete_pic
           required: true
           type: string
@@ -21316,6 +21380,24 @@ paths:
         "200":
           description: OK
 
+  /api/v1/finance/{acid}/bank/account/destroy/query:
+    delete:
+      tags:
+        - New Flow Finance + Admission
+      summary: Delete Bank Account By Finance Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: acid
+          required: true
+          type: string
+          description: Enter Bank Account Id
+      responses:
+        "200":
+          description: OK
 
   Get From Finance Master API:
     get:
@@ -21656,7 +21738,7 @@ paths:
     get:
       tags:
         - New Flow Finance + Admission
-      summary: Get One Receipt Query (verified)
+      summary: Get One Receipt Query Response Changed @Birat (verified)
       consumes:
         - application/json
       produces:
@@ -21767,6 +21849,11 @@ paths:
           required: true
           type: string
           description: Enter Filter Query for ("ALL_REQUEST") || ("ALL_APPROVE") || ("ALL_REJECT")
+        - in: query
+          name: over_filter
+          required: false
+          type: string
+          description: Enter Application Department ID
       responses:
         "200":
           description: OK
@@ -22143,7 +22230,7 @@ paths:
     get:
       tags:
         - New Flow Finance + Admission
-      summary: get Finance Payment Modes + Bank Details for Students Side - (verified)
+      summary: get Finance Payment Modes + Bank Details for Students Side Response Changed @Ankush, @Tushar - (verified)
       consumes:
         - application/json
       produces:

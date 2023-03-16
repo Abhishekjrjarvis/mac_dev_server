@@ -1943,7 +1943,8 @@ exports.retrieveUserApplicationStatus = async (req, res) => {
         path: "applicationStatus",
         populate: {
           path: "applicationId",
-          select: "one_installments admissionAdmin applicationName",
+          select:
+            "one_installments admissionAdmin applicationName applicationDepartment",
         },
         options,
       })

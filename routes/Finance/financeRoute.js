@@ -274,11 +274,28 @@ router.post(
 );
 
 // Add Bank Details in New Flow
+router.post(
+  "/:fid/add/bank/query",
+  // isLoggedIn,
+  catchAsync(Finance.renderFinanceBankAddQuery)
+);
+
+router.get(
+  "/:fid/all/bank/account",
+  // isLoggedIn,
+  catchAsync(Finance.renderFinanceAllBankAccountQuery)
+);
 
 router.patch(
-  "/:fid/bank/flow/query",
+  "/:acid/bank/account/query",
   // isLoggedIn,
-  catchAsync(Finance.renderFinanceBankUpdateQuery)
+  catchAsync(Finance.renderFinanceOneBankAccountQuery)
+);
+
+router.delete(
+  "/:acid/bank/account/destroy/query",
+  // isLoggedIn,
+  catchAsync(Finance.renderFinanceOneBankAccountDestroyQuery)
 );
 
 router.get(

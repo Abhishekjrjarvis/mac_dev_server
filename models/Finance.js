@@ -317,26 +317,15 @@ const financeSchema = new mongoose.Schema(
         status: { type: String },
       },
     ],
-    finance_bank_account_number: {
-      type: String,
-    },
-    finance_bank_name: {
-      type: String,
-    },
-    finance_bank_account_name: {
-      type: String,
-    },
-    finance_bank_ifsc_code: {
-      type: String,
-    },
-    finance_bank_branch_address: {
-      type: String,
-    },
-    finance_bank_upi_id: {
-      type: String,
-    },
-    finance_bank_upi_qrcode: {
-      type: String,
+    bank_account: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "BankAccount",
+      },
+    ],
+    bank_account_count: {
+      type: Number,
+      default: 0,
     },
     fees_category: [
       {

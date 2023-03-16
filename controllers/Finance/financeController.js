@@ -30,6 +30,7 @@ const FeeMaster = require("../../models/Finance/FeeMaster");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const Transport = require("../../models/Transport/transport");
 const Store = require("../../models/Finance/Inventory");
+const BankAccount = require("../../models/Finance/BankAccount");
 const { nested_document_limit } = require("../../helper/databaseFunction");
 const { designation_alarm } = require("../../WhatsAppSMS/payload");
 const {
@@ -225,7 +226,7 @@ exports.retrieveFinanceQuery = async (req, res) => {
     //   });
     const finance = await Finance.findById({ _id: fid })
       .select(
-        "financeName financeEmail financePhoneNumber enable_protection moderator_role moderator_role_count financeAbout photoId photo cover coverId financeCollectedBankBalance financeTotalBalance financeRaisedBalance financeExemptBalance financeCollectedSBalance financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance payment_modes_type finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode fees_category_count exempt_receipt_count government_receipt_count fee_master_array_count designation_status"
+        "financeName financeEmail financePhoneNumber enable_protection moderator_role moderator_role_count financeAbout photoId photo cover coverId financeCollectedBankBalance financeTotalBalance financeRaisedBalance financeExemptBalance financeCollectedSBalance financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance payment_modes_type bank_account_count fees_category_count exempt_receipt_count government_receipt_count fee_master_array_count designation_status"
       )
       .populate({
         path: "institute",
@@ -2344,23 +2345,161 @@ exports.submitLibraryFeeQuery = async (req, res) => {
   }
 };
 
-exports.renderFinanceBankUpdateQuery = async (req, res) => {
+exports.renderFinanceBankAddQuery = async (req, res) => {
   try {
     const { fid } = req.params;
-    const { delete_pic } = req.query;
-    const image = handle_undefined(delete_pic);
+    const { flow, flow_id } = req.query;
+    if (!fid && !flow && !flow_id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const finance = await Finance.findById({ _id: fid });
+    const new_account = new BankAccount({ ...req.body });
+    if (flow === "Department") {
+      const department = await Department.findById({ _id: flow_id });
+      new_account.department = flow_id;
+      department.bank_account = new_account?._id;
+      await department.save();
+    } else if (flow === "Transport") {
+      const trans = await Transport.findById({ _id: flow_id });
+      new_account.transport = flow_id;
+      trans.bank_account = new_account?._id;
+      await trans.save();
+    } else if (flow === "Library") {
+      const libs = await Library.findById({ _id: flow_id });
+      new_account.library = flow_id;
+      libs.bank_account = new_account?._id;
+      await libs.save();
+    }
+    new_account.finance = finance?._id;
+    finance.bank_account.push(new_account?._id);
+    finance.bank_account_count += 1;
+    await Promise.all([finance.save(), new_account.save()]);
+    res
+      .status(200)
+      .send({ message: "Explore New Bank Accounts", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceAllBankAccountQuery = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
-    await Finance.findByIdAndUpdate(fid, req.body);
+
+    const finance = await Finance.findById({ _id: fid }).select("bank_account");
+
+    if (search) {
+      var all_accounts = await BankAccount.find({
+        $and: [{ _id: { $in: finance?.bank_account } }],
+        $or: [{ finance_bank_name: { $regex: search, $options: "i" } }],
+      })
+        .populate({
+          path: "department",
+          select: "dName dTitle",
+        })
+        .populate({
+          path: "transport",
+          select: "_id",
+        })
+        .populate({
+          path: "library",
+          select: "_id",
+        });
+    } else {
+      var all_accounts = await BankAccount.find({
+        $and: [{ _id: { $in: finance?.bank_account } }],
+      })
+        .limit(limit)
+        .skip(skip)
+        .populate({
+          path: "department",
+          select: "dName dTitle",
+        })
+        .populate({
+          path: "transport",
+          select: "_id",
+        })
+        .populate({
+          path: "library",
+          select: "_id",
+        });
+    }
+
+    if (all_accounts?.length > 0) {
+      res.status(200).send({
+        message: "Lot's of Bank Account's Available 👍",
+        access: true,
+        all_accounts: all_accounts,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Bank Account's Available 👍",
+        access: true,
+        all_accounts: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceOneBankAccountQuery = async (req, res) => {
+  try {
+    const { acid } = req.params;
+    const { delete_pic } = req.query;
+    const image = handle_undefined(delete_pic);
+    if (!acid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    await BankAccount.findByIdAndUpdate(acid, req.body);
     if (image) {
       await deleteFile(image);
     }
     res
       .status(200)
       .send({ message: "Finance / Bank Query Resolved 😁", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceOneBankAccountDestroyQuery = async (req, res) => {
+  try {
+    const { acid } = req.params;
+    if (!acid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const account = await BankAccount.findById({ _id: acid });
+    const finance = await Finance.findById({ _id: `${account?.finance}` });
+    finance.bank_account.pull(account?._id);
+    if (finance?.bank_account_count > 0) {
+      finance.bank_account_count -= 1;
+    }
+    if (account?.finance_bank_upi_qrcode) {
+      await deleteFile(account?.finance_bank_upi_qrcode);
+    }
+    await finance.save();
+    await BankAccount.findByIdAndDelete(acid);
+    res.status(200).send({
+      message: "Finance / Bank Query Deletion Operation Completed 😁",
+      access: true,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -2989,8 +3128,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
       })
       .populate({
         path: "finance",
-        select:
-          "finance_bank_account_number finance_bank_name finance_bank_ifsc_code finance_bank_account_name finance_bank_branch_address finance_bank_upi_id",
+        select: "financeHead",
         populate: {
           path: "financeHead",
           select: "staffFirstName staffMiddleName staffLastName",
@@ -2998,7 +3136,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
       })
       .populate({
         path: "application",
-        select: "applicationName",
+        select: "applicationName applicationDepartment",
         populate: {
           path: "admissionAdmin",
           select: "_id",
@@ -3017,6 +3155,12 @@ exports.renderOneFeeReceipt = async (req, res) => {
           },
         },
       });
+
+    var one_account = await BankAccount.findOne({
+      department: receipt?.application?.applicationDepartment,
+    }).select(
+      "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
+    );
 
     var ref = receipt?.student?.remainingFeeList?.filter((ele) => {
       if (`${ele?.appId}` === `${receipt?.application?._id}`) return ele;
@@ -3040,7 +3184,8 @@ exports.renderOneFeeReceipt = async (req, res) => {
     res.status(200).send({
       message: "Come up with Tea and Snacks",
       access: true,
-      receipt,
+      receipt: receipt,
+      one_account: one_account,
       all_remain: all_remain,
     });
   } catch (e) {
@@ -3098,6 +3243,7 @@ exports.renderUpdatePaymentModeQuery = async (req, res) => {
 exports.renderFinanceAllBankDetails = async (req, res) => {
   try {
     const { fid } = req.params;
+    const { filter_by, flow } = req.query;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -3105,13 +3251,44 @@ exports.renderFinanceAllBankDetails = async (req, res) => {
       });
 
     const bank_query = await Finance.findById({ _id: fid }).select(
-      "payment_modes_type finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode "
+      "payment_modes_type bank_account"
     );
 
+    if (flow === "Department") {
+      var all_account = await BankAccount.findOne({
+        $and: [
+          { _id: { $in: bank_query?.bank_account } },
+          { department: filter_by },
+        ],
+      }).select(
+        "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
+      );
+    } else if (flow === "Transport") {
+      var all_account = await BankAccount.findOne({
+        $and: [
+          { _id: { $in: bank_query?.bank_account } },
+          { transport: filter_by },
+        ],
+      }).select(
+        "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
+      );
+    } else if (flow === "Library") {
+      var all_account = await BankAccount.findOne({
+        $and: [
+          { _id: { $in: bank_query?.bank_account } },
+          { library: filter_by },
+        ],
+      }).select(
+        "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
+      );
+    } else {
+      var all_account = null;
+    }
     res.status(200).send({
       message: "Explore Transaction Query",
       access: true,
-      bank_query: bank_query,
+      bank_query: bank_query?.payment_modes_type,
+      all_account: all_account,
     });
   } catch (e) {
     console.log(e);

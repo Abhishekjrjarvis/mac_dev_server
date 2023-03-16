@@ -295,6 +295,10 @@ const departmentSchema = new mongoose.Schema({
       ref: "DepartmentSite",
     },
   ],
+  bank_account: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "BankAccount",
+  }
 
 });
 

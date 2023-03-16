@@ -61,6 +61,10 @@ const librarySchema = new mongoose.Schema({
       ref: "LibrarySite",
     },
   ],
+  bank_account: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "BankAccount",
+  },
 });
 
 module.exports = mongoose.model("Library", librarySchema);

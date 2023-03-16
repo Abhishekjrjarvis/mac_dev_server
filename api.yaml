@@ -21268,30 +21268,6 @@ paths:
 
 
 #New Flow Finance + Admission 
-  /api/v1/finance/{fid}/bank/flow/query:
-    patch:
-      tags:
-        - New Flow Finance + Admission
-      summary: Add Bank Details By Finance Manager in body ("finance_bank_account_number", "finance_bank_name", "finance_bank_account_name", "finance_bank_ifsc_code", "finance_bank_branch_address", "finance_bank_upi_id", "finance_bank_upi_qrcode") (verified)
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: fid
-          required: true
-          type: string
-          description: Enter Finance Id
-        - in: query
-          name: delete_pic
-          required: true
-          type: string
-          description: Enter Old Qr Photo
-      responses:
-        "200":
-          description: OK
-
   /api/v1/finance/{fid}/add/bank/query:
     post:
       tags:
@@ -22241,6 +22217,16 @@ paths:
           required: true
           type: string
           description: Enter Finance Id
+        - in: path
+          name: filter_by
+          required: true
+          type: string
+          description: Enter Flow ID
+        - in: path
+          name: flow
+          required: true
+          type: string
+          description: Enter Flow Status ("Department" || "Transport" || "Library")
       responses:
         "200":
           description: OK

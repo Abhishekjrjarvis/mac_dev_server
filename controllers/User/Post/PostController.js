@@ -530,7 +530,11 @@ exports.postWithDeleted = async (req, res) => {
       .populate({ path: "poll_query", select: "id" })
       .populate({ path: "rePostAnswer", select: "id post" });
 
-    const question = await Post.findOne({ _id: `${post?.rePostAnswer?.post}` });
+    if (post?.rePostAnswer?.post) {
+      var question = await Post.findById({
+        _id: `${post?.rePostAnswer?.post}`,
+      });
+    }
     await User.findByIdAndUpdate(id, { $pull: { userPosts: pid } });
     await User.findByIdAndUpdate(id, { $pull: { user_saved_post: pid } });
     await User.findByIdAndUpdate(id, { $pull: { tag_post: pid } });

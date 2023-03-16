@@ -92,6 +92,10 @@ const feeStructureSchema = new mongoose.Schema({
       head_name: { type: String },
       head_amount: { type: Number, default: 0 },
       created_at: { type: Date, default: Date.now },
+      master: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeMaster",
+      },
     },
   ],
   fees_heads_count: {

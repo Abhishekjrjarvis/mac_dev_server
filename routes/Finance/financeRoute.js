@@ -418,4 +418,24 @@ router.delete(
   catchAsync(Finance.renderDeleteOneExcel)
 );
 
+router.get(
+  "/:fid/master/deposit/query",
+  catchAsync(Finance.renderFinanceMasterDepositQuery)
+);
+
+router.get(
+  "/:fmid/master/all/deposit/array",
+  catchAsync(Finance.renderFinanceMasterAllDepositArray)
+);
+
+router.patch(
+  "/:fmid/refund/deposit/:sid/query",
+  catchAsync(Finance.renderFinanceMasterDepositRefundQuery)
+);
+
+router.get(
+  "/:fid/master/all/refund/deposit/history",
+  catchAsync(Finance.renderFinanceMasterAllDepositHistory)
+);
+
 module.exports = router;

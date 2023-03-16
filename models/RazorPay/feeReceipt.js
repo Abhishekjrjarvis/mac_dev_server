@@ -67,6 +67,10 @@ const feeReceiptSchema = new mongoose.Schema({
   fee_request_remain_card: {
     type: String,
   },
+  fee_master: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "FeeMaster",
+  },
 });
 
 module.exports = mongoose.model("FeeReceipt", feeReceiptSchema);

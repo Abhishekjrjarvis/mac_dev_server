@@ -53,7 +53,7 @@ exports.getDashOneQuery = async (req, res) => {
     res.status(200).send({
       message: "limit Ins Data",
       institute: institute,
-      roles: req?.query?.mod_id ? value : "",
+      roles: req?.query?.mod_id ? value : null,
       // eData: encrypt,
     });
   } catch {}

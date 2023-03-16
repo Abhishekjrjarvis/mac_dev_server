@@ -352,6 +352,10 @@ const studentSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "FeeStructure",
       },
+      master: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeMaster",
+      },
     },
   ],
   certificateBonaFideCopy: {
@@ -453,6 +457,20 @@ const studentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  deposit_pending_amount: {
+    type: Number,
+    default: 0,
+  },
+  deposit_refund_amount: {
+    type: Number,
+    default: 0,
+  },
+  refund_deposit: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FeeReceipt",
+    },
+  ],
 });
 
 const Student = mongoose.model("Student", studentSchema);

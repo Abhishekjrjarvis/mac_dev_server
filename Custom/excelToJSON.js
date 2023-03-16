@@ -2,6 +2,7 @@ const xlsx = require("xlsx");
 const fs = require("fs");
 const { replace_query } = require("../helper/dayTimer");
 const FeeCategory = require("../models/Finance/FeesCategory");
+const FeeMaster = require("../models/Finance/FeeMaster");
 const ClassMaster = require("../models/ClassMaster");
 
 exports.generate_excel_to_json = async (file) => {
@@ -129,9 +130,17 @@ exports.generate_excel_to_json_fee_structure = async (file, fid, did) => {
         : 0;
       if (head_count > 0) {
         for (var i = 1; i <= head_count; i++) {
+          var one_master = await FeeMaster.findOne({
+            $and: [
+              { head_amount: struct[`FeeHeadAmount${i}`] },
+              { head_name: struct[`FeeHeadName${i}`] },
+              { finance: fid },
+            ],
+          });
           heads.push({
             head_name: struct[`FeeHeadName${i}`],
             head_amount: struct[`FeeHeadAmount${i}`],
+            master: one_master?._id,
           });
         }
       }

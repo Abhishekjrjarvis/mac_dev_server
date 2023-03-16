@@ -1,3 +1,5 @@
+const FeeMaster = require("../models/Finance/FeeMaster");
+
 exports.add_all_installment = async (arg1, arg2, arg3, amount, arg4) => {
   try {
     if (arg4?.fee_structure.two_installments.fees > 0) {
@@ -813,6 +815,7 @@ const installment_remain = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
         ref.status = "Paid";
         ref.remainAmount = amount;
@@ -1235,6 +1238,30 @@ exports.set_fee_head_query = async (
     if (exist_filter_student_heads?.length > 0) {
     } else {
       for (var i = 0; i < parent_head?.count; i++) {
+        var one_master = await FeeMaster.findOne({
+          $and: [
+            { _id: parent_head[`${i}`]?.master },
+            { finance: student_args?.fee_structure?.finance },
+          ],
+        });
+        if (one_master) {
+          if (one_master?.paid_student?.includes(`${student_args?._id}`)) {
+          } else {
+            one_master.paid_student.push(student_args?._id);
+            one_master.paid_student_count += 1;
+          }
+          if (one_master?.master_status === "Linked") {
+            student_args.deposit_pending_amount =
+              price_query >= parent_head[`${i}`]?.head_amount
+                ? parent_head[`${i}`].head_amount
+                : price_query;
+            one_master.deposit_amount +=
+              price_query >= parent_head[`${i}`]?.head_amount
+                ? parent_head[`${i}`].head_amount
+                : price_query;
+          }
+          await one_master.save();
+        }
         student_args.active_fee_heads.push({
           appId: apply_args?._id,
           head_name: parent_head[`${i}`]?.head_name,
@@ -1248,6 +1275,7 @@ exports.set_fee_head_query = async (
               ? parent_head[`${i}`].head_amount
               : price_query,
           fee_structure: student_args?.fee_structure?._id,
+          master: one_master?._id,
         });
         price_query =
           price_query >= parent_head[`${i}`].head_amount
@@ -1273,6 +1301,16 @@ exports.update_fee_head_query = async (student_args, price, apply_args) => {
     );
 
     for (var ele of filter_student_heads) {
+      var one_master = await FeeMaster.findById({
+        $and: [{ _id: ele?.master }, { master_status: "Linked" }],
+      });
+      if (one_master) {
+        student_args.deposit_pending_amount +=
+          price_query >= ele.remain_fee ? ele.remain_fee : price_query;
+        one_master.deposit_amount +=
+          price_query >= ele.remain_fee ? ele.remain_fee : price_query;
+        await one_master.save();
+      }
       if (ele?.paid_fee == ele?.applicable_fee) {
       } else {
         ele.paid_fee +=

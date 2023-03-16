@@ -182,7 +182,7 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
       message: "All Detail Admission Admin from DB 🙌",
       // admission: cached.admission,
       admission: admission,
-      roles: req?.query?.mod_id ? value : "",
+      roles: req?.query?.mod_id ? value : null,
     });
   } catch (e) {
     console.log(e);
@@ -3737,7 +3737,7 @@ exports.renderAllReceiptsQuery = async (req, res) => {
                   "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto applicationDepartment",
               },
             },
-          })
+          });
 
         var receipt_approve = ads_admin?.fee_receipt_approve?.filter((ref) => {
           if (
@@ -3765,7 +3765,7 @@ exports.renderAllReceiptsQuery = async (req, res) => {
                   "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto applicationDepartment",
               },
             },
-          })
+          });
 
         var receipt_reject = ads_admin?.fee_receipt_reject?.filter((ref) => {
           if (

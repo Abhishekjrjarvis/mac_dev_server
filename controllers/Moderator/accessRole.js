@@ -72,6 +72,17 @@ exports.all_access_role = () => {
         appArray: [],
       },
     },
+    PENDING_FEE_ACCESS: {
+      role: "PENDING_FEE_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["COLLECT PENDING FEES", "EXEMPT PENDING FEES"],
+        addons: [],
+        accessStaff: "",
+        accessApplication: "",
+        appArray: [],
+      },
+    },
   };
   return access_role;
 };
@@ -124,6 +135,15 @@ exports.all_access_role_finance = () => {
       permission: {
         allow: true,
         bound: ["MARK PAYROLL", "DOWNLOAD PAYROLL"],
+        addons: [],
+        accessStaff: "",
+      },
+    },
+    DEPOSIT_ACCESS: {
+      role: "DEPOSIT_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["REFUND DEPOSIT", "DOWNLOAD DEPOSIT STATEMENT"],
         addons: [],
         accessStaff: "",
       },

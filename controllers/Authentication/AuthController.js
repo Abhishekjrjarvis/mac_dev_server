@@ -3016,7 +3016,7 @@ exports.renderFinanceAdmissionNewProtectionQuery = async (req, res) => {
         message: `Finance Password Protection ${
           finance?.enable_protection ? "Enable" : "Disbale"
         }`,
-        access: false,
+        access: true,
       });
     } else if (flow === "Admission_Login") {
       const ads_admin = await Admission.findById({ _id: faid });
@@ -3026,7 +3026,7 @@ exports.renderFinanceAdmissionNewProtectionQuery = async (req, res) => {
         message: `Admission Password Protection ${
           ads_admin?.enable_protection ? "Enable" : "Disbale"
         }`,
-        access: false,
+        access: true,
       });
     } else {
       res.status(200).send({ message: "You lost in space", access: false });

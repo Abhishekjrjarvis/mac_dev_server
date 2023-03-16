@@ -251,7 +251,7 @@ exports.retrieveFinanceQuery = async (req, res) => {
     res.status(200).send({
       message: "Finance",
       finance: finance,
-      roles: req?.query?.mod_id ? value : "",
+      roles: req?.query?.mod_id ? value : null,
       // finance: cached.finance
     });
   } catch (e) {
@@ -2638,6 +2638,7 @@ exports.renderFinanceAddFeeStructure = async (req, res) => {
         struct_query.fees_heads.push({
           head_name: ref?.head_name,
           head_amount: ref?.head_amount,
+          master: ref?.master,
         });
         struct_query.fees_heads_count += 1;
       }
@@ -2689,10 +2690,12 @@ exports.renderFinanceAddFeeStructureAutoQuery = async (
         for (var val of ref?.heads) {
           var valid_name = handle_undefined(val?.head_name);
           var valid_amount = handle_undefined(val?.head_amount);
-          if (valid_name && valid_amount) {
+          var valid_master = handle_undefined(val?.master);
+          if (valid_name && valid_amount && valid_master) {
             struct_query.fees_heads.push({
               head_name: valid_name,
               head_amount: valid_amount,
+              master: valid_master,
             });
             struct_query.fees_heads_count += 1;
           } else {
@@ -2736,6 +2739,7 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
         struct_query.fees_heads.push({
           head_name: ref?.head_name,
           head_amount: ref?.head_amount,
+          master: ref?.master,
         });
         struct_query.fees_heads_count += 1;
       }
@@ -3256,28 +3260,19 @@ exports.renderFinanceAllBankDetails = async (req, res) => {
 
     if (flow === "Department") {
       var all_account = await BankAccount.findOne({
-        $and: [
-          { _id: { $in: bank_query?.bank_account } },
-          { department: filter_by },
-        ],
+        $and: [{ department: filter_by }],
       }).select(
         "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
       );
     } else if (flow === "Transport") {
       var all_account = await BankAccount.findOne({
-        $and: [
-          { _id: { $in: bank_query?.bank_account } },
-          { transport: filter_by },
-        ],
+        $and: [{ transport: filter_by }],
       }).select(
         "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
       );
     } else if (flow === "Library") {
       var all_account = await BankAccount.findOne({
-        $and: [
-          { _id: { $in: bank_query?.bank_account } },
-          { library: filter_by },
-        ],
+        $and: [{ library: filter_by }],
       }).select(
         "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
       );
@@ -3329,6 +3324,19 @@ exports.renderFinanceAddFeeMaster = async (req, res) => {
     res
       .status(200)
       .send({ message: "I Think Fees Master Problem Solved", access: true });
+    if (finance?.deposit_linked_head?.status === "Not Linked") {
+      const new_master = new FeeMaster({
+        master_name: "Deposit Fees",
+        master_amount: 10,
+        master_status: "Linked",
+      });
+      new_master.finance = finance?._id;
+      finance.fee_master_array.push(new_master?._id);
+      finance.fee_master_array_count += 1;
+      finance.deposit_linked_head.master = new_master?._id;
+      finance.deposit_linked_head.status = "Linked";
+      await Promise.all([new_master.save(), finance.save()]);
+    }
   } catch (e) {
     console.log(e);
   }
@@ -3346,6 +3354,19 @@ exports.renderFinanceAddFeeMasterAutoQuery = async (fid, arr) => {
       finance.fee_master_array.push(master?._id);
       finance.fee_master_array_count += 1;
       await Promise.all([master.save(), finance.save()]);
+      if (finance?.deposit_linked_head?.status === "Not Linked") {
+        const new_master = new FeeMaster({
+          master_name: "Deposit Fees",
+          master_amount: 10,
+          master_status: "Linked",
+        });
+        new_master.finance = finance?._id;
+        finance.fee_master_array.push(new_master?._id);
+        finance.fee_master_array_count += 1;
+        finance.deposit_linked_head.master = new_master?._id;
+        finance.deposit_linked_head.status = "Linked";
+        await Promise.all([new_master.save(), finance.save()]);
+      }
     }
   } catch (e) {
     console.log(e);
@@ -3372,7 +3393,7 @@ exports.renderFinanceAllMasterHeadQuery = async (req, res) => {
       var all_master = await FeeMaster.find({
         $and: [{ _id: { $in: finance?.fee_master_array } }],
         $or: [{ master_name: { $regex: search, $options: "i" } }],
-      }).select("master_name master_amount created_at");
+      }).select("master_name master_amount master_status created_at");
     } else {
       var all_master = await FeeMaster.find({
         _id: { $in: finance?.fee_master_array },
@@ -3380,7 +3401,7 @@ exports.renderFinanceAllMasterHeadQuery = async (req, res) => {
         // .sort("-1")
         .limit(limit)
         .skip(skip)
-        .select("master_name master_amount created_at");
+        .select("master_name master_amount master_status created_at");
     }
 
     if (all_master?.length > 0) {
@@ -3537,6 +3558,238 @@ exports.renderDeleteOneExcel = async (req, res) => {
       message: "Exported Excel Deletion Operation Completed",
       access: true,
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceMasterDepositQuery = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    if (!fid && !flow)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const master = await FeeMaster.findOne({
+      $and: [{ master_status: "Linked" }, { finance: fid }],
+    }).select(
+      "paid_student_count deposit_amount master_name refund_student_count refund_amount"
+    );
+
+    res.status(200).send({
+      message: "Explore Linked Fee Masters",
+      access: true,
+      master: master,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceMasterAllDepositArray = async (req, res) => {
+  try {
+    const { fmid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (!fmid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const master = await FeeMaster.findById({
+      _id: fmid,
+    }).select("paid_student");
+
+    if (search) {
+      var all_students = await Student.find({
+        $and: [{ _id: { $in: master?.paid_student } }],
+        $or: [
+          { studentFirstName: { $regex: search, $options: "i" } },
+          { studentMiddleName: { $regex: search, $options: "i" } },
+          { studentLastName: { $regex: search, $options: "i" } },
+        ],
+      })
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto deposit_pending_amount"
+        )
+        .populate({
+          path: "department",
+          select: "dName dTitle",
+        });
+    } else {
+      var all_students = await Student.find({
+        _id: { $in: master?.paid_student },
+      })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto deposit_pending_amount"
+        )
+        .populate({
+          path: "department",
+          select: "dName dTitle",
+        });
+    }
+
+    all_students = all_students?.filter((ref) => {
+      if (ref?.deposit_pending_amount > 0) return ref;
+    });
+
+    if (all_students?.length > 0) {
+      res.status(200).send({
+        message: "Explore Student Deposits Available",
+        access: true,
+        all_students: all_students,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Student Deposits Available",
+        access: false,
+        all_students: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceMasterDepositRefundQuery = async (req, res) => {
+  try {
+    const { fmid, sid } = req.params;
+    const { amount, mode } = req.body;
+    var price = parseInt(amount);
+    if (!fmid && !sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const master = await FeeMaster.findById({
+      _id: fmid,
+    });
+    const finance = await Finance.findById({ _id: `${master?.finance}` });
+    const student = await Student.findById({ _id: sid });
+    const s_admin = await Admin.findById({
+      _id: `${process.env.S_ADMIN_ID}`,
+    }).select("invoice_count");
+    const new_receipt = new FeeReceipt({ ...req.body });
+    if (master?.deposit_amount >= price) {
+      master.deposit_amount -= price;
+      master.refund_amount += price;
+      if (master?.refund_student?.includes(student?._id)) {
+      } else {
+        master.refund_student.push(student?._id);
+        master.refund_student_count += 1;
+      }
+    }
+    if (student?.deposit_pending_amount >= price) {
+      student.deposit_pending_amount -= price;
+      student.deposit_refund_amount += price;
+    }
+    if (mode === "Offline") {
+      if (finance?.financeSubmitBalance >= price) {
+        finance.financeSubmitBalance -= price;
+      }
+      if (finance?.financeTotalBalance >= price) {
+        finance.financeTotalBalance -= price;
+      }
+    }
+    if (mode === "Online") {
+      if (finance?.financeBankBalance >= price) {
+        finance.financeBankBalance -= price;
+      }
+      if (finance?.financeTotalBalance >= price) {
+        finance.financeTotalBalance -= price;
+      }
+    }
+    new_receipt.student = student?._id;
+    new_receipt.finance = finance?._id;
+    new_receipt.fee_transaction_date = new Date();
+    s_admin.invoice_count += 1;
+    new_receipt.invoice_count = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${s_admin.invoice_count}`;
+    finance.refund_deposit.push(new_receipt?._id);
+    student.refund_deposit.push(new_receipt?._id);
+    new_receipt.fee_master = master?._id;
+    await Promise.all([
+      student.save(),
+      finance.save(),
+      master.save(),
+      new_receipt.save(),
+      s_admin.save(),
+    ]);
+    res
+      .status(200)
+      .send({ message: "Explore New Refund Deposit", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceMasterAllDepositHistory = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const finance = await Finance.findById({ _id: fid }).select(
+      "refund_deposit"
+    );
+
+    if (search) {
+      var all_receipts = await FeeReceipt.find({
+        _id: { $in: finance?.refund_deposit },
+      }).populate({
+        path: "student",
+        match: {
+          studentFirstName: { $regex: search, $options: "i" },
+        },
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+      });
+
+      all_receipts = all_receipts?.filter((ref) => {
+        if(ref?.student !== null) return ref
+      })
+
+    } else {
+      var all_receipts = await FeeReceipt.find({
+        _id: { $in: finance?.refund_deposit },
+      })
+        .limit(limit)
+        .skip(skip)
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+        });
+    }
+    if (all_receipts?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Refund History",
+        access: true,
+        all_receipts: all_receipts,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Refund History",
+        access: false,
+        all_receipts: [],
+      });
+    }
   } catch (e) {
     console.log(e);
   }

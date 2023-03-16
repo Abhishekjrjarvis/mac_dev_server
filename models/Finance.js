@@ -407,6 +407,19 @@ const financeSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    deposit_linked_head: {
+      master: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeMaster",
+      },
+      status: { type: String, default: "Not Linked" },
+    },
+    refund_deposit: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeReceipt",
+      },
+    ],
   },
   { timestamps: true }
 );

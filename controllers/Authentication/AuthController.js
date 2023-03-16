@@ -2935,11 +2935,7 @@ exports.renderFinanceAdmissionNewPassQuery = async (req, res) => {
   try {
     const { faid } = req.params;
     const { flow } = req.query;
-    const { old_pass } = req.body;
-    var rand1 = Math.floor(Math.random() * 9) + 1;
-    var rand2 = Math.floor(Math.random() * 9) + 1;
-    var rand3 = Math.floor(Math.random() * 9) + 1;
-    var rand4 = Math.floor(Math.random() * 9) + 1;
+    const { old_pass, new_pass } = req.body;
     if (!faid && !flow)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -2953,9 +2949,8 @@ exports.renderFinanceAdmissionNewPassQuery = async (req, res) => {
         finance.designation_password
       );
       if (compare_pass) {
-        var pass = `${rand1}${rand2}${rand3}${rand4}`;
         const new_user_pass = bcrypt.genSaltSync(12);
-        const hash_user_pass = bcrypt.hashSync(pass, new_user_pass);
+        const hash_user_pass = bcrypt.hashSync(new_pass, new_user_pass);
         finance.designation_password = hash_user_pass;
         finance.designation_status = "Locked";
         await finance.save();
@@ -2978,9 +2973,8 @@ exports.renderFinanceAdmissionNewPassQuery = async (req, res) => {
         admission.designation_password
       );
       if (compare_pass) {
-        var pass = `${rand1}${rand2}${rand3}${rand4}`;
         const new_user_pass = bcrypt.genSaltSync(12);
-        const hash_user_pass = bcrypt.hashSync(pass, new_user_pass);
+        const hash_user_pass = bcrypt.hashSync(new_pass, new_user_pass);
         admission.designation_password = hash_user_pass;
         admission.designation_status = "Locked";
         await admission.save();

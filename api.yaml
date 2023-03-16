@@ -24634,6 +24634,10 @@ paths:
                 type: string
                 description: Enter Old Password
                 required: true
+              new_pass:
+                type: string
+                description: Enter New Password
+                required: true
       responses:
         "200":
           description: OK

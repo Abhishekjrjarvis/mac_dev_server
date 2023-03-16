@@ -1044,6 +1044,7 @@ exports.remain_one_time_query = async (
         stu.remainAmount = price;
         stu.status = "Paid";
         stu.installmentValue = "One Time Fees";
+        stu.fee_receipt = receipt_args?._id;
       } else {
         stu.remainAmount = price;
         stu.status = "Paid";
@@ -1246,6 +1247,7 @@ exports.set_fee_head_query = async (
             price_query >= parent_head[`${i}`]?.head_amount
               ? parent_head[`${i}`].head_amount
               : price_query,
+          fee_structure: student_args?.fee_structure?._id,
         });
         price_query =
           price_query >= parent_head[`${i}`].head_amount

@@ -348,6 +348,10 @@ const studentSchema = new mongoose.Schema({
       applicable_fee: { type: Number, default: 0 },
       remain_fee: { type: Number, default: 0 },
       paid_fee: { type: Number, default: 0 },
+      fee_structure: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeStructure",
+      },
     },
   ],
   certificateBonaFideCopy: {

@@ -328,6 +328,7 @@ exports.updateAdmissionAppModeratorQuery = async (req, res) => {
       new_staff.admissionModeratorDepartment.push(one_moderator?._id);
       new_staff.recentDesignation = `Admission Admin Moderator - ${one_moderator?.access_role}`;
       new_staff.staffDesignationCount += 1;
+      one_moderator.access_staff = new_staff?._id;
       const notify = new Notification({});
       var user = await User.findById({ _id: `${new_staff?.user}` });
       notify.notifyContent = `you got the designation of Admission Admin Moderator 🎉🎉`;
@@ -576,6 +577,7 @@ exports.updateFinanceAppModeratorQuery = async (req, res) => {
       new_staff.financeModeratorDepartment.push(one_moderator?._id);
       new_staff.recentDesignation = `Finance Manager Moderator - ${one_moderator?.access_role}`;
       new_staff.staffDesignationCount += 1;
+      one_moderator.access_staff = new_staff?._id;
       const notify = new Notification({});
       var user = await User.findById({ _id: `${new_staff?.user}` });
       notify.notifyContent = `you got the designation of Finance Manager Moderator 🎉🎉`;
@@ -730,7 +732,7 @@ exports.renderInstituteAllAppModeratorArray = async (req, res) => {
         access: false,
       });
 
-    const institute = await Institute.findById({ _id: id }).select(
+    const institute = await InstituteAdmin.findById({ _id: id }).select(
       "moderator_role"
     );
 
@@ -814,6 +816,7 @@ exports.updateInstituteAppModeratorQuery = async (req, res) => {
       new_staff.instituteModeratorDepartment.push(one_moderator?._id);
       new_staff.recentDesignation = `Institute Admin Moderator - ${one_moderator?.access_role}`;
       new_staff.staffDesignationCount += 1;
+      one_moderator.access_staff = new_staff?._id;
       const notify = new Notification({});
       var user = await User.findById({ _id: `${new_staff?.user}` });
       notify.notifyContent = `you got the designation of Institute Admin Moderator 🎉🎉`;

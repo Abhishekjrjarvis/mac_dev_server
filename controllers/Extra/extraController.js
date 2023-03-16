@@ -213,7 +213,7 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       $and: [{ studentGRNO: `${validGR}` }, { institute: id }],
     })
       .select(
-        "studentFirstName studentLeavingPreviousYear studentPreviousSchool studentUidaiNumber studentGRNO studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB"
+        "studentFirstName studentLeavingPreviousYear studentPreviousSchool studentUidaiNumber studentGRNO studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB admissionRemainFeeCount"
       )
       .populate({
         path: "studentClass",
@@ -244,28 +244,30 @@ exports.retrieveLeavingGRNO = async (req, res) => {
     student.studentCertificateNo = institute.leavingArray.length + 1;
     institute.l_certificate_count += 1;
     student.studentLeavingStatus = "Ready";
-    if (student.certificateLeavingCopy.trueCopy) {
-      if (student.certificateLeavingCopy.secondCopy) {
-        if (student.certificateLeavingCopy.thirdCopy) {
-          download = false;
+    if (institute?.original_copy) {
+      if (student.certificateLeavingCopy.trueCopy) {
+        if (student.certificateLeavingCopy.secondCopy) {
+          if (student.certificateLeavingCopy.thirdCopy) {
+            download = false;
+          } else {
+            student.certificateLeavingCopy.thirdCopy = true;
+            download = true;
+          }
         } else {
-          student.certificateLeavingCopy.thirdCopy = true;
+          student.certificateLeavingCopy.secondCopy = true;
           download = true;
         }
       } else {
-        student.certificateLeavingCopy.secondCopy = true;
+        student.certificateLeavingCopy.trueCopy = true;
         download = true;
       }
-    } else {
-      student.certificateLeavingCopy.trueCopy = true;
-      download = true;
     }
     await Promise.all([student.save(), institute.save()]);
     // Add Another Encryption
     res.status(200).send({
       message: "Student Leaving Certificate",
       student,
-      download: download,
+      download: institute?.original_copy ? true : download,
     });
   } catch (e) {
     console.log(e);
@@ -933,6 +935,26 @@ exports.retrieveRecentChatCount = async (req, res) => {
       show: true,
       data,
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderCertificateOriginalCopyQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { original } = req.query;
+    if (!id && !original)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: true,
+      });
+
+    var new_original = original === "false" ? false : true;
+    const one_ins = await InstituteAdmin.findById({ _id: id });
+    one_ins.original_copy = new_original;
+    await one_ins.save();
+    res.status(200).send({ message: "Explore Original Copy", access: true });
   } catch (e) {
     console.log(e);
   }

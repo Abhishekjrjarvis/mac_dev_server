@@ -790,6 +790,10 @@ const instituteAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  original_copy: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 instituteAdminSchema.post("findOneAndDelete", async function (doc) {

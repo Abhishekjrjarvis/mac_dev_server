@@ -181,6 +181,12 @@ router.get(
 );
 
 router.patch(
+  "/:id/original/copy/query",
+  // isLoggedIn,
+  catchAsync(Extra.renderCertificateOriginalCopyQuery)
+);
+
+router.patch(
   "/excel/to/json/query/:cid",
   // isLoggedIn,
   catchAsync(Extra.renderExcelToJSONQuery)

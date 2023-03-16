@@ -16,6 +16,7 @@ const { chart_category } = require("../../Custom/staffChart");
 const { designation_alarm } = require("../../WhatsAppSMS/payload");
 const Transport = require("../../models/Transport/transport");
 const EventManager = require("../../models/Event/eventManager");
+const { generate_hash_pass } = require("../../helper/functions");
 
 exports.photoEditByStaff = async (req, res) => {
   try {
@@ -110,6 +111,8 @@ exports.renderFinanceStaffQuery = async (req, res) => {
       select: "insName sms_lang",
     });
     const notify = new Notification({});
+    let password = await generate_hash_pass();
+    finance.designation_password = password?.pass;
     newStaff.financeDepartment.push(finance._id);
     newStaff.staffDesignationCount += 1;
     newStaff.recentDesignation = "Finance Manager";
@@ -119,7 +122,7 @@ exports.renderFinanceStaffQuery = async (req, res) => {
       oldStaff.staffDesignationCount -= 1;
     }
     oldStaff.recentDesignation = "";
-    notify.notifyContent = `you got the designation of as Finance Manager`;
+    notify.notifyContent = `you got the designation of as Finance Manager A/c Access Pin - ${password?.pin}`;
     notify.notify_hi_content = `आपको वित्त व्यवस्थापक के रूप में पदनाम मिला है |`;
     notify.notify_mr_content = `तुम्हाला वित्त व्यवस्थापक म्हणून पद मिळाले आहे`;
     notify.notifySender = finance.institute._id;
@@ -181,6 +184,8 @@ exports.renderAdmissionStaffQuery = async (req, res) => {
       select: "insName sms_lang",
     });
     const notify = new Notification({});
+    let password = await generate_hash_pass();
+    admission.designation_password = password?.pass;
     newStaff.admissionDepartment.push(admission._id);
     newStaff.staffDesignationCount += 1;
     newStaff.recentDesignation = "Admission Admin";
@@ -190,7 +195,7 @@ exports.renderAdmissionStaffQuery = async (req, res) => {
     }
     oldStaff.recentDesignation = "";
     admission.admissionAdminHead = newStaff._id;
-    notify.notifyContent = `you got the designation of Admission Admin 🎉🎉`;
+    notify.notifyContent = `you got the designation of Admission Admin A/c Access Pin - ${password?.pin}`;
     notify.notifySender = admission.institute._id;
     notify.notifyReceiever = user._id;
     notify.notifyCategory = "Admission Designation";

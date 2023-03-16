@@ -213,7 +213,7 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       $and: [{ studentGRNO: `${validGR}` }, { institute: id }],
     })
       .select(
-        "studentFirstName studentLeavingPreviousYear studentPreviousSchool studentUidaiNumber studentGRNO studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB admissionRemainFeeCount"
+        "studentFirstName studentLeavingPreviousYear studentPreviousSchool studentLeavingBehaviour studentUidaiNumber studentGRNO studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB admissionRemainFeeCount"
       )
       .populate({
         path: "studentClass",
@@ -229,10 +229,11 @@ exports.retrieveLeavingGRNO = async (req, res) => {
           "insName insAddress insState studentFormSetting.previousSchoolAndDocument.previousSchoolDocument insDistrict insAffiliated insEditableText insEditableTexts insPhoneNumber insPincode photoId insProfilePhoto",
       });
     if (
-      !institute.studentFormSetting.previousSchoolAndDocument
+      institute.studentFormSetting.previousSchoolAndDocument
         .previousSchoolDocument
     ) {
-      student.studentPreviousSchool = previous;
+      student.studentPreviousSchool = previous ? previous : null;
+    } else {
     }
     student.studentLeavingBehaviour = behaviour;
     student.studentLeavingStudy = study;
@@ -245,6 +246,11 @@ exports.retrieveLeavingGRNO = async (req, res) => {
     institute.l_certificate_count += 1;
     student.studentLeavingStatus = "Ready";
     if (institute?.original_copy) {
+      student.certificateLeavingCopy.thirdCopy = false;
+      student.certificateLeavingCopy.secondCopy = false;
+      student.certificateLeavingCopy.trueCopy = true;
+      download = true;
+    } else {
       if (student.certificateLeavingCopy.trueCopy) {
         if (student.certificateLeavingCopy.secondCopy) {
           if (student.certificateLeavingCopy.thirdCopy) {

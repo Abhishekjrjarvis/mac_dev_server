@@ -230,7 +230,8 @@ exports.retrieveFinanceQuery = async (req, res) => {
       )
       .populate({
         path: "institute",
-        select: "id adminRepayAmount insBankBalance admissionDepart",
+        select:
+          "id adminRepayAmount insBankBalance admissionDepart admissionStatus transportStatus libraryActivate transportDepart library",
       })
       .populate({
         path: "financeHead",
@@ -2455,6 +2456,40 @@ exports.renderFinanceAllBankAccountQuery = async (req, res) => {
   }
 };
 
+exports.renderFinanceOneBankQuery = async (req, res) => {
+  try {
+    const { acid } = req.params;
+    if (!acid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const one_bank = await BankAccount.findById({ _id: acid })
+      .populate({
+        path: "department",
+        select: "dName dTitle",
+      })
+      .populate({
+        path: "transport",
+        select: "_id",
+      })
+      .populate({
+        path: "library",
+        select: "_id",
+      });
+
+    res
+      .status(200)
+      .send({
+        message: "Explore One Bank Account Query",
+        access: true,
+        one_bank: one_bank,
+      });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.renderFinanceOneBankAccountQuery = async (req, res) => {
   try {
     const { acid } = req.params;
@@ -3762,9 +3797,8 @@ exports.renderFinanceMasterAllDepositHistory = async (req, res) => {
       });
 
       all_receipts = all_receipts?.filter((ref) => {
-        if(ref?.student !== null) return ref
-      })
-
+        if (ref?.student !== null) return ref;
+      });
     } else {
       var all_receipts = await FeeReceipt.find({
         _id: { $in: finance?.refund_deposit },

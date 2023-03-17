@@ -286,6 +286,12 @@ router.get(
   catchAsync(Finance.renderFinanceAllBankAccountQuery)
 );
 
+router.get(
+  "/:acid/one/bank/account",
+  // isLoggedIn,
+  catchAsync(Finance.renderFinanceOneBankQuery)
+);
+
 router.patch(
   "/:acid/bank/account/query",
   // isLoggedIn,

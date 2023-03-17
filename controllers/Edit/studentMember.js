@@ -85,11 +85,17 @@ exports.formEditByClassTeacher = async (req, res) => {
     await one_student.save();
     res.status(200).send({
       message: "Student form edited successfully👍",
-      one_student
+      one_student,
     });
     new_data.gender = one_student?.studentGender;
     new_data.caste = one_student?.studentCastCategory;
-    await chart_category_student(one_student?.batches, "Edit_Student", old_data, new_data, one_student?.studentClass);
+    await chart_category_student(
+      one_student?.batches,
+      "Edit_Student",
+      old_data,
+      new_data,
+      one_student?.studentClass
+    );
   } catch (e) {
     console.log(e);
   }

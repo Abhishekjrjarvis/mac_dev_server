@@ -3,9 +3,12 @@ const fs = require("fs");
 const { replace_query } = require("../helper/dayTimer");
 const FeeCategory = require("../models/Finance/FeesCategory");
 const FeeMaster = require("../models/Finance/FeeMaster");
+const Batch = require("../models/Batch");
+const NewApplication = require("../models/Admission/NewApplication");
+const FeeStructure = require("../models/Finance/FeesStructure");
 const ClassMaster = require("../models/ClassMaster");
 
-exports.generate_excel_to_json = async (file) => {
+exports.generate_excel_to_json = async (file, aid, fid, did) => {
   try {
     const w_query = xlsx.read(file.Body, {
       dateNF: "yyyy-mm-dd",
@@ -18,7 +21,7 @@ exports.generate_excel_to_json = async (file) => {
 
     const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
     var new_data_query = [];
-    data_query?.map((ref) => {
+    for (var ref of data_query) {
       var batch_set = [];
       var remain_array = [];
       var b_count = +ref?.batchcount;
@@ -32,10 +35,45 @@ exports.generate_excel_to_json = async (file) => {
             mode: ref[`mode${i}_${j}`],
           });
         }
+        var new_appId = await NewApplication.findOne({
+          $and: [
+            { admissionAdmin: aid },
+            {
+              applicationName: { $regex: ref[`appId_${i}`], $options: "i" },
+            },
+          ],
+        });
+        var new_batchId = await Batch.findOne({
+          $and: [
+            { department: did },
+            {
+              batchName: { $regex: ref[`batchId_${i}`], $options: "i" },
+            },
+          ],
+        });
+        var new_fee_category = await FeeCategory.findOne({
+          $and: [
+            { finance: fid },
+            {
+              category_name: { $regex: ref[`category_${i}`], $options: "i" },
+            },
+          ],
+        });
+        var new_fee_struct = await FeeStructure.findOne({
+          $and: [
+            { finance: fid },
+            {
+              structure_name: { $regex: ref[`fee_struct_${i}`], $options: "i" },
+            },
+            {
+              category_master: new_fee_category?._id,
+            },
+          ],
+        });
         batch_set.push({
-          batchId: ref[`batchId_${i}`],
-          appId: ref[`appId_${i}`],
-          fee_struct: ref[`fee_struct_${i}`],
+          batchId: new_batchId,
+          appId: new_appId,
+          fee_struct: new_fee_struct,
           amount: ref[`amount${i}`],
           remark: ref[`remark${i}`],
           remain_array: [...remain_array],
@@ -76,7 +114,7 @@ exports.generate_excel_to_json = async (file) => {
           fee_struct: ref?.fee_struct,
         });
       }
-    });
+    }
     return { student_array: new_data_query, value: true };
     // fs.writeFileSync(
     //   "../studentJSON.json",
@@ -103,7 +141,8 @@ exports.generate_excel_to_json_fee_structure = async (file, fid, did) => {
     const w_sheet = w_query.Sheets["FeeStructure"];
     const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
     var new_data_query = [];
-    data_query?.map(async (struct) => {
+    var new_query = [];
+    for (var struct of data_query) {
       var heads = [];
       const fee_category = await FeeCategory.findOne({
         $and: [
@@ -132,16 +171,22 @@ exports.generate_excel_to_json_fee_structure = async (file, fid, did) => {
         for (var i = 1; i <= head_count; i++) {
           var one_master = await FeeMaster.findOne({
             $and: [
-              { head_amount: struct[`FeeHeadAmount${i}`] },
-              { head_name: struct[`FeeHeadName${i}`] },
               { finance: fid },
+              {
+                master_name: {
+                  $regex: struct[`FeeHeadName${i}`],
+                  $options: "i",
+                },
+              },
             ],
           });
-          heads.push({
-            head_name: struct[`FeeHeadName${i}`],
-            head_amount: struct[`FeeHeadAmount${i}`],
-            master: one_master?._id,
-          });
+          if (one_master) {
+            heads.push({
+              head_name: struct[`FeeHeadName${i}`],
+              head_amount: struct[`FeeHeadAmount${i}`],
+              master: one_master?._id,
+            });
+          }
         }
       }
       if (install_count > 0) {
@@ -222,14 +267,15 @@ exports.generate_excel_to_json_fee_structure = async (file, fid, did) => {
       struct.CategoryId = fee_category?._id;
       struct.StandardId = master?._id;
       if (struct?.CategoryId) {
-        new_data_query.push({ ...struct });
+        new_data_query.push(struct);
         // console.log("push");
       } else {
         // console.log("Empty");
       }
-    });
+      new_query = [...new_data_query];
+    }
     // fs.writeFileSync("../structure.json", JSON.stringify(data_query, null, 2));
-    return { structure_array: new_data_query, value: true };
+    return { structure_array: new_query, value: true };
   } catch (e) {
     console.log("Structure Excel Query Not Resolved", e);
   }

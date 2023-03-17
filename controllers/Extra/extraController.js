@@ -1005,7 +1005,12 @@ exports.renderExcelToJSONQuery = async (req, res) => {
     }
     const val = await simple_object(key);
 
-    const is_converted = await generate_excel_to_json(val);
+    const is_converted = await generate_excel_to_json(
+      val,
+      one_ins?.admissionDepart,
+      one_ins?.financeDepart,
+      one_class?.department
+    );
     if (is_converted?.value) {
       await retrieveInstituteDirectJoinQueryPayload(
         cid,

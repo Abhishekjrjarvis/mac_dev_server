@@ -148,6 +148,15 @@ exports.all_access_role_finance = () => {
         accessStaff: "",
       },
     },
+    BANK_ACCOUNT_ACCESS: {
+      role: "BANK_ACCOUNT_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["ADD BANK ACCOUNT", "EDIT BANK ACCOUNT", "DELETE BANK ACCOUNT"],
+        addons: [],
+        accessStaff: "",
+      },
+    },
   };
   return access_role_finance;
 };

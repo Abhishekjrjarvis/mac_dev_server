@@ -22236,12 +22236,12 @@ paths:
           required: true
           type: string
           description: Enter Finance Id
-        - in: path
+        - in: query
           name: filter_by
           required: true
           type: string
           description: Enter Flow ID
-        - in: path
+        - in: query
           name: flow
           required: true
           type: string

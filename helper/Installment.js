@@ -1277,6 +1277,10 @@ exports.set_fee_head_query = async (
               : price_query,
           fee_structure: student_args?.fee_structure?._id,
           master: one_master?._id,
+          original_paid:
+            price_query >= parent_head[`${i}`]?.head_amount
+              ? parent_head[`${i}`].head_amount
+              : price_query,
         });
         price_query =
           price_query >= parent_head[`${i}`].head_amount
@@ -1293,6 +1297,7 @@ exports.set_fee_head_query = async (
           applicable_fee: ref?.applicable_fee,
           fee_structure: ref?.fee_structure,
           master: ref?.master,
+          original_paid: ref?.original_paid,
         });
       }
       student_args.fee_receipt.push(receipt_args?._id);
@@ -1334,6 +1339,8 @@ exports.update_fee_head_query = async (
       } else {
         ele.paid_fee +=
           price_query >= ele.remain_fee ? ele.remain_fee : price_query;
+        ele.original_paid =
+          price_query >= ele.remain_fee ? ele.remain_fee : price_query;
         price_query =
           price_query >= ele.remain_fee ? price_query - ele.remain_fee : 0;
         ele.remain_fee =
@@ -1353,6 +1360,7 @@ exports.update_fee_head_query = async (
         applicable_fee: ref?.applicable_fee,
         fee_structure: ref?.fee_structure,
         master: ref?.master,
+        original_paid: ref?.original_paid,
       });
     }
     student_args.fee_receipt.push(receipt_args?._id);

@@ -1337,9 +1337,9 @@ exports.update_fee_head_query = async (
       }
       if (ele?.paid_fee == ele?.applicable_fee) {
       } else {
-        ele.paid_fee +=
-          price_query >= ele.remain_fee ? ele.remain_fee : price_query;
         ele.original_paid =
+          price_query >= ele.remain_fee ? ele.remain_fee : price_query;
+        ele.paid_fee +=
           price_query >= ele.remain_fee ? ele.remain_fee : price_query;
         price_query =
           price_query >= ele.remain_fee ? price_query - ele.remain_fee : 0;

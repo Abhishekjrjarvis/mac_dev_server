@@ -90,6 +90,7 @@ const feeReceiptSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "FeeMaster",
       },
+      original_paid: { type: Number, default: 0 },
     },
   ],
 });

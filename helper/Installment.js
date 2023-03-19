@@ -1215,6 +1215,7 @@ exports.set_fee_head_query = async (
   student_args,
   price,
   apply_args,
+  receipt_args,
   direct_args
 ) => {
   try {
@@ -1282,7 +1283,20 @@ exports.set_fee_head_query = async (
             ? price_query - parent_head[`${i}`].head_amount
             : 0;
       }
-      await student_args.save();
+      receipt_args.fee_flow = "FEE_HEADS";
+      for (var ref of student_args?.active_fee_heads) {
+        receipt_args.fee_heads.push({
+          head_id: ref?._id,
+          head_name: ref?.head_name,
+          paid_fee: ref?.paid_fee,
+          remain_fee: ref?.remain_fee,
+          applicable_fee: ref?.applicable_fee,
+          fee_structure: ref?.fee_structure,
+          master: ref?.master,
+        });
+      }
+      student_args.fee_receipt.push(receipt_args?._id);
+      await Promise.all([student_args.save(), receipt_args.save()]);
       price_query = 0;
     }
   } catch (e) {
@@ -1290,7 +1304,12 @@ exports.set_fee_head_query = async (
   }
 };
 
-exports.update_fee_head_query = async (student_args, price, apply_args) => {
+exports.update_fee_head_query = async (
+  student_args,
+  price,
+  apply_args,
+  receipt_args
+) => {
   try {
     var price_query = price;
     const filter_student_heads = student_args?.active_fee_heads?.filter(
@@ -1324,6 +1343,20 @@ exports.update_fee_head_query = async (student_args, price, apply_args) => {
       }
     }
     await student_args.save();
+    receipt_args.fee_flow = "FEE_HEADS";
+    for (var ref of student_args?.active_fee_heads) {
+      receipt_args.fee_heads.push({
+        head_id: ref?._id,
+        head_name: ref?.head_name,
+        paid_fee: ref?.paid_fee,
+        remain_fee: ref?.remain_fee,
+        applicable_fee: ref?.applicable_fee,
+        fee_structure: ref?.fee_structure,
+        master: ref?.master,
+      });
+    }
+    student_args.fee_receipt.push(receipt_args?._id);
+    await receipt_args.save();
     return student_args;
   } catch (e) {
     console.log(e);

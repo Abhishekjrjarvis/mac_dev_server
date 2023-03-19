@@ -374,7 +374,7 @@ exports.admissionInstituteFunction = async (
         new_remainFee.fee_structure = student?.fee_structure?._id;
         new_remainFee.remaining_fee += total_amount - parseInt(tx_amount_ad);
         student.remainingFeeList.push(new_remainFee?._id);
-        student.remainingFeeList_count += 1
+        student.remainingFeeList_count += 1;
         new_remainFee.student = student?._id;
         new_remainFee.fee_receipts.push(new_receipt?._id);
         await add_all_installment(
@@ -403,7 +403,7 @@ exports.admissionInstituteFunction = async (
         new_remainFee.remaining_fee +=
           student?.fee_structure?.total_admission_fees - parseInt(tx_amount_ad);
         student.remainingFeeList.push(new_remainFee?._id);
-        student.remainingFeeList_count += 1
+        student.remainingFeeList_count += 1;
         new_remainFee.student = student?._id;
         new_remainFee.fee_receipts.push(new_receipt?._id);
         admission.remainingFee.push(student._id);
@@ -435,7 +435,12 @@ exports.admissionInstituteFunction = async (
         }
       } else {
       }
-      await set_fee_head_query(student, parseInt(tx_amount_ad), apply);
+      await set_fee_head_query(
+        student,
+        parseInt(tx_amount_ad),
+        apply,
+        new_receipt
+      );
       for (let app of apply.selectedApplication) {
         if (`${app.student}` === `${student._id}`) {
           app.payment_status = "Online";
@@ -570,7 +575,12 @@ exports.admissionInstituteFunction = async (
         ins.adminRepayAmount += parseInt(tx_amount_ad);
       }
       // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount_ad);
-      await update_fee_head_query(student, parseInt(tx_amount_ad), apply);
+      await update_fee_head_query(
+        student,
+        parseInt(tx_amount_ad),
+        apply,
+        new_receipt
+      );
       for (var match of student.paidFeeList) {
         if (`${match.appId}` === `${apply._id}`) {
           match.paidAmount += parseInt(tx_amount_ad);

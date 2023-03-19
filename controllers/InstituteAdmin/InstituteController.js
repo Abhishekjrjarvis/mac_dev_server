@@ -34,7 +34,9 @@ const unlinkFile = util.promisify(fs.unlink);
 const { file_to_aws } = require("../../Utilities/uploadFileAws");
 const { shuffleArray } = require("../../Utilities/Shuffle");
 const { designation_alarm } = require("../../WhatsAppSMS/payload");
-const { render_institute_current_role } = require("../Moderator/roleController");
+const {
+  render_institute_current_role,
+} = require("../Moderator/roleController");
 
 exports.getDashOneQuery = async (req, res) => {
   try {
@@ -3123,10 +3125,24 @@ exports.getStaffFormQuery = async (req, res) => {
 exports.settingFormUpdate = async (req, res) => {
   try {
     if (!req.params.id) throw "Please send institute id to perform task";
-    await InstituteAdmin.findByIdAndUpdate(req.params.id, req.body);
+    const one_ins = await InstituteAdmin.findByIdAndUpdate(
+      req.params.id,
+      req.body
+    );
     res.status(200).send({
       message: "form updated successfully 👏",
     });
+    const all_student = await Student.find({
+      $and: [
+        { _id: { $in: one_ins?.ApproveStudent } },
+        { studentStatus: "Approved" },
+      ],
+    })
+    .select("form_status")
+    for (var ref of all_student) {
+      ref.form_status = "Not Filled"
+      await ref.save()
+    }
   } catch (e) {
     res.status(400).send({
       message: e,

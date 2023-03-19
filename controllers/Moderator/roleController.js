@@ -1,4 +1,5 @@
 const Staff = require("../../models/Staff");
+const Finance = require("../../models/Finance");
 const Admission = require("../../models/Admission/Admission");
 const NewApplication = require("../../models/Admission/NewApplication");
 const User = require("../../models/User");

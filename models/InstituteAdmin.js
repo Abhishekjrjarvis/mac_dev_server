@@ -505,6 +505,7 @@ const instituteAdminSchema = new mongoose.Schema({
     identityDetails: { type: Boolean, default: false },
     addressInfo: { type: Boolean, default: false },
     parentsInfo: { type: Boolean, default: false },
+    enrollmentPrn: { type: Boolean, default: false },
     previousSchoolAndDocument: {
       previousSchoolDocument: { type: Boolean, default: false },
       aadharCard: { type: Boolean, default: false },
@@ -580,6 +581,7 @@ const instituteAdminSchema = new mongoose.Schema({
     identityDetails: { type: Boolean, default: false },
     addressInfo: { type: Boolean, default: false },
     parentsInfo: { type: Boolean, default: false },
+    enrollmentPrn: { type: Boolean, default: false },
     previousSchoolAndDocument: {
       previousSchoolDocument: { type: Boolean, default: false },
       aadharCard: { type: Boolean, default: false },

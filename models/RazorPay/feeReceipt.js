@@ -71,6 +71,27 @@ const feeReceiptSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "FeeMaster",
   },
+  fee_flow: {
+    type: String,
+  },
+  fee_heads: [
+    {
+      head_id: { type: String },
+      head_name: { type: String },
+      paid_fee: { type: Number, default: 0 },
+      applicable_fee: { type: Number, default: 0 },
+      remain_fee: { type: Number, default: 0 },
+      created_at: { type: Date, default: Date.now },
+      fee_structure: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeStructure",
+      },
+      master: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeMaster",
+      },
+    },
+  ],
 });
 
 module.exports = mongoose.model("FeeReceipt", feeReceiptSchema);

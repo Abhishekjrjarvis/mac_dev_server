@@ -1485,7 +1485,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       finance.financeBankBalance += price;
     } else {
     }
-    await set_fee_head_query(student, price, apply);
+    await set_fee_head_query(student, price, apply, new_receipt);
     for (let app of apply.selectedApplication) {
       if (`${app.student}` === `${student._id}`) {
         app.payment_status = mode;
@@ -2307,7 +2307,7 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     } else {
     }
     // await set_fee_head_query(student, price, apply);
-    await update_fee_head_query(student, price, apply);
+    await update_fee_head_query(student, price, apply, new_receipt);
     for (var stu of student.paidFeeList) {
       if (`${stu.appId}` === `${apply._id}`) {
         stu.paidAmount += price;
@@ -2779,7 +2779,7 @@ const request_mode_query_by_student = async (
     } else {
     }
     // await set_fee_head_query(student, price, apply);
-    await update_fee_head_query(student, price, apply);
+    await update_fee_head_query(student, price, apply, new_receipt);
     for (var stu of student.paidFeeList) {
       if (`${stu.appId}` === `${apply._id}`) {
         stu.paidAmount += price;
@@ -3682,7 +3682,7 @@ exports.renderAllReceiptsQuery = async (req, res) => {
     const { aid } = req.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const { filter_by, over_filter } = req.query;
+    const { filter_by, over_filter, search } = req.query;
     if (!aid && !filter_by)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -3698,7 +3698,26 @@ exports.renderAllReceiptsQuery = async (req, res) => {
           select: "finance_bank_name",
         });
       if (filter_by === "ALL_REQUEST") {
-        const ads_admin = await Admission.findById({ _id: aid })
+        if(search){
+        var ads_admin = await Admission.findById({ _id: aid })
+          .select("fee_receipt_request")
+          .populate({
+            path: "fee_receipt_request",
+            populate: {
+              path: "receipt",
+              match: {
+                fee_utr_reference: { $regex: search, $options: "i" },
+              },
+              populate: {
+                path: "student application",
+                select:
+                  "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto applicationDepartment",
+              },
+            },
+          });
+        }
+        else{
+          var ads_admin = await Admission.findById({ _id: aid })
           .select("fee_receipt_request")
           .populate({
             path: "fee_receipt_request",
@@ -3711,6 +3730,7 @@ exports.renderAllReceiptsQuery = async (req, res) => {
               },
             },
           });
+        }
         var receipt_request = ads_admin?.fee_receipt_request?.filter((ref) => {
           if (
             `${ref?.receipt?.application?.applicationDepartment}` ===
@@ -3725,7 +3745,26 @@ exports.renderAllReceiptsQuery = async (req, res) => {
           receipt_request
         );
       } else if (filter_by === "ALL_APPROVE") {
-        const ads_admin = await Admission.findById({ _id: aid })
+        if(search){
+          var ads_admin = await Admission.findById({ _id: aid })
+          .select("fee_receipt_approve")
+          .populate({
+            path: "fee_receipt_approve",
+            populate: {
+              path: "receipt",
+              match: {
+                fee_utr_reference: { $regex: search, $options: "i" },
+              },
+              populate: {
+                path: "student application",
+                select:
+                  "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto applicationDepartment",
+              },
+            },
+          });
+        }
+        else{
+        var ads_admin = await Admission.findById({ _id: aid })
           .select("fee_receipt_approve")
           .populate({
             path: "fee_receipt_approve",
@@ -3738,6 +3777,7 @@ exports.renderAllReceiptsQuery = async (req, res) => {
               },
             },
           });
+        }
 
         var receipt_approve = ads_admin?.fee_receipt_approve?.filter((ref) => {
           if (
@@ -3753,7 +3793,26 @@ exports.renderAllReceiptsQuery = async (req, res) => {
           receipt_approve
         );
       } else if (filter_by === "ALL_REJECT") {
-        const ads_admin = await Admission.findById({ _id: aid })
+        if(search){
+          var ads_admin = await Admission.findById({ _id: aid })
+          .select("fee_receipt_reject")
+          .populate({
+            path: "fee_receipt_reject",
+            populate: {
+              path: "receipt",
+              match: {
+                fee_utr_reference: { $regex: search, $options: "i" },
+              },
+              populate: {
+                path: "student application",
+                select:
+                  "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto applicationDepartment",
+              },
+            },
+          });
+        }
+        else{
+        var ads_admin = await Admission.findById({ _id: aid })
           .select("fee_receipt_reject")
           .populate({
             path: "fee_receipt_reject",
@@ -3766,6 +3825,7 @@ exports.renderAllReceiptsQuery = async (req, res) => {
               },
             },
           });
+        }
 
         var receipt_reject = ads_admin?.fee_receipt_reject?.filter((ref) => {
           if (
@@ -3785,7 +3845,26 @@ exports.renderAllReceiptsQuery = async (req, res) => {
       }
     } else {
       if (filter_by === "ALL_REQUEST") {
-        const ads_admin = await Admission.findById({ _id: aid })
+        if(search){
+          var ads_admin = await Admission.findById({ _id: aid })
+          .select("fee_receipt_request")
+          .populate({
+            path: "fee_receipt_request",
+            populate: {
+              path: "receipt",
+              match: {
+                fee_utr_reference: { $regex: search, $options: "i" },
+              },
+              populate: {
+                path: "student",
+                select:
+                  "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+              },
+            },
+          });
+        }
+        else{
+        var ads_admin = await Admission.findById({ _id: aid })
           .select("fee_receipt_request")
           .populate({
             path: "fee_receipt_request",
@@ -3798,14 +3877,36 @@ exports.renderAllReceiptsQuery = async (req, res) => {
               },
             },
           });
-
+        }
+        var receipt_request = ads_admin?.fee_receipt_request?.filter((ref) => {
+          if(ref?.receipt !== null) return ref
+        })
         var all_requests = await nested_document_limit(
           page,
           limit,
-          ads_admin?.fee_receipt_request
+          receipt_request
         );
       } else if (filter_by === "ALL_APPROVE") {
-        const ads_admin = await Admission.findById({ _id: aid })
+        if(search){
+          var ads_admin = await Admission.findById({ _id: aid })
+          .select("fee_receipt_approve")
+          .populate({
+            path: "fee_receipt_approve",
+            populate: {
+              path: "receipt",
+              match: {
+                fee_utr_reference: { $regex: search, $options: "i" },
+              },
+              populate: {
+                path: "student",
+                select:
+                  "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+              },
+            },
+          });
+        }
+        else{
+        var ads_admin = await Admission.findById({ _id: aid })
           .select("fee_receipt_approve")
           .populate({
             path: "fee_receipt_approve",
@@ -3818,14 +3919,36 @@ exports.renderAllReceiptsQuery = async (req, res) => {
               },
             },
           });
-
+        }
+        var receipt_approve = ads_admin?.fee_receipt_approve?.filter((ref) => {
+          if(ref?.receipt !== null) return ref
+        })
         var all_requests = await nested_document_limit(
           page,
           limit,
-          ads_admin?.fee_receipt_approve
+          receipt_approve
         );
       } else if (filter_by === "ALL_REJECT") {
-        const ads_admin = await Admission.findById({ _id: aid })
+        if(search){
+        var ads_admin = await Admission.findById({ _id: aid })
+          .select("fee_receipt_reject")
+          .populate({
+            path: "fee_receipt_reject",
+            populate: {
+              path: "receipt",
+              match: {
+                fee_utr_reference: { $regex: search, $options: "i" },
+              },
+              populate: {
+                path: "student",
+                select:
+                  "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+              },
+            },
+          });
+        }
+        else{
+          var ads_admin = await Admission.findById({ _id: aid })
           .select("fee_receipt_reject")
           .populate({
             path: "fee_receipt_reject",
@@ -3838,11 +3961,14 @@ exports.renderAllReceiptsQuery = async (req, res) => {
               },
             },
           });
-
+        }
+        var receipt_reject = ads_admin?.fee_receipt_reject?.filter((ref) => {
+          if(ref?.receipt !== null) return ref
+        })
         var all_requests = await nested_document_limit(
           page,
           limit,
-          ads_admin?.fee_receipt_reject
+          receipt_reject
         );
       } else {
         var all_requests = [];
@@ -4174,7 +4300,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
         finance.financeBankBalance += price;
       } else {
       }
-      await set_fee_head_query(student, price, one_app);
+      await set_fee_head_query(student, price, one_app, one_receipt);
       for (let app of one_app.selectedApplication) {
         if (`${app.student}` === `${student._id}`) {
           app.payment_status = mode;
@@ -4965,7 +5091,7 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
       finance.financeTotalBalance -= price + extra_price;
     }
     // await set_fee_head_query(student, price, apply);
-    await update_fee_head_query(student, price, apply);
+    await update_fee_head_query(student, price, apply, new_receipt);
     for (var stu of student.paidFeeList) {
       if (`${stu.appId}` === `${apply._id}`) {
         stu.paidAmount += price;

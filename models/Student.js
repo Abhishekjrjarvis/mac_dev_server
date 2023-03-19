@@ -471,6 +471,16 @@ const studentSchema = new mongoose.Schema({
       ref: "FeeReceipt",
     },
   ],
+  form_status: {
+    type: String,
+    default: "Not Filled",
+  },
+  fee_receipt: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FeeReceipt",
+    },
+  ],
 });
 
 const Student = mongoose.model("Student", studentSchema);

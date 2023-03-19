@@ -30,6 +30,7 @@ const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 const { dateTimeSort } = require("../../Utilities/timeComparison");
 const { shuffleArray } = require("../../Utilities/Shuffle");
+const { valid_student_form_query } = require("../../Functions/validForm");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.retrieveProfileData = async (req, res) => {
@@ -1679,7 +1680,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
       if (isApk) {
         var student = await Student.findById({ _id: sid })
           .select(
-            "batchCount extraPoints studentFirstName library studentBankAccountHolderName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName department studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
+            "batchCount extraPoints studentFirstName form_status library studentBirthPlace studentBankAccountHolderName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName department studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
           )
           .populate({
             path: "studentClass",
@@ -1691,7 +1692,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           })
           .populate({
             path: "institute",
-            select: "insName name photoId insProfilePhoto library",
+            select: "insName name photoId insProfilePhoto library studentFormSetting",
           })
           .populate({
             path: "user",
@@ -1735,12 +1736,17 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
               docs.documentName === "identityDocument"
                 ? docs.documentKey
                 : student.identityDocument;
+            student.casteCertificate =
+              docs.documentName === "casteCertificate"
+                ? docs.documentKey
+                : student.casteCertificate;
           }
         }
+        const status = await valid_student_form_query(student?.institute, student, "APK")
       } else {
         var student = await Student.findById({ _id: sid })
           .select(
-            "batchCount extraPoints studentFirstName studentBankAccountHolderName department studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
+            "batchCount extraPoints studentFirstName form_status studentBirthPlace studentBankAccountHolderName department studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
           )
           .populate({
             path: "studentClass",
@@ -1752,7 +1758,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           })
           .populate({
             path: "institute",
-            select: "insName name photoId insProfilePhoto library",
+            select: "insName name photoId insProfilePhoto library studentFormSetting",
           })
           .populate({
             path: "user",
@@ -1764,6 +1770,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           });
       }
       average_points += student.extraPoints / student.batchCount;
+      const status = await valid_student_form_query(student?.institute, student, "WEB")
       // Add Another Encryption
       // const bind_student = {
       //   student: student,
@@ -1778,6 +1785,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
         // student: cached.student,
         // average_points: cached.average_points,
         student: student,
+        status: status,
         average_points: average_points,
       });
     } else {

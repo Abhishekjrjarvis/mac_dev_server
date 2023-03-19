@@ -224,7 +224,7 @@ exports.fee_reordering = async (
       paidAmount: price,
       appId: apply._id,
     });
-    await set_fee_head_query(student, price, apply);
+    await set_fee_head_query(student, price, apply, new_receipt);
     apply.confirmedApplication.push({
       student: student._id,
       payment_status: mode,
@@ -377,7 +377,13 @@ exports.fee_reordering_direct_student = async (
         paidAmount: price,
         appId: apply._id,
       });
-      await set_fee_head_query(student, price, apply, fee_structure);
+      await set_fee_head_query(
+        student,
+        price,
+        apply,
+        new_receipt,
+        fee_structure
+      );
       apply.allottedApplication.push({
         student: student._id,
         payment_status: "Offline",
@@ -619,7 +625,13 @@ exports.fee_reordering_direct_student_payload = async (
           paidAmount: price,
           appId: apply._id,
         });
-        await set_fee_head_query(student, price, apply, fee_structure);
+        await set_fee_head_query(
+          student,
+          price,
+          apply,
+          new_receipt,
+          fee_structure
+        );
         apply.allottedApplication.push({
           student: student._id,
           payment_status: "Offline",

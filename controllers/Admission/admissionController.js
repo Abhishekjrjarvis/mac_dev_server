@@ -3698,38 +3698,37 @@ exports.renderAllReceiptsQuery = async (req, res) => {
           select: "finance_bank_name",
         });
       if (filter_by === "ALL_REQUEST") {
-        if(search){
-        var ads_admin = await Admission.findById({ _id: aid })
-          .select("fee_receipt_request")
-          .populate({
-            path: "fee_receipt_request",
-            populate: {
-              path: "receipt",
-              match: {
-                fee_utr_reference: { $regex: search, $options: "i" },
-              },
-              populate: {
-                path: "student application",
-                select:
-                  "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto applicationDepartment",
-              },
-            },
-          });
-        }
-        else{
+        if (search) {
           var ads_admin = await Admission.findById({ _id: aid })
-          .select("fee_receipt_request")
-          .populate({
-            path: "fee_receipt_request",
-            populate: {
-              path: "receipt",
+            .select("fee_receipt_request")
+            .populate({
+              path: "fee_receipt_request",
               populate: {
-                path: "student application",
-                select:
-                  "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto applicationDepartment",
+                path: "receipt",
+                match: {
+                  fee_utr_reference: { $regex: search, $options: "i" },
+                },
+                populate: {
+                  path: "student application",
+                  select:
+                    "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto applicationDepartment",
+                },
               },
-            },
-          });
+            });
+        } else {
+          var ads_admin = await Admission.findById({ _id: aid })
+            .select("fee_receipt_request")
+            .populate({
+              path: "fee_receipt_request",
+              populate: {
+                path: "receipt",
+                populate: {
+                  path: "student application",
+                  select:
+                    "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto applicationDepartment",
+                },
+              },
+            });
         }
         var receipt_request = ads_admin?.fee_receipt_request?.filter((ref) => {
           if (
@@ -3745,38 +3744,37 @@ exports.renderAllReceiptsQuery = async (req, res) => {
           receipt_request
         );
       } else if (filter_by === "ALL_APPROVE") {
-        if(search){
+        if (search) {
           var ads_admin = await Admission.findById({ _id: aid })
-          .select("fee_receipt_approve")
-          .populate({
-            path: "fee_receipt_approve",
-            populate: {
-              path: "receipt",
-              match: {
-                fee_utr_reference: { $regex: search, $options: "i" },
-              },
+            .select("fee_receipt_approve")
+            .populate({
+              path: "fee_receipt_approve",
               populate: {
-                path: "student application",
-                select:
-                  "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto applicationDepartment",
+                path: "receipt",
+                match: {
+                  fee_utr_reference: { $regex: search, $options: "i" },
+                },
+                populate: {
+                  path: "student application",
+                  select:
+                    "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto applicationDepartment",
+                },
               },
-            },
-          });
-        }
-        else{
-        var ads_admin = await Admission.findById({ _id: aid })
-          .select("fee_receipt_approve")
-          .populate({
-            path: "fee_receipt_approve",
-            populate: {
-              path: "receipt",
+            });
+        } else {
+          var ads_admin = await Admission.findById({ _id: aid })
+            .select("fee_receipt_approve")
+            .populate({
+              path: "fee_receipt_approve",
               populate: {
-                path: "student application",
-                select:
-                  "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto applicationDepartment",
+                path: "receipt",
+                populate: {
+                  path: "student application",
+                  select:
+                    "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto applicationDepartment",
+                },
               },
-            },
-          });
+            });
         }
 
         var receipt_approve = ads_admin?.fee_receipt_approve?.filter((ref) => {
@@ -3793,38 +3791,37 @@ exports.renderAllReceiptsQuery = async (req, res) => {
           receipt_approve
         );
       } else if (filter_by === "ALL_REJECT") {
-        if(search){
+        if (search) {
           var ads_admin = await Admission.findById({ _id: aid })
-          .select("fee_receipt_reject")
-          .populate({
-            path: "fee_receipt_reject",
-            populate: {
-              path: "receipt",
-              match: {
-                fee_utr_reference: { $regex: search, $options: "i" },
-              },
+            .select("fee_receipt_reject")
+            .populate({
+              path: "fee_receipt_reject",
               populate: {
-                path: "student application",
-                select:
-                  "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto applicationDepartment",
+                path: "receipt",
+                match: {
+                  fee_utr_reference: { $regex: search, $options: "i" },
+                },
+                populate: {
+                  path: "student application",
+                  select:
+                    "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto applicationDepartment",
+                },
               },
-            },
-          });
-        }
-        else{
-        var ads_admin = await Admission.findById({ _id: aid })
-          .select("fee_receipt_reject")
-          .populate({
-            path: "fee_receipt_reject",
-            populate: {
-              path: "receipt",
+            });
+        } else {
+          var ads_admin = await Admission.findById({ _id: aid })
+            .select("fee_receipt_reject")
+            .populate({
+              path: "fee_receipt_reject",
               populate: {
-                path: "student application",
-                select:
-                  "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto applicationDepartment",
+                path: "receipt",
+                populate: {
+                  path: "student application",
+                  select:
+                    "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto applicationDepartment",
+                },
               },
-            },
-          });
+            });
         }
 
         var receipt_reject = ads_admin?.fee_receipt_reject?.filter((ref) => {
@@ -3845,126 +3842,123 @@ exports.renderAllReceiptsQuery = async (req, res) => {
       }
     } else {
       if (filter_by === "ALL_REQUEST") {
-        if(search){
+        if (search) {
           var ads_admin = await Admission.findById({ _id: aid })
-          .select("fee_receipt_request")
-          .populate({
-            path: "fee_receipt_request",
-            populate: {
-              path: "receipt",
-              match: {
-                fee_utr_reference: { $regex: search, $options: "i" },
-              },
+            .select("fee_receipt_request")
+            .populate({
+              path: "fee_receipt_request",
               populate: {
-                path: "student",
-                select:
-                  "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+                path: "receipt",
+                match: {
+                  fee_utr_reference: { $regex: search, $options: "i" },
+                },
+                populate: {
+                  path: "student",
+                  select:
+                    "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+                },
               },
-            },
-          });
-        }
-        else{
-        var ads_admin = await Admission.findById({ _id: aid })
-          .select("fee_receipt_request")
-          .populate({
-            path: "fee_receipt_request",
-            populate: {
-              path: "receipt",
+            });
+        } else {
+          var ads_admin = await Admission.findById({ _id: aid })
+            .select("fee_receipt_request")
+            .populate({
+              path: "fee_receipt_request",
               populate: {
-                path: "student",
-                select:
-                  "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+                path: "receipt",
+                populate: {
+                  path: "student",
+                  select:
+                    "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+                },
               },
-            },
-          });
+            });
         }
         var receipt_request = ads_admin?.fee_receipt_request?.filter((ref) => {
-          if(ref?.receipt !== null) return ref
-        })
+          if (ref?.receipt !== null) return ref;
+        });
         var all_requests = await nested_document_limit(
           page,
           limit,
           receipt_request
         );
       } else if (filter_by === "ALL_APPROVE") {
-        if(search){
+        if (search) {
           var ads_admin = await Admission.findById({ _id: aid })
-          .select("fee_receipt_approve")
-          .populate({
-            path: "fee_receipt_approve",
-            populate: {
-              path: "receipt",
-              match: {
-                fee_utr_reference: { $regex: search, $options: "i" },
-              },
+            .select("fee_receipt_approve")
+            .populate({
+              path: "fee_receipt_approve",
               populate: {
-                path: "student",
-                select:
-                  "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+                path: "receipt",
+                match: {
+                  fee_utr_reference: { $regex: search, $options: "i" },
+                },
+                populate: {
+                  path: "student",
+                  select:
+                    "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+                },
               },
-            },
-          });
-        }
-        else{
-        var ads_admin = await Admission.findById({ _id: aid })
-          .select("fee_receipt_approve")
-          .populate({
-            path: "fee_receipt_approve",
-            populate: {
-              path: "receipt",
+            });
+        } else {
+          var ads_admin = await Admission.findById({ _id: aid })
+            .select("fee_receipt_approve")
+            .populate({
+              path: "fee_receipt_approve",
               populate: {
-                path: "student",
-                select:
-                  "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+                path: "receipt",
+                populate: {
+                  path: "student",
+                  select:
+                    "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+                },
               },
-            },
-          });
+            });
         }
         var receipt_approve = ads_admin?.fee_receipt_approve?.filter((ref) => {
-          if(ref?.receipt !== null) return ref
-        })
+          if (ref?.receipt !== null) return ref;
+        });
         var all_requests = await nested_document_limit(
           page,
           limit,
           receipt_approve
         );
       } else if (filter_by === "ALL_REJECT") {
-        if(search){
-        var ads_admin = await Admission.findById({ _id: aid })
-          .select("fee_receipt_reject")
-          .populate({
-            path: "fee_receipt_reject",
-            populate: {
-              path: "receipt",
-              match: {
-                fee_utr_reference: { $regex: search, $options: "i" },
-              },
-              populate: {
-                path: "student",
-                select:
-                  "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
-              },
-            },
-          });
-        }
-        else{
+        if (search) {
           var ads_admin = await Admission.findById({ _id: aid })
-          .select("fee_receipt_reject")
-          .populate({
-            path: "fee_receipt_reject",
-            populate: {
-              path: "receipt",
+            .select("fee_receipt_reject")
+            .populate({
+              path: "fee_receipt_reject",
               populate: {
-                path: "student",
-                select:
-                  "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+                path: "receipt",
+                match: {
+                  fee_utr_reference: { $regex: search, $options: "i" },
+                },
+                populate: {
+                  path: "student",
+                  select:
+                    "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+                },
               },
-            },
-          });
+            });
+        } else {
+          var ads_admin = await Admission.findById({ _id: aid })
+            .select("fee_receipt_reject")
+            .populate({
+              path: "fee_receipt_reject",
+              populate: {
+                path: "receipt",
+                populate: {
+                  path: "student",
+                  select:
+                    "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+                },
+              },
+            });
         }
         var receipt_reject = ads_admin?.fee_receipt_reject?.filter((ref) => {
-          if(ref?.receipt !== null) return ref
-        })
+          if (ref?.receipt !== null) return ref;
+        });
         var all_requests = await nested_document_limit(
           page,
           limit,

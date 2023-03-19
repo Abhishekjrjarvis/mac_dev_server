@@ -1325,7 +1325,7 @@ exports.update_fee_head_query = async (
     );
 
     for (var ele of filter_student_heads) {
-      var one_master = await FeeMaster.findById({
+      var one_master = await FeeMaster.findOne({
         $and: [{ _id: ele?.master }, { master_status: "Linked" }],
       });
       if (one_master) {

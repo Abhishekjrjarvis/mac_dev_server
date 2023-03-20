@@ -161,6 +161,10 @@ const postSchema = new mongoose.Schema({
       ref: "HashTag",
     },
   ],
+  new_announcement: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "InsAnnouncement",
+  },
   //
 });
 

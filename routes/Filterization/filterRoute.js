@@ -64,6 +64,12 @@ router.get(
   catchAsync(Filter.renderFeeHeadsStructureQuery)
 );
 
+router.get(
+  "/heads/by/:fsid/receipt/query",
+  // isLoggedIn,
+  catchAsync(Filter.renderFeeHeadsStructureReceiptQuery)
+);
+
 router.patch(
   "/update",
   // isLoggedIn,

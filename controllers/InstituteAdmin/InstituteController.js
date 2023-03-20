@@ -37,6 +37,7 @@ const { designation_alarm } = require("../../WhatsAppSMS/payload");
 const {
   render_institute_current_role,
 } = require("../Moderator/roleController");
+const { announcement_feed_query } = require("../../Post/announceFeed");
 
 exports.getDashOneQuery = async (req, res) => {
   try {
@@ -399,6 +400,7 @@ exports.getUpdateAnnouncement = async (req, res) => {
     await Promise.all([institute.save(), announcements.save()]);
     // const aEncrypt = await encryptionPayload(announcements);
     res.status(200).send({ message: "Successfully Created", announcements });
+    await announcement_feed_query(institute?._id, announcements?._id);
     for (var num of institute.userFollowersList) {
       const user = await User.findById({ _id: `${num}` });
       if (user?.followInsAnnouncement?.includes(announcements?._id)) {
@@ -3137,11 +3139,10 @@ exports.settingFormUpdate = async (req, res) => {
         { _id: { $in: one_ins?.ApproveStudent } },
         { studentStatus: "Approved" },
       ],
-    })
-    .select("form_status")
+    }).select("form_status");
     for (var ref of all_student) {
-      ref.form_status = "Not Filled"
-      await ref.save()
+      ref.form_status = "Not Filled";
+      await ref.save();
     }
   } catch (e) {
     res.status(400).send({

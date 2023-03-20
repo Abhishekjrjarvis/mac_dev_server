@@ -23806,6 +23806,51 @@ paths:
           description: OK
 
 
+  /api/v1/feed/filter/heads/by/{fsid}/receipt/query:
+    get:
+      tags:
+        - New Custom Filter
+      summary: Get All Student Fee Receipts Heads By Fee Structure + Department + Narration (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fsid
+          required: true
+          type: string
+          description: This is Fee Structure ID
+        - in: query
+          name: depart
+          required: true
+          type: string
+          description: This is Department ID
+        - in: query
+          name: timeline
+          required: true
+          type: string
+          description: This is Time Line pass ("true" || "false")
+        - in: query
+          name: timeline_content
+          required: false
+          type: string
+          description: This is Time Line Content if timeline is true then pass
+        - in: query
+          name: from
+          required: false
+          type: string
+          description: This is From Date ("2023-02-02") if timeline is false then pass
+        - in: query
+          name: to
+          required: false
+          type: string
+          description: This is To Date ("2023-02-11") if timeline is false then pass
+      responses:
+        "200":
+          description: OK
+
+
 #Landing Career
 
   /api/v1/landing/ins/{id}/activate:

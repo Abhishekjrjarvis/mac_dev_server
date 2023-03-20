@@ -2,14 +2,14 @@ const mongoose = require("mongoose");
 
 const previousSchema = new mongoose.Schema({
   studentCode: { type: String },
-  class: { type: mongoose.Schema.Types.ObjectId, ref: "Class" },
+  studentClass: { type: mongoose.Schema.Types.ObjectId, ref: "Class" },
   student: { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
-  batch: {
+  batches: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Batch",
   },
   studentROLLNO: { type: String },
-  behaviour: { type: mongoose.Schema.Types.ObjectId, ref: "Behaviour" },
+  studentBehaviour: { type: mongoose.Schema.Types.ObjectId, ref: "Behaviour" },
   department: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department",
@@ -87,8 +87,7 @@ const previousSchema = new mongoose.Schema({
       ref: "AttendenceDate",
     },
   ],
-
-  checklist: [
+  allottedChecklist: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Checklist",
@@ -112,34 +111,52 @@ const previousSchema = new mongoose.Schema({
       ref: "Fees",
     },
   ],
-  offlineCheckList: [
+
+  sportClass: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Checklist",
+      ref: "SportClass",
     },
   ],
+  sportTeam: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SportTeam",
+    },
+  ],
+  extraPoints: {
+    type: Number,
+    default: 0,
+  },
+  sportEvent: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SportEvent",
+    },
+  ],
+
+  studentSportsEventMatch: [
+    {
+      eventMatch: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "SportEventMatch",
+      },
+      rankTitle: { type: String, default: "Announced to be soon" },
+      updatedAt: { type: Date, default: Date.now },
+    },
+  ],
+
   complaints: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Complaint",
     },
   ],
-  studentChecklist: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Checklist",
-    },
-  ],
+
   leave: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "StudentLeave",
-    },
-  ],
-  transfer: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "StudentTransfer",
     },
   ],
 
@@ -163,10 +180,7 @@ const previousSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  library: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Library",
-  },
+
   studentAdmissionDate: {
     type: String,
   },
@@ -184,18 +198,17 @@ const previousSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  admissionPaymentStatus: [
+  admissionPaidFeeCount: {
+    type: Number,
+    default: 0,
+  },
+  paidFeeList: [
     {
-      applicationId: {
+      paidAmount: { type: Number, default: 0 },
+      appId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "NewApplication",
       },
-      status: { type: String, default: "Pending" },
-      mode: { type: String },
-      installment: { type: String, default: "No Installment" },
-      firstInstallment: { type: Number, default: 0 },
-      secondInstallment: { type: Number, default: 0 },
-      fee: { type: Number, default: 0 },
     },
   ],
   refundAdmission: [
@@ -212,10 +225,30 @@ const previousSchema = new mongoose.Schema({
   ],
   remainingFeeList: [
     {
-      remainAmount: { type: String },
-      appId: { type: String },
-      status: { type: String, default: "Not Paid" },
-      instituteId: { type: String },
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "RemainingList",
+    },
+  ],
+  remainingFeeList_count: {
+    type: Number,
+    default: 0,
+  },
+  fee_structure: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "FeeStructure",
+  },
+  active_fee_heads: [
+    {
+      appId: { type: mongoose.Schema.Types.ObjectId, ref: "NewApplication" },
+      head_name: { type: String },
+      created_at: { type: Date, default: Date.now },
+      applicable_fee: { type: Number, default: 0 },
+      remain_fee: { type: Number, default: 0 },
+      paid_fee: { type: Number, default: 0 },
+      fee_structure: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeStructure",
+      },
     },
   ],
   certificateBonaFideCopy: {
@@ -248,6 +281,65 @@ const previousSchema = new mongoose.Schema({
       ref: "Participate",
     },
   ],
+  participate_result: [
+    {
+      event: { type: mongoose.Schema.Types.ObjectId, ref: "Participate" },
+      rank: { type: String },
+      created_at: { type: Date, default: Date.now },
+    },
+  ],
+  vehicle: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Vehicle",
+  },
+  vehicleRemainFeeCount: {
+    type: Number,
+    default: 0,
+  },
+  vehiclePaidFeeCount: {
+    type: Number,
+    default: 0,
+  },
+  vehicle_payment_status: [
+    {
+      vehicle: { type: mongoose.Schema.Types.ObjectId, ref: "Vehicle" },
+      status: { type: String, default: "Not Paid" },
+      created_at: { type: Date, default: Date.now },
+      amount: { type: Number, default: 0 },
+    },
+  ],
+  routes: [
+    {
+      routeId: { type: String },
+      routePath: { type: String },
+    },
+  ],
+  active_routes: {
+    type: String,
+  },
+  active_status: [],
+  query_count: {
+    type: Number,
+    default: 0,
+  },
+  mentor: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Mentor",
+  },
+  queries: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Queries",
+    },
+  ],
+  total_query: {
+    type: Number,
+    default: 0,
+  },
+  feed_back_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("StudentPreviousData", previousSchema);

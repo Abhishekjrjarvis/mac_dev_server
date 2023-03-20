@@ -1,9 +1,9 @@
-// const InstituteAdmin = require("../../models/InstituteAdmin");
+const InstituteAdmin = require("../../models/InstituteAdmin");
 // const Subject = require("../../models/Subject");
 // const SubjectMaster = require("../../models/SubjectMaster");
 // const ClassMaster = require("../../models/ClassMaster");
 // const InstituteAdmin = require("../../models/InstituteAdmin");
-// const Department = require("../../models/Department");
+const Department = require("../../models/Department");
 const Batch = require("../../models/Batch");
 const Class = require("../../models/Class");
 const Student = require("../../models/Student");
@@ -85,11 +85,17 @@ exports.formEditByClassTeacher = async (req, res) => {
     await one_student.save();
     res.status(200).send({
       message: "Student form edited successfully👍",
-      one_student
+      one_student,
     });
     new_data.gender = one_student?.studentGender;
     new_data.caste = one_student?.studentCastCategory;
-    await chart_category_student(one_student?.batches, "Edit_Student", old_data, new_data, one_student?.studentClass);
+    await chart_category_student(
+      one_student?.batches,
+      "Edit_Student",
+      old_data,
+      new_data,
+      one_student?.studentClass
+    );
   } catch (e) {
     console.log(e);
   }
@@ -335,3 +341,134 @@ exports.previousYearReportCard = async (req, res) => {
     });
   }
 };
+
+exports.instituteDepartmentOtherCount = async (req, res) => {
+  try {
+    if (!req.params.id) throw "Please call proper api with all details";
+    const institute_data = await InstituteAdmin.findById(req.params.id).select(
+      "departmentCount studentCount classRooms name insName insProfileCoverPhoto coverId"
+    );
+    const classCount = institute_data?.classRooms?.length;
+    const modifiy_data = {
+      departmentCount: institute_data?.departmentCount,
+      studentCount: institute_data?.studentCount,
+      classCount: classCount,
+      name: institute_data?.name,
+      insName: institute_data?.insName,
+      insProfileCoverPhoto: institute_data?.insProfileCoverPhoto,
+      coverId: institute_data?.coverId,
+      _id: institute_data?._id,
+    };
+    res.status(200).send({
+      message: "All count and institute some details",
+      institute: modifiy_data,
+    });
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+      institiute: "",
+    });
+    console.log(e);
+  }
+};
+
+exports.getOneDepartmentOfPromote = async (req, res) => {
+  try {
+    const { did } = req.params;
+    if (!did) throw "Please call proper api with all details";
+    const department = await Department.findById({ _id: did })
+      .select("dName")
+      .populate({
+        path: "departmentSelectBatch",
+        select: "batchName batchStatus createdAt",
+        populate: {
+          path: "classroom",
+          select: "className classTitle classTeacher classStatus",
+          populate: {
+            path: "classTeacher",
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+          },
+        },
+      })
+      .lean()
+      .exec();
+    // const oneEncrypt = await encryptionPayload(department);
+    res.status(200).send({ message: "Success", department });
+  } catch (e) {
+    res.status(200).send({ message: e, department: "" });
+    console.log(e);
+  }
+};
+exports.getPromoteStudentByClass = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    if (!cid) throw "Please call proper api with all *required details";
+    const classes = await Class.findById(cid)
+      .populate({
+        path: "promoteStudent",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentClass",
+        populate: {
+          path: "studentClass",
+          select: "className classTitle",
+        },
+      })
+      .select("promoteStudent")
+      .lean()
+      .exec();
+    res.status(200).send({
+      message: "All promoted student list",
+      promoteStudent: classes.promoteStudent ?? [],
+    });
+  } catch (e) {
+    res.status(200).send({ message: e, promoteStudent: [] });
+    console.log(e);
+  }
+};
+
+exports.getNotPromoteStudentByClass = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    if (!cid) throw "Please call proper api with all *required details";
+    const classes_promote = await Class.findById(cid);
+    const classes = await Class.findById(cid)
+      .populate({
+        path: "ApproveStudent",
+        match: {
+          _id: { $nin: classes_promote.promoteStudent },
+        },
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO studentGRNO",
+      })
+      .select("ApproveStudent")
+      .lean()
+      .exec();
+    res.status(200).send({
+      message: "All not promoted student list",
+      notPromoteStudent: classes.ApproveStudent ?? [],
+    });
+  } catch (e) {
+    res.status(200).send({ message: e, notPromoteStudent: [] });
+    console.log(e);
+  }
+};
+// exports.instituteDepartmentOtherCount=async(req, res)=>{
+//   try{
+
+//   }catch(e){
+//     console.log(e)
+//   }
+// }exports.instituteDepartmentOtherCount=async(req, res)=>{
+//   try{
+
+//   }catch(e){
+//     console.log(e)
+//   }
+// }exports.instituteDepartmentOtherCount=async(req, res)=>{
+//   try{
+
+//   }catch(e){
+//     console.log(e)
+//   }
+// }

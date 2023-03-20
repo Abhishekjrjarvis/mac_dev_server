@@ -34,7 +34,9 @@ const unlinkFile = util.promisify(fs.unlink);
 const { file_to_aws } = require("../../Utilities/uploadFileAws");
 const { shuffleArray } = require("../../Utilities/Shuffle");
 const { designation_alarm } = require("../../WhatsAppSMS/payload");
-const { render_institute_current_role } = require("../Moderator/roleController");
+const {
+  render_institute_current_role,
+} = require("../Moderator/roleController");
 
 exports.getDashOneQuery = async (req, res) => {
   try {
@@ -1445,7 +1447,7 @@ exports.retrieveDepartmentList = async (req, res) => {
       .select("insName")
       .populate({
         path: "depart",
-        select: "dName photo photoId dTitle classMasterCount",
+        select: "dName photo photoId dTitle classMasterCount classCount",
         populate: {
           path: "dHead",
           select:
@@ -2786,7 +2788,9 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
         : `0${+currentDateLocalFormat[1]}`;
     const year = +currentDateLocalFormat[0];
     const classes = await Class.findById({ _id: cid })
-      .select("className classStatus classTitle exams")
+      .select(
+        "className classStatus classTitle exams boyCount girlCount studentCount"
+      )
       .populate({
         path: "ApproveStudent",
         select: "leave",

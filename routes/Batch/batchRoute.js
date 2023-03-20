@@ -26,4 +26,7 @@ router
   .route("/complete/:cid")
   .get(isLoggedIn, catchAsync(batchController.getclassComplete))
   .patch(isLoggedIn, catchAsync(batchController.classComplete));
+router
+  .route("/class/uncomplete/:cid")
+  .patch(isLoggedIn, catchAsync(batchController.classUncomplete));
 module.exports = router;

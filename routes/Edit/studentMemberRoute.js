@@ -29,4 +29,20 @@ router
   .route("/:pid/previous/report")
   .get(isLoggedIn, catchAsync(studentMember.previousYearReportCard));
 
+router
+  .route("/promote/:id/institute/detail")
+  .get(isLoggedIn, catchAsync(studentMember.instituteDepartmentOtherCount));
+
+router
+  .route("/promote/department/:did/detail")
+  .get(isLoggedIn, catchAsync(studentMember.getOneDepartmentOfPromote));
+
+router
+  .route("/promote/class/:cid/student/list")
+  .get(isLoggedIn, catchAsync(studentMember.getPromoteStudentByClass));
+
+router
+  .route("/promote/remain/class/:cid/student")
+  .get(isLoggedIn, catchAsync(studentMember.getNotPromoteStudentByClass));
+
 module.exports = router;

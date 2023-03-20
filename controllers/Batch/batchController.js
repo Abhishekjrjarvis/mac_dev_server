@@ -282,59 +282,86 @@ exports.promoteStudent = async (req, res) => {
     const batch = await Batch.findById(batchId);
     const department = await Department.findById(departmentId);
     let roll = classes.ApproveStudent?.length + 1;
+    // console.log("thisfbsdnag snfbbnbn");
     for (let stu of req.body?.students) {
       const student = await Student.findById(stu);
       const user = await User.findById({ _id: `${student.user}` });
       const previousData = new StudentPreviousData({
         studentCode: student.studentCode,
-        class: student?.studentClass,
-        student: student?._id,
-        batch: student?.batches,
+        studentClass: student.studentClass,
+        student: student._id,
+        batches: student.batches,
         studentROLLNO: student.studentROLLNO,
-        behaviour: student?.studentBehaviour,
-        department: student?.department,
-        institute: student?.institute,
-        notification: student?.notification,
-        subjectMarks: student?.subjectMarks,
-        exams: student?.exams,
-        finalReportStatus: student?.finalReportStatus,
-        finalReport: student?.finalReport,
-        testSet: student?.testSet,
-        assignments: student?.assignments,
-        totalAssignment: student?.totalAssignment,
-        submittedAssignment: student?.submittedAssignment,
-        incompletedAssignment: student?.incompletedAssignment,
-        completedAssignment: student?.completedAssignment,
-        studentFee: student?.studentFee,
-        attendDate: student?.attendDate,
-        checklist: student?.checklist,
-        onlineFeeList: student?.onlineFeeList,
-        onlineCheckList: student?.onlineCheckList,
-        offlineFeeList: student?.offlineFeeList,
-        offlineCheckList: student?.offlineCheckList,
+        studentBehaviour: student.studentBehaviour,
+        department: student.department,
+        institute: student.institute,
+
+        //here some also doubt
+        notification: student.notification,
+
+        subjectMarks: student.subjectMarks,
+        exams: student.exams,
+        finalReportStatus: student.finalReportStatus,
+        finalReport: student.finalReport,
+        testSet: student.testSet,
+        assignments: student.assignments,
+        totalAssignment: student.totalAssignment,
+        submittedAssignment: student.submittedAssignment,
+        incompletedAssignment: student.incompletedAssignment,
+        completedAssignment: student.completedAssignment,
+        studentFee: student.studentFee,
+        attendDate: student.attendDate,
+        allottedChecklist: student.allottedChecklist,
+        onlineFeeList: student.onlineFeeList,
+        onlineCheckList: student.onlineCheckList,
+        offlineFeeList: student.offlineFeeList,
+        sportClass: student.sportClass,
+        sportTeam: student.sportTeam,
+        extraPoints: student.extraPoints,
+        sportEvent: student.sportEvent,
+        studentSportsEventMatch: student.studentSportsEventMatch,
         complaints: student?.complaints,
-        studentChecklist: student?.studentChecklist,
         leave: student?.leave,
-        transfer: student?.transfer,
         studentExemptFee: student?.studentExemptFee,
         exemptFeeList: student?.exemptFeeList,
         studentRemainingFeeCount: student?.studentRemainingFeeCount,
         studentPaidFeeCount: student?.studentPaidFeeCount,
-        library: student?.library,
         studentAdmissionDate: student?.studentAdmissionDate,
         borrow: student?.borrow,
         deposite: student?.deposite,
         sportEventCount: student?.sportEventCount,
         admissionRemainFeeCount: student?.admissionRemainFeeCount,
-        admissionPaymentStatus: student?.admissionPaymentStatus,
+        admissionPaidFeeCount: student?.admissionPaidFeeCount,
+        paidFeeList: student?.paidFeeList,
         refundAdmission: student?.refundAdmission,
         remainingFeeList: student?.remainingFeeList,
+        remainingFeeList_count: student?.remainingFeeList_count,
+        fee_structure: student?.fee_structure,
+        active_fee_heads: student?.active_fee_heads,
         certificateBonaFideCopy: student?.certificateBonaFideCopy,
         certificateLeavingCopy: student?.certificateLeavingCopy,
         dailyUpdate: student?.dailyUpdate,
         student_biometric_id: student?.student_biometric_id,
         election_candidate: student?.election_candidate,
         participate_event: student?.participate_event,
+        checkList_participate_event: student?.checkList_participate_event,
+        participate_result: student?.participate_result,
+        backlog: student?.backlog,
+        vehicle: student?.vehicle,
+        vehicleRemainFeeCount: student?.vehicleRemainFeeCount,
+        vehiclePaidFeeCount: student?.vehiclePaidFeeCount,
+        vehicle_payment_status: student?.vehicle_payment_status,
+        active_routes: student?.active_routes,
+        query_count: student?.query_count,
+        mentor: student?.mentor,
+        queries: student?.queries,
+        total_query: student?.total_query,
+        feed_back_count: student?.feed_back_count,
+        deposit_pending_amount: student?.deposit_pending_amount,
+        deposit_refund_amount: student?.deposit_refund_amount,
+        refund_deposit: student?.refund_deposit,
+        form_status: student?.form_status,
+        fee_receipt: student?.fee_receipt,
       });
       // console.log(previousData);
       const notify = new StudentNotification({});
@@ -383,32 +410,23 @@ exports.promoteStudent = async (req, res) => {
       student.submittedAssignment = 0;
       student.incompletedAssignment = 0;
       student.completedAssignment = 0;
-      student.studentFee = [];
       student.attendDate = [];
-      student.checklist = [];
-      student.onlineFeeList = [];
-      student.onlineCheckList = [];
-      student.offlineFeeList = [];
-      student.offlineCheckList = [];
+      student.sportClass = [];
+      student.sportTeam = [];
+      student.extraPoints = 0;
+      student.sportEvent = [];
+      student.studentSportsEventMatch = [];
       student.complaints = [];
-      student.studentChecklist = [];
       student.leave = [];
-      student.transfer = [];
-      student.paymentList = [];
-      student.applyList = [];
-      student.studentExemptFee = [];
-      student.exemptFeeList = [];
-      student.studentRemainingFeeCount = 0;
-      student.studentPaidFeeCount = 0;
-      student.library = null;
       student.studentAdmissionDate = "";
       student.borrow = [];
       student.deposite = [];
       student.sportEventCount = 0;
-      student.admissionRemainFeeCount = 0;
-      student.admissionPaymentStatus = [];
-      student.refundAdmission = [];
-      student.remainingFeeList = [];
+
+      // here assign new fee st
+      student.fee_structure = null;
+      student.active_fee_heads = [];
+      /////
       student.certificateBonaFideCopy = {
         trueCopy: false,
         secondCopy: false,
@@ -420,9 +438,25 @@ exports.promoteStudent = async (req, res) => {
         thirdCopy: false,
       };
       student.dailyUpdate = [];
+
+      //============== here some confusion for biometric id -> Ok we will resolve it...
       student.student_biometric_id = "";
       student.election_candidate = [];
       student.participate_event = [];
+      student.participate_result = [];
+      student.vehicle = null;
+      student.routes = [];
+      student.active_routes = null;
+      student.query_count = 0;
+      student.mentor = null;
+      student.queries = [];
+      student.total_query = 0;
+      student.feed_back_count = 0;
+      student.deposit_pending_amount = 0;
+      student.deposit_refund_amount = 0;
+      student.refund_deposit = [];
+      student.form_status = "Not Filled";
+      student.fee_receipt = [];
       roll += 1;
       if (classes?.ApproveStudent?.includes(student._id)) {
       } else {
@@ -438,7 +472,7 @@ exports.promoteStudent = async (req, res) => {
       }
 
       previousclasses?.promoteStudent?.push(stu);
-      previousclasses?.ApproveStudent?.pull(stu);
+      // previousclasses?.ApproveStudent?.pull(stu);
       classes.studentCount += 1;
       await student.save();
 
@@ -543,6 +577,29 @@ exports.classComplete = async (req, res) => {
       res.status(200).send({ message: "already class is completed" });
     }
   } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.classUncomplete = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    if (!cid) throw "Please call api with proper knowledge.....";
+    const classes = await Class.findById(req.params.cid);
+    classes.classStatus = "UnCompleted";
+    const class_teacher = await Staff.findById(classes?.classTeacher);
+    class_teacher.previousStaffClass.pull(classes._id);
+    class_teacher.staffClass.push(classes._id);
+    await Promise.all([class_teacher.save(), classes.save()]);
+    res.status(200).send({
+      message: "Class unlock successfully...",
+      classStatus: class_teacher.classStatus,
+    });
+  } catch (e) {
+    res.status(200).send({
+      message: e,
+      classStatus: null,
+    });
     console.log(e);
   }
 };

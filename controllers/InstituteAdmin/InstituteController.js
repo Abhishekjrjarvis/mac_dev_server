@@ -170,11 +170,9 @@ exports.getAnnouncementArray = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const { id } = req.params;
     const skip = (page - 1) * limit;
-    const institute = await InstituteAdmin.findById({ _id: id }).populate({
-      path: "announcement",
-    });
+    const institute = await InstituteAdmin.findById({ _id: id });
     const announcement = await InsAnnouncement.find({
-      _id: { $in: institute.announcement },
+      _id: { $in: institute?.announcement },
     })
       .select(
         "insAnnPhoto photoId insAnnTitle insAnnVisibilty insAnnDescription createdAt"
@@ -1449,7 +1447,7 @@ exports.retrieveDepartmentList = async (req, res) => {
       .select("insName")
       .populate({
         path: "depart",
-        select: "dName photo photoId dTitle classMasterCount",
+        select: "dName photo photoId dTitle classMasterCount classCount",
         populate: {
           path: "dHead",
           select:
@@ -2790,7 +2788,7 @@ exports.retrieveApproveCatalogArray = async (req, res) => {
         : `0${+currentDateLocalFormat[1]}`;
     const year = +currentDateLocalFormat[0];
     const classes = await Class.findById({ _id: cid })
-      .select("className classStatus classTitle exams")
+      .select("className classStatus classTitle exams boyCount girlCount studentCount")
       .populate({
         path: "ApproveStudent",
         select: "leave",

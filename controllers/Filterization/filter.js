@@ -816,7 +816,7 @@ exports.retrievePendingFeeFilter = async (req, res) => {
       })
       .populate({
         path: "fee_structure",
-        select: "structure_name applicable_fees",
+        select: "structure_name unique_structure_name applicable_fees",
       })
       .populate({
         path: "remainingFeeList",
@@ -837,7 +837,7 @@ exports.retrievePendingFeeFilter = async (req, res) => {
         populate: {
           path: "fee_structure",
           select:
-            "structure_name category_master total_admission_fees one_installments applicable_fees",
+            "structure_name unique_structure_name category_master total_admission_fees one_installments applicable_fees",
           populate: {
             path: "category_master",
             select: "category_name",
@@ -1234,7 +1234,7 @@ exports.renderFeeHeadsStructureQuery = async (req, res) => {
       });
 
     const one_structure = await FeeStructure.findById({ _id: fsid })
-      .select("structure_name category_master finance")
+      .select("structure_name unique_structure_name category_master finance")
       .populate({
         path: "category_master",
         select: "category_name",
@@ -1248,7 +1248,7 @@ exports.renderFeeHeadsStructureQuery = async (req, res) => {
       .populate({
         path: "fee_structure",
         select:
-          "structure_name category_master total_admission_fees applicable_fees",
+          "structure_name unique_structure_name category_master total_admission_fees applicable_fees",
         populate: {
           path: "category_master",
           select: "category_name",
@@ -1385,7 +1385,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
     }
     var sorted_array = [];
     const one_structure = await FeeStructure.findById({ _id: fsid })
-      .select("structure_name category_master finance")
+      .select("structure_name unique_structure_name category_master finance")
       .populate({
         path: "category_master",
         select: "category_name",
@@ -1419,7 +1419,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
           populate: {
             path: "fee_structure",
             select:
-              "structure_name category_master total_admission_fees applicable_fees",
+              "structure_name unique_structure_name category_master total_admission_fees applicable_fees",
             populate: {
               path: "category_master",
               select: "category_name",
@@ -1500,7 +1500,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
           populate: {
             path: "fee_structure",
             select:
-              "structure_name category_master total_admission_fees applicable_fees",
+              "structure_name unique_structure_name category_master total_admission_fees applicable_fees",
             populate: {
               path: "category_master",
               select: "category_name",

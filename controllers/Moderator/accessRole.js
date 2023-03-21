@@ -205,6 +205,15 @@ exports.all_access_role_ins = () => {
         accessStaff: "",
       },
     },
+    EXAM_MANAGER_ACCESS: {
+      role: "EXAM_MANAGER_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["CREATE EXAM", "SCHEDULE EXAM", "ADD SUBJECT EXAM"],
+        addons: [],
+        accessStaff: "",
+      },
+    },
   };
   return access_role_ins;
 };

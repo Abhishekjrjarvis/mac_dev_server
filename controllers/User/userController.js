@@ -2254,11 +2254,11 @@ exports.retrieveUserRoleQuery = async (req, res) => {
       });
 
     var mergeArray = [...staff, ...student];
-    var get_array = shuffleArray(mergeArray);
-    // const roleEncrypt = await encryptionPayload(get_array);
+    // var get_array = shuffleArray(mergeArray);
+    // const roleEncrypt = await encryptionPayload(mergeArray);
     res.status(200).send({
       message: "User Role for Staff & Student",
-      role_query: get_array,
+      role_query: mergeArray,
     });
   } catch (e) {
     console.log(e);

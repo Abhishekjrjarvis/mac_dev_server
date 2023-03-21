@@ -51,22 +51,14 @@ exports.generate_excel_to_json = async (file, aid, fid, did) => {
             },
           ],
         });
-        var new_fee_category = await FeeCategory.findOne({
-          $and: [
-            { finance: fid },
-            {
-              category_name: { $regex: ref[`category_${i}`], $options: "i" },
-            },
-          ],
-        });
         var new_fee_struct = await FeeStructure.findOne({
           $and: [
             { finance: fid },
             {
-              structure_name: { $regex: ref[`fee_struct_${i}`], $options: "i" },
-            },
-            {
-              category_master: new_fee_category?._id,
+              unique_structure_name: {
+                $regex: ref[`fee_struct_${i}`],
+                $options: "i",
+              },
             },
           ],
         });

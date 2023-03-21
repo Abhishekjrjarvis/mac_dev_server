@@ -4,7 +4,7 @@ const feeStructureSchema = new mongoose.Schema({
   category_master: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "FeeCategory",
-    required: true,
+    // required: true,
   },
   class_master: {
     type: mongoose.Schema.Types.ObjectId,
@@ -23,6 +23,9 @@ const feeStructureSchema = new mongoose.Schema({
     ref: "Department",
   },
   structure_name: {
+    type: String,
+  },
+  unique_structure_name: {
     type: String,
   },
   applicable_fees: {

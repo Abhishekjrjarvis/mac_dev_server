@@ -444,4 +444,9 @@ router.get(
   catchAsync(Finance.renderFinanceMasterAllDepositHistory)
 );
 
+// router.patch(
+//   "/:fid/update/structure",
+//   catchAsync(Finance.renderUpdateStructureQuery)
+// );
+
 module.exports = router;

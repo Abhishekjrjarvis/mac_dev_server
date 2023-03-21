@@ -29,7 +29,15 @@ exports.render_admission_current_role = async (ads_admin, mid) => {
     const one_mod = await AdmissionModerator.find({ _id: { $in: sorted } });
     var permission = [...one_mod];
     if (permission) {
-      return permission;
+      var valid_role;
+      for (var ref of permission) {
+        if (ref?.access_role !== "FULL_ACCESS") {
+          valid_role = false;
+        } else {
+          valid_role = true;
+        }
+      }
+      return { permission: permission, vaild_role: valid_role };
     } else {
       return [];
     }
@@ -49,7 +57,15 @@ exports.render_finance_current_role = async (finance, mid) => {
     const one_mod = await FinanceModerator.find({ _id: { $in: sorted } });
     var permission = [...one_mod];
     if (permission) {
-      return permission;
+      var valid_role;
+      for (var ref of permission) {
+        if (ref?.access_role !== "FULL_ACCESS") {
+          valid_role = false;
+        } else {
+          valid_role = true;
+        }
+      }
+      return { permission: permission, vaild_role: valid_role };
     } else {
       return [];
     }
@@ -241,6 +257,7 @@ exports.renderAdmissionAllAppModeratorArray = async (req, res) => {
       var all_mods = await AdmissionModerator.find({
         _id: { $in: ads_admin?.moderator_role },
       })
+        .sort("-1")
         .limit(limit)
         .skip(skip)
         .populate({
@@ -507,6 +524,7 @@ exports.renderFinanceAllAppModeratorArray = async (req, res) => {
       var all_mods = await FinanceModerator.find({
         _id: { $in: finance?.moderator_role },
       })
+        .sort("-1")
         .limit(limit)
         .skip(skip)
         .populate({
@@ -750,6 +768,7 @@ exports.renderInstituteAllAppModeratorArray = async (req, res) => {
       var all_mods = await FinanceModerator.find({
         _id: { $in: institute?.moderator_role },
       })
+        .sort("-1")
         .limit(limit)
         .skip(skip)
         .populate({

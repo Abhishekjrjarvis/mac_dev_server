@@ -177,12 +177,16 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
         admission?.moderator_role,
         mod_id
       );
+      if(value?.valid_role){
+      } else{
+        admission.enable_protection = false
+      }
     }
     res.status(200).send({
       message: "All Detail Admission Admin from DB 🙌",
       // admission: cached.admission,
       admission: admission,
-      roles: req?.query?.mod_id ? value : null,
+      roles: req?.query?.mod_id ? value?.permission : null,
     });
   } catch (e) {
     console.log(e);
@@ -722,7 +726,7 @@ exports.fetchAllSelectApplication = async (req, res) => {
             populate: {
               path: "fee_structure",
               select:
-                "total_admission_fees one_installments structure_name applicable_fees",
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees",
               populate: {
                 path: "category_master",
                 select: "category_name",
@@ -760,7 +764,7 @@ exports.fetchAllSelectApplication = async (req, res) => {
             populate: {
               path: "fee_structure",
               select:
-                "total_admission_fees one_installments structure_name applicable_fees",
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees",
               populate: {
                 path: "category_master",
                 select: "category_name",
@@ -815,7 +819,7 @@ exports.fetchAllConfirmApplication = async (req, res) => {
             populate: {
               path: "fee_structure",
               select:
-                "total_admission_fees one_installments structure_name applicable_fees",
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees",
               populate: {
                 path: "category_master",
                 select: "category_name",
@@ -853,7 +857,7 @@ exports.fetchAllConfirmApplication = async (req, res) => {
             populate: {
               path: "fee_structure",
               select:
-                "total_admission_fees one_installments structure_name applicable_fees",
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees",
               populate: {
                 path: "category_master",
                 select: "category_name",
@@ -3161,7 +3165,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       .populate({
         path: "fee_structure",
         select:
-          "total_admission_fees structure_name applicable_fees one_installments category_master",
+          "total_admission_fees structure_name unique_structure_name applicable_fees one_installments category_master",
         populate: {
           path: "category_master",
           select: "category_name",
@@ -5432,7 +5436,7 @@ exports.renderAllFeeStructureQuery = async (req, res) => {
     })
       .limit(limit)
       .skip(skip)
-      .select("structure_name total_admission_fees applicable_fees")
+      .select("structure_name unique_structure_name total_admission_fees applicable_fees")
       .populate({
         path: "category_master",
         select: "category_name",
@@ -5787,7 +5791,7 @@ exports.renderAllCandidatesGovernment = async (req, res) => {
             "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
           populate: {
             path: "fee_structure",
-            select: "category_master structure_name applicable_fees",
+            select: "category_master structure_name unique_structure_name applicable_fees",
             populate: {
               path: "category_master",
               select: "category_name",
@@ -5828,7 +5832,7 @@ exports.renderAllCandidatesGovernment = async (req, res) => {
             "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
           populate: {
             path: "fee_structure",
-            select: "category_master structure_name applicable_fees",
+            select: "category_master structure_name unique_structure_name applicable_fees",
             populate: {
               path: "category_master",
               select: "category_name",

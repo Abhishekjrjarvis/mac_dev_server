@@ -374,7 +374,12 @@ exports.updateAdmissionAppModeratorQuery = async (req, res) => {
       await Promise.all([new_staff.save(), user.save(), notify.save()]);
     }
     if (app_array?.length > 0) {
-      one_moderator.access_application.push(...app_array);
+      for (var ref of app_array) {
+        if (one_moderator?.access_application?.includes(`${ref}`)) {
+        } else {
+          one_moderator.access_application.push(ref);
+        }
+      }
     }
     await one_moderator.save();
     res.status(200).send({ message: "Explore Update Role", access: true });

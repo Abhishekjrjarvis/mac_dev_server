@@ -1335,7 +1335,7 @@ exports.renderFeeHeadsStructureQuery = async (req, res) => {
 exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
   try {
     const { fid } = req.params;
-    const { timeline, timeline_content, from, to } = req.query;
+    const { fsid, depart, timeline, timeline_content, from, to } = req.query;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -1391,6 +1391,14 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
     }).select("insName");
     const all_students = await Student.find({
       $and: [{ institute: institute?._id }, { studentStatus: "Approved" }],
+      $or: [
+        {
+          fee_structure: fsid,
+        },
+        {
+          department: depart,
+        },
+      ],
     }).select("_id fee_receipt");
     for (var ref of all_students) {
       sorted_array.push(ref?._id);

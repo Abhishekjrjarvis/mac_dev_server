@@ -23822,6 +23822,16 @@ paths:
           type: string
           description: This is Finance ID
         - in: query
+          name: fsid
+          required: false
+          type: string
+          description: This is Fee Structure ID
+        - in: query
+          name: depart
+          required: false
+          type: string
+          description: This is Department ID
+        - in: query
           name: timeline
           required: true
           type: string

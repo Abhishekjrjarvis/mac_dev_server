@@ -7,6 +7,7 @@ const User = require("../../models/User");
 const Class = require("../../models/Class");
 const Admission = require("../../models/Admission/Admission");
 const Student = require("../../models/Student");
+const Finance = require("../../models/Finance");
 const Department = require("../../models/Department");
 const ClassMaster = require("../../models/ClassMaster");
 const RemainingList = require("../../models/Admission/RemainingList");
@@ -1333,9 +1334,9 @@ exports.renderFeeHeadsStructureQuery = async (req, res) => {
 
 exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
   try {
-    const { fsid } = req.params;
-    const { depart, timeline, timeline_content, from, to } = req.query;
-    if (!fsid && !depart)
+    const { fid } = req.params;
+    const { timeline, timeline_content, from, to } = req.query;
+    if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
@@ -1384,14 +1385,12 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
       }
     }
     var sorted_array = [];
-    const one_structure = await FeeStructure.findById({ _id: fsid })
-      .select("structure_name unique_structure_name category_master finance")
-      .populate({
-        path: "category_master",
-        select: "category_name",
-      });
+    const finance = await Finance.findById({ _id: fid }).select("institute");
+    const institute = await InstituteAdmin.findById({
+      _id: `${finance?.institute}`,
+    }).select("insName");
     const all_students = await Student.find({
-      $and: [{ fee_structure: fsid }, { department: depart }],
+      $and: [{ institute: institute?._id }, { studentStatus: "Approved" }],
     }).select("_id fee_receipt");
     for (var ref of all_students) {
       sorted_array.push(ref?._id);
@@ -1627,9 +1626,8 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
 
       await fee_heads_receipt_json_to_excel_query(
         head_list,
-        one_structure?.structure_name,
-        one_structure?.category_master?.category_name,
-        one_structure?.finance
+        institute?.insName,
+        institute?._id
       );
     } else {
       res.status(200).send({

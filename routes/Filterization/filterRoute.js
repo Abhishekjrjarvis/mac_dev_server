@@ -65,7 +65,7 @@ router.get(
 );
 
 router.get(
-  "/heads/by/:fsid/receipt/query",
+  "/heads/by/:fid/receipt/query",
   // isLoggedIn,
   catchAsync(Filter.renderFeeHeadsStructureReceiptQuery)
 );

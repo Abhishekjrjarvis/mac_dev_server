@@ -48,7 +48,7 @@ const mentor_mentee = require("../routes/MentorMentee/mentormenteeRoute");
 const event_manager = require("../routes/Event/eventRoutes");
 const alumini = require("../routes/Alumini/aluminiRoute");
 const siteRoute = require("../routes/Site/siteRoute");
-const hostel = require("../routes/Hostel/hostelRoute");
+// const hostel = require("../routes/Hostel/hostelRoute");
 
 // Api Middleware Func
 
@@ -98,7 +98,7 @@ router.use("/api/v1/mentor/mentee", mentor_mentee);
 router.use("/api/v1/event/process", event_manager);
 router.use("/api/v1/alumini", alumini);
 router.use("/api/v1/site", siteRoute);
-router.use("/api/v1/hostel", hostel);
+// router.use("/api/v1/hostel", hostel);
 
 router.use("/api/v1/prod/access", prod);
 

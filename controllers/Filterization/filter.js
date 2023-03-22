@@ -1389,17 +1389,24 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
     const institute = await InstituteAdmin.findById({
       _id: `${finance?.institute}`,
     }).select("insName");
-    const all_students = await Student.find({
+    if(fsid && depart){
+      var all_students = await Student.find({
+        $and: [{ institute: institute?._id }, { studentStatus: "Approved" }],
+        $or: [
+          {
+            fee_structure: fsid,
+          },
+          {
+            department: depart,
+          },
+        ],
+      }).select("_id fee_receipt");
+    }
+    else{
+    var all_students = await Student.find({
       $and: [{ institute: institute?._id }, { studentStatus: "Approved" }],
-      $or: [
-        {
-          fee_structure: fsid,
-        },
-        {
-          department: depart,
-        },
-      ],
     }).select("_id fee_receipt");
+  }
     for (var ref of all_students) {
       sorted_array.push(ref?._id);
     }

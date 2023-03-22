@@ -23806,26 +23806,21 @@ paths:
           description: OK
 
 
-  /api/v1/feed/filter/heads/by/{fsid}/receipt/query:
+  /api/v1/feed/filter/heads/by/{fid}/receipt/query:
     get:
       tags:
         - New Custom Filter
-      summary: Get All Student Fee Receipts Heads By Fee Structure + Department + Narration (verified)
+      summary: Get All Student Fee Receipts Heads By Finance + Narration (verified)
       consumes:
         - application/json
       produces:
         - application/json
       parameters:
         - in: path
-          name: fsid
+          name: fid
           required: true
           type: string
-          description: This is Fee Structure ID
-        - in: query
-          name: depart
-          required: true
-          type: string
-          description: This is Department ID
+          description: This is Finance ID
         - in: query
           name: timeline
           required: true

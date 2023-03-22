@@ -5302,7 +5302,7 @@ exports.renderAllExportExcelArrayQuery = async (req, res) => {
     var all_excel = await nested_document_limit(
       page,
       limit,
-      ads_admin?.export_collection
+      ads_admin?.export_collection.reverse()
     );
     if (all_excel?.length > 0) {
       res.status(200).send({

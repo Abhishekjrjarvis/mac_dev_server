@@ -1,3 +1,25 @@
+const personal_query = (one_student) => {
+  if (
+    one_student?.studentFirstName &&
+    one_student?.studentLastName &&
+    one_student?.studentDOB &&
+    one_student?.studentGender &&
+    one_student?.studentMotherName &&
+    one_student?.studentProfilePhoto
+  ) {
+    return {
+      form_status: "Filled",
+      access: true,
+      go_through: "Personal Info",
+    };
+  }
+  return {
+    form_status: "Not Filled",
+    access: false,
+    go_through: "Personal Info",
+  };
+};
+
 const other_personal_query = (one_student) => {
   if (
     one_student?.studentBirthPlace &&
@@ -434,6 +456,10 @@ const match_aadhar_query = (one_student) => {
 exports.valid_student_form_query = async (one_ins, one_student, flow) => {
   try {
     var status;
+    if (one_ins?.studentFormSetting?.personalInfo) {
+      var person_query = personal_query(one_student);
+      status = person_query?.form_status;
+    }
     if (one_ins?.studentFormSetting?.otherPersonalInfo) {
       var other_query = other_personal_query(one_student);
       status = other_query?.form_status;

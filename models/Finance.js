@@ -107,6 +107,10 @@ const financeSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    financeHostelBalance: {
+      type: Number,
+      default: 0,
+    },
     financeIncomeCashBalance: {
       type: Number,
       default: 0,

@@ -22,6 +22,10 @@ const feeStructureSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department",
   },
+  hostel: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Hostel",
+  },
   structure_name: {
     type: String,
   },
@@ -110,6 +114,10 @@ const feeStructureSchema = new mongoose.Schema({
     default: false,
   },
   migrate_to: [],
+  structure_month: {
+    type: Number,
+    default: 12,
+  },
 });
 
 module.exports = mongoose.model("FeeStructure", feeStructureSchema);

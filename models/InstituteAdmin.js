@@ -311,6 +311,10 @@ const instituteAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  hostelCount: {
+    type: Number,
+    default: 0,
+  },
   isUniversal: {
     type: String,
     default: "Not Assigned",
@@ -795,6 +799,16 @@ const instituteAdminSchema = new mongoose.Schema({
   original_copy: {
     type: Boolean,
     default: false,
+  },
+  hostelDepart: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Hostel",
+    },
+  ],
+  hostelStatus: {
+    type: String,
+    default: "Disable",
   },
 });
 

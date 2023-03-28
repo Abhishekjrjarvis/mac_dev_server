@@ -388,36 +388,18 @@ const match_identity_document_query = async (one_student, flow) => {
   }
 };
 const match_caste_document_query = async (one_student, flow) => {
-  if (flow === "APK") {
-    if (one_student?.casteCertificate) {
-      return {
-        form_status: "Filled",
-        access: true,
-        go_through: "Caste Documents",
-      };
-    }
+  if (one_student?.studentCasteCertificatePhoto) {
     return {
-      form_status: "Not Filled",
-      access: false,
+      form_status: "Filled",
+      access: true,
       go_through: "Caste Documents",
     };
-  } else {
-    if (one_student?.studentDocuments?.length > 0) {
-      var result = await document_web(one_student?.studentDocuments);
-      if (result?.casteCertificate) {
-        return {
-          form_status: "Filled",
-          access: true,
-          go_through: "Caste Documents",
-        };
-      }
-      return {
-        form_status: "Not Filled",
-        access: false,
-        go_through: "Caste Documents",
-      };
-    }
   }
+  return {
+    form_status: "Not Filled",
+    access: false,
+    go_through: "Caste Documents",
+  };
 };
 
 const match_previous_query = (one_student) => {

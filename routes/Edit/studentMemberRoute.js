@@ -45,4 +45,8 @@ router
   .route("/promote/remain/class/:cid/student")
   .get(isLoggedIn, catchAsync(studentMember.getNotPromoteStudentByClass));
 
+router
+  .route("/exam/moderator/count/:did")
+  .get(catchAsync(studentMember.renderAllExamCountQuery));
+
 module.exports = router;

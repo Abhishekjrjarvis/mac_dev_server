@@ -18,6 +18,7 @@ const Admin = require("../../models/superAdmin");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
 const FeeReceipt = require("../../models/RazorPay/feeReceipt");
 const { designation_alarm } = require("../../WhatsAppSMS/payload");
+const Hostel = require("../../models/Hostel/hostel");
 const {
   uploadDocFile,
   uploadFile,
@@ -165,7 +166,7 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
       })
       .populate({
         path: "institute",
-        select: "_id insName insProfilePhoto status financeDepart",
+        select: "_id insName insProfilePhoto status financeDepart hostelDepart",
       });
     // const adsEncrypt = await encryptionPayload(admission);
     // const cached = await connect_redis_miss(
@@ -177,9 +178,9 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
         admission?.moderator_role,
         mod_id
       );
-      if(value?.valid_role){
-      } else{
-        admission.enable_protection = false
+      if (value?.valid_role) {
+      } else {
+        admission.enable_protection = false;
       }
     }
     res.status(200).send({
@@ -221,7 +222,7 @@ exports.retieveAdmissionAdminAllApplication = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "applicationName applicationEndDate applicationStatus applicationSeats applicationMaster applicationAbout admissionProcess"
+        "applicationName applicationEndDate applicationStatus applicationSeats applicationMaster applicationAbout admissionProcess application_flow"
       )
       .populate({
         path: "applicationDepartment",
@@ -438,7 +439,7 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
     post.new_application = newApply._id;
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([post.save(), institute.save()]);
-    new_admission_recommend_post(institute?._id, post?._id, expand);
+    await new_admission_recommend_post(institute?._id, post?._id, expand);
   } catch (e) {
     console.log(e);
   }
@@ -3134,13 +3135,13 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "applicable_fee remaining_fee exempted_fee paid_fee refund_fee status created_at remark"
+        "applicable_fee remaining_fee exempted_fee paid_fee refund_fee status created_at remark remaining_flow"
       )
       .populate({
         path: "appId",
         select: "applicationName applicationDepartment admissionAdmin",
         populate: {
-          path: "admissionAdmin",
+          path: "admissionAdmin hostelAdmin",
           select: "institute",
           populate: {
             path: "institute",
@@ -4491,11 +4492,11 @@ exports.renderAdminSelectMode = async (req, res) => {
       $and: [{ _id: student?.active_status }, { applicationId: apply?._id }],
     });
     const user = await User.findById({ _id: `${student.user}` });
-    const admin_ins = await Admission.findById({
-      _id: `${apply.admissionAdmin}`,
+    var admin_ins = await Admission.findById({
+      _id: `${apply?.admissionAdmin}`,
     });
     const institute = await InstituteAdmin.findById({
-      _id: `${admin_ins.institute}`,
+      _id: `${admin_ins?.institute}`,
     });
     if (status) {
       if (apply?.selectedApplication?.length > 0) {
@@ -5436,7 +5437,9 @@ exports.renderAllFeeStructureQuery = async (req, res) => {
     })
       .limit(limit)
       .skip(skip)
-      .select("structure_name unique_structure_name total_admission_fees applicable_fees")
+      .select(
+        "structure_name unique_structure_name total_admission_fees applicable_fees"
+      )
       .populate({
         path: "category_master",
         select: "category_name",
@@ -5791,7 +5794,8 @@ exports.renderAllCandidatesGovernment = async (req, res) => {
             "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
           populate: {
             path: "fee_structure",
-            select: "category_master structure_name unique_structure_name applicable_fees",
+            select:
+              "category_master structure_name unique_structure_name applicable_fees",
             populate: {
               path: "category_master",
               select: "category_name",
@@ -5832,7 +5836,8 @@ exports.renderAllCandidatesGovernment = async (req, res) => {
             "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
           populate: {
             path: "fee_structure",
-            select: "category_master structure_name unique_structure_name applicable_fees",
+            select:
+              "category_master structure_name unique_structure_name applicable_fees",
             populate: {
               path: "category_master",
               select: "category_name",

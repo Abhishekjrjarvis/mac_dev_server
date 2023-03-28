@@ -249,8 +249,10 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       student.certificateLeavingCopy.thirdCopy = false;
       student.certificateLeavingCopy.secondCopy = false;
       student.certificateLeavingCopy.trueCopy = true;
+      student.certificateLeavingCopy.originalCopy = true;
       download = true;
     } else {
+      student.certificateLeavingCopy.originalCopy = false;
       if (student.certificateLeavingCopy.trueCopy) {
         if (student.certificateLeavingCopy.secondCopy) {
           if (student.certificateLeavingCopy.thirdCopy) {
@@ -274,6 +276,9 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       message: "Student Leaving Certificate",
       student,
       download: institute?.original_copy ? true : download,
+      original_copy: student.certificateLeavingCopy?.originalCopy
+        ? true
+        : false,
     });
   } catch (e) {
     console.log(e);

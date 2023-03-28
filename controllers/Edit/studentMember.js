@@ -1,6 +1,6 @@
 const InstituteAdmin = require("../../models/InstituteAdmin");
 // const Subject = require("../../models/Subject");
-// const SubjectMaster = require("../../models/SubjectMaster");
+const SubjectMaster = require("../../models/SubjectMaster");
 // const ClassMaster = require("../../models/ClassMaster");
 // const InstituteAdmin = require("../../models/InstituteAdmin");
 const Department = require("../../models/Department");
@@ -450,6 +450,36 @@ exports.getNotPromoteStudentByClass = async (req, res) => {
     });
   } catch (e) {
     res.status(200).send({ message: e, notPromoteStudent: [] });
+    console.log(e);
+  }
+};
+
+exports.renderAllExamCountQuery = async (req, res) => {
+  try {
+    const { did } = req.params;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const depart = await Department.findById({ _id: did }).select(
+      "classCount departmentSelectBatch"
+    );
+    const s_master = await SubjectMaster.findOne({
+      department: depart?._id,
+    }).select("backlogStudentCount");
+
+    res.status(200).send({
+      message: "Explore All Department Inner Count Query",
+      access: true,
+      c_query: {
+        classCount: depart?.classCount,
+        backlogStudentCount: s_master?.backlogStudentCount,
+        defaultBatch: depart?.departmentSelectBatch,
+      },
+    });
+  } catch (e) {
     console.log(e);
   }
 };

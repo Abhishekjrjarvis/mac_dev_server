@@ -34,6 +34,10 @@ const feeReceiptSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "NewApplication",
   },
+  unit: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "HostelUnit",
+  },
   invoice_count: {
     type: String,
   },
@@ -51,6 +55,10 @@ const feeReceiptSchema = new mongoose.Schema({
   },
   fee_payment_type: {
     type: String,
+  },
+  app_renewal: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Renewal",
   },
   // applicable_fee: {
   //   type: Number,

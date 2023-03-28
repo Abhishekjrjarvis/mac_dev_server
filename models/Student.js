@@ -340,6 +340,25 @@ const studentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "FeeStructure",
   },
+  hostel_fee_structure: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "FeeStructure",
+  },
+  hostel_fee_structure_month: {
+    type: Number,
+    default: 0,
+  },
+  hostel_renewal: {
+    type: Date,
+  },
+  hostelRemainFeeCount: {
+    type: Number,
+    default: 0,
+  },
+  hostelPaidFeeCount: {
+    type: Number,
+    default: 0,
+  },
   active_fee_heads: [
     {
       appId: { type: mongoose.Schema.Types.ObjectId, ref: "NewApplication" },
@@ -368,6 +387,7 @@ const studentSchema = new mongoose.Schema({
     trueCopy: { type: Boolean, default: false },
     secondCopy: { type: Boolean, default: false },
     thirdCopy: { type: Boolean, default: false },
+    originalCopy: { type: Boolean, default: false },
   },
 
   dailyUpdate: [
@@ -480,6 +500,20 @@ const studentSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "FeeReceipt",
+    },
+  ],
+  student_bed_number: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "HostelBed",
+  },
+  student_unit: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "HostelUnit",
+  },
+  student_renewal: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Renewal",
     },
   ],
 });

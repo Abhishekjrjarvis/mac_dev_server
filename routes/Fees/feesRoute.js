@@ -49,6 +49,6 @@ router
 
 router
   .route("/:fid/edit")
-  .delete(catchAsync(feesController.renderFeesEditQuery));
+  .patch(catchAsync(feesController.renderFeesEditQuery));
 
 module.exports = router;

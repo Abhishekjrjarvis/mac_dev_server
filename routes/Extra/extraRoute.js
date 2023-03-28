@@ -36,7 +36,7 @@ router.post(
 
 router.post(
   "/leaving/certificate/:gr/ins/:id",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Extra.retrieveLeavingGRNO)
 );
 

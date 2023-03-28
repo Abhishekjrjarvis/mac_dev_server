@@ -59,6 +59,16 @@ const remainingFeeListSchema = new mongoose.Schema({
   remark: {
     type: String,
   },
+  remaining_flow: {
+    type: String,
+    default: "Admission Application",
+  },
+  renewal_start: {
+    type: Date,
+  },
+  renewal_end: {
+    type: Date,
+  },
 });
 
 module.exports = mongoose.model("RemainingList", remainingFeeListSchema);

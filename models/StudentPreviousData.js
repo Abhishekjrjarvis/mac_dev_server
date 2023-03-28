@@ -202,6 +202,14 @@ const previousSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  hostelRemainFeeCount: {
+    type: Number,
+    default: 0,
+  },
+  hostelPaidFeeCount: {
+    type: Number,
+    default: 0,
+  },
   paidFeeList: [
     {
       paidAmount: { type: Number, default: 0 },

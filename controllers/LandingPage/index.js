@@ -116,7 +116,7 @@ exports.renderActivateLandingCareerQuery = async (req, res) => {
         access: false,
       });
     const institute = await InstituteAdmin.findById({ _id: id });
-    const career = new LandingCareer({});
+    const career = new LandingCareer({ ...req.body });
     institute.careerDepart.push(career?._id);
     institute.careerStatus = "Enable";
     institute.career_passage = req.body?.career_passage;
@@ -437,7 +437,7 @@ exports.renderActivateLandingTenderQuery = async (req, res) => {
         access: false,
       });
     const institute = await InstituteAdmin.findById({ _id: id });
-    const tender = new LandingTender({});
+    const tender = new LandingTender({ ...req.body });
     institute.tenderDepart.push(tender?._id);
     institute.tenderStatus = "Enable";
     institute.tender_passage = req.body?.tender_passage;

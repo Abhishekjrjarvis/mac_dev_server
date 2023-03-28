@@ -1357,7 +1357,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
     if (isApk) {
       var staff = await Staff.findById({ _id: sid })
         .select(
-          "staffFirstName staffDesignationCount vehicle_category staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber eventManagerDepartment"
+          "staffFirstName staffDesignationCount vehicle_category staffMiddleName hostelDepartment hostelUnitDepartment staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber eventManagerDepartment"
         )
         .populate({
           path: "staffDepartment",
@@ -1521,7 +1521,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
     } else {
       var staff = await Staff.findById({ _id: sid })
         .select(
-          "staffFirstName staffDesignationCount vehicle_category staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber eventManagerDepartment"
+          "staffFirstName staffDesignationCount vehicle_category staffMiddleName hostelDepartment hostelUnitDepartment staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber eventManagerDepartment"
         )
         .populate({
           path: "staffDepartment",
@@ -1680,7 +1680,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
       if (isApk) {
         var student = await Student.findById({ _id: sid })
           .select(
-            "batchCount extraPoints studentFirstName form_status library studentBirthPlace studentBankAccountHolderName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName department studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
+            "batchCount extraPoints studentFirstName form_status library studentBirthPlace studentBankAccountHolderName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName department studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode student_prn_enroll_number studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
           )
           .populate({
             path: "studentClass",
@@ -1692,7 +1692,8 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           })
           .populate({
             path: "institute",
-            select: "insName name photoId insProfilePhoto library studentFormSetting",
+            select:
+              "insName name photoId insProfilePhoto library studentFormSetting",
           })
           .populate({
             path: "user",
@@ -1701,7 +1702,23 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           .populate({
             path: "vehicle",
             select: "_id vehicle_number",
-          });
+          })
+          .populate({
+            path: "student_unit",
+            select: "hostel_unit_name hostel",
+            populate: {
+              path: "hostel",
+              select: "_id"
+            }
+          })
+          .populate({
+            path: "student_bed_number",
+            select: "bed_number bed_status hostelRoom",
+            populate: {
+              path: "hostelRoom",
+              select: "room_name room_strength"
+            }
+          })
         if (student?.studentDocuments?.length > 0) {
           for (var docs of student.studentDocuments) {
             student.incomeCertificate =
@@ -1742,11 +1759,15 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
                 : student.casteCertificate;
           }
         }
-        const status = await valid_student_form_query(student?.institute, student, "APK")
+        const status = await valid_student_form_query(
+          student?.institute,
+          student,
+          "APK"
+        );
       } else {
         var student = await Student.findById({ _id: sid })
           .select(
-            "batchCount extraPoints studentFirstName form_status studentBirthPlace studentBankAccountHolderName department studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
+            "batchCount extraPoints studentFirstName form_status student_prn_enroll_number studentBirthPlace studentBankAccountHolderName department studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
           )
           .populate({
             path: "studentClass",
@@ -1758,7 +1779,8 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           })
           .populate({
             path: "institute",
-            select: "insName name photoId insProfilePhoto library studentFormSetting",
+            select:
+              "insName name photoId insProfilePhoto library studentFormSetting",
           })
           .populate({
             path: "user",
@@ -1767,10 +1789,30 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           .populate({
             path: "vehicle",
             select: "_id vehicle_number",
-          });
+          })
+          .populate({
+            path: "student_unit",
+            select: "hostel_unit_name hostel",
+            populate: {
+              path: "hostel",
+              select: "_id"
+            }
+          })
+          .populate({
+            path: "student_bed_number",
+            select: "bed_number bed_status hostelRoom",
+            populate: {
+              path: "hostelRoom",
+              select: "room_name room_strength"
+            }
+          })
       }
       average_points += student.extraPoints / student.batchCount;
-      const status = await valid_student_form_query(student?.institute, student, "WEB")
+      const status = await valid_student_form_query(
+        student?.institute,
+        student,
+        "WEB"
+      );
       // Add Another Encryption
       // const bind_student = {
       //   student: student,

@@ -323,7 +323,7 @@ router.delete(
 );
 
 router.post(
-  "/:fid/fee/structure/new/:did",
+  "/:fid/fee/structure/new",
   // isLoggedIn,
   catchAsync(Finance.renderFinanceAddFeeStructure)
 );

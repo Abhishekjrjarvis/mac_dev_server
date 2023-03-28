@@ -151,7 +151,7 @@ exports.renderHostelDashQuery = async (req, res) => {
 
     const one_hostel = await Hostel.findById({ _id: hid })
       .select(
-        "created_at moderator_role moderator_role_count fees_structures_count student_form_query onlineFee offlineFee exemptAmount remainingFeeCount collected_fee hostel_unit_count hostel_photo rules hostel_wardens_count boy_count girl_count other_count bed_count room_count"
+        "created_at moderator_role moderator_role_count fees_structures_count onlineFee offlineFee exemptAmount remainingFeeCount collected_fee hostel_unit_count hostel_photo hostel_wardens_count boy_count girl_count other_count bed_count room_count"
       )
       .populate({
         path: "hostel_manager",
@@ -179,6 +179,49 @@ exports.renderHostelDashQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderHostelFormQuery = async (req, res) => {
+  try {
+    const { hid } = req.params;
+    if (!hid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const one_hostel = await Hostel.findById({ _id: hid })
+    .select("student_form_query")
+    res.status(200).send({
+      message: "Explore One Hostel Form Query",
+      access: true,
+      one_hostel: one_hostel,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderHostelRulesQuery = async (req, res) => {
+  try {
+    const { hid } = req.params;
+    if (!hid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const one_hostel = await Hostel.findById({ _id: hid })
+    .select("rules")
+    res.status(200).send({
+      message: "Explore One Hostel Rules Query",
+      access: true,
+      one_hostel: one_hostel,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 
 exports.renderHostelNewUnitQuery = async (req, res) => {
   try {

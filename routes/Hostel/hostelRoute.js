@@ -13,6 +13,10 @@ router.post(
 
 router.get("/:hid/dashboard/query", catchAsync(Hostel.renderHostelDashQuery));
 
+router.get("/:hid/rules/query", catchAsync(Hostel.renderHostelRulesQuery));
+
+router.get("/:hid/form/query", catchAsync(Hostel.renderHostelFormQuery));
+
 router.post(
   "/:hid/new/hostel/unit",
   catchAsync(Hostel.renderHostelNewUnitQuery)

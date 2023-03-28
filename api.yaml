@@ -26163,6 +26163,44 @@ paths:
         "200":
           description: OK
 
+  /api/v1/hostel/{hid}/rules/query:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: Hostel Rules Query -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hostel ID           
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hid}/form/query:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: Hostel Form Query -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hostel ID           
+      responses:
+        "200":
+          description: OK
+
   
   /api/v1/hostel/{hid}/new/hostel/unit:
     post:

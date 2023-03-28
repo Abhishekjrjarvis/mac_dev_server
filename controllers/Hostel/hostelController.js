@@ -151,7 +151,7 @@ exports.renderHostelDashQuery = async (req, res) => {
 
     const one_hostel = await Hostel.findById({ _id: hid })
       .select(
-        "created_at moderator_role moderator_role_count fees_structures_count student_form_query onlineFee offlineFee exemptAmount remainingFeeCount collected_fee hostel_unit_count hostel_photo rules hostel_wardens_count boy_count girl_count other_count"
+        "created_at moderator_role moderator_role_count fees_structures_count student_form_query onlineFee offlineFee exemptAmount remainingFeeCount collected_fee hostel_unit_count hostel_photo rules hostel_wardens_count boy_count girl_count other_count bed_count room_count"
       )
       .populate({
         path: "hostel_manager",
@@ -299,6 +299,7 @@ exports.renderOneHostelUnitNewRoomQuery = async (req, res) => {
       });
 
     const one_unit = await HostelUnit.findById({ _id: huid });
+    const one_hostel = await Hostel.findById({ _id: `${one_unit?.hostel}` });
     const new_room = new HostelRoom({ ...req.body });
     new_room.room_strength = parseInt(req.body?.room_strength);
     new_room.hostelUnit = one_unit?._id;
@@ -307,7 +308,9 @@ exports.renderOneHostelUnitNewRoomQuery = async (req, res) => {
     new_room.vacant_count = new_room.room_strength;
     new_room.bed_count = new_room.room_strength;
     one_unit.bed_count += new_room.room_strength;
-    await Promise.all([new_room.save(), one_unit.save()]);
+    one_hostel.bed_count += new_room.room_strength;
+    one_hostel.room_count += 1;
+    await Promise.all([new_room.save(), one_unit.save(), one_hostel.save()]);
     res.status(200).send({ message: "Explore New Room", access: true });
   } catch (e) {
     console.log(e);

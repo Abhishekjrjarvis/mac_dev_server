@@ -7534,6 +7534,84 @@ paths:
         "200":
           description: OK
 
+  /api/v1/all-images/{hid}/hostel/cover:
+    patch:
+      tags:
+        - To get All Images, Videos and Documents
+      summary:
+        - To upload Hostel cover photo
+      consumes:
+        - application/json
+      produces:
+        - application/json'
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          schema:
+            type: string
+          description: This is Hostel Module ID
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your image with images extenstion
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/all-images/{huid}/hostel/unit/cover:
+    patch:
+      tags:
+        - To get All Images, Videos and Documents
+      summary:
+        - To upload Hostel Unit cover photo
+      consumes:
+        - application/json
+      produces:
+        - application/json'
+      parameters:
+        - in: path
+          name: huid
+          required: true
+          schema:
+            type: string
+          description: This is Hostel Unit Module ID
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your image with images extenstion
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/all-images/{hrid}/hostel/room/cover:
+    patch:
+      tags:
+        - To get All Images, Videos and Documents
+      summary:
+        - To upload Hostel Room cover photo
+      consumes:
+        - application/json
+      produces:
+        - application/json'
+      parameters:
+        - in: path
+          name: hrid
+          required: true
+          schema:
+            type: string
+          description: This is Hostel Room Module ID
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your image with images extenstion
+      responses:
+        "200":
+          description: OK
+
 
   /api/v1/all/todevice/token:
     post:
@@ -18687,6 +18765,30 @@ paths:
       tags:
         - Edit Admins
       summary: Update Event Manager Admins (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: osid
+          required: true
+          type: string
+          description: Enter Old staff id
+        - in: query
+          name: nsid
+          required: true
+          type: string
+          description: Enter New staff id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/edit/staff/hostel/manager/staff/{osid}:
+    patch:
+      tags:
+        - Edit Admins
+      summary: Update Hostel Manager Admins (verified)
       consumes:
         - application/json
       produces:

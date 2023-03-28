@@ -184,6 +184,14 @@ const hostelSchema = new mongoose.Schema({
     },
     bankDetails: { type: Boolean, default: false },
   },
+  bed_count: {
+    type: Number,
+    default: 0,
+  },
+  room_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("Hostel", hostelSchema);

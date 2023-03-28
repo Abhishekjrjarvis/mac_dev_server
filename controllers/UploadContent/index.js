@@ -28,7 +28,9 @@ const Vehicle = require("../../models/Transport/vehicle");
 const LandingCareer = require("../../models/LandingModel/Career/landingCareer");
 const LandingTender = require("../../models/LandingModel/Tender/landingTender");
 const Alumini = require("../../models/Alumini/Alumini");
-
+const Hostel = require("../../models/Hostel/hostel");
+const HostelUnit = require("../../models/Hostel/hostelUnit");
+const HostelRoom = require("../../models/Hostel/hostelRoom");
 const {
   getFileStream,
   deleteFile,
@@ -688,6 +690,64 @@ exports.patchAluminiImageCover = async (req, res) => {
     await alumini.save();
     await unlinkFile(file.path);
     res.status(200).send({ message: "Explore New Alumini photo" });
+  } catch (err) {
+    console.log(err.message);
+  }
+};
+
+exports.patchHostelImageCover = async (req, res) => {
+  try {
+    const { hid } = req.params;
+    const hostel = await Hostel.findById({ _id: hid });
+    if (hostel.hostel_photo) await deleteFile(hostel.hostel_photo);
+    const width = 375;
+    const height = 245;
+    const file = req.file;
+    const results = await uploadFile(file, width, height);
+    hostel.hostel_photo = results.key;
+    hostel.photoId = "0";
+    await hostel.save();
+    await unlinkFile(file.path);
+    res.status(200).send({ message: "Explore New Hostel photo" });
+  } catch (err) {
+    console.log(err.message);
+  }
+};
+
+exports.patchHostelUnitImageCover = async (req, res) => {
+  try {
+    const { huid } = req.params;
+    const hostel_unit = await HostelUnit.findById({ _id: huid });
+    if (hostel_unit.hostel_unit_photo)
+      await deleteFile(hostel_unit.hostel_unit_photo);
+    const width = 375;
+    const height = 245;
+    const file = req.file;
+    const results = await uploadFile(file, width, height);
+    hostel_unit.hostel_unit_photo = results.key;
+    hostel_unit.photoId = "0";
+    await hostel_unit.save();
+    await unlinkFile(file.path);
+    res.status(200).send({ message: "Explore New Hostel Unit photo" });
+  } catch (err) {
+    console.log(err.message);
+  }
+};
+
+exports.patchHostelRoomImageCover = async (req, res) => {
+  try {
+    const { hrid } = req.params;
+    const room = await HostelRoom.findById({ _id: hrid });
+    if (room.room_photo) await deleteFile(room.room_photo);
+    const width = 375;
+    const height = 245;
+    const file = req.file;
+    const results = await uploadFile(file, width, height);
+    room.room_photo = results.key;
+    room.photoId = "0";
+    await room.save();
+    await unlinkFile(file.path);
+    res.status(200).send({ message: "Explore New Hostel Room photo" });
   } catch (err) {
     console.log(err.message);
   }

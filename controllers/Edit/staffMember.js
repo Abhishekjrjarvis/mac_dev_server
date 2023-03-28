@@ -17,6 +17,7 @@ const { designation_alarm } = require("../../WhatsAppSMS/payload");
 const Transport = require("../../models/Transport/transport");
 const EventManager = require("../../models/Event/eventManager");
 const { generate_hash_pass } = require("../../helper/functions");
+const Hostel = require("../../models/Hostel/hostel");
 
 exports.photoEditByStaff = async (req, res) => {
   try {
@@ -574,6 +575,75 @@ exports.renderEventManagerStaffQuery = async (req, res) => {
       user?.userPhoneNumber,
       "EVENT_MANAGER",
       event?.institute?.sms_lang,
+      "",
+      "",
+      ""
+    );
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderHostelManagerStaffQuery = async (req, res) => {
+  try {
+    const { osid } = req.params;
+    const { nsid } = req.query;
+    if (!osid && !nsid && osid !== nsid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        status: false,
+      });
+    const oldStaff = await Staff.findById({ _id: osid }).populate({
+      path: "institute",
+      select: "hostelDepart",
+    });
+    const newStaff = await Staff.findById({ _id: nsid });
+    const user = await User.findById({ _id: `${newStaff.user}` });
+    const one_hostel = await Hostel.findById({
+      _id: `${oldStaff?.institute?.hostelDepart[0]}`,
+    }).populate({
+      path: "institute",
+      select: "insName sms_lang",
+    });
+    const notify = new Notification({});
+    newStaff.hostelDepartment.push(one_hostel?._id);
+    newStaff.staffDesignationCount += 1;
+    newStaff.recentDesignation = "Hostel Manager";
+    one_hostel.hostel_manager = newStaff._id;
+    oldStaff.hostelDepartment.pull(one_hostel?._id);
+    if (oldStaff.staffDesignationCount > 0) {
+      oldStaff.staffDesignationCount -= 1;
+    }
+    oldStaff.recentDesignation = "";
+    notify.notifyContent = `you got the designation of Hostel Manager`;
+    notify.notifySender = one_hostel?.institute._id;
+    notify.notifyReceiever = user._id;
+    notify.notifyCategory = "Hostel Manager Designation";
+    user.uNotify.push(notify._id);
+    notify.user = user._id;
+    notify.notifyByInsPhoto = one_hostel?.institute._id;
+    invokeFirebaseNotification(
+      "Designation Allocation",
+      notify,
+      one_hostel?.institute.insName,
+      user._id,
+      user.deviceToken
+    );
+    await Promise.all([
+      oldStaff.save(),
+      one_hostel.save(),
+      user.save(),
+      notify.save(),
+      newStaff.save(),
+    ]);
+    res.status(200).send({
+      message: "Successfully Assigned Hostel Manager",
+      status: true,
+    });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "HOSTEL_MANAGER",
+      one_hostel?.institute?.sms_lang,
       "",
       "",
       ""

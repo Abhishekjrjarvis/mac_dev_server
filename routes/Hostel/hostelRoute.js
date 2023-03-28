@@ -100,13 +100,37 @@ router.get(
 );
 
 router.post(
+  "/:sid/student/:aid/cancel/app",
+  catchAsync(Hostel.renderHostelCancelApplication)
+);
+
+router.post(
   "/:sid/student/:aid/select",
   catchAsync(Hostel.renderHostelSelectedQuery)
 );
 
+// Select Mode Direct By Admission Admin
+router.post(
+  "/:aid/select/student/mode/:sid",
+  catchAsync(Hostel.renderAdminSelectMode)
+);
+
+// Cancel Mode Direct By Admission Admin
+router.post(
+  "/:aid/cancel/select/student/:sid",
+  catchAsync(Hostel.renderAdminStudentCancelSelectQuery)
+);
+
+// Select Mode Direct By Student
 router.post(
   "/:sid/student/pay/mode/:aid/apply/status/:statusId",
   catchAsync(Hostel.renderHostelPayMode)
+);
+
+// Cancel Mode Direct By Student
+router.patch(
+  "/:statusId/status/cancel/app/:aid/student/:sid",
+  catchAsync(Hostel.renderStudentCancelHostelAdmissionMode)
 );
 
 router.post(
@@ -144,11 +168,6 @@ router.patch(
   catchAsync(Hostel.renderPaidRemainingFeeStudentRefundBy)
 );
 
-router.patch(
-  "/:statusId/status/cancel/app/:aid/student/:sid",
-  catchAsync(Hostel.renderStudentCancelHostelAdmissionMode)
-);
-
 router.get("/:hid/all/receipts/by", catchAsync(Hostel.renderAllReceiptsQuery));
 
 router.patch(
@@ -159,16 +178,6 @@ router.patch(
 router.patch(
   "/:sid/re/apply/receipts/:rid",
   catchAsync(Hostel.renderOneHostelReceiptReApply)
-);
-
-router.post(
-  "/:aid/select/student/mode/:sid",
-  catchAsync(Hostel.renderAdminSelectMode)
-);
-
-router.post(
-  "/:aid/cancel/select/student/:sid",
-  catchAsync(Hostel.renderAdminStudentCancelSelectQuery)
 );
 
 router.patch(
@@ -199,11 +208,6 @@ router.get(
 router.get(
   "/:huid/cancelled/application",
   catchAsync(Hostel.renderHostelUnitAllCancelledApplication)
-);
-
-router.post(
-  "/:sid/student/:aid/cancel/app",
-  catchAsync(Hostel.renderHostelCancelApplication)
 );
 
 router.post(

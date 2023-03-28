@@ -26952,3 +26952,730 @@ paths:
       responses:
         "200":
           description: OK
+
+  /api/v1/hostel/{sid}/student/{aid}/cancel/app:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Student Application Cancel By Hostel Manager -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{sid}/student/{aid}/select:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Student Application Select By Hostel Manager -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_struct:
+                type: string
+                description: Enter Fee Structure ID
+                required: true
+              renew:
+                type: string
+                description: Enter Renewal Date ("2023-02-02")
+                required: false  
+              month:
+                type: string
+                description: Enter Month 
+                required: false 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{sid}/student/pay/mode/{aid}/apply/status/{statusId}:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Student Mode Select By Student -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID 
+        - in: path
+          name: statusId
+          required: true
+          type: string
+          description: This is Application Status ID 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: true
+              fee_payment_mode:
+                type: string
+                description: Enter Mode Same as Admission Fee Receipt Mode
+                required: true  
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: true 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{statusId}/status/cancel/app/{aid}/student/{sid}:
+    patch:
+      tags:
+        - Hostel Section Query
+      summary: Student Mode Cancel By Student -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID 
+        - in: path
+          name: statusId
+          required: true
+          type: string
+          description: This is Application Status ID 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{sid}/student/{aid}/pay/offline/confirm:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Collect One Student Offline Fees By Hostel Manager -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: true
+              fee_payment_mode:
+                type: string
+                description: Enter Mode Same as Admission Fee Receipt Mode
+                required: true  
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: true 
+              amount:
+                type: number
+                description: Enter Amount
+                required: true
+              mode:
+                type: number
+                description: Enter Mode ("Offline" || "Online")
+                required: true 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{sid}/student/{aid}/pay/refund:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Cancel & Refund Admission From Hostel Manager Side -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: true
+              fee_payment_mode:
+                type: string
+                description: Enter Mode Same as Admission Fee Receipt Mode
+                required: true  
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: true 
+              amount:
+                type: number
+                description: Enter Amount
+                required: true
+              mode:
+                type: number
+                description: Enter Mode ("Offline" || "Online")
+                required: true
+              remainAmount:
+                type: number
+                description: Enter Remain Amount Same as Admission Cancel & Refund
+                required: true 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{aid}/select/student/mode/{sid}:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Select Mode Direct By Hostel Manager Same As Admission Admin -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{aid}/cancel/select/student/{sid}:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Cancel Mode Direct By Hostel Manager Same As Admission Admin -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{aid}/application/complete:
+    patch:
+      tags:
+        - Hostel Section Query
+      summary: Mark Application To Completed By Hostel Manager -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hid}/all/remaining/array:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: All Pending || Remaining List of Students -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hostel ID   
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit 
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/student/{aid}/allot/bed:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: One Student Allot Bed By Hostel Manager -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID   
+        - in: query
+          name: huid
+          required: true
+          type: string
+          description: Enter Hostel Unit ID
+        - in: query
+          name: hrid
+          required: true
+          type: string
+          description: Enter Hostel Room ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              dataList:
+                type: array
+                description: Enter Array of Student ID's Same as Admission Admin Class Allot
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hid}/paid/remaining/fee/{sid}/student/{appId}:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Mark Remaining Fee paid by Hostel Manager + add body content (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hostel id 
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
+        - in: path
+          name: appId
+          required: true
+          type: string
+          description: This is Application id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - amount
+              - mode
+              - type
+            properties:
+              amount:
+                type: number
+                description: Enter amount
+              mode:
+                type: string
+                description: Enter payment mode ("Online" | "Offline" | "Exempted")
+              type:
+                type: string
+                description: Enter Installment Value
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hid}/paid/remaining/fee/{sid}/student/{appId}/refund/by:
+    patch:
+      tags:
+        - Hostel Section Query
+      summary: Mark Refund Fee paid by Hostel Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hostel id 
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
+        - in: path
+          name: appId
+          required: true
+          type: string
+          description: This is Application id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - amount
+              - mode
+            properties:
+              amount:
+                type: number
+                description: Enter amount
+              mode:
+                type: string
+                description: Enter payment mode ("Online" | "Offline")
+              fee_payment_mode:
+                type: string
+                description: Default "Refunded"
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hid}/all/receipts/by:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: Get All Requested Receipts || Approved Receipts || Rejected Receipts (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: Enter Hostel Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: filter_by
+          required: true
+          type: string
+          description: Enter Filter Query for ("ALL_REQUEST") || ("ALL_APPROVE") || ("ALL_REJECT")
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hid}/one/receipts/{rid}/status:
+    patch:
+      tags:
+        - Hostel Section Query
+      summary: Update One Receipts By Hostel Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: Enter Hostel Id
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: Enter Receipt Id
+        - in: query
+          name: status
+          required: true
+          type: string
+          description: Enter Status As Mention for Operation ("Approved") || ("Rejected") || ("Over_Rejection") || ("Rejection_Notify")
+        - in: query
+          name: reqId
+          required: true
+          type: string
+          description: Enter Receipts Holding Document Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              reason:
+                type: string
+                description: Enter Reason if Receipt is going for Rejected
+                required: false
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{sid}/re/apply/receipts/{rid}:
+    patch:
+      tags:
+        - Hostel Section Query
+      summary: Re-Apply Receipt From Student Application Status Tab Receipt Content is Updated not created (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Status Id
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: Enter Receipt Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_payment_mode:
+                type: string
+                description: Enter Fee Mode ("By Cash") || ("UPI Transfer") || ("Demand Draft") || ("Cheque") || ("RTGS/NEFT/IMPS")
+                required: false
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: false
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: false
+              fee_bank_name:
+                type: string
+                description: Enter Bank Name e.g SBI
+                required: false
+              fee_bank_holder:
+                type: string
+                description: Enter Bank Holder Name e.g Mithkal
+                required: false
+              fee_utr_reference:
+                type: string
+                description: Enter Fee Unique Transaction Reference Number (UTR)
+                required: false
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{sid}/go/offline/receipt/{appId}:
+    patch:
+      tags:
+        - Hostel Section Query
+      summary: Request for Offline Procedure (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student Id
+        - in: path
+          name: appId
+          required: true
+          type: string
+          description: This is Application Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_payment_type:
+                type: string
+                description: Enter payment Type (i.e installmentValue)
+                required: true
+              fee_payment_mode:
+                type: string
+                description: Enter payment Mode except "By Cash"
+                required: true
+              fee_payment_amount:
+                type: number
+                description: Enter payment Amount
+                required: true
+              transaction_date:
+                type: string
+                description: Enter Date ("2023-02-02")
+                required: true
+              fee_bank_name:
+                type: string
+                description: Enter Bank Name e.g SBI
+                required: false
+              fee_bank_holder:
+                type: string
+                description: Enter Bank Holder Name e.g Mithkal
+                required: false
+              fee_utr_reference:
+                type: string
+                description: Enter Fee Unique Transaction Reference Number (UTR)
+                required: false
+              rid:
+                type: string
+                description: Enter Remaining List ID
+                required: true
+              raid:
+                type: string
+                description: Enter Remaining Array ID i.e coming from installmentValue Card
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{sid}/all/renewals:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: All Renewals List At Student Member Tab -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID   
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{sid}/all/roommates/query:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: All Roommates List At Student Member Tab -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID   
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit 
+      responses:
+        "200":
+          description: OK

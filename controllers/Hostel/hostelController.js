@@ -156,7 +156,7 @@ exports.renderHostelDashQuery = async (req, res) => {
       .populate({
         path: "hostel_manager",
         select:
-          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
       })
       .populate({
         path: "institute",
@@ -189,8 +189,9 @@ exports.renderHostelFormQuery = async (req, res) => {
         access: false,
       });
 
-    const one_hostel = await Hostel.findById({ _id: hid })
-    .select("student_form_query")
+    const one_hostel = await Hostel.findById({ _id: hid }).select(
+      "student_form_query"
+    );
     res.status(200).send({
       message: "Explore One Hostel Form Query",
       access: true,
@@ -210,8 +211,7 @@ exports.renderHostelRulesQuery = async (req, res) => {
         access: false,
       });
 
-    const one_hostel = await Hostel.findById({ _id: hid })
-    .select("rules")
+    const one_hostel = await Hostel.findById({ _id: hid }).select("rules");
     res.status(200).send({
       message: "Explore One Hostel Rules Query",
       access: true,
@@ -221,7 +221,6 @@ exports.renderHostelRulesQuery = async (req, res) => {
     console.log(e);
   }
 };
-
 
 exports.renderHostelNewUnitQuery = async (req, res) => {
   try {
@@ -794,6 +793,7 @@ exports.renderHostelReceievedApplication = async (req, res) => {
     status.instituteId = institute._id;
     user.student.push(student._id);
     user.applyApplication.push(apply._id);
+    status.flow_status = "Hostel Application";
     student.user = user._id;
     user.applicationStatus.push(status._id);
     apply.receievedApplication.push({
@@ -1124,6 +1124,7 @@ exports.renderHostelSelectedQuery = async (req, res) => {
     status.admissionFee = structure.total_admission_fees;
     status.instituteId = one_hostel?.institute;
     status.finance = finance?._id;
+    status.flow_status = "Hostel Application";
     user.applicationStatus.push(status._id);
     student.active_status.push(status?._id);
     student.hostel_fee_structure_month = valid_month;
@@ -1414,10 +1415,10 @@ exports.renderCancelHostelRefundApplicationQuery = async (req, res) => {
       _id: `${apply.hostelAdmin}`,
     });
     const institute = await InstituteAdmin.findById({
-      _id: `${one_hostel.institute}`,
+      _id: `${one_hostel?.institute}`,
     });
     const finance = await Finance.findById({
-      _id: `${institute.financeDepart[0]}`,
+      _id: `${institute?.financeDepart[0]}`,
     });
     const aStatus = new Status({});
     const new_receipt = new FeeReceipt({ ...req.body });
@@ -1623,7 +1624,7 @@ exports.renderCompleteHostelApplication = async (req, res) => {
       });
     } else {
       const one_hostel = await Hostel.findById({
-        _id: `${apply.hostelAdmin}`,
+        _id: `${apply?.hostelAdmin}`,
       });
       const hostel_ins = await InstituteAdmin.findById({
         _id: `${one_hostel?.institute}`,
@@ -1713,7 +1714,7 @@ exports.renderHostelRemainingArray = async (req, res) => {
 exports.renderAllotHostedBedQuery = async (req, res) => {
   try {
     const { aid } = req.params;
-    const { huid, hrid } = req.body;
+    const { huid, hrid } = req.query;
     if (!aid && !req.body.dataList && !hrid && !huid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -4926,7 +4927,7 @@ exports.renderHostelPayMode = async (req, res) => {
       select: "admissionDepart",
     });
     const institute = await InstituteAdmin.findById({
-      _id: `${admin_ins.institute}`,
+      _id: `${admin_ins?.institute?._id}`,
     });
     if (apply?.selectedApplication?.length > 0) {
       apply?.selectedApplication?.forEach((ele) => {
@@ -5629,7 +5630,7 @@ exports.renderAdminSelectMode = async (req, res) => {
       invokeMemberTabNotification(
         "Admission Status",
         aStatus.content,
-        "Application Status",
+        "Hostel Status",
         user._id,
         user.deviceToken
       );
@@ -5653,16 +5654,9 @@ exports.renderAdminStudentCancelSelectQuery = async (req, res) => {
         cancel_status: false,
       });
     const apply = await NewApplication.findById({ _id: aid });
-    if (apply?.admissionAdmin) {
-      var admission_admin = await Admission.findById({
-        _id: `${apply?.admissionAdmin}`,
-      }).select("institute");
-    } else if (apply?.hostelAdmin) {
-      var admission_admin = await Hostel.findById({
-        _id: `${apply?.hostelAdmin}`,
-      }).select("institute");
-    } else {
-    }
+    var admission_admin = await Hostel.findById({
+      _id: `${apply?.hostelAdmin}`,
+    }).select("institute");
     const student = await Student.findById({ _id: sid });
     const user = await User.findById({ _id: `${student.user}` });
     const status = new Status({});
@@ -5700,7 +5694,7 @@ exports.renderAdminStudentCancelSelectQuery = async (req, res) => {
     invokeMemberTabNotification(
       "Admission Status",
       status.content,
-      "Application Status",
+      "Hostel Status",
       user._id,
       user.deviceToken
     );

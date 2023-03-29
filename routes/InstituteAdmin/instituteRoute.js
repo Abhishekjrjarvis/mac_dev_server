@@ -108,9 +108,9 @@ router.get(
   catchAsync(Institute.getAnnouncement)
 );
 
-router.patch("/follow", catchAsync(Institute.updateFollowIns));
+router.patch("/follow", isLoggedIn, catchAsync(Institute.updateFollowIns));
 
-router.patch("/unfollow", catchAsync(Institute.removeFollowIns));
+router.patch("/unfollow", isLoggedIn, catchAsync(Institute.removeFollowIns));
 
 router.post(
   "/:id/staff/approve/:sid/user/:uid",
@@ -398,13 +398,13 @@ router.post(
 
 router.get(
   "/:id/followers-array",
-
+  isLoggedIn,
   catchAsync(Institute.retrieveInsFollowersArray)
 );
 
 router.get(
   "/:id/following-array",
-
+  isLoggedIn,
   catchAsync(Institute.retrieveInsFollowingArray)
 );
 
@@ -476,13 +476,13 @@ router.patch(
 
 router.get(
   "/:id/following-idlist",
-
+  isLoggedIn,
   catchAsync(Institute.retrieveInsFollowingArrayWithId)
 );
 
 router.get(
   "/:id/followers-idlist",
-
+  isLoggedIn,
   catchAsync(Institute.retrieveInsFollowersArrayWithId)
 );
 router.get(

@@ -226,6 +226,11 @@ router.post(
 );
 
 router.post(
+  "/:sid/student/cancel/pay/mode/:rid/apply/renewal",
+  catchAsync(Hostel.renderHostelCancelPayModeRenewal)
+);
+
+router.post(
   "/:sid/student/:huid/pay/offline/confirm/renewal/:aid",
   catchAsync(Hostel.renderPayOfflineHostelFeeRenewal)
 );
@@ -248,6 +253,11 @@ router.get(
 router.get(
   "/:sid/all/roommates/query",
   catchAsync(Hostel.renderHostelAllStudentRoommatesQuery)
+);
+
+router.get(
+  "/:id/all/classmaster/query",
+  catchAsync(Hostel.renderHostelAllClassMasterQuery)
 );
 
 module.exports = router;

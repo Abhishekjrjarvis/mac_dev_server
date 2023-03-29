@@ -5,6 +5,7 @@ const HostelBed = require("../../models/Hostel/hostelBed");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const Staff = require("../../models/Staff");
 const Admission = require("../../models/Admission/Admission");
+const ClassMaster = require("../../models/ClassMaster");
 const ScholarShip = require("../../models/Admission/Scholarship");
 const FundCorpus = require("../../models/Admission/FundCorpus");
 const Inquiry = require("../../models/Admission/Inquiry");
@@ -162,6 +163,10 @@ exports.renderHostelDashQuery = async (req, res) => {
         path: "institute",
         select:
           "insName name photoId insProfilePhoto financeDepart admissionDepart",
+        populate: {
+          path: "financeDepart",
+          select: "fee_master_array_count fees_category_count",
+        },
       });
     // if (req?.query?.mod_id) {
     //   var value = await render_finance_current_role(
@@ -4039,7 +4044,7 @@ exports.renderHostelSelectedRenewalQuery = async (req, res) => {
     });
     one_unit.renewal_selected_application_count += 1;
     status.content = `You have been selected for ${one_unit?.hostel_unit_name}. Confirm your admission`;
-    status.for_selection = "Yes";
+    status.for_selection = "No";
     status.studentId = student._id;
     status.hostelUnit = one_unit?._id;
     status.flow_status = "Hostel Application";
@@ -4786,7 +4791,7 @@ exports.renderHostelPayModeRenewal = async (req, res) => {
     const one_unit = await HostelUnit.findById({
       _id: `${renew?.renewal_unit}`,
     });
-    var structure = await Structure.findById({
+    var structure = await FeeStructure.findById({
       _id: `${student?.hostel_fee_structure}`,
     });
     const apply = await NewApplication.findById({
@@ -4800,7 +4805,7 @@ exports.renderHostelPayModeRenewal = async (req, res) => {
     });
     renew.renewal_status = "Current Stay";
     const institute = await InstituteAdmin.findById({
-      _id: `${admin_ins.institute}`,
+      _id: `${admin_ins?.institute?._id}`,
     });
     if (valid_month <= 12) {
       var new_structure = new FeeStructure({
@@ -4851,7 +4856,7 @@ exports.renderHostelPayModeRenewal = async (req, res) => {
       receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
       receipt.student = student?._id;
       receipt.application = apply?._id;
-      receipt.app_status = status?._id;
+      // receipt.app_status = status?._id;
       renew.receipt = receipt?._id;
       receipt.finance = institute?.financeDepart[0];
       if (admin_ins?.request_array?.includes(`${receipt?._id}`)) {
@@ -4884,6 +4889,78 @@ exports.renderHostelPayModeRenewal = async (req, res) => {
       admin_ins.save(),
       renew.save(),
       student.save(),
+    ]);
+    res.status(200).send({
+      message: "Lets do some excercise visit institute",
+      status: true,
+    });
+    invokeMemberTabNotification(
+      "Admission Status",
+      aStatus.content,
+      "Hostel Status",
+      user._id,
+      user.deviceToken
+    );
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderHostelCancelPayModeRenewal = async (req, res) => {
+  try {
+    const { sid, rid } = req.params;
+    if (!sid && !rid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley 😒",
+        access: false,
+      });
+    const student = await Student.findById({ _id: sid });
+    const user = await User.findById({ _id: `${student.user}` });
+    const aStatus = new Status({});
+    const renew = await Renewal.findById({ _id: rid });
+    const one_unit = await HostelUnit.findById({
+      _id: `${renew?.renewal_unit}`,
+    });
+    const apply = await NewApplication.findById({
+      _id: `${renew?.renewal_application}`,
+    }).select("hostelAdmin");
+    var admin_ins = await Hostel.findById({
+      _id: `${apply?.hostelAdmin}`,
+    });
+    renew.renewal_status = "Cancel Current Stay";
+    const institute = await InstituteAdmin.findById({
+      _id: `${admin_ins?.institute}`,
+    });
+    for (var ref of one_unit?.renewal_selected_application) {
+      if (`${ele.student}` === `${student._id}`) {
+        one_unit?.renewal_selected_application.pull(ref?._id);
+      }
+    }
+
+    for (var ref of one_unit?.renewal_receieved_application) {
+      if (`${ele.student}` === `${student._id}`) {
+        one_unit?.renewal_receieved_application.pull(ref?._id);
+      }
+    }
+
+    one_unit.renewal_cancel_application.push({
+      student: student?._id,
+      payment_status: "Cancelled Renewal",
+      refund_amount: 0,
+      appId: apply?._id,
+    });
+    one_unit.renewal_cancel_application_count += 1;
+    aStatus.content = `Your renewal is rejected | cancelled.`;
+    aStatus.applicationId = apply._id;
+    aStatus.hostelUnit = one_unit?._id;
+    aStatus.flow_status = "Hostel Application";
+    user.applicationStatus.push(aStatus._id);
+    aStatus.instituteId = institute._id;
+    await Promise.all([
+      aStatus.save(),
+      user.save(),
+      renew.save(),
+      one_unit.save(),
     ]);
     res.status(200).send({
       message: "Lets do some excercise visit institute",
@@ -5698,6 +5775,63 @@ exports.renderAdminStudentCancelSelectQuery = async (req, res) => {
       user._id,
       user.deviceToken
     );
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderHostelAllClassMasterQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    if (search) {
+      var all_masters = await ClassMaster.find({
+        $and: [{ institute: id }],
+        $or: [{ className: { $regex: search, $options: "i" } }],
+      })
+        .select("className classCount")
+        .populate({
+          path: "department",
+          select: "dName",
+        });
+    } else {
+      var all_masters = await ClassMaster.find({
+        institute: id,
+      })
+        .limit(limit)
+        .skip(skip)
+        .select("className classCount")
+        .populate({
+          path: "department",
+          select: "dName",
+        });
+    }
+    if (all_masters?.length > 0) {
+      res
+        .status(200)
+        .send({
+          message: "Explore All Class Masters Query",
+          access: true,
+          all_masters: all_masters,
+        });
+    } else {
+      res
+        .status(200)
+        .send({
+          message: "No Class Masters Query",
+          access: true,
+          all_masters: [],
+        });
+    }
   } catch (e) {
     console.log(e);
   }

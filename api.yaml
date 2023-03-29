@@ -27679,3 +27679,324 @@ paths:
       responses:
         "200":
           description: OK
+
+  /api/v1/hostel/{sid}/student/{huid}/select/renewal:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Student Application Renewal Select By Hostel Manager -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: huid
+          required: true
+          type: string
+          description: This is Hostel Unit ID 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_struct:
+                type: string
+                description: Enter Fee Structure ID
+                required: true
+              renew:
+                type: string
+                description: Enter Renewal Date ("2023-02-02")
+                required: false  
+              month:
+                type: string
+                description: Enter Month 
+                required: false 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{sid}/student/{huid}/cancel/app/renewal:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Student Application Renewal Cancel By Hostel Manager -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: huid
+          required: true
+          type: string
+          description: This is Hostel Unit ID 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{sid}/student/pay/mode/{rid}/apply/renewal:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Student Application Renewal Select By Student Side -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: This is Renewal ID 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_payment_mode:
+                type: string
+                description: Enter Fee Payment Mode ("By Cash" || "UPI Transfer") same as Admission Admin
+                required: true
+              fee_payment_amount:
+                type: amount
+                description: Enter Amount
+                required: true  
+              transaction_date:
+                type: string
+                description: Enter Transaction Date Like ("2023-02-02")
+                required: true  
+              month:
+                type: string
+                description: Enter Month 
+                required: false 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{sid}/student/cancel/pay/mode/{rid}/apply/renewal:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Cancel & Refund Renewal From Student Side -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: This is Renewal ID 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{sid}/student/{huid}/pay/offline/confirm/renewal/{aid}:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Collect One Student Renewal Offline Fees By Hostel Manager -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID
+        - in: path
+          name: huid
+          required: true
+          type: string
+          description: This is Hostel Unit ID 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: true
+              fee_payment_mode:
+                type: string
+                description: Enter Mode Same as Admission Fee Receipt Mode
+                required: true  
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: true 
+              amount:
+                type: number
+                description: Enter Amount
+                required: true
+              mode:
+                type: number
+                description: Enter Mode ("Offline" || "Online")
+                required: true 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/student/{aid}/allot/bed/{huid}/renewal:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: One Student Renewal Allot Bed By Hostel Manager -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID   
+        - in: path
+          name: huid
+          required: true
+          type: string
+          description: Enter Hostel Unit ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              dataList:
+                type: array
+                description: Enter Array of Student ID's Same as Admission Admin Class Allot
+                required: true
+              hrid:
+                type: string
+                description: Enter Hostel Room ID
+                required: true
+              bed_mode:
+                type: string
+                description: Enter ("Same" || "Different")
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{sid}/student/{aid}/pay/refund/{huid}/renewal:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Cancel & Refund Renewal From Hostel Manager Side -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID 
+        - in: path
+          name: huid
+          required: true
+          type: string
+          description: This is Hostel Unit ID 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: true
+              fee_payment_mode:
+                type: string
+                description: Enter Mode Same as Admission Fee Receipt Mode
+                required: true  
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: true 
+              amount:
+                type: number
+                description: Enter Amount
+                required: true
+              mode:
+                type: number
+                description: Enter Mode ("Offline" || "Online")
+                required: true
+              remainAmount:
+                type: number
+                description: Enter Remain Amount Same as Admission Cancel & Refund
+                required: true 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{id}/all/classmaster/query:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: All ClassMasters List -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute ID   
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit 
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK

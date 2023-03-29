@@ -658,20 +658,58 @@ exports.renderHostelAllHostalitiesQuery = async (req, res) => {
 exports.renderHostelNewExistingRulesQuery = async (req, res) => {
   try {
     const { hid } = req.params;
+    const { rules } = req.body
     if (!hid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
-    await Hostel.findByIdAndUpdate(hid, req.body);
+    const hostel = await Hostel.findById({ _id: hid });
+    for(var ref of rules){
+    hostel.rules.push({
+      regulation_headline: ref?.headLine,
+      regulation_description: ref?.description,
+      regulation_attachment: ref?.attach,
+    })
+    hostel.rules_count += 1
+  }
+  await hostel.save()
     res.status(200).send({
-      message: "Add || Update Existing Rules & Regulation Query",
+      message: "Add Existing Rules & Regulation Query",
       access: true,
     });
   } catch (e) {
     console.log(e);
   }
 };
+
+exports.renderHostelExistingRulesQuery = async(req, res) => {
+  try{
+    const { hid, rid } = req.params;
+    const { existing_rules } = req.body
+    if (!rid && !hid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const hostel = await Hostel.findById({ _id: hid });
+    for(var ref of hostel?.rules){
+      if(`${ref?._id}` === `${rid}`){
+        ref?.regulation_headline = existing_rules?.headLine,
+        ref?.regulation_description = existing_rules?.description,
+        ref?.regulation_attachment = existing_rules?.attach,
+      }
+  }
+  await hostel.save()
+    res.status(200).send({
+      message: "Update Existing Rules & Regulation Query",
+      access: true,
+    });
+  }
+  catch(e){
+    console.log(e)
+  }
+}
 
 exports.renderHostelNewExistingFormQuery = async (req, res) => {
   try {

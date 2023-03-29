@@ -65,6 +65,11 @@ router.patch(
 );
 
 router.patch(
+  "/:hid/existing/rules/regulation/:rid",
+  catchAsync(Hostel.renderHostelExistingRulesQuery)
+);
+
+router.patch(
   "/:hid/new/existing/form/query",
   catchAsync(Hostel.renderHostelNewExistingFormQuery)
 );

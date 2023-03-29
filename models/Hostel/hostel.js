@@ -74,10 +74,16 @@ const hostelSchema = new mongoose.Schema({
       ref: "HostelUnit",
     },
   ],
-  rules: {
-    regulation_headline: { type: String },
-    regulation_description: { type: String },
-    regulation_attachment: { type: String },
+  rules: [
+    {
+      regulation_headline: { type: String },
+      regulation_description: { type: String },
+      regulation_attachment: { type: String },
+    },
+  ],
+  rules_count: {
+    type: Number,
+    default: 0,
   },
   remainingFee: [
     {

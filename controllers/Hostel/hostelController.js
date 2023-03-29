@@ -695,9 +695,9 @@ exports.renderHostelExistingRulesQuery = async(req, res) => {
     const hostel = await Hostel.findById({ _id: hid });
     for(var ref of hostel?.rules){
       if(`${ref?._id}` === `${rid}`){
-        ref?.regulation_headline = existing_rules?.headLine,
-        ref?.regulation_description = existing_rules?.description,
-        ref?.regulation_attachment = existing_rules?.attach,
+        ref.regulation_headline = existing_rules?.headLine,
+        ref.regulation_description = existing_rules?.description,
+        ref.regulation_attachment = existing_rules?.attach,
       }
   }
   await hostel.save()

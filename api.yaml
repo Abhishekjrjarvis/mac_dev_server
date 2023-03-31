@@ -26387,17 +26387,7 @@ paths:
           name: hrid
           required: true
           type: string
-          description: This is Hostel Room ID   
-        - in: query
-          name: page
-          required: true
-          type: string
-          description: Enter Page Number
-        - in: query
-          name: limit
-          required: true
-          type: string
-          description: Enter Limit  
+          description: This is Hostel Room ID    
       responses:
         "200":
           description: OK
@@ -26538,7 +26528,7 @@ paths:
         "200":
           description: OK
 
-  /api/v1/hostel/{aid}/new/application:
+  /api/v1/hostel/{hid}/new/application:
     post:
       tags:
         - Hostel Section Query
@@ -26549,10 +26539,10 @@ paths:
         - application/json
       parameters:
         - in: path
-          name: aid
+          name: hid
           required: true
           type: string
-          description: This is Admission ID 
+          description: This is Hostel ID
         - in : body
           name: body
           schema:
@@ -26562,10 +26552,6 @@ paths:
                 type: string
                 description: Enter Application Name
                 required: true
-              applicationHostel:
-                type: string
-                description: Enter Hostel ID
-                required: true  
               applicationUnit:
                 type: string
                 description: Enter Hostel Unit ID

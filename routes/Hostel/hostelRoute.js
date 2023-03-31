@@ -80,7 +80,7 @@ router.patch(
 );
 
 router.post(
-  "/:aid/new/application",
+  "/:hid/new/application",
   catchAsync(Hostel.renderNewHostelApplicationQuery)
 );
 

@@ -446,20 +446,18 @@ exports.renderOneHostelRoomQuery = async (req, res) => {
 exports.renderOneHostelRoomAllBedQuery = async (req, res) => {
   try {
     const { hrid } = req.params;
-    const page = req.query.page ? parseInt(req.query.page) : 1;
-    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const skip = (page - 1) * limit;
+    // const page = req.query.page ? parseInt(req.query.page) : 1;
+    // const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    // const skip = (page - 1) * limit;
     if (!hrid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
 
-    const one_room = await HostelRoom.findById({ _id: hrid }).select("beds");
+    const one_room = await HostelRoom.findById({ _id: hrid }).select("beds bed_count");
 
       var all_beds = await HostelBed.find({ _id: { $in: one_room?.beds } })
-        .limit(limit)
-        .skip(skip)
         .populate({
           path: "bed_allotted_candidate",
           select: "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO"
@@ -771,8 +769,8 @@ exports.renderHostelNewExistingFormQuery = async (req, res) => {
 
 exports.renderNewHostelApplicationQuery = async (req, res) => {
   try {
-    const { aid } = req.params;
-    if (!aid)
+    const { hid } = req.params;
+    if (!hid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
         status: false,
@@ -781,24 +779,19 @@ exports.renderNewHostelApplicationQuery = async (req, res) => {
     req.body.applicationSeats = req.body?.applicationSeats
       ? parseInt(req.body?.applicationSeats)
       : 0;
-    var ads_admin = await Admission.findById({ _id: aid });
-    var one_hostel = await Hostel.findById({
-      _id: `${req.body?.applicationHostel}`,
-    });
+    var one_hostel = await Hostel.findById({ _id: hid });
     var institute = await InstituteAdmin.findById({
       _id: `${one_hostel.institute}`,
     });
     const newApply = new NewApplication({ ...req.body });
-    ads_admin.newApplication.push(newApply._id);
-    ads_admin.newAppCount += 1;
     one_hostel.newApplication.push(newApply._id);
     one_hostel.newAppCount += 1;
     newApply.hostelAdmin = one_hostel?._id;
+    newApply.applicationHostel = hid
     newApply.application_flow = "Hostel Application";
     institute.hostelCount += 1;
     await Promise.all([
       one_hostel.save(),
-      ads_admin.save(),
       newApply.save(),
       institute.save(),
     ]);
@@ -1157,7 +1150,7 @@ exports.renderHostelSelectedQuery = async (req, res) => {
       institute: one_hostel?.institute,
     });
     const status = new Status({});
-    if (valid_month <= 12) {
+    if (valid_month <= 60 && valid_month !== 12) {
       var new_structure = new FeeStructure({
         category_master: structure?.category_master,
         class_master: structure?.class_master,
@@ -4072,7 +4065,7 @@ exports.renderHostelSelectedRenewalQuery = async (req, res) => {
     const student = await Student.findById({ _id: sid });
     const user = await User.findById({ _id: `${student.user}` });
     var structure = await FeeStructure.findById({ _id: fee_struct });
-    if (valid_month <= 12) {
+    if (valid_month <= 60 && valid_month !== 12) {
       var new_structure = new FeeStructure({
         category_master: structure?.category_master,
         class_master: structure?.class_master,
@@ -4885,7 +4878,7 @@ exports.renderHostelPayModeRenewal = async (req, res) => {
     const institute = await InstituteAdmin.findById({
       _id: `${admin_ins?.institute?._id}`,
     });
-    if (valid_month <= 12) {
+    if (valid_month <= 60 && valid_month !== 12) {
       var new_structure = new FeeStructure({
         category_master: structure?.category_master,
         class_master: structure?.class_master,

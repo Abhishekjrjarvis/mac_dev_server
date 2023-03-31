@@ -3970,6 +3970,228 @@ exports.renderFinanceMasterAllDepositHistory = async (req, res) => {
   }
 };
 
+exports.renderFinanceNewPayrollMasterQuery = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const one_finance = await Finance.findById({ _id: fid });
+    const new_master = new PayrollMaster({ ...req.body });
+    one_finance.payroll_master.push(new_master?._id);
+    one_finance.payroll_master_count += 1;
+    new_master.finance = one_finance?._id;
+    await Promise.all([one_finance.save(), new_master.save()]);
+    res
+      .status(200)
+      .send({ message: "Explore New Payroll Master Query ", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceAllPayrollMasterQuery = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const one_finance = await Finance.findById({ _id: fid }).select(
+      "payroll_master"
+    );
+    if (search) {
+      var all_masters = await PayrollMaster.find({
+        $and: [{ _id: { $in: one_finance?.payroll_master } }],
+        $or: [{ payroll_head_name: { $regex: search, $options: "i" } }],
+      }).select("payroll_head_name payroll_head_type");
+    } else {
+      var all_masters = await PayrollMaster.find({
+        _id: { $in: one_finance?.payroll_master },
+      })
+        .limit(limit)
+        .skip(skip)
+        .select("payroll_head_name payroll_head_type");
+    }
+
+    if (all_masters?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Payroll Master Query ",
+        access: true,
+        all_masters: all_masters,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Payroll Master Query ",
+        access: true,
+        all_masters: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceOnePayrollMasterAllMonthQuery = async (req, res) => {
+  try {
+    const { pmid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!pmid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const one_master = await PayrollMaster.findById({ _id: pmid }).select(
+      "payroll_month_collection"
+    );
+
+    var all_month_wise = await PayMaster.find({
+      _id: { $in: one_master?.payroll_month_collection },
+    })
+      .sort({ created_at: -1 })
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "pay_month pay_status pay_amount pay_fee_receipt pay_staff_collection_count"
+      )
+      .populate({
+        path: "payroll_master",
+        select: "_id",
+      });
+
+    if (all_month_wise?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Months Payroll Master",
+        access: true,
+        all_month_wise: all_month_wise,
+      });
+    } else {
+      res.status(200).send({
+        message: "No All Months Payroll Master",
+        access: true,
+        all_month_wise: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceOnePayrollMasterOneMonthAllEmpQuery = async (req, res) => {
+  try {
+    const { mwid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!mwid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const month_wise = await PayMaster.findById({ _id: mwid })
+      .select("pay_staff_collection")
+      .populate({
+        path: "pay_staff_collection",
+        populate: {
+          path: "emp",
+          select: "staff",
+          populate: {
+            path: "staff",
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+          },
+        },
+      });
+    var all_emp = await nested_document_limit(
+      page,
+      limit,
+      month_wise?.pay_staff_collection
+    );
+
+    if (all_emp?.length > 0) {
+      res.status(200).send({
+        message: "Explore One Month All Emp",
+        access: true,
+        all_emp: all_emp,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Months Emp",
+        access: true,
+        all_emp: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceOnePayrollMasterMarkPayExpenseQuery = async (req, res) => {
+  try {
+    const { mwid, fid } = req.params;
+    const { amount, mode } = req.body;
+    if (!mwid && !fid)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately",
+          access: false,
+        });
+
+    var price = parseInt(amount);
+    const s_admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const one_master = await PayMaster.findById({ _id: mwid });
+    const one_payroll_master = await PayrollMaster.findById({
+      _id: `${one_master?.payroll_master}`,
+    });
+    const finance = await Finance.findById({ _id: fid });
+    const new_receipt = new FeeReceipt({ ...req.body });
+    const expense = new Expense({});
+    new_receipt.pay_master = one_master?._id;
+    new_receipt.finance = finance?._id;
+    one_master.pay_fee_receipt = new_receipt?._id;
+    one_master.pay_status = "Paid";
+    new_receipt.fee_transaction_date = new Date(
+      `${req?.body?.transaction_date}`
+    );
+    expense.expenseAccount = mode === "By Cash" ? "By Cash" : "By Bank";
+    expense.expenseAmount = price;
+    expense.expensePaid = `Account ${one_payroll_master?.payroll_head_name} Payment`;
+    expense.finances = finance?._id;
+    s_admin.invoice_count += 1;
+    expense.invoice_number = s_admin?.invoice_count;
+    finance.expenseDepartment.push(expense?._id);
+    new_receipt.invoice_count = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${s_admin?.invoice_count}`;
+    await Promise.all([
+      expense.save(),
+      s_admin.save(),
+      new_receipt.save(),
+      one_master.save(),
+      finance.save(),
+    ]);
+    res
+      .status(200)
+      .send({ message: "Explore New Expense Payment", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // exports.renderUpdateStructureQuery = async (req, res) => {
 //   try {
 //     const { fid } = req.params;

@@ -26373,6 +26373,35 @@ paths:
         "200":
           description: OK
 
+  /api/v1/hostel/{hrid}/one/hostel/room/all/bed/query:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: One Hostel Room in All Bed Query -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hrid
+          required: true
+          type: string
+          description: This is Hostel Room ID   
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit  
+      responses:
+        "200":
+          description: OK
+
   /api/v1/hostel/{hid}/all/fee/structure:
     get:
       tags:

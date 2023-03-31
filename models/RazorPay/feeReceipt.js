@@ -105,6 +105,10 @@ const feeReceiptSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  pay_master: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "PayMaster",
+  },
 });
 
 module.exports = mongoose.model("FeeReceipt", feeReceiptSchema);

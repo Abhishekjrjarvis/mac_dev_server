@@ -173,6 +173,16 @@ const financeSchema = new mongoose.Schema(
         },
       },
     ],
+    payroll_master: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "PayrollMaster",
+      },
+    ],
+    payroll_master_count: {
+      type: Number,
+      default: 0,
+    },
     payment_gateway_charges: [
       {
         original_amount: { type: Number, default: 0 },

@@ -48,6 +48,11 @@ router.get(
 );
 
 router.get(
+  "/:hrid/one/hostel/room/all/bed/query",
+  catchAsync(Hostel.renderOneHostelRoomAllBedQuery)
+);
+
+router.get(
   "/:hid/all/fee/structure",
   catchAsync(Hostel.renderHostelAllFeeStructure)
 );

@@ -444,6 +444,31 @@ router.get(
   catchAsync(Finance.renderFinanceMasterAllDepositHistory)
 );
 
+router.post(
+  "/:fid/add/payroll/master",
+  catchAsync(Finance.renderFinanceNewPayrollMasterQuery)
+);
+
+router.get(
+  "/:fid/all/payroll/master",
+  catchAsync(Finance.renderFinanceAllPayrollMasterQuery)
+);
+
+router.get(
+  "/one/payroll/master/:pmid/all/monthwise",
+  catchAsync(Finance.renderFinanceOnePayrollMasterAllMonthQuery)
+);
+
+router.get(
+  "/one/payroll/master/one/monthwise/:mwid/all/emp",
+  catchAsync(Finance.renderFinanceOnePayrollMasterOneMonthAllEmpQuery)
+);
+
+router.patch(
+  "/:fid/one/payroll/master/:mwid/mark/pay/expense",
+  catchAsync(Finance.renderFinanceOnePayrollMasterMarkPayExpenseQuery)
+);
+
 // router.patch(
 //   "/:fid/update/structure",
 //   catchAsync(Finance.renderUpdateStructureQuery)

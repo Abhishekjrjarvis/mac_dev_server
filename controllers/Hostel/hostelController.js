@@ -324,7 +324,11 @@ exports.renderOneHostelUnitQuery = async (req, res) => {
       .populate({
         path: "hostel",
         select: "_id",
-      });
+      })
+      .populate({
+        path: "hostel_unit_head",
+        select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+      })
 
     res.status(200).send({
       message: "Explore One Hostel Unit As Designation / Profile Query",
@@ -434,6 +438,43 @@ exports.renderOneHostelRoomQuery = async (req, res) => {
       access: true,
       one_room: one_room,
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneHostelRoomAllBedQuery = async (req, res) => {
+  try {
+    const { hrid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!hrid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const one_room = await HostelRoom.findById({ _id: hrid }).select("beds");
+
+      var all_beds = await HostelBed.find({ _id: { $in: one_room?.beds } })
+        .limit(limit)
+        .skip(skip)
+        .populate({
+          path: "bed_allotted_candidate",
+          select: "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO"
+        })
+    if (all_beds?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Hostel Beds",
+        access: true,
+        all_beds: all_beds,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "No Hostel Beds", access: true, all_beds: [] });
+    }
   } catch (e) {
     console.log(e);
   }

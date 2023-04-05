@@ -183,7 +183,7 @@ const staffSchema = new mongoose.Schema({
   hostelModeratorDepartment: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "FinanceModerator",
+      ref: "AdmissionModerator",
     },
   ],
   isAdmin: {

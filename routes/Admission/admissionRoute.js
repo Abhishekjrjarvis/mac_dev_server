@@ -441,4 +441,9 @@ router.patch(
   catchAsync(Admission.renderOneScholarShipStatusQuery)
 );
 
+router.patch(
+  "/:aid/retro/structure/:appId/one/student/:sid/query",
+  catchAsync(Admission.renderRetroOneStudentStructureQuery)
+);
+
 module.exports = router;

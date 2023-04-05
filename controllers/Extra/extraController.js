@@ -230,18 +230,31 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       });
     if (
       institute.studentFormSetting.previousSchoolAndDocument
-        .previousSchoolDocument
+        .previousSchoolDocument &&
+      previous
     ) {
       student.studentPreviousSchool = previous ? previous : null;
     } else {
     }
-    student.studentLeavingBehaviour = behaviour;
-    student.studentLeavingStudy = study;
-    student.studentLeavingReason = reason;
-    student.studentLeavingRemark = remark;
-    student.studentUidaiNumber = uidaiNumber;
+    if (behaviour) {
+      student.studentLeavingBehaviour = behaviour;
+    }
+    if (study) {
+      student.studentLeavingStudy = study;
+    }
+    if (reason) {
+      student.studentLeavingReason = reason;
+    }
+    if (remark) {
+      student.studentLeavingRemark = remark;
+    }
+    if (uidaiNumber) {
+      student.studentUidaiNumber = uidaiNumber;
+    }
     student.studentLeavingInsDate = new Date();
-    student.studentBookNo = bookNO;
+    if (bookNO) {
+      student.studentBookNo = bookNO;
+    }
     student.studentCertificateNo = institute.leavingArray.length + 1;
     institute.l_certificate_count += 1;
     student.studentLeavingStatus = "Ready";

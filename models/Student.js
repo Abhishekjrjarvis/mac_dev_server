@@ -516,6 +516,12 @@ const studentSchema = new mongoose.Schema({
       ref: "Renewal",
     },
   ],
+  announcements: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "InsAnnouncement",
+    },
+  ],
 });
 
 const Student = mongoose.model("Student", studentSchema);

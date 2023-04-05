@@ -1,75 +1,72 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
 const payrollSchema = new mongoose.Schema({
-    staff_salary_month: {
-        type: Number,
-        default: 0
+  staff_salary_month: {
+    type: Number,
+    default: 0,
+  },
+  staff_total_paid_leaves: {
+    type: Number,
+    default: 0,
+  },
+  staff: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Staff",
+  },
+  pay_master_heads_particular: [
+    {
+      master_name: { type: String },
+      master_amount: { type: Number, default: 0 },
+      master_status: { type: String },
+      created_at: { type: Date, default: Date.now },
+      master_id: { type: mongoose.Schema.Types.ObjectId, ref: "PayrollMaster" },
     },
-    staff_total_paid_leaves: {
-        type: Number,
-        default: 0
+  ],
+  pay_master_heads_particular_count: {
+    type: Number,
+    default: 0,
+  },
+  pay_master_heads_deduction: [
+    {
+      master_name: { type: String },
+      master_amount: { type: Number, default: 0 },
+      master_status: { type: String },
+      created_at: { type: Date, default: Date.now },
+      master_id: { type: mongoose.Schema.Types.ObjectId, ref: "PayrollMaster" },
     },
-    staff: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Staff'
-    },
-    pay_slip: [
+  ],
+  pay_master_heads_deduction_count: {
+    type: Number,
+    default: 0,
+  },
+  pay_slip: [
+    {
+      month: { type: Date },
+      attendence: { type: Number, default: 0 },
+      total_leaves: { type: Number, default: 0 },
+      paid_leaves: { type: Number, default: 0 },
+      payment_mode: { type: String },
+      purpose: { type: String },
+      amount: { type: Number, default: 0 },
+      paid_to: { type: String },
+      message: { type: String },
+      is_paid: { type: String, default: "Not Paid" },
+      gross_salary: { type: Number, default: 0 },
+      net_total: { type: Number, default: 0 },
+      month_master: [
         {
-          month: { type: String },
-          attendence: { type: Number, default: 0},
-          total_leaves: { type: Number, default: 0},
-          paid_leaves: { type: Number, default: 0},
-          payment_mode: { type: String },
-          purpose: { type: String },
-          amount: { type: Number, default: 0},
-          paid_to: { type: String },
-          message: { type: String },
-          is_paid: { type: String, default: 'Not Paid'},
-          gross_salary: { type: Number, default: 0},
-          net_total: { type: Number, default: 0},
-          hra: { type: Number, default: 0},
-          tds: { type: Number, default: 0},
-          epf: { type: Number, default: 0},
-          da: { type: Number, default: 0},
-          medical_allowance: { type: Number, default: 0},
-          travel_allowance: { type: Number, default: 0},
-          perquisites: { type: Number, default: 0},
-          employer_contribution: { type: Number, default: 0},
+          month_master_name: { type: String },
+          month_master_amount: { type: Number, default: 0 },
+          created_at: { type: Date, default: Date.now },
+          month_master_status: { type: String },
+          month_master_id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "PayrollMaster",
+          },
         },
-    ],
-    h_r_a: {
-        type: Number,
-        default: 0
+      ],
     },
-    d_a: {
-        type: Number,
-        default: 0
-    },
-    t_d_s: {
-        type: Number,
-        default: 0
-    },
-    e_p_f: {
-        type: Number,
-        default: 0
-    },
-    medical_allowance: {
-        type: Number,
-        default: 0
-    },
-    travel_allowance: {
-        type: Number,
-        default: 0
-    },
-    perquisites: {
-        type: Number,
-        default: 0
-    },
-    employer_contribution: {
-        type: Number,
-        default: 0
-    }
+  ],
+});
 
-})
-
-module.exports = mongoose.model('Payroll', payrollSchema)
+module.exports = mongoose.model("Payroll", payrollSchema);

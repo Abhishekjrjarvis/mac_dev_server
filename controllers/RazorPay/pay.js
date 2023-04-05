@@ -308,8 +308,13 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
           select: "insName photoId insProfilePhoto",
         });
       if (order?.length > 0) {
+        var new_order = order?.filter((ref) => {
+          if (ref?.payment_amount > 0) return ref;
+        });
         // const oEncrypt = await encryptionPayload(order);
-        res.status(200).send({ message: "User Pay History", history: order });
+        res
+          .status(200)
+          .send({ message: "User Pay History", history: new_order });
       } else {
         res.status(200).send({ message: "No User Pay History", history: [] });
       }
@@ -350,7 +355,10 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
           select: "insName photoId insProfilePhoto",
         });
       for (var filteredData of order) {
-        if (`${filteredData?.payment_module_type}` != "Expense") {
+        if (
+          `${filteredData?.payment_module_type}` != "Expense" &&
+          filteredData?.payment_amount > 0
+        ) {
           filtered_array.push(filteredData);
         }
       }
@@ -427,7 +435,12 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
       // });
       if (order?.length > 0) {
         // const oEncrypt = await encryptionPayload(order);
-        res.status(200).send({ message: "User Pay History", history: order });
+        var new_order = order?.filter((ref) => {
+          if (ref?.payment_amount > 0) return ref;
+        });
+        res
+          .status(200)
+          .send({ message: "User Pay History", history: new_order });
       } else {
         res.status(200).send({ message: "No User Pay History", history: [] });
       }
@@ -476,7 +489,10 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
       //   select: "userLegalName photoId profilePhoto",
       // });
       for (var filteredData of order) {
-        if (`${filteredData?.payment_module_type}` != "Expense") {
+        if (
+          `${filteredData?.payment_module_type}` != "Expense" &&
+          filteredData?.payment_amount > 0
+        ) {
           filtered_array.push(filteredData);
         }
       }

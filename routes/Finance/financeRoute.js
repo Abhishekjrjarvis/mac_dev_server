@@ -138,27 +138,27 @@ router.get(
 
 router.post(
   "/:fid/add/emp/:sid",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Finance.addEmpToFinance)
 );
 
-router.get("/:fid/emp/all", isLoggedIn, catchAsync(Finance.allEmpToFinance));
+router.get("/:fid/emp/all", catchAsync(Finance.allEmpToFinance));
 
 router.post(
   "/:fid/add/payroll/:eid",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Finance.addFieldToPayroll)
 );
 
 router.get(
   "/:fid/sal/history",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Finance.retrieveAllSalaryHistory)
 );
 
 router.get(
   "/:eid/one/emp/detail",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Finance.retrieveOneEmpQuery)
 );
 //
@@ -469,6 +469,20 @@ router.patch(
   catchAsync(Finance.renderFinanceOnePayrollMasterMarkPayExpenseQuery)
 );
 
+router.get(
+  "/:fid/dashboard/cash/flow/hostel/query",
+  catchAsync(Finance.retrieveRequestHostelAtFinance)
+);
+
+router.post(
+  "/:hid/hostel/request",
+  catchAsync(Finance.renderHostelRequestFundsQuery)
+);
+
+router.post(
+  "/:fid/hostel/:hid/submit/:rid/status",
+  catchAsync(Finance.submitHostelFeeQuery)
+);
 // router.patch(
 //   "/:fid/update/structure",
 //   catchAsync(Finance.renderUpdateStructureQuery)

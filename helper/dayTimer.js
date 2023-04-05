@@ -210,6 +210,25 @@ exports.custom_month_query = (arg) => {
   return date_pattern;
 };
 
+exports.custom_year_payroll_query = (arg) => {
+  const date = new Date(new Date());
+  date.setFullYear(date.getFullYear() + arg);
+  var year = date.getFullYear();
+  const date_pattern = `${year}`;
+  return date_pattern;
+};
+
+exports.custom_month_payroll_query = (arg) => {
+  const date = new Date(new Date());
+  date.setMonth(date.getMonth() + arg);
+  var month = date.getMonth() + 1;
+  if (month < 10) {
+    month = `0${month}`;
+  }
+  const date_pattern = `${month}`;
+  return date_pattern;
+};
+
 exports.custom_year_reverse = (arg) => {
   const date = new Date(new Date());
   date.setFullYear(date.getFullYear() - arg);

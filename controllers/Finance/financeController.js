@@ -22,6 +22,8 @@ const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const Payroll = require("../../models/Finance/Payroll");
+const PayrollMaster = require("../../models/Finance/PayrollMaster");
+const PayMaster = require("../../models/Finance/PayMaster");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
@@ -382,7 +384,8 @@ exports.getExpense = async (req, res) => {
     }
     if (
       finance.financeTotalBalance > 0 &&
-      req.body.expenseAmount <= finance.financeTotalBalance
+      req.body.expenseAmount <= finance.financeTotalBalance &&
+      req.body.expenseAmount <= finance.financeBankBalance
     ) {
       const expenses = new Expense({ ...req.body });
       if (req.file) {
@@ -1061,9 +1064,35 @@ exports.retrieveRemainFeeBalance = async (req, res) => {
 exports.addEmpToFinance = async (req, res) => {
   try {
     const { fid, sid } = req.params;
+    const { heads } = req.body;
+    if (!fid && !sid && !heads)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
     const finance = await Finance.findById({ _id: fid });
     const staff = await Staff.findById({ _id: sid }).select("id");
     const pay_scale = new Payroll({ ...req.body });
+    for (var ref of heads) {
+      if (ref?.master_status === "Particular") {
+        pay_scale.pay_master_heads_particular.push({
+          master_name: ref?.master_name,
+          master_amount: ref?.master_amount,
+          master_status: ref?.master_status,
+          master_id: ref?.master_id,
+        });
+        pay_scale.pay_master_heads_particular_count += 1;
+      } else if (ref?.master_status === "Deduction") {
+        pay_scale.pay_master_heads_deduction.push({
+          master_name: ref?.master_name,
+          master_amount: ref?.master_amount,
+          master_status: ref?.master_status,
+          master_id: ref?.master_id,
+        });
+        pay_scale.pay_master_heads_deduction_count += 1;
+      } else {
+      }
+    }
     pay_scale.staff = staff._id;
     finance.staff_pay_list.push(pay_scale._id);
     await Promise.all([pay_scale.save(), finance.save()]);
@@ -1115,22 +1144,20 @@ exports.addFieldToPayroll = async (req, res) => {
       message,
       gross_salary,
       net_total,
-      hra,
-      tds,
-      epf,
-      da,
-      ma,
-      ta,
-      epc,
-      pqs,
+      master,
     } = req.body;
     const finance = await Finance.findById({ _id: fid });
     var emp = await Payroll.findById({ _id: eid });
     var staff = await Staff.findById({ _id: `${emp.staff}` });
     var user = await User.findById({ _id: `${staff?.user}` });
+    var g_year = new Date().getFullYear();
+    var g_month = new Date().getMonth() + 1;
+    if (g_month < 10) {
+      g_month = `0${g_month}`;
+    }
     if (net_total < finance.financeTotalBalance) {
       emp.pay_slip.push({
-        month: month,
+        month: new Date(`${month}`),
         attendence: attendence,
         total_leaves: emp.staff_total_paid_leaves,
         paid_leaves: paid_leaves,
@@ -1142,32 +1169,62 @@ exports.addFieldToPayroll = async (req, res) => {
         is_paid: "Paid",
         gross_salary: gross_salary,
         net_total: net_total,
-        hra: hra,
-        tds: tds,
-        epf: epf,
-        da: da,
-        medical_allowance: ma,
-        travel_allowance: ta,
-        perquisites: pqs,
-        employer_contribution: epc,
       });
-      emp.h_r_a = hra;
-      emp.t_d_s = tds;
-      emp.e_p_f = epf;
-      emp.d_a = da;
-      emp.medical_allowance = ma;
-      emp.travel_allowance = ta;
-      emp.perquisites = pqs;
-      emp.employer_contribution = epc;
+      for (var ref of master) {
+        if (ref?.month_master_id) {
+          const new_master = await PayrollMaster.findById({
+            _id: `${ref?.month_master_id}`,
+          });
+          emp.month_master.push({
+            month_master_name: ref?.month_master_name,
+            month_master_amount: ref?.month_master_amount,
+            month_master_status: ref?.month_master_status,
+            month_master_id: ref?.month_master_id,
+          });
+          var g_date = new Date(`${g_year}-${g_month}-01T00:00:00.000Z`);
+          var exist_master = await PayMaster.findOne({
+            $and: [
+              { finance: finance?._id },
+              {
+                created_at: {
+                  $gte: g_date,
+                },
+              },
+            ],
+          });
+          if (exist_master) {
+            exist_master.pay_amount += ref?.month_master_amount;
+            exist_master.pay_staff_collection.push({
+              amount: ref?.month_master_amount,
+              emp: emp?._id,
+            });
+            exist_master.pay_staff_collection_count += 1;
+            await exist_master.save();
+          } else {
+            const new_pay_master = new PayMaster({});
+            new_pay_master.pay_month = new Date(`${month}`);
+            new_pay_master.pay_amount = ref?.month_master_amount;
+            new_pay_master.pay_staff_collection.push({
+              amount: ref?.month_master_amount,
+              emp: emp?._id,
+            });
+            new_pay_master.pay_staff_collection_count += 1;
+            new_pay_master.payroll_master = new_master?._id;
+            new_pay_master.finance = finance?._id;
+            new_master.payroll_month_collection.push(new_pay_master?._id);
+            await Promise.all([new_pay_master.save(), new_master.save()]);
+          }
+        }
+      }
       finance.salary_history.push({
         salary: net_total,
-        month: month,
+        month: new Date(`${month}`),
         pay_mode: payment_mode,
         emp_pay: emp._id,
       });
       staff.salary_history.push({
         salary: net_total,
-        month: month,
+        month: new Date(`${month}`),
         pay_mode: payment_mode,
         emp_pay: emp._id,
       });
@@ -1300,20 +1357,15 @@ exports.retrieveOneEmpQuery = async (req, res) => {
           "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO institute",
       });
       var filtered = emp?.pay_slip?.filter((ele) => {
-        if (`${ele.month}` === `${month}`) return ele;
+        var new_month = moment(ele?.month).format("YYYY-MM-DD");
+        new_month = new_month?.slice(0, 7);
+        if (`${new_month}` === `${month}`) return ele;
       });
       var detail = {
-        staff_salary_month: emp.staff_salary_month,
-        staff_total_paid_leaves: emp.staff_total_paid_leaves,
-        // d_a: emp.d_a,
-        // h_r_a: emp.h_r_a,
-        // t_d_s: emp.t_d_s,
-        // e_p_f: emp.e_p_f,
-        // medical_allowance: emp.ma,
-        // travel_allowance: emp.ta,
-        // perquisites: emp.pqs,
-        // employer_contribution: emp.epc,
-        staff: emp.staff,
+        staff_salary_month: emp?.staff_salary_month,
+        staff_total_paid_leaves: emp?.staff_total_paid_leaves,
+        staff: emp?.staff,
+        pay_slip: emp?.pay_slip,
       };
       const institute = await InstituteAdmin.findById({
         _id: `${emp?.staff?.institute}`,
@@ -3850,10 +3902,30 @@ exports.renderFinanceMasterDepositRefundQuery = async (req, res) => {
     });
     const finance = await Finance.findById({ _id: `${master?.finance}` });
     const student = await Student.findById({ _id: sid });
+    const user = await User.findById({ _id: `${student?.user}` });
+    const institute = await InstituteAdmin.findById({
+      _id: `${finance?.institute}`,
+    });
     const s_admin = await Admin.findById({
       _id: `${process.env.S_ADMIN_ID}`,
     }).select("invoice_count");
     const new_receipt = new FeeReceipt({ ...req.body });
+    const order = new OrderPayment({});
+    order.payment_module_type = "Expense";
+    order.payment_to_end_user_id = institute?._id;
+    order.payment_by_end_user_id = user._id;
+    order.payment_module_id = finance?._id;
+    order.payment_amount = price;
+    order.payment_status = "Captured";
+    order.payment_flag_to = "Credit";
+    order.payment_flag_by = "Debit";
+    order.payment_mode = mode;
+    order.payment_finance = finance?._id;
+    order.payment_from = student._id;
+    s_admin.invoice_count += 1;
+    order.payment_invoice_number = s_admin.invoice_count;
+    user.payment_history.push(order._id);
+    institute.payment_history.push(order._id);
     if (master?.deposit_amount >= price) {
       master.deposit_amount -= price;
       master.refund_amount += price;
@@ -3886,7 +3958,6 @@ exports.renderFinanceMasterDepositRefundQuery = async (req, res) => {
     new_receipt.student = student?._id;
     new_receipt.finance = finance?._id;
     new_receipt.fee_transaction_date = new Date();
-    s_admin.invoice_count += 1;
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
     }${new Date().getFullYear()}${s_admin.invoice_count}`;
@@ -3899,6 +3970,9 @@ exports.renderFinanceMasterDepositRefundQuery = async (req, res) => {
       master.save(),
       new_receipt.save(),
       s_admin.save(),
+      user.save(),
+      institute.save(),
+      order.save()
     ]);
     res
       .status(200)
@@ -4144,12 +4218,10 @@ exports.renderFinanceOnePayrollMasterMarkPayExpenseQuery = async (req, res) => {
     const { mwid, fid } = req.params;
     const { amount, mode } = req.body;
     if (!mwid && !fid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
     var price = parseInt(amount);
     const s_admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
@@ -4187,6 +4259,215 @@ exports.renderFinanceOnePayrollMasterMarkPayExpenseQuery = async (req, res) => {
     res
       .status(200)
       .send({ message: "Explore New Expense Payment", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveRequestHostelAtFinance = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    if (!fid)
+      return res.status(200).send({
+        message: "There is a bug need to fixed immediately 😡",
+        access: false,
+      });
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const { filter_by } = req.query;
+    if (filter_by === "ALL_REQUEST") {
+      const finance = await Finance.findById({ _id: fid })
+        .select("financeName")
+        .populate({
+          path: "hostel_request",
+          populate: {
+            path: "hostel",
+            select: "hostel_manager",
+            populate: {
+              path: "hostel_manager",
+              select:
+                "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+            },
+          },
+        });
+
+      var all_array = nested_document_limit(
+        page,
+        limit,
+        finance?.hostel_request
+      );
+    } else if (filter_by === "ALL_SUBMIT") {
+      const finance = await Finance.findById({ _id: fid })
+        .select("financeName")
+        .populate({
+          path: "hostel_submit",
+          populate: {
+            path: "hostel",
+            select: "hostel_manager",
+            populate: {
+              path: "hostel_manager",
+              select:
+                "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+            },
+          },
+        });
+      var all_array = nested_document_limit(
+        page,
+        limit,
+        finance?.hostel_submit
+      );
+    } else if (filter_by === "ALL_CANCEL") {
+      const finance = await Finance.findById({ _id: fid })
+        .select("financeName")
+        .populate({
+          path: "hostel_cancelled",
+          populate: {
+            path: "hostel",
+            select: "hostel_manager",
+            populate: {
+              path: "hostel_manager",
+              select:
+                "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+            },
+          },
+        });
+      const all_array = nested_document_limit(
+        page,
+        limit,
+        finance?.hostel_cancelled
+      );
+    } else {
+      var all_array = [];
+    }
+    if (all_array?.length > 0) {
+      res.status(200).send({
+        message: "Get All Hostel Cash Flow from DB 🙌",
+        arr: all_array,
+        arrCount: all_array.length,
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Hostel Cash Flow from DB 🙌",
+        arr: [],
+        arrCount: 0,
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderHostelRequestFundsQuery = async (req, res) => {
+  try {
+    const { hid } = req.params;
+    const { amount } = req.body;
+    if (!hid && !amount)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const price = parseInt(amount);
+    const one_hostel = await Hostel.findById({ _id: hid });
+    const one_ins = await InstituteAdmin.findById({
+      _id: `${one_hostel?.institute}`,
+    });
+    const finance = await Finance.findById({
+      _id: `${one_ins?.financeDepart[0]}`,
+    });
+    if (
+      finance?.requestArray?.length > 0 &&
+      finance?.requestArray?.includes(`${one_hostel?._id}`)
+    ) {
+      res.status(200).send({
+        message: "Already requested for processing 🔍",
+        access: false,
+      });
+    } else {
+      finance.requestArray.push(one_hostel?._id);
+      finance.hostel_request.push({
+        hostel: one_hostel?._id,
+        amount: price,
+        status: "Requested",
+      });
+      one_hostel.requested_status = "Requested";
+      await Promise.all([finance.save(), one_hostel.save()]);
+      res.status(200).send({
+        message: "Installment Operation Completed 😀",
+        access: true,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.submitHostelFeeQuery = async (req, res) => {
+  try {
+    const { fid, hid, rid } = req.params;
+    const { amount, status } = req.body;
+    if (!fid && !hid && !rid && !amount && !status)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    if (status === "Accepted") {
+      const price = parseInt(amount);
+      var finance = await Finance.findById({ _id: fid });
+      var one_hostel = await Hostel.findById({ _id: hid });
+      for (var docs of finance.hostel_request) {
+        if (`${docs?._id}` === `${rid}`) {
+          finance.hostel_request.pull(docs?._id);
+        }
+      }
+      finance.hostel_submit.push({
+        hostel: one_hostel?._id,
+        amount: price,
+        status: "Accepeted",
+      });
+      finance.requestArray.pull(one_hostel._id);
+      // finance.financeTotalBalance += price;
+      // finance.financeSubmitBalance += price;
+      one_hostel.requested_status = "Pending";
+      if (one_hostel?.collected_fee >= price) {
+        one_hostel.collected_fee -= price;
+      }
+      await Promise.all([one_hostel.save(), finance.save()]);
+      res.status(200).send({
+        message: "Request Accepted",
+        access: true,
+        adsCount: finance.hostel_request.length,
+      });
+    } else if (status === "Rejected") {
+      const price = parseInt(amount);
+      var finance = await Finance.findById({ _id: fid });
+      var one_hostel = await Hostel.findById({ _id: hid });
+      for (var docs of finance.hostel_request) {
+        if (`${docs?._id}` === `${rid}`) {
+          finance.hostel_request.pull(docs?._id);
+        }
+      }
+      finance.hostel_cancelled.push({
+        hostel: one_hostel?._id,
+        amount: price,
+        status: "Rejected",
+      });
+      finance.requestArray.pull(one_hostel._id);
+      one_hostel.requested_status = "Pending";
+      await Promise.all([one_hostel.save(), finance.save()]);
+      res.status(200).send({
+        message: "Request Rejected",
+        access: true,
+        adsCount: finance.hostel_request.length,
+      });
+    } else {
+      res.status(200).send({
+        message: "I Think you lost in the space 😁",
+        access: false,
+        adsCount: 0,
+      });
+    }
   } catch (e) {
     console.log(e);
   }

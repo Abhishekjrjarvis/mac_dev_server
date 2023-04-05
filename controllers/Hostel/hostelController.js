@@ -80,6 +80,9 @@ const { handle_undefined } = require("../../Handler/customError");
 const { custom_month_query } = require("../../helper/dayTimer");
 const { structure_pricing_query } = require("../../Functions/structurePricing");
 const Renewal = require("../../models/Hostel/renewal");
+const InsDocument = require("../../models/Document/InsDocument");
+const InsAnnouncement = require("../../models/InsAnnouncement");
+const { announcement_feed_query } = require("../../Post/announceFeed");
 
 exports.renderActivateHostelQuery = async (req, res) => {
   try {
@@ -168,17 +171,17 @@ exports.renderHostelDashQuery = async (req, res) => {
           select: "fee_master_array_count fees_category_count",
         },
       });
-    // if (req?.query?.mod_id) {
-    //   var value = await render_finance_current_role(
-    //     one_hostel?.moderator_role,
-    //     mod_id
-    //   );
-    // }
+    if (req?.query?.mod_id) {
+      var value = await render_admission_current_role(
+        one_hostel?.moderator_role,
+        mod_id
+      );
+    }
     res.status(200).send({
       message: "Explore One Hostel Master Query",
       access: true,
       one_hostel: one_hostel,
-      // roles: req?.query?.mod_id ? value?.permission : null,
+      roles: req?.query?.mod_id ? value?.permission : null,
     });
   } catch (e) {
     console.log(e);
@@ -327,8 +330,9 @@ exports.renderOneHostelUnitQuery = async (req, res) => {
       })
       .populate({
         path: "hostel_unit_head",
-        select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
-      })
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+      });
 
     res.status(200).send({
       message: "Explore One Hostel Unit As Designation / Profile Query",
@@ -455,13 +459,17 @@ exports.renderOneHostelRoomAllBedQuery = async (req, res) => {
         access: false,
       });
 
-    const one_room = await HostelRoom.findById({ _id: hrid }).select("beds bed_count");
+    const one_room = await HostelRoom.findById({ _id: hrid }).select(
+      "beds bed_count"
+    );
 
-      var all_beds = await HostelBed.find({ _id: { $in: one_room?.beds } })
-        .populate({
-          path: "bed_allotted_candidate",
-          select: "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO"
-        })
+    var all_beds = await HostelBed.find({
+      _id: { $in: one_room?.beds },
+    }).populate({
+      path: "bed_allotted_candidate",
+      select:
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
+    });
     if (all_beds?.length > 0) {
       res.status(200).send({
         message: "Explore All Hostel Beds",
@@ -787,14 +795,10 @@ exports.renderNewHostelApplicationQuery = async (req, res) => {
     one_hostel.newApplication.push(newApply._id);
     one_hostel.newAppCount += 1;
     newApply.hostelAdmin = one_hostel?._id;
-    newApply.applicationHostel = hid
+    newApply.applicationHostel = hid;
     newApply.application_flow = "Hostel Application";
     institute.hostelCount += 1;
-    await Promise.all([
-      one_hostel.save(),
-      newApply.save(),
-      institute.save(),
-    ]);
+    await Promise.all([one_hostel.save(), newApply.save(), institute.save()]);
     res
       .status(200)
       .send({ message: "New Hostel Application is ongoing 👍", status: true });
@@ -5898,6 +5902,112 @@ exports.renderHostelAllClassMasterQuery = async (req, res) => {
         access: true,
         all_masters: [],
       });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderNewHostelAnnouncementQuery = async (req, res) => {
+  try {
+    const { hid } = req.params;
+    const { announceCount } = req.body
+    if (!hid)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately",
+          access: false,
+        });
+    const one_hostel = await Hostel.findById({ _id: hid });
+    const announcements = new InsAnnouncement({ ...req.body });
+    one_hostel.announcement.unshift(announcements._id);
+    one_hostel.announcementCount += 1;
+    announcements.one_hostel = one_hostel?._id;
+    for (var i = 1; i <= parseInt(announceCount); i++) {
+      var fileValue = req?.files[`file${i}`];
+      for (let file of fileValue) {
+        const insDocument = new InsDocument({});
+        insDocument.documentType = file.mimetype;
+        insDocument.documentName = file.originalname;
+        insDocument.documentEncoding = file.encoding;
+        insDocument.documentSize = file.size;
+        const results = await uploadDocFile(file.key);
+        insDocument.documentKey = results.Key;
+        announcements.announcementDocument.push(insDocument._id);
+        await insDocument.save();
+        await unlinkFile(file.path);
+      }
+    }
+    await Promise.all([one_hostel.save(), announcements.save()]);
+    res.status(200).send({
+      message: "Successfully Created Hostel Announcements",
+      announcements,
+      access: true,
+    });
+    // var all_students = await Student.find({
+    //   $and: [
+    //     { student_unit: { $in: one_hostel?.units } },
+    //     { institute: one_hostel?.institute },
+    //     { studentStatus: "Approved" },
+    //   ],
+    // });
+    // for (var ref of all_students) {
+    //   ref.announcements.push(announcements?._id);
+    //   await ref.save();
+    // }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllHostelAnnouncementQuery = async (req, res) => {
+  try {
+    const { hid } = req.params;
+    if (!hid)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately",
+          access: false,
+        });
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const one_hostel = await Hostel.findById({ _id: hid });
+    const announcement = await InsAnnouncement.find({
+      _id: { $in: one_hostel?.announcement },
+    })
+      .sort("-createdAt")
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "insAnnPhoto photoId insAnnTitle insAnnVisibilty insAnnDescription createdAt"
+      )
+      .populate({
+        path: "reply",
+        select: "replyText createdAt replyAuthorAsUser replyAuthorAsIns",
+      })
+      .populate({
+        path: "hostel",
+        select: "photoId hostel_photo",
+      });
+    if (announcement?.length > 0) {
+      res
+        .status(200)
+        .send({
+          message: "Explore All Hostel Announcement List",
+          announcement: announcement,
+          access: true,
+        });
+    } else {
+      res
+        .status(200)
+        .send({
+          message: "No Hostel Announcement List",
+          announcement: [],
+          access: true,
+        });
     }
   } catch (e) {
     console.log(e);

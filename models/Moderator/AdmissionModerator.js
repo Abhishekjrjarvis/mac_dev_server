@@ -29,6 +29,10 @@ const admissionModeratorSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Admission",
   },
+  hostel: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Hostel",
+  },
 });
 
 module.exports = mongoose.model("AdmissionModerator", admissionModeratorSchema);

@@ -63,4 +63,21 @@ router.delete(
   catchAsync(Role.destroyInstituteModeratorQuery)
 );
 
+router.post("/:hid/new/hostel/app/mod", catchAsync(Role.addHostelAppModerator));
+
+router.get(
+  "/:hid/all/hostel/moderator",
+  catchAsync(Role.renderHostelAllAppModeratorArray)
+);
+
+router.patch(
+  "/update/app/hostel/mod/:mid",
+  catchAsync(Role.updateHostelAppModeratorQuery)
+);
+
+router.delete(
+  "/:hid/destroy/app/hostel/mod/:mid",
+  catchAsync(Role.destroyHostelAppModeratorQuery)
+);
+
 module.exports = router;

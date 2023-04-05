@@ -132,3 +132,20 @@ exports.send_email_authentication = async (email) => {
     });
   return OTP;
 };
+
+// const dataa = () => {
+//   const new_user_pass = bcrypt.genSaltSync(12);
+//   const hash_user_pass = bcrypt.hashSync("Hello12@#", new_user_pass);
+//   console.log(hash_user_pass);
+// };
+// dataa();
+
+// const bug = (a1, a2, p1) => {
+//   if (p1 <= a1 && p1 <= a2) {
+//     return true;
+//   } else {
+//     return false;
+//   }
+// };
+
+// console.log(bug(5000, 3000, 3000));

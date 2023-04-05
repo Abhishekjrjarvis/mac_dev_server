@@ -1,3 +1,5 @@
+const { handle_undefined } = require("../Handler/customError");
+
 exports.valid_initials = (real, imaginary) => {
   if (imaginary) {
     var valid_start = imaginary.startsWith(real);
@@ -6,7 +8,13 @@ exports.valid_initials = (real, imaginary) => {
       var final = real + frame_initials;
       return final;
     } else {
-      return real + imaginary;
+      var new_real = handle_undefined(real);
+      var combine_query = new_real + imaginary;
+      if (combine_query.startsWith("Q")) {
+        return combine_query;
+      } else {
+        return `Q${combine_query}`;
+      }
     }
   }
 };

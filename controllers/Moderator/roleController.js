@@ -1,6 +1,7 @@
 const Staff = require("../../models/Staff");
 const Finance = require("../../models/Finance");
 const Admission = require("../../models/Admission/Admission");
+const Hostel = require("../../models/Hostel/hostel");
 const NewApplication = require("../../models/Admission/NewApplication");
 const User = require("../../models/User");
 const { designation_alarm } = require("../../WhatsAppSMS/payload");
@@ -10,6 +11,7 @@ const {
   all_access_role,
   all_access_role_finance,
   all_access_role_ins,
+  all_access_role_hostel,
 } = require("./accessRole");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const { nested_document_limit } = require("../../helper/databaseFunction");
@@ -901,6 +903,282 @@ exports.destroyInstituteModeratorQuery = async (req, res) => {
     one_staff.recentDesignation = "";
     await Promise.all([one_staff.save(), institute.save()]);
     await FinanceModerator.findByIdAndDelete(mid);
+    res.status(200).send({
+      message: "Deletion Operation Completed 👍",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.addHostelAppModerator = async (req, res) => {
+  try {
+    const { hid } = req.params;
+    const { mod_role, sid, app_array } = req.body;
+    if (!hid && !mod_role && !sid && !app_array)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    var all_role = all_access_role_hostel();
+    const one_hostel = await Hostel.findById({ _id: hid });
+    const institute = await InstituteAdmin.findById({
+      _id: `${one_hostel?.institute}`,
+    });
+    const staff = await Staff.findById({ _id: sid });
+    const user = await User.findById({ _id: `${staff?.user}` });
+    const notify = new Notification({});
+    const new_mod = new AdmissionModerator({});
+    new_mod.access_role = mod_role;
+    new_mod.access_staff = staff?._id;
+    if (mod_role === all_role[`${mod_role}`]?.role) {
+      new_mod.permission.bound = [
+        ...all_role[`${mod_role}`]?.permission?.bound,
+      ];
+    }
+    if (app_array?.length > 0) {
+      new_mod.access_application.push(...app_array);
+    }
+    new_mod.hostel = one_hostel?._id;
+    one_hostel.moderator_role.push(new_mod?._id);
+    one_hostel.moderator_role_count += 1;
+    staff.hostelModeratorDepartment.push(new_mod?._id);
+    staff.staffDesignationCount += 1;
+    staff.recentDesignation = `Hostel Manager Moderator - ${mod_role}`;
+    staff.designation_array.push({
+      role: "Hostel Manager Moderator",
+      role_id: new_mod?._id,
+    });
+    notify.notifyContent = `you got the designation of Hostel Manager Moderator for ${mod_role} 🎉🎉`;
+    notify.notifySender = institute?._id;
+    notify.notifyReceiever = user._id;
+    notify.notifyCategory = "Hostel Moderator Designation";
+    user.uNotify.push(notify._id);
+    notify.user = user._id;
+    notify.notifyPid = "1";
+    notify.notifyByInsPhoto = institute._id;
+    invokeFirebaseNotification(
+      "Designation Allocation",
+      notify,
+      institute.insName,
+      user._id,
+      user.deviceToken
+    );
+    await Promise.all([
+      staff.save(),
+      one_hostel.save(),
+      new_mod.save(),
+      user.save(),
+      notify.save(),
+    ]);
+    // const adsEncrypt = await encryptionPayload(one_hostel._id);
+    res.status(200).send({
+      message: "Successfully Assigned Hostel Manager Moderator Staff",
+      hostel: one_hostel._id,
+      access: true,
+    });
+    designation_alarm(
+      user?.userPhoneNumber,
+      "HOSTEL_MODERATOR",
+      institute?.sms_lang,
+      "",
+      "",
+      ""
+    );
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderHostelAllAppModeratorArray = async (req, res) => {
+  try {
+    const { hid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (!hid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const one_hostel = await Hostel.findById({ _id: hid }).select(
+      "moderator_role"
+    );
+
+    if (search) {
+      var all_mods = await AdmissionModerator.find({
+        $and: [{ _id: { $in: one_hostel?.moderator_role } }],
+        $or: [{ access_role: { $regex: search, $options: "i" } }],
+      })
+        .populate({
+          path: "access_staff",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        })
+        .populate({
+          path: "access_application",
+          select: "applicationName",
+        });
+    } else {
+      var all_mods = await AdmissionModerator.find({
+        _id: { $in: one_hostel?.moderator_role },
+      })
+        .sort("-1")
+        .limit(limit)
+        .skip(skip)
+        .populate({
+          path: "access_staff",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        })
+        .populate({
+          path: "access_application",
+          select: "applicationName",
+        });
+    }
+    if (all_mods) {
+      // const allEncrypt = await encryptionPayload(all_mods);
+      res.status(200).send({
+        message: "All Admin / Moderator List 😀",
+        all_mods,
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Admin / Moderator List 😀",
+        all_mods: [],
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.updateHostelAppModeratorQuery = async (req, res) => {
+  try {
+    const { mid } = req.params;
+    const { role, staffId, app_array } = req.body;
+    if (!mid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    var sid = handle_undefined(staffId);
+    var all_role = all_access_role_hostel();
+    const one_moderator = await AdmissionModerator.findById({
+      _id: mid,
+    }).populate({
+      path: "hostel",
+      select: "institute",
+      populate: {
+        path: "institute",
+        select: "insName sms_lang",
+      },
+    });
+    if (role) {
+      one_moderator.access_role = role;
+      one_moderator.permission.bound = [];
+      if (role === all_role[`${role}`]?.role) {
+        one_moderator.permission.bound = [
+          ...all_role[`${role}`]?.permission?.bound,
+        ];
+      }
+      if (role === "MULTI_APP_ACCESS" || role === "FULL_ACCESS") {
+      } else {
+        var all_apps = await NewApplication.find({
+          _id: { $in: one_moderator?.access_application },
+        });
+        for (var val of all_apps) {
+          one_moderator.access_application.pull(val?._id);
+        }
+      }
+    }
+    if (sid) {
+      var one_staff = await Staff.findById({
+        _id: `${one_moderator?.access_staff}`,
+      });
+      one_staff.hostelModeratorDepartment.pull(one_moderator?._id);
+      one_staff.recentDesignation = "";
+      if (one_staff?.staffDesignationCount > 0) {
+        one_staff.staffDesignationCount -= 1;
+      }
+      await one_staff.save();
+      var new_staff = await Staff.findById({ _id: sid });
+      new_staff.hostelModeratorDepartment.push(one_moderator?._id);
+      new_staff.recentDesignation = `Hostel Manager Moderator - ${one_moderator?.access_role}`;
+      new_staff.staffDesignationCount += 1;
+      one_moderator.access_staff = new_staff?._id;
+      const notify = new Notification({});
+      var user = await User.findById({ _id: `${new_staff?.user}` });
+      notify.notifyContent = `you got the designation of Hostel Manager Moderator 🎉🎉`;
+      notify.notifySender = one_moderator?.hostel?._id;
+      notify.notifyReceiever = user._id;
+      notify.notifyCategory = "Hostel Moderator Designation";
+      user.uNotify.push(notify._id);
+      notify.user = user._id;
+      notify.notifyByInsPhoto = one_moderator?.hostel?.institute?._id;
+      invokeFirebaseNotification(
+        "Designation Allocation",
+        notify,
+        one_moderator?.hostel?.institute?.insName,
+        user._id,
+        user.deviceToken
+      );
+      designation_alarm(
+        user?.userPhoneNumber,
+        "HOSTEL_MODERATOR",
+        one_moderator?.hostel?.institute?.sms_lang,
+        "",
+        "",
+        ""
+      );
+      await Promise.all([new_staff.save(), user.save(), notify.save()]);
+    }
+    if (app_array?.length > 0) {
+      for (var ref of app_array) {
+        if (one_moderator?.access_application?.includes(`${ref}`)) {
+        } else {
+          one_moderator.access_application.push(ref);
+        }
+      }
+    }
+    await one_moderator.save();
+    res.status(200).send({ message: "Explore Update Role", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.destroyHostelAppModeratorQuery = async (req, res) => {
+  try {
+    const { hid, mid } = req.params;
+    if (!hid && !mid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const one_moderator = await AdmissionModerator.findById({ _id: mid });
+    const one_staff = await Staff.findById({
+      _id: `${one_moderator?.access_staff}`,
+    });
+    var one_hostel = await Hostel.findById({ _id: hid }).select(
+      "moderator_role"
+    );
+    one_hostel.moderator_role.pull(mid);
+    one_staff.hostelModeratorDepartment.pull(mid);
+    if (one_hostel.moderator_role_count > 0) {
+      one_hostel.moderator_role_count -= 1;
+    }
+    if (one_staff.staffDesignationCount > 0) {
+      one_staff.staffDesignationCount -= 1;
+    }
+    one_staff.recentDesignation = "";
+    await Promise.all([one_staff.save(), one_hostel.save()]);
+    await AdmissionModerator.findByIdAndDelete(mid);
     res.status(200).send({
       message: "Deletion Operation Completed 👍",
       access: true,

@@ -11547,6 +11547,9 @@ paths:
               staff_total_paid_leaves:
                 type: number
                 description: Enter Staff Total Paid Leaves given in a month
+              heads:
+                type: array
+                description: Enter Array of Objects [{"master_name": "TDS", "master_amount": 2000, "master_status": "Particular || Deduction", "master_id": "974398787878778788"}]
       responses:
         "200":
           description: OK
@@ -11577,7 +11580,7 @@ paths:
           name: month
           schema:
             type: integer
-          description: for type --> "History" then pass this query
+          description: for type --> "History" then pass this query ("2023-09") just like
       responses:
         "200":
           description: OK
@@ -11639,34 +11642,194 @@ paths:
               net_total:
                 type: number
                 description: Enter Net Total in Number
-              hra:
-                type: number
-                description: Enter HRA in Number
-              tds:
-                type: number
-                description: Enter TDS in Number
-              da:
-                type: number
-                description: Enter DA in Number
-              epf:
-                type: number
-                description: Enter EPF in Number
-              ma:
-                type: number
-                description: Enter Medical Allowance in Number
-              ta:
-                type: number
-                description: Enter Travel Allowance in Number
-              epc:
-                type: number
-                description: Enter Employer Contribution in Number
-              pqs:
-                type: number
-                description: Enter perquisites in Number
+              master:
+                type: array
+                description: Enter Array of Objects [{"month_master_name": "TDS", "month_master_amount": 2000, "month_master_status": "Particular || Deduction", "month_master_id": "974398787878778788"}]
       responses:
         "200":
           description: OK
 
+
+  /api/v1/finance/{fid}/add/payroll/master:
+    post:
+      tags:
+        - Finance Module Query
+      summary: For Add Payroll Master -(Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              payroll_head_name:
+                type: string
+                description: Enter Head Name
+              payroll_head_type:
+                type: string
+                description: Enter ("Particular" || "Deduction")
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/all/payroll/master:
+    get:
+      tags:
+        - Finance Module Query
+      summary: For All Payroll Master -(Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: This is Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/one/payroll/master/{pmid}/all/monthwise:
+    get:
+      tags:
+        - Finance Module Query
+      summary: For One Payroll Master Month Wise Seggregation -(Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pmid
+          required: true
+          type: string
+          description: This is Payroll Master id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/one/payroll/master/one/monthwise/{mwid}/all/emp:
+    get:
+      tags:
+        - Finance Module Query
+      summary: For One Payroll Master One Month Wise All Staff -(Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mwid
+          required: true
+          type: string
+          description: This is Month Wise id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/one/payroll/master/{mwid}/mark/pay/expense:
+    patch:
+      tags:
+        - Finance Module Query
+      summary: For Mark Account Payment Like ("TDS") -(Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id
+        - in: path
+          name: mwid
+          required: true
+          type: string
+          description: This is Month Wise id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                description: Enter Amount
+              mode:
+                type: string
+                description: Enter Mode like as previous
+              fee_payment_mode:
+                type: string
+                description: Enter Fee Mode ("By Cash") || ("UPI Transfer") || ("Demand Draft") || ("Cheque") || ("RTGS/NEFT/IMPS")
+                required: false
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: false
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: false
+              fee_bank_name:
+                type: string
+                description: Enter Bank Name e.g SBI
+                required: false
+              fee_bank_holder:
+                type: string
+                description: Enter Bank Holder Name e.g Mithkal
+                required: false
+              fee_utr_reference:
+                type: string
+                description: Enter Fee Unique Transaction Reference Number (UTR)
+                required: false
+      responses:
+        "200":
+          description: OK
 
   /api/v1/finance/{fid}/sal/history:
     get:
@@ -20246,6 +20409,110 @@ paths:
         "200":
           description: OK
 
+  /api/v1/finance/{hid}/hostel/request:
+    post:
+      tags:
+        - Cash Flow Module Query
+      summary: Request || Submit To Finance Manager  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hostel id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                required: true
+                description: Enter Amount 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/dashboard/cash/flow/hostel/query:
+    get:
+      tags:
+        - Cash Flow Module Query
+      summary: Get All Finance Hostel Cash Flow  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+        - in: query
+          name: filter_by
+          required: true
+          type: string
+          description: Enter Filter Keywords ("ALL_REQUEST" || "ALL_SUBMIT" || "ALL_CANCEL")
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/hostel/{hid}/submit/{rid}/status:
+    post:
+      tags:
+        - Cash Flow Module Query
+      summary: Accepted or Rejected Hostel Request At Finance  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hostel id 
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: This is Hostel Request id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                required: true
+                description: Enter Amount 
+              status:
+                type: number
+                required: true
+                description: Enter Status ("Accepted" || "Rejected") 
+      responses:
+        "200":
+          description: OK
+
 # library side all list
   /api/v1/library/activate/{id}:
     post:
@@ -21263,6 +21530,137 @@ paths:
           required: true
           type: string
           description: Enter Institute Id
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: Enter One Moderator Id
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/role/permission/{hid}/new/hostel/app/mod:
+    post:
+      tags:
+        - Moderator Role & Permission
+      summary: Add New Moderator Role (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: Enter Hostel Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              mod_role:
+                type: string
+                description: Enter Role as per given 
+                required: true
+              sid:
+                type: string
+                description: Enter Staff Id
+                required: true 
+              app_array:
+                type: array
+                description: Enter Array of Application Id
+                required: true  
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/role/permission/{hid}/all/hostel/moderator:
+    get:
+      tags:
+        - Moderator Role & Permission
+      summary: All Moderator Role of Hostel Super Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: Enter Hostel Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: search
+          required: true
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/role/permission/update/app/hostel/mod/{mid}:
+    patch:
+      tags:
+        - Moderator Role & Permission
+      summary: Edit One Moderator Role By Hostel Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: Enter One Moderator Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              role:
+                type: string
+                description: Enter Role as per given 
+                required: false
+              staffId:
+                type: string
+                description: Enter Staff Id
+                required: true 
+              app_array:
+                type: string
+                description: Enter Array of Application Id
+                required: true 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/role/permission/{hid}/destroy/app/hostel/mod/{mid}:
+    delete:
+      tags:
+        - Moderator Role & Permission
+      summary: Delete One Moderator Role By Hostel Super Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: Enter Hostel Id
         - in: path
           name: mid
           required: true
@@ -28012,6 +28410,127 @@ paths:
           required: false
           type: string
           description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hid}/new/announcement:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Add New Announcement By Hostel Manager -(verified)
+      produces:
+        - application/json
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: hid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The Hostel ID
+        - in: formData
+          name: insAnnTitle
+          type: string
+          required: true
+          description: Announcement Title
+        - in: formData
+          name: insAnnDescription
+          type: string
+          required: true
+          description: Announcement Description
+        - in: formData
+          name: insAnnVisibility
+          type: string
+          required: true
+          description: Announcement Visibility
+        - in: formData
+          name: announceCount
+          type: number
+          required: true
+          description: Announcement Count for UPTO -> 5 Docs
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload Announcement Photo
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload Announcement Document
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hid}/all/announcement:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: All Announcements List Query from Both Side Student + Hostel -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hostel ID   
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/retro/structure/{appId}/one/student/{sid}/query:
+    patch:
+      tags:
+        - New Flow Finance + Admission
+      summary: Edit Fee Structure At Fees Data  -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission ID   
+        - in: path
+          name: appId
+          required: true
+          type: string
+          description: Enter Application ID
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Student ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              old_fee_struct:
+                type: string
+                description: Enter Old Structure ID
+                required: true
+              new_fee_struct:
+                type: string
+                description: Enter New Structure ID
+                required: true  
       responses:
         "200":
           description: OK

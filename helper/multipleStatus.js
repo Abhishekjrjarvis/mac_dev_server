@@ -108,11 +108,11 @@ exports.fee_reordering = async (
     var is_install;
     if (
       price <= student?.fee_structure?.total_admission_fees &&
-      price > student?.fee_structure?.one_installments?.fees
+      price <= student?.fee_structure?.one_installments?.fees
     ) {
-      is_install = false;
-    } else {
       is_install = true;
+    } else {
+      is_install = false;
     }
     new_receipt.student = student?._id;
     new_receipt.application = apply?._id;
@@ -288,11 +288,11 @@ exports.fee_reordering_direct_student = async (
       var is_install;
       if (
         price <= fee_structure?.total_admission_fees &&
-        price > fee_structure?.one_installments?.fees
+        price <= fee_structure?.one_installments?.fees
       ) {
-        is_install = false;
-      } else {
         is_install = true;
+      } else {
+        is_install = false;
       }
       var total_amount = add_total_installment(student_structure);
       if (price > 0 && !is_install) {
@@ -435,11 +435,11 @@ exports.fee_reordering_direct_student_payload = async (
         var is_install;
         if (
           price <= fee_structure?.total_admission_fees &&
-          price > fee_structure?.one_installments?.fees
+          price <= fee_structure?.one_installments?.fees
         ) {
-          is_install = false;
-        } else {
           is_install = true;
+        } else {
+          is_install = false;
         }
         var total_amount = add_total_installment(student_structure);
         if (price > 0 && !is_install) {

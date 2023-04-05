@@ -302,11 +302,11 @@ exports.admissionInstituteFunction = async (
     var is_install;
     if (
       parseInt(tx_amount_ad) <= student?.fee_structure?.total_admission_fees &&
-      parseInt(tx_amount_ad) > student?.fee_structure?.one_installments?.fees
+      parseInt(tx_amount_ad) <= student?.fee_structure?.one_installments?.fees
     ) {
-      is_install = false;
-    } else {
       is_install = true;
+    } else {
+      is_install = false;
     }
     if (apply?.gstSlab > 0) {
       var business_data = new BusinessTC({});

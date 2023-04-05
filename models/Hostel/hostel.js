@@ -17,7 +17,7 @@ const hostelSchema = new mongoose.Schema({
   moderator_role: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "FinanceModerator",
+      ref: "AdmissionModerator",
     },
   ],
   moderator_role_count: {
@@ -53,6 +53,10 @@ const hostelSchema = new mongoose.Schema({
   remainingFeeCount: {
     type: Number,
     default: 0,
+  },
+  requested_status: {
+    type: String,
+    default: "Pending",
   },
   collected_fee: {
     type: Number,
@@ -195,6 +199,16 @@ const hostelSchema = new mongoose.Schema({
     default: 0,
   },
   room_count: {
+    type: Number,
+    default: 0,
+  },
+  announcement: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "InsAnnouncement",
+    },
+  ],
+  announcementCount: {
     type: Number,
     default: 0,
   },

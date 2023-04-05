@@ -989,7 +989,7 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
             {
               created_at: {
                 $gte: g_date,
-                $lt: l_date,
+                $lte: l_date,
               },
             },
             {
@@ -1004,6 +1004,8 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
       } else {
         var g_year = new Date(`${from}`).getFullYear();
         var l_year = new Date(`${to}`).getFullYear();
+        var g_day = new Date(`${from}`).getDate();
+        var l_day = new Date(`${to}`).getDate();
         var g_month = new Date(`${from}`).getMonth() + 1;
         if (g_month < 10) {
           g_month = `0${g_month}`;
@@ -1012,14 +1014,20 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
         if (l_month < 10) {
           l_month = `0${l_month}`;
         }
-        const g_date = new Date(`${g_year}-${g_month}-01T00:00:00.000Z`);
-        const l_date = new Date(`${l_year}-${l_month}-01T00:00:00.000Z`);
+        if (g_day < 10) {
+          g_day = `0${g_day}`;
+        }
+        if (l_day < 10) {
+          l_day = `0${l_day}`;
+        }
+        const g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
+        const l_date = new Date(`${l_year}-${l_month}-${l_day}T00:00:00.000Z`);
         var order = await OrderPayment.find({
           $and: [
             {
               created_at: {
                 $gte: g_date,
-                $lt: l_date,
+                $lte: l_date,
               },
             },
             {
@@ -1035,6 +1043,8 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
     } else if (tab_flow === "BY_FEE_TYPE") {
       var g_year = new Date(`${from}`).getFullYear();
       var l_year = new Date(`${to}`).getFullYear();
+      var g_day = new Date(`${from}`).getDate();
+      var l_day = new Date(`${to}`).getDate();
       var g_month = new Date(`${from}`).getMonth() + 1;
       if (g_month < 10) {
         g_month = `0${g_month}`;
@@ -1043,14 +1053,20 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
       if (l_month < 10) {
         l_month = `0${l_month}`;
       }
-      const g_date = new Date(`${g_year}-${g_month}-01T00:00:00.000Z`);
-      const l_date = new Date(`${l_year}-${l_month}-01T00:00:00.000Z`);
+      if (g_day < 10) {
+        g_day = `0${g_day}`;
+      }
+      if (l_day < 10) {
+        l_day = `0${l_day}`;
+      }
+      const g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
+      const l_date = new Date(`${l_year}-${l_month}-${l_day}T00:00:00.000Z`);
       var order = await OrderPayment.find({
         $and: [
           {
             created_at: {
               $gte: g_date,
-              $lt: l_date,
+              $lte: l_date,
             },
           },
           {
@@ -1077,7 +1093,7 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
             {
               created_at: {
                 $gte: g_date,
-                $lt: l_date,
+                $lte: l_date,
               },
             },
             {
@@ -1095,22 +1111,30 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
       } else {
         var g_year = new Date(`${from}`).getFullYear();
         var l_year = new Date(`${to}`).getFullYear();
+        var g_day = new Date(`${from}`).getDate();
+        var l_day = new Date(`${to}`).getDate();
         var g_month = new Date(`${from}`).getMonth() + 1;
         if (g_month < 10) {
           g_month = `0${g_month}`;
+        }
+        if (g_day < 10) {
+          g_day = `0${g_day}`;
         }
         var l_month = new Date(`${to}`).getMonth() + 1;
         if (l_month < 10) {
           l_month = `0${l_month}`;
         }
-        const g_date = new Date(`${g_year}-${g_month}-01T00:00:00.000Z`);
-        const l_date = new Date(`${l_year}-${l_month}-01T00:00:00.000Z`);
+        if (l_day < 10) {
+          l_day = `0${l_day}`;
+        }
+        const g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
+        const l_date = new Date(`${l_year}-${l_month}-${l_day}T00:00:00.000Z`);
         var order = await OrderPayment.find({
           $and: [
             {
               created_at: {
                 $gte: g_date,
-                $lt: l_date,
+                $lte: l_date,
               },
             },
             {
@@ -1124,6 +1148,7 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
         res.status(200).send({
           message: "Explore Expenses From To Query",
           access: true,
+          order,
         });
       }
     } else if (tab_flow === "BY_INCOMES") {
@@ -1135,7 +1160,7 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
             {
               created_at: {
                 $gte: g_date,
-                $lt: l_date,
+                $lte: l_date,
               },
             },
             {
@@ -1153,6 +1178,8 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
       } else {
         var g_year = new Date(`${from}`).getFullYear();
         var l_year = new Date(`${to}`).getFullYear();
+        var g_day = new Date(`${from}`).getDate();
+        var l_day = new Date(`${to}`).getDate();
         var g_month = new Date(`${from}`).getMonth() + 1;
         if (g_month < 10) {
           g_month = `0${g_month}`;
@@ -1161,14 +1188,20 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
         if (l_month < 10) {
           l_month = `0${l_month}`;
         }
-        const g_date = new Date(`${g_year}-${g_month}-01T00:00:00.000Z`);
-        const l_date = new Date(`${l_year}-${l_month}-01T00:00:00.000Z`);
+        if (g_day < 10) {
+          g_day = `0${g_day}`;
+        }
+        if (l_day < 10) {
+          l_day = `0${l_day}`;
+        }
+        const g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
+        const l_date = new Date(`${l_year}-${l_month}-${l_day}T00:00:00.000Z`);
         var order = await OrderPayment.find({
           $and: [
             {
               created_at: {
                 $gte: g_date,
-                $lt: l_date,
+                $lte: l_date,
               },
             },
             {
@@ -1206,7 +1239,9 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
         }
         trans_list.push({
           InvoiceNumber: ref?.payment_invoice_number ?? "#NA",
-          Name: user?.userLegalName ?? "#NA",
+          Name: user?.userLegalName
+            ? user?.userLegalName
+            : ref?.payment_by_end_user_id_name,
           PaymentAmount: ref?.payment_amount ?? "#NA",
           PaymentType: ref?.payment_module_type ?? "#NA",
           PaymentMode:
@@ -1389,7 +1424,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
     const institute = await InstituteAdmin.findById({
       _id: `${finance?.institute}`,
     }).select("insName");
-    if(fsid && depart){
+    if (fsid && depart) {
       var all_students = await Student.find({
         $and: [{ institute: institute?._id }, { studentStatus: "Approved" }],
         $or: [
@@ -1401,12 +1436,11 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
           },
         ],
       }).select("_id fee_receipt");
+    } else {
+      var all_students = await Student.find({
+        $and: [{ institute: institute?._id }, { studentStatus: "Approved" }],
+      }).select("_id fee_receipt");
     }
-    else{
-    var all_students = await Student.find({
-      $and: [{ institute: institute?._id }, { studentStatus: "Approved" }],
-    }).select("_id fee_receipt");
-  }
     for (var ref of all_students) {
       sorted_array.push(ref?._id);
     }

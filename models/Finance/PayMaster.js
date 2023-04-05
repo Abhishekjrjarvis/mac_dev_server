@@ -23,6 +23,10 @@ const payMasterSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "PayrollMaster",
   },
+  finance: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Finance",
+  },
 });
 
 module.exports = mongoose.model("PayMaster", payMasterSchema);

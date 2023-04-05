@@ -38,7 +38,7 @@ exports.searchUserUniversalWeb = async (req, res) => {
           },
         ],
       })
-        .select("insName insProfilePhoto photoId name blockStatus status")
+        .select("insName insProfilePhoto photoId name blockStatus status hostelDepart")
         .limit(itemPerPage)
         .skip(dropItem)
         .lean()
@@ -174,7 +174,7 @@ exports.searchInstituteUniversalWeb = async (req, res) => {
           { name: { $regex: req.query.search, $options: "i" } },
         ],
       })
-        .select("insName insProfilePhoto photoId name blockStatus")
+        .select("insName insProfilePhoto photoId name blockStatus hostelDepart")
         .limit(itemPerPage)
         .skip(dropItem)
         .lean()
@@ -308,7 +308,7 @@ exports.searchUserUniversal = async (req, res) => {
           },
         ],
       })
-        .select("insName insProfilePhoto photoId name blockStatus status")
+        .select("insName insProfilePhoto photoId name blockStatus status hostelDepart")
         .limit(itemPerPage)
         .skip(dropItem)
         .lean()
@@ -499,7 +499,7 @@ exports.searchInstitute = async (req, res) => {
       const dropItem = (getPage - 1) * itemPerPage;
       const allInstitutes = await InstituteAdmin.find(search)
         .select(
-          "insName insProfilePhoto photoId name insState insDistrict followers userFollowersList"
+          "insName insProfilePhoto photoId name insState hostelDepart insDistrict followers userFollowersList"
         )
         .limit(itemPerPage)
         .skip(dropItem)
@@ -537,7 +537,7 @@ exports.searchUserInstitute = async (req, res) => {
         //   path: "followers",
         //   // select: "",
         // })
-        .select("insName insProfilePhoto photoId name status")
+        .select("insName insProfilePhoto photoId name status hostelDepart")
         .limit(itemPerPage)
         .skip(dropItem)
         .lean()

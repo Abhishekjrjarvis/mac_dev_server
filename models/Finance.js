@@ -434,6 +434,39 @@ const financeSchema = new mongoose.Schema(
         ref: "FeeReceipt",
       },
     ],
+    hostel_request: [
+      {
+        hostel: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Hostel",
+        },
+        createdAt: { type: Date, default: Date.now },
+        amount: { type: Number, default: 0 },
+        status: { type: String },
+      },
+    ],
+    hostel_submit: [
+      {
+        hostel: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Hostel",
+        },
+        createdAt: { type: Date, default: Date.now },
+        amount: { type: Number, default: 0 },
+        status: { type: String },
+      },
+    ],
+    hostel_cancelled: [
+      {
+        hostel: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Hostel",
+        },
+        createdAt: { type: Date, default: Date.now },
+        amount: { type: Number, default: 0 },
+        status: { type: String },
+      },
+    ],
   },
   { timestamps: true }
 );

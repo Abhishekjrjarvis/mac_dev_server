@@ -442,6 +442,9 @@ exports.valid_student_form_query = async (one_ins, one_student, flow) => {
       var person_query = personal_query(one_student);
       status = person_query?.form_status;
     }
+    if (one_student?.studentPreviousSchool) {
+      status = "Filled";
+    }
     if (one_ins?.studentFormSetting?.otherPersonalInfo) {
       var other_query = other_personal_query(one_student);
       status = other_query?.form_status;

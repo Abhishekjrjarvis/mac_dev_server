@@ -166,6 +166,7 @@ const second_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -227,6 +228,7 @@ const third_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -288,6 +290,7 @@ const four_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -349,6 +352,7 @@ const five_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -410,6 +414,7 @@ const six_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -471,6 +476,7 @@ const seven_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -532,6 +538,7 @@ const eight_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -593,6 +600,7 @@ const nine_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -654,6 +662,7 @@ const ten_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -715,6 +724,7 @@ const eleven_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -769,6 +779,7 @@ const tweleve_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -1117,18 +1128,46 @@ exports.remain_government_installment = async (
         if (filter_student_install[ref].remainAmount < price) {
           holding_price += price - filter_student_install[ref].remainAmount;
           filter_student_install[ref].status = "Paid";
-          filter_student_install[ref].mode = fee_receipt?.fee_payment_mode;
+          filter_student_install[ref].mode = receipt_args?.fee_payment_mode;
+          filter_student_install[ref].fee_receipt = receipt_args?._id
         } else {
-          filter_student_install[ref].remainAmount -= holding_price;
+          var valid_amount = filter_student_install[ref].remainAmount - price;
+          filter_student_install[ref].remainAmount = price;
+          filter_student_install[ref].status = "Paid";
+          filter_student_install[ref].mode = receipt_args?.fee_payment_mode;
+          filter_student_install[ref].fee_receipt = receipt_args?._id
+          remain_args.remaining_array.push({
+            remainAmount: valid_amount,
+            appId: filter_student_install[ref].appId,
+            status: "Not Paid",
+            instituteId: filter_student_install[ref].instituteId,
+            installmentValue:
+              type === "Installment Remain" ? "Installment Remain" : type,
+            isEnable: true,
+          });
         }
       } else {
         if (filter_student_install[ref].remainAmount < holding_price) {
           holding_price +=
             holding_price - filter_student_install[ref].remainAmount;
           filter_student_install[ref].status = "Paid";
-          filter_student_install[ref].mode = fee_receipt?.fee_payment_mode;
+          filter_student_install[ref].mode = receipt_args?.fee_payment_mode;
+          filter_student_install[ref].fee_receipt = receipt_args?._id
         } else {
-          filter_student_install[ref].remainAmount -= holding_price;
+          var valid_amount = filter_student_install[ref].remainAmount - price;
+          filter_student_install[ref].remainAmount = price;
+          filter_student_install[ref].status = "Paid";
+          filter_student_install[ref].mode = receipt_args?.fee_payment_mode;
+          filter_student_install[ref].fee_receipt = receipt_args?._id
+          remain_args.remaining_array.push({
+            remainAmount: valid_amount,
+            appId: filter_student_install[ref].appId,
+            status: "Not Paid",
+            instituteId: filter_student_install[ref].instituteId,
+            installmentValue:
+              type === "Installment Remain" ? "Installment Remain" : type,
+            isEnable: true,
+          });
         }
       }
     }

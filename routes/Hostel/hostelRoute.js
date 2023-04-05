@@ -270,4 +270,14 @@ router.get(
   catchAsync(Hostel.renderHostelAllClassMasterQuery)
 );
 
+router.post(
+  "/:hid/new/announcement",
+  catchAsync(Hostel.renderNewHostelAnnouncementQuery)
+);
+
+router.get(
+  "/:hid/all/announcement",
+  catchAsync(Hostel.renderAllHostelAnnouncementQuery)
+);
+
 module.exports = router;

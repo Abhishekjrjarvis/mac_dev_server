@@ -28,6 +28,10 @@ const insAnnouncementSchema = new mongoose.Schema({
     },
   ],
   starList: [],
+  hostel: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Hostel",
+  },
 });
 
 module.exports = mongoose.model("InsAnnouncement", insAnnouncementSchema);

@@ -445,7 +445,7 @@ router.get(
 );
 
 router.post(
-  "/:fid/add/payroll/master",
+  "/:fid/add/payroll/master/query",
   catchAsync(Finance.renderFinanceNewPayrollMasterQuery)
 );
 

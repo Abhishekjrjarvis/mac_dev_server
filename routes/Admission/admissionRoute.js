@@ -446,4 +446,9 @@ router.patch(
   catchAsync(Admission.renderRetroOneStudentStructureQuery)
 );
 
+// router.patch(
+//   "/:new_fee_struct/edit/struct",
+//   catchAsync(Admission.renderRetroOneStudentStructureQuery)
+// );
+
 module.exports = router;

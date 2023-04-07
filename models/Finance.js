@@ -165,7 +165,7 @@ const financeSchema = new mongoose.Schema(
     salary_history: [
       {
         salary: { type: Number, default: 0 },
-        month: { type: String },
+        month: { type: Date },
         pay_mode: { type: String },
         emp_pay: {
           type: mongoose.Schema.Types.ObjectId,

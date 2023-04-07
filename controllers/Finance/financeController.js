@@ -1156,26 +1156,13 @@ exports.addFieldToPayroll = async (req, res) => {
       g_month = `0${g_month}`;
     }
     if (net_total < finance.financeTotalBalance) {
-      emp.pay_slip.push({
-        month: new Date(`${month}`),
-        attendence: attendence,
-        total_leaves: emp.staff_total_paid_leaves,
-        paid_leaves: paid_leaves,
-        payment_mode: payment_mode,
-        purpose: "Monthly Salary",
-        amount: amount,
-        paid_to: paid_to,
-        message: message,
-        is_paid: "Paid",
-        gross_salary: gross_salary,
-        net_total: net_total,
-      });
+      var sorted = []
       for (var ref of master) {
         if (ref?.month_master_id) {
           const new_master = await PayrollMaster.findById({
             _id: `${ref?.month_master_id}`,
           });
-          emp.month_master.push({
+          sorted.push({
             month_master_name: ref?.month_master_name,
             month_master_amount: ref?.month_master_amount,
             month_master_status: ref?.month_master_status,
@@ -1216,6 +1203,21 @@ exports.addFieldToPayroll = async (req, res) => {
           }
         }
       }
+      emp.pay_slip.push({
+        month: new Date(`${month}`),
+        attendence: attendence,
+        total_leaves: emp.staff_total_paid_leaves,
+        paid_leaves: paid_leaves,
+        payment_mode: payment_mode,
+        purpose: "Monthly Salary",
+        amount: amount,
+        paid_to: paid_to,
+        message: message,
+        is_paid: "Paid",
+        gross_salary: gross_salary,
+        net_total: net_total,
+        month_master: sorted
+    });
       finance.salary_history.push({
         salary: net_total,
         month: new Date(`${month}`),
@@ -3972,7 +3974,7 @@ exports.renderFinanceMasterDepositRefundQuery = async (req, res) => {
       s_admin.save(),
       user.save(),
       institute.save(),
-      order.save()
+      order.save(),
     ]);
     res
       .status(200)
@@ -4073,7 +4075,7 @@ exports.renderFinanceAllPayrollMasterQuery = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { search } = req.query;
+    const { search, filter } = req.query;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -4084,17 +4086,35 @@ exports.renderFinanceAllPayrollMasterQuery = async (req, res) => {
       "payroll_master"
     );
     if (search) {
+      if(filter){
+      var all_masters = await PayrollMaster.find({
+        $and: [{ _id: { $in: one_finance?.payroll_master } }, { payroll_head_type: filter }],
+        $or: [{ payroll_head_name: { $regex: search, $options: "i" } }],
+      }).select("payroll_head_name payroll_head_type");
+    }
+    else{
       var all_masters = await PayrollMaster.find({
         $and: [{ _id: { $in: one_finance?.payroll_master } }],
         $or: [{ payroll_head_name: { $regex: search, $options: "i" } }],
       }).select("payroll_head_name payroll_head_type");
+    }
     } else {
+      if(filter){
+      var all_masters = await PayrollMaster.find({
+        $and: [{ _id: { $in: one_finance?.payroll_master }}, { payroll_head_type: filter } ],
+      })
+        .limit(limit)
+        .skip(skip)
+        .select("payroll_head_name payroll_head_type");
+    }
+    else{
       var all_masters = await PayrollMaster.find({
         _id: { $in: one_finance?.payroll_master },
       })
         .limit(limit)
         .skip(skip)
         .select("payroll_head_name payroll_head_type");
+    }
     }
 
     if (all_masters?.length > 0) {

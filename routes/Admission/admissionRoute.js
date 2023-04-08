@@ -446,6 +446,11 @@ router.patch(
   catchAsync(Admission.renderRetroOneStudentStructureQuery)
 );
 
+router.get(
+  "/:aid/all/refunded/array",
+  catchAsync(Admission.renderAllRefundedArray)
+);
+
 // router.patch(
 //   "/:new_fee_struct/edit/struct",
 //   catchAsync(Admission.renderRetroOneStudentStructureQuery)

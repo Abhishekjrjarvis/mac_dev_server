@@ -28534,3 +28534,32 @@ paths:
       responses:
         "200":
           description: OK
+
+  /api/v1/admission/{aid}/all/refunded/array:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: All Refunded Array at Admission -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission ID    
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit   
+      responses:
+        "200":
+          description: OK

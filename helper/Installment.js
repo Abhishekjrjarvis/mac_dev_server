@@ -1432,8 +1432,8 @@ exports.set_fee_head_query_retro = async (
     }
     var filtered = [];
     for (var ref of student_args?.active_fee_heads) {
-      if (`${stu.appId}` === `${apply_args._id}`) {
-        filtered.push(stu?._id);
+      if (`${ref.appId}` === `${apply_args._id}`) {
+        filtered.push(ref?._id);
       }
     }
     if (filtered?.length > 0) {

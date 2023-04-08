@@ -1803,11 +1803,11 @@ exports.renderAllotHostedBedQuery = async (req, res) => {
     var apply = await NewApplication.findById({ _id: aid });
     var one_hostel = await Hostel.findById({
       _id: `${apply.hostelAdmin}`,
-    }).select("institute");
+    })
     var institute = await InstituteAdmin.findById({
       _id: `${one_hostel?.institute}`,
     });
-    var batch = await Batch.findById({ _id: `${apply.applicationBatch}` });
+    // var batch = await Batch.findById({ _id: `${apply.applicationBatch}` });
     var one_unit = await HostelUnit.findById({ _id: huid });
     var room = await HostelRoom.findById({ _id: hrid });
     var array = req.body.dataList;
@@ -1853,7 +1853,7 @@ exports.renderAllotHostedBedQuery = async (req, res) => {
           fee_remain: student.hostelRemainFeeCount,
           paid_status: student.hostelRemainFeeCount == 0 ? "Paid" : "Not Paid",
         });
-        remain_list.batchId = batch?._id;
+        // remain_list.batchId = batch?._id;
         apply.allotCount += 1;
         notify.notifyContent = `Allotted Bed`;
         notify.notifySender = one_hostel?._id;
@@ -4426,11 +4426,11 @@ exports.renderAllotHostedBedRenewalQuery = async (req, res) => {
     var one_unit = await HostelUnit.findById({ _id: huid });
     var one_hostel = await Hostel.findById({
       _id: `${one_unit?.hostel}`,
-    }).select("institute");
+    })
     var institute = await InstituteAdmin.findById({
       _id: `${one_hostel?.institute}`,
     });
-    var batch = await Batch.findById({ _id: `${apply.applicationBatch}` });
+    // var batch = await Batch.findById({ _id: `${apply?.applicationBatch}` });
     var room = await HostelRoom.findById({ _id: hrid });
     var array = req.body.dataList;
     if (array?.length > 0) {
@@ -4488,7 +4488,7 @@ exports.renderAllotHostedBedRenewalQuery = async (req, res) => {
           paid_status: student.hostelRemainFeeCount == 0 ? "Paid" : "Not Paid",
           appId: apply?._id,
         });
-        remain_list.batchId = batch?._id;
+        // remain_list.batchId = batch?._id;
         one_unit.renewal_allotted_application_count += 1;
         notify.notifyContent = `Allotted Bed`;
         notify.notifySender = one_hostel?._id;
@@ -5911,14 +5911,12 @@ exports.renderHostelAllClassMasterQuery = async (req, res) => {
 exports.renderNewHostelAnnouncementQuery = async (req, res) => {
   try {
     const { hid } = req.params;
-    const { announceCount } = req.body
+    const { announceCount } = req.body;
     if (!hid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
     const one_hostel = await Hostel.findById({ _id: hid });
     const announcements = new InsAnnouncement({ ...req.body });
     one_hostel.announcement.unshift(announcements._id);
@@ -5965,12 +5963,10 @@ exports.renderAllHostelAnnouncementQuery = async (req, res) => {
   try {
     const { hid } = req.params;
     if (!hid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
@@ -5993,21 +5989,17 @@ exports.renderAllHostelAnnouncementQuery = async (req, res) => {
         select: "photoId hostel_photo",
       });
     if (announcement?.length > 0) {
-      res
-        .status(200)
-        .send({
-          message: "Explore All Hostel Announcement List",
-          announcement: announcement,
-          access: true,
-        });
+      res.status(200).send({
+        message: "Explore All Hostel Announcement List",
+        announcement: announcement,
+        access: true,
+      });
     } else {
-      res
-        .status(200)
-        .send({
-          message: "No Hostel Announcement List",
-          announcement: [],
-          access: true,
-        });
+      res.status(200).send({
+        message: "No Hostel Announcement List",
+        announcement: [],
+        access: true,
+      });
     }
   } catch (e) {
     console.log(e);

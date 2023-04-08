@@ -558,11 +558,17 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
     const apply = await NewApplication.findById({ _id: aid });
     const admission = await Admission.findById({
       _id: `${apply.admissionAdmin}`,
-    }).select("institute");
+    })
+      .select("institute admissionAdminHead")
+      .populate({
+        path: "admissionAdminHead",
+        select: "user",
+      });
     const institute = await InstituteAdmin.findById({
       _id: `${admission.institute}`,
     });
     const status = new Status({});
+    const notify = new StudentNotification({});
     const studentOptionalSubject = req.body?.optionalSubject
       ? req.body?.optionalSubject
       : [];
@@ -601,6 +607,15 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
       fee_remain: 0,
     });
     apply.receievedCount += 1;
+    notify.notifyContent = `You have applied for ${apply?.applicationName} has been filled successfully.Stay updated to check status of your application.`;
+    notify.notifySender = admission?.admissionAdminHead?.user;
+    notify.notifyReceiever = user?._id;
+    notify.notifyType = "Student";
+    notify.notifyPublisher = student?._id;
+    user.activity_tab.push(notify?._id);
+    notify.notifyByAdmissionPhoto = admission?._id;
+    notify.notifyCategory = "Status Alert";
+    notify.redirectIndex = 29;
     if (institute.userFollowersList.includes(uid)) {
     } else {
       user.userInstituteFollowing.push(institute._id);
@@ -614,6 +629,7 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
       status.save(),
       apply.save(),
       institute.save(),
+      notify.save(),
     ]);
     res.status(201).send({
       message: "Taste a bite of sweets till your application is selected",
@@ -727,9 +743,9 @@ exports.fetchAllSelectApplication = async (req, res) => {
             select:
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
             populate: {
-              path: "fee_structure",
+              path: "fee_structure hostel_fee_structure",
               select:
-                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees",
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
               populate: {
                 path: "category_master",
                 select: "category_name",
@@ -765,9 +781,9 @@ exports.fetchAllSelectApplication = async (req, res) => {
             select:
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
             populate: {
-              path: "fee_structure",
+              path: "fee_structure hostel_fee_structure",
               select:
-                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees",
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
               populate: {
                 path: "category_master",
                 select: "category_name",
@@ -820,9 +836,9 @@ exports.fetchAllConfirmApplication = async (req, res) => {
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
             populate: {
-              path: "fee_structure",
+              path: "fee_structure hostel_fee_structure",
               select:
-                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees",
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
               populate: {
                 path: "category_master",
                 select: "category_name",
@@ -858,9 +874,9 @@ exports.fetchAllConfirmApplication = async (req, res) => {
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
             populate: {
-              path: "fee_structure",
+              path: "fee_structure hostel_fee_structure",
               select:
-                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees",
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
               populate: {
                 path: "category_master",
                 select: "category_name",
@@ -988,6 +1004,14 @@ exports.fetchAllAllotApplication = async (req, res) => {
             },
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
+            populate: {
+              path: "student_bed_number",
+              select: "bed_number hostelRoom",
+              populate: {
+                path: "hostelRoom",
+                select: "room_name",
+              },
+            },
           },
         });
       for (let data of apply.allottedApplication) {
@@ -1015,6 +1039,14 @@ exports.fetchAllAllotApplication = async (req, res) => {
             path: "student",
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
+            populate: {
+              path: "student_bed_number",
+              select: "bed_number hostelRoom",
+              populate: {
+                path: "hostelRoom",
+                select: "room_name",
+              },
+            },
           },
         });
       var all_allot_query = nested_document_limit(
@@ -1140,7 +1172,12 @@ exports.retrieveAdmissionSelectedApplication = async (req, res) => {
     const apply = await NewApplication.findById({ _id: aid });
     const admission_admin = await Admission.findById({
       _id: `${apply?.admissionAdmin}`,
-    }).select("institute");
+    })
+      .select("institute admissionAdminHead")
+      .populate({
+        path: "admissionAdminHead",
+        select: "user",
+      });
     const student = await Student.findById({ _id: sid });
     const user = await User.findById({ _id: `${student.user}` });
     const structure = await FeeStructure.findById({ _id: fee_struct });
@@ -1148,6 +1185,7 @@ exports.retrieveAdmissionSelectedApplication = async (req, res) => {
       institute: admission_admin?.institute,
     });
     const status = new Status({});
+    const notify = new StudentNotification({});
     for (let app of apply.receievedApplication) {
       if (`${app.student}` === `${student._id}`) {
         apply.receievedApplication.pull(app._id);
@@ -1170,11 +1208,21 @@ exports.retrieveAdmissionSelectedApplication = async (req, res) => {
     status.finance = finance?._id;
     user.applicationStatus.push(status._id);
     student.active_status.push(status?._id);
+    notify.notifyContent = `You have been selected for ${apply.applicationName}. Confirm your admission`;
+    notify.notifySender = admission_admin?.admissionAdminHead?.user;
+    notify.notifyReceiever = user?._id;
+    notify.notifyType = "Student";
+    notify.notifyPublisher = student?._id;
+    user.activity_tab.push(notify?._id);
+    notify.notifyByAdmissionPhoto = admission_admin?._id;
+    notify.notifyCategory = "Status Alert";
+    notify.redirectIndex = 29;
     await Promise.all([
       apply.save(),
       student.save(),
       user.save(),
       status.save(),
+      notify.save(),
     ]);
     res.status(200).send({
       message: `congrats ${student.studentFirstName} `,
@@ -2573,6 +2621,12 @@ exports.paidRemainingFeeStudentRefundBy = async (req, res) => {
         if (admin_ins.refundCount >= price) {
           admin_ins.refundCount -= price;
         }
+        admin_ins.refundedFeeList.push({
+          student: student?._id,
+          refund: price,
+          fee_receipt: new_receipt?._id,
+        });
+        admin_ins.refundedCount += price;
       }
       for (var ref of admin_ins.refundFeeList) {
         if (`${ref?.student}` === `${student?._id}`) {
@@ -3150,12 +3204,12 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "applicable_fee remaining_fee exempted_fee paid_fee refund_fee status created_at remark remaining_flow"
+        "applicable_fee remaining_fee exempted_fee paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end"
       )
       .populate({
         path: "appId",
         select:
-          "applicationName applicationDepartment admissionAdmin hostelAdmin",
+          "applicationName applicationDepartment applicationMaster admissionAdmin hostelAdmin",
         populate: {
           path: "admissionAdmin hostelAdmin",
           select: "institute",
@@ -3174,6 +3228,15 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       .populate({
         path: "student",
         select: "studentFirstName studentMiddleName studentLastName",
+        populate: {
+          path: "hostel_fee_structure",
+          select:
+            "total_admission_fees structure_name unique_structure_name applicable_fees one_installments category_master structure_month",
+          populate: {
+            path: "category_master",
+            select: "category_name",
+          },
+        },
       })
       .populate({
         path: "batchId",
@@ -3182,12 +3245,12 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       .populate({
         path: "fee_structure",
         select:
-          "total_admission_fees structure_name unique_structure_name applicable_fees one_installments category_master",
+          "total_admission_fees structure_name unique_structure_name applicable_fees one_installments structure_month category_master",
         populate: {
           path: "category_master",
           select: "category_name",
         },
-      })
+      });
 
     if (all_remain?.length > 0) {
       // const arrayEncrypt = await encryptionPayload(all_remain);
@@ -4918,10 +4981,13 @@ exports.renderRefundArrayQuery = async (req, res) => {
     }
 
     if (all_refund_list?.length > 0) {
+      var filtered = all_refund_list?.filter((ref) => {
+        if (ref?.refund > 0) return ref;
+      });
       res.status(200).send({
         message: "Explore All Returns",
         access: true,
-        all_refund_list: all_refund_list,
+        all_refund_list: filtered,
         refundCount: ads_admin?.refundCount,
       });
     } else {
@@ -5633,7 +5699,7 @@ exports.renderScholarShipNewFundCorpusQuery = async (req, res) => {
     var incomes = new Income({ ...req.body });
     const corpus = new FundCorpus({});
     corpus.total_corpus += incomes?.incomeAmount;
-    // corpus.unused_corpus += incomes?.incomeAmount;
+    corpus.unused_corpus += incomes?.incomeAmount;
     corpus.scholarship = scholar?._id;
     scholar.fund_corpus = corpus?._id;
     corpus.fund_history.push(incomes?._id);
@@ -5731,7 +5797,7 @@ exports.renderNewFundCorpusIncomeQuery = async (req, res) => {
     }
     var incomes = new Income({ ...req.body });
     corpus.total_corpus += incomes?.incomeAmount;
-    // corpus.unused_corpus += incomes?.incomeAmount;
+    corpus.unused_corpus += incomes?.incomeAmount;
     corpus.scholarship = scholar?._id;
     scholar.fund_corpus = corpus?._id;
     corpus.fund_history.push(incomes?._id);
@@ -6132,10 +6198,62 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
         all_receipts
       );
     }
-    await Promise.all([ one_remain_list.save(), one_student.save(), one_app.save()])
+    await Promise.all([
+      one_remain_list.save(),
+      one_student.save(),
+      one_app.save(),
+    ]);
     res
       .status(200)
       .send({ message: "Explore New Fee Structure Edit", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllRefundedArray = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const ads_admin = await Admission.findById({ _id: aid })
+      .select("refundedFeeList refundedCount")
+      .populate({
+        path: "refundedFeeList",
+        populate: {
+          path: "student fee_receipt",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO fee_payment_mode refund_status invoice_count fee_bank_name fee_bank_holder fee_utr_reference fee_payment_acknowledge fee_payment_amount fee_transaction_date ",
+        },
+      });
+
+    var all_refunded = await nested_document_limit(
+      page,
+      limit,
+      ads_admin?.refundedFeeList
+    );
+
+    if (all_refunded?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Refunded Array",
+        access: true,
+        all_refunded: all_refunded,
+        count: ads_admin?.refundedCount,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Refunded Array",
+        access: true,
+        all_refunded: [],
+        count: 0,
+      });
+    }
   } catch (e) {
     console.log(e);
   }

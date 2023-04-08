@@ -927,7 +927,7 @@ exports.getAllTotalCount = async (req, res) => {
       count: total,
       notifyCount: notify?.length,
       activityCount: activity?.length,
-      announcementCount: counts,
+      announcementCount: counts ? 0 : 0,
     });
   } catch (e) {
     console.log(e);

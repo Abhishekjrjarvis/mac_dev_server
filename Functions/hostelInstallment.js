@@ -166,6 +166,7 @@ const second_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -227,6 +228,7 @@ const third_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -288,6 +290,7 @@ const four_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -349,6 +352,7 @@ const five_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -410,6 +414,7 @@ const six_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -471,6 +476,7 @@ const seven_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -532,6 +538,7 @@ const eight_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -593,6 +600,7 @@ const nine_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -654,6 +662,7 @@ const ten_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -715,6 +724,7 @@ const eleven_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -769,6 +779,7 @@ const tweleve_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);

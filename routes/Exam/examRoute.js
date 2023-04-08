@@ -119,4 +119,9 @@ router.route("/backlog/one/previous/student/:sid/mark/status").patch(
   catchAsync(examController.retrieveBacklogOneStudentMarkStatus)
 );
 
+router.route("/:eid/seating/new/query").post(
+  // isLoggedIn,
+  catchAsync(examController.renderNewSeatingArrangementQuery)
+);
+
 module.exports = router;

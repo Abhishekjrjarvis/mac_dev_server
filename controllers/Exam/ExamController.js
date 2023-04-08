@@ -1437,3 +1437,14 @@ exports.retrieveBacklogOneStudentMarkStatus = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderNewSeatingArrangementQuery = async (req, res) => {
+  // try{
+  //   const { eid } = req.params
+  //   if(!eid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+  //   const one_exam = await Exam.findById({ _id: eid })
+  // }
+  // catch(e){
+  //   console.log(e)
+  // }
+};

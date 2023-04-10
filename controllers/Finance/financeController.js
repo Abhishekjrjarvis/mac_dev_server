@@ -3525,7 +3525,14 @@ exports.renderFinanceAllBankDetails = async (req, res) => {
       }).select(
         "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
       );
-    } else {
+    } else if (flow === "Hostel") {
+      var all_account = await BankAccount.findOne({
+        $and: [{ hostel: filter_by }],
+      }).select(
+        "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
+      );
+    } 
+    else {
       var all_account = null;
     }
     res.status(200).send({

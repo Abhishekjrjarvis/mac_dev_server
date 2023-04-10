@@ -66,9 +66,9 @@ exports.generate_excel_to_json = async (file, aid, fid, did) => {
           ],
         });
         batch_set.push({
-          batchId: new_batchId,
-          appId: new_appId,
-          fee_struct: new_fee_struct,
+          batchId: new_batchId?._id,
+          appId: new_appId?._id,
+          fee_struct: new_fee_struct?._id,
           amount: ref[`amount${i}`],
           remark: ref[`remark${i}`],
           remain_array: [...remain_array],

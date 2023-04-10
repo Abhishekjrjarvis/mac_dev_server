@@ -417,6 +417,7 @@ exports.fee_reordering_direct_student_payload = async (
   finance
 ) => {
   try {
+    console.log(batchSet);
     for (var ref of batchSet) {
       // var student = await Student.findById({ _id: stu_query?._id });
       var price = ref?.amount ? parseInt(ref?.amount) : 0;

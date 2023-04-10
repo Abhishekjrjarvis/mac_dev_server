@@ -3562,7 +3562,7 @@ exports.renderHostelUnitAllReceievedApplication = async (req, res) => {
     if (search) {
       const filter_request = [];
       var one_unit = await HostelUnit.findById({ _id: huid })
-        .select("renewal_receieved_application_count")
+        .select("renewal_receieved_application renewal_receieved_application_count")
         .populate({
           path: "renewal_receieved_application",
           populate: {
@@ -3593,7 +3593,7 @@ exports.renderHostelUnitAllReceievedApplication = async (req, res) => {
       }
     } else {
       var one_unit = await HostelUnit.findById({ _id: huid })
-        .select("renewal_receieved_application_count")
+        .select("renewal_receieved_application renewal_receieved_application_count")
         .populate({
           path: "renewal_receieved_application",
           populate: {

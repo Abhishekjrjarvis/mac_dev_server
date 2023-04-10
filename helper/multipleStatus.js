@@ -417,7 +417,6 @@ exports.fee_reordering_direct_student_payload = async (
   finance
 ) => {
   try {
-    console.log(batchSet);
     for (var ref of batchSet) {
       // var student = await Student.findById({ _id: stu_query?._id });
       var price = ref?.amount ? parseInt(ref?.amount) : 0;
@@ -455,7 +454,7 @@ exports.fee_reordering_direct_student_payload = async (
             const nestPrice = nest?.amount ? parseInt(nest?.amount) : 0;
             if (nestPrice <= 0) {
             } else {
-              const new_receipt = new FeeReceipt({
+              var new_receipt = new FeeReceipt({
                 fee_payment_mode: nest?.mode,
                 fee_payment_amount: nestPrice,
               });
@@ -573,7 +572,7 @@ exports.fee_reordering_direct_student_payload = async (
             var nestPrice = nest?.amount ? parseInt(nest?.amount) : 0;
             if (nestPrice <= 0) {
             } else {
-              const new_receipt = new FeeReceipt({
+              var new_receipt = new FeeReceipt({
                 fee_payment_mode: nest?.mode,
                 fee_payment_amount: nestPrice,
               });

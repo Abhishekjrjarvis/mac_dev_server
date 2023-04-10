@@ -272,6 +272,7 @@ router.get(
 
 router.post(
   "/:hid/new/announcement",
+  upload.array("file"),
   catchAsync(Hostel.renderNewHostelAnnouncementQuery)
 );
 

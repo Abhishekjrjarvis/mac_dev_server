@@ -1366,6 +1366,7 @@ exports.retrieveOneEmpQuery = async (req, res) => {
       var detail = {
         staff_salary_month: emp?.staff_salary_month,
         staff_total_paid_leaves: emp?.staff_total_paid_leaves,
+        basic_pay: emp?.basic_pay,
         staff: emp?.staff,
         pay_slip: emp?.pay_slip,
       };
@@ -2434,6 +2435,12 @@ exports.renderFinanceBankAddQuery = async (req, res) => {
       libs.bank_account = new_account?._id;
       await libs.save();
     }
+    else if (flow === "Hostel") {
+      const libs = await Hostel.findById({ _id: flow_id });
+      new_account.hostel = flow_id;
+      libs.bank_account = new_account?._id;
+      await libs.save();
+    }
     new_account.finance = finance?._id;
     finance.bank_account.push(new_account?._id);
     finance.bank_account_count += 1;
@@ -2477,6 +2484,10 @@ exports.renderFinanceAllBankAccountQuery = async (req, res) => {
         .populate({
           path: "library",
           select: "_id",
+        })
+        .populate({
+          path: "hostel",
+          select: "_id",
         });
     } else {
       var all_accounts = await BankAccount.find({
@@ -2494,6 +2505,10 @@ exports.renderFinanceAllBankAccountQuery = async (req, res) => {
         })
         .populate({
           path: "library",
+          select: "_id",
+        })
+        .populate({
+          path: "hostel",
           select: "_id",
         });
     }
@@ -2535,6 +2550,10 @@ exports.renderFinanceOneBankQuery = async (req, res) => {
       })
       .populate({
         path: "library",
+        select: "_id",
+      })
+      .populate({
+        path: "hostel",
         select: "_id",
       });
 

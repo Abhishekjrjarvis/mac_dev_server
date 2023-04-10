@@ -42,6 +42,10 @@ const bankAccountSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Finance",
   },
+  hostel: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Hostel",
+  },
   created_at: {
     type: Date,
     default: Date.now,

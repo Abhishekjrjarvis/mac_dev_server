@@ -13,6 +13,10 @@ const payrollSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Staff",
   },
+  basic_pay: {
+    type: Number,
+    default: 0,
+  },
   pay_master_heads_particular: [
     {
       master_name: { type: String },

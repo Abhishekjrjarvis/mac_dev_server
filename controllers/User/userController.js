@@ -866,8 +866,8 @@ exports.getAllUserActivity = async (req, res) => {
         select: "coverId cover institute",
         populate: {
           path: "institute",
-          select: "insName name photoId insProfilePhoto"
-        }
+          select: "insName name photoId insProfilePhoto",
+        },
       })
       .populate({
         path: "election_winner",
@@ -1716,17 +1716,17 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
             select: "hostel_unit_name hostel",
             populate: {
               path: "hostel",
-              select: "_id"
-            }
+              select: "_id",
+            },
           })
           .populate({
             path: "student_bed_number",
             select: "bed_number bed_status hostelRoom",
             populate: {
               path: "hostelRoom",
-              select: "room_name room_strength"
-            }
-          })
+              select: "room_name room_strength",
+            },
+          });
         if (student?.studentDocuments?.length > 0) {
           for (var docs of student.studentDocuments) {
             student.incomeCertificate =
@@ -1803,17 +1803,17 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
             select: "hostel_unit_name hostel",
             populate: {
               path: "hostel",
-              select: "_id"
-            }
+              select: "_id",
+            },
           })
           .populate({
             path: "student_bed_number",
             select: "bed_number bed_status hostelRoom",
             populate: {
               path: "hostelRoom",
-              select: "room_name room_strength"
-            }
-          })
+              select: "room_name room_strength",
+            },
+          });
       }
       average_points += student.extraPoints / student.batchCount;
       const status = await valid_student_form_query(
@@ -2002,7 +2002,18 @@ exports.retrieveUserApplicationStatus = async (req, res) => {
         populate: {
           path: "applicationId",
           select:
-            "one_installments admissionAdmin applicationName applicationDepartment",
+            "one_installments admissionAdmin applicationName applicationDepartment applicationUnit",
+          populate: {
+            path: "applicationUnit",
+            select: "hostel hostel_unit_name",
+            populate: {
+              path: "hostel",
+              select: "bank_account",
+              populate: {
+                path: "bank_account",
+              },
+            },
+          },
         },
         options,
       })
@@ -2018,7 +2029,8 @@ exports.retrieveUserApplicationStatus = async (req, res) => {
         path: "applicationStatus",
         populate: {
           path: "feeStructure",
-          select: "one_installments total_admission_fees applicable_fees",
+          select:
+            "one_installments total_admission_fees applicable_fees structure_month",
           populate: {
             path: "category_master",
             select: "category_name",

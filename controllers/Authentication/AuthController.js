@@ -248,7 +248,7 @@ const generateOTP = async (mob) => {
     )
     .then((res) => {
       if ((res && res.data.includes("success")) || res.data.includes("sent")) {
-        console.log("messsage Sent Successfully", res.data);
+        console.log("USER - messsage Sent Successfully", res.data);
       } else {
         console.log("something went wrong");
       }
@@ -380,7 +380,7 @@ const generateInsOTP = async (mob) => {
     )
     .then((res) => {
       if ((res && res.data.includes("success")) || res.data.includes("sent")) {
-        console.log("messsage Sent Successfully", res.data);
+        console.log("INS - messsage Sent Successfully", res.data);
       } else {
         console.log("something went wrong");
       }

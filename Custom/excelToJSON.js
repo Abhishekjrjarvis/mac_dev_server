@@ -39,7 +39,10 @@ exports.generate_excel_to_json = async (file, aid, fid, did) => {
           $and: [
             { admissionAdmin: aid },
             {
-              applicationName: { $regex: ref[`appId_${i}`], $options: "i" },
+              applicationName: {
+                $regex: `${ref[`appId_${i}`]}`,
+                $options: "i",
+              },
             },
           ],
         });
@@ -47,7 +50,7 @@ exports.generate_excel_to_json = async (file, aid, fid, did) => {
           $and: [
             { department: did },
             {
-              batchName: { $regex: ref[`batchId_${i}`], $options: "i" },
+              batchName: { $regex: `${ref[`batchId_${i}`]}`, $options: "i" },
             },
           ],
         });
@@ -56,7 +59,7 @@ exports.generate_excel_to_json = async (file, aid, fid, did) => {
             { finance: fid },
             {
               unique_structure_name: {
-                $regex: ref[`fee_struct_${i}`],
+                $regex: `${ref[`fee_struct_${i}`]}`,
                 $options: "i",
               },
             },
@@ -140,7 +143,7 @@ exports.generate_excel_to_json_fee_structure = async (file, fid, did) => {
         $and: [
           { finance: fid },
           {
-            category_name: { $regex: struct?.CategoryName, $options: "i" },
+            category_name: { $regex: `${struct?.CategoryName}`, $options: "i" },
           },
         ],
       });
@@ -149,7 +152,7 @@ exports.generate_excel_to_json_fee_structure = async (file, fid, did) => {
         $and: [
           { department: did },
           {
-            className: { $regex: struct?.StandardName, $options: "i" },
+            className: { $regex: `${struct?.StandardName}`, $options: "i" },
           },
         ],
       });
@@ -166,7 +169,7 @@ exports.generate_excel_to_json_fee_structure = async (file, fid, did) => {
               { finance: fid },
               {
                 master_name: {
-                  $regex: struct[`FeeHeadName${i}`],
+                  $regex: `${struct[`FeeHeadName${i}`]}`,
                   $options: "i",
                 },
               },
@@ -260,9 +263,9 @@ exports.generate_excel_to_json_fee_structure = async (file, fid, did) => {
       struct.StandardId = master?._id;
       if (struct?.CategoryId) {
         new_data_query.push(struct);
-        // console.log("push");
+        console.log("push");
       } else {
-        // console.log("Empty");
+        console.log("Empty");
       }
       new_query = [...new_data_query];
     }

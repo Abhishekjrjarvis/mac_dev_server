@@ -16,6 +16,7 @@ const insAnnouncementSchema = new mongoose.Schema({
       ref: "InsDocument",
     },
   ],
+  announcementHostelDocument: [],
   createdAt: { type: Date, default: Date.now },
   institute: {
     type: mongoose.Schema.Types.ObjectId,

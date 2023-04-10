@@ -83,6 +83,12 @@ const Renewal = require("../../models/Hostel/renewal");
 const InsDocument = require("../../models/Document/InsDocument");
 const InsAnnouncement = require("../../models/InsAnnouncement");
 const { announcement_feed_query } = require("../../Post/announceFeed");
+const { universal_account_creation_feed } = require("../../Post/globalFeed");
+const {
+  fee_reordering_hostel,
+  ignite_multiple_alarm,
+  insert_multiple_hostel_status,
+} = require("../../helper/hostelMultipleStatus");
 
 exports.renderActivateHostelQuery = async (req, res) => {
   try {
@@ -1803,7 +1809,7 @@ exports.renderAllotHostedBedQuery = async (req, res) => {
     var apply = await NewApplication.findById({ _id: aid });
     var one_hostel = await Hostel.findById({
       _id: `${apply.hostelAdmin}`,
-    })
+    });
     var institute = await InstituteAdmin.findById({
       _id: `${one_hostel?.institute}`,
     });
@@ -4426,7 +4432,7 @@ exports.renderAllotHostedBedRenewalQuery = async (req, res) => {
     var one_unit = await HostelUnit.findById({ _id: huid });
     var one_hostel = await Hostel.findById({
       _id: `${one_unit?.hostel}`,
-    })
+    });
     var institute = await InstituteAdmin.findById({
       _id: `${one_hostel?.institute}`,
     });
@@ -4821,7 +4827,7 @@ exports.renderHostelAllStudentRoommatesQuery = async (req, res) => {
       .populate({
         path: "bed_allotted_candidate",
         select:
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto user",
       });
 
     all_roommates = all_roommates?.filter((ref) => {
@@ -5925,15 +5931,8 @@ exports.renderNewHostelAnnouncementQuery = async (req, res) => {
     for (var i = 1; i <= parseInt(announceCount); i++) {
       var fileValue = req?.files[`file${i}`];
       for (let file of fileValue) {
-        const insDocument = new InsDocument({});
-        insDocument.documentType = file.mimetype;
-        insDocument.documentName = file.originalname;
-        insDocument.documentEncoding = file.encoding;
-        insDocument.documentSize = file.size;
-        const results = await uploadDocFile(file.key);
-        insDocument.documentKey = results.Key;
-        announcements.announcementDocument.push(insDocument._id);
-        await insDocument.save();
+        const results = await uploadDocFile(file);
+        announcements.announcementHostelDocument.push(results.Key);
         await unlinkFile(file.path);
       }
     }
@@ -5943,17 +5942,6 @@ exports.renderNewHostelAnnouncementQuery = async (req, res) => {
       announcements,
       access: true,
     });
-    // var all_students = await Student.find({
-    //   $and: [
-    //     { student_unit: { $in: one_hostel?.units } },
-    //     { institute: one_hostel?.institute },
-    //     { studentStatus: "Approved" },
-    //   ],
-    // });
-    // for (var ref of all_students) {
-    //   ref.announcements.push(announcements?._id);
-    //   await ref.save();
-    // }
   } catch (e) {
     console.log(e);
   }
@@ -5978,7 +5966,7 @@ exports.renderAllHostelAnnouncementQuery = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "insAnnPhoto photoId insAnnTitle insAnnVisibilty insAnnDescription createdAt"
+        "insAnnPhoto photoId insAnnTitle insAnnVisibilty insAnnDescription createdAt announcementHostelDocument"
       )
       .populate({
         path: "reply",
@@ -6001,6 +5989,183 @@ exports.renderAllHostelAnnouncementQuery = async (req, res) => {
         access: true,
       });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
+  try {
+    const { id, aid } = req.params;
+    const { existingUser } = req.query;
+    var existing = handle_undefined(existingUser);
+    const { sample_pic, fileArray, type, mode, amount, fee_struct } = req.body;
+    if (
+      !id &&
+      !aid &&
+      !req.body.studentFirstName &&
+      !req.body.studentLastName &&
+      !req.body.studentGender &&
+      !req.body.studentDOB &&
+      !type &&
+      !mode &&
+      !amount
+    )
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const apply = await NewApplication.findById({ _id: aid });
+    const one_unit = await HostelUnit.findById({
+      _id: `${apply?.applicationUnit}`,
+    });
+    var new_receipt = new FeeReceipt({ ...req.body });
+    new_receipt.fee_transaction_date = new Date(
+      `${req.body?.transaction_date}`
+    );
+    const ons_hostel = await Hostel.findById({
+      _id: `${apply.hostelAdmin}`,
+    });
+    const institute = await InstituteAdmin.findById({
+      _id: `${ons_hostel?.institute}`,
+    });
+    const finance = await Finance.findById({
+      _id: `${institute?.financeDepart[0]}`,
+    });
+    if (!existing) {
+      var valid = await filter_unique_username(
+        req.body.studentFirstName,
+        req.body.studentDOB
+      );
+    }
+    if (!existing) {
+      if (!valid?.exist) {
+        const genUserPass = bcrypt.genSaltSync(12);
+        const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
+        var user = new User({
+          userLegalName: `${req.body.studentFirstName} ${
+            req.body.studentMiddleName ? req.body.studentMiddleName : ""
+          } ${req.body.studentLastName ? req.body.studentLastName : ""}`,
+          userGender: req.body.studentGender,
+          userDateOfBirth: req.body.studentDOB,
+          username: valid?.username,
+          userStatus: "Approved",
+          userPhoneNumber: id,
+          userPassword: hashUserPass,
+          photoId: "0",
+          coverId: "2",
+          remindLater: rDate,
+          next_date: c_date,
+        });
+        admins.users.push(user);
+        admins.userCount += 1;
+        await Promise.all([admins.save(), user.save()]);
+        await universal_account_creation_feed(user);
+        await user_date_of_birth(user);
+      } else {
+      }
+    } else {
+      var user = await User.findById({ _id: `${existing}` });
+    }
+    const student = new Student({ ...req.body });
+    const studentOptionalSubject = req.body?.optionalSubject
+      ? req.body?.optionalSubject
+      : [];
+    for (var file of fileArray) {
+      if (file.name === "file") {
+        student.photoId = "0";
+        student.studentProfilePhoto = file.key;
+        user.profilePhoto = file.key;
+      } else if (file.name === "addharFrontCard")
+        student.studentAadharFrontCard = file.key;
+      else if (file.name === "addharBackCard")
+        student.studentAadharBackCard = file.key;
+      else if (file.name === "bankPassbook")
+        student.studentBankPassbook = file.key;
+      else if (file.name === "casteCertificate")
+        student.studentCasteCertificatePhoto = file.key;
+      else {
+        student.studentDocuments.push({
+          documentName: file.name,
+          documentKey: file.key,
+          documentType: file.type,
+        });
+      }
+    }
+    if (studentOptionalSubject?.length > 0) {
+      student.studentOptionalSubject.push(...studentOptionalSubject);
+    }
+    if (sample_pic) {
+      user.profilePhoto = sample_pic;
+      student.photoId = "0";
+      student.studentProfilePhoto = sample_pic;
+    }
+    user.student.push(student._id);
+    user.applyApplication.push(apply._id);
+    student.user = user._id;
+    student.hostel_fee_structure = fee_struct;
+    await student.save();
+    await insert_multiple_hostel_status(
+      apply,
+      user,
+      institute,
+      student?._id,
+      one_unit
+    );
+    apply.receievedCount += 1;
+    apply.selectCount += 1;
+    apply.confirmCount += 1;
+    await fee_reordering_hostel(
+      type,
+      mode,
+      parseInt(amount),
+      student,
+      apply,
+      institute,
+      finance,
+      ons_hostel,
+      admins,
+      new_receipt,
+      user,
+      one_unit
+    );
+    if (institute.userFollowersList.includes(user?._id)) {
+    } else {
+      user.userInstituteFollowing.push(institute._id);
+      user.followingUICount += 1;
+      institute.userFollowersList.push(user?._id);
+      institute.followersCount += 1;
+    }
+    // await insert_multiple_status(apply, user, institute, student?._id);
+    await Promise.all([
+      student.save(),
+      user.save(),
+      apply.save(),
+      institute.save(),
+      ons_hostel.save(),
+      finance.save(),
+    ]);
+    res.status(200).send({
+      message:
+        "Account Creation Process Completed & message: Taste a bite of sweets till your application is selected, 😀✨",
+      access: true,
+    });
+    await ignite_multiple_alarm(user);
+    const studentName = `${student?.studentFirstName} ${
+      student?.studentMiddleName ? student?.studentMiddleName : ""
+    } ${student?.studentLastName}`;
+    whats_app_sms_payload(
+      user?.userPhoneNumber,
+      studentName,
+      institute?.insName,
+      null,
+      "ASCAS",
+      institute?.insType,
+      student.hostelPaidFeeCount,
+      student.hostelRemainFeeCount,
+      institute?.sms_lang
+    );
   } catch (e) {
     console.log(e);
   }

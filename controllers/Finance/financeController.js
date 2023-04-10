@@ -3050,6 +3050,7 @@ exports.renderDepartmentAllFeeStructure = async (req, res) => {
           { document_update: false },
         ],
       })
+        .sort({ created_at: "-1"})
         .limit(limit)
         .skip(skip)
         .select(
@@ -3070,6 +3071,7 @@ exports.renderDepartmentAllFeeStructure = async (req, res) => {
           { document_update: false },
         ],
       })
+      .sort({ created_at: "-1"})
         .limit(limit)
         .skip(skip)
         .select(
@@ -3389,7 +3391,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
       })
       .populate({
         path: "application",
-        select: "applicationName applicationDepartment",
+        select: "applicationName applicationDepartment applicationHostel",
         populate: {
           path: "admissionAdmin",
           select: "_id",
@@ -3409,11 +3411,20 @@ exports.renderOneFeeReceipt = async (req, res) => {
         },
       });
 
+    if(receipt?.application?.applicationDepartment){
     var one_account = await BankAccount.findOne({
       department: receipt?.application?.applicationDepartment,
     }).select(
       "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
     );
+    }
+    else{
+      var one_account = await BankAccount.findOne({
+        hostel: receipt?.application?.applicationHostel,
+      }).select(
+        "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
+      );
+    }
 
     var ref = receipt?.student?.remainingFeeList?.filter((ele) => {
       if (`${ele?.appId}` === `${receipt?.application?._id}`) return ele;

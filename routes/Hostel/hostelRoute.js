@@ -272,7 +272,18 @@ router.get(
 
 router.post(
   "/:hid/new/announcement",
-  upload.array("file"),
+  upload.fields([
+    { name: "file1" },
+    { name: "file2" },
+    { name: "file3" },
+    { name: "file4" },
+    { name: "file5" },
+    { name: "file6" },
+    { name: "file7" },
+    { name: "file8" },
+    { name: "file9" },
+    { name: "file10" },
+  ]),
   catchAsync(Hostel.renderNewHostelAnnouncementQuery)
 );
 

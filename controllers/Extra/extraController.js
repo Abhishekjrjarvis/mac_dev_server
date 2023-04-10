@@ -1190,7 +1190,7 @@ exports.renderExcelToJSONFinanceStructureQuery = async (req, res) => {
       did
     );
     if (is_converted?.value) {
-      console.log(true)
+      console.log(true);
       // console.log(is_converted?.structure_array);
       await renderFinanceAddFeeStructureAutoQuery(
         fid,

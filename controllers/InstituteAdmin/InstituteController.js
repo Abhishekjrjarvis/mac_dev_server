@@ -368,6 +368,9 @@ exports.getUpdatePersonalIns = async (req, res) => {
           institute?.gr_initials +
           all?.studentGRNO?.slice(old_initials?.length);
         await all.save();
+      } else {
+        all.studentGRNO = institute?.gr_initials + all?.studentGRNO;
+        await all.save();
       }
     }
   } catch (e) {

@@ -10,10 +10,11 @@ exports.valid_initials = (real, imaginary) => {
     } else {
       var new_real = handle_undefined(real);
       var combine_query = new_real + imaginary;
-      if (combine_query.startsWith("Q")) {
+      // console.log(new_real, imaginary);
+      if (combine_query?.startsWith("Q")) {
         return combine_query;
       } else {
-        return `Q${combine_query}`;
+        return `${combine_query}`;
       }
     }
   }

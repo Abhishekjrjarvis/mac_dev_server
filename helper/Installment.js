@@ -1437,8 +1437,9 @@ exports.set_fee_head_query_retro = async (
       }
     }
     if (filtered?.length > 0) {
+      console.log(filtered?.length);
       for (var ele of filtered) {
-        student_args?.active_fee_heads.pull(ele);
+        student_args.active_fee_heads.pull(ele);
       }
       await student_args.save();
       for (var i = 0; i < parent_head?.count; i++) {

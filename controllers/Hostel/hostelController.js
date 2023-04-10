@@ -5928,7 +5928,9 @@ exports.renderNewHostelAnnouncementQuery = async (req, res) => {
     one_hostel.announcement.unshift(announcements._id);
     one_hostel.announcementCount += 1;
     announcements.one_hostel = one_hostel?._id;
-    for (var i = 1; i <= parseInt(announceCount); i++) {
+    var valid_count = announceCount ? parseInt(announceCount) : 0
+    if(valid_count > 0){
+    for (var i = 1; i <= valid_count ; i++) {
       var fileValue = req?.files[`file${i}`];
       for (let file of fileValue) {
         const results = await uploadDocFile(file);
@@ -5936,6 +5938,7 @@ exports.renderNewHostelAnnouncementQuery = async (req, res) => {
         await unlinkFile(file.path);
       }
     }
+  }
     await Promise.all([one_hostel.save(), announcements.save()]);
     res.status(200).send({
       message: "Successfully Created Hostel Announcements",

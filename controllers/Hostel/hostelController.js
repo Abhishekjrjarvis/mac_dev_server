@@ -2738,7 +2738,9 @@ const request_hostel_mode_query_by_student = async (
         { remaining_flow: "Hostel Application" },
       ],
     });
-    remaining_fee_lists.fee_receipts.push(new_receipt?._id);
+    if(remaining_fee_lists){
+      remaining_fee_lists.fee_receipts.push(new_receipt?._id);
+    }
     if (new_receipt?.fee_payment_mode === "Government/Scholarship") {
       finance.government_receipt.push(new_receipt?._id);
       finance.financeGovernmentScholarBalance += price;
@@ -2746,7 +2748,9 @@ const request_hostel_mode_query_by_student = async (
       if (price >= remaining_fee_lists?.remaining_fee) {
         extra_price += price - remaining_fee_lists?.remaining_fee;
         price = remaining_fee_lists?.remaining_fee;
-        remaining_fee_lists.paid_fee += extra_price;
+        if(remaining_fee_lists){
+          remaining_fee_lists.paid_fee += extra_price;
+        }
         student.hostelPaidFeeCount += extra_price;
         for (var stu of student.paidFeeList) {
           if (`${stu.appId}` === `${apply._id}`) {
@@ -2807,7 +2811,9 @@ const request_hostel_mode_query_by_student = async (
       );
     } else {
       if (new_receipt?.fee_payment_mode === "Government/Scholarship") {
-        remaining_fee_lists.paid_fee += price;
+        if(remaining_fee_lists){
+          remaining_fee_lists.paid_fee += price;
+        }
         if (remaining_fee_lists.remaining_fee >= price) {
           remaining_fee_lists.remaining_fee -= price;
         }
@@ -2824,7 +2830,9 @@ const request_hostel_mode_query_by_student = async (
           apply,
           institute
         );
-        remaining_fee_lists.paid_fee += price;
+        if(remaining_fee_lists){
+          remaining_fee_lists.paid_fee += price;
+        }
         if (remaining_fee_lists.remaining_fee >= price) {
           remaining_fee_lists.remaining_fee -= price;
         }
@@ -2875,6 +2883,9 @@ const request_hostel_mode_query_by_student = async (
         new_receipt
       );
     }
+    if(remaining_fee_lists){
+      await remaining_fee_lists.save()
+    }
     await Promise.all([
       hostel_ins.save(),
       student.save(),
@@ -2883,7 +2894,6 @@ const request_hostel_mode_query_by_student = async (
       institute.save(),
       order.save(),
       s_admin.save(),
-      remaining_fee_lists.save(),
       new_receipt.save(),
     ]);
     var is_refund =

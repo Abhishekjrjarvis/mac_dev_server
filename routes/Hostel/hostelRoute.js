@@ -278,11 +278,6 @@ router.post(
     { name: "file3" },
     { name: "file4" },
     { name: "file5" },
-    { name: "file6" },
-    { name: "file7" },
-    { name: "file8" },
-    { name: "file9" },
-    { name: "file10" },
   ]),
   catchAsync(Hostel.renderNewHostelAnnouncementQuery)
 );

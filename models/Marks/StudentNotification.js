@@ -57,6 +57,10 @@ const studentNotificationSchema = new mongoose.Schema({
     type: String,
   },
   examId: { type: String },
+  seatingId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Seating",
+  },
   checklistId: { type: String },
   feesId: { type: String },
   mcqId: { type: String },

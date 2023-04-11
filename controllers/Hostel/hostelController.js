@@ -161,7 +161,7 @@ exports.renderHostelDashQuery = async (req, res) => {
 
     const one_hostel = await Hostel.findById({ _id: hid })
       .select(
-        "created_at moderator_role moderator_role_count fees_structures_count onlineFee offlineFee exemptAmount remainingFeeCount collected_fee hostel_unit_count hostel_photo hostel_wardens_count boy_count girl_count other_count bed_count room_count"
+        "created_at moderator_role moderator_role_count fees_structures_count onlineFee offlineFee exemptAmount requested_status remainingFeeCount collected_fee hostel_unit_count hostel_photo hostel_wardens_count boy_count girl_count other_count bed_count room_count"
       )
       .populate({
         path: "hostel_manager",
@@ -439,7 +439,11 @@ exports.renderOneHostelRoomQuery = async (req, res) => {
         populate: {
           path: "bed_allotted_candidate",
           select:
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto student_bed_number",
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto student_bed_number user",
+            populate: {
+              path: "user",
+              select: "username userLegalName photoId profilePhoto"
+            }
         },
       });
 
@@ -636,7 +640,7 @@ exports.renderHostelAllHostalitiesQuery = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { search } = req.query;
+    const { search, filter_by } = req.query;
     if (!hid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -644,6 +648,32 @@ exports.renderHostelAllHostalitiesQuery = async (req, res) => {
       });
     const one_hostel = await Hostel.findById({ _id: hid }).select("units");
     if (search) {
+      if(filter_by){
+        var all_hostalities = await Student.find({
+          $and: [{ student_unit: `${filter_by}` }],
+          $or: [
+            { studentFirstName: { $regex: search, $options: "i" } },
+            { studentMiddleName: { $regex: search, $options: "i" } },
+            { studentLastName: { $regex: search, $options: "i" } },
+          ],
+        })
+          .select(
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO hostelRemainFeeCount"
+          )
+          .populate({
+            path: "student_bed_number",
+            select: "bed_number bed_status hostelRoom",
+            populate: {
+              path: "hostelRoom",
+              select: "room_name",
+            },
+          })
+          .populate({
+            path: "student_unit",
+            select: "hostel_unit_name",
+          });
+      }
+      else{
       var all_hostalities = await Student.find({
         $and: [{ student_unit: { $in: one_hostel?.units } }],
         $or: [
@@ -667,7 +697,31 @@ exports.renderHostelAllHostalitiesQuery = async (req, res) => {
           path: "student_unit",
           select: "hostel_unit_name",
         });
+      }
     } else {
+      if(filter_by){
+        var all_hostalities = await Student.find({
+          student_unit: `${filter_by}`,
+        })
+          .limit(limit)
+          .skip(skip)
+          .select(
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO hostelRemainFeeCount"
+          )
+          .populate({
+            path: "student_bed_number",
+            select: "bed_number bed_status hostelRoom",
+            populate: {
+              path: "hostelRoom",
+              select: "room_name",
+            },
+          })
+          .populate({
+            path: "student_unit",
+            select: "hostel_unit_name",
+          });
+      }
+      else{
       var all_hostalities = await Student.find({
         student_unit: { $in: one_hostel?.units },
       })
@@ -688,6 +742,7 @@ exports.renderHostelAllHostalitiesQuery = async (req, res) => {
           path: "student_unit",
           select: "hostel_unit_name",
         });
+      }
     }
 
     if (all_hostalities?.length > 0) {
@@ -4828,6 +4883,10 @@ exports.renderHostelAllStudentRoommatesQuery = async (req, res) => {
         path: "bed_allotted_candidate",
         select:
           "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto user",
+          populate: {
+            path: "user",
+            select: "username userLegalName photoId profilePhoto"
+          }
       });
 
     all_roommates = all_roommates?.filter((ref) => {
@@ -5449,7 +5508,7 @@ exports.renderAllReceiptsQuery = async (req, res) => {
         access: true,
         all_requests: all_requests,
         count: all_requests?.length,
-        department_account: filter_depart ? filter_depart : null,
+        // department_account: filter_depart ? filter_depart : null,
       });
     } else {
       res.status(200).send({
@@ -5457,7 +5516,7 @@ exports.renderAllReceiptsQuery = async (req, res) => {
         access: false,
         all_requests: [],
         count: 0,
-        department_account: null,
+        // department_account: null,
       });
     }
   } catch (e) {

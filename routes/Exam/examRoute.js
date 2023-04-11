@@ -119,9 +119,16 @@ router.route("/backlog/one/previous/student/:sid/mark/status").patch(
   catchAsync(examController.retrieveBacklogOneStudentMarkStatus)
 );
 
-router.route("/:eid/seating/new/query").post(
-  // isLoggedIn,
-  catchAsync(examController.renderNewSeatingArrangementQuery)
-);
+router
+  .route("/:eid/seating/new/query")
+  .post(catchAsync(examController.renderNewSeatingArrangementQuery));
+
+// router
+//   .route("/:eid/seating/edit/:said/query")
+//   .patch(catchAsync(examController.renderEditSeatingArrangementQuery));
+
+router
+  .route("/:eid/seating/destroy/:said/query")
+  .delete(catchAsync(examController.renderDestroySeatingArrangementQuery));
 
 module.exports = router;

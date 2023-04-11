@@ -2031,7 +2031,7 @@ exports.retrieveUserApplicationStatus = async (req, res) => {
       .populate({
         path: "applicationStatus",
         populate: {
-          path: "feeStructure",
+          path: "feeStructure hostel_fee_structure",
           select:
             "one_installments total_admission_fees applicable_fees structure_month",
           populate: {

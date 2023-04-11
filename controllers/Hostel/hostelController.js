@@ -5594,14 +5594,17 @@ exports.renderOneReceiptStatus = async (req, res) => {
       if (one_renew) {
         one_renew.receipt_status = "Approved";
       }
+      if(remaining_lists){
       for (var ref of remaining_lists?.remaining_array) {
         if (`${ref?._id}` == `${one_receipt?.fee_request_remain_card}`) {
           ref.status = "Not Paid";
           ref.reject_reason = null;
         }
       }
+      await remaining_lists.save()
+    }
       one_receipt.fee_request_remain_card = "";
-      await Promise.all([one_receipt.save(), remaining_lists.save()]);
+      await one_receipt.save();
     } else if (status === "Rejected") {
       for (var ele of ads_admin?.fee_receipt_request) {
         if (`${ele._id}` === `${reqId}`) {
@@ -5614,12 +5617,15 @@ exports.renderOneReceiptStatus = async (req, res) => {
         status: "Rejected",
         reason: reason,
       });
+      if(remaining_lists){
       for (var ref of remaining_lists?.remaining_array) {
         if (`${ref?._id}` == `${one_receipt?.fee_request_remain_card}`) {
           ref.status = "Receipt Rejected";
           ref.reject_reason = reason;
         }
       }
+      await remaining_lists.save()
+    }
       one_receipt.reason = reason;
       if (one_status) {
         one_status.receipt_status = "Rejected";
@@ -5632,7 +5638,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
           ref.payment_status = "Receipt Rejected";
         }
       }
-      await Promise.all([one_receipt.save(), remaining_lists.save()]);
+      await one_receipt.save();
     } else if (status === "Over_Rejection") {
       for (var ele of ads_admin?.fee_receipt_reject) {
         if (`${ele._id}` === `${reqId}`) {
@@ -5652,19 +5658,22 @@ exports.renderOneReceiptStatus = async (req, res) => {
         one_renew.receipt_status = "Approved";
       }
       one_receipt.re_apply = false;
+      if(remaining_lists){
       for (var ref of remaining_lists?.remaining_array) {
         if (`${ref?._id}` == `${one_receipt?.fee_request_remain_card}`) {
           ref.status = "Not Paid";
           ref.reject_reason = null;
         }
       }
+      await remaining_lists.save()
+    }
       one_receipt.fee_request_remain_card = "";
       // for (var ref of one_app?.selectedApplication) {
       //   if (`${ref.student}` === `${one_receipt?.student}`) {
       //     ref.payment_status = "Receipt Approved";
       //   }
       // }
-      await Promise.all([one_receipt.save(), remaining_lists.save()]);
+      await one_receipt.save();
     } else if (status === "Rejection_Notify") {
       if (one_status) {
         one_status.receipt_status = "Rejected";
@@ -5683,12 +5692,15 @@ exports.renderOneReceiptStatus = async (req, res) => {
           ele.reason = reason;
         }
       }
+      if(remaining_lists){
       for (var ref of remaining_lists?.remaining_array) {
         if (`${ref?._id}` == `${one_receipt?.fee_request_remain_card}`) {
           ref.status = "Receipt Rejected";
           ref.reject_reason = reason;
         }
       }
+      await remaining_lists.save()
+    }
       one_receipt.reason = reason;
       await one_receipt.save();
       const notify = new StudentNotification({});
@@ -5708,7 +5720,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
         user._id,
         user.deviceToken
       );
-      await Promise.all([user.save(), notify.save(), remaining_lists.save()]);
+      await Promise.all([user.save(), notify.save()]);
     } else {
     }
     if (one_status) {

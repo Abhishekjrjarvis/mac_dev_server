@@ -89,7 +89,7 @@ app.use((req, res, next) => {
 
 app.use(apiFunc);
 
-// timerFunction();
+timerFunction();
 
 app.get("*", (req, res) => {
   res.status(404).send("Page Not Found...");

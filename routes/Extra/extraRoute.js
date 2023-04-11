@@ -216,4 +216,9 @@ router.patch(
   catchAsync(Extra.renderExcelToJSONStaffQuery)
 );
 
+router.patch(
+  "/excel/to/json/:hid/hostelities/query",
+  catchAsync(Extra.renderExcelToJSONHostelitiesQuery)
+);
+
 module.exports = router;

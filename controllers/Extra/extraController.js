@@ -17,12 +17,14 @@ const { chatCount } = require("../../Firebase/dailyChat");
 const { getFirestore } = require("firebase-admin/firestore");
 const { valid_initials } = require("../../Custom/checkInitials");
 const { simple_object } = require("../../S3Configuration");
+const Hostel = require("../../models/Hostel/hostel");
 const {
   generate_excel_to_json,
   generate_excel_to_json_fee_category,
   generate_excel_to_json_fee_head_master,
   generate_excel_to_json_fee_structure,
   generate_excel_to_json_direct_staff,
+  generate_excel_to_json_direct_hostelities,
 } = require("../../Custom/excelToJSON");
 const {
   retrieveInstituteDirectJoinQueryPayload,
@@ -33,6 +35,9 @@ const {
   renderFinanceAddFeeMasterAutoQuery,
   renderFinanceAddFeeStructureAutoQuery,
 } = require("../Finance/financeController");
+const {
+  renderDirectHostelJoinExcelQuery,
+} = require("../Hostel/hostelController");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -1245,6 +1250,56 @@ exports.renderExcelToJSONStaffQuery = async (req, res) => {
         id,
         is_converted?.staff_array
       );
+    } else {
+      console.log("false");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderExcelToJSONHostelitiesQuery = async (req, res) => {
+  try {
+    const { hid } = req.params;
+    const { excel_file } = req.body;
+    if (!hid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const one_hostel = await Hostel.findById({ _id: hid });
+    const one_ins = await InstituteAdmin.findById({
+      _id: `${one_hostel?.institute}`,
+    });
+    one_ins.excel_data_query.push({
+      excel_file: excel_file,
+      status: "Uploaded",
+      flow: "HOSTELITIES",
+    });
+    await one_ins.save();
+    res.status(200).send({
+      message: "Update Excel To Backend Wait for Operation Completed",
+      access: true,
+    });
+
+    const update_ins = await InstituteAdmin.findById({
+      _id: `${one_hostel?.institute}`,
+    });
+    var key;
+    for (var ref of update_ins?.excel_data_query) {
+      if (`${ref.status}` === "Uploaded" && `${ref?.flow}` === `HOSTELITIES`) {
+        key = ref?.excel_file;
+      }
+    }
+    const val = await simple_object(key);
+
+    const is_converted = await generate_excel_to_json_direct_hostelities(
+      val,
+      hid,
+      one_ins?.financeDepart?.[0]
+    );
+    if (is_converted?.value) {
+      await renderDirectHostelJoinExcelQuery(hid, is_converted?.student_array);
     } else {
       console.log("false");
     }

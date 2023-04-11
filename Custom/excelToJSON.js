@@ -335,3 +335,69 @@ exports.generate_excel_to_json_direct_staff = async (file) => {
     console.log("Staff Excel Query Not Resolved", e);
   }
 };
+
+exports.generate_excel_to_json_direct_hostelities = async (file, hid, fid) => {
+  try {
+    const w_query = xlsx.read(file.Body);
+    const w_sheet = w_query.Sheets["HostelStudent"];
+    const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
+    var new_data_query = [];
+    for (var ref of data_query) {
+      var valid_app = await NewApplication.findOne({
+        $and: [
+          { applicationHostel: hid },
+          {
+            applicationName: { $regex: `${ref?.application}`, $options: "i" },
+          },
+        ],
+      });
+      var new_fee_struct = await FeeStructure.findOne({
+        $and: [
+          { finance: fid },
+          {
+            unique_structure_name: {
+              $regex: `${ref?.structure}`,
+              $options: "i",
+            },
+          },
+        ],
+      });
+      ref.aid = valid_app?._id;
+      ref.studentDOB = replace_query(ref?.DOB);
+      ref.studentGender = ref?.Gender;
+      ref.studentMotherName = ref?.MotherName;
+      ref.studentPhoneNumber = ref?.PhoneNumber ?? 0;
+      ref.userPhoneNumber = ref?.PhoneNumber ? parseInt(ref?.PhoneNumber) : 0;
+      ref.userEmail = ref?.email;
+      ref.fee_payment_mode = ref?.paymentMode;
+      ref.fee_payment_amount = ref?.paymentAmount;
+      ref.fee_transaction_date = new Date();
+      ref.fee_bank_name = ref?.bankName;
+      ref.fee_bank_holder = ref?.bankHolder;
+      ref.fee_utr_reference = ref?.UTRNumber;
+      ref.fee_struct = new_fee_struct?._id;
+      let name_query = ref?.Name?.split(" ");
+      if (name_query?.length > 2) {
+        new_data_query.push({
+          ...ref,
+          studentFirstName: name_query[0],
+          studentMiddleName: name_query[1],
+          studentLastName: name_query[2],
+          fileArray: [],
+          optionalSubject: [],
+        });
+      } else {
+        new_data_query.push({
+          ...ref,
+          studentFirstName: name_query[0],
+          studentLastName: name_query[1],
+          fileArray: [],
+          optionalSubject: [],
+        });
+      }
+    }
+    return { student_array: new_data_query, value: true };
+  } catch (e) {
+    console.log("Hostel Student Excel Query Not Resolved", e);
+  }
+};

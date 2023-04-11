@@ -440,10 +440,10 @@ exports.renderOneHostelRoomQuery = async (req, res) => {
           path: "bed_allotted_candidate",
           select:
             "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto student_bed_number user",
-            populate: {
-              path: "user",
-              select: "username userLegalName photoId profilePhoto"
-            }
+          populate: {
+            path: "user",
+            select: "username userLegalName photoId profilePhoto",
+          },
         },
       });
 
@@ -648,7 +648,7 @@ exports.renderHostelAllHostalitiesQuery = async (req, res) => {
       });
     const one_hostel = await Hostel.findById({ _id: hid }).select("units");
     if (search) {
-      if(filter_by){
+      if (filter_by) {
         var all_hostalities = await Student.find({
           $and: [{ student_unit: `${filter_by}` }],
           $or: [
@@ -672,34 +672,33 @@ exports.renderHostelAllHostalitiesQuery = async (req, res) => {
             path: "student_unit",
             select: "hostel_unit_name",
           });
-      }
-      else{
-      var all_hostalities = await Student.find({
-        $and: [{ student_unit: { $in: one_hostel?.units } }],
-        $or: [
-          { studentFirstName: { $regex: search, $options: "i" } },
-          { studentMiddleName: { $regex: search, $options: "i" } },
-          { studentLastName: { $regex: search, $options: "i" } },
-        ],
-      })
-        .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO hostelRemainFeeCount"
-        )
-        .populate({
-          path: "student_bed_number",
-          select: "bed_number bed_status hostelRoom",
-          populate: {
-            path: "hostelRoom",
-            select: "room_name",
-          },
+      } else {
+        var all_hostalities = await Student.find({
+          $and: [{ student_unit: { $in: one_hostel?.units } }],
+          $or: [
+            { studentFirstName: { $regex: search, $options: "i" } },
+            { studentMiddleName: { $regex: search, $options: "i" } },
+            { studentLastName: { $regex: search, $options: "i" } },
+          ],
         })
-        .populate({
-          path: "student_unit",
-          select: "hostel_unit_name",
-        });
+          .select(
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO hostelRemainFeeCount"
+          )
+          .populate({
+            path: "student_bed_number",
+            select: "bed_number bed_status hostelRoom",
+            populate: {
+              path: "hostelRoom",
+              select: "room_name",
+            },
+          })
+          .populate({
+            path: "student_unit",
+            select: "hostel_unit_name",
+          });
       }
     } else {
-      if(filter_by){
+      if (filter_by) {
         var all_hostalities = await Student.find({
           student_unit: `${filter_by}`,
         })
@@ -720,28 +719,27 @@ exports.renderHostelAllHostalitiesQuery = async (req, res) => {
             path: "student_unit",
             select: "hostel_unit_name",
           });
-      }
-      else{
-      var all_hostalities = await Student.find({
-        student_unit: { $in: one_hostel?.units },
-      })
-        .limit(limit)
-        .skip(skip)
-        .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO hostelRemainFeeCount"
-        )
-        .populate({
-          path: "student_bed_number",
-          select: "bed_number bed_status hostelRoom",
-          populate: {
-            path: "hostelRoom",
-            select: "room_name",
-          },
+      } else {
+        var all_hostalities = await Student.find({
+          student_unit: { $in: one_hostel?.units },
         })
-        .populate({
-          path: "student_unit",
-          select: "hostel_unit_name",
-        });
+          .limit(limit)
+          .skip(skip)
+          .select(
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO hostelRemainFeeCount"
+          )
+          .populate({
+            path: "student_bed_number",
+            select: "bed_number bed_status hostelRoom",
+            populate: {
+              path: "hostelRoom",
+              select: "room_name",
+            },
+          })
+          .populate({
+            path: "student_unit",
+            select: "hostel_unit_name",
+          });
       }
     }
 
@@ -1215,7 +1213,7 @@ exports.renderHostelSelectedQuery = async (req, res) => {
       institute: one_hostel?.institute,
     });
     const status = new Status({});
-    if (valid_month <= 60 && valid_month !== 12) {
+    if (valid_month > 0 && valid_month <= 60 && valid_month !== 12) {
       var new_structure = new FeeStructure({
         category_master: structure?.category_master,
         class_master: structure?.class_master,
@@ -1823,8 +1821,8 @@ exports.renderHostelRemainingArray = async (req, res) => {
         })
         .populate({
           path: "student_unit",
-          select: "hostel_unit_name"
-        })
+          select: "hostel_unit_name",
+        });
     } else {
       var student = await Student.find({
         _id: { $in: hostel_ins?.remainingFee },
@@ -1841,8 +1839,8 @@ exports.renderHostelRemainingArray = async (req, res) => {
         })
         .populate({
           path: "student_unit",
-          select: "hostel_unit_name"
-        })
+          select: "hostel_unit_name",
+        });
     }
     if (student?.length > 0) {
       res.status(200).send({
@@ -2738,7 +2736,7 @@ const request_hostel_mode_query_by_student = async (
         { remaining_flow: "Hostel Application" },
       ],
     });
-    if(remaining_fee_lists){
+    if (remaining_fee_lists) {
       remaining_fee_lists.fee_receipts.push(new_receipt?._id);
     }
     if (new_receipt?.fee_payment_mode === "Government/Scholarship") {
@@ -2748,7 +2746,7 @@ const request_hostel_mode_query_by_student = async (
       if (price >= remaining_fee_lists?.remaining_fee) {
         extra_price += price - remaining_fee_lists?.remaining_fee;
         price = remaining_fee_lists?.remaining_fee;
-        if(remaining_fee_lists){
+        if (remaining_fee_lists) {
           remaining_fee_lists.paid_fee += extra_price;
         }
         student.hostelPaidFeeCount += extra_price;
@@ -2811,7 +2809,7 @@ const request_hostel_mode_query_by_student = async (
       );
     } else {
       if (new_receipt?.fee_payment_mode === "Government/Scholarship") {
-        if(remaining_fee_lists){
+        if (remaining_fee_lists) {
           remaining_fee_lists.paid_fee += price;
         }
         if (remaining_fee_lists.remaining_fee >= price) {
@@ -2830,7 +2828,7 @@ const request_hostel_mode_query_by_student = async (
           apply,
           institute
         );
-        if(remaining_fee_lists){
+        if (remaining_fee_lists) {
           remaining_fee_lists.paid_fee += price;
         }
         if (remaining_fee_lists.remaining_fee >= price) {
@@ -2883,8 +2881,8 @@ const request_hostel_mode_query_by_student = async (
         new_receipt
       );
     }
-    if(remaining_fee_lists){
-      await remaining_fee_lists.save()
+    if (remaining_fee_lists) {
+      await remaining_fee_lists.save();
     }
     await Promise.all([
       hostel_ins.save(),
@@ -3635,7 +3633,9 @@ exports.renderHostelUnitAllReceievedApplication = async (req, res) => {
     if (search) {
       const filter_request = [];
       var one_unit = await HostelUnit.findById({ _id: huid })
-        .select("renewal_receieved_application renewal_receieved_application_count")
+        .select(
+          "renewal_receieved_application renewal_receieved_application_count"
+        )
         .populate({
           path: "renewal_receieved_application",
           populate: {
@@ -3666,7 +3666,9 @@ exports.renderHostelUnitAllReceievedApplication = async (req, res) => {
       }
     } else {
       var one_unit = await HostelUnit.findById({ _id: huid })
-        .select("renewal_receieved_application renewal_receieved_application_count")
+        .select(
+          "renewal_receieved_application renewal_receieved_application_count"
+        )
         .populate({
           path: "renewal_receieved_application",
           populate: {
@@ -4148,7 +4150,7 @@ exports.renderHostelSelectedRenewalQuery = async (req, res) => {
     const student = await Student.findById({ _id: sid });
     const user = await User.findById({ _id: `${student.user}` });
     var structure = await FeeStructure.findById({ _id: fee_struct });
-    if (valid_month <= 60 && valid_month !== 12) {
+    if (valid_month > 0 && valid_month <= 60 && valid_month !== 12) {
       var new_structure = new FeeStructure({
         category_master: structure?.category_master,
         class_master: structure?.class_master,
@@ -4901,10 +4903,10 @@ exports.renderHostelAllStudentRoommatesQuery = async (req, res) => {
         path: "bed_allotted_candidate",
         select:
           "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto user",
-          populate: {
-            path: "user",
-            select: "username userLegalName photoId profilePhoto"
-          }
+        populate: {
+          path: "user",
+          select: "username userLegalName photoId profilePhoto",
+        },
       });
 
     all_roommates = all_roommates?.filter((ref) => {
@@ -4965,7 +4967,7 @@ exports.renderHostelPayModeRenewal = async (req, res) => {
     const institute = await InstituteAdmin.findById({
       _id: `${admin_ins?.institute?._id}`,
     });
-    if (valid_month <= 60 && valid_month !== 12) {
+    if (valid_month > 0 && valid_month <= 60 && valid_month !== 12) {
       var new_structure = new FeeStructure({
         category_master: structure?.category_master,
         class_master: structure?.class_master,
@@ -5604,15 +5606,15 @@ exports.renderOneReceiptStatus = async (req, res) => {
       if (one_renew) {
         one_renew.receipt_status = "Approved";
       }
-      if(remaining_lists){
-      for (var ref of remaining_lists?.remaining_array) {
-        if (`${ref?._id}` == `${one_receipt?.fee_request_remain_card}`) {
-          ref.status = "Not Paid";
-          ref.reject_reason = null;
+      if (remaining_lists) {
+        for (var ref of remaining_lists?.remaining_array) {
+          if (`${ref?._id}` == `${one_receipt?.fee_request_remain_card}`) {
+            ref.status = "Not Paid";
+            ref.reject_reason = null;
+          }
         }
+        await remaining_lists.save();
       }
-      await remaining_lists.save()
-    }
       one_receipt.fee_request_remain_card = "";
       await one_receipt.save();
     } else if (status === "Rejected") {
@@ -5627,15 +5629,15 @@ exports.renderOneReceiptStatus = async (req, res) => {
         status: "Rejected",
         reason: reason,
       });
-      if(remaining_lists){
-      for (var ref of remaining_lists?.remaining_array) {
-        if (`${ref?._id}` == `${one_receipt?.fee_request_remain_card}`) {
-          ref.status = "Receipt Rejected";
-          ref.reject_reason = reason;
+      if (remaining_lists) {
+        for (var ref of remaining_lists?.remaining_array) {
+          if (`${ref?._id}` == `${one_receipt?.fee_request_remain_card}`) {
+            ref.status = "Receipt Rejected";
+            ref.reject_reason = reason;
+          }
         }
+        await remaining_lists.save();
       }
-      await remaining_lists.save()
-    }
       one_receipt.reason = reason;
       if (one_status) {
         one_status.receipt_status = "Rejected";
@@ -5668,15 +5670,15 @@ exports.renderOneReceiptStatus = async (req, res) => {
         one_renew.receipt_status = "Approved";
       }
       one_receipt.re_apply = false;
-      if(remaining_lists){
-      for (var ref of remaining_lists?.remaining_array) {
-        if (`${ref?._id}` == `${one_receipt?.fee_request_remain_card}`) {
-          ref.status = "Not Paid";
-          ref.reject_reason = null;
+      if (remaining_lists) {
+        for (var ref of remaining_lists?.remaining_array) {
+          if (`${ref?._id}` == `${one_receipt?.fee_request_remain_card}`) {
+            ref.status = "Not Paid";
+            ref.reject_reason = null;
+          }
         }
+        await remaining_lists.save();
       }
-      await remaining_lists.save()
-    }
       one_receipt.fee_request_remain_card = "";
       // for (var ref of one_app?.selectedApplication) {
       //   if (`${ref.student}` === `${one_receipt?.student}`) {
@@ -5702,15 +5704,15 @@ exports.renderOneReceiptStatus = async (req, res) => {
           ele.reason = reason;
         }
       }
-      if(remaining_lists){
-      for (var ref of remaining_lists?.remaining_array) {
-        if (`${ref?._id}` == `${one_receipt?.fee_request_remain_card}`) {
-          ref.status = "Receipt Rejected";
-          ref.reject_reason = reason;
+      if (remaining_lists) {
+        for (var ref of remaining_lists?.remaining_array) {
+          if (`${ref?._id}` == `${one_receipt?.fee_request_remain_card}`) {
+            ref.status = "Receipt Rejected";
+            ref.reject_reason = reason;
+          }
         }
+        await remaining_lists.save();
       }
-      await remaining_lists.save()
-    }
       one_receipt.reason = reason;
       await one_receipt.save();
       const notify = new StudentNotification({});
@@ -6017,17 +6019,17 @@ exports.renderNewHostelAnnouncementQuery = async (req, res) => {
     one_hostel.announcement.unshift(announcements._id);
     one_hostel.announcementCount += 1;
     announcements.one_hostel = one_hostel?._id;
-    var valid_count = announceCount ? parseInt(announceCount) : 0
-    if(valid_count > 0){
-    for (var i = 1; i <= valid_count ; i++) {
-      var fileValue = req?.files[`file${i}`];
-      for (let file of fileValue) {
-        const results = await uploadDocFile(file);
-        announcements.announcementHostelDocument.push(results.Key);
-        await unlinkFile(file.path);
+    var valid_count = announceCount ? parseInt(announceCount) : 0;
+    if (valid_count > 0) {
+      for (var i = 1; i <= valid_count; i++) {
+        var fileValue = req?.files[`file${i}`];
+        for (let file of fileValue) {
+          const results = await uploadDocFile(file);
+          announcements.announcementHostelDocument.push(results.Key);
+          await unlinkFile(file.path);
+        }
       }
     }
-  }
     await Promise.all([one_hostel.save(), announcements.save()]);
     res.status(200).send({
       message: "Successfully Created Hostel Announcements",
@@ -6091,7 +6093,7 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
     const { id, aid } = req.params;
     const { existingUser } = req.query;
     var existing = handle_undefined(existingUser);
-    const { sample_pic, fileArray, type, mode, amount, fee_struct } = req.body;
+    const { sample_pic, fileArray, type, mode, amount, fee_struct, month } = req.body;
     if (
       !id &&
       !aid &&
@@ -6108,6 +6110,8 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
         access: false,
       });
     const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    var valid_month = month ? parseInt(month) : 0;
+    var structure = await FeeStructure.findById({ _id: `${fee_struct}` });
     const apply = await NewApplication.findById({ _id: aid });
     const one_unit = await HostelUnit.findById({
       _id: `${apply?.applicationUnit}`,
@@ -6196,7 +6200,36 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
     user.student.push(student._id);
     user.applyApplication.push(apply._id);
     student.user = user._id;
-    student.hostel_fee_structure = fee_struct;
+    if (valid_month > 0 && valid_month <= 60 && valid_month !== 12) {
+      var new_structure = new FeeStructure({
+        category_master: structure?.category_master,
+        class_master: structure?.class_master,
+        structure_name: structure?.structure_name,
+        unique_structure_name: structure?.unique_structure_name,
+        total_admission_fees: structure?.total_admission_fees,
+        total_installments: structure?.total_installments,
+        applicable_fees: structure?.applicable_fees,
+        one_installments: structure?.one_installments,
+        two_installments: structure?.two_installments,
+        three_installments: structure?.three_installments,
+        four_installments: structure?.four_installments,
+        five_installments: structure?.five_installments,
+        six_installments: structure?.six_installments,
+        seven_installments: structure?.seven_installments,
+        eight_installments: structure?.eight_installments,
+        nine_installments: structure?.nine_installments,
+        ten_installments: structure?.ten_installments,
+        eleven_installments: structure?.eleven_installments,
+        tweleve_installments: structure?.tweleve_installments,
+        fees_heads: [...structure?.fees_heads],
+        fees_heads_count: structure?.fees_heads_count,
+      });
+      new_structure.structure_month = valid_month;
+      await structure_pricing_query(new_structure, valid_month);
+      student.hostel_fee_structure = new_structure?._id;
+    } else {
+      student.hostel_fee_structure = structure?._id;
+    }
     await student.save();
     await insert_multiple_hostel_status(
       apply,
@@ -6208,6 +6241,8 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
     apply.receievedCount += 1;
     apply.selectCount += 1;
     apply.confirmCount += 1;
+    one_unit.hostelities.push(student?._id)
+    one_unit.hostelities_count += 1
     await fee_reordering_hostel(
       type,
       mode,
@@ -6237,6 +6272,7 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
       institute.save(),
       ons_hostel.save(),
       finance.save(),
+      one_unit.save()
     ]);
     res.status(200).send({
       message:
@@ -6258,6 +6294,230 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
       student.hostelRemainFeeCount,
       institute?.sms_lang
     );
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderDirectHostelJoinExcelQuery = async (hid, student_array) => {
+  try {
+    for (var ref of student_array) {
+      var maleAvatar = [
+        "3D2.jpg",
+        "3D4.jpg",
+        "3D6.jpg",
+        "3D19.jpg",
+        "3D20.jpg",
+        "3D26.jpg",
+        "3D21.jpg",
+        "3D12.jpg",
+      ];
+      var femaleAvatar = [
+        "3D1.jpg",
+        "3D3.jpg",
+        "3D10.jpg",
+        "3D11.jpg",
+        "3D14.jpg",
+        "3D15.jpg",
+        "3D22.jpg",
+        "3D31.jpg",
+      ];
+      var valid_month = ref?.month ? parseInt(ref?.month) : 0;
+      var structure = await FeeStructure.findById({
+        _id: `${ref?.fee_struct}`,
+      });
+      const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+      const exist_user = await User.findOne({
+        userPhoneNumber: ref?.userPhoneNumber,
+      });
+      const exist_email = await User.findOne({ userEmail: ref?.userEmail });
+      if (exist_user || exist_email) {
+        var user = exist_user ? exist_user : exist_email;
+      } else {
+        var valid = await filter_unique_username(
+          ref?.studentFirstName,
+          ref?.studentDOB
+        );
+        const genUserPass = bcrypt.genSaltSync(12);
+        const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
+        var user = new User({
+          userLegalName: `${ref?.studentFirstName} ${
+            ref?.studentMiddleName ? ref?.studentMiddleName : ""
+          } ${ref?.studentLastName ? ref?.studentLastName : ""}`,
+          userGender: ref?.studentGender,
+          userDateOfBirth: ref?.studentDOB,
+          username: valid?.username,
+          userStatus: "Approved",
+          userPhoneNumber: ref?.userPhoneNumber ? ref?.userPhoneNumber : 0,
+          userEmail: ref?.userEmail,
+          userPassword: hashUserPass,
+          photoId: "0",
+          coverId: "2",
+          remindLater: rDate,
+          next_date: c_date,
+        });
+        admins.users.push(user);
+        admins.userCount += 1;
+        await Promise.all([admins.save(), user.save()]);
+        await universal_account_creation_feed(user);
+        await user_date_of_birth(user);
+      }
+      const apply = await NewApplication.findById({ _id: ref?.aid });
+      const one_unit = await HostelUnit.findById({
+        _id: `${apply?.applicationUnit}`,
+      });
+      var new_receipt = new FeeReceipt({
+        fee_payment_amount: ref?.fee_payment_amount,
+        fee_payment_mode: ref?.fee_payment_mode,
+        fee_transaction_date: ref?.fee_transaction_date,
+      });
+      const ons_hostel = await Hostel.findById({
+        _id: hid,
+      });
+      const institute = await InstituteAdmin.findById({
+        _id: `${ons_hostel?.institute}`,
+      });
+      const finance = await Finance.findById({
+        _id: `${institute?.financeDepart[0]}`,
+      });
+      const student = new Student({
+        studentFirstName: ref?.studentFirstName,
+        studentMiddleName: ref?.studentMiddleName,
+        studentLastName: ref?.studentLastName,
+        studentGender: ref?.studentGender,
+        studentDOB: ref?.studentDOB,
+        studentPhoneNumber: ref?.studentPhoneNumber,
+      });
+      const studentOptionalSubject = ref?.optionalSubject
+        ? ref?.optionalSubject
+        : [];
+      for (var file of ref?.fileArray) {
+        if (file.name === "file") {
+          student.photoId = "0";
+          student.studentProfilePhoto = file.key;
+          user.profilePhoto = file.key;
+        } else if (file.name === "addharFrontCard")
+          student.studentAadharFrontCard = file.key;
+        else if (file.name === "addharBackCard")
+          student.studentAadharBackCard = file.key;
+        else if (file.name === "bankPassbook")
+          student.studentBankPassbook = file.key;
+        else if (file.name === "casteCertificate")
+          student.studentCasteCertificatePhoto = file.key;
+        else {
+          student.studentDocuments.push({
+            documentName: file.name,
+            documentKey: file.key,
+            documentType: file.type,
+          });
+        }
+      }
+      if (studentOptionalSubject?.length > 0) {
+        student.studentOptionalSubject.push(...studentOptionalSubject);
+      }
+      if (student.studentGender === "Male") {
+        user.profilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
+        student.studentProfilePhoto = maleAvatar[Math.floor(Math.random() * 8)];
+      } else if (student.studentGender === "Female") {
+        user.profilePhoto = femaleAvatar[Math.floor(Math.random() * 8)];
+        student.studentProfilePhoto =
+          femaleAvatar[Math.floor(Math.random() * 8)];
+      } else {
+      }
+      student.photoId = "0";
+      user.student.push(student._id);
+      user.applyApplication.push(apply._id);
+      student.user = user._id;
+      if (valid_month > 0 && valid_month <= 60 && valid_month !== 12) {
+        var new_structure = new FeeStructure({
+          category_master: structure?.category_master,
+          class_master: structure?.class_master,
+          structure_name: structure?.structure_name,
+          unique_structure_name: structure?.unique_structure_name,
+          total_admission_fees: structure?.total_admission_fees,
+          total_installments: structure?.total_installments,
+          applicable_fees: structure?.applicable_fees,
+          one_installments: structure?.one_installments,
+          two_installments: structure?.two_installments,
+          three_installments: structure?.three_installments,
+          four_installments: structure?.four_installments,
+          five_installments: structure?.five_installments,
+          six_installments: structure?.six_installments,
+          seven_installments: structure?.seven_installments,
+          eight_installments: structure?.eight_installments,
+          nine_installments: structure?.nine_installments,
+          ten_installments: structure?.ten_installments,
+          eleven_installments: structure?.eleven_installments,
+          tweleve_installments: structure?.tweleve_installments,
+          fees_heads: [...structure?.fees_heads],
+          fees_heads_count: structure?.fees_heads_count,
+        });
+        new_structure.structure_month = valid_month;
+        await structure_pricing_query(new_structure, valid_month);
+        student.hostel_fee_structure = new_structure?._id;
+      } else {
+        student.hostel_fee_structure = structure?._id;
+      }
+      await student.save();
+      await insert_multiple_hostel_status(
+        apply,
+        user,
+        institute,
+        student?._id,
+        one_unit
+      );
+      apply.receievedCount += 1;
+      apply.selectCount += 1;
+      apply.confirmCount += 1;
+      one_unit.hostelities.push(student?._id)
+      one_unit.hostelities_count += 1
+      await fee_reordering_hostel(
+        ref?.type,
+        ref?.mode,
+        parseInt(ref?.amount),
+        student,
+        apply,
+        institute,
+        finance,
+        ons_hostel,
+        admins,
+        new_receipt,
+        user,
+        one_unit
+      );
+      if (institute.userFollowersList.includes(user?._id)) {
+      } else {
+        user.userInstituteFollowing.push(institute._id);
+        user.followingUICount += 1;
+        institute.userFollowersList.push(user?._id);
+        institute.followersCount += 1;
+      }
+      // await insert_multiple_status(apply, user, institute, student?._id);
+      await Promise.all([
+        student.save(),
+        user.save(),
+        apply.save(),
+        institute.save(),
+        ons_hostel.save(),
+        finance.save(),
+        one_unit.save()
+      ]);
+      await ignite_multiple_alarm(user);
+      const studentName = `${student?.studentFirstName} ${
+        student?.studentMiddleName ? student?.studentMiddleName : ""
+      } ${student?.studentLastName}`;
+      whats_app_sms_payload(
+        user?.userPhoneNumber,
+        studentName,
+        institute?.insName,
+        null,
+        "ASCAS",
+        institute?.insType,
+        student.hostelPaidFeeCount,
+        student.hostelRemainFeeCount,
+        institute?.sms_lang
+      );
+    }
   } catch (e) {
     console.log(e);
   }

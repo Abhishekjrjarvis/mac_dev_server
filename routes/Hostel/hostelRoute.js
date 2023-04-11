@@ -292,9 +292,4 @@ router.post(
   catchAsync(Hostel.renderDirectHostelJoinConfirmQuery)
 );
 
-// router.post(
-//   "/:id/add/excel/hostel/confirm/:aid/query",
-//   catchAsync(Hostel.renderDirectHostelJoinConfirmQuery)
-// );
-
 module.exports = router;

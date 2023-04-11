@@ -1818,7 +1818,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
             },
           });
       }
-      average_points += student.extraPoints / student.batchCount;
+      average_points += student?.extraPoints / student?.batchCount;
       const status = await valid_student_form_query(
         student?.institute,
         student,

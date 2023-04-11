@@ -6243,6 +6243,7 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
     apply.confirmCount += 1;
     one_unit.hostelities.push(student?._id)
     one_unit.hostelities_count += 1
+    student.student_unit = one_unit?._id
     await fee_reordering_hostel(
       type,
       mode,
@@ -6471,6 +6472,7 @@ exports.renderDirectHostelJoinExcelQuery = async (hid, student_array) => {
       apply.confirmCount += 1;
       one_unit.hostelities.push(student?._id)
       one_unit.hostelities_count += 1
+      student.student_unit = one_unit?._id
       await fee_reordering_hostel(
         ref?.type,
         ref?.mode,

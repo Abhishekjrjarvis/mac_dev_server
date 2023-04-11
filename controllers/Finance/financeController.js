@@ -1156,7 +1156,7 @@ exports.addFieldToPayroll = async (req, res) => {
       g_month = `0${g_month}`;
     }
     if (net_total < finance.financeTotalBalance) {
-      var sorted = []
+      var sorted = [];
       for (var ref of master) {
         if (ref?.month_master_id) {
           const new_master = await PayrollMaster.findById({
@@ -1216,8 +1216,8 @@ exports.addFieldToPayroll = async (req, res) => {
         is_paid: "Paid",
         gross_salary: gross_salary,
         net_total: net_total,
-        month_master: sorted
-    });
+        month_master: sorted,
+      });
       finance.salary_history.push({
         salary: net_total,
         month: new Date(`${month}`),
@@ -2434,8 +2434,7 @@ exports.renderFinanceBankAddQuery = async (req, res) => {
       new_account.library = flow_id;
       libs.bank_account = new_account?._id;
       await libs.save();
-    }
-    else if (flow === "Hostel") {
+    } else if (flow === "Hostel") {
       const libs = await Hostel.findById({ _id: flow_id });
       new_account.hostel = flow_id;
       libs.bank_account = new_account?._id;
@@ -3050,7 +3049,7 @@ exports.renderDepartmentAllFeeStructure = async (req, res) => {
           { document_update: false },
         ],
       })
-        .sort({ created_at: "-1"})
+        .sort({ created_at: "-1" })
         .limit(limit)
         .skip(skip)
         .select(
@@ -3071,7 +3070,7 @@ exports.renderDepartmentAllFeeStructure = async (req, res) => {
           { document_update: false },
         ],
       })
-      .sort({ created_at: "-1"})
+        .sort({ created_at: "-1" })
         .limit(limit)
         .skip(skip)
         .select(
@@ -3411,14 +3410,13 @@ exports.renderOneFeeReceipt = async (req, res) => {
         },
       });
 
-    if(receipt?.application?.applicationDepartment){
-    var one_account = await BankAccount.findOne({
-      department: receipt?.application?.applicationDepartment,
-    }).select(
-      "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
-    );
-    }
-    else{
+    if (receipt?.application?.applicationDepartment) {
+      var one_account = await BankAccount.findOne({
+        department: receipt?.application?.applicationDepartment,
+      }).select(
+        "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
+      );
+    } else {
       var one_account = await BankAccount.findOne({
         hostel: receipt?.application?.applicationHostel,
       }).select(
@@ -3542,8 +3540,7 @@ exports.renderFinanceAllBankDetails = async (req, res) => {
       }).select(
         "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
       );
-    } 
-    else {
+    } else {
       var all_account = null;
     }
     res.status(200).send({
@@ -4123,35 +4120,39 @@ exports.renderFinanceAllPayrollMasterQuery = async (req, res) => {
       "payroll_master"
     );
     if (search) {
-      if(filter){
-      var all_masters = await PayrollMaster.find({
-        $and: [{ _id: { $in: one_finance?.payroll_master } }, { payroll_head_type: filter }],
-        $or: [{ payroll_head_name: { $regex: search, $options: "i" } }],
-      }).select("payroll_head_name payroll_head_type");
-    }
-    else{
-      var all_masters = await PayrollMaster.find({
-        $and: [{ _id: { $in: one_finance?.payroll_master } }],
-        $or: [{ payroll_head_name: { $regex: search, $options: "i" } }],
-      }).select("payroll_head_name payroll_head_type");
-    }
+      if (filter) {
+        var all_masters = await PayrollMaster.find({
+          $and: [
+            { _id: { $in: one_finance?.payroll_master } },
+            { payroll_head_type: filter },
+          ],
+          $or: [{ payroll_head_name: { $regex: search, $options: "i" } }],
+        }).select("payroll_head_name payroll_head_type");
+      } else {
+        var all_masters = await PayrollMaster.find({
+          $and: [{ _id: { $in: one_finance?.payroll_master } }],
+          $or: [{ payroll_head_name: { $regex: search, $options: "i" } }],
+        }).select("payroll_head_name payroll_head_type");
+      }
     } else {
-      if(filter){
-      var all_masters = await PayrollMaster.find({
-        $and: [{ _id: { $in: one_finance?.payroll_master }}, { payroll_head_type: filter } ],
-      })
-        .limit(limit)
-        .skip(skip)
-        .select("payroll_head_name payroll_head_type");
-    }
-    else{
-      var all_masters = await PayrollMaster.find({
-        _id: { $in: one_finance?.payroll_master },
-      })
-        .limit(limit)
-        .skip(skip)
-        .select("payroll_head_name payroll_head_type");
-    }
+      if (filter) {
+        var all_masters = await PayrollMaster.find({
+          $and: [
+            { _id: { $in: one_finance?.payroll_master } },
+            { payroll_head_type: filter },
+          ],
+        })
+          .limit(limit)
+          .skip(skip)
+          .select("payroll_head_name payroll_head_type");
+      } else {
+        var all_masters = await PayrollMaster.find({
+          _id: { $in: one_finance?.payroll_master },
+        })
+          .limit(limit)
+          .skip(skip)
+          .select("payroll_head_name payroll_head_type");
+      }
     }
 
     if (all_masters?.length > 0) {
@@ -4388,7 +4389,7 @@ exports.retrieveRequestHostelAtFinance = async (req, res) => {
             },
           },
         });
-      const all_array = nested_document_limit(
+      var all_array = nested_document_limit(
         page,
         limit,
         finance?.hostel_cancelled

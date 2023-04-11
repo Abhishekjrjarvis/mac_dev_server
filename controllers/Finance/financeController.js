@@ -3370,11 +3370,11 @@ exports.renderOneFeeReceipt = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentLastName active_fee_heads",
+          "studentFirstName studentMiddleName studentLastName active_fee_heads hostel_fee_structure",
         populate: {
-          path: "fee_structure",
+          path: "fee_structure hostel_fee_structure",
           select:
-            "category_master structure_name unique_structure_name applicable_fees",
+            "category_master structure_name unique_structure_name applicable_fees structure_month",
           populate: {
             path: "category_master",
             select: "category_name",

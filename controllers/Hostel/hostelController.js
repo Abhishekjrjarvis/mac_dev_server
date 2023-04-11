@@ -1815,12 +1815,16 @@ exports.renderHostelRemainingArray = async (req, res) => {
       })
         .sort("-hostelRemainFeeCount")
         .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto hostelRemainFeeCount"
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto hostelRemainFeeCount student_unit"
         )
         .populate({
           path: "department",
           select: "dName",
-        });
+        })
+        .populate({
+          path: "student_unit",
+          select: "hostel_unit_name"
+        })
     } else {
       var student = await Student.find({
         _id: { $in: hostel_ins?.remainingFee },
@@ -1829,12 +1833,16 @@ exports.renderHostelRemainingArray = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto hostelRemainFeeCount"
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto hostelRemainFeeCount student_unit"
         )
         .populate({
           path: "department",
           select: "dName",
-        });
+        })
+        .populate({
+          path: "student_unit",
+          select: "hostel_unit_name"
+        })
     }
     if (student?.length > 0) {
       res.status(200).send({

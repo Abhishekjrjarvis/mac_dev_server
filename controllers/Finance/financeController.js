@@ -1181,6 +1181,7 @@ exports.addFieldToPayroll = async (req, res) => {
             ],
           });
           if (exist_master) {
+            console.log("exist", exist_master)
             exist_master.pay_amount += ref?.month_master_amount;
             exist_master.pay_staff_collection.push({
               amount: ref?.month_master_amount,
@@ -1201,6 +1202,7 @@ exports.addFieldToPayroll = async (req, res) => {
             new_pay_master.finance = finance?._id;
             new_master.payroll_month_collection.push(new_pay_master?._id);
             await Promise.all([new_pay_master.save(), new_master.save()]);
+            console.log("New Master", new_pay_master)
           }
         }
       }

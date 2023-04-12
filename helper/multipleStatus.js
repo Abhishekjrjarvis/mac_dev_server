@@ -410,7 +410,7 @@ exports.fee_reordering_direct_student = async (
 };
 
 exports.fee_reordering_direct_student_payload = async (
-  student,
+  students,
   institute,
   batchSet,
   user,
@@ -418,7 +418,9 @@ exports.fee_reordering_direct_student_payload = async (
 ) => {
   try {
     for (var ref of batchSet) {
-      // var student = await Student.findById({ _id: stu_query?._id });
+      var student = await Student.findById({ _id: students?._id }).populate({
+        path: "fee_structure",
+      });
       var price = ref?.amount ? parseInt(ref?.amount) : 0;
       if (price > 0 && ref?.batchId && ref?.appId && ref?.fee_struct) {
         var apply = await NewApplication.findById({ _id: ref?.appId });

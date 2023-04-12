@@ -1297,12 +1297,22 @@ exports.set_fee_head_query = async (
               price_query >= parent_head[`${i}`]?.head_amount
                 ? parent_head[`${i}`].head_amount
                 : price_query;
-            console.log("student Deposit", student_args?.deposit_pending_amount)
+            console.log(
+              "student Deposit",
+              student_args?.deposit_pending_amount,
+              parent_head[`${i}`]?.head_amount,
+              price_query
+            );
             one_master.deposit_amount +=
               price_query >= parent_head[`${i}`]?.head_amount
                 ? parent_head[`${i}`].head_amount
                 : price_query;
-                console.log("Master Deposit", one_master?.deposit_amount)
+            console.log(
+              "Master Deposit",
+              one_master?.deposit_amount,
+              parent_head[`${i}`]?.head_amount,
+              price_query
+            );
           }
           await one_master.save();
         }

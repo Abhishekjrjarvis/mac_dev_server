@@ -265,9 +265,9 @@ exports.generate_excel_to_json_fee_structure = async (file, fid, did) => {
       struct.StandardId = master?._id;
       if (struct?.CategoryId) {
         new_data_query.push(struct);
-        console.log("push");
+        // console.log("push");
       } else {
-        console.log("Empty");
+        // console.log("Empty");
       }
       new_query = [...new_data_query];
     }

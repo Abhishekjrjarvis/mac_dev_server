@@ -6182,14 +6182,16 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
               // }
             }
           } else {
-            if(one_remain_list?.applicable_fee <= one_remain_list?.paid_fee &&
-              one_remain_list?.remaining_fee >= 0){
-                for (var ref of one_remain_list?.remaining_array) {
-                  if (ref?.status === "Not Paid") {
-                    one_remain_list.remaining_array.pull(ref?._id);
-                  }
+            if (
+              one_remain_list?.applicable_fee <= one_remain_list?.paid_fee &&
+              one_remain_list?.remaining_fee >= 0
+            ) {
+              for (var ref of one_remain_list?.remaining_array) {
+                if (ref?.status === "Not Paid") {
+                  one_remain_list.remaining_array.pull(ref?._id);
                 }
               }
+            }
             await set_retro_installment(
               institute,
               new_struct,
@@ -6232,19 +6234,19 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
         }
       }
       await one_remain_list.save();
-      for(var ref of one_student?.active_fee_heads){
-        if(`${ref?.fee_structure}` === `${old_struct?._id}`){
-          one_student.active_fee_heads.pull(ref?._id)
+      for (var ref of one_student?.active_fee_heads) {
+        if (`${ref?.fee_structure}` === `${old_struct?._id}`) {
+          one_student.active_fee_heads.pull(ref?._id);
         }
       }
-      await one_student.save()
-      for(var ref of all_receipts){
-        for(var ele of ref?.fee_heads){
-          if(`${ele?.fee_structure}` === `${old_struct?._id}`){
-            ref.fee_heads.pull(ele?._id)
+      await one_student.save();
+      for (var ref of all_receipts) {
+        for (var ele of ref?.fee_heads) {
+          if (`${ele?.fee_structure}` === `${old_struct?._id}`) {
+            ref.fee_heads.pull(ele?._id);
           }
         }
-        await ref.save()
+        await ref.save();
       }
     } else {
       res

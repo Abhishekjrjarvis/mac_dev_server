@@ -1284,6 +1284,7 @@ exports.set_fee_head_query = async (
             { finance: student_args?.fee_structure?.finance },
           ],
         });
+        console.log("find Master", one_master?._id);
         if (one_master) {
           if (one_master?.paid_student?.includes(`${student_args?._id}`)) {
           } else {
@@ -1291,6 +1292,7 @@ exports.set_fee_head_query = async (
             one_master.paid_student_count += 1;
           }
           if (one_master?.master_status === "Linked") {
+            console.log("Master Linked", one_master?._id);
             student_args.deposit_pending_amount =
               price_query >= parent_head[`${i}`]?.head_amount
                 ? parent_head[`${i}`].head_amount
@@ -1302,6 +1304,7 @@ exports.set_fee_head_query = async (
           }
           await one_master.save();
         }
+        console.log("update Master", one_master);
         student_args.active_fee_heads.push({
           appId: apply_args?._id,
           head_name: parent_head[`${i}`]?.head_name,
@@ -1429,12 +1432,6 @@ exports.set_fee_head_query_retro = async (
         ...student_args.fee_structure?.fees_heads,
         count: student_args.fee_structure?.fees_heads?.length,
       };
-    }
-    var filtered = [];
-    for (var ref of student_args?.active_fee_heads) {
-      if (`${ref.appId}` === `${apply_args._id}`) {
-        filtered.push(ref?._id);
-      }
     }
     for (var i = 0; i < parent_head?.count; i++) {
       var one_master = await FeeMaster.findOne({

@@ -1145,7 +1145,7 @@ exports.addFieldToPayroll = async (req, res) => {
       gross_salary,
       net_total,
       master,
-      basic_pay
+      basic_pay,
     } = req.body;
     const finance = await Finance.findById({ _id: fid });
     var emp = await Payroll.findById({ _id: eid });
@@ -1173,6 +1173,7 @@ exports.addFieldToPayroll = async (req, res) => {
           var exist_master = await PayMaster.findOne({
             $and: [
               { finance: finance?._id },
+              { payroll_master: new_master?._id },
               {
                 created_at: {
                   $gte: g_date,
@@ -1181,7 +1182,7 @@ exports.addFieldToPayroll = async (req, res) => {
             ],
           });
           if (exist_master) {
-            console.log("exist", exist_master)
+            console.log("exist", exist_master);
             exist_master.pay_amount += ref?.month_master_amount;
             exist_master.pay_staff_collection.push({
               amount: ref?.month_master_amount,
@@ -1202,11 +1203,11 @@ exports.addFieldToPayroll = async (req, res) => {
             new_pay_master.finance = finance?._id;
             new_master.payroll_month_collection.push(new_pay_master?._id);
             await Promise.all([new_pay_master.save(), new_master.save()]);
-            console.log("New Master", new_pay_master)
+            console.log("New Master", new_pay_master);
           }
         }
       }
-      emp.basic_pay = basic_pay
+      emp.basic_pay = basic_pay;
       emp.pay_slip.push({
         month: new Date(`${month}`),
         attendence: attendence,

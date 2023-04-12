@@ -1291,7 +1291,7 @@ exports.set_fee_head_query = async (
             one_master.paid_student_count += 1;
           }
           if (`${one_master?.master_status}` === "Linked") {
-            console.log("Master Linked", one_master?._id);
+            // console.log("Master Linked", one_master?._id);
             student_args.deposit_pending_amount +=
               price_query >= parent_head[`${i}`]?.head_amount
                 ? parent_head[`${i}`].head_amount

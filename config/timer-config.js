@@ -19,7 +19,7 @@ exports.timerFunction = () => {
   // }, 30000);
   setInterval(async () => {
     await renewal_request_alarm();
-  }, 86400);
+  }, 86400000);
   // setInterval(async () => {
   //   await renderRealTimeDailyUpdate();
   // }, 86400000);

@@ -429,6 +429,7 @@ exports.fee_reordering_direct_student_payload = async (
         var fee_structure = await FeeStructure.findById({
           _id: ref?.fee_struct,
         });
+        console.log(fee_structure?.finance);
         var student_structure = {
           fee_structure: fee_structure,
         };

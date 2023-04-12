@@ -1278,6 +1278,8 @@ exports.set_fee_head_query = async (
     if (exist_filter_student_heads?.length > 0) {
     } else {
       for (var i = 0; i < parent_head?.count; i++) {
+        console.log(parent_head[`${i}`]?.master)
+        console.log(student_args?.fee_structure?.finance)
         var one_master = await FeeMaster.findOne({
           $and: [
             { _id: parent_head[`${i}`]?.master },

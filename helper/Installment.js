@@ -1278,16 +1278,12 @@ exports.set_fee_head_query = async (
     if (exist_filter_student_heads?.length > 0) {
     } else {
       for (var i = 0; i < parent_head?.count; i++) {
-        console.log("Master ID", parent_head[`${i}`]?.master)
-        console.log("Student Fee Structure", student_args?.fee_structure)
-        console.log("Fee Structure Finance", student_args?.fee_structure?.finance)
         var one_master = await FeeMaster.findOne({
           $and: [
             { _id: parent_head[`${i}`]?.master },
             { finance: student_args?.fee_structure?.finance },
           ],
         });
-        console.log("find Master", one_master?._id);
         if (one_master) {
           if (one_master?.paid_student?.includes(`${student_args?._id}`)) {
           } else {
@@ -1300,26 +1296,13 @@ exports.set_fee_head_query = async (
               price_query >= parent_head[`${i}`]?.head_amount
                 ? parent_head[`${i}`].head_amount
                 : price_query;
-            console.log(
-              "student Deposit",
-              student_args?.deposit_pending_amount,
-              parent_head[`${i}`]?.head_amount,
-              price_query
-            );
             one_master.deposit_amount +=
               price_query >= parent_head[`${i}`]?.head_amount
                 ? parent_head[`${i}`].head_amount
                 : price_query;
-            console.log(
-              "Master Deposit",
-              one_master?.deposit_amount,
-              parent_head[`${i}`]?.head_amount,
-              price_query
-            );
           }
           await one_master.save();
         }
-        console.log("update Master", one_master);
         student_args.active_fee_heads.push({
           appId: apply_args?._id,
           head_name: parent_head[`${i}`]?.head_name,

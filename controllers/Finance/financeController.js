@@ -1145,6 +1145,7 @@ exports.addFieldToPayroll = async (req, res) => {
       gross_salary,
       net_total,
       master,
+      basic_pay
     } = req.body;
     const finance = await Finance.findById({ _id: fid });
     var emp = await Payroll.findById({ _id: eid });
@@ -1203,6 +1204,7 @@ exports.addFieldToPayroll = async (req, res) => {
           }
         }
       }
+      emp.basic_pay = basic_pay
       emp.pay_slip.push({
         month: new Date(`${month}`),
         attendence: attendence,

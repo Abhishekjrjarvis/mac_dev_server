@@ -6235,11 +6235,13 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
       }
       await one_remain_list.save();
       for (var ref of one_student?.active_fee_heads) {
+        // console.log(one_student?.active_fee_heads?.length)
         if (`${ref?.fee_structure}` === `${old_struct?._id}`) {
           one_student.active_fee_heads.pull(ref?._id);
         }
       }
       await one_student.save();
+      // console.log(one_student?.active_fee_heads?.length)
       for (var ref of all_receipts) {
         for (var ele of ref?.fee_heads) {
           if (`${ele?.fee_structure}` === `${old_struct?._id}`) {

@@ -2755,7 +2755,7 @@ exports.renderFinanceAddFeeStructure = async (req, res) => {
       });
       struct_query.finance = finance?._id;
       struct_query.department = depart?._id;
-      struct_query.unique_structure_name = `${category?.category_name} - ${class_master?.className} / ${req.body?.structure_name}`;
+      struct_query.unique_structure_name = `${category?.category_name} - ${depart?.dName} - ${class_master?.className} / ${req.body?.structure_name}`;
       depart.fees_structures.push(struct_query?._id);
       depart.fees_structures_count += 1;
       if (heads?.length > 0) {
@@ -2830,7 +2830,7 @@ exports.renderFinanceAddFeeStructureAutoQuery = async (
         category_master: ref?.CategoryId,
         class_master: ref?.StandardId,
         structure_name: ref?.StructureName,
-        unique_structure_name: `${category?.category_name} - ${class_master?.className} / ${ref?.StructureName}`,
+        unique_structure_name: `${category?.category_name} - ${depart?.dName} - ${class_master?.className} / ${ref?.StructureName}`,
         total_admission_fees: ref?.TotalFees,
         total_installments: ref?.InstallCount,
         applicable_fees: ref?.ApplicableFees,
@@ -2903,7 +2903,7 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
       });
       struct_query.finance = finance?._id;
       struct_query.department = depart?._id;
-      struct_query.unique_structure_name = `${category?.category_name} - ${class_master?.className} / ${req.body?.structure_name}`;
+      struct_query.unique_structure_name = `${category?.category_name} - ${depart?.dName} - ${class_master?.className} / ${req.body?.structure_name}`;
       depart.fees_structures.push(struct_query?._id);
       depart.modify_fees_structures_count += 1;
       previous_struct.document_update = true;

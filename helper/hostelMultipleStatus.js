@@ -9,6 +9,9 @@ const RemainingList = require("../models/Admission/RemainingList");
 const OrderPayment = require("../models/RazorPay/orderPayment");
 const FeeReceipt = require("../models/RazorPay/feeReceipt");
 const Admin = require("../models/superAdmin");
+const HostelUnit = require("../models/Hostel/hostelUnit");
+const HostelRoom = require("../models/Hostel/hostelRoom");
+const HostelBed = require("../models/Hostel/hostelBed");
 const {
   add_all_installment,
   add_total_installment,
@@ -106,9 +109,15 @@ exports.fee_reordering_hostel = async (
   s_admin,
   new_receipt,
   user,
-  one_unit
+  one_unit,
+  roomId,
+  bed_number
 ) => {
   try {
+    const room = await HostelRoom.findOne({
+      $and: [{ _id: roomId }, { hostelUnit: one_unit?._id }],
+    });
+    const bed = new HostelBed({});
     var student = await Student.findById({ _id: `${stu_query?._id}` }).populate(
       {
         path: "hostel_fee_structure",
@@ -238,17 +247,35 @@ exports.fee_reordering_hostel = async (
       appId: apply._id,
     });
     await set_fee_head_query(student, price, apply, new_receipt);
-    apply.confirmedApplication.push({
+    apply.allottedApplication.push({
       student: student._id,
       payment_status: mode,
-      install_type: is_install
-        ? "First Installment Paid"
-        : "One Time Fees Paid",
-      fee_remain: is_install
-        ? total_amount - price
-        : student?.hostel_fee_structure?.total_admission_fees - price,
+      alloted_room: room?.room_name,
+      alloted_status: "Alloted",
+      fee_remain: student.hostelRemainFeeCount,
+      paid_status: student.hostelRemainFeeCount == 0 ? "Paid" : "Not Paid",
     });
-    apply.confirmCount += 1;
+    apply.allotCount += 1;
+    bed.bed_allotted_candidate = student?._id;
+    bed.hostelRoom = room?._id;
+    bed.bed_number = parseInt(bed_number);
+    if (room?.vacant_count > 0) {
+      room.vacant_count -= 1;
+    }
+    room.beds.push(bed?._id);
+    one_unit.hostelities_count += 1;
+    one_unit.hostelities.push(student?._id);
+    hostel.hostelities_count += 1;
+    student.student_bed_number = bed?._id;
+    student.student_unit = one_unit?._id;
+    if (student?.studentGender === "Male") {
+      hostel.boy_count += 1;
+    } else if (student?.studentGender === "Female") {
+      hostel.girl_count += 1;
+    } else if (student?.studentGender === "Other") {
+      hostel.other_count += 1;
+    } else {
+    }
     const order = new OrderPayment({});
     order.payment_module_type = "Hostel Fees";
     order.payment_to_end_user_id = institute?._id;
@@ -264,7 +291,16 @@ exports.fee_reordering_hostel = async (
     order.payment_invoice_number = s_admin.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
-    await Promise.all([new_receipt.save(), new_remainFee.save(), order.save()]);
+    await Promise.all([
+      new_receipt.save(),
+      new_remainFee.save(),
+      order.save(),
+      one_unit.save(),
+      hostel.save(),
+      bed.save(),
+      room.save(),
+      student.save(),
+    ]);
   } catch (e) {
     console.log(e);
   }

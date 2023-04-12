@@ -6093,7 +6093,7 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
     const { id, aid } = req.params;
     const { existingUser } = req.query;
     var existing = handle_undefined(existingUser);
-    const { sample_pic, fileArray, type, mode, amount, fee_struct, month } = req.body;
+    const { sample_pic, fileArray, type, mode, amount, fee_struct, month, room, bed } = req.body;
     if (
       !id &&
       !aid &&
@@ -6241,9 +6241,6 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
     apply.receievedCount += 1;
     apply.selectCount += 1;
     apply.confirmCount += 1;
-    one_unit.hostelities.push(student?._id)
-    one_unit.hostelities_count += 1
-    student.student_unit = one_unit?._id
     await fee_reordering_hostel(
       type,
       mode,
@@ -6256,7 +6253,9 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
       admins,
       new_receipt,
       user,
-      one_unit
+      one_unit,
+      room,
+      bed
     );
     if (institute.userFollowersList.includes(user?._id)) {
     } else {
@@ -6470,9 +6469,6 @@ exports.renderDirectHostelJoinExcelQuery = async (hid, student_array) => {
       apply.receievedCount += 1;
       apply.selectCount += 1;
       apply.confirmCount += 1;
-      one_unit.hostelities.push(student?._id)
-      one_unit.hostelities_count += 1
-      student.student_unit = one_unit?._id
       await fee_reordering_hostel(
         ref?.type,
         ref?.mode,
@@ -6485,7 +6481,9 @@ exports.renderDirectHostelJoinExcelQuery = async (hid, student_array) => {
         admins,
         new_receipt,
         user,
-        one_unit
+        one_unit,
+        ref?.room,
+        ref?.bed
       );
       if (institute.userFollowersList.includes(user?._id)) {
       } else {

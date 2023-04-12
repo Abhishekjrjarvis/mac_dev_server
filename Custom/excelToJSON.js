@@ -7,6 +7,8 @@ const Batch = require("../models/Batch");
 const NewApplication = require("../models/Admission/NewApplication");
 const FeeStructure = require("../models/Finance/FeesStructure");
 const ClassMaster = require("../models/ClassMaster");
+const HostelUnit = require("../models/Hostel/hostelUnit");
+const HostelRoom = require("../models/Hostel/hostelRoom");
 
 exports.generate_excel_to_json = async (file, aid, fid, did) => {
   try {
@@ -351,6 +353,18 @@ exports.generate_excel_to_json_direct_hostelities = async (file, hid, fid) => {
           },
         ],
       });
+      var valid_unit = await HostelUnit.findOne({
+        $and: [
+          { hostel: hid },
+          { hostel_unit_name: { $regex: `${ref?.unit}`, $options: "i" } },
+        ],
+      });
+      var room_name = await HostelRoom.findOne({
+        $and: [
+          { room_name: { $regex: `${ref?.room}`, $options: "i" } },
+          { hostelUnit: valid_unit?._id },
+        ],
+      });
       var new_fee_struct = await FeeStructure.findOne({
         $and: [
           { finance: fid },
@@ -376,6 +390,8 @@ exports.generate_excel_to_json_direct_hostelities = async (file, hid, fid) => {
       ref.fee_bank_holder = ref?.bankHolder;
       ref.fee_utr_reference = ref?.UTRNumber;
       ref.fee_struct = new_fee_struct?._id;
+      ref.room = room_name?._id;
+      ref.unit = valid_unit?._id;
       let name_query = ref?.Name?.split(" ");
       if (name_query?.length > 2) {
         new_data_query.push({

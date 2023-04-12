@@ -1,4 +1,5 @@
 const FeeMaster = require("../models/Finance/FeeMaster");
+const Student = require("../models/Student");
 
 exports.add_all_installment = async (arg1, arg2, arg3, amount, arg4) => {
   try {
@@ -1412,13 +1413,18 @@ exports.update_fee_head_query = async (
 };
 
 exports.set_fee_head_query_retro = async (
-  student_args,
+  student,
   price,
   apply_args,
   receipt_args,
   direct_args
 ) => {
   try {
+    var student_args = await Student.findById({
+      _id: `${student?._id}`,
+    }).populate({
+      path: "fee_structure",
+    });
     var price_query = price;
     if (direct_args) {
       var parent_head = {

@@ -268,6 +268,8 @@ exports.examById = async (req, res) => {
         endTime: sub.endTime,
         subjectName: sub.subjectName,
         subjectMasterId: sub.subjectMasterId,
+        duration: sub?.duration,
+        _id: sub?._id,
       });
     }
     const classWithSubject = [];
@@ -1455,7 +1457,7 @@ exports.renderNewSeatingArrangementQuery = async (req, res) => {
       });
     const one_exam = await Exam.findById({ _id: eid });
     const new_seat = await Seating({ ...req.body });
-    new_seat.seat_block_staff = valid_staff ? valid_staff : null
+    new_seat.seat_block_staff = valid_staff ? valid_staff : null;
     if (valid_staff) {
       var staff = await Staff.findById({
         _id: `${req?.body?.seat_block_staff}`,
@@ -1665,8 +1667,9 @@ exports.renderAllSeatingArrangementQuery = async (req, res) => {
           select: "className classTitle classStatus classTeacher",
           populate: {
             path: "classTeacher",
-            select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
-          }
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+          },
         })
         .populate({
           path: "seat_block_staff",
@@ -1684,8 +1687,9 @@ exports.renderAllSeatingArrangementQuery = async (req, res) => {
           select: "className classTitle classStatus classTeacher",
           populate: {
             path: "classTeacher",
-            select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
-          }
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+          },
         })
         .populate({
           path: "seat_block_staff",

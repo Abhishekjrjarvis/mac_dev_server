@@ -1735,9 +1735,15 @@ exports.renderAllClassQuery = async (req, res) => {
       var all_classes = await Class.find({
         $and: [{ _id: { $in: one_exam?.class } }],
         $or: [{ className: { $regex: `${search}`, $options: "i" } }],
-      }).select(
-        "className classTitle classStatus exam_start lastupto exam_seating"
-      );
+      })
+        .select(
+          "className classTitle classStatus exam_start lastupto exam_seating classTeacher"
+        )
+        .populate({
+          path: "classTeacher",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        });
     } else {
       var all_classes = await Class.find({
         _id: { $in: one_exam?.class },
@@ -1745,8 +1751,13 @@ exports.renderAllClassQuery = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "className classTitle classStatus exam_start lastupto exam_seating"
-        );
+          "className classTitle classStatus exam_start lastupto exam_seating classTeacher"
+        )
+        .populate({
+          path: "classTeacher",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        });
     }
 
     if (all_classes?.length > 0) {

@@ -23,6 +23,7 @@ const moment = require("moment");
 const Staff = require("../../models/Staff");
 const Seating = require("../../models/Exam/seating");
 const { handle_undefined } = require("../../Handler/customError");
+const { replace_query } = require("../../helper/dayTimer");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.getClassMaster = async (req, res) => {
@@ -1486,18 +1487,18 @@ exports.renderNewSeatingArrangementQuery = async (req, res) => {
               subjectMasterId: ref?.subjectMasterId,
               from: ref?.from,
               to: ref?.to,
-              count: parseInt(ref?.to) - parseInt(ref?.from),
+              count: parseInt(ref?.to) + 1 - parseInt(ref?.from),
             });
-            new_date = new Date(`${ref?.date}`);
+            new_date = ref?.date;
             new_start = ref?.startTime;
             new_end = ref?.endTime;
-            ele.seating_sequence = new_seat?._id;
+            ele.seating_sequence.push(new_seat?._id);
             one_class.exam_seating.push({
               subject_id: one_subject?._id,
               seating_id: new_seat?._id,
               from: ref?.from,
               to: ref?.to,
-              count: parseInt(ref?.to) - parseInt(ref?.from),
+              count: parseInt(ref?.to) + 1 - parseInt(ref?.from),
             });
             one_class.exam_start = true;
             one_class.lastupto += ref?.to;
@@ -1506,11 +1507,12 @@ exports.renderNewSeatingArrangementQuery = async (req, res) => {
         }
       }
     }
+    var exist_date = replace_query(`${new_date}`);
     if (valid_staff) {
       const notify = await StudentNotification({});
       const user = await User.findById({ _id: `${staff?.user}` });
       notify.notifyContent = `You have a supervision on ${moment(
-        new_date
+        exist_date
       ).format("LL")} ${new_start} To ${new_end}`;
       notify.notifySender = one_exam?.department;
       notify.notifyReceiever = user?._id;
@@ -1545,7 +1547,7 @@ exports.renderNewSeatingArrangementQuery = async (req, res) => {
       var users = await User.findById({ _id: `${ref?.user}` });
       const notify = await StudentNotification({});
       notify.notifyContent = `You have a supervision on ${moment(
-        new_date
+        exist_date
       ).format("LL")} ${new_start} To ${new_end}`;
       notify.notifySender = one_exam?.department;
       notify.notifyReceiever = users?._id;
@@ -1587,46 +1589,49 @@ exports.renderEditSeatingArrangementQuery = async (req, res) => {
     const new_seat = await Seating.findByIdAndUpdate(said, req.body);
     if (papers?.length > 0) {
       for (var ref of papers) {
-        for (var ele of one_exam?.subjects) {
-          if (`${ele?._id}` === `${ref?.paperId}`) {
-            var one_subject = await Subject.findById({
-              _id: `${ref?.subjectId}`,
-            });
-            var one_class = await Class.findById({
-              _id: `${one_subject?.class}`,
-            });
-            new_seat.seat_exam_paper_array.push({
-              subjectId: ref?.subjectId,
-              subjectName: ref?.subjectName,
-              totalMarks: ref?.totalMarks,
-              date: ref?.date,
-              startTime: ref?.startTime,
-              endTime: ref?.endTime,
-              duration: ref?.duration,
-              subjectMasterId: ref?.subjectMasterId,
-              from: ref?.from,
-              to: ref?.to,
-              count: parseInt(ref?.to) - parseInt(ref?.from),
-            });
-            ele.seating_sequence = new_seat?._id;
-            one_class.exam_seating.push({
-              subject_id: one_subject?._id,
-              seating_id: new_seat?._id,
-              from: ref?.from,
-              to: ref?.to,
-              count: parseInt(ref?.to) - parseInt(ref?.from),
-            });
-            one_class.exam_start = true;
-            one_class.lastupto += ref?.to;
-            await one_class.save();
-          }
-        }
+        var one_subject = await Subject.findById({
+          _id: `${ref?.subjectId}`,
+        });
+        var one_class = await Class.findById({
+          _id: `${one_subject?.class}`,
+        });
+        new_seat.seat_exam_paper_array.push({
+          subjectId: ref?.subjectId,
+          subjectName: ref?.subjectName,
+          totalMarks: ref?.totalMarks,
+          date: ref?.date,
+          startTime: ref?.startTime,
+          endTime: ref?.endTime,
+          duration: ref?.duration,
+          subjectMasterId: ref?.subjectMasterId,
+          from: ref?.from,
+          to: ref?.to,
+          count: parseInt(ref?.to) + 1 - parseInt(ref?.from),
+        });
+        one_class.exam_seating.push({
+          subject_id: one_subject?._id,
+          seating_id: new_seat?._id,
+          from: ref?.from,
+          to: ref?.to,
+          count: parseInt(ref?.to) + 1 - parseInt(ref?.from),
+        });
+        one_class.exam_start = true;
+        one_class.lastupto += ref?.to;
+        await one_class.save();
       }
-      await Promise.all([one_exam.save(), new_seat.save()]);
+      await new_seat.save();
     }
     res
       .status(200)
       .send({ message: "Explore Edited Seating Sequence", access: true });
+
+    for (var ref of papers) {
+      for (var ele of one_exam?.subjects) {
+        if (`${ele?._id}` === `${ref?.paperId}`)
+          ele.seating_sequence.push(new_seat?._id);
+      }
+    }
+    await one_exam.save();
   } catch (e) {
     console.log(e);
   }
@@ -1650,7 +1655,7 @@ exports.renderAllSeatingArrangementQuery = async (req, res) => {
     );
 
     if (search) {
-      var all_seating = await Seating.findById({
+      var all_seating = await Seating.find({
         $and: [{ _id: { $in: one_exam?.seating_sequence } }],
         $or: [{ seat_block_name: { $regex: `${search}`, $options: "i" } }],
       })
@@ -1664,7 +1669,7 @@ exports.renderAllSeatingArrangementQuery = async (req, res) => {
             "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
         });
     } else {
-      var all_seating = await Seating.findById({
+      var all_seating = await Seating.find({
         _id: { $in: one_exam?.seating_sequence },
       })
         .limit(limit)
@@ -1714,14 +1719,14 @@ exports.renderAllClassQuery = async (req, res) => {
     const one_exam = await Exam.findById({ _id: eid }).select("class");
 
     if (search) {
-      var all_classes = await Class.findById({
+      var all_classes = await Class.find({
         $and: [{ _id: { $in: one_exam?.class } }],
         $or: [{ className: { $regex: `${search}`, $options: "i" } }],
       }).select(
         "className classTitle classStatus exam_start lastupto exam_seating"
       );
     } else {
-      var all_classes = await Class.findById({
+      var all_classes = await Class.find({
         _id: { $in: one_exam?.class },
       })
         .limit(limit)

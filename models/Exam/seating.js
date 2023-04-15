@@ -41,6 +41,7 @@ const seatingSchema = new mongoose.Schema({
       },
       from: { type: String },
       to: { type: String },
+      count: { type: Number, default: 0 },
     },
   ],
   exam: {

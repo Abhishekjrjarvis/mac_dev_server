@@ -1455,6 +1455,7 @@ exports.renderNewSeatingArrangementQuery = async (req, res) => {
       });
     const one_exam = await Exam.findById({ _id: eid });
     const new_seat = await Seating({ ...req.body });
+    new_seat.seat_block_staff = valid_staff ? valid_staff : null
     if (valid_staff) {
       var staff = await Staff.findById({
         _id: `${req?.body?.seat_block_staff}`,
@@ -1661,7 +1662,11 @@ exports.renderAllSeatingArrangementQuery = async (req, res) => {
       })
         .populate({
           path: "seat_block_class",
-          select: "className classTitle classStatus",
+          select: "className classTitle classStatus classTeacher",
+          populate: {
+            path: "classTeacher",
+            select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+          }
         })
         .populate({
           path: "seat_block_staff",
@@ -1676,7 +1681,11 @@ exports.renderAllSeatingArrangementQuery = async (req, res) => {
         .skip(skip)
         .populate({
           path: "seat_block_class",
-          select: "className classTitle classStatus",
+          select: "className classTitle classStatus classTeacher",
+          populate: {
+            path: "classTeacher",
+            select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+          }
         })
         .populate({
           path: "seat_block_staff",

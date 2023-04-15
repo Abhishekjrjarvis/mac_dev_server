@@ -28563,3 +28563,197 @@ paths:
       responses:
         "200":
           description: OK
+
+
+  /api/v1/exam/seating/{eid}/all/class/query:
+    get:
+      tags:
+        - Seating Arrangement Query
+      summary: All Classes of One Exam -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: Enter Exam ID  
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit 
+        - in: query
+          name: search
+          required: true
+          type: string
+          description: Enter Search Query 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/seating/{eid}/seating/all/query:
+    get:
+      tags:
+        - Seating Arrangement Query
+      summary: All Seating Sequence of One Exam -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: Enter Exam ID  
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit 
+        - in: query
+          name: search
+          required: true
+          type: string
+          description: Enter Search Query 
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/exam/seating/one/{said}/query:
+    get:
+      tags:
+        - Seating Arrangement Query
+      summary: One Seating Sequence of One Exam -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: said
+          required: true
+          type: string
+          description: Enter Seating ID  
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/seating/{eid}/seating/destroy/{said}/query:
+    delete:
+      tags:
+        - Seating Arrangement Query
+      summary: Delete One Seating Sequence of One Exam -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: Enter Exam ID  
+        - in: path
+          name: said
+          required: true
+          type: string
+          description: Enter Seating ID  
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/seating/{eid}/seating/edit/{said}/query:
+    patch:
+      tags:
+        - Seating Arrangement Query
+      summary: Edit Seating Sequence At Exam  -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: Enter Exam ID   
+        - in: path
+          name: said
+          required: true
+          type: string
+          description: Enter Seating ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              papers:
+                type: array
+                description: Enter Array of Objects [{ subjectId: "9830198398182391283", subjectName: "Physics", totalMarks: 100, date: "2021-02-02", startTime: "10:10AM", endTime: "12:10PM", duration: "2hrs", subjectMasterId: "0931930921090120390930", from: 1, to: 10}]
+                required: true 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/seating/{eid}/seating/new/query:
+    post:
+      tags:
+        - Seating Arrangement Query
+      summary: New Seating Sequence At Exam  -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: Enter Exam ID   
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              papers:
+                type: array
+                description: Enter Array of Objects [{ subjectId: "9830198398182391283", subjectName: "Physics", totalMarks: 100, date: "2021-02-02", startTime: "10:10AM", endTime: "12:10PM", duration: "2hrs", subjectMasterId: "0931930921090120390930", from: 1, to: 10}]
+                required: true 
+              seat_block_name:
+                type: string
+                description: Enter Block Name
+                required: true 
+              seat_block_class:
+                type: string
+                description: Enter Class ID
+                required: true 
+              seat_valid_staff:
+                type: string
+                description: Enter Type ("External" || "Staff")
+                required: true 
+              seat_block_staff:
+                type: string
+                description: if type "Staff" then Enter Staff ID
+                required: false 
+              seat_valid_staff_name:
+                type: string
+                description: if type "External" then Enter Staff Name
+                required: false 
+      responses:
+        "200":
+          description: OK

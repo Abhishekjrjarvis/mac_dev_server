@@ -120,15 +120,27 @@ router.route("/backlog/one/previous/student/:sid/mark/status").patch(
 );
 
 router
-  .route("/:eid/seating/new/query")
+  .route("/seating/:eid/seating/new/query")
   .post(catchAsync(examController.renderNewSeatingArrangementQuery));
 
-// router
-//   .route("/:eid/seating/edit/:said/query")
-//   .patch(catchAsync(examController.renderEditSeatingArrangementQuery));
+router
+  .route("/seating/:eid/seating/edit/:said/query")
+  .patch(catchAsync(examController.renderEditSeatingArrangementQuery));
 
 router
-  .route("/:eid/seating/destroy/:said/query")
+  .route("/seating/:eid/seating/all/query")
+  .get(catchAsync(examController.renderAllSeatingArrangementQuery));
+
+router
+  .route("/seating/:eid/all/class/query")
+  .get(catchAsync(examController.renderAllClassQuery));
+
+router
+  .route("/seating/one/:said/query")
+  .get(catchAsync(examController.renderOneSeatingArrangementQuery));
+
+router
+  .route("/seating/:eid/seating/destroy/:said/query")
   .delete(catchAsync(examController.renderDestroySeatingArrangementQuery));
 
 module.exports = router;

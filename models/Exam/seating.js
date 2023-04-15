@@ -16,6 +16,9 @@ const seatingSchema = new mongoose.Schema({
   seat_valid_staff: {
     type: String,
   },
+  seat_valid_staff_name: {
+    type: String,
+  },
   created_at: {
     type: Date,
     default: Date.now,

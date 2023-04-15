@@ -637,7 +637,7 @@ exports.oneExamAllSubjectInStudent = async (req, res) => {
 
     for(var submarks of student?.subjectMarks){
       for(var exammarks of submarks?.marks){
-        if (exammarks.examId === one_exam?._id) {
+        if (`${exammarks.examId}` === `${one_exam?._id}`) {
           var all_seats = await Seating.find({ _id: { $in: one_exam?.seating_sequence }})
           .populate({
             path: "seat_block_staff",

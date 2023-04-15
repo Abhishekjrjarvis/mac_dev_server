@@ -38,7 +38,7 @@ router
 
 router
   .route("/student/:sid/exam/:eid")
-  .get(isLoggedIn, catchAsync(examController.oneExamAllSubjectInStudent));
+  .get(catchAsync(examController.oneExamAllSubjectInStudent));
 
 router
   .route("/student/:sid/exam/:eid/answersheet")

@@ -876,6 +876,21 @@ exports.getAllUserActivity = async (req, res) => {
       })
       .populate({
         path: "seatingId",
+        populate: {
+          path: "seat_block_staff",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+        }
+      })
+      .populate({
+        path: "seatingId",
+        populate: {
+          path: "seat_block_class",
+          select: "className classTitle classStatus classTeacher",
+          populate: {
+            path: "classTeacher",
+            select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+          }
+        }
       })
       .sort("-notifyTime")
       .limit(limit)

@@ -615,6 +615,8 @@ exports.oneExamAllSubjectInStudent = async (req, res) => {
         path: "subjectMarks",
       })
       .select("_id");
+    
+    var one_exam = await Exam.findById({ _id: req.params.eid})
     // console.log(student)/;
     // if (student.subjectMarks?.length <= 0 && req.query.previousYearId)
     //   var previousYear = await StudentPreviousData.findById(
@@ -633,9 +635,22 @@ exports.oneExamAllSubjectInStudent = async (req, res) => {
     //   : previousYear;
     const subjects = [];
 
-    student?.subjectMarks?.forEach((submarks) => {
-      submarks.marks.forEach((exammarks) => {
-        if (exammarks.examId === req.params.eid) {
+    for(var submarks of student?.subjectMarks){
+      for(var exammarks of submarks?.marks){
+        if (exammarks.examId === one_exam?._id) {
+          var all_seats = await Seating.find({ _id: { $in: one_exam?.seating_sequence }})
+          .populate({
+            path: "seat_block_staff",
+            select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+          })
+          .populate({
+            path: "seat_block_class",
+            select: "className classTitle classStatus classTeacher",
+            populate: {
+              path: "classTeacher",
+              select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+            }
+          })
           subjects.push({
             _id: submarks.subject,
             subjectName: submarks.subjectName,
@@ -644,10 +659,11 @@ exports.oneExamAllSubjectInStudent = async (req, res) => {
             date: exammarks.date,
             startTime: exammarks.startTime,
             endTime: exammarks.endTime,
+            seating: [...all_seats]
           });
         }
-      });
-    });
+      };
+    };
     // const subEncrypt = await encryptionPayload(subjects);
     res.status(200).send({ subjects });
   } catch (e) {

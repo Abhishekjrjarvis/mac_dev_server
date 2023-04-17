@@ -4146,7 +4146,7 @@ exports.renderHostelSelectedRenewalQuery = async (req, res) => {
     const one_unit = await HostelUnit.findById({ _id: huid });
     const one_hostel = await Hostel.findById({
       _id: `${one_unit?.hostel}`,
-    }).select("institute");
+    });
     const student = await Student.findById({ _id: sid });
     const user = await User.findById({ _id: `${student.user}` });
     const status = new Status({});
@@ -4205,7 +4205,7 @@ exports.renderHostelSelectedRenewalQuery = async (req, res) => {
     status.hostelUnit = one_unit?._id;
     status.flow_status = "Hostel Application";
     status.admissionFee = structure.total_admission_fees;
-    status.instituteId = admission_admin?.institute;
+    status.instituteId = one_hostel?.institute;
     status.finance = finance?._id;
     student.hostel_fee_structure_month = valid_month;
     user.applicationStatus.push(status._id);

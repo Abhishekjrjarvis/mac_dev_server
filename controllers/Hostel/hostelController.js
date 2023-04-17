@@ -4149,7 +4149,7 @@ exports.renderHostelSelectedRenewalQuery = async (req, res) => {
     }).select("institute");
     const student = await Student.findById({ _id: sid });
     const user = await User.findById({ _id: `${student.user}` });
-    const status = new Status({})
+    const status = new Status({});
     var structure = await FeeStructure.findById({ _id: fee_struct });
     if (valid_month > 0 && valid_month <= 60 && valid_month !== 12) {
       var new_structure = new FeeStructure({
@@ -4186,7 +4186,6 @@ exports.renderHostelSelectedRenewalQuery = async (req, res) => {
     const finance = await Finance.findOne({
       institute: one_hostel?.institute,
     });
-    const status = new Status({});
     for (let app of one_unit?.renewal_receieved_application) {
       if (`${app.student}` === `${student._id}`) {
         status.applicationId = app?.appId;
@@ -6094,7 +6093,17 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
     const { id, aid } = req.params;
     const { existingUser } = req.query;
     var existing = handle_undefined(existingUser);
-    const { sample_pic, fileArray, type, mode, amount, fee_struct, month, room, bed } = req.body;
+    const {
+      sample_pic,
+      fileArray,
+      type,
+      mode,
+      amount,
+      fee_struct,
+      month,
+      room,
+      bed,
+    } = req.body;
     if (
       !id &&
       !aid &&
@@ -6273,7 +6282,7 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
       institute.save(),
       ons_hostel.save(),
       finance.save(),
-      one_unit.save()
+      one_unit.save(),
     ]);
     res.status(200).send({
       message:
@@ -6501,7 +6510,7 @@ exports.renderDirectHostelJoinExcelQuery = async (hid, student_array) => {
         institute.save(),
         ons_hostel.save(),
         finance.save(),
-        one_unit.save()
+        one_unit.save(),
       ]);
       await ignite_multiple_alarm(user);
       const studentName = `${student?.studentFirstName} ${

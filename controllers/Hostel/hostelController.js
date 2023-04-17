@@ -4874,10 +4874,17 @@ exports.renderHostelAllStudentRenewalQuery = async (req, res) => {
       })
       .populate({
         path: "renewal_hostel",
-        select: "_id institute",
+        select: "_id institute bank_account",
         populate: {
           path: "institute",
           select: "financeDepart admissionDepart",
+        },
+      })
+      .populate({
+        path: "renewal_hostel",
+        select: "_id institute bank_account",
+        populate: {
+          path: "bank_account",
         },
       })
       .populate({
@@ -4886,7 +4893,7 @@ exports.renderHostelAllStudentRenewalQuery = async (req, res) => {
         populate: {
           path: "hostel_fee_structure",
           select:
-            "structure_month category_master class_master structure_name total_admission_fees total_installments applicable_fees",
+            "structure_month one_installments category_master class_master structure_name total_admission_fees total_installments applicable_fees",
           populate: {
             path: "category_master",
             select: "category_name",

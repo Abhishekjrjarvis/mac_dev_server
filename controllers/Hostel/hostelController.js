@@ -4877,21 +4877,22 @@ exports.renderHostelAllStudentRenewalQuery = async (req, res) => {
         select: "_id institute",
         populate: {
           path: "institute",
-          select: "financeDepart admissionDepart"
-        }
+          select: "financeDepart admissionDepart",
+        },
       })
       .populate({
         path: "renewal_student",
         select: "hostel_fee_structure",
-        populate:{
+        populate: {
           path: "hostel_fee_structure",
-          select: "structure_month category_master class_master structure_name",
+          select:
+            "structure_month category_master class_master structure_name total_admission_fees total_installments applicable_fees",
           populate: {
             path: "category_master",
-            select: "category_name"
-          }
-        }
-      })
+            select: "category_name",
+          },
+        },
+      });
     if (all_renewals?.length > 0) {
       res.status(200).send({
         message: "Explore All Renewals Query",

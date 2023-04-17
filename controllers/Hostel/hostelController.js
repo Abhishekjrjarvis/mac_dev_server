@@ -4875,7 +4875,19 @@ exports.renderHostelAllStudentRenewalQuery = async (req, res) => {
       .populate({
         path: "renewal_hostel",
         select: "_id",
-      });
+      })
+      .populate({
+        path: "renewal_student",
+        select: "hostel_fee_structure",
+        populate:{
+          path: "hostel_fee_structure",
+          select: "structure_month category_master class_master structure_name",
+          populate: {
+            path: "category_master",
+            select: "category_name"
+          }
+        }
+      })
     if (all_renewals?.length > 0) {
       res.status(200).send({
         message: "Explore All Renewals Query",

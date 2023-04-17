@@ -4149,6 +4149,7 @@ exports.renderHostelSelectedRenewalQuery = async (req, res) => {
     }).select("institute");
     const student = await Student.findById({ _id: sid });
     const user = await User.findById({ _id: `${student.user}` });
+    const status = new Status({})
     var structure = await FeeStructure.findById({ _id: fee_struct });
     if (valid_month > 0 && valid_month <= 60 && valid_month !== 12) {
       var new_structure = new FeeStructure({

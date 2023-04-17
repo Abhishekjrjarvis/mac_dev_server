@@ -3722,7 +3722,7 @@ exports.renderHostelUnitAllSelectedApplication = async (req, res) => {
             select:
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
             populate: {
-              path: "fee_structure",
+              path: "fee_structure hostel_fee_structure",
               select:
                 "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
               populate: {
@@ -3760,7 +3760,7 @@ exports.renderHostelUnitAllSelectedApplication = async (req, res) => {
             select:
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
             populate: {
-              path: "fee_structure",
+              path: "fee_structure hostel_fee_structure",
               select:
                 "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
               populate: {
@@ -3815,7 +3815,7 @@ exports.renderHostelUnitAllConfirmedApplication = async (req, res) => {
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
             populate: {
-              path: "fee_structure",
+              path: "fee_structure hostel_fee_structure",
               select:
                 "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
               populate: {
@@ -3853,7 +3853,7 @@ exports.renderHostelUnitAllConfirmedApplication = async (req, res) => {
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
             populate: {
-              path: "fee_structure",
+              path: "fee_structure hostel_fee_structure",
               select:
                 "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
               populate: {

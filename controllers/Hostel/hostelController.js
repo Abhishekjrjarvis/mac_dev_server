@@ -4444,6 +4444,7 @@ exports.renderPayOfflineHostelFeeRenewal = async (req, res) => {
     status.instituteId = institute._id;
     status.flow_status = "Hostel Application";
     status.document_visible = true;
+    console.log(new_remainFee)
     new_remainFee.renewal_start = new Date();
     new_remainFee.renewal_end = student?.hostel_renewal;
     renew.renewal_start = new Date();

@@ -3815,9 +3815,9 @@ exports.renderHostelUnitAllConfirmedApplication = async (req, res) => {
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber student_unit student_bed_number",
             populate: {
-              path: "fee_structure hostel_fee_structure",
+              path: "fee_structure hostel_fee_structure student_bed_number",
               select:
-                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month hostelRoom",
               populate: {
                 path: "category_master",
                 select: "category_name",
@@ -3853,9 +3853,9 @@ exports.renderHostelUnitAllConfirmedApplication = async (req, res) => {
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber student_unit student_bed_number",
             populate: {
-              path: "fee_structure hostel_fee_structure",
+              path: "fee_structure hostel_fee_structure student_bed_number",
               select:
-                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month hostelRoom",
               populate: {
                 path: "category_master",
                 select: "category_name",

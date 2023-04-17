@@ -3906,7 +3906,15 @@ exports.renderHostelUnitAllAllottedApplication = async (req, res) => {
               studentFirstName: { $regex: `${search}`, $options: "i" },
             },
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber student_bed_number",
+            populate: {
+              path: "student_bed_number",
+              select: "student_bed_number hostelRoom",
+              populate: {
+                path: "hostelRoom",
+                select: "room_name",
+              },
+            },
           },
         });
       for (let data of one_unit?.renewal_allotted_application) {
@@ -3933,7 +3941,15 @@ exports.renderHostelUnitAllAllottedApplication = async (req, res) => {
           populate: {
             path: "student",
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber student_bed_number",
+            populate: {
+              path: "student_bed_number",
+              select: "student_bed_number hostelRoom",
+              populate: {
+                path: "hostelRoom",
+                select: "room_name",
+              },
+            },
           },
         });
       var all_allot_query = nested_document_limit(
@@ -4515,11 +4531,10 @@ exports.renderAllotHostedBedRenewalQuery = async (req, res) => {
     var array = req.body.dataList;
     if (array?.length > 0) {
       for (var sid of array) {
-        const student = await Student.findById({ _id: sid })
-        .populate({
+        const student = await Student.findById({ _id: sid }).populate({
           path: "student_bed_number",
-        })
-        var valid_room = hrid ? hrid : student?.student_bed_number?.hostelRoom
+        });
+        var valid_room = hrid ? hrid : student?.student_bed_number?.hostelRoom;
         var room = await HostelRoom.findById({ _id: valid_room });
         const remain_list = await RemainingList.findOne({
           $and: [

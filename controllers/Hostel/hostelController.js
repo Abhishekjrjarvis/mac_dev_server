@@ -3813,7 +3813,7 @@ exports.renderHostelUnitAllConfirmedApplication = async (req, res) => {
               studentFirstName: { $regex: `${search}`, $options: "i" },
             },
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber student_unit student_bed_number",
             populate: {
               path: "fee_structure hostel_fee_structure",
               select:
@@ -3851,7 +3851,7 @@ exports.renderHostelUnitAllConfirmedApplication = async (req, res) => {
           populate: {
             path: "student",
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber student_unit student_bed_number",
             populate: {
               path: "fee_structure hostel_fee_structure",
               select:

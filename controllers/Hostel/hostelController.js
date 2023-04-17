@@ -3813,11 +3813,11 @@ exports.renderHostelUnitAllConfirmedApplication = async (req, res) => {
               studentFirstName: { $regex: `${search}`, $options: "i" },
             },
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber student_unit student_bed_number",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber student_unit",
             populate: {
-              path: "fee_structure hostel_fee_structure student_bed_number",
+              path: "fee_structure hostel_fee_structure",
               select:
-                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month hostelRoom",
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
               populate: {
                 path: "category_master",
                 select: "category_name",
@@ -3853,9 +3853,9 @@ exports.renderHostelUnitAllConfirmedApplication = async (req, res) => {
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber student_unit student_bed_number",
             populate: {
-              path: "fee_structure hostel_fee_structure student_bed_number",
+              path: "fee_structure hostel_fee_structure",
               select:
-                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month hostelRoom",
+                "total_admission_fees one_installments structure_name unique_structure_name applicable_fees structure_month",
               populate: {
                 path: "category_master",
                 select: "category_name",
@@ -4512,11 +4512,15 @@ exports.renderAllotHostedBedRenewalQuery = async (req, res) => {
       _id: `${one_hostel?.institute}`,
     });
     // var batch = await Batch.findById({ _id: `${apply?.applicationBatch}` });
-    var room = await HostelRoom.findById({ _id: hrid });
     var array = req.body.dataList;
     if (array?.length > 0) {
       for (var sid of array) {
-        const student = await Student.findById({ _id: sid });
+        const student = await Student.findById({ _id: sid })
+        .populate({
+          path: "student_bed_number",
+        })
+        var valid_room = hrid ? hrid : student?.student_bed_number?.hostelRoom
+        var room = await HostelRoom.findById({ _id: valid_room });
         const remain_list = await RemainingList.findOne({
           $and: [
             { _id: { $in: student?.remainingFeeList } },

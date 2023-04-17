@@ -3909,7 +3909,7 @@ exports.renderHostelUnitAllAllottedApplication = async (req, res) => {
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber student_bed_number",
             populate: {
               path: "student_bed_number",
-              select: "student_bed_number hostelRoom",
+              select: "bed_number hostelRoom",
               populate: {
                 path: "hostelRoom",
                 select: "room_name",
@@ -3944,7 +3944,7 @@ exports.renderHostelUnitAllAllottedApplication = async (req, res) => {
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber student_bed_number",
             populate: {
               path: "student_bed_number",
-              select: "student_bed_number hostelRoom",
+              select: "bed_number hostelRoom",
               populate: {
                 path: "hostelRoom",
                 select: "room_name",

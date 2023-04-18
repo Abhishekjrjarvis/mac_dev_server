@@ -651,7 +651,7 @@ exports.fetchExportStudentIdCardQuery = async (req, res) => {
 exports.fetchExportStudentAllQuery = async (req, res) => {
   try {
     const { id } = req.params;
-    const { gender, category, all_depart, batch_status } = req.query;
+    const { gender, category, all_depart, batch_status, religion } = req.query;
     const { depart, batch, master, fee_struct } = req.body;
     if (!id)
       return res.status(200).send({
@@ -746,6 +746,12 @@ exports.fetchExportStudentAllQuery = async (req, res) => {
     if (gender) {
       all_students = all_students?.filter((ref) => {
         if (`${ref?.studentGender}` === `${gender}`) return ref;
+      });
+    }
+
+    if (religion) {
+      all_students = all_students?.filter((ref) => {
+        if (`${ref?.studentReligion}` === `${religion}`) return ref;
       });
     }
 

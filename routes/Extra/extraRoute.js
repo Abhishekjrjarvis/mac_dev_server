@@ -126,7 +126,7 @@ router.post(
   catchAsync(Extra.fetchExportStudentIdCardQuery)
 );
 
-router.get(
+router.patch(
   "/export/student/all/:id",
   // isLoggedIn,
   catchAsync(Extra.fetchExportStudentAllQuery)

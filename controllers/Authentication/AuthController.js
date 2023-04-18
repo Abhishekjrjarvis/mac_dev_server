@@ -2834,7 +2834,7 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
         student.studentGRNO = query?.studentGRNO;
         student.studentROLLNO = classes.ApproveStudent.length;
         student.studentClass = classes._id;
-        student.studentAdmissionDate = new Date().toISOString();
+        // student.studentAdmissionDate = new Date().toISOString();
         depart.ApproveStudent.push(student._id);
         depart.studentCount += 1;
         student.department = depart._id;

@@ -4881,6 +4881,10 @@ exports.renderHostelAllStudentRenewalQuery = async (req, res) => {
         },
       })
       .populate({
+        path: "receipt",
+        select: "reason"
+      })
+      .populate({
         path: "renewal_hostel",
         select: "_id institute bank_account",
         populate: {

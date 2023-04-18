@@ -18,6 +18,7 @@ const { getFirestore } = require("firebase-admin/firestore");
 const { valid_initials } = require("../../Custom/checkInitials");
 const { simple_object } = require("../../S3Configuration");
 const Hostel = require("../../models/Hostel/hostel");
+const ClassMaster = require("../../models/ClassMaster");
 const {
   generate_excel_to_json,
   generate_excel_to_json_fee_category,
@@ -624,30 +625,30 @@ exports.fetchExportStudentIdCardQuery = async (req, res) => {
   }
 };
 
+// exports.fetchExportStudentAllQuery = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const export_ins = await InstituteAdmin.findById({ _id: id }).select(
+//       "ApproveStudent"
+//     );
+
+//     const student_query = await Student.find({
+//       _id: { $in: export_ins?.ApproveStudent },
+//     }).select("studentFirstName studentMiddleName studentGRNO studentLastName studentProfilePhoto photoId studentCast studentCastCategory studentReligion studentBirthPlace studentNationality studentMotherName studentMTongue studentGender studentDOB studentDistrict studentState studentAddress studentAadharNumber studentPhoneNumber"
+//     );
+
+//     // const sEncrypt = await encryptionPayload(live_data);
+//     res.status(200).send({
+//       message: "Exported Student Format Pattern Save",
+//       student_card: student_query,
+//       export_format: true,
+//     });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
+
 exports.fetchExportStudentAllQuery = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const export_ins = await InstituteAdmin.findById({ _id: id }).select(
-      "ApproveStudent"
-    );
-
-    const student_query = await Student.find({
-      _id: { $in: export_ins?.ApproveStudent },
-    }).select("studentFirstName studentMiddleName studentGRNO studentLastName studentProfilePhoto photoId studentCast studentCastCategory studentReligion studentBirthPlace studentNationality studentMotherName studentMTongue studentGender studentDOB studentDistrict studentState studentAddress studentAadharNumber studentPhoneNumber"
-    );
-
-    // const sEncrypt = await encryptionPayload(live_data);
-    res.status(200).send({
-      message: "Exported Student Format Pattern Save",
-      student_card: student_query,
-      export_format: true,
-    });
-  } catch (e) {
-    console.log(e);
-  }
-};
-
-exports.retrievePendingFeeFilter = async (req, res) => {
   try {
     const { id } = req.params;
     const { gender, category, all_depart, batch_status } = req.query;
@@ -658,7 +659,7 @@ exports.retrievePendingFeeFilter = async (req, res) => {
         access: false,
       });
 
-    var institute = await InstituteAdmin.findById({ _id: id })
+    var institute = await InstituteAdmin.findById({ _id: id });
 
     if (all_depart === "All") {
       var sorted_batch = [];
@@ -678,9 +679,7 @@ exports.retrievePendingFeeFilter = async (req, res) => {
         }
       }
       var all_students = await Student.find({
-        $and: [
-          { batches: { $in: sorted_batch } },
-        ],
+        $and: [{ batches: { $in: sorted_batch } }],
       })
         .select(
           "studentClass batches department studentGender studentCastCategory"
@@ -690,9 +689,7 @@ exports.retrievePendingFeeFilter = async (req, res) => {
         });
     } else if (all_depart === "Particular") {
       var all_students = await Student.find({
-        $and: [
-          { _id: { $in: ads_admin?.remainingFee } },
-        ],
+        $and: [{ _id: { $in: institute?.ApproveStudent } }],
       })
         .select(
           "studentClass batches department studentGender studentCastCategory"
@@ -700,27 +697,44 @@ exports.retrievePendingFeeFilter = async (req, res) => {
         .populate({
           path: "fee_structure",
         });
+
+      // console.log("All Students", all_students?.length);
       if (depart) {
         all_students = all_students?.filter((ref) => {
           if (`${ref?.department}` === `${depart}`) return ref;
         });
       }
+
+      // console.log("All Depart", all_students?.length);
       if (batch) {
         all_students = all_students?.filter((ref) => {
           if (`${ref?.batches}` === `${batch}`) return ref;
         });
       }
-      var select_classes = [];
-      const all_master = await ClassMaster.find({
-        _id: { $in: master },
-      }).select("classDivision");
 
-      for (var ref of all_master) {
-        select_classes.push(...ref?.classDivision);
-      }
-      all_students = all_students?.filter((ref) => {
-        if (select_classes?.includes(`${ref?.studentClass}`)) return ref;
-      });
+      // console.log("All batch", all_students?.length);
+      var select_classes = [];
+      // if (master) {
+      //   var all_master = await ClassMaster.find({
+      //     _id: { $in: master },
+      //   }).select("classDivision");
+      // }
+
+      // if (all_master?.length > 0) {
+      //   for (var ref of all_master) {
+      //     select_classes.push(...ref?.classDivision);
+      //   }
+      // }
+      // console.log(select_classes);
+      // console.log(all_students)
+      // all_students = all_students?.filter((ref) => {
+      //   if (select_classes?.includes(ref?.studentClass)) {
+      //     return ref;
+      //   } else {
+      //     return false;
+      //   }
+      // });
+      // console.log("All Master", all_students?.length);
     }
 
     if (category) {
@@ -748,7 +762,6 @@ exports.retrievePendingFeeFilter = async (req, res) => {
     }
 
     const valid_all_students = await Student.find({ _id: { $in: sorted_list } })
-      .sort({ remainingFeeList_count: -1 })
       .select(
         "studentFirstName studentMiddleName remainingFeeList_count studentLastName studentDOB studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto admissionRemainFeeCount"
       )
@@ -767,20 +780,20 @@ exports.retrievePendingFeeFilter = async (req, res) => {
       .populate({
         path: "fee_structure",
         select: "structure_name unique_structure_name applicable_fees",
-      })
-
-      valid_all_students.sort(function (st1, st2) {
-        return (
-          parseInt(st1?.studentGRNO?.slice(1)) -
-          parseInt(st2?.studentGRNO?.slice(1))
-        );
       });
+
+    valid_all_students.sort(function (st1, st2) {
+      return (
+        parseInt(st1?.studentGRNO?.slice(1)) -
+        parseInt(st2?.studentGRNO?.slice(1))
+      );
+    });
 
     if (valid_all_students?.length > 0) {
       res.status(200).send({
         message: "Explore New Excel Exports Wait for Some Time To Process",
         student_card: valid_all_students,
-      export_format: true,
+        export_format: true,
       });
     } else {
       res.status(200).send({

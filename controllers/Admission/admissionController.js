@@ -1181,7 +1181,9 @@ exports.retrieveAdmissionSelectedApplication = async (req, res) => {
     const student = await Student.findById({ _id: sid });
     const user = await User.findById({ _id: `${student.user}` });
     const structure = await FeeStructure.findById({ _id: fee_struct });
-    const institute = await InstituteAdmin.findById({ _id: `${admission_admin?.institute}`})
+    const institute = await InstituteAdmin.findById({
+      _id: `${admission_admin?.institute}`,
+    });
     const finance = await Finance.findOne({
       institute: admission_admin?.institute,
     });
@@ -1206,6 +1208,7 @@ exports.retrieveAdmissionSelectedApplication = async (req, res) => {
     status.instituteId = admission_admin?.institute;
     status.feeStructure = structure?._id;
     student.fee_structure = structure?._id;
+    status.document_visible = true;
     status.finance = finance?._id;
     user.applicationStatus.push(status._id);
     student.active_status.push(status?._id);
@@ -1560,7 +1563,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     apply.confirmCount += 1;
     for (let app of apply.selectedApplication) {
       if (`${app.student}` === `${student._id}`) {
-        apply.selectedApplication.pull(app?._id)
+        apply.selectedApplication.pull(app?._id);
       } else {
       }
     }
@@ -1573,7 +1576,6 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     status.applicationId = apply._id;
     user.applicationStatus.push(status._id);
     status.instituteId = institute._id;
-    status.document_visible = true;
     await Promise.all([
       admission.save(),
       apply.save(),
@@ -3305,12 +3307,14 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
       _id: `${admission.institute}`,
     });
     const student = await Student.findById({ _id: sid });
-    const structure = await FeeStructure.findById({ _id: `${student?.fee_structure}`})
+    const structure = await FeeStructure.findById({
+      _id: `${student?.fee_structure}`,
+    });
     const user = await User.findById({ _id: `${student.user}` });
     const status = new Status({});
     for (let app of apply.selectedApplication) {
       if (`${app.student}` === `${student._id}`) {
-        app.docs_collect = "Collected"
+        app.docs_collect = "Collected";
       } else {
       }
     }

@@ -125,8 +125,12 @@ exports.renderNewVehicleQuery = async (req, res) => {
         access: false,
       });
     const trans_panel = await Transport.findById({ _id: tid });
-    const d_staff = await Staff.findOne({ _id: dsid });
-    const c_staff = await Staff.findOne({ _id: csid });
+    if(dsid){
+      var d_staff = await Staff.findOne({ _id: dsid });
+    }
+    if(csid){
+      var c_staff = await Staff.findOne({ _id: csid });
+    }
     if (duid) {
       var d_user = await User.findById({ _id: duid });
     }

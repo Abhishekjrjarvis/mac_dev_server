@@ -77,6 +77,7 @@ const newApplicationSchema = new mongoose.Schema({
       payment_status: { type: String, default: "Pending" },
       install_type: { type: String },
       fee_remain: { type: Number, default: 0 },
+      docs_collect: { type: String, default: "Not Collected" },
     },
   ],
   confirmedApplication: [

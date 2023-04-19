@@ -443,18 +443,27 @@ exports.admissionInstituteFunction = async (
         apply,
         new_receipt
       );
+      if (is_install) {
+        apply.confirmedApplication.push({
+          student: student._id,
+          payment_status: Online,
+          install_type: "First Installment Paid",
+          fee_remain: total_amount - parseInt(tx_amount_ad),
+        });
+      } else {
+        apply.confirmedApplication.push({
+          student: student._id,
+          payment_status: Online,
+          install_type: "One Time Fees Paid",
+          fee_remain:
+            student?.fee_structure?.total_admission_fees -
+            parseInt(tx_amount_ad),
+        });
+      }
+      apply.confirmCount += 1;
       for (let app of apply.selectedApplication) {
         if (`${app.student}` === `${student._id}`) {
-          app.payment_status = "Online";
-          if (is_install) {
-            app.install_type = "First Installment Paid";
-            app.fee_remain = total_amount - parseInt(tx_amount_ad);
-          } else {
-            app.install_type = "One Time Fees Paid";
-            app.fee_remain =
-              student?.fee_structure?.total_admission_fees -
-              parseInt(tx_amount_ad);
-          }
+          apply.selectedApplication.pull(app?._id);
         } else {
         }
       }
@@ -467,7 +476,7 @@ exports.admissionInstituteFunction = async (
         paidAmount: parseInt(tx_amount_ad),
         appId: apply._id,
       });
-      aStatus.content = `Welcome to Institute ${ins.insName}, ${ins.insDistrict}.Please visit with Required Documents to confirm your admission`;
+      aStatus.content = `Your seat has been confirmed, You will be alloted your class shortly, Stay Update!`;
       aStatus.applicationId = apply._id;
       aStatus.document_visible = true;
       user.applicationStatus.push(aStatus._id);

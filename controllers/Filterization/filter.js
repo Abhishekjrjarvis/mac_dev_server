@@ -1614,6 +1614,12 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
             PaidHeadFees: val?.original_paid,
           });
         }
+        if (remain_list?.refund_fee > 0) {
+          head_array.push({
+            HeadsName: "Excess Fees",
+            PaidHeadFees: remain_list?.refund_fee,
+          });
+        }
         var result = await buildStructureObject(head_array);
         if (result) {
           head_list.push({

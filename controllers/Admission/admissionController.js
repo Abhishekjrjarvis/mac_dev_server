@@ -1181,6 +1181,7 @@ exports.retrieveAdmissionSelectedApplication = async (req, res) => {
     const student = await Student.findById({ _id: sid });
     const user = await User.findById({ _id: `${student.user}` });
     const structure = await FeeStructure.findById({ _id: fee_struct });
+    const institute = await InstituteAdmin.findById({ _id: `${admission_admin?.institute}`})
     const finance = await Finance.findOne({
       institute: admission_admin?.institute,
     });
@@ -1197,7 +1198,7 @@ exports.retrieveAdmissionSelectedApplication = async (req, res) => {
       fee_remain: structure.total_admission_fees,
     });
     apply.selectCount += 1;
-    status.content = `You have been selected for ${apply.applicationName}. Confirm your admission`;
+    status.content = `You have been selected for ${apply.applicationName}. Visit ${institute?.insName} with required documents & fees. Your Fee Structure is ${structure?.structure_name}. Available payment modes.`;
     status.applicationId = apply._id;
     status.for_selection = "Yes";
     status.studentId = student._id;
@@ -1208,7 +1209,7 @@ exports.retrieveAdmissionSelectedApplication = async (req, res) => {
     status.finance = finance?._id;
     user.applicationStatus.push(status._id);
     student.active_status.push(status?._id);
-    notify.notifyContent = `You have been selected for ${apply.applicationName}. Confirm your admission`;
+    notify.notifyContent = `You have been selected for ${apply.applicationName}. Visit ${institute?.insName} with required documents & fees. Your Fee Structure is ${structure?.structure_name}. Available payment modes`;
     notify.notifySender = admission_admin?.admissionAdminHead?.user;
     notify.notifyReceiever = user?._id;
     notify.notifyType = "Student";
@@ -1355,7 +1356,7 @@ exports.retrieveAdmissionPayMode = async (req, res) => {
     }
     status.isPaid = "Not Paid";
     status.for_selection = "No";
-    aStatus.content = `Your admission is on hold please visit ${institute.insName}, ${institute.insDistrict}. with required fees or contact institute if neccessory`;
+    aStatus.content = `Your admission is on hold please visit ${institute.insName}, ${institute.insDistrict}. with required fees & documents or contact institute if neccessory`;
     aStatus.applicationId = apply._id;
     user.applicationStatus.push(aStatus._id);
     aStatus.instituteId = institute._id;
@@ -1541,16 +1542,25 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     } else {
     }
     await set_fee_head_query(student, price, apply, new_receipt);
+    if (is_install) {
+      apply.confirmedApplication.push({
+        student: student._id,
+        payment_status: mode,
+        install_type: "First Installment Paid",
+        fee_remain: total_amount - price,
+      });
+    } else {
+      apply.confirmedApplication.push({
+        student: student._id,
+        payment_status: mode,
+        install_type: "One Time Fees Paid",
+        fee_remain: student?.fee_structure?.total_admission_fees - price,
+      });
+    }
+    apply.confirmCount += 1;
     for (let app of apply.selectedApplication) {
       if (`${app.student}` === `${student._id}`) {
-        app.payment_status = mode;
-        if (is_install) {
-          app.install_type = "First Installment Paid";
-          app.fee_remain = total_amount - price;
-        } else {
-          app.install_type = "One Time Fees Paid";
-          app.fee_remain = student?.fee_structure?.total_admission_fees - price;
-        }
+        apply.selectedApplication.pull(app?._id)
       } else {
       }
     }
@@ -1559,7 +1569,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       paidAmount: price,
       appId: apply._id,
     });
-    status.content = `Welcome to Institute ${institute.insName}, ${institute.insDistrict}.Please visit with Required Documents to confirm your admission`;
+    status.content = `Your seat has been confirmed, You will be alloted your class shortly, Stay Update!`;
     status.applicationId = apply._id;
     user.applicationStatus.push(status._id);
     status.instituteId = institute._id;
@@ -3295,22 +3305,16 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
       _id: `${admission.institute}`,
     });
     const student = await Student.findById({ _id: sid });
+    const structure = await FeeStructure.findById({ _id: `${student?.fee_structure}`})
     const user = await User.findById({ _id: `${student.user}` });
     const status = new Status({});
     for (let app of apply.selectedApplication) {
       if (`${app.student}` === `${student._id}`) {
-        apply.selectedApplication.pull(app._id);
+        app.docs_collect = "Collected"
       } else {
       }
     }
-    apply.confirmedApplication.push({
-      student: student._id,
-      payment_status: mode,
-      install_type: type,
-      fee_remain: amount,
-    });
-    apply.confirmCount += 1;
-    status.content = `Your seat has been confirmed, You will be alloted your class shortly, Stay Update!`;
+    status.content = `Your documents have been verified and submitted successfully. Confirm your admission by paying applicable fees Rs.${structure?.applicable_fees}`;
     status.applicationId = apply._id;
     user.applicationStatus.push(status._id);
     status.instituteId = institute._id;
@@ -4605,7 +4609,7 @@ exports.renderAdminSelectMode = async (req, res) => {
       status.sub_payment_mode = "By Cash";
       status.isPaid = "Not Paid";
       status.for_selection = "No";
-      aStatus.content = `Your admission is on hold please visit ${institute.insName}, ${institute.insDistrict}. with required fees or contact institute if neccessory`;
+      aStatus.content = `Your admission is on hold please visit ${institute.insName}, ${institute.insDistrict}. with required fees & documents or contact institute if neccessory`;
       aStatus.applicationId = apply._id;
       user.applicationStatus.push(aStatus._id);
       aStatus.instituteId = institute._id;

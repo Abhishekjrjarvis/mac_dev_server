@@ -15,7 +15,14 @@ const {
   set_fee_head_query,
 } = require("./Installment");
 
-exports.insert_multiple_status = async (args, uargs, iargs, sid) => {
+exports.insert_multiple_status = async (
+  args,
+  uargs,
+  iargs,
+  sid,
+  finance,
+  structure
+) => {
   try {
     const statusArray = [
       {
@@ -24,22 +31,23 @@ exports.insert_multiple_status = async (args, uargs, iargs, sid) => {
         instituteId: iargs?._id,
       },
       {
-        content: `You have been selected for ${args.applicationName}. Confirm your admission`,
+        content: `You have been selected for ${args.applicationName}. Visit ${iargs.insName} with required documents & fees. Your Fee Structure is ${structure?.structure_name}. Available payment modes.`,
         applicationId: args?._id,
         instituteId: iargs?._id,
         for_selection: "No",
         studentId: sid,
         admissionFee: args.admissionFee,
+        finance: finance?._id,
         payMode: "offline",
         isPaid: "Paid",
       },
       {
-        content: `Your admission is on hold please visit ${iargs.insName}, ${iargs.insDistrict}. with required fees or contact institute if neccessory`,
+        content: `Your admission is on hold please visit ${iargs.insName}, ${iargs.insDistrict}. with required fees & documents or contact institute if neccessory`,
         applicationId: args?._id,
         instituteId: iargs?._id,
       },
       {
-        content: `Welcome to Institute ${iargs.insName}, ${iargs.insDistrict}.Please visit with Required Documents to confirm your admission`,
+        content: `Your documents have been verified and submitted successfully. Confirm your admission by paying applicable fees Rs.${structure?.applicable_fees}`,
         applicationId: args?._id,
         instituteId: iargs?._id,
         document_visible: true,

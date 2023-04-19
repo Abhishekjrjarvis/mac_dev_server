@@ -65,6 +65,7 @@ const {
 const { whats_app_sms_payload } = require("../../WhatsAppSMS/payload");
 const { handle_undefined } = require("../../Handler/customError");
 const FeeReceipt = require("../../models/RazorPay/feeReceipt");
+const FeeStructure = require("../../models/Finance/FeesStructure");
 
 const generateQR = async (encodeData, Id) => {
   try {
@@ -2481,6 +2482,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
     const finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
+    const structure = await FeeStructure.findById({ _id: fee_struct })
     if (!existing) {
       var valid = await filter_unique_username(
         req.body.studentFirstName,
@@ -2554,7 +2556,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
     student.user = user._id;
     student.fee_structure = fee_struct;
     await student.save();
-    await insert_multiple_status(apply, user, institute, student?._id);
+    await insert_multiple_status(apply, user, institute, student?._id, finance, structure);
     apply.receievedCount += 1;
     apply.selectCount += 1;
     apply.confirmCount += 1;

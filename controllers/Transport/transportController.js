@@ -127,8 +127,12 @@ exports.renderNewVehicleQuery = async (req, res) => {
     const trans_panel = await Transport.findById({ _id: tid });
     const d_staff = await Staff.findOne({ _id: dsid });
     const c_staff = await Staff.findOne({ _id: csid });
-    const d_user = await User.findOne({ _id: duid });
-    const c_user = await User.findOne({ _id: cuid });
+    if (duid) {
+      var d_user = await User.findById({ _id: duid });
+    }
+    if (cuid) {
+      var c_user = await User.findById({ _id: cuid });
+    }
     const new_vehicle = new Vehicle({ ...req.body });
     if (new_vehicle?.vehicle_type === "Own") {
       if (d_staff) {

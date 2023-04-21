@@ -1255,10 +1255,14 @@ exports.retrieveAdmissionCancelApplication = async (req, res) => {
     const apply = await NewApplication.findById({ _id: aid });
     const admission_admin = await Admission.findById({
       _id: `${apply?.admissionAdmin}`,
-    }).select("institute");
+    }).populate({
+      path: "admissionAdminHead",
+      select: "user",
+    });
     const student = await Student.findById({ _id: sid });
-    const user = await User.findById({ _id: `${student.user}` });
+    const user = await User.findById({ _id: `${student?.user}` });
     const status = new Status({});
+    const notify = new StudentNotification({});
     for (let app of apply.receievedApplication) {
       if (`${app.student}` === `${student._id}`) {
         apply.receievedApplication.pull(app._id);
@@ -1273,11 +1277,21 @@ exports.retrieveAdmissionCancelApplication = async (req, res) => {
     status.studentId = student._id;
     user.applicationStatus.push(status._id);
     status.instituteId = admission_admin?.institute;
+    notify.notifyContent = `You have been rejected for ${apply.applicationName}. Best of luck for next time `;
+    notify.notifySender = admission_admin?.admissionAdminHead?.user;
+    notify.notifyReceiever = user?._id;
+    notify.notifyType = "Student";
+    notify.notifyPublisher = student?._id;
+    user.activity_tab.push(notify?._id);
+    notify.notifyByAdmissionPhoto = admission_admin?._id;
+    notify.notifyCategory = "Status Alert";
+    notify.redirectIndex = 29;
     await Promise.all([
       apply.save(),
       student.save(),
       user.save(),
       status.save(),
+      notify.save(),
     ]);
     res.status(200).send({
       message: `Best of luck for next time 😥`,
@@ -1314,8 +1328,12 @@ exports.retrieveAdmissionPayMode = async (req, res) => {
     const apply = await NewApplication.findById({ _id: aid }).select(
       "selectedApplication admissionAdmin"
     );
+    const notify = new StudentNotification({});
     const admin_ins = await Admission.findById({
       _id: `${apply.admissionAdmin}`,
+    }).populate({
+      path: "admissionAdminHead",
+      select: "user",
     });
     const institute = await InstituteAdmin.findById({
       _id: `${admin_ins.institute}`,
@@ -1363,11 +1381,21 @@ exports.retrieveAdmissionPayMode = async (req, res) => {
     aStatus.applicationId = apply._id;
     user.applicationStatus.push(aStatus._id);
     aStatus.instituteId = institute._id;
+    notify.notifyContent = `Your admission is on hold please visit ${institute.insName}, ${institute.insDistrict}. with required fees & documents or contact institute if neccessory`;
+    notify.notifySender = admin_ins?.admissionAdminHead?.user;
+    notify.notifyReceiever = user?._id;
+    notify.notifyType = "Student";
+    notify.notifyPublisher = student?._id;
+    user.activity_tab.push(notify?._id);
+    notify.notifyByAdmissionPhoto = admin_ins?._id;
+    notify.notifyCategory = "Status Alert";
+    notify.redirectIndex = 29;
     await Promise.all([
       status.save(),
       aStatus.save(),
       user.save(),
       admin_ins.save(),
+      notify.save(),
     ]);
     res.status(200).send({
       message: "Lets do some excercise visit institute",
@@ -1401,6 +1429,9 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     const apply = await NewApplication.findById({ _id: aid });
     const admission = await Admission.findById({
       _id: `${apply.admissionAdmin}`,
+    }).populate({
+      path: "admissionAdminHead",
+      select: "user",
     });
     var institute = await InstituteAdmin.findById({
       _id: `${admission.institute}`,
@@ -1414,6 +1445,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     const user = await User.findById({ _id: `${student.user}` });
     const status = new Status({});
     const order = new OrderPayment({});
+    const notify = new StudentNotification({});
     const new_receipt = new FeeReceipt({ ...req.body });
     new_receipt.student = student?._id;
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
@@ -1576,6 +1608,15 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     status.applicationId = apply._id;
     user.applicationStatus.push(status._id);
     status.instituteId = institute._id;
+    notify.notifyContent = `Your seat has been confirmed, You will be alloted your class shortly, Stay Update!`;
+    notify.notifySender = admission?.admissionAdminHead?.user;
+    notify.notifyReceiever = user?._id;
+    notify.notifyType = "Student";
+    notify.notifyPublisher = student?._id;
+    user.activity_tab.push(notify?._id);
+    notify.notifyByAdmissionPhoto = admission?._id;
+    notify.notifyCategory = "Status Alert";
+    notify.redirectIndex = 29;
     await Promise.all([
       admission.save(),
       apply.save(),
@@ -1588,6 +1629,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       new_remainFee.save(),
       new_receipt.save(),
       status.save(),
+      notify.save(),
     ]);
     res.status(200).send({
       message: "Look like a party mood",
@@ -1635,6 +1677,9 @@ exports.cancelAdmissionApplication = async (req, res) => {
     });
     const admission = await Admission.findById({
       _id: `${apply.admissionAdmin}`,
+    }).populate({
+      path: "admissionAdminHead",
+      select: "user",
     });
     const institute = await InstituteAdmin.findById({
       _id: `${admission.institute}`,
@@ -1643,6 +1688,7 @@ exports.cancelAdmissionApplication = async (req, res) => {
       _id: `${institute.financeDepart[0]}`,
     });
     const aStatus = new Status({});
+    const notify = new StudentNotification({});
     const new_receipt = new FeeReceipt({ ...req.body });
     new_receipt.refund_status = "Refunded";
     new_receipt.student = student?._id;
@@ -1713,6 +1759,15 @@ exports.cancelAdmissionApplication = async (req, res) => {
       aStatus.applicationId = apply._id;
       user.applicationStatus.push(aStatus._id);
       aStatus.instituteId = institute._id;
+      notify.notifyContent = `our admission has been cancelled successfully with refund of Rs. ${price}`;
+      notify.notifySender = admission?.admissionAdminHead?.user;
+      notify.notifyReceiever = user?._id;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student?._id;
+      user.activity_tab.push(notify?._id);
+      notify.notifyByAdmissionPhoto = admission?._id;
+      notify.notifyCategory = "Status Alert";
+      notify.redirectIndex = 29;
       student.admissionRemainFeeCount = 0;
       student.refundAdmission.push({
         refund_status: "Refund",
@@ -1784,6 +1839,7 @@ exports.cancelAdmissionApplication = async (req, res) => {
         s_admin.save(),
         all_remain_fee_list.save(),
         new_receipt.save(),
+        notify.save(),
       ]);
       res.status(200).send({
         message: "Refund & Cancellation of Admission",
@@ -3302,6 +3358,9 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
     const apply = await NewApplication.findById({ _id: aid });
     const admission = await Admission.findById({
       _id: `${apply.admissionAdmin}`,
+    }).populate({
+      path: "admissionAdminHead",
+      select: "user",
     });
     var institute = await InstituteAdmin.findById({
       _id: `${admission.institute}`,
@@ -3312,6 +3371,7 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
     });
     const user = await User.findById({ _id: `${student.user}` });
     const status = new Status({});
+    const notify = new StudentNotification({});
     for (let app of apply.selectedApplication) {
       if (`${app.student}` === `${student._id}`) {
         app.docs_collect = "Collected";
@@ -3322,7 +3382,21 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
     status.applicationId = apply._id;
     user.applicationStatus.push(status._id);
     status.instituteId = institute._id;
-    await Promise.all([apply.save(), user.save(), status.save()]);
+    notify.notifyContent = `Your documents have been verified and submitted successfully. Confirm your admission by paying applicable fees Rs.${structure?.applicable_fees}`;
+    notify.notifySender = admission?.admissionAdminHead?.user;
+    notify.notifyReceiever = user?._id;
+    notify.notifyType = "Student";
+    notify.notifyPublisher = student?._id;
+    user.activity_tab.push(notify?._id);
+    notify.notifyByAdmissionPhoto = admission?._id;
+    notify.notifyCategory = "Status Alert";
+    notify.redirectIndex = 29;
+    await Promise.all([
+      apply.save(),
+      user.save(),
+      status.save(),
+      notify.save(),
+    ]);
     res.status(200).send({
       message: "Look like a party mood",
       docs_status: true,
@@ -4296,6 +4370,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
       var mode =
         one_receipt?.fee_payment_mode === "By Cash" ? "Offline" : "Online";
       var total_amount = add_total_installment(student);
+      const notify = new StudentNotification({});
       if (
         price <= student?.fee_structure?.total_admission_fees &&
         price <= student?.fee_structure?.one_installments?.fees
@@ -4443,6 +4518,15 @@ exports.renderOneReceiptStatus = async (req, res) => {
       user.applicationStatus.push(status._id);
       status.instituteId = institute._id;
       status.document_visible = true;
+      notify.notifyContent = `Welcome to Institute ${institute.insName}, ${institute.insDistrict}.Please visit with Required Documents to confirm your admission`;
+      notify.notifySender = ads_admin?.admissionAdminHead?.user;
+      notify.notifyReceiever = user?._id;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student?._id;
+      user.activity_tab.push(notify?._id);
+      notify.notifyByAdmissionPhoto = ads_admin?._id;
+      notify.notifyCategory = "Status Alert";
+      notify.redirectIndex = 29;
       await Promise.all([
         ads_admin.save(),
         one_app.save(),
@@ -4455,6 +4539,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
         new_remainFee.save(),
         one_receipt.save(),
         status.save(),
+        notify.save(),
       ]);
       invokeMemberTabNotification(
         "Admission Status",
@@ -4596,7 +4681,11 @@ exports.renderAdminSelectMode = async (req, res) => {
     const user = await User.findById({ _id: `${student.user}` });
     var admin_ins = await Admission.findById({
       _id: `${apply?.admissionAdmin}`,
+    }).populate({
+      path: "admissionAdminHead",
+      select: "user",
     });
+    const notify = new StudentNotification({});
     const institute = await InstituteAdmin.findById({
       _id: `${admin_ins?.institute}`,
     });
@@ -4617,11 +4706,21 @@ exports.renderAdminSelectMode = async (req, res) => {
       aStatus.applicationId = apply._id;
       user.applicationStatus.push(aStatus._id);
       aStatus.instituteId = institute._id;
+      notify.notifyContent = `Your admission is on hold please visit ${institute.insName}, ${institute.insDistrict}. with required fees & documents or contact institute if neccessory`;
+      notify.notifySender = admin_ins?.admissionAdminHead?.user;
+      notify.notifyReceiever = user?._id;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student?._id;
+      user.activity_tab.push(notify?._id);
+      notify.notifyByAdmissionPhoto = admin_ins?._id;
+      notify.notifyCategory = "Status Alert";
+      notify.redirectIndex = 29;
       // student.active_status.pull(status?._id);
       await Promise.all([
         status.save(),
         aStatus.save(),
         user.save(),
+        notify.save(),
         // student.save(),
       ]);
       res.status(200).send({
@@ -4657,10 +4756,14 @@ exports.renderAdminStudentCancelSelectQuery = async (req, res) => {
     const apply = await NewApplication.findById({ _id: aid });
     const admission_admin = await Admission.findById({
       _id: `${apply?.admissionAdmin}`,
-    }).select("institute");
+    }).populate({
+      path: "admissionAdminHead",
+      select: "user",
+    });
     const student = await Student.findById({ _id: sid });
     const user = await User.findById({ _id: `${student.user}` });
     const status = new Status({});
+    const notify = new StudentNotification({});
     const aStatus = await Status.findOne({
       $and: [{ _id: student?.active_status }, { applicationId: apply?._id }],
     });
@@ -4680,6 +4783,15 @@ exports.renderAdminStudentCancelSelectQuery = async (req, res) => {
     status.studentId = student._id;
     user.applicationStatus.push(status._id);
     status.instituteId = admission_admin?.institute;
+    notify.notifyContent = `You admission is cancelled for ${apply.applicationName}. Due to no further activity`;
+    notify.notifySender = admission_admin?.admissionAdminHead?.user;
+    notify.notifyReceiever = user?._id;
+    notify.notifyType = "Student";
+    notify.notifyPublisher = student?._id;
+    user.activity_tab.push(notify?._id);
+    notify.notifyByAdmissionPhoto = admission_admin?._id;
+    notify.notifyCategory = "Status Alert";
+    notify.redirectIndex = 29;
     // student.active_status.pull(aStatus?._id);
     await Promise.all([
       apply.save(),
@@ -4687,6 +4799,7 @@ exports.renderAdminStudentCancelSelectQuery = async (req, res) => {
       user.save(),
       status.save(),
       aStatus.save(),
+      notify.save(),
     ]);
     res.status(200).send({
       message: `Best of luck for next time 😥`,

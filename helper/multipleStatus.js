@@ -9,6 +9,8 @@ const RemainingList = require("../models/Admission/RemainingList");
 const OrderPayment = require("../models/RazorPay/orderPayment");
 const FeeReceipt = require("../models/RazorPay/feeReceipt");
 const Admin = require("../models/superAdmin");
+const User = require("../models/User");
+const StudentNotification = require("../models/Marks/StudentNotification");
 const {
   add_all_installment,
   add_total_installment,
@@ -80,6 +82,28 @@ exports.ignite_multiple_alarm = async (arr) => {
       _id: { $in: arr?.applicationStatus },
     });
     for (var ref of all_status) {
+      var notify = new StudentNotification({});
+      var apply = await NewApplication.findById({
+        _id: `${ref?.applicationId}`,
+      });
+      var admission_admin = await Admission.findById({
+        _id: `${apply?.admissionAdmin}`,
+      }).populate({
+        path: "admissionAdminHead",
+        select: "user",
+      });
+      var student = await Student.findById({ _id: `${ref?.studentId}` });
+      var user = await User.findById({ _id: `${student?.user}` });
+      notify.notifyContent = `${ref?.content}`;
+      notify.notifySender = admission_admin?.admissionAdminHead?.user;
+      notify.notifyReceiever = user?._id;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student?._id;
+      user.activity_tab.push(notify?._id);
+      notify.notifyByAdmissionPhoto = admission_admin?._id;
+      notify.notifyCategory = "Status Alert";
+      notify.redirectIndex = 29;
+      await Promise.all([user.save(), notify.save()]);
       invokeMemberTabNotification(
         "Admission Status",
         ref.content,

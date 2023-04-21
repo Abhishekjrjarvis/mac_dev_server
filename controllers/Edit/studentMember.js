@@ -375,8 +375,31 @@ exports.instituteDepartmentOtherCount = async (req, res) => {
 exports.getOneDepartmentOfPromote = async (req, res) => {
   try {
     const { did } = req.params;
+    const { exist_batch } = req.query
     if (!did) throw "Please call proper api with all details";
-    const department = await Department.findById({ _id: did })
+    if(exist_batch){
+      var depart = await Department.findById({ _id: did })
+      .select("dName")
+
+      var batches = await Batch.findById({ _id: `${exist_batch}`})
+      .select("batchName batchStatus createdAt classroom")
+      .populate({
+        path: "classroom",
+        select: "className classTitle classTeacher classStatus",
+        populate: {
+          path: "classTeacher",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+        },
+      }) 
+      
+      var department = {
+        ...depart,
+        batches: batches
+      }
+    }
+    else{
+      var department = await Department.findById({ _id: did })
       .select("dName")
       .populate({
         path: "departmentSelectBatch",
@@ -393,6 +416,7 @@ exports.getOneDepartmentOfPromote = async (req, res) => {
       })
       .lean()
       .exec();
+    }
     // const oneEncrypt = await encryptionPayload(department);
     res.status(200).send({ message: "Success", department });
   } catch (e) {

@@ -375,36 +375,14 @@ exports.instituteDepartmentOtherCount = async (req, res) => {
 exports.getOneDepartmentOfPromote = async (req, res) => {
   try {
     const { did } = req.params;
-    const { exist_batch } = req.query
+    const { exist_batch } = req.query;
     if (!did) throw "Please call proper api with all details";
-    if(exist_batch){
-      var depart = await Department.findById({ _id: did })
-      .select("dName")
+    if (exist_batch) {
+      var depart = await Department.findById({ _id: did }).select("dName");
 
-      var batches = await Batch.findById({ _id: `${exist_batch}`})
-      .select("batchName batchStatus createdAt classroom")
-      .populate({
-        path: "classroom",
-        select: "className classTitle classTeacher classStatus",
-        populate: {
-          path: "classTeacher",
-          select:
-            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
-        },
-      }) 
-      
-      var department = {
-        ...depart,
-        batches: batches
-      }
-    }
-    else{
-      var department = await Department.findById({ _id: did })
-      .select("dName")
-      .populate({
-        path: "departmentSelectBatch",
-        select: "batchName batchStatus createdAt",
-        populate: {
+      var batches = await Batch.findById({ _id: `${exist_batch}` })
+        .select("batchName batchStatus createdAt classroom")
+        .populate({
           path: "classroom",
           select: "className classTitle classTeacher classStatus",
           populate: {
@@ -412,10 +390,31 @@ exports.getOneDepartmentOfPromote = async (req, res) => {
             select:
               "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
           },
-        },
-      })
-      .lean()
-      .exec();
+        });
+
+      var department = {
+        _id: depart?._id,
+        dName: depart?.dName,
+        batches: batches,
+      };
+    } else {
+      var department = await Department.findById({ _id: did })
+        .select("dName")
+        .populate({
+          path: "departmentSelectBatch",
+          select: "batchName batchStatus createdAt",
+          populate: {
+            path: "classroom",
+            select: "className classTitle classTeacher classStatus",
+            populate: {
+              path: "classTeacher",
+              select:
+                "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+            },
+          },
+        })
+        .lean()
+        .exec();
     }
     // const oneEncrypt = await encryptionPayload(department);
     res.status(200).send({ message: "Success", department });

@@ -5,7 +5,7 @@ info:
   version: one
 
 
-host: 18.205.27.165
+host: 54.224.4.209
 basePath: /api
 # schemes: [http, https]
 schemes: 
@@ -7534,6 +7534,84 @@ paths:
         "200":
           description: OK
 
+  /api/v1/all-images/{hid}/hostel/cover:
+    patch:
+      tags:
+        - To get All Images, Videos and Documents
+      summary:
+        - To upload Hostel cover photo
+      consumes:
+        - application/json
+      produces:
+        - application/json'
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          schema:
+            type: string
+          description: This is Hostel Module ID
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your image with images extenstion
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/all-images/{huid}/hostel/unit/cover:
+    patch:
+      tags:
+        - To get All Images, Videos and Documents
+      summary:
+        - To upload Hostel Unit cover photo
+      consumes:
+        - application/json
+      produces:
+        - application/json'
+      parameters:
+        - in: path
+          name: huid
+          required: true
+          schema:
+            type: string
+          description: This is Hostel Unit Module ID
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your image with images extenstion
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/all-images/{hrid}/hostel/room/cover:
+    patch:
+      tags:
+        - To get All Images, Videos and Documents
+      summary:
+        - To upload Hostel Room cover photo
+      consumes:
+        - application/json
+      produces:
+        - application/json'
+      parameters:
+        - in: path
+          name: hrid
+          required: true
+          schema:
+            type: string
+          description: This is Hostel Room Module ID
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your image with images extenstion
+      responses:
+        "200":
+          description: OK
+
 
   /api/v1/all/todevice/token:
     post:
@@ -11469,6 +11547,9 @@ paths:
               staff_total_paid_leaves:
                 type: number
                 description: Enter Staff Total Paid Leaves given in a month
+              heads:
+                type: array
+                description: Enter Array of Objects [{"master_name": "TDS", "master_amount": 2000, "master_status": "Particular || Deduction", "master_id": "974398787878778788"}]
       responses:
         "200":
           description: OK
@@ -11499,7 +11580,7 @@ paths:
           name: month
           schema:
             type: integer
-          description: for type --> "History" then pass this query
+          description: for type --> "History" then pass this query ("2023-09") just like
       responses:
         "200":
           description: OK
@@ -11561,34 +11642,194 @@ paths:
               net_total:
                 type: number
                 description: Enter Net Total in Number
-              hra:
-                type: number
-                description: Enter HRA in Number
-              tds:
-                type: number
-                description: Enter TDS in Number
-              da:
-                type: number
-                description: Enter DA in Number
-              epf:
-                type: number
-                description: Enter EPF in Number
-              ma:
-                type: number
-                description: Enter Medical Allowance in Number
-              ta:
-                type: number
-                description: Enter Travel Allowance in Number
-              epc:
-                type: number
-                description: Enter Employer Contribution in Number
-              pqs:
-                type: number
-                description: Enter perquisites in Number
+              master:
+                type: array
+                description: Enter Array of Objects [{"month_master_name": "TDS", "month_master_amount": 2000, "month_master_status": "Particular || Deduction", "month_master_id": "974398787878778788"}]
       responses:
         "200":
           description: OK
 
+
+  /api/v1/finance/{fid}/add/payroll/master:
+    post:
+      tags:
+        - Finance Module Query
+      summary: For Add Payroll Master -(Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              payroll_head_name:
+                type: string
+                description: Enter Head Name
+              payroll_head_type:
+                type: string
+                description: Enter ("Particular" || "Deduction")
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/all/payroll/master:
+    get:
+      tags:
+        - Finance Module Query
+      summary: For All Payroll Master -(Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: This is Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/one/payroll/master/{pmid}/all/monthwise:
+    get:
+      tags:
+        - Finance Module Query
+      summary: For One Payroll Master Month Wise Seggregation -(Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: pmid
+          required: true
+          type: string
+          description: This is Payroll Master id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/one/payroll/master/one/monthwise/{mwid}/all/emp:
+    get:
+      tags:
+        - Finance Module Query
+      summary: For One Payroll Master One Month Wise All Staff -(Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mwid
+          required: true
+          type: string
+          description: This is Month Wise id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/one/payroll/master/{mwid}/mark/pay/expense:
+    patch:
+      tags:
+        - Finance Module Query
+      summary: For Mark Account Payment Like ("TDS") -(Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id
+        - in: path
+          name: mwid
+          required: true
+          type: string
+          description: This is Month Wise id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                description: Enter Amount
+              mode:
+                type: string
+                description: Enter Mode like as previous
+              fee_payment_mode:
+                type: string
+                description: Enter Fee Mode ("By Cash") || ("UPI Transfer") || ("Demand Draft") || ("Cheque") || ("RTGS/NEFT/IMPS")
+                required: false
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: false
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: false
+              fee_bank_name:
+                type: string
+                description: Enter Bank Name e.g SBI
+                required: false
+              fee_bank_holder:
+                type: string
+                description: Enter Bank Holder Name e.g Mithkal
+                required: false
+              fee_utr_reference:
+                type: string
+                description: Enter Fee Unique Transaction Reference Number (UTR)
+                required: false
+      responses:
+        "200":
+          description: OK
 
   /api/v1/finance/{fid}/sal/history:
     get:
@@ -18706,6 +18947,30 @@ paths:
         "200":
           description: OK
 
+  /api/v1/edit/staff/hostel/manager/staff/{osid}:
+    patch:
+      tags:
+        - Edit Admins
+      summary: Update Hostel Manager Admins (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: osid
+          required: true
+          type: string
+          description: Enter Old staff id
+        - in: query
+          name: nsid
+          required: true
+          type: string
+          description: Enter New staff id
+      responses:
+        "200":
+          description: OK
+
 
 # Backlog Api Module
 
@@ -19907,6 +20172,31 @@ paths:
         "200":
           description: OK
 
+  
+  /api/v1/extra/{id}/original/copy/query:
+    patch:
+      tags:
+        - Setting Control API
+      summary: Download Only Original Copy -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: Enter Institute Id
+        - in: query
+          name: original
+          required: true
+          type: string
+          description: Enter ("false" || "true")
+      responses:
+        "200":
+          description: OK
+
 
 # Admission To Finance
 
@@ -20102,6 +20392,110 @@ paths:
           required: true
           type: string
           description: This is Admission Request id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                required: true
+                description: Enter Amount 
+              status:
+                type: number
+                required: true
+                description: Enter Status ("Accepted" || "Rejected") 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{hid}/hostel/request:
+    post:
+      tags:
+        - Cash Flow Module Query
+      summary: Request || Submit To Finance Manager  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hostel id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                required: true
+                description: Enter Amount 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/dashboard/cash/flow/hostel/query:
+    get:
+      tags:
+        - Cash Flow Module Query
+      summary: Get All Finance Hostel Cash Flow  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page No.
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit No.
+        - in: query
+          name: filter_by
+          required: true
+          type: string
+          description: Enter Filter Keywords ("ALL_REQUEST" || "ALL_SUBMIT" || "ALL_CANCEL")
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/hostel/{hid}/submit/{rid}/status:
+    post:
+      tags:
+        - Cash Flow Module Query
+      summary: Accepted or Rejected Hostel Request At Finance  (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hostel id 
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: This is Hostel Request id 
         - in : body
           name: body
           schema:
@@ -21146,6 +21540,137 @@ paths:
           description: OK
 
 
+  /api/v1/role/permission/{hid}/new/hostel/app/mod:
+    post:
+      tags:
+        - Moderator Role & Permission
+      summary: Add New Moderator Role (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: Enter Hostel Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              mod_role:
+                type: string
+                description: Enter Role as per given 
+                required: true
+              sid:
+                type: string
+                description: Enter Staff Id
+                required: true 
+              app_array:
+                type: array
+                description: Enter Array of Application Id
+                required: true  
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/role/permission/{hid}/all/hostel/moderator:
+    get:
+      tags:
+        - Moderator Role & Permission
+      summary: All Moderator Role of Hostel Super Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: Enter Hostel Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: search
+          required: true
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/role/permission/update/app/hostel/mod/{mid}:
+    patch:
+      tags:
+        - Moderator Role & Permission
+      summary: Edit One Moderator Role By Hostel Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: Enter One Moderator Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              role:
+                type: string
+                description: Enter Role as per given 
+                required: false
+              staffId:
+                type: string
+                description: Enter Staff Id
+                required: true 
+              app_array:
+                type: string
+                description: Enter Array of Application Id
+                required: true 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/role/permission/{hid}/destroy/app/hostel/mod/{mid}:
+    delete:
+      tags:
+        - Moderator Role & Permission
+      summary: Delete One Moderator Role By Hostel Super Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: Enter Hostel Id
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: Enter One Moderator Id
+      responses:
+        "200":
+          description: OK
+
+
 #Manage Admin Module
 
   /api/v1/manage/admin/{mid}/all/mentors:
@@ -21243,8 +21768,8 @@ paths:
 
 
 #New Flow Finance + Admission 
-  /api/v1/finance/{fid}/bank/flow/query:
-    patch:
+  /api/v1/finance/{fid}/add/bank/query:
+    post:
       tags:
         - New Flow Finance + Admission
       summary: Add Bank Details By Finance Manager in body ("finance_bank_account_number", "finance_bank_name", "finance_bank_account_name", "finance_bank_ifsc_code", "finance_bank_branch_address", "finance_bank_upi_id", "finance_bank_upi_qrcode") (verified)
@@ -21259,19 +21784,25 @@ paths:
           type: string
           description: Enter Finance Id
         - in: query
-          name: delete_pic
+          name: flow
           required: true
           type: string
-          description: Enter Old Qr Photo
+          description: Enter Flow Status ("Department" || "Transport" || "Library")
+        - in: query
+          name: flow_id
+          required: true
+          type: string
+          description: Enter Flow ID
       responses:
         "200":
           description: OK
 
-  /api/v1/finance/{fid}/bank/flow/query:
-    patch:
+
+  /api/v1/finance/{fid}/all/bank/account:
+    get:
       tags:
         - New Flow Finance + Admission
-      summary: Add Bank Details By Finance Manager in body ("finance_bank_account_number", "finance_bank_name", "finance_bank_account_name", "finance_bank_ifsc_code", "finance_bank_branch_address", "finance_bank_upi_id", "finance_bank_upi_qrcode") (verified)
+      summary: All Bank Account By Finance Manager (verified)
       consumes:
         - application/json
       produces:
@@ -21283,6 +21814,59 @@ paths:
           type: string
           description: Enter Finance Id
         - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: search
+          required: true
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{acid}/one/bank/account:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: One Bank Account Query -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: acid
+          required: true
+          type: string
+          description: Enter Bank Account Id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{acid}/bank/account/query:
+    patch:
+      tags:
+        - New Flow Finance + Admission
+      summary: Add Bank Details By Finance Manager in body ("finance_bank_account_number", "finance_bank_name", "finance_bank_account_name", "finance_bank_ifsc_code", "finance_bank_branch_address", "finance_bank_upi_id", "finance_bank_upi_qrcode") (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: acid
+          required: true
+          type: string
+          description: Enter Bank Account Id
+        - in: query
           name: delete_pic
           required: true
           type: string
@@ -21291,6 +21875,24 @@ paths:
         "200":
           description: OK
 
+  /api/v1/finance/{acid}/bank/account/destroy/query:
+    delete:
+      tags:
+        - New Flow Finance + Admission
+      summary: Delete Bank Account By Finance Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: acid
+          required: true
+          type: string
+          description: Enter Bank Account Id
+      responses:
+        "200":
+          description: OK
 
   Get From Finance Master API:
     get:
@@ -21381,11 +21983,11 @@ paths:
         "200":
           description: OK
 
-  /api/v1/finance/{fid}/fee/structure/new/{did}:
+  /api/v1/finance/{fid}/fee/structure/new:
     post:
       tags:
         - New Flow Finance + Admission
-      summary: Add New Fees Structure By Finance (verified)
+      summary: Add New Fees Structure By Finance + Endpoint Changed (verified)
       consumes:
         - application/json
       produces:
@@ -21396,11 +21998,11 @@ paths:
           required: true
           type: string
           description: Enter Finance Id
-        - in: path
-          name: did
+        - in: query
+          name: flow
           required: true
           type: string
-          description: Enter Department Id
+          description: Enter for Finance ("Finance_Manager" || "Hostel_Manager")
         - in : body
           name: body
           schema:
@@ -21449,6 +22051,14 @@ paths:
                 type: array
                 description: Enter "[{ "name": "Library Fees", "price": 1000 }, {"name": "Tution Fees", "price": 1000}]"
                 required: true
+              did:
+                type: string
+                description: Enter Department ID for Department
+                required: true
+              hid:
+                type: string
+                description: Enter Hostel ID for Hostel
+                required: true
       responses:
         "200":
           description: OK
@@ -21469,6 +22079,11 @@ paths:
           required: true
           type: string
           description: Enter Fees Structure Id
+        - in: query
+          name: flow
+          required: true
+          type: string
+          description: Enter for Finance ("Finance_Manager" || "Hostel_Manager")
         - in : body
           name: body
           schema:
@@ -21631,7 +22246,7 @@ paths:
     get:
       tags:
         - New Flow Finance + Admission
-      summary: Get One Receipt Query (verified)
+      summary: Get One Receipt Query Response Changed @Birat (verified)
       consumes:
         - application/json
       produces:
@@ -21742,6 +22357,11 @@ paths:
           required: true
           type: string
           description: Enter Filter Query for ("ALL_REQUEST") || ("ALL_APPROVE") || ("ALL_REJECT")
+        - in: query
+          name: over_filter
+          required: false
+          type: string
+          description: Enter Application Department ID
       responses:
         "200":
           description: OK
@@ -22118,7 +22738,7 @@ paths:
     get:
       tags:
         - New Flow Finance + Admission
-      summary: get Finance Payment Modes + Bank Details for Students Side - (verified)
+      summary: get Finance Payment Modes + Bank Details for Students Side Response Changed @Ankush, @Tushar - (verified)
       consumes:
         - application/json
       produces:
@@ -22129,6 +22749,16 @@ paths:
           required: true
           type: string
           description: Enter Finance Id
+        - in: query
+          name: filter_by
+          required: true
+          type: string
+          description: Enter Flow ID
+        - in: query
+          name: flow
+          required: true
+          type: string
+          description: Enter Flow Status ("Department" || "Transport" || "Library")
       responses:
         "200":
           description: OK
@@ -22576,6 +23206,11 @@ paths:
           required: true
           type: string
           description: This is Fee Structure Id
+        - in: query
+          name: flow
+          required: true
+          type: string
+          description: Enter for Finance ("Finance_Manager" || "Hostel_Manager")
       responses:
         "200":
           description: OK
@@ -23684,6 +24319,56 @@ paths:
           required: true
           type: string
           description: This is Application ID
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/feed/filter/heads/by/{fid}/receipt/query:
+    get:
+      tags:
+        - New Custom Filter
+      summary: Get All Student Fee Receipts Heads By Finance + Narration (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance ID
+        - in: query
+          name: fsid
+          required: false
+          type: string
+          description: This is Fee Structure ID
+        - in: query
+          name: depart
+          required: false
+          type: string
+          description: This is Department ID
+        - in: query
+          name: timeline
+          required: true
+          type: string
+          description: This is Time Line pass ("true" || "false")
+        - in: query
+          name: timeline_content
+          required: false
+          type: string
+          description: This is Time Line Content if timeline is true then pass
+        - in: query
+          name: from
+          required: false
+          type: string
+          description: This is From Date ("2023-02-02") if timeline is false then pass
+        - in: query
+          name: to
+          required: false
+          type: string
+          description: This is To Date ("2023-02-11") if timeline is false then pass
       responses:
         "200":
           description: OK
@@ -25458,6 +26143,25 @@ paths:
         "200":
           description: OK
 
+  /api/v1/edit/student/exam/moderator/count/{did}:
+    get:
+      tags:
+        - All Designation + Domain Query
+      summary: All Counts From Department - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: Enter Department ID
+      responses:
+        "200":
+          description: OK
+
 #New Post Image
 
   /api/v1/user/post/{id}/image/access/apk:
@@ -25583,6 +26287,2473 @@ paths:
             type: string
             description: one user id
           description: This is all taged users ids
+      responses:
+        "200":
+          description: OK
+
+#Deposits Query
+
+  /api/v1/finance/{fid}/master/deposit/query:
+    get:
+      tags:
+        - Deposit Query
+      summary: Deposit Master Query - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fmid}/master/all/deposit/array:
+    get:
+      tags:
+        - Deposit Query
+      summary: One Master All Students Query - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fmid
+          required: true
+          type: string
+          description: Enter Fee Master ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fmid}/refund/deposit/{sid}/query:
+    patch:
+      tags:
+        - Deposit Query
+      summary: One Student Refund Deposit Query - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fmid
+          required: true
+          type: string
+          description: Enter Fee Master ID
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Student ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                description: Enter Amount
+                required: true
+              mode:
+                type: string
+                description: Enter Mode ("By Bank" -> "Online" || "By Cash" -> Offline)
+                required: true
+              fee_payment_mode:
+                type: string
+                description: Enter Fee Mode ("By Cash") || ("By Bank") 
+                required: true
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: true
+              fee_bank_name:
+                type: string
+                description: Enter Bank Name e.g SBI
+                required: false
+              fee_bank_holder:
+                type: string
+                description: Enter Bank Holder Name e.g Mithkal
+                required: false
+              fee_utr_reference:
+                type: string
+                description: Enter Fee Unique Transaction Reference Number (UTR)
+                required: false
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/finance/{fid}/master/all/refund/deposit/history:
+    get:
+      tags:
+        - Deposit Query
+      summary: One Finance All Refund Deposit History Query - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: Enter Finance ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/edit/student/promote/{id}/institute/detail:
+    get:
+      tags:
+        - Examination Section API
+      summary: Give institute info and all related count -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute id        
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/edit/student/promote/department/{did}/detail:
+    get:
+      tags:
+        - Examination Section API
+      summary: One department related info -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is department id        
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/edit/student/promote/class/{cid}/student/list:
+    get:
+      tags:
+        - Examination Section API
+      summary: All promoted student list in class  -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class id        
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/edit/student/promote/remain/class/{cid}/student:
+    get:
+      tags:
+        - Examination Section API
+      summary: All not promoted student list in class -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class id           
+      responses:
+        "200":
+          description: OK
+
+
+#Hostel Module Query
+
+  /api/v1/hostel/ins/{id}/staff/{sid}:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Activate Hostel Module By Institute Admin -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute ID 
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Staff ID           
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/hostel/{hid}/dashboard/query:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: Hostel Master Query -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hostel ID           
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hid}/rules/query:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: Hostel Rules Query -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hostel ID           
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hid}/form/query:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: Hostel Form Query -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hostel ID           
+      responses:
+        "200":
+          description: OK
+
+  
+  /api/v1/hostel/{hid}/new/hostel/unit:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: New Hostel Unit in Hostel -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hostel ID 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              hostel_unit_name:
+                type: string
+                description: Enter Hostel Unit Name
+                required: true
+              sid:
+                type: string
+                description: Enter Staff ID
+                required: true      
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hid}/all/hostel/unit:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: All Hostel Unit in Hostel -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hostel ID   
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: search
+          required: true
+          type: string
+          description: Enter Search Query     
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/hostel/{huid}/one/hostel/unit/query:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: One Hostel Unit Query in Hostel -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: huid
+          required: true
+          type: string
+          description: This is Hostel Unit ID    
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{huid}/one/hostel/unit/new/room:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: New Hostel Room in One Hostel Unit -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: huid
+          required: true
+          type: string
+          description: This is Hostel Unit ID 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              room_name:
+                type: string
+                description: Enter Room Name
+                required: true
+              room_strength:
+                type: string
+                description: Enter Room Strength
+                required: true      
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{huid}/one/hostel/unit/all/room:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: All Hostel Room in One Hostel Unit Query -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: huid
+          required: true
+          type: string
+          description: This is Hostel Unit ID   
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: search
+          required: true
+          type: string
+          description: Enter Search Query     
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hrid}/one/hostel/room/query:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: One Hostel Room Query in One Hostel Unit -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hrid
+          required: true
+          type: string
+          description: This is Hostel Room ID    
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hrid}/one/hostel/room/all/bed/query:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: One Hostel Room in All Bed Query -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hrid
+          required: true
+          type: string
+          description: This is Hostel Room ID    
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hid}/all/fee/structure:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: All Hostel Fee Structure -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hostel ID   
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit     
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hid}/all/wardens:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: All Hostel Wardens | Staff-(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hostel ID   
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit   
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hid}/all/hostelities:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: All Hostel Hostelilties | Students-(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hostel ID   
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit   
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hid}/new/existing/rules/regulation:
+    patch:
+      tags:
+        - Hostel Section Query
+      summary: Add | Edit Rules & Regulation By Hostel Manager -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hostel ID   
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              rules:
+                type: object
+                properties:
+                  regulation_headline:
+                    type: string
+                    description: Enter Rules & Regulation Headline 
+                    required: true
+                  regulation_description:
+                    type: string
+                    description: Enter Rules & Regulation Description
+                    required: false
+                  regulation_attachment:
+                    type: string
+                    description: Enter Attachment Key Here
+                    required: false
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hid}/new/application:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: New Application in Hostel || Admission -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hostel ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              applicationName:
+                type: string
+                description: Enter Application Name
+                required: true
+              applicationUnit:
+                type: string
+                description: Enter Hostel Unit ID
+                required: true 
+              applicationAbout:
+                type: string
+                description: Enter Application About
+                required: true      
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hid}/new/existing/form/query:
+    patch:
+      tags:
+        - Hostel Section Query
+      summary: Update Student Existing Form By Hostel Manager -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hostel ID   
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              student_form_query:
+                type: object
+                properties:
+                  personalInfo:
+                    type: boolean
+                    description: Enter Personal Info
+                    required: true
+                  otherPersonalInfo:
+                    type: boolean
+                    description: Enter Other Personal Info
+                    required: true
+                  identityDetails:
+                    type: boolean
+                    description: Enter Identity Details
+                    required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{uid}/user/{aid}/apply:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: User Apply In Hostel Application -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is User ID
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              studentFirstName:
+                type: string
+                description: Enter Student First Name
+                required: true
+              studentMiddleName:
+                type: string
+                description: Enter Student Middle Name
+                required: false  
+              studentLastName:
+                type: string
+                description: Enter Student Last Name
+                required: true 
+              studentDOB:
+                type: string
+                description: Enter Student Date Of Birth
+                required: true   
+              studentGender:
+                type: string
+                description: Enter Student Gender
+                required: true      
+              studentMotherName:
+                type: string
+                description: Enter Student Mother Name
+                required: true 
+              sample_pic:
+                type: string
+                description: Enter Sample Pic
+                required: false
+              fileArray:
+                type: array
+                description: Enter File Array
+                required: false
+              optionalSubject:
+                type: array
+                description: Enter Optional Subject
+                required: false
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hid}/all/ongoing/application:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: All Hostel Ongoing Apps-(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hostel ID   
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit   
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hid}/all/completed/application:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: All Hostel Completed Apps-(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hostel ID   
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit   
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{id}/application/list/array:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: Search All Hostel Apps At Universal Search -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute ID   
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit 
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{aid}/application/query:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: One Hostel Application Query -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID   
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{huid}/request/application:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: All Receieved Application At Hostel Unit for Renewal -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: huid
+          required: true
+          type: string
+          description: This is Hostel Unit ID   
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit 
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{huid}/selected/application:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: All Selected Application At Hostel Unit for Renewal -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: huid
+          required: true
+          type: string
+          description: This is Hostel Unit ID   
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit 
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{huid}/confirmed/application:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: All Confirmed Application At Hostel Unit for Renewal -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: huid
+          required: true
+          type: string
+          description: This is Hostel Unit ID   
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit 
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{huid}/allotted/application:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: All Allotted Application At Hostel Unit for Renewal -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: huid
+          required: true
+          type: string
+          description: This is Hostel Unit ID   
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit 
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{huid}/cancelled/application:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: All Cancelled Application At Hostel Unit for Renewal -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: huid
+          required: true
+          type: string
+          description: This is Hostel Unit ID   
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit 
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  For Announcement Call /api/v1/ins/{id}/announcemnt:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: One Institute All Announcement -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute ID   
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{sid}/student/{aid}/cancel/app:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Student Application Cancel By Hostel Manager -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{sid}/student/{aid}/select:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Student Application Select By Hostel Manager -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_struct:
+                type: string
+                description: Enter Fee Structure ID
+                required: true
+              renew:
+                type: string
+                description: Enter Renewal Date ("2023-02-02")
+                required: false  
+              month:
+                type: string
+                description: Enter Month 
+                required: false 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{sid}/student/pay/mode/{aid}/apply/status/{statusId}:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Student Mode Select By Student -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID 
+        - in: path
+          name: statusId
+          required: true
+          type: string
+          description: This is Application Status ID 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: true
+              fee_payment_mode:
+                type: string
+                description: Enter Mode Same as Admission Fee Receipt Mode
+                required: true  
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: true 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{statusId}/status/cancel/app/{aid}/student/{sid}:
+    patch:
+      tags:
+        - Hostel Section Query
+      summary: Student Mode Cancel By Student -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID 
+        - in: path
+          name: statusId
+          required: true
+          type: string
+          description: This is Application Status ID 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{sid}/student/{aid}/pay/offline/confirm:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Collect One Student Offline Fees By Hostel Manager -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: true
+              fee_payment_mode:
+                type: string
+                description: Enter Mode Same as Admission Fee Receipt Mode
+                required: true  
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: true 
+              amount:
+                type: number
+                description: Enter Amount
+                required: true
+              mode:
+                type: number
+                description: Enter Mode ("Offline" || "Online")
+                required: true 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{sid}/student/{aid}/pay/refund:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Cancel & Refund Admission From Hostel Manager Side -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: true
+              fee_payment_mode:
+                type: string
+                description: Enter Mode Same as Admission Fee Receipt Mode
+                required: true  
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: true 
+              amount:
+                type: number
+                description: Enter Amount
+                required: true
+              mode:
+                type: number
+                description: Enter Mode ("Offline" || "Online")
+                required: true
+              remainAmount:
+                type: number
+                description: Enter Remain Amount Same as Admission Cancel & Refund
+                required: true 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{aid}/select/student/mode/{sid}:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Select Mode Direct By Hostel Manager Same As Admission Admin -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{aid}/cancel/select/student/{sid}:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Cancel Mode Direct By Hostel Manager Same As Admission Admin -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{aid}/application/complete:
+    patch:
+      tags:
+        - Hostel Section Query
+      summary: Mark Application To Completed By Hostel Manager -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hid}/all/remaining/array:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: All Pending || Remaining List of Students -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hostel ID   
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit 
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/student/{aid}/allot/bed:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: One Student Allot Bed By Hostel Manager -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID   
+        - in: query
+          name: huid
+          required: true
+          type: string
+          description: Enter Hostel Unit ID
+        - in: query
+          name: hrid
+          required: true
+          type: string
+          description: Enter Hostel Room ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              dataList:
+                type: array
+                description: Enter Array of Student ID's Same as Admission Admin Class Allot
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hid}/paid/remaining/fee/{sid}/student/{appId}:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Mark Remaining Fee paid by Hostel Manager + add body content (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hostel id 
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
+        - in: path
+          name: appId
+          required: true
+          type: string
+          description: This is Application id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - amount
+              - mode
+              - type
+            properties:
+              amount:
+                type: number
+                description: Enter amount
+              mode:
+                type: string
+                description: Enter payment mode ("Online" | "Offline" | "Exempted")
+              type:
+                type: string
+                description: Enter Installment Value
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hid}/paid/remaining/fee/{sid}/student/{appId}/refund/by:
+    patch:
+      tags:
+        - Hostel Section Query
+      summary: Mark Refund Fee paid by Hostel Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hostel id 
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
+        - in: path
+          name: appId
+          required: true
+          type: string
+          description: This is Application id
+        - in: body
+          name: body
+          schema:
+            type: object
+            required:
+              - amount
+              - mode
+            properties:
+              amount:
+                type: number
+                description: Enter amount
+              mode:
+                type: string
+                description: Enter payment mode ("Online" | "Offline")
+              fee_payment_mode:
+                type: string
+                description: Default "Refunded"
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hid}/all/receipts/by:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: Get All Requested Receipts || Approved Receipts || Rejected Receipts (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: Enter Hostel Id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: filter_by
+          required: true
+          type: string
+          description: Enter Filter Query for ("ALL_REQUEST") || ("ALL_APPROVE") || ("ALL_REJECT")
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hid}/one/receipts/{rid}/status:
+    patch:
+      tags:
+        - Hostel Section Query
+      summary: Update One Receipts By Hostel Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: Enter Hostel Id
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: Enter Receipt Id
+        - in: query
+          name: status
+          required: true
+          type: string
+          description: Enter Status As Mention for Operation ("Approved") || ("Rejected") || ("Over_Rejection") || ("Rejection_Notify")
+        - in: query
+          name: reqId
+          required: true
+          type: string
+          description: Enter Receipts Holding Document Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              reason:
+                type: string
+                description: Enter Reason if Receipt is going for Rejected
+                required: false
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{sid}/re/apply/receipts/{rid}:
+    patch:
+      tags:
+        - Hostel Section Query
+      summary: Re-Apply Receipt From Student Application Status Tab Receipt Content is Updated not created (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Status Id
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: Enter Receipt Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_payment_mode:
+                type: string
+                description: Enter Fee Mode ("By Cash") || ("UPI Transfer") || ("Demand Draft") || ("Cheque") || ("RTGS/NEFT/IMPS")
+                required: false
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: false
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: false
+              fee_bank_name:
+                type: string
+                description: Enter Bank Name e.g SBI
+                required: false
+              fee_bank_holder:
+                type: string
+                description: Enter Bank Holder Name e.g Mithkal
+                required: false
+              fee_utr_reference:
+                type: string
+                description: Enter Fee Unique Transaction Reference Number (UTR)
+                required: false
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{sid}/go/offline/receipt/{appId}:
+    patch:
+      tags:
+        - Hostel Section Query
+      summary: Request for Offline Procedure (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student Id
+        - in: path
+          name: appId
+          required: true
+          type: string
+          description: This is Application Id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_payment_type:
+                type: string
+                description: Enter payment Type (i.e installmentValue)
+                required: true
+              fee_payment_mode:
+                type: string
+                description: Enter payment Mode except "By Cash"
+                required: true
+              fee_payment_amount:
+                type: number
+                description: Enter payment Amount
+                required: true
+              transaction_date:
+                type: string
+                description: Enter Date ("2023-02-02")
+                required: true
+              fee_bank_name:
+                type: string
+                description: Enter Bank Name e.g SBI
+                required: false
+              fee_bank_holder:
+                type: string
+                description: Enter Bank Holder Name e.g Mithkal
+                required: false
+              fee_utr_reference:
+                type: string
+                description: Enter Fee Unique Transaction Reference Number (UTR)
+                required: false
+              rid:
+                type: string
+                description: Enter Remaining List ID
+                required: true
+              raid:
+                type: string
+                description: Enter Remaining Array ID i.e coming from installmentValue Card
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{sid}/all/renewals:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: All Renewals List At Student Member Tab -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID   
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{sid}/all/roommates/query:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: All Roommates List At Student Member Tab -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID   
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{sid}/student/{huid}/select/renewal:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Student Application Renewal Select By Hostel Manager -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: huid
+          required: true
+          type: string
+          description: This is Hostel Unit ID 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_struct:
+                type: string
+                description: Enter Fee Structure ID
+                required: true
+              renew:
+                type: string
+                description: Enter Renewal Date ("2023-02-02")
+                required: false  
+              month:
+                type: string
+                description: Enter Month 
+                required: false 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{sid}/student/{huid}/cancel/app/renewal:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Student Application Renewal Cancel By Hostel Manager -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: huid
+          required: true
+          type: string
+          description: This is Hostel Unit ID 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{sid}/student/pay/mode/{rid}/apply/renewal:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Student Application Renewal Select By Student Side -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: This is Renewal ID 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_payment_mode:
+                type: string
+                description: Enter Fee Payment Mode ("By Cash" || "UPI Transfer") same as Admission Admin
+                required: true
+              fee_payment_amount:
+                type: amount
+                description: Enter Amount
+                required: true  
+              transaction_date:
+                type: string
+                description: Enter Transaction Date Like ("2023-02-02")
+                required: true  
+              month:
+                type: string
+                description: Enter Month 
+                required: false 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{sid}/student/cancel/pay/mode/{rid}/apply/renewal:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Cancel & Refund Renewal From Student Side -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: This is Renewal ID 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{sid}/student/{huid}/pay/offline/confirm/renewal/{aid}:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Collect One Student Renewal Offline Fees By Hostel Manager -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID
+        - in: path
+          name: huid
+          required: true
+          type: string
+          description: This is Hostel Unit ID 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: true
+              fee_payment_mode:
+                type: string
+                description: Enter Mode Same as Admission Fee Receipt Mode
+                required: true  
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: true 
+              amount:
+                type: number
+                description: Enter Amount
+                required: true
+              mode:
+                type: number
+                description: Enter Mode ("Offline" || "Online")
+                required: true 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/student/{aid}/allot/bed/{huid}/renewal:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: One Student Renewal Allot Bed By Hostel Manager -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID   
+        - in: path
+          name: huid
+          required: true
+          type: string
+          description: Enter Hostel Unit ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              dataList:
+                type: array
+                description: Enter Array of Student ID's Same as Admission Admin Class Allot
+                required: true
+              hrid:
+                type: string
+                description: Enter Hostel Room ID
+                required: true
+              bed_mode:
+                type: string
+                description: Enter ("Same" || "Different")
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{sid}/student/{aid}/pay/refund/{huid}/renewal:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Cancel & Refund Renewal From Hostel Manager Side -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID 
+        - in: path
+          name: huid
+          required: true
+          type: string
+          description: This is Hostel Unit ID 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              transaction_date:
+                type: string
+                description: Enter Date Like ("2023-02-02")
+                required: true
+              fee_payment_mode:
+                type: string
+                description: Enter Mode Same as Admission Fee Receipt Mode
+                required: true  
+              fee_payment_amount:
+                type: number
+                description: Enter Amount
+                required: true 
+              amount:
+                type: number
+                description: Enter Amount
+                required: true
+              mode:
+                type: number
+                description: Enter Mode ("Offline" || "Online")
+                required: true
+              remainAmount:
+                type: number
+                description: Enter Remain Amount Same as Admission Cancel & Refund
+                required: true 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{id}/all/classmaster/query:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: All ClassMasters List -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This is Institute ID   
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit 
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hid}/new/announcement:
+    post:
+      tags:
+        - Hostel Section Query
+      summary: Add New Announcement By Hostel Manager -(verified)
+      produces:
+        - application/json
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: hid # Note the name is the same as in the path
+          required: true
+          schema:
+            type: string
+          description: The Hostel ID
+        - in: formData
+          name: insAnnTitle
+          type: string
+          required: true
+          description: Announcement Title
+        - in: formData
+          name: insAnnDescription
+          type: string
+          required: true
+          description: Announcement Description
+        - in: formData
+          name: insAnnVisibility
+          type: string
+          required: true
+          description: Announcement Visibility
+        - in: formData
+          name: announceCount
+          type: number
+          required: true
+          description: Announcement Count for UPTO -> 5 Docs
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload Announcement Photo
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload Announcement Document
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hid}/all/announcement:
+    get:
+      tags:
+        - Hostel Section Query
+      summary: All Announcements List Query from Both Side Student + Hostel -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: This is Hostel ID   
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/retro/structure/{appId}/one/student/{sid}/query:
+    patch:
+      tags:
+        - New Flow Finance + Admission
+      summary: Edit Fee Structure At Fees Data  -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission ID   
+        - in: path
+          name: appId
+          required: true
+          type: string
+          description: Enter Application ID
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Student ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              old_fee_struct:
+                type: string
+                description: Enter Old Structure ID
+                required: true
+              new_fee_struct:
+                type: string
+                description: Enter New Structure ID
+                required: true  
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/all/refunded/array:
+    get:
+      tags:
+        - New Flow Finance + Admission
+      summary: All Refunded Array at Admission -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Admission ID    
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit   
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/exam/seating/{eid}/all/class/query:
+    get:
+      tags:
+        - Seating Arrangement Query
+      summary: All Classes of One Exam -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: Enter Exam ID  
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit 
+        - in: query
+          name: search
+          required: true
+          type: string
+          description: Enter Search Query 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/seating/{eid}/seating/all/query:
+    get:
+      tags:
+        - Seating Arrangement Query
+      summary: All Seating Sequence of One Exam -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: Enter Exam ID  
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit 
+        - in: query
+          name: search
+          required: true
+          type: string
+          description: Enter Search Query 
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/exam/seating/one/{said}/query:
+    get:
+      tags:
+        - Seating Arrangement Query
+      summary: One Seating Sequence of One Exam -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: said
+          required: true
+          type: string
+          description: Enter Seating ID  
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/seating/{eid}/seating/destroy/{said}/query:
+    delete:
+      tags:
+        - Seating Arrangement Query
+      summary: Delete One Seating Sequence of One Exam -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: Enter Exam ID  
+        - in: path
+          name: said
+          required: true
+          type: string
+          description: Enter Seating ID  
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/seating/{eid}/seating/edit/{said}/query:
+    patch:
+      tags:
+        - Seating Arrangement Query
+      summary: Edit Seating Sequence At Exam  -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: Enter Exam ID   
+        - in: path
+          name: said
+          required: true
+          type: string
+          description: Enter Seating ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              papers:
+                type: array
+                description: Enter Array of Objects [{ subjectId: "9830198398182391283", subjectName: "Physics", totalMarks: 100, date: "2021-02-02", startTime: "10:10AM", endTime: "12:10PM", duration: "2hrs", subjectMasterId: "0931930921090120390930", from: 1, to: 10}]
+                required: true 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/seating/{eid}/seating/new/query:
+    post:
+      tags:
+        - Seating Arrangement Query
+      summary: New Seating Sequence At Exam  -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: Enter Exam ID   
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              papers:
+                type: array
+                description: Enter Array of Objects [{ subjectId: "9830198398182391283", subjectName: "Physics", totalMarks: 100, date: "2021-02-02", startTime: "10:10AM", endTime: "12:10PM", duration: "2hrs", subjectMasterId: "0931930921090120390930", from: 1, to: 10}]
+                required: true 
+              seat_block_name:
+                type: string
+                description: Enter Block Name
+                required: true 
+              seat_block_class:
+                type: string
+                description: Enter Class ID
+                required: true 
+              seat_valid_staff:
+                type: string
+                description: Enter Type ("External" || "Staff")
+                required: true 
+              seat_block_staff:
+                type: string
+                description: if type "Staff" then Enter Staff ID
+                required: false 
+              seat_valid_staff_name:
+                type: string
+                description: if type "External" then Enter Staff Name
+                required: false 
       responses:
         "200":
           description: OK

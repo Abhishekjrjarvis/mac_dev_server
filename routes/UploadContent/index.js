@@ -39,6 +39,9 @@ const {
   patchLandingCareerImageCover,
   patchLandingTenderImageCover,
   patchAluminiImageCover,
+  patchHostelImageCover,
+  patchHostelUnitImageCover,
+  patchHostelRoomImageCover,
   // patchStaffImagePhoto,
   // patchStaffAddharDoc,
   // patchStudentImagePhoto,
@@ -170,6 +173,18 @@ router
 router
   .route("/:aid/alumini/cover")
   .patch(isLoggedIn, upload.single("file"), patchAluminiImageCover);
+
+router
+  .route("/:hid/hostel/cover")
+  .patch(isLoggedIn, upload.single("file"), patchHostelImageCover);
+
+router
+  .route("/:huid/hostel/unit/cover")
+  .patch(isLoggedIn, upload.single("file"), patchHostelUnitImageCover);
+
+router
+  .route("/:hrid/hostel/room/cover")
+  .patch(isLoggedIn, upload.single("file"), patchHostelRoomImageCover);
 // router
 //   .route("/:id/staff/photo")
 //   .patch(isLoggedIn, upload.single("file"), patchStaffImagePhoto);

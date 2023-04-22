@@ -280,7 +280,10 @@ const studentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-
+  library: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Library",
+  },
   studentAdmissionDate: {
     type: String,
   },
@@ -337,6 +340,25 @@ const studentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "FeeStructure",
   },
+  hostel_fee_structure: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "FeeStructure",
+  },
+  hostel_fee_structure_month: {
+    type: Number,
+    default: 0,
+  },
+  hostel_renewal: {
+    type: Date,
+  },
+  hostelRemainFeeCount: {
+    type: Number,
+    default: 0,
+  },
+  hostelPaidFeeCount: {
+    type: Number,
+    default: 0,
+  },
   active_fee_heads: [
     {
       appId: { type: mongoose.Schema.Types.ObjectId, ref: "NewApplication" },
@@ -349,6 +371,11 @@ const studentSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "FeeStructure",
       },
+      master: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeMaster",
+      },
+      original_paid: { type: Number, default: 0 },
     },
   ],
   certificateBonaFideCopy: {
@@ -360,6 +387,7 @@ const studentSchema = new mongoose.Schema({
     trueCopy: { type: Boolean, default: false },
     secondCopy: { type: Boolean, default: false },
     thirdCopy: { type: Boolean, default: false },
+    originalCopy: { type: Boolean, default: false },
   },
 
   dailyUpdate: [
@@ -450,6 +478,50 @@ const studentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  deposit_pending_amount: {
+    type: Number,
+    default: 0,
+  },
+  deposit_refund_amount: {
+    type: Number,
+    default: 0,
+  },
+  refund_deposit: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FeeReceipt",
+    },
+  ],
+  form_status: {
+    type: String,
+    default: "Not Filled",
+  },
+  fee_receipt: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FeeReceipt",
+    },
+  ],
+  student_bed_number: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "HostelBed",
+  },
+  student_unit: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "HostelUnit",
+  },
+  student_renewal: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Renewal",
+    },
+  ],
+  announcements: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "InsAnnouncement",
+    },
+  ],
 });
 
 const Student = mongoose.model("Student", studentSchema);

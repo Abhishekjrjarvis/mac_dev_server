@@ -180,6 +180,12 @@ const staffSchema = new mongoose.Schema({
       ref: "FinanceModerator",
     },
   ],
+  hostelModeratorDepartment: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "AdmissionModerator",
+    },
+  ],
   isAdmin: {
     type: Boolean,
     default: false,
@@ -271,6 +277,18 @@ const staffSchema = new mongoose.Schema({
     {
       role: { type: String },
       role_id: { type: String },
+    },
+  ],
+  hostelDepartment: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Hostel",
+    },
+  ],
+  hostelUnitDepartment: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "HostelUnit",
     },
   ],
 });

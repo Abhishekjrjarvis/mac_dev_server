@@ -1,3 +1,6 @@
+const FeeMaster = require("../models/Finance/FeeMaster");
+const Student = require("../models/Student");
+
 exports.add_all_installment = async (arg1, arg2, arg3, amount, arg4) => {
   try {
     if (arg4?.fee_structure.two_installments.fees > 0) {
@@ -164,6 +167,7 @@ const second_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -225,6 +229,7 @@ const third_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -286,6 +291,7 @@ const four_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -347,6 +353,7 @@ const five_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -408,6 +415,7 @@ const six_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -469,6 +477,7 @@ const seven_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -530,6 +539,7 @@ const eight_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -591,6 +601,7 @@ const nine_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -652,6 +663,7 @@ const ten_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -713,6 +725,7 @@ const eleven_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -767,6 +780,7 @@ const tweleve_payable = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
       } else {
         arg4.remainingFee.pull(arg5._id);
@@ -813,6 +827,7 @@ const installment_remain = async (
           status: "Not Paid",
           instituteId: ins_args?._id,
           installmentValue: "Installment Remain",
+          isEnable: true,
         });
         ref.status = "Paid";
         ref.remainAmount = amount;
@@ -1114,18 +1129,46 @@ exports.remain_government_installment = async (
         if (filter_student_install[ref].remainAmount < price) {
           holding_price += price - filter_student_install[ref].remainAmount;
           filter_student_install[ref].status = "Paid";
-          filter_student_install[ref].mode = fee_receipt?.fee_payment_mode;
+          filter_student_install[ref].mode = receipt_args?.fee_payment_mode;
+          filter_student_install[ref].fee_receipt = receipt_args?._id;
         } else {
-          filter_student_install[ref].remainAmount -= holding_price;
+          var valid_amount = filter_student_install[ref].remainAmount - price;
+          filter_student_install[ref].remainAmount = price;
+          filter_student_install[ref].status = "Paid";
+          filter_student_install[ref].mode = receipt_args?.fee_payment_mode;
+          filter_student_install[ref].fee_receipt = receipt_args?._id;
+          remain_args.remaining_array.push({
+            remainAmount: valid_amount,
+            appId: filter_student_install[ref].appId,
+            status: "Not Paid",
+            instituteId: filter_student_install[ref].instituteId,
+            installmentValue:
+              type === "Installment Remain" ? "Installment Remain" : type,
+            isEnable: true,
+          });
         }
       } else {
         if (filter_student_install[ref].remainAmount < holding_price) {
           holding_price +=
             holding_price - filter_student_install[ref].remainAmount;
           filter_student_install[ref].status = "Paid";
-          filter_student_install[ref].mode = fee_receipt?.fee_payment_mode;
+          filter_student_install[ref].mode = receipt_args?.fee_payment_mode;
+          filter_student_install[ref].fee_receipt = receipt_args?._id;
         } else {
-          filter_student_install[ref].remainAmount -= holding_price;
+          var valid_amount = filter_student_install[ref].remainAmount - price;
+          filter_student_install[ref].remainAmount = price;
+          filter_student_install[ref].status = "Paid";
+          filter_student_install[ref].mode = receipt_args?.fee_payment_mode;
+          filter_student_install[ref].fee_receipt = receipt_args?._id;
+          remain_args.remaining_array.push({
+            remainAmount: valid_amount,
+            appId: filter_student_install[ref].appId,
+            status: "Not Paid",
+            instituteId: filter_student_install[ref].instituteId,
+            installmentValue:
+              type === "Installment Remain" ? "Installment Remain" : type,
+            isEnable: true,
+          });
         }
       }
     }
@@ -1212,6 +1255,7 @@ exports.set_fee_head_query = async (
   student_args,
   price,
   apply_args,
+  receipt_args,
   direct_args
 ) => {
   try {
@@ -1235,6 +1279,31 @@ exports.set_fee_head_query = async (
     if (exist_filter_student_heads?.length > 0) {
     } else {
       for (var i = 0; i < parent_head?.count; i++) {
+        var one_master = await FeeMaster.findOne({
+          $and: [
+            { _id: parent_head[`${i}`]?.master },
+            { finance: student_args?.fee_structure?.finance },
+          ],
+        });
+        if (one_master) {
+          if (one_master?.paid_student?.includes(`${student_args?._id}`)) {
+          } else {
+            one_master.paid_student.push(student_args?._id);
+            one_master.paid_student_count += 1;
+          }
+          if (`${one_master?.master_status}` === "Linked") {
+            // console.log("Master Linked", one_master?._id);
+            student_args.deposit_pending_amount +=
+              price_query >= parent_head[`${i}`]?.head_amount
+                ? parent_head[`${i}`].head_amount
+                : price_query;
+            one_master.deposit_amount +=
+              price_query >= parent_head[`${i}`]?.head_amount
+                ? parent_head[`${i}`].head_amount
+                : price_query;
+          }
+          await one_master.save();
+        }
         student_args.active_fee_heads.push({
           appId: apply_args?._id,
           head_name: parent_head[`${i}`]?.head_name,
@@ -1248,13 +1317,32 @@ exports.set_fee_head_query = async (
               ? parent_head[`${i}`].head_amount
               : price_query,
           fee_structure: student_args?.fee_structure?._id,
+          master: one_master?._id,
+          original_paid:
+            price_query >= parent_head[`${i}`]?.head_amount
+              ? parent_head[`${i}`].head_amount
+              : price_query,
         });
         price_query =
           price_query >= parent_head[`${i}`].head_amount
             ? price_query - parent_head[`${i}`].head_amount
             : 0;
       }
-      await student_args.save();
+      receipt_args.fee_flow = "FEE_HEADS";
+      for (var ref of student_args?.active_fee_heads) {
+        receipt_args.fee_heads.push({
+          head_id: ref?._id,
+          head_name: ref?.head_name,
+          paid_fee: ref?.paid_fee,
+          remain_fee: ref?.remain_fee,
+          applicable_fee: ref?.applicable_fee,
+          fee_structure: ref?.fee_structure,
+          master: ref?.master,
+          original_paid: ref?.original_paid,
+        });
+      }
+      student_args.fee_receipt.push(receipt_args?._id);
+      await Promise.all([student_args.save(), receipt_args.save()]);
       price_query = 0;
     }
   } catch (e) {
@@ -1262,7 +1350,12 @@ exports.set_fee_head_query = async (
   }
 };
 
-exports.update_fee_head_query = async (student_args, price, apply_args) => {
+exports.update_fee_head_query = async (
+  student_args,
+  price,
+  apply_args,
+  receipt_args
+) => {
   try {
     var price_query = price;
     const filter_student_heads = student_args?.active_fee_heads?.filter(
@@ -1273,8 +1366,20 @@ exports.update_fee_head_query = async (student_args, price, apply_args) => {
     );
 
     for (var ele of filter_student_heads) {
+      var one_master = await FeeMaster.findOne({
+        $and: [{ _id: ele?.master }, { master_status: "Linked" }],
+      });
+      if (one_master) {
+        student_args.deposit_pending_amount +=
+          price_query >= ele.remain_fee ? ele.remain_fee : price_query;
+        one_master.deposit_amount +=
+          price_query >= ele.remain_fee ? ele.remain_fee : price_query;
+        await one_master.save();
+      }
       if (ele?.paid_fee == ele?.applicable_fee) {
       } else {
+        ele.original_paid =
+          price_query >= ele.remain_fee ? ele.remain_fee : price_query;
         ele.paid_fee +=
           price_query >= ele.remain_fee ? ele.remain_fee : price_query;
         price_query =
@@ -1286,7 +1391,201 @@ exports.update_fee_head_query = async (student_args, price, apply_args) => {
       }
     }
     await student_args.save();
+    receipt_args.fee_flow = "FEE_HEADS";
+    for (var ref of student_args?.active_fee_heads) {
+      receipt_args.fee_heads.push({
+        head_id: ref?._id,
+        head_name: ref?.head_name,
+        paid_fee: ref?.paid_fee,
+        remain_fee: ref?.remain_fee,
+        applicable_fee: ref?.applicable_fee,
+        fee_structure: ref?.fee_structure,
+        master: ref?.master,
+        original_paid: ref?.original_paid,
+      });
+    }
+    student_args.fee_receipt.push(receipt_args?._id);
+    await receipt_args.save();
     return student_args;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.set_fee_head_query_retro = async (
+  student,
+  price,
+  apply_args,
+  receipt_args,
+  direct_args
+) => {
+  try {
+    var student_args = await Student.findById({
+      _id: `${student?._id}`,
+    }).populate({
+      path: "fee_structure",
+    });
+    var price_query = price;
+    if (direct_args) {
+      var parent_head = {
+        ...direct_args?.fees_heads,
+        count: direct_args?.fees_heads?.length,
+      };
+    } else {
+      var parent_head = {
+        ...student_args.fee_structure?.fees_heads,
+        count: student_args.fee_structure?.fees_heads?.length,
+      };
+    }
+    for (var i = 0; i < parent_head?.count; i++) {
+      var one_master = await FeeMaster.findOne({
+        $and: [
+          { _id: parent_head[`${i}`]?.master },
+          { finance: student_args?.fee_structure?.finance },
+        ],
+      });
+      if (one_master) {
+        if (one_master?.paid_student?.includes(`${student_args?._id}`)) {
+        } else {
+          one_master.paid_student.push(student_args?._id);
+          one_master.paid_student_count += 1;
+        }
+        if (one_master?.master_status === "Linked") {
+          student_args.deposit_pending_amount =
+            price_query >= parent_head[`${i}`]?.head_amount
+              ? parent_head[`${i}`].head_amount
+              : price_query;
+          one_master.deposit_amount +=
+            price_query >= parent_head[`${i}`]?.head_amount
+              ? parent_head[`${i}`].head_amount
+              : price_query;
+        }
+        await one_master.save();
+      }
+      student_args.active_fee_heads.push({
+        appId: apply_args?._id,
+        head_name: parent_head[`${i}`]?.head_name,
+        applicable_fee: parent_head[`${i}`]?.head_amount,
+        remain_fee:
+          price_query >= parent_head[`${i}`]?.head_amount
+            ? 0
+            : parent_head[`${i}`].head_amount - price_query,
+        paid_fee:
+          price_query >= parent_head[`${i}`]?.head_amount
+            ? parent_head[`${i}`].head_amount
+            : price_query,
+        fee_structure: student_args?.fee_structure?._id,
+        master: one_master?._id,
+        original_paid:
+          price_query >= parent_head[`${i}`]?.head_amount
+            ? parent_head[`${i}`].head_amount
+            : price_query,
+      });
+      price_query =
+        price_query >= parent_head[`${i}`].head_amount
+          ? price_query - parent_head[`${i}`].head_amount
+          : 0;
+    }
+    for (var ele of receipt_args) {
+      ele.fee_flow = "FEE_HEADS";
+      for (var ref of student_args?.active_fee_heads) {
+        ele.fee_heads.push({
+          head_id: ref?._id,
+          head_name: ref?.head_name,
+          paid_fee: ref?.paid_fee,
+          remain_fee: ref?.remain_fee,
+          applicable_fee: ref?.applicable_fee,
+          fee_structure: ref?.fee_structure,
+          master: ref?.master,
+          original_paid: ref?.original_paid,
+        });
+      }
+      student_args.fee_receipt.push(ele?._id);
+      await ele.save();
+    }
+    await student_args.save();
+    price_query = 0;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const retro_installment_sequence_query = async (new_fee_args) => {
+  try {
+    const install_obj = {
+      1: "First Installment",
+      2: "Second Installment",
+      3: "Third Installment",
+      4: "Four Installment",
+      5: "Five Installment",
+      6: "Six Installment",
+      7: "Seven Installment",
+      8: "Eight Installment",
+      9: "Nine Installment",
+      10: "Ten Installment",
+      11: "Eleven Installment",
+      12: "Tweleve Installment",
+    };
+    var install_count =
+      new_fee_args?.total_installments === "0"
+        ? 0
+        : parseInt(new_fee_args?.total_installments);
+    var get_obj;
+    var custom_obj = [];
+    for (var i = 1; i <= install_count; i++) {
+      var query = install_obj[i];
+      get_obj = { ...get_obj, query, key: "key" };
+      custom_obj.push(get_obj);
+    }
+    return custom_obj;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const buildObject = async (arr) => {
+  var obj = {};
+  for (let i = 1; i <= arr.length; i++) {
+    var { query } = arr[i];
+    obj[`key${i}`] = query;
+  }
+  return obj;
+};
+
+exports.set_retro_installment = async (
+  ins_args,
+  new_fee_args,
+  app_args,
+  remain_args
+) => {
+  try {
+    const arr_query = await retro_installment_sequence_query(new_fee_args);
+    var results = await buildObject(arr_query);
+    for (var ref of remain_args?.remaining_array) {
+      var index = remain_args?.remaining_array?.indexOf(ref);
+      if (
+        ref?.installmentValue === results[`key${index + 1}`] &&
+        ref?.status === "Not Paid"
+      ) {
+        ref.remainAmount += remain_args.remaining_fee;
+      } else if (
+        ref?.installmentValue === "Installment Remain" &&
+        ref?.status === "Not Paid"
+      ) {
+        ref.remainAmount += remain_args.remaining_fee;
+      } else {
+        if (remain_args.remaining_fee > 0) {
+          remain_args?.remaining_array.push({
+            remainAmount: remain_args.remaining_fee,
+            appId: app_args?._id,
+            instituteId: ins_args?._id,
+            isEnable: true,
+            installmentValue: "Installment Remain",
+          });
+        }
+      }
+    }
+    await remain_args.save();
   } catch (e) {
     console.log(e);
   }

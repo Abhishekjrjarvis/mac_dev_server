@@ -255,6 +255,18 @@ const classSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  exam_start: { type: Boolean, default: false },
+  lastupto: { type: Number, default: 0 },
+  exam_seating: [
+    {
+      subject_id: { type: mongoose.Schema.Types.ObjectId, ref: "Subject" },
+      seating_id: { type: mongoose.Schema.Types.ObjectId, ref: "Seating" },
+      from: { type: Number, default: 0 },
+      to: { type: Number, default: 0 },
+      count: { type: Number, default: 0 },
+      created_at: { type: Date, default: Date.now },
+    },
+  ],
 });
 
 const Class = mongoose.model("Class", classSchema);

@@ -530,7 +530,11 @@ exports.postWithDeleted = async (req, res) => {
       .populate({ path: "poll_query", select: "id" })
       .populate({ path: "rePostAnswer", select: "id post" });
 
-    const question = await Post.findOne({ _id: `${post?.rePostAnswer?.post}` });
+    if (post?.rePostAnswer?.post) {
+      var question = await Post.findById({
+        _id: `${post?.rePostAnswer?.post}`,
+      });
+    }
     await User.findByIdAndUpdate(id, { $pull: { userPosts: pid } });
     await User.findByIdAndUpdate(id, { $pull: { user_saved_post: pid } });
     await User.findByIdAndUpdate(id, { $pull: { tag_post: pid } });
@@ -841,6 +845,11 @@ exports.retrieveAllUserPosts = async (req, res) => {
               },
             })
             .populate({
+              path: "new_announcement",
+              select:
+                "insAnnTitle insAnnDescription",
+            })
+            .populate({
               path: "hash_tag",
               select: "hashtag_name hashtag_profile_photo",
             });
@@ -883,6 +892,11 @@ exports.retrieveAllUserPosts = async (req, res) => {
                 path: "applicationDepartment",
                 select: "dName",
               },
+            })
+            .populate({
+              path: "new_announcement",
+              select:
+                "insAnnTitle insAnnDescription",
             })
             .populate({
               path: "hash_tag",
@@ -932,6 +946,11 @@ exports.retrieveAllUserPosts = async (req, res) => {
               },
             })
             .populate({
+              path: "new_announcement",
+              select:
+                "insAnnTitle insAnnDescription",
+            })
+            .populate({
               path: "hash_tag",
               select: "hashtag_name hashtag_profile_photo",
             });
@@ -977,6 +996,11 @@ exports.retrieveAllUserPosts = async (req, res) => {
                 path: "applicationDepartment",
                 select: "dName",
               },
+            })
+            .populate({
+              path: "new_announcement",
+              select:
+                "insAnnTitle insAnnDescription",
             })
             .populate({
               path: "hash_tag",
@@ -1158,7 +1182,12 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
                 path: "applicationDepartment",
                 select: "dName",
               },
-            });
+            })
+            .populate({
+              path: "new_announcement",
+              select:
+                "insAnnTitle insAnnDescription",
+            })
         }
         //
         else {
@@ -1198,7 +1227,12 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
                 path: "applicationDepartment",
                 select: "dName",
               },
-            });
+            })
+            .populate({
+              path: "new_announcement",
+              select:
+                "insAnnTitle insAnnDescription",
+            })
         }
       } else {
         if (user.ageRestrict === "Yes") {
@@ -1284,7 +1318,12 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
                 path: "applicationDepartment",
                 select: "dName",
               },
-            });
+            })
+            .populate({
+              path: "new_announcement",
+              select:
+                "insAnnTitle insAnnDescription",
+            })
         }
       }
       const postCount = await Post.find({ _id: { $in: user.userPosts } });
@@ -1378,7 +1417,12 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
               path: "applicationDepartment",
               select: "dName",
             },
-          });
+          })
+          .populate({
+            path: "new_announcement",
+            select:
+              "insAnnTitle insAnnDescription",
+          })
       } else {
         var post = await Post.find({ author: id })
           .sort("-createdAt")
@@ -1414,7 +1458,12 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
               path: "applicationDepartment",
               select: "dName",
             },
-          });
+          })
+          .populate({
+            path: "new_announcement",
+            select:
+              "insAnnTitle insAnnDescription",
+          })
       }
       const postCount = await Post.find({ _id: { $in: user.userPosts } });
       if (page * limit >= postCount.length) {
@@ -1753,7 +1802,12 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
             path: "applicationDepartment",
             select: "dName",
           },
-        });
+        })
+        .populate({
+          path: "new_announcement",
+          select:
+            "insAnnTitle insAnnDescription",
+        })
       const postCount = await Post.find({ _id: { $in: user.user_saved_post } });
       if (page * limit >= postCount.length) {
       } else {
@@ -1842,7 +1896,12 @@ exports.retrieveAllUserTagPosts = async (req, res) => {
             path: "applicationDepartment",
             select: "dName",
           },
-        });
+        })
+        .populate({
+          path: "new_announcement",
+          select:
+            "insAnnTitle insAnnDescription",
+        })
       const postCount = await Post.find({ _id: { $in: user.tag_post } });
       if (page * limit >= postCount.length) {
       } else {
@@ -1924,7 +1983,12 @@ exports.retrieveAllUserReposts = async (req, res) => {
           path: "applicationDepartment",
           select: "dName",
         },
-      });
+      })
+      .populate({
+        path: "new_announcement",
+        select:
+          "insAnnTitle insAnnDescription",
+      })
 
     if (repost && repost.length >= 1) {
       // Add Another Encryption
@@ -2074,6 +2138,11 @@ exports.renderOnePostQuery = async (req, res) => {
           path: "applicationDepartment",
           select: "dName",
         },
+      })
+      .populate({
+        path: "new_announcement",
+        select:
+          "insAnnTitle insAnnDescription",
       })
       .populate({
         path: "hash_tag",

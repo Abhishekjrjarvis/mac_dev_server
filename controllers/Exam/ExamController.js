@@ -19,6 +19,11 @@ const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const StudentPreviousData = require("../../models/StudentPreviousData");
 const Backlog = require("../../models/BacklogStudent/backlog");
+const moment = require("moment");
+const Staff = require("../../models/Staff");
+const Seating = require("../../models/Exam/seating");
+const { handle_undefined } = require("../../Handler/customError");
+const { replace_query } = require("../../helper/dayTimer");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.getClassMaster = async (req, res) => {
@@ -263,6 +268,8 @@ exports.examById = async (req, res) => {
         endTime: sub.endTime,
         subjectName: sub.subjectName,
         subjectMasterId: sub.subjectMasterId,
+        duration: sub?.duration,
+        _id: sub?._id,
       });
     }
     const classWithSubject = [];
@@ -608,6 +615,8 @@ exports.oneExamAllSubjectInStudent = async (req, res) => {
         path: "subjectMarks",
       })
       .select("_id");
+
+    var one_exam = await Exam.findById({ _id: req.params.eid });
     // console.log(student)/;
     // if (student.subjectMarks?.length <= 0 && req.query.previousYearId)
     //   var previousYear = await StudentPreviousData.findById(
@@ -626,9 +635,17 @@ exports.oneExamAllSubjectInStudent = async (req, res) => {
     //   : previousYear;
     const subjects = [];
 
-    student?.subjectMarks?.forEach((submarks) => {
-      submarks.marks.forEach((exammarks) => {
-        if (exammarks.examId === req.params.eid) {
+    for (var submarks of student?.subjectMarks) {
+      for (var exammarks of submarks?.marks) {
+        if (`${exammarks.examId}` === `${one_exam?._id}`) {
+          var all_seats = await Seating.find({
+            _id: { $in: one_exam?.seating_sequence },
+          })
+            .select("seat_block_class seat_block_name")
+            .populate({
+              path: "seat_block_class",
+              select: "className classTitle classStatus",
+            });
           subjects.push({
             _id: submarks.subject,
             subjectName: submarks.subjectName,
@@ -637,10 +654,11 @@ exports.oneExamAllSubjectInStudent = async (req, res) => {
             date: exammarks.date,
             startTime: exammarks.startTime,
             endTime: exammarks.endTime,
+            seating: [...all_seats],
           });
         }
-      });
-    });
+      }
+    }
     // const subEncrypt = await encryptionPayload(subjects);
     res.status(200).send({ subjects });
   } catch (e) {
@@ -1433,6 +1451,406 @@ exports.retrieveBacklogOneStudentMarkStatus = async (req, res) => {
     res
       .status(200)
       .send({ message: `Backlog ${status} 😥`, access: true, backlogs });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderNewSeatingArrangementQuery = async (req, res) => {
+  try {
+    const { eid } = req.params;
+    const { papers } = req.body;
+    var valid_staff = handle_undefined(req?.body?.seat_block_staff);
+    if (!eid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const one_exam = await Exam.findById({ _id: eid });
+    const new_seat = await Seating({ ...req.body });
+    new_seat.seat_block_staff = valid_staff ? valid_staff : null;
+    if (valid_staff) {
+      var staff = await Staff.findById({
+        _id: `${req?.body?.seat_block_staff}`,
+      });
+    }
+    one_exam.seating_sequence.push(new_seat?._id);
+    one_exam.seating_sequence_count += 1;
+    new_seat.exam = one_exam?._id;
+    var new_date;
+    var new_start;
+    var new_end;
+    if (papers?.length > 0) {
+      for (var ref of papers) {
+        for (var ele of one_exam?.subjects) {
+          if (`${ele?._id}` === `${ref?.paperId}`) {
+            var one_subject = await Subject.findById({
+              _id: `${ref?.subjectId}`,
+            });
+            var one_class = await Class.findById({
+              _id: `${one_subject?.class}`,
+            });
+            new_seat.seat_exam_paper_array.push({
+              subjectId: ref?.subjectId,
+              subjectName: ref?.subjectName,
+              totalMarks: ref?.totalMarks,
+              date: ref?.date,
+              startTime: ref?.startTime,
+              endTime: ref?.endTime,
+              duration: ref?.duration,
+              subjectMasterId: ref?.subjectMasterId,
+              from: ref?.from,
+              to: ref?.to,
+              count: parseInt(ref?.to) + 1 - parseInt(ref?.from),
+            });
+            new_date = ref?.date;
+            new_start = ref?.startTime;
+            new_end = ref?.endTime;
+            ele.seating_sequence.push(new_seat?._id);
+            one_class.exam_seating.push({
+              subject_id: one_subject?._id,
+              seating_id: new_seat?._id,
+              from: ref?.from,
+              to: ref?.to,
+              count: parseInt(ref?.to) + 1 - parseInt(ref?.from),
+            });
+            one_class.exam_start = true;
+            one_class.lastupto += ref?.to;
+            await one_class.save();
+          }
+        }
+      }
+    }
+    var exist_date = replace_query(`${new_date}`);
+    if (valid_staff) {
+      const notify = await StudentNotification({});
+      const user = await User.findById({ _id: `${staff?.user}` });
+      notify.notifyContent = `You have a supervision on ${moment(
+        exist_date
+      ).format("LL")} ${new_start} To ${new_end}`;
+      notify.notifySender = one_exam?.department;
+      notify.notifyReceiever = user?._id;
+      notify.examId = one_exam?._id;
+      notify.seatingId = new_seat?._id;
+      notify.notifyType = "Staff";
+      notify.notifyPublisher = staff?._id;
+      user.activity_tab.push(notify._id);
+      notify.notifyByDepartPhoto = one_exam?.department;
+      notify.notifyCategory = "Exam Seating Arrangement";
+      notify.redirectIndex = 31;
+      invokeMemberTabNotification(
+        "Staff Activity",
+        notify,
+        "Seating Arrangement",
+        user._id,
+        user.deviceToken,
+        "Student",
+        notify
+      );
+      await Promise.all([notify.save(), user.save()]);
+    }
+    await Promise.all([one_exam.save(), new_seat.save()]);
+    res.status(200).send({ message: "Explore New Block", access: true });
+    var all_students = await Student.find({
+      $and: [
+        { studentClass: { $in: one_exam?.class } },
+        { studentStatus: "Approved" },
+      ],
+    });
+    for (var ref of all_students) {
+      var users = await User.findById({ _id: `${ref?.user}` });
+      const notify = await StudentNotification({});
+      notify.notifyContent = `You have a supervision on ${moment(
+        exist_date
+      ).format("LL")} ${new_start} To ${new_end}`;
+      notify.notifySender = one_exam?.department;
+      notify.notifyReceiever = users?._id;
+      notify.examId = one_exam?._id;
+      notify.seatingId = new_seat?._id;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = ref?._id;
+      users.activity_tab.push(notify._id);
+      notify.notifyByDepartPhoto = one_exam?.department;
+      notify.notifyCategory = "Exam Seating Arrangement";
+      notify.redirectIndex = 31;
+      invokeMemberTabNotification(
+        "Student Activity",
+        notify,
+        "Seating Arrangement",
+        users._id,
+        users.deviceToken,
+        "Student",
+        notify
+      );
+      await Promise.all([notify.save(), users.save()]);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderEditSeatingArrangementQuery = async (req, res) => {
+  try {
+    const { eid, said } = req.params;
+    const { papers } = req.body;
+    if (!eid && !said)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const one_exam = await Exam.findById({ _id: eid });
+    const new_seat = await Seating.findByIdAndUpdate(said, req.body);
+    if (papers?.length > 0) {
+      for (var ref of papers) {
+        var one_subject = await Subject.findById({
+          _id: `${ref?.subjectId}`,
+        });
+        var one_class = await Class.findById({
+          _id: `${one_subject?.class}`,
+        });
+        new_seat.seat_exam_paper_array.push({
+          subjectId: ref?.subjectId,
+          subjectName: ref?.subjectName,
+          totalMarks: ref?.totalMarks,
+          date: ref?.date,
+          startTime: ref?.startTime,
+          endTime: ref?.endTime,
+          duration: ref?.duration,
+          subjectMasterId: ref?.subjectMasterId,
+          from: ref?.from,
+          to: ref?.to,
+          count: parseInt(ref?.to) + 1 - parseInt(ref?.from),
+        });
+        one_class.exam_seating.push({
+          subject_id: one_subject?._id,
+          seating_id: new_seat?._id,
+          from: ref?.from,
+          to: ref?.to,
+          count: parseInt(ref?.to) + 1 - parseInt(ref?.from),
+        });
+        one_class.exam_start = true;
+        one_class.lastupto += ref?.to;
+        await one_class.save();
+      }
+      await new_seat.save();
+    }
+    res
+      .status(200)
+      .send({ message: "Explore Edited Seating Sequence", access: true });
+
+    for (var ref of papers) {
+      for (var ele of one_exam?.subjects) {
+        if (`${ele?._id}` === `${ref?.paperId}`)
+          ele.seating_sequence.push(new_seat?._id);
+      }
+    }
+    await one_exam.save();
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllSeatingArrangementQuery = async (req, res) => {
+  try {
+    const { eid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (!eid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const one_exam = await Exam.findById({ _id: eid }).select(
+      "seating_sequence"
+    );
+
+    if (search) {
+      var all_seating = await Seating.find({
+        $and: [{ _id: { $in: one_exam?.seating_sequence } }],
+        $or: [{ seat_block_name: { $regex: `${search}`, $options: "i" } }],
+      })
+        .populate({
+          path: "seat_block_class",
+          select: "className classTitle classStatus classTeacher",
+          populate: {
+            path: "classTeacher",
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+          },
+        })
+        .populate({
+          path: "seat_block_staff",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        });
+    } else {
+      var all_seating = await Seating.find({
+        _id: { $in: one_exam?.seating_sequence },
+      })
+        .limit(limit)
+        .skip(skip)
+        .populate({
+          path: "seat_block_class",
+          select: "className classTitle classStatus classTeacher",
+          populate: {
+            path: "classTeacher",
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+          },
+        })
+        .populate({
+          path: "seat_block_staff",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        });
+    }
+
+    if (all_seating?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Upcoming Seating Arrangement",
+        access: true,
+        all_seating: all_seating,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Upcoming Seating Arrangement",
+        access: true,
+        all_seating: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllClassQuery = async (req, res) => {
+  try {
+    const { eid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (!eid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const one_exam = await Exam.findById({ _id: eid }).select("class");
+
+    if (search) {
+      var all_classes = await Class.find({
+        $and: [{ _id: { $in: one_exam?.class } }],
+        $or: [{ className: { $regex: `${search}`, $options: "i" } }],
+      })
+        .select(
+          "className classTitle classStatus exam_start lastupto exam_seating classTeacher"
+        )
+        .populate({
+          path: "classTeacher",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        });
+    } else {
+      var all_classes = await Class.find({
+        _id: { $in: one_exam?.class },
+      })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "className classTitle classStatus exam_start lastupto exam_seating classTeacher"
+        )
+        .populate({
+          path: "classTeacher",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        });
+    }
+
+    if (all_classes?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Upcoming Classes",
+        access: true,
+        all_classes: all_classes,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Upcoming Classes",
+        access: true,
+        all_classes: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneSeatingArrangementQuery = async (req, res) => {
+  try {
+    const { said } = req.params;
+    if (!said)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const one_seat = await Seating.findById({ _id: said })
+      .populate({
+        path: "seat_block_class",
+        select: "className classTitle classStatus",
+      })
+      .populate({
+        path: "seat_block_staff",
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+      });
+
+    res.status(200).send({
+      message: "Explore One Seating Query",
+      access: true,
+      one_seat: one_seat,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderDestroySeatingArrangementQuery = async (req, res) => {
+  try {
+    const { eid, said } = req.params;
+    if (!eid && !said)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: true,
+      });
+
+    const one_exam = await Exam.findById({ _id: eid });
+    const one_seat = await Seating.findById({ _id: said });
+    one_exam.seating_sequence.pull(one_seat?._id);
+    if (one_exam?.seating_sequence_count > 0) {
+      one_exam.seating_sequence_count -= 1;
+    }
+    for (var ref of one_exam?.subjects) {
+      if (ref?.seating_sequence) {
+        ref.seating_sequence = null;
+      }
+    }
+    await one_exam.save();
+    await Seating.findByIdAndDelete(said);
+    res
+      .status(200)
+      .send({ message: "Seating Deletion Operation Completed", access: true });
+    const all_notify = await StudentNotification.find({ seatingId: said });
+    for (var ref of all_notify) {
+      var user = await User.findById({ _id: `${ref?.notifyReceiever}` });
+      user.activity_tab.pull(ref?._id);
+      await user.save();
+    }
+    await StudentNotification.deleteMany({ seatingId: said });
   } catch (e) {
     console.log(e);
   }

@@ -107,6 +107,10 @@ const financeSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    financeHostelBalance: {
+      type: Number,
+      default: 0,
+    },
     financeIncomeCashBalance: {
       type: Number,
       default: 0,
@@ -161,7 +165,7 @@ const financeSchema = new mongoose.Schema(
     salary_history: [
       {
         salary: { type: Number, default: 0 },
-        month: { type: String },
+        month: { type: Date },
         pay_mode: { type: String },
         emp_pay: {
           type: mongoose.Schema.Types.ObjectId,
@@ -169,6 +173,16 @@ const financeSchema = new mongoose.Schema(
         },
       },
     ],
+    payroll_master: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "PayrollMaster",
+      },
+    ],
+    payroll_master_count: {
+      type: Number,
+      default: 0,
+    },
     payment_gateway_charges: [
       {
         original_amount: { type: Number, default: 0 },
@@ -317,26 +331,15 @@ const financeSchema = new mongoose.Schema(
         status: { type: String },
       },
     ],
-    finance_bank_account_number: {
-      type: String,
-    },
-    finance_bank_name: {
-      type: String,
-    },
-    finance_bank_account_name: {
-      type: String,
-    },
-    finance_bank_ifsc_code: {
-      type: String,
-    },
-    finance_bank_branch_address: {
-      type: String,
-    },
-    finance_bank_upi_id: {
-      type: String,
-    },
-    finance_bank_upi_qrcode: {
-      type: String,
+    bank_account: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "BankAccount",
+      },
+    ],
+    bank_account_count: {
+      type: Number,
+      default: 0,
     },
     fees_category: [
       {
@@ -418,6 +421,52 @@ const financeSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    deposit_linked_head: {
+      master: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeMaster",
+      },
+      status: { type: String, default: "Not Linked" },
+    },
+    refund_deposit: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeReceipt",
+      },
+    ],
+    hostel_request: [
+      {
+        hostel: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Hostel",
+        },
+        createdAt: { type: Date, default: Date.now },
+        amount: { type: Number, default: 0 },
+        status: { type: String },
+      },
+    ],
+    hostel_submit: [
+      {
+        hostel: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Hostel",
+        },
+        createdAt: { type: Date, default: Date.now },
+        amount: { type: Number, default: 0 },
+        status: { type: String },
+      },
+    ],
+    hostel_cancelled: [
+      {
+        hostel: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Hostel",
+        },
+        createdAt: { type: Date, default: Date.now },
+        amount: { type: Number, default: 0 },
+        status: { type: String },
+      },
+    ],
   },
   { timestamps: true }
 );

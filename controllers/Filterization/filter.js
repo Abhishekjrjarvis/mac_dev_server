@@ -7,13 +7,16 @@ const User = require("../../models/User");
 const Class = require("../../models/Class");
 const Admission = require("../../models/Admission/Admission");
 const Student = require("../../models/Student");
+const Finance = require("../../models/Finance");
 const Department = require("../../models/Department");
 const ClassMaster = require("../../models/ClassMaster");
 const RemainingList = require("../../models/Admission/RemainingList");
+const FeeReceipt = require("../../models/RazorPay/feeReceipt");
 const {
   json_to_excel_query,
   transaction_json_to_excel_query,
   fee_heads_json_to_excel_query,
+  fee_heads_receipt_json_to_excel_query,
 } = require("../../Custom/JSONToExcel");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
@@ -814,7 +817,7 @@ exports.retrievePendingFeeFilter = async (req, res) => {
       })
       .populate({
         path: "fee_structure",
-        select: "structure_name applicable_fees",
+        select: "structure_name unique_structure_name applicable_fees",
       })
       .populate({
         path: "remainingFeeList",
@@ -835,7 +838,7 @@ exports.retrievePendingFeeFilter = async (req, res) => {
         populate: {
           path: "fee_structure",
           select:
-            "structure_name category_master total_admission_fees one_installments applicable_fees",
+            "structure_name unique_structure_name category_master total_admission_fees one_installments applicable_fees",
           populate: {
             path: "category_master",
             select: "category_name",
@@ -986,7 +989,7 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
             {
               created_at: {
                 $gte: g_date,
-                $lt: l_date,
+                $lte: l_date,
               },
             },
             {
@@ -1001,6 +1004,8 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
       } else {
         var g_year = new Date(`${from}`).getFullYear();
         var l_year = new Date(`${to}`).getFullYear();
+        var g_day = new Date(`${from}`).getDate();
+        var l_day = new Date(`${to}`).getDate();
         var g_month = new Date(`${from}`).getMonth() + 1;
         if (g_month < 10) {
           g_month = `0${g_month}`;
@@ -1009,14 +1014,20 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
         if (l_month < 10) {
           l_month = `0${l_month}`;
         }
-        const g_date = new Date(`${g_year}-${g_month}-01T00:00:00.000Z`);
-        const l_date = new Date(`${l_year}-${l_month}-01T00:00:00.000Z`);
+        if (g_day < 10) {
+          g_day = `0${g_day}`;
+        }
+        if (l_day < 10) {
+          l_day = `0${l_day}`;
+        }
+        const g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
+        const l_date = new Date(`${l_year}-${l_month}-${l_day}T00:00:00.000Z`);
         var order = await OrderPayment.find({
           $and: [
             {
               created_at: {
                 $gte: g_date,
-                $lt: l_date,
+                $lte: l_date,
               },
             },
             {
@@ -1032,6 +1043,8 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
     } else if (tab_flow === "BY_FEE_TYPE") {
       var g_year = new Date(`${from}`).getFullYear();
       var l_year = new Date(`${to}`).getFullYear();
+      var g_day = new Date(`${from}`).getDate();
+      var l_day = new Date(`${to}`).getDate();
       var g_month = new Date(`${from}`).getMonth() + 1;
       if (g_month < 10) {
         g_month = `0${g_month}`;
@@ -1040,14 +1053,20 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
       if (l_month < 10) {
         l_month = `0${l_month}`;
       }
-      const g_date = new Date(`${g_year}-${g_month}-01T00:00:00.000Z`);
-      const l_date = new Date(`${l_year}-${l_month}-01T00:00:00.000Z`);
+      if (g_day < 10) {
+        g_day = `0${g_day}`;
+      }
+      if (l_day < 10) {
+        l_day = `0${l_day}`;
+      }
+      const g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
+      const l_date = new Date(`${l_year}-${l_month}-${l_day}T00:00:00.000Z`);
       var order = await OrderPayment.find({
         $and: [
           {
             created_at: {
               $gte: g_date,
-              $lt: l_date,
+              $lte: l_date,
             },
           },
           {
@@ -1074,7 +1093,7 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
             {
               created_at: {
                 $gte: g_date,
-                $lt: l_date,
+                $lte: l_date,
               },
             },
             {
@@ -1092,22 +1111,30 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
       } else {
         var g_year = new Date(`${from}`).getFullYear();
         var l_year = new Date(`${to}`).getFullYear();
+        var g_day = new Date(`${from}`).getDate();
+        var l_day = new Date(`${to}`).getDate();
         var g_month = new Date(`${from}`).getMonth() + 1;
         if (g_month < 10) {
           g_month = `0${g_month}`;
+        }
+        if (g_day < 10) {
+          g_day = `0${g_day}`;
         }
         var l_month = new Date(`${to}`).getMonth() + 1;
         if (l_month < 10) {
           l_month = `0${l_month}`;
         }
-        const g_date = new Date(`${g_year}-${g_month}-01T00:00:00.000Z`);
-        const l_date = new Date(`${l_year}-${l_month}-01T00:00:00.000Z`);
+        if (l_day < 10) {
+          l_day = `0${l_day}`;
+        }
+        const g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
+        const l_date = new Date(`${l_year}-${l_month}-${l_day}T00:00:00.000Z`);
         var order = await OrderPayment.find({
           $and: [
             {
               created_at: {
                 $gte: g_date,
-                $lt: l_date,
+                $lte: l_date,
               },
             },
             {
@@ -1121,6 +1148,7 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
         res.status(200).send({
           message: "Explore Expenses From To Query",
           access: true,
+          order,
         });
       }
     } else if (tab_flow === "BY_INCOMES") {
@@ -1132,7 +1160,7 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
             {
               created_at: {
                 $gte: g_date,
-                $lt: l_date,
+                $lte: l_date,
               },
             },
             {
@@ -1150,6 +1178,8 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
       } else {
         var g_year = new Date(`${from}`).getFullYear();
         var l_year = new Date(`${to}`).getFullYear();
+        var g_day = new Date(`${from}`).getDate();
+        var l_day = new Date(`${to}`).getDate();
         var g_month = new Date(`${from}`).getMonth() + 1;
         if (g_month < 10) {
           g_month = `0${g_month}`;
@@ -1158,14 +1188,20 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
         if (l_month < 10) {
           l_month = `0${l_month}`;
         }
-        const g_date = new Date(`${g_year}-${g_month}-01T00:00:00.000Z`);
-        const l_date = new Date(`${l_year}-${l_month}-01T00:00:00.000Z`);
+        if (g_day < 10) {
+          g_day = `0${g_day}`;
+        }
+        if (l_day < 10) {
+          l_day = `0${l_day}`;
+        }
+        const g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
+        const l_date = new Date(`${l_year}-${l_month}-${l_day}T00:00:00.000Z`);
         var order = await OrderPayment.find({
           $and: [
             {
               created_at: {
                 $gte: g_date,
-                $lt: l_date,
+                $lte: l_date,
               },
             },
             {
@@ -1203,7 +1239,9 @@ exports.renderFinanceTransactionHistoryQuery = async (req, res) => {
         }
         trans_list.push({
           InvoiceNumber: ref?.payment_invoice_number ?? "#NA",
-          Name: user?.userLegalName ?? "#NA",
+          Name: user?.userLegalName
+            ? user?.userLegalName
+            : ref?.payment_by_end_user_id_name,
           PaymentAmount: ref?.payment_amount ?? "#NA",
           PaymentType: ref?.payment_module_type ?? "#NA",
           PaymentMode:
@@ -1232,7 +1270,7 @@ exports.renderFeeHeadsStructureQuery = async (req, res) => {
       });
 
     const one_structure = await FeeStructure.findById({ _id: fsid })
-      .select("structure_name category_master finance")
+      .select("structure_name unique_structure_name category_master finance")
       .populate({
         path: "category_master",
         select: "category_name",
@@ -1246,7 +1284,7 @@ exports.renderFeeHeadsStructureQuery = async (req, res) => {
       .populate({
         path: "fee_structure",
         select:
-          "structure_name category_master total_admission_fees applicable_fees",
+          "structure_name unique_structure_name category_master total_admission_fees applicable_fees",
         populate: {
           path: "category_master",
           select: "category_name",
@@ -1320,6 +1358,335 @@ exports.renderFeeHeadsStructureQuery = async (req, res) => {
     } else {
       res.status(200).send({
         message: "No Fee Heads Structure Query",
+        access: false,
+        all_students: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    const { fsid, depart, timeline, timeline_content, from, to } = req.query;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    var valid_timeline = timeline === "false" ? false : true;
+    var g_year;
+    var l_year;
+    var g_month;
+    var l_month;
+
+    if (timeline_content === "Past Week") {
+      const week = custom_date_time_reverse(7);
+      var g_year = new Date(`${week}`).getFullYear();
+      var l_year = new Date().getFullYear();
+      var g_month = new Date(`${week}`).getMonth() + 1;
+      if (g_month < 10) {
+        g_month = `0${g_month}`;
+      }
+      var l_month = new Date().getMonth() + 1;
+      if (l_month < 10) {
+        l_month = `0${l_month}`;
+      }
+    } else if (timeline_content === "Past Month") {
+      const week = custom_month_reverse(1);
+      var g_year = new Date(`${week}`).getFullYear();
+      var l_year = new Date().getFullYear();
+      var g_month = new Date(`${week}`).getMonth() + 1;
+      if (g_month < 10) {
+        g_month = `0${g_month}`;
+      }
+      var l_month = new Date().getMonth() + 1;
+      if (l_month < 10) {
+        l_month = `0${l_month}`;
+      }
+    } else if (timeline_content === "Past Year") {
+      const week = custom_year_reverse(1);
+      var g_year = new Date(`${week}`).getFullYear();
+      var l_year = new Date().getFullYear();
+      var g_month = new Date(`${week}`).getMonth() + 1;
+      if (g_month < 10) {
+        g_month = `0${g_month}`;
+      }
+      var l_month = new Date().getMonth() + 1;
+      if (l_month < 10) {
+        l_month = `0${l_month}`;
+      }
+    }
+    var sorted_array = [];
+    const finance = await Finance.findById({ _id: fid }).select("institute");
+    const institute = await InstituteAdmin.findById({
+      _id: `${finance?.institute}`,
+    }).select("insName");
+    if (fsid && depart) {
+      var all_students = await Student.find({
+        $and: [{ institute: institute?._id }, { studentStatus: "Approved" }],
+        $or: [
+          {
+            fee_structure: fsid,
+          },
+          {
+            department: depart,
+          },
+        ],
+      }).select("_id fee_receipt");
+    } else {
+      var all_students = await Student.find({
+        $and: [{ institute: institute?._id }, { studentStatus: "Approved" }],
+      }).select("_id fee_receipt");
+    }
+    for (var ref of all_students) {
+      sorted_array.push(ref?._id);
+    }
+    if (valid_timeline) {
+      const g_date = new Date(`${g_year}-${g_month}-01T00:00:00.000Z`);
+      const l_date = new Date(`${l_year}-${l_month}-01T00:00:00.000Z`);
+      var all_receipts = await FeeReceipt.find({
+        $and: [
+          { student: { $in: sorted_array } },
+          { fee_flow: "FEE_HEADS" },
+          {
+            created_at: {
+              $gte: g_date,
+              $lt: l_date,
+            },
+          },
+        ],
+      })
+        .sort({ invoice_count: "1" })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender remainingFeeList",
+          populate: {
+            path: "fee_structure",
+            select:
+              "structure_name unique_structure_name category_master total_admission_fees applicable_fees",
+            populate: {
+              path: "category_master",
+              select: "category_name",
+            },
+          },
+        })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender remainingFeeList",
+          populate: {
+            path: "studentClass",
+            select: "className classTitle",
+          },
+        })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender remainingFeeList",
+          populate: {
+            path: "batches",
+            select: "batchName",
+          },
+        })
+        .populate({
+          path: "application",
+          select: "applicationDepartment",
+          populate: {
+            path: "applicationDepartment",
+            select: "bank_account",
+            populate: {
+              path: "bank_account",
+              select:
+                "finance_bank_account_number finance_bank_name finance_bank_account_name",
+            },
+          },
+        })
+        .lean()
+        .exec();
+    } else {
+      var g_year = new Date(`${from}`).getFullYear();
+      var g_day = new Date(`${from}`).getDate();
+      var l_year = new Date(`${to}`).getFullYear();
+      var l_day = new Date(`${to}`).getDate();
+      var g_month = new Date(`${from}`).getMonth() + 1;
+      if (g_month < 10) {
+        g_month = `0${g_month}`;
+      }
+      if (g_day < 10) {
+        g_day = `0${g_day}`;
+      }
+      var l_month = new Date(`${to}`).getMonth() + 1;
+      if (l_month < 10) {
+        l_month = `0${l_month}`;
+      }
+      if (l_day < 10) {
+        l_day = `0${l_day}`;
+      }
+      const g_date = new Date(`${g_year}-${g_month}-${g_day}T00:00:00.000Z`);
+      const l_date = new Date(`${l_year}-${l_month}-${l_day}T00:00:00.000Z`);
+      var all_receipts = await FeeReceipt.find({
+        $and: [
+          { student: { $in: sorted_array } },
+          { fee_flow: "FEE_HEADS" },
+          {
+            created_at: {
+              $gte: g_date,
+              $lt: l_date,
+            },
+          },
+        ],
+      })
+        .sort({ invoice_count: "1" })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender remainingFeeList",
+          populate: {
+            path: "fee_structure",
+            select:
+              "structure_name unique_structure_name category_master total_admission_fees applicable_fees",
+            populate: {
+              path: "category_master",
+              select: "category_name",
+            },
+          },
+        })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender remainingFeeList",
+          populate: {
+            path: "studentClass",
+            select: "className classTitle",
+          },
+        })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentGRNO studentGender remainingFeeList",
+          populate: {
+            path: "batches",
+            select: "batchName",
+          },
+        })
+        .populate({
+          path: "application",
+          select: "applicationDepartment",
+          populate: {
+            path: "applicationDepartment",
+            select: "bank_account",
+            populate: {
+              path: "bank_account",
+              select:
+                "finance_bank_account_number finance_bank_name finance_bank_account_name",
+            },
+          },
+        })
+        .lean()
+        .exec();
+    }
+    if (all_receipts?.length > 0) {
+      res.status(200).send({
+        message: "Explore Fee Receipt Heads Structure Query",
+        access: true,
+      });
+      var head_list = [];
+      const buildStructureObject = async (arr) => {
+        var obj = {};
+        for (let i = 0; i < arr.length; i++) {
+          const { HeadsName, PaidHeadFees } = arr[i];
+          obj[HeadsName] = PaidHeadFees;
+        }
+        return obj;
+      };
+      for (var ref of all_receipts) {
+        var remain_list = await RemainingList.findOne({
+          $and: [{ student: ref?.student }, { appId: ref?.application }],
+        });
+        var head_array = [];
+        for (var val of ref?.fee_heads) {
+          head_array.push({
+            HeadsName: val?.head_name,
+            PaidHeadFees: val?.original_paid,
+          });
+        }
+        if (remain_list?.refund_fee > 0) {
+          head_array.push({
+            HeadsName: "Excess Fees",
+            PaidHeadFees: remain_list?.refund_fee,
+          });
+        }
+        var result = await buildStructureObject(head_array);
+        if (result) {
+          head_list.push({
+            InvoiceNumber: ref?.invoice_count ?? "0",
+            InvoiceDate:
+              moment(ref?.fee_transaction_date).format("DD-MM-YYYY") ?? "NA",
+            TransactionAmount: ref?.fee_payment_amount ?? "0",
+            TransactionDate:
+              moment(ref?.fee_transaction_date).format("DD-MM-YYYY") ?? "NA",
+            TransactionMode: ref?.fee_payment_mode ?? "#NA",
+            BankName: ref?.fee_bank_name ?? "#NA",
+            BankHolderName: ref?.fee_bank_holder ?? "#NA",
+            BankUTR: ref?.fee_utr_reference ?? "#NA",
+            GRNO: ref?.student?.studentGRNO ?? "#NA",
+            Name:
+              `${ref?.student?.studentFirstName} ${
+                ref?.student?.studentMiddleName
+                  ? ref?.student?.studentMiddleName
+                  : ""
+              } ${ref?.student?.studentLastName}` ?? "#NA",
+            Gender: ref?.student?.studentGender ?? "#NA",
+            TotalFees: ref?.student.fee_structure?.total_admission_fees ?? "0",
+            ApplicableFees: ref?.student.fee_structure?.applicable_fees ?? "0",
+            TotalPaidFees: remain_list?.paid_fee,
+            RemainingFees: remain_list?.remaining_fee,
+            Class:
+              `${ref?.student?.studentClass?.className}-${ref?.student?.studentClass?.classTitle}` ??
+              "#NA",
+            Batch: ref?.student?.batches?.batchName ?? "#NA",
+            DepartmentBankName:
+              ref?.application?.applicationDepartment?.bank_account
+                ?.finance_bank_name ?? "#NA",
+            DepartmentBankAccountNumber:
+              ref?.application?.applicationDepartment?.bank_account
+                ?.finance_bank_account_number ?? "#NA",
+            DepartmentBankAccountHolderName:
+              ref?.application?.applicationDepartment?.bank_account
+                ?.finance_bank_account_name ?? "#NA",
+            Narration: `Being Fees Received By ${
+              ref?.fee_payment_mode
+            } Date ${moment(ref?.fee_transaction_date).format(
+              "DD-MM-YYYY"
+            )} Rs. ${ref?.fee_payment_amount} out of Rs. ${
+              ref?.student.fee_structure?.total_admission_fees
+            } Paid By ${ref?.student?.studentFirstName} ${
+              ref?.student?.studentMiddleName
+                ? ref?.student?.studentMiddleName
+                : ""
+            } ${ref?.student?.studentLastName} (${
+              ref?.student.fee_structure?.category_master?.category_name
+            }) Towards Fees For ${ref?.student?.studentClass?.className}-${
+              ref?.student?.studentClass?.classTitle
+            } For Acacdemic Year ${ref?.student?.batches?.batchName}.`,
+            ...result,
+          });
+        }
+        head_array = [];
+      }
+
+      await fee_heads_receipt_json_to_excel_query(
+        head_list,
+        institute?.insName,
+        institute?._id
+      );
+    } else {
+      res.status(200).send({
+        message: "No Fee Receipt Heads Structure Query",
         access: false,
         all_students: [],
       });

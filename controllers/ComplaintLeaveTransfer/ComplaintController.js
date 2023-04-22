@@ -1126,7 +1126,7 @@ exports.staffTransferApproved = async (req, res) => {
       // transferStaff.institute = "";
       await Promise.all([institute.save(), transferStaff.save()]);
     } else {
-      console.log("Not To Leave");
+      // console.log("Not To Leave");
     }
     res.status(200).send({ message: "Transfer Granted" });
   } catch (e) {

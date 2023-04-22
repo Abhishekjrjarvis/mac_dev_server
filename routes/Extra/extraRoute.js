@@ -36,7 +36,7 @@ router.post(
 
 router.post(
   "/leaving/certificate/:gr/ins/:id",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Extra.retrieveLeavingGRNO)
 );
 
@@ -126,7 +126,7 @@ router.post(
   catchAsync(Extra.fetchExportStudentIdCardQuery)
 );
 
-router.get(
+router.patch(
   "/export/student/all/:id",
   // isLoggedIn,
   catchAsync(Extra.fetchExportStudentAllQuery)
@@ -181,6 +181,12 @@ router.get(
 );
 
 router.patch(
+  "/:id/original/copy/query",
+  // isLoggedIn,
+  catchAsync(Extra.renderCertificateOriginalCopyQuery)
+);
+
+router.patch(
   "/excel/to/json/query/:cid",
   // isLoggedIn,
   catchAsync(Extra.renderExcelToJSONQuery)
@@ -208,6 +214,11 @@ router.patch(
   "/excel/to/json/:id/staff/query",
   // isLoggedIn,
   catchAsync(Extra.renderExcelToJSONStaffQuery)
+);
+
+router.patch(
+  "/excel/to/json/:hid/hostelities/query",
+  catchAsync(Extra.renderExcelToJSONHostelitiesQuery)
 );
 
 module.exports = router;

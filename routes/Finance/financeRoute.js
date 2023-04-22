@@ -138,27 +138,27 @@ router.get(
 
 router.post(
   "/:fid/add/emp/:sid",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Finance.addEmpToFinance)
 );
 
-router.get("/:fid/emp/all", isLoggedIn, catchAsync(Finance.allEmpToFinance));
+router.get("/:fid/emp/all", catchAsync(Finance.allEmpToFinance));
 
 router.post(
   "/:fid/add/payroll/:eid",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Finance.addFieldToPayroll)
 );
 
 router.get(
   "/:fid/sal/history",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Finance.retrieveAllSalaryHistory)
 );
 
 router.get(
   "/:eid/one/emp/detail",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(Finance.retrieveOneEmpQuery)
 );
 //
@@ -274,11 +274,34 @@ router.post(
 );
 
 // Add Bank Details in New Flow
+router.post(
+  "/:fid/add/bank/query",
+  // isLoggedIn,
+  catchAsync(Finance.renderFinanceBankAddQuery)
+);
+
+router.get(
+  "/:fid/all/bank/account",
+  // isLoggedIn,
+  catchAsync(Finance.renderFinanceAllBankAccountQuery)
+);
+
+router.get(
+  "/:acid/one/bank/account",
+  // isLoggedIn,
+  catchAsync(Finance.renderFinanceOneBankQuery)
+);
 
 router.patch(
-  "/:fid/bank/flow/query",
+  "/:acid/bank/account/query",
   // isLoggedIn,
-  catchAsync(Finance.renderFinanceBankUpdateQuery)
+  catchAsync(Finance.renderFinanceOneBankAccountQuery)
+);
+
+router.delete(
+  "/:acid/bank/account/destroy/query",
+  // isLoggedIn,
+  catchAsync(Finance.renderFinanceOneBankAccountDestroyQuery)
 );
 
 router.get(
@@ -300,7 +323,7 @@ router.delete(
 );
 
 router.post(
-  "/:fid/fee/structure/new/:did",
+  "/:fid/fee/structure/new",
   // isLoggedIn,
   catchAsync(Finance.renderFinanceAddFeeStructure)
 );
@@ -400,5 +423,69 @@ router.delete(
   "/:id/export/excel/:exid/destroy/query",
   catchAsync(Finance.renderDeleteOneExcel)
 );
+
+router.get(
+  "/:fid/master/deposit/query",
+  catchAsync(Finance.renderFinanceMasterDepositQuery)
+);
+
+router.get(
+  "/:fmid/master/all/deposit/array",
+  catchAsync(Finance.renderFinanceMasterAllDepositArray)
+);
+
+router.patch(
+  "/:fmid/refund/deposit/:sid/query",
+  catchAsync(Finance.renderFinanceMasterDepositRefundQuery)
+);
+
+router.get(
+  "/:fid/master/all/refund/deposit/history",
+  catchAsync(Finance.renderFinanceMasterAllDepositHistory)
+);
+
+router.post(
+  "/:fid/add/payroll/master/query",
+  catchAsync(Finance.renderFinanceNewPayrollMasterQuery)
+);
+
+router.get(
+  "/:fid/all/payroll/master",
+  catchAsync(Finance.renderFinanceAllPayrollMasterQuery)
+);
+
+router.get(
+  "/one/payroll/master/:pmid/all/monthwise",
+  catchAsync(Finance.renderFinanceOnePayrollMasterAllMonthQuery)
+);
+
+router.get(
+  "/one/payroll/master/one/monthwise/:mwid/all/emp",
+  catchAsync(Finance.renderFinanceOnePayrollMasterOneMonthAllEmpQuery)
+);
+
+router.patch(
+  "/:fid/one/payroll/master/:mwid/mark/pay/expense",
+  catchAsync(Finance.renderFinanceOnePayrollMasterMarkPayExpenseQuery)
+);
+
+router.get(
+  "/:fid/dashboard/cash/flow/hostel/query",
+  catchAsync(Finance.retrieveRequestHostelAtFinance)
+);
+
+router.post(
+  "/:hid/hostel/request",
+  catchAsync(Finance.renderHostelRequestFundsQuery)
+);
+
+router.post(
+  "/:fid/hostel/:hid/submit/:rid/status",
+  catchAsync(Finance.submitHostelFeeQuery)
+);
+// router.patch(
+//   "/:fid/update/structure",
+//   catchAsync(Finance.renderUpdateStructureQuery)
+// );
 
 module.exports = router;

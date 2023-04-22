@@ -47,8 +47,24 @@ const examSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "SubjectMasterTestSet",
       },
+      seating_sequence: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Seating",
+        },
+      ],
     },
   ],
+  seating_sequence: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Seating",
+    },
+  ],
+  seating_sequence_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Exam = mongoose.model("Exam", examSchema);

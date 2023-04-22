@@ -9,13 +9,22 @@ const RemainingList = require("../models/Admission/RemainingList");
 const OrderPayment = require("../models/RazorPay/orderPayment");
 const FeeReceipt = require("../models/RazorPay/feeReceipt");
 const Admin = require("../models/superAdmin");
+const User = require("../models/User");
+const StudentNotification = require("../models/Marks/StudentNotification");
 const {
   add_all_installment,
   add_total_installment,
   set_fee_head_query,
 } = require("./Installment");
 
-exports.insert_multiple_status = async (args, uargs, iargs, sid) => {
+exports.insert_multiple_status = async (
+  args,
+  uargs,
+  iargs,
+  sid,
+  finance,
+  structure
+) => {
   try {
     const statusArray = [
       {
@@ -24,22 +33,23 @@ exports.insert_multiple_status = async (args, uargs, iargs, sid) => {
         instituteId: iargs?._id,
       },
       {
-        content: `You have been selected for ${args.applicationName}. Confirm your admission`,
+        content: `You have been selected for ${args.applicationName}. Visit ${iargs.insName} with required documents & fees. Your Fee Structure is ${structure?.structure_name}. Available payment modes.`,
         applicationId: args?._id,
         instituteId: iargs?._id,
         for_selection: "No",
         studentId: sid,
         admissionFee: args.admissionFee,
+        finance: finance?._id,
         payMode: "offline",
         isPaid: "Paid",
       },
       {
-        content: `Your admission is on hold please visit ${iargs.insName}, ${iargs.insDistrict}. with required fees or contact institute if neccessory`,
+        content: `Your admission is on hold please visit ${iargs.insName}, ${iargs.insDistrict}. with required fees & documents or contact institute if neccessory`,
         applicationId: args?._id,
         instituteId: iargs?._id,
       },
       {
-        content: `Welcome to Institute ${iargs.insName}, ${iargs.insDistrict}.Please visit with Required Documents to confirm your admission`,
+        content: `Your documents have been verified and submitted successfully. Confirm your admission by paying applicable fees Rs.${structure?.applicable_fees}`,
         applicationId: args?._id,
         instituteId: iargs?._id,
         document_visible: true,
@@ -72,6 +82,28 @@ exports.ignite_multiple_alarm = async (arr) => {
       _id: { $in: arr?.applicationStatus },
     });
     for (var ref of all_status) {
+      var notify = new StudentNotification({});
+      var apply = await NewApplication.findById({
+        _id: `${ref?.applicationId}`,
+      });
+      var admission_admin = await Admission.findById({
+        _id: `${apply?.admissionAdmin}`,
+      }).populate({
+        path: "admissionAdminHead",
+        select: "user",
+      });
+      var student = await Student.findById({ _id: `${ref?.studentId}` });
+      var user = await User.findById({ _id: `${student?.user}` });
+      notify.notifyContent = `${ref?.content}`;
+      notify.notifySender = admission_admin?.admissionAdminHead?.user;
+      notify.notifyReceiever = user?._id;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student?._id;
+      user.activity_tab.push(notify?._id);
+      notify.notifyByAdmissionPhoto = admission_admin?._id;
+      notify.notifyCategory = "Status Alert";
+      notify.redirectIndex = 29;
+      await Promise.all([user.save(), notify.save()]);
       invokeMemberTabNotification(
         "Admission Status",
         ref.content,
@@ -108,11 +140,11 @@ exports.fee_reordering = async (
     var is_install;
     if (
       price <= student?.fee_structure?.total_admission_fees &&
-      price > student?.fee_structure?.one_installments?.fees
+      price <= student?.fee_structure?.one_installments?.fees
     ) {
-      is_install = false;
-    } else {
       is_install = true;
+    } else {
+      is_install = false;
     }
     new_receipt.student = student?._id;
     new_receipt.application = apply?._id;
@@ -224,7 +256,7 @@ exports.fee_reordering = async (
       paidAmount: price,
       appId: apply._id,
     });
-    await set_fee_head_query(student, price, apply);
+    await set_fee_head_query(student, price, apply, new_receipt);
     apply.confirmedApplication.push({
       student: student._id,
       payment_status: mode,
@@ -288,11 +320,11 @@ exports.fee_reordering_direct_student = async (
       var is_install;
       if (
         price <= fee_structure?.total_admission_fees &&
-        price > fee_structure?.one_installments?.fees
+        price <= fee_structure?.one_installments?.fees
       ) {
-        is_install = false;
-      } else {
         is_install = true;
+      } else {
+        is_install = false;
       }
       var total_amount = add_total_installment(student_structure);
       if (price > 0 && !is_install) {
@@ -377,7 +409,13 @@ exports.fee_reordering_direct_student = async (
         paidAmount: price,
         appId: apply._id,
       });
-      await set_fee_head_query(student, price, apply, fee_structure);
+      await set_fee_head_query(
+        student,
+        price,
+        apply,
+        new_receipt,
+        fee_structure
+      );
       apply.allottedApplication.push({
         student: student._id,
         payment_status: "Offline",
@@ -404,7 +442,7 @@ exports.fee_reordering_direct_student = async (
 };
 
 exports.fee_reordering_direct_student_payload = async (
-  student,
+  students,
   institute,
   batchSet,
   user,
@@ -412,7 +450,9 @@ exports.fee_reordering_direct_student_payload = async (
 ) => {
   try {
     for (var ref of batchSet) {
-      // var student = await Student.findById({ _id: stu_query?._id });
+      var student = await Student.findById({ _id: students?._id }).populate({
+        path: "fee_structure",
+      });
       var price = ref?.amount ? parseInt(ref?.amount) : 0;
       if (price > 0 && ref?.batchId && ref?.appId && ref?.fee_struct) {
         var apply = await NewApplication.findById({ _id: ref?.appId });
@@ -429,11 +469,11 @@ exports.fee_reordering_direct_student_payload = async (
         var is_install;
         if (
           price <= fee_structure?.total_admission_fees &&
-          price > fee_structure?.one_installments?.fees
+          price <= fee_structure?.one_installments?.fees
         ) {
-          is_install = false;
-        } else {
           is_install = true;
+        } else {
+          is_install = false;
         }
         var total_amount = add_total_installment(student_structure);
         if (price > 0 && !is_install) {
@@ -448,7 +488,7 @@ exports.fee_reordering_direct_student_payload = async (
             const nestPrice = nest?.amount ? parseInt(nest?.amount) : 0;
             if (nestPrice <= 0) {
             } else {
-              const new_receipt = new FeeReceipt({
+              var new_receipt = new FeeReceipt({
                 fee_payment_mode: nest?.mode,
                 fee_payment_amount: nestPrice,
               });
@@ -566,7 +606,7 @@ exports.fee_reordering_direct_student_payload = async (
             var nestPrice = nest?.amount ? parseInt(nest?.amount) : 0;
             if (nestPrice <= 0) {
             } else {
-              const new_receipt = new FeeReceipt({
+              var new_receipt = new FeeReceipt({
                 fee_payment_mode: nest?.mode,
                 fee_payment_amount: nestPrice,
               });
@@ -619,7 +659,13 @@ exports.fee_reordering_direct_student_payload = async (
           paidAmount: price,
           appId: apply._id,
         });
-        await set_fee_head_query(student, price, apply, fee_structure);
+        await set_fee_head_query(
+          student,
+          price,
+          apply,
+          new_receipt,
+          fee_structure
+        );
         apply.allottedApplication.push({
           student: student._id,
           payment_status: "Offline",

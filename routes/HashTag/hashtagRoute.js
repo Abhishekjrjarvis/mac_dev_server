@@ -20,7 +20,7 @@ router.get("/all/array", isLoggedIn, catchAsync(HashTag.arrayHashtag));
 
 router.patch(
   "/:hid/update",
-  isLoggedIn,
+  // isLoggedIn,
   upload.single("file"),
   catchAsync(HashTag.updateHashtag)
 );

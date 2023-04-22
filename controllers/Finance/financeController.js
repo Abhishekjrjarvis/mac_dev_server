@@ -1,6 +1,7 @@
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const Finance = require("../../models/Finance");
 const Student = require("../../models/Student");
+const Hostel = require("../../models/Hostel/hostel");
 const Staff = require("../../models/Staff");
 const User = require("../../models/User");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
@@ -9,6 +10,7 @@ const Admin = require("../../models/superAdmin");
 const Income = require("../../models/Income");
 const Expense = require("../../models/Expense");
 const Class = require("../../models/Class");
+const ClassMaster = require("../../models/ClassMaster");
 const Fees = require("../../models/Fees");
 const Department = require("../../models/Department");
 const {
@@ -20,6 +22,8 @@ const fs = require("fs");
 const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const Payroll = require("../../models/Finance/Payroll");
+const PayrollMaster = require("../../models/Finance/PayrollMaster");
+const PayMaster = require("../../models/Finance/PayMaster");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
@@ -30,6 +34,7 @@ const FeeMaster = require("../../models/Finance/FeeMaster");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const Transport = require("../../models/Transport/transport");
 const Store = require("../../models/Finance/Inventory");
+const BankAccount = require("../../models/Finance/BankAccount");
 const { nested_document_limit } = require("../../helper/databaseFunction");
 const { designation_alarm } = require("../../WhatsAppSMS/payload");
 const {
@@ -225,11 +230,12 @@ exports.retrieveFinanceQuery = async (req, res) => {
     //   });
     const finance = await Finance.findById({ _id: fid })
       .select(
-        "financeName financeEmail financePhoneNumber enable_protection moderator_role moderator_role_count financeAbout photoId photo cover coverId financeCollectedBankBalance financeTotalBalance financeRaisedBalance financeExemptBalance financeCollectedSBalance financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance payment_modes_type finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode fees_category_count exempt_receipt_count government_receipt_count fee_master_array_count designation_status"
+        "financeName financeEmail financePhoneNumber enable_protection moderator_role moderator_role_count financeAbout photoId photo cover coverId financeCollectedBankBalance financeTotalBalance financeRaisedBalance financeExemptBalance financeCollectedSBalance financeBankBalance financeCashBalance financeSubmitBalance financeTotalBalance financeEContentBalance financeApplicationBalance financeAdmissionBalance financeIncomeCashBalance financeIncomeBankBalance financeExpenseCashBalance financeExpenseBankBalance payment_modes_type bank_account_count fees_category_count exempt_receipt_count government_receipt_count fee_master_array_count designation_status"
       )
       .populate({
         path: "institute",
-        select: "id adminRepayAmount insBankBalance admissionDepart",
+        select:
+          "id adminRepayAmount insBankBalance admissionDepart admissionStatus transportStatus hostelDepart libraryActivate transportDepart library",
       })
       .populate({
         path: "financeHead",
@@ -246,11 +252,15 @@ exports.retrieveFinanceQuery = async (req, res) => {
         finance?.moderator_role,
         mod_id
       );
+      if (value?.valid_role) {
+      } else {
+        finance.enable_protection = false;
+      }
     }
     res.status(200).send({
       message: "Finance",
       finance: finance,
-      roles: req?.query?.mod_id ? value : "",
+      roles: req?.query?.mod_id ? value?.permission : null,
       // finance: cached.finance
     });
   } catch (e) {
@@ -374,7 +384,8 @@ exports.getExpense = async (req, res) => {
     }
     if (
       finance.financeTotalBalance > 0 &&
-      req.body.expenseAmount <= finance.financeTotalBalance
+      req.body.expenseAmount <= finance.financeTotalBalance &&
+      req.body.expenseAmount <= finance.financeBankBalance
     ) {
       const expenses = new Expense({ ...req.body });
       if (req.file) {
@@ -1053,9 +1064,35 @@ exports.retrieveRemainFeeBalance = async (req, res) => {
 exports.addEmpToFinance = async (req, res) => {
   try {
     const { fid, sid } = req.params;
+    const { heads } = req.body;
+    if (!fid && !sid && !heads)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
     const finance = await Finance.findById({ _id: fid });
     const staff = await Staff.findById({ _id: sid }).select("id");
     const pay_scale = new Payroll({ ...req.body });
+    for (var ref of heads) {
+      if (ref?.master_status === "Particular") {
+        pay_scale.pay_master_heads_particular.push({
+          master_name: ref?.master_name,
+          master_amount: ref?.master_amount,
+          master_status: ref?.master_status,
+          master_id: ref?.master_id,
+        });
+        pay_scale.pay_master_heads_particular_count += 1;
+      } else if (ref?.master_status === "Deduction") {
+        pay_scale.pay_master_heads_deduction.push({
+          master_name: ref?.master_name,
+          master_amount: ref?.master_amount,
+          master_status: ref?.master_status,
+          master_id: ref?.master_id,
+        });
+        pay_scale.pay_master_heads_deduction_count += 1;
+      } else {
+      }
+    }
     pay_scale.staff = staff._id;
     finance.staff_pay_list.push(pay_scale._id);
     await Promise.all([pay_scale.save(), finance.save()]);
@@ -1107,22 +1144,72 @@ exports.addFieldToPayroll = async (req, res) => {
       message,
       gross_salary,
       net_total,
-      hra,
-      tds,
-      epf,
-      da,
-      ma,
-      ta,
-      epc,
-      pqs,
+      master,
+      basic_pay,
     } = req.body;
     const finance = await Finance.findById({ _id: fid });
     var emp = await Payroll.findById({ _id: eid });
     var staff = await Staff.findById({ _id: `${emp.staff}` });
     var user = await User.findById({ _id: `${staff?.user}` });
+    var g_year = new Date().getFullYear();
+    var g_month = new Date().getMonth() + 1;
+    if (g_month < 10) {
+      g_month = `0${g_month}`;
+    }
     if (net_total < finance.financeTotalBalance) {
+      var sorted = [];
+      for (var ref of master) {
+        if (ref?.month_master_id) {
+          const new_master = await PayrollMaster.findById({
+            _id: `${ref?.month_master_id}`,
+          });
+          sorted.push({
+            month_master_name: ref?.month_master_name,
+            month_master_amount: ref?.month_master_amount,
+            month_master_status: ref?.month_master_status,
+            month_master_id: ref?.month_master_id,
+          });
+          var g_date = new Date(`${g_year}-${g_month}-01T00:00:00.000Z`);
+          var exist_master = await PayMaster.findOne({
+            $and: [
+              { finance: finance?._id },
+              { payroll_master: new_master?._id },
+              {
+                created_at: {
+                  $gte: g_date,
+                },
+              },
+            ],
+          });
+          if (exist_master) {
+            // console.log("exist", exist_master);
+            exist_master.pay_amount += ref?.month_master_amount;
+            exist_master.pay_staff_collection.push({
+              amount: ref?.month_master_amount,
+              emp: emp?._id,
+            });
+            exist_master.pay_staff_collection_count += 1;
+            await exist_master.save();
+          } else {
+            const new_pay_master = new PayMaster({});
+            new_pay_master.pay_month = new Date(`${month}`);
+            new_pay_master.pay_amount = ref?.month_master_amount;
+            new_pay_master.pay_staff_collection.push({
+              amount: ref?.month_master_amount,
+              emp: emp?._id,
+            });
+            new_pay_master.pay_staff_collection_count += 1;
+            new_pay_master.payroll_master = new_master?._id;
+            new_pay_master.finance = finance?._id;
+            new_master.payroll_month_collection.push(new_pay_master?._id);
+            await Promise.all([new_pay_master.save(), new_master.save()]);
+            // console.log("New Master", new_pay_master);
+          }
+        }
+      }
+      emp.basic_pay = basic_pay;
       emp.pay_slip.push({
-        month: month,
+        month: new Date(`${month}`),
         attendence: attendence,
         total_leaves: emp.staff_total_paid_leaves,
         paid_leaves: paid_leaves,
@@ -1134,32 +1221,17 @@ exports.addFieldToPayroll = async (req, res) => {
         is_paid: "Paid",
         gross_salary: gross_salary,
         net_total: net_total,
-        hra: hra,
-        tds: tds,
-        epf: epf,
-        da: da,
-        medical_allowance: ma,
-        travel_allowance: ta,
-        perquisites: pqs,
-        employer_contribution: epc,
+        month_master: sorted,
       });
-      emp.h_r_a = hra;
-      emp.t_d_s = tds;
-      emp.e_p_f = epf;
-      emp.d_a = da;
-      emp.medical_allowance = ma;
-      emp.travel_allowance = ta;
-      emp.perquisites = pqs;
-      emp.employer_contribution = epc;
       finance.salary_history.push({
         salary: net_total,
-        month: month,
+        month: new Date(`${month}`),
         pay_mode: payment_mode,
         emp_pay: emp._id,
       });
       staff.salary_history.push({
         salary: net_total,
-        month: month,
+        month: new Date(`${month}`),
         pay_mode: payment_mode,
         emp_pay: emp._id,
       });
@@ -1292,20 +1364,16 @@ exports.retrieveOneEmpQuery = async (req, res) => {
           "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO institute",
       });
       var filtered = emp?.pay_slip?.filter((ele) => {
-        if (`${ele.month}` === `${month}`) return ele;
+        var new_month = moment(ele?.month).format("YYYY-MM-DD");
+        new_month = new_month?.slice(0, 7);
+        if (`${new_month}` === `${month}`) return ele;
       });
       var detail = {
-        staff_salary_month: emp.staff_salary_month,
-        staff_total_paid_leaves: emp.staff_total_paid_leaves,
-        // d_a: emp.d_a,
-        // h_r_a: emp.h_r_a,
-        // t_d_s: emp.t_d_s,
-        // e_p_f: emp.e_p_f,
-        // medical_allowance: emp.ma,
-        // travel_allowance: emp.ta,
-        // perquisites: emp.pqs,
-        // employer_contribution: emp.epc,
-        staff: emp.staff,
+        staff_salary_month: emp?.staff_salary_month,
+        staff_total_paid_leaves: emp?.staff_total_paid_leaves,
+        basic_pay: emp?.basic_pay,
+        staff: emp?.staff,
+        pay_slip: emp?.pay_slip,
       };
       const institute = await InstituteAdmin.findById({
         _id: `${emp?.staff?.institute}`,
@@ -2344,23 +2412,210 @@ exports.submitLibraryFeeQuery = async (req, res) => {
   }
 };
 
-exports.renderFinanceBankUpdateQuery = async (req, res) => {
+exports.renderFinanceBankAddQuery = async (req, res) => {
   try {
     const { fid } = req.params;
-    const { delete_pic } = req.query;
-    const image = handle_undefined(delete_pic);
+    const { flow, flow_id } = req.query;
+    if (!fid && !flow && !flow_id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const finance = await Finance.findById({ _id: fid });
+    const new_account = new BankAccount({ ...req.body });
+    if (flow === "Department") {
+      const department = await Department.findById({ _id: flow_id });
+      new_account.department = flow_id;
+      department.bank_account = new_account?._id;
+      await department.save();
+    } else if (flow === "Transport") {
+      const trans = await Transport.findById({ _id: flow_id });
+      new_account.transport = flow_id;
+      trans.bank_account = new_account?._id;
+      await trans.save();
+    } else if (flow === "Library") {
+      const libs = await Library.findById({ _id: flow_id });
+      new_account.library = flow_id;
+      libs.bank_account = new_account?._id;
+      await libs.save();
+    } else if (flow === "Hostel") {
+      const libs = await Hostel.findById({ _id: flow_id });
+      new_account.hostel = flow_id;
+      libs.bank_account = new_account?._id;
+      await libs.save();
+    }
+    new_account.finance = finance?._id;
+    finance.bank_account.push(new_account?._id);
+    finance.bank_account_count += 1;
+    await Promise.all([finance.save(), new_account.save()]);
+    res
+      .status(200)
+      .send({ message: "Explore New Bank Accounts", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceAllBankAccountQuery = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
-    await Finance.findByIdAndUpdate(fid, req.body);
+
+    const finance = await Finance.findById({ _id: fid }).select("bank_account");
+
+    if (search) {
+      var all_accounts = await BankAccount.find({
+        $and: [{ _id: { $in: finance?.bank_account } }],
+        $or: [{ finance_bank_name: { $regex: search, $options: "i" } }],
+      })
+        .populate({
+          path: "department",
+          select: "dName dTitle",
+        })
+        .populate({
+          path: "transport",
+          select: "_id",
+        })
+        .populate({
+          path: "library",
+          select: "_id",
+        })
+        .populate({
+          path: "hostel",
+          select: "_id",
+        });
+    } else {
+      var all_accounts = await BankAccount.find({
+        $and: [{ _id: { $in: finance?.bank_account } }],
+      })
+        .limit(limit)
+        .skip(skip)
+        .populate({
+          path: "department",
+          select: "dName dTitle",
+        })
+        .populate({
+          path: "transport",
+          select: "_id",
+        })
+        .populate({
+          path: "library",
+          select: "_id",
+        })
+        .populate({
+          path: "hostel",
+          select: "_id",
+        });
+    }
+
+    if (all_accounts?.length > 0) {
+      res.status(200).send({
+        message: "Lot's of Bank Account's Available 👍",
+        access: true,
+        all_accounts: all_accounts,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Bank Account's Available 👍",
+        access: true,
+        all_accounts: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceOneBankQuery = async (req, res) => {
+  try {
+    const { acid } = req.params;
+    if (!acid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const one_bank = await BankAccount.findById({ _id: acid })
+      .populate({
+        path: "department",
+        select: "dName dTitle",
+      })
+      .populate({
+        path: "transport",
+        select: "_id",
+      })
+      .populate({
+        path: "library",
+        select: "_id",
+      })
+      .populate({
+        path: "hostel",
+        select: "_id",
+      });
+
+    res.status(200).send({
+      message: "Explore One Bank Account Query",
+      access: true,
+      one_bank: one_bank,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceOneBankAccountQuery = async (req, res) => {
+  try {
+    const { acid } = req.params;
+    const { delete_pic } = req.query;
+    const image = handle_undefined(delete_pic);
+    if (!acid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    await BankAccount.findByIdAndUpdate(acid, req.body);
     if (image) {
       await deleteFile(image);
     }
     res
       .status(200)
       .send({ message: "Finance / Bank Query Resolved 😁", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceOneBankAccountDestroyQuery = async (req, res) => {
+  try {
+    const { acid } = req.params;
+    if (!acid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const account = await BankAccount.findById({ _id: acid });
+    const finance = await Finance.findById({ _id: `${account?.finance}` });
+    finance.bank_account.pull(account?._id);
+    if (finance?.bank_account_count > 0) {
+      finance.bank_account_count -= 1;
+    }
+    if (account?.finance_bank_upi_qrcode) {
+      await deleteFile(account?.finance_bank_upi_qrcode);
+    }
+    await finance.save();
+    await BankAccount.findByIdAndDelete(acid);
+    res.status(200).send({
+      message: "Finance / Bank Query Deletion Operation Completed 😁",
+      access: true,
+    });
   } catch (e) {
     console.log(e);
   }
@@ -2479,35 +2734,80 @@ exports.renderFinanceFeeCategoryDeleteQuery = async (req, res) => {
 
 exports.renderFinanceAddFeeStructure = async (req, res) => {
   try {
-    const { fid, did } = req.params;
-    const { heads } = req.body;
-    if (!fid && !did)
+    const { fid } = req.params;
+    const { heads, did, hid } = req.body;
+    const { flow } = req.query;
+    if (!fid && !flow)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
 
-    const finance = await Finance.findById({ _id: fid });
-    const depart = await Department.findById({ _id: did });
-    const struct_query = new FeeStructure({ ...req.body });
-    struct_query.finance = finance?._id;
-    struct_query.department = depart?._id;
-    depart.fees_structures.push(struct_query?._id);
-    depart.fees_structures_count += 1;
-    if (heads?.length > 0) {
-      for (var ref of heads) {
-        struct_query.fees_heads.push({
-          head_name: ref?.head_name,
-          head_amount: ref?.head_amount,
-        });
-        struct_query.fees_heads_count += 1;
+    var finance = await Finance.findById({ _id: fid });
+    if (flow === "Finance_Manager") {
+      const depart = await Department.findById({ _id: did });
+      const struct_query = new FeeStructure({ ...req.body });
+      const category = await FeeCategory.findById({
+        _id: `${req.body?.category_master}`,
+      });
+      const class_master = await ClassMaster.findById({
+        _id: `${req.body?.class_master}`,
+      });
+      struct_query.finance = finance?._id;
+      struct_query.department = depart?._id;
+      struct_query.unique_structure_name = `${category?.category_name} - ${depart?.dName} - ${class_master?.className} / ${req.body?.structure_name}`;
+      depart.fees_structures.push(struct_query?._id);
+      depart.fees_structures_count += 1;
+      if (heads?.length > 0) {
+        for (var ref of heads) {
+          struct_query.fees_heads.push({
+            head_name: ref?.head_name,
+            head_amount: ref?.head_amount,
+            master: ref?.master,
+          });
+          struct_query.fees_heads_count += 1;
+        }
       }
+      await Promise.all([depart.save(), struct_query.save()]);
+      res.status(200).send({
+        message: "Add new Structure to bucket",
+        access: true,
+      });
+    } else if (flow === "Hostel_Manager") {
+      const hostel = await Hostel.findById({ _id: hid });
+      const struct_query = new FeeStructure({ ...req.body });
+      const category = await FeeCategory.findById({
+        _id: `${req.body?.category_master}`,
+      });
+      const class_master = await ClassMaster.findById({
+        _id: `${req.body?.class_master}`,
+      });
+      struct_query.finance = finance?._id;
+      struct_query.hostel = hostel?._id;
+      struct_query.unique_structure_name = `${category?.category_name} - ${class_master?.className} / ${req.body?.structure_name}`;
+      hostel.fees_structures.push(struct_query?._id);
+      hostel.fees_structures_count += 1;
+      if (heads?.length > 0) {
+        for (var ref of heads) {
+          struct_query.fees_heads.push({
+            head_name: ref?.head_name,
+            head_amount: ref?.head_amount,
+            master: ref?.master,
+          });
+          struct_query.fees_heads_count += 1;
+        }
+      }
+      await Promise.all([hostel.save(), struct_query.save()]);
+      res.status(200).send({
+        message: "Add new Structure to Hostel bucket",
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "Invalid Structure Flow",
+        access: true,
+      });
     }
-    await Promise.all([depart.save(), struct_query.save()]);
-    res.status(200).send({
-      message: "Add new Structure to bucket",
-      access: true,
-    });
   } catch (e) {
     console.log(e);
   }
@@ -2522,10 +2822,15 @@ exports.renderFinanceAddFeeStructureAutoQuery = async (
     var finance = await Finance.findById({ _id: fid });
     var depart = await Department.findById({ _id: did });
     for (var ref of structure_array) {
+      var category = await FeeCategory.findById({ _id: `${ref?.CategoryId}` });
+      var class_master = await ClassMaster.findById({
+        _id: `${ref?.StandardId}`,
+      });
       const struct_query = new FeeStructure({
         category_master: ref?.CategoryId,
         class_master: ref?.StandardId,
         structure_name: ref?.StructureName,
+        unique_structure_name: `${category?.category_name} - ${depart?.dName} - ${class_master?.className} / ${ref?.StructureName}`,
         total_admission_fees: ref?.TotalFees,
         total_installments: ref?.InstallCount,
         applicable_fees: ref?.ApplicableFees,
@@ -2550,10 +2855,12 @@ exports.renderFinanceAddFeeStructureAutoQuery = async (
         for (var val of ref?.heads) {
           var valid_name = handle_undefined(val?.head_name);
           var valid_amount = handle_undefined(val?.head_amount);
-          if (valid_name && valid_amount) {
+          var valid_master = handle_undefined(val?.master);
+          if (valid_name && valid_amount && valid_master) {
             struct_query.fees_heads.push({
               head_name: valid_name,
               head_amount: valid_amount,
+              master: valid_master,
             });
             struct_query.fees_heads_count += 1;
           } else {
@@ -2572,44 +2879,101 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
   try {
     const { fsid } = req.params;
     const { heads } = req.body;
-    if (!fsid)
+    const { flow } = req.query;
+    if (!fsid && !flow)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
 
-    const previous_struct = await FeeStructure.findById({ _id: fsid });
-    const finance = await Finance.findById({
-      _id: `${previous_struct?.finance}`,
-    });
-    const depart = await Department.findById({
-      _id: `${previous_struct?.department}`,
-    });
-    const struct_query = new FeeStructure({ ...req.body });
-    struct_query.finance = finance?._id;
-    struct_query.department = depart?._id;
-    depart.fees_structures.push(struct_query?._id);
-    depart.modify_fees_structures_count += 1;
-    previous_struct.document_update = true;
-    previous_struct.migrate_to.push(struct_query?._id);
-    if (heads?.length > 0) {
-      for (var ref of heads) {
-        struct_query.fees_heads.push({
-          head_name: ref?.head_name,
-          head_amount: ref?.head_amount,
-        });
-        struct_query.fees_heads_count += 1;
+    if (flow === "Finance_Manager") {
+      const previous_struct = await FeeStructure.findById({ _id: fsid });
+      const finance = await Finance.findById({
+        _id: `${previous_struct?.finance}`,
+      });
+      const depart = await Department.findById({
+        _id: `${previous_struct?.department}`,
+      });
+      const struct_query = new FeeStructure({ ...req.body });
+      const category = await FeeCategory.findById({
+        _id: `${req.body?.category_master}`,
+      });
+      const class_master = await ClassMaster.findById({
+        _id: `${req.body?.class_master}`,
+      });
+      struct_query.finance = finance?._id;
+      struct_query.department = depart?._id;
+      struct_query.unique_structure_name = `${category?.category_name} - ${depart?.dName} - ${class_master?.className} / ${req.body?.structure_name}`;
+      depart.fees_structures.push(struct_query?._id);
+      depart.modify_fees_structures_count += 1;
+      previous_struct.document_update = true;
+      previous_struct.migrate_to.push(struct_query?._id);
+      if (heads?.length > 0) {
+        for (var ref of heads) {
+          struct_query.fees_heads.push({
+            head_name: ref?.head_name,
+            head_amount: ref?.head_amount,
+            master: ref?.master,
+          });
+          struct_query.fees_heads_count += 1;
+        }
       }
+      await Promise.all([
+        depart.save(),
+        struct_query.save(),
+        previous_struct.save(),
+      ]);
+      res.status(200).send({
+        message: "Update Fees Structure to retro bucket",
+        access: true,
+      });
+    } else if (flow === "Hostel_Manager") {
+      const previous_struct = await FeeStructure.findById({ _id: fsid });
+      const finance = await Finance.findById({
+        _id: `${previous_struct?.finance}`,
+      });
+      const hostel = await Hostel.findById({
+        _id: `${previous_struct?.hostel}`,
+      });
+      const struct_query = new FeeStructure({ ...req.body });
+      const category = await FeeCategory.findById({
+        _id: `${req.body?.category_master}`,
+      });
+      const class_master = await ClassMaster.findById({
+        _id: `${req.body?.class_master}`,
+      });
+      struct_query.finance = finance?._id;
+      struct_query.hostel = hostel?._id;
+      struct_query.unique_structure_name = `${category?.category_name} - ${class_master?.className} / ${req.body?.structure_name}`;
+      hostel.fees_structures.push(struct_query?._id);
+      hostel.modify_fees_structures_count += 1;
+      previous_struct.document_update = true;
+      previous_struct.migrate_to.push(struct_query?._id);
+      if (heads?.length > 0) {
+        for (var ref of heads) {
+          struct_query.fees_heads.push({
+            head_name: ref?.head_name,
+            head_amount: ref?.head_amount,
+            master: ref?.master,
+          });
+          struct_query.fees_heads_count += 1;
+        }
+      }
+      await Promise.all([
+        hostel.save(),
+        struct_query.save(),
+        previous_struct.save(),
+      ]);
+      res.status(200).send({
+        message: "Update Fees Structure to retro Hostel bucket",
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "Invalid Retro Event Structure Flow",
+        access: true,
+      });
     }
-    await Promise.all([
-      depart.save(),
-      struct_query.save(),
-      previous_struct.save(),
-    ]);
-    res.status(200).send({
-      message: "Update Fees Structure to retro bucket",
-      access: true,
-    });
   } catch (e) {
     console.log(e);
   }
@@ -2618,26 +2982,49 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
 exports.renderFeeStructureDeleteRetroQuery = async (req, res) => {
   try {
     const { fsid } = req.params;
+    const { flow } = req.query;
     if (!fsid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
 
-    const previous_struct = await FeeStructure.findById({ _id: fsid });
-    const depart = await Department.findById({
-      _id: `${previous_struct?.department}`,
-    });
-    depart.modify_fees_structures_count += 1;
-    previous_struct.document_update = true;
-    if (depart.fees_structures_count > 0) {
-      depart.fees_structures_count -= 1;
+    if (flow === "Finance_Manager") {
+      const previous_struct = await FeeStructure.findById({ _id: fsid });
+      const depart = await Department.findById({
+        _id: `${previous_struct?.department}`,
+      });
+      depart.modify_fees_structures_count += 1;
+      previous_struct.document_update = true;
+      if (depart.fees_structures_count > 0) {
+        depart.fees_structures_count -= 1;
+      }
+      await Promise.all([depart.save(), previous_struct.save()]);
+      res.status(200).send({
+        message: "Fees Structure retro bucket Deletion",
+        access: true,
+      });
+    } else if (flow === "Hostel_Manager") {
+      const previous_struct = await FeeStructure.findById({ _id: fsid });
+      const hostel = await Hostel.findById({
+        _id: `${previous_struct?.hostel}`,
+      });
+      hostel.modify_fees_structures_count += 1;
+      previous_struct.document_update = true;
+      if (hostel.fees_structures_count > 0) {
+        hostel.fees_structures_count -= 1;
+      }
+      await Promise.all([hostel.save(), previous_struct.save()]);
+      res.status(200).send({
+        message: "Fees Structure retro hostel bucket Deletion",
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "Invalid flow for retro bucket Deletion",
+        access: true,
+      });
     }
-    await Promise.all([depart.save(), previous_struct.save()]);
-    res.status(200).send({
-      message: "Fees Structure retro bucket Deletion",
-      access: true,
-    });
   } catch (e) {
     console.log(e);
   }
@@ -2667,9 +3054,12 @@ exports.renderDepartmentAllFeeStructure = async (req, res) => {
           { document_update: false },
         ],
       })
+        .sort({ created_at: "-1" })
         .limit(limit)
         .skip(skip)
-        .select("total_admission_fees structure_name applicable_fees")
+        .select(
+          "total_admission_fees structure_name unique_structure_name applicable_fees"
+        )
         .populate({
           path: "category_master",
           select: "category_name",
@@ -2685,9 +3075,12 @@ exports.renderDepartmentAllFeeStructure = async (req, res) => {
           { document_update: false },
         ],
       })
+        .sort({ created_at: "-1" })
         .limit(limit)
         .skip(skip)
-        .select("total_admission_fees structure_name applicable_fees")
+        .select(
+          "total_admission_fees structure_name unique_structure_name applicable_fees"
+        )
         .populate({
           path: "category_master",
           select: "category_name",
@@ -2741,10 +3134,11 @@ exports.renderAllFinanceExempt = async (req, res) => {
             studentFirstName: { $regex: search, $options: "i" },
           },
           select:
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount hostelRemainFeeCount hostelPaidFeeCount",
           populate: {
             path: "fee_structure",
-            select: "category_master structure_name applicable_fees",
+            select:
+              "category_master structure_name unique_structure_name applicable_fees",
             populate: {
               path: "category_master",
               select: "category_name",
@@ -2754,7 +3148,7 @@ exports.renderAllFinanceExempt = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount hostelRemainFeeCount hostelPaidFeeCount",
           populate: {
             path: "studentClass",
             select: "className classTitle",
@@ -2763,7 +3157,7 @@ exports.renderAllFinanceExempt = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount hostelRemainFeeCount hostelPaidFeeCount",
           populate: {
             path: "batches",
             select: "batchName",
@@ -2782,10 +3176,11 @@ exports.renderAllFinanceExempt = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount hostelRemainFeeCount hostelPaidFeeCount",
           populate: {
             path: "fee_structure",
-            select: "category_master structure_name applicable_fees",
+            select:
+              "category_master structure_name unique_structure_name applicable_fees",
             populate: {
               path: "category_master",
               select: "category_name",
@@ -2795,7 +3190,7 @@ exports.renderAllFinanceExempt = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount hostelRemainFeeCount hostelPaidFeeCount",
           populate: {
             path: "studentClass",
             select: "className classTitle",
@@ -2804,7 +3199,7 @@ exports.renderAllFinanceExempt = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount hostelRemainFeeCount hostelPaidFeeCount",
           populate: {
             path: "batches",
             select: "batchName",
@@ -2861,10 +3256,11 @@ exports.renderAllFinanceGovernment = async (req, res) => {
             studentFirstName: { $regex: search, $options: "i" },
           },
           select:
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount hostelRemainFeeCount hostelPaidFeeCount",
           populate: {
             path: "fee_structure",
-            select: "category_master structure_name applicable_fees",
+            select:
+              "category_master structure_name unique_structure_name applicable_fees",
             populate: {
               path: "category_master",
               select: "category_name",
@@ -2874,7 +3270,7 @@ exports.renderAllFinanceGovernment = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount hostelRemainFeeCount hostelPaidFeeCount",
           populate: {
             path: "studentClass",
             select: "className classTitle",
@@ -2883,7 +3279,7 @@ exports.renderAllFinanceGovernment = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount hostelRemainFeeCount hostelPaidFeeCount",
           populate: {
             path: "batches",
             select: "batchName",
@@ -2902,10 +3298,11 @@ exports.renderAllFinanceGovernment = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount hostelRemainFeeCount hostelPaidFeeCount",
           populate: {
             path: "fee_structure",
-            select: "category_master structure_name applicable_fees",
+            select:
+              "category_master structure_name unique_structure_name applicable_fees",
             populate: {
               path: "category_master",
               select: "category_name",
@@ -2915,7 +3312,7 @@ exports.renderAllFinanceGovernment = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount hostelRemainFeeCount hostelPaidFeeCount",
           populate: {
             path: "studentClass",
             select: "className classTitle",
@@ -2924,7 +3321,7 @@ exports.renderAllFinanceGovernment = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount hostelRemainFeeCount hostelPaidFeeCount",
           populate: {
             path: "batches",
             select: "batchName",
@@ -2977,10 +3374,11 @@ exports.renderOneFeeReceipt = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentLastName active_fee_heads",
+          "studentFirstName studentMiddleName studentLastName active_fee_heads hostel_fee_structure",
         populate: {
-          path: "fee_structure",
-          select: "category_master structure_name applicable_fees",
+          path: "fee_structure hostel_fee_structure",
+          select:
+            "category_master structure_name unique_structure_name applicable_fees structure_month",
           populate: {
             path: "category_master",
             select: "category_name",
@@ -2989,8 +3387,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
       })
       .populate({
         path: "finance",
-        select:
-          "finance_bank_account_number finance_bank_name finance_bank_ifsc_code finance_bank_account_name finance_bank_branch_address finance_bank_upi_id",
+        select: "financeHead",
         populate: {
           path: "financeHead",
           select: "staffFirstName staffMiddleName staffLastName",
@@ -2998,7 +3395,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
       })
       .populate({
         path: "application",
-        select: "applicationName",
+        select: "applicationName applicationDepartment applicationHostel",
         populate: {
           path: "admissionAdmin",
           select: "_id",
@@ -3017,6 +3414,20 @@ exports.renderOneFeeReceipt = async (req, res) => {
           },
         },
       });
+
+    if (receipt?.application?.applicationDepartment) {
+      var one_account = await BankAccount.findOne({
+        department: receipt?.application?.applicationDepartment,
+      }).select(
+        "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
+      );
+    } else {
+      var one_account = await BankAccount.findOne({
+        hostel: receipt?.application?.applicationHostel,
+      }).select(
+        "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
+      );
+    }
 
     var ref = receipt?.student?.remainingFeeList?.filter((ele) => {
       if (`${ele?.appId}` === `${receipt?.application?._id}`) return ele;
@@ -3040,7 +3451,8 @@ exports.renderOneFeeReceipt = async (req, res) => {
     res.status(200).send({
       message: "Come up with Tea and Snacks",
       access: true,
-      receipt,
+      receipt: receipt,
+      one_account: one_account,
       all_remain: all_remain,
     });
   } catch (e) {
@@ -3059,7 +3471,7 @@ exports.renderOneFeeStructure = async (req, res) => {
 
     const structure = await FeeStructure.findById({ _id: fsid })
       .select(
-        "one_installments two_installments structure_name applicable_fees three_installments four_installments five_installments six_installments seven_installments eight_installments nine_installments ten_installments eleven_installments tweleve_installments total_installments total_admission_fees due_date fees_heads"
+        "one_installments two_installments structure_name unique_structure_name applicable_fees three_installments four_installments five_installments six_installments seven_installments eight_installments nine_installments ten_installments eleven_installments tweleve_installments total_installments total_admission_fees due_date fees_heads structure_month"
       )
       .populate({
         path: "category_master",
@@ -3098,6 +3510,7 @@ exports.renderUpdatePaymentModeQuery = async (req, res) => {
 exports.renderFinanceAllBankDetails = async (req, res) => {
   try {
     const { fid } = req.params;
+    const { filter_by, flow } = req.query;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -3105,13 +3518,41 @@ exports.renderFinanceAllBankDetails = async (req, res) => {
       });
 
     const bank_query = await Finance.findById({ _id: fid }).select(
-      "payment_modes_type finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode "
+      "payment_modes_type bank_account"
     );
 
+    if (flow === "Department") {
+      var all_account = await BankAccount.findOne({
+        $and: [{ department: filter_by }],
+      }).select(
+        "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
+      );
+    } else if (flow === "Transport") {
+      var all_account = await BankAccount.findOne({
+        $and: [{ transport: filter_by }],
+      }).select(
+        "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
+      );
+    } else if (flow === "Library") {
+      var all_account = await BankAccount.findOne({
+        $and: [{ library: filter_by }],
+      }).select(
+        "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
+      );
+    } else if (flow === "Hostel") {
+      var all_account = await BankAccount.findOne({
+        $and: [{ hostel: filter_by }],
+      }).select(
+        "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
+      );
+    } else {
+      var all_account = null;
+    }
     res.status(200).send({
       message: "Explore Transaction Query",
       access: true,
-      bank_query: bank_query,
+      bank_query: bank_query?.payment_modes_type,
+      all_account: all_account,
     });
   } catch (e) {
     console.log(e);
@@ -3152,6 +3593,19 @@ exports.renderFinanceAddFeeMaster = async (req, res) => {
     res
       .status(200)
       .send({ message: "I Think Fees Master Problem Solved", access: true });
+    if (finance?.deposit_linked_head?.status === "Not Linked") {
+      const new_master = new FeeMaster({
+        master_name: "Deposit Fees",
+        master_amount: 10,
+        master_status: "Linked",
+      });
+      new_master.finance = finance?._id;
+      finance.fee_master_array.push(new_master?._id);
+      finance.fee_master_array_count += 1;
+      finance.deposit_linked_head.master = new_master?._id;
+      finance.deposit_linked_head.status = "Linked";
+      await Promise.all([new_master.save(), finance.save()]);
+    }
   } catch (e) {
     console.log(e);
   }
@@ -3169,6 +3623,19 @@ exports.renderFinanceAddFeeMasterAutoQuery = async (fid, arr) => {
       finance.fee_master_array.push(master?._id);
       finance.fee_master_array_count += 1;
       await Promise.all([master.save(), finance.save()]);
+      if (finance?.deposit_linked_head?.status === "Not Linked") {
+        const new_master = new FeeMaster({
+          master_name: "Deposit Fees",
+          master_amount: 10,
+          master_status: "Linked",
+        });
+        new_master.finance = finance?._id;
+        finance.fee_master_array.push(new_master?._id);
+        finance.fee_master_array_count += 1;
+        finance.deposit_linked_head.master = new_master?._id;
+        finance.deposit_linked_head.status = "Linked";
+        await Promise.all([new_master.save(), finance.save()]);
+      }
     }
   } catch (e) {
     console.log(e);
@@ -3195,7 +3662,7 @@ exports.renderFinanceAllMasterHeadQuery = async (req, res) => {
       var all_master = await FeeMaster.find({
         $and: [{ _id: { $in: finance?.fee_master_array } }],
         $or: [{ master_name: { $regex: search, $options: "i" } }],
-      }).select("master_name master_amount created_at");
+      }).select("master_name master_amount master_status created_at");
     } else {
       var all_master = await FeeMaster.find({
         _id: { $in: finance?.fee_master_array },
@@ -3203,7 +3670,7 @@ exports.renderFinanceAllMasterHeadQuery = async (req, res) => {
         // .sort("-1")
         .limit(limit)
         .skip(skip)
-        .select("master_name master_amount created_at");
+        .select("master_name master_amount master_status created_at");
     }
 
     if (all_master?.length > 0) {
@@ -3287,7 +3754,7 @@ exports.renderAllExportExcelArrayQuery = async (req, res) => {
     var all_excel = await nested_document_limit(
       page,
       limit,
-      ins_admin?.export_collection
+      ins_admin?.export_collection.reverse()
     );
     if (all_excel?.length > 0) {
       res.status(200).send({
@@ -3364,3 +3831,737 @@ exports.renderDeleteOneExcel = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderFinanceMasterDepositQuery = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    if (!fid && !flow)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const master = await FeeMaster.findOne({
+      $and: [{ master_status: "Linked" }, { finance: fid }],
+    }).select(
+      "paid_student_count deposit_amount master_name refund_student_count refund_amount"
+    );
+
+    res.status(200).send({
+      message: "Explore Linked Fee Masters",
+      access: true,
+      master: master,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceMasterAllDepositArray = async (req, res) => {
+  try {
+    const { fmid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (!fmid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const master = await FeeMaster.findById({
+      _id: fmid,
+    }).select("paid_student");
+
+    if (search) {
+      var all_students = await Student.find({
+        $and: [{ _id: { $in: master?.paid_student } }],
+        $or: [
+          { studentFirstName: { $regex: search, $options: "i" } },
+          { studentMiddleName: { $regex: search, $options: "i" } },
+          { studentLastName: { $regex: search, $options: "i" } },
+        ],
+      })
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto deposit_pending_amount"
+        )
+        .populate({
+          path: "department",
+          select: "dName dTitle",
+        });
+    } else {
+      var all_students = await Student.find({
+        _id: { $in: master?.paid_student },
+      })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto deposit_pending_amount"
+        )
+        .populate({
+          path: "department",
+          select: "dName dTitle",
+        });
+    }
+
+    all_students = all_students?.filter((ref) => {
+      if (ref?.deposit_pending_amount > 0) return ref;
+    });
+
+    if (all_students?.length > 0) {
+      res.status(200).send({
+        message: "Explore Student Deposits Available",
+        access: true,
+        all_students: all_students,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Student Deposits Available",
+        access: false,
+        all_students: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceMasterDepositRefundQuery = async (req, res) => {
+  try {
+    const { fmid, sid } = req.params;
+    const { amount, mode } = req.body;
+    var price = parseInt(amount);
+    if (!fmid && !sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const master = await FeeMaster.findById({
+      _id: fmid,
+    });
+    const finance = await Finance.findById({ _id: `${master?.finance}` });
+    const student = await Student.findById({ _id: sid });
+    const user = await User.findById({ _id: `${student?.user}` });
+    const institute = await InstituteAdmin.findById({
+      _id: `${finance?.institute}`,
+    });
+    const s_admin = await Admin.findById({
+      _id: `${process.env.S_ADMIN_ID}`,
+    }).select("invoice_count");
+    const new_receipt = new FeeReceipt({ ...req.body });
+    const order = new OrderPayment({});
+    order.payment_module_type = "Expense";
+    order.payment_to_end_user_id = institute?._id;
+    order.payment_by_end_user_id = user._id;
+    order.payment_module_id = finance?._id;
+    order.payment_amount = price;
+    order.payment_status = "Captured";
+    order.payment_flag_to = "Credit";
+    order.payment_flag_by = "Debit";
+    order.payment_mode = mode;
+    order.payment_finance = finance?._id;
+    order.payment_from = student._id;
+    s_admin.invoice_count += 1;
+    order.payment_invoice_number = s_admin.invoice_count;
+    user.payment_history.push(order._id);
+    institute.payment_history.push(order._id);
+    if (master?.deposit_amount >= price) {
+      master.deposit_amount -= price;
+      master.refund_amount += price;
+      if (master?.refund_student?.includes(student?._id)) {
+      } else {
+        master.refund_student.push(student?._id);
+        master.refund_student_count += 1;
+      }
+    }
+    if (student?.deposit_pending_amount >= price) {
+      student.deposit_pending_amount -= price;
+      student.deposit_refund_amount += price;
+    }
+    if (mode === "Offline") {
+      if (finance?.financeSubmitBalance >= price) {
+        finance.financeSubmitBalance -= price;
+      }
+      if (finance?.financeTotalBalance >= price) {
+        finance.financeTotalBalance -= price;
+      }
+    }
+    if (mode === "Online") {
+      if (finance?.financeBankBalance >= price) {
+        finance.financeBankBalance -= price;
+      }
+      if (finance?.financeTotalBalance >= price) {
+        finance.financeTotalBalance -= price;
+      }
+    }
+    new_receipt.student = student?._id;
+    new_receipt.finance = finance?._id;
+    new_receipt.fee_transaction_date = new Date();
+    new_receipt.invoice_count = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${s_admin.invoice_count}`;
+    finance.refund_deposit.push(new_receipt?._id);
+    student.refund_deposit.push(new_receipt?._id);
+    new_receipt.fee_master = master?._id;
+    await Promise.all([
+      student.save(),
+      finance.save(),
+      master.save(),
+      new_receipt.save(),
+      s_admin.save(),
+      user.save(),
+      institute.save(),
+      order.save(),
+    ]);
+    res
+      .status(200)
+      .send({ message: "Explore New Refund Deposit", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceMasterAllDepositHistory = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const finance = await Finance.findById({ _id: fid }).select(
+      "refund_deposit"
+    );
+
+    if (search) {
+      var all_receipts = await FeeReceipt.find({
+        _id: { $in: finance?.refund_deposit },
+      }).populate({
+        path: "student",
+        match: {
+          studentFirstName: { $regex: search, $options: "i" },
+        },
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+      });
+
+      all_receipts = all_receipts?.filter((ref) => {
+        if (ref?.student !== null) return ref;
+      });
+    } else {
+      var all_receipts = await FeeReceipt.find({
+        _id: { $in: finance?.refund_deposit },
+      })
+        .limit(limit)
+        .skip(skip)
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+        });
+    }
+    if (all_receipts?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Refund History",
+        access: true,
+        all_receipts: all_receipts,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Refund History",
+        access: false,
+        all_receipts: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceNewPayrollMasterQuery = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const one_finance = await Finance.findById({ _id: fid });
+    const new_master = new PayrollMaster({ ...req.body });
+    one_finance.payroll_master.push(new_master?._id);
+    one_finance.payroll_master_count += 1;
+    new_master.finance = one_finance?._id;
+    await Promise.all([one_finance.save(), new_master.save()]);
+    res
+      .status(200)
+      .send({ message: "Explore New Payroll Master Query ", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceAllPayrollMasterQuery = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search, filter } = req.query;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const one_finance = await Finance.findById({ _id: fid }).select(
+      "payroll_master"
+    );
+    if (search) {
+      if (filter) {
+        var all_masters = await PayrollMaster.find({
+          $and: [
+            { _id: { $in: one_finance?.payroll_master } },
+            { payroll_head_type: filter },
+          ],
+          $or: [{ payroll_head_name: { $regex: search, $options: "i" } }],
+        }).select("payroll_head_name payroll_head_type");
+      } else {
+        var all_masters = await PayrollMaster.find({
+          $and: [{ _id: { $in: one_finance?.payroll_master } }],
+          $or: [{ payroll_head_name: { $regex: search, $options: "i" } }],
+        }).select("payroll_head_name payroll_head_type");
+      }
+    } else {
+      if (filter) {
+        var all_masters = await PayrollMaster.find({
+          $and: [
+            { _id: { $in: one_finance?.payroll_master } },
+            { payroll_head_type: filter },
+          ],
+        })
+          .limit(limit)
+          .skip(skip)
+          .select("payroll_head_name payroll_head_type");
+      } else {
+        var all_masters = await PayrollMaster.find({
+          _id: { $in: one_finance?.payroll_master },
+        })
+          .limit(limit)
+          .skip(skip)
+          .select("payroll_head_name payroll_head_type");
+      }
+    }
+
+    if (all_masters?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Payroll Master Query ",
+        access: true,
+        all_masters: all_masters,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Payroll Master Query ",
+        access: true,
+        all_masters: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceOnePayrollMasterAllMonthQuery = async (req, res) => {
+  try {
+    const { pmid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!pmid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const one_master = await PayrollMaster.findById({ _id: pmid }).select(
+      "payroll_month_collection"
+    );
+
+    var all_month_wise = await PayMaster.find({
+      _id: { $in: one_master?.payroll_month_collection },
+    })
+      .sort({ created_at: -1 })
+      .limit(limit)
+      .skip(skip)
+      .select(
+        "pay_month pay_status pay_amount pay_fee_receipt pay_staff_collection_count"
+      )
+      .populate({
+        path: "payroll_master",
+        select: "_id",
+      });
+
+    if (all_month_wise?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Months Payroll Master",
+        access: true,
+        all_month_wise: all_month_wise,
+      });
+    } else {
+      res.status(200).send({
+        message: "No All Months Payroll Master",
+        access: true,
+        all_month_wise: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceOnePayrollMasterOneMonthAllEmpQuery = async (req, res) => {
+  try {
+    const { mwid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!mwid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const month_wise = await PayMaster.findById({ _id: mwid })
+      .select("pay_staff_collection")
+      .populate({
+        path: "pay_staff_collection",
+        populate: {
+          path: "emp",
+          select: "staff",
+          populate: {
+            path: "staff",
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+          },
+        },
+      });
+    var all_emp = await nested_document_limit(
+      page,
+      limit,
+      month_wise?.pay_staff_collection
+    );
+
+    if (all_emp?.length > 0) {
+      res.status(200).send({
+        message: "Explore One Month All Emp",
+        access: true,
+        all_emp: all_emp,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Months Emp",
+        access: true,
+        all_emp: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFinanceOnePayrollMasterMarkPayExpenseQuery = async (req, res) => {
+  try {
+    const { mwid, fid } = req.params;
+    const { amount, mode } = req.body;
+    if (!mwid && !fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var price = parseInt(amount);
+    const s_admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const one_master = await PayMaster.findById({ _id: mwid });
+    const one_payroll_master = await PayrollMaster.findById({
+      _id: `${one_master?.payroll_master}`,
+    });
+    const finance = await Finance.findById({ _id: fid });
+    const new_receipt = new FeeReceipt({ ...req.body });
+    const expense = new Expense({});
+    new_receipt.pay_master = one_master?._id;
+    new_receipt.finance = finance?._id;
+    one_master.pay_fee_receipt = new_receipt?._id;
+    one_master.pay_status = "Paid";
+    new_receipt.fee_transaction_date = new Date(
+      `${req?.body?.transaction_date}`
+    );
+    expense.expenseAccount = mode === "By Cash" ? "By Cash" : "By Bank";
+    expense.expenseAmount = price;
+    expense.expensePaid = `Account ${one_payroll_master?.payroll_head_name} Payment`;
+    expense.finances = finance?._id;
+    s_admin.invoice_count += 1;
+    expense.invoice_number = s_admin?.invoice_count;
+    finance.expenseDepartment.push(expense?._id);
+    new_receipt.invoice_count = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${s_admin?.invoice_count}`;
+    await Promise.all([
+      expense.save(),
+      s_admin.save(),
+      new_receipt.save(),
+      one_master.save(),
+      finance.save(),
+    ]);
+    res
+      .status(200)
+      .send({ message: "Explore New Expense Payment", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveRequestHostelAtFinance = async (req, res) => {
+  try {
+    const { fid } = req.params;
+    if (!fid)
+      return res.status(200).send({
+        message: "There is a bug need to fixed immediately 😡",
+        access: false,
+      });
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const { filter_by } = req.query;
+    if (filter_by === "ALL_REQUEST") {
+      const finance = await Finance.findById({ _id: fid })
+        .select("financeName")
+        .populate({
+          path: "hostel_request",
+          populate: {
+            path: "hostel",
+            select: "hostel_manager",
+            populate: {
+              path: "hostel_manager",
+              select:
+                "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+            },
+          },
+        });
+
+      var all_array = nested_document_limit(
+        page,
+        limit,
+        finance?.hostel_request
+      );
+    } else if (filter_by === "ALL_SUBMIT") {
+      const finance = await Finance.findById({ _id: fid })
+        .select("financeName")
+        .populate({
+          path: "hostel_submit",
+          populate: {
+            path: "hostel",
+            select: "hostel_manager",
+            populate: {
+              path: "hostel_manager",
+              select:
+                "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+            },
+          },
+        });
+      var all_array = nested_document_limit(
+        page,
+        limit,
+        finance?.hostel_submit
+      );
+    } else if (filter_by === "ALL_CANCEL") {
+      const finance = await Finance.findById({ _id: fid })
+        .select("financeName")
+        .populate({
+          path: "hostel_cancelled",
+          populate: {
+            path: "hostel",
+            select: "hostel_manager",
+            populate: {
+              path: "hostel_manager",
+              select:
+                "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+            },
+          },
+        });
+      var all_array = nested_document_limit(
+        page,
+        limit,
+        finance?.hostel_cancelled
+      );
+    } else {
+      var all_array = [];
+    }
+    if (all_array?.length > 0) {
+      res.status(200).send({
+        message: "Get All Hostel Cash Flow from DB 🙌",
+        arr: all_array,
+        arrCount: all_array.length,
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Hostel Cash Flow from DB 🙌",
+        arr: [],
+        arrCount: 0,
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderHostelRequestFundsQuery = async (req, res) => {
+  try {
+    const { hid } = req.params;
+    const { amount } = req.body;
+    if (!hid && !amount)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    const price = parseInt(amount);
+    const one_hostel = await Hostel.findById({ _id: hid });
+    const one_ins = await InstituteAdmin.findById({
+      _id: `${one_hostel?.institute}`,
+    });
+    const finance = await Finance.findById({
+      _id: `${one_ins?.financeDepart[0]}`,
+    });
+    if (
+      finance?.requestArray?.length > 0 &&
+      finance?.requestArray?.includes(`${one_hostel?._id}`)
+    ) {
+      res.status(200).send({
+        message: "Already requested for processing 🔍",
+        access: false,
+      });
+    } else {
+      finance.requestArray.push(one_hostel?._id);
+      finance.hostel_request.push({
+        hostel: one_hostel?._id,
+        amount: price,
+        status: "Requested",
+      });
+      one_hostel.requested_status = "Requested";
+      await Promise.all([finance.save(), one_hostel.save()]);
+      res.status(200).send({
+        message: "Installment Operation Completed 😀",
+        access: true,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.submitHostelFeeQuery = async (req, res) => {
+  try {
+    const { fid, hid, rid } = req.params;
+    const { amount, status } = req.body;
+    if (!fid && !hid && !rid && !amount && !status)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    if (status === "Accepted") {
+      const price = parseInt(amount);
+      var finance = await Finance.findById({ _id: fid });
+      var one_hostel = await Hostel.findById({ _id: hid });
+      for (var docs of finance.hostel_request) {
+        if (`${docs?._id}` === `${rid}`) {
+          finance.hostel_request.pull(docs?._id);
+        }
+      }
+      finance.hostel_submit.push({
+        hostel: one_hostel?._id,
+        amount: price,
+        status: "Accepeted",
+      });
+      finance.requestArray.pull(one_hostel._id);
+      // finance.financeTotalBalance += price;
+      // finance.financeSubmitBalance += price;
+      one_hostel.requested_status = "Pending";
+      if (one_hostel?.collected_fee >= price) {
+        one_hostel.collected_fee -= price;
+      }
+      await Promise.all([one_hostel.save(), finance.save()]);
+      res.status(200).send({
+        message: "Request Accepted",
+        access: true,
+        adsCount: finance.hostel_request.length,
+      });
+    } else if (status === "Rejected") {
+      const price = parseInt(amount);
+      var finance = await Finance.findById({ _id: fid });
+      var one_hostel = await Hostel.findById({ _id: hid });
+      for (var docs of finance.hostel_request) {
+        if (`${docs?._id}` === `${rid}`) {
+          finance.hostel_request.pull(docs?._id);
+        }
+      }
+      finance.hostel_cancelled.push({
+        hostel: one_hostel?._id,
+        amount: price,
+        status: "Rejected",
+      });
+      finance.requestArray.pull(one_hostel._id);
+      one_hostel.requested_status = "Pending";
+      await Promise.all([one_hostel.save(), finance.save()]);
+      res.status(200).send({
+        message: "Request Rejected",
+        access: true,
+        adsCount: finance.hostel_request.length,
+      });
+    } else {
+      res.status(200).send({
+        message: "I Think you lost in the space 😁",
+        access: false,
+        adsCount: 0,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// exports.renderUpdateStructureQuery = async (req, res) => {
+//   try {
+//     const { fid } = req.params;
+//     if (!fid) return res.status(200).send({ message: "Explore ID" });
+
+//     var structure = await FeeStructure.find({ finance: fid });
+
+//     for (var ref of structure) {
+//       if (ref?.category_master) {
+//         var cate = await FeeCategory.findById({
+//           _id: `${ref?.category_master}`,
+//         });
+//       }
+//       if (ref?.class_master) {
+//         var classes = await ClassMaster.findById({
+//           _id: `${ref?.class_master}`,
+//         });
+//       }
+//       if (cate && classes) {
+//         ref.unique_structure_name = `${cate?.category_name} - ${classes?.className} / ${ref?.structure_name}`;
+//         await ref.save();
+//       } else {
+//       }
+//     }
+//     res.status(200).send({ message: "Updated", access: true });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };

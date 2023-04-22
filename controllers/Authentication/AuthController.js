@@ -65,6 +65,7 @@ const {
 const { whats_app_sms_payload } = require("../../WhatsAppSMS/payload");
 const { handle_undefined } = require("../../Handler/customError");
 const FeeReceipt = require("../../models/RazorPay/feeReceipt");
+const FeeStructure = require("../../models/Finance/FeesStructure");
 
 const generateQR = async (encodeData, Id) => {
   try {
@@ -248,7 +249,7 @@ const generateOTP = async (mob) => {
     )
     .then((res) => {
       if ((res && res.data.includes("success")) || res.data.includes("sent")) {
-        console.log("messsage Sent Successfully", res.data);
+        console.log("USER - messsage Sent Successfully", res.data);
       } else {
         console.log("something went wrong");
       }
@@ -380,7 +381,7 @@ const generateInsOTP = async (mob) => {
     )
     .then((res) => {
       if ((res && res.data.includes("success")) || res.data.includes("sent")) {
-        console.log("messsage Sent Successfully", res.data);
+        console.log("INS - messsage Sent Successfully", res.data);
       } else {
         console.log("something went wrong");
       }
@@ -2481,6 +2482,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
     const finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
+    const structure = await FeeStructure.findById({ _id: fee_struct })
     if (!existing) {
       var valid = await filter_unique_username(
         req.body.studentFirstName,
@@ -2554,7 +2556,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
     student.user = user._id;
     student.fee_structure = fee_struct;
     await student.save();
-    await insert_multiple_status(apply, user, institute, student?._id);
+    await insert_multiple_status(apply, user, institute, student?._id, finance, structure);
     apply.receievedCount += 1;
     apply.selectCount += 1;
     apply.confirmCount += 1;
@@ -2834,7 +2836,7 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
         student.studentGRNO = query?.studentGRNO;
         student.studentROLLNO = classes.ApproveStudent.length;
         student.studentClass = classes._id;
-        student.studentAdmissionDate = new Date().toISOString();
+        // student.studentAdmissionDate = new Date().toISOString();
         depart.ApproveStudent.push(student._id);
         depart.studentCount += 1;
         student.department = depart._id;
@@ -3016,7 +3018,7 @@ exports.renderFinanceAdmissionNewProtectionQuery = async (req, res) => {
         message: `Finance Password Protection ${
           finance?.enable_protection ? "Enable" : "Disbale"
         }`,
-        access: false,
+        access: true,
       });
     } else if (flow === "Admission_Login") {
       const ads_admin = await Admission.findById({ _id: faid });
@@ -3026,7 +3028,7 @@ exports.renderFinanceAdmissionNewProtectionQuery = async (req, res) => {
         message: `Admission Password Protection ${
           ads_admin?.enable_protection ? "Enable" : "Disbale"
         }`,
-        access: false,
+        access: true,
       });
     } else {
       res.status(200).send({ message: "You lost in space", access: false });

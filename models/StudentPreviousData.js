@@ -202,6 +202,14 @@ const previousSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  hostelRemainFeeCount: {
+    type: Number,
+    default: 0,
+  },
+  hostelPaidFeeCount: {
+    type: Number,
+    default: 0,
+  },
   paidFeeList: [
     {
       paidAmount: { type: Number, default: 0 },
@@ -249,6 +257,11 @@ const previousSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "FeeStructure",
       },
+      master: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeMaster",
+      },
+      original_paid: { type: Number, default: 0 },
     },
   ],
   certificateBonaFideCopy: {
@@ -340,6 +353,30 @@ const previousSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  deposit_pending_amount: {
+    type: Number,
+    default: 0,
+  },
+  deposit_refund_amount: {
+    type: Number,
+    default: 0,
+  },
+  refund_deposit: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FeeReceipt",
+    },
+  ],
+  form_status: {
+    type: String,
+    default: "Not Filled",
+  },
+  fee_receipt: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FeeReceipt",
+    },
+  ],
 });
 
 module.exports = mongoose.model("StudentPreviousData", previousSchema);

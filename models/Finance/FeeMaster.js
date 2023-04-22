@@ -22,6 +22,38 @@ const feeMasterSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  master_status: {
+    type: String,
+    default: "Not Linked",
+  },
+  paid_student: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
+  paid_student_count: {
+    type: Number,
+    default: 0,
+  },
+  deposit_amount: {
+    type: Number,
+    default: 0,
+  },
+  refund_amount: {
+    type: Number,
+    default: 0,
+  },
+  refund_student: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
+  refund_student_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("FeeMaster", feeMasterSchema);

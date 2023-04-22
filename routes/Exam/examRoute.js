@@ -38,7 +38,7 @@ router
 
 router
   .route("/student/:sid/exam/:eid")
-  .get(isLoggedIn, catchAsync(examController.oneExamAllSubjectInStudent));
+  .get(catchAsync(examController.oneExamAllSubjectInStudent));
 
 router
   .route("/student/:sid/exam/:eid/answersheet")
@@ -118,5 +118,29 @@ router.route("/backlog/one/previous/student/:sid/mark/status").patch(
   // isLoggedIn,
   catchAsync(examController.retrieveBacklogOneStudentMarkStatus)
 );
+
+router
+  .route("/seating/:eid/seating/new/query")
+  .post(catchAsync(examController.renderNewSeatingArrangementQuery));
+
+router
+  .route("/seating/:eid/seating/edit/:said/query")
+  .patch(catchAsync(examController.renderEditSeatingArrangementQuery));
+
+router
+  .route("/seating/:eid/seating/all/query")
+  .get(catchAsync(examController.renderAllSeatingArrangementQuery));
+
+router
+  .route("/seating/:eid/all/class/query")
+  .get(catchAsync(examController.renderAllClassQuery));
+
+router
+  .route("/seating/one/:said/query")
+  .get(catchAsync(examController.renderOneSeatingArrangementQuery));
+
+router
+  .route("/seating/:eid/seating/destroy/:said/query")
+  .delete(catchAsync(examController.renderDestroySeatingArrangementQuery));
 
 module.exports = router;

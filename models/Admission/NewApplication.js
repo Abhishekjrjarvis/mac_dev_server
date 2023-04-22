@@ -5,21 +5,30 @@ const newApplicationSchema = new mongoose.Schema({
   applicationDepartment: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department",
-    required: true,
+    // required: true,
   },
   applicationBatch: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Batch",
-    required: true,
+    // required: true,
   },
   applicationMaster: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "ClassMaster",
   },
+  applicationHostel: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Hostel",
+  },
+  applicationUnit: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "HostelUnit",
+  },
   applicationParentType: { type: String },
   applicationChildType: [],
   applicationSeats: { type: Number, default: 0 },
   applicationType: { type: String, default: "Plain Application" },
+  application_flow: { type: String, default: "Admission Application" },
   applicationStartDate: { type: String },
   applicationEndDate: { type: String },
   admissionFee: { type: Number, default: 0 },
@@ -68,6 +77,7 @@ const newApplicationSchema = new mongoose.Schema({
       payment_status: { type: String, default: "Pending" },
       install_type: { type: String },
       fee_remain: { type: Number, default: 0 },
+      docs_collect: { type: String, default: "Not Collected" },
     },
   ],
   confirmedApplication: [
@@ -115,6 +125,10 @@ const newApplicationSchema = new mongoose.Schema({
   gst_number: { type: String },
   business_name: { type: String },
   business_address: { type: String },
+  hostelAdmin: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Hostel",
+  },
 });
 
 module.exports = mongoose.model("NewApplication", newApplicationSchema);

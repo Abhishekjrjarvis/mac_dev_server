@@ -983,7 +983,12 @@ exports.retrieveAllPosts = async (req, res) => {
               path: "applicationDepartment",
               select: "dName",
             },
-          });
+          })
+          .populate({
+            path: "new_announcement",
+            select:
+              "insAnnTitle insAnnDescription",
+          })
       } else {
         var post = await Post.find({
           $and: [{ _id: { $in: institute.posts } }],
@@ -1005,7 +1010,12 @@ exports.retrieveAllPosts = async (req, res) => {
               path: "applicationDepartment",
               select: "dName",
             },
-          });
+          })
+          .populate({
+            path: "new_announcement",
+            select:
+              "insAnnTitle insAnnDescription",
+          })
       }
       if (institute.posts.length >= 1) {
         const postCount = await Post.find({ _id: { $in: institute.posts } });
@@ -1056,7 +1066,12 @@ exports.retreiveAllProfilePosts = async (req, res) => {
           path: "applicationDepartment",
           select: "dName",
         },
-      });
+      })
+      .populate({
+        path: "new_announcement",
+        select:
+          "insAnnTitle insAnnDescription",
+      })
     if (institute && institute.posts.length >= 1) {
       const postCount = await Post.find({ _id: { $in: institute.posts } });
       if (page * limit >= postCount.length) {
@@ -1372,7 +1387,12 @@ exports.retrieveSavedAllPosts = async (req, res) => {
             path: "applicationDepartment",
             select: "dName",
           },
-        });
+        })
+        .populate({
+          path: "new_announcement",
+          select:
+            "insAnnTitle insAnnDescription",
+        })
       if (institute.institute_saved_post.length >= 1) {
         const postCount = await Post.find({
           _id: { $in: institute.institute_saved_post },
@@ -1427,7 +1447,12 @@ exports.retrieveTagAllPosts = async (req, res) => {
             path: "applicationDepartment",
             select: "dName",
           },
-        });
+        })
+        .populate({
+          path: "new_announcement",
+          select:
+            "insAnnTitle insAnnDescription",
+        })
       if (institute.tag_post.length >= 1) {
         const postCount = await Post.find({
           _id: { $in: institute.tag_post },

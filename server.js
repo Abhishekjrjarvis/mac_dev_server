@@ -29,7 +29,6 @@ app.use(
 
 const swaggerUI = require("swagger-ui-express");
 const YAML = require("yamljs");
-const { generate_excel_to_json } = require("./Custom/excelToJSON");
 const swaggerJSDocs = YAML.load("./api.yaml");
 app.set("view engine", "ejs");
 app.set("/views", path.join(__dirname, "/views"));
@@ -38,7 +37,7 @@ app.use(express.json());
 app.use(
   cors({
     origin: [
-      "http://18.205.27.165",
+      "http://54.224.4.209",
       "http://localhost:3000",
       "https://qviple.com",
       "https://admin.qviple.com",
@@ -90,9 +89,7 @@ app.use((req, res, next) => {
 
 app.use(apiFunc);
 
-// timerFunction();
-
-// generate_excel_to_json();
+timerFunction();
 
 app.get("*", (req, res) => {
   res.status(404).send("Page Not Found...");

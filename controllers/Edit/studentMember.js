@@ -1,6 +1,6 @@
 const InstituteAdmin = require("../../models/InstituteAdmin");
 // const Subject = require("../../models/Subject");
-// const SubjectMaster = require("../../models/SubjectMaster");
+const SubjectMaster = require("../../models/SubjectMaster");
 // const ClassMaster = require("../../models/ClassMaster");
 // const InstituteAdmin = require("../../models/InstituteAdmin");
 const Department = require("../../models/Department");
@@ -366,7 +366,7 @@ exports.instituteDepartmentOtherCount = async (req, res) => {
   } catch (e) {
     res.status(200).send({
       message: e,
-      institiute: "",
+      institiute: null,
     });
     console.log(e);
   }
@@ -375,13 +375,14 @@ exports.instituteDepartmentOtherCount = async (req, res) => {
 exports.getOneDepartmentOfPromote = async (req, res) => {
   try {
     const { did } = req.params;
+    const { exist_batch } = req.query;
     if (!did) throw "Please call proper api with all details";
-    const department = await Department.findById({ _id: did })
-      .select("dName")
-      .populate({
-        path: "departmentSelectBatch",
-        select: "batchName batchStatus createdAt",
-        populate: {
+    if (exist_batch) {
+      var depart = await Department.findById({ _id: did }).select("dName");
+
+      var batches = await Batch.findById({ _id: `${exist_batch}` })
+        .select("batchName batchStatus createdAt classroom")
+        .populate({
           path: "classroom",
           select: "className classTitle classTeacher classStatus",
           populate: {
@@ -389,14 +390,36 @@ exports.getOneDepartmentOfPromote = async (req, res) => {
             select:
               "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
           },
-        },
-      })
-      .lean()
-      .exec();
+        });
+
+      var department = {
+        _id: depart?._id,
+        dName: depart?.dName,
+        batches: batches,
+      };
+    } else {
+      var department = await Department.findById({ _id: did })
+        .select("dName")
+        .populate({
+          path: "departmentSelectBatch",
+          select: "batchName batchStatus createdAt",
+          populate: {
+            path: "classroom",
+            select: "className classTitle classTeacher classStatus",
+            populate: {
+              path: "classTeacher",
+              select:
+                "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto",
+            },
+          },
+        })
+        .lean()
+        .exec();
+    }
     // const oneEncrypt = await encryptionPayload(department);
     res.status(200).send({ message: "Success", department });
   } catch (e) {
-    res.status(200).send({ message: e, department: "" });
+    res.status(200).send({ message: e, department: null });
     console.log(e);
   }
 };
@@ -439,11 +462,21 @@ exports.getNotPromoteStudentByClass = async (req, res) => {
           _id: { $nin: classes_promote.promoteStudent },
         },
         select:
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO studentGRNO",
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto fee_structure studentROLLNO studentGRNO",
+        populate: {
+          path: "fee_structure",
+          select: "applicable_fees",
+        },
       })
       .select("ApproveStudent")
       .lean()
       .exec();
+
+    // for (var ref of classes.ApproveStudent) {
+    //   const one_remain = await RemainingList.findOne({
+    //     $and: [{ student: ref?._id }, { fee_structure: ref?.fee_structure }],
+    //   });
+    // }
     res.status(200).send({
       message: "All not promoted student list",
       notPromoteStudent: classes.ApproveStudent ?? [],
@@ -453,22 +486,35 @@ exports.getNotPromoteStudentByClass = async (req, res) => {
     console.log(e);
   }
 };
-// exports.instituteDepartmentOtherCount=async(req, res)=>{
-//   try{
 
-//   }catch(e){
-//     console.log(e)
-//   }
-// }exports.instituteDepartmentOtherCount=async(req, res)=>{
-//   try{
+exports.renderAllExamCountQuery = async (req, res) => {
+  try {
+    const { did } = req.params;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
 
-//   }catch(e){
-//     console.log(e)
-//   }
-// }exports.instituteDepartmentOtherCount=async(req, res)=>{
-//   try{
+    const depart = await Department.findById({ _id: did }).select(
+      "classCount departmentSelectBatch dName batches"
+    );
+    const s_master = await SubjectMaster.findOne({
+      department: depart?._id,
+    }).select("backlogStudentCount");
 
-//   }catch(e){
-//     console.log(e)
-//   }
-// }
+    res.status(200).send({
+      message: "Explore All Department Inner Count Query",
+      access: true,
+      c_query: {
+        classCount: depart?.classCount,
+        backlogStudentCount: s_master?.backlogStudentCount,
+        defaultBatch: depart?.departmentSelectBatch,
+        batches: depart?.batches,
+        name: depart?.dName,
+      },
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

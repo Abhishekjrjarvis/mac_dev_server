@@ -3,7 +3,7 @@ const {
   election_vote_day,
   election_result_day,
 } = require("../Service/AutoRefreshBackend");
-const { dueDateAlarm } = require("../Service/alarm");
+const { dueDateAlarm, renewal_request_alarm } = require("../Service/alarm");
 const {
   renderRealTimeDailyUpdate,
 } = require("../controllers/DailyUpdate/dailyUpdateController");
@@ -11,15 +11,15 @@ const {
 exports.timerFunction = () => {
   // setInterval(async () => {
   //   await election_vote_day();
-  // }, 30000);
+  // }, 864000);
   // setInterval(async () => {
   //   await election_result_day();
-  // }, 3000);
+  // }, 864000);
   // setInterval(async () => {
   // }, 30000);
-  // setInterval(async () => {
-  //   await dueDateAlarm();
-  // }, 86400000);
+  setInterval(async () => {
+    await renewal_request_alarm();
+  }, 86400000);
   // setInterval(async () => {
   //   await renderRealTimeDailyUpdate();
   // }, 86400000);

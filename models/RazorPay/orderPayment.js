@@ -80,6 +80,10 @@ const orderPaymentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Vehicle",
   },
+  payment_finance: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Finance",
+  },
   payment_from: {
     type: String,
   },

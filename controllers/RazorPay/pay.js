@@ -11,6 +11,7 @@ const {
   participateEventFunction,
   transportFunction,
   applicationFunction,
+  hostelInstituteFunction,
 } = require("./paymentModule");
 const { handle_undefined } = require("../../Handler/customError");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
@@ -172,6 +173,28 @@ exports.verifyRazorPayment = async (req, res) => {
         res.redirect(
           `${process.env.FRONT_REDIRECT_URL}/q/${admission_status}/feed`
         );
+      } else if (payment_module_type === "Hostel") {
+        const hostel_status = await hostelInstituteFunction(
+          order_payment?._id,
+          payment_by_end_user_id,
+          refactor_amount_nocharges,
+          refactor_amount,
+          payment_module_id,
+          ad_status_id,
+          payment_to_end_user_id,
+          payment_installment,
+          Boolean(razor_author),
+          Boolean(ad_install)
+        );
+        if (isApk) {
+          res.status(200).send({
+            message: "Success with Razorpay Hostel 😀",
+            check: true,
+          });
+        }
+        res.redirect(
+          `${process.env.FRONT_REDIRECT_URL}/q/${hostel_status}/feed`
+        );
       } else if (payment_module_type === "Participate") {
         const participate_status = await participateEventFunction(
           order_payment?._id,
@@ -285,8 +308,13 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
           select: "insName photoId insProfilePhoto",
         });
       if (order?.length > 0) {
+        var new_order = order?.filter((ref) => {
+          if (ref?.payment_amount > 0) return ref;
+        });
         // const oEncrypt = await encryptionPayload(order);
-        res.status(200).send({ message: "User Pay History", history: order });
+        res
+          .status(200)
+          .send({ message: "User Pay History", history: new_order });
       } else {
         res.status(200).send({ message: "No User Pay History", history: [] });
       }
@@ -327,7 +355,10 @@ exports.fetchPaymentHistoryQueryBy = async (req, res) => {
           select: "insName photoId insProfilePhoto",
         });
       for (var filteredData of order) {
-        if (`${filteredData?.payment_module_type}` != "Expense") {
+        if (
+          `${filteredData?.payment_module_type}` != "Expense" &&
+          filteredData?.payment_amount > 0
+        ) {
           filtered_array.push(filteredData);
         }
       }
@@ -404,7 +435,12 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
       // });
       if (order?.length > 0) {
         // const oEncrypt = await encryptionPayload(order);
-        res.status(200).send({ message: "User Pay History", history: order });
+        var new_order = order?.filter((ref) => {
+          if (ref?.payment_amount > 0) return ref;
+        });
+        res
+          .status(200)
+          .send({ message: "User Pay History", history: new_order });
       } else {
         res.status(200).send({ message: "No User Pay History", history: [] });
       }
@@ -453,7 +489,10 @@ exports.fetchPaymentHistoryQueryTo = async (req, res) => {
       //   select: "userLegalName photoId profilePhoto",
       // });
       for (var filteredData of order) {
-        if (`${filteredData?.payment_module_type}` != "Expense") {
+        if (
+          `${filteredData?.payment_module_type}` != "Expense" &&
+          filteredData?.payment_amount > 0
+        ) {
           filtered_array.push(filteredData);
         }
       }

@@ -17,12 +17,15 @@ const { chatCount } = require("../../Firebase/dailyChat");
 const { getFirestore } = require("firebase-admin/firestore");
 const { valid_initials } = require("../../Custom/checkInitials");
 const { simple_object } = require("../../S3Configuration");
+const Hostel = require("../../models/Hostel/hostel");
+const ClassMaster = require("../../models/ClassMaster");
 const {
   generate_excel_to_json,
   generate_excel_to_json_fee_category,
   generate_excel_to_json_fee_head_master,
   generate_excel_to_json_fee_structure,
   generate_excel_to_json_direct_staff,
+  generate_excel_to_json_direct_hostelities,
 } = require("../../Custom/excelToJSON");
 const {
   retrieveInstituteDirectJoinQueryPayload,
@@ -33,6 +36,9 @@ const {
   renderFinanceAddFeeMasterAutoQuery,
   renderFinanceAddFeeStructureAutoQuery,
 } = require("../Finance/financeController");
+const {
+  renderDirectHostelJoinExcelQuery,
+} = require("../Hostel/hostelController");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -213,7 +219,7 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       $and: [{ studentGRNO: `${validGR}` }, { institute: id }],
     })
       .select(
-        "studentFirstName studentLeavingPreviousYear studentPreviousSchool studentUidaiNumber studentGRNO studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB"
+        "studentFirstName studentLeavingPreviousYear studentPreviousSchool studentLeavingBehaviour studentUidaiNumber studentGRNO studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB admissionRemainFeeCount"
       )
       .populate({
         path: "studentClass",
@@ -229,43 +235,69 @@ exports.retrieveLeavingGRNO = async (req, res) => {
           "insName insAddress insState studentFormSetting.previousSchoolAndDocument.previousSchoolDocument insDistrict insAffiliated insEditableText insEditableTexts insPhoneNumber insPincode photoId insProfilePhoto",
       });
     if (
-      !institute.studentFormSetting.previousSchoolAndDocument
-        .previousSchoolDocument
+      institute.studentFormSetting.previousSchoolAndDocument
+        .previousSchoolDocument &&
+      previous
     ) {
-      student.studentPreviousSchool = previous;
+      student.studentPreviousSchool = previous ? previous : null;
+    } else {
     }
-    student.studentLeavingBehaviour = behaviour;
-    student.studentLeavingStudy = study;
-    student.studentLeavingReason = reason;
-    student.studentLeavingRemark = remark;
-    student.studentUidaiNumber = uidaiNumber;
+    if (behaviour) {
+      student.studentLeavingBehaviour = behaviour;
+    }
+    if (study) {
+      student.studentLeavingStudy = study;
+    }
+    if (reason) {
+      student.studentLeavingReason = reason;
+    }
+    if (remark) {
+      student.studentLeavingRemark = remark;
+    }
+    if (uidaiNumber) {
+      student.studentUidaiNumber = uidaiNumber;
+    }
     student.studentLeavingInsDate = new Date();
-    student.studentBookNo = bookNO;
+    if (bookNO) {
+      student.studentBookNo = bookNO;
+    }
     student.studentCertificateNo = institute.leavingArray.length + 1;
     institute.l_certificate_count += 1;
     student.studentLeavingStatus = "Ready";
-    if (student.certificateLeavingCopy.trueCopy) {
-      if (student.certificateLeavingCopy.secondCopy) {
-        if (student.certificateLeavingCopy.thirdCopy) {
-          download = false;
+    if (institute?.original_copy) {
+      student.certificateLeavingCopy.thirdCopy = false;
+      student.certificateLeavingCopy.secondCopy = false;
+      student.certificateLeavingCopy.trueCopy = true;
+      student.certificateLeavingCopy.originalCopy = true;
+      download = true;
+    } else {
+      student.certificateLeavingCopy.originalCopy = false;
+      if (student.certificateLeavingCopy.trueCopy) {
+        if (student.certificateLeavingCopy.secondCopy) {
+          if (student.certificateLeavingCopy.thirdCopy) {
+            download = false;
+          } else {
+            student.certificateLeavingCopy.thirdCopy = true;
+            download = true;
+          }
         } else {
-          student.certificateLeavingCopy.thirdCopy = true;
+          student.certificateLeavingCopy.secondCopy = true;
           download = true;
         }
       } else {
-        student.certificateLeavingCopy.secondCopy = true;
+        student.certificateLeavingCopy.trueCopy = true;
         download = true;
       }
-    } else {
-      student.certificateLeavingCopy.trueCopy = true;
-      download = true;
     }
     await Promise.all([student.save(), institute.save()]);
     // Add Another Encryption
     res.status(200).send({
       message: "Student Leaving Certificate",
       student,
-      download: download,
+      download: institute?.original_copy ? true : download,
+      original_copy: student.certificateLeavingCopy?.originalCopy
+        ? true
+        : false,
     });
   } catch (e) {
     console.log(e);
@@ -593,25 +625,189 @@ exports.fetchExportStudentIdCardQuery = async (req, res) => {
   }
 };
 
+// exports.fetchExportStudentAllQuery = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const export_ins = await InstituteAdmin.findById({ _id: id }).select(
+//       "ApproveStudent"
+//     );
+
+//     const student_query = await Student.find({
+//       _id: { $in: export_ins?.ApproveStudent },
+//     }).select("studentFirstName studentMiddleName studentGRNO studentLastName studentProfilePhoto photoId studentCast studentCastCategory studentReligion studentBirthPlace studentNationality studentMotherName studentMTongue studentGender studentDOB studentDistrict studentState studentAddress studentAadharNumber studentPhoneNumber"
+//     );
+
+//     // const sEncrypt = await encryptionPayload(live_data);
+//     res.status(200).send({
+//       message: "Exported Student Format Pattern Save",
+//       student_card: student_query,
+//       export_format: true,
+//     });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
+
 exports.fetchExportStudentAllQuery = async (req, res) => {
   try {
     const { id } = req.params;
-    const export_ins = await InstituteAdmin.findById({ _id: id }).select(
-      "ApproveStudent"
-    );
+    const { gender, category, all_depart, batch_status, religion } = req.query;
+    const { depart, batch, master, fee_struct } = req.body;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    const student_query = await Student.find({
-      _id: { $in: export_ins?.ApproveStudent },
-    }).select(
-      "studentFirstName studentMiddleName studentGRNO studentLastName studentProfilePhoto photoId studentCast studentCastCategory studentReligion studentBirthPlace studentNationality studentMotherName studentMTongue studentGender studentDOB studentDistrict studentState studentAddress  studentAadharNumber studentPhoneNumber"
-    );
+    var institute = await InstituteAdmin.findById({ _id: id });
 
-    // const sEncrypt = await encryptionPayload(live_data);
-    res.status(200).send({
-      message: "Exported Student Format Pattern Save",
-      student_card: student_query,
-      export_format: true,
+    if (all_depart === "All") {
+      var sorted_batch = [];
+      if (batch_status === "All") {
+        var all_department = await Department.find({
+          _id: { $in: institute?.depart },
+        }).select("batches");
+        for (var ref of all_department) {
+          sorted_batch.push(...ref?.batches);
+        }
+      } else if (batch_status === "Current") {
+        var all_department = await Department.find({
+          _id: { $in: institute?.depart },
+        }).select("departmentSelectBatch");
+        for (var ref of all_department) {
+          sorted_batch.push(ref?.departmentSelectBatch);
+        }
+      }
+      var all_students = await Student.find({
+        $and: [{ batches: { $in: sorted_batch } }],
+      })
+        .select(
+          "studentClass batches department studentGender studentCastCategory"
+        )
+        .populate({
+          path: "fee_structure",
+        });
+    } else if (all_depart === "Particular") {
+      var all_students = await Student.find({
+        $and: [{ _id: { $in: institute?.ApproveStudent } }],
+      })
+        .select(
+          "studentClass batches department studentGender studentCastCategory"
+        )
+        .populate({
+          path: "fee_structure",
+        });
+
+      // console.log("All Students", all_students?.length);
+      if (depart) {
+        all_students = all_students?.filter((ref) => {
+          if (`${ref?.department}` === `${depart}`) return ref;
+        });
+      }
+
+      // console.log("All Depart", all_students?.length);
+      if (batch) {
+        all_students = all_students?.filter((ref) => {
+          if (`${ref?.batches}` === `${batch}`) return ref;
+        });
+      }
+
+      // console.log("All batch", all_students?.length);
+      var select_classes = [];
+      // if (master) {
+      //   var all_master = await ClassMaster.find({
+      //     _id: { $in: master },
+      //   }).select("classDivision");
+      // }
+
+      // if (all_master?.length > 0) {
+      //   for (var ref of all_master) {
+      //     select_classes.push(...ref?.classDivision);
+      //   }
+      // }
+      // console.log(select_classes);
+      // console.log(all_students)
+      // all_students = all_students?.filter((ref) => {
+      //   if (select_classes?.includes(ref?.studentClass)) {
+      //     return ref;
+      //   } else {
+      //     return false;
+      //   }
+      // });
+      // console.log("All Master", all_students?.length);
+    }
+
+    if (category) {
+      all_students = all_students?.filter((ref) => {
+        if (`${ref?.studentCastCategory}` === `${category}`) return ref;
+      });
+    }
+
+    if (gender) {
+      all_students = all_students?.filter((ref) => {
+        if (`${ref?.studentGender}` === `${gender}`) return ref;
+      });
+    }
+
+    if (religion) {
+      all_students = all_students?.filter((ref) => {
+        if (`${ref?.studentReligion}` === `${religion}`) return ref;
+      });
+    }
+
+    if (fee_struct) {
+      all_students = all_students?.filter((ref) => {
+        if (`${ref?.fee_structure?.category_master}` === `${fee_struct}`)
+          return ref;
+      });
+    }
+
+    var sorted_list = [];
+    for (var ref of all_students) {
+      sorted_list.push(ref?._id);
+    }
+
+    const valid_all_students = await Student.find({ _id: { $in: sorted_list } })
+      .select(
+        "studentFirstName studentMiddleName remainingFeeList_count studentLastName studentDOB studentAddress studentGRNO studentReligion studentMotherName studentMTongue studentGender studentCastCategory photoId studentProfilePhoto admissionRemainFeeCount"
+      )
+      .populate({
+        path: "department",
+        select: "dName",
+      })
+      .populate({
+        path: "studentClass",
+        select: "className classTitle",
+      })
+      .populate({
+        path: "batches",
+        select: "batchName",
+      })
+      .populate({
+        path: "fee_structure",
+        select: "structure_name unique_structure_name applicable_fees",
+      });
+
+    valid_all_students.sort(function (st1, st2) {
+      return (
+        parseInt(st1?.studentGRNO?.slice(1)) -
+        parseInt(st2?.studentGRNO?.slice(1))
+      );
     });
+
+    if (valid_all_students?.length > 0) {
+      res.status(200).send({
+        message: "Explore New Excel Exports Wait for Some Time To Process",
+        student_card: valid_all_students,
+        export_format: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No New Excel Exports ",
+        student_card: [],
+        export_format: true,
+      });
+    }
   } catch (e) {
     console.log(e);
   }
@@ -938,6 +1134,26 @@ exports.retrieveRecentChatCount = async (req, res) => {
   }
 };
 
+exports.renderCertificateOriginalCopyQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { original } = req.query;
+    if (!id && !original)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: true,
+      });
+
+    var new_original = original === "false" ? false : true;
+    const one_ins = await InstituteAdmin.findById({ _id: id });
+    one_ins.original_copy = new_original;
+    await one_ins.save();
+    res.status(200).send({ message: "Explore Original Copy", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.renderExcelToJSONQuery = async (req, res) => {
   try {
     const { cid } = req.params;
@@ -977,7 +1193,12 @@ exports.renderExcelToJSONQuery = async (req, res) => {
     }
     const val = await simple_object(key);
 
-    const is_converted = await generate_excel_to_json(val);
+    const is_converted = await generate_excel_to_json(
+      val,
+      one_ins?.admissionDepart,
+      one_ins?.financeDepart,
+      one_class?.department
+    );
     if (is_converted?.value) {
       await retrieveInstituteDirectJoinQueryPayload(
         cid,
@@ -1139,6 +1360,7 @@ exports.renderExcelToJSONFinanceStructureQuery = async (req, res) => {
       did
     );
     if (is_converted?.value) {
+      console.log(true);
       // console.log(is_converted?.structure_array);
       await renderFinanceAddFeeStructureAutoQuery(
         fid,
@@ -1193,6 +1415,56 @@ exports.renderExcelToJSONStaffQuery = async (req, res) => {
         id,
         is_converted?.staff_array
       );
+    } else {
+      console.log("false");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderExcelToJSONHostelitiesQuery = async (req, res) => {
+  try {
+    const { hid } = req.params;
+    const { excel_file } = req.body;
+    if (!hid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const one_hostel = await Hostel.findById({ _id: hid });
+    const one_ins = await InstituteAdmin.findById({
+      _id: `${one_hostel?.institute}`,
+    });
+    one_ins.excel_data_query.push({
+      excel_file: excel_file,
+      status: "Uploaded",
+      flow: "HOSTELITIES",
+    });
+    await one_ins.save();
+    res.status(200).send({
+      message: "Update Excel To Backend Wait for Operation Completed",
+      access: true,
+    });
+
+    const update_ins = await InstituteAdmin.findById({
+      _id: `${one_hostel?.institute}`,
+    });
+    var key;
+    for (var ref of update_ins?.excel_data_query) {
+      if (`${ref.status}` === "Uploaded" && `${ref?.flow}` === `HOSTELITIES`) {
+        key = ref?.excel_file;
+      }
+    }
+    const val = await simple_object(key);
+
+    const is_converted = await generate_excel_to_json_direct_hostelities(
+      val,
+      hid,
+      one_ins?.financeDepart?.[0]
+    );
+    if (is_converted?.value) {
+      await renderDirectHostelJoinExcelQuery(hid, is_converted?.student_array);
     } else {
       console.log("false");
     }

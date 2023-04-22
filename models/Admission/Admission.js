@@ -67,6 +67,23 @@ const admissionAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  refundedFeeList: [
+    {
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+      },
+      refund: { type: Number, default: 0 },
+      fee_receipt: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeReceipt",
+      },
+    },
+  ],
+  refundedCount: {
+    type: Number,
+    default: 0,
+  },
   remainingFeeCount: {
     type: Number,
     default: 0,
@@ -183,7 +200,6 @@ const admissionAdminSchema = new mongoose.Schema({
       ref: "AdmissionSite",
     },
   ],
-
 });
 
 module.exports = mongoose.model("Admission", admissionAdminSchema);

@@ -27,6 +27,10 @@ const financeModeratorSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteAdmin",
   },
+  hostel: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Hostel",
+  },
 });
 
 module.exports = mongoose.model("FinanceModerator", financeModeratorSchema);

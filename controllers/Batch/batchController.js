@@ -357,6 +357,11 @@ exports.promoteStudent = async (req, res) => {
         queries: student?.queries,
         total_query: student?.total_query,
         feed_back_count: student?.feed_back_count,
+        deposit_pending_amount: student?.deposit_pending_amount,
+        deposit_refund_amount: student?.deposit_refund_amount,
+        refund_deposit: student?.refund_deposit,
+        form_status: student?.form_status,
+        fee_receipt: student?.fee_receipt,
       });
       // console.log(previousData);
       const notify = new StudentNotification({});
@@ -434,7 +439,7 @@ exports.promoteStudent = async (req, res) => {
       };
       student.dailyUpdate = [];
 
-      ///here some confusion for biometric id
+      //============== here some confusion for biometric id -> Ok we will resolve it...
       student.student_biometric_id = "";
       student.election_candidate = [];
       student.participate_event = [];
@@ -447,6 +452,11 @@ exports.promoteStudent = async (req, res) => {
       student.queries = [];
       student.total_query = 0;
       student.feed_back_count = 0;
+      student.deposit_pending_amount = 0;
+      student.deposit_refund_amount = 0;
+      student.refund_deposit = [];
+      student.form_status = "Not Filled";
+      student.fee_receipt = [];
       roll += 1;
       if (classes?.ApproveStudent?.includes(student._id)) {
       } else {

@@ -4,7 +4,7 @@ const feeStructureSchema = new mongoose.Schema({
   category_master: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "FeeCategory",
-    required: true,
+    // required: true,
   },
   class_master: {
     type: mongoose.Schema.Types.ObjectId,
@@ -22,7 +22,14 @@ const feeStructureSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department",
   },
+  hostel: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Hostel",
+  },
   structure_name: {
+    type: String,
+  },
+  unique_structure_name: {
     type: String,
   },
   applicable_fees: {
@@ -92,6 +99,10 @@ const feeStructureSchema = new mongoose.Schema({
       head_name: { type: String },
       head_amount: { type: Number, default: 0 },
       created_at: { type: Date, default: Date.now },
+      master: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeMaster",
+      },
     },
   ],
   fees_heads_count: {
@@ -103,6 +114,10 @@ const feeStructureSchema = new mongoose.Schema({
     default: false,
   },
   migrate_to: [],
+  structure_month: {
+    type: Number,
+    default: 12,
+  },
 });
 
 module.exports = mongoose.model("FeeStructure", feeStructureSchema);

@@ -7,6 +7,10 @@ const statusSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "NewApplication",
   },
+  hostelUnit: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "HostelUnit",
+  },
   payMode: { type: String },
   isPaid: { type: String, default: "Not Paid" },
   for_selection: { type: String },
@@ -23,6 +27,10 @@ const statusSchema = new mongoose.Schema({
     ref: "InstituteAdmin",
   },
   feeStructure: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "FeeStructure",
+  },
+  hostel_fee_structure: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "FeeStructure",
   },
@@ -43,6 +51,10 @@ const statusSchema = new mongoose.Schema({
   document_visible: {
     type: Boolean,
     default: false,
+  },
+  flow_status: {
+    type: String,
+    default: "Admission Application",
   },
 });
 

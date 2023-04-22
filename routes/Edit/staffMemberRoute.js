@@ -46,4 +46,8 @@ router
   .route("/event/manager/staff/:osid")
   .patch(isLoggedIn, catchAsync(staffMember.renderEventManagerStaffQuery));
 
+router
+  .route("/hostel/manager/staff/:osid")
+  .patch(isLoggedIn, catchAsync(staffMember.renderHostelManagerStaffQuery));
+
 module.exports = router;

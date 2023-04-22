@@ -16,6 +16,7 @@ const insAnnouncementSchema = new mongoose.Schema({
       ref: "InsDocument",
     },
   ],
+  announcementHostelDocument: [],
   createdAt: { type: Date, default: Date.now },
   institute: {
     type: mongoose.Schema.Types.ObjectId,
@@ -28,6 +29,10 @@ const insAnnouncementSchema = new mongoose.Schema({
     },
   ],
   starList: [],
+  hostel: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Hostel",
+  },
 });
 
 module.exports = mongoose.model("InsAnnouncement", insAnnouncementSchema);

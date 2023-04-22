@@ -94,6 +94,10 @@ const transportSchema = new mongoose.Schema({
       mode: { type: String },
     },
   ],
+  bank_account: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "BankAccount",
+  },
 });
 
 module.exports = mongoose.model("Transport", transportSchema);

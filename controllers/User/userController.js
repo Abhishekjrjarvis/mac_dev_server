@@ -30,6 +30,7 @@ const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 const { dateTimeSort } = require("../../Utilities/timeComparison");
 const { shuffleArray } = require("../../Utilities/Shuffle");
+const { valid_student_form_query } = require("../../Functions/validForm");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.retrieveProfileData = async (req, res) => {
@@ -861,9 +862,35 @@ exports.getAllUserActivity = async (req, res) => {
         select: "coverId cover",
       })
       .populate({
+        path: "notifyByAdmissionPhoto",
+        select: "coverId cover institute",
+        populate: {
+          path: "institute",
+          select: "insName name photoId insProfilePhoto",
+        },
+      })
+      .populate({
         path: "election_winner",
         select:
           "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName",
+      })
+      .populate({
+        path: "seatingId",
+        populate: {
+          path: "seat_block_staff",
+          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+        }
+      })
+      .populate({
+        path: "seatingId",
+        populate: {
+          path: "seat_block_class",
+          select: "className classTitle classStatus classTeacher",
+          populate: {
+            path: "classTeacher",
+            select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+          }
+        }
       })
       .sort("-notifyTime")
       .limit(limit)
@@ -918,7 +945,7 @@ exports.getAllTotalCount = async (req, res) => {
       count: total,
       notifyCount: notify?.length,
       activityCount: activity?.length,
-      announcementCount: counts,
+      announcementCount: counts ? 0 : 0,
     });
   } catch (e) {
     console.log(e);
@@ -1100,7 +1127,7 @@ exports.getDashDataQuery = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findById({ _id: id }).select(
-      "userLegalName username userBlock user_block_institute follow_hashtag ageRestrict blockedBy is_mentor show_suggestion photoId blockStatus one_line_about profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify"
+      "userLegalName username userBlock user_block_institute follow_hashtag ageRestrict blockedBy is_mentor show_suggestion photoId blockStatus one_line_about profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify userFollowers userFollowing userCircle"
     );
     if (user?.userPosts && user?.userPosts.length < 1) {
       var post = [];
@@ -1356,7 +1383,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
     if (isApk) {
       var staff = await Staff.findById({ _id: sid })
         .select(
-          "staffFirstName staffDesignationCount vehicle_category staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber eventManagerDepartment"
+          "staffFirstName staffDesignationCount vehicle_category staffMiddleName hostelDepartment hostelUnitDepartment staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber eventManagerDepartment"
         )
         .populate({
           path: "staffDepartment",
@@ -1520,7 +1547,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
     } else {
       var staff = await Staff.findById({ _id: sid })
         .select(
-          "staffFirstName staffDesignationCount vehicle_category staffMiddleName staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber eventManagerDepartment"
+          "staffFirstName staffDesignationCount vehicle_category staffMiddleName hostelDepartment hostelUnitDepartment staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber eventManagerDepartment"
         )
         .populate({
           path: "staffDepartment",
@@ -1679,7 +1706,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
       if (isApk) {
         var student = await Student.findById({ _id: sid })
           .select(
-            "batchCount extraPoints studentFirstName library studentBankAccountHolderName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName department studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
+            "batchCount extraPoints studentFirstName form_status library studentBirthPlace studentBankAccountHolderName studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName department studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode student_prn_enroll_number studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
           )
           .populate({
             path: "studentClass",
@@ -1691,7 +1718,8 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           })
           .populate({
             path: "institute",
-            select: "insName name photoId insProfilePhoto library",
+            select:
+              "insName name photoId insProfilePhoto library studentFormSetting",
           })
           .populate({
             path: "user",
@@ -1700,6 +1728,22 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           .populate({
             path: "vehicle",
             select: "_id vehicle_number",
+          })
+          .populate({
+            path: "student_unit",
+            select: "hostel_unit_name hostel",
+            populate: {
+              path: "hostel",
+              select: "_id",
+            },
+          })
+          .populate({
+            path: "student_bed_number",
+            select: "bed_number bed_status hostelRoom",
+            populate: {
+              path: "hostelRoom",
+              select: "room_name room_strength",
+            },
           });
         if (student?.studentDocuments?.length > 0) {
           for (var docs of student.studentDocuments) {
@@ -1735,12 +1779,21 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
               docs.documentName === "identityDocument"
                 ? docs.documentKey
                 : student.identityDocument;
+            student.casteCertificate =
+              docs.documentName === "casteCertificate"
+                ? docs.documentKey
+                : student.casteCertificate;
           }
         }
+        const status = await valid_student_form_query(
+          student?.institute,
+          student,
+          "APK"
+        );
       } else {
         var student = await Student.findById({ _id: sid })
           .select(
-            "batchCount extraPoints studentFirstName studentBankAccountHolderName department studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
+            "batchCount extraPoints studentFirstName form_status student_prn_enroll_number studentBirthPlace studentBankAccountHolderName department studentMiddleName studentLastName photoId studentProfilePhoto studentDOB studentGender studentNationality studentMotherName studentMTongue studentCast studentCastCategory studentReligion studentBirthPlace studentBirthPlacePincode studentBirthPlaceState studentBirthPlaceDistrict studentDistrict studentState studentPincode studentAddress studentCurrentPincode studentCurrentDistrict studentCurrentState studentCurrentAddress studentPhoneNumber studentAadharNumber studentParentsName studentParentsPhoneNumber studentFatherRationCardColor studentParentsOccupation studentParentsAnnualIncom studentDocuments studentAadharFrontCard studentAadharBackCard studentPreviousSchool studentBankName studentBankAccount studentBankIfsc studentBankPassbook studentCasteCertificatePhoto studentStatus studentGRNO studentROLLNO"
           )
           .populate({
             path: "studentClass",
@@ -1752,7 +1805,8 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           })
           .populate({
             path: "institute",
-            select: "insName name photoId insProfilePhoto library",
+            select:
+              "insName name photoId insProfilePhoto library studentFormSetting",
           })
           .populate({
             path: "user",
@@ -1761,9 +1815,30 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
           .populate({
             path: "vehicle",
             select: "_id vehicle_number",
+          })
+          .populate({
+            path: "student_unit",
+            select: "hostel_unit_name hostel",
+            populate: {
+              path: "hostel",
+              select: "_id",
+            },
+          })
+          .populate({
+            path: "student_bed_number",
+            select: "bed_number bed_status hostelRoom",
+            populate: {
+              path: "hostelRoom",
+              select: "room_name room_strength",
+            },
           });
       }
-      average_points += student.extraPoints / student.batchCount;
+      average_points += student?.extraPoints / student?.batchCount;
+      const status = await valid_student_form_query(
+        student?.institute,
+        student,
+        "WEB"
+      );
       // Add Another Encryption
       // const bind_student = {
       //   student: student,
@@ -1778,6 +1853,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
         // student: cached.student,
         // average_points: cached.average_points,
         student: student,
+        status: status,
         average_points: average_points,
       });
     } else {
@@ -1943,7 +2019,19 @@ exports.retrieveUserApplicationStatus = async (req, res) => {
         path: "applicationStatus",
         populate: {
           path: "applicationId",
-          select: "one_installments admissionAdmin applicationName",
+          select:
+            "one_installments admissionAdmin applicationName applicationDepartment applicationUnit",
+          populate: {
+            path: "applicationUnit",
+            select: "hostel hostel_unit_name",
+            populate: {
+              path: "hostel",
+              select: "bank_account",
+              populate: {
+                path: "bank_account",
+              },
+            },
+          },
         },
         options,
       })
@@ -1958,8 +2046,9 @@ exports.retrieveUserApplicationStatus = async (req, res) => {
       .populate({
         path: "applicationStatus",
         populate: {
-          path: "feeStructure",
-          select: "one_installments total_admission_fees applicable_fees",
+          path: "feeStructure hostel_fee_structure",
+          select:
+            "one_installments total_admission_fees applicable_fees structure_name structure_month",
           populate: {
             path: "category_master",
             select: "category_name",
@@ -2245,11 +2334,11 @@ exports.retrieveUserRoleQuery = async (req, res) => {
       });
 
     var mergeArray = [...staff, ...student];
-    var get_array = shuffleArray(mergeArray);
-    // const roleEncrypt = await encryptionPayload(get_array);
+    // var get_array = shuffleArray(mergeArray);
+    // const roleEncrypt = await encryptionPayload(mergeArray);
     res.status(200).send({
       message: "User Role for Staff & Student",
-      role_query: get_array,
+      role_query: mergeArray,
     });
   } catch (e) {
     console.log(e);

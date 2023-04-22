@@ -34,6 +34,10 @@ const feeReceiptSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "NewApplication",
   },
+  unit: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "HostelUnit",
+  },
   invoice_count: {
     type: String,
   },
@@ -52,6 +56,10 @@ const feeReceiptSchema = new mongoose.Schema({
   fee_payment_type: {
     type: String,
   },
+  app_renewal: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Renewal",
+  },
   // applicable_fee: {
   //   type: Number,
   //   default: 0,
@@ -66,6 +74,40 @@ const feeReceiptSchema = new mongoose.Schema({
   },
   fee_request_remain_card: {
     type: String,
+  },
+  fee_master: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "FeeMaster",
+  },
+  fee_flow: {
+    type: String,
+  },
+  fee_heads: [
+    {
+      head_id: { type: String },
+      head_name: { type: String },
+      paid_fee: { type: Number, default: 0 },
+      applicable_fee: { type: Number, default: 0 },
+      remain_fee: { type: Number, default: 0 },
+      created_at: { type: Date, default: Date.now },
+      fee_structure: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeStructure",
+      },
+      master: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeMaster",
+      },
+      original_paid: { type: Number, default: 0 },
+    },
+  ],
+  created_at: {
+    type: Date,
+    default: Date.now,
+  },
+  pay_master: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "PayMaster",
   },
 });
 

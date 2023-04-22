@@ -462,11 +462,21 @@ exports.getNotPromoteStudentByClass = async (req, res) => {
           _id: { $nin: classes_promote.promoteStudent },
         },
         select:
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO studentGRNO",
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto fee_structure studentROLLNO studentGRNO",
+        populate: {
+          path: "fee_structure",
+          select: "applicable_fees",
+        },
       })
       .select("ApproveStudent")
       .lean()
       .exec();
+
+    // for (var ref of classes.ApproveStudent) {
+    //   const one_remain = await RemainingList.findOne({
+    //     $and: [{ student: ref?._id }, { fee_structure: ref?.fee_structure }],
+    //   });
+    // }
     res.status(200).send({
       message: "All not promoted student list",
       notPromoteStudent: classes.ApproveStudent ?? [],

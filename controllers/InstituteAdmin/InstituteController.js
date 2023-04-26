@@ -2062,11 +2062,15 @@ exports.retrieveCurrentSelectBatch = async (req, res) => {
   try {
     const { did, bid } = req.params;
     const department = await Department.findById({ _id: did });
+    const prev_batches = await Batch.findById({
+      _id: department.departmentSelectBatch,
+    });
     const batches = await Batch.findById({ _id: bid });
     department.departmentSelectBatch = batches._id;
     department.userBatch = batches._id;
     batches.activeBatch = "Active";
-    await Promise.all([department.save(), batches.save()]);
+    prev_batches.activeBatch = "Not Active";
+    await Promise.all([department.save(), batches.save(), prev_batches.save()]);
     // Add Another Encryption
     res.status(200).send({
       message: "Batch Detail Data",

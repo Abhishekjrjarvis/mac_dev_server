@@ -18,6 +18,17 @@ const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
+const FinanceModerator = require("../../models/Moderator/FinanceModerator");
+const AdmissionModerator = require("../../models/Moderator/AdmissionModerator");
+const Mentor = require("../../models/MentorMentee/mentor");
+const EventManager = require("../../models/Event/eventManager");
+const Alumini = require("../../models/Alumini/Alumini");
+const Hostel = require("../../models/Hostel/hostel");
+const HostelUnit = require("../../models/Hostel/hostelUnit");
+const Library = require("../../models/Library/Library");
+const Admission = require("../../models/Admission/Admission");
+const Transport = require("../../models/Transport/transport");
+const Vehicle = require("../../models/Transport/vehicle");
 
 //=======================================For the students related controller=========================================
 
@@ -96,7 +107,9 @@ exports.postStudentLeave = async (req, res) => {
     student.leave.push(leave._id);
 
     const notify = new StudentNotification({});
-    notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? ` ${student.studentMiddleName}` : ""} ${student.studentLastName} requested for a leave check application`;
+    notify.notifyContent = `${student.studentFirstName} ${
+      student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+    } ${student.studentLastName} requested for a leave check application`;
     notify.notifySender = req.params.sid;
     notify.notifyReceiever = user._id;
     notify.notifyType = "Staff";
@@ -377,9 +390,7 @@ exports.OneComplaintReportAdmin = async (req, res) => {
       "complaintInsStatus reportAdmin institute student"
     );
     if (complaint.reportAdmin === "No") {
-      const institute = await InstituteAdmin.findById(
-        complaint.institute
-      )
+      const institute = await InstituteAdmin.findById(complaint.institute);
       institute.studentComplaints.push(complaint._id);
       complaint.reportAdmin = "Yes";
       const notify = new Notification({});
@@ -554,7 +565,11 @@ exports.studentTransferRequested = async (req, res) => {
     classes.studentTransfer.push(transfer._id);
     student.transfer.push(transfer._id);
     const notify = new StudentNotification({});
-    notify.notifyContent = `${student.studentFirstName} ${student.studentMiddleName ? ` ${student.studentMiddleName}` : ""} ${student.studentLastName} requested for a Transfer. check application status`;
+    notify.notifyContent = `${student.studentFirstName} ${
+      student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+    } ${
+      student.studentLastName
+    } requested for a Transfer. check application status`;
     notify.notifySender = student._id;
     notify.notifyReceiever = user._id;
     notify.notifyType = "Staff";
@@ -765,7 +780,7 @@ exports.postStaffLeave = async (req, res) => {
 
     const user = await User.findById(staff.user).select("uNotify");
 
-    const institute = await InstituteAdmin.findById(staff.institute)
+    const institute = await InstituteAdmin.findById(staff.institute);
     const leave = new Leave({
       reason: req.body.reason,
       date: dateArray,
@@ -776,7 +791,9 @@ exports.postStaffLeave = async (req, res) => {
     staff.staffLeave.push(leave._id);
 
     const notify = new Notification({});
-    notify.notifyContent = `${staff.staffFirstName} ${staff.staffMiddleName ? ` ${staff.staffMiddleName}` : ""} ${staff.staffLastName} requested for a leave check application`;
+    notify.notifyContent = `${staff.staffFirstName} ${
+      staff.staffMiddleName ? ` ${staff.staffMiddleName}` : ""
+    } ${staff.staffLastName} requested for a leave check application`;
     notify.notifySender = req.params.sid;
     notify.notifyReceiever = institute._id;
     institute.iNotify.push(notify._id);
@@ -1052,79 +1069,178 @@ exports.staffTransferApproved = async (req, res) => {
       },
     });
     var staffNew = await Staff.findById(assignedStaff);
-    var transferStaff = await Staff.findById(previousStaff)
-      .populate("staffDepartment")
-      .populate("staffClass")
-      .populate("staffSubject")
-      .populate("financeDepartment");
-
+    var transferStaff = await Staff.findById(previousStaff).select(
+      "staffDepartment staffClass staffSubject financeDepartment library admissionDepartment admissionModeratorDepartment financeModeratorDepartment instituteModeratorDepartment hostelModeratorDepartment transportDepartment vehicle mentorDepartment eventManagerDepartment aluminiDepartment hostelDepartment hostelUnitDepartment"
+    );
     transfer.transferStatus = status;
     transfer.replaceBystaff = assignedStaff;
     await transfer.save();
-    for (let i = 0; i < transferStaff.staffDepartment.length; i++) {
-      const department = await Department.findById({
-        _id: transferStaff.staffDepartment[i]._id,
-      });
+    for (let deptId of transferStaff.staffDepartment) {
+      const department = await Department.findById(deptId);
+      department.dHead = staffNew?._id;
       staffNew.staffDepartment.push(department._id);
-      department.dHead = staffNew;
       transferStaff.staffDepartment.pull(department._id);
       transferStaff.previousStaffDepartment.push(department._id);
-      await Promise.all([
-        staffNew.save(),
-        department.save(),
-        transferStaff.save(),
-      ]);
+      await department.save();
     }
-    for (let i = 0; i < transferStaff.staffClass.length; i++) {
-      const classes = await Class.findById({
-        _id: transferStaff.staffClass[i]._id,
-      });
+    for (let csId of transferStaff.staffClass) {
+      const classes = await Class.findById(csId);
+      classes.classTeacher = staffNew?._id;
       staffNew.staffClass.push(classes._id);
-      classes.classTeacher = staffNew;
       transferStaff.staffClass.pull(classes._id);
       transferStaff.previousStaffClass.push(classes._id);
-      await Promise.all([
-        staffNew.save(),
-        classes.save(),
-        transferStaff.save(),
-      ]);
+      await classes.save();
     }
-    for (let i = 0; i < transferStaff.staffSubject.length; i++) {
-      const subject = await Subject.findById({
-        _id: transferStaff.staffSubject[i]._id,
-      });
+    for (let csId of transferStaff.staffSubject) {
+      const subject = await Subject.findById(csId);
+      subject.subjectTeacherName = staffNew?._id;
       staffNew.staffSubject.push(subject._id);
-      subject.subjectTeacherName = staffNew._id;
       transferStaff.staffSubject.pull(subject._id);
       transferStaff.previousStaffSubject.push(subject._id);
-      await Promise.all([
-        staffNew.save(),
-        subject.save(),
-        transferStaff.save(),
-      ]);
+      await subject.save();
     }
-    for (let i = 0; i < transferStaff.financeDepartment.length; i++) {
-      const finance = await Finance.findById({
-        _id: transferStaff.financeDepartment[i]._id,
-      });
-      staffNew.financeDepartment.push(finance);
-      finance.financeHead = staffNew;
-      transferStaff.financeDepartment.pull(finance);
+    for (let fId of transferStaff.financeDepartment) {
+      const finance = await Finance.findById(fId);
+      finance.financeHead = staffNew?._id;
+      staffNew.financeDepartment.push(finance._id);
+      transferStaff.financeDepartment.pull(finance._id);
+      transferStaff.previousFinanceDepartment.push(finance._id);
+      await finance.save();
+    }
+    for (let lid of transferStaff.library) {
+      const library = await Library.findById(lid);
+      library.libraryHead = staffNew?._id;
+      staffNew.library.push(library._id);
+      transferStaff.library.pull(library._id);
+      transferStaff.previousLibrary.push(library._id);
+      await library.save();
+    }
+    for (let aid of transferStaff.admissionDepartment) {
+      const admissionDepartment = await Admission.findById(aid);
+      admissionDepartment.admissionAdminHead = staffNew?._id;
+      staffNew.admissionDepartment.push(admissionDepartment._id);
+      transferStaff.admissionDepartment.pull(admissionDepartment._id);
+      transferStaff.previousAdmissionDepartment.push(admissionDepartment._id);
+      await admissionDepartment.save();
+    }
+    for (let tid of transferStaff.transportDepartment) {
+      const transportDepartment = await Transport.findById(tid);
+      transportDepartment.transport_manager = staffNew?._id;
+      staffNew.transportDepartment.push(transportDepartment._id);
+      transferStaff.transportDepartment.pull(transportDepartment._id);
+      transferStaff.previousTransportDepartment.push(transportDepartment._id);
+      await transportDepartment.save();
+    }
+    for (let tid of transferStaff.vehicle) {
+      const vehicle = await Vehicle.findById(tid);
+      vehicle.vehicle_driver = staffNew?._id;
+      staffNew.vehicle.push(vehicle._id);
+      transferStaff.vehicle.pull(vehicle._id);
+      transferStaff.previousVehicle.push(vehicle._id);
+      await vehicle.save();
+    }
+    for (let tid of transferStaff.mentorDepartment) {
+      const mentorDepartment = await Mentor.findById(tid);
+      mentorDepartment.mentor_head = staffNew?._id;
+      staffNew.mentorDepartment.push(mentorDepartment._id);
+      transferStaff.mentorDepartment.pull(mentorDepartment._id);
+      transferStaff.previousMentor.push(mentorDepartment._id);
+      await mentorDepartment.save();
+    }
+    for (let tid of transferStaff.eventManagerDepartment) {
+      const eventManagerDepartment = await EventManager.findById(tid);
+      eventManagerDepartment.event_head = staffNew?._id;
+      staffNew.eventManagerDepartment.push(eventManagerDepartment._id);
+      transferStaff.eventManagerDepartment.pull(eventManagerDepartment._id);
+      transferStaff.previousEventManager.push(eventManagerDepartment._id);
+      await eventManagerDepartment.save();
+    }
+    for (let tid of transferStaff.aluminiDepartment) {
+      const aluminiDepartment = await Alumini.findById(tid);
+      aluminiDepartment.alumini_head = staffNew?._id;
+      staffNew.aluminiDepartment.push(aluminiDepartment._id);
+      transferStaff.aluminiDepartment.pull(aluminiDepartment._id);
+      transferStaff.previousAlumini.push(aluminiDepartment._id);
+      await aluminiDepartment.save();
+    }
+    for (let tid of transferStaff.hostelDepartment) {
+      const hostelDepartment = await Hostel.findById(tid);
+      hostelDepartment.hostel_manager = staffNew?._id;
+      staffNew.hostelDepartment.push(hostelDepartment._id);
+      transferStaff.hostelDepartment.pull(hostelDepartment._id);
+      transferStaff.previousHostel.push(hostelDepartment._id);
+      await hostelDepartment.save();
+    }
+    for (let tid of transferStaff.hostelUnitDepartment) {
+      const hostelUnitDepartment = await HostelUnit.findById(tid);
+      hostelUnitDepartment.hostel_unit_head = staffNew?._id;
+      staffNew.hostelUnitDepartment.push(hostelUnitDepartment._id);
+      transferStaff.hostelUnitDepartment.pull(hostelUnitDepartment._id);
+      transferStaff.previousHostelUnit.push(hostelUnitDepartment._id);
+      await hostelUnitDepartment.save();
+    }
 
-      await Promise.all([
-        staffNew.save(),
-        finance.save(),
-        transferStaff.save(),
-      ]);
+    for (let tid of transferStaff.admissionModeratorDepartment) {
+      const admissionModeratorDepartment = await AdmissionModerator.findById(
+        tid
+      );
+      admissionModeratorDepartment.access_staff = staffNew?._id;
+      staffNew.admissionModeratorDepartment.push(
+        admissionModeratorDepartment._id
+      );
+      transferStaff.admissionModeratorDepartment.pull(
+        admissionModeratorDepartment._id
+      );
+      transferStaff.previousAdmissionModerator.push(
+        admissionModeratorDepartment._id
+      );
+      await admissionModeratorDepartment.save();
     }
-    if (
-      institute.ApproveStaff.length >= 1 &&
-      institute.ApproveStaff.includes(String(transferStaff._id))
-    ) {
+    for (let tid of transferStaff.hostelModeratorDepartment) {
+      const hostelModeratorDepartment = await AdmissionModerator.findById(tid);
+      hostelModeratorDepartment.access_staff = staffNew?._id;
+      staffNew.hostelModeratorDepartment.push(hostelModeratorDepartment._id);
+      transferStaff.hostelModeratorDepartment.pull(
+        hostelModeratorDepartment._id
+      );
+      transferStaff.previousHostelModerator.push(hostelModeratorDepartment._id);
+      await hostelModeratorDepartment.save();
+    }
+    for (let tid of transferStaff.financeModeratorDepartment) {
+      const financeModeratorDepartment = await FinanceModerator.findById(tid);
+      financeModeratorDepartment.access_staff = staffNew?._id;
+      staffNew.financeModeratorDepartment.push(financeModeratorDepartment._id);
+      transferStaff.financeModeratorDepartment.pull(
+        financeModeratorDepartment._id
+      );
+      transferStaff.previousFinanceModerator.push(
+        financeModeratorDepartment._id
+      );
+      await financeModeratorDepartment.save();
+    }
+    for (let tid of transferStaff.instituteModeratorDepartment) {
+      const instituteModeratorDepartment = await FinanceModerator.findById(tid);
+      instituteModeratorDepartment.access_staff = staffNew?._id;
+      staffNew.instituteModeratorDepartment.push(
+        instituteModeratorDepartment._id
+      );
+      transferStaff.instituteModeratorDepartment.pull(
+        instituteModeratorDepartment._id
+      );
+      transferStaff.previousInstituteModerator.push(
+        instituteModeratorDepartment._id
+      );
+      await instituteModeratorDepartment.save();
+    }
+    if (institute.ApproveStaff.length >= 1) {
       institute.ApproveStaff.pull(transferStaff._id);
       institute.previousApproveStaff.push(transferStaff._id);
       // transferStaff.institute = "";
-      await Promise.all([institute.save(), transferStaff.save()]);
+      await Promise.all([
+        institute.save(),
+        transferStaff.save(),
+        staffNew.save(),
+      ]);
     } else {
       // console.log("Not To Leave");
     }

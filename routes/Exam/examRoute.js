@@ -143,4 +143,8 @@ router
   .route("/seating/:eid/seating/destroy/:said/query")
   .delete(catchAsync(examController.renderDestroySeatingArrangementQuery));
 
+router
+  .route("/class/:cid/final/report/zip")
+  .post(catchAsync(examController.getAllClassExportReport));
+
 module.exports = router;

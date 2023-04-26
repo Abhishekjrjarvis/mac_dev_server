@@ -19,6 +19,10 @@ const User = require("../../models/User");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const { designation_alarm } = require("../../WhatsAppSMS/payload");
+const Transport = require("../../models/Transport/transport");
+const Vehicle = require("../../models/Transport/vehicle");
+const Direction = require("../../models/Transport/direction");
+const TransportBatch = require("../../models/Transport/TransportBatch");
 
 exports.preformedStructure = async (req, res) => {
   try {
@@ -38,6 +42,7 @@ exports.preformedStructure = async (req, res) => {
       classCount: batch?.classCount,
     });
     department?.batches.push(identicalBatch._id);
+    institute?.batches.push(identicalBatch._id);
     department.batchCount += 1;
     for (let oneClass of batch?.classroom) {
       // console.log("this is class", oneClass);
@@ -386,13 +391,50 @@ exports.promoteStudent = async (req, res) => {
         "Student",
         notify
       );
-      await Promise.all([
-        student.save(),
-        notify.save(),
-        user.save(),
-        previousData.save(),
-      ]);
+
       student?.previousYearData?.push(previousData._id);
+
+      // console.log(student.vehicle);
+      //regarding for the transport related
+      if (student.vehicle) {
+        const vehicle = await Vehicle.findById({ _id: student.vehicle });
+        const trans = await Transport.findById({
+          _id: `${vehicle?.transport}`,
+        });
+        const trans_batch = new TransportBatch({
+          batchId: batchId,
+          student: student._id,
+          vehicle: vehicle._id,
+          transport: trans._id,
+        });
+        trans.transport_passengers_with_batch.push(trans_batch?._id);
+        vehicle.passenger_array_with_batch.push(trans_batch?._id);
+        const route = await Direction.findById({
+          _id: `${vehicle?.vehicle_route}`,
+        });
+        for (var path of route?.direction_route) {
+          if (`${path?._id}` === `${student.routes?.[0]?.routeId}`) {
+            path.passenger_list_with_batch.push(trans_batch?._id);
+            student.vehicleRemainFeeCount += path?.route_fees;
+            vehicle.remaining_fee += path?.route_fees;
+            trans.remaining_fee += path?.route_fees;
+          }
+        }
+        student.previous_transport_history.push({
+          batchId: student.batches,
+          vehicleRemainFeeCount: student.vehicleRemainFeeCount,
+          vehiclePaidFeeCount: student.vehiclePaidFeeCount,
+          vehicle_payment_status: student.vehicle_payment_status,
+        });
+        await Promise.all([
+          trans.save(),
+          trans_batch.save(),
+          vehicle.save(),
+          route.save(),
+        ]);
+        // console.log(trans, vehicle, route);
+      }
+
       student.studentClass = classId;
       student.studentCode = classes.classCode;
       student.department = departmentId;
@@ -444,9 +486,9 @@ exports.promoteStudent = async (req, res) => {
       student.election_candidate = [];
       student.participate_event = [];
       student.participate_result = [];
-      student.vehicle = null;
-      student.routes = [];
-      student.active_routes = null;
+      // student.vehicle = null;
+      // student.routes = [];
+      // student.active_routes = null;
       student.query_count = 0;
       student.mentor = null;
       student.queries = [];
@@ -474,7 +516,13 @@ exports.promoteStudent = async (req, res) => {
       previousclasses?.promoteStudent?.push(stu);
       // previousclasses?.ApproveStudent?.pull(stu);
       classes.studentCount += 1;
-      await student.save();
+
+      await Promise.all([
+        student.save(),
+        notify.save(),
+        user.save(),
+        previousData.save(),
+      ]);
 
       if (student.studentGender === "Male") {
         classes.boyCount += 1;

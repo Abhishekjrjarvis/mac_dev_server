@@ -65,6 +65,7 @@ const transportSchema = new mongoose.Schema({
       ref: "Student",
     },
   ],
+
   transport_vehicles: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -98,6 +99,12 @@ const transportSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "BankAccount",
   },
+  transport_passengers_with_batch: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "TransportBatch",
+    },
+  ],
 });
 
 module.exports = mongoose.model("Transport", transportSchema);

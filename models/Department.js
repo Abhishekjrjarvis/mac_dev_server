@@ -32,7 +32,7 @@ const departmentSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "SubjectMaster",
     },
-  ],
+  ], 
 
   departmentSelectBatch: {
     type: mongoose.Schema.Types.ObjectId,

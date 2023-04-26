@@ -10,7 +10,7 @@ const batchSchema = new mongoose.Schema({
     default: "UnLocked",
   },
   createdAt: {
-    type: Date,
+    type: Date, 
     default: Date.now,
   },
   institute: {
@@ -30,7 +30,7 @@ const batchSchema = new mongoose.Schema({
   activeBatch: { 
     type: String, 
     default: 'Not Active'
-  },
+  }, 
   exams: [
     {
       type: mongoose.Schema.Types.ObjectId,

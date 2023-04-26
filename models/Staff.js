@@ -378,6 +378,10 @@ const staffSchema = new mongoose.Schema({
       ref: "HostelUnit",
     },
   ],
+  staff_replacement: {
+    type: String,
+    default: "Not Transfer",
+  },
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

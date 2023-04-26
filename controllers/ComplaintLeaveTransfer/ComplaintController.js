@@ -1069,9 +1069,10 @@ exports.staffTransferApproved = async (req, res) => {
       },
     });
     var staffNew = await Staff.findById(assignedStaff);
-    var transferStaff = await Staff.findById(previousStaff).select(
-      "staffDepartment staffClass staffSubject financeDepartment library admissionDepartment admissionModeratorDepartment financeModeratorDepartment instituteModeratorDepartment hostelModeratorDepartment transportDepartment vehicle mentorDepartment eventManagerDepartment aluminiDepartment hostelDepartment hostelUnitDepartment"
-    );
+    var transferStaff = await Staff.findById(previousStaff);
+    // .select(
+    //   "staffDepartment staffClass staffSubject financeDepartment library admissionDepartment admissionModeratorDepartment financeModeratorDepartment instituteModeratorDepartment hostelModeratorDepartment transportDepartment vehicle mentorDepartment eventManagerDepartment aluminiDepartment hostelDepartment hostelUnitDepartment"
+    // );
     transfer.transferStatus = status;
     transfer.replaceBystaff = assignedStaff;
     await transfer.save();
@@ -1233,9 +1234,9 @@ exports.staffTransferApproved = async (req, res) => {
       await instituteModeratorDepartment.save();
     }
     if (institute.ApproveStaff.length >= 1) {
+      institute.staffCount -= 1;
       institute.ApproveStaff.pull(transferStaff._id);
       institute.previousApproveStaff.push(transferStaff._id);
-      // transferStaff.institute = "";
       await Promise.all([
         institute.save(),
         transferStaff.save(),

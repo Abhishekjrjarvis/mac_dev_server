@@ -313,6 +313,43 @@ const directMSMSQuery = async (mob, sName, iName, cName) => {
   return true;
 };
 
+const directESMSStaffQuery = async (mob, sName, iName) => {
+  const e_message = `Hi ${sName}. You are staff of ${iName}. Login by downloading app 'Qviple Community' through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From Qviple`;
+  const url = `http://mobicomm.dove-sms.com//submitsms.jsp?user=Mithkal&key=4c3168d558XX&mobile=+91${mob}&message=${e_message}&senderid=QVIPLE&accusage=6&entityid=1701164286216096677&tempid=1707167282706976266`;
+  axios
+    .post(url)
+    .then((res) => {
+      if ((res && res.data.includes("success")) || res.data.includes("sent")) {
+        console.log("E-messsage Sent Successfully", res.data);
+      } else {
+        console.log("E-something went wrong");
+      }
+    })
+    .catch((e) => {
+      console.log(e);
+    });
+  return true;
+};
+
+// const directHSMSStaffQuery = async (mob, sName, iName, cName) => {
+//   const e_message = `${sName}, आप ${iName} के ${cName} में पढ़ रहे हैं। लिंक के माध्यम से 'Qviple Community' ऐप डाउनलोड करके लॉग इन करें: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - Qviple से`;
+//   const encodeURL = encodeURI(e_message);
+//   const url = `http://mobicomm.dove-sms.com//submitsms.jsp?user=Mithkal&key=4c3168d558XX&mobile=+91${mob}&message=${encodeURL}&senderid=QVIPLE&accusage=6&entityid=1701164286216096677&tempid=1707167283483347066&unicode=1`;
+//   axios
+//     .get(url)
+//     .then((res) => {
+//       if ((res && res.data.includes("success")) || res.data.includes("sent")) {
+//         console.log("H-messsage Sent Successfully", res.data);
+//       } else {
+//         console.log("H-something went wrong");
+//       }
+//     })
+//     .catch((e) => {
+//       console.log(e);
+//     });
+//   return true;
+// };
+
 exports.getOtpAtUser = async (req, res) => {
   try {
     const { userPhoneNumber, status } = req.body;
@@ -2421,9 +2458,14 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
         message: "Direct Institute Account Creation Process Completed 😀✨",
         status: true,
       });
-      const staffName = `${staff.staffFirstName} ${
+      var staffName = `${staff.staffFirstName} ${
         staff.staffMiddleName ? `${staff.staffMiddleName}` : ""
       } ${staff.staffLastName}`;
+      await directESMSStaffQuery(
+        user?.userPhoneNumber,
+        staffName,
+        institute?.insName
+      );
       whats_app_sms_payload(
         user?.userPhoneNumber,
         staffName,
@@ -2482,7 +2524,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
     const finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
-    const structure = await FeeStructure.findById({ _id: fee_struct })
+    const structure = await FeeStructure.findById({ _id: fee_struct });
     if (!existing) {
       var valid = await filter_unique_username(
         req.body.studentFirstName,
@@ -2556,7 +2598,14 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
     student.user = user._id;
     student.fee_structure = fee_struct;
     await student.save();
-    await insert_multiple_status(apply, user, institute, student?._id, finance, structure);
+    await insert_multiple_status(
+      apply,
+      user,
+      institute,
+      student?._id,
+      finance,
+      structure
+    );
     apply.receievedCount += 1;
     apply.selectCount += 1;
     apply.confirmCount += 1;

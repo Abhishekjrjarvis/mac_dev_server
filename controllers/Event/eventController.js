@@ -29,6 +29,9 @@ const {
 } = require("../../config/redis-config");
 const moment = require("moment");
 const { handle_undefined } = require("../../Handler/customError");
+const Election = require("../../models/Elections/Election");
+const Participate = require("../../models/ParticipativeEvent/participate");
+const { date_renew, generate_date } = require("../../helper/dayTimer");
 
 exports.renderNewEventManagerQuery = async (req, res) => {
   try {
@@ -292,6 +295,369 @@ exports.renderOneEventManagerNewSeminar = async (req, res) => {
     manager.seminar_count += 1;
     await Promise.all([manager.save(), new_seminar.save()]);
     res.status(200).send({ message: "Explore New Seminar", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneEventManagerNewElection = async (req, res) => {
+  try {
+    const { eid } = req.params;
+    if (!eid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    var manager = await EventManager.findById({ _id: eid });
+    var elect = new Election({
+      election_position: req?.body.election_position,
+      election_visible: req?.body.election_visible,
+    });
+    manager.election.push(elect?._id);
+    manager.election_count += 1;
+    elect.event_manager = manager?._id;
+    elect.election_app_start_date = generate_date(`${req.body?.date}`);
+    for (var ref of req?.body?.depart) {
+      var depart = await Department.findById({ _id: ref });
+      depart.election_event.push(elect?._id);
+      depart.election_event_count += 1;
+      elect.department.push(depart._id);
+      await depart.save();
+    }
+    await Promise.all([elect.save(), manager.save()]);
+    elect.election_app_end_date = await date_renew(
+      elect?.election_app_start_date,
+      "End",
+      depart?.election_date_setting
+    );
+    // console.log("End", elect.election_app_end_date);
+    elect.election_selection_date = await date_renew(
+      elect?.election_app_end_date,
+      "Select",
+      depart?.election_date_setting
+    );
+    // console.log("Select", elect.election_selection_date);
+    elect.election_campaign_date = await date_renew(
+      elect?.election_selection_date,
+      "Compaign",
+      depart?.election_date_setting
+    );
+    // console.log("Compaign", elect.election_campaign_date);
+    elect.election_campaign_last_date = await date_renew(
+      elect?.election_campaign_date,
+      "Compaign_Last",
+      depart?.election_date_setting
+    );
+    await elect.save();
+    res.status(201).send({
+      message: "New Election Application will be available",
+      status: true,
+      elect,
+    });
+    // console.log("Last", elect?.election_campaign_last_date);
+    elect.election_voting_date = await date_renew(
+      elect?.election_campaign_last_date,
+      "Vote",
+      depart?.election_date_setting
+    );
+    await elect.save();
+    // console.log("Vote", elect?.election_voting_date);
+    elect.election_result_date = await date_renew(
+      elect?.election_voting_date,
+      "Result",
+      depart?.election_date_setting
+    );
+    // console.log("res", elect.election_result_date);
+    await elect.save();
+    if (elect?.election_visible === "Only Institute") {
+      var all_student = await Student.find({
+        $and: [
+          { institute: manager?.institute },
+          { studentStatus: "Approved" },
+        ],
+      }).select("user notification department");
+    } else if (elect?.election_visible === "Only Department") {
+      var all_students = [];
+      for (var ref of req?.body?.depart) {
+        const depart = await Department.findById({ _id: `${ref}` }).select(
+          "ApproveStudent"
+        );
+        all_students.push(...depart?.ApproveStudent);
+      }
+      var all_student = await Student.find({
+        _id: { $in: all_students },
+      }).select("user notification department");
+    } else {
+    }
+
+    all_student?.forEach(async (ele) => {
+      const notify = new StudentNotification({});
+      const user = await User.findById({ _id: `${ele?.user}` }).select(
+        "activity_tab deviceToken"
+      );
+      notify.notifyContent = `Apply from ${moment(
+        elect?.election_app_start_date
+      ).format("LL")} to ${moment(elect?.election_app_end_date).format(
+        "LL"
+      )} , Voting Date ${moment(elect?.election_voting_date).format("LL")}.`;
+      notify.notifySender = ele?.department?._id;
+      notify.notifyReceiever = user._id;
+      notify.electionId = elect?._id;
+      notify.notifyType = "Student";
+      notify.election_type = "New Election App";
+      notify.notifyPublisher = ele._id;
+      user.activity_tab.push(notify._id);
+      notify.notifyByDepartPhoto = ele?.department?._id;
+      notify.notifyCategory = "Election";
+      notify.redirectIndex = 12;
+      invokeMemberTabNotification(
+        "Student Activity",
+        notify,
+        "New Election Application",
+        user._id,
+        user.deviceToken,
+        "Student",
+        notify
+      );
+      await Promise.all([notify.save(), user.save()]);
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneEventManagerInstituteQuery = async (req, res) => {
+  try {
+    const { eid } = req.params;
+    const { search } = req.query;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const manager = await EventManager.findById({ _id: eid });
+    const one_ins = await InstituteAdmin.findById({
+      _id: `${manager?.institute}`,
+    }).select("ApproveStudent");
+
+    if (search) {
+      var all_student = await Student.find({
+        $and: [
+          {
+            institute: one_ins?._id,
+          },
+          {
+            studentStatus: "Approved",
+          },
+        ],
+        $or: [
+          { studentFirstName: { $regex: search, $options: "i" } },
+          {
+            studentMiddleName: { $regex: search, $options: "i" },
+          },
+          { studentLastName: { $regex: search, $options: "i" } },
+        ],
+      }).select(
+        "studentFirstName studentMiddleName studentLastName status studentGRNO photoId studentProfilePhoto"
+      );
+    } else {
+      var all_student = await Student.find({
+        _id: { $in: one_ins?.ApproveStudent },
+      })
+        .sort("-createdAt")
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName studentLastName studentGRNO photoId studentProfilePhoto"
+        );
+    }
+    if (all_student?.length > 0) {
+      // const allStudentEncrypt = await encryptionPayload(all_student);
+      res.status(200).send({
+        message: "All Supporting Member Array 😀",
+        all: all_student,
+        status: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Supporting Member Array 😡",
+        all: [],
+        status: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneEventManagerNewParticipate = async (req, res) => {
+  try {
+    const { eid } = req.params;
+    if (!eid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const manager = await EventManager.findById({ _id: eid });
+    var part = new Participate({ ...req.body });
+    manager.participate.push(part?._id);
+    manager.participate_count += 1;
+    for (var ref of req?.body?.depart) {
+      var depart = await Department.findById({ _id: ref });
+      depart.participate_event.push(part?._id);
+      depart.participate_event_count += 1;
+      part.department.push(depart._id);
+      await depart.save();
+    }
+    part.event_manager = manager?._id;
+    part.event_fee = parseInt(req.body?.event_fee);
+    part.event_app_last_date = new Date(`${req.body?.lastDate}`).toISOString();
+    part.event_date = new Date(`${req.body?.date}`).toISOString();
+    part.event_classes.push(...req.body?.classes);
+    await Promise.all([manager.save(), part.save()]);
+    res.status(200).send({
+      message: "New Participate Event Application will be available",
+      status: true,
+    });
+    var all_students = [];
+    for (var ref of req?.body?.depart) {
+      const depart = await Department.findById({ _id: `${ref}` }).select(
+        "ApproveStudent"
+      );
+      all_students.push(...depart?.ApproveStudent);
+    }
+    var all_student = await Student.find({
+      _id: { $in: all_students },
+    }).select("user notification department");
+    all_student?.forEach(async (ele) => {
+      const notify = new StudentNotification({});
+      const user = await User.findById({ _id: `${ele?.user}` }).select(
+        "activity_tab deviceToken"
+      );
+      notify.notifyContent = `New ${part.event_name} Event will be held on ${part.event_date}`;
+      notify.notifySender = ele?.department?._id;
+      notify.notifyReceiever = user._id;
+      notify.participateEventId = part?._id;
+      notify.notifyType = "Student";
+      notify.participate_event_type = "New Participate Event App";
+      notify.notifyPublisher = ele._id;
+      user.activity_tab.push(notify._id);
+      notify.notifyByDepartPhoto = ele?.department?._id;
+      notify.notifyCategory = "Participate Event App";
+      notify.redirectIndex = 13;
+      invokeMemberTabNotification(
+        "Student Activity",
+        notify,
+        "New Participative Event Application",
+        user._id,
+        user.deviceToken,
+        "Student",
+        notify
+      );
+      await Promise.all([notify.save(), user.save()]);
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneEventManagerAllElections = async (req, res) => {
+  try {
+    const { eid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (!eid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const manager = await EventManager.findById({ _id: eid }).select(
+      "election election_count"
+    );
+
+    if (search) {
+      var all_elections = await Election.find({
+        $and: [{ _id: { $in: manager?.election } }],
+        $or: [{ event_position: { $regex: search, $options: "i" } }],
+      }).select(
+        "election_position election_visible election_app_start_date election_app_end_date election_status election_voting_date"
+      );
+    } else {
+      var all_elections = await Election.find({
+        _id: { $in: manager?.election },
+      })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "election_position election_visible election_app_start_date election_app_end_date election_status election_voting_date"
+        );
+    }
+    if (all_elections?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Elections",
+        access: true,
+        all_elections: all_elections,
+        count: manager?.election_count,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Upcoming Elections",
+        access: false,
+        all_elections: [],
+        count: 0,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderOneEventManagerAllParticipate = async (req, res) => {
+  try {
+    const { eid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (!eid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const manager = await EventManager.findById({ _id: eid }).select(
+      "participate participate_count"
+    );
+
+    if (search) {
+      var all_participate = await Participate.find({
+        $and: [{ _id: { $in: manager?.participate } }],
+        $or: [{ event_position: { $regex: search, $options: "i" } }],
+      }).select("event_name event_date event_about event_app_last_date");
+    } else {
+      var all_participate = await Participate.find({
+        _id: { $in: manager?.participate },
+      })
+        .limit(limit)
+        .skip(skip)
+        .select("event_name event_date event_about event_app_last_date");
+    }
+    if (all_participate?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Participate",
+        access: true,
+        all_participate: all_participate,
+        count: manager?.participate_count,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Upcoming Participate",
+        access: false,
+        all_participate: [],
+        count: 0,
+      });
+    }
   } catch (e) {
     console.log(e);
   }

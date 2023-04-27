@@ -32,6 +32,31 @@ router.post(
   catchAsync(Event.renderOneEventManagerNewSeminar)
 );
 
+router.post(
+  "/manager/:eid/new/election",
+  catchAsync(Event.renderOneEventManagerNewElection)
+);
+
+router.get(
+  "/manager/:eid/one/institute",
+  catchAsync(Event.renderOneEventManagerInstituteQuery)
+);
+
+router.post(
+  "/manager/:eid/new/participate",
+  catchAsync(Event.renderOneEventManagerNewParticipate)
+);
+
+router.get(
+  "/manager/:eid/all/elections",
+  catchAsync(Event.renderOneEventManagerAllElections)
+);
+
+router.get(
+  "/manager/:eid/all/participate",
+  catchAsync(Event.renderOneEventManagerAllParticipate)
+);
+
 router.get("/one/event/:evid", catchAsync(Event.renderOneEventQuery));
 
 router.get("/one/seminar/:smid", catchAsync(Event.renderOneSeminarQuery));

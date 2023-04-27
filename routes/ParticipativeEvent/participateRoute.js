@@ -41,7 +41,7 @@ router.patch(
 
 // Result Declaration
 router.patch(
-  "/one/:pid/result",
+  "/one/:pid/result/:did",
   // isLoggedIn,
   catchAsync(Event.retrieveResultParticipateEventStudent)
 );

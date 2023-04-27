@@ -1864,7 +1864,7 @@ exports.renderDestroySeatingArrangementQuery = async (req, res) => {
 //     if(!eid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
 
 //     const one_exam = await Exam.findById({ _id: eid })
-//     const 
+//     const new_seat = await Seating({ ...req.body });
 //   }
 //   catch(e){
 //     console.log(e)

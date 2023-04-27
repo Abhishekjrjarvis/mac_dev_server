@@ -16,6 +16,10 @@ const studentNotificationSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department",
   },
+  notifyByEventManagerPhoto: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "EventManager",
+  },
   notifyByInsPhoto: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteAdmin",

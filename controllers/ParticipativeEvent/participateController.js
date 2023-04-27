@@ -161,7 +161,7 @@ exports.retrieveChecklistParticipateEventStudent = async (req, res) => {
   try {
     const { pid, sid } = req.params;
     var part = await Participate.findById({ _id: pid });
-    var depart = await Department.findById({ _id: `${part.department}` });
+    // var depart = await Department.findById({ _id: `${part.department}` });
     var student = await Student.findById({ _id: sid });
     if (part.event_checklist_critiria === "Yes") {
       part.event_checklist.push({
@@ -181,14 +181,14 @@ exports.retrieveChecklistParticipateEventStudent = async (req, res) => {
         "activity_tab deviceToken"
       );
       notify.notifyContent = `New Checklist Item assigned for ${part.event_name} on ${part.event_date}`;
-      notify.notifySender = depart._id;
+      notify.notifySender = part?.event_manager;
       notify.notifyReceiever = user._id;
       notify.participateEventId = part?._id;
       notify.notifyType = "Student";
       notify.participate_event_type = "New Participate Event Checklist";
       notify.notifyPublisher = student._id;
       user.activity_tab.push(notify._id);
-      notify.notifyByDepartPhoto = depart._id;
+      notify.notifyByEventManagerPhoto = part?.event_manager;
       notify.notifyCategory = "Participate Event Assign";
       notify.redirectIndex = 13;
       invokeMemberTabNotification(
@@ -212,11 +212,11 @@ exports.retrieveChecklistParticipateEventStudent = async (req, res) => {
 // Student Participant Extra Point Remain Given Result Declare (AutoRefresh)
 exports.retrieveResultParticipateEventStudent = async (req, res) => {
   try {
-    const { pid } = req.params;
+    const { pid, did } = req.params;
     var result_array = [];
     const { result_set } = req.body;
     var part = await Participate.findById({ _id: pid });
-    var depart = await Department.findById({ _id: `${part.department}` });
+    var depart = await Department.findById({ _id: did });
     if (part.event_ranking_critiria === "Yes" && result_set?.length > 0) {
       for (var ref of result_set) {
         var student = await Student.findById({ _id: ref?.sid });
@@ -268,14 +268,14 @@ exports.retrieveResultParticipateEventStudent = async (req, res) => {
         } is the ${result_array ? result_array[0]?.rank : ""} of ${
           part.event_name
         }`;
-        notify.notifySender = depart._id;
+        notify.notifySender = part?.event_manager;
         notify.notifyReceiever = user._id;
         notify.participateEventId = part?._id;
         notify.notifyType = "Student";
         notify.participate_event_type = "Result Participate Event";
         notify.notifyPublisher = ele._id;
         user.activity_tab.push(notify._id);
-        notify.notifyByDepartPhoto = depart._id;
+        notify.notifyByEventManagerPhoto = part?.event_manager;
         notify.notifyCategory = "Participate Event Result";
         notify.redirectIndex = 13;
         invokeMemberTabNotification(

@@ -38,6 +38,7 @@ const {
   render_institute_current_role,
 } = require("../Moderator/roleController");
 const { announcement_feed_query } = require("../../Post/announceFeed");
+const { handle_undefined } = require("../../Handler/customError");
 
 exports.getDashOneQuery = async (req, res) => {
   try {
@@ -2062,15 +2063,19 @@ exports.retrieveCurrentSelectBatch = async (req, res) => {
   try {
     const { did, bid } = req.params;
     const department = await Department.findById({ _id: did });
-    const prev_batches = await Batch.findById({
-      _id: department.departmentSelectBatch,
-    });
+    var valid_active_batch = handle_undefined(department?.departmentSelectBatch)
+    if(valid_active_batch){
+      var prev_batches = await Batch.findById({
+        _id: department.departmentSelectBatch,
+      });
+      prev_batches.activeBatch = "Not Active";
+      await prev_batches.save()
+    }
     const batches = await Batch.findById({ _id: bid });
     department.departmentSelectBatch = batches._id;
     department.userBatch = batches._id;
     batches.activeBatch = "Active";
-    prev_batches.activeBatch = "Not Active";
-    await Promise.all([department.save(), batches.save(), prev_batches.save()]);
+    await Promise.all([department.save(), batches.save()]);
     // Add Another Encryption
     res.status(200).send({
       message: "Batch Detail Data",

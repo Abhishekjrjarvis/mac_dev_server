@@ -38,10 +38,12 @@ const participateEventSchema = new mongoose.Schema({
     type: String,
     default: "No",
   },
-  department: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Department",
-  },
+  department: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Department",
+    },
+  ],
   created_at: {
     type: Date,
     default: Date.now,
@@ -103,6 +105,10 @@ const participateEventSchema = new mongoose.Schema({
   apply_student_count: {
     type: Number,
     default: 0,
+  },
+  event_manager: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "EventManager",
   },
 });
 

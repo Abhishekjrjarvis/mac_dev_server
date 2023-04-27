@@ -1535,7 +1535,10 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
         notify.notifyReceiever = user._id;
         notify.notifyType = "Student";
         notify.notifyPublisher = student._id;
-        notify.notifyBySubjectPhoto = subjects._id;
+        notify.notifyBySubjectPhoto.subject_id = subjects?._id;
+        notify.notifyBySubjectPhoto.subject_name = subjects.subjectName;
+        notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
+        notify.notifyBySubjectPhoto.subject_title = subjects.subjectTitle;
         notify.notifyCategory = "Student Present";
         user.activity_tab.push(notify._id);
         student.notification.push(notify._id);
@@ -1550,15 +1553,15 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
         notify.notifyCategory = "Attendence";
         notify.redirectIndex = 3;
         //
-        // invokeMemberTabNotification(
-        //   "Student Activity",
-        //   notify,
-        //   "Mark Attendence",
-        //   user._id,
-        //   user.deviceToken,
-        //   "Student",
-        //   notify
-        // );
+        invokeMemberTabNotification(
+          "Student Activity",
+          notify,
+          "Mark Attendence",
+          user._id,
+          user.deviceToken,
+          "Student",
+          notify
+        );
         //
         await Promise.all([student.save(), notify.save(), user.save()]);
       }
@@ -1579,7 +1582,10 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
         notify.notifyType = "Student";
         notify.notifyPublisher = student._id;
         notify.notifyCategory = "Student Absent";
-        notify.notifyBySubjectPhoto = subjects._id;
+        notify.notifyBySubjectPhoto.subject_id = subjects?._id;
+        notify.notifyBySubjectPhoto.subject_name = subjects.subjectName;
+        notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
+        notify.notifyBySubjectPhoto.subject_title = subjects.subjectTitle;
         user.activity_tab.push(notify._id);
         student.notification.push(notify._id);
         student.subjectAttendance.push(attendence._id);

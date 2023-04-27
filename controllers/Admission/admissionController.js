@@ -667,7 +667,11 @@ exports.fetchAllRequestApplication = async (req, res) => {
               studentFirstName: { $regex: `${search}`, $options: "i" },
             },
             select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber user",
+              populate: {
+                path: "user",
+                select: "userPhoneNumber userEmail"
+              }
           },
         });
       for (let data of apply.receievedApplication) {
@@ -695,7 +699,11 @@ exports.fetchAllRequestApplication = async (req, res) => {
           populate: {
             path: "student",
             select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber user",
+              populate: {
+                path: "user",
+                select: "userPhoneNumber userEmail"
+              }
           },
         });
       var all_request_query = nested_document_limit(
@@ -927,7 +935,11 @@ exports.fetchAllConfirmApplicationPayload = async (req, res) => {
               studentFirstName: { $regex: `${search}`, $options: "i" },
             },
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber user",
+              populate: {
+                path: "user",
+                select: "userPhoneNumber userEmail"
+              }
           },
         });
       for (let data of apply.confirmedApplication) {
@@ -956,7 +968,11 @@ exports.fetchAllConfirmApplicationPayload = async (req, res) => {
           populate: {
             path: "student",
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber user",
+              populate: {
+                path: "user",
+                select: "userPhoneNumber userEmail"
+              }
           },
         });
       if (apply?.confirmedApplication?.length > 0) {
@@ -1102,7 +1118,11 @@ exports.fetchAllCancelApplication = async (req, res) => {
               studentFirstName: { $regex: `${search}`, $options: "i" },
             },
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber user",
+              populate: {
+                path: "user",
+                select: "userPhoneNumber userEmail"
+              }
           },
         });
       for (let data of apply?.cancelApplication) {
@@ -1129,7 +1149,11 @@ exports.fetchAllCancelApplication = async (req, res) => {
           populate: {
             path: "student",
             select:
-              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber",
+              "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber user",
+              populate: {
+                path: "user",
+                select: "userPhoneNumber userEmail"
+              }
           },
         });
       var all_cancel_query = nested_document_limit(
@@ -6356,13 +6380,18 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
       }
       await one_remain_list.save();
       for (var ref of one_student?.active_fee_heads) {
-        // console.log(one_student?.active_fee_heads?.length)
+        console.log("Before", one_student?.active_fee_heads?.length);
         if (`${ref?.fee_structure}` === `${old_struct?._id}`) {
           one_student.active_fee_heads.pull(ref?._id);
+          console.log("pull")
         }
+        else{
+          console.log("push")
+        }
+        // await one_student.save()
       }
       await one_student.save();
-      // console.log(one_student?.active_fee_heads?.length)
+      console.log("After", one_student?.active_fee_heads?.length);
       for (var ref of all_receipts) {
         for (var ele of ref?.fee_heads) {
           if (`${ele?.fee_structure}` === `${old_struct?._id}`) {

@@ -523,6 +523,12 @@ const studentSchema = new mongoose.Schema({
     },
   ],
 
+  duplicate_copy: {
+    type: String,
+    default: "Original Copy",
+  },
+
+
   previous_transport_history: [
     {
       batchId: { type: mongoose.Schema.Types.ObjectId, ref: "Batch" },

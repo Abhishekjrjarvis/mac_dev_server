@@ -7,6 +7,7 @@ const Student = require("../../models/Student");
 const Transport = require("../../models/Transport/transport");
 const Vehicle = require("../../models/Transport/vehicle");
 const Direction = require("../../models/Transport/direction");
+const TransportBatch = require("../../models/Transport/TransportBatch");
 const {
   uploadDocFile,
   uploadFile,
@@ -18,6 +19,7 @@ const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const { designation_alarm } = require("../../WhatsAppSMS/payload");
+const { nested_document_limit } = require("../../helper/databaseFunction");
 
 exports.renderNewTransportManager = async (req, res) => {
   try {
@@ -125,10 +127,10 @@ exports.renderNewVehicleQuery = async (req, res) => {
         access: false,
       });
     const trans_panel = await Transport.findById({ _id: tid });
-    if(dsid){
+    if (dsid) {
       var d_staff = await Staff.findOne({ _id: dsid });
     }
-    if(csid){
+    if (csid) {
       var c_staff = await Staff.findOne({ _id: csid });
     }
     if (duid) {
@@ -278,14 +280,23 @@ exports.renderVehicleNewPassenger = async (req, res) => {
       _id: `${vehicle?.vehicle_route}`,
     });
     const student = await Student.findById({ _id: sid });
+    const trans_batch = new TransportBatch({
+      batchId: student.batches,
+      student: student._id,
+      vehicle: vehicle._id,
+      transport: trans._id,
+    });
     trans.passenger_count += 1;
     trans.transport_passengers.push(student?._id);
+    trans.transport_passengers_with_batch.push(trans_batch?._id);
     vehicle.passenger_count += 1;
     vehicle.passenger_array.push(student?._id);
+    vehicle.passenger_array_with_batch.push(trans_batch?._id);
     student.vehicle = vehicle._id;
     for (var path of route?.direction_route) {
       if (`${path?._id}` === `${rid}`) {
         path.passenger_list.push(student?._id);
+        path.passenger_list_with_batch.push(trans_batch?._id);
         path.passenger_count += 1;
         student.routes.push({
           routeId: path?._id,
@@ -304,6 +315,7 @@ exports.renderVehicleNewPassenger = async (req, res) => {
       }
     }
     await Promise.all([
+      trans_batch.save(),
       trans.save(),
       vehicle.save(),
       route.save(),
@@ -1098,6 +1110,854 @@ exports.destroyOneVehicleRouteQuery = async (req, res) => {
       message: "Route / Path Deletion Operation Completed ",
       access: true,
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const getALLBatchPassengerWithoutSearch = async (
+  passenger_list,
+  currentBatches,
+  pastBatches,
+  page,
+  limit,
+  filter_by
+) => {
+  try {
+    const trans_batch_all_current = await TransportBatch.find({
+      $and: [
+        {
+          batchId: {
+            $in: currentBatches,
+          },
+        },
+        {
+          _id: {
+            $in: passenger_list,
+          },
+        },
+      ],
+    })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount",
+        populate: {
+          path: "studentClass",
+          select: "className classTitle",
+        },
+      })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount",
+        populate: {
+          path: "user",
+          select: "userPhoneNumber",
+        },
+      })
+      // .limit(limit)
+      // .skip(skip)
+      .select("student");
+    const trans_batch_all_past = await TransportBatch.find({
+      $and: [
+        {
+          batchId: {
+            $in: pastBatches,
+          },
+        },
+        {
+          _id: {
+            $in: passenger_list,
+          },
+        },
+      ],
+    })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender previous_transport_history.vehicleRemainFeeCount",
+        populate: {
+          path: "studentClass",
+          select: "className classTitle",
+        },
+      })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender previous_transport_history.vehicleRemainFeeCount",
+        populate: {
+          path: "user",
+          select: "userPhoneNumber",
+        },
+      })
+      // .limit(limit)
+      // .skip(skip)
+      .select("student");
+    var all_passengers = [];
+    for (let stud of trans_batch_all_current) {
+      if (stud.student) all_passengers.push(stud.student);
+    }
+    for (let stud of trans_batch_all_past) {
+      if (stud.student) all_passengers.push(stud.student);
+    }
+    if (filter_by === "true") {
+      all_passengers.sort(function (st1, st2) {
+        return (
+          parseInt(st2.previous_transport_history?.[0].vehicleRemainFeeCount) -
+          parseInt(st1.previous_transport_history?.[0].vehicleRemainFeeCount)
+        );
+      });
+      all_passengers.sort(function (st1, st2) {
+        return (
+          parseInt(st2.vehicleRemainFeeCount) -
+          parseInt(st1.vehicleRemainFeeCount)
+        );
+      });
+    }
+    all_passengers = await nested_document_limit(page, limit, all_passengers);
+    return all_passengers;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const getALLBatchPassengerWithSearch = async (
+  passenger_list,
+  currentBatches,
+  pastBatches,
+  page,
+  limit,
+  search,
+  filter_by
+) => {
+  try {
+    const trans_batch_all_current = await TransportBatch.find({
+      $and: [
+        {
+          batchId: {
+            $in: currentBatches,
+          },
+        },
+        {
+          _id: {
+            $in: passenger_list,
+          },
+        },
+      ],
+    })
+      .populate({
+        path: "student",
+        match: {
+          $or: [
+            {
+              studentFirstName: { $regex: search, $options: "i" },
+            },
+            {
+              studentMiddleName: { $regex: search, $options: "i" },
+            },
+            {
+              studentLastName: { $regex: search, $options: "i" },
+            },
+          ],
+        },
+        select:
+          "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount",
+        populate: {
+          path: "studentClass",
+          select: "className classTitle",
+        },
+      })
+      .populate({
+        path: "student",
+        match: {
+          $or: [
+            {
+              studentFirstName: { $regex: search, $options: "i" },
+            },
+            {
+              studentMiddleName: { $regex: search, $options: "i" },
+            },
+            {
+              studentLastName: { $regex: search, $options: "i" },
+            },
+          ],
+        },
+        select:
+          "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount",
+        populate: {
+          path: "user",
+          select: "userPhoneNumber",
+        },
+      })
+      // .limit(limit)
+      // .skip(skip)
+      .select("student");
+
+    const trans_batch_all_past = await TransportBatch.find({
+      $and: [
+        {
+          batchId: {
+            $in: pastBatches,
+          },
+        },
+        {
+          _id: {
+            $in: passenger_list,
+          },
+        },
+      ],
+    })
+      .populate({
+        path: "student",
+        match: {
+          $or: [
+            {
+              studentFirstName: { $regex: search, $options: "i" },
+            },
+            {
+              studentMiddleName: { $regex: search, $options: "i" },
+            },
+            {
+              studentLastName: { $regex: search, $options: "i" },
+            },
+          ],
+        },
+        select:
+          "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender previous_transport_history.vehicleRemainFeeCount",
+        populate: {
+          path: "studentClass",
+          select: "className classTitle",
+        },
+      })
+      .populate({
+        path: "student",
+        match: {
+          $or: [
+            {
+              studentFirstName: { $regex: search, $options: "i" },
+            },
+            {
+              studentMiddleName: { $regex: search, $options: "i" },
+            },
+            {
+              studentLastName: { $regex: search, $options: "i" },
+            },
+          ],
+        },
+        select:
+          "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender previous_transport_history.vehicleRemainFeeCount",
+        populate: {
+          path: "user",
+          select: "userPhoneNumber",
+        },
+      })
+      // .limit(limit)
+      // .skip(skip)
+      .select("student");
+    var all_passengers = [];
+
+    for (let stud of trans_batch_all_current) {
+      if (stud.student) all_passengers.push(stud.student);
+    }
+    for (let stud of trans_batch_all_past) {
+      if (stud.student) all_passengers.push(stud.student);
+    }
+    if (filter_by === "true") {
+      all_passengers.sort(function (st1, st2) {
+        return (
+          parseInt(
+            st2?.previous_transport_history?.[0].vehicleRemainFeeCount ?? ""
+          ) -
+          parseInt(
+            st1?.previous_transport_history?.[0].vehicleRemainFeeCount ?? ""
+          )
+        );
+      });
+      all_passengers.sort(function (st1, st2) {
+        return (
+          parseInt(st2?.vehicleRemainFeeCount) -
+          parseInt(st1?.vehicleRemainFeeCount)
+        );
+      });
+    }
+    all_passengers = await nested_document_limit(page, limit, all_passengers);
+    return all_passengers;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const getPastBatchPassengerWithoutSearch = async (
+  passenger_list,
+  batches,
+  page,
+  limit,
+  filter_by
+) => {
+  try {
+    const trans_batch = await TransportBatch.find({
+      $and: [
+        {
+          batchId: {
+            $in: batches,
+          },
+        },
+        {
+          _id: {
+            $in: passenger_list,
+          },
+        },
+      ],
+    })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender previous_transport_history.vehicleRemainFeeCount",
+        populate: {
+          path: "studentClass",
+          select: "className classTitle",
+        },
+      })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender previous_transport_history.vehicleRemainFeeCount",
+        populate: {
+          path: "user",
+          select: "userPhoneNumber",
+        },
+      })
+      .select("student");
+    var all_passengers = [];
+    for (let stud of trans_batch) {
+      if (stud.student) all_passengers.push(stud.student);
+    }
+    // console.log("all_passengers", all_passengers);
+    if (filter_by === "true") {
+      all_passengers.sort(function (st1, st2) {
+        return (
+          parseInt(st2?.previous_transport_history?.[0].vehicleRemainFeeCount) -
+          parseInt(st1?.previous_transport_history?.[0].vehicleRemainFeeCount)
+        );
+      });
+    }
+    // console.log("all_passengers after", all_passengers);
+
+    all_passengers = await nested_document_limit(page, limit, all_passengers);
+
+    return all_passengers;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const getPastBatchPassengerWithSearch = async (
+  passenger_list,
+  batches,
+  page,
+  limit,
+  search,
+  filter_by
+) => {
+  try {
+    const trans_batch = await TransportBatch.find({
+      $and: [
+        {
+          batchId: {
+            $in: batches,
+          },
+        },
+        {
+          _id: {
+            $in: passenger_list,
+          },
+        },
+      ],
+    })
+      .populate({
+        path: "student",
+        match: {
+          $or: [
+            {
+              studentFirstName: { $regex: search, $options: "i" },
+            },
+            {
+              studentMiddleName: { $regex: search, $options: "i" },
+            },
+            {
+              studentLastName: { $regex: search, $options: "i" },
+            },
+          ],
+        },
+        select:
+          "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender previous_transport_history.vehicleRemainFeeCount",
+        populate: {
+          path: "studentClass",
+          select: "className classTitle",
+        },
+      })
+      .populate({
+        path: "student",
+        match: {
+          $or: [
+            {
+              studentFirstName: { $regex: search, $options: "i" },
+            },
+            {
+              studentMiddleName: { $regex: search, $options: "i" },
+            },
+            {
+              studentLastName: { $regex: search, $options: "i" },
+            },
+          ],
+        },
+        select:
+          "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender previous_transport_history.vehicleRemainFeeCount",
+        populate: {
+          path: "user",
+          select: "userPhoneNumber",
+        },
+      })
+      .select("student");
+    var all_passengers = [];
+    for (let stud of trans_batch) {
+      if (stud.student) all_passengers.push(stud.student);
+    }
+    if (filter_by === "true") {
+      all_passengers.sort(function (st1, st2) {
+        return (
+          parseInt(st2?.previous_transport_history?.[0].vehicleRemainFeeCount) -
+          parseInt(st1?.previous_transport_history?.[0].vehicleRemainFeeCount)
+        );
+      });
+    }
+    all_passengers = await nested_document_limit(page, limit, all_passengers);
+
+    return all_passengers;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const getCurrentBatchPassengerWithoutSearch = async (
+  transport_passengers,
+  batches,
+  skip,
+  limit,
+  filter_by
+) => {
+  try {
+    if (filter_by === "true") {
+      const all_passengers = await Student.find({
+        $and: [
+          { _id: { $in: transport_passengers } },
+          { batches: { $in: batches } },
+        ],
+      })
+        .sort("-vehicleRemainFeeCount")
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+        )
+        .populate({
+          path: "studentClass",
+          select: "className classTitle",
+        })
+        .populate({
+          path: "user",
+          select: "userPhoneNumber",
+        })
+        .exec();
+
+      return all_passengers;
+    } else {
+      const all_passengers = await Student.find({
+        $and: [
+          { _id: { $in: transport_passengers } },
+          { batches: { $in: batches } },
+        ],
+      })
+        .sort("vehicleRemainFeeCount")
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+        )
+        .populate({
+          path: "studentClass",
+          select: "className classTitle",
+        })
+        .populate({
+          path: "user",
+          select: "userPhoneNumber",
+        })
+        .exec();
+
+      return all_passengers;
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const getCurrentBatchPassengerWithSearch = async (
+  transport_passengers,
+  batches,
+  skip,
+  limit,
+  search,
+  filter_by
+) => {
+  try {
+    if (filter_by === "true") {
+      const all_passengers = await Student.find({
+        $and: [
+          { _id: { $in: transport_passengers } },
+          { batches: { $in: batches } },
+          {
+            $or: [
+              {
+                studentFirstName: { $regex: search, $options: "i" },
+              },
+              {
+                studentMiddleName: { $regex: search, $options: "i" },
+              },
+              {
+                studentLastName: { $regex: search, $options: "i" },
+              },
+            ],
+          },
+        ],
+      })
+        .sort("-vehicleRemainFeeCount")
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+        )
+        .populate({
+          path: "studentClass",
+          select: "className classTitle",
+        })
+        .populate({
+          path: "user",
+          select: "userPhoneNumber",
+        })
+        .exec();
+
+      return all_passengers;
+    } else {
+      const all_passengers = await Student.find({
+        $and: [
+          { _id: { $in: transport_passengers } },
+          { batches: { $in: batches } },
+          {
+            $or: [
+              {
+                studentFirstName: { $regex: search, $options: "i" },
+              },
+              {
+                studentMiddleName: { $regex: search, $options: "i" },
+              },
+              {
+                studentLastName: { $regex: search, $options: "i" },
+              },
+            ],
+          },
+        ],
+      })
+        .sort("vehicleRemainFeeCount")
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName studentLastName active_routes photoId studentProfilePhoto studentGRNO studentDOB studentGender vehicleRemainFeeCount"
+        )
+        .populate({
+          path: "studentClass",
+          select: "className classTitle",
+        })
+        .populate({
+          path: "user",
+          select: "userPhoneNumber",
+        })
+        .exec();
+
+      return all_passengers;
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.renderTransportAllPassengerWithBatch = async (req, res) => {
+  try {
+    const { tid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { filter_by, search, batch_filter } = req.query;
+    if (!tid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    var trans = await Transport.findById({ _id: tid }).select(
+      "transport_passengers institute transport_passengers_with_batch"
+    );
+    if (batch_filter === "ALL") {
+      // fetch all data
+      const instituteCurrentBatch = await InstituteAdmin.findById(
+        trans.institute
+      )
+        .populate({
+          path: "batches",
+          match: {
+            activeBatch: { $eq: `Active` },
+          },
+          select: "_id",
+        })
+        .select("batches");
+      const institutePreviousBatch = await InstituteAdmin.findById(
+        trans.institute
+      )
+        .populate({
+          path: "batches",
+          match: { activeBatch: { $eq: "Not Active" } },
+          select: "_id",
+        })
+        .select("batches");
+      if (search)
+        var all_passengers = await getALLBatchPassengerWithSearch(
+          trans.transport_passengers_with_batch,
+          instituteCurrentBatch?.batches,
+          institutePreviousBatch?.batches,
+          page,
+          limit,
+          search,
+          filter_by
+        );
+      else
+        var all_passengers = await getALLBatchPassengerWithoutSearch(
+          trans.transport_passengers_with_batch,
+          instituteCurrentBatch?.batches,
+          institutePreviousBatch?.batches,
+          page,
+          limit,
+          filter_by
+        );
+    } else if (batch_filter === "PAST") {
+      // fetch all past data
+      const institute = await InstituteAdmin.findById(trans.institute)
+        .populate({
+          path: "batches",
+          match: { activeBatch: { $eq: "Not Active" } },
+          select: "_id",
+        })
+        .select("batches");
+      if (search)
+        var all_passengers = await getPastBatchPassengerWithSearch(
+          trans.transport_passengers_with_batch,
+          institute?.batches,
+          page,
+          limit,
+          search,
+          filter_by
+        );
+      else
+        var all_passengers = await getPastBatchPassengerWithoutSearch(
+          trans.transport_passengers_with_batch,
+          institute?.batches,
+          page,
+          limit,
+          filter_by
+        );
+      // console.log(all_passengers);
+    } else {
+      // fetch all current data
+      const institute = await InstituteAdmin.findById(trans.institute)
+        .populate({
+          path: "batches",
+          match: {
+            activeBatch: { $eq: `Active` },
+          },
+          select: "_id",
+        })
+        .select("batches");
+
+      if (search)
+        var all_passengers = await getCurrentBatchPassengerWithSearch(
+          trans?.transport_passengers,
+          institute?.batches,
+          skip,
+          limit,
+          search,
+          filter_by
+        );
+      else
+        var all_passengers = await getCurrentBatchPassengerWithoutSearch(
+          trans?.transport_passengers,
+          institute?.batches,
+          skip,
+          limit,
+          filter_by
+        );
+    }
+
+    if (all_passengers?.length > 0) {
+      res.status(200).send({
+        message: "Lot's of Passengers / Student 😀",
+        access: true,
+        all_passengers: all_passengers,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Passengers / Student found 😥",
+        access: false,
+        all_passengers: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderVehicleAllPassengerWithBatch = async (req, res) => {
+  try {
+    const { vid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { filter_by, search, batch_filter } = req.query;
+    if (!vid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    var one_vehicle = await Vehicle.findById({
+      _id: vid,
+    })
+      .populate({
+        path: "transport",
+        select: "institute",
+      })
+      .select("passenger_array transport passenger_array_with_batch");
+    if (batch_filter === "ALL") {
+      // fetch all data
+      const instituteCurrentBatch = await InstituteAdmin.findById(
+        one_vehicle.transport.institute
+      )
+        .populate({
+          path: "batches",
+          match: {
+            activeBatch: { $eq: `Active` },
+          },
+          select: "_id",
+        })
+        .select("batches");
+      const institutePreviousBatch = await InstituteAdmin.findById(
+        one_vehicle.transport.institute
+      )
+        .populate({
+          path: "batches",
+          match: { activeBatch: { $eq: "Not Active" } },
+          select: "_id",
+        })
+        .select("batches");
+      if (search)
+        var all_passengers = await getALLBatchPassengerWithSearch(
+          one_vehicle.passenger_array_with_batch,
+          instituteCurrentBatch?.batches,
+          institutePreviousBatch?.batches,
+          page,
+          limit,
+          search,
+          filter_by
+        );
+      else
+        var all_passengers = await getALLBatchPassengerWithoutSearch(
+          one_vehicle.passenger_array_with_batch,
+          instituteCurrentBatch?.batches,
+          institutePreviousBatch?.batches,
+          page,
+          limit,
+          filter_by
+        );
+    } else if (batch_filter === "PAST") {
+      // fetch all past data
+      const institute = await InstituteAdmin.findById(
+        one_vehicle.transport.institute
+      )
+        .populate({
+          path: "batches",
+          match: { activeBatch: { $eq: "Not Active" } },
+          select: "_id",
+        })
+        .select("batches");
+      if (search)
+        var all_passengers = await getPastBatchPassengerWithSearch(
+          one_vehicle.passenger_array_with_batch,
+          institute?.batches,
+          page,
+          limit,
+          search,
+          filter_by
+        );
+      else
+        var all_passengers = await getPastBatchPassengerWithoutSearch(
+          one_vehicle.passenger_array_with_batch,
+          institute?.batches,
+          page,
+          limit,
+          filter_by
+        );
+      // console.log(all_passengers);
+    } else {
+      // fetch all current data
+      const institute = await InstituteAdmin.findById(
+        one_vehicle.transport.institute
+      )
+        .populate({
+          path: "batches",
+          match: {
+            activeBatch: { $eq: `Active` },
+          },
+          select: "_id",
+        })
+        .select("batches");
+
+      if (search)
+        var all_passengers = await getCurrentBatchPassengerWithSearch(
+          one_vehicle?.passenger_array,
+          institute?.batches,
+          skip,
+          limit,
+          search,
+          filter_by
+        );
+      else
+        var all_passengers = await getCurrentBatchPassengerWithoutSearch(
+          one_vehicle?.passenger_array,
+          institute?.batches,
+          skip,
+          limit,
+          filter_by
+        );
+    }
+
+    if (all_passengers?.length > 0) {
+      res.status(200).send({
+        message: "Lot's of Passengers / Student 😀",
+        access: true,
+        all_passengers: all_passengers,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Passengers / Student found 😥",
+        access: false,
+        all_passengers: [],
+      });
+    }
   } catch (e) {
     console.log(e);
   }

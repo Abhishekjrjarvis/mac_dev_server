@@ -52,6 +52,7 @@ const vehicleSchema = new mongoose.Schema({
       ref: "Student",
     },
   ],
+
   remaining_fee: {
     type: Number,
     default: 0,
@@ -64,6 +65,12 @@ const vehicleSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  passenger_array_with_batch: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "TransportBatch",
+    },
+  ],
 });
 
 module.exports = mongoose.model("Vehicle", vehicleSchema);

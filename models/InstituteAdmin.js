@@ -13,7 +13,7 @@ const instituteAdminSchema = new mongoose.Schema({
   insAbout: { type: String },
   insMode: { type: String, required: true },
   insDocument: { type: String },
-  insPassword: { type: String },
+  insPassword: { type: String }, 
   insType: { type: String, required: true },
   status: { type: String, default: "Not Approved" },
   insProfilePassword: { type: String },

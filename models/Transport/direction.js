@@ -12,8 +12,15 @@ const directionSchema = new mongoose.Schema({
         },
       ],
       passenger_count: { type: Number, default: 0 },
+      passenger_list_with_batch: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "TransportBatch",
+        },
+      ],
     },
   ],
+
   vehicle: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Vehicle",

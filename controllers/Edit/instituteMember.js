@@ -10,7 +10,7 @@ const User = require("../../models/User");
 const DisplayPerson = require("../../models/DisplayPerson");
 const Notification = require("../../models/notification");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
-const { designation_alarm } = require("../../WhatsAppSMS/payload")
+const { designation_alarm } = require("../../WhatsAppSMS/payload");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 // const StudentPreviousData = require("../../models/StudentPreviousData");
@@ -493,7 +493,8 @@ exports.subjectEdit = async (req, res) => {
   try {
     if (!req.params.sid) throw "Please send subject id to perform task";
     const subject = await Subject.findById(req.params.sid);
-    const classes = await Class.findById({_id: `${subject?.class}`})
+    const classes = await Class.findById({ _id: `${subject?.class}` });
+    // console.log(subject);
     if (req.body?.subjectTitle) {
       subject.subjectTitle = req.body?.subjectTitle;
     }
@@ -515,8 +516,8 @@ exports.subjectEdit = async (req, res) => {
       previousStaff.staffDesignationCount -= 1;
       previousStaff.recentDesignation = "";
       const staff = await Staff.findById(req.body?.sid);
-      const user = await User.findById(staff.user);
-      const institute = await InstituteAdmin.findById(subject.institute);
+      var user = await User.findById(staff.user);
+      var institute = await InstituteAdmin.findById(classes.institute);
       const notify = await new Notification({});
       staff.staffSubject.push(subject._id);
       staff.staffDesignationCount += 1;
@@ -532,7 +533,7 @@ exports.subjectEdit = async (req, res) => {
       invokeFirebaseNotification(
         "Designation Allocation",
         notify,
-        depart.dName,
+        subject.subjectName,
         user._id,
         user.deviceToken
       );
@@ -557,6 +558,7 @@ exports.subjectEdit = async (req, res) => {
       classes?.className
     );
   } catch (e) {
+    console.log(e);
     res.status(200).send({
       message: e,
       edited: "No",

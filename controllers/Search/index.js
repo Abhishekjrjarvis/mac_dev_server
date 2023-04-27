@@ -38,7 +38,9 @@ exports.searchUserUniversalWeb = async (req, res) => {
           },
         ],
       })
-        .select("insName insProfilePhoto photoId name blockStatus status hostelDepart")
+        .select(
+          "insName insProfilePhoto photoId name blockStatus status hostelDepart"
+        )
         .limit(itemPerPage)
         .skip(dropItem)
         .lean()
@@ -200,6 +202,7 @@ exports.searchInstituteUniversalWeb = async (req, res) => {
         $and: [
           { institute: req.params.id },
           { staffStatus: { $ne: "Not Approved" } },
+          { staff_replacement: { $ne: "Transfered" } },
         ],
         $or: [
           { staffFirstName: { $regex: req.query.search, $options: "i" } },
@@ -308,7 +311,9 @@ exports.searchUserUniversal = async (req, res) => {
           },
         ],
       })
-        .select("insName insProfilePhoto photoId name blockStatus status hostelDepart")
+        .select(
+          "insName insProfilePhoto photoId name blockStatus status hostelDepart"
+        )
         .limit(itemPerPage)
         .skip(dropItem)
         .lean()
@@ -416,6 +421,7 @@ exports.searchInstituteUniversal = async (req, res) => {
         $and: [
           { institute: req.params.id },
           { staffStatus: { $ne: "Not Approved" } },
+          { staff_replacement: { $ne: "Transfered" } },
         ],
         $or: [
           { staffFirstName: { $regex: req.query.search, $options: "i" } },
@@ -835,6 +841,7 @@ exports.searchStaff = async (req, res) => {
               },
               {
                 staffStatus: { $ne: "Not Approved" },
+                staff_replacement: { $ne: "Transfered" },
               },
             ],
             $or: [
@@ -893,7 +900,11 @@ exports.searchStaff = async (req, res) => {
       const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
       const dropItem = (getPage - 1) * itemPerPage;
       const staff = await Staff.find({
-        $and: [{ institute: req.params.id }, { staffStatus: "Approved" }],
+        $and: [
+          { institute: req.params.id },
+          { staffStatus: "Approved" },
+          { staff_replacement: { $ne: "Transfered" } },
+        ],
       })
         .select(
           "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
@@ -936,6 +947,7 @@ exports.searchStaffRequest = async (req, res) => {
               {
                 staffStatus: { $eq: "Not Approved" },
               },
+              { staff_replacement: { $ne: "Transfered" } },
             ],
             $or: [
               { staffFirstName: { $regex: req.query.search, $options: "i" } },

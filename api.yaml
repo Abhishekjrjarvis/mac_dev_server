@@ -19704,11 +19704,21 @@ paths:
           required: false
           type: string
           description: Enter Search Query
+        # - in: query
+        #   name: filter_by
+        #   required: true
+        #   type: boolean
+        #   description: Enter Boolean (true for Transport Side User) (false for Institute Transport Side)
         - in: query
           name: filter_by
           required: true
-          type: boolean
-          description: Enter Boolean (true for Transport Side User) (false for Institute Transport Side)
+          type: string
+          description: Enter a 'true' of 'false' in string type          
+        - in: query
+          name: batch_filter
+          required: true
+          type: string
+          description: it is consits of three values like ("ALL" or "PAST" or "")       
       responses:
         "200":
           description: OK
@@ -19791,6 +19801,16 @@ paths:
           required: true
           type: string
           description: Enter Search Query
+        - in: query
+          name: filter_by
+          required: true
+          type: string
+          description: Enter a 'true' of 'false' in string type          
+        - in: query
+          name: batch_filter
+          required: true
+          type: string
+          description: it is consits of three values like ("ALL" or "PAST" or "")        
       responses:
         "200":
           description: OK
@@ -28754,6 +28774,179 @@ paths:
                 type: string
                 description: if type "External" then Enter Staff Name
                 required: false 
+      responses:
+        "200":
+          description: OK
+  /api/v1/attendance/subject/{sid}/optional/student:
+    get:
+      tags:
+        - Student Attendance
+      summary: This is give list of all student in subject teacher (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Subject id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/attendance/subject/{sid}/student/attendance:
+    get:
+      tags:
+        - Student Attendance
+      summary: This is give current date particular Student Attendance id which is use in update the Student attendance api (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Subject id
+        - in: query
+          name: date
+          type: string
+          description: This is date like (08/07/2022)          
+      responses:
+        "200":
+          description: OK
+
+    post:
+      tags:
+        - Student Attendance
+      summary: Mark Sudent Attendance by the Subject Teacher (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is subject id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              date:
+                type: string
+                description: only date is accept in this format like "16/07/2022"
+                required: true
+              present:
+                type: array
+                description: This is present array of staff ids like this ["62bb4dd84f87f09b9c55b625", "62bb4dd84f87f09b9c55b625"]
+                items:
+                  type: string
+                  description: staff id
+              absent:
+                type: array
+                description: This is absent array of staff ids like this ["62bb4dd84f87f09b9c55b625", "62bb4dd84f87f09b9c55b625"]
+                items:
+                  type: string
+                  description: staff id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/attendance/student/subject/update/{said}:
+    patch:
+      tags:
+        - Student Attendance
+      summary: Update Mark student Attendance by the Subject Teacher (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: said
+          required: true
+          type: string
+          description: This is  student Attendance id of particular date that is current date
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              date:
+                type: string
+                description: only date is accept in this format like "16/07/2022"
+                required: true
+              present:
+                type: array
+                description: This is present array of staff ids like this ["62bb4dd84f87f09b9c55b625", "62bb4dd84f87f09b9c55b625"]
+                items:
+                  type: string
+                  description: staff id
+              absent:
+                type: array
+                description: This is absent array of staff ids like this ["62bb4dd84f87f09b9c55b625", "62bb4dd84f87f09b9c55b625"]
+                items:
+                  type: string
+                  description: staff id
+      responses:
+        "200":
+          description: OK
+  
+  /api/v1/attendance/subject/student-calender/{sid}:
+    get:
+      tags:
+        - Student Attendance
+      summary: This is give the one month all attendance OR one year all attendance (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
+        - in: query
+          name: month
+          schema:
+            type: integer
+          description: Enter a month in digit that month attendance you want
+        - in: query
+          name: year
+          schema:
+            type: integer
+          description: Enter a year in digit that year attendance you want
+        - in: query
+          name: subjectId
+          schema:
+            type: string
+          description: It is a subject Id
+      responses:
+        "200":
+          description: OK
+  
+  /api/v1/attendance/student/{sid}/subject/list:
+    get:
+      tags:
+        - Student Attendance
+      summary: This is give list of all subject in student side (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
       responses:
         "200":
           description: OK

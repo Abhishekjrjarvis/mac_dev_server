@@ -16,6 +16,7 @@ const {
 } = require("../../Utilities/timeComparison");
 const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const { notify_attendence_provider } = require("../../helper/dayTimer");
+const Subject = require("../../models/Subject");
 
 //THis is route with tested OF STUDENT
 exports.viewClassStudent = async (req, res) => {
@@ -309,7 +310,9 @@ exports.markAttendenceClassStudent = async (req, res) => {
           });
           const user = await User.findById({ _id: `${student.user}` });
           const notify = new StudentNotification({});
-          notify.notifyContent = `you're present ${notify_attendence_provider(req.body.date)}`;
+          notify.notifyContent = `you're present ${notify_attendence_provider(
+            req.body.date
+          )}`;
           notify.notify_hi_content = `आप आज उपस्थित हैं |`;
           notify.notify_mr_content = `तुम्ही आज हजर आहात.`;
           notify.notifySender = classes._id;
@@ -350,7 +353,9 @@ exports.markAttendenceClassStudent = async (req, res) => {
           });
           const user = await User.findById({ _id: `${student.user}` });
           const notify = new StudentNotification({});
-          notify.notifyContent = `you're absent ${notify_attendence_provider(req.body.date)}`;
+          notify.notifyContent = `you're absent ${notify_attendence_provider(
+            req.body.date
+          )}`;
           notify.notify_hi_content = `आप आज अनुपस्थित हैं |`;
           notify.notify_mr_content = `तुम्ही आज गैरहजर आहात.`;
           notify.notifySender = classes._id;
@@ -785,7 +790,9 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
         });
         staff.attendDates.push(staffAttendence._id);
         const notify = new StudentNotification({});
-        notify.notifyContent = `you're present ${notify_attendence_provider(req.body.date)}`;
+        notify.notifyContent = `you're present ${notify_attendence_provider(
+          req.body.date
+        )}`;
         notify.notify_hi_content = `आप आज उपस्थित हैं |`;
         notify.notify_mr_content = `तुम्ही आज हजर आहात.`;
         notify.notifySender = id;
@@ -830,7 +837,9 @@ exports.markAttendenceDepartmentStaff = async (req, res) => {
           status: "Present",
         });
         const notify = new StudentNotification({});
-        notify.notifyContent = `you're absent ${notify_attendence_provider(req.body.date)}`;
+        notify.notifyContent = `you're absent ${notify_attendence_provider(
+          req.body.date
+        )}`;
         notify.notify_hi_content = `आप आज अनुपस्थित हैं |`;
         notify.notify_mr_content = `तुम्ही आज गैरहजर आहात.`;
         notify.notifySender = id;
@@ -1332,4 +1341,530 @@ exports.delHoliday = async (req, res) => {
       message: "deleted",
     });
   } catch (error) {}
+};
+
+//student attendance by subject teacher/
+
+exports.getSubjectStudentList = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const subjects = await Subject.findById(sid).populate({
+      path: "class",
+      select: "ApproveStudent",
+    });
+    const currentDate = new Date();
+    const currentDateLocalFormat = currentDate.toISOString().split("-");
+    const day =
+      +currentDateLocalFormat[2].split("T")[0] > 9
+        ? +currentDateLocalFormat[2].split("T")[0]
+        : `0${+currentDateLocalFormat[2].split("T")[0]}`;
+    const month =
+      +currentDateLocalFormat[1] > 9
+        ? +currentDateLocalFormat[1]
+        : `0${+currentDateLocalFormat[1]}`;
+    const year = +currentDateLocalFormat[0];
+    if (subjects.subjectOptional !== "Mandatory") {
+      const mixter_student = await Student.find({
+        _id: { $in: subjects.class.ApproveStudent ?? [] },
+      })
+        .populate({
+          path: "leave",
+          match: {
+            date: { $in: [`${day}/${month}/${year}`] },
+          },
+          select: "date",
+        })
+        .populate({
+          path: "user",
+          select: "userLegalName username",
+        })
+        .select(
+          "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO leave user studentOptionalSubject"
+        )
+        .lean()
+        .exec();
+      var students = [];
+      for (let u_student of mixter_student) {
+        if (u_student?.studentOptionalSubject?.includes(subjects?._id)) {
+          students.push(u_student);
+        }
+      }
+      students.sort(function (st1, st2) {
+        return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+      });
+    } else {
+      var students = await Student.find({
+        _id: { $in: subjects.class.ApproveStudent ?? [] },
+      })
+        .populate({
+          path: "leave",
+          match: {
+            date: { $in: [`${day}/${month}/${year}`] },
+          },
+          select: "date",
+        })
+        .populate({
+          path: "user",
+          select: "userLegalName username",
+        })
+        .select(
+          "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentBehaviour finalReportStatus studentGender studentGRNO leave user"
+        )
+        .lean()
+        .exec();
+      students.sort(function (st1, st2) {
+        return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+      });
+
+      // const cEncrypt = await encryptionPayload(students);
+    }
+    res.status(200).send({
+      message: "Approve catalog with optional subject",
+      students: students?.length ? students : [],
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.getAttendSubjectStudent = async (req, res) => {
+  try {
+    const prevDate = req.query.date;
+    let regularexp = "";
+    if (prevDate) {
+      const previousDate = prevDate?.split("/");
+      regularexp = new RegExp(
+        `${previousDate[0]}\/${previousDate[1]}\/${previousDate[2]}$`
+      );
+    } else {
+      var currentDate = new Date();
+      currentDate.setHours(currentDate.getHours() + 5);
+      currentDate.setMinutes(currentDate.getMinutes() + 30);
+      const currentDateLocalFormat = currentDate.toISOString().split("-");
+      const day =
+        +currentDateLocalFormat[2].split("T")[0] > 9
+          ? +currentDateLocalFormat[2].split("T")[0]
+          : `0${+currentDateLocalFormat[2].split("T")[0]}`;
+      const month =
+        +currentDateLocalFormat[1] > 9
+          ? +currentDateLocalFormat[1]
+          : `0${+currentDateLocalFormat[1]}`;
+      const year = +currentDateLocalFormat[0];
+      regularexp = new RegExp(`${day}\/${month}\/${year}$`);
+    }
+
+    const subjects = await Subject.findById(req.params.sid)
+      .populate({
+        path: "attendance",
+        match: {
+          attendDate: { $regex: regularexp },
+        },
+        select:
+          "attendDate presentTotal absentTotal presentStudent absentStudent",
+      })
+      .select("_id")
+      .lean()
+      .exec();
+
+    if (subjects.attendance?.length > 0) {
+      const attend = subjects.attendance[0];
+      const present = [];
+      const absent = [];
+      attend?.presentStudent?.forEach((st) => present.push(st.student));
+      attend?.absentStudent?.forEach((st) => absent.push(st.student));
+      res.status(200).send({
+        subjects: {
+          _id: subjects._id,
+          attendance: [
+            {
+              _id: attend?._id,
+              presentTotal: attend?.presentTotal,
+              absentTotal: attend?.absentTotal,
+              presentStudent: present,
+              absentStudent: absent,
+              attendDate: attend?.attendDate,
+            },
+          ],
+        },
+      });
+    } else {
+      // const classEncrypt = await encryptionPayload(subjects);
+      res.status(200).send({ subjects });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.markAttendenceSubjectStudent = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const subjects = await Subject.findById({ _id: sid }).populate({
+      path: "class",
+      select: "department",
+    });
+    const dLeave = await Holiday.findOne({
+      department: { $eq: `${subjects.class.department}` },
+      dDate: { $eq: `${req.body.date}` },
+    });
+    const attendanceone = await AttendenceDate.findOne({
+      subject: { $eq: `${sid}` },
+      attendDate: { $eq: `${req.body.date}` },
+    });
+    if (dLeave || attendanceone) {
+      res.status(200).send({
+        message:
+          "Today will be holiday Provided by department Admin or already marked attendance",
+      });
+    } else {
+      const attendence = new AttendenceDate({});
+      attendence.attendDate = req.body.date;
+      attendence.subject = subjects._id;
+      attendence.attendTime = new Date();
+      for (let i = 0; i < req.body.present.length; i++) {
+        const student = await Student.findById({
+          _id: `${req.body.present[i]}`,
+        });
+        const user = await User.findById({ _id: `${student.user}` });
+        const notify = new StudentNotification({});
+        notify.notifyContent = `you're present ${notify_attendence_provider(
+          req.body.date
+        )}`;
+        notify.notify_hi_content = `आप आज उपस्थित हैं |`;
+        notify.notify_mr_content = `तुम्ही आज हजर आहात.`;
+        notify.notifySender = subjects._id;
+        notify.notifyReceiever = user._id;
+        notify.notifyType = "Student";
+        notify.notifyPublisher = student._id;
+        notify.notifyBySubjectPhoto = subjects._id;
+        notify.notifyCategory = "Student Present";
+        user.activity_tab.push(notify._id);
+        student.notification.push(notify._id);
+        student.subjectAttendance.push(attendence._id);
+
+        attendence.presentStudent.push({
+          student: student._id,
+          inTime: getOnlyTime(),
+          // status: getOnlyTimeCompare(),
+          status: "Present",
+        });
+        notify.notifyCategory = "Attendence";
+        notify.redirectIndex = 3;
+        //
+        // invokeMemberTabNotification(
+        //   "Student Activity",
+        //   notify,
+        //   "Mark Attendence",
+        //   user._id,
+        //   user.deviceToken,
+        //   "Student",
+        //   notify
+        // );
+        //
+        await Promise.all([student.save(), notify.save(), user.save()]);
+      }
+
+      for (let i = 0; i < req.body.absent.length; i++) {
+        const student = await Student.findById({
+          _id: `${req.body.absent[i]}`,
+        });
+        const user = await User.findById({ _id: `${student.user}` });
+        const notify = new StudentNotification({});
+        notify.notifyContent = `you're absent ${notify_attendence_provider(
+          req.body.date
+        )}`;
+        notify.notify_hi_content = `आप आज अनुपस्थित हैं |`;
+        notify.notify_mr_content = `तुम्ही आज गैरहजर आहात.`;
+        notify.notifySender = subjects._id;
+        notify.notifyReceiever = user._id;
+        notify.notifyType = "Student";
+        notify.notifyPublisher = student._id;
+        notify.notifyCategory = "Student Absent";
+        notify.notifyBySubjectPhoto = subjects._id;
+        user.activity_tab.push(notify._id);
+        student.notification.push(notify._id);
+        student.subjectAttendance.push(attendence._id);
+        attendence.absentStudent.push({
+          student: student._id,
+          inTime: getOnlyTime(),
+          status: "Absent",
+        });
+        notify.notifyCategory = "Attendence";
+        notify.redirectIndex = 3;
+        //
+        // invokeMemberTabNotification(
+        //   "Student Activity",
+        //   notify,
+        //   "Mark Attendence",
+        //   user._id,
+        //   user.deviceToken,
+        //   "Student",
+        //   notify
+        // );
+        //
+        await Promise.all([student.save(), notify.save(), user.save()]);
+      }
+      subjects.attendance.push(attendence._id);
+      attendence.presentTotal = req.body.present.length;
+      attendence.absentTotal = req.body.absent.length;
+      await Promise.all([attendence.save(), subjects.save()]);
+      res.status(200).send({ message: "Success" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.markAttendenceSubjectStudentUpdate = async (req, res) => {
+  try {
+    const { said } = req.params;
+    const attendance = await AttendenceDate.findOne({
+      _id: { $eq: `${said}` },
+      attendDate: { $eq: `${req.body.date}` },
+    });
+    if (!attendance) {
+      res.status(200).send({
+        message: "Attendance not Updated, first make a attendance",
+      });
+    } else {
+      const studentAttendance = await AttendenceDate.findById(said);
+      for (let i = 0; i < req.body.present?.length; i++) {
+        let flag = false;
+        for (let pre of studentAttendance.presentStudent) {
+          if (String(pre.student) === req.body.present[i]) flag = true;
+          else flag = false;
+        }
+        if (!flag) {
+          studentAttendance.presentStudent?.push({
+            student: req.body.present[i],
+            inTime: getOnlyTime(),
+            status: "Present",
+          });
+          let prevLength = studentAttendance.absentStudent.length;
+          studentAttendance.absentStudent =
+            studentAttendance.absentStudent?.filter(
+              (abs) => String(abs.student) !== req.body.present[i]
+            );
+          let nextLength = studentAttendance.absentStudent.length;
+
+          studentAttendance.presentTotal += 1;
+          if (prevLength > nextLength) studentAttendance.absentTotal -= 1;
+        }
+      }
+      for (let i = 0; i < req.body.absent.length; i++) {
+        let flag = false;
+        for (let abs of studentAttendance.absentStudent) {
+          if (String(abs.student) === req.body.absent[i]) flag = true;
+          else flag = false;
+        }
+        if (!flag) {
+          studentAttendance.absentStudent?.push({
+            student: req.body.absent[i],
+            inTime: getOnlyTime(),
+            status: "Absent",
+          });
+          let prevLength = studentAttendance.presentStudent.length;
+          studentAttendance.presentStudent =
+            studentAttendance.presentStudent?.filter(
+              (pre) => String(pre.student) !== req.body.absent[i]
+            );
+          let nextLength = studentAttendance.presentStudent.length;
+          if (prevLength > nextLength) studentAttendance.presentTotal -= 1;
+          studentAttendance.absentTotal += 1;
+        }
+      }
+      await studentAttendance.save();
+      res.status(200).send({ message: "Updated attendance" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.getSubjectAttendStudentById = async (req, res) => {
+  try {
+    const month = req.query.month;
+    const year = req.query.year;
+    const subjectId = req.query.subjectId;
+    let days = 0;
+    let present = 0;
+    let absent = 0;
+    const presentArray = [];
+    const absentArray = [];
+    let regularexp = "";
+    if (month) {
+      regularexp = new RegExp(`\/${month}\/${year}$`);
+    } else {
+      regularexp = new RegExp(`\/${year}$`);
+    }
+    const student = await Student.findById(req.params.sid)
+      .select("_id subjectAttendance leave")
+      .populate({
+        path: "subjectAttendance",
+        match: {
+          $and: [
+            {
+              attendDate: { $regex: regularexp },
+            },
+            {
+              subject: { $eq: `${subjectId}` },
+            },
+          ],
+        },
+        select: "attendDate presentStudent absentStudent",
+      })
+      .populate({
+        path: "leave",
+        match: {
+          date: { $regex: regularexp },
+          status: { $eq: "Accepted" },
+        },
+        select: "date",
+      });
+    if (student) {
+      if (student.subjectAttendance) {
+        student.subjectAttendance.forEach((day) => {
+          for (let per of day?.presentStudent) {
+            if (String(per.student) === req.params.sid) {
+              present += 1;
+              presentArray.push(day.attendDate);
+            }
+          }
+          for (let abs of day?.absentStudent) {
+            if (String(abs.student) === req.params.sid) {
+              absent += 1;
+              absentArray.push(day.attendDate);
+            }
+          }
+        });
+        days = student.subjectAttendance.length;
+      }
+
+      let presentPercentage = ((present * 100) / days).toFixed(2);
+      let absentPercentage = ((absent * 100) / days).toFixed(2);
+      // Add Another Encryption
+      res.status(200).send({
+        message: "Success",
+        presentArray,
+        absentArray,
+        present: presentPercentage,
+        absent: absentPercentage,
+        takenLeave: student.leave,
+      });
+    } else {
+      res.status(404).send({ message: "Failure" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.getAllSubjectOfStudent = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug regarding to call api",
+        access: false,
+      });
+
+    const student = await Student.findById(sid).populate({
+      path: "studentClass",
+      select: "subject",
+      populate: {
+        path: "subject",
+        select: "subjectOptional subjectName subjectTeacherName",
+        populate: {
+          path: "subjectTeacherName",
+          select: "staffFirstName staffMiddleName staffLastName",
+        },
+      },
+    });
+
+    let subjects = [];
+    for (let sub of student?.studentClass?.subject) {
+      if (sub.subjectOptional !== "Mandatory") {
+        if (student?.studentOptionalSubject?.includes(sub?._id))
+          subjects.push(sub);
+      } else subjects.push(sub);
+    }
+    return res.status(200).send({
+      message: "All subject list of student side",
+      subjects,
+      access: false,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.getAllClassExportAttendance = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug regarding to call api",
+        access: false,
+      });
+    const month = req.query.month;
+    const year = req.query.year;
+    let regularexp = "";
+    if (month) {
+      regularexp = new RegExp(`\/${month}\/${year}$`);
+    } else {
+      regularexp = new RegExp(`\/${year}$`);
+    }
+    const classes = await Class.findById(cid)
+      .populate({
+        path: "ApproveStudent",
+        select:
+          "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave",
+        populate: {
+          path: "leave",
+          match: {
+            date: { $regex: regularexp },
+            status: { $eq: "Accepted" },
+          },
+          select: "date",
+        },
+      })
+      .populate({
+        path: "attendenceDate",
+        match: {
+          attendDate: { $regex: regularexp },
+        },
+        select: "attendDate presentStudent.student absentStudent.student",
+      })
+      .lean()
+      .exec();
+    let students = [];
+    for (let stu of classes?.ApproveStudent) {
+      let obj = {
+        ...stu,
+        availablity: [],
+      };
+      for (let att of classes?.attendenceDate) {
+        let statusObj = {
+          date: att.attendDate,
+          status: "",
+        };
+        for (let pre of att?.presentStudent) {
+          if (String(stu._id) === String(pre.student)) statusObj.status = "P";
+        }
+        for (let abs of att?.absentStudent) {
+          if (String(stu._id) === String(abs.student)) statusObj.status = "A";
+        }
+
+        obj.availablity.push(statusObj);
+      }
+      students.push(obj);
+    }
+    // console.log(classes);
+    return res.status(200).send({
+      message: "All student zip attendance",
+      attendance_zip: students,
+      access: false,
+    });
+  } catch (e) {
+    console.log(e);
+  }
 };

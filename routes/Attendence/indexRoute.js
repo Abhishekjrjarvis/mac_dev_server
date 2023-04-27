@@ -79,4 +79,31 @@ router
   .route("/holiday/:hid/delete")
   .get(isLoggedIn, catchAsync(Avail.delHoliday));
 
+///////////////////
+router
+  .route("/subject/:sid/optional/student")
+  .get(isLoggedIn, catchAsync(Avail.getSubjectStudentList));
+router
+  .route("/subject/:sid/student/attendance")
+  .get(isLoggedIn, catchAsync(Avail.getAttendSubjectStudent))
+  .post(isLoggedIn, catchAsync(Avail.markAttendenceSubjectStudent));
+
+router
+  .route("/student/subject/update/:said")
+  .patch(isLoggedIn, catchAsync(Avail.markAttendenceSubjectStudentUpdate));
+router.get(
+  "/subject/student-calender/:sid",
+  isLoggedIn,
+  catchAsync(Avail.getSubjectAttendStudentById)
+);
+
+router
+  .route("/student/:sid/subject/list")
+  .get(isLoggedIn, catchAsync(Avail.getAllSubjectOfStudent));
+
+router.route("/all/class/:cid/zip").post(
+  // isLoggedIn,
+  catchAsync(Avail.getAllClassExportAttendance)
+);
+
 module.exports = router;

@@ -522,6 +522,10 @@ const studentSchema = new mongoose.Schema({
       ref: "InsAnnouncement",
     },
   ],
+  duplicate_copy: {
+    type: String,
+    default: "Original Copy",
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema);

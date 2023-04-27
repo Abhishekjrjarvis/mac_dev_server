@@ -1713,7 +1713,7 @@ exports.getOneAssignmentOneStudentCompleteAssignment = async (req, res) => {
         subjectAssignment?.assignmentName
       } Assignment cancelled successfully`;
       notify.notifyCategory = "Cancel Assignment";
-      notify.redirectIndex = C19;
+      notify.redirectIndex = 19;
     }
     await Promise.all([
       subjectAssignment.save(),

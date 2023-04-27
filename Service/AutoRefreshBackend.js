@@ -404,7 +404,7 @@ exports.recommendedAllIns = async (req, res) => {
         _id: { $in: valid_recommend_user },
       })
         .select(
-          "userLegalName username followerCount photoId profilePhoto one_line_about"
+          "userLegalName username followerCount photoId profilePhoto one_line_about profileCoverPhoto"
         )
         .lean()
         .exec();

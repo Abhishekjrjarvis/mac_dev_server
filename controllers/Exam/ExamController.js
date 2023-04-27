@@ -1855,3 +1855,17 @@ exports.renderDestroySeatingArrangementQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+// exports.renderNewSeatingArrangementAutomateQuery = async(req, res) => {
+//   try{
+//     const { eid } = req.params
+//     const { staff_list, class_list } = req.body
+//     if(!eid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+//     const one_exam = await Exam.findById({ _id: eid })
+//     const 
+//   }
+//   catch(e){
+//     console.log(e)
+//   }
+// }

@@ -277,249 +277,501 @@ exports.allClasses = async (req, res) => {
 exports.promoteStudent = async (req, res) => {
   try {
     const { departmentId, batchId, classId } = req.body;
+    const { flow } = req.query;
     const previousclasses = await Class.findById(req.params.cid);
     const classes = await Class.findById(classId);
     const batch = await Batch.findById(batchId);
-    const department = await Department.findById(departmentId);
+    const department = await Department.findById(departmentId).populate({
+      path: "fees_structures",
+    });
     let roll = classes.ApproveStudent?.length + 1;
-    // console.log("thisfbsdnag snfbbnbn");
-    for (let stu of req.body?.students) {
-      const student = await Student.findById(stu);
-      const user = await User.findById({ _id: `${student.user}` });
-      const previousData = new StudentPreviousData({
-        studentCode: student.studentCode,
-        studentClass: student.studentClass,
-        student: student._id,
-        batches: student.batches,
-        studentROLLNO: student.studentROLLNO,
-        studentBehaviour: student.studentBehaviour,
-        department: student.department,
-        institute: student.institute,
+    if (flow === "WITH_STRUCTURE") {
+      for (let stu of req.body?.students) {
+        const student = await Student.findById(stu)
+        .populate({
+          path: "fee_structure"
+        })
+        var structure = department?.fees_structures?.filter((ref) => {
+          if (
+            `${ref?.class_master}` === `${classes?.masterClassName}` &&
+            `${ref?.category_master}` ===
+              `${student?.fee_structure?.category_master}`
+          )
+            return ref;
+        });
+        const user = await User.findById({ _id: `${student.user}` });
+        const previousData = new StudentPreviousData({
+          studentCode: student.studentCode,
+          studentClass: student.studentClass,
+          student: student._id,
+          batches: student.batches,
+          studentROLLNO: student.studentROLLNO,
+          studentBehaviour: student.studentBehaviour,
+          department: student.department,
+          institute: student.institute,
 
-        //here some also doubt
-        notification: student.notification,
+          //here some also doubt
+          notification: student.notification,
 
-        subjectMarks: student.subjectMarks,
-        exams: student.exams,
-        finalReportStatus: student.finalReportStatus,
-        finalReport: student.finalReport,
-        testSet: student.testSet,
-        assignments: student.assignments,
-        totalAssignment: student.totalAssignment,
-        submittedAssignment: student.submittedAssignment,
-        incompletedAssignment: student.incompletedAssignment,
-        completedAssignment: student.completedAssignment,
-        studentFee: student.studentFee,
-        attendDate: student.attendDate,
-        allottedChecklist: student.allottedChecklist,
-        onlineFeeList: student.onlineFeeList,
-        onlineCheckList: student.onlineCheckList,
-        offlineFeeList: student.offlineFeeList,
-        sportClass: student.sportClass,
-        sportTeam: student.sportTeam,
-        extraPoints: student.extraPoints,
-        sportEvent: student.sportEvent,
-        studentSportsEventMatch: student.studentSportsEventMatch,
-        complaints: student?.complaints,
-        leave: student?.leave,
-        studentExemptFee: student?.studentExemptFee,
-        exemptFeeList: student?.exemptFeeList,
-        studentRemainingFeeCount: student?.studentRemainingFeeCount,
-        studentPaidFeeCount: student?.studentPaidFeeCount,
-        studentAdmissionDate: student?.studentAdmissionDate,
-        borrow: student?.borrow,
-        deposite: student?.deposite,
-        sportEventCount: student?.sportEventCount,
-        admissionRemainFeeCount: student?.admissionRemainFeeCount,
-        admissionPaidFeeCount: student?.admissionPaidFeeCount,
-        paidFeeList: student?.paidFeeList,
-        refundAdmission: student?.refundAdmission,
-        remainingFeeList: student?.remainingFeeList,
-        remainingFeeList_count: student?.remainingFeeList_count,
-        fee_structure: student?.fee_structure,
-        active_fee_heads: student?.active_fee_heads,
-        certificateBonaFideCopy: student?.certificateBonaFideCopy,
-        certificateLeavingCopy: student?.certificateLeavingCopy,
-        dailyUpdate: student?.dailyUpdate,
-        student_biometric_id: student?.student_biometric_id,
-        election_candidate: student?.election_candidate,
-        participate_event: student?.participate_event,
-        checkList_participate_event: student?.checkList_participate_event,
-        participate_result: student?.participate_result,
-        backlog: student?.backlog,
-        vehicle: student?.vehicle,
-        vehicleRemainFeeCount: student?.vehicleRemainFeeCount,
-        vehiclePaidFeeCount: student?.vehiclePaidFeeCount,
-        vehicle_payment_status: student?.vehicle_payment_status,
-        active_routes: student?.active_routes,
-        query_count: student?.query_count,
-        mentor: student?.mentor,
-        queries: student?.queries,
-        total_query: student?.total_query,
-        feed_back_count: student?.feed_back_count,
-        deposit_pending_amount: student?.deposit_pending_amount,
-        deposit_refund_amount: student?.deposit_refund_amount,
-        refund_deposit: student?.refund_deposit,
-        form_status: student?.form_status,
-        fee_receipt: student?.fee_receipt,
-      });
-      // console.log(previousData);
-      const notify = new StudentNotification({});
-      notify.notifyContent = `${student.studentFirstName} ${
-        student.studentMiddleName ? student.studentMiddleName : ""
-      } ${student.studentLastName} Your Report Card is Ready `;
-      notify.notifySender = classes._id;
-      notify.notifyReceiever = user._id;
-      notify.classId = classes._id;
-      notify.notifyType = "Student";
-      notify.notifyPublisher = student._id;
-      user.activity_tab.push(notify._id);
-      notify.notifyByClassPhoto = classes._id;
-      notify.notifyCategory = "Report Card";
-      notify.redirectIndex = 20;
-      invokeMemberTabNotification(
-        "Student Activity",
-        notify,
-        "View Report Card",
-        user._id,
-        user.deviceToken,
-        "Student",
-        notify
-      );
+          subjectMarks: student.subjectMarks,
+          exams: student.exams,
+          finalReportStatus: student.finalReportStatus,
+          finalReport: student.finalReport,
+          testSet: student.testSet,
+          assignments: student.assignments,
+          totalAssignment: student.totalAssignment,
+          submittedAssignment: student.submittedAssignment,
+          incompletedAssignment: student.incompletedAssignment,
+          completedAssignment: student.completedAssignment,
+          studentFee: student.studentFee,
+          attendDate: student.attendDate,
+          allottedChecklist: student.allottedChecklist,
+          onlineFeeList: student.onlineFeeList,
+          onlineCheckList: student.onlineCheckList,
+          offlineFeeList: student.offlineFeeList,
+          sportClass: student.sportClass,
+          sportTeam: student.sportTeam,
+          extraPoints: student.extraPoints,
+          sportEvent: student.sportEvent,
+          studentSportsEventMatch: student.studentSportsEventMatch,
+          complaints: student?.complaints,
+          leave: student?.leave,
+          studentExemptFee: student?.studentExemptFee,
+          exemptFeeList: student?.exemptFeeList,
+          studentRemainingFeeCount: student?.studentRemainingFeeCount,
+          studentPaidFeeCount: student?.studentPaidFeeCount,
+          studentAdmissionDate: student?.studentAdmissionDate,
+          borrow: student?.borrow,
+          deposite: student?.deposite,
+          sportEventCount: student?.sportEventCount,
+          admissionRemainFeeCount: student?.admissionRemainFeeCount,
+          admissionPaidFeeCount: student?.admissionPaidFeeCount,
+          paidFeeList: student?.paidFeeList,
+          refundAdmission: student?.refundAdmission,
+          remainingFeeList: student?.remainingFeeList,
+          remainingFeeList_count: student?.remainingFeeList_count,
+          fee_structure: student?.fee_structure,
+          active_fee_heads: student?.active_fee_heads,
+          certificateBonaFideCopy: student?.certificateBonaFideCopy,
+          certificateLeavingCopy: student?.certificateLeavingCopy,
+          dailyUpdate: student?.dailyUpdate,
+          student_biometric_id: student?.student_biometric_id,
+          election_candidate: student?.election_candidate,
+          participate_event: student?.participate_event,
+          checkList_participate_event: student?.checkList_participate_event,
+          participate_result: student?.participate_result,
+          backlog: student?.backlog,
+          vehicle: student?.vehicle,
+          vehicleRemainFeeCount: student?.vehicleRemainFeeCount,
+          vehiclePaidFeeCount: student?.vehiclePaidFeeCount,
+          vehicle_payment_status: student?.vehicle_payment_status,
+          active_routes: student?.active_routes,
+          query_count: student?.query_count,
+          mentor: student?.mentor,
+          queries: student?.queries,
+          total_query: student?.total_query,
+          feed_back_count: student?.feed_back_count,
+          deposit_pending_amount: student?.deposit_pending_amount,
+          deposit_refund_amount: student?.deposit_refund_amount,
+          refund_deposit: student?.refund_deposit,
+          form_status: student?.form_status,
+          fee_receipt: student?.fee_receipt,
+        });
+        // console.log(previousData);
+        const notify = new StudentNotification({});
+        notify.notifyContent = `${student.studentFirstName} ${
+          student.studentMiddleName ? student.studentMiddleName : ""
+        } ${student.studentLastName} Your Report Card is Ready `;
+        notify.notifySender = classes._id;
+        notify.notifyReceiever = user._id;
+        notify.classId = classes._id;
+        notify.notifyType = "Student";
+        notify.notifyPublisher = student._id;
+        user.activity_tab.push(notify._id);
+        notify.notifyByClassPhoto = classes._id;
+        notify.notifyCategory = "Report Card";
+        notify.redirectIndex = 20;
+        invokeMemberTabNotification(
+          "Student Activity",
+          notify,
+          "View Report Card",
+          user._id,
+          user.deviceToken,
+          "Student",
+          notify
+        );
+        await Promise.all([
+          student.save(),
+          notify.save(),
+          user.save(),
+          previousData.save(),
+        ]);
+        student?.previousYearData?.push(previousData._id);
+        student.studentClass = classId;
+        student.studentCode = classes.classCode;
+        student.department = departmentId;
+        student.batches = batchId;
+        //here how to give the null in objectID
+        student.studentBehaviour = null;
+        student.studentROLLNO = roll;
+        student.subjectMarks = [];
+        student.exams = [];
+        student.finalReportStatus = "No";
+        student.finalReport = [];
+        student.testSet = [];
+        student.assignments = [];
+        student.totalAssignment = 0;
+        student.submittedAssignment = 0;
+        student.incompletedAssignment = 0;
+        student.completedAssignment = 0;
+        student.attendDate = [];
+        student.sportClass = [];
+        student.sportTeam = [];
+        student.extraPoints = 0;
+        student.sportEvent = [];
+        student.studentSportsEventMatch = [];
+        student.complaints = [];
+        student.leave = [];
+        student.studentAdmissionDate = "";
+        student.borrow = [];
+        student.deposite = [];
+        student.sportEventCount = 0;
+
+        // here assign new fee st
+        student.fee_structure = structure ? structure[0] : null;
+        student.active_fee_heads = [];
+        /////
+        student.certificateBonaFideCopy = {
+          trueCopy: false,
+          secondCopy: false,
+          thirdCopy: false,
+        };
+        student.certificateLeavingCopy = {
+          trueCopy: false,
+          secondCopy: false,
+          thirdCopy: false,
+        };
+        student.dailyUpdate = [];
+
+        //============== here some confusion for biometric id -> Ok we will resolve it...
+        student.student_biometric_id = "";
+        student.election_candidate = [];
+        student.participate_event = [];
+        student.participate_result = [];
+        student.vehicle = null;
+        student.routes = [];
+        student.active_routes = null;
+        student.query_count = 0;
+        student.mentor = null;
+        student.queries = [];
+        student.total_query = 0;
+        student.feed_back_count = 0;
+        student.deposit_pending_amount = 0;
+        student.deposit_refund_amount = 0;
+        student.refund_deposit = [];
+        student.form_status = "Not Filled";
+        student.fee_receipt = [];
+        roll += 1;
+        if (classes?.ApproveStudent?.includes(student._id)) {
+        } else {
+          classes?.ApproveStudent.push(student._id);
+        }
+        if (batch?.ApproveStudent?.includes(student._id)) {
+        } else {
+          batch?.ApproveStudent.push(student._id);
+        }
+        if (department?.ApproveStudent?.includes(student._id)) {
+        } else {
+          department?.ApproveStudent.push(student._id);
+        }
+
+        previousclasses?.promoteStudent?.push(stu);
+        // previousclasses?.ApproveStudent?.pull(stu);
+        classes.studentCount += 1;
+        await student.save();
+
+        if (student.studentGender === "Male") {
+          classes.boyCount += 1;
+          batch.student_category.boyCount += 1;
+        } else if (student.studentGender === "Female") {
+          classes.girlCount += 1;
+          batch.student_category.girlCount += 1;
+        } else if (student.studentGender === "Other") {
+          classes.otherCount += 1;
+          batch.student_category.otherCount += 1;
+        } else {
+        }
+        if (student.studentCastCategory === "General") {
+          batch.student_category.generalCount += 1;
+        } else if (student.studentCastCategory === "OBC") {
+          batch.student_category.obcCount += 1;
+        } else if (student.studentCastCategory === "SC") {
+          batch.student_category.scCount += 1;
+        } else if (student.studentCastCategory === "ST") {
+          batch.student_category.stCount += 1;
+        } else if (student.studentCastCategory === "NT-A") {
+          batch.student_category.ntaCount += 1;
+        } else if (student.studentCastCategory === "NT-B") {
+          batch.student_category.ntbCount += 1;
+        } else if (student.studentCastCategory === "NT-C") {
+          batch.student_category.ntcCount += 1;
+        } else if (student.studentCastCategory === "NT-D") {
+          batch.student_category.ntdCount += 1;
+        } else if (student.studentCastCategory === "VJ") {
+          batch.student_category.vjCount += 1;
+        } else {
+        }
+        await Promise.all([classes.save(), batch.save()]);
+      }
+
       await Promise.all([
-        student.save(),
-        notify.save(),
-        user.save(),
-        previousData.save(),
+        classes.save(),
+        previousclasses.save(),
+        batch.save(),
+        department.save(),
       ]);
-      student?.previousYearData?.push(previousData._id);
-      student.studentClass = classId;
-      student.studentCode = classes.classCode;
-      student.department = departmentId;
-      student.batches = batchId;
-      //here how to give the null in objectID
-      student.studentBehaviour = null;
-      student.studentROLLNO = roll;
-      student.subjectMarks = [];
-      student.exams = [];
-      student.finalReportStatus = "No";
-      student.finalReport = [];
-      student.testSet = [];
-      student.assignments = [];
-      student.totalAssignment = 0;
-      student.submittedAssignment = 0;
-      student.incompletedAssignment = 0;
-      student.completedAssignment = 0;
-      student.attendDate = [];
-      student.sportClass = [];
-      student.sportTeam = [];
-      student.extraPoints = 0;
-      student.sportEvent = [];
-      student.studentSportsEventMatch = [];
-      student.complaints = [];
-      student.leave = [];
-      student.studentAdmissionDate = "";
-      student.borrow = [];
-      student.deposite = [];
-      student.sportEventCount = 0;
+      res.status(200).send({
+        message:
+          "All students promoted to next selected class with fee structure",
+      });
+    } else {
+      for (let stu of req.body?.students) {
+        const student = await Student.findById(stu);
+        const user = await User.findById({ _id: `${student.user}` });
+        const previousData = new StudentPreviousData({
+          studentCode: student.studentCode,
+          studentClass: student.studentClass,
+          student: student._id,
+          batches: student.batches,
+          studentROLLNO: student.studentROLLNO,
+          studentBehaviour: student.studentBehaviour,
+          department: student.department,
+          institute: student.institute,
 
-      // here assign new fee st
-      student.fee_structure = null;
-      student.active_fee_heads = [];
-      /////
-      student.certificateBonaFideCopy = {
-        trueCopy: false,
-        secondCopy: false,
-        thirdCopy: false,
-      };
-      student.certificateLeavingCopy = {
-        trueCopy: false,
-        secondCopy: false,
-        thirdCopy: false,
-      };
-      student.dailyUpdate = [];
+          //here some also doubt
+          notification: student.notification,
 
-      //============== here some confusion for biometric id -> Ok we will resolve it...
-      student.student_biometric_id = "";
-      student.election_candidate = [];
-      student.participate_event = [];
-      student.participate_result = [];
-      student.vehicle = null;
-      student.routes = [];
-      student.active_routes = null;
-      student.query_count = 0;
-      student.mentor = null;
-      student.queries = [];
-      student.total_query = 0;
-      student.feed_back_count = 0;
-      student.deposit_pending_amount = 0;
-      student.deposit_refund_amount = 0;
-      student.refund_deposit = [];
-      student.form_status = "Not Filled";
-      student.fee_receipt = [];
-      roll += 1;
-      if (classes?.ApproveStudent?.includes(student._id)) {
-      } else {
-        classes?.ApproveStudent.push(student._id);
-      }
-      if (batch?.ApproveStudent?.includes(student._id)) {
-      } else {
-        batch?.ApproveStudent.push(student._id);
-      }
-      if (department?.ApproveStudent?.includes(student._id)) {
-      } else {
-        department?.ApproveStudent.push(student._id);
+          subjectMarks: student.subjectMarks,
+          exams: student.exams,
+          finalReportStatus: student.finalReportStatus,
+          finalReport: student.finalReport,
+          testSet: student.testSet,
+          assignments: student.assignments,
+          totalAssignment: student.totalAssignment,
+          submittedAssignment: student.submittedAssignment,
+          incompletedAssignment: student.incompletedAssignment,
+          completedAssignment: student.completedAssignment,
+          studentFee: student.studentFee,
+          attendDate: student.attendDate,
+          allottedChecklist: student.allottedChecklist,
+          onlineFeeList: student.onlineFeeList,
+          onlineCheckList: student.onlineCheckList,
+          offlineFeeList: student.offlineFeeList,
+          sportClass: student.sportClass,
+          sportTeam: student.sportTeam,
+          extraPoints: student.extraPoints,
+          sportEvent: student.sportEvent,
+          studentSportsEventMatch: student.studentSportsEventMatch,
+          complaints: student?.complaints,
+          leave: student?.leave,
+          studentExemptFee: student?.studentExemptFee,
+          exemptFeeList: student?.exemptFeeList,
+          studentRemainingFeeCount: student?.studentRemainingFeeCount,
+          studentPaidFeeCount: student?.studentPaidFeeCount,
+          studentAdmissionDate: student?.studentAdmissionDate,
+          borrow: student?.borrow,
+          deposite: student?.deposite,
+          sportEventCount: student?.sportEventCount,
+          admissionRemainFeeCount: student?.admissionRemainFeeCount,
+          admissionPaidFeeCount: student?.admissionPaidFeeCount,
+          paidFeeList: student?.paidFeeList,
+          refundAdmission: student?.refundAdmission,
+          remainingFeeList: student?.remainingFeeList,
+          remainingFeeList_count: student?.remainingFeeList_count,
+          fee_structure: student?.fee_structure,
+          active_fee_heads: student?.active_fee_heads,
+          certificateBonaFideCopy: student?.certificateBonaFideCopy,
+          certificateLeavingCopy: student?.certificateLeavingCopy,
+          dailyUpdate: student?.dailyUpdate,
+          student_biometric_id: student?.student_biometric_id,
+          election_candidate: student?.election_candidate,
+          participate_event: student?.participate_event,
+          checkList_participate_event: student?.checkList_participate_event,
+          participate_result: student?.participate_result,
+          backlog: student?.backlog,
+          vehicle: student?.vehicle,
+          vehicleRemainFeeCount: student?.vehicleRemainFeeCount,
+          vehiclePaidFeeCount: student?.vehiclePaidFeeCount,
+          vehicle_payment_status: student?.vehicle_payment_status,
+          active_routes: student?.active_routes,
+          query_count: student?.query_count,
+          mentor: student?.mentor,
+          queries: student?.queries,
+          total_query: student?.total_query,
+          feed_back_count: student?.feed_back_count,
+          deposit_pending_amount: student?.deposit_pending_amount,
+          deposit_refund_amount: student?.deposit_refund_amount,
+          refund_deposit: student?.refund_deposit,
+          form_status: student?.form_status,
+          fee_receipt: student?.fee_receipt,
+        });
+        // console.log(previousData);
+        const notify = new StudentNotification({});
+        notify.notifyContent = `${student.studentFirstName} ${
+          student.studentMiddleName ? student.studentMiddleName : ""
+        } ${student.studentLastName} Your Report Card is Ready `;
+        notify.notifySender = classes._id;
+        notify.notifyReceiever = user._id;
+        notify.classId = classes._id;
+        notify.notifyType = "Student";
+        notify.notifyPublisher = student._id;
+        user.activity_tab.push(notify._id);
+        notify.notifyByClassPhoto = classes._id;
+        notify.notifyCategory = "Report Card";
+        notify.redirectIndex = 20;
+        invokeMemberTabNotification(
+          "Student Activity",
+          notify,
+          "View Report Card",
+          user._id,
+          user.deviceToken,
+          "Student",
+          notify
+        );
+        await Promise.all([
+          student.save(),
+          notify.save(),
+          user.save(),
+          previousData.save(),
+        ]);
+        student?.previousYearData?.push(previousData._id);
+        student.studentClass = classId;
+        student.studentCode = classes.classCode;
+        student.department = departmentId;
+        student.batches = batchId;
+        //here how to give the null in objectID
+        student.studentBehaviour = null;
+        student.studentROLLNO = roll;
+        student.subjectMarks = [];
+        student.exams = [];
+        student.finalReportStatus = "No";
+        student.finalReport = [];
+        student.testSet = [];
+        student.assignments = [];
+        student.totalAssignment = 0;
+        student.submittedAssignment = 0;
+        student.incompletedAssignment = 0;
+        student.completedAssignment = 0;
+        student.attendDate = [];
+        student.sportClass = [];
+        student.sportTeam = [];
+        student.extraPoints = 0;
+        student.sportEvent = [];
+        student.studentSportsEventMatch = [];
+        student.complaints = [];
+        student.leave = [];
+        student.studentAdmissionDate = "";
+        student.borrow = [];
+        student.deposite = [];
+        student.sportEventCount = 0;
+
+        // here assign new fee st
+        student.fee_structure = null;
+        student.active_fee_heads = [];
+        /////
+        student.certificateBonaFideCopy = {
+          trueCopy: false,
+          secondCopy: false,
+          thirdCopy: false,
+        };
+        student.certificateLeavingCopy = {
+          trueCopy: false,
+          secondCopy: false,
+          thirdCopy: false,
+        };
+        student.dailyUpdate = [];
+
+        //============== here some confusion for biometric id -> Ok we will resolve it...
+        student.student_biometric_id = "";
+        student.election_candidate = [];
+        student.participate_event = [];
+        student.participate_result = [];
+        student.vehicle = null;
+        student.routes = [];
+        student.active_routes = null;
+        student.query_count = 0;
+        student.mentor = null;
+        student.queries = [];
+        student.total_query = 0;
+        student.feed_back_count = 0;
+        student.deposit_pending_amount = 0;
+        student.deposit_refund_amount = 0;
+        student.refund_deposit = [];
+        student.form_status = "Not Filled";
+        student.fee_receipt = [];
+        roll += 1;
+        if (classes?.ApproveStudent?.includes(student._id)) {
+        } else {
+          classes?.ApproveStudent.push(student._id);
+        }
+        if (batch?.ApproveStudent?.includes(student._id)) {
+        } else {
+          batch?.ApproveStudent.push(student._id);
+        }
+        if (department?.ApproveStudent?.includes(student._id)) {
+        } else {
+          department?.ApproveStudent.push(student._id);
+        }
+
+        previousclasses?.promoteStudent?.push(stu);
+        // previousclasses?.ApproveStudent?.pull(stu);
+        classes.studentCount += 1;
+        await student.save();
+
+        if (student.studentGender === "Male") {
+          classes.boyCount += 1;
+          batch.student_category.boyCount += 1;
+        } else if (student.studentGender === "Female") {
+          classes.girlCount += 1;
+          batch.student_category.girlCount += 1;
+        } else if (student.studentGender === "Other") {
+          classes.otherCount += 1;
+          batch.student_category.otherCount += 1;
+        } else {
+        }
+        if (student.studentCastCategory === "General") {
+          batch.student_category.generalCount += 1;
+        } else if (student.studentCastCategory === "OBC") {
+          batch.student_category.obcCount += 1;
+        } else if (student.studentCastCategory === "SC") {
+          batch.student_category.scCount += 1;
+        } else if (student.studentCastCategory === "ST") {
+          batch.student_category.stCount += 1;
+        } else if (student.studentCastCategory === "NT-A") {
+          batch.student_category.ntaCount += 1;
+        } else if (student.studentCastCategory === "NT-B") {
+          batch.student_category.ntbCount += 1;
+        } else if (student.studentCastCategory === "NT-C") {
+          batch.student_category.ntcCount += 1;
+        } else if (student.studentCastCategory === "NT-D") {
+          batch.student_category.ntdCount += 1;
+        } else if (student.studentCastCategory === "VJ") {
+          batch.student_category.vjCount += 1;
+        } else {
+        }
+        await Promise.all([classes.save(), batch.save()]);
       }
 
-      previousclasses?.promoteStudent?.push(stu);
-      // previousclasses?.ApproveStudent?.pull(stu);
-      classes.studentCount += 1;
-      await student.save();
-
-      if (student.studentGender === "Male") {
-        classes.boyCount += 1;
-        batch.student_category.boyCount += 1;
-      } else if (student.studentGender === "Female") {
-        classes.girlCount += 1;
-        batch.student_category.girlCount += 1;
-      } else if (student.studentGender === "Other") {
-        classes.otherCount += 1;
-        batch.student_category.otherCount += 1;
-      } else {
-      }
-      if (student.studentCastCategory === "General") {
-        batch.student_category.generalCount += 1;
-      } else if (student.studentCastCategory === "OBC") {
-        batch.student_category.obcCount += 1;
-      } else if (student.studentCastCategory === "SC") {
-        batch.student_category.scCount += 1;
-      } else if (student.studentCastCategory === "ST") {
-        batch.student_category.stCount += 1;
-      } else if (student.studentCastCategory === "NT-A") {
-        batch.student_category.ntaCount += 1;
-      } else if (student.studentCastCategory === "NT-B") {
-        batch.student_category.ntbCount += 1;
-      } else if (student.studentCastCategory === "NT-C") {
-        batch.student_category.ntcCount += 1;
-      } else if (student.studentCastCategory === "NT-D") {
-        batch.student_category.ntdCount += 1;
-      } else if (student.studentCastCategory === "VJ") {
-        batch.student_category.vjCount += 1;
-      } else {
-      }
-      await Promise.all([classes.save(), batch.save()]);
+      await Promise.all([
+        classes.save(),
+        previousclasses.save(),
+        batch.save(),
+        department.save(),
+      ]);
+      res
+        .status(200)
+        .send({ message: "All students promoted to next selected class" });
     }
-
-    await Promise.all([
-      classes.save(),
-      previousclasses.save(),
-      batch.save(),
-      department.save(),
-    ]);
-
-    res
-      .status(200)
-      .send({ message: "All students promoted to next selected class" });
   } catch (e) {
     console.log(e);
   }

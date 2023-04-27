@@ -13,6 +13,8 @@ const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const { deleteFile, uploadFile } = require("../../S3Configuration");
 const { chart_category_student } = require("../../Custom/studentChart");
+const FeeStructure = require("../../models/Finance/FeesStructure");
+const RemainingList = require("../../models/Admission/RemainingList");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.photoEditByStudent = async (req, res) => {
@@ -226,10 +228,10 @@ exports.removeByClassTeacher = async (req, res) => {
     student.borrow = [];
     student.deposite = [];
     student.sportEventCount = 0;
-    student.admissionRemainFeeCount = 0;
-    student.admissionPaymentStatus = [];
-    student.refundAdmission = [];
-    student.remainingFeeList = [];
+    // student.admissionRemainFeeCount = 0;
+    // student.admissionPaymentStatus = [];
+    // student.refundAdmission = [];
+    // student.remainingFeeList = [];
     student.certificateBonaFideCopy = {
       trueCopy: false,
       secondCopy: false,
@@ -453,24 +455,68 @@ exports.getPromoteStudentByClass = async (req, res) => {
 exports.getNotPromoteStudentByClass = async (req, res) => {
   try {
     const { cid } = req.params;
+    const { valid_app_fee } = req.query;
     if (!cid) throw "Please call proper api with all *required details";
-    const classes_promote = await Class.findById(cid);
-    const classes = await Class.findById(cid)
-      .populate({
-        path: "ApproveStudent",
-        match: {
-          _id: { $nin: classes_promote.promoteStudent },
-        },
-        select:
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO studentGRNO",
-      })
-      .select("ApproveStudent")
-      .lean()
-      .exec();
-    res.status(200).send({
-      message: "All not promoted student list",
-      notPromoteStudent: classes.ApproveStudent ?? [],
-    });
+    if (valid_app_fee === "Yes") {
+      const classes_promote = await Class.findById(cid);
+      const classes = await Class.findById(cid)
+        .populate({
+          path: "ApproveStudent",
+          match: {
+            _id: { $nin: classes_promote.promoteStudent },
+          },
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto fee_structure studentROLLNO studentGRNO",
+          populate: {
+            path: "fee_structure remainingFeeList",
+            select: "applicable_fees paid_fee",
+          },
+        })
+        .select("ApproveStudent")
+        .lean()
+        .exec();
+      var filtered_sorted = [];
+      for (var ref of classes?.ApproveStudent) {
+        const one_remain = await RemainingList.findOne({
+          $and: [
+            { student: ref?._id },
+            { fee_structure: ref?.fee_structure?._id },
+          ],
+        });
+        const one_structure = await FeeStructure.findById({
+          _id: ref?.fee_structure?._id,
+        });
+        if (one_remain?.paid_fee >= one_structure?.applicable_fees) {
+          filtered_sorted.push(ref);
+        }
+      }
+      res.status(200).send({
+        message: "All not promoted student list",
+        notPromoteStudent: filtered_sorted ?? [],
+      });
+    } else {
+      const classes_promote = await Class.findById(cid);
+      const classes = await Class.findById(cid)
+        .populate({
+          path: "ApproveStudent",
+          match: {
+            _id: { $nin: classes_promote.promoteStudent },
+          },
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto fee_structure studentROLLNO studentGRNO",
+          populate: {
+            path: "fee_structure remainingFeeList",
+            select: "applicable_fees paid_fee",
+          },
+        })
+        .select("ApproveStudent")
+        .lean()
+        .exec();
+      res.status(200).send({
+        message: "All not promoted student list",
+        notPromoteStudent: classes?.ApproveStudent ?? [],
+      });
+    }
   } catch (e) {
     res.status(200).send({ message: e, notPromoteStudent: [] });
     console.log(e);

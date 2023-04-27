@@ -58,7 +58,7 @@ router.get(
 router.get(
   "/:tid/all/passengers",
   // isLoggedIn,
-  catchAsync(Transport.renderTransportAllPassenger)
+  catchAsync(Transport.renderTransportAllPassengerWithBatch)
 );
 
 router.get(
@@ -76,7 +76,7 @@ router.get(
 router.get(
   "/one/vehicle/:vid/query/all/passengers",
   // isLoggedIn,
-  catchAsync(Transport.renderTransportOneVehicleQueryAllPassengers)
+  catchAsync(Transport.renderVehicleAllPassengerWithBatch)
 );
 
 router.get(

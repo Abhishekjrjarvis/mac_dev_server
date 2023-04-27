@@ -1856,6 +1856,7 @@ exports.renderDestroySeatingArrangementQuery = async (req, res) => {
   }
 };
 
+
 // exports.renderNewSeatingArrangementAutomateQuery = async(req, res) => {
 //   try{
 //     const { eid } = req.params
@@ -1869,3 +1870,92 @@ exports.renderDestroySeatingArrangementQuery = async (req, res) => {
 //     console.log(e)
 //   }
 // }
+
+exports.getAllClassExportReport = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug regarding to call api",
+        access: false,
+      });
+    const classes = await Class.findById(cid)
+      .select("batch ApproveStudent")
+      // .populate({
+      //   path: "ApproveStudent",
+      //   select:
+      //     "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave",
+      //   populate: {
+      //     path: "leave",
+      //     match: {
+      //       date: { $regex: regularexp },
+      //       status: { $eq: "Accepted" },
+      //     },
+      //     select: "date",
+      //   },
+      // })
+      // .populate({
+      //   path: "attendenceDate",
+      //   match: {
+      //     attendDate: { $regex: regularexp },
+      //   },
+      //   select: "attendDate presentStudent.student absentStudent.student",
+      // })
+      .lean()
+      .exec();
+    const current_stuents = await Student.find({
+      _id: { $in: classes.ApproveStudent ?? [] },
+      finalReportStatus: { $eq: "Yes" },
+    })
+      .select(
+        "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender finalReport"
+      )
+      .populate({
+        path: "finalReport",
+      });
+    const previous_stuents = await StudentPreviousData.find({
+      finalReportStatus: { $eq: "Yes" },
+      studentClass: { $in: `${classes._id}` },
+      batches: { $eq: `${classes.batch}` },
+      student: { $in: classes.ApproveStudent ?? [] },
+    })
+      .select("studentROLLNO finalReport")
+      .populate({
+        path: "finalReport",
+      });
+    let students = [...current_stuents, ...previous_stuents];
+    students.sort(function (st1, st2) {
+      return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
+    });
+    // for (let stu of classes?.ApproveStudent) {
+    //   let obj = {
+    //     ...stu,
+    //     availablity: [],
+    //   };
+    //   for (let att of classes?.attendenceDate) {
+    //     let statusObj = {
+    //       date: att.attendDate,
+    //       status: "",
+    //     };
+    //     for (let pre of att?.presentStudent) {
+    //       if (String(stu._id) === String(pre.student)) statusObj.status = "P";
+    //     }
+    //     for (let abs of att?.absentStudent) {
+    //       if (String(stu._id) === String(abs.student)) statusObj.status = "A";
+    //     }
+
+    //     obj.availablity.push(statusObj);
+    //   }
+    //   students.push(obj);
+    // }
+    // console.log(classes);
+    return res.status(200).send({
+      message: "All student zip attendance",
+      attendance_zip: students,
+      // previous_stuents,
+      access: false,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

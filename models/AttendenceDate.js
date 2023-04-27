@@ -49,6 +49,10 @@ const attendenceDateSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  subject: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Subject",
+  },
 });
 
 const AttendenceDate = mongoose.model("AttendenceDate", attendenceDateSchema);

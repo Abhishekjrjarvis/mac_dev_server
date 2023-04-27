@@ -522,10 +522,44 @@ const studentSchema = new mongoose.Schema({
       ref: "InsAnnouncement",
     },
   ],
+
   duplicate_copy: {
     type: String,
     default: "Original Copy",
   },
+
+
+  previous_transport_history: [
+    {
+      batchId: { type: mongoose.Schema.Types.ObjectId, ref: "Batch" },
+      vehicle: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Vehicle",
+      },
+      vehicleRemainFeeCount: {
+        type: Number,
+        default: 0,
+      },
+      vehiclePaidFeeCount: {
+        type: Number,
+        default: 0,
+      },
+      vehicle_payment_status: [
+        {
+          vehicle: { type: mongoose.Schema.Types.ObjectId, ref: "Vehicle" },
+          status: { type: String, default: "Not Paid" },
+          created_at: { type: Date, default: Date.now },
+          amount: { type: Number, default: 0 },
+        },
+      ],
+    },
+  ],
+  subjectAttendance: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "AttendenceDate",
+    },
+  ],
 });
 
 const Student = mongoose.model("Student", studentSchema);

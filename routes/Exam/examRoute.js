@@ -147,4 +147,8 @@ router
 //   .route("/seating/:eid/seating/new/query/automate")
 //   .post(catchAsync(examController.renderNewSeatingArrangementAutomateQuery));
 
+router
+  .route("/class/:cid/final/report/zip")
+  .post(catchAsync(examController.getAllClassExportReport));
+
 module.exports = router;

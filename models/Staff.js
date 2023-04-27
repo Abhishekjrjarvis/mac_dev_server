@@ -291,6 +291,97 @@ const staffSchema = new mongoose.Schema({
       ref: "HostelUnit",
     },
   ],
+  //////////////////
+  previousFinanceDepartment: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Finance",
+    },
+  ],
+  previousLibrary: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Library",
+    },
+  ],
+  previousAdmissionDepartment: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Admission",
+    },
+  ],
+
+  previousAdmissionModerator: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "AdmissionModerator",
+    },
+  ],
+  previousFinanceModerator: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FinanceModerator",
+    },
+  ],
+  previousInstituteModerator: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FinanceModerator",
+    },
+  ],
+  previousHostelModerator: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "AdmissionModerator",
+    },
+  ],
+
+  previousTransportDepartment: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Transport",
+    },
+  ],
+  previousVehicle: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Vehicle",
+    },
+  ],
+  previousMentor: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Mentor",
+    },
+  ],
+  previousEventManager: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "EventManager",
+    },
+  ],
+  previousAlumini: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Alumini",
+    },
+  ],
+  previousHostel: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Hostel",
+    },
+  ],
+  previousHostelUnit: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "HostelUnit",
+    },
+  ],
+  staff_replacement: {
+    type: String,
+    default: "Not Transfer",
+  },
 });
 
 const Staff = mongoose.model("Staff", staffSchema);

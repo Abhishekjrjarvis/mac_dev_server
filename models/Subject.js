@@ -95,6 +95,12 @@ const subjectSchema = new mongoose.Schema({
       ref: "Student",
     },
   ],
+  attendance: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "AttendenceDate",
+    },
+  ],
 });
 
 const Subject = mongoose.model("Subject", subjectSchema);

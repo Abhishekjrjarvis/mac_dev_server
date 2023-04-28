@@ -44,6 +44,7 @@ app.use(
       "https://developer.qviple.com",
       "https://support.qviple.com",
       "https://demo.qviple.com",
+      "https://spce.qviple.com",
     ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,

@@ -1451,7 +1451,7 @@ exports.retrieveDepartmentList = async (req, res) => {
       .select("insName")
       .populate({
         path: "depart",
-        select: "dName photo photoId dTitle classMasterCount classCount",
+        select: "dName photo photoId dTitle classMasterCount classCount departmentSelectBatch",
         populate: {
           path: "dHead",
           select:
@@ -1470,7 +1470,9 @@ exports.retrieveDepartmentList = async (req, res) => {
     } else {
       res.status(404).send({ message: "Failure" });
     }
-  } catch {}
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 exports.getOneDepartment = async (req, res) => {

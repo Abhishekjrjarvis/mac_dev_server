@@ -28967,6 +28967,33 @@ paths:
           required: true
           type: string
           description: This is Exam id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              staff_list:
+                type: array
+                description: Enter Array of Object Id's ["2198013901293092309", "92839018209380839"]
+                required: true
+                items:
+                  type: string
+                  description: staff ID
+              class_list:
+                type: array
+                description: Enter Array of Object Id's ["62bb4dd84f87f09b9c55b625", "62bb4dd84f87f09b9c55b625"]
+                required: true
+                items:
+                  type: string
+                  description: class ID
+              hall_limit:
+                type: number
+                description: Enter Hall Limit
+                required: true
+              sequence:
+                type: string
+                description: Enter Sequence ("One Student / Bench") || ("Two Student / Bench")
+                required: true
       responses:
         "200":
           description: OK

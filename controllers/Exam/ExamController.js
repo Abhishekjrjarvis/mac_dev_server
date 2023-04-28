@@ -1856,19 +1856,25 @@ exports.renderDestroySeatingArrangementQuery = async (req, res) => {
   }
 };
 
-// exports.renderNewSeatingArrangementAutomateQuery = async(req, res) => {
-//   try{
-//     const { eid } = req.params
-//     const { staff_list, class_list } = req.body
-//     if(!eid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+exports.renderNewSeatingArrangementAutomateQuery = async (req, res) => {
+  try {
+    const { eid } = req.params;
+    const { staff_list, class_list, hall_limit, sequence } = req.body;
+    if (!eid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-//     const one_exam = await Exam.findById({ _id: eid })
-//     const new_seat = await Seating({ ...req.body });
-//   }
-//   catch(e){
-//     console.log(e)
-//   }
-// }
+    // const one_exam = await Exam.findById({ _id: eid })
+    // const new_seat = await Seating({ ...req.body });
+    res
+      .status(200)
+      .send({ message: "Explore Automated Seating Sequence", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 exports.getAllClassExportReport = async (req, res) => {
   try {

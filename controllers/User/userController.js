@@ -879,6 +879,10 @@ exports.getAllUserActivity = async (req, res) => {
           "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName",
       })
       .populate({
+        path: "participate_winner",
+        select: "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName"
+      })
+      .populate({
         path: "seatingId",
         populate: {
           path: "seat_block_staff",

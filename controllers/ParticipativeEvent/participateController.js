@@ -237,7 +237,10 @@ exports.retrieveResultParticipateEventStudent = async (req, res) => {
           rank: ref?.rank,
         });
         result_array.push({
-          name: `${student?.studentFirstName} ${student?.studentMiddleName}`,
+          _id: student?._id,
+          name: `${student?.studentFirstName} ${
+            student?.studentMiddleName ?? ""
+          } ${student?.studentLastName}`,
           rank: ref?.rank,
         });
         if (ref.rank === "Winner") {
@@ -274,6 +277,7 @@ exports.retrieveResultParticipateEventStudent = async (req, res) => {
         notify.notifyType = "Student";
         notify.participate_event_type = "Result Participate Event";
         notify.notifyPublisher = ele._id;
+        notify.participate_winner = result_array ? result_array[0]?._id : "";
         user.activity_tab.push(notify._id);
         notify.notifyByEventManagerPhoto = part?.event_manager;
         notify.notifyCategory = "Participate Event Result";

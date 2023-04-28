@@ -313,11 +313,11 @@ const directMSMSQuery = async (mob, sName, iName, cName) => {
   return true;
 };
 
-const directESMSStaffQuery = async (mob, sName, iName) => {
+const directESMSStaffQuery = (mob, sName, iName) => {
   const e_message = `Hi ${sName}. You are staff of ${iName}. Login by downloading app 'Qviple Community' through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From Qviple`;
   const url = `http://mobicomm.dove-sms.com//submitsms.jsp?user=Mithkal&key=4c3168d558XX&mobile=+91${mob}&message=${e_message}&senderid=QVIPLE&accusage=6&entityid=1701164286216096677&tempid=1707167282706976266`;
   axios
-    .post(url)
+    .get(url)
     .then((res) => {
       if ((res && res.data.includes("success")) || res.data.includes("sent")) {
         console.log("E-messsage Sent Successfully", res.data);
@@ -330,6 +330,12 @@ const directESMSStaffQuery = async (mob, sName, iName) => {
     });
   return true;
 };
+
+// console.log(
+//   directESMSStaffQuery(7007023972, "Abhishek Singh", "Qviple Official")
+// );
+
+// console.log(directESMSQuery(7007023972, "Pankaj Bharat Phad", "6th-class", "Qviple Official"))
 
 // const directHSMSStaffQuery = async (mob, sName, iName, cName) => {
 //   const e_message = `${sName}, आप ${iName} के ${cName} में पढ़ रहे हैं। लिंक के माध्यम से 'Qviple Community' ऐप डाउनलोड करके लॉग इन करें: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - Qviple से`;

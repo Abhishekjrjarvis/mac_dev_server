@@ -1213,7 +1213,7 @@ exports.retrieveApproveStudentList = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender"
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
         )
         .populate({
           path: "user",
@@ -1243,7 +1243,7 @@ exports.retrieveApproveStudentList = async (req, res) => {
         _id: { $in: student_ins?.ApproveStudent },
       })
         .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate"
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
         )
         .populate({
           path: "user",

@@ -1856,7 +1856,6 @@ exports.renderDestroySeatingArrangementQuery = async (req, res) => {
   }
 };
 
-
 // exports.renderNewSeatingArrangementAutomateQuery = async(req, res) => {
 //   try{
 //     const { eid } = req.params

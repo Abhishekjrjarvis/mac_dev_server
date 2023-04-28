@@ -28950,3 +28950,23 @@ paths:
       responses:
         "200":
           description: OK
+
+
+  /api/v1/exam/seating/{eid}/seating/new/query/automate:
+    post:
+      tags:
+        - Seating Arrangement Query
+      summary: Automate Seating Arrangement Query  (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: This is Exam id
+      responses:
+        "200":
+          description: OK

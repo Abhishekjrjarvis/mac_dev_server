@@ -9,6 +9,7 @@ const FeeStructure = require("../models/Finance/FeesStructure");
 const ClassMaster = require("../models/ClassMaster");
 const HostelUnit = require("../models/Hostel/hostelUnit");
 const HostelRoom = require("../models/Hostel/hostelRoom");
+const Batch = require("../models/Batch");
 
 exports.generate_excel_to_json = async (file, aid, fid, did) => {
   try {
@@ -159,6 +160,12 @@ exports.generate_excel_to_json_fee_structure = async (file, fid, did) => {
           },
         ],
       });
+      const batch = await Batch.findOne({
+        $and: [
+          { department: did },
+          { batchName: { $regex: `${struct?.BatchName}`, $options: "i" } },
+        ],
+      });
       var head_count = struct?.FeeHeadCount
         ? parseInt(struct?.FeeHeadCount)
         : 0;
@@ -264,6 +271,7 @@ exports.generate_excel_to_json_fee_structure = async (file, fid, did) => {
       struct.heads = [...heads];
       struct.CategoryId = fee_category?._id;
       struct.StandardId = master?._id;
+      struct.batchId = batch?._id;
       if (struct?.CategoryId) {
         new_data_query.push(struct);
         // console.log("push");

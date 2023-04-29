@@ -2977,6 +2977,49 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
         } else {
         }
         await Promise.all([classes.save(), batch.save()]);
+        if (institute.sms_lang === "en") {
+          await directESMSQuery(
+            user?.userPhoneNumber,
+            `${student.studentFirstName} ${
+              student.studentMiddleName ? student.studentMiddleName : ""
+            } ${student.studentLastName}`,
+            institute?.insName,
+            classes?.classTitle
+          );
+        } else if (institute.sms_lang === "hi") {
+          await directHSMSQuery(
+            user?.userPhoneNumber,
+            `${student.studentFirstName} ${
+              student.studentMiddleName ? student.studentMiddleName : ""
+            } ${student.studentLastName}`,
+            institute?.insName,
+            classes?.classTitle
+          );
+        } else if (institute.sms_lang === "mr" || institute.sms_lang === "mt") {
+          await directMSMSQuery(
+            user?.userPhoneNumber,
+            `${student.studentFirstName} ${
+              student.studentMiddleName ? student.studentMiddleName : ""
+            } ${student.studentLastName}`,
+            institute?.insName,
+            classes?.classTitle
+          );
+        } else {
+        }
+        const studentName = `${student.studentFirstName} ${
+          student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+        } ${student.studentLastName}`;
+        whats_app_sms_payload(
+          user?.userPhoneNumber,
+          studentName,
+          institute?.insName,
+          classes?.className,
+          "ADSIS",
+          institute?.insType,
+          0,
+          0,
+          institute?.sms_lang
+        );
         // return true
       } else {
         console.log("Problem in Account Creation");

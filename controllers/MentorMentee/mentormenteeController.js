@@ -15,8 +15,7 @@ const moment = require("moment");
 
 exports.renderNewMentorQuery = async (req, res) => {
   try {
-    const { did } = req.params;
-    const { sid } = req.body;
+    const { did, sid } = req.params;
     if (!did && !sid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",

@@ -8,6 +8,7 @@ const OrderPayment = require("../../models/RazorPay/orderPayment");
 const Notification = require("../../models/notification");
 const Admin = require("../../models/superAdmin");
 const Income = require("../../models/Income");
+const Batch = require("../../models/Batch");
 const Expense = require("../../models/Expense");
 const Class = require("../../models/Class");
 const ClassMaster = require("../../models/ClassMaster");
@@ -2753,9 +2754,12 @@ exports.renderFinanceAddFeeStructure = async (req, res) => {
       const class_master = await ClassMaster.findById({
         _id: `${req.body?.class_master}`,
       });
+      const batch_master = await Batch.findById({
+        _id: `${req.body?.batch_master}`,
+      });
       struct_query.finance = finance?._id;
       struct_query.department = depart?._id;
-      struct_query.unique_structure_name = `${category?.category_name} - ${depart?.dName} - ${class_master?.className} / ${req.body?.structure_name}`;
+      struct_query.unique_structure_name = `${category?.category_name} - ${depart?.dName} - ${batch_master?.batchName} - ${class_master?.className} / ${req.body?.structure_name}`;
       depart.fees_structures.push(struct_query?._id);
       depart.fees_structures_count += 1;
       if (heads?.length > 0) {
@@ -2782,9 +2786,12 @@ exports.renderFinanceAddFeeStructure = async (req, res) => {
       const class_master = await ClassMaster.findById({
         _id: `${req.body?.class_master}`,
       });
+      const batch_master = await Batch.findById({
+        _id: `${req.body?.batch_master}`,
+      });
       struct_query.finance = finance?._id;
       struct_query.hostel = hostel?._id;
-      struct_query.unique_structure_name = `${category?.category_name} - ${class_master?.className} / ${req.body?.structure_name}`;
+      struct_query.unique_structure_name = `${category?.category_name} - ${batch_master?.batchName} - ${class_master?.className} / ${req.body?.structure_name}`;
       hostel.fees_structures.push(struct_query?._id);
       hostel.fees_structures_count += 1;
       if (heads?.length > 0) {
@@ -2826,11 +2833,12 @@ exports.renderFinanceAddFeeStructureAutoQuery = async (
       var class_master = await ClassMaster.findById({
         _id: `${ref?.StandardId}`,
       });
+      var batch_master = await Batch.findById({ _id: `${ref?.batchId}` });
       const struct_query = new FeeStructure({
         category_master: ref?.CategoryId,
         class_master: ref?.StandardId,
         structure_name: ref?.StructureName,
-        unique_structure_name: `${category?.category_name} - ${depart?.dName} - ${class_master?.className} / ${ref?.StructureName}`,
+        unique_structure_name: `${category?.category_name} - ${depart?.dName} - ${batch_master?.batchName} - ${class_master?.className} / ${ref?.StructureName}`,
         total_admission_fees: ref?.TotalFees,
         total_installments: ref?.InstallCount,
         applicable_fees: ref?.ApplicableFees,
@@ -2901,9 +2909,12 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
       const class_master = await ClassMaster.findById({
         _id: `${req.body?.class_master}`,
       });
+      const batch_master = await Batch.findById({
+        _id: `${req.body?.batch_master}`,
+      });
       struct_query.finance = finance?._id;
       struct_query.department = depart?._id;
-      struct_query.unique_structure_name = `${category?.category_name} - ${depart?.dName} - ${class_master?.className} / ${req.body?.structure_name}`;
+      struct_query.unique_structure_name = `${category?.category_name} - ${depart?.dName} - ${batch_master?.batchName} - ${class_master?.className} / ${req.body?.structure_name}`;
       depart.fees_structures.push(struct_query?._id);
       depart.modify_fees_structures_count += 1;
       previous_struct.document_update = true;
@@ -2942,9 +2953,12 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
       const class_master = await ClassMaster.findById({
         _id: `${req.body?.class_master}`,
       });
+      const batch_master = await Batch.findById({
+        _id: `${req.body?.batch_master}`,
+      });
       struct_query.finance = finance?._id;
       struct_query.hostel = hostel?._id;
-      struct_query.unique_structure_name = `${category?.category_name} - ${class_master?.className} / ${req.body?.structure_name}`;
+      struct_query.unique_structure_name = `${category?.category_name} - ${batch_master?.batchName} - ${class_master?.className} / ${req.body?.structure_name}`;
       hostel.fees_structures.push(struct_query?._id);
       hostel.modify_fees_structures_count += 1;
       previous_struct.document_update = true;
@@ -3036,8 +3050,9 @@ exports.renderDepartmentAllFeeStructure = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { filter_by } = req.query;
+    const { filter_by, batch_by } = req.query;
     const master_query = handle_undefined(filter_by); // master Id
+    const batch_query = handle_undefined(batch_by) // batch Id
     if (!did)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -3046,11 +3061,12 @@ exports.renderDepartmentAllFeeStructure = async (req, res) => {
     const depart = await Department.findById({ _id: did }).select(
       "fees_structures"
     );
-    if (master_query) {
+    if (master_query && batch_query) {
       var all_structures = await FeeStructure.find({
         $and: [
           { _id: { $in: depart?.fees_structures } },
           { class_master: master_query },
+          { batch_master: batch_query },
           { document_update: false },
         ],
       })
@@ -3480,7 +3496,12 @@ exports.renderOneFeeStructure = async (req, res) => {
       .populate({
         path: "class_master",
         select: "className",
+      })
+      .populate({
+        path: "batch_master",
+        select: "batchName",
       });
+
     res
       .status(200)
       .send({ message: "Explore One Fees Structure", access: true, structure });

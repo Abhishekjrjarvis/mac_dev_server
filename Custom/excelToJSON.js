@@ -9,7 +9,7 @@ const FeeStructure = require("../models/Finance/FeesStructure");
 const ClassMaster = require("../models/ClassMaster");
 const HostelUnit = require("../models/Hostel/hostelUnit");
 const HostelRoom = require("../models/Hostel/hostelRoom");
-const Batch = require("../models/Batch");
+// const Batch = require("../models/Batch");
 
 exports.generate_excel_to_json = async (file, aid, fid, did) => {
   try {

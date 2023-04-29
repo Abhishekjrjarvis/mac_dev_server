@@ -120,7 +120,7 @@ exports.send_email_authentication = async (email) => {
   const OTP = `${rand1}${rand2}${rand3}${rand4}`;
   const subject = "OTP Verification";
   const message = `Welcome to Qviple, Your Qviple account verification OTP is ${OTP} Mithkal Minds Pvt Ltd.`;
-  const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
+  const url = `http://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
   const encodeURL = encodeURI(url);
   axios
     .post(encodeURL)
@@ -133,7 +133,7 @@ exports.send_email_authentication = async (email) => {
   return OTP;
 };
 
-const send_email_authentication_promotional = (email) => {
+const send_email_authentication_promotional = async (email) => {
   let rand1 = Math.floor(Math.random() * 9) + 1;
   let rand2 = Math.floor(Math.random() * 9) + 1;
   let rand3 = Math.floor(Math.random() * 9) + 1;
@@ -141,7 +141,7 @@ const send_email_authentication_promotional = (email) => {
   const OTP = `${rand1}${rand2}${rand3}${rand4}`;
   const subject = "OTP Verification";
   const message = `Welcome to Qviple, Your Qviple account verification OTP is ${OTP} Mithkal Minds Pvt Ltd.`;
-  const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
+  const url = `http://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
   const encodeURL = encodeURI(url);
   axios
     .post(encodeURL)
@@ -149,7 +149,7 @@ const send_email_authentication_promotional = (email) => {
       console.log("Sended Successfully");
     })
     .catch((e) => {
-      console.log("SMS API Bug", e);
+      console.log("SMS API Bug", e.message);
     });
   return OTP;
 };

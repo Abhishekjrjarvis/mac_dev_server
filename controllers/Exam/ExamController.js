@@ -1748,7 +1748,7 @@ exports.renderAllClassQuery = async (req, res) => {
         $or: [{ className: { $regex: `${search}`, $options: "i" } }],
       })
         .select(
-          "className classTitle classStatus exam_start lastupto exam_seating classTeacher"
+          "className classTitle classStatus exam_start lastupto exam_seating classTeacher studentCount"
         )
         .populate({
           path: "classTeacher",
@@ -1762,7 +1762,7 @@ exports.renderAllClassQuery = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "className classTitle classStatus exam_start lastupto exam_seating classTeacher"
+          "className classTitle classStatus exam_start lastupto exam_seating classTeacher studentCount"
         )
         .populate({
           path: "classTeacher",

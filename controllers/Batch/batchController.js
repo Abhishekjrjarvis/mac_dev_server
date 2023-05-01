@@ -82,7 +82,7 @@ exports.preformedStructure = async (req, res) => {
       });
       department.fees_structures.push(new_struct?._id);
       department.fees_structures_count += 1;
-      for (var one_head of one_struct?.heads) {
+      for (var one_head of one_struct?.fees_heads) {
         new_struct.fees_heads.push({
           head_name: one_head?.head_name,
           head_amount: one_head?.head_amount,

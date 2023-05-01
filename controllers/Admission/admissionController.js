@@ -3211,10 +3211,10 @@ exports.retrieveAllDepartmentArray = async (req, res) => {
       .select("insName")
       .populate({
         path: "depart",
-        select: "dName",
+        select: "dName batches",
         populate: {
-          path: "departmentSelectBatch",
-          select: "batchName",
+          path: "departmentSelectBatch batches",
+          select: "batchName createdAt batchStatus",
         },
       });
 

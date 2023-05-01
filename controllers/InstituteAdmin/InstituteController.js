@@ -1451,7 +1451,8 @@ exports.retrieveDepartmentList = async (req, res) => {
       .select("insName")
       .populate({
         path: "depart",
-        select: "dName photo photoId dTitle classMasterCount classCount departmentSelectBatch",
+        select:
+          "dName photo photoId dTitle classMasterCount classCount departmentSelectBatch",
         populate: {
           path: "dHead",
           select:
@@ -1470,8 +1471,8 @@ exports.retrieveDepartmentList = async (req, res) => {
     } else {
       res.status(404).send({ message: "Failure" });
     }
-  } catch(e) {
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
 };
 
@@ -1849,7 +1850,7 @@ exports.retrieveClassProfileSubject = async (req, res) => {
     const { cid } = req.params;
     const classes = await Class.findById({ _id: cid })
       .select(
-        "className classTitle classHeadTitle classAbout subjectCount studentCount photoId photo coverId cover classStatus"
+        "className classTitle classHeadTitle classAbout masterClassName subjectCount studentCount photoId photo coverId cover classStatus"
       )
       .populate({
         path: "classTeacher",
@@ -1887,7 +1888,9 @@ exports.retrieveClassSubject = async (req, res) => {
   try {
     const { cid } = req.params;
     const classes = await Class.findById({ _id: cid })
-      .select("className classTitle classHeadTitle classAbout classStatus")
+      .select(
+        "className classTitle classHeadTitle masterClassName classAbout classStatus"
+      )
       .populate({
         path: "subject",
         select: "subjectName subjectTitle subjectStatus subjectOptional",
@@ -2065,13 +2068,15 @@ exports.retrieveCurrentSelectBatch = async (req, res) => {
   try {
     const { did, bid } = req.params;
     const department = await Department.findById({ _id: did });
-    var valid_active_batch = handle_undefined(department?.departmentSelectBatch)
-    if(valid_active_batch){
+    var valid_active_batch = handle_undefined(
+      department?.departmentSelectBatch
+    );
+    if (valid_active_batch) {
       var prev_batches = await Batch.findById({
         _id: department.departmentSelectBatch,
       });
       prev_batches.activeBatch = "Not Active";
-      await prev_batches.save()
+      await prev_batches.save();
     }
     const batches = await Batch.findById({ _id: bid });
     department.departmentSelectBatch = batches._id;

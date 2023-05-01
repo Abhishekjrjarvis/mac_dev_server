@@ -23,6 +23,7 @@ const Transport = require("../../models/Transport/transport");
 const Vehicle = require("../../models/Transport/vehicle");
 const Direction = require("../../models/Transport/direction");
 const TransportBatch = require("../../models/Transport/TransportBatch");
+const FeeStructure = require("../../models/Finance/FeesStructure");
 
 exports.preformedStructure = async (req, res) => {
   try {
@@ -32,7 +33,8 @@ exports.preformedStructure = async (req, res) => {
         path: "subject",
       },
     });
-    const department = await Department.findById(batch?.department);
+    var valid_structure = await FeeStructure.find({ batch_master: batch?._id });
+    var department = await Department.findById(batch?.department);
     const institute = await InstituteAdmin.findById(batch?.institute);
     const identicalBatch = new Batch({
       batchName: req.body?.batchName,
@@ -44,6 +46,44 @@ exports.preformedStructure = async (req, res) => {
     department?.batches.push(identicalBatch._id);
     institute?.batches.push(identicalBatch._id);
     department.batchCount += 1;
+    for (var one_struct of valid_structure) {
+      var new_struct = new FeeStructure({
+        category_master: one_struct?.category_master,
+        class_master: one_struct?.class_master,
+        structure_name: one_struct?.structure_name,
+        unique_structure_name: one_struct?.unique_structure_name,
+        applicable_fees: one_struct?.applicable_fees,
+        one_installments: one_struct?.one_installments,
+        two_installments: one_struct?.two_installments,
+        three_installments: one_struct?.three_installments,
+        four_installments: one_struct?.four_installments,
+        five_installments: one_struct?.five_installments,
+        six_installments: one_struct?.six_installments,
+        seven_installments: one_struct?.seven_installments,
+        eight_installments: one_struct?.eight_installments,
+        nine_installments: one_struct?.nine_installments,
+        ten_installments: one_struct?.ten_installments,
+        eleven_installments: one_struct?.eleven_installments,
+        tweleve_installments: one_struct?.tweleve_installments,
+        total_installments: one_struct?.total_installments,
+        total_admission_fees: one_struct?.total_admission_fees,
+        due_date: one_struct?.due_date,
+        finance: one_struct?.finance,
+        department: department?._id,
+        batch_master: identicalBatch?._id,
+      });
+      department.fees_structures.push(new_struct?._id);
+      department.fees_structures_count += 1;
+      for (var one_head of one_struct?.heads) {
+        new_struct.fees_heads.push({
+          head_name: one_head?.head_name,
+          head_amount: one_head?.head_amount,
+          master: one_head?.master,
+        });
+        new_struct.fees_heads_count += 1;
+      }
+      await new_struct.save();
+    }
     for (let oneClass of batch?.classroom) {
       // console.log("this is class", oneClass);
       const code = await classCodeFunction();
@@ -292,10 +332,9 @@ exports.promoteStudent = async (req, res) => {
     let roll = classes.ApproveStudent?.length + 1;
     if (flow === "WITH_STRUCTURE") {
       for (let stu of req.body?.students) {
-        const student = await Student.findById(stu)
-        .populate({
-          path: "fee_structure"
-        })
+        const student = await Student.findById(stu).populate({
+          path: "fee_structure",
+        });
         var structure = department?.fees_structures?.filter((ref) => {
           if (
             `${ref?.class_master}` === `${classes?.masterClassName}` &&
@@ -413,43 +452,43 @@ exports.promoteStudent = async (req, res) => {
         ]);
         student?.previousYearData?.push(previousData._id);
         if (student.vehicle) {
-        const vehicle = await Vehicle.findById({ _id: student.vehicle });
-        const trans = await Transport.findById({
-          _id: `${vehicle?.transport}`,
-        });
-        const trans_batch = new TransportBatch({
-          batchId: batchId,
-          student: student._id,
-          vehicle: vehicle._id,
-          transport: trans._id,
-        });
-        trans.transport_passengers_with_batch.push(trans_batch?._id);
-        vehicle.passenger_array_with_batch.push(trans_batch?._id);
-        const route = await Direction.findById({
-          _id: `${vehicle?.vehicle_route}`,
-        });
-        for (var path of route?.direction_route) {
-          if (`${path?._id}` === `${student.routes?.[0]?.routeId}`) {
-            path.passenger_list_with_batch.push(trans_batch?._id);
-            student.vehicleRemainFeeCount += path?.route_fees;
-            vehicle.remaining_fee += path?.route_fees;
-            trans.remaining_fee += path?.route_fees;
+          const vehicle = await Vehicle.findById({ _id: student.vehicle });
+          const trans = await Transport.findById({
+            _id: `${vehicle?.transport}`,
+          });
+          const trans_batch = new TransportBatch({
+            batchId: batchId,
+            student: student._id,
+            vehicle: vehicle._id,
+            transport: trans._id,
+          });
+          trans.transport_passengers_with_batch.push(trans_batch?._id);
+          vehicle.passenger_array_with_batch.push(trans_batch?._id);
+          const route = await Direction.findById({
+            _id: `${vehicle?.vehicle_route}`,
+          });
+          for (var path of route?.direction_route) {
+            if (`${path?._id}` === `${student.routes?.[0]?.routeId}`) {
+              path.passenger_list_with_batch.push(trans_batch?._id);
+              student.vehicleRemainFeeCount += path?.route_fees;
+              vehicle.remaining_fee += path?.route_fees;
+              trans.remaining_fee += path?.route_fees;
+            }
           }
+          student.previous_transport_history.push({
+            batchId: student.batches,
+            vehicleRemainFeeCount: student.vehicleRemainFeeCount,
+            vehiclePaidFeeCount: student.vehiclePaidFeeCount,
+            vehicle_payment_status: student.vehicle_payment_status,
+          });
+          await Promise.all([
+            trans.save(),
+            trans_batch.save(),
+            vehicle.save(),
+            route.save(),
+          ]);
+          // console.log(trans, vehicle, route);
         }
-        student.previous_transport_history.push({
-          batchId: student.batches,
-          vehicleRemainFeeCount: student.vehicleRemainFeeCount,
-          vehiclePaidFeeCount: student.vehiclePaidFeeCount,
-          vehicle_payment_status: student.vehicle_payment_status,
-        });
-        await Promise.all([
-          trans.save(),
-          trans_batch.save(),
-          vehicle.save(),
-          route.save(),
-        ]);
-        // console.log(trans, vehicle, route);
-      }
         student.studentClass = classId;
         student.studentCode = classes.classCode;
         student.department = departmentId;
@@ -689,43 +728,43 @@ exports.promoteStudent = async (req, res) => {
         ]);
         student?.previousYearData?.push(previousData._id);
         if (student.vehicle) {
-        const vehicle = await Vehicle.findById({ _id: student.vehicle });
-        const trans = await Transport.findById({
-          _id: `${vehicle?.transport}`,
-        });
-        const trans_batch = new TransportBatch({
-          batchId: batchId,
-          student: student._id,
-          vehicle: vehicle._id,
-          transport: trans._id,
-        });
-        trans.transport_passengers_with_batch.push(trans_batch?._id);
-        vehicle.passenger_array_with_batch.push(trans_batch?._id);
-        const route = await Direction.findById({
-          _id: `${vehicle?.vehicle_route}`,
-        });
-        for (var path of route?.direction_route) {
-          if (`${path?._id}` === `${student.routes?.[0]?.routeId}`) {
-            path.passenger_list_with_batch.push(trans_batch?._id);
-            student.vehicleRemainFeeCount += path?.route_fees;
-            vehicle.remaining_fee += path?.route_fees;
-            trans.remaining_fee += path?.route_fees;
+          const vehicle = await Vehicle.findById({ _id: student.vehicle });
+          const trans = await Transport.findById({
+            _id: `${vehicle?.transport}`,
+          });
+          const trans_batch = new TransportBatch({
+            batchId: batchId,
+            student: student._id,
+            vehicle: vehicle._id,
+            transport: trans._id,
+          });
+          trans.transport_passengers_with_batch.push(trans_batch?._id);
+          vehicle.passenger_array_with_batch.push(trans_batch?._id);
+          const route = await Direction.findById({
+            _id: `${vehicle?.vehicle_route}`,
+          });
+          for (var path of route?.direction_route) {
+            if (`${path?._id}` === `${student.routes?.[0]?.routeId}`) {
+              path.passenger_list_with_batch.push(trans_batch?._id);
+              student.vehicleRemainFeeCount += path?.route_fees;
+              vehicle.remaining_fee += path?.route_fees;
+              trans.remaining_fee += path?.route_fees;
+            }
           }
+          student.previous_transport_history.push({
+            batchId: student.batches,
+            vehicleRemainFeeCount: student.vehicleRemainFeeCount,
+            vehiclePaidFeeCount: student.vehiclePaidFeeCount,
+            vehicle_payment_status: student.vehicle_payment_status,
+          });
+          await Promise.all([
+            trans.save(),
+            trans_batch.save(),
+            vehicle.save(),
+            route.save(),
+          ]);
+          // console.log(trans, vehicle, route);
         }
-        student.previous_transport_history.push({
-          batchId: student.batches,
-          vehicleRemainFeeCount: student.vehicleRemainFeeCount,
-          vehiclePaidFeeCount: student.vehiclePaidFeeCount,
-          vehicle_payment_status: student.vehicle_payment_status,
-        });
-        await Promise.all([
-          trans.save(),
-          trans_batch.save(),
-          vehicle.save(),
-          route.save(),
-        ]);
-        // console.log(trans, vehicle, route);
-      }
         student.studentClass = classId;
         student.studentCode = classes.classCode;
         student.department = departmentId;

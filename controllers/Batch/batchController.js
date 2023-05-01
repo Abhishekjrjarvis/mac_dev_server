@@ -33,7 +33,15 @@ exports.preformedStructure = async (req, res) => {
         path: "subject",
       },
     });
-    var valid_structure = await FeeStructure.find({ batch_master: batch?._id });
+    var valid_structure = await FeeStructure.find({ batch_master: batch?._id })
+      .populate({
+        path: "category_master",
+        select: "category_name",
+      })
+      .populate({
+        path: "class_master",
+        select: "className",
+      });
     var department = await Department.findById(batch?.department);
     const institute = await InstituteAdmin.findById(batch?.institute);
     const identicalBatch = new Batch({
@@ -51,7 +59,7 @@ exports.preformedStructure = async (req, res) => {
         category_master: one_struct?.category_master,
         class_master: one_struct?.class_master,
         structure_name: one_struct?.structure_name,
-        unique_structure_name: one_struct?.unique_structure_name,
+        unique_structure_name: `${one_struct?.category_master?.category_name} - ${department?.dName} - ${identicalBatch?.batchName} - ${one_struct?.class_master?.className} / ${one_struct?.structure_name}`,
         applicable_fees: one_struct?.applicable_fees,
         one_installments: one_struct?.one_installments,
         two_installments: one_struct?.two_installments,

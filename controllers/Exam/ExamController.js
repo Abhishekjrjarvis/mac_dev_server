@@ -24,6 +24,9 @@ const Staff = require("../../models/Staff");
 const Seating = require("../../models/Exam/seating");
 const { handle_undefined } = require("../../Handler/customError");
 const { replace_query } = require("../../helper/dayTimer");
+const ExamMalicious = require("../../models/Exam/ExamMalicious");
+const GradeSystem = require("../../models/Marks/GradeSystem");
+
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.getClassMaster = async (req, res) => {
@@ -1865,80 +1868,216 @@ exports.getAllClassExportReport = async (req, res) => {
         access: false,
       });
     const classes = await Class.findById(cid)
-      .select("batch ApproveStudent")
-      // .populate({
-      //   path: "ApproveStudent",
-      //   select:
-      //     "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender leave",
-      //   populate: {
-      //     path: "leave",
-      //     match: {
-      //       date: { $regex: regularexp },
-      //       status: { $eq: "Accepted" },
-      //     },
-      //     select: "date",
-      //   },
-      // })
-      // .populate({
-      //   path: "attendenceDate",
-      //   match: {
-      //     attendDate: { $regex: regularexp },
-      //   },
-      //   select: "attendDate presentStudent.student absentStudent.student",
-      // })
-      .lean()
-      .exec();
+      .select(
+        "batch ApproveStudent className classTitle finalReportsSettings.gradeMarks finalReportsSettings.aggregatePassingPercentage"
+      )
+      .populate({
+        path: "institute",
+        select:
+          "insName insProfilePhoto phtotId insAddress insPhoneNumber insEmail",
+      })
+      .populate({
+        path: "classTeacher",
+        select: "staffFirstName staffMiddleName staffLastName",
+      })
+      .populate({
+        path: "batch",
+        select: "batchName",
+      });
+
     const current_stuents = await Student.find({
       _id: { $in: classes.ApproveStudent ?? [] },
       finalReportStatus: { $eq: "Yes" },
     })
       .select(
-        "studentFirstName studentMiddleName studentLastName studentROLLNO studentGender finalReport"
+        "studentFirstName studentMiddleName studentLastName studentROLLNO studentGRNO studentGender finalReport"
       )
       .populate({
         path: "finalReport",
-      });
-    const previous_stuents = await StudentPreviousData.find({
+      })
+      .lean()
+      .exec();
+    const previous_students = await StudentPreviousData.find({
       finalReportStatus: { $eq: "Yes" },
       studentClass: { $in: `${classes._id}` },
-      batches: { $eq: `${classes.batch}` },
+      batches: { $eq: `${classes.batch?._id}` },
       student: { $in: classes.ApproveStudent ?? [] },
     })
       .select("studentROLLNO finalReport")
       .populate({
         path: "finalReport",
-      });
-    let students = [...current_stuents, ...previous_stuents];
+        populate: {
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName studentROLLNO studentGRNO studentGender",
+        },
+      })
+      .lean()
+      .exec();
+    let prev_stu = [];
+    for (let stud of previous_students) {
+      let obj = {
+        _id: stud.finalReport?.[0].student._id,
+        studentROLLNO: stud.studentROLLNO,
+        studentFirstName: stud.finalReport?.[0].student.studentFirstName,
+        studentMiddleName: stud.finalReport?.[0].student.studentMiddleName,
+        studentLastName: stud.finalReport?.[0].student.studentLastName,
+        studentGender: stud.finalReport?.[0].student.studentGender,
+        studentGRNO: stud.finalReport?.[0].student.studentGRNO,
+        finalReport: [
+          {
+            _id: stud.finalReport?.[0]._id,
+            student: stud.finalReport?.[0].student._id,
+            classId: stud.finalReport?.[0].classId,
+            totalFinalExam: stud.finalReport?.[0].totalFinalExam,
+            totalOtherExam: stud.finalReport?.[0].totalOtherExam,
+            totalGraceExam: stud.finalReport?.[0].totalGraceExam,
+            totalTotalExam: stud.finalReport?.[0].totalTotalExam,
+            totalPercentage: stud.finalReport?.[0].totalPercentage,
+            attendance: stud.finalReport?.[0].attendance,
+            attendanceTotal: stud.finalReport?.[0].attendanceTotal,
+            attendancePercentage: stud.finalReport?.[0].attendancePercentage,
+            passStatus: stud.finalReport?.[0].passStatus,
+            behaviourStar: stud.finalReport?.[0].behaviourStar,
+            behaviourImprovement: stud.finalReport?.[0].behaviourImprovement,
+            behaviourLack: stud.finalReport?.[0].behaviourLack,
+            totalCutoff: stud.finalReport?.[0].totalCutoff,
+            createdAt: stud.finalReport?.[0].createdAt,
+            subjects: stud.finalReport?.[0].subjects,
+          },
+        ],
+      };
+      prev_stu.push(obj);
+    }
+    let students = [...current_stuents, ...prev_stu];
     students.sort(function (st1, st2) {
       return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
     });
-    // for (let stu of classes?.ApproveStudent) {
-    //   let obj = {
-    //     ...stu,
-    //     availablity: [],
-    //   };
-    //   for (let att of classes?.attendenceDate) {
-    //     let statusObj = {
-    //       date: att.attendDate,
-    //       status: "",
-    //     };
-    //     for (let pre of att?.presentStudent) {
-    //       if (String(stu._id) === String(pre.student)) statusObj.status = "P";
-    //     }
-    //     for (let abs of att?.absentStudent) {
-    //       if (String(stu._id) === String(abs.student)) statusObj.status = "A";
-    //     }
-
-    //     obj.availablity.push(statusObj);
-    //   }
-    //   students.push(obj);
-    // }
-    // console.log(classes);
     return res.status(200).send({
-      message: "All student zip attendance",
-      attendance_zip: students,
-      // previous_stuents,
-      access: false,
+      message: "All student zip report card",
+      report_zip: students,
+      necessary_data: {
+        institute: classes?.institute,
+        classTeacher: classes?.classTeacher,
+        batchName: classes?.batch?.batchName,
+        className: classes?.className,
+        classTitle: classes?.classTitle,
+        gradeToggle: classes?.finalReportsSettings?.gradeMarks,
+        aggregate_passing_percentage:
+          classes?.finalReportsSettings?.aggregatePassingPercentage,
+      },
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+//for malicious activit of student exam time
+exports.createExamMaliciousActivity = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const { reason, seid, subId } = req.body;
+    const seating_sequence = await Seating.findById(seid).populate({
+      path: "exam",
+      select: "department _id",
+    });
+    const malicious = new ExamMalicious({
+      reason,
+      student: sid,
+      seating: seid,
+      subject: subId,
+      exam: seating_sequence?.exam?._id,
+      department: seating_sequence?.exam?.department,
+    });
+    seating_sequence.malicicous.push(malicious?._id);
+    await Promise.all([malicious.save(), seating_sequence.save()]);
+    res
+      .status(201)
+      .send({ message: "Mark malicious activity of student", access: true });
+    const exam = await Exam.findById(seating_sequence?.exam?._id);
+    exam.malicicous.push(malicious?._id);
+    const subject = await Subject.findById(subId);
+    subject.malicicous.push(malicious?._id);
+    const department = await Department.findById(
+      seating_sequence?.exam?.department
+    );
+    department.malicicous.push(malicious?._id);
+    await Promise.all([exam.save(), subject.save(), department.save()]);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.getExamMaliciousActivity = async (req, res) => {
+  try {
+    const { did } = req.params;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug to call api! need to fix it soon.",
+        access: true,
+      });
+    const malicious = await ExamMalicious.find({
+      department: { $eq: `${did}` },
+    })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentROLLNO",
+      })
+      .select("student reason created_at")
+      .sort("-created_at")
+      .lean()
+      .exec();
+    res.status(200).send({
+      message: "All malicious activity of student",
+      malicious,
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+//for grading system from examination section
+exports.createGradeSystem = async (req, res) => {
+  try {
+    const { did } = req.params;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug to call api! need to fix it soon.",
+        access: true,
+      });
+    const department = await Department.findById(did);
+    const n_grades = new GradeSystem({
+      grade_type: req.body.grade_type,
+      grade_count: req.body.grade_count,
+      department: did,
+    });
+    n_grades.grades = req.body.grades;
+    department.grade_system.push(n_grades._id);
+
+    await Promise.all([n_grades.save(), department.save()]);
+    res.status(201).send({
+      message: "Add new grade type in department 😋😊",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.getCustomGradeSystem = async (req, res) => {
+  try {
+    const custom_grades = await GradeSystem.find({
+      grade_insert: {
+        $ne: "CUSTOM",
+      },
+    });
+    res.status(201).send({
+      message: "All custom grades list 😋😊",
+      custom_grades,
+      access: true,
     });
   } catch (e) {
     console.log(e);

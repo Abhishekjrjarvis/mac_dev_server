@@ -30,5 +30,11 @@ router
 router
   .route("/class/uncomplete/:cid")
   .patch(isLoggedIn, catchAsync(batchController.classUncomplete));
+router
+  .route("/:bid/assign/staff/desigantion")
+  .patch(
+    isLoggedIn,
+    catchAsync(batchController.assignDesignationToStaffByBatch)
+  );
 
 module.exports = router;

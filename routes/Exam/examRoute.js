@@ -147,4 +147,20 @@ router
   .route("/class/:cid/final/report/zip")
   .post(catchAsync(examController.getAllClassExportReport));
 
+router
+  .route("/malicious/student/:sid/create")
+  .post(catchAsync(examController.createExamMaliciousActivity));
+
+router
+  .route("/malicious/examination/department/:did")
+  .get(catchAsync(examController.getExamMaliciousActivity));
+
+router
+  .route("/exam/grade/department/:did/create")
+  .post(catchAsync(examController.createGradeSystem));
+
+router
+  .route("/exam/grade/custom/list")
+  .get(catchAsync(examController.getCustomGradeSystem));
+
 module.exports = router;

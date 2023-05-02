@@ -106,4 +106,18 @@ router.route("/all/class/:cid/zip").post(
   catchAsync(Avail.getAllClassExportAttendance)
 );
 
+router.route("/hall/exam/:eid/seating/:seid/student/list").get(
+  // isLoggedIn,
+  catchAsync(Avail.getAllExamAttedance)
+);
+
+router.route("/exam/:eid/seating/:seid/attendance").post(
+  // isLoggedIn,
+  catchAsync(Avail.markAttendenceExamStudent)
+);
+
+router
+  .route("/exam/update/student/attendance/:said")
+  .patch(isLoggedIn, catchAsync(Avail.markAttendenceExamStudentUpdate));
+
 module.exports = router;

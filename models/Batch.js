@@ -10,7 +10,7 @@ const batchSchema = new mongoose.Schema({
     default: "UnLocked",
   },
   createdAt: {
-    type: Date, 
+    type: Date,
     default: Date.now,
   },
   institute: {
@@ -27,10 +27,10 @@ const batchSchema = new mongoose.Schema({
       ref: "Class",
     },
   ],
-  activeBatch: { 
-    type: String, 
-    default: 'Not Active'
-  }, 
+  activeBatch: {
+    type: String,
+    default: "Not Active",
+  },
   exams: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -60,19 +60,27 @@ const batchSchema = new mongoose.Schema({
     default: 0,
   },
   student_category: {
-    boyCount: { type: Number, default: 0},
-    girlCount: { type: Number, default: 0},
-    otherCount: { type: Number, default: 0},
-    generalCount: { type: Number, default: 0},
-    obcCount: { type: Number, default: 0},
-    scCount: { type: Number, default: 0},
-    stCount: { type: Number, default: 0},
-    ntaCount: { type: Number, default: 0},
-    ntbCount: { type: Number, default: 0},
-    ntcCount: { type: Number, default: 0},
-    ntdCount: { type: Number, default: 0},
-    vjCount: { type: Number, default: 0},
-  }
+    boyCount: { type: Number, default: 0 },
+    girlCount: { type: Number, default: 0 },
+    otherCount: { type: Number, default: 0 },
+    generalCount: { type: Number, default: 0 },
+    obcCount: { type: Number, default: 0 },
+    scCount: { type: Number, default: 0 },
+    stCount: { type: Number, default: 0 },
+    ntaCount: { type: Number, default: 0 },
+    ntbCount: { type: Number, default: 0 },
+    ntcCount: { type: Number, default: 0 },
+    ntdCount: { type: Number, default: 0 },
+    vjCount: { type: Number, default: 0 },
+  },
+  batch_type: {
+    type: String,
+    default: "Not Identical",
+  },
+  identical_batch: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Batch",
+  },
 });
 
 const Batch = mongoose.model("Batch", batchSchema);

@@ -101,6 +101,12 @@ const subjectSchema = new mongoose.Schema({
       ref: "AttendenceDate",
     },
   ],
+  malicicous: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ExamMalicious",
+    },
+  ],
 });
 
 const Subject = mongoose.model("Subject", subjectSchema);

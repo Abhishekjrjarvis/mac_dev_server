@@ -65,6 +65,18 @@ const examSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  attednance: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "AttendenceDate",
+    },
+  ],
+  malicicous: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ExamMalicious",
+    },
+  ],
 });
 
 const Exam = mongoose.model("Exam", examSchema);

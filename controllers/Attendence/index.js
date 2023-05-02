@@ -10,6 +10,8 @@ const Notification = require("../../models/notification");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const User = require("../../models/User");
+const Seating = require("../../models/Exam/seating");
+const Exam = require("../../models/Exam");
 const {
   getOnlyTime,
   // getOnlyTimeCompare,
@@ -1870,6 +1872,257 @@ exports.getAllClassExportAttendance = async (req, res) => {
       attendance_zip: students,
       access: false,
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.getAllExamAttedance = async (req, res) => {
+  try {
+    const { eid, seid } = req.params;
+    const { date } = req.query;
+    const seating_sequence = await Seating.findOne({
+      _id: seid,
+      exam: eid,
+    });
+    let related_sub = [];
+    let q_date = new Date(date);
+    for (let seat of seating_sequence.seat_exam_paper_array) {
+      // "14/04/2023", exam date like this
+      //query date like 2023-04-30
+      let s_date_split = seat.date.split("/");
+      let s_date = new Date(
+        `${s_date_split[2]}-${s_date_split[1]}-${s_date_split[0]}`
+      );
+      if (q_date.getDate() === s_date.getDate()) {
+        related_sub.push({
+          subjectId: seat.subjectId,
+          subjectName: seat.subjectName,
+          from: seat.from,
+          to: seat.to,
+        });
+      }
+    }
+    let student_list = [];
+    for (let i = 0; i < related_sub?.length; i++) {
+      const subjects = await Subject.findById(
+        related_sub[i].subjectId
+      ).populate({
+        path: "class",
+        select: "ApproveStudent className classTitle",
+      });
+      // let student_list = [];
+      if (subjects.subjectOptional !== "Mandatory") {
+        let mix_student = await Student.find({
+          _id: {
+            $in: subjects.optionalStudent,
+          },
+        }).select(
+          "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentGender"
+        );
+        for (let stu of mix_student) {
+          if (
+            +related_sub[i]?.from <=
+            +stu.studentROLLNO <=
+            +related_sub[i]?.to
+          ) {
+            student_list.push({
+              studentFirstName: stu.studentFirstName,
+              studentMiddleName: stu.studentMiddleName,
+              student_biometric_id: stu.student_biometric_id,
+              studentLastName: stu.studentLastName,
+              photoId: stu.photoId,
+              studentProfilePhoto: stu.studentProfilePhoto,
+              studentROLLNO: stu.studentROLLNO,
+              studentGender: stu.studentGender,
+              className: subjects?.class?.className,
+              classTitle: subjects?.class?.classTitle,
+            });
+          }
+        }
+      } else {
+        let mix_student = await Student.find({
+          _id: {
+            $in: subjects.class?.ApproveStudent ?? [],
+          },
+        }).select(
+          "studentFirstName studentMiddleName student_biometric_id studentLastName photoId studentProfilePhoto studentROLLNO studentGender"
+        );
+        for (let stu of mix_student) {
+          if (
+            +related_sub[i]?.from <=
+            +stu.studentROLLNO <=
+            +related_sub[i]?.to
+          ) {
+            student_list.push({
+              studentFirstName: stu.studentFirstName,
+              studentMiddleName: stu.studentMiddleName,
+              student_biometric_id: stu.student_biometric_id,
+              studentLastName: stu.studentLastName,
+              photoId: stu.photoId,
+              studentProfilePhoto: stu.studentProfilePhoto,
+              studentROLLNO: stu.studentROLLNO,
+              studentGender: stu.studentGender,
+              className: subjects?.class?.className,
+              classTitle: subjects?.class?.classTitle,
+            });
+          }
+        }
+      }
+    }
+    res.status(200).send({
+      message: "Exam Attendance list of particular hall/ block",
+      student_list,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.markAttendenceExamStudent = async (req, res) => {
+  try {
+    const { eid, seid } = req.params;
+    const attendanceone = await AttendenceDate.findOne({
+      exam: { $eq: `${eid}` },
+      seating: { $eq: `${seid}` },
+      attendDate: { $eq: `${req.body.date}` },
+    });
+    if (attendanceone) {
+      res.status(200).send({
+        message: "Today already marked attendance",
+      });
+    } else {
+      const exam_today = await Exam.findById(eid);
+      const seating_sequence = await Seating.findById(seid);
+      const attendence = new AttendenceDate({});
+      attendence.attendDate = req.body.date;
+      attendence.exam = exam_today._id;
+      attendence.seating = seating_sequence._id;
+      attendence.attendTime = new Date();
+
+      for (let i = 0; i < req.body.present.length; i++) {
+        const student = await Student.findById({
+          _id: `${req.body.present[i]?.studentId}`,
+        });
+        attendence.related_subjects.push({
+          subject: req.body.present[i]?.subjectId,
+          student: req.body.present[i]?.studentId,
+          status: "Present",
+        });
+        student.subjectAttendance.push(attendence._id);
+        attendence.presentStudent.push({
+          student: student._id,
+          inTime: getOnlyTime(),
+          status: "Present",
+        });
+        await student.save();
+      }
+      for (let i = 0; i < req.body.absent.length; i++) {
+        const student = await Student.findById({
+          _id: `${req.body.absent[i]?.studentId}`,
+        });
+        attendence.related_subjects.push({
+          subject: req.body.present[i]?.subjectId,
+          student: req.body.present[i]?.studentId,
+          status: "Absent",
+        });
+        student.subjectAttendance.push(attendence._id);
+        attendence.absentStudent.push({
+          student: student._id,
+          inTime: getOnlyTime(),
+          status: "Absent",
+        });
+        await student.save();
+      }
+      exam_today.attednance.push(attendence._id);
+      seating_sequence.attendance.push(attendence._id);
+      attendence.presentTotal = req.body.present.length;
+      attendence.absentTotal = req.body.absent.length;
+      await Promise.all([
+        attendence.save(),
+        seating_sequence.save(),
+        exam_today.save(),
+      ]);
+      res.status(200).send({ message: "Success" });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.markAttendenceExamStudentUpdate = async (req, res) => {
+  try {
+    const { said } = req.params;
+    const attendance = await AttendenceDate.findOne({
+      _id: { $eq: `${said}` },
+      attendDate: { $eq: `${req.body.date}` },
+    });
+    if (!attendance) {
+      res.status(200).send({
+        message: "Attendance not Updated, first make a attendance",
+      });
+    } else {
+      const studentAttendance = await AttendenceDate.findById(said);
+      for (let i = 0; i < req.body.present?.length; i++) {
+        let flag = false;
+        for (let pre of studentAttendance.presentStudent) {
+          if (String(pre.student) === req.body.present[i]?.subjectId)
+            flag = true;
+          else flag = false;
+        }
+        if (!flag) {
+          studentAttendance.presentStudent?.push({
+            student: req.body.present[i]?.subjectId,
+            inTime: getOnlyTime(),
+            status: "Present",
+          });
+          for (let rel_sub of studentAttendance?.related_subjects) {
+            if (String(rel_sub.student) === req.body.present[i]?.subjectId) {
+              rel_sub.status = "Present";
+            }
+          }
+          let prevLength = studentAttendance.absentStudent.length;
+          studentAttendance.absentStudent =
+            studentAttendance.absentStudent?.filter(
+              (abs) => String(abs.student) !== req.body.present[i]?.subjectId
+            );
+          let nextLength = studentAttendance.absentStudent.length;
+
+          studentAttendance.presentTotal += 1;
+          if (prevLength > nextLength) studentAttendance.absentTotal -= 1;
+        }
+      }
+      for (let i = 0; i < req.body.absent.length; i++) {
+        let flag = false;
+        for (let abs of studentAttendance.absentStudent) {
+          if (String(abs.student) === req.body.absent[i]?.subjectId)
+            flag = true;
+          else flag = false;
+        }
+        if (!flag) {
+          studentAttendance.absentStudent?.push({
+            student: req.body.absent[i]?.subjectId,
+            inTime: getOnlyTime(),
+            status: "Absent",
+          });
+          for (let rel_sub of studentAttendance?.related_subjects) {
+            if (String(rel_sub.student) === req.body.absent[i]?.subjectId) {
+              rel_sub.status = "Absent";
+            }
+          }
+          let prevLength = studentAttendance.presentStudent.length;
+          studentAttendance.presentStudent =
+            studentAttendance.presentStudent?.filter(
+              (pre) => String(pre.student) !== req.body.absent[i]?.subjectId
+            );
+          let nextLength = studentAttendance.presentStudent.length;
+          if (prevLength > nextLength) studentAttendance.presentTotal -= 1;
+          studentAttendance.absentTotal += 1;
+        }
+      }
+      await studentAttendance.save();
+      res.status(200).send({ message: "Updated attendance" });
+    }
   } catch (e) {
     console.log(e);
   }

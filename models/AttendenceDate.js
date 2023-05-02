@@ -53,6 +53,24 @@ const attendenceDateSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Subject",
   },
+  exam: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Exam",
+  },
+  seating: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Seating",
+  },
+  related_subjects: [
+    {
+      student: { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
+      subject: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Subject",
+      },
+      status: String,
+    },
+  ],
 });
 
 const AttendenceDate = mongoose.model("AttendenceDate", attendenceDateSchema);

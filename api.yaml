@@ -28998,7 +28998,278 @@ paths:
         "200":
           description: OK
 
-
-#Mentor Mentee Documentation
-
+# for supervisor activity
+  /api/v1/attendance/hall/exam/{eid}/seating/{seid}/student/list:
+    get:
+      tags:
+        - Exam Related New Api for added new things
+      summary: This is give all student list in supervisor side (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: This is Exam id
+        - in: path
+          name: seid
+          required: true
+          type: string
+          description: This is Seating id          
+        - in: query
+          name: date
+          type: string
+          description: This is date like (2023-04-16)          
+      responses:
+        "200":
+          description: OK
   
+  /api/v1/attendance/exam/{eid}/seating/{seid}/attendance:
+    post:
+      tags:
+        - Exam Related New Api for added new things
+      summary: Mark Sudent Attendance by the Supervisor (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: This is Exam id
+        - in: path
+          name: seid
+          required: true
+          type: string
+          description: This is Seating id          
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              date:
+                type: string
+                description: only date is accept in this format like "16/07/2022"
+                required: true
+              present:
+                type: array
+                description: This is present array of student ids like this ["62bb4dd84f87f09b9c55b625", "62bb4dd84f87f09b9c55b625"]
+                items:
+                  type: object
+                  properties:
+                    studentId:
+                      type: string
+                      description: student id
+                    subjectId:
+                      type: string
+                      description: subject id                      
+              absent:
+                type: array
+                description: This is present array of student ids like this ["62bb4dd84f87f09b9c55b625", "62bb4dd84f87f09b9c55b625"]
+                items:
+                  type: object
+                  properties:
+                    studentId:
+                      type: string
+                      description: student id
+                    subjectId:
+                      type: string
+                      description: subject id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/attendance/exam/update/student/attendance/{said}:
+    patch:
+      tags:
+        - Exam Related New Api for added new things
+      summary: Update Mark student Attendance by the Supervisor (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: said
+          required: true
+          type: string
+          description: This is  student Attendance id of particular date that is current date
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              date:
+                type: string
+                description: only date is accept in this format like "16/07/2022"
+                required: true
+              present:
+                type: array
+                description: This is present array of student ids like this ["62bb4dd84f87f09b9c55b625", "62bb4dd84f87f09b9c55b625"]
+                items:
+                  type: object
+                  properties:
+                    studentId:
+                      type: string
+                      description: student id
+                    subjectId:
+                      type: string
+                      description: subject id                      
+              absent:
+                type: array
+                description: This is present array of student ids like this ["62bb4dd84f87f09b9c55b625", "62bb4dd84f87f09b9c55b625"]
+                items:
+                  type: object
+                  properties:
+                    studentId:
+                      type: string
+                      description: student id
+                    subjectId:
+                      type: string
+                      description: subject id 
+      responses:
+        "200":
+          description: OK
+  
+# for batch to assign all staff designation
+  /api/v1/batch/{bid}/assign/staff/desigantion:
+    patch:
+      tags:
+        - Re-assign All designation to staff
+      summary: Assign designation to staff (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: bid
+          required: true
+          type: string
+          description: This is Batch id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/malicious/student/{sid}/create:
+    post:
+      tags:
+        - Exam Related New Api for added new things
+      summary: create for malicious activity (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This student id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              reason:
+                type: string
+                description: give any reason
+                required: true
+              seid:
+                type: string
+                description: seating id
+                required: true
+              subId:
+                type: string
+                description: subject id
+                required: true                
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/malicious/examination/department/{did}:
+    get:
+      tags:
+        - Exam Related New Api for added new things
+      summary: List of all malicious activity (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is Department id
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/exam/grade/custom/list:
+    get:
+      tags:
+        - Exam Related New Api for added new things
+      summary: List of all custom grade (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/exam/grade/department/{did}/create:
+    post:
+      tags:
+        - Exam Related New Api for added new things
+      summary: create Slab based grade (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is department id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              grade_type:
+                type: string
+                description: two type of slab
+                required: true
+              grade_count:
+                type: string
+                description: two type of slab
+                required: true     
+              grades:
+                type: array
+                description: This is grades array
+                items:
+                  type: object
+                  properties:
+                    serial_no:
+                      type: number
+                      description: serial number id
+                    start_range:
+                      type: number
+                      description: start range id
+                    end_range:
+                      type: number
+                      description: end  reange id
+                    grade_symbol:
+                      type: string
+                      description: grade symbol like A, B, C                                                                                             
+      responses:
+        "200":
+          description: OK

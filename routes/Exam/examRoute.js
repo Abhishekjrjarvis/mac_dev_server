@@ -167,4 +167,20 @@ router
   .route("/exam/grade/custom/list")
   .get(catchAsync(examController.getCustomGradeSystem));
 
+router
+  .route("/fee/structure/:did/new")
+  .post(catchAsync(examController.renderNewExamFeeStructureQuery));
+
+router
+  .route("/fee/structure/:did/all/query")
+  .get(catchAsync(examController.renderNewExamFeeStructureAllQuery));
+
+router
+  .route("/fee/structure/one/:efid/all/query")
+  .get(catchAsync(examController.renderOneExamFeeStructureQuery));
+
+router
+  .route("/backlog/:did/new/exam")
+  .post(catchAsync(examController.renderNewBacklogExamQuery));
+
 module.exports = router;

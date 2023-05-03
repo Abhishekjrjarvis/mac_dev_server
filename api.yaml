@@ -29273,3 +29273,172 @@ paths:
       responses:
         "200":
           description: OK
+
+
+  /api/v1/exam/fee/structure/{did}/new:
+    post:
+      tags:
+        - Backlog Fee Structure Query
+      summary: New Exam Fee Structure Query -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: Enter Department ID  
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              exam_fee_type:
+                type: string
+                description: Select Fees Type ("Per student" || "Per Backlog paper")
+                required: true
+              exam_fee_amount:
+                type: number
+                description: Enter Fee Amount
+                required: true  
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/fee/structure/{did}/all/query:
+    get:
+      tags:
+        - Backlog Fee Structure Query
+      summary: All Exam Fee Structure Query -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: Enter Department ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/fee/structure/one/{efid}/all/query:
+    get:
+      tags:
+        - Backlog Fee Structure Query
+      summary: One Exam Fee Structure Query -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: efid
+          required: true
+          type: string
+          description: Enter Exam Fee Structure ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/backlog/{did}/new/exam:
+    post:
+      tags:
+        - Backlog Fee Structure Query
+      summary: It is created exam in that particular department with according their batch id (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: It is select Department id for creating the exam   
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              examName:
+                type: string
+                description: give name of the exam
+                required: true
+              exist_batch:
+                type: string
+                description: Enter Batch ID
+                required: true
+              examType:
+                type: string
+                required: true
+                description: give the exam type  that is "Final" or "Other"
+              examMode:
+                type: string
+                required: true
+                description: give the exam mode  that is "Offline" or "Online"
+              examWeight:
+                type: integer
+                description: give the exam weightage, only exam type is "Other"           
+              allclasses:
+                type: array
+                required: true 
+                description: give the arrays of the classes id that is selected by the class Master
+                items:
+                  type: string
+                  description: It is accept classes id 
+              allsubject:
+                type: array
+                description: give the arrays of the subject with their details
+                required: true 
+                items:
+                  type: object
+                  properties:
+                    subjectIds:
+                      type: array
+                      required: true 
+                      description: give the arrays of the subjects id that is selected by the subject Master
+                      items:
+                        type: string
+                        description: It is accept subject id 
+                    subjectName:
+                      type: string
+                      required: true
+                      description: give the name of the subject that is show in Subject Master(subjectName)
+                    totalMarks:
+                      type: integer
+                      required: true
+                      description: give the total maximum marks of that subject
+                    date:
+                      type: string
+                      required: true
+                      description: give the date which day exam is schedule of that subject and fomate (28/07/2022) 
+                    startTime:
+                      type: string
+                      required: true
+                      description: give the exam start time of that particular subject (02:00 Pm)
+                    endTime:
+                      type: string
+                      required: true
+                      description: give the exam end time of that particular subject (04:00 Pm)
+                    _id:
+                      type: string
+                      required: true
+                      description: it is Subject Master id that is selecetd when add the subject in created time                                                                                                    
+      responses:
+        "200":
+          description: OK

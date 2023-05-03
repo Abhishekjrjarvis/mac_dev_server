@@ -29442,3 +29442,22 @@ paths:
       responses:
         "200":
           description: OK
+
+  /api/v1/exam/backlog/{did}/all/exam:
+    get:
+      tags:
+        - Backlog Fee Structure Query
+      summary: All Exam Query -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: Enter Department ID
+      responses:
+        "200":
+          description: OK

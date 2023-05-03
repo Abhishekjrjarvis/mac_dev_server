@@ -2113,10 +2113,7 @@ exports.renderEditExamFeeStructureQuery = async (req, res) => {
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
-    await ExamFeeStructure.findByIdAndUpdate(
-      efid,
-      req.body
-    );
+    await ExamFeeStructure.findByIdAndUpdate(efid, req.body);
     res
       .status(200)
       .send({ message: "Explore Updated Exam Fee Structure", access: true });
@@ -2234,7 +2231,7 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
     const valid_exam_fee_structure = await ExamFeeStructure.find({
       $and: [
         { department: department?._id },
-        { exam_fee_status: "Not Linked" },
+        { exam_fee_status: "Static Department Linked" },
       ],
     });
     const exam = new Exam(req.body);
@@ -2242,6 +2239,7 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
     department.exams.push(exam._id);
     exam.department = department._id;
     exam.batch = batch._id;
+    exam.exam_status = "Backlog Exam"
 
     res.status(201).send({ message: "Exam is created" });
     const allclasses = [
@@ -2250,6 +2248,7 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
 
     for (let cid of allclasses) {
       for (let sub of req.body.allsubject) {
+        const sub_master = await SubjectMaster.findById({ _id: sub?._id });
         for (let subId of sub.subjectIds) {
           const subject = await Subject.findById(subId).select("class exams");
           if (String(subject.class) === cid) {
@@ -2262,12 +2261,66 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
               exam.class.push(cid);
               await classes.save();
             }
-            for (let stu of classes.ApproveStudent) {
+            for (let stu of sub_master?.backlog) {
               const student = await Student.findById(stu);
               const user = await User.findById({ _id: `${student.user}` });
               if (student.exams.includes(exam._id)) {
               } else {
                 student.exams.push(exam._id);
+                if (valid_exam_fee_structure?.length > 0) {
+                  var exist_fee = valid_exam_fee_structure
+                    ? valid_exam_fee_structure[0]
+                    : null;
+                  if (exist_fee) {
+                    const new_exam_struct = new ExamFeeStructure({
+                      exam_fee_type: exist?.exam_fee_type,
+                      exam_fee_amount: exist?.exam_fee_amount,
+                    });
+                    new_exam_struct.department = department?._id;
+                    department.exam_fee_structure.push(new_exam_struct?._id);
+                    department.exam_fee_structure_count += 1;
+                    new_exam_struct.exam = exam?._id;
+                    if (exist_fee?.exam_fee_type === "Per Student") {
+                      if (exist_fee?.exam_fee_amount > 0) {
+                        student.studentRemainingFeeCount +=
+                          exist_fee.exam_fee_amount;
+                        student.backlog_exam_fee.push({
+                          reason: "Backlog Fees",
+                          amount: exist_fee.exam_fee_amount,
+                          exam_structure: new_exam_struct?._id
+                        });
+                        new_exam_struct.paid_student.push({
+                          student: student?._id,
+                          amount: exist_fee.exam_fee_amount,
+                        });
+                        new_exam_struct.paid_student_count += 1;
+                      }
+                    }
+                    if (exist_fee?.exam_fee_type === "Per Backlog Paper") {
+                      var all_back = await Backlog.find({
+                        $and: [
+                          { _id: student?.backlog },
+                          { backlog_status: "Not Mark" },
+                        ],
+                      });
+                      if (exist_fee?.exam_fee_amount > 0) {
+                        student.studentRemainingFeeCount +=
+                          all_back?.length * exist_fee.exam_fee_amount;
+                        student.backlog_exam_fee.push({
+                          reason: "Backlog Fees",
+                          amount: all_back?.length * exist_fee.exam_fee_amount,
+                          exam_structure: new_exam_struct?._id
+                        });
+                        new_exam_struct.paid_student.push({
+                          student: student?._id,
+                          amount: all_back?.length * exist_fee.exam_fee_amount,
+                        });
+                        new_exam_struct.paid_student_count += 1;
+                      }
+                    }
+                    await new_exam_struct.save();
+                  }
+                }
               }
               const subjectMarks1 = await SubjectMarks.findOne({
                 subject: subject._id,
@@ -2371,11 +2424,17 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
       }
     }
     await Promise.all([exam.save(), batch.save(), department.save()]);
-    if (valid_exam_fee_structure?.length > 0) {
-    }
   } catch (e) {
     console.log(e);
   }
+};
+
+exports.renderFilteredDepartExamQuery = async (req, res) => {
+  const exam = await Exam.find({
+    $and: [{ department: { $eq: `${req.params.did}` } }, { exam_status: "Backlog Exam"}],
+  }).select("examName examWeight examMode createdAt examType");
+  // const examEncrypt = await encryptionPayload(exam);
+  res.status(200).send({ exam });
 };
 
 // exports.renderNewBacklogExamAutoQuery = async (req, res) => {

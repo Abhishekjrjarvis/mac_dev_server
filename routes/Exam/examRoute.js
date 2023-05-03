@@ -183,6 +183,10 @@ router
   .route("/backlog/:did/new/exam")
   .post(catchAsync(examController.renderNewBacklogExamQuery));
 
+router
+  .route("/backlog/:did/all/exam")
+  .get(catchAsync(examController.renderFilteredDepartExamQuery));
+
 // router
 //   .route("/backlog/:did/new/exam/auto")
 //   .post(catchAsync(examController.renderNewBacklogExamAutoQuery));

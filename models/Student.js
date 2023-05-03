@@ -566,6 +566,10 @@ const studentSchema = new mongoose.Schema({
       amount: { type: Number, default: 0 },
       status: { type: String, default: "Not paid" },
       card_on: { type: String, default: "Backlog Fees" },
+      exam_structure: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "ExamFeeStructure",
+      },
     },
   ],
 });

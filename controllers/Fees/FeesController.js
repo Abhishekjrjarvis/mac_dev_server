@@ -478,7 +478,7 @@ exports.retrieveStudentQuery = async (req, res) => {
     const { sid } = req.params;
     const student = await Student.findById({ _id: sid })
       .select(
-        "id onlineFeeList offlineFeeList exemptFeeList studentAdmissionDate admissionRemainFeeCount admissionPaidFeeCount onlineCheckList offlineCheckList studentRemainingFeeCount studentPaidFeeCount hostelRemainFeeCount hostelPaidFeeCount"
+        "id onlineFeeList offlineFeeList exemptFeeList studentAdmissionDate admissionRemainFeeCount admissionPaidFeeCount onlineCheckList offlineCheckList studentRemainingFeeCount backlog_exam_fee studentPaidFeeCount hostelRemainFeeCount hostelPaidFeeCount"
       )
       .populate({
         path: "institute",

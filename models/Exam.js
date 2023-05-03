@@ -77,6 +77,34 @@ const examSchema = new mongoose.Schema({
       ref: "ExamMalicious",
     },
   ],
+  paid_student: [
+    {
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+      },
+      amount: {
+        type: Number,
+        default: 0,
+      },
+      created_at: {
+        type: Date,
+        default: Date.now,
+      },
+      status: {
+        type: String,
+        default: "Not Paid",
+      },
+    },
+  ],
+  paid_student_count: {
+    type: Number,
+    default: 0,
+  },
+  total_paid_collection: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Exam = mongoose.model("Exam", examSchema);

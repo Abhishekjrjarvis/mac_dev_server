@@ -39,6 +39,7 @@ const {
 } = require("../Moderator/roleController");
 const { announcement_feed_query } = require("../../Post/announceFeed");
 const { handle_undefined } = require("../../Handler/customError");
+const ExamFeeStructure = require("../../models/BacklogStudent/ExamFeeStructure");
 
 exports.getDashOneQuery = async (req, res) => {
   try {
@@ -742,6 +743,14 @@ exports.getNewDepartment = async (req, res) => {
       message: "Successfully Created Department",
       department: department._id,
     });
+    const new_exam_fee = new ExamFeeStructure({
+      exam_fee_type: "Per Student",
+      exam_fee_status: "Static Department Linked",
+    });
+    new_exam_fee.department = department?._id;
+    department.exam_fee_structure.push(new_exam_fee?._id);
+    department.exam_fee_structure_count += 1;
+    await Promise.all([department.save(), new_exam_fee.save()]);
     designation_alarm(
       user?.userPhoneNumber,
       "DHEAD",

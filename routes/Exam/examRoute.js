@@ -168,8 +168,8 @@ router
   .get(catchAsync(examController.getCustomGradeSystem));
 
 router
-  .route("/fee/structure/:did/new")
-  .post(catchAsync(examController.renderNewExamFeeStructureQuery));
+  .route("/fee/structure/:efid/edit")
+  .patch(catchAsync(examController.renderEditExamFeeStructureQuery));
 
 router
   .route("/fee/structure/:did/all/query")
@@ -182,5 +182,9 @@ router
 router
   .route("/backlog/:did/new/exam")
   .post(catchAsync(examController.renderNewBacklogExamQuery));
+
+// router
+//   .route("/backlog/:did/new/exam/auto")
+//   .post(catchAsync(examController.renderNewBacklogExamAutoQuery));
 
 module.exports = router;

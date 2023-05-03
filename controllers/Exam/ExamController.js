@@ -2105,23 +2105,21 @@ exports.getCustomGradeSystem = async (req, res) => {
   }
 };
 
-exports.renderNewExamFeeStructureQuery = async (req, res) => {
+exports.renderEditExamFeeStructureQuery = async (req, res) => {
   try {
-    const { did } = req.params;
-    if (!did)
+    const { efid } = req.params;
+    if (!efid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
-    const one_depart = await Department.findById({ _id: did });
-    const new_exam_fee = new ExamFeeStructure({});
-    new_exam_fee.department = one_depart?._id;
-    one_depart.exam_fee_structure.push(new_exam_fee?._id);
-    one_depart.exam_fee_structure_count += 1;
-    await Promise.all([one_depart.save(), new_exam_fee.save()]);
+    await ExamFeeStructure.findByIdAndUpdate(
+      efid,
+      req.body
+    );
     res
       .status(200)
-      .send({ message: "Explore New Exam Fee Structure", access: true });
+      .send({ message: "Explore Updated Exam Fee Structure", access: true });
   } catch (e) {
     console.log(e);
   }
@@ -2148,28 +2146,26 @@ exports.renderNewExamFeeStructureAllQuery = async (req, res) => {
     })
       .limit(limit)
       .skip(skip)
-      .select("exam_fee_type exam_fee_amount exam_fee_status created_at total_paid_collection")
+      .select(
+        "exam_fee_type exam_fee_amount exam_fee_status created_at total_paid_collection"
+      )
       .populate({
         path: "department",
         select: "dName",
       });
 
     if (all_exam_fee?.length > 0) {
-      res
-        .status(200)
-        .send({
-          message: "Explore All Exam Fee Structure Query",
-          access: true,
-          all_exam_fee: all_exam_fee,
-        });
+      res.status(200).send({
+        message: "Explore All Exam Fee Structure Query",
+        access: true,
+        all_exam_fee: all_exam_fee,
+      });
     } else {
-      res
-        .status(200)
-        .send({
-          message: "No Exam Fee Structure Query",
-          access: true,
-          all_exam_fee: [],
-        });
+      res.status(200).send({
+        message: "No Exam Fee Structure Query",
+        access: true,
+        all_exam_fee: [],
+      });
     }
   } catch (e) {
     console.log(e);
@@ -2182,12 +2178,10 @@ exports.renderOneExamFeeStructureQuery = async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     if (!efid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: true,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: true,
+      });
 
     const one_exam_fee = await ExamFeeStructure.findById({ _id: efid })
       .select("paid_student_count total_paid_collection")
@@ -2207,176 +2201,196 @@ exports.renderOneExamFeeStructureQuery = async (req, res) => {
     );
 
     if (all_fee?.length > 0) {
-      res
-        .status(200)
-        .send({
-          message: "Explore All Paid Student Array Query",
-          access: true,
-          all_fee: all_fee,
-        });
+      res.status(200).send({
+        message: "Explore All Paid Student Array Query",
+        access: true,
+        all_fee: all_fee,
+      });
     } else {
-      res
-        .status(200)
-        .send({
-          message: "No Paid Student Array Query",
-          access: true,
-          all_fee: [],
-        });
+      res.status(200).send({
+        message: "No Paid Student Array Query",
+        access: true,
+        all_fee: [],
+      });
     }
   } catch (e) {
     console.log(e);
   }
 };
 
-// exports.renderNewBacklogExamQuery = async (req, res) => {
+exports.renderNewBacklogExamQuery = async (req, res) => {
+  try {
+    const { did } = req.params;
+    const { exist_batch } = req.body;
+    if (!did && !exist_batch)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const batch = await Batch.findById(exist_batch).select(
+      "department _id exams"
+    );
+    const department = await Department.findById(did).select("exams _id");
+    const valid_exam_fee_structure = await ExamFeeStructure.find({
+      $and: [
+        { department: department?._id },
+        { exam_fee_status: "Not Linked" },
+      ],
+    });
+    const exam = new Exam(req.body);
+    batch.exams.push(exam._id);
+    department.exams.push(exam._id);
+    exam.department = department._id;
+    exam.batch = batch._id;
+
+    res.status(201).send({ message: "Exam is created" });
+    const allclasses = [
+      ...new Set(req.body.allclasses?.map(JSON.stringify)),
+    ].map(JSON.parse);
+
+    for (let cid of allclasses) {
+      for (let sub of req.body.allsubject) {
+        for (let subId of sub.subjectIds) {
+          const subject = await Subject.findById(subId).select("class exams");
+          if (String(subject.class) === cid) {
+            const classes = await Class.findById(cid).select(
+              "ApproveStudent exams _id"
+            );
+            if (classes.exams.includes(exam._id)) {
+            } else {
+              classes.exams.push(exam._id);
+              exam.class.push(cid);
+              await classes.save();
+            }
+            for (let stu of classes.ApproveStudent) {
+              const student = await Student.findById(stu);
+              const user = await User.findById({ _id: `${student.user}` });
+              if (student.exams.includes(exam._id)) {
+              } else {
+                student.exams.push(exam._id);
+              }
+              const subjectMarks1 = await SubjectMarks.findOne({
+                subject: subject._id,
+                student: student._id,
+              });
+              if (subjectMarks1) {
+                if (exam.examType === "Final") {
+                  let otherWeightage = 0;
+                  for (let weihtage of subjectMarks1?.marks) {
+                    if (weihtage.examType === "Other") {
+                      otherWeightage += weihtage.examWeight;
+                    }
+                  }
+                  subjectMarks1.marks.push({
+                    examId: exam._id,
+                    examName: exam.examName,
+                    examType: exam.examType,
+                    examWeight: otherWeightage,
+                    totalMarks: sub.totalMarks,
+                    date: sub.date,
+                    startTime: sub.startTime,
+                    endTime: sub.endTime,
+                  });
+                } else {
+                  subjectMarks1.marks.push({
+                    examId: exam._id,
+                    examName: exam.examName,
+                    examType: exam.examType,
+                    examWeight: exam.examWeight,
+                    totalMarks: sub.totalMarks,
+                    date: sub.date,
+                    startTime: sub.startTime,
+                    endTime: sub.endTime,
+                  });
+                }
+                await subjectMarks1.save();
+              } else {
+                let weight = 0;
+                if (exam.examType === "Final") {
+                  weight = 100;
+                }
+                const subjectMarks = new SubjectMarks({
+                  subject: subject._id,
+                  subjectName: sub.subjectName,
+                  student: student._id,
+                });
+                subjectMarks.marks.push({
+                  examId: exam._id,
+                  examName: exam.examName,
+                  examType: exam.examType,
+                  examWeight: weight < 1 ? exam.examWeight : weight,
+                  totalMarks: sub.totalMarks,
+                  date: sub.date,
+                  startTime: sub.startTime,
+                  endTime: sub.endTime,
+                });
+                student.subjectMarks.push(subjectMarks._id);
+                await subjectMarks.save();
+              }
+              const notify = new StudentNotification({});
+              notify.notifyContent = `New ${exam.examName} Exam is created for ${sub.subjectName} , check your members tab`;
+              notify.notifySender = department._id;
+              notify.notifyReceiever = user._id;
+              notify.examId = exam._id;
+              notify.notifyType = "Student";
+              notify.notifyPublisher = student._id;
+              user.activity_tab.push(notify._id);
+              student.notification.push(notify._id);
+              notify.notifyByDepartPhoto = department._id;
+              notify.notifyCategory = "Exam";
+              notify.redirectIndex = 1;
+              //
+              invokeMemberTabNotification(
+                "Student Activity",
+                notify,
+                "New Exam",
+                user._id,
+                user.deviceToken,
+                "Student",
+                notify
+              );
+              //
+              await Promise.all([student.save(), notify.save(), user.save()]);
+            }
+            if (subject?.exams?.includes(exam._id)) {
+            } else {
+              subject.exams.push(exam._id);
+              await subject.save();
+            }
+            exam.subjects.push({
+              subjectId: subject._id,
+              subjectName: sub.subjectName,
+              totalMarks: sub.totalMarks,
+              date: sub.date,
+              startTime: sub.startTime,
+              endTime: sub.endTime,
+              subjectMasterId: sub._id,
+            });
+          }
+        }
+      }
+    }
+    await Promise.all([exam.save(), batch.save(), department.save()]);
+    if (valid_exam_fee_structure?.length > 0) {
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// exports.renderNewBacklogExamAutoQuery = async (req, res) => {
 //   try {
-//     const { did } = req.params
-//     const { exist_batch } = req.body
-//     if(!did && !exist_batch) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false})
-//     const batch = await Batch.findById(exist_batch).select(
-//       "department _id exams"
-//     );
-//     const department = await Department.findById(did).select(
-//       "exams _id"
-//     );
-//     const valid_exam_fee_structure = await ExamFeeStructure.find({ $and: [{ department: department?._id}, {exam_fee_status: "Not Linked"}]})
-//     const exam = new Exam(req.body);
-//     batch.exams.push(exam._id);
-//     department.exams.push(exam._id);
-//     exam.department = department._id;
-//     exam.batch = batch._id;
-
-//     res.status(201).send({ message: "Exam is created" });
-//     const allclasses = [
-//       ...new Set(req.body.allclasses?.map(JSON.stringify)),
-//     ].map(JSON.parse);
-
-//     for (let cid of allclasses) {
-//       for (let sub of req.body.allsubject) {
-//         for (let subId of sub.subjectIds) {
-//           const subject = await Subject.findById(subId).select("class exams");
-//           if (String(subject.class) === cid) {
-//             const classes = await Class.findById(cid).select(
-//               "ApproveStudent exams _id"
-//             );
-//             if (classes.exams.includes(exam._id)) {
-//             } else {
-//               classes.exams.push(exam._id);
-//               exam.class.push(cid);
-//               await classes.save();
-//             }
-//             for (let stu of classes.ApproveStudent) {
-//               const student = await Student.findById(stu);
-//               const user = await User.findById({ _id: `${student.user}` });
-//               if (student.exams.includes(exam._id)) {
-//               } else {
-//                 student.exams.push(exam._id);
-//               }
-//               const subjectMarks1 = await SubjectMarks.findOne({
-//                 subject: subject._id,
-//                 student: student._id,
-//               });
-//               if (subjectMarks1) {
-//                 if (exam.examType === "Final") {
-//                   let otherWeightage = 0;
-//                   for (let weihtage of subjectMarks1?.marks) {
-//                     if (weihtage.examType === "Other") {
-//                       otherWeightage += weihtage.examWeight;
-//                     }
-//                   }
-//                   subjectMarks1.marks.push({
-//                     examId: exam._id,
-//                     examName: exam.examName,
-//                     examType: exam.examType,
-//                     examWeight: otherWeightage,
-//                     totalMarks: sub.totalMarks,
-//                     date: sub.date,
-//                     startTime: sub.startTime,
-//                     endTime: sub.endTime,
-//                   });
-//                 } else {
-//                   subjectMarks1.marks.push({
-//                     examId: exam._id,
-//                     examName: exam.examName,
-//                     examType: exam.examType,
-//                     examWeight: exam.examWeight,
-//                     totalMarks: sub.totalMarks,
-//                     date: sub.date,
-//                     startTime: sub.startTime,
-//                     endTime: sub.endTime,
-//                   });
-//                 }
-//                 await subjectMarks1.save();
-//               } else {
-//                 let weight = 0;
-//                 if (exam.examType === "Final") {
-//                   weight = 100;
-//                 }
-//                 const subjectMarks = new SubjectMarks({
-//                   subject: subject._id,
-//                   subjectName: sub.subjectName,
-//                   student: student._id,
-//                 });
-//                 subjectMarks.marks.push({
-//                   examId: exam._id,
-//                   examName: exam.examName,
-//                   examType: exam.examType,
-//                   examWeight: weight < 1 ? exam.examWeight : weight,
-//                   totalMarks: sub.totalMarks,
-//                   date: sub.date,
-//                   startTime: sub.startTime,
-//                   endTime: sub.endTime,
-//                 });
-//                 student.subjectMarks.push(subjectMarks._id);
-//                 await subjectMarks.save();
-//               }
-//               const notify = new StudentNotification({});
-//               notify.notifyContent = `New ${exam.examName} Exam is created for ${sub.subjectName} , check your members tab`;
-//               notify.notifySender = department._id;
-//               notify.notifyReceiever = user._id;
-//               notify.examId = exam._id;
-//               notify.notifyType = "Student";
-//               notify.notifyPublisher = student._id;
-//               user.activity_tab.push(notify._id);
-//               student.notification.push(notify._id);
-//               notify.notifyByDepartPhoto = department._id;
-//               notify.notifyCategory = "Exam";
-//               notify.redirectIndex = 1;
-//               //
-//               invokeMemberTabNotification(
-//                 "Student Activity",
-//                 notify,
-//                 "New Exam",
-//                 user._id,
-//                 user.deviceToken,
-//                 "Student",
-//                 notify
-//               );
-//               //
-//               await Promise.all([student.save(), notify.save(), user.save()]);
-//             }
-//             if (subject?.exams?.includes(exam._id)) {
-//             } else {
-//               subject.exams.push(exam._id);
-//               await subject.save();
-//             }
-//             exam.subjects.push({
-//               subjectId: subject._id,
-//               subjectName: sub.subjectName,
-//               totalMarks: sub.totalMarks,
-//               date: sub.date,
-//               startTime: sub.startTime,
-//               endTime: sub.endTime,
-//               subjectMasterId: sub._id,
-//             });
-//           }
-//         }
-//       }
-//     }
-//     await Promise.all([exam.save(), batch.save(), department.save()]);
-//     if(valid_exam_fee_structure?.length > 0){
-      
-//     }
+//     const { did } = req.params;
+//     const department = await Department.findById({ _id: did });
+//     const new_exam_fee = new ExamFeeStructure({
+//       exam_fee_type: "Per Student",
+//       exam_fee_status: "Static Department Linked",
+//     });
+//     new_exam_fee.department = department?._id;
+//     department.exam_fee_structure.push(new_exam_fee?._id);
+//     department.exam_fee_structure_count += 1;
+//     await Promise.all([department.save(), new_exam_fee.save()]);
+//     res.status(200).send({ message: "Explore New Exam Fee Structure" });
 //   } catch (e) {
 //     console.log(e);
 //   }

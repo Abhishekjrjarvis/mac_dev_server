@@ -29461,3 +29461,338 @@ paths:
       responses:
         "200":
           description: OK
+
+
+
+#Mentor Mentee Documentation
+
+  /api/v1/mentor/mentee/{did}/new/mentor:
+    post:
+      tags:
+        - Mentor Mentee Query
+      summary: Assign Mentor Mentee By Department Head -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: Enter Department ID
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Staff ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/mentor/mentee/{did}/all/mentor:
+    get:
+      tags:
+        - Mentor Mentee Query
+      summary: All Mentor Mentee at Department Head -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: Enter Department ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit Number
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/mentor/mentee/one/mentor/{mid}:
+    get:
+      tags:
+        - Mentor Mentee Query
+      summary: One Mentor Mentee Query -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: Enter Mentor ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/mentor/mentee/one/mentor/{mid}/all/mentees:
+    get:
+      tags:
+        - Mentor Mentee Query
+      summary: One Mentor Mentee All Mentees-(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: Enter Mentor ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit Number
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/mentor/mentee/{did}/one/mentor/{mid}/new/mentees:
+    post:
+      tags:
+        - Mentor Mentee Query
+      summary: One Mentor Add New Mentees-(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: Enter Department ID
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: Enter Mentor ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              student_array:
+                type: array
+                description: Enter Student ID
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/mentor/mentee/{did}/one/mentor/{mid}/destroy/mentees:
+    post:
+      tags:
+        - Mentor Mentee Query
+      summary: One Mentor Remove Existing Mentees-(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: Enter Department ID
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: Enter Mentor ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              sid:
+                type: string
+                description: Enter Student ID
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/mentor/mentee/{mid}/new/query/{sid}:
+    patch:
+      tags:
+        - Mentor Mentee Query
+      summary: Add New Query By Student -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: Enter Mentor ID
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Student ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              query:
+                type: string
+                description: Enter Query Reason
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/mentor/mentee/one/query/{qid}:
+    get:
+      tags:
+        - Mentor Mentee Query
+      summary: View One Query By Student -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: qid
+          required: true
+          type: string
+          description: Enter Query ID
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/mentor/mentee/{sid}/all/query:
+    get:
+      tags:
+        - Mentor Mentee Query
+      summary: View All Query At Student Side -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: Enter Student ID
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/mentor/mentee/{mid}/all/query/by/flow:
+    get:
+      tags:
+        - Mentor Mentee Query
+      summary: View All Query By Status At Student Side + Mentor Side -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mid
+          required: true
+          type: string
+          description: Enter Mentor ID
+        - in: query
+          name: status
+          required: true
+          type: string
+          description: Enter Status ("Solved" || "UnSolved")
+        - in: query
+          name: flow
+          required: true
+          type: string
+          description: Enter Flow ("By_Mentor" || "By_Department_Head")
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit Number
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/mentor/mentee/one/query/{qid}/remark/flow:
+    patch:
+      tags:
+        - Mentor Mentee Query
+      summary: Mark Remark By Mentor Side + Department Side -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: qid
+          required: true
+          type: string
+          description: Enter Query ID
+        - in: path
+          name: flow
+          required: true
+          type: string
+          description: Enter Flow ("By_Mentor" || "By_Department_Head")
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              remark:
+                type: string
+                description: Enter Remark Reason
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/mentor/mentee/one/query/{qid}/report:
+    patch:
+      tags:
+        - Mentor Mentee Query
+      summary: Report Query By Student Side -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: qid
+          required: true
+          type: string
+          description: Enter Query ID
+      responses:
+        "200":
+          description: OK

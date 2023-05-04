@@ -49,6 +49,10 @@ const querySchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department",
   },
+  forward_to: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Staff",
+  },
 });
 
 module.exports = mongoose.model("Queries", querySchema);

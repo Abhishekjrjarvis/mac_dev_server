@@ -25,7 +25,7 @@ router.post(
   catchAsync(Mentor.renderDestroyMentorMenteeQuery)
 );
 
-router.patch("/:mid/new/query:sid", catchAsync(Mentor.renderNewMenteeQuery));
+router.patch("/:mid/new/query/:sid", catchAsync(Mentor.renderNewMenteeQuery));
 
 router.get("/one/query/:qid", catchAsync(Mentor.renderOneQueryDetail));
 

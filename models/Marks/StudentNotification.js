@@ -95,6 +95,10 @@ const studentNotificationSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Student",
   },
+  queryId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Queries",
+  },
 });
 
 module.exports = mongoose.model(

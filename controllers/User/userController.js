@@ -883,6 +883,9 @@ exports.getAllUserActivity = async (req, res) => {
         select: "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName"
       })
       .populate({
+        path: "queryId",
+      })
+      .populate({
         path: "seatingId",
         populate: {
           path: "seat_block_staff",

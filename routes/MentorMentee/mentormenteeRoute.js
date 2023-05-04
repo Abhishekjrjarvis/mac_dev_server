@@ -4,7 +4,7 @@ const Mentor = require("../../controllers/MentorMentee/mentormenteeController");
 const { isLoggedIn } = require("../../middleware");
 const catchAsync = require("../../Utilities/catchAsync");
 
-router.post("/:did/new/mentor", catchAsync(Mentor.renderNewMentorQuery));
+router.post("/:did/new/mentor/:sid", catchAsync(Mentor.renderNewMentorQuery));
 
 router.get("/:did/all/mentor", catchAsync(Mentor.renderAllMentorQuery));
 

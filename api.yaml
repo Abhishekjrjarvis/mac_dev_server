@@ -29466,7 +29466,7 @@ paths:
 
 #Mentor Mentee Documentation
 
-  /api/v1/mentor/mentee/{did}/new/mentor:
+  /api/v1/mentor/mentee/{did}/new/mentor/{sid}:
     post:
       tags:
         - Mentor Mentee Query

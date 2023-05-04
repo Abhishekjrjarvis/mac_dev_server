@@ -441,6 +441,27 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
     post.new_application = newApply._id;
     post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
     await Promise.all([post.save(), institute.save()]);
+    var valid_promote = await NewApplication.find({
+      $and: [
+        { applicationStatus: "Promote Application" },
+        { admissionAdmin: admission?._id },
+      ],
+    });
+    if (valid_promote) {
+    } else {
+      const new_app = new NewApplication({
+        applicationName: "Promote Student",
+        applicationDepartment: newApply?.applicationDepartment,
+        applicationBatch: newApply?.applicationBatch,
+        applicationMaster: newApply?.applicationMaster,
+        applicationStatus: "Promote Application",
+      });
+      admission.newApplication.push(new_app._id);
+      admission.newAppCount += 1;
+      new_app.admissionAdmin = admission._id;
+      institute.admissionCount += 1;
+      await Promise.all([new_app.save(), admission.save(), institute.save()]);
+    }
     await new_admission_recommend_post(institute?._id, post?._id, expand);
   } catch (e) {
     console.log(e);
@@ -668,10 +689,10 @@ exports.fetchAllRequestApplication = async (req, res) => {
             },
             select:
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber user",
-              populate: {
-                path: "user",
-                select: "userPhoneNumber userEmail"
-              }
+            populate: {
+              path: "user",
+              select: "userPhoneNumber userEmail",
+            },
           },
         });
       for (let data of apply.receievedApplication) {
@@ -700,10 +721,10 @@ exports.fetchAllRequestApplication = async (req, res) => {
             path: "student",
             select:
               "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber user",
-              populate: {
-                path: "user",
-                select: "userPhoneNumber userEmail"
-              }
+            populate: {
+              path: "user",
+              select: "userPhoneNumber userEmail",
+            },
           },
         });
       var all_request_query = nested_document_limit(
@@ -936,10 +957,10 @@ exports.fetchAllConfirmApplicationPayload = async (req, res) => {
             },
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber user",
-              populate: {
-                path: "user",
-                select: "userPhoneNumber userEmail"
-              }
+            populate: {
+              path: "user",
+              select: "userPhoneNumber userEmail",
+            },
           },
         });
       for (let data of apply.confirmedApplication) {
@@ -969,10 +990,10 @@ exports.fetchAllConfirmApplicationPayload = async (req, res) => {
             path: "student",
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber user",
-              populate: {
-                path: "user",
-                select: "userPhoneNumber userEmail"
-              }
+            populate: {
+              path: "user",
+              select: "userPhoneNumber userEmail",
+            },
           },
         });
       if (apply?.confirmedApplication?.length > 0) {
@@ -1119,10 +1140,10 @@ exports.fetchAllCancelApplication = async (req, res) => {
             },
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber user",
-              populate: {
-                path: "user",
-                select: "userPhoneNumber userEmail"
-              }
+            populate: {
+              path: "user",
+              select: "userPhoneNumber userEmail",
+            },
           },
         });
       for (let data of apply?.cancelApplication) {
@@ -1150,10 +1171,10 @@ exports.fetchAllCancelApplication = async (req, res) => {
             path: "student",
             select:
               "studentFirstName studentMiddleName studentLastName paidFeeList photoId studentProfilePhoto studentGender studentPhoneNumber studentParentsPhoneNumber user",
-              populate: {
-                path: "user",
-                select: "userPhoneNumber userEmail"
-              }
+            populate: {
+              path: "user",
+              select: "userPhoneNumber userEmail",
+            },
           },
         });
       var all_cancel_query = nested_document_limit(
@@ -6383,10 +6404,9 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
         console.log("Before", one_student?.active_fee_heads?.length);
         if (`${ref?.fee_structure}` === `${old_struct?._id}`) {
           one_student.active_fee_heads.pull(ref?._id);
-          console.log("pull")
-        }
-        else{
-          console.log("push")
+          console.log("pull");
+        } else {
+          console.log("push");
         }
         // await one_student.save()
       }

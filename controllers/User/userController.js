@@ -1807,7 +1807,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
                 : student.casteCertificate;
           }
         }
-        var status = await valid_student_form_query(
+        const status = await valid_student_form_query(
           student?.institute,
           student,
           "APK"

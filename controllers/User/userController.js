@@ -880,7 +880,8 @@ exports.getAllUserActivity = async (req, res) => {
       })
       .populate({
         path: "participate_winner",
-        select: "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName"
+        select:
+          "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName",
       })
       .populate({
         path: "queryId",
@@ -889,8 +890,9 @@ exports.getAllUserActivity = async (req, res) => {
         path: "seatingId",
         populate: {
           path: "seat_block_staff",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
-        }
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        },
       })
       .populate({
         path: "seatingId",
@@ -899,9 +901,10 @@ exports.getAllUserActivity = async (req, res) => {
           select: "className classTitle classStatus classTeacher",
           populate: {
             path: "classTeacher",
-            select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
-          }
-        }
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+          },
+        },
       })
       .sort("-notifyTime")
       .limit(limit)
@@ -1741,6 +1744,14 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
             select: "_id vehicle_number",
           })
           .populate({
+            path: "mentor",
+            select: "mentor_head",
+            populate: {
+              path: "mentor_head",
+              select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+            }
+          })
+          .populate({
             path: "student_unit",
             select: "hostel_unit_name hostel",
             populate: {
@@ -1796,7 +1807,7 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
                 : student.casteCertificate;
           }
         }
-        const status = await valid_student_form_query(
+        var status = await valid_student_form_query(
           student?.institute,
           student,
           "APK"
@@ -1834,6 +1845,14 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
               path: "hostel",
               select: "_id",
             },
+          })
+          .populate({
+            path: "mentor",
+            select: "mentor_head",
+            populate: {
+              path: "mentor_head",
+              select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+            }
           })
           .populate({
             path: "student_bed_number",

@@ -187,6 +187,14 @@ router
   .route("/backlog/:did/all/exam")
   .get(catchAsync(examController.renderFilteredDepartExamQuery));
 
+router
+  .route("/backlog/:did/classmaster")
+  .get(isLoggedIn, catchAsync(examController.getBacklogClassMaster));
+
+router
+  .route("/backlog/:cmid/subjectmaster")
+  .get(isLoggedIn, catchAsync(examController.getBacklogSubjectMaster));
+
 // router
 //   .route("/backlog/:did/new/exam/auto")
 //   .post(catchAsync(examController.renderNewBacklogExamAutoQuery));

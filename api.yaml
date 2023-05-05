@@ -29463,6 +29463,45 @@ paths:
           description: OK
 
 
+  /api/v1/exam/backlog/{did}/classmaster:
+    get:
+      tags:
+        - Backlog Fee Structure Query
+      summary: It is give the total class master with their classes id(divisions) created in that particular department with according their batch id (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: it is selected Department id for creating the exam         
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/exam/backlog/{cmid}/subjectmaster:
+    get:
+      tags:
+        - Backlog Fee Structure Query
+      summary: It is give the total Subject master with their subjects id (divisions) created in that particular department with according their batch id (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cmid
+          required: true
+          type: string
+          description: It is selected Class Master id for showing the subject master list        
+      responses:
+        "200":
+          description: OK
+
+
 
 #Mentor Mentee Documentation
 

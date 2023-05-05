@@ -29760,7 +29760,7 @@ paths:
           required: true
           type: string
           description: Enter Query ID
-        - in: path
+        - in: query
           name: flow
           required: true
           type: string
@@ -29773,6 +29773,10 @@ paths:
               remark:
                 type: string
                 description: Enter Remark Reason
+                required: true
+              forward:
+                type: string
+                description: Enter Forward Staff ID
                 required: true
       responses:
         "200":

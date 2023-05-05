@@ -185,7 +185,7 @@ exports.renderNewMentorMenteeQuery = async (req, res) => {
     });
     depart.mentees_count += 1;
     for (var ref of student_array) {
-      const student = await Student.findById({ _id: ref?._id });
+      const student = await Student.findById({ _id: `${ref}` });
       const user = await User.findById({ _id: student?.user });
       student.mentor = mentor_query?._id;
       const notify = new StudentNotification({});

@@ -19,7 +19,6 @@ const {
 const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const { notify_attendence_provider } = require("../../helper/dayTimer");
 const Subject = require("../../models/Subject");
-const Exam = require("../../models/Exam");
 const moment = require("moment");
 //THis is route with tested OF STUDENT
 exports.viewClassStudent = async (req, res) => {

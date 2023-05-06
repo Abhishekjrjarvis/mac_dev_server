@@ -461,14 +461,16 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
         { admissionAdmin: admission?._id },
       ],
     });
-    if (valid_promote) {
+    if (valid_promote?.length > 0) {
+      // console.log("valid");
     } else {
+      // console.log("no valid");
       const new_app = new NewApplication({
         applicationName: "Promote Student",
         applicationDepartment: newApply?.applicationDepartment,
         applicationBatch: newApply?.applicationBatch,
         applicationMaster: newApply?.applicationMaster,
-        applicationStatus: "Promote Application",
+        applicationTypeStatus: "Promote Application",
       });
       admission.newApplication.push(new_app._id);
       admission.newAppCount += 1;

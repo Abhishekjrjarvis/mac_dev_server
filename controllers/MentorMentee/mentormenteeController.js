@@ -321,7 +321,11 @@ exports.renderOneQueryDetail = async (req, res) => {
     const query = await Queries.findById({ _id: qid }).populate({
       path: "student",
       select:
-        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto user",
+      populate: {
+        path: "user",
+        select: "userPhoneNumber userEmail",
+      },
     });
 
     res.status(200).send({ message: "Explore Query", access: true, query });

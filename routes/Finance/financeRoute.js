@@ -483,9 +483,9 @@ router.post(
   "/:fid/hostel/:hid/submit/:rid/status",
   catchAsync(Finance.submitHostelFeeQuery)
 );
-// router.patch(
-//   "/:fid/update/structure",
-//   catchAsync(Finance.renderUpdateStructureQuery)
-// );
+
+// router.delete("/:did/delete/structure", catchAsync(Finance.delete_structure));
+
+// router.patch("/:did/edit/structure", catchAsync(Finance.edit_structure));
 
 module.exports = router;

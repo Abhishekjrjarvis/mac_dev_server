@@ -129,7 +129,7 @@ const newApplicationSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Hostel",
   },
-  applicationStatus: {
+  applicationTypeStatus: {
     type: String,
     default: "Normal Application",
   },

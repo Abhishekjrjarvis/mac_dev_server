@@ -260,7 +260,7 @@ const generateOTP = async (mob) => {
   return OTP;
 };
 
-const directESMSQuery = async (mob, sName, iName) => {
+const directESMSQuery = (mob, sName, iName) => {
   const e_message = `Hi ${sName}. "Qviple" is ERP Software of ${iName}. You are requested to login to your account with your mobile number(On which this SMS is received) to stay updated about your fees, exams and events of your school or college. Login by downloading app 'Qviple Community' from playstore or through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From "Qviple"`;
   const url = `http://mobicomm.dove-sms.com//submitsms.jsp?user=Mithkal&key=4c3168d558XX&mobile=+91${mob}&message=${e_message}&senderid=QVIPLE&accusage=6&entityid=1701164286216096677&tempid=1707168309247841573`;
   axios
@@ -277,6 +277,8 @@ const directESMSQuery = async (mob, sName, iName) => {
     });
   return true;
 };
+
+// console.log(directESMSQuery(8329911939, "Pankaj Singh", "Qviple Officials"));
 
 const directHSMSQuery = async (mob, sName, iName, cName) => {
   const e_message = `${sName}, आप ${iName} के ${cName} में पढ़ रहे हैं। लिंक के माध्यम से 'Qviple Community' ऐप डाउनलोड करके लॉग इन करें: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - Qviple से`;
@@ -320,7 +322,7 @@ const directESMSStaffQuery = (mob, sName, iName) => {
   const e_message = `Hi ${sName}. "Qviple" is ERP Software of ${iName}. You are requested to login to your account with your mobile number(On which this SMS is received) to stay updated about your fees, exams and events of your school or college. Login by downloading app 'Qviple Community' from playstore or through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From "Qviple"`;
   const url = `http://mobicomm.dove-sms.com//submitsms.jsp?user=Mithkal&key=4c3168d558XX&mobile=+91${mob}&message=${e_message}&senderid=QVIPLE&accusage=6&entityid=1701164286216096677&tempid=1707168309247841573`;
   axios
-    .get(url)
+    .post(url)
     .then((res) => {
       if ((res && res.data.includes("success")) || res.data.includes("sent")) {
         console.log("E-messsage Sent Successfully", res.data);
@@ -333,6 +335,8 @@ const directESMSStaffQuery = (mob, sName, iName) => {
     });
   return true;
 };
+
+// console.log(directESMSStaffQuery(7007023972, "Ankush Singh", "Qviple Backlog"));
 
 // console.log(
 //   directESMSStaffQuery(7007023972, "Abhishek Singh", "Qviple Official")

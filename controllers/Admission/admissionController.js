@@ -461,7 +461,7 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
         { admissionAdmin: admission?._id },
       ],
     });
-    if (valid_promote) {
+    if (valid_promote?.length > 0) {
       console.log("valid");
     } else {
       console.log("no valid");

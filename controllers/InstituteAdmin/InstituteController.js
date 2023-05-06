@@ -747,7 +747,7 @@ exports.getNewDepartment = async (req, res) => {
       department: department._id,
     });
     const new_exam_fee = new ExamFeeStructure({
-      exam_fee_type: "Per Student",
+      exam_fee_type: "Per student",
       exam_fee_status: "Static Department Linked",
     });
     new_exam_fee.department = department?._id;

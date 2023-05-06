@@ -23,6 +23,7 @@ const Transport = require("../../models/Transport/transport");
 const Vehicle = require("../../models/Transport/vehicle");
 const Direction = require("../../models/Transport/direction");
 const TransportBatch = require("../../models/Transport/TransportBatch");
+const NewApplication = require("../../models/Admission/NewApplication");
 const FeeStructure = require("../../models/Finance/FeesStructure");
 const RemainingList = require("../../models/Admission/RemainingList");
 const Admission = require("../../models/Admission/Admission");
@@ -947,12 +948,10 @@ exports.promoteStudent = async (req, res) => {
           .send({ message: "All students promoted to next selected class" });
       }
     } else {
-      res
-        .status(200)
-        .send({
-          message: "Must Select Promote Application for Promotion",
-          access: false,
-        });
+      res.status(200).send({
+        message: "Must Select Promote Application for Promotion",
+        access: false,
+      });
     }
   } catch (e) {
     console.log(e);

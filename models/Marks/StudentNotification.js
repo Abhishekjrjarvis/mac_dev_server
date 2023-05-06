@@ -16,6 +16,10 @@ const studentNotificationSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department",
   },
+  notifyByEventManagerPhoto: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "EventManager",
+  },
   notifyByInsPhoto: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteAdmin",
@@ -87,6 +91,14 @@ const studentNotificationSchema = new mongoose.Schema({
   event_payment_status: { type: String },
   mentorId: { type: String },
   feedback_status: { type: String, default: "Not Given" },
+  participate_winner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Student",
+  },
+  queryId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Queries",
+  },
 });
 
 module.exports = mongoose.model(

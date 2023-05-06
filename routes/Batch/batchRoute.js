@@ -37,4 +37,11 @@ router
     catchAsync(batchController.assignDesignationToStaffByBatch)
   );
 
+router
+  .route("/:bid/assign/staff/desigantion")
+  .patch(
+    isLoggedIn,
+    catchAsync(batchController.assignDesignationToStaffByBatch)
+  );
+
 module.exports = router;

@@ -144,9 +144,9 @@ router
   .route("/seating/:eid/seating/destroy/:said/query")
   .delete(catchAsync(examController.renderDestroySeatingArrangementQuery));
 
-// router
-//   .route("/seating/:eid/seating/new/query/automate")
-//   .post(catchAsync(examController.renderNewSeatingArrangementAutomateQuery));
+router
+  .route("/seating/:eid/seating/new/query/automate")
+  .post(catchAsync(examController.renderNewSeatingArrangementAutomateQuery));
 
 router
   .route("/class/:cid/final/report/zip")
@@ -168,6 +168,40 @@ router
 router
   .route("/exam/grade/custom/list")
   .get(catchAsync(examController.getCustomGradeSystem));
+
+router
+  .route("/fee/structure/:efid/edit")
+  .patch(catchAsync(examController.renderEditExamFeeStructureQuery));
+
+router
+  .route("/fee/structure/:did/all/query")
+  .get(catchAsync(examController.renderNewExamFeeStructureAllQuery));
+
+router
+  .route("/fee/structure/one/:efid/all/query")
+  .get(catchAsync(examController.renderOneExamFeeStructureQuery));
+
+router
+  .route("/backlog/:did/new/exam")
+  .post(catchAsync(examController.renderNewBacklogExamQuery));
+
+router
+  .route("/backlog/:did/all/exam")
+  .get(catchAsync(examController.renderFilteredDepartExamQuery));
+
+router
+  .route("/backlog/:did/classmaster")
+  .get(isLoggedIn, catchAsync(examController.getBacklogClassMaster));
+
+router
+  .route("/backlog/:cmid/subjectmaster")
+  .get(isLoggedIn, catchAsync(examController.getBacklogSubjectMaster));
+
+// router
+//   .route("/backlog/:did/new/exam/auto")
+//   .post(catchAsync(examController.renderNewBacklogExamAutoQuery));
+
+
 router
   .route("/grade/custom/create")
   .post(catchAsync(examController.createCustomGradeSystem));
@@ -185,4 +219,5 @@ router
 router
   .route("/one/subject/:sid/student/mark/update")
   .post(catchAsync(examController.backlogAllStudentMarksBySubjectTeacher));
+
 module.exports = router;

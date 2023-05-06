@@ -73,7 +73,6 @@ const batchSchema = new mongoose.Schema({
     ntdCount: { type: Number, default: 0 },
     vjCount: { type: Number, default: 0 },
   },
-
   batch_type: {
     type: String,
     default: "Not Identical",

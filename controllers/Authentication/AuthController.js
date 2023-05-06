@@ -62,7 +62,10 @@ const {
   fee_reordering_direct_student,
   fee_reordering_direct_student_payload,
 } = require("../../helper/multipleStatus");
-const { whats_app_sms_payload } = require("../../WhatsAppSMS/payload");
+const {
+  whats_app_sms_payload,
+  email_sms_payload_query,
+} = require("../../WhatsAppSMS/payload");
 const { handle_undefined } = require("../../Handler/customError");
 const FeeReceipt = require("../../models/RazorPay/feeReceipt");
 const FeeStructure = require("../../models/Finance/FeesStructure");
@@ -257,9 +260,9 @@ const generateOTP = async (mob) => {
   return OTP;
 };
 
-const directESMSQuery = async (mob, sName, iName, cName) => {
-  const e_message = `Hi ${sName}. You are studying in ${cName} of ${iName}. Login by downloading app 'Qviple Community' through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From Qviple`;
-  const url = `http://mobicomm.dove-sms.com//submitsms.jsp?user=Mithkal&key=4c3168d558XX&mobile=+91${mob}&message=${e_message}&senderid=QVIPLE&accusage=6&entityid=1701164286216096677&tempid=1707167282706976266`;
+const directESMSQuery = async (mob, sName, iName) => {
+  const e_message = `Hi ${sName}. "Qviple" is ERP Software of ${iName}. You are requested to login to your account with your mobile number(On which this SMS is received) to stay updated about your fees, exams and events of your school or college. Login by downloading app 'Qviple Community' from playstore or through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From "Qviple"`;
+  const url = `http://mobicomm.dove-sms.com//submitsms.jsp?user=Mithkal&key=4c3168d558XX&mobile=+91${mob}&message=${e_message}&senderid=QVIPLE&accusage=6&entityid=1701164286216096677&tempid=1707168309247841573`;
   axios
     .post(url)
     .then((res) => {
@@ -312,6 +315,49 @@ const directMSMSQuery = async (mob, sName, iName, cName) => {
     });
   return true;
 };
+
+const directESMSStaffQuery = (mob, sName, iName) => {
+  const e_message = `Hi ${sName}. "Qviple" is ERP Software of ${iName}. You are requested to login to your account with your mobile number(On which this SMS is received) to stay updated about your fees, exams and events of your school or college. Login by downloading app 'Qviple Community' from playstore or through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From "Qviple"`;
+  const url = `http://mobicomm.dove-sms.com//submitsms.jsp?user=Mithkal&key=4c3168d558XX&mobile=+91${mob}&message=${e_message}&senderid=QVIPLE&accusage=6&entityid=1701164286216096677&tempid=1707168309247841573`;
+  axios
+    .get(url)
+    .then((res) => {
+      if ((res && res.data.includes("success")) || res.data.includes("sent")) {
+        console.log("E-messsage Sent Successfully", res.data);
+      } else {
+        console.log("E-something went wrong");
+      }
+    })
+    .catch((e) => {
+      console.log(e);
+    });
+  return true;
+};
+
+// console.log(
+//   directESMSStaffQuery(7007023972, "Abhishek Singh", "Qviple Official")
+// );
+
+// console.log(directESMSQuery(7007023972, "Pankaj Bharat Phad", "6th-class", "Qviple Official"))
+
+// const directHSMSStaffQuery = async (mob, sName, iName, cName) => {
+//   const e_message = `${sName}, आप ${iName} के ${cName} में पढ़ रहे हैं। लिंक के माध्यम से 'Qviple Community' ऐप डाउनलोड करके लॉग इन करें: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - Qviple से`;
+//   const encodeURL = encodeURI(e_message);
+//   const url = `http://mobicomm.dove-sms.com//submitsms.jsp?user=Mithkal&key=4c3168d558XX&mobile=+91${mob}&message=${encodeURL}&senderid=QVIPLE&accusage=6&entityid=1701164286216096677&tempid=1707167283483347066&unicode=1`;
+//   axios
+//     .get(url)
+//     .then((res) => {
+//       if ((res && res.data.includes("success")) || res.data.includes("sent")) {
+//         console.log("H-messsage Sent Successfully", res.data);
+//       } else {
+//         console.log("H-something went wrong");
+//       }
+//     })
+//     .catch((e) => {
+//       console.log(e);
+//     });
+//   return true;
+// };
 
 exports.getOtpAtUser = async (req, res) => {
   try {
@@ -2152,26 +2198,28 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
           institute?.insName,
           classes?.classTitle
         );
-      } else if (institute.sms_lang === "hi") {
-        await directHSMSQuery(
-          user?.userPhoneNumber,
-          `${student.studentFirstName} ${
-            student.studentMiddleName ? student.studentMiddleName : ""
-          } ${student.studentLastName}`,
-          institute?.insName,
-          classes?.classTitle
-        );
-      } else if (institute.sms_lang === "mr" || institute.sms_lang === "mt") {
-        await directMSMSQuery(
-          user?.userPhoneNumber,
-          `${student.studentFirstName} ${
-            student.studentMiddleName ? student.studentMiddleName : ""
-          } ${student.studentLastName}`,
-          institute?.insName,
-          classes?.classTitle
-        );
-      } else {
       }
+      // else if (institute.sms_lang === "hi") {
+      //   await directHSMSQuery(
+      //     user?.userPhoneNumber,
+      //     `${student.studentFirstName} ${
+      //       student.studentMiddleName ? student.studentMiddleName : ""
+      //     } ${student.studentLastName}`,
+      //     institute?.insName,
+      //     classes?.classTitle
+      //   );
+      // }
+      // else if (institute.sms_lang === "mr" || institute.sms_lang === "mt") {
+      //   await directMSMSQuery(
+      //     user?.userPhoneNumber,
+      //     `${student.studentFirstName} ${
+      //       student.studentMiddleName ? student.studentMiddleName : ""
+      //     } ${student.studentLastName}`,
+      //     institute?.insName,
+      //     classes?.classTitle
+      //   );
+      // } else {
+      // }
       res.status(200).send({
         message: `Direct Institute Account Creation Process Completed ${student.studentFirstName} ${student.studentLastName} 😀✨`,
         status: true,
@@ -2190,6 +2238,18 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
         0,
         institute?.sms_lang
       );
+      if (user?.userEmail) {
+        await email_sms_payload_query(
+          user?.userEmail,
+          studentName,
+          institute?.insName,
+          "ADSIS",
+          institute?.insType,
+          0,
+          0,
+          institute?.sms_lang
+        );
+      }
     } else {
       res.status(200).send({
         message: "Bug in the direct joining process 😡",
@@ -2421,9 +2481,14 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
         message: "Direct Institute Account Creation Process Completed 😀✨",
         status: true,
       });
-      const staffName = `${staff.staffFirstName} ${
+      var staffName = `${staff.staffFirstName} ${
         staff.staffMiddleName ? `${staff.staffMiddleName}` : ""
       } ${staff.staffLastName}`;
+      await directESMSStaffQuery(
+        user?.userPhoneNumber,
+        staffName,
+        institute?.insName
+      );
       whats_app_sms_payload(
         user?.userPhoneNumber,
         staffName,
@@ -2435,6 +2500,18 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
         0,
         institute?.sms_lang
       );
+      if (user?.userEmail) {
+        await email_sms_payload_query(
+          user?.userEmail,
+          staffName,
+          institute?.insName,
+          "ADMIS",
+          institute?.insType,
+          0,
+          0,
+          institute?.sms_lang
+        );
+      }
     } else {
       res.status(200).send({
         message: "Bug in the direct joining process 😡",
@@ -2482,7 +2559,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
     const finance = await Finance.findById({
       _id: `${institute?.financeDepart[0]}`,
     });
-    const structure = await FeeStructure.findById({ _id: fee_struct })
+    const structure = await FeeStructure.findById({ _id: fee_struct });
     if (!existing) {
       var valid = await filter_unique_username(
         req.body.studentFirstName,
@@ -2556,7 +2633,14 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
     student.user = user._id;
     student.fee_structure = fee_struct;
     await student.save();
-    await insert_multiple_status(apply, user, institute, student?._id, finance, structure);
+    await insert_multiple_status(
+      apply,
+      user,
+      institute,
+      student?._id,
+      finance,
+      structure
+    );
     apply.receievedCount += 1;
     apply.selectCount += 1;
     apply.confirmCount += 1;
@@ -2609,6 +2693,18 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       student.admissionRemainFeeCount,
       institute?.sms_lang
     );
+    if (user?.userEmail) {
+      await email_sms_payload_query(
+        user?.userEmail,
+        studentName,
+        institute?.insName,
+        "ASCAS",
+        institute?.insType,
+        student.admissionPaidFeeCount,
+        student.admissionRemainFeeCount,
+        institute?.sms_lang
+      );
+    }
   } catch (e) {
     console.log(e);
   }
@@ -2922,6 +3018,63 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
         } else {
         }
         await Promise.all([classes.save(), batch.save()]);
+        if (institute.sms_lang === "en") {
+          await directESMSQuery(
+            user?.userPhoneNumber,
+            `${student.studentFirstName} ${
+              student.studentMiddleName ? student.studentMiddleName : ""
+            } ${student.studentLastName}`,
+            institute?.insName,
+            classes?.classTitle
+          );
+        }
+        // else if (institute.sms_lang === "hi") {
+        //   await directHSMSQuery(
+        //     user?.userPhoneNumber,
+        //     `${student.studentFirstName} ${
+        //       student.studentMiddleName ? student.studentMiddleName : ""
+        //     } ${student.studentLastName}`,
+        //     institute?.insName,
+        //     classes?.classTitle
+        //   );
+        // }
+        // else if (institute.sms_lang === "mr" || institute.sms_lang === "mt") {
+        //   await directMSMSQuery(
+        //     user?.userPhoneNumber,
+        //     `${student.studentFirstName} ${
+        //       student.studentMiddleName ? student.studentMiddleName : ""
+        //     } ${student.studentLastName}`,
+        //     institute?.insName,
+        //     classes?.classTitle
+        //   );
+        // } else {
+        // }
+        const studentName = `${student.studentFirstName} ${
+          student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+        } ${student.studentLastName}`;
+        whats_app_sms_payload(
+          user?.userPhoneNumber,
+          studentName,
+          institute?.insName,
+          classes?.className,
+          "ADSIS",
+          institute?.insType,
+          0,
+          0,
+          institute?.sms_lang
+        );
+        if (user?.userEmail) {
+          await email_sms_payload_query(
+            user?.userEmail,
+            studentName,
+            institute?.insName,
+            "ADSIS",
+            institute?.insType,
+            0,
+            0,
+            institute?.sms_lang
+          );
+        }
         // return true
       } else {
         console.log("Problem in Account Creation");
@@ -3338,6 +3491,18 @@ exports.retrieveInstituteDirectJoinStaffAutoQuery = async (
           0,
           institute?.sms_lang
         );
+        if (user?.userEmail) {
+          await email_sms_payload_query(
+            user?.userEmail,
+            staffName,
+            institute?.insName,
+            "ADMIS",
+            institute?.insType,
+            0,
+            0,
+            institute?.sms_lang
+          );
+        }
       } else {
         console.log("Bug in the direct joining process");
       }

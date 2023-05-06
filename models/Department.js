@@ -311,6 +311,16 @@ const departmentSchema = new mongoose.Schema({
       ref: "GradeSystem",
     },
   ],
+  exam_fee_structure: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ExamFeeStructure",
+    },
+  ],
+  exam_fee_structure_count: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Department = mongoose.model("Department", departmentSchema);

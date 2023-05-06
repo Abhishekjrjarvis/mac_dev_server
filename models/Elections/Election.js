@@ -30,10 +30,12 @@ const electionSchema = new mongoose.Schema({
   election_result_date: {
     type: Date,
   },
-  department: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Department",
-  },
+  department: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Department",
+    },
+  ],
   created_at: {
     type: Date,
     default: Date.now,
@@ -77,6 +79,10 @@ const electionSchema = new mongoose.Schema({
   result_notification: {
     type: String,
     default: "Not Declare",
+  },
+  event_manager: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "EventManager",
   },
 });
 

@@ -47,7 +47,7 @@ exports.departmentEdit = async (req, res) => {
       previousStaff.staffDesignationCount -= 1;
       previousStaff.recentDesignation = "";
       const staff = await Staff.findById(req.body?.sid);
-      const user = await User.findById(staff.user);
+      var user = await User.findById(staff.user);
       const institute = await InstituteAdmin.findById(department.institute);
       const notify = new Notification({});
       staff.staffDepartment.push(department._id);
@@ -88,6 +88,16 @@ exports.departmentEdit = async (req, res) => {
       department?.dTitle,
       ""
     );
+    if (user?.userEmail) {
+      email_sms_designation_alarm(
+        user?.userEmail,
+        "DHEAD",
+        institute?.sms_lang,
+        department?.dName,
+        department?.dTitle,
+        ""
+      );
+    }
   } catch (e) {
     console.log(e);
   }
@@ -363,12 +373,22 @@ exports.classEdit = async (req, res) => {
     });
     designation_alarm(
       user?.userPhoneNumber,
-      "DHEAD",
+      "CLASS",
       institute?.sms_lang,
       classes?.className,
       classes?.classTitle,
       ""
     );
+    if (user?.userEmail) {
+      email_sms_designation_alarm(
+        user?.userEmail,
+        "CLASS",
+        institute?.sms_lang,
+        classes?.className,
+        classes?.classTitle,
+        ""
+      );
+    }
   } catch (e) {
     res.status(200).send({
       message: e,
@@ -551,12 +571,22 @@ exports.subjectEdit = async (req, res) => {
     });
     designation_alarm(
       user?.userPhoneNumber,
-      "DHEAD",
+      "SUBJECT",
       institute?.sms_lang,
       subject?.subjectName,
       subject?.subjectTitle,
       classes?.className
     );
+    if (user?.userEmail) {
+      email_sms_designation_alarm(
+        user?.userEmail,
+        "SUBJECT",
+        institute?.sms_lang,
+        subject?.subjectName,
+        subject?.subjectTitle,
+        classes?.className
+      );
+    }
   } catch (e) {
     console.log(e);
     res.status(200).send({

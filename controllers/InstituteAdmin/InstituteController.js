@@ -33,11 +33,16 @@ const { randomSixCode } = require("../../Service/close");
 const unlinkFile = util.promisify(fs.unlink);
 const { file_to_aws } = require("../../Utilities/uploadFileAws");
 const { shuffleArray } = require("../../Utilities/Shuffle");
-const { designation_alarm } = require("../../WhatsAppSMS/payload");
+const {
+  designation_alarm,
+  email_sms_designation_alarm,
+} = require("../../WhatsAppSMS/payload");
 const {
   render_institute_current_role,
 } = require("../Moderator/roleController");
 const { announcement_feed_query } = require("../../Post/announceFeed");
+const { handle_undefined } = require("../../Handler/customError");
+const ExamFeeStructure = require("../../models/BacklogStudent/ExamFeeStructure");
 
 exports.getDashOneQuery = async (req, res) => {
   try {
@@ -741,6 +746,14 @@ exports.getNewDepartment = async (req, res) => {
       message: "Successfully Created Department",
       department: department._id,
     });
+    const new_exam_fee = new ExamFeeStructure({
+      exam_fee_type: "Per Student",
+      exam_fee_status: "Static Department Linked",
+    });
+    new_exam_fee.department = department?._id;
+    department.exam_fee_structure.push(new_exam_fee?._id);
+    department.exam_fee_structure_count += 1;
+    await Promise.all([department.save(), new_exam_fee.save()]);
     designation_alarm(
       user?.userPhoneNumber,
       "DHEAD",
@@ -749,6 +762,16 @@ exports.getNewDepartment = async (req, res) => {
       department?.dTitle,
       ""
     );
+    if (user?.userEmail) {
+      email_sms_designation_alarm(
+        user?.userEmail,
+        "DHEAD",
+        institute?.sms_lang,
+        department?.dName,
+        department?.dTitle,
+        ""
+      );
+    }
   } catch (e) {}
 };
 
@@ -1212,7 +1235,7 @@ exports.retrieveApproveStudentList = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender"
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
         )
         .populate({
           path: "user",
@@ -1242,7 +1265,7 @@ exports.retrieveApproveStudentList = async (req, res) => {
         _id: { $in: student_ins?.ApproveStudent },
       })
         .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate"
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
         )
         .populate({
           path: "user",
@@ -1450,7 +1473,8 @@ exports.retrieveDepartmentList = async (req, res) => {
       .select("insName")
       .populate({
         path: "depart",
-        select: "dName photo photoId dTitle classMasterCount classCount",
+        select:
+          "dName photo photoId dTitle classMasterCount classCount departmentSelectBatch",
         populate: {
           path: "dHead",
           select:
@@ -1469,7 +1493,9 @@ exports.retrieveDepartmentList = async (req, res) => {
     } else {
       res.status(404).send({ message: "Failure" });
     }
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.getOneDepartment = async (req, res) => {
@@ -1689,6 +1715,16 @@ exports.retrieveNewClass = async (req, res) => {
         classRoom?.classTitle,
         ""
       );
+      if (user?.userEmail) {
+        email_sms_designation_alarm(
+          user?.userEmail,
+          "CLASS",
+          institute?.sms_lang,
+          classRoom?.className,
+          classRoom?.classTitle,
+          ""
+        );
+      }
     }
   } catch (e) {
     console.log(e);
@@ -1784,12 +1820,22 @@ exports.retrieveNewSubject = async (req, res) => {
     });
     designation_alarm(
       user?.userPhoneNumber,
-      "DHEAD",
+      "SUBJECT",
       institute?.sms_lang,
       subject?.subjectName,
       subject?.subjectTitle,
       classes?.className
     );
+    if (user?.userEmail) {
+      email_sms_designation_alarm(
+        user?.userEmail,
+        "SUBJECT",
+        institute?.sms_lang,
+        subject?.subjectName,
+        subject?.subjectTitle,
+        classes?.className
+      );
+    }
   } catch (e) {
     console.log(e);
   }
@@ -1846,7 +1892,7 @@ exports.retrieveClassProfileSubject = async (req, res) => {
     const { cid } = req.params;
     const classes = await Class.findById({ _id: cid })
       .select(
-        "className classTitle classHeadTitle classAbout subjectCount studentCount photoId photo coverId cover classStatus"
+        "className classTitle classHeadTitle classAbout masterClassName subjectCount studentCount photoId photo coverId cover classStatus"
       )
       .populate({
         path: "classTeacher",
@@ -1884,7 +1930,9 @@ exports.retrieveClassSubject = async (req, res) => {
   try {
     const { cid } = req.params;
     const classes = await Class.findById({ _id: cid })
-      .select("className classTitle classHeadTitle classAbout classStatus")
+      .select(
+        "className classTitle classHeadTitle masterClassName classAbout classStatus"
+      )
       .populate({
         path: "subject",
         select: "subjectName subjectTitle subjectStatus subjectOptional",
@@ -2062,15 +2110,21 @@ exports.retrieveCurrentSelectBatch = async (req, res) => {
   try {
     const { did, bid } = req.params;
     const department = await Department.findById({ _id: did });
-    const prev_batches = await Batch.findById({
-      _id: department.departmentSelectBatch,
-    });
+    var valid_active_batch = handle_undefined(
+      department?.departmentSelectBatch
+    );
+    if (valid_active_batch) {
+      var prev_batches = await Batch.findById({
+        _id: department.departmentSelectBatch,
+      });
+      prev_batches.activeBatch = "Not Active";
+      await prev_batches.save();
+    }
     const batches = await Batch.findById({ _id: bid });
     department.departmentSelectBatch = batches._id;
     department.userBatch = batches._id;
     batches.activeBatch = "Active";
-    prev_batches.activeBatch = "Not Active";
-    await Promise.all([department.save(), batches.save(), prev_batches.save()]);
+    await Promise.all([department.save(), batches.save()]);
     // Add Another Encryption
     res.status(200).send({
       message: "Batch Detail Data",

@@ -80,6 +80,10 @@ const examSchema = new mongoose.Schema({
     type: String,
     default: "Normal Exam",
   },
+  is_backlog_notify: {
+    type: String,
+    default: "Not Send",
+  },
 });
 
 const Exam = mongoose.model("Exam", examSchema);

@@ -19,7 +19,9 @@ const {
 const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const { notify_attendence_provider } = require("../../helper/dayTimer");
 const Subject = require("../../models/Subject");
-
+const Seating = require("../../models/Exam/seating");
+const Exam = require("../../models/Exam");
+const moment = require("moment");
 //THis is route with tested OF STUDENT
 exports.viewClassStudent = async (req, res) => {
   const institute = await Student.findById(req.params.sid);
@@ -1937,6 +1939,8 @@ exports.getAllExamAttedance = async (req, res) => {
               studentGender: stu.studentGender,
               className: subjects?.class?.className,
               classTitle: subjects?.class?.classTitle,
+              _id: stu._id,
+              subjectId: subjects?._id,
             });
           }
         }
@@ -1965,6 +1969,8 @@ exports.getAllExamAttedance = async (req, res) => {
               studentGender: stu.studentGender,
               className: subjects?.class?.className,
               classTitle: subjects?.class?.classTitle,
+              _id: stu._id,
+              subjectId: subjects?._id,
             });
           }
         }
@@ -1974,6 +1980,85 @@ exports.getAllExamAttedance = async (req, res) => {
       message: "Exam Attendance list of particular hall/ block",
       student_list,
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.getTodayExamAttedance = async (req, res) => {
+  try {
+    const prevDate = req.query.date;
+    let regularexp = "";
+    if (prevDate) {
+      const previousDate = prevDate?.split("/");
+      regularexp = new RegExp(
+        `${previousDate[0]}\/${previousDate[1]}\/${previousDate[2]}$`
+      );
+    } else {
+      var currentDate = new Date();
+      currentDate.setHours(currentDate.getHours() + 5);
+      currentDate.setMinutes(currentDate.getMinutes() + 30);
+      const currentDateLocalFormat = currentDate.toISOString().split("-");
+      const day =
+        +currentDateLocalFormat[2].split("T")[0] > 9
+          ? +currentDateLocalFormat[2].split("T")[0]
+          : `0${+currentDateLocalFormat[2].split("T")[0]}`;
+      const month =
+        +currentDateLocalFormat[1] > 9
+          ? +currentDateLocalFormat[1]
+          : `0${+currentDateLocalFormat[1]}`;
+      const year = +currentDateLocalFormat[0];
+      regularexp = new RegExp(`${day}\/${month}\/${year}$`);
+    }
+
+    const seating_sequence = await Seating.findById(req.params.seid)
+      .populate({
+        path: "attendance",
+        match: {
+          attendDate: { $regex: regularexp },
+        },
+        select: "attendDate presentTotal absentTotal related_subjects",
+      })
+      .select("_id")
+      .lean()
+      .exec();
+
+    if (seating_sequence.attendance?.length > 0) {
+      const attend = seating_sequence.attendance[0];
+      const present = [];
+      const absent = [];
+      for (let i = 0; i < attend.related_subjects.length; i++) {
+        if (attend.related_subjects[i].status === "Present") {
+          present.push({
+            studentId: attend.related_subjects[i].student,
+            subjectId: attend.related_subjects[i].subject,
+          });
+        } else {
+          absent.push({
+            studentId: attend.related_subjects[i].student,
+            subjectId: attend.related_subjects[i].subject,
+          });
+        }
+      }
+      res.status(200).send({
+        seating_sequence: {
+          _id: seating_sequence._id,
+          attendance: [
+            {
+              _id: attend?._id,
+              presentTotal: attend?.presentTotal,
+              absentTotal: attend?.absentTotal,
+              presentStudent: present,
+              absentStudent: absent,
+              attendDate: attend?.attendDate,
+            },
+          ],
+        },
+      });
+    } else {
+      // const classEncrypt = await encryptionPayload(subjects);
+      res.status(200).send({ seating_sequence });
+    }
   } catch (e) {
     console.log(e);
   }
@@ -2022,8 +2107,8 @@ exports.markAttendenceExamStudent = async (req, res) => {
           _id: `${req.body.absent[i]?.studentId}`,
         });
         attendence.related_subjects.push({
-          subject: req.body.present[i]?.subjectId,
-          student: req.body.present[i]?.studentId,
+          subject: req.body.absent[i]?.subjectId,
+          student: req.body.absent[i]?.studentId,
           status: "Absent",
         });
         student.subjectAttendance.push(attendence._id);
@@ -2066,25 +2151,26 @@ exports.markAttendenceExamStudentUpdate = async (req, res) => {
       for (let i = 0; i < req.body.present?.length; i++) {
         let flag = false;
         for (let pre of studentAttendance.presentStudent) {
-          if (String(pre.student) === req.body.present[i]?.subjectId)
+          if (String(pre.student) === req.body.present[i]?.studentId)
             flag = true;
           else flag = false;
         }
         if (!flag) {
           studentAttendance.presentStudent?.push({
-            student: req.body.present[i]?.subjectId,
+            student: req.body.present[i]?.studentId,
             inTime: getOnlyTime(),
             status: "Present",
           });
           for (let rel_sub of studentAttendance?.related_subjects) {
-            if (String(rel_sub.student) === req.body.present[i]?.subjectId) {
+
+            if (String(rel_sub.student) === req.body.present[i]?.studentId) {
               rel_sub.status = "Present";
             }
           }
           let prevLength = studentAttendance.absentStudent.length;
           studentAttendance.absentStudent =
             studentAttendance.absentStudent?.filter(
-              (abs) => String(abs.student) !== req.body.present[i]?.subjectId
+              (abs) => String(abs.student) !== req.body.present[i]?.studentId
             );
           let nextLength = studentAttendance.absentStudent.length;
 
@@ -2095,25 +2181,25 @@ exports.markAttendenceExamStudentUpdate = async (req, res) => {
       for (let i = 0; i < req.body.absent.length; i++) {
         let flag = false;
         for (let abs of studentAttendance.absentStudent) {
-          if (String(abs.student) === req.body.absent[i]?.subjectId)
+          if (String(abs.student) === req.body.absent[i]?.studentId)
             flag = true;
           else flag = false;
         }
         if (!flag) {
           studentAttendance.absentStudent?.push({
-            student: req.body.absent[i]?.subjectId,
+            student: req.body.absent[i]?.studentId,
             inTime: getOnlyTime(),
             status: "Absent",
           });
           for (let rel_sub of studentAttendance?.related_subjects) {
-            if (String(rel_sub.student) === req.body.absent[i]?.subjectId) {
+            if (String(rel_sub.student) === req.body.absent[i]?.studentId) {
               rel_sub.status = "Absent";
             }
           }
           let prevLength = studentAttendance.presentStudent.length;
           studentAttendance.presentStudent =
             studentAttendance.presentStudent?.filter(
-              (pre) => String(pre.student) !== req.body.absent[i]?.subjectId
+              (pre) => String(pre.student) !== req.body.absent[i]?.studentId
             );
           let nextLength = studentAttendance.presentStudent.length;
           if (prevLength > nextLength) studentAttendance.presentTotal -= 1;
@@ -2123,6 +2209,47 @@ exports.markAttendenceExamStudentUpdate = async (req, res) => {
       await studentAttendance.save();
       res.status(200).send({ message: "Updated attendance" });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+exports.sendNotificationOfAttendance = async (req, res) => {
+  try {
+    const seating_sequence = await Seating.findById(req.params.seid).populate({
+      path: "exam",
+    });
+    const staff = await Staff.findById({
+      _id: `${seating_sequence?.seat_block_staff}`,
+    });
+    const notify = await StudentNotification({});
+    const user = await User.findById({ _id: `${staff?.user}` });
+    const newDate = new Date();
+    notify.notifyContent = `You have a supervision on ${moment(newDate).format(
+      "LL"
+    )} for ${seating_sequence?.seat_block_name}.`;
+    notify.notifySender = seating_sequence?.exam?.department;
+    notify.notifyReceiever = user?._id;
+    notify.examId = seating_sequence?.exam?._id;
+    notify.seatingId = seating_sequence?._id;
+    notify.notifyType = "Staff";
+    notify.notifyPublisher = staff?._id;
+    user.activity_tab.push(notify._id);
+    notify.notifyByDepartPhoto = seating_sequence?.exam?.department;
+    notify.notifyCategory = "Exam Attendance";
+    notify.redirectIndex = 31;
+    invokeMemberTabNotification(
+      "Staff Activity",
+      notify,
+      "Seating Arrangement",
+      user._id,
+      user.deviceToken,
+      "Student",
+      notify
+    );
+    await Promise.all([notify.save(), user.save()]);
+    res.status(200).send({
+      message: "notification send to supervisor",
+    });
   } catch (e) {
     console.log(e);
   }

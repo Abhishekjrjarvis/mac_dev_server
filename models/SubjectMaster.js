@@ -45,6 +45,12 @@ const subjectMasterSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  subject_mark_list: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SubjectMarkList",
+    },
+  ],
 });
 
 const SubjectMaster = mongoose.model("SubjectMaster", subjectMasterSchema);

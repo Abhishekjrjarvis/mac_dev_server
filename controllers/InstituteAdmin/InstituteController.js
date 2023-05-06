@@ -1518,7 +1518,7 @@ exports.getOneDepartment = async (req, res) => {
         })
         .populate({
           path: "batches",
-          select: "batchName batchStatus createdAt",
+          select: "batchName batchStatus createdAt batch_type designation_send",
         })
         .populate({
           path: "departmentSelectBatch",
@@ -2644,7 +2644,7 @@ exports.retrieveDepartmentAllBatch = async (req, res) => {
       .select("id")
       .populate({
         path: "batches",
-        select: "batchName batchStatus createdAt",
+        select: "batchName batchStatus createdAt batch_type designation_send",
       })
       .populate({
         path: "departmentSelectBatch",

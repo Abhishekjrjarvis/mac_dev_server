@@ -25,9 +25,10 @@ router
 router
   .route("/:sid/previous")
   .get(isLoggedIn, catchAsync(studentMember.getAllPreviousYear));
-router
-  .route("/:pid/previous/report")
-  .get(isLoggedIn, catchAsync(studentMember.previousYearReportCard));
+router.route("/:pid/previous/report").get(
+  // isLoggedIn,
+  catchAsync(studentMember.previousYearReportCard)
+);
 
 router
   .route("/promote/:id/institute/detail")

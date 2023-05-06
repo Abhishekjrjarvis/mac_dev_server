@@ -77,6 +77,10 @@ const batchSchema = new mongoose.Schema({
     type: String,
     default: "Not Identical",
   },
+  designation_send: {
+    type: String,
+    default: "Yes",
+  },
   identical_batch: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Batch",

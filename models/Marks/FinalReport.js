@@ -40,8 +40,13 @@ const finalReportSchema = new mongoose.Schema({
       subjectPassStatus: { type: String },
       clearBacklog: { type: String },
       dropoutBacklog: { type: String },
+      // is_backlog: {
+      //   type: String,
+      //   default: "No",
+      // },
     },
   ],
+  is_grade: Boolean,
 });
 
 module.exports = mongoose.model("FinalReport", finalReportSchema);

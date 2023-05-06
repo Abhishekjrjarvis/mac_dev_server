@@ -3295,7 +3295,7 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
     // const batch = await Batch.findById(exist_batch).select(
     //   "department _id exams"
     // );
-    const department = await Department.findById(did).select("exams _id");
+    const department = await Department.findById(did);
     const valid_exam_fee_structure = await ExamFeeStructure.find({
       $and: [
         { department: department?._id },
@@ -3318,11 +3318,9 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
       for (let sub of req.body.allsubject) {
         const sub_master = await SubjectMaster.findById({ _id: sub?._id });
         for (let subId of sub.subjectIds) {
-          const subject = await Subject.findById(subId).select("class exams");
+          const subject = await Subject.findById(subId);
           if (String(subject.class) === cid) {
-            var classes = await Class.findById(cid).select(
-              "ApproveStudent exams _id"
-            );
+            var classes = await Class.findById(cid);
             if (classes.exams.includes(exam._id)) {
             } else {
               const batch = await Batch.findById({ _id: `${classes?.batch}` });
@@ -3331,8 +3329,11 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
               exam.class.push(cid);
               await Promise.all([classes.save(), batch.save()]);
             }
-            for (let stu of sub_master?.backlog) {
-              const student = await Student.findById(stu);
+            var all_backs = await Backlog.find({
+              _id: { $in: sub_master?.backlog },
+            });
+            for (let stu of all_backs) {
+              const student = await Student.findById(stu?.backlog_students);
               const user = await User.findById({ _id: `${student.user}` });
               const student_prev = await StudentPreviousData.findOne({
                 batch: classes?.batch,
@@ -3349,14 +3350,15 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
                     : null;
                   if (exist_fee) {
                     const new_exam_struct = new ExamFeeStructure({
-                      exam_fee_type: exist?.exam_fee_type,
-                      exam_fee_amount: exist?.exam_fee_amount,
+                      exam_fee_type: exist_fee?.exam_fee_type,
+                      exam_fee_amount: exist_fee?.exam_fee_amount,
                     });
+                    // console.log("sdnmfdshgj", exist_fee);
                     new_exam_struct.department = department?._id;
                     department.exam_fee_structure.push(new_exam_struct?._id);
                     department.exam_fee_structure_count += 1;
                     new_exam_struct.exam = exam?._id;
-                    if (exist_fee?.exam_fee_type === "Per Student") {
+                    if (exist_fee?.exam_fee_type === "Per student") {
                       if (exist_fee?.exam_fee_amount > 0) {
                         student.studentRemainingFeeCount +=
                           exist_fee.exam_fee_amount;
@@ -3370,9 +3372,10 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
                           amount: exist_fee.exam_fee_amount,
                         });
                         new_exam_struct.paid_student_count += 1;
+                        // console.log("Student", exist_fee);
                       }
                     }
-                    if (exist_fee?.exam_fee_type === "Per Backlog Paper") {
+                    if (exist_fee?.exam_fee_type === "Per Backlog paper") {
                       var all_back = await Backlog.find({
                         $and: [
                           { _id: student?.backlog },
@@ -3392,6 +3395,7 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
                           amount: all_back?.length * exist_fee.exam_fee_amount,
                         });
                         new_exam_struct.paid_student_count += 1;
+                        // console.log("backlog", exist_fee);
                       }
                     }
                     await new_exam_struct.save();

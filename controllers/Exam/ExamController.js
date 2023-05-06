@@ -1558,7 +1558,7 @@ exports.oneStudentReportCardFinalize = async (req, res) => {
         backlogSubMaster.backlogStudentCount += 1;
         new_backlog.backlog_students = req.params.sid;
         student.backlog.push(new_backlog._id);
-        await Promise.all([backlogSubMaster.save(), new_backlog.save()]);
+        await Promise.all([backlogSubMaster.save(), new_backlog.save(), student.save()]);
       } else {
         backlogSub.pass.push(req.params.sid);
       }
@@ -3248,7 +3248,7 @@ exports.finalizeAllStudentInOneClass = async (req, res) => {
               backlogSubMaster.backlogStudentCount += 1;
               new_backlog.backlog_students = req.params.sid;
               student.backlog.push(new_backlog._id);
-              await Promise.all([backlogSubMaster.save(), new_backlog.save()]);
+              await Promise.all([backlogSubMaster.save(), new_backlog.save(), student.save()]);
             } else {
               backlogSub.pass.push(req.params.sid);
             }
@@ -3312,7 +3312,7 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
 
     for (let cid of allclasses) {
       for (let sub of req.body.allsubject) {
-        const sub_master = await SubjectMaster.findById({ _id: sub?._id });
+        var sub_master = await SubjectMaster.findById({ _id: sub?.id })
         for (let subId of sub.subjectIds) {
           const subject = await Subject.findById(subId).select("class exams");
           if (String(subject.class) === cid) {
@@ -3327,9 +3327,10 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
               exam.class.push(cid);
               await Promise.all([classes.save(), batch.save()]);
             }
-            for (let stu of sub_master?.backlog) {
-              const student = await Student.findById(stu);
-              const user = await User.findById({ _id: `${student.user}` });
+            var all_backs = await Backlog.find({ _id: { $in: sub_master?.backlog}})
+            for (let stu of all_backs) {
+              const student = await Student.findById(stu?.backlog_students);
+              const user = await User.findById({ _id: `${student?.user}` });
               const student_prev = await StudentPreviousData.findOne({
                 batch: classes?.batch,
                 student: student?._id,

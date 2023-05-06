@@ -3527,7 +3527,7 @@ exports.getBacklogClassMaster = async (req, res) => {
   } catch {}
 };
 
-exports.getSubjectMaster = async (req, res) => {
+exports.getBacklogSubjectMaster = async (req, res) => {
   try {
     const db_master = await ClassMaster.findById(req.params.cmid);
     const department = await Department.findById(db_master.department);

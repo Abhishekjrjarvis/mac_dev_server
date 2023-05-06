@@ -2807,7 +2807,7 @@ exports.renderNewExamFeeStructureAllQuery = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "exam_fee_type exam_fee_amount exam_fee_status created_at total_paid_collection"
+        "exam_fee_type exam_fee_amount exam_fee_status created_at total_paid_collection total_raised_collection"
       )
       .populate({
         path: "department",
@@ -3366,6 +3366,7 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
                           amount: exist_fee.exam_fee_amount,
                           exam_structure: new_exam_struct?._id,
                         });
+                        new_exam_struct.total_raised_collection += exist_fee.exam_fee_amount
                         new_exam_struct.paid_student.push({
                           student: student?._id,
                           amount: exist_fee.exam_fee_amount,
@@ -3388,6 +3389,7 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
                           amount: all_back?.length * exist_fee.exam_fee_amount,
                           exam_structure: new_exam_struct?._id,
                         });
+                        new_exam_struct.total_raised_collection += all_back?.length * exist_fee.exam_fee_amount
                         new_exam_struct.paid_student.push({
                           student: student?._id,
                           amount: all_back?.length * exist_fee.exam_fee_amount,
@@ -4137,6 +4139,48 @@ exports.backlogAllStudentMarksBySubjectTeacher = async (req, res) => {
       }
     }
     await db_standard_mark.save();
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.sendNotificationOfAttendance = async (req, res) => {
+  try {
+    const seating_sequence = await Seating.findById(req.params.seid).populate({
+      path: "exam",
+    });
+    const staff = await Staff.findById({
+      _id: `${seating_sequence?.seat_block_staff}`,
+    });
+    const notify = await StudentNotification({});
+    const user = await User.findById({ _id: `${staff?.user}` });
+    const newDate = new Date();
+    notify.notifyContent = `You have a supervision on ${moment(newDate).format(
+      "LL"
+    )} for ${seating_sequence?.seat_block_name}.`;
+    notify.notifySender = seating_sequence?.exam?.department;
+    notify.notifyReceiever = user?._id;
+    notify.examId = seating_sequence?.exam?._id;
+    notify.seatingId = seating_sequence?._id;
+    notify.notifyType = "Staff";
+    notify.notifyPublisher = staff?._id;
+    user.activity_tab.push(notify._id);
+    notify.notifyByDepartPhoto = seating_sequence?.exam?.department;
+    notify.notifyCategory = "Exam Attendance";
+    notify.redirectIndex = 31;
+    invokeMemberTabNotification(
+      "Staff Activity",
+      notify,
+      "Seating Arrangement",
+      user._id,
+      user.deviceToken,
+      "Student",
+      notify
+    );
+    await Promise.all([notify.save(), user.save()]);
+    res.status(200).send({
+      message: "notification send to supervisor",
+    });
   } catch (e) {
     console.log(e);
   }

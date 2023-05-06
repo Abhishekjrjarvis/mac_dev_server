@@ -53,6 +53,10 @@ const examFeeStructureSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  total_raised_collection: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("ExamFeeStructure", examFeeStructureSchema);

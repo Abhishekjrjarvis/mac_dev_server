@@ -1932,3 +1932,6 @@
 {"level":"info","message":{"forward":"","remark":"Yoooour query willl beee resolveddd sooon"},"timestamp":"2023-05-06T09:18:50.850Z"}
 {"access":true,"level":"info","message":"Your query was resolved by Mentor","timestamp":"2023-05-06T09:18:57.614Z"}
 {"level":"info","message":"{\"message\":\"Your query was resolved by Mentor\",\"access\":true,\"level\":\"info\"}","timestamp":"2023-05-06T09:18:57.618Z"}
+{"level":"info","message":{},"timestamp":"2023-05-06T10:38:19.491Z"}
+{"level":"info","message":"Deletion Operation Completed","timestamp":"2023-05-06T10:38:31.956Z"}
+{"level":"info","message":"{\"message\":\"Deletion Operation Completed\",\"level\":\"info\"}","timestamp":"2023-05-06T10:38:31.960Z"}

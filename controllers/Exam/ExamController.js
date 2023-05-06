@@ -4126,4 +4126,3 @@ exports.backlogAllStudentMarksBySubjectTeacher = async (req, res) => {
     console.log(e);
   }
 };
-

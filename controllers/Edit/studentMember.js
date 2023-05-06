@@ -284,7 +284,7 @@ exports.getAllPreviousYear = async (req, res) => {
         _id: { $in: student?.previousYearData },
       })
         .populate({
-          path: "class",
+          path: "studentClass",
           populate: {
             path: "batch",
             select: "batchName batchStatus",
@@ -292,11 +292,11 @@ exports.getAllPreviousYear = async (req, res) => {
           select: "className classTitle classStatus batch",
         })
         .populate({
-          path: "batch",
+          path: "batches",
           select: "batchName batchStatus",
         })
         .sort("-createdAt")
-        .select("class batch")
+        .select("studentClass batches")
         .lean()
         .exec();
       // const preEncrypt = await encryptionPayload(previousData);
@@ -435,14 +435,14 @@ exports.previousYearReportCard = async (req, res) => {
       }
     }
 
-    const totalPercantage = Math.ceil(
+    const totalPercentage = Math.ceil(
       (total.allSubjectTotal * 100) / (100 * subjects.length)
     );
     total.showGradeTotal = grade_calculate(
       standard_max_value,
       department.grade_system?.[0],
       classes?.finalReportsSettings.aggregatePassingPercentage,
-      totalPercantage
+      totalPercentage
     );
     // Add Another Encryption
     res.status(200).send({
@@ -450,9 +450,21 @@ exports.previousYearReportCard = async (req, res) => {
       finalReport: {
         subjects,
         total,
-        totalPercantage,
+        totalPercentage,
+        is_grade: finalReport.is_grade,
+        attendance: finalReport.attendance,
+        attendanceTotal: finalReport.attendanceTotal,
+        attendancePercentage: finalReport.attendancePercentage,
+        behaviourStar: finalReport.behaviourStar,
+        behaviourImprovement: finalReport.behaviourImprovement,
+        behaviourLack: finalReport.behaviourLack,
       },
-      studentROLLNO: previousData?.studentROLLNO,
+      student: {
+        studentROLLNO: previousData?.studentROLLNO,
+        studentFirstName: finalReport?.student?.studentFirstName,
+        studentMiddleName: finalReport?.student?.studentMiddleName,
+        studentLastName: finalReport?.student?.studentLastName,
+      },
     });
   } catch (e) {
     console.log(e);

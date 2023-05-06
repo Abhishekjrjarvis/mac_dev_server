@@ -255,7 +255,7 @@ exports.allExam = async (req, res) => {
 exports.examById = async (req, res) => {
   try {
     const exam = await Exam.findById(req.params.eid).select(
-      "examName examType examMode examWeight createdAt class subjects"
+      "examName examType examMode examWeight createdAt class subjects is_backlog_notify"
     );
     const masterids = [];
     for (let cid of exam.class) {
@@ -331,6 +331,7 @@ exports.examById = async (req, res) => {
         examMode: exam.examMode,
         examWeight: exam.examWeight,
         createdAt: exam.createdAt,
+        is_backlog_notify: exam?.is_backlog_notify,
       },
     });
   } catch (e) {
@@ -1294,8 +1295,10 @@ exports.oneStudentReportCardClassTeacher = async (req, res) => {
     });
 
     let st_arr = [];
-    for (let st_mark of db_standard_mark?.marks_list) {
-      st_arr.push(st_mark.totalMarks);
+    if (db_standard_mark) {
+      for (let st_mark of db_standard_mark?.marks_list) {
+        st_arr.push(st_mark.totalMarks);
+      }
     }
     let standard_max = Math.max(...st_arr);
     let standard_max_value = Math.ceil(
@@ -1556,6 +1559,7 @@ exports.oneStudentReportCardFinalize = async (req, res) => {
         new_backlog.backlog_batch = student?.batches;
         backlogSubMaster.backlog.push(new_backlog?._id);
         backlogSubMaster.backlogStudentCount += 1;
+        /// for see backlog student
         new_backlog.backlog_students = req.params.sid;
         student.backlog.push(new_backlog._id);
         await Promise.all([backlogSubMaster.save(), new_backlog.save()]);
@@ -2771,7 +2775,7 @@ exports.getGradeSystem = async (req, res) => {
     const department = await Department.findById(did)
       .populate({
         path: "grade_system",
-        select: "grade_type grade_name grade_count grades",
+        select: "grade_type grade_name grade_count grades custom_grade",
       })
       .select("grade_system");
 
@@ -3291,7 +3295,7 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
     // const batch = await Batch.findById(exist_batch).select(
     //   "department _id exams"
     // );
-    const department = await Department.findById(did).select("exams _id");
+    const department = await Department.findById(did);
     const valid_exam_fee_structure = await ExamFeeStructure.find({
       $and: [
         { department: department?._id },
@@ -3314,11 +3318,9 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
       for (let sub of req.body.allsubject) {
         const sub_master = await SubjectMaster.findById({ _id: sub?._id });
         for (let subId of sub.subjectIds) {
-          const subject = await Subject.findById(subId).select("class exams");
+          const subject = await Subject.findById(subId);
           if (String(subject.class) === cid) {
-            var classes = await Class.findById(cid).select(
-              "ApproveStudent exams _id"
-            );
+            var classes = await Class.findById(cid);
             if (classes.exams.includes(exam._id)) {
             } else {
               const batch = await Batch.findById({ _id: `${classes?.batch}` });
@@ -3327,8 +3329,11 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
               exam.class.push(cid);
               await Promise.all([classes.save(), batch.save()]);
             }
-            for (let stu of sub_master?.backlog) {
-              const student = await Student.findById(stu);
+            var all_backs = await Backlog.find({
+              _id: { $in: sub_master?.backlog },
+            });
+            for (let stu of all_backs) {
+              const student = await Student.findById(stu?.backlog_students);
               const user = await User.findById({ _id: `${student.user}` });
               const student_prev = await StudentPreviousData.findOne({
                 batch: classes?.batch,
@@ -3345,14 +3350,15 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
                     : null;
                   if (exist_fee) {
                     const new_exam_struct = new ExamFeeStructure({
-                      exam_fee_type: exist?.exam_fee_type,
-                      exam_fee_amount: exist?.exam_fee_amount,
+                      exam_fee_type: exist_fee?.exam_fee_type,
+                      exam_fee_amount: exist_fee?.exam_fee_amount,
                     });
+                    // console.log("sdnmfdshgj", exist_fee);
                     new_exam_struct.department = department?._id;
                     department.exam_fee_structure.push(new_exam_struct?._id);
                     department.exam_fee_structure_count += 1;
                     new_exam_struct.exam = exam?._id;
-                    if (exist_fee?.exam_fee_type === "Per Student") {
+                    if (exist_fee?.exam_fee_type === "Per student") {
                       if (exist_fee?.exam_fee_amount > 0) {
                         student.studentRemainingFeeCount +=
                           exist_fee.exam_fee_amount;
@@ -3366,9 +3372,10 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
                           amount: exist_fee.exam_fee_amount,
                         });
                         new_exam_struct.paid_student_count += 1;
+                        // console.log("Student", exist_fee);
                       }
                     }
-                    if (exist_fee?.exam_fee_type === "Per Backlog Paper") {
+                    if (exist_fee?.exam_fee_type === "Per Backlog paper") {
                       var all_back = await Backlog.find({
                         $and: [
                           { _id: student?.backlog },
@@ -3388,6 +3395,7 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
                           amount: all_back?.length * exist_fee.exam_fee_amount,
                         });
                         new_exam_struct.paid_student_count += 1;
+                        // console.log("backlog", exist_fee);
                       }
                     }
                     await new_exam_struct.save();
@@ -3663,19 +3671,21 @@ exports.getBacklogOneSubjectStudent = async (req, res) => {
       });
     }
     const backlog_student = await Backlog.find({
-      backlog_subject: { $eq: `${sid}` },
-      backlog_status: "Not Mark",
+      $and: [
+        { backlog_subject: { $eq: `${sid}` } },
+        { backlog_status: { $eq: "Not Mark" } },
+      ],
     }).populate({
       path: "backlog_students",
       select:
         "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId studentROLLNO",
     });
     const students = [];
-
     for (let bg_student of backlog_student) {
       const db_student_prev = await StudentPreviousData.findOne({
         batches: { $eq: `${bg_student.backlog_batch}` },
         studentClass: { $eq: `${bg_student.backlog_class}` },
+        student: { $eq: `${bg_student.backlog_students?._id}` },
       })
         .populate({
           path: "subjectMarks",
@@ -3684,6 +3694,7 @@ exports.getBacklogOneSubjectStudent = async (req, res) => {
         .select("subjectMarks")
         .lean()
         .exec();
+      var maximumMarks = 0;
       if (db_student_prev?.subjectMarks?.length) {
         for (let onemarks of db_student_prev?.subjectMarks[0]?.marks) {
           if (onemarks.examId === req.params.eid) {
@@ -3699,6 +3710,7 @@ exports.getBacklogOneSubjectStudent = async (req, res) => {
               answerSheet: onemarks?.answerSheet,
               previous_year_id: db_student_prev?._id,
             });
+            maximumMarks = onemarks?.totalMarks;
           }
         }
       }
@@ -3706,7 +3718,9 @@ exports.getBacklogOneSubjectStudent = async (req, res) => {
     students.sort((st1, st2) => {
       return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
     });
-    res.status(200).send({ message: "All backlog student list", students });
+    res
+      .status(200)
+      .send({ message: "All backlog student list", students, maximumMarks });
   } catch (e) {
     console.log(e);
   }
@@ -4010,10 +4024,12 @@ exports.backlogAllStudentMarksBySubjectTeacher = async (req, res) => {
     }
     // for update standard list
     const classes = await Class.findById(subjectData.class?._id);
-    let db_standard_mark = await StandardMarkList.findOne({
+    const db_standard_mark = await StandardMarkList.findOne({
       classMaster: classes.masterClassName,
       batch: classes?.batch,
     });
+    // console.log(db_standard_mark, classes);
+
     for (let studt of marks) {
       const db_student_prev = await StudentPreviousData.findById(
         studt.previous_year_id
@@ -4105,9 +4121,11 @@ exports.backlogAllStudentMarksBySubjectTeacher = async (req, res) => {
       );
       finalReport.totalPercentage = t_Percantage;
       finalReport.passStatus =
-        finalReport.totalPercentage >= totalCutoff ? "PASS" : "FAIL";
+        finalReport.totalPercentage >= finalReport.totalCutoff
+          ? "PASS"
+          : "FAIL";
       const f_classes = await Class.findById(finalReport.classId);
-      if (finalReport.totalPercentage >= totalCutoff) {
+      if (finalReport.totalPercentage >= finalReport.totalCutoff) {
         f_classes.pass.push(studt?._id);
         f_classes.fail.pull(studt?._id);
       }

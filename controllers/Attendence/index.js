@@ -19,8 +19,6 @@ const {
 const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const { notify_attendence_provider } = require("../../helper/dayTimer");
 const Subject = require("../../models/Subject");
-const Seating = require("../../models/Exam/seating");
-const Exam = require("../../models/Exam");
 const moment = require("moment");
 //THis is route with tested OF STUDENT
 exports.viewClassStudent = async (req, res) => {
@@ -2162,7 +2160,6 @@ exports.markAttendenceExamStudentUpdate = async (req, res) => {
             status: "Present",
           });
           for (let rel_sub of studentAttendance?.related_subjects) {
-
             if (String(rel_sub.student) === req.body.present[i]?.studentId) {
               rel_sub.status = "Present";
             }

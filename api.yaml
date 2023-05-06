@@ -29816,7 +29816,7 @@ paths:
               forward:
                 type: string
                 description: Enter Forward Staff ID
-                required: true
+                required: false
       responses:
         "200":
           description: OK

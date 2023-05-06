@@ -2755,7 +2755,11 @@ exports.renderEditExamFeeStructureQuery = async (req, res) => {
     res
       .status(200)
       .send({ message: "Explore Updated Exam Fee Structure", access: true });
-      
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 exports.getGradeSystem = async (req, res) => {
   try {
     const { did } = req.params;
@@ -2823,6 +2827,10 @@ exports.renderNewExamFeeStructureAllQuery = async (req, res) => {
         all_exam_fee: [],
       });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 exports.createCustomGradeSystem = async (req, res) => {
   try {
@@ -2989,6 +2997,10 @@ exports.renderOneExamFeeStructureQuery = async (req, res) => {
         all_fee: [],
       });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
 const one_student_finalize_report = async (sid) => {
   try {
     const student = await Student.findById(sid)
@@ -3262,12 +3274,10 @@ exports.finalizeAllStudentInOneClass = async (req, res) => {
       }
     }
     await Promise.all([classes.save(), db_standard_mark.save()]);
-
   } catch (e) {
     console.log(e);
   }
 };
-
 
 exports.renderNewBacklogExamQuery = async (req, res) => {
   try {

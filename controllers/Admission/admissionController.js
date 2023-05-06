@@ -17,7 +17,11 @@ const Class = require("../../models/Class");
 const Admin = require("../../models/superAdmin");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
 const FeeReceipt = require("../../models/RazorPay/feeReceipt");
-const { designation_alarm } = require("../../WhatsAppSMS/payload");
+const {
+  designation_alarm,
+  email_sms_payload_query,
+  email_sms_designation_alarm,
+} = require("../../WhatsAppSMS/payload");
 const Hostel = require("../../models/Hostel/hostel");
 const {
   uploadDocFile,
@@ -138,6 +142,16 @@ exports.retrieveAdmissionAdminHead = async (req, res) => {
       "",
       ""
     );
+    if (user?.userEmail) {
+      email_sms_designation_alarm(
+        user?.userEmail,
+        "ADMISSION",
+        institute?.sms_lang,
+        "",
+        "",
+        ""
+      );
+    }
   } catch (e) {
     console.log(e);
   }
@@ -3467,6 +3481,18 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
       student.admissionRemainFeeCount,
       institute?.sms_lang
     );
+    if (user?.userEmail) {
+      await email_sms_payload_query(
+        user?.userEmail,
+        studentName,
+        institute?.insName,
+        "ASCAS",
+        institute?.insType,
+        student.admissionPaidFeeCount,
+        student.admissionRemainFeeCount,
+        institute?.sms_lang
+      );
+    }
   } catch (e) {
     console.log(e);
   }

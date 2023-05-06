@@ -22,7 +22,11 @@ const Class = require("../../models/Class");
 const Admin = require("../../models/superAdmin");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
 const FeeReceipt = require("../../models/RazorPay/feeReceipt");
-const { designation_alarm } = require("../../WhatsAppSMS/payload");
+const {
+  designation_alarm,
+  email_sms_payload_query,
+  email_sms_designation_alarm,
+} = require("../../WhatsAppSMS/payload");
 const {
   uploadDocFile,
   uploadFile,
@@ -144,6 +148,16 @@ exports.renderActivateHostelQuery = async (req, res) => {
       "",
       ""
     );
+    if (user?.userEmail) {
+      email_sms_designation_alarm(
+        user?.userEmail,
+        "HOSTEL",
+        institute?.sms_lang,
+        "",
+        "",
+        ""
+      );
+    }
   } catch (e) {
     console.log(e);
   }
@@ -4882,7 +4896,7 @@ exports.renderHostelAllStudentRenewalQuery = async (req, res) => {
       })
       .populate({
         path: "receipt",
-        select: "reason"
+        select: "reason",
       })
       .populate({
         path: "renewal_hostel",
@@ -6351,6 +6365,18 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
       student.hostelRemainFeeCount,
       institute?.sms_lang
     );
+    if (user?.userEmail) {
+      await email_sms_payload_query(
+        user?.userEmail,
+        studentName,
+        institute?.insName,
+        "ASCAS",
+        institute?.insType,
+        student.hostelPaidFeeCount,
+        student.hostelRemainFeeCount,
+        institute?.sms_lang
+      );
+    }
   } catch (e) {
     console.log(e);
   }
@@ -6574,6 +6600,18 @@ exports.renderDirectHostelJoinExcelQuery = async (hid, student_array) => {
         student.hostelRemainFeeCount,
         institute?.sms_lang
       );
+      if (user?.userEmail) {
+        await email_sms_payload_query(
+          user?.userEmail,
+          studentName,
+          institute?.insName,
+          "ASCAS",
+          institute?.insType,
+          student.hostelPaidFeeCount,
+          student.hostelRemainFeeCount,
+          institute?.sms_lang
+        );
+      }
     }
   } catch (e) {
     console.log(e);

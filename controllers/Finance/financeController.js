@@ -37,7 +37,7 @@ const Transport = require("../../models/Transport/transport");
 const Store = require("../../models/Finance/Inventory");
 const BankAccount = require("../../models/Finance/BankAccount");
 const { nested_document_limit } = require("../../helper/databaseFunction");
-const { designation_alarm } = require("../../WhatsAppSMS/payload");
+const { designation_alarm, email_sms_designation_alarm } = require("../../WhatsAppSMS/payload");
 const {
   connect_redis_hit,
   connect_redis_miss,
@@ -109,6 +109,16 @@ exports.getFinanceDepart = async (req, res) => {
       "",
       ""
     );
+    if (user?.userEmail) {
+      email_sms_designation_alarm(
+        user?.userEmail,
+        "FINANCE",
+        institute?.sms_lang,
+        "",
+        "",
+        ""
+      );
+    }
   } catch (e) {}
 };
 
@@ -3052,7 +3062,7 @@ exports.renderDepartmentAllFeeStructure = async (req, res) => {
     const skip = (page - 1) * limit;
     const { filter_by, batch_by } = req.query;
     const master_query = handle_undefined(filter_by); // master Id
-    const batch_query = handle_undefined(batch_by) // batch Id
+    const batch_query = handle_undefined(batch_by); // batch Id
     if (!did)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",

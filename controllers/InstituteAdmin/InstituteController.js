@@ -33,7 +33,10 @@ const { randomSixCode } = require("../../Service/close");
 const unlinkFile = util.promisify(fs.unlink);
 const { file_to_aws } = require("../../Utilities/uploadFileAws");
 const { shuffleArray } = require("../../Utilities/Shuffle");
-const { designation_alarm } = require("../../WhatsAppSMS/payload");
+const {
+  designation_alarm,
+  email_sms_designation_alarm,
+} = require("../../WhatsAppSMS/payload");
 const {
   render_institute_current_role,
 } = require("../Moderator/roleController");
@@ -759,6 +762,16 @@ exports.getNewDepartment = async (req, res) => {
       department?.dTitle,
       ""
     );
+    if (user?.userEmail) {
+      email_sms_designation_alarm(
+        user?.userEmail,
+        "DHEAD",
+        institute?.sms_lang,
+        department?.dName,
+        department?.dTitle,
+        ""
+      );
+    }
   } catch (e) {}
 };
 
@@ -1702,6 +1715,16 @@ exports.retrieveNewClass = async (req, res) => {
         classRoom?.classTitle,
         ""
       );
+      if (user?.userEmail) {
+        email_sms_designation_alarm(
+          user?.userEmail,
+          "CLASS",
+          institute?.sms_lang,
+          classRoom?.className,
+          classRoom?.classTitle,
+          ""
+        );
+      }
     }
   } catch (e) {
     console.log(e);
@@ -1797,12 +1820,22 @@ exports.retrieveNewSubject = async (req, res) => {
     });
     designation_alarm(
       user?.userPhoneNumber,
-      "DHEAD",
+      "SUBJECT",
       institute?.sms_lang,
       subject?.subjectName,
       subject?.subjectTitle,
       classes?.className
     );
+    if (user?.userEmail) {
+      email_sms_designation_alarm(
+        user?.userEmail,
+        "SUBJECT",
+        institute?.sms_lang,
+        subject?.subjectName,
+        subject?.subjectTitle,
+        classes?.className
+      );
+    }
   } catch (e) {
     console.log(e);
   }

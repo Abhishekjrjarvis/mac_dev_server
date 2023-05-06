@@ -22,7 +22,10 @@ const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const { nested_document_limit } = require("../../helper/databaseFunction");
-const { designation_alarm } = require("../../WhatsAppSMS/payload");
+const {
+  designation_alarm,
+  email_sms_designation_alarm,
+} = require("../../WhatsAppSMS/payload");
 const {
   connect_redis_hit,
   connect_redis_miss,
@@ -86,6 +89,16 @@ exports.renderNewEventManagerQuery = async (req, res) => {
       "",
       ""
     );
+    if (user?.userEmail) {
+      email_sms_designation_alarm(
+        user?.userEmail,
+        "EVENT_MANAGER",
+        institute?.sms_lang,
+        "",
+        "",
+        ""
+      );
+    }
   } catch (e) {
     console.log(e);
   }

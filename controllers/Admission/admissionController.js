@@ -210,7 +210,7 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
   }
 };
 
-exportsretieveAdmissionAdminAllApplication = async (req, res) => {
+exports.retieveAdmissionAdminAllApplication = async (req, res) => {
   try {
     const { aid } = req.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;

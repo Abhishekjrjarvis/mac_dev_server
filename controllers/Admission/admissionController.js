@@ -210,7 +210,7 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
   }
 };
 
-exports.retieveAdmissionAdminAllApplication = async (req, res) => {
+exportsretieveAdmissionAdminAllApplication = async (req, res) => {
   try {
     const { aid } = req.params;
     const page = req.query.page ? parseInt(req.query.page) : 1;
@@ -462,15 +462,15 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
       ],
     });
     if (valid_promote?.length > 0) {
-      console.log("valid");
+      // console.log("valid");
     } else {
-      console.log("no valid");
+      // console.log("no valid");
       const new_app = new NewApplication({
         applicationName: "Promote Student",
         applicationDepartment: newApply?.applicationDepartment,
         applicationBatch: newApply?.applicationBatch,
         applicationMaster: newApply?.applicationMaster,
-        applicationStatus: "Promote Application",
+        applicationTypeStatus: "Promote Application",
       });
       admission.newApplication.push(new_app._id);
       admission.newAppCount += 1;

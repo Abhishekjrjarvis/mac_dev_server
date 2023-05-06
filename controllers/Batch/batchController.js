@@ -351,7 +351,7 @@ exports.promoteStudent = async (req, res) => {
     });
     var valid_app = await NewApplication.find({
       $and: [
-        { applicationStatus: "Promote Application" },
+        { applicationTypeStatus: "Promote Application" },
         { admissionAdmin: admission?._id },
       ],
     });

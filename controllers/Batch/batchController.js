@@ -42,6 +42,7 @@ exports.preformedStructure = async (req, res) => {
       classCount: batch?.classCount,
       batch_type: "Identical",
       identical_batch: batch?._id,
+      designation_send: req?.body?.with_designation === "Yes" ? "No" : "Yes",
     });
     department?.batches.push(identicalBatch._id);
     institute?.batches.push(identicalBatch._id);
@@ -76,7 +77,7 @@ exports.preformedStructure = async (req, res) => {
       department?.class.push(identicalClass._id);
       department.classCount += 1;
       identicalBatch?.classroom.push(identicalClass._id);
-      if (req?.body?.with_designation === "Yes") {
+      if (req?.body?.with_designation === "No") {
         const staff = await Staff.findById(oneClass?.classTeacher);
         const class_user = await User.findById({ _id: `${staff?.user}` });
         staff?.staffClass.push(identicalClass._id);
@@ -121,7 +122,7 @@ exports.preformedStructure = async (req, res) => {
         subjectMaster?.subjects.push(identicalSubject._id);
         subjectMaster.subjectCount += 1;
         identicalClass?.subject.push(identicalSubject?._id);
-        if (req?.body?.with_designation === "Yes") {
+        if (req?.body?.with_designation === "No") {
           const sujectStaff = await Staff.findById(
             oneSubject?.subjectTeacherName
           );
@@ -139,7 +140,7 @@ exports.preformedStructure = async (req, res) => {
           notify_subject.notifyContent = `you got the designation of ${identicalSubject.subjectName} as ${identicalSubject.subjectTitle}`;
           notify_subject.notifySender = batch?.institute;
           notify_subject.notifyReceiever = subject_user._id;
-          notify.notifyCategory = "Subject Designation";
+          notify_subject.notifyCategory = "Subject Designation";
           subject_user.uNotify.push(notify_subject._id);
           notify_subject.user = subject_user._id;
           notify_subject.notifyByInsPhoto = institute._id;
@@ -732,6 +733,8 @@ exports.assignDesignationToStaffByBatch = async (req, res) => {
         ]);
       }
     }
+    batch.designation_send = "Yes";
+    await batch.save();
     res.status(200).send({
       message: "Assign all designation to respective staff 😋😊",
       access: true,

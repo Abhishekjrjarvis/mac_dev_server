@@ -15,7 +15,6 @@ const examSchema = new mongoose.Schema({
   batch: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Batch",
-    required: true,
   },
 
   class: [
@@ -77,6 +76,14 @@ const examSchema = new mongoose.Schema({
       ref: "ExamMalicious",
     },
   ],
+  exam_status: {
+    type: String,
+    default: "Normal Exam",
+  },
+  is_backlog_notify: {
+    type: String,
+    default: "Not Send",
+  },
 });
 
 const Exam = mongoose.model("Exam", examSchema);

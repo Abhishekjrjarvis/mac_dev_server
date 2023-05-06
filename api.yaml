@@ -28981,6 +28981,32 @@ paths:
           description: OK
   
   /api/v1/attendance/exam/{eid}/seating/{seid}/attendance:
+    get:
+      tags:
+        - Exam Related New Api for added new things
+      summary: This is give all student current mark attendace today by supervisor side (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: This is Exam id
+        - in: path
+          name: seid
+          required: true
+          type: string
+          description: This is Seating id          
+        - in: query
+          name: date
+          type: string
+          description: This is date like "16/07/2022"         
+      responses:
+        "200":
+          description: OK    
     post:
       tags:
         - Exam Related New Api for added new things
@@ -29178,6 +29204,23 @@ paths:
           description: OK
 
   /api/v1/exam/exam/grade/department/{did}/create:
+    get:
+      tags:
+        - Exam Related New Api for added new things
+      summary: This is give one grade system all details (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: This is department id
+      responses:
+        "200":
+          description: OK  
     post:
       tags:
         - Exam Related New Api for added new things
@@ -29192,6 +29235,11 @@ paths:
           required: true
           type: string
           description: This is department id
+        - in: query
+          name: custom_grade
+          required: true
+          type: string
+          description: This is select custom grade id          
         - in : body
           name: body
           schema:
@@ -29226,3 +29274,110 @@ paths:
       responses:
         "200":
           description: OK
+
+  /api/v1/exam/all/student/report/card/finalize/class/{cid}:
+    post:
+      tags:
+        - Exam Related New Api for added new things
+      summary: This is finalize all student report card (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is class id
+      responses:
+        "200":
+          description: OK 
+
+  /api/v1/exam/send/student/update/exam/{eid}/notify:
+    get:
+      tags:
+        - Exam Related New Api for added new things
+      summary: This is give notifacition of subject teacher backlog marks update (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: This is Exam id
+      responses:
+        "200":
+          description: OK 
+
+  /api/v1/exam/one/subject/{sid}/exam/{eid}/student/list:
+    get:
+      tags:
+        - Exam Related New Api for added new things
+      summary: This is give backlog studentlist by subject teacher (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is subject id
+        - in: path
+          name: eid
+          required: true
+          type: string
+          description: This is exam id          
+      responses:
+        "200":
+          description: OK 
+
+  /api/v1/exam/one/subject/{sid}/student/mark/update:
+    post:
+      tags:
+        - Exam Related New Api for added new things
+      summary: This is give backlog marks update by subject teacher (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is subject id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              examId:
+                type: string
+                description: this is exam id
+                required: true
+              marks:
+                type: object
+                properties:
+                  studentId:
+                    type: string
+                    description: this is student id
+                    required: true
+                  obtainMarks:
+                    type: number
+                    description: this is obtain id
+                    required: true
+                  previous_year_id:
+                    type: string
+                    description: this is student previous year id
+                    required: true
+                description: this is all student marks with related data
+                required: true
+      responses:
+        "200":
+          description: OK 

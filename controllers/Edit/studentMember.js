@@ -1,5 +1,4 @@
 const InstituteAdmin = require("../../models/InstituteAdmin");
-// const Subject = require("../../models/Subject");
 const SubjectMaster = require("../../models/SubjectMaster");
 // const ClassMaster = require("../../models/ClassMaster");
 // const InstituteAdmin = require("../../models/InstituteAdmin");
@@ -13,6 +12,10 @@ const util = require("util");
 const unlinkFile = util.promisify(fs.unlink);
 const { deleteFile, uploadFile } = require("../../S3Configuration");
 const { chart_category_student } = require("../../Custom/studentChart");
+const FinalReport = require("../../models/Marks/FinalReport");
+const StandardMarkList = require("../../models/Marks/StandardMarkList");
+const { grade_calculate } = require("../../Utilities/custom_grade");
+const Subject = require("../../models/Subject");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.photoEditByStudent = async (req, res) => {
@@ -317,25 +320,140 @@ exports.previousYearReportCard = async (req, res) => {
   try {
     if (!req.params.pid) throw "Please send previous year id to perform task";
     const previousData = await StudentPreviousData.findById(req.params.pid)
+      // .populate({
+      //   path: "finalReport",
+      //   populate: {
+      //     path: "student",
+      //     select: "studentFirstName studentMiddleName studentLastName",
+      //   },
+      //   // select: "className classTitle",
+      // })
+      .select("finalReport studentROLLNO");
+    //   .lean()
+    //   .exec();
+    const finalReport = await FinalReport.findById(
+      // req.params.pid
+      previousData.finalReport?.[0]
+    )
       .populate({
-        path: "finalReport",
-        populate: {
-          path: "student",
-          select: "studentFirstName studentMiddleName studentLastName",
-        },
-        // select: "className classTitle",
+        path: "student",
+        select: "studentFirstName studentMiddleName studentLastName",
       })
-      .select("finalReport studentROLLNO")
-      .lean()
-      .exec();
+      .populate({
+        path: "classId",
+        populate: {
+          path: "subject",
+          populate: {
+            path: "subject_mark_list",
+            select: "marks_list subjectMaster",
+          },
+          select:
+            "subject_mark_list subjectMasterName setting.subjectPassingMarks",
+        },
+        select: "subject masterClassName batch department",
+      });
+    let classes = finalReport.classId;
+    const department = await Department.findById(classes.department).populate({
+      path: "grade_system",
+      select: "grades custom_grade grade_name grade_type grade_count",
+    });
+
+    let s_with_max = [];
+    for (let sub of classes.subject) {
+      let arr = [];
+      let m_id = "";
+      for (let sub_a of sub.subject_mark_list) {
+        for (let sub_b of sub_a.marks_list) {
+          arr.push(sub_b.totalNumber);
+        }
+        m_id = sub_a.subjectMaster;
+      }
+      let maxValue = Math.max(...arr);
+      s_with_max.push({
+        subjectMaster: m_id,
+        maxValue: maxValue,
+        passing: sub?.setting?.subjectPassingMarks,
+      });
+    }
+
+    const db_standard_mark = await StandardMarkList.findOne({
+      classMaster: classes.masterClassName,
+      batch: classes?.batch,
+    });
+
+    let st_arr = [];
+    for (let st_mark of db_standard_mark?.marks_list) {
+      st_arr.push(st_mark.totalMarks);
+    }
+    let standard_max = Math.max(...st_arr);
+    let standard_max_value = Math.ceil(
+      (standard_max * 100) / (100 * classes.subject?.length)
+    );
+
+    const subjects = [];
+    const total = {
+      finalTotal: finalReport.totalFinalExam,
+      otherTotal: finalReport.totalOtherExam,
+      graceTotal: finalReport.totalGraceExam,
+      allSubjectTotal: finalReport.totalTotalExam,
+      totalCutoff: finalReport.totalCutoff,
+      showGradeTotal: "",
+    };
+
+    for (let sub of finalReport.subjects) {
+      const obj = {
+        _id: sub.subject,
+        subjectName: sub.subjectName,
+        finalTotalMarks: sub.finalExamTotal,
+        finalObtainMarks: sub.finalExamObtain,
+        otherTotalMarks: sub.otherExamTotal,
+        otherObtainMarks: sub.otherExamObtain,
+        graceMarks: sub.graceMarks,
+        totalMarks: sub.totalMarks,
+        subjectWiseTotal: sub.obtainTotalMarks,
+        subjectCutoff: sub.subjectCutoff,
+        subjectPassStatus: sub.subjectPassStatus,
+        showGrade: "",
+      };
+      if (finalReport.is_grade) {
+        const su_matser = await Subject.findById(sub.subject);
+        for (let m_val of s_with_max) {
+          if (`${su_matser.subjectMasterName}` === `${m_val.subjectMaster}`) {
+            obj.showGrade = grade_calculate(
+              m_val.maxValue,
+              department.grade_system?.[0],
+              m_val.passing,
+              obj.subjectWiseTotal
+            );
+          }
+        }
+        subjects.push(obj);
+      } else {
+        subjects.push(obj);
+      }
+    }
+
+    const totalPercantage = Math.ceil(
+      (total.allSubjectTotal * 100) / (100 * subjects.length)
+    );
+    total.showGradeTotal = grade_calculate(
+      standard_max_value,
+      department.grade_system?.[0],
+      classes?.finalReportsSettings.aggregatePassingPercentage,
+      totalPercantage
+    );
     // Add Another Encryption
     res.status(200).send({
       message: "Student previous year detail all list 👍",
-      finalReport: previousData?.finalReport,
+      finalReport: {
+        subjects,
+        total,
+        totalPercantage,
+      },
       studentROLLNO: previousData?.studentROLLNO,
     });
   } catch (e) {
-    // console.log(e);
+    console.log(e);
     res.status(424).send({
       message: e,
     });

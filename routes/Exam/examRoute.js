@@ -47,12 +47,12 @@ router
     catchAsync(examController.oneExamOneSubjectAnswersheetInStudent)
   );
 
-router
-  .route("/class/student/:sid/grace")
-  .patch(
-    isLoggedIn,
-    catchAsync(examController.oneStudentGraceMarksClassTeacher)
-  );
+// router
+//   .route("/class/student/:sid/grace")
+//   .patch(
+//     isLoggedIn,
+//     catchAsync(examController.oneStudentGraceMarksClassTeacher)
+//   );
 
 router
   .route("/class/:cid/settings")
@@ -62,9 +62,10 @@ router
   .route("/class/student/:sid/behaviour")
   .get(isLoggedIn, catchAsync(examController.oneStudentBehaviourReportCard))
   .post(isLoggedIn, catchAsync(examController.oneStudentBehaviourClassTeacher));
-router
-  .route("/class/student/:sid/report")
-  .get(isLoggedIn, catchAsync(examController.oneStudentReportCardClassTeacher));
+router.route("/class/student/:sid/report").get(
+  // isLoggedIn,
+  catchAsync(examController.oneStudentReportCardClassTeacher)
+);
 
 router
   .route("/class/student/:sid/report/attendance")
@@ -157,10 +158,27 @@ router
 
 router
   .route("/exam/grade/department/:did/create")
+  .get(catchAsync(examController.getGradeSystem))
   .post(catchAsync(examController.createGradeSystem));
 
 router
   .route("/exam/grade/custom/list")
   .get(catchAsync(examController.getCustomGradeSystem));
+router
+  .route("/grade/custom/create")
+  .post(catchAsync(examController.createCustomGradeSystem));
 
+router
+  .route("/all/student/report/card/finalize/class/:cid")
+  .post(catchAsync(examController.finalizeAllStudentInOneClass));
+
+router
+  .route("/send/student/update/exam/:eid/notify")
+  .get(catchAsync(examController.sendBacklogExamMarkUpdate));
+router
+  .route("/one/subject/:sid/exam/:eid/student/list")
+  .get(catchAsync(examController.getBacklogOneSubjectStudent));
+router
+  .route("/one/subject/:sid/student/mark/update")
+  .post(catchAsync(examController.backlogAllStudentMarksBySubjectTeacher));
 module.exports = router;

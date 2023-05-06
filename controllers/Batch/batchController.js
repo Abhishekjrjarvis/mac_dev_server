@@ -347,7 +347,7 @@ exports.promoteStudent = async (req, res) => {
       _id: `${department?.institute}`,
     });
     var admission = await Admission.findById({
-      _id: `${department?.admissionDepart?.[0]}`,
+      _id: `${institute?.admissionDepart?.[0]}`,
     });
     var valid_app = await NewApplication.find({
       $and: [

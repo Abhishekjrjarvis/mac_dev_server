@@ -48,6 +48,18 @@ const seatingSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Exam",
   },
+  attendance: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "AttendenceDate",
+    },
+  ],
+  malicicous: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ExamMalicious",
+    },
+  ],
 });
 
 module.exports = mongoose.model("Seating", seatingSchema);

@@ -15,7 +15,6 @@ const examSchema = new mongoose.Schema({
   batch: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Batch",
-    required: true,
   },
 
   class: [
@@ -64,6 +63,26 @@ const examSchema = new mongoose.Schema({
   seating_sequence_count: {
     type: Number,
     default: 0,
+  },
+  attednance: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "AttendenceDate",
+    },
+  ],
+  malicicous: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ExamMalicious",
+    },
+  ],
+  exam_status: {
+    type: String,
+    default: "Normal Exam",
+  },
+  is_backlog_notify: {
+    type: String,
+    default: "Not Send",
   },
 });
 

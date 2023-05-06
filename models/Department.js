@@ -32,7 +32,7 @@ const departmentSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "SubjectMaster",
     },
-  ], 
+  ],
 
   departmentSelectBatch: {
     type: mongoose.Schema.Types.ObjectId,
@@ -298,8 +298,19 @@ const departmentSchema = new mongoose.Schema({
   bank_account: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "BankAccount",
-  }
-
+  },
+  malicicous: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ExamMalicious",
+    },
+  ],
+  grade_system: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "GradeSystem",
+    },
+  ],
 });
 
 const Department = mongoose.model("Department", departmentSchema);

@@ -26,6 +26,12 @@ const classMasterSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  standard_mark_list: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "StandardMarkList",
+    },
+  ],
 });
 
 const ClassMaster = mongoose.model("ClassMaster", classMasterSchema);

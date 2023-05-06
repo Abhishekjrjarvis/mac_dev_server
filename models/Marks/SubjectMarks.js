@@ -39,6 +39,10 @@ const subjectMarksSchema = new mongoose.Schema({
           },
         },
       ],
+      is_backlog: {
+        type: String,
+        default: "No",
+      },
     },
   ],
   graceMarks: { type: Number, default: 0 },

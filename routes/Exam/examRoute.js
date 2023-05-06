@@ -144,6 +144,10 @@ router
   .route("/seating/:eid/seating/destroy/:said/query")
   .delete(catchAsync(examController.renderDestroySeatingArrangementQuery));
 
+// router
+//   .route("/seating/:eid/seating/new/query/automate")
+//   .post(catchAsync(examController.renderNewSeatingArrangementAutomateQuery));
+
 router
   .route("/class/:cid/final/report/zip")
   .post(catchAsync(examController.getAllClassExportReport));

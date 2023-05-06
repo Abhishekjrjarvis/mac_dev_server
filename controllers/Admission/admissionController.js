@@ -462,7 +462,9 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
       ],
     });
     if (valid_promote) {
+      console.log("valid");
     } else {
+      console.log("no valid");
       const new_app = new NewApplication({
         applicationName: "Promote Student",
         applicationDepartment: newApply?.applicationDepartment,

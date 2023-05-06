@@ -870,16 +870,29 @@ exports.getAllUserActivity = async (req, res) => {
         },
       })
       .populate({
+        path: "notifyByEventManagerPhoto",
+        select: "event_photo photoId",
+      })
+      .populate({
         path: "election_winner",
         select:
           "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName",
       })
       .populate({
+        path: "participate_winner",
+        select:
+          "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName",
+      })
+      .populate({
+        path: "queryId",
+      })
+      .populate({
         path: "seatingId",
         populate: {
           path: "seat_block_staff",
-          select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
-        }
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        },
       })
       .populate({
         path: "seatingId",
@@ -888,9 +901,10 @@ exports.getAllUserActivity = async (req, res) => {
           select: "className classTitle classStatus classTeacher",
           populate: {
             path: "classTeacher",
-            select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
-          }
-        }
+            select:
+              "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+          },
+        },
       })
       .sort("-notifyTime")
       .limit(limit)
@@ -1383,7 +1397,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
     if (isApk) {
       var staff = await Staff.findById({ _id: sid })
         .select(
-          "staffFirstName staffDesignationCount vehicle_category staffMiddleName hostelDepartment hostelUnitDepartment staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber eventManagerDepartment"
+          "staffFirstName staffDesignationCount vehicle_category staffMiddleName mentorDepartment hostelDepartment hostelUnitDepartment staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber eventManagerDepartment"
         )
         .populate({
           path: "staffDepartment",
@@ -1547,7 +1561,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
     } else {
       var staff = await Staff.findById({ _id: sid })
         .select(
-          "staffFirstName staffDesignationCount vehicle_category staffMiddleName hostelDepartment hostelUnitDepartment staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber eventManagerDepartment"
+          "staffFirstName staffDesignationCount vehicle_category staffMiddleName mentorDepartment hostelDepartment hostelUnitDepartment staffDepartment staffClass staffSubject staffLastName photoId staffProfilePhoto staffDOB staffGender staffNationality staffMotherName staffMTongue staffCast staffCastCategory staffReligion staffBirthPlace staffBirthPlacePincode staffBirthPlaceState staffBirthPlaceDistrict staffDistrict staffPincode staffState staffAddress staffCurrentPincode staffCurrentDistrict staffCurrentState staffCurrentAddress staffPhoneNumber staffAadharNumber staffQualification staffDocuments staffAadharFrontCard staffAadharBackCard staffPreviousSchool staffBankName staffBankAccount staffBankAccountHolderName staffBankIfsc staffBankPassbook staffCasteCertificatePhoto staffStatus staffROLLNO staffPhoneNumber eventManagerDepartment"
         )
         .populate({
           path: "staffDepartment",
@@ -1730,6 +1744,14 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
             select: "_id vehicle_number",
           })
           .populate({
+            path: "mentor",
+            select: "mentor_head",
+            populate: {
+              path: "mentor_head",
+              select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+            }
+          })
+          .populate({
             path: "student_unit",
             select: "hostel_unit_name hostel",
             populate: {
@@ -1823,6 +1845,14 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
               path: "hostel",
               select: "_id",
             },
+          })
+          .populate({
+            path: "mentor",
+            select: "mentor_head",
+            populate: {
+              path: "mentor_head",
+              select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
+            }
           })
           .populate({
             path: "student_bed_number",

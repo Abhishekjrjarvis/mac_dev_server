@@ -13,7 +13,10 @@ const unlinkFile = util.promisify(fs.unlink);
 const invokeFirebaseNotification = require("../../Firebase/firebase");
 const { deleteFile, uploadFile } = require("../../S3Configuration");
 const { chart_category } = require("../../Custom/staffChart");
-const { designation_alarm } = require("../../WhatsAppSMS/payload");
+const {
+  designation_alarm,
+  email_sms_designation_alarm,
+} = require("../../WhatsAppSMS/payload");
 const Transport = require("../../models/Transport/transport");
 const EventManager = require("../../models/Event/eventManager");
 const { generate_hash_pass } = require("../../helper/functions");
@@ -158,6 +161,16 @@ exports.renderFinanceStaffQuery = async (req, res) => {
       "",
       ""
     );
+    if (user?.userEmail) {
+      email_sms_designation_alarm(
+        user?.userEmail,
+        "FINANCE",
+        finance?.institute?.sms_lang,
+        "",
+        "",
+        ""
+      );
+    }
   } catch (e) {
     console.log(e);
   }
@@ -230,6 +243,16 @@ exports.renderAdmissionStaffQuery = async (req, res) => {
       "",
       ""
     );
+    if (user?.userEmail) {
+      email_sms_designation_alarm(
+        user?.userEmail,
+        "ADMISSION",
+        admission?.institute?.sms_lang,
+        "",
+        "",
+        ""
+      );
+    }
   } catch (e) {
     console.log(e);
   }
@@ -301,6 +324,16 @@ exports.renderSportStaffQuery = async (req, res) => {
       "",
       ""
     );
+    if (user?.userEmail) {
+      email_sms_designation_alarm(
+        user?.userEmail,
+        "SPORTSHEAD",
+        sport?.institute?.sms_lang,
+        "",
+        "",
+        ""
+      );
+    }
   } catch (e) {
     console.log(e);
   }
@@ -372,6 +405,16 @@ exports.renderSportStaffClassQuery = async (req, res) => {
       "",
       ""
     );
+    if (user?.userEmail) {
+      email_sms_designation_alarm(
+        user?.userEmail,
+        "SPORTSCLASS",
+        sportClasses?.institute?.sms_lang,
+        sportClasses?.sportClassName,
+        "",
+        ""
+      );
+    }
   } catch (e) {
     console.log(e);
   }
@@ -441,6 +484,16 @@ exports.renderLibraryStaffQuery = async (req, res) => {
       "",
       ""
     );
+    if (user?.userEmail) {
+      email_sms_designation_alarm(
+        user?.userEmail,
+        "LIBRARY",
+        library?.institute?.sms_lang,
+        "",
+        "",
+        ""
+      );
+    }
   } catch (e) {
     console.log(e);
   }
@@ -510,6 +563,16 @@ exports.renderTransportStaffQuery = async (req, res) => {
       "",
       ""
     );
+    if (user?.userEmail) {
+      email_sms_designation_alarm(
+        user?.userEmail,
+        "TRANSPORT",
+        trans?.institute?.sms_lang,
+        "",
+        "",
+        ""
+      );
+    }
   } catch (e) {
     console.log(e);
   }
@@ -579,6 +642,16 @@ exports.renderEventManagerStaffQuery = async (req, res) => {
       "",
       ""
     );
+    if (user?.userEmail) {
+      email_sms_designation_alarm(
+        user?.userEmail,
+        "EVENT_MANAGER",
+        event?.institute?.sms_lang,
+        "",
+        "",
+        ""
+      );
+    }
   } catch (e) {
     console.log(e);
   }
@@ -648,6 +721,16 @@ exports.renderHostelManagerStaffQuery = async (req, res) => {
       "",
       ""
     );
+    if (user?.userEmail) {
+      email_sms_designation_alarm(
+        user?.userEmail,
+        "HOSTEL_MANAGER",
+        one_hostel?.institute?.sms_lang,
+        "",
+        "",
+        ""
+      );
+    }
   } catch (e) {
     console.log(e);
   }

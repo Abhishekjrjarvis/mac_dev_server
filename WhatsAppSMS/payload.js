@@ -137,6 +137,112 @@ ${iName} में आपका स्वागत है।
   return { content: content, extension: extension, message: message };
 };
 
+const payload_type_content_email = (
+  email,
+  sName,
+  iName,
+  type,
+  value,
+  paid,
+  remain,
+  lang,
+  mob
+) => {
+  if (type === "ADSIS") {
+    var text = `Hi ${sName}. "Qviple" is ERP Software of ${iName}. You are requested to login to your account with your mobile number(On which this SMS is received) to stay updated about your fees, exams and events of your school or college. Login by downloading app 'Qviple Community' from playstore or through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From "Qviple"`;
+
+    var hext = `नमस्कार ${sName}। "क्यूवीपल" ${iName} का ईआरपी सॉफ्टवेयर है। आपसे अनुरोध है कि अपने स्कूल या कॉलेज की फीस, परीक्षाओं और कार्यक्रमों के बारे में अद्यतन रहने के लिए अपने मोबाइल नंबर (जिस पर यह एसएमएस प्राप्त हुआ है) के साथ अपने खाते में प्रवेश करें। Playstore से या लिंक के माध्यम से ऐप 'Qviple समुदाय' डाउनलोड करके लॉगिन करें: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - "Qviple" से`;
+
+    var mext = `हाय ${sName}. "Qviple" हे ${iName} चे ERP सॉफ्टवेअर आहे. तुमच्‍या फी, परीक्षा आणि तुमच्‍या शाळा किंवा कॉलेजच्‍या इव्‍हेंटबद्दल अपडेट राहण्‍यासाठी तुम्‍हाला तुमच्‍या मोबाईल नंबरने (ज्यावर हा एसएमएस आला आहे) तुमच्‍या अकाउंटमध्‍ये लॉग इन करण्‍याची विनंती केली जाते. प्लेस्टोअरवरून किंवा लिंकद्वारे 'Qviple कम्युनिटी' अॅप डाउनलोड करून लॉग इन करा: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - "Qviple" वरून `;
+    var message =
+      lang === "en"
+        ? text
+        : lang === "hi"
+        ? hext
+        : lang === "mt" || lang === "mr"
+        ? mext
+        : "";
+    if (value === "College/Polytechnic") {
+      var content = "SMS_Assests/Add_Student_College.png";
+      var extension = ".png";
+    } else if (value === "School") {
+      var content = "SMS_Assests/Add_Student_School.jpeg";
+      var extension = ".jpeg";
+    } else {
+      var content = "";
+      var extension = "";
+    }
+  } else if (type === "ASCAS") {
+    var text = `Hello ${sName},
+Welcome to ${iName}.
+Your admission has been confirmed with fees of Rs.${paid}${
+      remain > 0 ? ` Rs.${remain} is remaining` : ""
+    }.
+Login to your account with following below steps:
+1. Download app 'Qviple Community To Learn' from play store click on the link: ${dLink}
+2. Open App and enter your Mobile no. (${email})
+3. Verify Mobile no. with otp
+4. Select your Existing account & proceed to login`;
+
+    var hext = `नमस्कार ${sName},
+${iName} में आपका स्वागत है।
+रु.${paid} के शुल्क के साथ आपके प्रवेश की पुष्टि हो गई है ${
+      remain > 0 ? ` रु.${remain} शेष है` : ""
+    }.
+निम्नलिखित चरणों के साथ अपने खाते में प्रवेश करें:
+1. प्ले स्टोर से ऐप 'क्विपल कम्युनिटी टू लर्न' डाउनलोड करें या डाउनलोड करने के लिए लिंक पर क्लिक करें: ${dLink}
+2. ऐप खोलें और अपना मोबाइल नंबर (${email}) दर्ज करें। 
+3. मोबाइल नंबर OTP के साथ सत्यापित करें।
+4. अपने मौजूदा खाते का चयन करें और आपको डैशबोर्ड पर भेज दिया जाएगा |`;
+
+    var mext = `नमस्कार ${sName},
+    ${iName} मध्ये आपले स्वागत आहे.
+    तुमचा प्रवेश Rs.${paid} च्या शुल्कासह निश्चित झाला आहे ${
+      remain > 0 ? ` Rs.${remain} बाकी आहे` : ""
+    }.
+    खालील चरणांसह तुमच्या खात्यात लॉग इन करा:
+1. प्ले स्टोअरवरून 'Qviple Community To Learn' अॅप डाउनलोड करा लिंकवर क्लिक करा: ${dLink}
+2. अॅप उघडा आणि तुमचा मोबाईल क्रमांक टाका. (${email})
+3. मोबाईल क्रमांक OTP सह सत्यापित करा. 
+4. तुमचे खाते निवडा आणि लॉगिन करा.`;
+    var message =
+      lang === "en"
+        ? text
+        : lang === "hi"
+        ? hext
+        : lang === "mt" || lang === "mr"
+        ? mext
+        : "";
+    if (value === "College/Polytechnic") {
+      var content = "SMS_Assests/Add_Student_College.png";
+      var extension = ".png";
+    } else if (value === "School") {
+      var content = "SMS_Assests/Add_Student_School.jpeg";
+      var extension = ".jpeg";
+    } else {
+      var content = "";
+      var extension = "";
+    }
+  } else if (type === "ADMIS") {
+    var text = `Hi ${sName}. "Qviple" is ERP Software of ${iName}. You are requested to login to your account with your mobile number(On which this SMS is received) to stay updated about your fees, exams and events of your school or college. Login by downloading app 'Qviple Community' from playstore or through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From "Qviple"`;
+
+    var hext = `नमस्कार ${sName}। "क्यूवीपल" ${iName} का ईआरपी सॉफ्टवेयर है। आपसे अनुरोध है कि अपने स्कूल या कॉलेज की फीस, परीक्षाओं और कार्यक्रमों के बारे में अद्यतन रहने के लिए अपने मोबाइल नंबर (जिस पर यह एसएमएस प्राप्त हुआ है) के साथ अपने खाते में प्रवेश करें। Playstore से या लिंक के माध्यम से ऐप 'Qviple समुदाय' डाउनलोड करके लॉगिन करें: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - "Qviple" से`;
+
+    var mext = `हाय ${sName}. "Qviple" हे ${iName} चे ERP सॉफ्टवेअर आहे. तुमच्‍या फी, परीक्षा आणि तुमच्‍या शाळा किंवा कॉलेजच्‍या इव्‍हेंटबद्दल अपडेट राहण्‍यासाठी तुम्‍हाला तुमच्‍या मोबाईल नंबरने (ज्यावर हा एसएमएस आला आहे) तुमच्‍या अकाउंटमध्‍ये लॉग इन करण्‍याची विनंती केली जाते. प्लेस्टोअरवरून किंवा लिंकद्वारे 'Qviple कम्युनिटी' अॅप डाउनलोड करून लॉग इन करा: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - "Qviple" वरून `;
+    var message =
+      lang === "en"
+        ? text
+        : lang === "hi"
+        ? hext
+        : lang === "mt" || lang === "mr"
+        ? mext
+        : "";
+    var content = "SMS_Assests/Institute_Add_Staff.jpeg";
+    var extension = ".jpeg";
+  }
+  return { content: content, extension: extension, message: message };
+};
+
 exports.whats_app_sms_payload = (
   margs,
   sargs,
@@ -208,6 +314,100 @@ exports.designation_alarm = (mob, type, lang, name, title, cTitle) => {
       const encodeUrl = encodeURI(url);
       axios
         .post(encodeUrl)
+        .then((res) => {
+          console.log("Sended Successfully");
+        })
+        .catch((e) => {
+          console.log("SMS API Bug", e.message);
+        });
+      return true;
+    } else {
+      console.log("18 Dev");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.email_sms_payload_query = (
+  margs,
+  sargs,
+  iargs,
+  targs,
+  vargs,
+  pargs,
+  rargs,
+  largs
+) => {
+  try {
+    const bool = process.env.IS_GLOBAL;
+    if (bool) {
+      const content = payload_type_content_email(
+        margs,
+        sargs,
+        iargs,
+        targs,
+        vargs,
+        pargs,
+        rargs,
+        largs
+      );
+      if (content.message) {
+        const subject = "Qviple Announcement";
+        const message = `${content.message}`;
+        const url = `http://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
+        const encodeURL = encodeURI(url);
+        axios
+          .post(encodeURL)
+          .then((res) => {
+            console.log("Sended Successfully");
+          })
+          .catch((e) => {
+            console.log("SMS API Bug", e.message);
+          });
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      console.log("18 Dev");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.email_sms_designation_alarm = (
+  email,
+  type,
+  lang,
+  name,
+  title,
+  cTitle
+) => {
+  try {
+    const bool = process.env.IS_GLOBAL;
+    if (bool) {
+      const value = dynamic_designation(name, title, cTitle);
+      var valid = "";
+      for (var val of value) {
+        if (`${type}` === `${val?.type}`) {
+          valid = val;
+        }
+      }
+      var message =
+        lang === "en"
+          ? valid?.e_text
+          : lang === "hi"
+          ? valid?.h_text
+          : lang === "mt" || lang === "mr"
+          ? valid?.m_text
+          : "";
+      const subject = "Qviple Designation";
+      const url = `http://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
+      const encodeURL = encodeURI(url);
+      axios
+        .post(encodeURL)
         .then((res) => {
           console.log("Sended Successfully");
         })

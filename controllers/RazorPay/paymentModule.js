@@ -20,6 +20,8 @@ const Transport = require("../../models/Transport/transport");
 const Vehicle = require("../../models/Transport/vehicle");
 const RemainingList = require("../../models/Admission/RemainingList");
 const FeeReceipt = require("../../models/RazorPay/feeReceipt");
+const Exam = require("../../models/Exam");
+const ExamFeeStructure = require("../../models/BacklogStudent/ExamFeeStructure");
 const {
   add_all_installment,
   render_installment,
@@ -1334,4 +1336,108 @@ exports.applicationFunction = async (
   // } catch (e) {
   //   console.log(e);
   // }
+};
+
+exports.backlogFunction = async (
+  order,
+  paidBy,
+  tx_amount_ad,
+  tx_amount_ad_charges,
+  moduleId,
+  notify_id,
+  is_author
+) => {
+  try {
+    const student = await Student.findById({ _id: paidBy });
+    const user = await User.findById({ _id: `${student.user}` });
+    const exam_struct = await ExamFeeStructure.findById({ _id: moduleId });
+    const valid_depart = await Department.findById({
+      _id: `${exam_struct?.department}`,
+    });
+    const exam = await Exam.findById({ _id: `${exam_struct?.exam}` });
+    const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const orderPay = await OrderPayment.findById({ _id: order });
+    const ins = await InstituteAdmin.findById({
+      _id: `${valid_depart?.institute}`,
+    });
+    const finance = await Finance.findById({
+      _id: `${institute?.financeDepart[0]}`,
+    }).populate({
+      path: "financeHead",
+      select: "user",
+    });
+    const notify = new StudentNotification({});
+    if (is_author) {
+      finance.financeBankBalance =
+        finance.financeBankBalance + parseInt(tx_amount_ad);
+      finance.financeTotalBalance =
+        finance.financeTotalBalance + parseInt(tx_amount_ad);
+      ins.insBankBalance = institute.insBankBalance + parseInt(tx_amount_ad);
+    } else {
+      admin.returnAmount += tx_amount_ad_charges;
+      ins.adminRepayAmount += parseInt(tx_amount_ad);
+    }
+    // finance.financeCollectedBankBalance = finance.financeCollectedBankBalance + parseInt(tx_amount_ad);
+    exam_struct.total_paid_collection += parseInt(tx_amount_ad);
+    if (student?.studentRemainingFeeCount >= parseInt(tx_amount_ad)) {
+      student.studentRemainingFeeCount -= parseInt(tx_amount_ad);
+    }
+    student.studentPaidFeeCount += parseInt(tx_amount_ad);
+    var valid_pay = exam_struct?.paid_student?.filter((ref) => {
+      if (`${ref?.student}` === `${student?._id}`) return ref;
+    });
+    if (valid_pay?.length > 0) {
+      for (var ref of valid_pay) {
+        ref.status = "Paid";
+      }
+    }
+    var valid_fees = student?.backlog_exam_fee?.filter((ref) => {
+      if (`${ref?._id}` === `${notify_id}`) return ref;
+    });
+    if (valid_fees?.length > 0) {
+      for (var ref of valid_fees) {
+        ref.status = "Paid";
+      }
+    }
+    notify.notifyContent = `${student.studentFirstName} ${
+      student.studentMiddleName ? `${student.studentMiddleName} ` : ""
+    } ${student.studentLastName} your transaction is successfull for ${
+      exam?.examName
+    } ${parseInt(tx_amount_ad)} Fees`;
+    notify.notifySender = valid_depart?._id;
+    notify.notifyReceiever = user._id;
+    user.activity_tab.push(notify._id);
+    notify.user = user._id;
+    notify.notifyByStudentPhoto = student._id;
+    notify.notifyType = "Student";
+    notify.notifyCategory = "Backlog Payment";
+    notify.redirectIndex = 27;
+    student.notification.push(notify._id);
+    user.payment_history.push(order);
+    ins.payment_history.push(order);
+    orderPay.payment_backlog = exam_struct?._id;
+    orderPay.payment_by_end_user_id = user._id;
+    await Promise.all([
+      student.save(),
+      user.save(),
+      exam_struct.save(),
+      finance.save(),
+      ins.save(),
+      admin.save(),
+      notify.save(),
+      orderPay.save(),
+    ]);
+    invokeMemberTabNotification(
+      "Student Activity",
+      notify,
+      "Transport Payment Successfull",
+      user._id,
+      user.deviceToken,
+      "Student",
+      notify
+    );
+    return `${user?.username}`;
+  } catch (e) {
+    console.log(e);
+  }
 };

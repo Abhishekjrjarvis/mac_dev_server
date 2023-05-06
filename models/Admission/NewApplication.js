@@ -129,6 +129,10 @@ const newApplicationSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Hostel",
   },
+  applicationStatus: {
+    type: String,
+    default: "Normal Application",
+  },
 });
 
 module.exports = mongoose.model("NewApplication", newApplicationSchema);

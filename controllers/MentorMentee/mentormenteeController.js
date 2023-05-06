@@ -12,11 +12,11 @@ const FeedQuestion = require("../../models/Feedbacks/FeedQuestion");
 const { generate_date, custom_date_time } = require("../../helper/dayTimer");
 const { nested_document_limit } = require("../../helper/databaseFunction");
 const moment = require("moment");
+const { handle_undefined } = require("../../Handler/customError");
 
 exports.renderNewMentorQuery = async (req, res) => {
   try {
-    const { did } = req.params;
-    const { sid } = req.body;
+    const { did, sid } = req.params;
     if (!did && !sid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -111,9 +111,17 @@ exports.renderOneMentorQuery = async (req, res) => {
         access: false,
       });
 
-    const mentor = await Mentor.findById({ _id: mid }).select(
-      "mentees_count total_query_count pending_query_count rating"
-    );
+    const mentor = await Mentor.findById({ _id: mid })
+      .select("mentees_count total_query_count pending_query_count rating")
+      .populate({
+        path: "mentor_head",
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO user",
+        populate: {
+          path: "user",
+          select: "userPhoneNumber userEmail",
+        },
+      });
 
     res
       .status(200)
@@ -163,53 +171,49 @@ exports.renderOneMentorAllMenteesQuery = async (req, res) => {
 exports.renderNewMentorMenteeQuery = async (req, res) => {
   try {
     const { did, mid } = req.params;
-    const { sid } = req.body;
-    if (!did && !sid && !mid)
+    const { student_array } = req.body;
+    if (!did && !student_array && !mid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
 
-    const depart = await Department.findById({ _id: did });
-    const student = await Student.findById({ _id: sid });
-    const user = await User.findById({ _id: student?.user });
-    const mentor_query = await Mentor.findById({ _id: mid }).populate({
+    var depart = await Department.findById({ _id: did });
+    var mentor_query = await Mentor.findById({ _id: mid }).populate({
       path: "mentor_head",
       select: "staffFirstName staffLastName",
     });
     depart.mentees_count += 1;
-    student.mentor = mentor_query?._id;
-    mentor_query.mentees_count += 1;
-    mentor_query.mentees.push(student?._id);
-    const notify = new StudentNotification({});
-    notify.notifyContent = `${mentor_query?.mentor_head?.staffFirstName} ${mentor_query?.mentor_head?.staffLastName} is assigned as your Mentor`;
-    notify.notifySender = depart._id;
-    notify.notifyReceiever = user._id;
-    notify.notifyType = "Student";
-    notify.notifyPublisher = student._id;
-    notify.mentorId = mentor_query._id;
-    user.activity_tab.push(notify._id);
-    notify.notifyByDepartPhoto = depart._id;
-    notify.notifyCategory = "Assigned Mentor";
-    notify.redirectIndex = 29;
-
-    await Promise.all([
-      depart.save(),
-      student.save(),
-      user.save(),
-      notify.save(),
-      mentor_query.save(),
-    ]);
+    for (var ref of student_array) {
+      const student = await Student.findById({ _id: `${ref}` });
+      const user = await User.findById({ _id: student?.user });
+      student.mentor = mentor_query?._id;
+      const notify = new StudentNotification({});
+      notify.notifyContent = `${mentor_query?.mentor_head?.staffFirstName} ${mentor_query?.mentor_head?.staffLastName} is assigned as your Mentor`;
+      notify.notifySender = depart._id;
+      notify.notifyReceiever = user._id;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student._id;
+      notify.mentorId = mentor_query._id;
+      user.activity_tab.push(notify._id);
+      notify.notifyByDepartPhoto = depart._id;
+      notify.notifyCategory = "Assigned Mentor";
+      notify.redirectIndex = 29;
+      mentor_query.mentees_count += 1;
+      mentor_query.mentees.push(student?._id);
+      invokeMemberTabNotification(
+        "Student Activity",
+        notify,
+        "Assigned Mentor",
+        user._id,
+        user.deviceToken,
+        "Student",
+        notify
+      );
+      await Promise.all([student.save(), user.save(), notify.save()]);
+    }
+    await Promise.all([depart.save(), mentor_query.save()]);
     res.status(200).send({ message: "Congrats for new mentees", access: true });
-    invokeMemberTabNotification(
-      "Student Activity",
-      notify,
-      "Assigned Mentor",
-      user._id,
-      user.deviceToken,
-      "Student",
-      notify
-    );
   } catch (e) {
     console.log(e);
   }
@@ -342,7 +346,10 @@ exports.renderAllStudentQuery = async (req, res) => {
 
     const all_query = await Queries.find({
       _id: { $in: student?.queries },
-    }).select("created_at query_status");
+    })
+      .limit(limit)
+      .skip(skip)
+      .select("created_at query_status");
 
     if (all_query?.length > 0) {
       res.status(200).send({
@@ -424,7 +431,9 @@ exports.renderAllMentorQueryByStatus = async (req, res) => {
 exports.renderOneQueryRemark = async (req, res) => {
   try {
     const { qid } = req.params;
-    const { remark, flow } = req.body;
+    const { flow } = req.query;
+    const { remark, forward } = req.body;
+    var valid_forward = handle_undefined(forward);
     if (!qid && !flow)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -435,10 +444,57 @@ exports.renderOneQueryRemark = async (req, res) => {
       const one_query = await Queries.findById({
         _id: qid,
       });
+      var valid_student = await Student.findById({
+        _id: `${one_query?.student}`,
+      });
+      var valid_mentor = await Mentor.findById({
+        _id: `${one_query?.mentor}`,
+      }).populate({
+        path: "mentor_head",
+        select:
+          "staffFirsName staffMiddleName staffLastName photoId staffProfilePhoto",
+      });
       one_query.remark = remark;
       one_query.remark_by_mentor = true;
       one_query.query_status = "Solved";
-
+      if (valid_forward) {
+        const valid_staff = await Staff.findById({ _id: `${valid_forward}` });
+        const valid_user = await User.findById({ _id: `${valid_staff?.user}` });
+        var valid_student = await Student.findById({
+          _id: `${one_query?.student}`,
+        });
+        const notify = new StudentNotification({});
+        notify.notifyContent = `Following query of ${
+          valid_student?.studentFirstName
+        } ${valid_student?.studentMiddleName ?? ""} ${
+          valid_student?.studentLastName
+        }, is forwarded to you for further directions and solution by ${
+          valid_mentor?.mentor_head?.staffFirstName
+        } ${valid_mentor?.mentor_head?.staffMiddleName ?? ""} ${
+          valid_mentor?.mentor_head?.staffLastName
+        }.
+        Update your remarks after the query is being solved.`;
+        notify.notifySender = valid_mentor?._id;
+        notify.queryId = one_query?._id;
+        notify.notifyReceiever = valid_user?._id;
+        notify.notifyType = "Student";
+        notify.notifyPublisher = valid_student?._id;
+        valid_user.activity_tab.push(notify._id);
+        notify.notifyByStudentPhoto = valid_student?._id;
+        notify.notifyCategory = "Query Forwarding";
+        notify.redirectIndex = 41;
+        invokeMemberTabNotification(
+          "Student Activity",
+          notify,
+          "Query Forwarding",
+          valid_user._id,
+          valid_user.deviceToken,
+          "Student",
+          notify
+        );
+        one_query.forward_to = valid_staff?._id;
+        await Promise.all([notify.save(), valid_user.save()]);
+      }
       await one_query.save();
       res
         .status(200)
@@ -447,11 +503,58 @@ exports.renderOneQueryRemark = async (req, res) => {
       const one_query = await Queries.findById({
         _id: qid,
       });
+      var valid_student = await Student.findById({
+        _id: `${one_query?.student}`,
+      });
+      var valid_mentor = await Mentor.findById({
+        _id: `${one_query?.mentor}`,
+      }).populate({
+        path: "mentor_head",
+        select:
+          "staffFirsName staffMiddleName staffLastName photoId staffProfilePhoto",
+      });
       one_query.remark_by_depart = remark;
       one_query.remark_by_department = true;
       one_query.query_status = "Solved";
       one_query.query_report_by = "Query Solved";
-
+      if (valid_forward) {
+        const valid_staff = await Staff.findById({ _id: `${valid_forward}` });
+        const valid_user = await User.findById({ _id: `${valid_staff?.user}` });
+        var valid_student = await Student.findById({
+          _id: `${one_query?.student}`,
+        });
+        const notify = new StudentNotification({});
+        notify.notifyContent = `Following query of ${
+          valid_student?.studentFirstName
+        } ${valid_student?.studentMiddleName ?? ""} ${
+          valid_student?.studentLastName
+        }, is forwarded to you for further directions and solution by ${
+          valid_mentor?.mentor_head?.staffFirstName
+        } ${valid_mentor?.mentor_head?.staffMiddleName ?? ""} ${
+          valid_mentor?.mentor_head?.staffLastName
+        }.
+        Update your remarks after the query is being solved.`;
+        notify.notifySender = valid_mentor?._id;
+        notify.queryId = one_query?._id;
+        notify.notifyReceiever = valid_user?._id;
+        notify.notifyType = "Student";
+        notify.notifyPublisher = valid_student?._id;
+        valid_user.activity_tab.push(notify._id);
+        notify.notifyByStudentPhoto = valid_student?._id;
+        notify.notifyCategory = "Query Forwarding";
+        notify.redirectIndex = 41;
+        invokeMemberTabNotification(
+          "Student Activity",
+          notify,
+          "Query Forwarding",
+          valid_user._id,
+          valid_user.deviceToken,
+          "Student",
+          notify
+        );
+        one_query.forward_to = valid_staff?._id;
+        await Promise.all([notify.save(), valid_user.save()]);
+      }
       await one_query.save();
       res.status(200).send({
         message: "Your query was resolved by Department Head",

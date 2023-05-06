@@ -10,6 +10,7 @@ const {
   admissionInstituteFunction,
   participateEventFunction,
   transportFunction,
+  backlogFunction,
   applicationFunction,
   hostelInstituteFunction,
 } = require("./paymentModule");
@@ -248,6 +249,25 @@ exports.verifyRazorPayment = async (req, res) => {
           });
         }
         res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${app_status}/feed`);
+      } else if (payment_module_type === "Backlog") {
+        const back_status = await backlogFunction(
+          order_payment?._id,
+          payment_by_end_user_id,
+          refactor_amount_nocharges,
+          refactor_amount,
+          payment_module_id,
+          ad_status_id,
+          Boolean(razor_author)
+        );
+        if (isApk) {
+          res.status(200).send({
+            message: "Success with Razorpay Participate 😀",
+            check: true,
+          });
+        }
+        res.redirect(
+          `${process.env.FRONT_REDIRECT_URL}/q/${back_status}/memberstab`
+        );
       } else {
       }
     } else {

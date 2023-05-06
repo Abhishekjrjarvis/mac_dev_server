@@ -20,7 +20,10 @@ const Alumini = require("../../models/Alumini/Alumini");
 const AluminiRegister = require("../../models/Alumini/AluminiRegister");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 const { nested_document_limit } = require("../../helper/databaseFunction");
-const { designation_alarm } = require("../../WhatsAppSMS/payload");
+const {
+  designation_alarm,
+  email_sms_designation_alarm,
+} = require("../../WhatsAppSMS/payload");
 const Poll = require("../../models/Question/Poll");
 const Close = require("../../Service/close");
 const {
@@ -84,6 +87,16 @@ exports.renderNewAluminiQuery = async (req, res) => {
       "",
       ""
     );
+    if (user?.userEmail) {
+      email_sms_designation_alarm(
+        user?.userEmail,
+        "ALUMINI",
+        institute?.sms_lang,
+        "",
+        "",
+        ""
+      );
+    }
   } catch (e) {
     console.log(e);
   }

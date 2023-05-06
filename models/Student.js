@@ -523,6 +523,11 @@ const studentSchema = new mongoose.Schema({
     },
   ],
 
+  duplicate_copy: {
+    type: String,
+    default: "Original Copy",
+  },
+
   previous_transport_history: [
     {
       batchId: { type: mongoose.Schema.Types.ObjectId, ref: "Batch" },
@@ -552,6 +557,19 @@ const studentSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "AttendenceDate",
+    },
+  ],
+  backlog_exam_fee: [
+    {
+      reason: { type: String },
+      created_at: { type: Date, default: Date.now },
+      amount: { type: Number, default: 0 },
+      status: { type: String, default: "Not paid" },
+      card_on: { type: String, default: "Backlog Fees" },
+      exam_structure: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "ExamFeeStructure",
+      },
     },
   ],
 });

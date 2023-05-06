@@ -10,6 +10,8 @@ const Notification = require("../../models/notification");
 const StudentNotification = require("../../models/Marks/StudentNotification");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
 const User = require("../../models/User");
+const Seating = require("../../models/Exam/seating");
+const Exam = require("../../models/Exam");
 const {
   getOnlyTime,
   // getOnlyTimeCompare,
@@ -1537,7 +1539,10 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
         notify.notifyReceiever = user._id;
         notify.notifyType = "Student";
         notify.notifyPublisher = student._id;
-        notify.notifyBySubjectPhoto = subjects._id;
+        notify.notifyBySubjectPhoto.subject_id = subjects?._id;
+        notify.notifyBySubjectPhoto.subject_name = subjects.subjectName;
+        notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
+        notify.notifyBySubjectPhoto.subject_title = subjects.subjectTitle;
         notify.notifyCategory = "Student Present";
         user.activity_tab.push(notify._id);
         student.notification.push(notify._id);
@@ -1552,15 +1557,15 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
         notify.notifyCategory = "Attendence";
         notify.redirectIndex = 3;
         //
-        // invokeMemberTabNotification(
-        //   "Student Activity",
-        //   notify,
-        //   "Mark Attendence",
-        //   user._id,
-        //   user.deviceToken,
-        //   "Student",
-        //   notify
-        // );
+        invokeMemberTabNotification(
+          "Student Activity",
+          notify,
+          "Mark Attendence",
+          user._id,
+          user.deviceToken,
+          "Student",
+          notify
+        );
         //
         await Promise.all([student.save(), notify.save(), user.save()]);
       }
@@ -1581,7 +1586,10 @@ exports.markAttendenceSubjectStudent = async (req, res) => {
         notify.notifyType = "Student";
         notify.notifyPublisher = student._id;
         notify.notifyCategory = "Student Absent";
-        notify.notifyBySubjectPhoto = subjects._id;
+        notify.notifyBySubjectPhoto.subject_id = subjects?._id;
+        notify.notifyBySubjectPhoto.subject_name = subjects.subjectName;
+        notify.notifyBySubjectPhoto.subject_cover = "subject-cover.png";
+        notify.notifyBySubjectPhoto.subject_title = subjects.subjectTitle;
         user.activity_tab.push(notify._id);
         student.notification.push(notify._id);
         student.subjectAttendance.push(attendence._id);
@@ -2154,6 +2162,7 @@ exports.markAttendenceExamStudentUpdate = async (req, res) => {
             status: "Present",
           });
           for (let rel_sub of studentAttendance?.related_subjects) {
+
             if (String(rel_sub.student) === req.body.present[i]?.studentId) {
               rel_sub.status = "Present";
             }
@@ -2204,7 +2213,6 @@ exports.markAttendenceExamStudentUpdate = async (req, res) => {
     console.log(e);
   }
 };
-
 exports.sendNotificationOfAttendance = async (req, res) => {
   try {
     const seating_sequence = await Seating.findById(req.params.seid).populate({

@@ -14,6 +14,10 @@ const feeStructureSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  batch_master: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Batch",
+  },
   finance: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Finance",

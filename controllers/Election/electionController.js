@@ -317,9 +317,9 @@ exports.retrieveStatusElectionQuery = async (req, res) => {
     const { eid, applyId, sid } = req.params;
     const { status } = req.query;
     var elect = await Election.findById({ _id: eid });
-    var depart = await Department.findById({
-      _id: `${elect?.department}`,
-    }).select("institute ApproveStudent");
+    // var depart = await Department.findById({
+    //   _id: `${elect?.department}`,
+    // }).select("institute ApproveStudent");
     if (status === "Approved") {
       elect.election_total_voter += 1;
     }
@@ -347,7 +347,7 @@ exports.retrieveStatusElectionQuery = async (req, res) => {
     )}.Your application for ${
       elect?.election_position
     } is ${status} by authorities`;
-    notify.notifySender = depart._id;
+    notify.notifySender = elect?.event_manager;
     notify.notifyReceiever = user._id;
     notify.electionId = elect?._id;
     notify.notifyType = "Student";
@@ -355,7 +355,7 @@ exports.retrieveStatusElectionQuery = async (req, res) => {
     notify.notifyPublisher = student._id;
     user.activity_tab.push(notify._id);
     student.notification.push(notify._id);
-    notify.notifyByDepartPhoto = depart._id;
+    notify.notifyByEventManagerPhoto = elect?.event_manager;
     notify.notifyCategory = "Election Status";
     notify.redirectIndex = 12;
     invokeMemberTabNotification(
@@ -396,7 +396,7 @@ exports.retrieveVoteElectionQuery = async (req, res) => {
       "activity_tab deviceToken"
     );
     notify.notifyContent = `Your vote have been casted`;
-    notify.notifySender = elect?.department;
+    notify.notifySender = elect?.event_manager;
     notify.notifyReceiever = user._id;
     notify.electionId = elect?._id;
     notify.notifyType = "Student";
@@ -404,7 +404,7 @@ exports.retrieveVoteElectionQuery = async (req, res) => {
     notify.notifyPublisher = student._id;
     user.activity_tab.push(notify._id);
     student.notification.push(notify._id);
-    notify.notifyByDepartPhoto = elect?.department;
+    notify.notifyByEventManagerPhoto = elect?.event_manager;
     notify.notifyCategory = "Election Status";
     notify.redirectIndex = "23";
     invokeMemberTabNotification(

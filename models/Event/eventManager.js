@@ -26,6 +26,18 @@ const eventManagerSchema = new mongoose.Schema({
       ref: "Seminar",
     },
   ],
+  election: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Election",
+    },
+  ],
+  participate: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Participate",
+    },
+  ],
   seminar_count: {
     type: Number,
     default: 0,

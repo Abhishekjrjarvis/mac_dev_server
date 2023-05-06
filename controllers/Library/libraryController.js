@@ -67,6 +67,16 @@ exports.activateLibrary = async (req, res) => {
       "",
       ""
     );
+    if (user?.userEmail) {
+      email_sms_designation_alarm(
+        user?.userEmail,
+        "LIBRARY",
+        institute?.sms_lang,
+        "",
+        "",
+        ""
+      );
+    }
   } catch (e) {
     res.status(200).send({
       message: e.message,

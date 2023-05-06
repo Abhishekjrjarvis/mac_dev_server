@@ -278,7 +278,7 @@ const directESMSQuery = (mob, sName, iName) => {
   return true;
 };
 
-// console.log(directESMSQuery(7007023972, "Abhishek Singh", "Qviple Officials"));
+// console.log(directESMSQuery(8329911939, "Pankaj Singh", "Qviple Officials"));
 
 const directHSMSQuery = async (mob, sName, iName, cName) => {
   const e_message = `${sName}, आप ${iName} के ${cName} में पढ़ रहे हैं। लिंक के माध्यम से 'Qviple Community' ऐप डाउनलोड करके लॉग इन करें: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - Qviple से`;

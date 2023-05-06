@@ -99,12 +99,8 @@ exports.getSubjectMaster = async (req, res) => {
 
 exports.createExam = async (req, res) => {
   try {
-    const batch = await Batch.findById(req.params.bid).select(
-      "department _id exams"
-    );
-    const department = await Department.findById(batch.department).select(
-      "exams _id"
-    );
+    const batch = await Batch.findById(req.params.bid)
+    const department = await Department.findById(batch.department)
     const exam = new Exam(req.body);
     batch.exams.push(exam._id);
     department.exams.push(exam._id);
@@ -1558,7 +1554,11 @@ exports.oneStudentReportCardFinalize = async (req, res) => {
         backlogSubMaster.backlogStudentCount += 1;
         new_backlog.backlog_students = req.params.sid;
         student.backlog.push(new_backlog._id);
-        await Promise.all([backlogSubMaster.save(), new_backlog.save(), student.save()]);
+        await Promise.all([
+          backlogSubMaster.save(),
+          new_backlog.save(),
+          student.save(),
+        ]);
       } else {
         backlogSub.pass.push(req.params.sid);
       }
@@ -3248,7 +3248,11 @@ exports.finalizeAllStudentInOneClass = async (req, res) => {
               backlogSubMaster.backlogStudentCount += 1;
               new_backlog.backlog_students = req.params.sid;
               student.backlog.push(new_backlog._id);
-              await Promise.all([backlogSubMaster.save(), new_backlog.save(), student.save()]);
+              await Promise.all([
+                backlogSubMaster.save(),
+                new_backlog.save(),
+                student.save(),
+              ]);
             } else {
               backlogSub.pass.push(req.params.sid);
             }
@@ -3291,7 +3295,7 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
     // const batch = await Batch.findById(exist_batch).select(
     //   "department _id exams"
     // );
-    const department = await Department.findById(did).select("exams _id");
+    const department = await Department.findById(did)
     const valid_exam_fee_structure = await ExamFeeStructure.find({
       $and: [
         { department: department?._id },
@@ -3312,13 +3316,11 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
 
     for (let cid of allclasses) {
       for (let sub of req.body.allsubject) {
-        var sub_master = await SubjectMaster.findById({ _id: sub?.id })
+        var sub_master = await SubjectMaster.findById({ _id: sub?._id });
         for (let subId of sub.subjectIds) {
-          const subject = await Subject.findById(subId).select("class exams");
+          const subject = await Subject.findById(subId);
           if (String(subject.class) === cid) {
-            var classes = await Class.findById(cid).select(
-              "ApproveStudent exams _id"
-            );
+            var classes = await Class.findById(cid);
             if (classes.exams.includes(exam._id)) {
             } else {
               const batch = await Batch.findById({ _id: `${classes?.batch}` });
@@ -3327,7 +3329,9 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
               exam.class.push(cid);
               await Promise.all([classes.save(), batch.save()]);
             }
-            var all_backs = await Backlog.find({ _id: { $in: sub_master?.backlog}})
+            var all_backs = await Backlog.find({
+              _id: { $in: sub_master?.backlog },
+            });
             for (let stu of all_backs) {
               const student = await Student.findById(stu?.backlog_students);
               const user = await User.findById({ _id: `${student?.user}` });
@@ -3346,8 +3350,8 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
                     : null;
                   if (exist_fee) {
                     const new_exam_struct = new ExamFeeStructure({
-                      exam_fee_type: exist?.exam_fee_type,
-                      exam_fee_amount: exist?.exam_fee_amount,
+                      exam_fee_type: exist_fee?.exam_fee_type,
+                      exam_fee_amount: exist_fee?.exam_fee_amount,
                     });
                     new_exam_struct.department = department?._id;
                     department.exam_fee_structure.push(new_exam_struct?._id);

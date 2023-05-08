@@ -1572,7 +1572,7 @@ exports.oneStudentReportCardFinalize = async (req, res) => {
     if (req.body.totalCutoff > Math.ceil(req.body.totalPercentage))
       classes.fail.push(req.params.sid);
     else classes.pass.push(req.params.sid);
-    finalize.is_grade = classes.gradeMarks;
+    finalize.is_grade = classes.finalReportsSettings.gradeMarks;
     await Promise.all([finalize.save(), student.save(), classes.save()]);
     res.status(201).send({ message: "Finalize successfully" });
     //for standard wise all list of passing grade
@@ -3210,6 +3210,7 @@ exports.finalizeAllStudentInOneClass = async (req, res) => {
             ch_format.totalCutoff > Math.ceil(ch_format.totalPercentage)
               ? "FAIL"
               : "PASS",
+          is_grade: classes.finalReportsSettings.gradeMarks,
         });
         student.finalReport.push(finalize._id);
         student.finalReportStatus = "Yes";
@@ -3222,7 +3223,10 @@ exports.finalizeAllStudentInOneClass = async (req, res) => {
             !subject.otherExamTotal
           ) {
             return (compl_flag = false);
-          } else {
+          }
+        }
+        if (compl_flag) {
+          for (let subject of ch_format?.subjects) {
             finalize.subjects.push({
               subject: subject._id,
               subjectName: subject.subjectName,
@@ -3250,19 +3254,18 @@ exports.finalizeAllStudentInOneClass = async (req, res) => {
               new_backlog.backlog_batch = student?.batches;
               backlogSubMaster.backlog.push(new_backlog?._id);
               backlogSubMaster.backlogStudentCount += 1;
-              new_backlog.backlog_students = req.params.sid;
+              new_backlog.backlog_students = student?._id;
               student.backlog.push(new_backlog._id);
               await Promise.all([backlogSubMaster.save(), new_backlog.save()]);
             } else {
-              backlogSub.pass.push(req.params.sid);
+              backlogSub.pass.push(student?._id);
             }
             await backlogSub.save();
           }
-        }
-        if (compl_flag) {
+
           if (ch_format.totalCutoff > Math.ceil(ch_format.totalPercentage))
-            classes.fail.push(req.params.sid);
-          else classes.pass.push(req.params.sid);
+            classes.fail.push(student?._id);
+          else classes.pass.push(student?._id);
           db_standard_mark.marks.push({
             student: student._id,
             related_class: classes._id,
@@ -3272,7 +3275,6 @@ exports.finalizeAllStudentInOneClass = async (req, res) => {
             student: student._id,
             totalMarks: ch_format.totalTotalExam,
           });
-          finalize.is_grade = classes.gradeMarks;
           await Promise.all([finalize.save(), student.save()]);
         }
       }
@@ -3320,30 +3322,34 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
         for (let subId of sub.subjectIds) {
           const subject = await Subject.findById(subId);
           if (String(subject.class) === cid) {
-            var classes = await Class.findById(cid);
+            const classes = await Class.findById(cid);
             if (classes.exams.includes(exam._id)) {
             } else {
               const batch = await Batch.findById({ _id: `${classes?.batch}` });
-              batch.exams.push(exam._id);
+              if (batch.exams.includes(exam._id)) {
+              } else {
+                batch.exams.push(exam._id);
+              }
               classes.exams.push(exam._id);
               exam.class.push(cid);
               await Promise.all([classes.save(), batch.save()]);
             }
-            var all_backs = await Backlog.find({
-              _id: { $in: sub_master?.backlog },
+            const all_backs = await Backlog.find({
+              _id: { $in: sub_master?.backlog ?? [] },
+              backlog_symbol: { $eq: "Pending" },
             });
             for (let stu of all_backs) {
               const student = await Student.findById(stu?.backlog_students);
               const user = await User.findById({ _id: `${student.user}` });
               const student_prev = await StudentPreviousData.findOne({
-                batch: classes?.batch,
+                batches: classes?.batch,
                 student: student?._id,
+                studentClass: classes?._id,
               });
-
+              // console.log("dsgfjgsdja", student_prev);
               if (student_prev.exams.includes(exam._id)) {
               } else {
                 student_prev.exams.push(exam._id);
-
                 if (valid_exam_fee_structure?.length > 0) {
                   var exist_fee = valid_exam_fee_structure
                     ? valid_exam_fee_structure[0]
@@ -3402,10 +3408,13 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
                   }
                 }
               }
+
               const subjectMarks1 = await SubjectMarks.findOne({
                 subject: subject._id,
                 student: student._id,
               });
+
+              // console.log("this is subject marks", subjectMarks1);
               if (subjectMarks1) {
                 if (exam.examType === "Final") {
                   let otherWeightage = 0;
@@ -3437,32 +3446,36 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
                   });
                 }
                 await subjectMarks1.save();
-              } else {
-                let weight = 0;
-                if (exam.examType === "Final") {
-                  weight = 100;
-                }
-                const subjectMarks = new SubjectMarks({
-                  subject: subject._id,
-                  subjectName: sub.subjectName,
-                  student: student._id,
-                });
-                subjectMarks.marks.push({
-                  examId: exam._id,
-                  examName: exam.examName,
-                  examType: exam.examType,
-                  examWeight: weight < 1 ? exam.examWeight : weight,
-                  totalMarks: sub.totalMarks,
-                  date: sub.date,
-                  startTime: sub.startTime,
-                  endTime: sub.endTime,
-                });
-                student_prev.subjectMarks.push(subjectMarks._id);
-                await subjectMarks.save();
               }
+              // console.log("this is subject marks 1", subjectMarks1);
+
+              //no instatiation of new subject marks paper only exiting push
+              // else {
+              //   let weight = 0;
+              //   if (exam.examType === "Final") {
+              //     weight = 100;
+              //   }
+              //   const subjectMarks = new SubjectMarks({
+              //     subject: subject._id,
+              //     subjectName: sub.subjectName,
+              //     student: student._id,
+              //   });
+              //   subjectMarks.marks.push({
+              //     examId: exam._id,
+              //     examName: exam.examName,
+              //     examType: exam.examType,
+              //     examWeight: weight < 1 ? exam.examWeight : weight,
+              //     totalMarks: sub.totalMarks,
+              //     date: sub.date,
+              //     startTime: sub.startTime,
+              //     endTime: sub.endTime,
+              //   });
+              //   student_prev.subjectMarks.push(subjectMarks._id);
+              //   await subjectMarks.save();
+              // }
 
               const notify = new StudentNotification({});
-              notify.notifyContent = `New ${exam.examName} Exam is created for ${sub.subjectName} , check your members tab`;
+              notify.notifyContent = `New Backlog ${exam.examName} Exam is created for ${sub.subjectName}.`;
               notify.notifySender = department._id;
               notify.notifyReceiever = user._id;
               notify.examId = exam._id;
@@ -3473,7 +3486,6 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
               notify.notifyByDepartPhoto = department._id;
               notify.notifyCategory = "Exam";
               notify.redirectIndex = 1;
-              //
               invokeMemberTabNotification(
                 "Student Activity",
                 notify,
@@ -3483,7 +3495,7 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
                 "Student",
                 notify
               );
-              //
+
               await Promise.all([
                 student.save(),
                 student_prev.save(),
@@ -3635,7 +3647,7 @@ exports.sendBacklogExamMarkUpdate = async (req, res) => {
       const staff = await Staff.findById(db_subject.subjectTeacherName);
       const notify = await StudentNotification({});
       const user = await User.findById({ _id: `${staff?.user}` });
-      notify.notifyContent = `You have a assign of marks update on.`;
+      notify.notifyContent = `You have a assign ${db_subject?.subjectName} update backlog exam mark of student.`;
       notify.notifySender = db_exam?.department;
       notify.notifyReceiever = user?._id;
       notify.examId = db_exam?._id;
@@ -3753,11 +3765,14 @@ exports.backlogAllStudentMarksBySubjectTeacher = async (req, res) => {
           },
         })
         .select("subjectMarks _id finalReport");
+      // console.log("db_student_prev", db_student_prev);
       const student = await Student.findById(studt.studentId);
       const user = await User.findById({ _id: `${student.user}` });
       const subjectMarks1 = await SubjectMarks.findById(
         db_student_prev?.subjectMarks[0]?._id
       );
+      // console.log("subjectMarks1", subjectMarks1);
+
       // const finalReport = await FinalReport.findById(
       //   db_student_prev.finalReport?.[0]
       // );
@@ -3773,8 +3788,10 @@ exports.backlogAllStudentMarksBySubjectTeacher = async (req, res) => {
           await subjectMarks1.save();
         }
       }
+      // console.log("subjectMarks1 after", subjectMarks1);
+
       var notify = new StudentNotification({});
-      notify.notifyContent = `${subjectData?.subjectName} marks updated.`;
+      notify.notifyContent = `${subjectData?.subjectName} backlog marks updated.`;
       notify.notifySender = subjectData._id;
       notify.notifyReceiever = user._id;
       notify.notifyType = "Student";
@@ -3791,11 +3808,11 @@ exports.backlogAllStudentMarksBySubjectTeacher = async (req, res) => {
       };
       notify.notifyCategory = "Marks";
       notify.redirectIndex = 21;
-      //
+
       invokeMemberTabNotification(
         "Student Activity",
         notify,
-        `${subjectData.subjectName} Marks`,
+        `${subjectData.subjectName} Backlog Marks`,
         user._id,
         user.deviceToken,
         "Student",
@@ -3808,6 +3825,8 @@ exports.backlogAllStudentMarksBySubjectTeacher = async (req, res) => {
     const mark_list = await SubjectMarkList.findById(
       subjectData.subject_mark_list[0]
     );
+    // console.log("mark_list", mark_list);
+
     if (mark_list) {
       let examFlag = false;
       let examIndex = 0;
@@ -3892,13 +3911,13 @@ exports.backlogAllStudentMarksBySubjectTeacher = async (req, res) => {
                   }
                 }
                 obj.student = s_mark.student;
-                if (obj.totalNumber > pre_mark) {
-                  obj.totalNumber = pre_mark - obj.totalNumber;
-                } else if (obj.totalNumber < pre_mark) {
-                  obj.totalNumber = pre_mark - obj.totalNumber;
-                } else {
-                  obj.totalNumber = pre_mark;
-                }
+                // if (obj.totalNumber > pre_mark) {
+                //   obj.totalNumber = pre_mark - obj.totalNumber;
+                // } else if (obj.totalNumber < pre_mark) {
+                //   obj.totalNumber = pre_mark - obj.totalNumber;
+                // } else {
+                obj.totalNumber -= pre_mark;
+                // }
                 fr_list.push(obj);
               }
             }
@@ -3988,19 +4007,22 @@ exports.backlogAllStudentMarksBySubjectTeacher = async (req, res) => {
                     break;
                   }
                 }
+
                 obj.student = s_mark.student;
-                if (obj.totalNumber > pre_mark) {
-                  obj.totalNumber = pre_mark - obj.totalNumber;
-                } else if (obj.totalNumber < pre_mark) {
-                  obj.totalNumber = pre_mark - obj.totalNumber;
-                } else {
-                  obj.totalNumber = pre_mark;
-                }
+                // if (obj.totalNumber > pre_mark) {
+                //   obj.totalNumber = pre_mark - obj.totalNumber;
+                // } else if (obj.totalNumber < pre_mark) {
+                //   obj.totalNumber = pre_mark - obj.totalNumber;
+                // } else {
+                //   obj.totalNumber = pre_mark;
+                // }
+                obj.totalNumber -= pre_mark;
                 fr_list.push(obj);
               }
             }
           }
         }
+
         let fr_dubli = [];
         let fr_qnique = [];
         for (let m = 0; m < fr_list.length; m++) {
@@ -4019,16 +4041,17 @@ exports.backlogAllStudentMarksBySubjectTeacher = async (req, res) => {
           JSON.parse
         );
         mark_list.marks_list = fr_qnique;
+
         await mark_list.save();
       }
     }
+
     // for update standard list
     const classes = await Class.findById(subjectData.class?._id);
     const db_standard_mark = await StandardMarkList.findOne({
       classMaster: classes.masterClassName,
       batch: classes?.batch,
     });
-    // console.log(db_standard_mark, classes);
 
     for (let studt of marks) {
       const db_student_prev = await StudentPreviousData.findById(
@@ -4060,9 +4083,6 @@ exports.backlogAllStudentMarksBySubjectTeacher = async (req, res) => {
         if (eachmarks.examType === "Other") {
           totalOtherAllWeight = totalOtherAllWeight + eachmarks.examWeight;
         }
-        // if (marks.examType === "Final" && marks.is_backlog === "No") {
-        //   f_mark = marks.obtainMarks;
-        // }
       }
       for (let eachmarks of subjectMarks1?.marks) {
         if (eachmarks.examType === "Other") {
@@ -4099,11 +4119,91 @@ exports.backlogAllStudentMarksBySubjectTeacher = async (req, res) => {
           sub.obtainTotalMarks = obj.subjectWiseTotal;
           sub.subjectPassStatus =
             obj.subjectWiseTotal >= sub.subjectCutoff ? "PASS" : "FAIL";
-          const su_matser = await Subject.findById(req.params.sid);
           if (obj.subjectWiseTotal >= sub.subjectCutoff) {
-            su_matser.pass.push(studt?._id);
+            const back_log = await Backlog.findOne({
+              backlog_subject: { $eq: `${req.params.sid}` },
+              backlog_students: { $eq: `${studt?.studentId}` },
+            });
+            const su_matser = await Subject.findById(req.params.sid);
+            if (su_matser.pass?.includes(studt?.studentId)) {
+            } else {
+              su_matser.pass.push(studt?.studentId);
+            }
+            back_log.backlog_status = "Mark";
+            if (back_log.backlog_clear?.includes(studt?.studentId)) {
+            } else {
+              back_log.backlog_clear.push(studt?.studentId);
+            }
+            back_log.backlog_students = null;
+            back_log.backlog_symbol = "Clear";
+            await Promise.all([su_matser.save(), back_log.save()]);
+            let exam_flag = false;
+            let st_index = 0;
+            for (let i = 0; i < finalReport.backlog_subject?.length; i++) {
+              if (
+                `${finalReport.backlog_subject[i].examId}` === `${examId}` &&
+                `${finalReport.backlog_subject[i].subject}` ===
+                  `${req.params.sid}`
+              ) {
+                st_flag = true;
+                st_index = i;
+
+                break;
+              }
+            }
+
+            if (exam_flag) {
+              if (finalReport.backlog_subject[st_index].backlog_count > 1) {
+                finalReport.backlog_subject[st_index].backlog_count -= 1;
+              } else {
+                let rm_back = finalReport.backlog_subject?.filter((val) => {
+                  if (
+                    `${val.examId}` !== `${examId}` &&
+                    `${val.subject}` !== `${req.params.sid}`
+                  ) {
+                    return val;
+                  }
+                });
+                finalReport.backlog_subject = rm_back;
+              }
+            }
+          } else {
+            let exam_flag = true;
+            for (let i = 0; i < finalReport.backlog_subject?.length; i++) {
+              if (
+                `${finalReport.backlog_subject[i].examId}` === `${examId}` &&
+                `${finalReport.backlog_subject[i].subject}` ===
+                  `${req.params.sid}`
+              ) {
+                st_flag = false;
+                break;
+              }
+            }
+            if (exam_flag) {
+              let st_flag = false;
+              let st_index = 0;
+              for (let i = 0; i < finalReport.backlog_subject?.length; i++) {
+                if (
+                  `${finalReport.backlog_subject[i].subject}` ===
+                  `${req.params.sid}`
+                ) {
+                  st_flag = true;
+                  st_index = i;
+                  break;
+                }
+              }
+              if (st_flag) {
+                finalReport.backlog_subject[st_index].backlog_count += 1;
+              } else {
+                finalReport.backlog_subject.push({
+                  subject: req.params.sid,
+                  status: "Again Back",
+                  backlog_count: 1,
+                  examId: examId,
+                });
+              }
+            }
           }
-          await su_matser.save();
         }
       }
       let obj2 = {
@@ -4126,9 +4226,19 @@ exports.backlogAllStudentMarksBySubjectTeacher = async (req, res) => {
           : "FAIL";
       const f_classes = await Class.findById(finalReport.classId);
       if (finalReport.totalPercentage >= finalReport.totalCutoff) {
-        f_classes.pass.push(studt?._id);
+        if (f_classes.pass?.includes(studt?._id)) {
+        } else {
+          f_classes.pass.push(studt?._id);
+        }
         f_classes.fail.pull(studt?._id);
+      } else {
+        if (f_classes.fail?.includes(studt?._id)) {
+        } else {
+          f_classes.fail.push(studt?._id);
+        }
+        f_classes.pass.pull(studt?._id);
       }
+
       await Promise.all([f_classes.save(), finalReport.save()]);
     }
     for (let studt of marks) {

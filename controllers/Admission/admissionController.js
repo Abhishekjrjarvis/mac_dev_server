@@ -3338,7 +3338,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       .populate({
         path: "appId",
         select:
-          "applicationName applicationDepartment applicationMaster admissionAdmin hostelAdmin",
+          "applicationName applicationDepartment applicationMaster admissionAdmin hostelAdmin applicationBatch",
         populate: {
           path: "admissionAdmin hostelAdmin",
           select: "institute",

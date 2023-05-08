@@ -457,7 +457,7 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
     await Promise.all([post.save(), institute.save()]);
     var valid_promote = await NewApplication.find({
       $and: [
-        { applicationStatus: "Promote Application" },
+        { applicationTypeStatus: "Promote Application" },
         { admissionAdmin: admission?._id },
       ],
     });

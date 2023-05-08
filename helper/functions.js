@@ -140,7 +140,7 @@ const send_email_authentication_promotional = async (email) => {
   let rand4 = Math.floor(Math.random() * 9) + 1;
   const OTP = `${rand1}${rand2}${rand3}${rand4}`;
   const subject = "OTP Verification";
-  const message = `Welcome to Qviple, Your Qviple account verification OTP is ${OTP} Mithkal Minds Pvt Ltd.`;
+  const message = `Hi Pankaj. "Qviple" is ERP Software of SRB College. You are requested to login to your account with your email id(On which this email is received) to stay updated about your fees, exams and events of your school or college. Login by downloading app 'Qviple Community' from playstore or through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From "Qviple"`;
   const url = `http://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
   const encodeURL = encodeURI(url);
   axios
@@ -154,7 +154,9 @@ const send_email_authentication_promotional = async (email) => {
   return OTP;
 };
 
-// console.log(send_email_authentication_promotional("yelpcamp44@gmail.com"));
+// console.log(
+//   send_email_authentication_promotional("pankajphad.stuff@gmail.com")
+// );
 
 // const dataa = () => {
 //   const new_user_pass = bcrypt.genSaltSync(12);

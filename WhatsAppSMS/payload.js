@@ -149,7 +149,7 @@ const payload_type_content_email = (
   mob
 ) => {
   if (type === "ADSIS") {
-    var text = `Hi ${sName}. "Qviple" is ERP Software of ${iName}. You are requested to login to your account with your mobile number(On which this SMS is received) to stay updated about your fees, exams and events of your school or college. Login by downloading app 'Qviple Community' from playstore or through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From "Qviple"`;
+    var text = `Hi ${sName}. "Qviple" is ERP Software of ${iName}. You are requested to login to your account with your email id (On which this email is received) to stay updated about your fees, exams and events of your school or college. Login by downloading app 'Qviple Community' from playstore or through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From "Qviple"`;
 
     var hext = `नमस्कार ${sName}। "क्यूवीपल" ${iName} का ईआरपी सॉफ्टवेयर है। आपसे अनुरोध है कि अपने स्कूल या कॉलेज की फीस, परीक्षाओं और कार्यक्रमों के बारे में अद्यतन रहने के लिए अपने मोबाइल नंबर (जिस पर यह एसएमएस प्राप्त हुआ है) के साथ अपने खाते में प्रवेश करें। Playstore से या लिंक के माध्यम से ऐप 'Qviple समुदाय' डाउनलोड करके लॉगिन करें: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - "Qviple" से`;
 
@@ -224,7 +224,7 @@ ${iName} में आपका स्वागत है।
       var extension = "";
     }
   } else if (type === "ADMIS") {
-    var text = `Hi ${sName}. "Qviple" is ERP Software of ${iName}. You are requested to login to your account with your mobile number(On which this SMS is received) to stay updated about your fees, exams and events of your school or college. Login by downloading app 'Qviple Community' from playstore or through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From "Qviple"`;
+    var text = `Hi ${sName}. "Qviple" is ERP Software of ${iName}. You are requested to login to your account with your email id (On which this email is received) to stay updated about your fees, exams and events of your school or college. Login by downloading app 'Qviple Community' from playstore or through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From "Qviple"`;
 
     var hext = `नमस्कार ${sName}। "क्यूवीपल" ${iName} का ईआरपी सॉफ्टवेयर है। आपसे अनुरोध है कि अपने स्कूल या कॉलेज की फीस, परीक्षाओं और कार्यक्रमों के बारे में अद्यतन रहने के लिए अपने मोबाइल नंबर (जिस पर यह एसएमएस प्राप्त हुआ है) के साथ अपने खाते में प्रवेश करें। Playstore से या लिंक के माध्यम से ऐप 'Qviple समुदाय' डाउनलोड करके लॉगिन करें: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - "Qviple" से`;
 

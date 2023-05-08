@@ -2864,6 +2864,7 @@ exports.renderFinanceAddFeeStructureAutoQuery = async (
         ten_installments: ref?.ten_installments,
         eleven_installments: ref?.eleven_installments,
         tweleve_installments: ref?.tweleve_installments,
+        batch_master: batch_master?._id
       });
       struct_query.finance = finance?._id;
       struct_query.department = depart?._id;

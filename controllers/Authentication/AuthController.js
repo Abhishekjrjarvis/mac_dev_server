@@ -260,7 +260,9 @@ const generateOTP = async (mob) => {
   return OTP;
 };
 
-const directESMSQuery = (mob, sName, iName) => {
+const directESMSQuery = (mob, valid_sname, valid_iname) => {
+  var sName = `${valid_sname?.slice(0, 30)}`
+  var iName = `${valid_iname?.slice(0, 30)}`
   const e_message = `Hi ${sName}. "Qviple" is ERP Software of ${iName}. You are requested to login to your account with your mobile number(On which this SMS is received) to stay updated about your fees, exams and events of your school or college. Login by downloading app 'Qviple Community' from playstore or through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From "Qviple"`;
   const url = `http://mobicomm.dove-sms.com//submitsms.jsp?user=Mithkal&key=4c3168d558XX&mobile=+91${mob}&message=${e_message}&senderid=QVIPLE&accusage=6&entityid=1701164286216096677&tempid=1707168309247841573`;
   axios
@@ -318,7 +320,9 @@ const directMSMSQuery = async (mob, sName, iName, cName) => {
   return true;
 };
 
-const directESMSStaffQuery = (mob, sName, iName) => {
+const directESMSStaffQuery = (mob, valid_sname, valid_iname) => {
+  var sName = `${valid_sname?.slice(0, 30)}`
+  var iName = `${valid_iname?.slice(0, 30)}`
   const e_message = `Hi ${sName}. "Qviple" is ERP Software of ${iName}. You are requested to login to your account with your mobile number(On which this SMS is received) to stay updated about your fees, exams and events of your school or college. Login by downloading app 'Qviple Community' from playstore or through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From "Qviple"`;
   const url = `http://mobicomm.dove-sms.com//submitsms.jsp?user=Mithkal&key=4c3168d558XX&mobile=+91${mob}&message=${e_message}&senderid=QVIPLE&accusage=6&entityid=1701164286216096677&tempid=1707168309247841573`;
   axios

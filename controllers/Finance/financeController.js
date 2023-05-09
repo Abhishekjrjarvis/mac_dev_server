@@ -2864,6 +2864,7 @@ exports.renderFinanceAddFeeStructureAutoQuery = async (
         ten_installments: ref?.ten_installments,
         eleven_installments: ref?.eleven_installments,
         tweleve_installments: ref?.tweleve_installments,
+        batch_master: batch_master?._id
       });
       struct_query.finance = finance?._id;
       struct_query.department = depart?._id;
@@ -4567,25 +4568,25 @@ exports.submitHostelFeeQuery = async (req, res) => {
   }
 };
 
-// exports.delete_structure = async(req, res) => {
-//   try{
-//       const { did } = req.params
-//       var depart = await Department.findById({ _id: did})
-//       var all_structures = await FeeStructure.find({ _id: { $in: depart?.fees_structures}})
-//       for(var ref of all_structures){
-//           depart.fees_structures.pull(ref?._id)
-//           if(depart.fees_structures_count > 0){
-//               depart.fees_structures_count -= 1
-//           }
-//           await FeeStructure.findByIdAndDelete(ref?._id)
-//       }
-//       await depart.save()
-//       res.status(200).send({ message: "Deletion Operation Completed"})
-//   }
-//   catch(e){
-//       console.log(e)
-//   }
-// }
+exports.delete_structure = async(req, res) => {
+  try{
+      const { did } = req.params
+      var depart = await Department.findById({ _id: did})
+      var all_structures = await FeeStructure.find({ _id: { $in: depart?.fees_structures}})
+      for(var ref of all_structures){
+          depart.fees_structures.pull(ref?._id)
+          if(depart.fees_structures_count > 0){
+              depart.fees_structures_count -= 1
+          }
+          await FeeStructure.findByIdAndDelete(ref?._id)
+      }
+      await depart.save()
+      res.status(200).send({ message: "Deletion Operation Completed"})
+  }
+  catch(e){
+      console.log(e)
+  }
+}
 
 
 // exports.edit_structure = async(req, res) => {

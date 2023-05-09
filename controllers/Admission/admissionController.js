@@ -457,7 +457,7 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
     await Promise.all([post.save(), institute.save()]);
     var valid_promote = await NewApplication.find({
       $and: [
-        { applicationStatus: "Promote Application" },
+        { applicationTypeStatus: "Promote Application" },
         { admissionAdmin: admission?._id },
       ],
     });
@@ -3338,7 +3338,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       .populate({
         path: "appId",
         select:
-          "applicationName applicationDepartment applicationMaster admissionAdmin hostelAdmin",
+          "applicationName applicationDepartment applicationMaster admissionAdmin hostelAdmin applicationBatch",
         populate: {
           path: "admissionAdmin hostelAdmin",
           select: "institute",

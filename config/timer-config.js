@@ -11,10 +11,10 @@ const {
 exports.timerFunction = () => {
   // setInterval(async () => {
   //   await election_vote_day();
-  // }, 864000);
+  // }, 86400000);
   // setInterval(async () => {
   //   await election_result_day();
-  // }, 864000);
+  // }, 86400000);
   // setInterval(async () => {
   // }, 30000);
   setInterval(async () => {

@@ -1098,12 +1098,14 @@ exports.retrieveAllUserPosts = async (req, res) => {
         //   bind_data
         // );
         // Add Another Encryption
+        var all_post_encrypt = await encryptionPayload(post);
         res.status(200).send({
           message: "All Feed from DB",
           // post: cached.post,
           // postCount: cached.postCount,
           // totalPage: cached.totalPage,
           post: post,
+          all_post_encrypt,
           postCount: postCount.length,
           totalPage: totalPage,
         });

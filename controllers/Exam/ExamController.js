@@ -31,7 +31,7 @@ const ExamFeeStructure = require("../../models/BacklogStudent/ExamFeeStructure")
 const SubjectMarkList = require("../../models/Marks/SubjectMarkList");
 const StandardMarkList = require("../../models/Marks/StandardMarkList");
 const { grade_calculate } = require("../../Utilities/custom_grade");
-// const encryptionPayload = require("../../Utilities/Encrypt/payload");
+const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.getClassMaster = async (req, res) => {
   try {

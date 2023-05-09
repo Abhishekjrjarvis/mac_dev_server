@@ -20,7 +20,7 @@ const {
   connect_redis_hit,
   connect_redis_miss,
 } = require("../../../config/redis-config");
-// const encryptionPayload = require("../../../Utilities/Encrypt/payload");
+const encryptionPayload = require("../../../Utilities/Encrypt/payload");
 
 exports.postWithText = async (req, res) => {
   try {

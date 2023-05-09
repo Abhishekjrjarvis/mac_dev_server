@@ -846,8 +846,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
             })
             .populate({
               path: "new_announcement",
-              select:
-                "insAnnTitle insAnnDescription",
+              select: "insAnnTitle insAnnDescription",
             })
             .populate({
               path: "hash_tag",
@@ -895,8 +894,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
             })
             .populate({
               path: "new_announcement",
-              select:
-                "insAnnTitle insAnnDescription",
+              select: "insAnnTitle insAnnDescription",
             })
             .populate({
               path: "hash_tag",
@@ -947,8 +945,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
             })
             .populate({
               path: "new_announcement",
-              select:
-                "insAnnTitle insAnnDescription",
+              select: "insAnnTitle insAnnDescription",
             })
             .populate({
               path: "hash_tag",
@@ -999,8 +996,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
             })
             .populate({
               path: "new_announcement",
-              select:
-                "insAnnTitle insAnnDescription",
+              select: "insAnnTitle insAnnDescription",
             })
             .populate({
               path: "hash_tag",
@@ -1098,17 +1094,24 @@ exports.retrieveAllUserPosts = async (req, res) => {
         //   bind_data
         // );
         // Add Another Encryption
-        var all_post_encrypt = await encryptionPayload(post);
-        res.status(200).send({
+        var obj = {
           message: "All Feed from DB",
+          post: post,
+          postCount: postCount.length,
+          totalPage: totalPage,
+        };
+        var encryption_payload = await encryptionPayload(obj);
+        res.status(200).send(
+          encryption_payload
+          // message: "All Feed from DB",
           // post: cached.post,
           // postCount: cached.postCount,
           // totalPage: cached.totalPage,
-          post: post,
-          all_post_encrypt,
-          postCount: postCount.length,
-          totalPage: totalPage,
-        });
+          // post: post,
+          // all_post_encrypt,
+          // postCount: postCount.length,
+          // totalPage: totalPage,
+        );
       } else {
         res.status(200).send({
           message: "No Feed Available",
@@ -1187,9 +1190,8 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
             })
             .populate({
               path: "new_announcement",
-              select:
-                "insAnnTitle insAnnDescription",
-            })
+              select: "insAnnTitle insAnnDescription",
+            });
         }
         //
         else {
@@ -1232,9 +1234,8 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
             })
             .populate({
               path: "new_announcement",
-              select:
-                "insAnnTitle insAnnDescription",
-            })
+              select: "insAnnTitle insAnnDescription",
+            });
         }
       } else {
         if (user.ageRestrict === "Yes") {
@@ -1323,9 +1324,8 @@ exports.retrieveAllUserPostsWeb = async (req, res) => {
             })
             .populate({
               path: "new_announcement",
-              select:
-                "insAnnTitle insAnnDescription",
-            })
+              select: "insAnnTitle insAnnDescription",
+            });
         }
       }
       const postCount = await Post.find({ _id: { $in: user.userPosts } });
@@ -1422,9 +1422,8 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
           })
           .populate({
             path: "new_announcement",
-            select:
-              "insAnnTitle insAnnDescription",
-          })
+            select: "insAnnTitle insAnnDescription",
+          });
       } else {
         var post = await Post.find({ author: id })
           .sort("-createdAt")
@@ -1463,9 +1462,8 @@ exports.retrieveAllUserProfilePosts = async (req, res) => {
           })
           .populate({
             path: "new_announcement",
-            select:
-              "insAnnTitle insAnnDescription",
-          })
+            select: "insAnnTitle insAnnDescription",
+          });
       }
       const postCount = await Post.find({ _id: { $in: user.userPosts } });
       if (page * limit >= postCount.length) {
@@ -1807,9 +1805,8 @@ exports.retrieveAllUserSavedPosts = async (req, res) => {
         })
         .populate({
           path: "new_announcement",
-          select:
-            "insAnnTitle insAnnDescription",
-        })
+          select: "insAnnTitle insAnnDescription",
+        });
       const postCount = await Post.find({ _id: { $in: user.user_saved_post } });
       if (page * limit >= postCount.length) {
       } else {
@@ -1901,9 +1898,8 @@ exports.retrieveAllUserTagPosts = async (req, res) => {
         })
         .populate({
           path: "new_announcement",
-          select:
-            "insAnnTitle insAnnDescription",
-        })
+          select: "insAnnTitle insAnnDescription",
+        });
       const postCount = await Post.find({ _id: { $in: user.tag_post } });
       if (page * limit >= postCount.length) {
       } else {
@@ -1988,9 +1984,8 @@ exports.retrieveAllUserReposts = async (req, res) => {
       })
       .populate({
         path: "new_announcement",
-        select:
-          "insAnnTitle insAnnDescription",
-      })
+        select: "insAnnTitle insAnnDescription",
+      });
 
     if (repost && repost.length >= 1) {
       // Add Another Encryption
@@ -2143,8 +2138,7 @@ exports.renderOnePostQuery = async (req, res) => {
       })
       .populate({
         path: "new_announcement",
-        select:
-          "insAnnTitle insAnnDescription",
+        select: "insAnnTitle insAnnDescription",
       })
       .populate({
         path: "hash_tag",

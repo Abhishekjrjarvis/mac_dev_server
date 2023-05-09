@@ -47,6 +47,18 @@ const finalReportSchema = new mongoose.Schema({
     },
   ],
   is_grade: Boolean,
+  backlog_subject: [
+    {
+      subject: { type: mongoose.Schema.Types.ObjectId, ref: "Subject" },
+      status: String,
+      // "Again Back"
+      backlog_count: {
+        type: Number,
+        default: 0,
+      },
+      examId: { type: mongoose.Schema.Types.ObjectId, ref: "Exam" },
+    },
+  ],
 });
 
 module.exports = mongoose.model("FinalReport", finalReportSchema);

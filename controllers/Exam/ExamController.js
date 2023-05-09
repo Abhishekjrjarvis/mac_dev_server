@@ -1366,14 +1366,16 @@ exports.oneStudentReportCardClassTeacher = async (req, res) => {
         }
       }
       if (student?.studentClass?.finalReportsSettings?.gradeMarks) {
-        for (let m_val of s_with_max) {
-          if (`${su_matser.subjectMasterName}` === `${m_val.subjectMaster}`) {
-            obj.showGrade = grade_calculate(
-              m_val.maxValue,
-              department.grade_system?.[0],
-              m_val.passing,
-              obj.subjectWiseTotal
-            );
+        if (department.grade_system?.[0]) {
+          for (let m_val of s_with_max) {
+            if (`${su_matser.subjectMasterName}` === `${m_val.subjectMaster}`) {
+              obj.showGrade = grade_calculate(
+                m_val.maxValue,
+                department.grade_system?.[0],
+                m_val.passing,
+                obj.subjectWiseTotal
+              );
+            }
           }
         }
       }
@@ -1386,12 +1388,14 @@ exports.oneStudentReportCardClassTeacher = async (req, res) => {
     const totalPercantage = Math.ceil(
       (total.allSubjectTotal * 100) / (100 * subjects.length)
     );
-    total.showGradeTotal = grade_calculate(
-      standard_max_value,
-      department.grade_system?.[0],
-      student?.studentClass?.finalReportsSettings.aggregatePassingPercentage,
-      totalPercantage
-    );
+    if (department.grade_system?.[0]) {
+      total.showGradeTotal = grade_calculate(
+        standard_max_value,
+        department.grade_system?.[0],
+        student?.studentClass?.finalReportsSettings.aggregatePassingPercentage,
+        totalPercantage
+      );
+    }
 
     // Add Another Encryption
     res.status(200).send({
@@ -2501,15 +2505,13 @@ exports.renderNewSeatingArrangementAutomateQuery = async (req, res) => {
 exports.getAllClassExportReport = async (req, res) => {
   try {
     const { cid } = req.params;
+
     if (!cid)
       return res.status(200).send({
         message: "Their is a bug regarding to call api",
         access: false,
       });
     const classes = await Class.findById(cid)
-      .select(
-        "batch ApproveStudent className classTitle finalReportsSettings.gradeMarks finalReportsSettings.aggregatePassingPercentage"
-      )
       .populate({
         path: "institute",
         select:
@@ -2522,8 +2524,56 @@ exports.getAllClassExportReport = async (req, res) => {
       .populate({
         path: "batch",
         select: "batchName",
+      })
+      .populate({
+        path: "subject",
+        populate: {
+          path: "subject_mark_list",
+          select: "marks_list subjectMaster",
+        },
+        select:
+          "subject_mark_list subjectMasterName setting.subjectPassingMarks",
       });
 
+    // for grade related
+    const department = await Department.findById(classes?.department).populate({
+      path: "grade_system",
+      select: "grades custom_grade grade_name grade_type grade_count",
+    });
+    let s_with_max = [];
+    for (let sub of classes.subject) {
+      let arr = [];
+      let m_id = "";
+      for (let sub_a of sub.subject_mark_list) {
+        for (let sub_b of sub_a.marks_list) {
+          arr.push(sub_b.totalNumber);
+        }
+        m_id = sub_a.subjectMaster;
+      }
+      let maxValue = Math.max(...arr);
+      s_with_max.push({
+        subjectMaster: m_id,
+        maxValue: maxValue,
+        passing: sub?.setting?.subjectPassingMarks,
+      });
+    }
+    const db_standard_mark = await StandardMarkList.findOne({
+      classMaster: classes?.masterClassName,
+      batch: classes?.batch,
+    });
+
+    let st_arr = [];
+    if (db_standard_mark) {
+      for (let st_mark of db_standard_mark?.marks_list) {
+        st_arr.push(st_mark.totalMarks);
+      }
+    }
+    let standard_max = Math.max(...st_arr);
+    let standard_max_value = Math.ceil(
+      (standard_max * 100) / (100 * classes.subject?.length)
+    );
+
+    // for current report
     const current_stuents = await Student.find({
       _id: { $in: classes.ApproveStudent ?? [] },
       finalReportStatus: { $eq: "Yes" },
@@ -2553,7 +2603,92 @@ exports.getAllClassExportReport = async (req, res) => {
       })
       .lean()
       .exec();
+    let curr_stu = [];
+
+    for (let stud of current_stuents) {
+      let obj = {
+        _id: stud._id,
+        studentROLLNO: stud.studentROLLNO,
+        studentFirstName: stud.studentFirstName,
+        studentMiddleName: stud.studentMiddleName,
+        studentLastName: stud.studentLastName,
+        studentGender: stud.studentGender,
+        studentGRNO: stud.studentGRNO,
+        finalReport: [],
+      };
+      let fr_obj = {
+        _id: stud.finalReport?.[0]._id,
+        student: stud._id,
+        classId: stud.finalReport?.[0].classId,
+        totalFinalExam: stud.finalReport?.[0].totalFinalExam,
+        totalOtherExam: stud.finalReport?.[0].totalOtherExam,
+        totalGraceExam: stud.finalReport?.[0].totalGraceExam,
+        totalTotalExam: stud.finalReport?.[0].totalTotalExam,
+        totalPercentage: stud.finalReport?.[0].totalPercentage,
+        attendance: stud.finalReport?.[0].attendance,
+        attendanceTotal: stud.finalReport?.[0].attendanceTotal,
+        attendancePercentage: stud.finalReport?.[0].attendancePercentage,
+        passStatus: stud.finalReport?.[0].passStatus,
+        behaviourStar: stud.finalReport?.[0].behaviourStar,
+        behaviourImprovement: stud.finalReport?.[0].behaviourImprovement,
+        behaviourLack: stud.finalReport?.[0].behaviourLack,
+        totalCutoff: stud.finalReport?.[0].totalCutoff,
+        createdAt: stud.finalReport?.[0].createdAt,
+        subjects: [],
+        showGradeTotal: "",
+        is_grade: stud.finalReport?.[0]?.is_grade,
+      };
+
+      let all_subject = [];
+
+      if (stud.finalReport?.[0]?.is_grade && department.grade_system?.[0]) {
+        for (let sub of stud.finalReport?.[0].subjects) {
+          const obj = {
+            _id: sub.subject,
+            subjectName: sub.subjectName,
+            finalExamTotal: sub.finalExamTotal,
+            finalExamObtain: sub.finalExamObtain,
+            otherExamTotal: sub.otherExamTotal,
+            otherExamObtain: sub.otherExamObtain,
+            graceMarks: sub.graceMarks,
+            totalMarks: sub.totalMarks,
+            obtainTotalMarks: sub.obtainTotalMarks,
+            subjectCutoff: sub.subjectCutoff,
+            showGrade: "",
+          };
+          const su_matser = await Subject.findById(sub.subject);
+          for (let m_val of s_with_max) {
+            if (`${su_matser.subjectMasterName}` === `${m_val.subjectMaster}`) {
+              obj.showGrade = grade_calculate(
+                m_val.maxValue,
+                department.grade_system?.[0],
+                m_val.passing,
+                obj.obtainTotalMarks
+              );
+            }
+          }
+          all_subject.push(obj);
+        }
+      } else {
+        all_subject = stud.finalReport?.[0].subjects;
+      }
+      fr_obj.subjects = all_subject;
+
+      if (department.grade_system?.[0]) {
+        fr_obj.showGradeTotal = grade_calculate(
+          standard_max_value,
+          department.grade_system?.[0],
+          classes?.finalReportsSettings.aggregatePassingPercentage,
+          fr_obj.totalPercentage
+        );
+      }
+
+      obj.finalReport.push(fr_obj);
+      curr_stu.push(obj);
+    }
+
     let prev_stu = [];
+
     for (let stud of previous_students) {
       let obj = {
         _id: stud.finalReport?.[0].student._id,
@@ -2563,32 +2698,79 @@ exports.getAllClassExportReport = async (req, res) => {
         studentLastName: stud.finalReport?.[0].student.studentLastName,
         studentGender: stud.finalReport?.[0].student.studentGender,
         studentGRNO: stud.finalReport?.[0].student.studentGRNO,
-        finalReport: [
-          {
-            _id: stud.finalReport?.[0]._id,
-            student: stud.finalReport?.[0].student._id,
-            classId: stud.finalReport?.[0].classId,
-            totalFinalExam: stud.finalReport?.[0].totalFinalExam,
-            totalOtherExam: stud.finalReport?.[0].totalOtherExam,
-            totalGraceExam: stud.finalReport?.[0].totalGraceExam,
-            totalTotalExam: stud.finalReport?.[0].totalTotalExam,
-            totalPercentage: stud.finalReport?.[0].totalPercentage,
-            attendance: stud.finalReport?.[0].attendance,
-            attendanceTotal: stud.finalReport?.[0].attendanceTotal,
-            attendancePercentage: stud.finalReport?.[0].attendancePercentage,
-            passStatus: stud.finalReport?.[0].passStatus,
-            behaviourStar: stud.finalReport?.[0].behaviourStar,
-            behaviourImprovement: stud.finalReport?.[0].behaviourImprovement,
-            behaviourLack: stud.finalReport?.[0].behaviourLack,
-            totalCutoff: stud.finalReport?.[0].totalCutoff,
-            createdAt: stud.finalReport?.[0].createdAt,
-            subjects: stud.finalReport?.[0].subjects,
-          },
-        ],
+        finalReport: [],
       };
+      let fr_obj = {
+        _id: stud.finalReport?.[0]._id,
+        student: stud.finalReport?.[0].student._id,
+        classId: stud.finalReport?.[0].classId,
+        totalFinalExam: stud.finalReport?.[0].totalFinalExam,
+        totalOtherExam: stud.finalReport?.[0].totalOtherExam,
+        totalGraceExam: stud.finalReport?.[0].totalGraceExam,
+        totalTotalExam: stud.finalReport?.[0].totalTotalExam,
+        totalPercentage: stud.finalReport?.[0].totalPercentage,
+        attendance: stud.finalReport?.[0].attendance,
+        attendanceTotal: stud.finalReport?.[0].attendanceTotal,
+        attendancePercentage: stud.finalReport?.[0].attendancePercentage,
+        passStatus: stud.finalReport?.[0].passStatus,
+        behaviourStar: stud.finalReport?.[0].behaviourStar,
+        behaviourImprovement: stud.finalReport?.[0].behaviourImprovement,
+        behaviourLack: stud.finalReport?.[0].behaviourLack,
+        totalCutoff: stud.finalReport?.[0].totalCutoff,
+        createdAt: stud.finalReport?.[0].createdAt,
+        subjects: [],
+        showGradeTotal: "",
+        is_grade: stud.finalReport?.[0]?.is_grade,
+      };
+
+      let all_subject = [];
+
+      if (stud.finalReport?.[0]?.is_grade && department.grade_system?.[0]) {
+        for (let sub of stud.finalReport?.[0].subjects) {
+          const obj = {
+            _id: sub.subject,
+            subjectName: sub.subjectName,
+            finalExamTotal: sub.finalExamTotal,
+            finalExamObtain: sub.finalExamObtain,
+            otherExamTotal: sub.otherExamTotal,
+            otherExamObtain: sub.otherExamObtain,
+            graceMarks: sub.graceMarks,
+            totalMarks: sub.totalMarks,
+            obtainTotalMarks: sub.obtainTotalMarks,
+            subjectCutoff: sub.subjectCutoff,
+            showGrade: "",
+          };
+          const su_matser = await Subject.findById(sub.subject);
+          for (let m_val of s_with_max) {
+            if (`${su_matser.subjectMasterName}` === `${m_val.subjectMaster}`) {
+              obj.showGrade = grade_calculate(
+                m_val.maxValue,
+                department.grade_system?.[0],
+                m_val.passing,
+                obj.obtainTotalMarks
+              );
+            }
+          }
+          all_subject.push(obj);
+        }
+      } else {
+        all_subject = stud.finalReport?.[0].subjects;
+      }
+      fr_obj.subjects = all_subject;
+
+      if (department.grade_system?.[0]) {
+        fr_obj.showGradeTotal = grade_calculate(
+          standard_max_value,
+          department.grade_system?.[0],
+          classes?.finalReportsSettings.aggregatePassingPercentage,
+          fr_obj.totalPercentage
+        );
+      }
+
+      obj.finalReport.push(fr_obj);
       prev_stu.push(obj);
     }
-    let students = [...current_stuents, ...prev_stu];
+    let students = [...curr_stu, ...prev_stu];
     students.sort(function (st1, st2) {
       return parseInt(st1.studentROLLNO) - parseInt(st2.studentROLLNO);
     });
@@ -2601,7 +2783,7 @@ exports.getAllClassExportReport = async (req, res) => {
         batchName: classes?.batch?.batchName,
         className: classes?.className,
         classTitle: classes?.classTitle,
-        gradeToggle: classes?.finalReportsSettings?.gradeMarks,
+        // gradeToggle: classes?.finalReportsSettings?.gradeMarks,
         aggregate_passing_percentage:
           classes?.finalReportsSettings?.aggregatePassingPercentage,
       },
@@ -4211,7 +4393,7 @@ exports.backlogAllStudentMarksBySubjectTeacher = async (req, res) => {
         obtainTotalMarks: 0,
       };
       for (let sub of finalReport.subjects) {
-        obj2.finalExamObtain += sub.finalExamTotal;
+        obj2.finalExamObtain += sub.finalExamObtain;
         obj2.obtainTotalMarks += sub.obtainTotalMarks;
       }
       finalReport.totalTotalExam = obj2.obtainTotalMarks;

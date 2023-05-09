@@ -244,8 +244,8 @@ exports.allExam = async (req, res) => {
   const exam = await Exam.find({
     department: { $eq: `${req.params.did}` },
   }).select("examName examWeight examMode createdAt examType");
-  // const examEncrypt = await encryptionPayload(exam);
-  res.status(200).send({ exam });
+  const examEncrypt = await encryptionPayload(exam);
+  res.status(200).send({ exam,examEncrypt });
 };
 
 exports.examById = async (req, res) => {

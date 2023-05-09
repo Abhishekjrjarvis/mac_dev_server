@@ -19,6 +19,9 @@ const Library = require("../../models/Library/Library");
 const Transport = require("../../models/Transport/transport");
 const { handle_undefined } = require("../../Handler/customError");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
+const Hostel = require("../../models/Hostel/hostel");
+const EventManager = require("../../models/Event/eventManager");
+const Alumini = require("../../models/Alumini/Alumini");
 
 function generateAccessManageToken(manage_name, manage_id, manage_pass) {
   return jwt.sign(
@@ -492,7 +495,7 @@ exports.renderAdministratorOneInstituteProfile = async (req, res) => {
       });
     const institute = await InstituteAdmin.findById({ _id: id })
       .select(
-        "insName status photoId insProfilePhoto sportStatus sms_lang sportClassStatus blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement admissionCount request_at affiliation_by"
+        "insName status photoId insProfilePhoto career_count tender_count sportStatus sms_lang sportClassStatus blockStatus one_line_about staff_privacy email_privacy contact_privacy tag_privacy questionCount pollCount insAffiliated insEditableText insEditableTexts activateStatus accessFeature coverId insRegDate departmentCount announcementCount admissionCount insType insMode insAffiliated insAchievement joinedCount staffCount studentCount insProfileCoverPhoto followersCount name followingCount postCount insAbout insEmail insAddress insEstdDate createdAt insPhoneNumber insAffiliated insAchievement admissionCount request_at affiliation_by"
       )
       .populate({
         path: "displayPersonList",
@@ -508,20 +511,35 @@ exports.renderAdministratorOneInstituteProfile = async (req, res) => {
     const finance = await Finance.findOne({ institute: institute?._id }).select(
       "financeTotalBalance"
     );
+    const admission = await Admission.findOne({
+      institute: institute?._id,
+    }).select("newAppCount");
     const sport = await Sport.findOne({ institute: institute?._id }).select(
       "sportEventCount"
     );
     const library = await Library.findOne({ institute: institute?._id }).select(
       "bookCount"
     );
+    const alumini = await Alumini.findOne({ institute: institute?._id }).select(
+      "certifcate_given_count"
+    );
     const transport = await Transport.findOne({
       institute: institute?._id,
-    }).select("vehicle_count");
+    }).select("vehicle_count passenger_count");
+    const hostel = await Hostel.findOne({
+      institute: institute?._id,
+    }).select("hostelities_count");
+    const event = await EventManager.findOne({}).select("event_count");
     const count = {
       totalBalance: finance?.financeTotalBalance,
       ongoingEvent: sport?.sportEventCount,
       totalBooks: library?.bookCount,
       totalVehicles: transport?.vehicle_count,
+      totalPassenger: transport?.passenger_count,
+      totalHostelities: hostel?.hostelities_count,
+      totalApplication: admission?.newAppCount,
+      totalAlumini: alumini?.certifcate_given_count,
+      totalEvent: event?.event_count,
     };
     res.status(200).send({ message: "Limit Post Ins", institute, count });
   } catch (e) {

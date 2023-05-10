@@ -67,4 +67,14 @@ router.get(
 //   catchAsync(Mentor.renderOneStudentGiveFeedbackQuery)
 // );
 
+router.get(
+  "/:did/all/class/query",
+  catchAsync(Mentor.renderDepartAllClassQuery)
+);
+
+router.get(
+  "/:cid/all/filter/student/query",
+  catchAsync(Mentor.renderAllFilteredStudentQuery)
+);
+
 module.exports = router;

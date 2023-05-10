@@ -572,6 +572,22 @@ const studentSchema = new mongoose.Schema({
       },
     },
   ],
+  mentor_assign_query: [
+    {
+      classId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Class",
+      },
+      status: {
+        type: String,
+        default: "Not Assigned",
+      },
+      created_at: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
 });
 
 const Student = mongoose.model("Student", studentSchema);

@@ -188,6 +188,10 @@ exports.renderNewMentorMenteeQuery = async (req, res) => {
       const student = await Student.findById({ _id: `${ref}` });
       const user = await User.findById({ _id: student?.user });
       student.mentor = mentor_query?._id;
+      student.mentor_assign_query.push({
+        classId: student?.studentClass,
+        status: "Assigned",
+      });
       const notify = new StudentNotification({});
       notify.notifyContent = `${mentor_query?.mentor_head?.staffFirstName} ${mentor_query?.mentor_head?.staffLastName} is assigned as your Mentor`;
       notify.notifySender = depart._id;
@@ -240,7 +244,16 @@ exports.renderDestroyMentorMenteeQuery = async (req, res) => {
       mentor_query.mentees_count -= 1;
     }
     mentor_query.mentees.pull(student?._id);
-
+    if (student?.mentor_assign_query?.length > 0) {
+      for (var ref of student?.mentor_assign_query) {
+        if (
+          `${ref?.classId}` === `${student?.studentClass}` &&
+          status === "Assigned"
+        ) {
+          student.mentor_assign_query.pull(ref?._id);
+        }
+      }
+    }
     await Promise.all([depart.save(), student.save(), mentor_query.save()]);
     res.status(200).send({ message: "Removal of mentees", access: true });
   } catch (e) {
@@ -318,15 +331,21 @@ exports.renderOneQueryDetail = async (req, res) => {
         access: false,
       });
 
-    const query = await Queries.findById({ _id: qid }).populate({
-      path: "student",
-      select:
-        "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto user",
-      populate: {
-        path: "user",
-        select: "userPhoneNumber userEmail",
-      },
-    });
+    const query = await Queries.findById({ _id: qid })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto user",
+        populate: {
+          path: "user",
+          select: "userPhoneNumber userEmail",
+        },
+      })
+      .populate({
+        path: "forward_to",
+        select:
+          "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+      });
 
     res.status(200).send({ message: "Explore Query", access: true, query });
   } catch (e) {
@@ -871,6 +890,94 @@ exports.renderOneFeedbackDetailQuery = async (req, res) => {
         .send({ message: "Explore All Ratings", access: true, mentor: mentor });
     } else {
       res.status(200).send({ message: "You Lost in Space", access: false });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderDepartAllClassQuery = async (req, res) => {
+  try {
+    const { did } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!did)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const one_depart = await Department.findById({ _id: did }).select("class");
+
+    var all_classes = await Class.find({ _id: { $in: one_depart?.class } })
+      .limit(limit)
+      .skip(skip)
+      .select("className classTitle boyCount girlCount studentCount")
+      .populate({
+        path: "batch",
+        select: "batchName batchStatus",
+      });
+
+    if (all_classes?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Classes Query",
+        access: true,
+        all_classes: all_classes,
+      });
+    } else {
+      res
+        .status(200)
+        .send({ message: "No Classes Query", access: true, all_classes: [] });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderAllFilteredStudentQuery = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    var assigned_mentee = [];
+    const one_class = await Class.findById({ _id: cid }).select(
+      "ApproveStudent"
+    );
+
+    var all_student = await Student.find({
+      _id: { $in: one_class?.ApproveStudent },
+    }).select(
+      "mentor_assign_query studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO"
+    );
+
+    for (var ref of all_student) {
+      for (var ele of ref?.mentor_assign_query) {
+        if (
+          `${ele?.classId}` === `${one_class?._id}` &&
+          ele?.status === "Not Assigned"
+        ) {
+          assigned_mentee.push(ref);
+        }
+      }
+    }
+
+    if (assigned_mentee?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Not Assigned Mentee Array",
+        access: true,
+        assigned_mentee: assigned_mentee,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Not Assigned Mentee Array",
+        access: true,
+        assigned_mentee: [],
+      });
     }
   } catch (e) {
     console.log(e);

@@ -149,11 +149,20 @@ const payload_type_content_email = (
   mob
 ) => {
   if (type === "ADSIS") {
-    var text = `Hi ${sName}. "Qviple" is ERP Software of ${iName}. You are requested to login to your account with your email id (On which this email is received) to stay updated about your fees, exams and events of your school or college. Login by downloading app 'Qviple Community' from playstore or through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From "Qviple"`;
+    var text = `Hi ${sName}. 
+    "Qviple" is ERP Software of ${iName}. 
+    You are requested to login to your account with your email id (On which this email is received) to stay updated about your fees, exams and events of your school or college.
+    Login by downloading app 'Qviple Community' from playstore or through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From "Qviple"`;
 
-    var hext = `नमस्कार ${sName}। "क्यूवीपल" ${iName} का ईआरपी सॉफ्टवेयर है। आपसे अनुरोध है कि अपने स्कूल या कॉलेज की फीस, परीक्षाओं और कार्यक्रमों के बारे में अद्यतन रहने के लिए अपने मोबाइल नंबर (जिस पर यह एसएमएस प्राप्त हुआ है) के साथ अपने खाते में प्रवेश करें। Playstore से या लिंक के माध्यम से ऐप 'Qviple समुदाय' डाउनलोड करके लॉगिन करें: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - "Qviple" से`;
+    var hext = `नमस्कार ${sName}। 
+    "क्यूवीपल" ${iName} का ईआरपी सॉफ्टवेयर है। 
+    आपसे अनुरोध है कि अपने स्कूल या कॉलेज की फीस, परीक्षाओं और कार्यक्रमों के बारे में अद्यतन रहने के लिए अपने मोबाइल नंबर (जिस पर यह एसएमएस प्राप्त हुआ है) के साथ अपने खाते में प्रवेश करें। 
+    Playstore से या लिंक के माध्यम से ऐप 'Qviple समुदाय' डाउनलोड करके लॉगिन करें: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - "Qviple" से`;
 
-    var mext = `हाय ${sName}. "Qviple" हे ${iName} चे ERP सॉफ्टवेअर आहे. तुमच्‍या फी, परीक्षा आणि तुमच्‍या शाळा किंवा कॉलेजच्‍या इव्‍हेंटबद्दल अपडेट राहण्‍यासाठी तुम्‍हाला तुमच्‍या मोबाईल नंबरने (ज्यावर हा एसएमएस आला आहे) तुमच्‍या अकाउंटमध्‍ये लॉग इन करण्‍याची विनंती केली जाते. प्लेस्टोअरवरून किंवा लिंकद्वारे 'Qviple कम्युनिटी' अॅप डाउनलोड करून लॉग इन करा: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - "Qviple" वरून `;
+    var mext = `हाय ${sName}. 
+    "Qviple" हे ${iName} चे ERP सॉफ्टवेअर आहे. 
+    तुमच्‍या फी, परीक्षा आणि तुमच्‍या शाळा किंवा कॉलेजच्‍या इव्‍हेंटबद्दल अपडेट राहण्‍यासाठी तुम्‍हाला तुमच्‍या मोबाईल नंबरने (ज्यावर हा एसएमएस आला आहे) तुमच्‍या अकाउंटमध्‍ये लॉग इन करण्‍याची विनंती केली जाते. 
+    प्लेस्टोअरवरून किंवा लिंकद्वारे 'Qviple कम्युनिटी' अॅप डाउनलोड करून लॉग इन करा: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - "Qviple" वरून `;
     var message =
       lang === "en"
         ? text
@@ -224,11 +233,20 @@ ${iName} में आपका स्वागत है।
       var extension = "";
     }
   } else if (type === "ADMIS") {
-    var text = `Hi ${sName}. "Qviple" is ERP Software of ${iName}. You are requested to login to your account with your email id (On which this email is received) to stay updated about your fees, exams and events of your school or college. Login by downloading app 'Qviple Community' from playstore or through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From "Qviple"`;
+    var text = `Hi ${sName}. 
+    "Qviple" is ERP Software of ${iName}. 
+    You are requested to login to your account with your email id (On which this email is received) to stay updated about your fees, exams and events of your school or college. 
+    Login by downloading app 'Qviple Community' from playstore or through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From "Qviple"`;
 
-    var hext = `नमस्कार ${sName}। "क्यूवीपल" ${iName} का ईआरपी सॉफ्टवेयर है। आपसे अनुरोध है कि अपने स्कूल या कॉलेज की फीस, परीक्षाओं और कार्यक्रमों के बारे में अद्यतन रहने के लिए अपने मोबाइल नंबर (जिस पर यह एसएमएस प्राप्त हुआ है) के साथ अपने खाते में प्रवेश करें। Playstore से या लिंक के माध्यम से ऐप 'Qviple समुदाय' डाउनलोड करके लॉगिन करें: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - "Qviple" से`;
+    var hext = `नमस्कार ${sName}। 
+    "क्यूवीपल" ${iName} का ईआरपी सॉफ्टवेयर है। 
+    आपसे अनुरोध है कि अपने स्कूल या कॉलेज की फीस, परीक्षाओं और कार्यक्रमों के बारे में अद्यतन रहने के लिए अपने मोबाइल नंबर (जिस पर यह एसएमएस प्राप्त हुआ है) के साथ अपने खाते में प्रवेश करें। 
+    Playstore से या लिंक के माध्यम से ऐप 'Qviple समुदाय' डाउनलोड करके लॉगिन करें: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - "Qviple" से`;
 
-    var mext = `हाय ${sName}. "Qviple" हे ${iName} चे ERP सॉफ्टवेअर आहे. तुमच्‍या फी, परीक्षा आणि तुमच्‍या शाळा किंवा कॉलेजच्‍या इव्‍हेंटबद्दल अपडेट राहण्‍यासाठी तुम्‍हाला तुमच्‍या मोबाईल नंबरने (ज्यावर हा एसएमएस आला आहे) तुमच्‍या अकाउंटमध्‍ये लॉग इन करण्‍याची विनंती केली जाते. प्लेस्टोअरवरून किंवा लिंकद्वारे 'Qviple कम्युनिटी' अॅप डाउनलोड करून लॉग इन करा: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - "Qviple" वरून `;
+    var mext = `हाय ${sName}. 
+    "Qviple" हे ${iName} चे ERP सॉफ्टवेअर आहे. 
+    तुमच्‍या फी, परीक्षा आणि तुमच्‍या शाळा किंवा कॉलेजच्‍या इव्‍हेंटबद्दल अपडेट राहण्‍यासाठी तुम्‍हाला तुमच्‍या मोबाईल नंबरने (ज्यावर हा एसएमएस आला आहे) तुमच्‍या अकाउंटमध्‍ये लॉग इन करण्‍याची विनंती केली जाते. 
+    प्लेस्टोअरवरून किंवा लिंकद्वारे 'Qviple कम्युनिटी' अॅप डाउनलोड करून लॉग इन करा: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - "Qviple" वरून `;
     var message =
       lang === "en"
         ? text
@@ -353,9 +371,9 @@ exports.email_sms_payload_query = (
         largs
       );
       if (content.message) {
-        const subject = "Qviple Announcement";
+        const subject = "Qviple ERP Login Details";
         const message = `${content.message}`;
-        const url = `http://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${margs}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
+        const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${margs}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
         const encodeURL = encodeURI(url);
         axios
           .post(encodeURL)
@@ -404,7 +422,7 @@ exports.email_sms_designation_alarm = (
           ? valid?.m_text
           : "";
       const subject = "Qviple Designation";
-      const url = `http://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
+      const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
       const encodeURL = encodeURI(url);
       axios
         .post(encodeURL)

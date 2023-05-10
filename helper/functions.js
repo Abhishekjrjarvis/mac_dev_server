@@ -2,6 +2,7 @@ const { shuffleArray } = require("../Utilities/Shuffle");
 const Admin = require("../models/superAdmin");
 const InstituteAdmin = require("../models/InstituteAdmin");
 const User = require("../models/User");
+const Student = require("../models/Student");
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
 const bcrypt = require("bcryptjs");
@@ -120,7 +121,7 @@ exports.send_email_authentication = async (email) => {
   const OTP = `${rand1}${rand2}${rand3}${rand4}`;
   const subject = "OTP Verification";
   const message = `Welcome to Qviple, Your Qviple account verification OTP is ${OTP} Mithkal Minds Pvt Ltd.`;
-  const url = `http://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
+  const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
   const encodeURL = encodeURI(url);
   axios
     .post(encodeURL)
@@ -140,8 +141,11 @@ const send_email_authentication_promotional = async (email) => {
   let rand4 = Math.floor(Math.random() * 9) + 1;
   const OTP = `${rand1}${rand2}${rand3}${rand4}`;
   const subject = "OTP Verification";
-  const message = `Hi Pankaj. "Qviple" is ERP Software of SRB College. You are requested to login to your account with your email id(On which this email is received) to stay updated about your fees, exams and events of your school or college. Login by downloading app 'Qviple Community' from playstore or through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From "Qviple"`;
-  const url = `http://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
+  const message = `Hi Pankaj. 
+  "Qviple" is ERP Software of Qviple Officials. 
+  You are requested to login to your account with your email id (On which this email is received) to stay updated about your fees, exams and events of your school or college.
+  Login by downloading app 'Qviple Community' from playstore or through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From "Qviple"`;
+  const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
   const encodeURL = encodeURI(url);
   axios
     .post(encodeURL)
@@ -154,9 +158,86 @@ const send_email_authentication_promotional = async (email) => {
   return OTP;
 };
 
+exports.student_sms_trigger_query = async (i_args, c_args) => {
+  try {
+    var all_student = await Student.find({
+      $and: [
+        { institute: i_args?._id },
+        { studentStatus: "Approved" },
+        { studentClass: c_args },
+      ],
+    });
+
+    for (var ref of all_student) {
+      var one_user = await User.findById({ _id: `${ref?.user}` });
+      const valid_sname = `${ref?.studentFirstName} ${
+        ref?.studentMiddleName ?? ""
+      } ${ref?.studentLastName}`;
+      const sName = `${valid_sname?.slice(0, 30)}`;
+      const iName = `${i_args?.insName?.slice(0, 30)}`;
+      var e_message = `Hi ${sName}. 
+      "Qviple" is ERP Software of ${iName}. 
+      You are requested to login to your account with your mobile number(On which this SMS is received) to stay updated about your fees, exams and events of your school or college. 
+      Login by downloading app 'Qviple Community' from playstore or through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From "Qviple"`;
+
+      if (one_user?.userPhoneNumber) {
+        const url = `http://mobicomm.dove-sms.com//submitsms.jsp?user=Mithkal&key=4c3168d558XX&mobile=+91${one_user?.userPhoneNumber}&message=${e_message}&senderid=QVIPLE&accusage=6&entityid=1701164286216096677&tempid=1707168309247841573`;
+        axios
+          .post(url)
+          .then((res) => {
+            if (
+              (res && res.data.includes("success")) ||
+              res.data.includes("sent")
+            ) {
+              console.log(
+                `Custom SMS Sent Successfully -> ${one_user?.userPhoneNumber}`
+              );
+            } else {
+              console.log("Custom SMS API Bug");
+            }
+          })
+          .catch((e) => {
+            console.log(e);
+          });
+        return true;
+      } else if (one_user?.userEmail) {
+        const subject = "Qviple Announcement";
+        const valid_sname = `${ref?.studentFirstName} ${
+          ref?.studentMiddleName ?? ""
+        } ${ref?.studentLastName}`;
+        const sName = `${valid_sname?.slice(0, 30)}`;
+        const iName = `${i_args?.insName?.slice(0, 30)}`;
+        const message = `Hi ${sName}. 
+        "Qviple" is ERP Software of ${iName}. 
+        You are requested to login to your account with your email id (On which this email is received) to stay updated about your fees, exams and events of your school or college.
+        Login by downloading app 'Qviple Community' from playstore or through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From "Qviple"`;
+
+        const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${one_user?.userEmail}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
+        const encodeURL = encodeURI(url);
+        axios
+          .post(encodeURL)
+          .then((res) => {
+            console.log(
+              `Custom Email Sended Successfully -> ${one_user?.userEmail}`
+            );
+          })
+          .catch((e) => {
+            console.log("Custom Email API Bug", e.message);
+          });
+        return true;
+      } else {
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // console.log(
 //   send_email_authentication_promotional("pankajphad.stuff@gmail.com")
 // );
+
+// console.log(await student_sms_trigger_query(ins, cid))
 
 // const dataa = () => {
 //   const new_user_pass = bcrypt.genSaltSync(12);

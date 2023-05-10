@@ -29839,6 +29839,55 @@ paths:
       responses:
         "200":
           description: OK
+
+  /api/v1/mentor/mentee/{did}/all/class/query:
+    get:
+      tags:
+        - Mentor Mentee Query
+      summary: All Mentor Mentee Class By One Department -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: did
+          required: true
+          type: string
+          description: Enter Department ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit Number
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/mentor/mentee/{cid}/all/filter/student/query:
+    get:
+      tags:
+        - Mentor Mentee Query
+      summary: All Not Assigned Student By One Class By One Department -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: Enter Class ID
+      responses:
+        "200":
+          description: OK
           
           
   # for supervisor activity
@@ -30271,3 +30320,4 @@ paths:
       responses:
         "200":
           description: OK
+

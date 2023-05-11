@@ -762,6 +762,9 @@ exports.searchStudent = async (req, res) => {
                 studentMiddleName: { $regex: req.query.search, $options: "i" },
               },
               { studentLastName: { $regex: req.query.search, $options: "i" } },
+              {
+                studentGRNO: { regex: req.query.search, $options: "i" },
+              },
             ],
           }
         : {};
@@ -771,7 +774,7 @@ exports.searchStudent = async (req, res) => {
         )
         .populate({
           path: "user",
-          select: "_id userPhoneNumber",
+          select: "_id userPhoneNumber userEmail",
         })
         .populate({
           path: "studentClass",
@@ -802,7 +805,7 @@ exports.searchStudent = async (req, res) => {
         )
         .populate({
           path: "user",
-          select: "_id userPhoneNumber",
+          select: "_id userPhoneNumber userEmail",
         })
         .populate({
           path: "studentClass",

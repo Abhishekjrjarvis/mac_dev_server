@@ -17,6 +17,8 @@ const {
   add_total_installment,
   set_fee_head_query,
 } = require("../Functions/hostelInstallment");
+const Renewal = require("../models/Hostel/renewal");
+const { custom_month_query } = require("./dayTimer");
 
 exports.insert_multiple_hostel_status = async (
   args,
@@ -111,12 +113,14 @@ exports.fee_reordering_hostel = async (
   user,
   one_unit,
   roomId,
-  bed_number
+  bed_number,
+  start_date
 ) => {
   try {
     const room = await HostelRoom.findOne({
       $and: [{ _id: roomId }, { hostelUnit: one_unit?._id }],
     });
+    var renew = new Renewal({});
     const bed = new HostelBed({});
     var student = await Student.findById({ _id: `${stu_query?._id}` }).populate(
       {
@@ -291,6 +295,18 @@ exports.fee_reordering_hostel = async (
     order.payment_invoice_number = s_admin.invoice_count;
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
+    var valid_end = student?.hostel_fee_structure?.structure_month;
+    var month_query = custom_month_query(valid_end);
+    student.hostel_renewal = new Date(`${month_query}`);
+    renew.renewal_student = student?._id;
+    renew.renewal_application = apply?._id;
+    new_remainFee.renewal_start = new Date(`${start_date}`);
+    new_remainFee.renewal_end = student?.hostel_renewal;
+    renew.renewal_start = new Date(`${start_date}`);
+    renew.renewal_end = student?.hostel_renewal;
+    renew.renewal_status = "Current Stay";
+    renew.renewal_hostel = hostel?._id;
+    student.student_renewal.push(renew?._id);
     await Promise.all([
       new_receipt.save(),
       new_remainFee.save(),
@@ -300,6 +316,7 @@ exports.fee_reordering_hostel = async (
       bed.save(),
       room.save(),
       student.save(),
+      renew.save(),
     ]);
   } catch (e) {
     console.log(e);

@@ -133,6 +133,18 @@ const newApplicationSchema = new mongoose.Schema({
     type: String,
     default: "Normal Application",
   },
+  direct_linked_structure: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "FeeStructure",
+  },
+  direct_attach_class: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Class",
+  },
+  application_type: {
+    type: String,
+    default: "Step Wise Admission",
+  },
 });
 
 module.exports = mongoose.model("NewApplication", newApplicationSchema);

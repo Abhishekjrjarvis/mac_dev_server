@@ -1094,24 +1094,24 @@ exports.retrieveAllUserPosts = async (req, res) => {
         //   bind_data
         // );
         // Add Another Encryption
-        var obj = {
-          message: "All Feed from DB",
-          post: post,
-          postCount: postCount.length,
-          totalPage: totalPage,
-        };
-        var encryption_payload = await encryptionPayload(obj);
-        res.status(200).send(
-          encryption_payload
+        // var obj = {
+        //   message: "All Feed from DB",
+        //   post: post,
+        //   postCount: postCount.length,
+        //   totalPage: totalPage,
+        // };
+        // var encryption_payload = await encryptionPayload(obj);
+        res.status(200).send({
+          // encryption_payload
           // message: "All Feed from DB",
           // post: cached.post,
           // postCount: cached.postCount,
           // totalPage: cached.totalPage,
-          // post: post,
+          post: post,
           // all_post_encrypt,
-          // postCount: postCount.length,
-          // totalPage: totalPage,
-        );
+          postCount: postCount.length,
+          totalPage: totalPage,
+      });
       } else {
         res.status(200).send({
           message: "No Feed Available",

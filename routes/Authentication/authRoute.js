@@ -131,4 +131,9 @@ router.get(
   catchAsync(Auth.renderLogoutDesignationQuery)
 );
 
+router.delete(
+  "/remove/platform/one/institute/:cid/all/student",
+  catchAsync(Auth.renderOneInstituteAllStudentQuery)
+);
+
 module.exports = router;

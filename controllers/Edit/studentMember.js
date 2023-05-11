@@ -18,6 +18,8 @@ const { grade_calculate } = require("../../Utilities/custom_grade");
 const Subject = require("../../models/Subject");
 const FeeStructure = require("../../models/Finance/FeesStructure");
 const RemainingList = require("../../models/Admission/RemainingList");
+const { handle_undefined } = require("../../Handler/customError");
+const User = require("../../models/User");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.photoEditByStudent = async (req, res) => {
@@ -50,6 +52,9 @@ exports.photoEditByStudent = async (req, res) => {
 exports.formEditByClassTeacher = async (req, res) => {
   try {
     if (!req.params.sid) throw "Please send student id to perform task";
+    const { phone, email } = req.body;
+    var valid_phone = handle_undefined(phone);
+    var valid_email = handle_undefined(email);
     const old_data = {
       gender: "",
       caste: "",
@@ -101,6 +106,17 @@ exports.formEditByClassTeacher = async (req, res) => {
       new_data,
       one_student?.studentClass
     );
+    var one_user = await User.findById({ _id: `${one_student?.user}` });
+    if (valid_phone) {
+      one_user.userPhoneNumber = valid_phone
+        ? valid_phone
+        : one_user?.userPhoneNumber;
+      await one_user.save();
+    } else if (valid_email) {
+      one_user.userEmail = valid_email ? valid_email : one_user?.userEmail;
+      await one_user.save();
+    } else {
+    }
   } catch (e) {
     console.log(e);
   }

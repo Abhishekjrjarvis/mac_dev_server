@@ -3520,16 +3520,23 @@ exports.retrieveInstituteDirectJoinStaffAutoQuery = async (
   }
 };
 
-// console.log(
-//   whats_app_sms_payload(
-//     7007023972,
-//     "Abhishek Singh",
-//     "Qviple Official",
-//     null,
-//     "ASCAS",
-//     "College/Polytechnic",
-//     19000,
-//     10000,
-//     "en"
-//   )
-// );
+exports.renderOneInstituteAllStudentQuery = async(req, res) => {
+  try{
+    const { cid } = req.params
+    if(!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+
+    var one_class = await Class.findById({ _id: cid })
+    var one_depart = await Department.findById({ _id: `${one_class?.department}`})
+    var one_batch = await Batch.findById({ _id: `${one_class?.batch}`})
+    var one_ins = await InstituteAdmin.findById({ _id: `${one_depart?.institute}`})
+    var admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}`})
+    var admission = await Admission.findById({ _id: `${one_ins?.admissionDepart[0]}`})
+    // var
+    for(var ref of all_students){
+
+    }
+  }
+  catch(e){
+    console.log(e)
+  }
+}

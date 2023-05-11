@@ -459,6 +459,7 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
       $and: [
         { applicationTypeStatus: "Promote Application" },
         { admissionAdmin: admission?._id },
+        { applicationDepartment: newApply?.applicationDepartment }
       ],
     });
     if (valid_promote?.length > 0) {

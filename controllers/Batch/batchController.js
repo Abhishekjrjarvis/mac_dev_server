@@ -353,6 +353,7 @@ exports.promoteStudent = async (req, res) => {
       $and: [
         { applicationTypeStatus: "Promote Application" },
         { admissionAdmin: admission?._id },
+        { applicationDepartment: department?._id },
       ],
     });
     var apply = valid_app ? valid_app?.[0] : "";

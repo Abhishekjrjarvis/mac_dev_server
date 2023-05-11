@@ -47,7 +47,8 @@ exports.preformedStructure = async (req, res) => {
       });
     var department = await Department.findById(batch?.department);
     const institute = await InstituteAdmin.findById(batch?.institute);
-    const identicalBatch = new Batch({
+    var admission = await Admission.findById({ _id: institute?.admissionDepart[0] })
+    var identicalBatch = new Batch({
       batchName: req.body?.batchName,
       institute: batch?.institute,
       department: batch?.department,
@@ -97,6 +98,30 @@ exports.preformedStructure = async (req, res) => {
         new_struct.fees_heads_count += 1;
       }
       await new_struct.save();
+    }
+    var valid_apply = await NewApplication.find({
+      $and: [
+        { applicationTypeStatus: "Promote Application" },
+        { admissionAdmin: admission?._id },
+        { applicationDepartment: department?._id },
+        { applicationBatch: batch?._id }
+      ]
+    })
+    if(valid_apply?.length > 0){
+      for(var ref of valid_apply){
+        const new_app = new NewApplication({
+          applicationName: "Promote Student",
+          applicationDepartment: ref?.applicationDepartment,
+          applicationBatch: identicalBatch?._id,
+          applicationMaster: ref?.applicationMaster,
+          applicationTypeStatus: "Promote Application",
+        });
+        admission.newApplication.push(new_app._id);
+        admission.newAppCount += 1;
+        new_app.admissionAdmin = admission._id;
+        institute.admissionCount += 1;
+        await Promise.all([new_app.save(), admission.save(), institute.save()]);
+      }
     }
     for (let oneClass of batch?.classroom) {
       // console.log("this is class", oneClass);
@@ -354,6 +379,7 @@ exports.promoteStudent = async (req, res) => {
         { applicationTypeStatus: "Promote Application" },
         { admissionAdmin: admission?._id },
         { applicationDepartment: department?._id },
+        { applicationBatch: batch?._id }
       ],
     });
     var apply = valid_app ? valid_app?.[0] : "";

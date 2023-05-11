@@ -439,27 +439,28 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
     res
       .status(200)
       .send({ message: "New Application is ongoing 👍", status: true });
-    const post = new Post({});
-    post.imageId = "1";
-    institute.posts.push(post._id);
-    institute.postCount += 1;
-    post.author = institute._id;
-    post.authorName = institute.insName;
-    post.authorUserName = institute.name;
-    post.authorPhotoId = institute.photoId;
-    post.authorProfilePhoto = institute.insProfilePhoto;
-    post.authorOneLine = institute.one_line_about;
-    post.authorFollowersCount = institute.followersCount;
-    post.isInstitute = "institute";
-    post.postType = "Application";
-    post.new_application = newApply._id;
-    post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
-    await Promise.all([post.save(), institute.save()]);
+    // const post = new Post({});
+    // post.imageId = "1";
+    // institute.posts.push(post._id);
+    // institute.postCount += 1;
+    // post.author = institute._id;
+    // post.authorName = institute.insName;
+    // post.authorUserName = institute.name;
+    // post.authorPhotoId = institute.photoId;
+    // post.authorProfilePhoto = institute.insProfilePhoto;
+    // post.authorOneLine = institute.one_line_about;
+    // post.authorFollowersCount = institute.followersCount;
+    // post.isInstitute = "institute";
+    // post.postType = "Application";
+    // post.new_application = newApply._id;
+    // post.post_url = `https://qviple.com/q/${post.authorUserName}/profile`;
+    // await Promise.all([post.save(),
+    await institute.save();
     var valid_promote = await NewApplication.find({
       $and: [
         { applicationTypeStatus: "Promote Application" },
         { admissionAdmin: admission?._id },
-        { applicationDepartment: newApply?.applicationDepartment }
+        { applicationDepartment: newApply?.applicationDepartment },
       ],
     });
     if (valid_promote?.length > 0) {
@@ -479,7 +480,7 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
       institute.admissionCount += 1;
       await Promise.all([new_app.save(), admission.save(), institute.save()]);
     }
-    await new_admission_recommend_post(institute?._id, post?._id, expand);
+    // await new_admission_recommend_post(institute?._id, post?._id, expand);
   } catch (e) {
     console.log(e);
   }

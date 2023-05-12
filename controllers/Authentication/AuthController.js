@@ -3548,178 +3548,180 @@ exports.renderOneInstituteAllStudentQuery = async (req, res) => {
     var finance = await Finance.findById({
       _id: `${one_ins?.financeDepart[0]}`,
     });
-    // var
     res
       .status(200)
       .send({ message: "Deletion Operation Completed", access: true });
     for (var ref of all_students) {
       var one_student = await Student.findById({ _id: `${ref}` });
       var one_user = await User.findById({ _id: `${one_student?.user}` });
-      one_depart.ApproveStudent.pull(one_student?._id);
-      if (one_depart?.studentCount > 0) {
-        one_depart.studentCount -= 1;
-      }
-      one_batch.ApproveStudent.pull(one_student?._id);
-      one_class.ApproveStudent.pull(one_student?._id);
-      if (one_class?.studentCount > 0) {
-        one_class.studentCount -= 1;
-      }
-      if (one_student?.studentGender === "Male") {
-        if (one_batch.student_category.boyCount > 0) {
-          one_batch.student_category.boyCount -= 1;
-          if (one_class?.boyCount > 0) {
-            one_class.boyCount -= 1;
+      if (one_user?.staff?.length > 0) {
+      } else {
+        one_depart.ApproveStudent.pull(one_student?._id);
+        if (one_depart?.studentCount > 0) {
+          one_depart.studentCount -= 1;
+        }
+        one_batch.ApproveStudent.pull(one_student?._id);
+        one_class.ApproveStudent.pull(one_student?._id);
+        if (one_class?.studentCount > 0) {
+          one_class.studentCount -= 1;
+        }
+        if (one_student?.studentGender === "Male") {
+          if (one_batch.student_category.boyCount > 0) {
+            one_batch.student_category.boyCount -= 1;
+            if (one_class?.boyCount > 0) {
+              one_class.boyCount -= 1;
+            }
+          }
+        } else if (one_student?.studentGender === "Female") {
+          if (one_batch.student_category.girlCount > 0) {
+            one_batch.student_category.girlCount -= 1;
+            if (one_class?.girlCount > 0) {
+              one_class.girlCount -= 1;
+            }
+          }
+        } else if (one_student?.studentGender === "Other") {
+          if (one_batch.student_category.otherCount > 0) {
+            one_batch.student_category.otherCount -= 1;
+            if (one_class?.otherCount > 0) {
+              one_class.otherCount -= 1;
+            }
           }
         }
-      } else if (one_student?.studentGender === "Female") {
-        if (one_batch.student_category.girlCount > 0) {
-          one_batch.student_category.girlCount -= 1;
-          if (one_class?.girlCount > 0) {
-            one_class.girlCount -= 1;
-          }
-        }
-      } else if (one_student?.studentGender === "Other") {
-        if (one_batch.student_category.otherCount > 0) {
-          one_batch.student_category.otherCount -= 1;
-          if (one_class?.otherCount > 0) {
-            one_class.otherCount -= 1;
-          }
-        }
-      }
-      var all_apps = await NewApplication.find({
-        _id: { $in: one_user?.applyApplication },
-      });
-      for (var app of all_apps) {
-        var all_remain_list = await RemainingList.find({
-          $and: [{ student: one_student?._id }, { appId: app?._id }],
+        var all_apps = await NewApplication.find({
+          _id: { $in: one_user?.applyApplication },
         });
-        for (var remain of all_remain_list) {
-          await RemainingList.findByIdAndDelete(remain?._id);
+        for (var app of all_apps) {
+          var all_remain_list = await RemainingList.find({
+            $and: [{ student: one_student?._id }, { appId: app?._id }],
+          });
+          for (var remain of all_remain_list) {
+            await RemainingList.findByIdAndDelete(remain?._id);
+          }
+          var all_receipts = await FeeReceipt.find({
+            $and: [{ student: one_student?._id }, { application: app?._id }],
+          });
+          for (var receipt of all_receipts) {
+            await FeeReceipt.findByIdAndDelete(receipt?._id);
+          }
+          if (one_student?.admissionRemainFeeCount > 0) {
+            if (app?.remainingFee > 0) {
+              app.remainingFee -= one_student?.admissionRemainFeeCount;
+            }
+          }
+          app.deleted_student_fee += one_student.admissionPaidFeeCount;
+          for (var rec of app?.receievedApplication) {
+            if (`${rec?.student}` === `${one_student?._id}`) {
+              app.receievedApplication.pull(rec?._id);
+              if (rec?.receievedCount > 0) {
+                rec.receievedCount -= 1;
+              }
+            }
+          }
+          for (var rec of app?.selectedApplication) {
+            if (`${rec?.student}` === `${one_student?._id}`) {
+              app.selectedApplication.pull(rec?._id);
+              if (rec?.selectCount > 0) {
+                rec.selectCount -= 1;
+              }
+            }
+          }
+          for (var rec of app?.confirmedApplication) {
+            if (`${rec?.student}` === `${one_student?._id}`) {
+              app.confirmedApplication.pull(rec?._id);
+              if (rec?.confirmCount > 0) {
+                rec.confirmCount -= 1;
+              }
+            }
+          }
+          for (var rec of app?.allottedApplication) {
+            if (`${rec?.student}` === `${one_student?._id}`) {
+              app.allottedApplication.pull(rec?._id);
+              if (rec?.allotCount > 0) {
+                rec.allotCount -= 1;
+              }
+            }
+          }
+          for (var rec of app?.cancelApplication) {
+            if (`${rec?.student}` === `${one_student?._id}`) {
+              app.cancelApplication.pull(rec?._id);
+              if (rec?.cancelCount > 0) {
+                rec.cancelCount -= 1;
+              }
+            }
+          }
+          var all_status = await Status.find({ applicationId: app?._id });
+          for (var status of all_status) {
+            await Status.findByIdAndDelete(status?._id);
+          }
+          await app.save();
         }
-        var all_receipts = await FeeReceipt.find({
-          $and: [{ student: one_student?._id }, { application: app?._id }],
-        });
-        for (var receipt of all_receipts) {
-          await FeeReceipt.findByIdAndDelete(receipt?._id);
-        }
+        admission.remainingFee.pull(one_student?._id);
         if (one_student?.admissionRemainFeeCount > 0) {
-          if (app?.remainingFee > 0) {
-            app.remainingFee -= one_student?.admissionRemainFeeCount;
+          if (admission.remainingFeeCount > 0) {
+            admission.remainingFeeCount -= one_student?.admissionRemainFeeCount;
           }
         }
-        app.deleted_student_fee += one_student.admissionPaidFeeCount;
-        for (var rec of app?.receievedApplication) {
-          if (`${rec?.student}` === `${one_student?._id}`) {
-            app.receievedApplication.pull(rec?._id);
-            if (rec?.receievedCount > 0) {
-              rec.receievedCount -= 1;
-            }
+        admission.deleted_student_fee += one_student.admissionPaidFeeCount;
+        if (one_student?.admissionPaidFeeCount > 0) {
+          if (finance?.financeTotalBalance > 0) {
+            finance.financeTotalBalance -= one_student?.admissionPaidFeeCount;
           }
         }
-        for (var rec of app?.selectedApplication) {
-          if (`${rec?.student}` === `${one_student?._id}`) {
-            app.selectedApplication.pull(rec?._id);
-            if (rec?.selectCount > 0) {
-              rec.selectCount -= 1;
-            }
-          }
-        }
-        for (var rec of app?.confirmedApplication) {
-          if (`${rec?.student}` === `${one_student?._id}`) {
-            app.confirmedApplication.pull(rec?._id);
-            if (rec?.confirmCount > 0) {
-              rec.confirmCount -= 1;
-            }
-          }
-        }
-        for (var rec of app?.allottedApplication) {
-          if (`${rec?.student}` === `${one_student?._id}`) {
-            app.allottedApplication.pull(rec?._id);
-            if (rec?.allotCount > 0) {
-              rec.allotCount -= 1;
-            }
-          }
-        }
-        for (var rec of app?.cancelApplication) {
-          if (`${rec?.student}` === `${one_student?._id}`) {
-            app.cancelApplication.pull(rec?._id);
-            if (rec?.cancelCount > 0) {
-              rec.cancelCount -= 1;
-            }
-          }
-        }
-        var all_status = await Status.find({ applicationId: app?._id });
-        for (var status of all_status) {
-          await Status.findByIdAndDelete(status?._id);
-        }
-        await app.save();
-      }
-      admission.remainingFee.pull(one_student?._id);
-      if (one_student?.admissionRemainFeeCount > 0) {
-        if (admission.remainingFeeCount > 0) {
-          admission.remainingFeeCount -= one_student?.admissionRemainFeeCount;
-        }
-      }
-      admission.deleted_student_fee += one_student.admissionPaidFeeCount;
-      if (one_student?.admissionPaidFeeCount > 0) {
-        if (finance?.financeTotalBalance > 0) {
-          finance.financeTotalBalance -= one_student?.admissionPaidFeeCount;
-        }
-      }
-      var all_notification = await StudentNotification.find({
-        notifyReceiever: `${one_user?._id}`,
-      });
-      for (var notify of all_notification) {
-        await StudentNotification.findByIdAndDelete(notify?._id);
-      }
-      one_ins.ApproveStudent.pull(one_student?._id);
-      if (one_ins?.studentCount > 0) {
-        one_ins.studentCount -= 1;
-      }
-      admin.studentArray.pull(one_student?._id);
-      if (admin?.studentCount > 0) {
-        admin.studentCount -= 1;
-      }
-      if (`${one_ins?.isUniversal}` === "Not Assigned") {
-        if (one_ins?.userFollowersList?.includes(`${one_user?._id}`)) {
-          one_ins.userFollowersList.pull(one_user?._id);
-          if (one_ins?.followersCount > 0) {
-            one_ins.followersCount -= 1;
-          }
-        }
-        var universal = await InstituteAdmin.findOne({
-          isUniversal: "Universal",
+        var all_notification = await StudentNotification.find({
+          notifyReceiever: `${one_user?._id}`,
         });
-        if (universal?.userFollowersList?.includes(`${one_user?._id}`)) {
-          universal.userFollowersList.pull(one_user?._id);
-          if (universal?.followersCount > 0) {
-            universal.followersCount -= 1;
+        for (var notify of all_notification) {
+          await StudentNotification.findByIdAndDelete(notify?._id);
+        }
+        one_ins.ApproveStudent.pull(one_student?._id);
+        if (one_ins?.studentCount > 0) {
+          one_ins.studentCount -= 1;
+        }
+        admin.studentArray.pull(one_student?._id);
+        if (admin?.studentCount > 0) {
+          admin.studentCount -= 1;
+        }
+        if (`${one_ins?.isUniversal}` === "Not Assigned") {
+          if (one_ins?.userFollowersList?.includes(`${one_user?._id}`)) {
+            one_ins.userFollowersList.pull(one_user?._id);
+            if (one_ins?.followersCount > 0) {
+              one_ins.followersCount -= 1;
+            }
+          }
+          var universal = await InstituteAdmin.findOne({
+            isUniversal: "Universal",
+          });
+          if (universal?.userFollowersList?.includes(`${one_user?._id}`)) {
+            universal.userFollowersList.pull(one_user?._id);
+            if (universal?.followersCount > 0) {
+              universal.followersCount -= 1;
+            }
+          }
+          await universal.save();
+        }
+        if (`${one_ins?.isUniversal}` === "Universal") {
+          if (one_ins?.userFollowersList?.includes(`${one_user?._id}`)) {
+            one_ins.userFollowersList.pull(one_user?._id);
+            if (one_ins?.followersCount > 0) {
+              one_ins.followersCount -= 1;
+            }
           }
         }
-        await universal.save();
-      }
-      if (`${one_ins?.isUniversal}` === "Universal") {
-        if (one_ins?.userFollowersList?.includes(`${one_user?._id}`)) {
-          one_ins.userFollowersList.pull(one_user?._id);
-          if (one_ins?.followersCount > 0) {
-            one_ins.followersCount -= 1;
-          }
+        if (one_ins?.joinedUserList?.includes(`${one_user?._id}`)) {
+          one_ins.joinedUserList.pull(one_user?._id);
         }
+        if (one_ins?.joinedPost?.includes(`${one_user?._id}`)) {
+          one_ins.joinedPost.pull(one_user?._id);
+        }
+        if (one_student?.studentProfilePhoto) {
+          await deleteFile(one_student?.studentProfilePhoto);
+        }
+        if (one_user?.profilePhoto) {
+          await deleteFile(one_user?.profilePhoto);
+        }
+        await Student.findByIdAndDelete(one_student?._id);
+        await User.findByIdAndDelete(one_user?._id);
       }
-      if (one_ins?.joinedUserList?.includes(`${one_user?._id}`)) {
-        one_ins.joinedUserList.pull(one_user?._id);
-      }
-      if (one_ins?.joinedPost?.includes(`${one_user?._id}`)) {
-        one_ins.joinedPost.pull(one_user?._id);
-      }
-      if (one_student?.studentProfilePhoto) {
-        await deleteFile(one_student?.studentProfilePhoto);
-      }
-      if (one_user?.profilePhoto) {
-        await deleteFile(one_user?.profilePhoto);
-      }
-      await Student.findByIdAndDelete(one_student?._id);
-      await User.findByIdAndDelete(one_user?._id);
     }
     await Promise.all([
       admission.save(),

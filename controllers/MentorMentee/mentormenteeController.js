@@ -345,6 +345,15 @@ exports.renderOneQueryDetail = async (req, res) => {
         path: "forward_to",
         select:
           "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+      })
+      .populate({
+        path: "mentor",
+        select: "mentor_head",
+        populate: {
+          path: "mentor_head",
+          select:
+            "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+        },
       });
 
     res.status(200).send({ message: "Explore Query", access: true, query });

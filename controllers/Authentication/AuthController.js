@@ -3549,6 +3549,9 @@ exports.renderOneInstituteAllStudentQuery = async (req, res) => {
       _id: `${one_ins?.financeDepart[0]}`,
     });
     // var
+    res
+      .status(200)
+      .send({ message: "Deletion Operation Completed", access: true });
     for (var ref of all_students) {
       var one_student = await Student.findById({ _id: `${ref}` });
       var one_user = await User.findById({ _id: `${one_student?.user}` });

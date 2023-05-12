@@ -3526,6 +3526,7 @@ exports.retrieveInstituteDirectJoinStaffAutoQuery = async (
 exports.renderOneInstituteAllStudentQuery = async (req, res) => {
   try {
     const { cid } = req.params;
+    const { all_students } = req.body
     if (!cid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",

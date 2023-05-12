@@ -30339,6 +30339,15 @@ paths:
           required: true
           type: string
           description: This is Class id
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              all_students:
+                type: array
+                description: Enter Array of Student ID's
+                required: true
       responses:
         "200":
           description: OK

@@ -30321,3 +30321,24 @@ paths:
         "200":
           description: OK
 
+
+#Platform All Student Removal By Institute Admin
+
+  /api/v1/auth/remove/platform/one/institute/{cid}/all/student:
+    delete:
+      tags:
+        - Platform Student + User Deletion
+      summary: Delete All Student + User By Institute Admin (Verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: cid
+          required: true
+          type: string
+          description: This is Class id
+      responses:
+        "200":
+          description: OK

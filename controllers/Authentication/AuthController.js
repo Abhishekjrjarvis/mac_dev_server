@@ -8,6 +8,7 @@ const {
   getFileStream,
   uploadDocFile,
   uploadFile,
+  deleteFile,
 } = require("../../S3Configuration");
 const fs = require("fs");
 const util = require("util");
@@ -69,6 +70,7 @@ const {
 const { handle_undefined } = require("../../Handler/customError");
 const FeeReceipt = require("../../models/RazorPay/feeReceipt");
 const FeeStructure = require("../../models/Finance/FeesStructure");
+const RemainingList = require("../../models/Admission/RemainingList");
 
 const generateQR = async (encodeData, Id) => {
   try {
@@ -261,10 +263,10 @@ const generateOTP = async (mob) => {
 };
 
 const directESMSQuery = (mob, valid_sname, valid_iname) => {
-  var sName = `${valid_sname?.slice(0, 30)}`
-  var iName = `${valid_iname?.slice(0, 30)}`
+  var sName = `${valid_sname?.slice(0, 30)}`;
+  var iName = `${valid_iname?.slice(0, 30)}`;
   const e_message = `Hi ${sName}. "Qviple" is ERP Software of ${iName}. You are requested to login to your account with your mobile number(On which this SMS is received) to stay updated about your fees, exams and events of your school or college. Login by downloading app 'Qviple Community' from playstore or through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From "Qviple"`;
-  const url = `http://mobicomm.dove-sms.com//submitsms.jsp?user=Mithkal&key=4c3168d558XX&mobile=+91${mob}&message=${e_message}&senderid=QVIPLE&accusage=6&entityid=1701164286216096677&tempid=1707168309247841573`;
+  const url = `http://mobicomm.dove-sms.com//submitsms.jsp?user=Mithkal&key=4c3168d558XX&mobile=+91${mob}&message=${e_message}&senderid=QVIPLE&accusage=1&entityid=1701164286216096677&tempid=1707168309247841573`;
   axios
     .post(url)
     .then((res) => {
@@ -280,7 +282,7 @@ const directESMSQuery = (mob, valid_sname, valid_iname) => {
   return true;
 };
 
-// console.log(directESMSQuery(8329911939, "Pankaj Singh", "Qviple Officials"));
+console.log(directESMSQuery(8329911939, "Pankaj Singh", "Qviple Officials"));
 
 const directHSMSQuery = async (mob, sName, iName, cName) => {
   const e_message = `${sName}, आप ${iName} के ${cName} में पढ़ रहे हैं। लिंक के माध्यम से 'Qviple Community' ऐप डाउनलोड करके लॉग इन करें: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - Qviple से`;
@@ -321,8 +323,8 @@ const directMSMSQuery = async (mob, sName, iName, cName) => {
 };
 
 const directESMSStaffQuery = (mob, valid_sname, valid_iname) => {
-  var sName = `${valid_sname?.slice(0, 30)}`
-  var iName = `${valid_iname?.slice(0, 30)}`
+  var sName = `${valid_sname?.slice(0, 30)}`;
+  var iName = `${valid_iname?.slice(0, 30)}`;
   const e_message = `Hi ${sName}. "Qviple" is ERP Software of ${iName}. You are requested to login to your account with your mobile number(On which this SMS is received) to stay updated about your fees, exams and events of your school or college. Login by downloading app 'Qviple Community' from playstore or through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From "Qviple"`;
   const url = `http://mobicomm.dove-sms.com//submitsms.jsp?user=Mithkal&key=4c3168d558XX&mobile=+91${mob}&message=${e_message}&senderid=QVIPLE&accusage=6&entityid=1701164286216096677&tempid=1707168309247841573`;
   axios
@@ -1949,6 +1951,8 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
 exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
   try {
     const { id, cid } = req.params;
+    const { existingUser } = req.query;
+    var existing = handle_undefined(existingUser);
     const { sample_pic, fileArray, batch_set, is_remain, fee_struct } =
       req.body;
     if (
@@ -1964,305 +1968,305 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
         access: false,
       });
     const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-    const valid = await filter_unique_username(
-      req.body.studentFirstName,
-      req.body.studentDOB
-    );
-    if (!valid?.exist) {
-      const genUserPass = bcrypt.genSaltSync(12);
-      const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
-      var user = new User({
-        userLegalName: `${req.body.studentFirstName} ${
-          req.body.studentMiddleName ? req.body.studentMiddleName : ""
-        } ${req.body.studentLastName ? req.body.studentLastName : ""}`,
-        userGender: req.body.studentGender,
-        userDateOfBirth: req.body.studentDOB,
-        username: valid?.username,
-        userStatus: "Approved",
-        userPhoneNumber: id,
-        userPassword: hashUserPass,
-        photoId: "0",
-        coverId: "2",
-        remindLater: rDate,
-        next_date: c_date,
-      });
-      admins.users.push(user);
-      admins.userCount += 1;
-      await Promise.all([admins.save(), user.save()]);
-      var uInstitute = await InstituteAdmin.findOne({
-        isUniversal: "Universal",
-      })
-        .select("id userFollowersList followersCount")
-        .populate({ path: "posts" });
-      if (uInstitute && uInstitute.posts && uInstitute.posts.length >= 1) {
-        const post = await Post.find({
-          _id: { $in: uInstitute.posts },
-          postStatus: "Anyone",
+    if (!existing) {
+      var valid = await filter_unique_username(
+        req.body.studentFirstName,
+        req.body.studentDOB
+      );
+    }
+    if (!existing) {
+      if (!valid?.exist) {
+        const genUserPass = bcrypt.genSaltSync(12);
+        const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
+        var user = new User({
+          userLegalName: `${req.body.studentFirstName} ${
+            req.body.studentMiddleName ? req.body.studentMiddleName : ""
+          } ${req.body.studentLastName ? req.body.studentLastName : ""}`,
+          userGender: req.body.studentGender,
+          userDateOfBirth: req.body.studentDOB,
+          username: valid?.username,
+          userStatus: "Approved",
+          userPhoneNumber: id,
+          userPassword: hashUserPass,
+          photoId: "0",
+          coverId: "2",
+          remindLater: rDate,
+          next_date: c_date,
         });
-        post.forEach(async (ele) => {
-          user.userPosts.push(ele);
-        });
+        admins.users.push(user);
+        admins.userCount += 1;
+        await Promise.all([admins.save(), user.save()]);
+        var uInstitute = await InstituteAdmin.findOne({
+          isUniversal: "Universal",
+        })
+          .select("id userFollowersList followersCount")
+          .populate({ path: "posts" });
+        if (uInstitute && uInstitute.posts && uInstitute.posts.length >= 1) {
+          const post = await Post.find({
+            _id: { $in: uInstitute.posts },
+            postStatus: "Anyone",
+          });
+          post.forEach(async (ele) => {
+            user.userPosts.push(ele);
+          });
+          await user.save();
+        }
+        //
+        var b_date = user.userDateOfBirth?.slice(8, 10);
+        var b_month = user.userDateOfBirth?.slice(5, 7);
+        var b_year = user.userDateOfBirth?.slice(0, 4);
+        if (b_date > p_date) {
+          p_date = p_date + month[b_month - 1];
+          p_month = p_month - 1;
+        }
+        if (b_month > p_month) {
+          p_year = p_year - 1;
+          p_month = p_month + 12;
+        }
+        var get_cal_year = p_year - b_year;
+        if (get_cal_year > 13) {
+          user.ageRestrict = "No";
+        } else {
+          user.ageRestrict = "Yes";
+        }
         await user.save();
-      }
-      //
-      var b_date = user.userDateOfBirth?.slice(8, 10);
-      var b_month = user.userDateOfBirth?.slice(5, 7);
-      var b_year = user.userDateOfBirth?.slice(0, 4);
-      if (b_date > p_date) {
-        p_date = p_date + month[b_month - 1];
-        p_month = p_month - 1;
-      }
-      if (b_month > p_month) {
-        p_year = p_year - 1;
-        p_month = p_month + 12;
-      }
-      var get_cal_year = p_year - b_year;
-      if (get_cal_year > 13) {
-        user.ageRestrict = "No";
-      } else {
-        user.ageRestrict = "Yes";
-      }
-      await user.save();
-      //
-      if (uInstitute?.userFollowersList?.includes(`${user._id}`)) {
-      } else {
-        uInstitute.userFollowersList.push(user._id);
-        uInstitute.followersCount += 1;
-        user.userInstituteFollowing.push(uInstitute._id);
-        user.followingUICount += 1;
-        await Promise.all([uInstitute.save(), user.save()]);
-        const posts = await Post.find({ author: `${uInstitute._id}` });
-        posts.forEach(async (ele) => {
-          ele.authorFollowersCount = uInstitute.followersCount;
-          await ele.save();
-        });
-      }
-
-      const classes = await Class.findById({ _id: cid });
-      const batch = await Batch.findById({ _id: `${classes?.batch}` });
-      const depart = await Department.findById({ _id: `${batch?.department}` });
-      const institute = await InstituteAdmin.findById({
-        _id: `${depart?.institute}`,
-      });
-      var finance = await Finance.findById({
-        _id: `${institute?.financeDepart[0]}`,
-      });
-      const student = new Student({ ...req.body });
-      student.studentCode = classes.classCode;
-      const studentOptionalSubject = req.body?.optionalSubject
-        ? req.body?.optionalSubject
-        : [];
-      for (var file of fileArray) {
-        if (file.name === "file") {
-          student.photoId = "0";
-          student.studentProfilePhoto = file.key;
-          user.profilePhoto = file.key;
-        } else if (file.name === "addharFrontCard")
-          student.studentAadharFrontCard = file.key;
-        else if (file.name === "addharBackCard")
-          student.studentAadharBackCard = file.key;
-        else if (file.name === "bankPassbook")
-          student.studentBankPassbook = file.key;
-        else if (file.name === "casteCertificate")
-          student.studentCasteCertificatePhoto = file.key;
-        else {
-          student.studentDocuments.push({
-            documentName: file.name,
-            documentKey: file.key,
-            documentType: file.type,
+        //
+        if (uInstitute?.userFollowersList?.includes(`${user._id}`)) {
+        } else {
+          uInstitute.userFollowersList.push(user._id);
+          uInstitute.followersCount += 1;
+          user.userInstituteFollowing.push(uInstitute._id);
+          user.followingUICount += 1;
+          await Promise.all([uInstitute.save(), user.save()]);
+          const posts = await Post.find({ author: `${uInstitute._id}` });
+          posts.forEach(async (ele) => {
+            ele.authorFollowersCount = uInstitute.followersCount;
+            await ele.save();
           });
         }
+      } else {
+        var user = await User.findById({ _id: `${existing}` });
       }
-      if (studentOptionalSubject?.length > 0) {
-        student.studentOptionalSubject.push(...studentOptionalSubject);
-      }
-      if (sample_pic) {
-        user.profilePhoto = sample_pic;
+    }
+    const classes = await Class.findById({ _id: cid });
+    const batch = await Batch.findById({ _id: `${classes?.batch}` });
+    const depart = await Department.findById({ _id: `${batch?.department}` });
+    const institute = await InstituteAdmin.findById({
+      _id: `${depart?.institute}`,
+    });
+    var finance = await Finance.findById({
+      _id: `${institute?.financeDepart[0]}`,
+    });
+    const student = new Student({ ...req.body });
+    student.studentCode = classes.classCode;
+    const studentOptionalSubject = req.body?.optionalSubject
+      ? req.body?.optionalSubject
+      : [];
+    for (var file of fileArray) {
+      if (file.name === "file") {
         student.photoId = "0";
-        student.studentProfilePhoto = sample_pic;
+        student.studentProfilePhoto = file.key;
+        user.profilePhoto = file.key;
+      } else if (file.name === "addharFrontCard")
+        student.studentAadharFrontCard = file.key;
+      else if (file.name === "addharBackCard")
+        student.studentAadharBackCard = file.key;
+      else if (file.name === "bankPassbook")
+        student.studentBankPassbook = file.key;
+      else if (file.name === "casteCertificate")
+        student.studentCasteCertificatePhoto = file.key;
+      else {
+        student.studentDocuments.push({
+          documentName: file.name,
+          documentKey: file.key,
+          documentType: file.type,
+        });
       }
-      for (let subjChoose of student?.studentOptionalSubject) {
-        const subject = await Subject.findById(subjChoose);
-        subject.optionalStudent.push(student?._id);
-        await subject.save();
-      }
-      const notify = new StudentNotification({});
-      const aStatus = new Status({});
-      user.student.push(student._id);
-      user.is_mentor = true;
-      institute.joinedPost.push(user._id);
-      if (institute.userFollowersList.includes(user?._id)) {
-      } else {
-        user.userInstituteFollowing.push(institute?._id);
-        user.followingUICount += 1;
-        institute.userFollowersList.push(user?._id);
-        institute.followersCount += 1;
-      }
-      student.institute = institute._id;
-      student.user = user._id;
-      student.studentStatus = "Approved";
-      institute.ApproveStudent.push(student._id);
-      admins.studentArray.push(student._id);
-      admins.studentCount += 1;
-      institute.studentCount += 1;
-      classes.strength += 1;
-      classes.ApproveStudent.push(student._id);
-      classes.studentCount += 1;
-      student.studentGRNO = `${
-        institute?.gr_initials ? institute?.gr_initials : `Q`
-      }${institute.ApproveStudent.length}`;
-      student.studentROLLNO = classes.ApproveStudent.length;
-      student.studentClass = classes._id;
-      student.studentAdmissionDate = new Date().toISOString();
-      depart.ApproveStudent.push(student._id);
-      depart.studentCount += 1;
-      student.department = depart._id;
-      batch.ApproveStudent.push(student._id);
-      student.batches = batch._id;
-      student.batchCount += 1;
-      notify.notifyContent = `${student.studentFirstName} ${
-        student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
-      } ${student.studentLastName} joined as a Student of Class ${
-        classes.className
-      } of ${batch.batchName}`;
-      notify.notifySender = cid;
-      notify.notifyReceiever = user._id;
-      notify.notifyCategory = "Approve Student";
-      institute.iNotify.push(notify._id);
-      user.uNotify.push(notify._id);
-      notify.user = user._id;
-      notify.notifyByStudentPhoto = student._id;
-      aStatus.content = `Welcome to ${institute.insName}. Your application for joining as student  has been accepted by ${institute.insName}. Enjoy your learning in ${classes.className} - ${classes.classTitle}.`;
-      user.applicationStatus.push(aStatus._id);
-      aStatus.instituteId = institute._id;
-      student.fee_structure =
-        is_remain === "No" ? fee_struct : batch_set[0]?.fee_struct;
-      await student.save();
-      invokeFirebaseNotification(
-        "Student Approval",
-        notify,
-        institute.insName,
-        user._id,
-        user.deviceToken
+    }
+    if (studentOptionalSubject?.length > 0) {
+      student.studentOptionalSubject.push(...studentOptionalSubject);
+    }
+    if (sample_pic) {
+      user.profilePhoto = sample_pic;
+      student.photoId = "0";
+      student.studentProfilePhoto = sample_pic;
+    }
+    for (let subjChoose of student?.studentOptionalSubject) {
+      const subject = await Subject.findById(subjChoose);
+      subject.optionalStudent.push(student?._id);
+      await subject.save();
+    }
+    const notify = new StudentNotification({});
+    const aStatus = new Status({});
+    user.student.push(student._id);
+    user.is_mentor = true;
+    institute.joinedPost.push(user._id);
+    if (institute.userFollowersList.includes(user?._id)) {
+    } else {
+      user.userInstituteFollowing.push(institute?._id);
+      user.followingUICount += 1;
+      institute.userFollowersList.push(user?._id);
+      institute.followersCount += 1;
+    }
+    student.institute = institute._id;
+    student.user = user._id;
+    student.studentStatus = "Approved";
+    institute.ApproveStudent.push(student._id);
+    admins.studentArray.push(student._id);
+    admins.studentCount += 1;
+    institute.studentCount += 1;
+    classes.strength += 1;
+    classes.ApproveStudent.push(student._id);
+    classes.studentCount += 1;
+    student.studentGRNO = `${
+      institute?.gr_initials ? institute?.gr_initials : `Q`
+    }${institute.ApproveStudent.length}`;
+    student.studentROLLNO = classes.ApproveStudent.length;
+    student.studentClass = classes._id;
+    student.studentAdmissionDate = new Date().toISOString();
+    depart.ApproveStudent.push(student._id);
+    depart.studentCount += 1;
+    student.department = depart._id;
+    batch.ApproveStudent.push(student._id);
+    student.batches = batch._id;
+    student.batchCount += 1;
+    notify.notifyContent = `${student.studentFirstName} ${
+      student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+    } ${student.studentLastName} joined as a Student of Class ${
+      classes.className
+    } of ${batch.batchName}`;
+    notify.notifySender = cid;
+    notify.notifyReceiever = user._id;
+    notify.notifyCategory = "Approve Student";
+    institute.iNotify.push(notify._id);
+    user.uNotify.push(notify._id);
+    notify.user = user._id;
+    notify.notifyByStudentPhoto = student._id;
+    aStatus.content = `Welcome to ${institute.insName}. Your application for joining as student  has been accepted by ${institute.insName}. Enjoy your learning in ${classes.className} - ${classes.classTitle}.`;
+    user.applicationStatus.push(aStatus._id);
+    aStatus.instituteId = institute._id;
+    student.fee_structure =
+      is_remain === "No" ? fee_struct : batch_set[0]?.fee_struct;
+    await student.save();
+    invokeFirebaseNotification(
+      "Student Approval",
+      notify,
+      institute.insName,
+      user._id,
+      user.deviceToken
+    );
+    if (batch_set?.length > 0) {
+      await fee_reordering_direct_student(
+        student,
+        institute,
+        batch_set,
+        user,
+        finance
       );
-      if (batch_set?.length > 0) {
-        await fee_reordering_direct_student(
-          student,
-          institute,
-          batch_set,
-          user,
-          finance
-        );
-      }
-      await Promise.all([
-        admins.save(),
-        classes.save(),
-        depart.save(),
-        batch.save(),
-        student.save(),
-        institute.save(),
-        user.save(),
-        notify.save(),
-        aStatus.save(),
-      ]);
-      if (student.studentGender === "Male") {
-        classes.boyCount += 1;
-        batch.student_category.boyCount += 1;
-      } else if (student.studentGender === "Female") {
-        classes.girlCount += 1;
-        batch.student_category.girlCount += 1;
-      } else if (student.studentGender === "Other") {
-        classes.otherCount += 1;
-        batch.student_category.otherCount += 1;
-      } else {
-      }
-      if (student.studentCastCategory === "General") {
-        batch.student_category.generalCount += 1;
-      } else if (student.studentCastCategory === "OBC") {
-        batch.student_category.obcCount += 1;
-      } else if (student.studentCastCategory === "SC") {
-        batch.student_category.scCount += 1;
-      } else if (student.studentCastCategory === "ST") {
-        batch.student_category.stCount += 1;
-      } else if (student.studentCastCategory === "NT-A") {
-        batch.student_category.ntaCount += 1;
-      } else if (student.studentCastCategory === "NT-B") {
-        batch.student_category.ntbCount += 1;
-      } else if (student.studentCastCategory === "NT-C") {
-        batch.student_category.ntcCount += 1;
-      } else if (student.studentCastCategory === "NT-D") {
-        batch.student_category.ntdCount += 1;
-      } else if (student.studentCastCategory === "VJ") {
-        batch.student_category.vjCount += 1;
-      } else {
-      }
-      await Promise.all([classes.save(), batch.save()]);
-      if (institute.sms_lang === "en") {
-        await directESMSQuery(
-          user?.userPhoneNumber,
-          `${student.studentFirstName} ${
-            student.studentMiddleName ? student.studentMiddleName : ""
-          } ${student.studentLastName}`,
-          institute?.insName,
-          classes?.classTitle
-        );
-      }
-      // else if (institute.sms_lang === "hi") {
-      //   await directHSMSQuery(
-      //     user?.userPhoneNumber,
-      //     `${student.studentFirstName} ${
-      //       student.studentMiddleName ? student.studentMiddleName : ""
-      //     } ${student.studentLastName}`,
-      //     institute?.insName,
-      //     classes?.classTitle
-      //   );
-      // }
-      // else if (institute.sms_lang === "mr" || institute.sms_lang === "mt") {
-      //   await directMSMSQuery(
-      //     user?.userPhoneNumber,
-      //     `${student.studentFirstName} ${
-      //       student.studentMiddleName ? student.studentMiddleName : ""
-      //     } ${student.studentLastName}`,
-      //     institute?.insName,
-      //     classes?.classTitle
-      //   );
-      // } else {
-      // }
-      res.status(200).send({
-        message: `Direct Institute Account Creation Process Completed ${student.studentFirstName} ${student.studentLastName} 😀✨`,
-        status: true,
-      });
-      const studentName = `${student.studentFirstName} ${
-        student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
-      } ${student.studentLastName}`;
-      whats_app_sms_payload(
+    }
+    await Promise.all([
+      admins.save(),
+      classes.save(),
+      depart.save(),
+      batch.save(),
+      student.save(),
+      institute.save(),
+      user.save(),
+      notify.save(),
+      aStatus.save(),
+    ]);
+    if (student.studentGender === "Male") {
+      classes.boyCount += 1;
+      batch.student_category.boyCount += 1;
+    } else if (student.studentGender === "Female") {
+      classes.girlCount += 1;
+      batch.student_category.girlCount += 1;
+    } else if (student.studentGender === "Other") {
+      classes.otherCount += 1;
+      batch.student_category.otherCount += 1;
+    } else {
+    }
+    if (student.studentCastCategory === "General") {
+      batch.student_category.generalCount += 1;
+    } else if (student.studentCastCategory === "OBC") {
+      batch.student_category.obcCount += 1;
+    } else if (student.studentCastCategory === "SC") {
+      batch.student_category.scCount += 1;
+    } else if (student.studentCastCategory === "ST") {
+      batch.student_category.stCount += 1;
+    } else if (student.studentCastCategory === "NT-A") {
+      batch.student_category.ntaCount += 1;
+    } else if (student.studentCastCategory === "NT-B") {
+      batch.student_category.ntbCount += 1;
+    } else if (student.studentCastCategory === "NT-C") {
+      batch.student_category.ntcCount += 1;
+    } else if (student.studentCastCategory === "NT-D") {
+      batch.student_category.ntdCount += 1;
+    } else if (student.studentCastCategory === "VJ") {
+      batch.student_category.vjCount += 1;
+    } else {
+    }
+    await Promise.all([classes.save(), batch.save()]);
+    if (institute.sms_lang === "en") {
+      await directESMSQuery(
         user?.userPhoneNumber,
+        `${student.studentFirstName} ${
+          student.studentMiddleName ? student.studentMiddleName : ""
+        } ${student.studentLastName}`,
+        institute?.insName,
+        classes?.classTitle
+      );
+    }
+    // else if (institute.sms_lang === "hi") {
+    //   await directHSMSQuery(
+    //     user?.userPhoneNumber,
+    //     `${student.studentFirstName} ${
+    //       student.studentMiddleName ? student.studentMiddleName : ""
+    //     } ${student.studentLastName}`,
+    //     institute?.insName,
+    //     classes?.classTitle
+    //   );
+    // }
+    // else if (institute.sms_lang === "mr" || institute.sms_lang === "mt") {
+    //   await directMSMSQuery(
+    //     user?.userPhoneNumber,
+    //     `${student.studentFirstName} ${
+    //       student.studentMiddleName ? student.studentMiddleName : ""
+    //     } ${student.studentLastName}`,
+    //     institute?.insName,
+    //     classes?.classTitle
+    //   );
+    // } else {
+    // }
+    res.status(200).send({
+      message: `Direct Institute Account Creation Process Completed ${student.studentFirstName} ${student.studentLastName} 😀✨`,
+      status: true,
+    });
+    const studentName = `${student.studentFirstName} ${
+      student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+    } ${student.studentLastName}`;
+    whats_app_sms_payload(
+      user?.userPhoneNumber,
+      studentName,
+      institute?.insName,
+      classes?.className,
+      "ADSIS",
+      institute?.insType,
+      0,
+      0,
+      institute?.sms_lang
+    );
+    if (user?.userEmail) {
+      await email_sms_payload_query(
+        user?.userEmail,
         studentName,
         institute?.insName,
-        classes?.className,
         "ADSIS",
         institute?.insType,
         0,
         0,
         institute?.sms_lang
       );
-      if (user?.userEmail) {
-        await email_sms_payload_query(
-          user?.userEmail,
-          studentName,
-          institute?.insName,
-          "ADSIS",
-          institute?.insType,
-          0,
-          0,
-          institute?.sms_lang
-        );
-      }
-    } else {
-      res.status(200).send({
-        message: "Bug in the direct joining process 😡",
-        access: false,
-      });
     }
   } catch (e) {
     console.log(e);
@@ -2272,6 +2276,8 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
 exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
   try {
     const { id, insId } = req.params;
+    const { existingUser } = req.query;
+    var existing = handle_undefined(existingUser);
     const { sample_pic, fileArray } = req.body;
     if (
       !id &&
@@ -2286,245 +2292,247 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
         access: false,
       });
     const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-    const valid = await filter_unique_username(
-      req.body.staffFirstName,
-      req.body.staffDOB
-    );
-    if (!valid?.exist) {
-      const genUserPass = bcrypt.genSaltSync(12);
-      const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
-      var user = new User({
-        userLegalName: `${req.body.staffFirstName} ${
-          req.body.staffMiddleName ? req.body.staffMiddleName : ""
-        } ${req.body.staffLastName ? req.body.staffLastName : ""}`,
-        userGender: req.body.staffGender,
-        userDateOfBirth: req.body.staffDOB,
-        username: valid?.username,
-        userStatus: "Approved",
-        userPhoneNumber: id,
-        userPassword: hashUserPass,
-        photoId: "0",
-        coverId: "2",
-        remindLater: rDate,
-        next_date: c_date,
-      });
-      admins.users.push(user);
-      admins.userCount += 1;
-      await Promise.all([admins.save(), user.save()]);
-      var uInstitute = await InstituteAdmin.findOne({
-        isUniversal: "Universal",
-      })
-        .select("id userFollowersList followersCount")
-        .populate({ path: "posts" });
-      if (uInstitute && uInstitute.posts && uInstitute.posts.length >= 1) {
-        const post = await Post.find({
-          _id: { $in: uInstitute.posts },
-          postStatus: "Anyone",
+    if (!existing) {
+      var valid = await filter_unique_username(
+        req.body.staffFirstName,
+        req.body.staffDOB
+      );
+    }
+    if (!existing) {
+      if (!valid?.exist) {
+        const genUserPass = bcrypt.genSaltSync(12);
+        const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
+        var user = new User({
+          userLegalName: `${req.body.staffFirstName} ${
+            req.body.staffMiddleName ? req.body.staffMiddleName : ""
+          } ${req.body.staffLastName ? req.body.staffLastName : ""}`,
+          userGender: req.body.staffGender,
+          userDateOfBirth: req.body.staffDOB,
+          username: valid?.username,
+          userStatus: "Approved",
+          userPhoneNumber: id,
+          userPassword: hashUserPass,
+          photoId: "0",
+          coverId: "2",
+          remindLater: rDate,
+          next_date: c_date,
         });
-        post.forEach(async (ele) => {
-          user.userPosts.push(ele);
-        });
-        await user.save();
-      }
-      //
-      var b_date = user.userDateOfBirth?.slice(8, 10);
-      var b_month = user.userDateOfBirth?.slice(5, 7);
-      var b_year = user.userDateOfBirth?.slice(0, 4);
-      if (b_date > p_date) {
-        p_date = p_date + month[b_month - 1];
-        p_month = p_month - 1;
-      }
-      if (b_month > p_month) {
-        p_year = p_year - 1;
-        p_month = p_month + 12;
-      }
-      var get_cal_year = p_year - b_year;
-      if (get_cal_year > 13) {
-        user.ageRestrict = "No";
-      } else {
-        user.ageRestrict = "Yes";
-      }
-      await user.save();
-      //
-      if (uInstitute?.userFollowersList?.includes(`${user._id}`)) {
-      } else {
-        uInstitute.userFollowersList.push(user._id);
-        uInstitute.followersCount += 1;
-        user.userInstituteFollowing.push(uInstitute._id);
-        user.followingUICount += 1;
-        await Promise.all([uInstitute.save(), user.save()]);
-        const posts = await Post.find({ author: `${uInstitute._id}` });
-        posts.forEach(async (ele) => {
-          ele.authorFollowersCount = uInstitute.followersCount;
-          await ele.save();
-        });
-      }
-      const institute = await InstituteAdmin.findById({
-        _id: insId,
-      });
-      const staff = new Staff({ ...req.body });
-      for (var file of fileArray) {
-        if (file.name === "file") {
-          staff.photoId = "0";
-          staff.staffProfilePhoto = file.key;
-          user.profilePhoto = file.key;
-        } else if (file.name === "addharFrontCard")
-          staff.staffAadharFrontCard = file.key;
-        else if (file.name === "addharBackCard")
-          staff.staffAadharBackCard = file.key;
-        else if (file.name === "bankPassbook")
-          staff.staffBankPassbook = file.key;
-        else if (file.name === "casteCertificate")
-          staff.staffCasteCertificatePhoto = file.key;
-        else {
-          staff.staffDocuments.push({
-            documentName: file.name,
-            documentKey: file.key,
-            documentType: file.type,
+        admins.users.push(user);
+        admins.userCount += 1;
+        await Promise.all([admins.save(), user.save()]);
+        var uInstitute = await InstituteAdmin.findOne({
+          isUniversal: "Universal",
+        })
+          .select("id userFollowersList followersCount")
+          .populate({ path: "posts" });
+        if (uInstitute && uInstitute.posts && uInstitute.posts.length >= 1) {
+          const post = await Post.find({
+            _id: { $in: uInstitute.posts },
+            postStatus: "Anyone",
           });
+          post.forEach(async (ele) => {
+            user.userPosts.push(ele);
+          });
+          await user.save();
         }
-      }
-      if (sample_pic) {
-        user.profilePhoto = sample_pic;
-        staff.photoId = "0";
-        staff.staffProfilePhoto = sample_pic;
-      }
-
-      const notify = new Notification({});
-      const aStatus = new Status({});
-      user.staff.push(staff._id);
-      user.is_mentor = true;
-      institute.joinedPost.push(user._id);
-      if (institute.userFollowersList.includes(user?._id)) {
-      } else {
-        user.userInstituteFollowing.push(institute?._id);
-        user.followingUICount += 1;
-        institute.userFollowersList.push(user?._id);
-        institute.followersCount += 1;
-      }
-      staff.institute = institute._id;
-      staff.staffApplyDate = new Date().toISOString();
-      staff.user = user._id;
-      staff.staffStatus = "Approved";
-      institute.ApproveStaff.push(staff._id);
-      institute.staffCount += 1;
-      admins.staffArray.push(staff._id);
-      admins.staffCount += 1;
-      institute.joinedUserList.push(user._id);
-      staff.staffROLLNO = institute.ApproveStaff.length;
-      staff.staffJoinDate = new Date().toISOString();
-      notify.notifyContent = `Congrats ${staff.staffFirstName} ${
-        staff.staffMiddleName ? `${staff.staffMiddleName}` : ""
-      } ${staff.staffLastName} for joined as a staff at ${institute.insName}`;
-      notify.notifySender = id;
-      notify.notifyReceiever = user._id;
-      notify.notifyCategory = "Approve Staff";
-      institute.iNotify.push(notify._id);
-      notify.institute = institute._id;
-      user.uNotify.push(notify._id);
-      notify.user = user._id;
-      notify.notifyByStaffPhoto = staff._id;
-      aStatus.content = `Welcome to ${institute.insName}.Your application for joining as staff  has been accepted by ${institute.insName}.`;
-      user.applicationStatus.push(aStatus._id);
-      aStatus.instituteId = institute._id;
-      invokeFirebaseNotification(
-        "Staff Approval",
-        notify,
-        institute.insName,
-        user._id,
-        user.deviceToken
-      );
-      await Promise.all([
-        staff.save(),
-        institute.save(),
-        admins.save(),
-        user.save(),
-        notify.save(),
-        aStatus.save(),
-      ]);
-      if (institute.isUniversal === "Not Assigned") {
-        const post = await Post.find({ author: institute._id });
-        post.forEach(async (pt) => {
-          if (
-            user.userPosts.length >= 1 &&
-            user.userPosts.includes(String(pt))
-          ) {
-          } else {
-            user.userPosts.push(pt);
-          }
-        });
+        //
+        var b_date = user.userDateOfBirth?.slice(8, 10);
+        var b_month = user.userDateOfBirth?.slice(5, 7);
+        var b_year = user.userDateOfBirth?.slice(0, 4);
+        if (b_date > p_date) {
+          p_date = p_date + month[b_month - 1];
+          p_month = p_month - 1;
+        }
+        if (b_month > p_month) {
+          p_year = p_year - 1;
+          p_month = p_month + 12;
+        }
+        var get_cal_year = p_year - b_year;
+        if (get_cal_year > 13) {
+          user.ageRestrict = "No";
+        } else {
+          user.ageRestrict = "Yes";
+        }
         await user.save();
-      } else {
+        //
+        if (uInstitute?.userFollowersList?.includes(`${user._id}`)) {
+        } else {
+          uInstitute.userFollowersList.push(user._id);
+          uInstitute.followersCount += 1;
+          user.userInstituteFollowing.push(uInstitute._id);
+          user.followingUICount += 1;
+          await Promise.all([uInstitute.save(), user.save()]);
+          const posts = await Post.find({ author: `${uInstitute._id}` });
+          posts.forEach(async (ele) => {
+            ele.authorFollowersCount = uInstitute.followersCount;
+            await ele.save();
+          });
+        } 
       }
-      if (staff.staffGender === "Male") {
-        institute.staff_category.boyCount += 1;
-      } else if (staff.staffGender === "Female") {
-        institute.staff_category.girlCount += 1;
-      } else if (staff.staffGender === "Other") {
-        institute.staff_category.otherCount += 1;
-      } else {
+      else {
+        var user = await User.findById({ _id: `${existing}` });
       }
-      if (staff.staffCastCategory === "General") {
-        institute.staff_category.generalCount += 1;
-      } else if (staff.staffCastCategory === "OBC") {
-        institute.staff_category.obcCount += 1;
-      } else if (staff.staffCastCategory === "SC") {
-        institute.staff_category.scCount += 1;
-      } else if (staff.staffCastCategory === "ST") {
-        institute.staff_category.stCount += 1;
-      } else if (staff.staffCastCategory === "NT-A") {
-        institute.staff_category.ntaCount += 1;
-      } else if (staff.staffCastCategory === "NT-B") {
-        institute.staff_category.ntbCount += 1;
-      } else if (staff.staffCastCategory === "NT-C") {
-        institute.staff_category.ntcCount += 1;
-      } else if (staff.staffCastCategory === "NT-D") {
-        institute.staff_category.ntdCount += 1;
-      } else if (staff.staffCastCategory === "VJ") {
-        institute.staff_category.vjCount += 1;
-      } else {
+    }
+    const institute = await InstituteAdmin.findById({
+      _id: insId,
+    });
+    const staff = new Staff({ ...req.body });
+    for (var file of fileArray) {
+      if (file.name === "file") {
+        staff.photoId = "0";
+        staff.staffProfilePhoto = file.key;
+        user.profilePhoto = file.key;
+      } else if (file.name === "addharFrontCard")
+        staff.staffAadharFrontCard = file.key;
+      else if (file.name === "addharBackCard")
+        staff.staffAadharBackCard = file.key;
+      else if (file.name === "bankPassbook")
+        staff.staffBankPassbook = file.key;
+      else if (file.name === "casteCertificate")
+        staff.staffCasteCertificatePhoto = file.key;
+      else {
+        staff.staffDocuments.push({
+          documentName: file.name,
+          documentKey: file.key,
+          documentType: file.type,
+        });
       }
-      await Promise.all([institute.save()]);
-      res.status(200).send({
-        message: "Direct Institute Account Creation Process Completed 😀✨",
-        status: true,
+    }
+    if (sample_pic) {
+      user.profilePhoto = sample_pic;
+      staff.photoId = "0";
+      staff.staffProfilePhoto = sample_pic;
+    }
+
+    const notify = new Notification({});
+    const aStatus = new Status({});
+    user.staff.push(staff._id);
+    user.is_mentor = true;
+    institute.joinedPost.push(user._id);
+    if (institute.userFollowersList.includes(user?._id)) {
+    } else {
+      user.userInstituteFollowing.push(institute?._id);
+      user.followingUICount += 1;
+      institute.userFollowersList.push(user?._id);
+      institute.followersCount += 1;
+    }
+    staff.institute = institute._id;
+    staff.staffApplyDate = new Date().toISOString();
+    staff.user = user._id;
+    staff.staffStatus = "Approved";
+    institute.ApproveStaff.push(staff._id);
+    institute.staffCount += 1;
+    admins.staffArray.push(staff._id);
+    admins.staffCount += 1;
+    institute.joinedUserList.push(user._id);
+    staff.staffROLLNO = institute.ApproveStaff.length;
+    staff.staffJoinDate = new Date().toISOString();
+    notify.notifyContent = `Congrats ${staff.staffFirstName} ${
+      staff.staffMiddleName ? `${staff.staffMiddleName}` : ""
+    } ${staff.staffLastName} for joined as a staff at ${institute.insName}`;
+    notify.notifySender = id;
+    notify.notifyReceiever = user._id;
+    notify.notifyCategory = "Approve Staff";
+    institute.iNotify.push(notify._id);
+    notify.institute = institute._id;
+    user.uNotify.push(notify._id);
+    notify.user = user._id;
+    notify.notifyByStaffPhoto = staff._id;
+    aStatus.content = `Welcome to ${institute.insName}.Your application for joining as staff  has been accepted by ${institute.insName}.`;
+    user.applicationStatus.push(aStatus._id);
+    aStatus.instituteId = institute._id;
+    invokeFirebaseNotification(
+      "Staff Approval",
+      notify,
+      institute.insName,
+      user._id,
+      user.deviceToken
+    );
+    await Promise.all([
+      staff.save(),
+      institute.save(),
+      admins.save(),
+      user.save(),
+      notify.save(),
+      aStatus.save(),
+    ]);
+    if (institute.isUniversal === "Not Assigned") {
+      const post = await Post.find({ author: institute._id });
+      post.forEach(async (pt) => {
+        if (
+          user.userPosts.length >= 1 &&
+          user.userPosts.includes(String(pt))
+        ) {
+        } else {
+          user.userPosts.push(pt);
+        }
       });
-      var staffName = `${staff.staffFirstName} ${
-        staff.staffMiddleName ? `${staff.staffMiddleName}` : ""
-      } ${staff.staffLastName}`;
-      await directESMSStaffQuery(
-        user?.userPhoneNumber,
-        staffName,
-        institute?.insName
-      );
-      whats_app_sms_payload(
-        user?.userPhoneNumber,
+      await user.save();
+    } else {
+    }
+    if (staff.staffGender === "Male") {
+      institute.staff_category.boyCount += 1;
+    } else if (staff.staffGender === "Female") {
+      institute.staff_category.girlCount += 1;
+    } else if (staff.staffGender === "Other") {
+      institute.staff_category.otherCount += 1;
+    } else {
+    }
+    if (staff.staffCastCategory === "General") {
+      institute.staff_category.generalCount += 1;
+    } else if (staff.staffCastCategory === "OBC") {
+      institute.staff_category.obcCount += 1;
+    } else if (staff.staffCastCategory === "SC") {
+      institute.staff_category.scCount += 1;
+    } else if (staff.staffCastCategory === "ST") {
+      institute.staff_category.stCount += 1;
+    } else if (staff.staffCastCategory === "NT-A") {
+      institute.staff_category.ntaCount += 1;
+    } else if (staff.staffCastCategory === "NT-B") {
+      institute.staff_category.ntbCount += 1;
+    } else if (staff.staffCastCategory === "NT-C") {
+      institute.staff_category.ntcCount += 1;
+    } else if (staff.staffCastCategory === "NT-D") {
+      institute.staff_category.ntdCount += 1;
+    } else if (staff.staffCastCategory === "VJ") {
+      institute.staff_category.vjCount += 1;
+    } else {
+    }
+    await Promise.all([institute.save()]);
+    res.status(200).send({
+      message: "Direct Institute Account Creation Process Completed 😀✨",
+      status: true,
+    });
+    var staffName = `${staff.staffFirstName} ${
+      staff.staffMiddleName ? `${staff.staffMiddleName}` : ""
+    } ${staff.staffLastName}`;
+    await directESMSStaffQuery(
+      user?.userPhoneNumber,
+      staffName,
+      institute?.insName
+    );
+    whats_app_sms_payload(
+      user?.userPhoneNumber,
+      staffName,
+      institute?.insName,
+      null,
+      "ADMIS",
+      institute?.insType,
+      0,
+      0,
+      institute?.sms_lang
+    );
+    if (user?.userEmail) {
+      await email_sms_payload_query(
+        user?.userEmail,
         staffName,
         institute?.insName,
-        null,
         "ADMIS",
         institute?.insType,
         0,
         0,
         institute?.sms_lang
       );
-      if (user?.userEmail) {
-        await email_sms_payload_query(
-          user?.userEmail,
-          staffName,
-          institute?.insName,
-          "ADMIS",
-          institute?.insType,
-          0,
-          0,
-          institute?.sms_lang
-        );
-      }
-    } else {
-      res.status(200).send({
-        message: "Bug in the direct joining process 😡",
-        access: false,
-      });
     }
   } catch (e) {
     console.log(e);
@@ -3520,23 +3528,210 @@ exports.retrieveInstituteDirectJoinStaffAutoQuery = async (
   }
 };
 
-exports.renderOneInstituteAllStudentQuery = async(req, res) => {
-  try{
-    const { cid } = req.params
-    if(!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+exports.renderOneInstituteAllStudentQuery = async (req, res) => {
+  try {
+    const { cid } = req.params;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
 
-    var one_class = await Class.findById({ _id: cid })
-    var one_depart = await Department.findById({ _id: `${one_class?.department}`})
-    var one_batch = await Batch.findById({ _id: `${one_class?.batch}`})
-    var one_ins = await InstituteAdmin.findById({ _id: `${one_depart?.institute}`})
-    var admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}`})
-    var admission = await Admission.findById({ _id: `${one_ins?.admissionDepart[0]}`})
+    var one_class = await Class.findById({ _id: cid });
+    var one_depart = await Department.findById({
+      _id: `${one_class?.department}`,
+    });
+    var one_batch = await Batch.findById({ _id: `${one_class?.batch}` });
+    var one_ins = await InstituteAdmin.findById({
+      _id: `${one_depart?.institute}`,
+    });
+    var admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    var admission = await Admission.findById({
+      _id: `${one_ins?.admissionDepart[0]}`,
+    });
+    var finance = await Finance.findById({
+      _id: `${one_ins?.financeDepart[0]}`,
+    });
     // var
-    for(var ref of all_students){
-
+    one_depart.ApproveStudent.pull(one_student?._id);
+    if (one_depart?.studentCount > 0) {
+      one_depart.studentCount -= 1;
     }
+    one_batch.ApproveStudent.pull(one_student?._id);
+    one_class.ApproveStudent.pull(one_student?._id);
+    if (one_class?.studentCount > 0) {
+      one_class.studentCount -= 1;
+    }
+    for (var ref of all_students) {
+      var one_student = await Student.findById({ _id: `${ref}` });
+      var one_user = await User.findById({ _id: `${one_student?.user}` });
+      if (one_student?.studentGender === "Male") {
+        if (one_batch.student_category.boyCount > 0) {
+          one_batch.student_category.boyCount -= 1;
+          if (one_class?.boyCount > 0) {
+            one_class.boyCount -= 1;
+          }
+        }
+      } else if (one_student?.studentGender === "Female") {
+        if (one_batch.student_category.girlCount > 0) {
+          one_batch.student_category.girlCount -= 1;
+          if (one_class?.girlCount > 0) {
+            one_class.girlCount -= 1;
+          }
+        }
+      } else if (one_student?.studentGender === "Other") {
+        if (one_batch.student_category.otherCount > 0) {
+          one_batch.student_category.otherCount -= 1;
+          if (one_class?.otherCount > 0) {
+            one_class.otherCount -= 1;
+          }
+        }
+      }
+      var all_apps = await NewApplication.find({
+        _id: { $in: one_user?.applyApplication },
+      });
+      for (var app of all_apps) {
+        var all_remain_list = await RemainingList.find({
+          $and: [{ student: one_student?._id }, { appId: app?._id }],
+        });
+        for (var remain of all_remain_list) {
+          await RemainingList.findByIdAndDelete(remain?._id);
+        }
+        var all_receipts = await FeeReceipt.find({
+          $and: [{ student: one_student?._id }, { application: app?._id }],
+        });
+        for (var receipt of all_receipts) {
+          await FeeReceipt.findByIdAndDelete(receipt?._id);
+        }
+        if (one_student?.admissionRemainFeeCount > 0) {
+          if (app?.remainingFee > 0) {
+            app.remainingFee -= one_student?.admissionRemainFeeCount;
+          }
+        }
+        app.deleted_student_fee += one_student.admissionPaidFeeCount;
+        for (var rec of app?.receievedApplication) {
+          if (`${rec?.student}` === `${one_student?._id}`) {
+            app.receievedApplication.pull(rec?._id);
+            if (rec?.receievedCount > 0) {
+              rec.receievedCount -= 1;
+            }
+          }
+        }
+        for (var rec of app?.selectedApplication) {
+          if (`${rec?.student}` === `${one_student?._id}`) {
+            app.selectedApplication.pull(rec?._id);
+            if (rec?.selectCount > 0) {
+              rec.selectCount -= 1;
+            }
+          }
+        }
+        for (var rec of app?.confirmedApplication) {
+          if (`${rec?.student}` === `${one_student?._id}`) {
+            app.confirmedApplication.pull(rec?._id);
+            if (rec?.confirmCount > 0) {
+              rec.confirmCount -= 1;
+            }
+          }
+        }
+        for (var rec of app?.allottedApplication) {
+          if (`${rec?.student}` === `${one_student?._id}`) {
+            app.allottedApplication.pull(rec?._id);
+            if (rec?.allotCount > 0) {
+              rec.allotCount -= 1;
+            }
+          }
+        }
+        for (var rec of app?.cancelApplication) {
+          if (`${rec?.student}` === `${one_student?._id}`) {
+            app.cancelApplication.pull(rec?._id);
+            if (rec?.cancelCount > 0) {
+              rec.cancelCount -= 1;
+            }
+          }
+        }
+        var all_status = await Status.find({ applicationId: app?._id });
+        for (var status of all_status) {
+          await Status.findByIdAndDelete(status?._id);
+        }
+        await app.save();
+      }
+      admission.remainingFee.pull(one_student?._id);
+      if (one_student?.admissionRemainFeeCount > 0) {
+        if (admission.remainingFeeCount > 0) {
+          admission.remainingFeeCount -= one_student?.admissionRemainFeeCount;
+        }
+      }
+      admission.deleted_student_fee += one_student.admissionPaidFeeCount;
+      if (one_student?.admissionPaidFeeCount > 0) {
+        if (finance?.financeTotalBalance > 0) {
+          finance.financeTotalBalance -= one_student?.admissionPaidFeeCount;
+        }
+      }
+      var all_notification = await StudentNotification.find({
+        notifyReceiever: `${one_user?._id}`,
+      });
+      for (var notify of all_notification) {
+        await StudentNotification.findByIdAndDelete(notify?._id);
+      }
+      one_ins.ApproveStudent.pull(one_student?._id);
+      if (one_ins?.studentCount > 0) {
+        one_ins.studentCount -= 1;
+      }
+      admin.studentArray.pull(one_student?._id);
+      if (admin?.studentCount > 0) {
+        admin.studentCount -= 1;
+      }
+      if (`${one_ins?.isUniversal}` === "Not Assigned") {
+        if (one_ins?.userFollowersList?.includes(`${one_user?._id}`)) {
+          one_ins.userFollowersList.pull(one_user?._id);
+          if (one_ins?.followersCount > 0) {
+            one_ins.followersCount -= 1;
+          }
+        }
+        var universal = await InstituteAdmin.findOne({
+          isUniversal: "Universal",
+        });
+        if (universal?.userFollowersList?.includes(`${one_user?._id}`)) {
+          universal.userFollowersList.pull(one_user?._id);
+          if (universal?.followersCount > 0) {
+            universal.followersCount -= 1;
+          }
+        }
+        await universal.save();
+      }
+      if (`${one_ins?.isUniversal}` === "Universal") {
+        if (one_ins?.userFollowersList?.includes(`${one_user?._id}`)) {
+          one_ins.userFollowersList.pull(one_user?._id);
+          if (one_ins?.followersCount > 0) {
+            one_ins.followersCount -= 1;
+          }
+        }
+      }
+      if (one_ins?.joinedUserList?.includes(`${one_user?._id}`)) {
+        one_ins.joinedUserList.pull(one_user?._id);
+      }
+      if (one_ins?.joinedPost?.includes(`${one_user?._id}`)) {
+        one_ins.joinedPost.pull(one_user?._id);
+      }
+      if (one_student?.studentProfilePhoto) {
+        await deleteFile(one_student?.studentProfilePhoto);
+      }
+      if (one_user?.profilePhoto) {
+        await deleteFile(one_user?.profilePhoto);
+      }
+      await Student.findByIdAndDelete(one_student?._id);
+      await User.findByIdAndDelete(one_user?._id);
+    }
+    await Promise.all([
+      admission.save(),
+      one_batch.save(),
+      one_depart.save(),
+      one_class.save(),
+      finance.save(),
+      one_ins.save(),
+      admin.save(),
+    ]);
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};

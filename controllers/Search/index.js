@@ -757,13 +757,15 @@ exports.searchStudent = async (req, res) => {
               },
             ],
             $or: [
-              { studentFirstName: { $regex: req.query.search, $options: "i" } },
               {
-                studentMiddleName: { $regex: req.query.search, $options: "i" },
+                studentFirstName: { $regex: req.query?.search, $options: "i" },
               },
-              { studentLastName: { $regex: req.query.search, $options: "i" } },
               {
-                studentGRNO: { regex: req.query.search, $options: "i" },
+                studentMiddleName: { $regex: req.query?.search, $options: "i" },
+              },
+              { studentLastName: { $regex: req.query?.search, $options: "i" } },
+              {
+                studentGRNO: { $regex: req.query?.search, $options: "i" },
               },
             ],
           }

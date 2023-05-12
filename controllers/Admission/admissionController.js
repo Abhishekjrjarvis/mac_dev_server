@@ -238,7 +238,7 @@ exports.retieveAdmissionAdminAllApplication = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "applicationName applicationEndDate applicationStatus applicationSeats applicationMaster applicationAbout admissionProcess application_flow applicationBatch"
+        "applicationName applicationEndDate applicationTypeStatus applicationStatus applicationSeats applicationMaster applicationAbout admissionProcess application_flow applicationBatch"
       )
       .populate({
         path: "applicationDepartment",
@@ -300,7 +300,7 @@ exports.retieveAdmissionAdminAllCApplication = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "applicationName applicationEndDate applicationStatus applicationSeats allotCount"
+        "applicationName applicationEndDate applicationTypeStatus applicationStatus applicationSeats allotCount"
       )
       .populate({
         path: "applicationDepartment",
@@ -523,7 +523,7 @@ exports.fetchAdmissionApplicationArray = async (req, res) => {
           .sort("-createdAt")
           .limit(limit)
           .skip(skip)
-          .select("applicationName applicationEndDate")
+          .select("applicationName applicationEndDate applicationTypeStatus")
           .populate({
             path: "applicationDepartment",
             select: "dName",
@@ -545,7 +545,7 @@ exports.fetchAdmissionApplicationArray = async (req, res) => {
           .sort("-createdAt")
           .limit(limit)
           .skip(skip)
-          .select("applicationName applicationEndDate")
+          .select("applicationName applicationEndDate applicationTypeStatus")
           .populate({
             path: "applicationDepartment",
             select: "dName",
@@ -3364,8 +3364,8 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
           select:
             "total_admission_fees structure_name unique_structure_name applicable_fees one_installments category_master structure_month",
           populate: {
-            path: "category_master",
-            select: "category_name",
+            path: "category_master class_master",
+            select: "category_name className",
           },
         },
       })
@@ -3378,10 +3378,23 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
         select:
           "total_admission_fees structure_name unique_structure_name applicable_fees one_installments structure_month category_master",
         populate: {
-          path: "category_master",
-          select: "category_name",
+          path: "category_master class_master",
+          select: "category_name className",
         },
-      });
+      })
+      .populate({
+        path: "student",
+        select: "studentFirstName studentMiddleName studentLastName",
+        populate: {
+          path: "studentClass",
+          select:
+            "className classTitle classStatus batch",
+            populate: {
+              path: "batch",
+              select: "batchName batchStatus"
+            }
+        },
+      })
 
     if (all_remain?.length > 0) {
       // const arrayEncrypt = await encryptionPayload(all_remain);

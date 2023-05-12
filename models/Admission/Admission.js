@@ -200,6 +200,10 @@ const admissionAdminSchema = new mongoose.Schema({
       ref: "AdmissionSite",
     },
   ],
+  deleted_student_fee: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("Admission", admissionAdminSchema);

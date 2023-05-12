@@ -145,6 +145,10 @@ const newApplicationSchema = new mongoose.Schema({
     type: String,
     default: "Step Wise Admission",
   },
+  deleted_student_fee: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("NewApplication", newApplicationSchema);

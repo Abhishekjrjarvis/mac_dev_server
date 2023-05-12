@@ -3727,6 +3727,7 @@ exports.renderOneInstituteAllStudentQuery = async (req, res) => {
       one_ins.save(),
       admin.save(),
     ]);
+    res.status(200).send({ message: "Deletion Operation Completed", access: true})
   } catch (e) {
     console.log(e);
   }

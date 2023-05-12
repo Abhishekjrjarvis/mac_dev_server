@@ -3526,7 +3526,7 @@ exports.retrieveInstituteDirectJoinStaffAutoQuery = async (
 exports.renderOneInstituteAllStudentQuery = async (req, res) => {
   try {
     const { cid } = req.params;
-    const { all_students } = req.body
+    const { all_students } = req.body;
     if (!cid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -3549,18 +3549,18 @@ exports.renderOneInstituteAllStudentQuery = async (req, res) => {
       _id: `${one_ins?.financeDepart[0]}`,
     });
     // var
-    one_depart.ApproveStudent.pull(one_student?._id);
-    if (one_depart?.studentCount > 0) {
-      one_depart.studentCount -= 1;
-    }
-    one_batch.ApproveStudent.pull(one_student?._id);
-    one_class.ApproveStudent.pull(one_student?._id);
-    if (one_class?.studentCount > 0) {
-      one_class.studentCount -= 1;
-    }
     for (var ref of all_students) {
       var one_student = await Student.findById({ _id: `${ref}` });
       var one_user = await User.findById({ _id: `${one_student?.user}` });
+      one_depart.ApproveStudent.pull(one_student?._id);
+      if (one_depart?.studentCount > 0) {
+        one_depart.studentCount -= 1;
+      }
+      one_batch.ApproveStudent.pull(one_student?._id);
+      one_class.ApproveStudent.pull(one_student?._id);
+      if (one_class?.studentCount > 0) {
+        one_class.studentCount -= 1;
+      }
       if (one_student?.studentGender === "Male") {
         if (one_batch.student_category.boyCount > 0) {
           one_batch.student_category.boyCount -= 1;
@@ -3727,7 +3727,7 @@ exports.renderOneInstituteAllStudentQuery = async (req, res) => {
       one_ins.save(),
       admin.save(),
     ]);
-    res.status(200).send({ message: "Deletion Operation Completed", access: true})
+    // res.status(200).send({ message: "Deletion Operation Completed", access: true})
   } catch (e) {
     console.log(e);
   }

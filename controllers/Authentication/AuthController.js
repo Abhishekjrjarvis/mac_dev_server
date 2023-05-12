@@ -326,7 +326,7 @@ const directESMSStaffQuery = (mob, valid_sname, valid_iname) => {
   var sName = `${valid_sname?.slice(0, 30)}`;
   var iName = `${valid_iname?.slice(0, 30)}`;
   const e_message = `Hi ${sName}. "Qviple" is ERP Software of ${iName}. You are requested to login to your account with your mobile number(On which this SMS is received) to stay updated about your fees, exams and events of your school or college. Login by downloading app 'Qviple Community' from playstore or through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From "Qviple"`;
-  const url = `http://mobicomm.dove-sms.com//submitsms.jsp?user=Mithkal&key=4c3168d558XX&mobile=+91${mob}&message=${e_message}&senderid=QVIPLE&accusage=6&entityid=1701164286216096677&tempid=1707168309247841573`;
+  const url = `http://mobicomm.dove-sms.com//submitsms.jsp?user=Mithkal&key=4c3168d558XX&mobile=+91${mob}&message=${e_message}&senderid=QVIPLE&accusage=1&entityid=1701164286216096677&tempid=1707168309247841573`;
   axios
     .post(url)
     .then((res) => {
@@ -2367,9 +2367,8 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
             ele.authorFollowersCount = uInstitute.followersCount;
             await ele.save();
           });
-        } 
-      }
-      else {
+        }
+      } else {
         var user = await User.findById({ _id: `${existing}` });
       }
     }
@@ -2386,8 +2385,7 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
         staff.staffAadharFrontCard = file.key;
       else if (file.name === "addharBackCard")
         staff.staffAadharBackCard = file.key;
-      else if (file.name === "bankPassbook")
-        staff.staffBankPassbook = file.key;
+      else if (file.name === "bankPassbook") staff.staffBankPassbook = file.key;
       else if (file.name === "casteCertificate")
         staff.staffCasteCertificatePhoto = file.key;
       else {
@@ -2459,10 +2457,7 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
     if (institute.isUniversal === "Not Assigned") {
       const post = await Post.find({ author: institute._id });
       post.forEach(async (pt) => {
-        if (
-          user.userPosts.length >= 1 &&
-          user.userPosts.includes(String(pt))
-        ) {
+        if (user.userPosts.length >= 1 && user.userPosts.includes(String(pt))) {
         } else {
           user.userPosts.push(pt);
         }

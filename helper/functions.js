@@ -181,7 +181,7 @@ exports.student_sms_trigger_query = async (i_args, c_args) => {
       Login by downloading app 'Qviple Community' from playstore or through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From "Qviple"`;
 
       if (one_user?.userPhoneNumber) {
-        const url = `http://mobicomm.dove-sms.com//submitsms.jsp?user=Mithkal&key=4c3168d558XX&mobile=+91${one_user?.userPhoneNumber}&message=${e_message}&senderid=QVIPLE&accusage=6&entityid=1701164286216096677&tempid=1707168309247841573`;
+        const url = `http://mobicomm.dove-sms.com//submitsms.jsp?user=Mithkal&key=4c3168d558XX&mobile=+91${one_user?.userPhoneNumber}&message=${e_message}&senderid=QVIPLE&accusage=1&entityid=1701164286216096677&tempid=1707168309247841573`;
         axios
           .post(url)
           .then((res) => {
@@ -201,7 +201,7 @@ exports.student_sms_trigger_query = async (i_args, c_args) => {
           });
         return true;
       } else if (one_user?.userEmail) {
-        const subject = "Qviple Announcement";
+        const subject = "Qviple ERP Login Details";
         const valid_sname = `${ref?.studentFirstName} ${
           ref?.studentMiddleName ?? ""
         } ${ref?.studentLastName}`;

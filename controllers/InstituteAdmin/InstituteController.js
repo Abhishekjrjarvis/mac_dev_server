@@ -2028,7 +2028,7 @@ exports.allStaffDepartmentClassList = async (req, res) => {
       .select("batchName batchStatus")
       .populate({
         path: "classroom",
-        select: "className classTitle classStatus photoId photo coverId cover",
+        select: "className classTitle classStatus photoId photo coverId cover boyCount girlCount otherCount",
         populate: {
           path: "classTeacher",
           select:

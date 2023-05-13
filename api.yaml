@@ -30356,3 +30356,142 @@ paths:
       responses:
         "200":
           description: OK
+
+  /api/v1/admission/{uid}/user/{aid}/apply/direct/online:
+    post:
+      tags:
+        - Admission Admin Module Query
+      summary: User as apply on Direct New Application Student joining form + Online Payment Process -(verified )
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is user id which apply to institute as student
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is application id which is choose by user to apply for as student
+        # - in: formData
+        #   name: file
+        #   type: file
+        #   required: true
+        #   description: upload your student profile photo
+        # - in: formData
+        #   name: studentCode
+        #   type: string
+        #   required: true
+        #   description: This is student code to join class which provided by the class Teacher
+        # - in: formData
+        #   name: studentFirstName
+        #   type: string
+        #   required: true
+        #   description: student first name
+        # - in: formData
+        #   name: studentMiddleName
+        #   type: string
+        #   required: true
+        #   description: student middle name
+        # - in: formData
+        #   name: studentLastName
+        #   type: string
+        #   required: true
+        #   description: student last name
+        # - in: formData
+        #   name: studentDOB
+        #   type: string
+        #   required: true
+        #   description: student studentDOB
+        # - in: formData
+        #   name: studentGender
+        #   type: string
+        #   required: true
+        #   description: student studentGender
+        # - in: formData
+        #   name: studentNationality
+        #   type: string
+        #   required: true
+        #   description: student studentNationality
+        # - in: formData
+        #   name: studentMTongue
+        #   type: string
+        #   required: true
+        #   description: student studentMTongue
+        # - in: formData
+        #   name: studentMothersName
+        #   type: string
+        #   required: true
+        #   description: student studentMotherName
+        # - in: formData
+        #   name: studentCast
+        #   type: string
+        #   required: true
+        #   description: student studentCast
+        # - in: formData
+        #   name: studentCastCategory
+        #   type: string
+        #   required: true
+        #   description: student studentCastCategory
+        # - in: formData
+        #   name: studentReligion
+        #   type: string
+        #   required: true
+        #   description: student studentReligion
+        # - in: formData
+        #   name: studentBirthPlace
+        #   type: string
+        #   required: true
+        #   description: student studentBirthPlace
+        # - in: formData
+        #   name: studentDistrict
+        #   type: string
+        #   required: true
+        #   description: student studentDistrict
+        # - in: formData
+        #   name: studentState
+        #   type: string
+        #   required: true
+        #   description: student studentState
+        # - in: formData
+        #   name: studentAddress
+        #   type: string
+        #   required: true
+        #   description: student studentAddress
+        # - in: formData
+        #   name: studentPhoneNumber
+        #   type: string
+        #   required: true
+        #   description: student studentPhoneNumber
+        # - in: formData
+        #   name: studentAadharNumber
+        #   type: string
+        #   required: true
+        #   description: student studentAadharNumber
+        # - in: formData
+        #   name: studentParentsName
+        #   type: string
+        #   required: true
+        #   description: student studentParentsName
+        # - in: formData
+        #   name: studentParentsPhoneNumber
+        #   type: string
+        #   required: true
+        #   description: student studentParentsPhoneNumber
+        # - in: formData
+        #   name: file
+        #   type: file
+        #   required: true
+        #   description: upload your addhar card front side photo  
+        # - in: formData
+        #   name: file
+        #   type: file
+        #   required: true
+          # description: upload your addhar card back side photo     
+      responses:
+        "200":
+          description: OK

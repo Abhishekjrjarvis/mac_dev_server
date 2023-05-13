@@ -451,6 +451,13 @@ router.get(
   catchAsync(Admission.renderAllRefundedArray)
 );
 
+// Apply for Direct Admission Application
+router.post(
+  "/:uid/user/:aid/apply/direct/online",
+  // isLoggedIn,
+  catchAsync(Admission.retrieveAdmissionDirectOnlineApplicationQuery)
+);
+
 // router.patch(
 //   "/:new_fee_struct/edit/struct",
 //   catchAsync(Admission.renderRetroOneStudentStructureQuery)

@@ -13,6 +13,7 @@ const { generate_date, custom_date_time } = require("../../helper/dayTimer");
 const { nested_document_limit } = require("../../helper/databaseFunction");
 const moment = require("moment");
 const { handle_undefined } = require("../../Handler/customError");
+const Class = require("../../models/Class");
 
 exports.renderNewMentorQuery = async (req, res) => {
   try {

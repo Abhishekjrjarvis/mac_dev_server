@@ -995,10 +995,10 @@ exports.renderAllFilteredStudentQuery = async (req, res) => {
         });
     }
     for (var ref of all_student) {
-      for (var ele of ref?.mentor_assign_query) {
-        if (ref?.mentor_assign_query?.length <= 0) {
-          assigned_mentee.push(ref);
-        } else {
+      if (ref?.mentor_assign_query?.length <= 0) {
+        assigned_mentee.push(ref);
+      } else {
+        for (var ele of ref?.mentor_assign_query) {
           if (
             `${ele?.classId}` === `${one_class?._id}` &&
             ele?.status === "Not Assigned"

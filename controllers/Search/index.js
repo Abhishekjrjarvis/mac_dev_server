@@ -780,7 +780,7 @@ exports.searchStudent = async (req, res) => {
         })
         .populate({
           path: "studentClass",
-          select: "className",
+          select: "className classTitle classStatus",
         })
         .lean()
         .exec();
@@ -811,7 +811,7 @@ exports.searchStudent = async (req, res) => {
         })
         .populate({
           path: "studentClass",
-          select: "className",
+          select: "className classTitle classStatus",
         })
         .lean()
         .exec();

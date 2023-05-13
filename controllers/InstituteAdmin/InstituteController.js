@@ -1244,7 +1244,7 @@ exports.retrieveApproveStudentList = async (req, res) => {
         })
         .populate({
           path: "studentClass",
-          select: "className classStatus",
+          select: "className classTitle classStatus",
         });
       if (studentIns) {
         // const sEncrypt = await encryptionPayload(studentIns);
@@ -1275,7 +1275,7 @@ exports.retrieveApproveStudentList = async (req, res) => {
         })
         .populate({
           path: "studentClass",
-          select: "className classStatus",
+          select: "className classTitle classStatus",
         });
       if (studentIns) {
         // const sEncrypt = await encryptionPayload(studentIns);
@@ -1395,7 +1395,7 @@ exports.getFullStudentInfo = async (req, res) => {
         })
         .populate({
           path: "studentClass",
-          select: "className classStatus",
+          select: "className classTitle classStatus",
         })
         .lean()
         .exec();
@@ -1449,7 +1449,7 @@ exports.getFullStudentInfo = async (req, res) => {
         })
         .populate({
           path: "studentClass",
-          select: "className classStatus",
+          select: "className classTitle classStatus",
         })
         .lean()
         .exec();

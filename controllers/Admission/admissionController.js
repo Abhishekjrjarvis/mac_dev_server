@@ -232,6 +232,7 @@ exports.retieveAdmissionAdminAllApplication = async (req, res) => {
       $and: [
         { _id: { $in: apply.newApplication } },
         { applicationStatus: "Ongoing" },
+        { applicationTypeStatus: "Normal Application" },
       ],
     })
       .sort("-createdAt")
@@ -294,6 +295,7 @@ exports.retieveAdmissionAdminAllCApplication = async (req, res) => {
       $and: [
         { _id: { $in: apply.newApplication } },
         { applicationStatus: "Completed" },
+        { applicationTypeStatus: "Normal Application" },
       ],
     })
       .sort("-createdAt")
@@ -512,6 +514,7 @@ exports.fetchAdmissionApplicationArray = async (req, res) => {
           $and: [
             { _id: { $in: apply?.newApplication } },
             { applicationStatus: "Ongoing" },
+            { applicationTypeStatus: "Normal Application" },
           ],
           $or: [
             { applicationParentType: { $regex: search, $options: "i" } },
@@ -540,6 +543,7 @@ exports.fetchAdmissionApplicationArray = async (req, res) => {
           $and: [
             { _id: { $in: apply?.newApplication } },
             { applicationStatus: "Ongoing" },
+            { applicationTypeStatus: "Normal Application" },
           ],
         })
           .sort("-createdAt")
@@ -2262,11 +2266,12 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
           { studentFirstName: { $regex: search, $options: "i" } },
           { studentMiddleName: { $regex: search, $options: "i" } },
           { studentLastName: { $regex: search, $options: "i" } },
+          { studentGRNO: { $regex: search, $options: "i" } },
         ],
       })
         .sort("-admissionRemainFeeCount")
         .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionRemainFeeCount"
+          "studentFirstName studentMiddleName studentLastName photoId studentGRNO studentProfilePhoto admissionRemainFeeCount"
         )
         .populate({
           path: "department",
@@ -2280,7 +2285,7 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionRemainFeeCount"
+          "studentFirstName studentMiddleName studentLastName photoId studentGRNO studentProfilePhoto admissionRemainFeeCount"
         )
         .populate({
           path: "department",
@@ -3387,14 +3392,13 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
         select: "studentFirstName studentMiddleName studentLastName",
         populate: {
           path: "studentClass",
-          select:
-            "className classTitle classStatus batch",
-            populate: {
-              path: "batch",
-              select: "batchName batchStatus"
-            }
+          select: "className classTitle classStatus batch",
+          populate: {
+            path: "batch",
+            select: "batchName batchStatus",
+          },
         },
-      })
+      });
 
     if (all_remain?.length > 0) {
       // const arrayEncrypt = await encryptionPayload(all_remain);
@@ -5159,9 +5163,10 @@ exports.renderRefundArrayQuery = async (req, res) => {
             path: "student",
             match: {
               studentFirstName: { $regex: search, $options: "i" },
+              // studentGRNO: { $regex: search, $options: "i" },
             },
             select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
           },
         });
       for (let data of ads_admin?.refundFeeList) {
@@ -5178,7 +5183,7 @@ exports.renderRefundArrayQuery = async (req, res) => {
           populate: {
             path: "student",
             select:
-              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+              "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO",
           },
         });
 
@@ -6095,9 +6100,10 @@ exports.renderAllCandidatesGovernment = async (req, res) => {
           path: "student",
           match: {
             studentFirstName: { $regex: search, $options: "i" },
+            // studentGRNO: { $regex: search, $options: "i" } ,
           },
           select:
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+            "studentFirstName studentMiddleName studentLastName studentGRNO photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
           populate: {
             path: "fee_structure",
             select:
@@ -6111,7 +6117,7 @@ exports.renderAllCandidatesGovernment = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+            "studentFirstName studentMiddleName studentLastName studentGRNO photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
           populate: {
             path: "studentClass",
             select: "className classTitle",
@@ -6120,7 +6126,7 @@ exports.renderAllCandidatesGovernment = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+            "studentFirstName studentMiddleName studentLastName studentGRNO photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
           populate: {
             path: "batches",
             select: "batchName",
@@ -6139,7 +6145,7 @@ exports.renderAllCandidatesGovernment = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+            "studentFirstName studentMiddleName studentLastName studentGRNO photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
           populate: {
             path: "fee_structure",
             select:
@@ -6153,7 +6159,7 @@ exports.renderAllCandidatesGovernment = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+            "studentFirstName studentMiddleName studentLastName studentGRNO photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
           populate: {
             path: "studentClass",
             select: "className classTitle",
@@ -6162,7 +6168,7 @@ exports.renderAllCandidatesGovernment = async (req, res) => {
         .populate({
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
+            "studentFirstName studentMiddleName studentLastName studentGRNO photoId studentProfilePhoto admissionPaidFeeCount admissionRemainFeeCount",
           populate: {
             path: "batches",
             select: "batchName",

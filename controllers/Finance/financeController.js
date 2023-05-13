@@ -37,7 +37,10 @@ const Transport = require("../../models/Transport/transport");
 const Store = require("../../models/Finance/Inventory");
 const BankAccount = require("../../models/Finance/BankAccount");
 const { nested_document_limit } = require("../../helper/databaseFunction");
-const { designation_alarm, email_sms_designation_alarm } = require("../../WhatsAppSMS/payload");
+const {
+  designation_alarm,
+  email_sms_designation_alarm,
+} = require("../../WhatsAppSMS/payload");
 const {
   connect_redis_hit,
   connect_redis_miss,
@@ -2864,7 +2867,7 @@ exports.renderFinanceAddFeeStructureAutoQuery = async (
         ten_installments: ref?.ten_installments,
         eleven_installments: ref?.eleven_installments,
         tweleve_installments: ref?.tweleve_installments,
-        batch_master: batch_master?._id
+        batch_master: batch_master?._id,
       });
       struct_query.finance = finance?._id;
       struct_query.department = depart?._id;
@@ -3913,10 +3916,11 @@ exports.renderFinanceMasterAllDepositArray = async (req, res) => {
           { studentFirstName: { $regex: search, $options: "i" } },
           { studentMiddleName: { $regex: search, $options: "i" } },
           { studentLastName: { $regex: search, $options: "i" } },
+          { studentGRNO: { $regex: search, $options: "i" } },
         ],
       })
         .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto deposit_pending_amount"
+          "studentFirstName studentMiddleName studentLastName studentGRNO photoId studentProfilePhoto deposit_pending_amount"
         )
         .populate({
           path: "department",
@@ -3929,7 +3933,7 @@ exports.renderFinanceMasterAllDepositArray = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto deposit_pending_amount"
+          "studentFirstName studentMiddleName studentLastName studentGRNO photoId studentProfilePhoto deposit_pending_amount"
         )
         .populate({
           path: "department",
@@ -4568,26 +4572,26 @@ exports.submitHostelFeeQuery = async (req, res) => {
   }
 };
 
-exports.delete_structure = async(req, res) => {
-  try{
-      const { did } = req.params
-      var depart = await Department.findById({ _id: did})
-      var all_structures = await FeeStructure.find({ _id: { $in: depart?.fees_structures}})
-      for(var ref of all_structures){
-          depart.fees_structures.pull(ref?._id)
-          if(depart.fees_structures_count > 0){
-              depart.fees_structures_count -= 1
-          }
-          await FeeStructure.findByIdAndDelete(ref?._id)
+exports.delete_structure = async (req, res) => {
+  try {
+    const { did } = req.params;
+    var depart = await Department.findById({ _id: did });
+    var all_structures = await FeeStructure.find({
+      _id: { $in: depart?.fees_structures },
+    });
+    for (var ref of all_structures) {
+      depart.fees_structures.pull(ref?._id);
+      if (depart.fees_structures_count > 0) {
+        depart.fees_structures_count -= 1;
       }
-      await depart.save()
-      res.status(200).send({ message: "Deletion Operation Completed"})
+      await FeeStructure.findByIdAndDelete(ref?._id);
+    }
+    await depart.save();
+    res.status(200).send({ message: "Deletion Operation Completed" });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-      console.log(e)
-  }
-}
-
+};
 
 // exports.edit_structure = async(req, res) => {
 //   try{
@@ -4602,7 +4606,6 @@ exports.delete_structure = async(req, res) => {
 //     console.log(e)
 //   }
 // }
-
 
 // exports.renderUpdateStructureQuery = async (req, res) => {
 //   try {

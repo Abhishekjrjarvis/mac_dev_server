@@ -948,6 +948,7 @@ exports.renderDepartAllClassQuery = async (req, res) => {
 exports.renderAllFilteredStudentQuery = async (req, res) => {
   try {
     const { cid } = req.params;
+    const { search } = req.query;
     if (!cid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -955,16 +956,44 @@ exports.renderAllFilteredStudentQuery = async (req, res) => {
       });
 
     var assigned_mentee = [];
-    const one_class = await Class.findById({ _id: cid }).select(
-      "ApproveStudent"
-    );
-
-    var all_student = await Student.find({
-      _id: { $in: one_class?.ApproveStudent },
-    }).select(
-      "mentor_assign_query studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO"
-    );
-
+    var one_class = await Class.findById({ _id: cid }).select("ApproveStudent");
+    if (search) {
+      var all_student = await Student.find({
+        $and: [{ _id: { $in: one_class?.ApproveStudent } }],
+        $or: [
+          {
+            studentFirstName: { $regex: search, $options: "i" },
+          },
+          {
+            studentMiddleName: { $regex: search, $options: "i" },
+          },
+          {
+            studentLastName: { $regex: search, $options: "i" },
+          },
+          {
+            studentGRNO: { $regex: search, $options: "i" },
+          },
+        ],
+      })
+        .select(
+          "mentor_assign_query studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO"
+        )
+        .populate({
+          path: "studentClass",
+          select: "className classTitle classStatus",
+        });
+    } else {
+      var all_student = await Student.find({
+        _id: { $in: one_class?.ApproveStudent },
+      })
+        .select(
+          "mentor_assign_query studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO"
+        )
+        .populate({
+          path: "studentClass",
+          select: "className classTitle classStatus",
+        });
+    }
     for (var ref of all_student) {
       for (var ele of ref?.mentor_assign_query) {
         if (

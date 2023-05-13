@@ -29885,6 +29885,11 @@ paths:
           required: true
           type: string
           description: Enter Class ID
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
       responses:
         "200":
           description: OK

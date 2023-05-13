@@ -1624,8 +1624,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         if (result) {
           head_list.push({
             InvoiceNumber: ref?.invoice_count ?? "0",
-            InvoiceDate:
-              moment(ref?.fee_transaction_date).format("DD-MM-YYYY") ?? "NA",
+            InvoiceDate: moment(ref?.created_at).format("DD-MM-YYYY") ?? "NA",
             TransactionAmount: ref?.fee_payment_amount ?? "0",
             TransactionDate:
               moment(ref?.fee_transaction_date).format("DD-MM-YYYY") ?? "NA",

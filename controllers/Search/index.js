@@ -746,7 +746,7 @@ exports.searchStudent = async (req, res) => {
   try {
     var institute = await InstituteAdmin.findById({ _id: req.params.id });
     if (req.query.search) {
-      const search = req.query.search
+      const search = req?.query?.search?.trim()
         ? {
             $and: [
               {

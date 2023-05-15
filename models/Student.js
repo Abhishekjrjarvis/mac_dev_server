@@ -588,6 +588,10 @@ const studentSchema = new mongoose.Schema({
       },
     },
   ],
+  applicable_fees_pending: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema);

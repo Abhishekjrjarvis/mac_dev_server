@@ -2255,42 +2255,96 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
     //   });
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
-    const { search } = req.query;
+    const { search, flow } = req.query;
     const admin_ins = await Admission.findById({ _id: aid }).select(
       "remainingFee"
     );
-    if (search) {
-      var student = await Student.find({
-        $and: [{ _id: { $in: admin_ins?.remainingFee } }],
-        $or: [
-          { studentFirstName: { $regex: search, $options: "i" } },
-          { studentMiddleName: { $regex: search, $options: "i" } },
-          { studentLastName: { $regex: search, $options: "i" } },
-          { studentGRNO: { $regex: search, $options: "i" } },
-        ],
-      })
-        .sort("-admissionRemainFeeCount")
-        .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentGRNO studentProfilePhoto admissionRemainFeeCount"
-        )
-        .populate({
-          path: "department",
-          select: "dName",
-        });
-    } else {
-      var student = await Student.find({
-        _id: { $in: admin_ins?.remainingFee },
-      })
-        .sort("-admissionRemainFeeCount")
-        .limit(limit)
-        .skip(skip)
-        .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentGRNO studentProfilePhoto admissionRemainFeeCount"
-        )
-        .populate({
-          path: "department",
-          select: "dName",
-        });
+    if(flow === "All_Pending_Fees_Query"){
+      if (search) {
+        var student = await Student.find({
+          $and: [{ _id: { $in: admin_ins?.remainingFee } }],
+          $or: [
+            { studentFirstName: { $regex: search, $options: "i" } },
+            { studentMiddleName: { $regex: search, $options: "i" } },
+            { studentLastName: { $regex: search, $options: "i" } },
+            { studentGRNO: { $regex: search, $options: "i" } },
+          ],
+        })
+          .sort("-admissionRemainFeeCount")
+          .select(
+            "studentFirstName studentMiddleName studentLastName photoId studentGRNO studentProfilePhoto admissionRemainFeeCount"
+          )
+          .populate({
+            path: "department",
+            select: "dName",
+          });
+      } else {
+        var student = await Student.find({
+          _id: { $in: admin_ins?.remainingFee },
+        })
+          .sort("-admissionRemainFeeCount")
+          .limit(limit)
+          .skip(skip)
+          .select(
+            "studentFirstName studentMiddleName studentLastName photoId studentGRNO studentProfilePhoto admissionRemainFeeCount"
+          )
+          .populate({
+            path: "department",
+            select: "dName",
+          });
+      }
+    }
+    else if(flow === "Applicable_Fees_Query"){
+      if (search) {
+        var student = await Student.find({
+          $and: [{ _id: { $in: admin_ins?.remainingFee } }],
+          $or: [
+            { studentFirstName: { $regex: search, $options: "i" } },
+            { studentMiddleName: { $regex: search, $options: "i" } },
+            { studentLastName: { $regex: search, $options: "i" } },
+            { studentGRNO: { $regex: search, $options: "i" } },
+          ],
+        })
+          .sort("-admissionRemainFeeCount")
+          .select(
+            "studentFirstName studentMiddleName studentLastName applicable_fees_pending photoId studentGRNO studentProfilePhoto admissionRemainFeeCount"
+          )
+          .populate({
+            path: "department",
+            select: "dName",
+          });
+          for(var ref of student){
+            var all_remain = await RemainingList.find({ student: `${ref?._id}`})
+            .select("applicable_fee paid_fee")
+            for(var ele of all_remain){
+              ref.applicable_fees_pending += ele?.applicable_fee - ele?.paid_fee > 0 ?  ele?.applicable_fee - ele?.paid_fee : 0
+            }
+          }
+      } else {
+        var student = await Student.find({
+          _id: { $in: admin_ins?.remainingFee },
+        })
+          .sort("-admissionRemainFeeCount")
+          .limit(limit)
+          .skip(skip)
+          .select(
+            "studentFirstName studentMiddleName studentLastName applicable_fees_pending photoId studentGRNO studentProfilePhoto admissionRemainFeeCount"
+          )
+          .populate({
+            path: "department",
+            select: "dName",
+          });
+          for(var ref of student){
+            var all_remain = await RemainingList.find({ student: `${ref?._id}`})
+            .select("applicable_fee paid_fee")
+            for(var ele of all_remain){
+              ref.applicable_fees_pending += ele?.applicable_fee - ele?.paid_fee > 0 ?  ele?.applicable_fee - ele?.paid_fee : 0
+            }
+          }
+      }
+    }
+    else{
+
     }
     if (student?.length > 0) {
       var remain_fee = student?.filter((ref) => {

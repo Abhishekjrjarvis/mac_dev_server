@@ -13,6 +13,7 @@ const {
   backlogFunction,
   applicationFunction,
   hostelInstituteFunction,
+  directAdmissionInstituteFunction,
 } = require("./paymentModule");
 const { handle_undefined } = require("../../Handler/customError");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
@@ -267,6 +268,25 @@ exports.verifyRazorPayment = async (req, res) => {
         }
         res.redirect(
           `${process.env.FRONT_REDIRECT_URL}/q/${back_status}/memberstab`
+        );
+      } else if (payment_module_type === "Direct_Admission") {
+        const direct_admission_status = await directAdmissionInstituteFunction(
+          order_payment?._id,
+          payment_by_end_user_id,
+          refactor_amount_nocharges,
+          refactor_amount,
+          payment_module_id,
+          ad_status_id,
+          Boolean(razor_author)
+        );
+        if (isApk) {
+          res.status(200).send({
+            message: "Success with Razorpay Direct Admission 😀",
+            check: true,
+          });
+        }
+        res.redirect(
+          `${process.env.FRONT_REDIRECT_URL}/q/${direct_admission_status}/feed`
         );
       } else {
       }

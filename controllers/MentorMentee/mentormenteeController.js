@@ -249,7 +249,7 @@ exports.renderDestroyMentorMenteeQuery = async (req, res) => {
       for (var ref of student?.mentor_assign_query) {
         if (
           `${ref?.classId}` === `${student?.studentClass}` &&
-          status === "Assigned"
+          ref?.status === "Assigned"
         ) {
           student.mentor_assign_query.pull(ref?._id);
         }

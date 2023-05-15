@@ -99,8 +99,8 @@ exports.getSubjectMaster = async (req, res) => {
 
 exports.createExam = async (req, res) => {
   try {
-    const batch = await Batch.findById(req.params.bid)
-    const department = await Department.findById(batch.department)
+    const batch = await Batch.findById(req.params.bid);
+    const department = await Department.findById(batch.department);
     const exam = new Exam(req.body);
     batch.exams.push(exam._id);
     department.exams.push(exam._id);
@@ -245,7 +245,7 @@ exports.allExam = async (req, res) => {
     department: { $eq: `${req.params.did}` },
   }).select("examName examWeight examMode createdAt examType");
   const examEncrypt = await encryptionPayload(exam);
-  res.status(200).send({ exam,examEncrypt });
+  res.status(200).send({ exam, examEncrypt });
 };
 
 exports.examById = async (req, res) => {
@@ -3559,7 +3559,8 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
                           amount: exist_fee.exam_fee_amount,
                           exam_structure: new_exam_struct?._id,
                         });
-                        new_exam_struct.total_raised_collection += exist_fee.exam_fee_amount
+                        new_exam_struct.total_raised_collection +=
+                          exist_fee.exam_fee_amount;
                         new_exam_struct.paid_student.push({
                           student: student?._id,
                           amount: exist_fee.exam_fee_amount,
@@ -3583,7 +3584,8 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
                           amount: all_back?.length * exist_fee.exam_fee_amount,
                           exam_structure: new_exam_struct?._id,
                         });
-                        new_exam_struct.total_raised_collection += all_back?.length * exist_fee.exam_fee_amount
+                        new_exam_struct.total_raised_collection +=
+                          all_back?.length * exist_fee.exam_fee_amount;
                         new_exam_struct.paid_student.push({
                           student: student?._id,
                           amount: all_back?.length * exist_fee.exam_fee_amount,
@@ -4489,6 +4491,142 @@ exports.sendNotificationOfAttendance = async (req, res) => {
     res.status(200).send({
       message: "notification send to supervisor",
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderNewBacklogSeatingArrangementQuery = async (req, res) => {
+  try {
+    const { eid } = req.params;
+    const { papers } = req.body;
+    var valid_staff = handle_undefined(req?.body?.seat_block_staff);
+    if (!eid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+    const one_exam = await Exam.findById({ _id: eid });
+    const new_seat = await Seating({ ...req.body });
+    new_seat.seat_block_staff = valid_staff ? valid_staff : null;
+    if (valid_staff) {
+      var staff = await Staff.findById({
+        _id: `${req?.body?.seat_block_staff}`,
+      });
+    }
+    one_exam.seating_sequence.push(new_seat?._id);
+    one_exam.seating_sequence_count += 1;
+    new_seat.exam = one_exam?._id;
+    var new_date;
+    var new_start;
+    var new_end;
+    if (papers?.length > 0) {
+      for (var ref of papers) {
+        for (var ele of one_exam?.subjects) {
+          if (`${ele?._id}` === `${ref?.paperId}`) {
+            var one_subject = await Subject.findById({
+              _id: `${ref?.subjectId}`,
+            });
+            var one_subject_master = await SubjectMaster.findById({
+              _id: `${one_subject?.subjectMasterName}`,
+            });
+            var one_class = await Class.findById({
+              _id: `${one_subject?.class}`,
+            });
+            new_seat.seat_exam_paper_array.push({
+              subjectId: ref?.subjectId,
+              subjectName: ref?.subjectName,
+              totalMarks: ref?.totalMarks,
+              date: ref?.date,
+              startTime: ref?.startTime,
+              endTime: ref?.endTime,
+              duration: ref?.duration,
+              subjectMasterId: ref?.subjectMasterId,
+              from: ref?.from,
+              to: ref?.to,
+              count: parseInt(ref?.to) + 1 - parseInt(ref?.from),
+            });
+            new_date = ref?.date;
+            new_start = ref?.startTime;
+            new_end = ref?.endTime;
+            ele.seating_sequence.push(new_seat?._id);
+            one_class.exam_seating.push({
+              subject_id: one_subject?._id,
+              seating_id: new_seat?._id,
+              from: ref?.from,
+              to: ref?.to,
+              count: parseInt(ref?.to) + 1 - parseInt(ref?.from),
+            });
+            one_class.exam_start = true;
+            one_class.lastupto += ref?.to;
+            await one_class.save();
+            var all_students = await Student.find({
+              $and: [
+                { studentClass: { $in: one_subject_master?.backlog } },
+                { studentStatus: "Approved" },
+              ],
+            });
+            for (var ref of all_students) {
+              var users = await User.findById({ _id: `${ref?.user}` });
+              const notify = await StudentNotification({});
+              notify.notifyContent = `You have a supervision on ${moment(
+                exist_date
+              ).format("LL")} ${new_start} To ${new_end}`;
+              notify.notifySender = one_exam?.department;
+              notify.notifyReceiever = users?._id;
+              notify.examId = one_exam?._id;
+              notify.seatingId = new_seat?._id;
+              notify.notifyType = "Student";
+              notify.notifyPublisher = ref?._id;
+              users.activity_tab.push(notify._id);
+              notify.notifyByDepartPhoto = one_exam?.department;
+              notify.notifyCategory = "Exam Seating Arrangement";
+              notify.redirectIndex = 31;
+              invokeMemberTabNotification(
+                "Student Activity",
+                notify,
+                "Seating Arrangement",
+                users._id,
+                users.deviceToken,
+                "Student",
+                notify
+              );
+              await Promise.all([notify.save(), users.save()]);
+            }
+          }
+        }
+      }
+    }
+    var exist_date = replace_query(`${new_date}`);
+    if (valid_staff) {
+      const notify = await StudentNotification({});
+      const user = await User.findById({ _id: `${staff?.user}` });
+      notify.notifyContent = `You have a supervision on ${moment(
+        exist_date
+      ).format("LL")} ${new_start} To ${new_end}`;
+      notify.notifySender = one_exam?.department;
+      notify.notifyReceiever = user?._id;
+      notify.examId = one_exam?._id;
+      notify.seatingId = new_seat?._id;
+      notify.notifyType = "Staff";
+      notify.notifyPublisher = staff?._id;
+      user.activity_tab.push(notify._id);
+      notify.notifyByDepartPhoto = one_exam?.department;
+      notify.notifyCategory = "Exam Seating Arrangement";
+      notify.redirectIndex = 31;
+      invokeMemberTabNotification(
+        "Staff Activity",
+        notify,
+        "Seating Arrangement",
+        user._id,
+        user.deviceToken,
+        "Student",
+        notify
+      );
+      await Promise.all([notify.save(), user.save()]);
+    }
+    await Promise.all([one_exam.save(), new_seat.save()]);
+    res.status(200).send({ message: "Explore New Block", access: true });
   } catch (e) {
     console.log(e);
   }

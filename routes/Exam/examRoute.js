@@ -201,7 +201,6 @@ router
 //   .route("/backlog/:did/new/exam/auto")
 //   .post(catchAsync(examController.renderNewBacklogExamAutoQuery));
 
-
 router
   .route("/grade/custom/create")
   .post(catchAsync(examController.createCustomGradeSystem));
@@ -219,5 +218,9 @@ router
 router
   .route("/one/subject/:sid/student/mark/update")
   .post(catchAsync(examController.backlogAllStudentMarksBySubjectTeacher));
+
+router
+  .route("/seating/:eid/seating/new/backlog/query")
+  .post(catchAsync(examController.renderNewBacklogSeatingArrangementQuery));
 
 module.exports = router;

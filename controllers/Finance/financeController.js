@@ -4593,6 +4593,62 @@ exports.delete_structure = async (req, res) => {
   }
 };
 
+// exports.all_student = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     if (!id)
+//       return res
+//         .status(200)
+//         .send({ message: "Something went wrong ", access: false });
+
+//     const one_ins = await InstituteAdmin.findById({ _id: id }).select(
+//       "ApproveStudent"
+//     );
+
+//     // var all_student = await Student.find({ _id: { $in: one_ins?.ApproveStudent}})
+//     // .select("admissionPaidFeeCount admissionPaidFeeCount remainingFeeList")
+
+//     var all_remain = await RemainingList.find({
+//       $and: [{ student: { $in: one_ins?.ApproveStudent } }],
+//     })
+//       .select("applicable_fee remaining_fee paid_fee status")
+//       .populate({
+//         path: "student",
+//         select:
+//           "studentFirstName studentMiddleName studentLastName admissionPaidFeeCount admissionRemainFeeCount",
+//       });
+//     var sorted = [];
+//     for (var ref of all_remain) {
+//       ref.exactmatch = ref?.applicable_fee - ref?.remaining_fee;
+//       ref.match =
+//         ref?.paid_fee + ref?.remaining_fee == ref?.applicable_fee
+//           ? "Yes Match Found"
+//           : "No Match Found";
+//       if (ref?.match === "Yes Match Found") {
+//         // sorted.push(ref);
+//       } else {
+//         sorted.push(ref,{ match: ref?.match, exact: ref?.exactmatch});
+//       }
+//     }
+
+//     if (sorted?.length > 0) {
+//       res.status(200).send({
+//         message: "Explore All Student with Remaining Fees Card",
+//         access: true,
+//         sorted: sorted,
+//       });
+//     } else {
+//       res.status(200).send({
+//         message: "No Student with Remaining Fees Card",
+//         access: true,
+//         sorted: [],
+//       });
+//     }
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
+
 // exports.edit_structure = async(req, res) => {
 //   try{
 //     const { did } = req.params

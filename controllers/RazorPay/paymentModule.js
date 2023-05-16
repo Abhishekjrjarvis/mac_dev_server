@@ -1462,6 +1462,7 @@ exports.directAdmissionInstituteFunction = async (
   //   const status = new Status({});
   //   const notify = new StudentNotification({});
   //   const student = new Student({ ...body })
+  // student.valid_full_name = `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`
   //   const studentOptionalSubject = body?.optionalSubject
   //     ? body?.optionalSubject
   //     : [];

@@ -466,11 +466,11 @@ const userSchema = new mongoose.Schema({
 
 userSchema.post("findOneAndDelete", async function (doc) {
   if (doc) {
-    await Post.deleteMany({
-      _id: {
-        $in: doc.userPosts,
-      },
-    });
+    // await Post.deleteMany({
+    //   _id: {
+    //     $in: doc.userPosts,
+    //   },
+    // });
     await Staff.deleteMany({
       _id: {
         $in: doc.staff,
@@ -484,16 +484,6 @@ userSchema.post("findOneAndDelete", async function (doc) {
     await Status.deleteMany({
       _id: {
         $in: doc.applicationStatus,
-      },
-    });
-    await Answer.deleteMany({
-      _id: {
-        $in: doc.answered_query,
-      },
-    });
-    await OrderPayment.deleteMany({
-      _id: {
-        $in: doc.payment_history,
       },
     });
     await Notification.deleteMany({

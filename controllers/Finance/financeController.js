@@ -3437,8 +3437,8 @@ exports.renderOneFeeReceipt = async (req, res) => {
               path: "displayPersonList",
               select: "displayTitle",
               populate: {
-                path: "displayUser",
-                select: "userLegalName",
+                path: "displayUser displayStaff",
+                select: "userLegalName staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId",
               },
             },
           },

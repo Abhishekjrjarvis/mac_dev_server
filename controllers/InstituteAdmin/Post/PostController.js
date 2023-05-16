@@ -986,9 +986,8 @@ exports.retrieveAllPosts = async (req, res) => {
           })
           .populate({
             path: "new_announcement",
-            select:
-              "insAnnTitle insAnnDescription",
-          })
+            select: "insAnnTitle insAnnDescription",
+          });
       } else {
         var post = await Post.find({
           $and: [{ _id: { $in: institute.posts } }],
@@ -1013,9 +1012,8 @@ exports.retrieveAllPosts = async (req, res) => {
           })
           .populate({
             path: "new_announcement",
-            select:
-              "insAnnTitle insAnnDescription",
-          })
+            select: "insAnnTitle insAnnDescription",
+          });
       }
       if (institute.posts.length >= 1) {
         const postCount = await Post.find({ _id: { $in: institute.posts } });
@@ -1069,11 +1067,10 @@ exports.retreiveAllProfilePosts = async (req, res) => {
       })
       .populate({
         path: "new_announcement",
-        select:
-          "insAnnTitle insAnnDescription",
-      })
-    if (institute && institute.posts.length >= 1) {
-      const postCount = await Post.find({ _id: { $in: institute.posts } });
+        select: "insAnnTitle insAnnDescription",
+      });
+    if (institute && institute?.posts?.length >= 1) {
+      var postCount = await Post.find({ _id: { $in: institute.posts } });
       if (page * limit >= postCount.length) {
       } else {
         var totalPage = page + 1;
@@ -1084,6 +1081,13 @@ exports.retreiveAllProfilePosts = async (req, res) => {
         post,
         postCount: postCount.length,
         totalPage: totalPage,
+      });
+    } else {
+      res.status(200).send({
+        message: "Failure",
+        post,
+        postCount: postCount?.length ?? 0,
+        totalPage: totalPage ?? 0,
       });
     }
   } catch (e) {
@@ -1390,9 +1394,8 @@ exports.retrieveSavedAllPosts = async (req, res) => {
         })
         .populate({
           path: "new_announcement",
-          select:
-            "insAnnTitle insAnnDescription",
-        })
+          select: "insAnnTitle insAnnDescription",
+        });
       if (institute.institute_saved_post.length >= 1) {
         const postCount = await Post.find({
           _id: { $in: institute.institute_saved_post },
@@ -1450,9 +1453,8 @@ exports.retrieveTagAllPosts = async (req, res) => {
         })
         .populate({
           path: "new_announcement",
-          select:
-            "insAnnTitle insAnnDescription",
-        })
+          select: "insAnnTitle insAnnDescription",
+        });
       if (institute.tag_post.length >= 1) {
         const postCount = await Post.find({
           _id: { $in: institute.tag_post },

@@ -136,4 +136,6 @@ router.delete(
   catchAsync(Auth.renderOneInstituteAllStudentQuery)
 );
 
+// router.patch("/all/student/:id", catchAsync(Auth.renderAllStudentQuery));
+
 module.exports = router;

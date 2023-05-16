@@ -1465,6 +1465,9 @@ exports.retrieveDirectJoinQuery = async (req, res) => {
         _id: `${classes?.institute}`,
       });
       const student = new Student({ ...req.body });
+      student.valid_full_name = `${student?.studentFirstName} ${
+        student?.studentMiddleName ?? ""
+      } ${student?.studentLastName}`;
       const classStaff = await Staff.findById({
         _id: `${classes.classTeacher}`,
       });
@@ -1851,6 +1854,9 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
         });
       }
       const student = new Student({ ...req.body });
+      student.valid_full_name = `${student?.studentFirstName} ${
+        student?.studentMiddleName ?? ""
+      } ${student?.studentLastName}`;
       const apply = await NewApplication.findById({ _id: aid });
       const admission = await Admission.findById({
         _id: `${apply.admissionAdmin}`,
@@ -2058,6 +2064,9 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       _id: `${institute?.financeDepart[0]}`,
     });
     const student = new Student({ ...req.body });
+    student.valid_full_name = `${student?.studentFirstName} ${
+      student?.studentMiddleName ?? ""
+    } ${student?.studentLastName}`;
     student.studentCode = classes.classCode;
     const studentOptionalSubject = req.body?.optionalSubject
       ? req.body?.optionalSubject
@@ -2607,6 +2616,9 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       var user = await User.findById({ _id: `${existing}` });
     }
     const student = new Student({ ...req.body });
+    student.valid_full_name = `${student?.studentFirstName} ${
+      student?.studentMiddleName ?? ""
+    } ${student?.studentLastName}`;
     const studentOptionalSubject = req.body?.optionalSubject
       ? req.body?.optionalSubject
       : [];
@@ -2875,6 +2887,9 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
           _id: `${institute?.financeDepart[0]}`,
         });
         const student = new Student({ ...query });
+        student.valid_full_name = `${student?.studentFirstName} ${
+          student?.studentMiddleName ?? ""
+        } ${student?.studentLastName}`;
         student.studentCode = classes.classCode;
         const studentOptionalSubject = query?.optionalSubject
           ? query?.optionalSubject
@@ -3565,6 +3580,9 @@ exports.renderOneInstituteAllStudentQuery = async (req, res) => {
         if (one_class?.studentCount > 0) {
           one_class.studentCount -= 1;
         }
+        if (one_class?.strength > 0) {
+          one_class.strength -= 1;
+        }
         if (one_student?.studentGender === "Male") {
           if (one_batch.student_category.boyCount > 0) {
             one_batch.student_category.boyCount -= 1;
@@ -3719,6 +3737,14 @@ exports.renderOneInstituteAllStudentQuery = async (req, res) => {
         if (one_user?.profilePhoto) {
           await deleteFile(one_user?.profilePhoto);
         }
+        var all_post = await Post.find({ author: `${one_user?._id}` });
+        for (var ref of all_post) {
+          await Post.findByIdAndDelete(ref?._id);
+        }
+        var all_answer = await Answer.find({ author: `${one_user?._id}` });
+        for (var ref of all_answer) {
+          await Answer.findByIdAndDelete(ref?._id);
+        }
         await Student.findByIdAndDelete(one_student?._id);
         await User.findByIdAndDelete(one_user?._id);
       }
@@ -3737,3 +3763,21 @@ exports.renderOneInstituteAllStudentQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+// exports.renderAllStudentQuery = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     var all_student = await Student.find({ institute: id });
+//     for (var ref of all_student) {
+//       ref.valid_full_name = `${ref?.studentFirstName} ${
+//         ref?.studentMiddleName ?? ""
+//       } ${ref?.studentLastName}`;
+//       await ref.save();
+//     }
+//     res
+//       .status(200)
+//       .send({ message: "Explore All Saved Student Name", access: true });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };

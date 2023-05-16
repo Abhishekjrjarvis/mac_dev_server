@@ -17,6 +17,10 @@ const displaySchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "InstituteAdmin",
   },
+  displayStaff: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Staff",
+  },
   displayByDepartment: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department",

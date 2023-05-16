@@ -1009,6 +1009,9 @@ exports.fillStudentForm = async (req, res) => {
     const institute = await InstituteAdmin.findById({ _id: id });
     const user = await User.findById({ _id: uid });
     const student = new Student({ ...req.body });
+    student.valid_full_name = `${student?.studentFirstName} ${
+      student?.studentMiddleName ?? ""
+    } ${student?.studentLastName}`;
     const classes = await Class.findOne({ classCode: req.body.studentCode });
     const classStaff = await Staff.findById({ _id: `${classes.classTeacher}` });
     const classUser = await User.findById({ _id: `${classStaff.user}` });
@@ -1143,7 +1146,7 @@ exports.retrieveApproveStaffList = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
+          "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffDesignationCount staffJoinDate staffROLLNO staffGender"
         )
         .populate({
           path: "user",
@@ -1167,7 +1170,7 @@ exports.retrieveApproveStaffList = async (req, res) => {
           _id: { $in: staff_ins?.ApproveStaff },
         })
           .select(
-            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
+            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffDesignationCount staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
           )
           .populate({
             path: "user",
@@ -1197,7 +1200,7 @@ exports.retrieveApproveStaffList = async (req, res) => {
           _id: { $in: staff_ins?.ApproveStaff },
         })
           .select(
-            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
+            "staffFirstName staffMiddleName staff_biometric_id recentDesignation staffDesignationCount staffLastName photoId staffProfilePhoto staffPhoneNumber staffJoinDate staffROLLNO staffGender"
           )
           .populate({
             path: "user",
@@ -2028,7 +2031,8 @@ exports.allStaffDepartmentClassList = async (req, res) => {
       .select("batchName batchStatus")
       .populate({
         path: "classroom",
-        select: "className classTitle classStatus photoId photo coverId cover boyCount girlCount otherCount",
+        select:
+          "className classTitle classStatus photoId photo coverId cover boyCount girlCount otherCount",
         populate: {
           path: "classTeacher",
           select:
@@ -2373,15 +2377,17 @@ exports.updateDisplayPersonArray = async (req, res) => {
   try {
     const { id } = req.params;
     const institute = await InstituteAdmin.findById({ _id: id });
-    const user = await User.findById({ _id: `${req.body.displayUser}` });
+    const user = await User.findById({ _id: `${req.body?.displayUser}` });
+    const staff = await Staff.findById({ _id: `${req.body?.displayStaff}` });
     const notify = new Notification({});
     const display = new DisplayPerson({});
 
-    display.displayTitle = req.body.displayTitle;
-    display.displayUser = user._id;
-    institute.displayPersonList.push(display._id);
-    display.displayBy = institute._id;
-    user.displayPersonArray.push(display._id);
+    display.displayTitle = req.body?.displayTitle;
+    display.displayUser = user?._id;
+    display.displayStaff = staff?._id;
+    institute.displayPersonList.push(display?._id);
+    display.displayBy = institute?._id;
+    user.displayPersonArray.push(display?._id);
 
     notify.notifyContent = `Congrats 🎉 for ${req.body.displayTitle} of the ${institute.insName}`;
     notify.notifySender = institute._id;
@@ -2407,8 +2413,9 @@ exports.updateDisplayPersonIns = async (req, res) => {
   try {
     const { did } = req.params;
     const display = await DisplayPerson.findById({ _id: did });
-    display.displayTitle = req.body.displayTitle;
-    display.displayUser = req.body.displayUser;
+    display.displayTitle = req.body?.displayTitle;
+    display.displayUser = req.body?.displayUser;
+    display.displayStaff = req.body?.displayStaff;
     await Promise.all([display.save()]);
     res.status(200).send({ message: "update Display Person" });
   } catch (e) {}

@@ -907,6 +907,9 @@ exports.renderHostelReceievedApplication = async (req, res) => {
       });
     const user = await User.findById({ _id: uid });
     const student = new Student({ ...req.body });
+    student.valid_full_name = `${student?.studentFirstName} ${
+      student?.studentMiddleName ?? ""
+    } ${student?.studentLastName}`;
     const apply = await NewApplication.findById({ _id: aid });
     const one_hostel = await Hostel.findById({
       _id: `${apply.hostelAdmin}`,
@@ -2740,7 +2743,7 @@ const request_hostel_mode_query_by_student = async (
     var user = await User.findById({ _id: `${student.user}` }).select(
       "deviceToken payment_history activity_tab"
     );
-    var is_install
+    var is_install;
     if (
       price <= student?.hostel_fee_structure?.total_admission_fees &&
       price > student?.hostel_fee_structure?.one_installments?.fees
@@ -2969,15 +2972,13 @@ const request_hostel_mode_query_by_student = async (
         : student?.hostel_fee_structure?.total_admission_fees - price,
     });
     apply.confirmCount += 1;
-    for(var ref of apply?.selectedApplication){
-      if(`${ref?.student}` === `${student?._id}`){
-        apply.selectedApplication.pull(ref?._id)
-      }
-      else{
-
+    for (var ref of apply?.selectedApplication) {
+      if (`${ref?.student}` === `${student?._id}`) {
+        apply.selectedApplication.pull(ref?._id);
+      } else {
       }
     }
-    await apply.save()
+    await apply.save();
     if (apply?.allottedApplication?.length > 0) {
       apply?.allottedApplication.forEach((ele) => {
         if (`${ele.student}` === `${student._id}`) {
@@ -6265,6 +6266,9 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
       var user = await User.findById({ _id: `${existing}` });
     }
     const student = new Student({ ...req.body });
+    student.valid_full_name = `${student?.studentFirstName} ${
+      student?.studentMiddleName ?? ""
+    } ${student?.studentLastName}`;
     const studentOptionalSubject = req.body?.optionalSubject
       ? req.body?.optionalSubject
       : [];
@@ -6500,6 +6504,9 @@ exports.renderDirectHostelJoinExcelQuery = async (hid, student_array) => {
         studentDOB: ref?.studentDOB,
         studentPhoneNumber: ref?.studentPhoneNumber,
       });
+      student.valid_full_name = `${student?.studentFirstName} ${
+        student?.studentMiddleName ?? ""
+      } ${student?.studentLastName}`;
       const studentOptionalSubject = ref?.optionalSubject
         ? ref?.optionalSubject
         : [];

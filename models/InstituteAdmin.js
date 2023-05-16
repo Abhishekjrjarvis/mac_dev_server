@@ -13,7 +13,7 @@ const instituteAdminSchema = new mongoose.Schema({
   insAbout: { type: String },
   insMode: { type: String, required: true },
   insDocument: { type: String },
-  insPassword: { type: String }, 
+  insPassword: { type: String },
   insType: { type: String, required: true },
   status: { type: String, default: "Not Approved" },
   insProfilePassword: { type: String },
@@ -812,15 +812,15 @@ const instituteAdminSchema = new mongoose.Schema({
   },
 });
 
-instituteAdminSchema.post("findOneAndDelete", async function (doc) {
-  if (doc) {
-    await Post.deleteMany({
-      _id: {
-        $in: doc.posts,
-      },
-    });
-  }
-});
+// instituteAdminSchema.post("findOneAndDelete", async function (doc) {
+//   if (doc) {
+//     await Post.deleteMany({
+//       _id: {
+//         $in: doc.posts,
+//       },
+//     });
+//   }
+// });
 
 const InstituteAdmin = mongoose.model("InstituteAdmin", instituteAdminSchema);
 

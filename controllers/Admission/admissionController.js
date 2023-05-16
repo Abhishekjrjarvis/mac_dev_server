@@ -598,6 +598,7 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
       });
     const user = await User.findById({ _id: uid });
     const student = new Student({ ...req.body });
+    student.valid_full_name = `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`
     const apply = await NewApplication.findById({ _id: aid });
     const admission = await Admission.findById({
       _id: `${apply.admissionAdmin}`,
@@ -2316,8 +2317,12 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
           for(var ref of student){
             var all_remain = await RemainingList.find({ student: `${ref?._id}`})
             .select("applicable_fee paid_fee")
+            .populate({
+              path: "fee_structure",
+              select: "applicable_fees"
+            })
             for(var ele of all_remain){
-              ref.applicable_fees_pending += ele?.applicable_fee - ele?.paid_fee > 0 ?  ele?.applicable_fee - ele?.paid_fee : 0
+              ref.admissionRemainFeeCount += ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0 ?  ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0
             }
           }
       } else {
@@ -2337,8 +2342,12 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
           for(var ref of student){
             var all_remain = await RemainingList.find({ student: `${ref?._id}`})
             .select("applicable_fee paid_fee")
+            .populate({
+              path: "fee_structure",
+              select: "applicable_fees"
+            })
             for(var ele of all_remain){
-              ref.applicable_fees_pending += ele?.applicable_fee - ele?.paid_fee > 0 ?  ele?.applicable_fee - ele?.paid_fee : 0
+              ref.admissionRemainFeeCount += ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0 ?  ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0
             }
           }
       }

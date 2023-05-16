@@ -592,6 +592,9 @@ const studentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  valid_full_name: {
+    type: String,
+  },
 });
 
 const Student = mongoose.model("Student", studentSchema);

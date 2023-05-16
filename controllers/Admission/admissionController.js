@@ -2322,9 +2322,12 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
               select: "applicable_fees"
             })
             for(var ele of all_remain){
-              ref.admissionRemainFeeCount += ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0 ?  ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0
+              ref.applicable_fees_pending += ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0 ?  ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0
             }
           }
+          student?.filter((ref) => {
+            if(ref?.applicable_fees_pending > 0) return ref
+          })
       } else {
         var student = await Student.find({
           _id: { $in: admin_ins?.remainingFee },
@@ -2347,9 +2350,12 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
               select: "applicable_fees"
             })
             for(var ele of all_remain){
-              ref.admissionRemainFeeCount += ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0 ?  ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0
+              ref.applicable_fees_pending += ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0 ?  ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0
             }
           }
+          student?.filter((ref) => {
+            if(ref?.applicable_fees_pending > 0) return ref
+          })
       }
     }
     else{

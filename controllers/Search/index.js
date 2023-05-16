@@ -746,7 +746,7 @@ exports.searchStudent = async (req, res) => {
   try {
     var institute = await InstituteAdmin.findById({ _id: req.params.id });
     if (req.query.search) {
-      console.log(req.query);
+      // console.log(req.query);
       const search = req?.query?.search
         ? {
             $and: [
@@ -776,7 +776,7 @@ exports.searchStudent = async (req, res) => {
         : {};
       var student = await Student.find(search)
         .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender"
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO admissionRemainFeeCount studentAdmissionDate studentGender"
         )
         .populate({
           path: "user",
@@ -807,7 +807,7 @@ exports.searchStudent = async (req, res) => {
         .limit(itemPerPage)
         .skip(dropItem)
         .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender"
+          "studentFirstName studentMiddleName studentLastName photoId admissionRemainFeeCount studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender"
         )
         .populate({
           path: "user",

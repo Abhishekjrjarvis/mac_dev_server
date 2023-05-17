@@ -2998,7 +2998,11 @@ exports.renderNewExamFeeStructureAllQuery = async (req, res) => {
       .populate({
         path: "department",
         select: "dName",
-      });
+      })
+      .populate({
+        path: "exam",
+        select: "examName examType"
+      })
 
     if (all_exam_fee?.length > 0) {
       res.status(200).send({

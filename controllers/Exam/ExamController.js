@@ -3154,7 +3154,7 @@ exports.renderOneExamFeeStructureQuery = async (req, res) => {
       });
 
     const one_exam_fee = await ExamFeeStructure.findById({ _id: efid })
-      .select("paid_student_count total_paid_collection")
+      .select("paid_student_count total_paid_collection total_raised_collection")
       .populate({
         path: "paid_student",
         populate: {
@@ -3162,7 +3162,11 @@ exports.renderOneExamFeeStructureQuery = async (req, res) => {
           select:
             "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO studentROLLNO",
         },
-      });
+      })
+      .populate({
+        path: "exam",
+        select: "examName examType"
+      })
 
     var all_fee = await nested_document_limit(
       page,

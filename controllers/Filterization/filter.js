@@ -1606,7 +1606,11 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
       for (var ref of all_receipts) {
         var remain_list = await RemainingList.findOne({
           $and: [{ student: ref?.student }, { appId: ref?.application }],
-        });
+        })
+        .populate({
+          path: "fee_structure",
+          select: "applicable_fees total_admission_fees"
+        })
         var head_array = [];
         for (var val of ref?.fee_heads) {
           head_array.push({
@@ -1640,8 +1644,8 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
                   : ""
               } ${ref?.student?.studentLastName}` ?? "#NA",
             Gender: ref?.student?.studentGender ?? "#NA",
-            TotalFees: ref?.student.fee_structure?.total_admission_fees ?? "0",
-            ApplicableFees: ref?.student.fee_structure?.applicable_fees ?? "0",
+            TotalFees: remain_list?.fee_structure?.total_admission_fees ?? "0",
+            ApplicableFees: remain_list?.fee_structure?.applicable_fees ?? "0",
             TotalPaidFees: remain_list?.paid_fee,
             RemainingFees: remain_list?.remaining_fee,
             Class:

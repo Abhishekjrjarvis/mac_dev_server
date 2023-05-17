@@ -41,7 +41,7 @@ router
 // Student Pay Online Fees and Checklists
 router
   .route("/student/:sid")
-  .get(isLoggedIn, catchAsync(feesController.retrieveStudentQuery));
+  .get(catchAsync(feesController.retrieveStudentQuery));
 
 router
   .route("/:fid/destroy/:did")

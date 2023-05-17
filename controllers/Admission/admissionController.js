@@ -2325,7 +2325,7 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
               ref.applicable_fees_pending += ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0 ?  ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0
             }
           }
-          student?.filter((ref) => {
+          student = student?.filter((ref) => {
             if(ref?.applicable_fees_pending > 0) return ref
           })
       } else {
@@ -2353,7 +2353,7 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
               ref.applicable_fees_pending += ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0 ?  ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0
             }
           }
-          student?.filter((ref) => {
+          student = student?.filter((ref) => {
             if(ref?.applicable_fees_pending > 0) return ref
           })
       }

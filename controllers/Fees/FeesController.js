@@ -12,6 +12,7 @@ const BusinessTC = require("../../models/Finance/BToC");
 const moment = require("moment");
 const Admin = require("../../models/superAdmin");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
+const RemainingList = require("../../models/Admission/RemainingList");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.createFess = async (req, res) => {
@@ -478,7 +479,7 @@ exports.retrieveStudentQuery = async (req, res) => {
     const { sid } = req.params;
     const student = await Student.findById({ _id: sid })
       .select(
-        "id onlineFeeList offlineFeeList exemptFeeList studentAdmissionDate admissionRemainFeeCount admissionPaidFeeCount onlineCheckList offlineCheckList studentRemainingFeeCount backlog_exam_fee studentPaidFeeCount hostelRemainFeeCount hostelPaidFeeCount"
+        "id onlineFeeList offlineFeeList exemptFeeList applicable_fees_pending studentAdmissionDate admissionRemainFeeCount admissionPaidFeeCount onlineCheckList offlineCheckList studentRemainingFeeCount backlog_exam_fee studentPaidFeeCount hostelRemainFeeCount hostelPaidFeeCount"
       )
       .populate({
         path: "institute",
@@ -536,6 +537,19 @@ exports.retrieveStudentQuery = async (req, res) => {
     }
     if (student) {
       // Add Another Encryption
+      // for(var ref of student){
+      var all_remain = await RemainingList.find({ student: `${student?._id}` })
+        .select("applicable_fee paid_fee")
+        .populate({
+          path: "fee_structure",
+          select: "applicable_fees",
+        });
+      for (var ele of all_remain) {
+        student.applicable_fees_pending +=
+          ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
+            ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
+            : 0;
+      }
       res.status(200).send({
         message: "Student Fee and Checklist",
         student,

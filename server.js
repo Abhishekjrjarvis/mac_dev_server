@@ -96,39 +96,39 @@ app.get("*", (req, res) => {
   res.status(404).send("Page Not Found...");
 });
 
-// const port = process.env.PORT || 8080;
+const port = process.env.PORT || 8080;
 
-// app.listen(port, function () {
-//   console.log(`Server listening on port ${port}`);
-// });
-
-if (cluster.isMaster) {
-  console.log(`Master Process ${process.pid} is running`);
-
-  for (let i = 0; i < numCPUs; i++) {
-    cluster.fork();
-  }
-
-  cluster.on("exit", (worker, code, signal) => {
-    console.log(`worker ${worker.process.pid} died`);
-  });
-} else {
-  const port = process.env.PORT || 8080;
-
-  app.listen(port, function () {
-    console.log(
-      `Worker ${process.pid} started Server listening on port ${port}`
-    );
-  });
-}
-
-process.on("SIGTERM", () => {
-  console.info("SIGTERM signal received.");
-  server.close(() => {
-    console.log("Http server closed.");
-    mongoose.connection.close(false, () => {
-      console.log("MongoDb connection closed.");
-      process.exit(0);
-    });
-  });
+app.listen(port, function () {
+  console.log(`Server listening on port ${port}`);
 });
+
+// if (cluster.isMaster) {
+//   console.log(`Master Process ${process.pid} is running`);
+
+//   for (let i = 0; i < numCPUs; i++) {
+//     cluster.fork();
+//   }
+
+//   cluster.on("exit", (worker, code, signal) => {
+//     console.log(`worker ${worker.process.pid} died`);
+//   });
+// } else {
+//   const port = process.env.PORT || 8080;
+
+//   app.listen(port, function () {
+//     console.log(
+//       `Worker ${process.pid} started Server listening on port ${port}`
+//     );
+//   });
+// }
+
+// process.on("SIGTERM", () => {
+//   console.info("SIGTERM signal received.");
+//   server.close(() => {
+//     console.log("Http server closed.");
+//     mongoose.connection.close(false, () => {
+//       console.log("MongoDb connection closed.");
+//       process.exit(0);
+//     });
+//   });
+// });

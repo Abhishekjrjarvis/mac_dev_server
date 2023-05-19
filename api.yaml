@@ -6792,6 +6792,26 @@ paths:
         "200":
           description: OK
 
+  /api/v1/all-images/onefile/document:
+    patch:
+      tags:
+        - To get All Images, Videos and Documents
+      summary:
+        - To upload Any Chat Document File To AWS and Get Back
+      consumes:
+        - application/json
+      produces:
+        - application/json'
+      parameters:
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your image with images extenstion
+      responses:
+        "200":
+          description: OK
+
   /api/v1/all-images/{id}/instiute/photo:
     patch:
       tags:

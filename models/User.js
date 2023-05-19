@@ -466,11 +466,6 @@ const userSchema = new mongoose.Schema({
 
 userSchema.post("findOneAndDelete", async function (doc) {
   if (doc) {
-    // await Post.deleteMany({
-    //   _id: {
-    //     $in: doc.userPosts,
-    //   },
-    // });
     await Staff.deleteMany({
       _id: {
         $in: doc.staff,

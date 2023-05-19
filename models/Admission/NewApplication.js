@@ -149,6 +149,9 @@ const newApplicationSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  gr_initials: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.model("NewApplication", newApplicationSchema);

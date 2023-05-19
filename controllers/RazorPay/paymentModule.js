@@ -1453,16 +1453,26 @@ exports.directAdmissionInstituteFunction = async (
   body
 ) => {
   // try {
-  //   var user = await User.findById({ _id: `${paidBy}` })
-  //   var apply = await NewApplication.findById({ _id: `${moduleId}` })
-  //   var admission = await Admission.findById({ _id: `${apply?.admissionAdmin}` })
-  //   var institute = await InstituteAdmin.findById({ _id: `${admission?.institute}`})
-  //   var finance = await Finance.findById({ _id: `${institute?.financeDepart?.[0]}`})
-  //   var structure = await FeeStructure.findById({ _id: `${apply?.direct_linked_structure }`})
+  //   var user = await User.findById({ _id: `${paidBy}` });
+  //   var apply = await NewApplication.findById({ _id: `${moduleId}` });
+  //   var admission = await Admission.findById({
+  //     _id: `${apply?.admissionAdmin}`,
+  //   });
+  //   var institute = await InstituteAdmin.findById({
+  //     _id: `${admission?.institute}`,
+  //   });
+  //   var finance = await Finance.findById({
+  //     _id: `${institute?.financeDepart?.[0]}`,
+  //   });
+  //   var structure = await FeeStructure.findById({
+  //     _id: `${apply?.direct_linked_structure}`,
+  //   });
   //   const status = new Status({});
   //   const notify = new StudentNotification({});
-  //   const student = new Student({ ...body })
-  // student.valid_full_name = `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`
+  //   const student = new Student({ ...body });
+  //   student.valid_full_name = `${student?.studentFirstName} ${
+  //     student?.studentMiddleName ?? ""
+  //   } ${student?.studentLastName}`;
   //   const studentOptionalSubject = body?.optionalSubject
   //     ? body?.optionalSubject
   //     : [];
@@ -1496,11 +1506,14 @@ exports.directAdmissionInstituteFunction = async (
   //   user.applyApplication.push(apply._id);
   //   student.user = user._id;
   //   user.applicationStatus.push(status._id);
-  //   apply.receievedApplication.push({
-  //     student: student._id,
-  //     fee_remain: 0,
-  //   });
-  //   apply.receievedCount += 1;
+  //   apply.allottedApplication.push({
+  //     student: student?._id,
+  //     payment_status: "Online",
+  //     fee_remain: student?.admissionRemainFeeCount,
+  //     alloted_status: "Alloted",
+  //     alloted_class: "",
+  //   }),
+  //     (apply.receievedCount += 1);
   //   notify.notifyContent = `You have applied for ${apply?.applicationName} has been filled successfully.Stay updated to check status of your application.`;
   //   notify.notifySender = admission?.admissionAdminHead?.user;
   //   notify.notifyReceiever = user?._id;

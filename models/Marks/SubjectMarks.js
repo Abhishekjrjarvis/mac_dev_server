@@ -43,6 +43,10 @@ const subjectMarksSchema = new mongoose.Schema({
         type: String,
         default: "No",
       },
+      seating_sequence: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Seating",
+      },
     },
   ],
   graceMarks: { type: Number, default: 0 },

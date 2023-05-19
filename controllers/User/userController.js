@@ -1141,7 +1141,7 @@ exports.getDashDataQuery = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findById({ _id: id }).select(
-      "userLegalName username userBlock user_block_institute follow_hashtag ageRestrict blockedBy is_mentor show_suggestion photoId blockStatus one_line_about profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify userFollowers userFollowing userCircle"
+      "userLegalName username userBlock user_block_institute recoveryMail userPhoneNumber follow_hashtag ageRestrict blockedBy is_mentor show_suggestion photoId blockStatus one_line_about profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify userFollowers userFollowing userCircle"
     );
     if (user?.userPosts && user?.userPosts.length < 1) {
       var post = [];

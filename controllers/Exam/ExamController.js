@@ -2093,7 +2093,7 @@ exports.renderNewSeatingArrangementQuery = async (req, res) => {
         access: false,
       });
     const one_exam = await Exam.findById({ _id: eid });
-    const new_seat = await Seating({ ...req.body });
+    const new_seat = new Seating({ ...req.body });
     new_seat.seat_block_staff = valid_staff ? valid_staff : null;
     if (valid_staff) {
       var staff = await Staff.findById({

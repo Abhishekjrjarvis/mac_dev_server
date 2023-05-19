@@ -174,3 +174,16 @@ exports.uploadExcelFile = async (fileName) => {
   });
   return value;
 };
+
+//upload afile of docs to s3
+function uploadOneDocFile(file) {
+  const fileStream = fs.createReadStream(file.path);
+  const uploadParams = {
+    Bucket: bucketName,
+    Body: fileStream,
+    Key: `chat-document/${file.filename}`,
+    ContentType: file.mimetype,
+  };
+  return s3.upload(uploadParams).promise();
+}
+exports.uploadOneDocFile = uploadOneDocFile;

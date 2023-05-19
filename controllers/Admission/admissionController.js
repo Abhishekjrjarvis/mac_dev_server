@@ -526,7 +526,9 @@ exports.fetchAdmissionApplicationArray = async (req, res) => {
           .sort("-createdAt")
           .limit(limit)
           .skip(skip)
-          .select("applicationName applicationEndDate applicationTypeStatus application_type")
+          .select(
+            "applicationName applicationEndDate applicationTypeStatus application_type"
+          )
           .populate({
             path: "applicationDepartment",
             select: "dName",
@@ -549,7 +551,9 @@ exports.fetchAdmissionApplicationArray = async (req, res) => {
           .sort("-createdAt")
           .limit(limit)
           .skip(skip)
-          .select("applicationName applicationEndDate applicationTypeStatus application_type")
+          .select(
+            "applicationName applicationEndDate applicationTypeStatus application_type"
+          )
           .populate({
             path: "applicationDepartment",
             select: "dName",
@@ -598,7 +602,9 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
       });
     const user = await User.findById({ _id: uid });
     const student = new Student({ ...req.body });
-    student.valid_full_name = `${student?.studentFirstName} ${student?.studentMiddleName ?? ""} ${student?.studentLastName}`
+    student.valid_full_name = `${student?.studentFirstName} ${
+      student?.studentMiddleName ?? ""
+    } ${student?.studentLastName}`;
     const apply = await NewApplication.findById({ _id: aid });
     const admission = await Admission.findById({
       _id: `${apply.admissionAdmin}`,
@@ -2110,7 +2116,9 @@ exports.retrieveClassAllotQuery = async (req, res) => {
         classes.studentCount += 1;
         student.studentGRNO = `${
           institute?.gr_initials ? institute?.gr_initials : `Q`
-        }${institute.ApproveStudent.length}`;
+        }${depart?.gr_initials ?? ""}${apply?.gr_initials ?? ""}${
+          institute.ApproveStudent.length
+        }`;
         student.studentROLLNO = classes.ApproveStudent.length;
         student.studentClass = classes._id;
         student.studentAdmissionDate = new Date().toISOString();
@@ -2260,7 +2268,7 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
     const admin_ins = await Admission.findById({ _id: aid }).select(
       "remainingFee"
     );
-    if(flow === "All_Pending_Fees_Query"){
+    if (flow === "All_Pending_Fees_Query") {
       if (search) {
         var student = await Student.find({
           $and: [{ _id: { $in: admin_ins?.remainingFee } }],
@@ -2294,8 +2302,7 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
             select: "dName",
           });
       }
-    }
-    else if(flow === "Applicable_Fees_Query"){
+    } else if (flow === "Applicable_Fees_Query") {
       if (search) {
         var student = await Student.find({
           $and: [{ _id: { $in: admin_ins?.remainingFee } }],
@@ -2314,20 +2321,23 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
             path: "department",
             select: "dName",
           });
-          for(var ref of student){
-            var all_remain = await RemainingList.find({ student: `${ref?._id}`})
+        for (var ref of student) {
+          var all_remain = await RemainingList.find({ student: `${ref?._id}` })
             .select("applicable_fee paid_fee")
             .populate({
               path: "fee_structure",
-              select: "applicable_fees"
-            })
-            for(var ele of all_remain){
-              ref.applicable_fees_pending += ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0 ?  ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0
-            }
+              select: "applicable_fees",
+            });
+          for (var ele of all_remain) {
+            ref.applicable_fees_pending +=
+              ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
+                ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
+                : 0;
           }
-          student = student?.filter((ref) => {
-            if(ref?.applicable_fees_pending > 0) return ref
-          })
+        }
+        student = student?.filter((ref) => {
+          if (ref?.applicable_fees_pending > 0) return ref;
+        });
       } else {
         var student = await Student.find({
           _id: { $in: admin_ins?.remainingFee },
@@ -2342,24 +2352,25 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
             path: "department",
             select: "dName",
           });
-          for(var ref of student){
-            var all_remain = await RemainingList.find({ student: `${ref?._id}`})
+        for (var ref of student) {
+          var all_remain = await RemainingList.find({ student: `${ref?._id}` })
             .select("applicable_fee paid_fee")
             .populate({
               path: "fee_structure",
-              select: "applicable_fees"
-            })
-            for(var ele of all_remain){
-              ref.applicable_fees_pending += ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0 ?  ele?.fee_structure?.applicable_fees - ele?.paid_fee : 0
-            }
+              select: "applicable_fees",
+            });
+          for (var ele of all_remain) {
+            ref.applicable_fees_pending +=
+              ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
+                ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
+                : 0;
           }
-          student = student?.filter((ref) => {
-            if(ref?.applicable_fees_pending > 0) return ref
-          })
+        }
+        student = student?.filter((ref) => {
+          if (ref?.applicable_fees_pending > 0) return ref;
+        });
       }
-    }
-    else{
-
+    } else {
     }
     if (student?.length > 0) {
       var remain_fee = student?.filter((ref) => {
@@ -3216,11 +3227,12 @@ exports.retrieveOneApplicationQuery = async (req, res) => {
       })
       .populate({
         path: "direct_linked_structure",
-        select: "unique_structure_name structure_name total_admission_fees applicable_fees"
+        select:
+          "unique_structure_name structure_name total_admission_fees applicable_fees",
       })
       .populate({
         path: "direct_attach_class",
-        select: "className classTitle classStatus"
+        select: "className classTitle classStatus",
       })
       .lean()
       .exec();
@@ -6604,17 +6616,31 @@ exports.renderAllRefundedArray = async (req, res) => {
   }
 };
 
-exports.retrieveAdmissionDirectOnlineApplicationQuery = async(req, res) => {
-  try{
-    const { uid, aid } = req.params
-    if(!uid && !aid) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false})
-    
-    var user = await User.findById({ _id: uid })
-    var apply = await NewApplication.findById({ _id: aid })
-    var admission = await Admission.findById({ _id: `${apply?.admissionAdmin}` })
-    var institute = await InstituteAdmin.findById({ _id: `${admission?.institute}`})
-    var finance = await Finance.findById({ _id: `${institute?.financeDepart?.[0]}`})
-    var structure = await FeeStructure.findById({ _id: `${apply?.direct_linked_structure }`})
+exports.retrieveAdmissionDirectOnlineApplicationQuery = async (req, res) => {
+  try {
+    const { uid, aid } = req.params;
+    if (!uid && !aid)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediatley",
+          access: false,
+        });
+
+    var user = await User.findById({ _id: uid });
+    var apply = await NewApplication.findById({ _id: aid });
+    var admission = await Admission.findById({
+      _id: `${apply?.admissionAdmin}`,
+    });
+    var institute = await InstituteAdmin.findById({
+      _id: `${admission?.institute}`,
+    });
+    var finance = await Finance.findById({
+      _id: `${institute?.financeDepart?.[0]}`,
+    });
+    var structure = await FeeStructure.findById({
+      _id: `${apply?.direct_linked_structure}`,
+    });
     const status = new Status({});
     const notify = new StudentNotification({});
     const studentOptionalSubject = req.body?.optionalSubject
@@ -6679,12 +6705,16 @@ exports.retrieveAdmissionDirectOnlineApplicationQuery = async(req, res) => {
     //   institute.save(),
     //   notify.save(),
     // ]);
-    res.status(200).send({ message: "Wait for Razorpay Iniating Function Trigger", access: true})
+    res
+      .status(200)
+      .send({
+        message: "Wait for Razorpay Iniating Function Trigger",
+        access: true,
+      });
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
 // exports.renderRetroOneStudentStructureQuery = async (req, res) => {
 //   try {

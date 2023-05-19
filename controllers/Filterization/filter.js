@@ -1607,10 +1607,22 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         var remain_list = await RemainingList.findOne({
           $and: [{ student: ref?.student }, { appId: ref?.application }],
         })
-        .populate({
-          path: "fee_structure",
-          select: "applicable_fees total_admission_fees"
-        })
+          .populate({
+            path: "fee_structure",
+            select: "applicable_fees total_admission_fees class_master",
+            populate: {
+              path: "class_master",
+              select: "className",
+            },
+          })
+          .populate({
+            path: "appId",
+            select: "applicationDepartment applicationBatch",
+            populate: {
+              path: "applicationDepartment applicationBatch",
+              select: "dName batchName",
+            },
+          });
         var head_array = [];
         for (var val of ref?.fee_heads) {
           head_array.push({
@@ -1627,8 +1639,8 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         var result = await buildStructureObject(head_array);
         if (result) {
           head_list.push({
-            InvoiceNumber: ref?.invoice_count ?? "0",
-            InvoiceDate: moment(ref?.created_at).format("DD-MM-YYYY") ?? "NA",
+            ReceiptNumber: ref?.invoice_count ?? "0",
+            ReceiptDate: moment(ref?.created_at).format("DD-MM-YYYY") ?? "NA",
             TransactionAmount: ref?.fee_payment_amount ?? "0",
             TransactionDate:
               moment(ref?.fee_transaction_date).format("DD-MM-YYYY") ?? "NA",
@@ -1648,10 +1660,9 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
             ApplicableFees: remain_list?.fee_structure?.applicable_fees ?? "0",
             TotalPaidFees: remain_list?.paid_fee,
             RemainingFees: remain_list?.remaining_fee,
-            Class:
-              `${ref?.student?.studentClass?.className}-${ref?.student?.studentClass?.classTitle}` ??
-              "#NA",
-            Batch: ref?.student?.batches?.batchName ?? "#NA",
+            Standard:
+              `${remain_list?.fee_structure?.class_master?.className}` ?? "#NA",
+            Batch: remain_list?.appId?.applicationBatch?.batchName ?? "#NA",
             DepartmentBankName:
               ref?.application?.applicationDepartment?.bank_account
                 ?.finance_bank_name ?? "#NA",

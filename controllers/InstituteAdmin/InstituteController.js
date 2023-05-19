@@ -406,7 +406,7 @@ exports.getUpdateAnnouncement = async (req, res) => {
     await Promise.all([institute.save(), announcements.save()]);
     // const aEncrypt = await encryptionPayload(announcements);
     res.status(200).send({ message: "Successfully Created", announcements });
-    await announcement_feed_query(institute?._id, announcements?._id);
+    // await announcement_feed_query(institute?._id, announcements?._id);
     for (var num of institute.userFollowersList) {
       const user = await User.findById({ _id: `${num}` });
       if (user?.followInsAnnouncement?.includes(announcements?._id)) {
@@ -2707,7 +2707,7 @@ exports.retrieveApproveStudentRequest = async (req, res) => {
     classes.student.pull(sid);
     student.studentGRNO = `${
       institute?.gr_initials ? institute?.gr_initials : `Q`
-    }${institute.ApproveStudent.length}`;
+    }${depart?.gr_initials ?? ""}${institute.ApproveStudent.length}`;
     student.studentROLLNO = classes.ApproveStudent.length;
     student.studentClass = classes._id;
     student.studentAdmissionDate = new Date().toISOString();

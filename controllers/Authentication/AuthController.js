@@ -2129,7 +2129,7 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
     classes.studentCount += 1;
     student.studentGRNO = `${
       institute?.gr_initials ? institute?.gr_initials : `Q`
-    }${institute.ApproveStudent.length}`;
+    }${depart?.gr_initials ?? ""}${institute.ApproveStudent.length}`;
     student.studentROLLNO = classes.ApproveStudent.length;
     student.studentClass = classes._id;
     student.studentAdmissionDate = new Date().toISOString();

@@ -42,6 +42,7 @@ const {
   patchHostelImageCover,
   patchHostelUnitImageCover,
   patchHostelRoomImageCover,
+  uploadOneImageDocs,
   // patchStaffImagePhoto,
   // patchStaffAddharDoc,
   // patchStudentImagePhoto,
@@ -185,6 +186,10 @@ router
 router
   .route("/:hrid/hostel/room/cover")
   .patch(isLoggedIn, upload.single("file"), patchHostelRoomImageCover);
+
+router
+  .route("/onefile/document")
+  .patch(upload.single("file"), uploadOneImageDocs);
 // router
 //   .route("/:id/staff/photo")
 //   .patch(isLoggedIn, upload.single("file"), patchStaffImagePhoto);

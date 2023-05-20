@@ -1448,7 +1448,7 @@ exports.directAdmissionInstituteFunction = async (
   tx_amount_ad,
   tx_amount_ad_charges,
   moduleId,
-  notify_id,
+  // notify_id,
   is_author,
   body
 ) => {

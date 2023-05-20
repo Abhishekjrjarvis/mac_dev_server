@@ -239,11 +239,19 @@ exports.retieveAdmissionAdminAllApplication = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "applicationName applicationEndDate applicationTypeStatus applicationStatus applicationSeats applicationMaster applicationAbout admissionProcess application_flow applicationBatch"
+        "applicationName applicationEndDate applicationTypeStatus admissionAdmin applicationStatus applicationSeats applicationMaster applicationAbout admissionProcess application_flow applicationBatch"
       )
       .populate({
         path: "applicationDepartment",
         select: "dName photoId photo",
+      })
+      .populate({
+        path: "admissionAdmin",
+        select: "institute",
+        populate: {
+          path: "institute",
+          select: "insName",
+        },
       });
 
     if (ongoing?.length > 0) {
@@ -6620,12 +6628,10 @@ exports.retrieveAdmissionDirectOnlineApplicationQuery = async (req, res) => {
   try {
     const { uid, aid } = req.params;
     if (!uid && !aid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediatley",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
 
     var user = await User.findById({ _id: uid });
     var apply = await NewApplication.findById({ _id: aid });
@@ -6705,12 +6711,10 @@ exports.retrieveAdmissionDirectOnlineApplicationQuery = async (req, res) => {
     //   institute.save(),
     //   notify.save(),
     // ]);
-    res
-      .status(200)
-      .send({
-        message: "Wait for Razorpay Iniating Function Trigger",
-        access: true,
-      });
+    res.status(200).send({
+      message: "Wait for Razorpay Iniating Function Trigger",
+      access: true,
+    });
   } catch (e) {
     console.log(e);
   }

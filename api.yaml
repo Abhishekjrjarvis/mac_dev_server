@@ -6812,6 +6812,31 @@ paths:
         "200":
           description: OK
 
+  /api/v1/all-images/multiple/images/upload/query:
+    post:
+      tags:
+        - To get All Images, Videos and Documents
+      summary:
+        - To Upload Chat Images Upto 30 Images 
+      consumes:
+        - application/json
+      produces:
+        - application/json'
+      parameters:
+        - in: formData
+          name: file
+          type: file
+          required: true
+          description: upload your image with images extenstion
+        - in: formData
+          name: chatImageCount
+          type: number
+          required: true
+          description: Enter Number of Images Count
+      responses:
+        "200":
+          description: OK
+
   /api/v1/all-images/{id}/instiute/photo:
     patch:
       tags:

@@ -850,3 +850,42 @@ exports.uploadOneImageDocs = async (req, res) => {
     console.log(err);
   }
 };
+
+const build_Object_Chat_Images = async (arr) => {
+  var obj = {};
+  for (let i = 0; i < arr.length; i++) {
+    const { chatKey, chatOriginalKey, chatLocation, chatOriginalLocation } =
+      arr[i];
+    obj[chatKey] = chatOriginalKey;
+    obj[chatLocation] = chatOriginalLocation;
+  }
+  return obj;
+};
+
+exports.uploadChatDocumentImages = async (req, res) => {
+  try {
+    const { chatImageCount } = req.body;
+    var obj_chat = [];
+    var result_obj;
+    for (var i = 1; i <= parseInt(chatImageCount); i++) {
+      var fileValue = req?.files[`file${i}`];
+      for (let file of fileValue) {
+        const results = await uploadOneDocFile(file);
+        obj_chat.push({
+          chatKey: `key-${i}${results?.Key}`,
+          chatOriginalKey: results?.Key,
+          chatLocation: `Locate-${i}${results?.Location}`,
+          chatOriginalLocation: results?.Location,
+        });
+        await unlinkFile(file.path);
+      }
+    }
+    result_obj = await build_Object_Chat_Images(obj_chat);
+    res.status(200).send({
+      message: "Uploaded Document file Upto 30 Images Successfully",
+      result_obj,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

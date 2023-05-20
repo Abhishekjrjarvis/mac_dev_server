@@ -43,6 +43,7 @@ const {
   patchHostelUnitImageCover,
   patchHostelRoomImageCover,
   uploadOneImageDocs,
+  uploadChatDocumentImages,
   // patchStaffImagePhoto,
   // patchStaffAddharDoc,
   // patchStudentImagePhoto,
@@ -187,9 +188,50 @@ router
   .route("/:hrid/hostel/room/cover")
   .patch(isLoggedIn, upload.single("file"), patchHostelRoomImageCover);
 
+// Chat Document Upload With Key + Location
 router
   .route("/onefile/document")
   .patch(upload.single("file"), uploadOneImageDocs);
+
+// Chat Multiple Images Upto 30 Images
+router
+  .route("/multiple/images/upload/query")
+  .post(
+    upload.fields([
+      { name: "file1" },
+      { name: "file2" },
+      { name: "file3" },
+      { name: "file4" },
+      { name: "file5" },
+      { name: "file6" },
+      { name: "file7" },
+      { name: "file8" },
+      { name: "file9" },
+      { name: "file10" },
+      { name: "file11" },
+      { name: "file12" },
+      { name: "file13" },
+      { name: "file14" },
+      { name: "file15" },
+      { name: "file16" },
+      { name: "file17" },
+      { name: "file18" },
+      { name: "file19" },
+      { name: "file20" },
+      { name: "file21" },
+      { name: "file22" },
+      { name: "file23" },
+      { name: "file24" },
+      { name: "file25" },
+      { name: "file26" },
+      { name: "file27" },
+      { name: "file28" },
+      { name: "file29" },
+      { name: "file30" },
+    ]),
+    uploadChatDocumentImages
+  );
+
 // router
 //   .route("/:id/staff/photo")
 //   .patch(isLoggedIn, upload.single("file"), patchStaffImagePhoto);

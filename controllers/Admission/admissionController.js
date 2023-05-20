@@ -3236,7 +3236,7 @@ exports.retrieveOneApplicationQuery = async (req, res) => {
       .populate({
         path: "direct_linked_structure",
         select:
-          "unique_structure_name structure_name total_admission_fees applicable_fees",
+          "unique_structure_name structure_name total_admission_fees applicable_fees one_installments",
       })
       .populate({
         path: "direct_attach_class",

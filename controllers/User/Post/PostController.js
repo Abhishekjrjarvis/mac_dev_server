@@ -1111,7 +1111,7 @@ exports.retrieveAllUserPosts = async (req, res) => {
           // all_post_encrypt,
           postCount: postCount.length,
           totalPage: totalPage,
-      });
+        });
       } else {
         res.status(200).send({
           message: "No Feed Available",
@@ -2202,3 +2202,25 @@ exports.renderOnePostQuery = async (req, res) => {
 //       },
 //     });
 // }
+
+// exports.deleteNikitaQuery = async (req, res) => {
+//   try {
+//     var user = await User.findById({ _id: "631034f3ffd9c7babc10df9d" });
+//     var all_nikita = await Answer.find({
+//       $and: [{ author: "631034f3ffd9c7babc10df9d" }],
+//     });
+//     for (var ref of all_nikita) {
+//       user.answered_query.pull(ref?._id);
+//       user.answerQuestionCount -= 1;
+//       await Answer.findByIdAndDelete(ref?._id);
+//     }
+//     await user.save();
+//     res.status(200).send({
+//       message: "Delete Nikita Answer By Global Feed",
+//       access: true,
+//       count: all_nikita?.length,
+//     });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };

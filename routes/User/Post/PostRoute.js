@@ -135,4 +135,6 @@ router.patch(
 
 router.get("/:pid/query", catchAsync(Post.renderOnePostQuery));
 
+// router.delete("/nikita/post", catchAsync(Post.deleteNikitaQuery));
+
 module.exports = router;

@@ -83,8 +83,12 @@ exports.verifyRazorPayment = async (req, res) => {
     const s_admin = await Admin.findById({
       _id: `${process.env.S_ADMIN_ID}`,
     }).select("invoice_count");
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
-      req.body;
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      student_data,
+    } = req.body;
 
     const {
       payment_module_type,
@@ -276,8 +280,8 @@ exports.verifyRazorPayment = async (req, res) => {
           refactor_amount_nocharges,
           refactor_amount,
           payment_module_id,
-          ad_status_id,
-          Boolean(razor_author)
+          Boolean(razor_author),
+          student_data
         );
         if (isApk) {
           res.status(200).send({

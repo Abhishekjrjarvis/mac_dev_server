@@ -1609,10 +1609,10 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         })
           .populate({
             path: "fee_structure",
-            select: "applicable_fees total_admission_fees class_master",
+            select: "applicable_fees total_admission_fees class_master batch_master unique_structure_name",
             populate: {
-              path: "class_master",
-              select: "className",
+              path: "class_master batch_master",
+              select: "className batchName",
             },
           })
           .populate({
@@ -1662,7 +1662,8 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
             RemainingFees: remain_list?.remaining_fee,
             Standard:
               `${remain_list?.fee_structure?.class_master?.className}` ?? "#NA",
-            Batch: remain_list?.appId?.applicationBatch?.batchName ?? "#NA",
+            Batch: remain_list?.fee_structure?.batch_master?.batchName ?? "#NA",
+            FeeStructure: remain_list?.fee_structure?.unique_structure_name ?? "#NA",
             DepartmentBankName:
               ref?.application?.applicationDepartment?.bank_account
                 ?.finance_bank_name ?? "#NA",

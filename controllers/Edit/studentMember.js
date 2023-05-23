@@ -370,18 +370,18 @@ exports.previousYearReportCard = async (req, res) => {
         },
         select: "subject masterClassName batch department",
       });
-    let classes = finalReport.classId;
-    const department = await Department.findById(classes.department).populate({
+    let classes = finalReport?.classId;
+    const department = await Department.findById(classes?.department).populate({
       path: "grade_system",
       select: "grades custom_grade grade_name grade_type grade_count",
     });
 
     let s_with_max = [];
-    for (let sub of classes.subject) {
+    for (let sub of classes?.subject) {
       let arr = [];
       let m_id = "";
-      for (let sub_a of sub.subject_mark_list) {
-        for (let sub_b of sub_a.marks_list) {
+      for (let sub_a of sub?.subject_mark_list) {
+        for (let sub_b of sub_a?.marks_list) {
           arr.push(sub_b.totalNumber);
         }
         m_id = sub_a.subjectMaster;

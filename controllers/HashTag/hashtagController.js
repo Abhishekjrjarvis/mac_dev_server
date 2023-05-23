@@ -23,21 +23,6 @@ const addHashtag = () => {
     "#cloudcomputing",
     "#cybersecurity",
     "#cloudhosting",
-    "#cryptocurrency",
-    "#dsa",
-    "#economy",
-    "#india",
-    "#ios",
-    "#java",
-    "#javascript",
-    "#machinelearning",
-    "#nation",
-    "#networking",
-    "#nodejs",
-    "#nursery",
-    "#python",
-    "#reactjs",
-    "#sustainabledevelopmentgoal",
   ];
 
   hashTag?.forEach(async (ele) => {
@@ -53,7 +38,7 @@ const addHashtag = () => {
 const photo_hashtag = async () => {
   const all = await HashTag.find({});
   all?.forEach(async (ele) => {
-    ele.hashtag_profile_photo = "72cb82ebece43d88721ae4ae49583071";
+    ele.hashtag_profile_photo = "bdc2eb9b0308e4a0e90864d6c9275603";
     await ele.save();
   });
 };

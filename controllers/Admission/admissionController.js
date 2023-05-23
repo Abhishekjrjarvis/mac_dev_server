@@ -2311,73 +2311,69 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
           });
       }
     } else if (flow === "Applicable_Fees_Query") {
-      if (search) {
-        var student = await Student.find({
-          $and: [{ _id: { $in: admin_ins?.remainingFee } }],
-          $or: [
-            { studentFirstName: { $regex: search, $options: "i" } },
-            { studentMiddleName: { $regex: search, $options: "i" } },
-            { studentLastName: { $regex: search, $options: "i" } },
-            { studentGRNO: { $regex: search, $options: "i" } },
-          ],
-        })
-          .sort("-admissionRemainFeeCount")
-          .select(
-            "studentFirstName studentMiddleName studentLastName applicable_fees_pending photoId studentGRNO studentProfilePhoto admissionRemainFeeCount"
-          )
-          .populate({
-            path: "department",
-            select: "dName",
-          });
-        for (var ref of student) {
-          var all_remain = await RemainingList.find({ student: `${ref?._id}` })
-            .select("applicable_fee paid_fee")
+      // if (search) {
+      //   var student = await Student.find({
+      //     $and: [{ _id: { $in: admin_ins?.remainingFee } }],
+      //     $or: [
+      //       { studentFirstName: { $regex: search, $options: "i" } },
+      //       { studentMiddleName: { $regex: search, $options: "i" } },
+      //       { studentLastName: { $regex: search, $options: "i" } },
+      //       { studentGRNO: { $regex: search, $options: "i" } },
+      //     ],
+      //   })
+      //     .sort("-admissionRemainFeeCount")
+      //     .select(
+      //       "studentFirstName studentMiddleName studentLastName applicable_fees_pending photoId studentGRNO studentProfilePhoto admissionRemainFeeCount"
+      //     )
+      //     .populate({
+      //       path: "department",
+      //       select: "dName",
+      //     });
+      //   for (var ref of student) {
+      //     var all_remain = await RemainingList.find({ student: `${ref?._id}` })
+      //       .select("applicable_fee paid_fee")
+      //       .populate({
+      //         path: "fee_structure",
+      //         select: "applicable_fees",
+      //       });
+      //     for (var ele of all_remain) {
+      //       ref.applicable_fees_pending +=
+      //         ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
+      //           ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
+      //           : 0;
+      //     }
+      //   }
+      //   student = student?.filter((ref) => {
+      //     if (ref?.applicable_fees_pending > 0) return ref;
+      //   });
+      // } else {
+        var student = []
+          var all_remain = await RemainingList.find({ student: { $in: admin_ins?.remainingFee } })
+            .select("applicable_fee paid_fee student")
             .populate({
               path: "fee_structure",
               select: "applicable_fees",
-            });
-          for (var ele of all_remain) {
-            ref.applicable_fees_pending +=
-              ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
-                ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
-                : 0;
-          }
-        }
-        student = student?.filter((ref) => {
-          if (ref?.applicable_fees_pending > 0) return ref;
-        });
-      } else {
-        var student = await Student.find({
-          _id: { $in: admin_ins?.remainingFee },
-        })
-          .sort("-admissionRemainFeeCount")
-          .limit(limit)
-          .skip(skip)
-          .select(
-            "studentFirstName studentMiddleName studentLastName applicable_fees_pending photoId studentGRNO studentProfilePhoto admissionRemainFeeCount"
-          )
-          .populate({
-            path: "department",
-            select: "dName",
-          });
-        for (var ref of student) {
-          var all_remain = await RemainingList.find({ student: `${ref?._id}` })
-            .select("applicable_fee paid_fee")
+            })
             .populate({
-              path: "fee_structure",
-              select: "applicable_fees",
-            });
+              path: "student",
+              select: "studentFirstName studentMiddleName studentLastName applicable_fees_pending photoId studentGRNO studentProfilePhoto admissionRemainFeeCount",
+              populate: {
+                path: "department",
+                select: "dName",
+              }
+            })
           for (var ele of all_remain) {
-            ref.applicable_fees_pending +=
+            ele.student.applicable_fees_pending +=
               ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
                 ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
                 : 0;
+            student.push(ele?.student)
           }
-        }
         student = student?.filter((ref) => {
           if (ref?.applicable_fees_pending > 0) return ref;
         });
-      }
+        student = await nested_document_limit(page, limit, student)
+      // }
     } else {
     }
     if (student?.length > 0) {

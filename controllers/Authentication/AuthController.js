@@ -3731,12 +3731,12 @@ exports.renderOneInstituteAllStudentQuery = async (req, res) => {
         if (one_ins?.joinedPost?.includes(`${one_user?._id}`)) {
           one_ins.joinedPost.pull(one_user?._id);
         }
-        if (one_student?.studentProfilePhoto) {
-          await deleteFile(one_student?.studentProfilePhoto);
-        }
-        if (one_user?.profilePhoto) {
-          await deleteFile(one_user?.profilePhoto);
-        }
+        // if (one_student?.studentProfilePhoto) {
+        //   await deleteFile(one_student?.studentProfilePhoto);
+        // }
+        // if (one_user?.profilePhoto) {
+        //   await deleteFile(one_user?.profilePhoto);
+        // }
         var all_post = await Post.find({ author: `${one_user?._id}` });
         for (var ref of all_post) {
           await Post.findByIdAndDelete(ref?._id);

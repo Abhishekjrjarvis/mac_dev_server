@@ -227,7 +227,7 @@ exports.patchUserImageCover = async (req, res) => {
     const { id } = req.params;
     const file = req.file;
     const user = await User.findById({ _id: id });
-    if (user.profileCoverPhoto) await deleteFile(user.profileCoverPhoto);
+    // if (user.profileCoverPhoto) await deleteFile(user.profileCoverPhoto);
     const width = 375;
     const height = 245;
     const results = await uploadFile(file, width, height);
@@ -245,7 +245,7 @@ exports.patchDepartmentImagePhoto = async (req, res) => {
   try {
     const { did } = req.params;
     const department = await Department.findById({ _id: did });
-    if (department.photo) await deleteFile(department.photo);
+    // if (department.photo) await deleteFile(department.photo);
     const width = 112;
     const height = 112;
     const file = req.file;
@@ -264,7 +264,7 @@ exports.patchDepartmentImageCover = async (req, res) => {
   try {
     const { did } = req.params;
     const department = await Department.findById({ _id: did });
-    if (department.cover) await deleteFile(department.cover);
+    // if (department.cover) await deleteFile(department.cover);
     const width = 375;
     const height = 245;
     const file = req.file;
@@ -283,7 +283,7 @@ exports.patchClassImagePhoto = async (req, res) => {
   try {
     const { cid } = req.params;
     const clas = await Class.findById({ _id: cid });
-    if (clas.photo) await deleteFile(clas.photo);
+    // if (clas.photo) await deleteFile(clas.photo);
     const width = 112;
     const height = 112;
     const file = req.file;
@@ -302,7 +302,7 @@ exports.patchClassImageCover = async (req, res) => {
   try {
     const { cid } = req.params;
     const clas = await Class.findById({ _id: cid });
-    if (clas.cover) await deleteFile(clas.cover);
+    // if (clas.cover) await deleteFile(clas.cover);
     const width = 375;
     const height = 250;
     const file = req.file;
@@ -321,7 +321,7 @@ exports.patchFinanceImagePhoto = async (req, res) => {
   try {
     const { fid } = req.params;
     const finance = await Finance.findById({ _id: fid });
-    if (finance.photo) await deleteFile(finance.photo);
+    // if (finance.photo) await deleteFile(finance.photo);
     const width = 112;
     const height = 112;
     const file = req.file;
@@ -340,7 +340,7 @@ exports.patchFinanceImageCover = async (req, res) => {
   try {
     const { fid } = req.params;
     const finance = await Finance.findById({ _id: fid });
-    if (finance.cover) await deleteFile(finance.cover);
+    // if (finance.cover) await deleteFile(finance.cover);
     const width = 375;
     const height = 245;
     const file = req.file;
@@ -360,7 +360,7 @@ exports.patchElearningImagePhoto = async (req, res) => {
     const { eid } = req.params;
     const file = req.file;
     const elearning = await ELearning.findById({ _id: eid });
-    if (elearning.photo) await deleteFile(elearning.photo);
+    // if (elearning.photo) await deleteFile(elearning.photo);
     const width = 112;
     const height = 112;
     const results = await uploadFile(file, width, height);
@@ -379,7 +379,7 @@ exports.patchElearningImageCover = async (req, res) => {
     const { eid } = req.params;
     const file = req.file;
     const elearning = await ELearning.findById({ _id: eid });
-    if (elearning.cover) await deleteFile(elearning.cover);
+    // if (elearning.cover) await deleteFile(elearning.cover);
     const width = 375;
     const height = 245;
     const results = await uploadFile(file, width, height);
@@ -417,7 +417,7 @@ exports.patchLibraryImagePhoto = async (req, res) => {
     const { lid } = req.params;
     const file = req.file;
     const library = await Library.findById({ _id: lid });
-    if (library.photo) await deleteFile(library.photo);
+    // if (library.photo) await deleteFile(library.photo);
     const width = 112;
     const height = 112;
     const results = await uploadFile(file, width, height);
@@ -436,7 +436,7 @@ exports.patchLibraryImageCover = async (req, res) => {
     const { lid } = req.params;
     const file = req.file;
     const library = await Library.findById({ _id: lid });
-    if (library.cover) await deleteFile(library.cover);
+    // if (library.cover) await deleteFile(library.cover);
     const width = 375;
     const height = 245;
     const results = await uploadFile(file, width, height);
@@ -453,7 +453,7 @@ exports.patchAdmissionImagePhoto = async (req, res) => {
   try {
     const { aid } = req.params;
     const admission = await Admission.findById({ _id: aid });
-    if (admission.photo) await deleteFile(admission.photo);
+    // if (admission.photo) await deleteFile(admission.photo);
     const width = 112;
     const height = 112;
     const file = req.file;
@@ -472,7 +472,7 @@ exports.patchAdmissionImageCover = async (req, res) => {
   try {
     const { aid } = req.params;
     const admission = await Admission.findById({ _id: aid });
-    if (admission.cover) await deleteFile(admission.cover);
+    // if (admission.cover) await deleteFile(admission.cover);
     const width = 375;
     const height = 245;
     const file = req.file;
@@ -491,7 +491,7 @@ exports.patchSportImagePhoto = async (req, res) => {
   try {
     const { sid } = req.params;
     const sport = await Sport.findById({ _id: sid });
-    if (sport.photo) await deleteFile(sport.photo);
+    // if (sport.photo) await deleteFile(sport.photo);
     const width = 112;
     const height = 112;
     const file = req.file;
@@ -510,7 +510,7 @@ exports.patchSportImageCover = async (req, res) => {
   try {
     const { sid } = req.params;
     const sport = await Sport.findById({ _id: sid });
-    if (sport.cover) await deleteFile(sport.cover);
+    // if (sport.cover) await deleteFile(sport.cover);
     const width = 375;
     const height = 245;
     const file = req.file;
@@ -548,7 +548,7 @@ exports.patchSportClassImageCover = async (req, res) => {
   try {
     const { sid } = req.params;
     const sport = await SportClass.findById({ _id: sid });
-    if (sport.cover) await deleteFile(sport.cover);
+    // if (sport.cover) await deleteFile(sport.cover);
     const width = 375;
     const height = 245;
     const file = req.file;
@@ -567,7 +567,7 @@ exports.patchSportTeamImageCover = async (req, res) => {
   try {
     const { sid } = req.params;
     const sport = await SportTeam.findById({ _id: sid });
-    if (sport.cover) await deleteFile(sport.cover);
+    // if (sport.cover) await deleteFile(sport.cover);
     const width = 375;
     const height = 245;
     const file = req.file;
@@ -586,7 +586,7 @@ exports.patchVehicleImageCover = async (req, res) => {
   try {
     const { vid } = req.params;
     const vehicle = await Vehicle.findById({ _id: vid });
-    if (vehicle.vehicle_photo) await deleteFile(vehicle.vehicle_photo);
+    // if (vehicle.vehicle_photo) await deleteFile(vehicle.vehicle_photo);
     const width = 375;
     const height = 245;
     const file = req.file;
@@ -605,7 +605,7 @@ exports.patchTransportImageCover = async (req, res) => {
   try {
     const { tid } = req.params;
     const trans = await Transport.findById({ _id: tid });
-    if (trans.transport_photo) await deleteFile(trans.transport_photo);
+    // if (trans.transport_photo) await deleteFile(trans.transport_photo);
     const width = 375;
     const height = 245;
     const file = req.file;
@@ -624,7 +624,7 @@ exports.patchEventManagerImageCover = async (req, res) => {
   try {
     const { eid } = req.params;
     const event = await EventManager.findById({ _id: eid });
-    if (event.event_photo) await deleteFile(event.event_photo);
+    // if (event.event_photo) await deleteFile(event.event_photo);
     const width = 375;
     const height = 245;
     const file = req.file;
@@ -643,7 +643,7 @@ exports.patchLandingCareerImageCover = async (req, res) => {
   try {
     const { lcid } = req.params;
     const career = await LandingCareer.findById({ _id: lcid });
-    if (career.career_photo) await deleteFile(career.career_photo);
+    // if (career.career_photo) await deleteFile(career.career_photo);
     const width = 375;
     const height = 245;
     const file = req.file;
@@ -662,7 +662,7 @@ exports.patchLandingTenderImageCover = async (req, res) => {
   try {
     const { ltid } = req.params;
     const tender = await LandingTender.findById({ _id: ltid });
-    if (tender.tender_photo) await deleteFile(tender.tender_photo);
+    // if (tender.tender_photo) await deleteFile(tender.tender_photo);
     const width = 375;
     const height = 245;
     const file = req.file;
@@ -681,7 +681,7 @@ exports.patchAluminiImageCover = async (req, res) => {
   try {
     const { aid } = req.params;
     const alumini = await Alumini.findById({ _id: aid });
-    if (alumini.alumini_photo) await deleteFile(alumini.alumini_photo);
+    // if (alumini.alumini_photo) await deleteFile(alumini.alumini_photo);
     const width = 375;
     const height = 245;
     const file = req.file;
@@ -700,7 +700,7 @@ exports.patchHostelImageCover = async (req, res) => {
   try {
     const { hid } = req.params;
     const hostel = await Hostel.findById({ _id: hid });
-    if (hostel.hostel_photo) await deleteFile(hostel.hostel_photo);
+    // if (hostel.hostel_photo) await deleteFile(hostel.hostel_photo);
     const width = 375;
     const height = 245;
     const file = req.file;
@@ -719,8 +719,8 @@ exports.patchHostelUnitImageCover = async (req, res) => {
   try {
     const { huid } = req.params;
     const hostel_unit = await HostelUnit.findById({ _id: huid });
-    if (hostel_unit.hostel_unit_photo)
-      await deleteFile(hostel_unit.hostel_unit_photo);
+    // if (hostel_unit.hostel_unit_photo)
+    //   await deleteFile(hostel_unit.hostel_unit_photo);
     const width = 375;
     const height = 245;
     const file = req.file;
@@ -739,7 +739,7 @@ exports.patchHostelRoomImageCover = async (req, res) => {
   try {
     const { hrid } = req.params;
     const room = await HostelRoom.findById({ _id: hrid });
-    if (room.room_photo) await deleteFile(room.room_photo);
+    // if (room.room_photo) await deleteFile(room.room_photo);
     const width = 375;
     const height = 245;
     const file = req.file;

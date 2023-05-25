@@ -3438,7 +3438,8 @@ exports.renderOneFeeReceipt = async (req, res) => {
               select: "displayTitle",
               populate: {
                 path: "displayUser displayStaff",
-                select: "userLegalName staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId",
+                select:
+                  "userLegalName staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId",
               },
             },
           },
@@ -4688,6 +4689,58 @@ exports.delete_structure = async (req, res) => {
 //       }
 //     }
 //     res.status(200).send({ message: "Updated", access: true });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
+
+// exports.RemainingFeesQuery = async (req, res) => {
+//   try {
+//     // const one_depart = await Department.findById({ _id: ""})
+//     var one_batch = await Batch.findById({ _id: "6449d2ef98fec071fbffd733" });
+//     var all_struct = await FeeStructure.find({
+//       $and: [
+//         { finance: "644a09d6d1679fcd6e76e5ef" },
+//         { batch_master: one_batch?._id },
+//       ],
+//     });
+//     var all_list = [];
+//     var correct = [];
+//     var wrong = [];
+//     // for (var ref of all_struct) {
+//     //   var remain_query = await RemainingList.find({
+//     //     fee_structure: { $in: ref?._id },
+//     //   });
+//     //   all_list.push(...remain_query, ...all_list);
+//     // }
+//     var all_remain_list = await RemainingList.find({
+//       fee_structure: { $in: all_struct },
+//     }).populate({
+//       path: "fee_structure",
+//       // select: "total_admission_fees"
+//     });
+//     for (var ele of all_remain_list) {
+//       var student = await Student.findById({ _id: `${ele?.student}` });
+//       let total = ele?.applicable_fee - ele?.remaining_fee;
+//       if (total == ele?.fee_structure?.total_admission_fees) {
+//         correct.push({
+//           RemainingList: ele?._id,
+//           student: student?.valid_full_name,
+//         });
+//       } else {
+//         wrong.push({
+//           RemainingList: ele?._id,
+//           student: student?.valid_full_name,
+//         });
+//       }
+//     }
+//     res.status(200).send({
+//       message: "Explore All Remaining Card",
+//       access: true,
+//       count: all_list?.length,
+//       correct: correct[0],
+//       wrong: wrong[0],
+//     });
 //   } catch (e) {
 //     console.log(e);
 //   }

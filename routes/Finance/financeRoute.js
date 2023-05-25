@@ -490,4 +490,6 @@ router.delete("/:did/delete/structure", catchAsync(Finance.delete_structure));
 
 // router.get("/:id/all/student", catchAsync(Finance.all_student));
 
+// router.get("/edit/remaining/fees", catchAsync(Finance.RemainingFeesQuery));
+
 module.exports = router;

@@ -1474,6 +1474,7 @@ exports.getFullStudentInfo = async (req, res) => {
 exports.retrieveDepartmentList = async (req, res) => {
   try {
     const { id } = req.params;
+    if(!id) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false})
     const institute = await InstituteAdmin.findById({ _id: id })
       .select("insName")
       .populate({

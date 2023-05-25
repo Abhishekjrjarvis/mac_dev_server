@@ -14,12 +14,18 @@ const { deleteFile, uploadFile } = require("../../S3Configuration");
 const { chart_category_student } = require("../../Custom/studentChart");
 const FinalReport = require("../../models/Marks/FinalReport");
 const StandardMarkList = require("../../models/Marks/StandardMarkList");
-const { grade_calculate } = require("../../Utilities/custom_grade");
 const Subject = require("../../models/Subject");
 const FeeStructure = require("../../models/Finance/FeesStructure");
 const RemainingList = require("../../models/Admission/RemainingList");
 const { handle_undefined } = require("../../Handler/customError");
 const User = require("../../models/User");
+const {
+  grade_calculate,
+  grade_point,
+  grade_point_with_credit,
+  spi_calculate,
+  grade_symbol,
+} = require("../../Utilities/custom_grade");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.photoEditByStudent = async (req, res) => {
@@ -368,20 +374,21 @@ exports.previousYearReportCard = async (req, res) => {
           select:
             "subject_mark_list subjectMasterName setting.subjectPassingMarks",
         },
-        select: "subject masterClassName batch department",
+        select:
+          "subject masterClassName batch department finalReportsSettings.aggregatePassingPercentage",
       });
     let classes = finalReport?.classId;
-    const department = await Department.findById(classes?.department).populate({
+    const department = await Department.findById(classes.department).populate({
       path: "grade_system",
       select: "grades custom_grade grade_name grade_type grade_count",
     });
 
     let s_with_max = [];
-    for (let sub of classes?.subject) {
+    for (let sub of classes.subject) {
       let arr = [];
       let m_id = "";
-      for (let sub_a of sub?.subject_mark_list) {
-        for (let sub_b of sub_a?.marks_list) {
+      for (let sub_a of sub.subject_mark_list) {
+        for (let sub_b of sub_a.marks_list) {
           arr.push(sub_b.totalNumber);
         }
         m_id = sub_a.subjectMaster;
@@ -416,6 +423,7 @@ exports.previousYearReportCard = async (req, res) => {
       allSubjectTotal: finalReport.totalTotalExam,
       totalCutoff: finalReport.totalCutoff,
       showGradeTotal: "",
+      spi: 0,
     };
 
     for (let sub of finalReport.subjects) {
@@ -432,9 +440,12 @@ exports.previousYearReportCard = async (req, res) => {
         subjectCutoff: sub.subjectCutoff,
         subjectPassStatus: sub.subjectPassStatus,
         showGrade: "",
+        course_credit: 0,
       };
       if (finalReport.is_grade) {
         const su_matser = await Subject.findById(sub.subject);
+        obj.course_credit = su_matser?.course_credit;
+
         for (let m_val of s_with_max) {
           if (`${su_matser.subjectMasterName}` === `${m_val.subjectMaster}`) {
             obj.showGrade = grade_calculate(
@@ -460,6 +471,23 @@ exports.previousYearReportCard = async (req, res) => {
       classes?.finalReportsSettings.aggregatePassingPercentage,
       totalPercentage
     );
+    if (finalReport.is_grade) {
+      let gpc = [];
+      let credits = [];
+      for (let subj of subjects) {
+        gpc.push(
+          grade_point_with_credit(
+            grade_point(subj.showGrade),
+            subj.course_credit
+          )
+        );
+        credits.push(subj.course_credit);
+      }
+      let spi = spi_calculate(gpc, credits);
+      total.showGradeTotal = grade_symbol(Math.ceil(spi));
+      total.spi = spi;
+    }
+    // console.log(classes?.finalReportsSettings.aggregatePassingPercentage);
     // Add Another Encryption
     res.status(200).send({
       message: "Student previous year detail all list 👍",
@@ -489,7 +517,6 @@ exports.previousYearReportCard = async (req, res) => {
     });
   }
 };
-
 exports.instituteDepartmentOtherCount = async (req, res) => {
   try {
     if (!req.params.id) throw "Please call proper api with all details";

@@ -113,6 +113,10 @@ const subjectSchema = new mongoose.Schema({
       ref: "SubjectMarkList",
     },
   ],
+  course_credit: {
+    type: Number,
+    default: 10,
+  },
 });
 
 const Subject = mongoose.model("Subject", subjectSchema);

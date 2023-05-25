@@ -30,8 +30,14 @@ const { nested_document_limit } = require("../../helper/databaseFunction");
 const ExamFeeStructure = require("../../models/BacklogStudent/ExamFeeStructure");
 const SubjectMarkList = require("../../models/Marks/SubjectMarkList");
 const StandardMarkList = require("../../models/Marks/StandardMarkList");
-const { grade_calculate } = require("../../Utilities/custom_grade");
 const encryptionPayload = require("../../Utilities/Encrypt/payload");
+const {
+  grade_calculate,
+  grade_point,
+  grade_point_with_credit,
+  spi_calculate,
+  grade_symbol,
+} = require("../../Utilities/custom_grade");
 
 exports.getClassMaster = async (req, res) => {
   try {
@@ -1313,6 +1319,7 @@ exports.oneStudentReportCardClassTeacher = async (req, res) => {
             ?.aggregatePassingPercentage
         : 0,
       showGradeTotal: "",
+      spi: 0,
     };
 
     for (let submarks of student?.subjectMarks) {
@@ -1328,6 +1335,7 @@ exports.oneStudentReportCardClassTeacher = async (req, res) => {
         graceMarks: submarks.graceMarks,
         subjectCutoff: 0,
         showGrade: "",
+        course_credit: su_matser?.course_credit ?? 10,
       };
       for (let cut of student?.studentClass?.subject) {
         if (String(submarks.subject) === String(cut?._id))
@@ -1391,6 +1399,22 @@ exports.oneStudentReportCardClassTeacher = async (req, res) => {
         student?.studentClass?.finalReportsSettings.aggregatePassingPercentage,
         totalPercantage
       );
+    }
+    if (student?.studentClass?.finalReportsSettings?.gradeMarks) {
+      let gpc = [];
+      let credits = [];
+      for (let subj of subjects) {
+        gpc.push(
+          grade_point_with_credit(
+            grade_point(subj.showGrade),
+            subj.course_credit
+          )
+        );
+        credits.push(subj.course_credit);
+      }
+      let spi = spi_calculate(gpc, credits);
+      total.showGradeTotal = grade_symbol(Math.ceil(spi));
+      total.spi = spi;
     }
 
     // Add Another Encryption
@@ -3001,8 +3025,8 @@ exports.renderNewExamFeeStructureAllQuery = async (req, res) => {
       })
       .populate({
         path: "exam",
-        select: "examName examType"
-      })
+        select: "examName examType",
+      });
 
     if (all_exam_fee?.length > 0) {
       res.status(200).send({
@@ -3158,7 +3182,9 @@ exports.renderOneExamFeeStructureQuery = async (req, res) => {
       });
 
     const one_exam_fee = await ExamFeeStructure.findById({ _id: efid })
-      .select("paid_student_count total_paid_collection total_raised_collection")
+      .select(
+        "paid_student_count total_paid_collection total_raised_collection"
+      )
       .populate({
         path: "paid_student",
         populate: {
@@ -3169,8 +3195,8 @@ exports.renderOneExamFeeStructureQuery = async (req, res) => {
       })
       .populate({
         path: "exam",
-        select: "examName examType"
-      })
+        select: "examName examType",
+      });
 
     var all_fee = await nested_document_limit(
       page,

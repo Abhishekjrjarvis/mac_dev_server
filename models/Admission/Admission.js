@@ -204,6 +204,14 @@ const admissionAdminSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  structure_mismatch_amount: {
+    type: Number,
+    default: 0,
+  },
+  active_tab_index: {
+    type: String,
+    default: "Pending_Fees_Query",
+  },
 });
 
 module.exports = mongoose.model("Admission", admissionAdminSchema);

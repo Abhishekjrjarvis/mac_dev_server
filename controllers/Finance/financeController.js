@@ -4702,6 +4702,7 @@ exports.delete_structure = async (req, res) => {
 //       $and: [
 //         { finance: "644a09d6d1679fcd6e76e5ef" },
 //         { batch_master: one_batch?._id },
+//         { total_admission_fees: 84221 },
 //       ],
 //     });
 //     var all_list = [];
@@ -4719,29 +4720,170 @@ exports.delete_structure = async (req, res) => {
 //       path: "fee_structure",
 //       // select: "total_admission_fees"
 //     });
-//     for (var ele of all_remain_list) {
-//       var student = await Student.findById({ _id: `${ele?.student}` });
-//       let total = ele?.applicable_fee - ele?.remaining_fee;
-//       if (total == ele?.fee_structure?.total_admission_fees) {
-//         correct.push({
-//           RemainingList: ele?._id,
-//           student: student?.valid_full_name,
-//         });
-//       } else {
-//         wrong.push({
-//           RemainingList: ele?._id,
-//           student: student?.valid_full_name,
-//         });
+//     // for (var ele of all_remain_list) {
+//     //   var student = await Student.findById({ _id: `${ele?.student}` });
+//     //   correct.push({
+//     //     ApplicableFees: ele?.applicable_fee,
+//     //     Remain: ele?.remaining_fee,
+//     //     Paid: ele?.paid_fee,
+//     //     Struct: ele?.fee_structure?.total_admission_fees,
+//     //     AdmissionRemain: student?.admissionRemainFeeCount,
+//     //   });
+//     //   // let total = ele?.applicable_fee - ele?.remaining_fee;
+//     //   // if (total == ele?.fee_structure?.total_admission_fees) {
+//     //   //   correct.push({
+//     //   //     RemainingList: ele?._id,
+//     //   //     student: student?.valid_full_name,
+//     //   //   });
+//     //   // } else {
+//     //   //   wrong.push({
+//     //   //     RemainingList: ele?._id,
+//     //   //     student: student?.valid_full_name,
+//     //   //   });
+//     //   // }
+//     // }
+//     // var all_arr = [
+//     //   "645a2306d68fa6c1ab8b9cd2",
+//     //   "645a25e6d68fa6c1ab8bd8bb",
+//     //   "645a2670d68fa6c1ab8be37d",
+//     //   "645a22dad68fa6c1ab8b996e",
+//     //   "645a2225d68fa6c1ab8b8b4e",
+//     //   "645a21dbd68fa6c1ab8b84f2",
+//     //   "645a212ad68fa6c1ab8b75e1",
+//     //   "645a20d3d68fa6c1ab8b6f06",
+//     //   "645a1fc6d68fa6c1ab8b59e3",
+//     //   "645a1f1ad68fa6c1ab8b4c15",
+//     //   "645a1eb5d68fa6c1ab8b430c",
+//     //   "645a1dfdd68fa6c1ab8b34a0",
+//     //   "645a1dabd68fa6c1ab8b2e12",
+//     //   "645a1cced68fa6c1ab8b1c75",
+//     //   "645a1b4bd68fa6c1ab8afd75",
+//     //   "645a1c2bd68fa6c1ab8b0f54",
+//     //   "645a1ee0d68fa6c1ab8b466c",
+//     //   "645a1efbd68fa6c1ab8b4904",
+//     //   "645a1f45d68fa6c1ab8b4fa3",
+//     //   "645a2021d68fa6c1ab8b60fa",
+//     //   "645a2155d68fa6c1ab8b7950",
+//     //   "645a2205d68fa6c1ab8b884e",
+//     //   "645a249dd68fa6c1ab8bbcc0",
+//     //   "645a24fed68fa6c1ab8bc577",
+//     //   "645a25c9d68fa6c1ab8bd5ee",
+//     //   "645a2548d68fa6c1ab8bcba6",
+//     //   "645a1e57d68fa6c1ab8b3bb4",
+//     //   "645a1e85d68fa6c1ab8b3f60",
+//     //   "645a1ff1d68fa6c1ab8b5d4a",
+//     //   "645a240ed68fa6c1ab8bb1bc",
+
+//     //   "645a1b71d68fa6c1ab8b00b8",
+//     //   "645a1b9fd68fa6c1ab8b0460",
+//     //   "645a1bced68fa6c1ab8b080c",
+//     //   "645a1bfcd68fa6c1ab8b0bb0",
+//     //   "645a1cf9d68fa6c1ab8b2027",
+//     //   "645a1d1dd68fa6c1ab8b231e",
+//     //   "645a1d4cd68fa6c1ab8b26c2",
+//     //   "645a1d7cd68fa6c1ab8b2a6a",
+//     //   "645a1dced68fa6c1ab8b30fc",
+//     //   "645a1e28d68fa6c1ab8b3810",
+//     //   "645a1f66d68fa6c1ab8b529b",
+//     //   "645a1f96d68fa6c1ab8b563f",
+//     //   "645a2074d68fa6c1ab8b67ba",
+//     //   "645a20a4d68fa6c1ab8b6b5e",
+//     //   "645a2177d68fa6c1ab8b7c44",
+//     //   "645a2250d68fa6c1ab8b8eb5",
+//     //   "645a227bd68fa6c1ab8b9222",
+//     //   "645a22acd68fa6c1ab8b95ca",
+//     //   "645a235ed68fa6c1ab8ba3c3",
+//     //   "645a2389d68fa6c1ab8ba730",
+//     //   "645a243dd68fa6c1ab8bb564",
+//     //   "645a246dd68fa6c1ab8bb908",
+//     //   "645a256ad68fa6c1ab8bcea6",
+//     //   "645a2599d68fa6c1ab8bd24a",
+//     //   "645a2641d68fa6c1ab8bdfd9",
+//     //   "645a269cd68fa6c1ab8be6f0",
+//     //   "645a26c8d68fa6c1ab8bea5d",
+//     //   "645a26f7d68fa6c1ab8bee01",
+//     // ];
+//     // Status Paid Updated
+//     // var all_stu = await Student.find({ _id: { $in: all_arr } }).select(
+//     //   "admissionRemainFeeCount"
+//     // );
+//     var ads = await Admission.findById({ _id: "644a09e3d1679fcd6e76e606"})
+//     for(var ref of all_remain_list){
+//       if(ref?.remaining_fee == 0){
+//         ref.status = "Paid"
+//       }
+//       await ref.save()
+//     }
+//     var all_stu = await Student.find({ _id: { $in: ads?.remainingFee } })
+//     for(var ele of all_stu){
+//       if(ele?.admissionRemainFeeCount == 0){
+//         ads.remainingFee.pull(ele?._id)
 //       }
 //     }
+//     ads.structure_mismatch_amount = 11001
+//     await ads.save()
 //     res.status(200).send({
 //       message: "Explore All Remaining Card",
 //       access: true,
-//       count: all_list?.length,
-//       correct: correct[0],
-//       wrong: wrong[0],
+//       // count: correct?.length,
+//       // correct: correct,
+//       // all_stu,
+//       // wrong: wrong[0],
 //     });
 //   } catch (e) {
 //     console.log(e);
 //   }
 // };
+
+// 2509
+
+
+// exports.addOrder = async(req, res) => {
+//   try{
+//     var all_list = []
+//     var s_admin = await Admin.findById({ _id: ""})
+//     var all_stu = await Student.find({ and: [{ institute: ""}, { studentStatus: "Approved"}]})
+//     var all_remain = await RemainingList.find({ student: { $in: all_stu }})
+//     .populate({
+//       path: "student",
+//       populate: {
+//         path: "user"
+//       }
+//     })
+//     .populate({
+//       path: "student",
+//       populate: {
+//         path: "institute"
+//       }
+//     })
+//     for(var ref of all_remain){
+//       for(var ele of ref?.remaining_array){
+//         if(ele?.status === "Paid"){
+//           const order = new OrderPayment({});
+//           order.payment_module_type = "Admission Fees";
+//           order.payment_to_end_user_id = ref?.student?.institute?._id;
+//           order.payment_by_end_user_id = ref?.student?.user._id;
+//           order.payment_module_id = ele?.appId;
+//           order.payment_amount = ele?.remainAmount;
+//           order.payment_status = "Captured";
+//           order.payment_flag_to = "Credit";
+//           order.payment_flag_by = "Debit";
+//           order.payment_mode = ele?.mode === "";
+//           order.payment_admission = ele?.appId;
+//           order.payment_from = ref?.student._id;
+//           s_admin.invoice_count += 1;
+//           order.payment_invoice_number = s_admin.invoice_count;
+//           ref?.student?.user.payment_history.push(order._id);
+//           ref?.student?.institute.payment_history.push(order._id);
+//           order.invoice_count = `${
+//             new Date().getMonth() + 1
+//           }${new Date().getFullYear()}${s_admin.invoice_count}`;
+//           await Promise.all([ s_admin.save(), ref.student.user.save(), ref.student.institute.save(), ])
+//         }
+//       }
+//     }
+//   }
+//   catch(e){
+//     console.log(e)
+//   }
+// }

@@ -169,7 +169,7 @@ exports.retrieveAdmissionDetailInfo = async (req, res) => {
     //   });
     const admission = await Admission.findById({ _id: aid })
       .select(
-        "admissionAdminEmail admissionAdminPhoneNumber enable_protection moderator_role moderator_role_count completedCount exemptAmount requested_status collected_fee remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount refundCount export_collection_count designation_status"
+        "admissionAdminEmail admissionAdminPhoneNumber enable_protection moderator_role moderator_role_count completedCount exemptAmount requested_status collected_fee remainingFee admissionAdminAbout photoId coverId photo queryCount newAppCount cover offlineFee onlineFee remainingFeeCount refundCount export_collection_count designation_status active_tab_index"
       )
       .populate({
         path: "admissionAdminHead",
@@ -2274,7 +2274,7 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
     const skip = (page - 1) * limit;
     const { search, flow } = req.query;
     const admin_ins = await Admission.findById({ _id: aid }).select(
-      "remainingFee"
+      "remainingFee active_tab_index"
     );
     if (flow === "All_Pending_Fees_Query") {
       if (search) {
@@ -2310,6 +2310,8 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
             select: "dName",
           });
       }
+      admin_ins.active_tab_index = "Pending_Fees_Query";
+      await admin_ins.save();
     } else if (flow === "Applicable_Fees_Query") {
       // if (search) {
       //   var student = await Student.find({
@@ -2347,33 +2349,38 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
       //     if (ref?.applicable_fees_pending > 0) return ref;
       //   });
       // } else {
-        var student = []
-          var all_remain = await RemainingList.find({ student: { $in: admin_ins?.remainingFee } })
-            .select("applicable_fee paid_fee student")
-            .populate({
-              path: "fee_structure",
-              select: "applicable_fees",
-            })
-            .populate({
-              path: "student",
-              select: "studentFirstName studentMiddleName studentLastName applicable_fees_pending photoId studentGRNO studentProfilePhoto admissionRemainFeeCount",
-              populate: {
-                path: "department",
-                select: "dName",
-              }
-            })
-          for (var ele of all_remain) {
-            ele.student.applicable_fees_pending +=
-              ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
-                ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
-                : 0;
-            student.push(ele?.student)
-          }
-        student = student?.filter((ref) => {
-          if (ref?.applicable_fees_pending > 0) return ref;
+      var student = [];
+      var all_remain = await RemainingList.find({
+        student: { $in: admin_ins?.remainingFee },
+      })
+        .select("applicable_fee paid_fee student")
+        .populate({
+          path: "fee_structure",
+          select: "applicable_fees",
+        })
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName applicable_fees_pending photoId studentGRNO studentProfilePhoto admissionRemainFeeCount",
+          populate: {
+            path: "department",
+            select: "dName",
+          },
         });
-        student = await nested_document_limit(page, limit, student)
+      for (var ele of all_remain) {
+        ele.student.applicable_fees_pending +=
+          ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
+            ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
+            : 0;
+        student.push(ele?.student);
+      }
+      student = student?.filter((ref) => {
+        if (ref?.applicable_fees_pending > 0) return ref;
+      });
+      student = await nested_document_limit(page, limit, student);
       // }
+      admin_ins.active_tab_index = "Applicable_Fees_Query";
+      await admin_ins.save();
     } else {
     }
     if (student?.length > 0) {
@@ -3460,7 +3467,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
         populate: {
           path: "hostel_fee_structure",
           select:
-            "total_admission_fees structure_name unique_structure_name applicable_fees one_installments category_master structure_month",
+            "total_admission_fees structure_name unique_structure_name applicable_fees one_installments category_master structure_month batch_master",
           populate: {
             path: "category_master class_master",
             select: "category_name className",
@@ -3474,7 +3481,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       .populate({
         path: "fee_structure",
         select:
-          "total_admission_fees structure_name unique_structure_name applicable_fees one_installments structure_month category_master",
+          "total_admission_fees structure_name unique_structure_name applicable_fees one_installments structure_month category_master batch_master",
         populate: {
           path: "category_master class_master",
           select: "category_name className",
@@ -6543,17 +6550,17 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
       }
       await one_remain_list.save();
       for (var ref of one_student?.active_fee_heads) {
-        console.log("Before", one_student?.active_fee_heads?.length);
+        // console.log("Before", one_student?.active_fee_heads?.length);
         if (`${ref?.fee_structure}` === `${old_struct?._id}`) {
           one_student.active_fee_heads.pull(ref?._id);
-          console.log("pull");
+          // console.log("pull");
         } else {
-          console.log("push");
+          // console.log("push");
         }
         // await one_student.save()
       }
       await one_student.save();
-      console.log("After", one_student?.active_fee_heads?.length);
+      // console.log("After", one_student?.active_fee_heads?.length);
       for (var ref of all_receipts) {
         for (var ele of ref?.fee_heads) {
           if (`${ele?.fee_structure}` === `${old_struct?._id}`) {

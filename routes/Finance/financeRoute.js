@@ -492,4 +492,6 @@ router.delete("/:did/delete/structure", catchAsync(Finance.delete_structure));
 
 // router.get("/edit/remaining/fees", catchAsync(Finance.RemainingFeesQuery));
 
+// router.patch("/update/trans", catchAsync(Finance.addOrder));
+
 module.exports = router;

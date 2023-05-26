@@ -83,6 +83,23 @@ exports.all_access_role = () => {
         appArray: [],
       },
     },
+    ONE_TAB_ACCESS: {
+      role: "ONE_TAB_ACCESS",
+      permission: {
+        allow: true,
+        bound: [
+          "APPLICATION TAB",
+          "SELECTED TAB",
+          "CONFIRMED TAB",
+          "ALLOTTED TAB",
+          "CANCELLED TAB",
+        ],
+        addons: [],
+        accessStaff: "",
+        accessApplication: "",
+        appArray: [],
+      },
+    },
   };
   return access_role;
 };

@@ -6385,15 +6385,15 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
         access: false,
       });
 
-    const ads_admin = await Admission.findById({ _id: aid });
-    const institute = await InstituteAdmin.findById({
+    var ads_admin = await Admission.findById({ _id: aid });
+    var institute = await InstituteAdmin.findById({
       _id: `${ads_admin?.institute}`,
     });
-    const one_student = await Student.findById({ _id: sid });
-    const one_app = await NewApplication.findById({ _id: appId });
-    const old_struct = await FeeStructure.findById({ _id: old_fee_struct });
-    const new_struct = await FeeStructure.findById({ _id: new_fee_struct });
-    const one_remain_list = await RemainingList.findOne({
+    var one_student = await Student.findById({ _id: sid });
+    var one_app = await NewApplication.findById({ _id: appId });
+    var old_struct = await FeeStructure.findById({ _id: old_fee_struct });
+    var new_struct = await FeeStructure.findById({ _id: new_fee_struct });
+    var one_remain_list = await RemainingList.findOne({
       $and: [
         { student: one_student?._id },
         { appId: one_app?._id },
@@ -6543,32 +6543,27 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
       res
         .status(200)
         .send({ message: "Explore New Fee Structure Edit", access: true });
-      for (var ref of one_remain_list?.remaining_array) {
-        if (ref?.status === "Not Paid" && ref?.remainAmount === 0) {
-          one_remain_list.remaining_array.pull(ref?._id);
-        }
-      }
-      await one_remain_list.save();
-      for (var ref of one_student?.active_fee_heads) {
-        // console.log("Before", one_student?.active_fee_heads?.length);
-        if (`${ref?.fee_structure}` === `${old_struct?._id}`) {
-          one_student.active_fee_heads.pull(ref?._id);
-          // console.log("pull");
-        } else {
-          // console.log("push");
-        }
-        // await one_student.save()
-      }
-      await one_student.save();
-      // console.log("After", one_student?.active_fee_heads?.length);
-      for (var ref of all_receipts) {
-        for (var ele of ref?.fee_heads) {
-          if (`${ele?.fee_structure}` === `${old_struct?._id}`) {
-            ref.fee_heads.pull(ele?._id);
+        for (var ref of one_remain_list?.remaining_array) {
+          if (ref?.status === "Not Paid" && ref?.remainAmount === 0) {
+            one_remain_list.remaining_array.pull(ref?._id);
           }
         }
-        await ref.save();
-      }
+        await one_remain_list.save();
+        for (var ref of one_student?.active_fee_heads) {
+          if (`${ref?.fee_structure}` === `${old_struct?._id}`) {
+            one_student.active_fee_heads.pull(ref?._id);
+          } else {
+          }
+        }
+        await one_student.save();
+        for (var ref of all_receipts) {
+          for (var ele of ref?.fee_heads) {
+            if (`${ele?.fee_structure}` === `${old_struct?._id}`) {
+              ref.fee_heads.pull(ele?._id);
+            }
+          }
+          await ref.save();
+        }
     } else {
       res
         .status(200)

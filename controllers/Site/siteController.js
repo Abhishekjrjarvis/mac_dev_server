@@ -1,9 +1,12 @@
 const DepartmentSite = require("../../models/SiteModels/DepartmentSite");
 const AdmissionSite = require("../../models/SiteModels/AdmissionSite");
 const LibrarySite = require("../../models/SiteModels/LibrarySite");
+const HostelSite = require("../../models/SiteModels/HostelSite");
 const Department = require("../../models/Department");
 const Admission = require("../../models/Admission/Admission");
 const Library = require("../../models/Library/Library");
+const Hostel = require("../../models/Hostel/hostel");
+
 const { deleteFile } = require("../../S3Configuration");
 
 exports.getDepartmentInfo = async (req, res) => {
@@ -79,6 +82,7 @@ exports.updateDepartmentInfo = async (req, res) => {
         department_hod_message: req.body.department_hod_message,
         department_image: req.body.department_image,
         department_contact: req.body.department_contact,
+        related_department: department?._id,
       });
       department.site_info.push(departmentSite?._id);
       await Promise.all([departmentSite.save(), department.save()]);
@@ -136,6 +140,8 @@ exports.updateAdmissonInfo = async (req, res) => {
       );
       admissionSite.admission_about = req.body.admission_about;
       admissionSite.admission_process = req.body.admission_process;
+      admissionSite.cashier_signature = req.body?.cashier_signature;
+
       for (let contact of req.body.edit_admission_contact) {
         for (let cont of admissionSite.admission_contact) {
           if (String(contact?.contactId) === String(cont?._id)) {
@@ -152,12 +158,15 @@ exports.updateAdmissonInfo = async (req, res) => {
         message: "Admission site info is updated 😋😊😋",
         access: true,
       });
-      // await DepartmentSite.findByIdAndUpdate(department.site_info[0], req.body);
+      if (req.body?.previousKey) await deleteFile(req.body.previousKey);
     } else {
       const admissionSite = new AdmissionSite({
         admission_about: req.body.admission_about,
         admission_process: req.body.admission_process,
         admission_contact: req.body.admission_contact,
+        related_admission: admission?._id,
+        cashier_name: req.body?.cashier_name,
+        cashier_signature: req.body?.cashier_signature,
       });
       admission.site_info.push(admissionSite?._id);
       await Promise.all([admissionSite.save(), admission.save()]);
@@ -240,11 +249,88 @@ exports.updateLibraryInfo = async (req, res) => {
         library_timing: req.body.library_timing,
         library_image: req.body.library_image,
         library_contact: req.body.library_contact,
+        related_library: library?._id,
       });
       library.site_info.push(librarySite?._id);
       await Promise.all([librarySite.save(), library.save()]);
       res.status(200).send({
         message: "Library site info is updated first time 😋😊😋",
+        access: true,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.getHostelInfo = async (req, res) => {
+  try {
+    const { hid } = req.params;
+    if (!hid)
+      return res.status(200).send({
+        message: "You fetch api with proper knownledge",
+        access: true,
+      });
+    const hostel = await Hostel.findById(hid);
+    if (hostel.site_info?.[0]) {
+      const hostelSite = await HostelSite.findById(hostel.site_info[0]);
+      res.status(200).send({
+        message: "get Hostel site info detail 😋😊😋",
+        hostel_site: hostelSite,
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "Admission site info is not updated 😋😊😋",
+        access: true,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.updateHostelInfo = async (req, res) => {
+  try {
+    const { hid } = req.params;
+    if (!hid)
+      return res.status(200).send({
+        message: "You fetch api with proper knownledge",
+        access: true,
+      });
+    const hostel = await Hostel.findById(hid);
+    if (hostel.site_info?.[0]) {
+      const hostelSite = await HostelSite.findById(hostel.site_info[0]);
+      hostelSite.hostel_about = req.body.hostel_about;
+      hostelSite.hostel_process = req.body.hostel_process;
+      for (let contact of req.body.edit_hostel_contact) {
+        for (let cont of hostelSite.hostel_contact) {
+          if (String(contact?.contactId) === String(cont?._id)) {
+            cont.contact_department_name = contact.contact_department_name;
+            cont.contact_person_name = contact.contact_person_name;
+            cont.contact_person_mobile = contact.contact_person_mobile;
+            cont.contact_person_email = contact.contact_person_email;
+          }
+        }
+      }
+      hostelSite.hostel_contact.push(...req.body.hostel_contact);
+      await hostelSite.save();
+      res.status(200).send({
+        message: "Hostel site info is updated 😋😊😋",
+        access: true,
+      });
+      // await DepartmentSite.findByIdAndUpdate(department.site_info[0], req.body);
+    } else {
+      const hostelSite = new HostelSite({
+        hostel_about: req.body.hostel_about,
+        hostel_process: req.body.hostel_process,
+        hostel_contact: req.body.hostel_contact,
+        related_hostel: hostel?._id,
+      });
+      hostel.site_info.push(hostelSite?._id);
+      await Promise.all([hostelSite.save(), hostel.save()]);
+      res.status(200).send({
+        message: "Hostel site info is updated first time 😋😊😋",
         access: true,
       });
     }

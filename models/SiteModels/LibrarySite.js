@@ -13,6 +13,10 @@ const librarySiteSchema = new mongoose.Schema({
       contact_person_email: { type: String },
     },
   ],
+  related_library: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Library",
+  },
 });
 
 module.exports = mongoose.model("LibrarySite", librarySiteSchema);

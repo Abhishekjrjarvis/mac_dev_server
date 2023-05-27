@@ -11,6 +11,12 @@ const admissionSiteSchema = new mongoose.Schema({
       contact_person_email: { type: String },
     },
   ],
+  related_admission: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Admission",
+  },
+  cashier_name: String,
+  cashier_signature: String,
 });
 
 module.exports = mongoose.model("AdmissionSite", admissionSiteSchema);

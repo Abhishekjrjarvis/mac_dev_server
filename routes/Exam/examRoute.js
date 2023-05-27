@@ -223,4 +223,8 @@ router
   .route("/seating/:eid/seating/new/backlog/query")
   .post(catchAsync(examController.renderNewBacklogSeatingArrangementQuery));
 
+router
+  .route("/exam/grade/:gid/update")
+  .patch(catchAsync(examController.updateGradeSystem));
+
 module.exports = router;

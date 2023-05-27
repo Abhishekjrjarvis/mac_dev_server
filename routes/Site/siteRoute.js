@@ -15,4 +15,9 @@ router
   .get(siteController.getLibraryInfo)
   .patch(isLoggedIn, siteController.updateLibraryInfo);
 
+router
+  .route("/info/hostel/:hid")
+  .get(siteController.getHostelInfo)
+  .patch(isLoggedIn, siteController.updateHostelInfo);
+
 module.exports = router;

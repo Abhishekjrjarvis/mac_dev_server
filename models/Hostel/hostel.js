@@ -212,6 +212,12 @@ const hostelSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  site_info: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "HostelSite",
+    },
+  ],
 });
 
 module.exports = mongoose.model("Hostel", hostelSchema);

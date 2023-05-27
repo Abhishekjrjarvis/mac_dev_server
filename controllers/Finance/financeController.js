@@ -3395,7 +3395,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentLastName active_fee_heads",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads",
         populate: {
           path: "remainingFeeList",
           select: "appId",
@@ -3404,14 +3404,14 @@ exports.renderOneFeeReceipt = async (req, res) => {
       .populate({
         path: "student",
         select:
-          "studentFirstName studentMiddleName studentLastName active_fee_heads hostel_fee_structure",
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads hostel_fee_structure",
         populate: {
           path: "fee_structure hostel_fee_structure",
           select:
-            "category_master structure_name unique_structure_name applicable_fees structure_month",
+            "category_master structure_name unique_structure_name department batch_master applicable_fees class_master structure_month",
           populate: {
-            path: "category_master",
-            select: "category_name",
+            path: "category_master class_master batch_master department",
+            select: "category_name className batchName dName",
           },
         },
       })
@@ -3428,9 +3428,9 @@ exports.renderOneFeeReceipt = async (req, res) => {
         select: "applicationName applicationDepartment applicationHostel",
         populate: {
           path: "admissionAdmin",
-          select: "_id",
+          select: "_id site_info",
           populate: {
-            path: "institute",
+            path: "institute site_info",
             select:
               "insName name insAddress insPhoneNumber insEmail insState insDistrict insProfilePhoto photoId",
             populate: {
@@ -4696,117 +4696,10 @@ exports.delete_structure = async (req, res) => {
 
 // exports.RemainingFeesQuery = async (req, res) => {
 //   try {
-//     // const one_depart = await Department.findById({ _id: ""})
-//     var one_batch = await Batch.findById({ _id: "6449d2ef98fec071fbffd733" });
-//     var all_struct = await FeeStructure.find({
-//       $and: [
-//         { finance: "644a09d6d1679fcd6e76e5ef" },
-//         { batch_master: one_batch?._id },
-//         { total_admission_fees: 84221 },
-//       ],
-//     });
-//     var all_list = [];
-//     var correct = [];
-//     var wrong = [];
-//     // for (var ref of all_struct) {
-//     //   var remain_query = await RemainingList.find({
-//     //     fee_structure: { $in: ref?._id },
-//     //   });
-//     //   all_list.push(...remain_query, ...all_list);
-//     // }
 //     var all_remain_list = await RemainingList.find({
-//       fee_structure: { $in: all_struct },
 //     }).populate({
 //       path: "fee_structure",
-//       // select: "total_admission_fees"
 //     });
-//     // for (var ele of all_remain_list) {
-//     //   var student = await Student.findById({ _id: `${ele?.student}` });
-//     //   correct.push({
-//     //     ApplicableFees: ele?.applicable_fee,
-//     //     Remain: ele?.remaining_fee,
-//     //     Paid: ele?.paid_fee,
-//     //     Struct: ele?.fee_structure?.total_admission_fees,
-//     //     AdmissionRemain: student?.admissionRemainFeeCount,
-//     //   });
-//     //   // let total = ele?.applicable_fee - ele?.remaining_fee;
-//     //   // if (total == ele?.fee_structure?.total_admission_fees) {
-//     //   //   correct.push({
-//     //   //     RemainingList: ele?._id,
-//     //   //     student: student?.valid_full_name,
-//     //   //   });
-//     //   // } else {
-//     //   //   wrong.push({
-//     //   //     RemainingList: ele?._id,
-//     //   //     student: student?.valid_full_name,
-//     //   //   });
-//     //   // }
-//     // }
-//     // var all_arr = [
-//     //   "645a2306d68fa6c1ab8b9cd2",
-//     //   "645a25e6d68fa6c1ab8bd8bb",
-//     //   "645a2670d68fa6c1ab8be37d",
-//     //   "645a22dad68fa6c1ab8b996e",
-//     //   "645a2225d68fa6c1ab8b8b4e",
-//     //   "645a21dbd68fa6c1ab8b84f2",
-//     //   "645a212ad68fa6c1ab8b75e1",
-//     //   "645a20d3d68fa6c1ab8b6f06",
-//     //   "645a1fc6d68fa6c1ab8b59e3",
-//     //   "645a1f1ad68fa6c1ab8b4c15",
-//     //   "645a1eb5d68fa6c1ab8b430c",
-//     //   "645a1dfdd68fa6c1ab8b34a0",
-//     //   "645a1dabd68fa6c1ab8b2e12",
-//     //   "645a1cced68fa6c1ab8b1c75",
-//     //   "645a1b4bd68fa6c1ab8afd75",
-//     //   "645a1c2bd68fa6c1ab8b0f54",
-//     //   "645a1ee0d68fa6c1ab8b466c",
-//     //   "645a1efbd68fa6c1ab8b4904",
-//     //   "645a1f45d68fa6c1ab8b4fa3",
-//     //   "645a2021d68fa6c1ab8b60fa",
-//     //   "645a2155d68fa6c1ab8b7950",
-//     //   "645a2205d68fa6c1ab8b884e",
-//     //   "645a249dd68fa6c1ab8bbcc0",
-//     //   "645a24fed68fa6c1ab8bc577",
-//     //   "645a25c9d68fa6c1ab8bd5ee",
-//     //   "645a2548d68fa6c1ab8bcba6",
-//     //   "645a1e57d68fa6c1ab8b3bb4",
-//     //   "645a1e85d68fa6c1ab8b3f60",
-//     //   "645a1ff1d68fa6c1ab8b5d4a",
-//     //   "645a240ed68fa6c1ab8bb1bc",
-
-//     //   "645a1b71d68fa6c1ab8b00b8",
-//     //   "645a1b9fd68fa6c1ab8b0460",
-//     //   "645a1bced68fa6c1ab8b080c",
-//     //   "645a1bfcd68fa6c1ab8b0bb0",
-//     //   "645a1cf9d68fa6c1ab8b2027",
-//     //   "645a1d1dd68fa6c1ab8b231e",
-//     //   "645a1d4cd68fa6c1ab8b26c2",
-//     //   "645a1d7cd68fa6c1ab8b2a6a",
-//     //   "645a1dced68fa6c1ab8b30fc",
-//     //   "645a1e28d68fa6c1ab8b3810",
-//     //   "645a1f66d68fa6c1ab8b529b",
-//     //   "645a1f96d68fa6c1ab8b563f",
-//     //   "645a2074d68fa6c1ab8b67ba",
-//     //   "645a20a4d68fa6c1ab8b6b5e",
-//     //   "645a2177d68fa6c1ab8b7c44",
-//     //   "645a2250d68fa6c1ab8b8eb5",
-//     //   "645a227bd68fa6c1ab8b9222",
-//     //   "645a22acd68fa6c1ab8b95ca",
-//     //   "645a235ed68fa6c1ab8ba3c3",
-//     //   "645a2389d68fa6c1ab8ba730",
-//     //   "645a243dd68fa6c1ab8bb564",
-//     //   "645a246dd68fa6c1ab8bb908",
-//     //   "645a256ad68fa6c1ab8bcea6",
-//     //   "645a2599d68fa6c1ab8bd24a",
-//     //   "645a2641d68fa6c1ab8bdfd9",
-//     //   "645a269cd68fa6c1ab8be6f0",
-//     //   "645a26c8d68fa6c1ab8bea5d",
-//     //   "645a26f7d68fa6c1ab8bee01",
-//     // ];
-//     // Status Paid Updated
-//     // var all_stu = await Student.find({ _id: { $in: all_arr } }).select(
-//     //   "admissionRemainFeeCount"
-//     // );
 //     var ads = await Admission.findById({ _id: "644a09e3d1679fcd6e76e606"})
 //     for(var ref of all_remain_list){
 //       if(ref?.remaining_fee == 0){
@@ -4820,23 +4713,64 @@ exports.delete_structure = async (req, res) => {
 //         ads.remainingFee.pull(ele?._id)
 //       }
 //     }
-//     ads.structure_mismatch_amount = 11001
+//     ads.structure_mismatch_amount = 34161
 //     await ads.save()
 //     res.status(200).send({
 //       message: "Explore All Remaining Card",
 //       access: true,
-//       // count: correct?.length,
-//       // correct: correct,
-//       // all_stu,
-//       // wrong: wrong[0],
 //     });
 //   } catch (e) {
 //     console.log(e);
 //   }
 // };
 
-// 2509
+// exports.RemainingFeesQuery = async (req, res) => {
+//   try {
+//     // const one_depart = await Department.findById({ _id: ""})
+//     var one_batch = await Batch.findById({ _id: "6457919c3d0d78fad8289b22" });
+//     var all_struct = await FeeStructure.find({
+//       $and: [
+//         { finance: "644a09d6d1679fcd6e76e5ef" },
+//         { batch_master: one_batch?._id },
+//         { total_admission_fees: 84221 },
+//       ],
+//     });
+//     var all_list = [];
+//     var all_remain_list = await RemainingList.find({
+//       $and: [{
+//       fee_structure: { $in: all_struct },
+//       }, { status: "Not Paid"}, { applicable_fee: 84221 }]
+//     }).populate({
+//       path: "fee_structure",
+//     });
 
+//     for(var ref of all_remain_list){
+//       ref.applicable_fee = 84028
+//       if(ref?.remaining_fee > 0){
+//         ref.remaining_fee -= 193
+//       }
+//       for(var ele of ref?.remaining_array){
+//         if(ele?.status === "Not Paid" && ele?.remainAmount == 193){
+//           ref.remaining_array.pull(ele?._id)
+//         }
+//         if(ele?.status === "Not Paid" && ele?.remainAmount > 193){
+//           ele.remainAmount -= 193
+//         }
+//       }
+//       var student = await Student.findById({ _id: `${ref?.student}`})
+//       if(student?.admissionRemainFeeCount > 0){
+//         student.admissionRemainFeeCount -= 193
+//       }
+//       await Promise.all([ ref.save(), student.save() ])
+//     }
+//     res.status(200).send({
+//       message: "Explore All Remaining Card",
+//       access: true,
+//     });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
 
 // exports.addOrder = async(req, res) => {
 //   try{

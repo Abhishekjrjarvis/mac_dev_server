@@ -4665,3 +4665,54 @@ exports.renderNewBacklogSeatingArrangementQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.updateGradeSystem = async (req, res) => {
+  try {
+    const { gid } = req.params;
+    const { custom_grade } = req.query;
+    if (!gid)
+      return res.status(200).send({
+        message: "Their is a bug to call api! need to fix it soon.",
+        access: true,
+      });
+
+    const n_grades = await GradeSystem.findById(gid);
+    if (req.body.grade_type === "Slab based") {
+      if (n_grades.grade_type !== "Slab based") {
+        const c_grades = await GradeSystem.findById(custom_grade);
+        if (c_grades.choosen_department.includes(n_grades._id)) {
+          c_grades.choosen_department.pull(n_grades._id);
+          await c_grades.save();
+        }
+      }
+      n_grades.grades = req.body.grades;
+      n_grades.grade_type = req.body.grade_type;
+      n_grades.grade_count = req.body.grade_count;
+      n_grades.grade_name = req.body.grade_name;
+      await n_grades.save();
+    } else {
+      const c_grades = await GradeSystem.findById(custom_grade);
+      if (`${n_grades?.custom_grade}` !== `${custom_grade}`) {
+        const p_grades = await GradeSystem.findById(n_grades?.custom_grade);
+        p_grades.choosen_department.pull(n_grades._id);
+        await p_grades.save();
+      }
+      n_grades.grade_type = req.body.grade_type;
+      n_grades.custom_grade = custom_grade;
+      n_grades.grade_count = c_grades.grade_count;
+      n_grades.grade_name = c_grades.grade_name;
+      n_grades.grades = c_grades.grades;
+      if (c_grades.choosen_department.includes(n_grades._id)) {
+      } else {
+        c_grades.choosen_department.push(n_grades._id);
+      }
+      await Promise.all([n_grades.save(), c_grades.save()]);
+    }
+    res.status(201).send({
+      message: "Update grade type in department 😋😊",
+      access: true,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};

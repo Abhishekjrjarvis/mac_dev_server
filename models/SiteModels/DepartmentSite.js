@@ -14,6 +14,10 @@ const departmentSiteSchema = new mongoose.Schema({
       contact_person_email: { type: String },
     },
   ],
+  related_department: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Department",
+  },
 });
 
 module.exports = mongoose.model("DepartmentSite", departmentSiteSchema);

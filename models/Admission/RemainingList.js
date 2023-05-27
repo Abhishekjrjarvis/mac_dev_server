@@ -69,6 +69,14 @@ const remainingFeeListSchema = new mongoose.Schema({
   renewal_end: {
     type: Date,
   },
+  paid_by_student: {
+    type: Number,
+    default: 0,
+  },
+  paid_by_government: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("RemainingList", remainingFeeListSchema);

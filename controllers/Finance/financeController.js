@@ -3430,7 +3430,7 @@ exports.renderOneFeeReceipt = async (req, res) => {
           path: "admissionAdmin",
           select: "_id site_info",
           populate: {
-            path: "institute site_info",
+            path: "institute",
             select:
               "insName name insAddress insPhoneNumber insEmail insState insDistrict insProfilePhoto photoId",
             populate: {
@@ -3442,6 +3442,17 @@ exports.renderOneFeeReceipt = async (req, res) => {
                   "userLegalName staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId",
               },
             },
+          },
+        },
+      })
+      .populate({
+        path: "application",
+        select: "applicationName applicationDepartment applicationHostel",
+        populate: {
+          path: "admissionAdmin",
+          select: "_id site_info",
+          populate: {
+            path: "site_info",
           },
         },
       });

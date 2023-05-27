@@ -16,6 +16,9 @@ const admissionModeratorSchema = new mongoose.Schema({
       ref: "NewApplication",
     },
   ],
+  active_tab: {
+    role: { type: String },
+  },
   created_at: {
     type: Date,
     default: Date.now,

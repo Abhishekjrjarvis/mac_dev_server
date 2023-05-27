@@ -99,6 +99,7 @@ exports.render_institute_current_role = async (institute, mid) => {
 exports.addAdmissionAppModerator = async (req, res) => {
   try {
     const { aid } = req.params;
+    const { active_tab } = req.query;
     const { mod_role, sid, app_array } = req.body;
     if (!aid && !mod_role && !sid && !app_array)
       return res.status(200).send({
@@ -116,6 +117,7 @@ exports.addAdmissionAppModerator = async (req, res) => {
     const new_mod = new AdmissionModerator({});
     new_mod.access_role = mod_role;
     new_mod.access_staff = staff?._id;
+    new_mod.active_tab.role = active_tab;
     if (mod_role === all_role[`${mod_role}`]?.role) {
       new_mod.permission.bound = [
         ...all_role[`${mod_role}`]?.permission?.bound,
@@ -294,6 +296,7 @@ exports.renderAdmissionAllAppModeratorArray = async (req, res) => {
 exports.updateAdmissionAppModeratorQuery = async (req, res) => {
   try {
     const { mid } = req.params;
+    const { active_tab } = req.query;
     const { role, staffId, app_array } = req.body;
     if (!mid)
       return res.status(200).send({
@@ -314,6 +317,7 @@ exports.updateAdmissionAppModeratorQuery = async (req, res) => {
     });
     if (role) {
       one_moderator.access_role = role;
+      one_moderator.active_tab.role = active_tab;
       one_moderator.permission.bound = [];
       if (role === all_role[`${role}`]?.role) {
         one_moderator.permission.bound = [

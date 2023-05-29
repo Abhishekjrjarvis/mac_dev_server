@@ -71,6 +71,7 @@ const {
   remain_one_time_query_government,
   remain_government_installment,
   update_fee_head_query,
+  hostel_lookup_applicable_grant,
 } = require("../../Functions/hostelInstallment");
 const { whats_app_sms_payload } = require("../../WhatsAppSMS/payload");
 const {
@@ -2159,6 +2160,12 @@ exports.renderPaidRemainingFeeStudentQuery = async (req, res) => {
     }
     // await set_fee_head_query(student, price, apply);
     await update_fee_head_query(student, price, apply, new_receipt);
+    await hostel_lookup_applicable_grant(
+      new_receipt?.fee_payment_mode,
+      price,
+      remaining_fee_lists,
+      new_receipt
+    );
     for (var stu of student.paidFeeList) {
       if (`${stu.appId}` === `${apply._id}`) {
         stu.paidAmount += price;
@@ -2891,6 +2898,12 @@ const request_hostel_mode_query_by_student = async (
     }
     // await set_fee_head_query(student, price, apply);
     await update_fee_head_query(student, price, apply, new_receipt);
+    await hostel_lookup_applicable_grant(
+      new_receipt?.fee_payment_mode,
+      price,
+      remaining_fee_lists,
+      new_receipt
+    );
     for (var stu of student.paidFeeList) {
       if (`${stu.appId}` === `${apply._id}`) {
         stu.paidAmount += price;
@@ -3401,6 +3414,12 @@ const request_hostel_mode_query_by_student_renewal = async (
     }
     // await set_fee_head_query(student, price, apply);
     await update_fee_head_query(student, price, apply, new_receipt);
+    await hostel_lookup_applicable_grant(
+      new_receipt?.fee_payment_mode,
+      price,
+      remaining_fee_lists,
+      new_receipt
+    );
     for (var stu of student.paidFeeList) {
       if (`${stu.appId}` === `${apply._id}`) {
         stu.paidAmount += price;

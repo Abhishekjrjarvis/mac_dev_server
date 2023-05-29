@@ -31,6 +31,7 @@ const {
   set_fee_head_query,
   remain_one_time_query,
   update_fee_head_query,
+  lookup_applicable_grant,
 } = require("../../helper/Installment");
 const Hostel = require("../../models/Hostel/hostel");
 const Renewal = require("../../models/Hostel/renewal");
@@ -595,6 +596,12 @@ exports.admissionInstituteFunction = async (
         apply,
         new_receipt
       );
+      await lookup_applicable_grant(
+        new_receipt?.fee_payment_mode,
+        parseInt(tx_amount_ad),
+        remaining_fee_lists,
+        new_receipt
+      );
       for (var match of student.paidFeeList) {
         if (`${match.appId}` === `${apply._id}`) {
           match.paidAmount += parseInt(tx_amount_ad);
@@ -987,6 +994,12 @@ exports.hostelInstituteFunction = async (
         student,
         parseInt(tx_amount_ad),
         apply,
+        new_receipt
+      );
+      await lookup_applicable_grant(
+        new_receipt?.fee_payment_mode,
+        parseInt(tx_amount_ad),
+        remaining_fee_lists,
         new_receipt
       );
       for (var match of student.paidFeeList) {

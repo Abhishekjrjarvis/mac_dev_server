@@ -127,6 +127,8 @@ exports.replace_query = (value) => {
   return reverseReplaceSecondIndexValue;
 };
 
+// console.log(replace_query(""))
+
 exports.date_renew = async (s_date, type, d_set) => {
   if (type === "End") {
     s_date.setDate(s_date.getDate() + d_set.end_date);

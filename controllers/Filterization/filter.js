@@ -1630,10 +1630,10 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
             PaidHeadFees: val?.original_paid,
           });
         }
-        if (remain_list?.refund_fee > 0) {
+        if (remain_list?.paid_fee - remain_list?.applicable_fee > 0) {
           head_array.push({
             HeadsName: "Excess Fees",
-            PaidHeadFees: remain_list?.refund_fee,
+            PaidHeadFees: remain_list?.paid_fee - remain_list?.applicable_fee,
           });
         }
         var result = await buildStructureObject(head_array);
@@ -1660,6 +1660,8 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
             ApplicableFees: remain_list?.fee_structure?.applicable_fees ?? "0",
             TotalPaidFees: remain_list?.paid_fee,
             RemainingFees: remain_list?.remaining_fee,
+            PaidByStudent: remain_list?.paid_by_student,
+            PaidByGovernment: remain_list?.paid_by_government,
             Standard:
               `${remain_list?.fee_structure?.class_master?.className}` ?? "#NA",
             Batch: remain_list?.fee_structure?.batch_master?.batchName ?? "#NA",

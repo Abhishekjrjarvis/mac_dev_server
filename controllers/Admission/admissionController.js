@@ -69,6 +69,7 @@ const {
   update_fee_head_query,
   set_fee_head_query_retro,
   set_retro_installment,
+  lookup_applicable_grant,
 } = require("../../helper/Installment");
 const { whats_app_sms_payload } = require("../../WhatsAppSMS/payload");
 const {
@@ -1658,7 +1659,17 @@ exports.payOfflineAdmissionFee = async (req, res) => {
       finance.financeBankBalance += price;
     } else {
     }
-    await set_fee_head_query(student, price, apply, new_receipt);
+    if (req.body?.fee_payment_mode === "Government/Scholarship") {
+      // New Logic
+    } else {
+      await set_fee_head_query(student, price, apply, new_receipt);
+    }
+    await lookup_applicable_grant(
+      req.body?.fee_payment_mode,
+      price,
+      new_remainFee,
+      new_receipt
+    );
     if (is_install) {
       apply.confirmedApplication.push({
         student: student._id,
@@ -2592,7 +2603,16 @@ exports.paidRemainingFeeStudent = async (req, res) => {
     } else {
     }
     // await set_fee_head_query(student, price, apply);
-    await update_fee_head_query(student, price, apply, new_receipt);
+    if (req?.body?.fee_payment_mode === "Government/Scholarship") {
+    } else {
+      await update_fee_head_query(student, price, apply, new_receipt);
+    }
+    await lookup_applicable_grant(
+      req?.body?.fee_payment_mode,
+      price,
+      remaining_fee_lists,
+      new_receipt
+    );
     for (var stu of student.paidFeeList) {
       if (`${stu.appId}` === `${apply._id}`) {
         stu.paidAmount += price;
@@ -3078,7 +3098,17 @@ const request_mode_query_by_student = async (
     } else {
     }
     // await set_fee_head_query(student, price, apply);
-    await update_fee_head_query(student, price, apply, new_receipt);
+    if(new_receipt?.fee_payment_mode === "Government/Scholarship"){
+    }
+    else{
+      await update_fee_head_query(student, price, apply, new_receipt);
+    }
+    await lookup_applicable_grant(
+      new_receipt?.fee_payment_mode,
+      price,
+      remaining_fee_lists,
+      new_receipt
+    );
     for (var stu of student.paidFeeList) {
       if (`${stu.appId}` === `${apply._id}`) {
         stu.paidAmount += price;
@@ -3440,7 +3470,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       .limit(limit)
       .skip(skip)
       .select(
-        "applicable_fee remaining_fee exempted_fee paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end"
+        "applicable_fee remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end"
       )
       .populate({
         path: "appId",
@@ -5501,7 +5531,16 @@ exports.paidRemainingFeeStudentFinanceQuery = async (req, res) => {
       finance.financeTotalBalance -= price + extra_price;
     }
     // await set_fee_head_query(student, price, apply);
-    await update_fee_head_query(student, price, apply, new_receipt);
+    if (req?.body?.fee_payment_mode === "Government/Scholarship") {
+    } else {
+      await update_fee_head_query(student, price, apply, new_receipt);
+    }
+    await lookup_applicable_grant(
+      req?.body?.fee_payment_mode,
+      price,
+      remaining_fee_lists,
+      new_receipt
+    );
     for (var stu of student.paidFeeList) {
       if (`${stu.appId}` === `${apply._id}`) {
         stu.paidAmount += price;
@@ -6543,27 +6582,27 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
       res
         .status(200)
         .send({ message: "Explore New Fee Structure Edit", access: true });
-        for (var ref of one_remain_list?.remaining_array) {
-          if (ref?.status === "Not Paid" && ref?.remainAmount === 0) {
-            one_remain_list.remaining_array.pull(ref?._id);
+      for (var ref of one_remain_list?.remaining_array) {
+        if (ref?.status === "Not Paid" && ref?.remainAmount === 0) {
+          one_remain_list.remaining_array.pull(ref?._id);
+        }
+      }
+      await one_remain_list.save();
+      for (var ref of one_student?.active_fee_heads) {
+        if (`${ref?.fee_structure}` === `${old_struct?._id}`) {
+          one_student.active_fee_heads.pull(ref?._id);
+        } else {
+        }
+      }
+      await one_student.save();
+      for (var ref of all_receipts) {
+        for (var ele of ref?.fee_heads) {
+          if (`${ele?.fee_structure}` === `${old_struct?._id}`) {
+            ref.fee_heads.pull(ele?._id);
           }
         }
-        await one_remain_list.save();
-        for (var ref of one_student?.active_fee_heads) {
-          if (`${ref?.fee_structure}` === `${old_struct?._id}`) {
-            one_student.active_fee_heads.pull(ref?._id);
-          } else {
-          }
-        }
-        await one_student.save();
-        for (var ref of all_receipts) {
-          for (var ele of ref?.fee_heads) {
-            if (`${ele?.fee_structure}` === `${old_struct?._id}`) {
-              ref.fee_heads.pull(ele?._id);
-            }
-          }
-          await ref.save();
-        }
+        await ref.save();
+      }
     } else {
       res
         .status(200)

@@ -109,6 +109,14 @@ const feeReceiptSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "PayMaster",
   },
+  paid_by_student: {
+    type: Number,
+    default: 0,
+  },
+  paid_by_government: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("FeeReceipt", feeReceiptSchema);

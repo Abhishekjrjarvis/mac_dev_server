@@ -487,6 +487,16 @@ exports.fee_reordering_direct_student_payload = async (
             }).select("invoice_count");
             const nestPrice = nest?.amount ? parseInt(nest?.amount) : 0;
             if (nestPrice <= 0) {
+              new_remainFee.remaining_array.push({
+                remainAmount: fee_structure?.total_admission_fees - nestPrice,
+                appId: apply._id,
+                status: "Not Paid",
+                instituteId: institute._id,
+                installmentValue: "One Time Fees Remain",
+                // mode: nest?.mode,
+                isEnable: true,
+                // fee_receipt: new_receipt?._id,
+              });
             } else {
               var new_receipt = new FeeReceipt({
                 fee_payment_mode: nest?.mode,
@@ -628,6 +638,14 @@ exports.fee_reordering_direct_student_payload = async (
             }).select("invoice_count");
             var nestPrice = nest?.amount ? parseInt(nest?.amount) : 0;
             if (nestPrice <= 0) {
+              new_remainFee.remaining_array.push({
+                remainAmount: total_amount - nestPrice,
+                appId: apply._id,
+                status: "Not Paid",
+                instituteId: institute._id,
+                installmentValue: "Installment Remain",
+                isEnable: true,
+              });
             } else {
               var new_receipt = new FeeReceipt({
                 fee_payment_mode: nest?.mode,

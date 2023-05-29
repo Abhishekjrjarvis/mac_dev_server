@@ -1381,3 +1381,23 @@ exports.update_fee_head_query = async (
     console.log(e);
   }
 };
+
+exports.hostel_lookup_applicable_grant = async (
+  m_args,
+  p_args,
+  remain_args,
+  receipt_args
+) => {
+  try {
+    if (m_args === "Government/Scholarship") {
+      remain_args.paid_by_government += p_args;
+      receipt_args.paid_by_government += p_args;
+    } else {
+      remain_args.paid_by_student += p_args;
+      receipt_args.paid_by_student += p_args;
+    }
+    await Promise.all([remain_args.save(), receipt_args.save()]);
+  } catch (e) {
+    console.log(e);
+  }
+};

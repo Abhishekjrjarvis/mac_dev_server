@@ -481,7 +481,7 @@ exports.fee_reordering_direct_student_payload = async (
             appId: apply._id,
             applicable_fee: fee_structure?.total_admission_fees,
           });
-          console.log("card created");
+          // console.log("card created");
           for (var nest of ref?.remain_array) {
             const s_admin = await Admin.findById({
               _id: `${process.env.S_ADMIN_ID}`,
@@ -498,55 +498,56 @@ exports.fee_reordering_direct_student_payload = async (
                 isEnable: true,
                 // fee_receipt: new_receipt?._id,
               });
-            } else {
-              var new_receipt = new FeeReceipt({
-                fee_payment_mode: nest?.mode,
-                fee_payment_amount: nestPrice,
-              });
-              new_receipt.student = student?._id;
-              new_receipt.application = apply?._id;
-              new_receipt.finance = finance?._id;
-              new_receipt.fee_transaction_date = new Date();
-              // s_admin.invoice_count += 1;
-              // new_receipt.invoice_count = `${
-              //   new Date().getMonth() + 1
-              // }${new Date().getFullYear()}${s_admin.invoice_count}`;
-              new_remainFee.fee_receipts.push(new_receipt?._id);
-              new_remainFee.remaining_array.push({
-                remainAmount: nestPrice,
-                appId: apply._id,
-                status: "Paid",
-                instituteId: institute._id,
-                installmentValue: "One Time Fees",
-                mode: nest?.mode,
-                isEnable: true,
-                fee_receipt: new_receipt?._id,
-              });
-              const order = new OrderPayment({});
-              order.payment_module_type = "Admission Fees";
-              order.payment_to_end_user_id = institute?._id;
-              order.payment_by_end_user_id = user._id;
-              order.payment_module_id = apply._id;
-              order.payment_amount = nestPrice;
-              order.payment_status = "Captured";
-              order.payment_flag_to = "Credit";
-              order.payment_flag_by = "Debit";
-              order.payment_mode = nest?.mode;
-              order.payment_admission = apply._id;
-              order.payment_from = student._id;
-              s_admin.invoice_count += 1;
-              order.payment_invoice_number = s_admin.invoice_count;
-              user.payment_history.push(order._id);
-              institute.payment_history.push(order._id);
-              new_receipt.invoice_count = `${
-                new Date().getMonth() + 1
-              }${new Date().getFullYear()}${s_admin.invoice_count}`;
-              await Promise.all([
-                new_receipt.save(),
-                s_admin.save(),
-                order.save(),
-              ]);
             }
+            // else {
+            var new_receipt = new FeeReceipt({
+              fee_payment_mode: nest?.mode,
+              fee_payment_amount: nestPrice,
+            });
+            new_receipt.student = student?._id;
+            new_receipt.application = apply?._id;
+            new_receipt.finance = finance?._id;
+            new_receipt.fee_transaction_date = new Date();
+            // s_admin.invoice_count += 1;
+            // new_receipt.invoice_count = `${
+            //   new Date().getMonth() + 1
+            // }${new Date().getFullYear()}${s_admin.invoice_count}`;
+            new_remainFee.fee_receipts.push(new_receipt?._id);
+            new_remainFee.remaining_array.push({
+              remainAmount: nestPrice,
+              appId: apply._id,
+              status: "Paid",
+              instituteId: institute._id,
+              installmentValue: "One Time Fees",
+              mode: nest?.mode,
+              isEnable: true,
+              fee_receipt: new_receipt?._id,
+            });
+            const order = new OrderPayment({});
+            order.payment_module_type = "Admission Fees";
+            order.payment_to_end_user_id = institute?._id;
+            order.payment_by_end_user_id = user._id;
+            order.payment_module_id = apply._id;
+            order.payment_amount = nestPrice;
+            order.payment_status = "Captured";
+            order.payment_flag_to = "Credit";
+            order.payment_flag_by = "Debit";
+            order.payment_mode = nest?.mode;
+            order.payment_admission = apply._id;
+            order.payment_from = student._id;
+            s_admin.invoice_count += 1;
+            order.payment_invoice_number = s_admin.invoice_count;
+            user.payment_history.push(order._id);
+            institute.payment_history.push(order._id);
+            new_receipt.invoice_count = `${
+              new Date().getMonth() + 1
+            }${new Date().getFullYear()}${s_admin.invoice_count}`;
+            await Promise.all([
+              new_receipt.save(),
+              s_admin.save(),
+              order.save(),
+            ]);
+            // }
           }
           new_remainFee.paid_fee += price;
           new_remainFee.fee_structure = fee_structure?._id;
@@ -632,7 +633,7 @@ exports.fee_reordering_direct_student_payload = async (
             appId: apply._id,
             applicable_fee: total_amount,
           });
-          console.log("card created");
+          // console.log("card created");
           for (var nest of ref?.remain_array) {
             const s_admin = await Admin.findById({
               _id: `${process.env.S_ADMIN_ID}`,
@@ -647,51 +648,52 @@ exports.fee_reordering_direct_student_payload = async (
                 installmentValue: "Installment Remain",
                 isEnable: true,
               });
-            } else {
-              var new_receipt = new FeeReceipt({
-                fee_payment_mode: nest?.mode,
-                fee_payment_amount: nestPrice,
-              });
-              new_receipt.student = student?._id;
-              new_receipt.application = apply?._id;
-              new_receipt.finance = finance?._id;
-              new_receipt.fee_transaction_date = new Date();
-              s_admin.invoice_count += 1;
-              new_receipt.invoice_count = `${
-                new Date().getMonth() + 1
-              }${new Date().getFullYear()}${s_admin.invoice_count}`;
-              new_remainFee.fee_receipts.push(new_receipt?._id);
-              new_remainFee.remaining_array.push({
-                remainAmount: nestPrice,
-                appId: apply._id,
-                status: "Paid",
-                instituteId: institute._id,
-                installmentValue: "First Installment",
-                mode: nest?.mode,
-                isEnable: true,
-                fee_receipt: new_receipt?._id,
-              });
-              const order = new OrderPayment({});
-              order.payment_module_type = "Admission Fees";
-              order.payment_to_end_user_id = institute?._id;
-              order.payment_by_end_user_id = user._id;
-              order.payment_module_id = apply._id;
-              order.payment_amount = nestPrice;
-              order.payment_status = "Captured";
-              order.payment_flag_to = "Credit";
-              order.payment_flag_by = "Debit";
-              order.payment_mode = nest?.mode;
-              order.payment_admission = apply._id;
-              order.payment_from = student._id;
-              order.payment_invoice_number = s_admin.invoice_count;
-              user.payment_history.push(order._id);
-              institute.payment_history.push(order._id);
-              await Promise.all([
-                new_receipt.save(),
-                s_admin.save(),
-                order.save(),
-              ]);
             }
+            // else {
+            var new_receipt = new FeeReceipt({
+              fee_payment_mode: nest?.mode,
+              fee_payment_amount: nestPrice,
+            });
+            new_receipt.student = student?._id;
+            new_receipt.application = apply?._id;
+            new_receipt.finance = finance?._id;
+            new_receipt.fee_transaction_date = new Date();
+            s_admin.invoice_count += 1;
+            new_receipt.invoice_count = `${
+              new Date().getMonth() + 1
+            }${new Date().getFullYear()}${s_admin.invoice_count}`;
+            new_remainFee.fee_receipts.push(new_receipt?._id);
+            new_remainFee.remaining_array.push({
+              remainAmount: nestPrice,
+              appId: apply._id,
+              status: "Paid",
+              instituteId: institute._id,
+              installmentValue: "First Installment",
+              mode: nest?.mode,
+              isEnable: true,
+              fee_receipt: new_receipt?._id,
+            });
+            const order = new OrderPayment({});
+            order.payment_module_type = "Admission Fees";
+            order.payment_to_end_user_id = institute?._id;
+            order.payment_by_end_user_id = user._id;
+            order.payment_module_id = apply._id;
+            order.payment_amount = nestPrice;
+            order.payment_status = "Captured";
+            order.payment_flag_to = "Credit";
+            order.payment_flag_by = "Debit";
+            order.payment_mode = nest?.mode;
+            order.payment_admission = apply._id;
+            order.payment_from = student._id;
+            order.payment_invoice_number = s_admin.invoice_count;
+            user.payment_history.push(order._id);
+            institute.payment_history.push(order._id);
+            await Promise.all([
+              new_receipt.save(),
+              s_admin.save(),
+              order.save(),
+            ]);
+            // }
           }
 
           new_remainFee.paid_fee += price;

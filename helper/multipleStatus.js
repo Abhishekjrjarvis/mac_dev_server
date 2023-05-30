@@ -454,7 +454,7 @@ exports.fee_reordering_direct_student_payload = async (
         path: "fee_structure",
       });
       var price = ref?.amount ? parseInt(ref?.amount) : 0;
-      if (price > 0 && ref?.batchId && ref?.appId && ref?.fee_struct) {
+      if (price >= 0 && ref?.batchId && ref?.appId && ref?.fee_struct) {
         var apply = await NewApplication.findById({ _id: ref?.appId });
         var admission = await Admission.findById({
           _id: `${apply?.admissionAdmin}`,
@@ -476,7 +476,7 @@ exports.fee_reordering_direct_student_payload = async (
           is_install = false;
         }
         var total_amount = add_total_installment(student_structure);
-        if (price > 0 && !is_install) {
+        if (price >= 0 && !is_install) {
           var new_remainFee = new RemainingList({
             appId: apply._id,
             applicable_fee: fee_structure?.total_admission_fees,
@@ -609,7 +609,7 @@ exports.fee_reordering_direct_student_payload = async (
               });
             }
           }
-        } else if (is_install && price > 0) {
+        } else if (is_install && price >= 0) {
           if (total_amount - price > 0) {
             student.admissionRemainFeeCount += total_amount - price;
             apply.remainingFee += total_amount - price;

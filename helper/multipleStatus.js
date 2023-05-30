@@ -499,7 +499,7 @@ const one_time_zero_fees_query = async (
 
 const installment_zero_fees_query = async (
   new_remainFee,
-  fee_structure,
+  total_amount,
   nestPrice,
   apply,
   institute,
@@ -728,7 +728,7 @@ exports.fee_reordering_direct_student_payload = async (
             if (nestPrice <= 0) {
               await installment_zero_fees_query(
                 new_remainFee,
-                fee_structure,
+                total_amount,
                 nestPrice,
                 apply,
                 institute,

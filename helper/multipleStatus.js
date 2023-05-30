@@ -481,6 +481,7 @@ exports.fee_reordering_direct_student_payload = async (
             appId: apply._id,
             applicable_fee: fee_structure?.total_admission_fees,
           });
+          console.log("card created");
           for (var nest of ref?.remain_array) {
             const s_admin = await Admin.findById({
               _id: `${process.env.S_ADMIN_ID}`,
@@ -631,7 +632,7 @@ exports.fee_reordering_direct_student_payload = async (
             appId: apply._id,
             applicable_fee: total_amount,
           });
-
+          console.log("card created");
           for (var nest of ref?.remain_array) {
             const s_admin = await Admin.findById({
               _id: `${process.env.S_ADMIN_ID}`,

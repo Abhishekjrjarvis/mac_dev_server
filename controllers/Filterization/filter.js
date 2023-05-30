@@ -1666,6 +1666,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
               `${remain_list?.fee_structure?.class_master?.className}` ?? "#NA",
             Batch: remain_list?.fee_structure?.batch_master?.batchName ?? "#NA",
             FeeStructure: remain_list?.fee_structure?.unique_structure_name ?? "#NA",
+            Remark: remain_list?.remark ?? "#NA",
             DepartmentBankName:
               ref?.application?.applicationDepartment?.bank_account
                 ?.finance_bank_name ?? "#NA",

@@ -492,6 +492,7 @@ const one_time_zero_fees_query = async (
         });
       }
     }
+    await new_remainFee.save();
   } catch (e) {
     console.log(e);
   }
@@ -524,6 +525,7 @@ const installment_zero_fees_query = async (
       new_remainFee.status = "Paid";
     }
     new_remainFee.student = student?._id;
+    await new_remainFee.save();
   } catch (e) {
     console.log(e);
   }

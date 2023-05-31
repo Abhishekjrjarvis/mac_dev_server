@@ -153,7 +153,7 @@ exports.fee_reordering = async (
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
     }${new Date().getFullYear()}${s_admin.invoice_count}`;
-    var total_amount = add_total_installment(student);
+    var total_amount = await add_total_installment(student);
     if (price > 0 && !is_install) {
       var new_remainFee = new RemainingList({
         appId: apply._id,
@@ -326,7 +326,7 @@ exports.fee_reordering_direct_student = async (
       } else {
         is_install = false;
       }
-      var total_amount = add_total_installment(student_structure);
+      var total_amount = await add_total_installment(student_structure);
       if (price > 0 && !is_install) {
         var new_remainFee = new RemainingList({
           appId: apply._id,
@@ -582,7 +582,8 @@ exports.fee_reordering_direct_student_payload = async (
         } else {
           is_install = false;
         }
-        var total_amount = add_total_installment(student_structure);
+        console.log("Amount Issue");
+        var total_amount = await add_total_installment(student_structure);
         console.log("Total Amount", total_amount);
         if (price >= 0 && !is_install) {
           var new_remainFee = new RemainingList({

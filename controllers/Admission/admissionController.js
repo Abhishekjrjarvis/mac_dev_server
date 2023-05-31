@@ -1552,7 +1552,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
     }${new Date().getFullYear()}${s_admin.invoice_count}`;
-    var total_amount = add_total_installment(student);
+    var total_amount = await add_total_installment(student);
     var is_install;
     if (
       price <= student?.fee_structure?.total_admission_fees &&
@@ -4591,7 +4591,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
       var price = one_receipt?.fee_payment_amount;
       var mode =
         one_receipt?.fee_payment_mode === "By Cash" ? "Offline" : "Online";
-      var total_amount = add_total_installment(student);
+      var total_amount = await add_total_installment(student);
       const notify = new StudentNotification({});
       if (
         price <= student?.fee_structure?.total_admission_fees &&

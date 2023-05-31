@@ -1002,7 +1002,7 @@ exports.render_installment = async (
   }
 };
 
-exports.add_total_installment = (student) => {
+exports.add_total_installment = async (student) => {
   try {
     var total = 0;
     total =

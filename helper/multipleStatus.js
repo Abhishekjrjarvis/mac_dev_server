@@ -452,14 +452,16 @@ const one_time_zero_fees_query = async (
   admission
 ) => {
   try {
-    new_remainFee.remaining_array.push({
-      remainAmount: fee_structure?.total_admission_fees - nestPrice,
-      appId: apply._id,
-      status: "Not Paid",
-      instituteId: institute._id,
-      installmentValue: "One Time Fees Remain",
-      isEnable: true,
-    });
+    if (fee_structure?.total_admission_fees - nestPrice >= 0) {
+      new_remainFee.remaining_array.push({
+        remainAmount: fee_structure?.total_admission_fees - nestPrice,
+        appId: apply._id,
+        status: "Not Paid",
+        instituteId: institute._id,
+        installmentValue: "One Time Fees Remain",
+        isEnable: true,
+      });
+    }
     new_remainFee.fee_structure = fee_structure?._id;
     // if (fee_structure?.total_admission_fees - nestPrice > 0) {
     //   new_remainFee.remaining_fee +=
@@ -555,7 +557,7 @@ exports.fee_reordering_direct_student_payload = async (
       var student = await Student.findById({ _id: students?._id }).populate({
         path: "fee_structure",
       });
-      var price = ref?.amount ? parseInt(ref?.amount) : 0;
+      var price = ref?.amount ? parseInt(ref?.amount) : -1;
       if (price >= 0 && ref?.batchId && ref?.appId && ref?.fee_struct) {
         var apply = await NewApplication.findById({ _id: ref?.appId });
         var admission = await Admission.findById({
@@ -590,8 +592,8 @@ exports.fee_reordering_direct_student_payload = async (
             const s_admin = await Admin.findById({
               _id: `${process.env.S_ADMIN_ID}`,
             }).select("invoice_count");
-            const nestPrice = nest?.amount ? parseInt(nest?.amount) : 0;
-            if (nestPrice <= 0) {
+            const nestPrice = nest?.amount ? parseInt(nest?.amount) : -1;
+            if (nestPrice == 0) {
               // console.log(
               //   "One Time Entering",
               //   nestPrice,
@@ -606,7 +608,7 @@ exports.fee_reordering_direct_student_payload = async (
                 student,
                 admission
               );
-            } else {
+            } else if (nestPrice > 0) {
               var new_receipt = new FeeReceipt({
                 fee_payment_mode: nest?.mode,
                 fee_payment_amount: nestPrice,
@@ -747,8 +749,8 @@ exports.fee_reordering_direct_student_payload = async (
             const s_admin = await Admin.findById({
               _id: `${process.env.S_ADMIN_ID}`,
             }).select("invoice_count");
-            var nestPrice = nest?.amount ? parseInt(nest?.amount) : 0;
-            if (nestPrice <= 0) {
+            var nestPrice = nest?.amount ? parseInt(nest?.amount) : -1;
+            if (nestPrice == 0) {
               // console.log("Installment Entering", nestPrice, total_amount);
               await installment_zero_fees_query(
                 new_remainFee,
@@ -761,7 +763,7 @@ exports.fee_reordering_direct_student_payload = async (
                 price,
                 student_structure
               );
-            } else {
+            } else if (nestPrice > 0) {
               var new_receipt = new FeeReceipt({
                 fee_payment_mode: nest?.mode,
                 fee_payment_amount: nestPrice,

@@ -116,10 +116,9 @@ exports.preformedStructure = async (req, res) => {
           applicationDepartment: ref?.applicationDepartment,
           applicationBatch: identicalBatch?._id,
           applicationMaster: ref?.applicationMaster,
-          // applicationTypeStatus: "Promote Application",
+          applicationTypeStatus: "Promote Application",
         });
         admission.newApplication.push(new_app._id);
-        new_app.applicationTypeStatus = "Promote Application";
         admission.newAppCount += 1;
         new_app.admissionAdmin = admission._id;
         institute.admissionCount += 1;

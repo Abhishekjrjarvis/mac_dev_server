@@ -446,6 +446,7 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
     admission.newAppCount += 1;
     newApply.admissionAdmin = admission._id;
     institute.admissionCount += 1;
+    newApply.applicationTypeStatus = "Normal Application"
     await Promise.all([admission.save(), newApply.save(), institute.save()]);
     res
       .status(200)
@@ -472,7 +473,7 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
         { applicationTypeStatus: "Promote Application" },
         { admissionAdmin: admission?._id },
         { applicationDepartment: newApply?.applicationDepartment },
-        { applicationBatch: newApply?.applicationBatch },
+        { applicationBatch: newApply?.applicationBatch},
       ],
     });
     if (valid_promote?.length > 0) {
@@ -491,8 +492,6 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
       new_app.admissionAdmin = admission._id;
       institute.admissionCount += 1;
       await Promise.all([new_app.save(), admission.save(), institute.save()]);
-      new_app.applicationTypeStatus = "Promote Application";
-      await new_app.save();
     }
     // await new_admission_recommend_post(institute?._id, post?._id, expand);
   } catch (e) {
@@ -3101,8 +3100,9 @@ const request_mode_query_by_student = async (
     } else {
     }
     // await set_fee_head_query(student, price, apply);
-    if (new_receipt?.fee_payment_mode === "Government/Scholarship") {
-    } else {
+    if(new_receipt?.fee_payment_mode === "Government/Scholarship"){
+    }
+    else{
       await update_fee_head_query(student, price, apply, new_receipt);
     }
     await lookup_applicable_grant(

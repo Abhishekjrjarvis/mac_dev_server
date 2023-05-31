@@ -592,26 +592,26 @@ exports.fee_reordering_direct_student_payload = async (
         } else {
           is_install = false;
         }
-        console.log("Amount Issue");
+        // console.log("Amount Issue");
         var total_amount = await add_total_installment(student_structure);
-        console.log("Total Amount", total_amount);
+        // console.log("Total Amount", total_amount);
         if (price >= 0 && !is_install) {
           var new_remainFee = new RemainingList({
             appId: apply._id,
             applicable_fee: fee_structure?.total_admission_fees,
           });
-          console.log("card created");
+          // console.log("card created");
           for (var nest of ref?.remain_array) {
             const s_admin = await Admin.findById({
               _id: `${process.env.S_ADMIN_ID}`,
             }).select("invoice_count");
             const nestPrice = nest?.amount ? parseInt(nest?.amount) : 0;
             if (nestPrice <= 0) {
-              console.log(
-                "One Time Entering",
-                nestPrice,
-                fee_structure?.total_admission_fees
-              );
+              // console.log(
+              //   "One Time Entering",
+              //   nestPrice,
+              //   fee_structure?.total_admission_fees
+              // );
               await one_time_zero_fees_query(
                 new_remainFee,
                 fee_structure,
@@ -755,14 +755,14 @@ exports.fee_reordering_direct_student_payload = async (
             appId: apply._id,
             applicable_fee: total_amount,
           });
-          console.log("card created");
+          // console.log("card created");
           for (var nest of ref?.remain_array) {
             const s_admin = await Admin.findById({
               _id: `${process.env.S_ADMIN_ID}`,
             }).select("invoice_count");
             var nestPrice = nest?.amount ? parseInt(nest?.amount) : 0;
             if (nestPrice <= 0) {
-              console.log("Installment Entering", nestPrice, total_amount);
+              // console.log("Installment Entering", nestPrice, total_amount);
               await installment_zero_fees_query(
                 new_remainFee,
                 total_amount,

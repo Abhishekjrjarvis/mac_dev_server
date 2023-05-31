@@ -867,6 +867,7 @@ exports.fee_reordering_direct_student_payload = async (
           admission.save(),
           // new_receipt.save(),
         ]);
+        console.log(student?.remainingFeeList?.length);
       } else {
       }
     }

@@ -675,14 +675,16 @@ exports.fee_reordering_direct_student_payload = async (
             if (valid_one_time_fees) {
               admission.remainingFee.pull(student._id);
             } else {
-              new_remainFee.remaining_array.push({
-                remainAmount: fee_structure?.total_admission_fees - price,
-                appId: apply._id,
-                status: "Not Paid",
-                instituteId: institute._id,
-                installmentValue: "One Time Fees Remain",
-                isEnable: true,
-              });
+              if (fee_structure?.total_admission_fees - price >= 0) {
+                new_remainFee.remaining_array.push({
+                  remainAmount: fee_structure?.total_admission_fees - price,
+                  appId: apply._id,
+                  status: "Not Paid",
+                  instituteId: institute._id,
+                  installmentValue: "One Time Fees Remain",
+                  isEnable: true,
+                });
+              }
             }
           } else {
             new_remainFee.remaining_fee += 0;

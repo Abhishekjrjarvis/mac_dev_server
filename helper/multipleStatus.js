@@ -578,7 +578,11 @@ exports.fee_reordering_direct_student_payload = async (
             }).select("invoice_count");
             const nestPrice = nest?.amount ? parseInt(nest?.amount) : 0;
             if (nestPrice <= 0) {
-              console.log(nestPrice, fee_structure?.total_admission_fees);
+              console.log(
+                "One Time Entering",
+                nestPrice,
+                fee_structure?.total_admission_fees
+              );
               await one_time_zero_fees_query(
                 new_remainFee,
                 fee_structure,
@@ -729,7 +733,7 @@ exports.fee_reordering_direct_student_payload = async (
             }).select("invoice_count");
             var nestPrice = nest?.amount ? parseInt(nest?.amount) : 0;
             if (nestPrice <= 0) {
-              console.log(nestPrice, total_amount);
+              console.log("Installment Entering", nestPrice, total_amount);
               await installment_zero_fees_query(
                 new_remainFee,
                 total_amount,

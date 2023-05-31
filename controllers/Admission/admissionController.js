@@ -484,10 +484,11 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
         applicationDepartment: newApply?.applicationDepartment,
         applicationBatch: newApply?.applicationBatch,
         applicationMaster: newApply?.applicationMaster,
-        applicationTypeStatus: "Promote Application",
+        // applicationTypeStatus: "Promote Application",
       });
       admission.newApplication.push(new_app._id);
       admission.newAppCount += 1;
+      new_app.applicationTypeStatus = "Promote Application"
       new_app.admissionAdmin = admission._id;
       institute.admissionCount += 1;
       await Promise.all([new_app.save(), admission.save(), institute.save()]);

@@ -525,6 +525,23 @@ const installment_zero_fees_query = async (
       new_remainFee.status = "Paid";
     }
     new_remainFee.student = student?._id;
+    if (total_amount - nestPrice > 0) {
+      student.admissionRemainFeeCount += total_amount - nestPrice;
+      apply.remainingFee += total_amount - nestPrice;
+      admission.remainingFeeCount += total_amount - nestPrice;
+      admission.remainingFee.push(student._id);
+    } else {
+      student.admissionRemainFeeCount += 0;
+      apply.remainingFee += 0;
+      admission.remainingFeeCount += 0;
+      if (nestPrice - total_amount > 0) {
+        admission.refundCount += nestPrice - total_amount;
+        admission.refundFeeList.push({
+          student: student?._id,
+          refund: nestPrice - total_amount,
+        });
+      }
+    }
     await new_remainFee.save();
   } catch (e) {
     console.log(e);
@@ -566,6 +583,7 @@ exports.fee_reordering_direct_student_payload = async (
           is_install = false;
         }
         var total_amount = add_total_installment(student_structure);
+        console.log("Total Amount", total_amount);
         if (price >= 0 && !is_install) {
           var new_remainFee = new RemainingList({
             appId: apply._id,

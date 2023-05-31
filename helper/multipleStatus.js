@@ -523,8 +523,8 @@ const installment_zero_fees_query = async (
       price,
       student_structure
     );
-    // new_remainFee.remaining_fee +=
-    //   total_amount - nestPrice > 0 ? total_amount - nestPrice : 0;
+    new_remainFee.remaining_fee +=
+      total_amount - nestPrice > 0 ? total_amount - nestPrice : 0;
     student.remainingFeeList.push(new_remainFee?._id);
     student.remainingFeeList_count += 1;
     if (new_remainFee.remaining_fee > 0) {

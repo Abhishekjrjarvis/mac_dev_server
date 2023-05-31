@@ -2796,15 +2796,15 @@ exports.renderFinanceAddFeeStructure = async (req, res) => {
       const category = await FeeCategory.findById({
         _id: `${req.body?.category_master}`,
       });
-      const class_master = await ClassMaster.findById({
-        _id: `${req.body?.class_master}`,
-      });
-      const batch_master = await Batch.findById({
-        _id: `${req.body?.batch_master}`,
-      });
+      // const class_master = await ClassMaster.findById({
+      //   _id: `${req.body?.class_master}`,
+      // });
+      // const batch_master = await Batch.findById({
+      //   _id: `${req.body?.batch_master}`,
+      // });
       struct_query.finance = finance?._id;
       struct_query.hostel = hostel?._id;
-      struct_query.unique_structure_name = `${category?.category_name} - ${batch_master?.batchName} - ${class_master?.className} / ${req.body?.structure_name}`;
+      struct_query.unique_structure_name = `${category?.category_name} / ${req.body?.structure_name}`;
       hostel.fees_structures.push(struct_query?._id);
       hostel.fees_structures_count += 1;
       if (heads?.length > 0) {
@@ -2964,15 +2964,15 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
       const category = await FeeCategory.findById({
         _id: `${req.body?.category_master}`,
       });
-      const class_master = await ClassMaster.findById({
-        _id: `${req.body?.class_master}`,
-      });
-      const batch_master = await Batch.findById({
-        _id: `${req.body?.batch_master}`,
-      });
+      // const class_master = await ClassMaster.findById({
+      //   _id: `${req.body?.class_master}`,
+      // });
+      // const batch_master = await Batch.findById({
+      //   _id: `${req.body?.batch_master}`,
+      // });
       struct_query.finance = finance?._id;
       struct_query.hostel = hostel?._id;
-      struct_query.unique_structure_name = `${category?.category_name} - ${batch_master?.batchName} - ${class_master?.className} / ${req.body?.structure_name}`;
+      struct_query.unique_structure_name = `${category?.category_name} / ${req.body?.structure_name}`;
       hostel.fees_structures.push(struct_query?._id);
       hostel.modify_fees_structures_count += 1;
       previous_struct.document_update = true;

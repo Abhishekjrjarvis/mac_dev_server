@@ -134,17 +134,34 @@ exports.send_email_authentication = async (email) => {
   return OTP;
 };
 
-const send_email_authentication_promotional = async (email) => {
+const send_email_authentication_promotional = (email) => {
   let rand1 = Math.floor(Math.random() * 9) + 1;
   let rand2 = Math.floor(Math.random() * 9) + 1;
   let rand3 = Math.floor(Math.random() * 9) + 1;
   let rand4 = Math.floor(Math.random() * 9) + 1;
   const OTP = `${rand1}${rand2}${rand3}${rand4}`;
-  const subject = "OTP Verification";
-  const message = `Hi Pankaj. 
-  "Qviple" is ERP Software of Qviple Officials. 
-  You are requested to login to your account with your email id (On which this email is received) to stay updated about your fees, exams and events of your school or college.
-  Login by downloading app 'Qviple Community' from playstore or through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From "Qviple"`;
+  const subject = "Qviple ERP Login Details";
+
+  const message = `Hello Pankaj Phad,
+Qviple is ERP software of Mithkal Minds.
+You are requested to login to your account with your email ${email} (on which this e-mail is received).
+Stay updated about your fees, exams, events and much more about your school/college.
+
+Now know your classmates, teachers and institute to a profound level. And grow your network.
+
+Login by Downloading app 'Qviple: Your College Online' from playstore
+
+OR
+
+Through link : https://play.google.com/store/apps/details?id=com.mithakalminds.qviple
+
+
+Note: 
+If you are not able to login or are facing difficulty in login reach out to us at: connect@qviple.com
+  
+If you have queries regarding your fees, profile information or other, reach out to your institute's appropriate authority or at: pankaj@qviple.com
+
+`;
   const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${email}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
   const encodeURL = encodeURI(url);
   axios
@@ -157,6 +174,10 @@ const send_email_authentication_promotional = async (email) => {
     });
   return OTP;
 };
+
+console.log(
+  send_email_authentication_promotional("pankajphad.stuff@gmail.com")
+);
 
 exports.student_sms_trigger_query = async (i_args, c_args) => {
   try {
@@ -207,11 +228,25 @@ exports.student_sms_trigger_query = async (i_args, c_args) => {
         } ${ref?.studentLastName}`;
         const sName = `${valid_sname?.slice(0, 30)}`;
         const iName = `${i_args?.insName?.slice(0, 30)}`;
-        const message = `Hi ${sName}. 
-        "Qviple" is ERP Software of ${iName}. 
-        You are requested to login to your account with your email id (On which this email is received) to stay updated about your fees, exams and events of your school or college.
-        Login by downloading app 'Qviple Community' from playstore or through link: https://play.google.com/store/apps/details?id=com.mithakalminds.qviple - From "Qviple"`;
+        const message = `Hello ${sName},
+Qviple is ERP software of ${iName}.
+You are requested to login to your account with your email ${one_user?.userEmail}.
+Stay updated about your fees, exams, events and much more about your school/college.
+        
+Now know your classmates, teachers and institute to a profound level. And grow your network.
+        
+Login by Downloading app 'Qviple: Your College Online' from playstore
+        
+OR
+        
+Through link : https://play.google.com/store/apps/details?id=com.mithakalminds.qviple
+        
+Note: 
+If you are not able to login or are facing difficulty in login reach out to us at: connect@qviple.com
+        
+If you have queries regarding your fees, profile information or other, reach out to your institute's appropriate authority or at: ${i_args?.insEmail}
 
+`;
         const url = `https://transemail.dove-soft.com/v2/email/send?apikey=${process.env.EMAIL_API_KEY}&subject=${subject}&to=${one_user?.userEmail}&bodyText=${message}&encodingType=0&from=connect@qviple.com&from_name=Qviple`;
         const encodeURL = encodeURI(url);
         axios

@@ -324,7 +324,7 @@ exports.admissionInstituteFunction = async (
       await business_data.save();
     }
     if (statusId) {
-      var total_amount = add_total_installment(student);
+      var total_amount = await add_total_installment(student);
       const status = await Status.findById({ _id: statusId });
       const aStatus = new Status({});
       const new_receipt = new FeeReceipt({
@@ -716,7 +716,7 @@ exports.hostelInstituteFunction = async (
       await business_data.save();
     }
     if (statusId) {
-      var total_amount = add_total_installment(student);
+      var total_amount = await add_total_installment(student);
       const status = await Status.findById({ _id: statusId });
       const aStatus = new Status({});
       var renew = new Renewal({});
@@ -1552,7 +1552,9 @@ exports.directAdmissionInstituteFunction = async (
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
     }${new Date().getFullYear()}${s_admin.invoice_count}`;
-    var total_amount = add_total_installment({ fee_structure: structure });
+    var total_amount = await add_total_installment({
+      fee_structure: structure,
+    });
     var is_install;
     if (
       price <= structure?.total_admission_fees &&

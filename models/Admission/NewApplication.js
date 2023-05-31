@@ -131,7 +131,7 @@ const newApplicationSchema = new mongoose.Schema({
   },
   applicationTypeStatus: {
     type: String,
-    default: "Normal Application",
+    // default: "Normal Application",
   },
   direct_linked_structure: {
     type: mongoose.Schema.Types.ObjectId,

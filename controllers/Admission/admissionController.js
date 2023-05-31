@@ -472,6 +472,7 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
         { applicationTypeStatus: "Promote Application" },
         { admissionAdmin: admission?._id },
         { applicationDepartment: newApply?.applicationDepartment },
+        { applicationBatch: newApply?.applicationBatch},
       ],
     });
     if (valid_promote?.length > 0) {

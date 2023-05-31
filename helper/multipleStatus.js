@@ -492,7 +492,12 @@ const one_time_zero_fees_query = async (
         });
       }
     }
-    await new_remainFee.save();
+    await Promise.all([
+      new_remainFee.save(),
+      student.save(),
+      apply.save(),
+      admission.save(),
+    ]);
   } catch (e) {
     console.log(e);
   }
@@ -542,7 +547,12 @@ const installment_zero_fees_query = async (
         });
       }
     }
-    await new_remainFee.save();
+    await Promise.all([
+      new_remainFee.save(),
+      student.save(),
+      apply.save(),
+      admission.save(),
+    ]);
   } catch (e) {
     console.log(e);
   }

@@ -15,6 +15,7 @@ const {
   add_all_installment,
   add_total_installment,
   set_fee_head_query,
+  add_all_installment_zero,
 } = require("./Installment");
 
 exports.insert_multiple_status = async (
@@ -510,19 +511,20 @@ const installment_zero_fees_query = async (
   apply,
   institute,
   student,
-  admission
+  admission,
+  price,
+  student_structure
 ) => {
   try {
-    new_remainFee.remaining_array.push({
-      remainAmount: total_amount - nestPrice,
-      appId: apply._id,
-      status: "Not Paid",
-      instituteId: institute._id,
-      installmentValue: "Installment Remain",
-      isEnable: true,
-    });
-    new_remainFee.remaining_fee +=
-      total_amount - nestPrice > 0 ? total_amount - nestPrice : 0;
+    await add_all_installment_zero(
+      apply,
+      institute._id,
+      new_remainFee,
+      price,
+      student_structure
+    );
+    // new_remainFee.remaining_fee +=
+    //   total_amount - nestPrice > 0 ? total_amount - nestPrice : 0;
     student.remainingFeeList.push(new_remainFee?._id);
     student.remainingFeeList_count += 1;
     if (new_remainFee.remaining_fee > 0) {
@@ -770,7 +772,9 @@ exports.fee_reordering_direct_student_payload = async (
                 apply,
                 institute,
                 student,
-                admission
+                admission,
+                price,
+                student_structure
               );
             } else {
               var new_receipt = new FeeReceipt({
@@ -831,7 +835,7 @@ exports.fee_reordering_direct_student_payload = async (
             new_remainFee.status = "Paid";
           }
           new_remainFee.student = student?._id;
-          if (total_amount - price > 0) {
+          if (total_amount - price > 0 && price > 0) {
             await add_all_installment(
               apply,
               institute._id,

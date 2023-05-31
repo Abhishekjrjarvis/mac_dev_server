@@ -1610,3 +1610,133 @@ exports.lookup_applicable_grant = async (
     console.log(e);
   }
 };
+
+exports.add_all_installment_zero = async (arg1, arg2, arg3, amount, arg4) => {
+  try {
+    if (arg4?.fee_structure.one_installments.fees > 0) {
+      arg3.remaining_array.push({
+        remainAmount: arg4?.fee_structure.one_installments.fees,
+        appId: arg1._id,
+        status: "Not Paid",
+        instituteId: arg2,
+        installmentValue: "First Installment",
+        isEnable: true,
+        dueDate: arg4?.fee_structure.one_installments.dueDate,
+      });
+    }
+    if (arg4?.fee_structure.two_installments.fees > 0) {
+      arg3.remaining_array.push({
+        remainAmount: arg4?.fee_structure.two_installments.fees,
+        appId: arg1._id,
+        status: "Not Paid",
+        instituteId: arg2,
+        installmentValue: "Second Installment",
+        isEnable: true,
+        dueDate: arg4?.fee_structure.two_installments.dueDate,
+      });
+    }
+    if (arg4?.fee_structure.three_installments.fees > 0) {
+      arg3.remaining_array.push({
+        remainAmount: arg4?.fee_structure.three_installments.fees,
+        appId: arg1._id,
+        status: "Not Paid",
+        instituteId: arg2,
+        installmentValue: "Third Installment",
+        dueDate: arg4?.fee_structure.three_installments.dueDate,
+      });
+    }
+    if (arg4?.fee_structure.four_installments.fees > 0) {
+      arg3.remaining_array.push({
+        remainAmount: arg4?.fee_structure.four_installments.fees,
+        appId: arg1._id,
+        status: "Not Paid",
+        instituteId: arg2,
+        installmentValue: "Four Installment",
+        dueDate: arg4?.fee_structure.four_installments.dueDate,
+      });
+    }
+    if (arg4?.fee_structure.five_installments.fees > 0) {
+      arg3.remaining_array.push({
+        remainAmount: arg4?.fee_structure.five_installments.fees,
+        appId: arg1._id,
+        status: "Not Paid",
+        instituteId: arg2,
+        installmentValue: "Five Installment",
+        dueDate: arg4?.fee_structure.five_installments.dueDate,
+      });
+    }
+    if (arg4?.fee_structure.six_installments.fees > 0) {
+      arg3.remaining_array.push({
+        remainAmount: arg4?.fee_structure.six_installments.fees,
+        appId: arg1._id,
+        status: "Not Paid",
+        instituteId: arg2,
+        installmentValue: "Six Installment",
+        dueDate: arg4?.fee_structure.six_installments.dueDate,
+      });
+    }
+    if (arg4?.fee_structure.seven_installments.fees > 0) {
+      arg3.remaining_array.push({
+        remainAmount: arg4?.fee_structure.seven_installments.fees,
+        appId: arg1._id,
+        status: "Not Paid",
+        instituteId: arg2,
+        installmentValue: "Seven Installment",
+        dueDate: arg4?.fee_structure.seven_installments.dueDate,
+      });
+    }
+    if (arg4?.fee_structure.eight_installments.fees > 0) {
+      arg3.remaining_array.push({
+        remainAmount: arg4?.fee_structure.eight_installments.fees,
+        appId: arg1._id,
+        status: "Not Paid",
+        instituteId: arg2,
+        installmentValue: "Eight Installment",
+        dueDate: arg4?.fee_structure.eight_installments.dueDate,
+      });
+    }
+    if (arg4?.fee_structure.nine_installments.fees > 0) {
+      arg3.remaining_array.push({
+        remainAmount: arg4?.fee_structure.nine_installments.fees,
+        appId: arg1._id,
+        status: "Not Paid",
+        instituteId: arg2,
+        installmentValue: "Nine Installment",
+        dueDate: arg4?.fee_structure.nine_installments.dueDate,
+      });
+    }
+    if (arg4?.fee_structure.ten_installments.fees > 0) {
+      arg3.remaining_array.push({
+        remainAmount: arg4?.fee_structure.ten_installments.fees,
+        appId: arg1._id,
+        status: "Not Paid",
+        instituteId: arg2,
+        installmentValue: "Ten Installment",
+        dueDate: arg4?.fee_structure.ten_installments.dueDate,
+      });
+    }
+    if (arg4?.fee_structure.eleven_installments.fees > 0) {
+      arg3.remaining_array.push({
+        remainAmount: arg4?.fee_structure.eleven_installments.fees,
+        appId: arg1._id,
+        status: "Not Paid",
+        instituteId: arg2,
+        installmentValue: "Eleven Installment",
+        dueDate: arg4?.fee_structure.eleven_installments.dueDate,
+      });
+    }
+    if (arg4?.fee_structure.tweleve_installments.fees > 0) {
+      arg3.remaining_array.push({
+        remainAmount: arg4?.fee_structure.tweleve_installments.fees,
+        appId: arg1._id,
+        status: "Not Paid",
+        instituteId: arg2,
+        installmentValue: "Tweleve Installment",
+        dueDate: arg4?.fee_structure.tweleve_installments.dueDate,
+      });
+    }
+    await arg3.save();
+  } catch (e) {
+    console.log(e, "From All Installment");
+  }
+};

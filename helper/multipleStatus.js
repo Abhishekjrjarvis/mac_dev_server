@@ -460,38 +460,38 @@ const one_time_zero_fees_query = async (
       isEnable: true,
     });
     new_remainFee.fee_structure = fee_structure?._id;
-    if (fee_structure?.total_admission_fees - nestPrice > 0) {
-      new_remainFee.remaining_fee +=
-        fee_structure?.total_admission_fees - nestPrice;
-      student.remainingFeeList.push(new_remainFee?._id);
-      student.remainingFeeList_count += 1;
-      new_remainFee.student = student?._id;
-      admission.remainingFee.push(student._id);
-      student.admissionRemainFeeCount +=
-        fee_structure?.total_admission_fees - nestPrice;
-      apply.remainingFee += fee_structure?.total_admission_fees - nestPrice;
-      admission.remainingFeeCount +=
-        fee_structure?.total_admission_fees - nestPrice;
-    } else {
-      new_remainFee.remaining_fee += 0;
-      student.remainingFeeList.push(new_remainFee?._id);
-      new_remainFee.student = student?._id;
-      student.admissionRemainFeeCount += 0;
-      if (new_remainFee.remaining_fee > 0) {
-      } else {
-        new_remainFee.status = "Paid";
-      }
-      apply.remainingFee += 0;
-      admission.remainingFeeCount += 0;
-      if (nestPrice - fee_structure?.total_admission_fees > 0) {
-        admission.refundCount +=
-          nestPrice - fee_structure?.total_admission_fees;
-        admission.refundFeeList.push({
-          student: student?._id,
-          refund: nestPrice - fee_structure?.total_admission_fees,
-        });
-      }
-    }
+    // if (fee_structure?.total_admission_fees - nestPrice > 0) {
+    //   new_remainFee.remaining_fee +=
+    //     fee_structure?.total_admission_fees - nestPrice;
+    //   student.remainingFeeList.push(new_remainFee?._id);
+    //   student.remainingFeeList_count += 1;
+    //   new_remainFee.student = student?._id;
+    //   admission.remainingFee.push(student._id);
+    //   student.admissionRemainFeeCount +=
+    //     fee_structure?.total_admission_fees - nestPrice;
+    //   apply.remainingFee += fee_structure?.total_admission_fees - nestPrice;
+    //   admission.remainingFeeCount +=
+    //     fee_structure?.total_admission_fees - nestPrice;
+    // } else {
+    //   new_remainFee.remaining_fee += 0;
+    //   student.remainingFeeList.push(new_remainFee?._id);
+    //   new_remainFee.student = student?._id;
+    //   student.admissionRemainFeeCount += 0;
+    //   if (new_remainFee.remaining_fee > 0) {
+    //   } else {
+    //     new_remainFee.status = "Paid";
+    //   }
+    //   apply.remainingFee += 0;
+    //   admission.remainingFeeCount += 0;
+    //   if (nestPrice - fee_structure?.total_admission_fees > 0) {
+    //     admission.refundCount +=
+    //       nestPrice - fee_structure?.total_admission_fees;
+    //     admission.refundFeeList.push({
+    //       student: student?._id,
+    //       refund: nestPrice - fee_structure?.total_admission_fees,
+    //     });
+    //   }
+    // }
     await Promise.all([
       new_remainFee.save(),
       student.save(),
@@ -530,23 +530,23 @@ const installment_zero_fees_query = async (
       new_remainFee.status = "Paid";
     }
     new_remainFee.student = student?._id;
-    if (total_amount - nestPrice > 0) {
-      student.admissionRemainFeeCount += total_amount - nestPrice;
-      apply.remainingFee += total_amount - nestPrice;
-      admission.remainingFeeCount += total_amount - nestPrice;
-      admission.remainingFee.push(student._id);
-    } else {
-      student.admissionRemainFeeCount += 0;
-      apply.remainingFee += 0;
-      admission.remainingFeeCount += 0;
-      if (nestPrice - total_amount > 0) {
-        admission.refundCount += nestPrice - total_amount;
-        admission.refundFeeList.push({
-          student: student?._id,
-          refund: nestPrice - total_amount,
-        });
-      }
-    }
+    // if (total_amount - nestPrice > 0) {
+    //   student.admissionRemainFeeCount += total_amount - nestPrice;
+    //   apply.remainingFee += total_amount - nestPrice;
+    //   admission.remainingFeeCount += total_amount - nestPrice;
+    //   admission.remainingFee.push(student._id);
+    // } else {
+    //   student.admissionRemainFeeCount += 0;
+    //   apply.remainingFee += 0;
+    //   admission.remainingFeeCount += 0;
+    //   if (nestPrice - total_amount > 0) {
+    //     admission.refundCount += nestPrice - total_amount;
+    //     admission.refundFeeList.push({
+    //       student: student?._id,
+    //       refund: nestPrice - total_amount,
+    //     });
+    //   }
+    // }
     await Promise.all([
       new_remainFee.save(),
       student.save(),

@@ -523,32 +523,15 @@ const installment_zero_fees_query = async (
       price,
       student_structure
     );
-    new_remainFee.remaining_fee +=
-      total_amount - nestPrice > 0 ? total_amount - nestPrice : 0;
+    // new_remainFee.remaining_fee +=
+    //   total_amount - nestPrice > 0 ? total_amount - nestPrice : 0;
     student.remainingFeeList.push(new_remainFee?._id);
     student.remainingFeeList_count += 1;
-    if (new_remainFee.remaining_fee > 0) {
-    } else {
-      new_remainFee.status = "Paid";
-    }
-    new_remainFee.student = student?._id;
-    // if (total_amount - nestPrice > 0) {
-    //   student.admissionRemainFeeCount += total_amount - nestPrice;
-    //   apply.remainingFee += total_amount - nestPrice;
-    //   admission.remainingFeeCount += total_amount - nestPrice;
-    //   admission.remainingFee.push(student._id);
+    // if (new_remainFee.remaining_fee > 0) {
     // } else {
-    //   student.admissionRemainFeeCount += 0;
-    //   apply.remainingFee += 0;
-    //   admission.remainingFeeCount += 0;
-    //   if (nestPrice - total_amount > 0) {
-    //     admission.refundCount += nestPrice - total_amount;
-    //     admission.refundFeeList.push({
-    //       student: student?._id,
-    //       refund: nestPrice - total_amount,
-    //     });
-    //   }
+    //   new_remainFee.status = "Paid";
     // }
+    new_remainFee.student = student?._id;
     await Promise.all([
       new_remainFee.save(),
       student.save(),
@@ -881,7 +864,7 @@ exports.fee_reordering_direct_student_payload = async (
           admission.save(),
           // new_receipt.save(),
         ]);
-        console.log(student?.remainingFeeList?.length);
+        // console.log(student?.remainingFeeList?.length);
       } else {
       }
     }

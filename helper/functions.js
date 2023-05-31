@@ -175,9 +175,9 @@ If you have queries regarding your fees, profile information or other, reach out
   return OTP;
 };
 
-console.log(
-  send_email_authentication_promotional("pankajphad.stuff@gmail.com")
-);
+// console.log(
+//   send_email_authentication_promotional("pankajphad.stuff@gmail.com")
+// );
 
 exports.student_sms_trigger_query = async (i_args, c_args) => {
   try {

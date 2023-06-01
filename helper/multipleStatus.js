@@ -580,6 +580,7 @@ exports.fee_reordering_direct_student_payload = async (
           is_install = false;
         }
         // console.log("Amount Issue");
+        console.log(price);
         var total_amount = await add_total_installment(student_structure);
         // console.log("Total Amount", total_amount);
         if (price >= 0 && !is_install) {
@@ -593,6 +594,7 @@ exports.fee_reordering_direct_student_payload = async (
               _id: `${process.env.S_ADMIN_ID}`,
             }).select("invoice_count");
             const nestPrice = nest?.amount ? parseInt(nest?.amount) : -1;
+            console.log(nestPrice);
             if (nestPrice == 0) {
               // console.log(
               //   "One Time Entering",
@@ -750,6 +752,7 @@ exports.fee_reordering_direct_student_payload = async (
               _id: `${process.env.S_ADMIN_ID}`,
             }).select("invoice_count");
             var nestPrice = nest?.amount ? parseInt(nest?.amount) : -1;
+            console.log(nestPrice);
             if (nestPrice == 0) {
               // console.log("Installment Entering", nestPrice, total_amount);
               await installment_zero_fees_query(

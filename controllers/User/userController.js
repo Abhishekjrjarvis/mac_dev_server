@@ -1510,7 +1510,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "admissionModeratorDepartment",
-          select: "admission access_role",
+          select: "admission access_role active_tab",
         })
         .populate({
           path: "financeModeratorDepartment",
@@ -1522,7 +1522,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "hostelModeratorDepartment",
-          select: "hostel access_role",
+          select: "hostel access_role active_tab",
         })
         .lean()
         .exec();
@@ -1678,7 +1678,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "admissionModeratorDepartment",
-          select: "admission access_role",
+          select: "admission access_role active_tab",
         })
         .populate({
           path: "financeModeratorDepartment",
@@ -1690,7 +1690,7 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
         })
         .populate({
           path: "hostelModeratorDepartment",
-          select: "hostel access_role",
+          select: "hostel access_role active_tab",
         })
         .lean()
         .exec();

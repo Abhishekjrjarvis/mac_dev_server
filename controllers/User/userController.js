@@ -1520,6 +1520,10 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
           path: "instituteModeratorDepartment",
           select: "institute access_role",
         })
+        .populate({
+          path: "hostelModeratorDepartment",
+          select: "hostel access_role",
+        })
         .lean()
         .exec();
       if (staff?.staffDocuments?.length > 0) {
@@ -1684,6 +1688,10 @@ exports.retrieveStaffDesignationArray = async (req, res) => {
           path: "instituteModeratorDepartment",
           select: "institute access_role",
         })
+        .populate({
+          path: "hostelModeratorDepartment",
+          select: "hostel access_role",
+        })
         .lean()
         .exec();
     }
@@ -1748,8 +1756,9 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
             select: "mentor_head",
             populate: {
               path: "mentor_head",
-              select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
-            }
+              select:
+                "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+            },
           })
           .populate({
             path: "student_unit",
@@ -1851,8 +1860,9 @@ exports.retrieveStudentDesignationArray = async (req, res) => {
             select: "mentor_head",
             populate: {
               path: "mentor_head",
-              select: "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO"
-            }
+              select:
+                "staffFirstName staffMiddleName staffLastName photoId staffProfilePhoto staffROLLNO",
+            },
           })
           .populate({
             path: "student_bed_number",

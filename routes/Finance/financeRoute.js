@@ -484,6 +484,11 @@ router.post(
   catchAsync(Finance.submitHostelFeeQuery)
 );
 
+router.patch(
+  "/:fsid/existing/retro/update/structure",
+  catchAsync(Finance.renderExistRetroStructureQuery)
+);
+
 router.delete("/:did/delete/structure", catchAsync(Finance.delete_structure));
 
 // router.patch("/:did/edit/structure", catchAsync(Finance.edit_structure));

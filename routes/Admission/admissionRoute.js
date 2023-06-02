@@ -458,6 +458,18 @@ router.post(
   catchAsync(Admission.retrieveAdmissionDirectOnlineApplicationQuery)
 );
 
+// router.post(
+//   "/:uid/user/:aid/apply/direct/online",
+//   // isLoggedIn,
+//   catchAsync(Admission.retrieveAdmissionDirectOnlineApplicationQuery)
+// );
+
+router.patch(
+  "/:rcid/set/off/:sid/query",
+  // isLoggedIn,
+  catchAsync(Admission.renderRemainingSetOffQuery)
+);
+
 // router.patch(
 //   "/:new_fee_struct/edit/struct",
 //   catchAsync(Admission.renderRetroOneStudentStructureQuery)

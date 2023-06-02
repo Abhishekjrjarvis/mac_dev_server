@@ -77,6 +77,13 @@ const remainingFeeListSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  access_mode_card: {
+    type: String,
+  },
+  set_off: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("RemainingList", remainingFeeListSchema);

@@ -88,7 +88,7 @@ const studentNotificationSchema = new mongoose.Schema({
   },
   participateEventId: { type: String },
   participate_event_type: { type: String },
-  event_payment_status: { type: String },
+  event_payment_status: { type: String, default: "Not Paid" },
   mentorId: { type: String },
   feedback_status: { type: String, default: "Not Given" },
   participate_winner: {

@@ -367,6 +367,7 @@ exports.admissionInstituteFunction = async (
           appId: apply._id,
           applicable_fee: total_amount,
         });
+        new_remainFee.access_mode_card = "Installment_Wise";
         new_remainFee.remaining_array.push({
           remainAmount: parseInt(tx_amount_ad),
           appId: apply._id,
@@ -395,6 +396,7 @@ exports.admissionInstituteFunction = async (
           appId: apply._id,
           applicable_fee: student?.fee_structure?.total_admission_fees,
         });
+        new_remainFee.access_mode_card = "One_Time_Wise";
         new_remainFee.remaining_array.push({
           remainAmount: parseInt(tx_amount_ad),
           appId: apply._id,
@@ -761,6 +763,7 @@ exports.hostelInstituteFunction = async (
           appId: apply._id,
           applicable_fee: total_amount,
         });
+        new_remainFee.access_mode_card = "Installment_Wise";
         new_remainFee.remaining_array.push({
           remainAmount: parseInt(tx_amount_ad),
           appId: apply._id,
@@ -789,6 +792,7 @@ exports.hostelInstituteFunction = async (
           appId: apply._id,
           applicable_fee: student?.hostel_fee_structure?.total_admission_fees,
         });
+        new_remainFee.access_mode_card = "One_Time_Wise";
         new_remainFee.remaining_array.push({
           remainAmount: parseInt(tx_amount_ad),
           appId: apply._id,
@@ -1573,6 +1577,7 @@ exports.directAdmissionInstituteFunction = async (
         appId: apply._id,
         applicable_fee: total_amount,
       });
+      new_remainFee.access_mode_card = "Installment_Wise";
       new_remainFee.remaining_array.push({
         remainAmount: price,
         appId: apply._id,
@@ -1602,6 +1607,7 @@ exports.directAdmissionInstituteFunction = async (
         appId: apply._id,
         applicable_fee: structure?.total_admission_fees,
       });
+      new_remainFee.access_mode_card = "One_Time_Wise";
       new_remainFee.remaining_array.push({
         remainAmount: price,
         appId: apply._id,

@@ -23,7 +23,7 @@ exports.departmentDetail = async (req, res) => {
         select:
           "staffProfilePhoto photoId staffFirstName staffMiddleName staffLastName",
       })
-      .select("dName dTitle dHead")
+      .select("dName dTitle dHead gr_initials")
       .lean()
       .exec();
     // const dEncrypt = await encryptionPayload(department);

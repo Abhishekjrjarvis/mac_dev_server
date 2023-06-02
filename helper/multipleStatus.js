@@ -16,6 +16,7 @@ const {
   add_total_installment,
   set_fee_head_query,
   add_all_installment_zero,
+  lookup_applicable_grant,
 } = require("./Installment");
 
 exports.insert_multiple_status = async (
@@ -160,6 +161,7 @@ exports.fee_reordering = async (
         appId: apply._id,
         applicable_fee: student?.fee_structure?.total_admission_fees,
       });
+      new_remainFee.access_mode_card = "One_Time_Wise";
       new_remainFee.remaining_array.push({
         remainAmount: price,
         appId: apply._id,
@@ -210,6 +212,7 @@ exports.fee_reordering = async (
         appId: apply._id,
         applicable_fee: total_amount,
       });
+      new_remainFee.access_mode_card = "Installment_Wise";
       new_remainFee.remaining_array.push({
         remainAmount: price,
         appId: apply._id,
@@ -333,6 +336,7 @@ exports.fee_reordering_direct_student = async (
           appId: apply._id,
           applicable_fee: fee_structure?.total_admission_fees,
         });
+        new_remainFee.access_mode_card = "One_Time_Wise";
         new_remainFee.paid_fee += price;
         new_remainFee.fee_structure = fee_structure?._id;
         new_remainFee.remaining_fee +=
@@ -380,6 +384,7 @@ exports.fee_reordering_direct_student = async (
           appId: apply._id,
           applicable_fee: total_amount,
         });
+        new_remainFee.access_mode_card = "Installment_Wise";
         new_remainFee.paid_fee += price;
         new_remainFee.fee_structure = fee_structure?._id;
         new_remainFee.remaining_fee += total_amount - price;
@@ -580,7 +585,7 @@ exports.fee_reordering_direct_student_payload = async (
           is_install = false;
         }
         // console.log("Amount Issue");
-        console.log(price);
+        // console.log(price);
         var total_amount = await add_total_installment(student_structure);
         // console.log("Total Amount", total_amount);
         if (price >= 0 && !is_install) {
@@ -588,13 +593,14 @@ exports.fee_reordering_direct_student_payload = async (
             appId: apply._id,
             applicable_fee: fee_structure?.total_admission_fees,
           });
+          new_remainFee.access_mode_card = "One_Time_Wise";
           // console.log("card created");
           for (var nest of ref?.remain_array) {
             const s_admin = await Admin.findById({
               _id: `${process.env.S_ADMIN_ID}`,
             }).select("invoice_count");
             const nestPrice = nest?.amount ? parseInt(nest?.amount) : -1;
-            console.log(nestPrice);
+            // console.log(nestPrice);
             if (nestPrice == 0) {
               // console.log(
               //   "One Time Entering",
@@ -610,6 +616,13 @@ exports.fee_reordering_direct_student_payload = async (
                 student,
                 admission
               );
+              if (nest?.mode) {
+                await lookup_applicable_grant(
+                  nest?.mode,
+                  nestPrice,
+                  new_remainFee
+                );
+              }
             } else if (nestPrice > 0) {
               var new_receipt = new FeeReceipt({
                 fee_payment_mode: nest?.mode,
@@ -619,6 +632,14 @@ exports.fee_reordering_direct_student_payload = async (
               new_receipt.application = apply?._id;
               new_receipt.finance = finance?._id;
               new_receipt.fee_transaction_date = new Date();
+              if (nest?.mode) {
+                await lookup_applicable_grant(
+                  nest?.mode,
+                  nestPrice,
+                  new_remainFee,
+                  new_receipt
+                );
+              }
               // s_admin.invoice_count += 1;
               // new_receipt.invoice_count = `${
               //   new Date().getMonth() + 1
@@ -746,13 +767,14 @@ exports.fee_reordering_direct_student_payload = async (
             appId: apply._id,
             applicable_fee: total_amount,
           });
+          new_remainFee.access_mode_card = "Installment_Wise";
           // console.log("card created");
           for (var nest of ref?.remain_array) {
             const s_admin = await Admin.findById({
               _id: `${process.env.S_ADMIN_ID}`,
             }).select("invoice_count");
             var nestPrice = nest?.amount ? parseInt(nest?.amount) : -1;
-            console.log(nestPrice);
+            // console.log(nestPrice);
             if (nestPrice == 0) {
               // console.log("Installment Entering", nestPrice, total_amount);
               await installment_zero_fees_query(
@@ -766,6 +788,13 @@ exports.fee_reordering_direct_student_payload = async (
                 price,
                 student_structure
               );
+              if (nest?.mode) {
+                await lookup_applicable_grant(
+                  nest?.mode,
+                  nestPrice,
+                  new_remainFee
+                );
+              }
             } else if (nestPrice > 0) {
               var new_receipt = new FeeReceipt({
                 fee_payment_mode: nest?.mode,
@@ -790,6 +819,14 @@ exports.fee_reordering_direct_student_payload = async (
                 isEnable: true,
                 fee_receipt: new_receipt?._id,
               });
+              if (nest?.mode) {
+                await lookup_applicable_grant(
+                  nest?.mode,
+                  nestPrice,
+                  new_remainFee,
+                  new_receipt
+                );
+              }
               const order = new OrderPayment({});
               order.payment_module_type = "Admission Fees";
               order.payment_to_end_user_id = institute?._id;

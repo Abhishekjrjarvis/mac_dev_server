@@ -1600,12 +1600,19 @@ exports.lookup_applicable_grant = async (
   try {
     if (m_args === "Government/Scholarship") {
       remain_args.paid_by_government += p_args;
-      receipt_args.paid_by_government += p_args;
+      if (receipt_args) {
+        receipt_args.paid_by_government += p_args;
+      }
     } else {
       remain_args.paid_by_student += p_args;
-      receipt_args.paid_by_student += p_args;
+      if (receipt_args) {
+        receipt_args.paid_by_student += p_args;
+      }
     }
-    await Promise.all([remain_args.save(), receipt_args.save()]);
+    await remain_args.save();
+    if (receipt_args) {
+      await receipt_args.save();
+    }
   } catch (e) {
     console.log(e);
   }
@@ -1738,5 +1745,98 @@ exports.add_all_installment_zero = async (arg1, arg2, arg3, amount, arg4) => {
     await arg3.save();
   } catch (e) {
     console.log(e, "From All Installment");
+  }
+};
+
+exports.retro_student_heads_sequencing_query = async (
+  student_args,
+  r_args,
+  direct_args
+) => {
+  try {
+    var price_query = r_args?.paid_fee;
+    if (direct_args) {
+      var parent_head = {
+        ...direct_args?.fees_heads,
+        count: direct_args?.fees_heads?.length,
+      };
+    }
+    for (var i = 0; i < parent_head?.count; i++) {
+      var one_master = await FeeMaster.findOne({
+        $and: [
+          { _id: parent_head[`${i}`]?.master },
+          { finance: student_args?.fee_structure?.finance },
+        ],
+      });
+      if (one_master) {
+        if (one_master?.paid_student?.includes(`${student_args?._id}`)) {
+        } else {
+          one_master.paid_student.push(student_args?._id);
+          one_master.paid_student_count += 1;
+        }
+        if (`${one_master?.master_status}` === "Linked") {
+          // console.log("Master Linked", one_master?._id);
+          student_args.deposit_pending_amount +=
+            price_query >= parent_head[`${i}`]?.head_amount
+              ? parent_head[`${i}`].head_amount
+              : price_query;
+          one_master.deposit_amount +=
+            price_query >= parent_head[`${i}`]?.head_amount
+              ? parent_head[`${i}`].head_amount
+              : price_query;
+        }
+        await one_master.save();
+      }
+      student_args.active_fee_heads.push({
+        appId: r_args?.appId,
+        head_name: parent_head[`${i}`]?.head_name,
+        applicable_fee: parent_head[`${i}`]?.head_amount,
+        remain_fee:
+          price_query >= parent_head[`${i}`]?.head_amount
+            ? 0
+            : parent_head[`${i}`].head_amount - price_query,
+        paid_fee:
+          price_query >= parent_head[`${i}`]?.head_amount
+            ? parent_head[`${i}`].head_amount
+            : price_query,
+        fee_structure: direct_args?._id,
+        master: one_master?._id,
+        original_paid:
+          price_query >= parent_head[`${i}`]?.head_amount
+            ? parent_head[`${i}`].head_amount
+            : price_query,
+      });
+      price_query =
+        price_query >= parent_head[`${i}`].head_amount
+          ? price_query - parent_head[`${i}`].head_amount
+          : 0;
+    }
+    await student_args.save();
+    price_query = 0;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retro_receipt_heads_sequencing_query = async (
+  student_args,
+  receipt_args
+) => {
+  try {
+    for (var ref of student_args?.active_fee_heads) {
+      receipt_args.fee_heads.push({
+        head_id: ref?._id,
+        head_name: ref?.head_name,
+        paid_fee: ref?.paid_fee,
+        remain_fee: ref?.remain_fee,
+        applicable_fee: ref?.applicable_fee,
+        fee_structure: ref?.fee_structure,
+        master: ref?.master,
+        original_paid: ref?.original_paid,
+      });
+    }
+    await receipt_args.save();
+  } catch (e) {
+    console.log(e);
   }
 };

@@ -1531,7 +1531,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
       var all_receipts = await FeeReceipt.find({
         $and: [
           { student: { $in: sorted_array } },
-          { fee_flow: "FEE_HEADS" },
+          // { fee_flow: "FEE_HEADS" },
           {
             created_at: {
               $gte: g_date,
@@ -1624,19 +1624,23 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
             },
           });
         var head_array = [];
+        if(ref?.fee_heads?.length > 0){
         for (var val of ref?.fee_heads) {
           head_array.push({
             HeadsName: val?.head_name,
             PaidHeadFees: val?.original_paid,
           });
         }
+      }
         if (remain_list?.paid_fee - remain_list?.applicable_fee > 0) {
           head_array.push({
             HeadsName: "Excess Fees",
             PaidHeadFees: remain_list?.paid_fee - remain_list?.applicable_fee,
           });
         }
-        var result = await buildStructureObject(head_array);
+        if(ref?.fee_heads?.length > 0){
+          var result = await buildStructureObject(head_array);
+        }
         if (result) {
           head_list.push({
             ReceiptNumber: ref?.invoice_count ?? "0",

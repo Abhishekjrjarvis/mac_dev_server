@@ -131,12 +131,16 @@ exports.addAdmissionAppModerator = async (req, res) => {
     ads_admin.moderator_role_count += 1;
     staff.admissionModeratorDepartment.push(new_mod?._id);
     staff.staffDesignationCount += 1;
-    staff.recentDesignation = `Admission Admin Moderator - ${mod_role}`;
+    staff.recentDesignation = `Admission Admin Moderator - ${mod_role}${
+      active_tab ? ` - ${active_tab}` : ""
+    }`;
     staff.designation_array.push({
       role: "Admission Admin Moderator",
       role_id: new_mod?._id,
     });
-    notify.notifyContent = `you got the designation of Admission Admin Moderator for ${mod_role} 🎉🎉`;
+    notify.notifyContent = `you got the designation of Admission Admin Moderator for ${mod_role}${
+      active_tab ? ` - ${active_tab}` : ""
+    } 🎉🎉`;
     notify.notifySender = institute?._id;
     notify.notifyReceiever = user._id;
     notify.notifyCategory = "Admission Moderator Designation";
@@ -350,7 +354,9 @@ exports.updateAdmissionAppModeratorQuery = async (req, res) => {
       await one_staff.save();
       var new_staff = await Staff.findById({ _id: sid });
       new_staff.admissionModeratorDepartment.push(one_moderator?._id);
-      new_staff.recentDesignation = `Admission Admin Moderator - ${one_moderator?.access_role}`;
+      new_staff.recentDesignation = `Admission Admin Moderator - ${
+        one_moderator?.access_role
+      }${active_tab ? ` - ${active_tab}` : ""}`;
       new_staff.staffDesignationCount += 1;
       one_moderator.access_staff = new_staff?._id;
       const notify = new Notification({});
@@ -919,6 +925,7 @@ exports.destroyInstituteModeratorQuery = async (req, res) => {
 exports.addHostelAppModerator = async (req, res) => {
   try {
     const { hid } = req.params;
+    const { active_tab } = req.query;
     const { mod_role, sid, app_array } = req.body;
     if (!hid && !mod_role && !sid && !app_array)
       return res.status(200).send({
@@ -936,6 +943,7 @@ exports.addHostelAppModerator = async (req, res) => {
     const new_mod = new AdmissionModerator({});
     new_mod.access_role = mod_role;
     new_mod.access_staff = staff?._id;
+    new_mod.active_tab.role = active_tab;
     if (mod_role === all_role[`${mod_role}`]?.role) {
       new_mod.permission.bound = [
         ...all_role[`${mod_role}`]?.permission?.bound,
@@ -949,12 +957,16 @@ exports.addHostelAppModerator = async (req, res) => {
     one_hostel.moderator_role_count += 1;
     staff.hostelModeratorDepartment.push(new_mod?._id);
     staff.staffDesignationCount += 1;
-    staff.recentDesignation = `Hostel Manager Moderator - ${mod_role}`;
+    staff.recentDesignation = `Hostel Manager Moderator - ${mod_role}${
+      active_tab ? ` - ${active_tab}` : ""
+    }`;
     staff.designation_array.push({
       role: "Hostel Manager Moderator",
       role_id: new_mod?._id,
     });
-    notify.notifyContent = `you got the designation of Hostel Manager Moderator for ${mod_role} 🎉🎉`;
+    notify.notifyContent = `you got the designation of Hostel Manager Moderator for ${mod_role}${
+      active_tab ? ` - ${active_tab}` : ""
+    } 🎉🎉`;
     notify.notifySender = institute?._id;
     notify.notifyReceiever = user._id;
     notify.notifyCategory = "Hostel Moderator Designation";
@@ -1065,6 +1077,7 @@ exports.renderHostelAllAppModeratorArray = async (req, res) => {
 exports.updateHostelAppModeratorQuery = async (req, res) => {
   try {
     const { mid } = req.params;
+    const { active_tab } = req.query;
     const { role, staffId, app_array } = req.body;
     if (!mid)
       return res.status(200).send({
@@ -1085,6 +1098,7 @@ exports.updateHostelAppModeratorQuery = async (req, res) => {
     });
     if (role) {
       one_moderator.access_role = role;
+      one_moderator.active_tab.role = active_tab;
       one_moderator.permission.bound = [];
       if (role === all_role[`${role}`]?.role) {
         one_moderator.permission.bound = [
@@ -1113,7 +1127,9 @@ exports.updateHostelAppModeratorQuery = async (req, res) => {
       await one_staff.save();
       var new_staff = await Staff.findById({ _id: sid });
       new_staff.hostelModeratorDepartment.push(one_moderator?._id);
-      new_staff.recentDesignation = `Hostel Manager Moderator - ${one_moderator?.access_role}`;
+      new_staff.recentDesignation = `Hostel Manager Moderator - ${
+        one_moderator?.access_role
+      }${active_tab ? ` - ${active_tab}` : ""}`;
       new_staff.staffDesignationCount += 1;
       one_moderator.access_staff = new_staff?._id;
       const notify = new Notification({});

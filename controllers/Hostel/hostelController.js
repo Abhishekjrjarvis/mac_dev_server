@@ -1388,6 +1388,7 @@ exports.renderPayOfflineHostelFee = async (req, res) => {
         applicable_fee: total_amount,
         remaining_flow: "Hostel Application",
       });
+      new_remainFee.access_mode_card = "Installment_Wise";
       new_remainFee.remaining_array.push({
         remainAmount: price,
         appId: apply._id,
@@ -1418,6 +1419,7 @@ exports.renderPayOfflineHostelFee = async (req, res) => {
         applicable_fee: student?.hostel_fee_structure?.total_admission_fees,
         remaining_flow: "Hostel Application",
       });
+      new_remainFee.access_mode_card = "One_Time_Wise";
       new_remainFee.remaining_array.push({
         remainAmount: price,
         appId: apply._id,
@@ -2549,6 +2551,7 @@ const hostel_receipt_approve_query = async (
         applicable_fee: total_amount,
         remaining_flow: "Hostel Application",
       });
+      new_remainFee.access_mode_card = "Installment_Wise";
       new_remainFee.remaining_array.push({
         remainAmount: price,
         appId: one_app._id,
@@ -2579,6 +2582,7 @@ const hostel_receipt_approve_query = async (
         applicable_fee: student?.hostel_fee_structure?.total_admission_fees,
         remaining_flow: "Hostel Application",
       });
+      new_remainFee.access_mode_card = "One_Time_Wise";
       new_remainFee.remaining_array.push({
         remainAmount: price,
         appId: one_app._id,
@@ -3073,6 +3077,7 @@ const hostel_receipt_approve_query_renewal = async (
         applicable_fee: total_amount,
         remaining_flow: "Hostel Application",
       });
+      new_remainFee.access_mode_card = "Installment_Wise";
       new_remainFee.remaining_array.push({
         remainAmount: price,
         appId: one_app._id,
@@ -3103,6 +3108,7 @@ const hostel_receipt_approve_query_renewal = async (
         applicable_fee: student?.hostel_fee_structure?.total_admission_fees,
         remaining_flow: "Hostel Application",
       });
+      new_remainFee.access_mode_card = "One_Time_Wise";
       new_remainFee.remaining_array.push({
         remainAmount: price,
         appId: one_app._id,
@@ -4402,6 +4408,7 @@ exports.renderPayOfflineHostelFeeRenewal = async (req, res) => {
         applicable_fee: total_amount,
         remaining_flow: "Hostel Application",
       });
+      new_remainFee.access_mode_card = "Installment_Wise";
       new_remainFee.remaining_array.push({
         remainAmount: price,
         appId: apply._id,
@@ -4432,6 +4439,7 @@ exports.renderPayOfflineHostelFeeRenewal = async (req, res) => {
         applicable_fee: student?.hostel_fee_structure?.total_admission_fees,
         remaining_flow: "Hostel Application",
       });
+      new_remainFee.access_mode_card = "One_Time_Wise";
       new_remainFee.remaining_array.push({
         remainAmount: price,
         appId: apply._id,

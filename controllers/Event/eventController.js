@@ -647,14 +647,18 @@ exports.renderOneEventManagerAllParticipate = async (req, res) => {
       var all_participate = await Participate.find({
         $and: [{ _id: { $in: manager?.participate } }],
         $or: [{ event_position: { $regex: search, $options: "i" } }],
-      }).select("event_name event_date event_about event_app_last_date");
+      }).select(
+        "event_name event_date event_about event_app_last_date event_fee"
+      );
     } else {
       var all_participate = await Participate.find({
         _id: { $in: manager?.participate },
       })
         .limit(limit)
         .skip(skip)
-        .select("event_name event_date event_about event_app_last_date");
+        .select(
+          "event_name event_date event_about event_app_last_date event_fee"
+        );
     }
     if (all_participate?.length > 0) {
       res.status(200).send({

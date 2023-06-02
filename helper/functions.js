@@ -11,7 +11,8 @@ const random_password = () => {
   const upperCase = ["A", "B", "C", "D", "E", "F", "G", "H", "Z"];
   const lowerCase = ["i", "j", "k", "l", "m", "n", "o", "p", "W"];
   const digits = ["0", "1", "2", "3", "4", "5", "6", "7", "8"];
-  const exp = [".", "_", "@", "#", "$", "!", "%", "&", "*"];
+  const exp = ["_", "#", "@", "$"];
+  // const exp = [".", "_", "@", "#", "$", "!", "%", "&", "*"];
   const u_1 = Math.floor(Math.random() * 9);
   const u_2 = Math.floor(Math.random() * 9);
   const u_3 = Math.floor(Math.random() * 9);
@@ -20,13 +21,18 @@ const random_password = () => {
   const u_6 = Math.floor(Math.random() * 9);
   const u_7 = Math.floor(Math.random() * 9);
   const u_8 = Math.floor(Math.random() * 9);
-  const u_9 = Math.floor(Math.random() * 9);
-  const userExp = `${lowerCase[u_1]}${upperCase[u_2]}${digits[u_3]}${upperCase[u_4]}${exp[u_6]}${digits[u_5]}${lowerCase[u_8]}${exp[u_7]}${exp[u_9]}`;
+  const u_9 = Math.floor(Math.random() * 4);
+  const userExp = `${lowerCase[u_1]}${upperCase[u_2]}${digits[u_3]}${upperCase[u_4]}${exp[u_9]}${digits[u_5]}${lowerCase[u_8]}${exp[u_9]}${exp[u_9]}`;
   return userExp;
 };
 
 exports.filter_unique_username = async (name, dob) => {
-  const new_query = `${dob?.substring(5, 7)}${dob?.substring(8, 10)}`.split("");
+  const u_1 = Math.floor(Math.random() * 9);
+  const u_2 = Math.floor(Math.random() * 9);
+  const u_3 = Math.floor(Math.random() * 9);
+  const u_4 = Math.floor(Math.random() * 9);
+  // const new_query = `${dob?.substring(5, 7)}${dob?.substring(8, 10)}`.split("");
+  const new_query = `${u_1}${u_2}${u_3}${u_4}`;
   const shuffle_date = shuffleArray(new_query);
   const combined_name = `${name?.trim()}_${shuffle_date.join("")}`;
   const username = combined_name;

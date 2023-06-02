@@ -615,6 +615,7 @@ exports.promoteStudent = async (req, res) => {
             appId: apply?._id,
             applicable_fee: structure[0]?.total_admission_fees,
           });
+          new_remainFee.access_mode_card = "One_Time_Wise";
           new_remainFee.remaining_array.push({
             remainAmount: structure[0]?.total_admission_fees,
             appId: apply?._id,

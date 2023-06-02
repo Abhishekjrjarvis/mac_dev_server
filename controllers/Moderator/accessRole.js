@@ -292,6 +292,54 @@ exports.all_access_role_hostel = () => {
         appArray: [],
       },
     },
+    DEPOSIT_ACCESS: {
+      role: "DEPOSIT_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["MARK DEPOSIT", "MAKE REFUND"],
+        addons: [],
+        accessStaff: "",
+        accessApplication: "",
+        appArray: [],
+      },
+    },
+    ONE_TAB_ACCESS: {
+      role: "ONE_TAB_ACCESS",
+      permission: {
+        allow: true,
+        bound: [
+          "APPLICATION TAB",
+          "SELECTED TAB",
+          "CONFIRMED TAB",
+          "ALLOTTED TAB",
+          "CANCELLED TAB",
+        ],
+        addons: [],
+        accessStaff: "",
+        accessApplication: "",
+        appArray: [],
+      },
+    },
+    FEE_MASTER_ACCESS: {
+      role: "FEE_MASTER_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["FEE CATEGORY", "FEE MASTER", "FEE STRUCTURE"],
+        addons: [],
+        accessStaff: "",
+      },
+    },
+    COMPLAINT_ACCESS: {
+      role: "COMPLAINT_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["SOLVED COMPLAINT", "UNSOLVED COMPLAINT"],
+        addons: [],
+        accessStaff: "",
+        accessApplication: "",
+        appArray: [],
+      },
+    },
   };
   return access_role_hostel;
 };

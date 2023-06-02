@@ -80,6 +80,7 @@ const { nested_document_limit } = require("../../helper/databaseFunction");
 const RemainingList = require("../../models/Admission/RemainingList");
 const { dueDateAlarm } = require("../../Service/alarm");
 const { handle_undefined } = require("../../Handler/customError");
+const { set_off_amount } = require("../../Functions/SetOff");
 
 exports.retrieveAdmissionAdminHead = async (req, res) => {
   try {
@@ -446,7 +447,7 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
     admission.newAppCount += 1;
     newApply.admissionAdmin = admission._id;
     institute.admissionCount += 1;
-    newApply.applicationTypeStatus = "Normal Application"
+    newApply.applicationTypeStatus = "Normal Application";
     await Promise.all([admission.save(), newApply.save(), institute.save()]);
     res
       .status(200)
@@ -473,7 +474,7 @@ exports.retrieveAdmissionNewApplication = async (req, res) => {
         { applicationTypeStatus: "Promote Application" },
         { admissionAdmin: admission?._id },
         { applicationDepartment: newApply?.applicationDepartment },
-        { applicationBatch: newApply?.applicationBatch},
+        { applicationBatch: newApply?.applicationBatch },
       ],
     });
     if (valid_promote?.length > 0) {
@@ -1573,6 +1574,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
         appId: apply._id,
         applicable_fee: total_amount,
       });
+      new_remainFee.access_mode_card = "Installment_Wise";
       new_remainFee.remaining_array.push({
         remainAmount: price,
         appId: apply._id,
@@ -1602,6 +1604,7 @@ exports.payOfflineAdmissionFee = async (req, res) => {
         appId: apply._id,
         applicable_fee: student?.fee_structure?.total_admission_fees,
       });
+      new_remainFee.access_mode_card = "One_Time_Wise";
       new_remainFee.remaining_array.push({
         remainAmount: price,
         appId: apply._id,
@@ -3100,9 +3103,8 @@ const request_mode_query_by_student = async (
     } else {
     }
     // await set_fee_head_query(student, price, apply);
-    if(new_receipt?.fee_payment_mode === "Government/Scholarship"){
-    }
-    else{
+    if (new_receipt?.fee_payment_mode === "Government/Scholarship") {
+    } else {
       await update_fee_head_query(student, price, apply, new_receipt);
     }
     await lookup_applicable_grant(
@@ -4612,6 +4614,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
           appId: one_app._id,
           applicable_fee: total_amount,
         });
+        new_remainFee.access_mode_card = "Installment_Wise";
         new_remainFee.remaining_array.push({
           remainAmount: price,
           appId: one_app._id,
@@ -4641,6 +4644,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
           appId: one_app._id,
           applicable_fee: student?.fee_structure?.total_admission_fees,
         });
+        new_remainFee.access_mode_card = "One_Time_Wise";
         new_remainFee.remaining_array.push({
           remainAmount: price,
           appId: one_app._id,
@@ -6663,101 +6667,22 @@ exports.renderAllRefundedArray = async (req, res) => {
   }
 };
 
-exports.retrieveAdmissionDirectOnlineApplicationQuery = async (req, res) => {
-  try {
-    const { uid, aid } = req.params;
-    if (!uid && !aid)
-      return res.status(200).send({
-        message: "Their is a bug need to fixed immediatley",
-        access: false,
-      });
+exports.renderRemainingSetOffQuery = async(req, res) => {
+  try{
+    const { rcid, sid } = req.params
+    if(!rcid && !sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
+    const valid_student = await Student.findById({ _id: sid})
+    var all_remain_list = await RemainingList.find({ _id: { $in: valid_student?.remainingFeeList } })
+    res.status(200).send({ message: "Price set off is under processing...", access: true })
+    // var price = await set_off_amount(all_remain_list)
+    // if(price?.total > 0){
 
-    var user = await User.findById({ _id: uid });
-    var apply = await NewApplication.findById({ _id: aid });
-    var admission = await Admission.findById({
-      _id: `${apply?.admissionAdmin}`,
-    });
-    var institute = await InstituteAdmin.findById({
-      _id: `${admission?.institute}`,
-    });
-    var finance = await Finance.findById({
-      _id: `${institute?.financeDepart?.[0]}`,
-    });
-    var structure = await FeeStructure.findById({
-      _id: `${apply?.direct_linked_structure}`,
-    });
-    const status = new Status({});
-    const notify = new StudentNotification({});
-    const studentOptionalSubject = req.body?.optionalSubject
-      ? req.body?.optionalSubject
-      : [];
-    // for (var file of req.body?.fileArray) {
-    //   if (file.name === "file") {
-    //     student.photoId = "0";
-    //     student.studentProfilePhoto = file.key;
-    //   } else if (file.name === "addharFrontCard")
-    //     student.studentAadharFrontCard = file.key;
-    //   else if (file.name === "addharBackCard")
-    //     student.studentAadharBackCard = file.key;
-    //   else if (file.name === "bankPassbook")
-    //     student.studentBankPassbook = file.key;
-    //   else if (file.name === "casteCertificate")
-    //     student.studentCasteCertificatePhoto = file.key;
-    //   else {
-    //     student.studentDocuments.push({
-    //       documentName: file.name,
-    //       documentKey: file.key,
-    //       documentType: file.type,
-    //     });
-    //   }
     // }
-    // if (studentOptionalSubject?.length > 0) {
-    //   student.studentOptionalSubject?.push(...studentOptionalSubject);
-    // }
-    // status.content = `You have applied for ${apply.applicationName} has been filled successfully.Stay updated to check status of your application.`;
-    // status.applicationId = apply._id;
-    // status.instituteId = institute._id;
-    // user.student.push(student._id);
-    // user.applyApplication.push(apply._id);
-    // student.user = user._id;
-    // user.applicationStatus.push(status._id);
-    // apply.receievedApplication.push({
-    //   student: student._id,
-    //   fee_remain: 0,
-    // });
-    // apply.receievedCount += 1;
-    // notify.notifyContent = `You have applied for ${apply?.applicationName} has been filled successfully.Stay updated to check status of your application.`;
-    // notify.notifySender = admission?.admissionAdminHead?.user;
-    // notify.notifyReceiever = user?._id;
-    // notify.notifyType = "Student";
-    // notify.notifyPublisher = student?._id;
-    // user.activity_tab.push(notify?._id);
-    // notify.notifyByAdmissionPhoto = admission?._id;
-    // notify.notifyCategory = "Status Alert";
-    // notify.redirectIndex = 29;
-    // if (institute.userFollowersList.includes(uid)) {
-    // } else {
-    //   user.userInstituteFollowing.push(institute._id);
-    //   user.followingUICount += 1;
-    //   institute.userFollowersList.push(uid);
-    //   institute.followersCount += 1;
-    // }
-    // await Promise.all([
-    //   student.save(),
-    //   user.save(),
-    //   status.save(),
-    //   apply.save(),
-    //   institute.save(),
-    //   notify.save(),
-    // ]);
-    res.status(200).send({
-      message: "Wait for Razorpay Iniating Function Trigger",
-      access: true,
-    });
-  } catch (e) {
-    console.log(e);
   }
-};
+  catch(e){
+    console.log(e)
+  }
+}
 
 // exports.renderRetroOneStudentStructureQuery = async (req, res) => {
 //   try {

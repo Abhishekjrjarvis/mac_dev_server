@@ -3533,6 +3533,12 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
           },
         },
       });
+    for (var ref of all_remain) {
+      ref.setOffPrice =
+        ref?.paid_fee >= ref?.applicable_fee
+          ? ref?.paid_fee - ref?.applicable_fee
+          : 0;
+    }
 
     if (all_remain?.length > 0) {
       // const arrayEncrypt = await encryptionPayload(all_remain);
@@ -6667,22 +6673,31 @@ exports.renderAllRefundedArray = async (req, res) => {
   }
 };
 
-exports.renderRemainingSetOffQuery = async(req, res) => {
-  try{
-    const { rcid, sid } = req.params
-    if(!rcid && !sid) return res.status(200).send({ message: "Their is a bug need to fixed immediately", access: false})
-    const valid_student = await Student.findById({ _id: sid})
-    var all_remain_list = await RemainingList.find({ _id: { $in: valid_student?.remainingFeeList } })
-    res.status(200).send({ message: "Price set off is under processing...", access: true })
+exports.renderRemainingSetOffQuery = async (req, res) => {
+  try {
+    const { rcid, sid } = req.params;
+    if (!rcid && !sid)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately",
+          access: false,
+        });
+    const valid_student = await Student.findById({ _id: sid });
+    var all_remain_list = await RemainingList.find({
+      _id: { $in: valid_student?.remainingFeeList },
+    });
+    res
+      .status(200)
+      .send({ message: "Price set off is under processing...", access: true });
     // var price = await set_off_amount(all_remain_list)
     // if(price?.total > 0){
 
     // }
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
 // exports.renderRetroOneStudentStructureQuery = async (req, res) => {
 //   try {

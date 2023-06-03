@@ -1262,7 +1262,7 @@ exports.set_fee_head_query = async (
             one_master.paid_student.push(student_args?._id);
             one_master.paid_student_count += 1;
           }
-          if (one_master?.master_status === "Linked") {
+          if (one_master?.master_status === "Hostel Linked") {
             student_args.deposit_pending_amount =
               price_query >= parent_head[`${i}`]?.head_amount
                 ? parent_head[`${i}`].head_amount
@@ -1337,7 +1337,7 @@ exports.update_fee_head_query = async (
 
     for (var ele of filter_student_heads) {
       var one_master = await FeeMaster.findOne({
-        $and: [{ _id: ele?.master }, { master_status: "Linked" }],
+        $and: [{ _id: ele?.master }, { master_status: "Hostel Linked" }],
       });
       if (one_master) {
         student_args.deposit_pending_amount +=

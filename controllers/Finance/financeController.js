@@ -3657,6 +3657,19 @@ exports.renderFinanceAddFeeMaster = async (req, res) => {
       finance.deposit_linked_head.status = "Linked";
       await Promise.all([new_master.save(), finance.save()]);
     }
+    if (finance?.deposit_hostel_linked_head?.status === "Not Linked") {
+      const new_master = new FeeMaster({
+        master_name: "Hostel Deposit Fees",
+        master_amount: 10,
+        master_status: "Hostel Linked",
+      });
+      new_master.finance = finance?._id;
+      finance.fee_master_array.push(new_master?._id);
+      finance.fee_master_array_count += 1;
+      finance.deposit_hostel_linked_head.master = new_master?._id;
+      finance.deposit_hostel_linked_head.status = "Linked";
+      await Promise.all([new_master.save(), finance.save()]);
+    }
   } catch (e) {
     console.log(e);
   }
@@ -3999,6 +4012,7 @@ exports.renderFinanceMasterDepositRefundQuery = async (req, res) => {
     const institute = await InstituteAdmin.findById({
       _id: `${finance?.institute}`,
     });
+    const hostel = await Hostel.findById({ _id: institute?.hostelDepart?.[0]})
     const s_admin = await Admin.findById({
       _id: `${process.env.S_ADMIN_ID}`,
     }).select("invoice_count");
@@ -4054,12 +4068,18 @@ exports.renderFinanceMasterDepositRefundQuery = async (req, res) => {
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
     }${new Date().getFullYear()}${s_admin.invoice_count}`;
-    finance.refund_deposit.push(new_receipt?._id);
+    if(master?.master_status === "Linked"){
+      finance.refund_deposit.push(new_receipt?._id);
+    }
+    else if(master?.master_status === "Hostel Linked"){
+      hostel.refund_deposit.push(new_receipt?._id)
+    }
     student.refund_deposit.push(new_receipt?._id);
     new_receipt.fee_master = master?._id;
     await Promise.all([
       student.save(),
       finance.save(),
+      hostel.save(),
       master.save(),
       new_receipt.save(),
       s_admin.save(),
@@ -4593,12 +4613,10 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
     const { fsid } = req.params;
     const { heads } = req.body;
     if (!fsid)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediately",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
     var exist_struct = await FeeStructure.findByIdAndUpdate(fsid, req.body);
     exist_struct.fees_heads = [];
     exist_struct.fees_heads_count = 0;
@@ -4613,12 +4631,10 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
       }
     }
     await exist_struct.save();
-    res
-      .status(200)
-      .send({
-        message: "Explore Retro Events Based Editable Structure Query",
-        access: true,
-      });
+    res.status(200).send({
+      message: "Explore Retro Events Based Editable Structure Query",
+      access: true,
+    });
     var all_remain_query = await RemainingList.find({
       $and: [{ fee_structure: `${exist_struct?._id}` }],
     }).populate({

@@ -428,6 +428,13 @@ const financeSchema = new mongoose.Schema(
       },
       status: { type: String, default: "Not Linked" },
     },
+    deposit_hostel_linked_head: {
+      master: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeMaster",
+      },
+      status: { type: String, default: "Not Linked" },
+    },
     refund_deposit: [
       {
         type: mongoose.Schema.Types.ObjectId,

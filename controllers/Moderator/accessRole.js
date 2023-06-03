@@ -340,6 +340,28 @@ exports.all_access_role_hostel = () => {
         appArray: [],
       },
     },
+    RULES_AND_ANNOUNCEMENT_ACCESS: {
+      role: "RULES_AND_ANNOUNCEMENT_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["ADD NEW RULE", "ADD NEW ANNOUNCEMENT"],
+        addons: [],
+        accessStaff: "",
+        accessApplication: "",
+        appArray: [],
+      },
+    },
+    INCOME_AND_EXPENSE_ACCESS: {
+      role: "INCOME_AND_EXPENSE_ACCESS",
+      permission: {
+        allow: true,
+        bound: ["ADD NEW INCOME", "ADD NEW EXPENSE"],
+        addons: [],
+        accessStaff: "",
+        accessApplication: "",
+        appArray: [],
+      },
+    },
   };
   return access_role_hostel;
 };

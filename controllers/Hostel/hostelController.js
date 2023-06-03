@@ -94,6 +94,7 @@ const {
   ignite_multiple_alarm,
   insert_multiple_hostel_status,
 } = require("../../helper/hostelMultipleStatus");
+const FeeMaster = require("../../models/Finance/FeeMaster");
 
 exports.renderActivateHostelQuery = async (req, res) => {
   try {
@@ -6676,6 +6677,97 @@ exports.renderDirectHostelJoinExcelQuery = async (hid, student_array) => {
           institute?.sms_lang
         );
       }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderHostelMasterDepositQuery = async (req, res) => {
+  try {
+    const { hid } = req.params;
+    if (!hid && !flow)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const one_hostel = await Hostel.findById({ _id: hid })
+    .populate({
+      path: "institute",
+      select: "financeDepart"
+    })
+    const master = await FeeMaster.findOne({
+      $and: [{ master_status: "Linked" }, { finance: one_hostel?.institute?.financeDepart?.[0] }],
+    }).select(
+      "paid_student_count deposit_amount master_name refund_student_count refund_amount"
+    );
+
+    res.status(200).send({
+      message: "Explore Linked Fee Masters",
+      access: true,
+      master: master,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderHostelMasterAllDepositHistory = async (req, res) => {
+  try {
+    const { hid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { search } = req.query;
+    if (!hid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const hostel = await Hostel.findById({ _id: hid }).select(
+      "refund_deposit"
+    );
+
+    if (search) {
+      var all_receipts = await FeeReceipt.find({
+        _id: { $in: hostel?.refund_deposit },
+      }).populate({
+        path: "student",
+        match: {
+          studentFirstName: { $regex: search, $options: "i" },
+        },
+        select:
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+      });
+
+      all_receipts = all_receipts?.filter((ref) => {
+        if (ref?.student !== null) return ref;
+      });
+    } else {
+      var all_receipts = await FeeReceipt.find({
+        _id: { $in: hostel?.refund_deposit },
+      })
+        .limit(limit)
+        .skip(skip)
+        .populate({
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto",
+        });
+    }
+    if (all_receipts?.length > 0) {
+      res.status(200).send({
+        message: "Explore All Refund History",
+        access: true,
+        all_receipts: all_receipts,
+      });
+    } else {
+      res.status(200).send({
+        message: "No Refund History",
+        access: false,
+        all_receipts: [],
+      });
     }
   } catch (e) {
     console.log(e);

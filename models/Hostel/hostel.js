@@ -218,6 +218,12 @@ const hostelSchema = new mongoose.Schema({
       ref: "HostelSite",
     },
   ],
+  refund_deposit: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FeeReceipt",
+    },
+  ],
 });
 
 module.exports = mongoose.model("Hostel", hostelSchema);

@@ -26377,6 +26377,25 @@ paths:
         "200":
           description: OK
 
+  /api/v1/hostel/{hid}/master/deposit/query:
+    get:
+      tags:
+        - Deposit Query
+      summary: Deposit Master Query - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: Enter Hostel ID
+      responses:
+        "200":
+          description: OK
+
   /api/v1/finance/{fmid}/master/all/deposit/array:
     get:
       tags:
@@ -26483,6 +26502,40 @@ paths:
           required: true
           type: string
           description: Enter Finance ID
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: search
+          required: false
+          type: string
+          description: Enter Search Query
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/hostel/{hid}/master/all/refund/deposit/history:
+    get:
+      tags:
+        - Deposit Query
+      summary: One Hostel All Refund Deposit History Query - (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: hid
+          required: true
+          type: string
+          description: Enter Hostel ID
         - in: query
           name: page
           required: true

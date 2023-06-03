@@ -292,4 +292,14 @@ router.post(
   catchAsync(Hostel.renderDirectHostelJoinConfirmQuery)
 );
 
+router.get(
+  "/:hid/master/deposit/query",
+  catchAsync(Hostel.renderHostelMasterDepositQuery)
+);
+
+router.get(
+  "/:hid/master/all/refund/deposit/history",
+  catchAsync(Hostel.renderHostelMasterAllDepositHistory)
+);
+
 module.exports = router;

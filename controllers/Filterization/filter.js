@@ -1450,7 +1450,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
       var all_receipts = await FeeReceipt.find({
         $and: [
           { student: { $in: sorted_array } },
-          { fee_flow: "FEE_HEADS" },
+          // { fee_flow: "FEE_HEADS" },
           {
             created_at: {
               $gte: g_date,
@@ -1697,6 +1697,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
             } For Acacdemic Year ${ref?.student?.batches?.batchName}.`,
             ...result,
           });
+          result = []
         }
         head_array = [];
       }

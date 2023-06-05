@@ -2810,7 +2810,7 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
             query.studentMiddleName ? query.studentMiddleName : ""
           } ${query.studentLastName ? query.studentLastName : ""}`,
           userGender: query.studentGender,
-          userDateOfBirth: query.studentDOB,
+          userDateOfBirth: query?.studentDOB ?? null,
           username: valid?.username,
           userStatus: "Approved",
           userPhoneNumber: query?.userPhoneNumber
@@ -2842,6 +2842,8 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
           await user.save();
         }
         //
+        var valid_dob = handle_undefined(user?.userDateOfBirth)
+        if(valid_dob){
         var b_date = user.userDateOfBirth?.slice(8, 10);
         var b_month = user.userDateOfBirth?.slice(5, 7);
         var b_year = user.userDateOfBirth?.slice(0, 4);
@@ -2859,7 +2861,11 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
         } else {
           user.ageRestrict = "Yes";
         }
-        await user.save();
+      }
+      else{
+        user.ageRestrict = "No"
+      }
+      await user.save();
         //
         if (uInstitute?.userFollowersList?.includes(`${user._id}`)) {
         } else {

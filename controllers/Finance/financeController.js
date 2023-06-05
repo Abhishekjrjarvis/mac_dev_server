@@ -3459,7 +3459,10 @@ exports.renderOneFeeReceipt = async (req, res) => {
             path: "site_info",
           },
         },
-      });
+      })
+      .populate({
+        path: "order_history"
+      })
 
     if (receipt?.application?.applicationDepartment) {
       var one_account = await BankAccount.findOne({
@@ -4765,8 +4768,12 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
           _id: { $in: `${one_student?.fee_receipt}` },
         });
         for (var rec of all_receipt) {
-          rec.fee_heads = [];
-          await rec.save();
+          for(var ele of rec?.fee_heads){
+            if(`${ele?.fee_structure}` === `${exist_struct?._id}`){
+              rec.fee_heads.pull(ele?._id)
+              await ele.save();
+            }
+          }
           await retro_receipt_heads_sequencing_query(one_student, rec);
         }
       } else if (ref?.status === "Not Paid") {
@@ -4820,8 +4827,12 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
           _id: { $in: `${one_student?.fee_receipt}` },
         });
         for (var rec of all_receipt) {
-          rec.fee_heads = [];
-          await rec.save();
+          for(var ele of rec?.fee_heads){
+            if(`${ele?.fee_structure}` === `${exist_struct?._id}`){
+              rec.fee_heads.pull(ele?._id)
+              await ele.save();
+            }
+          }
           await retro_receipt_heads_sequencing_query(one_student, rec);
         }
       }

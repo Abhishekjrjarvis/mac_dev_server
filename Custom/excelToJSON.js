@@ -28,7 +28,7 @@ exports.generate_excel_to_json = async (file, aid, fid, did) => {
       var batch_set = [];
       var remain_array = [];
       var b_count = +ref?.batchcount;
-      ref.studentDOB = replace_query(ref?.studentDOB);
+      // ref.studentDOB = replace_query(ref?.studentDOB);
       ref.studentAdmissionDate = ref?.admissionDate;
 
       for (var i = 1; i <= b_count; i++) {

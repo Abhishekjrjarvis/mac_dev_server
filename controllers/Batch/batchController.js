@@ -106,7 +106,7 @@ exports.preformedStructure = async (req, res) => {
         { applicationTypeStatus: "Promote Application" },
         { admissionAdmin: admission?._id },
         { applicationDepartment: department?._id },
-        { applicationBatch: batch?._id },
+        { applicationBatch: identicalBatch?._id },
       ],
     });
     if (valid_apply?.length > 0) {

@@ -3501,7 +3501,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
         populate: {
           path: "hostel_fee_structure",
           select:
-            "total_admission_fees structure_name unique_structure_name applicable_fees one_installments category_master structure_month batch_master",
+            "total_admission_fees structure_name department unique_structure_name applicable_fees one_installments category_master structure_month batch_master",
           populate: {
             path: "category_master class_master",
             select: "category_name className",
@@ -3515,7 +3515,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       .populate({
         path: "fee_structure",
         select:
-          "total_admission_fees structure_name unique_structure_name applicable_fees one_installments structure_month category_master batch_master",
+          "total_admission_fees structure_name department unique_structure_name applicable_fees one_installments structure_month category_master batch_master",
         populate: {
           path: "category_master class_master",
           select: "category_name className",
@@ -6602,15 +6602,21 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
       await one_remain_list.save();
       for (var ref of one_student?.active_fee_heads) {
         if (`${ref?.fee_structure}` === `${old_struct?._id}`) {
+          console.log("Pull")
           one_student.active_fee_heads.pull(ref?._id);
         } else {
+          console.log("Push with some bugs")
         }
       }
       await one_student.save();
       for (var ref of all_receipts) {
         for (var ele of ref?.fee_heads) {
           if (`${ele?.fee_structure}` === `${old_struct?._id}`) {
+            console.log("Pull")
             ref.fee_heads.pull(ele?._id);
+          }
+          else{
+            console.log("Push with some bugs")
           }
         }
         await ref.save();

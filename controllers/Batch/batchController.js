@@ -109,7 +109,7 @@ exports.preformedStructure = async (req, res) => {
         { applicationBatch: batch?._id },
       ],
     });
-    console.log(valid_apply?.length);
+    // console.log(valid_apply?.length);
     if (valid_apply?.length > 0) {
       for (var ref of valid_apply) {
         const new_app = new NewApplication({

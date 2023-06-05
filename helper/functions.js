@@ -34,7 +34,7 @@ exports.filter_unique_username = async (name, dob) => {
   // const new_query = `${dob?.substring(5, 7)}${dob?.substring(8, 10)}`.split("");
   const new_query = `${u_1}${u_2}${u_3}${u_4}`;
   const shuffle_date = shuffleArray(new_query);
-  const combined_name = `${name?.trim()}_${shuffle_date.join("")}`;
+  const combined_name = `${name?.trim()}_${new_query}`;
   const username = combined_name;
   const existAdmin = await Admin.findOne({ adminUserName: username });
   const existInstitute = await InstituteAdmin.findOne({ name: username });

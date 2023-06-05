@@ -111,7 +111,6 @@ exports.preformedStructure = async (req, res) => {
     });
     console.log(valid_apply?.length);
     if (valid_apply?.length > 0) {
-    } else {
       for (var ref of valid_apply) {
         const new_app = new NewApplication({
           applicationName: "Promote Student",

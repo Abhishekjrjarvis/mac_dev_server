@@ -6430,7 +6430,7 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
       await email_sms_payload_query(
         user?.userEmail,
         studentName,
-        institute?.insName,
+        institute,
         "ASCAS",
         institute?.insType,
         student.hostelPaidFeeCount,
@@ -6669,7 +6669,7 @@ exports.renderDirectHostelJoinExcelQuery = async (hid, student_array) => {
         await email_sms_payload_query(
           user?.userEmail,
           studentName,
-          institute?.insName,
+          institute,
           "ASCAS",
           institute?.insType,
           student.hostelPaidFeeCount,

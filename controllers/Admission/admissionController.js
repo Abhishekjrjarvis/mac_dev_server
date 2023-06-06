@@ -3646,7 +3646,7 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
       await email_sms_payload_query(
         user?.userEmail,
         studentName,
-        institute?.insName,
+        institute,
         "ASCAS",
         institute?.insType,
         student.admissionPaidFeeCount,

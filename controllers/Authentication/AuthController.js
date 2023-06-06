@@ -2269,7 +2269,7 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       await email_sms_payload_query(
         user?.userEmail,
         studentName,
-        institute?.insName,
+        institute,
         "ADSIS",
         institute?.insType,
         0,
@@ -2281,6 +2281,18 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+// var ns = {insName: "SKD Academy Inter College", insEmail: "skd@gmail.com"}
+// console.log(email_sms_payload_query(
+//   "yelpcamp44@gmail.com",
+//   "Abhishek Singh",
+//   ns,
+//   "ADSIS",
+//   "School",
+//   0,
+//   0,
+//   "en"
+// ))
 
 exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
   try {
@@ -2530,7 +2542,7 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
       await email_sms_payload_query(
         user?.userEmail,
         staffName,
-        institute?.insName,
+        institute,
         "ADMIS",
         institute?.insType,
         0,
@@ -2720,7 +2732,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       await email_sms_payload_query(
         user?.userEmail,
         studentName,
-        institute?.insName,
+        institute,
         "ASCAS",
         institute?.insType,
         student.admissionPaidFeeCount,
@@ -2842,30 +2854,29 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
           await user.save();
         }
         //
-        var valid_dob = handle_undefined(user?.userDateOfBirth)
-        if(valid_dob){
-        var b_date = user.userDateOfBirth?.slice(8, 10);
-        var b_month = user.userDateOfBirth?.slice(5, 7);
-        var b_year = user.userDateOfBirth?.slice(0, 4);
-        if (b_date > p_date) {
-          p_date = p_date + month[b_month - 1];
-          p_month = p_month - 1;
-        }
-        if (b_month > p_month) {
-          p_year = p_year - 1;
-          p_month = p_month + 12;
-        }
-        var get_cal_year = p_year - b_year;
-        if (get_cal_year > 13) {
-          user.ageRestrict = "No";
+        var valid_dob = handle_undefined(user?.userDateOfBirth);
+        if (valid_dob) {
+          var b_date = user.userDateOfBirth?.slice(8, 10);
+          var b_month = user.userDateOfBirth?.slice(5, 7);
+          var b_year = user.userDateOfBirth?.slice(0, 4);
+          if (b_date > p_date) {
+            p_date = p_date + month[b_month - 1];
+            p_month = p_month - 1;
+          }
+          if (b_month > p_month) {
+            p_year = p_year - 1;
+            p_month = p_month + 12;
+          }
+          var get_cal_year = p_year - b_year;
+          if (get_cal_year > 13) {
+            user.ageRestrict = "No";
+          } else {
+            user.ageRestrict = "Yes";
+          }
         } else {
-          user.ageRestrict = "Yes";
+          user.ageRestrict = "No";
         }
-      }
-      else{
-        user.ageRestrict = "No"
-      }
-      await user.save();
+        await user.save();
         //
         if (uInstitute?.userFollowersList?.includes(`${user._id}`)) {
         } else {
@@ -3099,7 +3110,7 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
           await email_sms_payload_query(
             user?.userEmail,
             studentName,
-            institute?.insName,
+            institute,
             "ADSIS",
             institute?.insType,
             0,
@@ -3527,7 +3538,7 @@ exports.retrieveInstituteDirectJoinStaffAutoQuery = async (
           await email_sms_payload_query(
             user?.userEmail,
             staffName,
-            institute?.insName,
+            institute,
             "ADMIS",
             institute?.insType,
             0,

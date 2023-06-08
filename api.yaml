@@ -11931,6 +11931,33 @@ paths:
       responses:
         "200":
           description: OK
+
+  /api/v1/finance/select/{fid}/secondary/structure/query:
+    patch:
+      tags:
+        - Finance Module Query
+      summary: Add Secondary Fee Structure By Finance Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: fid
+          required: true
+          type: string
+          description: This is Finance id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              fee_category:
+                type: string
+                description: Enter Category ID
+      responses:
+        "200":
+          description: OK
   
 
   /api/v1/post/question/{id}/text:
@@ -30590,6 +30617,40 @@ paths:
         #   type: file
         #   required: true
           # description: upload your addhar card back side photo     
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{sid}/student/{aid}/docs/confirm/status/{statusId}:
+    patch:
+      tags:
+        - Admission Admin Module Query
+      summary: Confirm || Cancel Selection By Student for DOCS -(verified )
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is Application ID  
+        - in: path
+          name: statusId
+          required: true
+          type: string
+          description: This is Status ID
+        - in: query
+          name: flow
+          required: true
+          type: string
+          description: This is "CONFIRM_QUERY" || "CANCEL_QUERY"    
       responses:
         "200":
           description: OK

@@ -27,6 +27,7 @@ const NewApplication = require("../../models/Admission/NewApplication");
 const FeeStructure = require("../../models/Finance/FeesStructure");
 const RemainingList = require("../../models/Admission/RemainingList");
 const Admission = require("../../models/Admission/Admission");
+const { add_all_installment_zero } = require("../../helper/Installment");
 
 exports.preformedStructure = async (req, res) => {
   try {
@@ -616,15 +617,15 @@ exports.promoteStudent = async (req, res) => {
             appId: apply?._id,
             applicable_fee: structure[0]?.total_admission_fees,
           });
-          new_remainFee.access_mode_card = "One_Time_Wise";
-          new_remainFee.remaining_array.push({
-            remainAmount: structure[0]?.total_admission_fees,
-            appId: apply?._id,
-            status: "Not Paid",
-            instituteId: institute?._id,
-            installmentValue: "One Time Fees Remain",
-            isEnable: true,
-          });
+          new_remainFee.access_mode_card = "Installment_Wise";
+          new_remainFee.card_type = "Promote";
+          await add_all_installment_zero(
+            apply,
+            institute._id,
+            new_remainFee,
+            structure[0]?.total_admission_fees,
+            structure[0]
+          );
           new_remainFee.fee_structure = structure[0]?._id;
           new_remainFee.remaining_fee += structure[0]?.total_admission_fees;
           student.remainingFeeList.push(new_remainFee?._id);

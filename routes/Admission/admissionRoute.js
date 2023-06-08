@@ -124,6 +124,11 @@ router.post(
   catchAsync(Admission.retrieveAdmissionSelectedApplication)
 );
 
+router.patch(
+  "/:sid/student/:aid/docs/confirm/status/:statusId",
+  catchAsync(Admission.renderCollectDocsConfirmByStudentQuery)
+);
+
 // One Student Cancel at Selected
 router.post(
   "/:sid/student/:aid/cancel/app",

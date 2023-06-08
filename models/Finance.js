@@ -474,6 +474,13 @@ const financeSchema = new mongoose.Schema(
         status: { type: String },
       },
     ],
+    secondary_category: {
+      category: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeCategory",
+      },
+      status: { type: String, default: "Not Assigned" },
+    },
   },
   { timestamps: true }
 );

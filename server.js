@@ -22,10 +22,10 @@ const dburl = require("./config/db-config");
 app.use(compression());
 
 app.use(mongoSanitize());
-app.use(helmet({ contentSecurityPolicy: false }));
-// app.use(
-//   helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false })
-// );
+// app.use(helmet({ contentSecurityPolicy: false }));
+app.use(
+  helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false })
+);
 
 const swaggerUI = require("swagger-ui-express");
 const YAML = require("yamljs");
@@ -45,6 +45,7 @@ app.use(
       "https://support.qviple.com",
       "https://demo.qviple.com",
       "https://spce.qviple.com",
+      "https://dashboard.qviple.com",
     ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,

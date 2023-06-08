@@ -1638,7 +1638,6 @@ exports.add_all_installment_zero = async (arg1, arg2, arg3, amount, arg4) => {
         status: "Not Paid",
         instituteId: arg2,
         installmentValue: "Second Installment",
-        isEnable: true,
         dueDate: arg4?.fee_structure.two_installments.dueDate,
       });
     }

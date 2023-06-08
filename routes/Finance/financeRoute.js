@@ -489,6 +489,11 @@ router.patch(
   catchAsync(Finance.renderExistRetroStructureQuery)
 );
 
+router.patch(
+  "/select/:fid/secondary/structure/query",
+  catchAsync(Finance.renderSecondaryStructureQuery)
+);
+
 router.delete("/:did/delete/structure", catchAsync(Finance.delete_structure));
 
 // router.patch("/:did/edit/structure", catchAsync(Finance.edit_structure));

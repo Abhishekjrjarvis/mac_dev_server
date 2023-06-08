@@ -21,6 +21,10 @@ const feeCategorySchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  current_status: {
+    type: String,
+    default: "Primary Category",
+  },
 });
 
 module.exports = mongoose.model("FeeCategory", feeCategorySchema);

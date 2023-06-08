@@ -88,6 +88,10 @@ const remainingFeeListSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  card_type: {
+    type: String,
+    default: "Normal",
+  },
 });
 
 module.exports = mongoose.model("RemainingList", remainingFeeListSchema);

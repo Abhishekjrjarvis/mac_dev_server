@@ -56,6 +56,16 @@ const statusSchema = new mongoose.Schema({
     type: String,
     default: "Admission Application",
   },
+  for_docs: {
+    type: String,
+  },
+  docs_status: {
+    type: String,
+  },
+  bank_account: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "BankAccount",
+  },
 });
 
 module.exports = mongoose.model("Status", statusSchema);

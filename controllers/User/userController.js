@@ -2088,11 +2088,18 @@ exports.retrieveUserApplicationStatus = async (req, res) => {
         populate: {
           path: "feeStructure hostel_fee_structure",
           select:
-            "one_installments total_admission_fees applicable_fees structure_name structure_month",
+            "one_installments total_admission_fees applicable_fees structure_name structure_month two_installments",
           populate: {
             path: "category_master",
             select: "category_name",
           },
+        },
+        options,
+      })
+      .populate({
+        path: "applicationStatus",
+        populate: {
+          path: "bank_account",
         },
         options,
       });

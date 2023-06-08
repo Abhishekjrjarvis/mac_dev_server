@@ -2663,7 +2663,7 @@ exports.renderFinanceAllFeeCategoryQuery = async (req, res) => {
     })
       // .limit(limit)
       // .skip(skip)
-      .select("category_name created_at");
+      .select("category_name created_at current_status");
 
     if (all_fees_format?.length > 0) {
       res.status(200).send({
@@ -3461,8 +3461,8 @@ exports.renderOneFeeReceipt = async (req, res) => {
         },
       })
       .populate({
-        path: "order_history"
-      })
+        path: "order_history",
+      });
 
     if (receipt?.application?.applicationDepartment) {
       var one_account = await BankAccount.findOne({
@@ -4015,7 +4015,7 @@ exports.renderFinanceMasterDepositRefundQuery = async (req, res) => {
     const institute = await InstituteAdmin.findById({
       _id: `${finance?.institute}`,
     });
-    const hostel = await Hostel.findById({ _id: institute?.hostelDepart?.[0]})
+    const hostel = await Hostel.findById({ _id: institute?.hostelDepart?.[0] });
     const s_admin = await Admin.findById({
       _id: `${process.env.S_ADMIN_ID}`,
     }).select("invoice_count");
@@ -4071,11 +4071,10 @@ exports.renderFinanceMasterDepositRefundQuery = async (req, res) => {
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
     }${new Date().getFullYear()}${s_admin.invoice_count}`;
-    if(master?.master_status === "Linked"){
+    if (master?.master_status === "Linked") {
       finance.refund_deposit.push(new_receipt?._id);
-    }
-    else if(master?.master_status === "Hostel Linked"){
-      hostel.refund_deposit.push(new_receipt?._id)
+    } else if (master?.master_status === "Hostel Linked") {
+      hostel.refund_deposit.push(new_receipt?._id);
     }
     student.refund_deposit.push(new_receipt?._id);
     new_receipt.fee_master = master?._id;
@@ -4768,9 +4767,9 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
           _id: { $in: `${one_student?.fee_receipt}` },
         });
         for (var rec of all_receipt) {
-          for(var ele of rec?.fee_heads){
-            if(`${ele?.fee_structure}` === `${exist_struct?._id}`){
-              rec.fee_heads.pull(ele?._id)
+          for (var ele of rec?.fee_heads) {
+            if (`${ele?.fee_structure}` === `${exist_struct?._id}`) {
+              rec.fee_heads.pull(ele?._id);
               await ele.save();
             }
           }
@@ -4827,9 +4826,9 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
           _id: { $in: `${one_student?.fee_receipt}` },
         });
         for (var rec of all_receipt) {
-          for(var ele of rec?.fee_heads){
-            if(`${ele?.fee_structure}` === `${exist_struct?._id}`){
-              rec.fee_heads.pull(ele?._id)
+          for (var ele of rec?.fee_heads) {
+            if (`${ele?.fee_structure}` === `${exist_struct?._id}`) {
+              rec.fee_heads.pull(ele?._id);
               await ele.save();
             }
           }
@@ -4842,26 +4841,62 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
   }
 };
 
-exports.delete_structure = async (req, res) => {
+exports.renderSecondaryStructureQuery = async (req, res) => {
   try {
-    const { did } = req.params;
-    var depart = await Department.findById({ _id: did });
-    var all_structures = await FeeStructure.find({
-      _id: { $in: depart?.fees_structures },
-    });
-    for (var ref of all_structures) {
-      depart.fees_structures.pull(ref?._id);
-      if (depart.fees_structures_count > 0) {
-        depart.fees_structures_count -= 1;
-      }
-      await FeeStructure.findByIdAndDelete(ref?._id);
+    const { fid } = req.params;
+    const { fee_category } = req.body;
+    if (!fid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const finance = await Finance.findById({ _id: fid });
+    const valid_category = await FeeCategory.findById({ _id: `${fee_category}`})
+    if (valid_category) {
+      finance.secondary_category.category = valid_category?._id;
+      valid_category.current_status = "Secondary Category"
+      finance.secondary_category.status = "Assigned";
+      await Promise.all([finance.save(), valid_category.save()]);
+      res
+        .status(200)
+        .send({
+          message: "Explore New Secondary Fee Structure Query",
+          access: true,
+        });
+    } else {
+      res
+        .status(200)
+        .send({
+          message: "No New Secondary Fee Structure Query",
+          access: false,
+        });
     }
-    await depart.save();
-    res.status(200).send({ message: "Deletion Operation Completed" });
   } catch (e) {
     console.log(e);
   }
 };
+
+// exports.delete_structure = async (req, res) => {
+//   try {
+//     const { did } = req.params;
+//     var depart = await Department.findById({ _id: did });
+//     var all_structures = await FeeStructure.find({
+//       _id: { $in: depart?.fees_structures },
+//     });
+//     for (var ref of all_structures) {
+//       depart.fees_structures.pull(ref?._id);
+//       if (depart.fees_structures_count > 0) {
+//         depart.fees_structures_count -= 1;
+//       }
+//       await FeeStructure.findByIdAndDelete(ref?._id);
+//     }
+//     await depart.save();
+//     res.status(200).send({ message: "Deletion Operation Completed" });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
 
 // exports.all_student = async (req, res) => {
 //   try {

@@ -10,6 +10,8 @@ const Admin = require("../../models/superAdmin");
 const Fees = require("../../models/Fees");
 const Report = require("../../models/Report");
 const Batch = require("../../models/Batch");
+const Admission = require("../../models/Admission/Admission");
+const NewApplication = require("../../models/Admission/NewApplication");
 const DisplayPerson = require("../../models/DisplayPerson");
 const bcrypt = require("bcryptjs");
 const Subject = require("../../models/Subject");
@@ -1474,7 +1476,13 @@ exports.getFullStudentInfo = async (req, res) => {
 exports.retrieveDepartmentList = async (req, res) => {
   try {
     const { id } = req.params;
-    if(!id) return res.status(200).send({ message: "Their is a bug need to fixed immediatley", access: false})
+    if (!id)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediatley",
+          access: false,
+        });
     const institute = await InstituteAdmin.findById({ _id: id })
       .select("insName")
       .populate({
@@ -2056,15 +2064,46 @@ exports.retrieveNewBatch = async (req, res) => {
     const { did, id } = req.params;
     const department = await Department.findById({ _id: did });
     const institute = await InstituteAdmin.findById({ _id: id });
-    const batch = new Batch({ ...req.body });
-    department.batches.push(batch);
-    department.batchCount += 1;
-    batch.department = department;
-    institute.batches.push(batch._id);
-    batch.institute = institute;
-    await Promise.all([department.save(), batch.save(), institute.save()]);
-    // const bEncrypt = await encryptionPayload(batch._id);
-    res.status(200).send({ message: "batch data", batch: batch._id });
+    const admission = await Admission.findById({
+      _id: `${institute?.admissionDepart?.[0]}`,
+    });
+    if (admission) {
+      const batch = new Batch({ ...req.body });
+      department.batches.push(batch);
+      department.batchCount += 1;
+      batch.department = department;
+      institute.batches.push(batch._id);
+      batch.institute = institute;
+      const new_app = new NewApplication({
+        applicationName: "Promote Student",
+        applicationDepartment: department?._id,
+        applicationBatch: batch?._id,
+        // applicationMaster: ref?.applicationMaster,
+        applicationTypeStatus: "Promote Application",
+      });
+      admission.newApplication.push(new_app._id);
+      admission.newAppCount += 1;
+      new_app.admissionAdmin = admission._id;
+      institute.admissionCount += 1;
+      await Promise.all([
+        department.save(),
+        batch.save(),
+        new_app.save(),
+        admission.save(),
+        institute.save(),
+      ]);
+      // const bEncrypt = await encryptionPayload(batch._id);
+      res
+        .status(200)
+        .send({ message: "batch data", batch: batch._id, access: true });
+    } else {
+      res
+        .status(200)
+        .send({
+          message: "Admission module must activate for this process",
+          access: false,
+        });
+    }
   } catch {}
 };
 

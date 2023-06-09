@@ -66,6 +66,9 @@ const statusSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "BankAccount",
   },
+  admission_process: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.model("Status", statusSchema);

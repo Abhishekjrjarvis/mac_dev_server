@@ -1391,12 +1391,12 @@ exports.renderCollectDocsConfirmByStudentQuery = async (req, res) => {
     const status = new Status({});
     const notify = new StudentNotification({});
     if (flow === "CONFIRM_QUERY") {
-      for (let app of apply.selectedApplication) {
-        if (`${app.student}` === `${student._id}`) {
-          app.docs_collect = "Collected";
-        } else {
-        }
-      }
+      // for (let app of apply.selectedApplication) {
+      //   if (`${app.student}` === `${student._id}`) {
+      //     app.docs_collect = "Collected";
+      //   } else {
+      //   }
+      // }
       status.content = `Your admission process has been started. 
 
 Visit ${institute?.insName} with required documents (Click to view Documents) and applicable fees Rs.${student?.fee_structure?.applicable_fees} (Click to view in detail).
@@ -1404,6 +1404,7 @@ Visit ${institute?.insName} with required documents (Click to view Documents) an
 Payment modes available:`;
       status.applicationId = apply._id;
       // status.for_selection = "Yes";
+      status.admission_process = "Yes"
       status.studentId = student._id;
       status.admissionFee = student?.fee_structure.total_admission_fees;
       status.instituteId = admission_admin?.institute;

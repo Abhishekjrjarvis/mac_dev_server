@@ -3462,7 +3462,22 @@ exports.renderOneFeeReceipt = async (req, res) => {
       })
       .populate({
         path: "order_history",
-      });
+      })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentGRNO studentLastName active_fee_heads",
+        populate: {
+          path: "remainingFeeList",
+          populate: {
+            path: "fee_structure",
+            select: "batch_master class_master",
+            populate: {
+              path: "batchName className"
+            }
+          }
+        },
+      })
 
     if (receipt?.application?.applicationDepartment) {
       var one_account = await BankAccount.findOne({

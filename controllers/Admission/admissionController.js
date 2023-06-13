@@ -6798,7 +6798,7 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
             for (var ref of one_student?.active_fee_heads) {
               if (`${ref?.fee_structure}` === `${old_struct?._id}`) {
                 console.log("Pull");
-                one_student.active_fee_heads.pull(ref?._id);
+                one_student.active_fee_heads.pull(ref);
               } else {
                 console.log("Push with some bugs");
               }

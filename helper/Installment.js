@@ -1805,13 +1805,13 @@ exports.retro_student_heads_sequencing_query = async (
             ? parent_head[`${i}`].head_amount
             : r_args?.paid_fee,
       });
-      r_args?.paid_fee =
+      r_args.paid_fee =
         r_args?.paid_fee >= parent_head[`${i}`].head_amount
           ? r_args?.paid_fee - parent_head[`${i}`].head_amount
           : 0;
     }
     await student_args.save();
-    r_args?.paid_fee = 0;
+    r_args.paid_fee = 0;
   } catch (e) {
     console.log(e);
   }

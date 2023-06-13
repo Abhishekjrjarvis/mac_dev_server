@@ -4665,10 +4665,11 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
     for (var ref of all_remain_query) {
       if (ref?.status === "Paid") {
         var one_student = await Student.findById({ _id: `${ref?.student}` });
-        for (var apt of one_student?.active_fee_heads) {
-          if (`${apt?.fee_structure}` === `${exist_struct?._id}`) {
-            one_student.active_fee_heads.pull(apt?._id);
-          }
+        var filtered_head = one_student?.active_fee_heads?.filter((val) => {
+          if (`${val?.fee_structure}` === `${exist_struct?._id}`) return val;
+        });
+        for (var ref of filtered_head) {
+          one_student.active_fee_heads.pull(ref?._id);
         }
         await one_student.save();
         var valid_refund =
@@ -4793,10 +4794,11 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
         }
       } else if (ref?.status === "Not Paid") {
         var one_student = await Student.findById({ _id: `${ref?.student}` });
-        for (var apt of one_student?.active_fee_heads) {
-          if (`${apt?.fee_structure}` === `${exist_struct?._id}`) {
-            one_student.active_fee_heads.pull(apt?._id);
-          }
+        var filtered_head = one_student?.active_fee_heads?.filter((val) => {
+          if (`${val?.fee_structure}` === `${exist_struct?._id}`) return val;
+        });
+        for (var ref of filtered_head) {
+          one_student.active_fee_heads.pull(ref?._id);
         }
         await one_student.save();
         var filter_remain = await ref?.remaining_array?.filter((val) => {

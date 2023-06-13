@@ -1753,6 +1753,7 @@ exports.retro_student_heads_sequencing_query = async (
   direct_args
 ) => {
   try {
+    console.log("Remain", r_args);
     var price_query = r_args?.paid_fee;
     console.log(price_query);
     if (direct_args) {

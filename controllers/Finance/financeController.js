@@ -4787,9 +4787,9 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
           for (var ele of rec?.fee_heads) {
             if (`${ele?.fee_structure}` === `${exist_struct?._id}`) {
               rec.fee_heads.pull(ele?._id);
-              await ele.save();
             }
           }
+          await rec.save();
           await retro_receipt_heads_sequencing_query(one_student, rec);
         }
       } else if (ref?.status === "Not Paid") {
@@ -4847,9 +4847,9 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
           for (var ele of rec?.fee_heads) {
             if (`${ele?.fee_structure}` === `${exist_struct?._id}`) {
               rec.fee_heads.pull(ele?._id);
-              await ele.save();
             }
           }
+          await rec.save();
           await retro_receipt_heads_sequencing_query(one_student, rec);
         }
       }

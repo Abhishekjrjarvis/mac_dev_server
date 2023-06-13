@@ -4663,7 +4663,7 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
       },
     });
     for (var ref of all_remain_query) {
-      console.log(ref)
+      console.log(ref);
       if (ref?.status === "Paid") {
         var one_student = await Student.findById({ _id: `${ref?.student}` });
         var filtered_head = one_student?.active_fee_heads?.filter((val) => {
@@ -4673,6 +4673,11 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
           one_student.active_fee_heads.pull(ref?._id);
         }
         await one_student.save();
+        await retro_student_heads_sequencing_query(
+          one_student,
+          ref,
+          exist_struct
+        );
         var valid_refund =
           ref?.paid_fee >= ref?.applicable_fee
             ? ref?.paid_fee - ref?.applicable_fee
@@ -4777,11 +4782,6 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
           await ref.save();
         }
         // console.log(ref);
-        await retro_student_heads_sequencing_query(
-          one_student,
-          ref,
-          exist_struct
-        );
         var all_receipt = await FeeReceipt.find({
           _id: { $in: `${one_student?.fee_receipt}` },
         });
@@ -4803,6 +4803,11 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
           one_student.active_fee_heads.pull(ref?._id);
         }
         await one_student.save();
+        await retro_student_heads_sequencing_query(
+          one_student,
+          ref,
+          exist_struct
+        );
         var filter_remain = await ref?.remaining_array?.filter((val) => {
           if (`${val?.status}` === "Not Paid") return val;
         });
@@ -4838,11 +4843,7 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
           await ref.save();
         }
         // console.log(ref);
-        await retro_student_heads_sequencing_query(
-          one_student,
-          ref,
-          exist_struct
-        );
+
         var all_receipt = await FeeReceipt.find({
           _id: { $in: `${one_student?.fee_receipt}` },
         });

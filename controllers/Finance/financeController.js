@@ -4775,7 +4775,7 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
           ref.status = "Not Paid";
           await ref.save();
         }
-        console.log(ref?.paid_fee);
+        console.log(ref);
         await retro_student_heads_sequencing_query(
           one_student,
           ref,
@@ -4836,7 +4836,7 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
           ref.status = "Not Paid";
           await ref.save();
         }
-        console.log(ref?.paid_fee);
+        console.log(ref);
         await retro_student_heads_sequencing_query(
           one_student,
           ref,

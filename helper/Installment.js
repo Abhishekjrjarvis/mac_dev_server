@@ -1754,6 +1754,7 @@ exports.retro_student_heads_sequencing_query = async (
 ) => {
   try {
     var price_query = r_args?.paid_fee;
+    console.log(price_query);
     if (direct_args) {
       var parent_head = {
         ...direct_args?.fees_heads,
@@ -1776,13 +1777,13 @@ exports.retro_student_heads_sequencing_query = async (
         if (`${one_master?.master_status}` === "Linked") {
           // console.log("Master Linked", one_master?._id);
           student_args.deposit_pending_amount +=
-            r_args?.paid_fee >= parent_head[`${i}`]?.head_amount
+            price_query >= parent_head[`${i}`]?.head_amount
               ? parent_head[`${i}`].head_amount
-              : r_args?.paid_fee;
+              : price_query;
           one_master.deposit_amount +=
-            r_args?.paid_fee >= parent_head[`${i}`]?.head_amount
+            price_query >= parent_head[`${i}`]?.head_amount
               ? parent_head[`${i}`].head_amount
-              : r_args?.paid_fee;
+              : price_query;
         }
         await one_master.save();
       }
@@ -1791,27 +1792,27 @@ exports.retro_student_heads_sequencing_query = async (
         head_name: parent_head[`${i}`]?.head_name,
         applicable_fee: parent_head[`${i}`]?.head_amount,
         remain_fee:
-          r_args?.paid_fee >= parent_head[`${i}`]?.head_amount
+          price_query >= parent_head[`${i}`]?.head_amount
             ? 0
-            : parent_head[`${i}`].head_amount - r_args?.paid_fee,
+            : parent_head[`${i}`].head_amount - price_query,
         paid_fee:
-          r_args?.paid_fee >= parent_head[`${i}`]?.head_amount
+          price_query >= parent_head[`${i}`]?.head_amount
             ? parent_head[`${i}`].head_amount
-            : r_args?.paid_fee,
+            : price_query,
         fee_structure: direct_args?._id,
         master: one_master?._id,
         original_paid:
-          r_args?.paid_fee >= parent_head[`${i}`]?.head_amount
+          price_query >= parent_head[`${i}`]?.head_amount
             ? parent_head[`${i}`].head_amount
-            : r_args?.paid_fee,
+            : price_query,
       });
-      r_args.paid_fee =
-        r_args?.paid_fee >= parent_head[`${i}`].head_amount
-          ? r_args?.paid_fee - parent_head[`${i}`].head_amount
+      price_query =
+        price_query >= parent_head[`${i}`].head_amount
+          ? price_query - parent_head[`${i}`].head_amount
           : 0;
     }
     await student_args.save();
-    r_args.paid_fee = 0;
+    price_query = 0;
   } catch (e) {
     console.log(e);
   }

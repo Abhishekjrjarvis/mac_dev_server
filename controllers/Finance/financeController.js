@@ -1722,7 +1722,7 @@ exports.retrieveAllBToCQueryArray = async (req, res) => {
       if (parseInt(month) < 12) {
         l_month = parseInt(month) + 1;
       } else {
-        l_month = 01;
+        l_month = 1;
       }
       const allBusiness = await BusinessTC.find({
         $and: [
@@ -3473,11 +3473,12 @@ exports.renderOneFeeReceipt = async (req, res) => {
             path: "fee_structure",
             select: "batch_master class_master",
             populate: {
-              path: "batchName className"
-            }
-          }
+              path: "batch_master class_master",
+              select: "batchName className",
+            },
+          },
         },
-      })
+      });
 
     if (receipt?.application?.applicationDepartment) {
       var one_account = await BankAccount.findOne({
@@ -4867,25 +4868,23 @@ exports.renderSecondaryStructureQuery = async (req, res) => {
       });
 
     const finance = await Finance.findById({ _id: fid });
-    const valid_category = await FeeCategory.findById({ _id: `${fee_category}`})
+    const valid_category = await FeeCategory.findById({
+      _id: `${fee_category}`,
+    });
     if (valid_category) {
       finance.secondary_category.category = valid_category?._id;
-      valid_category.current_status = "Secondary Category"
+      valid_category.current_status = "Secondary Category";
       finance.secondary_category.status = "Assigned";
       await Promise.all([finance.save(), valid_category.save()]);
-      res
-        .status(200)
-        .send({
-          message: "Explore New Secondary Fee Structure Query",
-          access: true,
-        });
+      res.status(200).send({
+        message: "Explore New Secondary Fee Structure Query",
+        access: true,
+      });
     } else {
-      res
-        .status(200)
-        .send({
-          message: "No New Secondary Fee Structure Query",
-          access: false,
-        });
+      res.status(200).send({
+        message: "No New Secondary Fee Structure Query",
+        access: false,
+      });
     }
   } catch (e) {
     console.log(e);
@@ -5140,3 +5139,23 @@ exports.renderSecondaryStructureQuery = async (req, res) => {
 //     console.log(e)
 //   }
 // }
+
+// exports.remainAdd = async (req, res) => {
+//   try {
+//     var all_card = await RemainingList.find({}).populate({
+//       path: "appId",
+//       select: "applicationName",
+//     });
+//     for (var rem of all_card) {
+//       if (rem?.appId?.applicationName === "Promote Student") {
+//         rem.card_type = "Promote";
+//       } else {
+//         rem.card_type = "Normal";
+//       }
+//       await rem.save();
+//     }
+//     res.status(200).send({ message: "Explore All Promote || Normal Card" });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };

@@ -632,7 +632,9 @@ exports.retrieveAdmissionReceievedApplication = async (req, res) => {
     });
     const status = new Status({});
     const notify = new StudentNotification({});
-    var filtered_account = await BankAccount.findOne({ department: `${apply?.applicationDepartment}`})
+    var filtered_account = await BankAccount.findOne({
+      department: `${apply?.applicationDepartment}`,
+    });
     const studentOptionalSubject = req.body?.optionalSubject
       ? req.body?.optionalSubject
       : [];
@@ -683,7 +685,7 @@ Note: Stay tuned for further updates.`;
     status.instituteId = institute._id;
     status.finance = institute?.financeDepart?.[0];
     user.student.push(student._id);
-    status.bank_account = filtered_account?._id
+    status.bank_account = filtered_account?._id;
     user.applyApplication.push(apply._id);
     student.user = user._id;
     user.applicationStatus.push(status._id);
@@ -1391,12 +1393,14 @@ exports.renderCollectDocsConfirmByStudentQuery = async (req, res) => {
     const status = new Status({});
     const notify = new StudentNotification({});
     if (flow === "CONFIRM_QUERY") {
-      // for (let app of apply.selectedApplication) {
-      //   if (`${app.student}` === `${student._id}`) {
-      //     app.docs_collect = "Collected";
-      //   } else {
-      //   }
-      // }
+      if (apply?.selectedApplication?.length > 0) {
+        apply?.selectedApplication?.forEach((ele) => {
+          if (`${ele.student}` === `${student._id}`) {
+            ele.payment_status = "offline";
+          }
+        });
+        await apply.save();
+      }
       status.content = `Your admission process has been started. 
 
 Visit ${institute?.insName} with required documents (Click to view Documents) and applicable fees Rs.${student?.fee_structure?.applicable_fees} (Click to view in detail).
@@ -1404,7 +1408,7 @@ Visit ${institute?.insName} with required documents (Click to view Documents) an
 Payment modes available:`;
       status.applicationId = apply._id;
       // status.for_selection = "Yes";
-      status.admission_process = "Yes"
+      status.admission_process = "Yes";
       status.studentId = student._id;
       status.admissionFee = student?.fee_structure.total_admission_fees;
       status.instituteId = admission_admin?.institute;
@@ -3593,7 +3597,10 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       "remainingFeeList"
     );
     var all_remain_promote = await RemainingList.find({
-      $and: [{ _id: { $in: student?.remainingFeeList } }, { card_type: "Promote"}],
+      $and: [
+        { _id: { $in: student?.remainingFeeList } },
+        { card_type: "Promote" },
+      ],
     })
       .select(
         "applicable_fee remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end"
@@ -3655,71 +3662,74 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
           },
         },
       });
-      var all_remain_normal = await RemainingList.find({
-        $and: [{ _id: { $in: student?.remainingFeeList } }, { card_type: "Normal"}],
+    var all_remain_normal = await RemainingList.find({
+      $and: [
+        { _id: { $in: student?.remainingFeeList } },
+        { card_type: "Normal" },
+      ],
+    })
+      .select(
+        "applicable_fee remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end"
+      )
+      .populate({
+        path: "appId",
+        select:
+          "applicationName applicationDepartment applicationMaster admissionAdmin hostelAdmin applicationBatch",
+        populate: {
+          path: "admissionAdmin hostelAdmin",
+          select: "institute",
+          populate: {
+            path: "institute",
+            select: "financeDepart",
+          },
+        },
       })
-        .select(
-          "applicable_fee remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end"
-        )
-        .populate({
-          path: "appId",
+      .populate({
+        path: "remaining_array",
+        populate: {
+          path: "fee_receipt",
+        },
+      })
+      .populate({
+        path: "student",
+        select: "studentFirstName studentMiddleName studentLastName",
+        populate: {
+          path: "hostel_fee_structure",
           select:
-            "applicationName applicationDepartment applicationMaster admissionAdmin hostelAdmin applicationBatch",
-          populate: {
-            path: "admissionAdmin hostelAdmin",
-            select: "institute",
-            populate: {
-              path: "institute",
-              select: "financeDepart",
-            },
-          },
-        })
-        .populate({
-          path: "remaining_array",
-          populate: {
-            path: "fee_receipt",
-          },
-        })
-        .populate({
-          path: "student",
-          select: "studentFirstName studentMiddleName studentLastName",
-          populate: {
-            path: "hostel_fee_structure",
-            select:
-              "total_admission_fees structure_name department unique_structure_name applicable_fees one_installments category_master structure_month batch_master",
-            populate: {
-              path: "category_master class_master",
-              select: "category_name className",
-            },
-          },
-        })
-        .populate({
-          path: "batchId",
-          select: "batchName",
-        })
-        .populate({
-          path: "fee_structure",
-          select:
-            "total_admission_fees structure_name department unique_structure_name applicable_fees one_installments structure_month category_master batch_master",
+            "total_admission_fees structure_name department unique_structure_name applicable_fees one_installments category_master structure_month batch_master",
           populate: {
             path: "category_master class_master",
             select: "category_name className",
           },
-        })
-        .populate({
-          path: "student",
-          select: "studentFirstName studentMiddleName studentLastName",
+        },
+      })
+      .populate({
+        path: "batchId",
+        select: "batchName",
+      })
+      .populate({
+        path: "fee_structure",
+        select:
+          "total_admission_fees structure_name department unique_structure_name applicable_fees one_installments structure_month category_master batch_master",
+        populate: {
+          path: "category_master class_master",
+          select: "category_name className",
+        },
+      })
+      .populate({
+        path: "student",
+        select: "studentFirstName studentMiddleName studentLastName",
+        populate: {
+          path: "studentClass",
+          select: "className classTitle classStatus batch",
           populate: {
-            path: "studentClass",
-            select: "className classTitle classStatus batch",
-            populate: {
-              path: "batch",
-              select: "batchName batchStatus",
-            },
+            path: "batch",
+            select: "batchName batchStatus",
           },
-        });
-    var valid_arr = [...all_remain_promote, ...all_remain_normal]
-    var valid_remain = await nested_document_limit(page, limit, valid_arr)
+        },
+      });
+    var valid_arr = [...all_remain_promote, ...all_remain_normal];
+    var valid_remain = await nested_document_limit(page, limit, valid_arr);
     for (var ref of valid_remain) {
       ref.setOffPrice =
         ref?.paid_fee >= ref?.applicable_fee

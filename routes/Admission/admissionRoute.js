@@ -457,11 +457,11 @@ router.get(
 );
 
 // Apply for Direct Admission Application
-router.post(
-  "/:uid/user/:aid/apply/direct/online",
-  // isLoggedIn,
-  catchAsync(Admission.retrieveAdmissionDirectOnlineApplicationQuery)
-);
+// router.post(
+//   "/:uid/user/:aid/apply/direct/online",
+//   // isLoggedIn,
+//   catchAsync(Admission.retrieveAdmissionDirectOnlineApplicationQuery)
+// );
 
 // router.post(
 //   "/:uid/user/:aid/apply/direct/online",

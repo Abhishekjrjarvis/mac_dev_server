@@ -504,4 +504,6 @@ router.delete("/:did/delete/structure", catchAsync(Finance.delete_structure));
 
 // router.patch("/update/trans", catchAsync(Finance.addOrder));
 
+// router.patch("/remain/add", catchAsync(Finance.remainAdd));
+
 module.exports = router;

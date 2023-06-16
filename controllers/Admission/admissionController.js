@@ -3767,7 +3767,7 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
   try {
     const { sid, aid } = req.params;
     const { mode, type, amount } = req.body;
-    if (!sid && !aid && !mode && !type && !amount)
+    if (!sid && !aid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
         docs_status: false,

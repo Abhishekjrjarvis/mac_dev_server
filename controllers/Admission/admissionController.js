@@ -3779,6 +3779,8 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
       path: "admissionAdminHead",
       select: "user",
     });
+    console.log(admission?._id)
+    console.log(admission?.admissionAdminHead?.user)
     var institute = await InstituteAdmin.findById({
       _id: `${admission.institute}`,
     });

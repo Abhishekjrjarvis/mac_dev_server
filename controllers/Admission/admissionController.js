@@ -2439,6 +2439,20 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
             path: "department",
             select: "dName",
           });
+        if (student?.length > 0) {
+          var remain_fee = student?.filter((ref) => {
+            if (ref?.admissionRemainFeeCount > 0) return ref;
+          });
+          res.status(200).send({
+            message: "Its a party time from DB 🙌",
+            remain: remain_fee,
+            remainCount: remain_fee?.length,
+          });
+        } else {
+          res
+            .status(200)
+            .send({ message: "Account Running out of balance", remain: [] });
+        }
       } else {
         var student = await Student.find({
           _id: { $in: admin_ins?.remainingFee },
@@ -2456,6 +2470,20 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
       }
       admin_ins.active_tab_index = "Pending_Fees_Query";
       await admin_ins.save();
+      if (student?.length > 0) {
+        var remain_fee = student?.filter((ref) => {
+          if (ref?.admissionRemainFeeCount > 0) return ref;
+        });
+        res.status(200).send({
+          message: "Its a party time from DB 🙌",
+          remain: remain_fee,
+          remainCount: remain_fee?.length,
+        });
+      } else {
+        res
+          .status(200)
+          .send({ message: "Account Running out of balance", remain: [] });
+      }
     } else if (flow === "Applicable_Fees_Query") {
       // if (search) {
       //   var student = await Student.find({
@@ -2525,28 +2553,17 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
       // }
       admin_ins.active_tab_index = "Applicable_Fees_Query";
       await admin_ins.save();
-    } else {
-    }
-    if (student?.length > 0) {
-      var remain_fee = student?.filter((ref) => {
-        if (ref?.admissionRemainFeeCount > 0) return ref;
-      });
-      // Add Another Encryption
-      // const bind_remain = {
-      //   remain: student,
-      //   remainCount: student?.length,
-      // };
-      // const cached = await connect_redis_miss(
-      //   `All-Remain-App-${aid}-${page}`,
-      //   bind_remain
-      // );
-      res.status(200).send({
-        message: "Its a party time from DB 🙌",
-        // remain: cached.student,
-        // remainCount: cached.remainCount,
-        remain: remain_fee,
-        remainCount: remain_fee?.length,
-      });
+      if (student?.length > 0) {
+        res.status(200).send({
+          message: "Its a party time from DB 🙌",
+          remain: remain_fee,
+          remainCount: remain_fee?.length,
+        });
+      } else {
+        res
+          .status(200)
+          .send({ message: "Account Running out of balance", remain: [] });
+      }
     } else {
       res
         .status(200)

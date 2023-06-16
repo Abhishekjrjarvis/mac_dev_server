@@ -4667,7 +4667,7 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
       },
     });
     for (var ref of all_remain_query) {
-      console.log(ref);
+      var valid_ref = { ...ref }
       if (ref?.status === "Paid") {
         var one_student = await Student.findById({ _id: `${ref?.student}` });
         var filtered_head = one_student?.active_fee_heads?.filter((val) => {
@@ -4783,7 +4783,7 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
         // console.log(ref);
         await retro_student_heads_sequencing_query(
           one_student,
-          ref,
+          valid_ref,
           exist_struct
         );
         var all_receipt = await FeeReceipt.find({
@@ -4844,7 +4844,7 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
         // console.log(ref);
         await retro_student_heads_sequencing_query(
           one_student,
-          ref,
+          valid_ref,
           exist_struct
         );
         var all_receipt = await FeeReceipt.find({

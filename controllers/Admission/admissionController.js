@@ -3803,6 +3803,7 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
     status.finance = institute?.financeDepart?.[0];
     status.feeStructure = structure?._id;
     status.for_selection = "Yes";
+    status.studentId = student?._id;
     status.instituteId = institute._id;
     notify.notifyContent = `Your documents are submitted and verified successfully.Complete your admission by paying application admission fees from below: Application Admission Fees: Rs.${structure?.applicable_fees}`;
     // console.log(

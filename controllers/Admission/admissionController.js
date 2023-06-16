@@ -2439,7 +2439,7 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
             path: "department",
             select: "dName",
           });
-        if (student?.length > 0) {
+        // if (student?.length > 0) {
           var remain_fee = student?.filter((ref) => {
             if (ref?.admissionRemainFeeCount > 0) return ref;
           });
@@ -2448,7 +2448,7 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
             remain: remain_fee,
             remainCount: remain_fee?.length,
           });
-        }
+        // }
       } else {
         var student = await Student.find({
           _id: { $in: admin_ins?.remainingFee },
@@ -2466,7 +2466,7 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
       }
       admin_ins.active_tab_index = "Pending_Fees_Query";
       await admin_ins.save();
-      if (student?.length > 0) {
+      // if (student?.length > 0) {
         var remain_fee = student?.filter((ref) => {
           if (ref?.admissionRemainFeeCount > 0) return ref;
         });
@@ -2475,7 +2475,7 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
           remain: remain_fee,
           remainCount: remain_fee?.length,
         });
-      }
+      // }
     } else if (flow === "Applicable_Fees_Query") {
       // if (search) {
       //   var student = await Student.find({
@@ -2548,13 +2548,13 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
       // }
       admin_ins.active_tab_index = "Applicable_Fees_Query";
       await admin_ins.save();
-      if (student?.length > 0) {
+      // if (student?.length > 0) {
         res.status(200).send({
           message: "Its a party time from DB 🙌",
           remain: student,
           remainCount: student?.length,
         });
-      }
+      // }
     } else {
       res
         .status(200)

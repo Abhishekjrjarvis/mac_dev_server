@@ -2448,10 +2448,6 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
             remain: remain_fee,
             remainCount: remain_fee?.length,
           });
-        } else {
-          res
-            .status(200)
-            .send({ message: "Account Running out of balance", remain: [] });
         }
       } else {
         var student = await Student.find({
@@ -2479,10 +2475,6 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
           remain: remain_fee,
           remainCount: remain_fee?.length,
         });
-      } else {
-        res
-          .status(200)
-          .send({ message: "Account Running out of balance", remain: [] });
       }
     } else if (flow === "Applicable_Fees_Query") {
       // if (search) {
@@ -2562,10 +2554,6 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
           remain: student,
           remainCount: student?.length,
         });
-      } else {
-        res
-          .status(200)
-          .send({ message: "Account Running out of balance", remain: [] });
       }
     } else {
       res

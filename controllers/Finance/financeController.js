@@ -2806,6 +2806,8 @@ exports.renderFinanceAddFeeStructure = async (req, res) => {
       // const batch_master = await Batch.findById({
       //   _id: `${req.body?.batch_master}`,
       // });
+      struct_query.batch_master = null;
+      struct_query.class_master = null;
       struct_query.finance = finance?._id;
       struct_query.hostel = hostel?._id;
       struct_query.unique_structure_name = `${category?.category_name} / ${req.body?.structure_name}`;
@@ -2974,6 +2976,8 @@ exports.renderFeeStructureRetroQuery = async (req, res) => {
       // const batch_master = await Batch.findById({
       //   _id: `${req.body?.batch_master}`,
       // });
+      struct_query.batch_master = null;
+      struct_query.class_master = null;
       struct_query.finance = finance?._id;
       struct_query.hostel = hostel?._id;
       struct_query.unique_structure_name = `${category?.category_name} / ${req.body?.structure_name}`;
@@ -4663,7 +4667,7 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
       },
     });
     for (var ref of all_remain_query) {
-      console.log(ref)
+      console.log(ref);
       if (ref?.status === "Paid") {
         var one_student = await Student.findById({ _id: `${ref?.student}` });
         var filtered_head = one_student?.active_fee_heads?.filter((val) => {

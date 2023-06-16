@@ -3779,8 +3779,8 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
       path: "admissionAdminHead",
       select: "user",
     });
-    console.log(admission?._id)
-    console.log(admission?.admissionAdminHead?.user)
+    // console.log(admission?._id)
+    // console.log(admission?.admissionAdminHead?.user)
     var institute = await InstituteAdmin.findById({
       _id: `${admission.institute}`,
     });
@@ -3813,8 +3813,8 @@ Application Admission Fees: Rs.${structure?.applicable_fees}`;
 Complete your admission by paying application admission fees from below:
     
 Application Admission Fees: Rs.${structure?.applicable_fees}`.
-    notify.notifySender = admission?._id;
     notify.notifyReceiever = user?._id;
+    notify.notifySender = `${admission?.admissionAdminHead?.user}`;
     notify.notifyType = "Student";
     notify.notifyPublisher = student?._id;
     user.activity_tab.push(notify?._id);

@@ -3774,7 +3774,7 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
       });
     const apply = await NewApplication.findById({ _id: aid });
     const admission = await Admission.findById({
-      _id: `${apply.admissionAdmin}`,
+      _id: `${apply?.admissionAdmin}`,
     }).populate({
       path: "admissionAdminHead",
       select: "user",
@@ -3811,7 +3811,7 @@ Application Admission Fees: Rs.${structure?.applicable_fees}`;
 Complete your admission by paying application admission fees from below:
     
 Application Admission Fees: Rs.${structure?.applicable_fees}`.
-    notify.notifySender = admission?.admissionAdminHead?.user;
+    notify.notifySender = admission?._id;
     notify.notifyReceiever = user?._id;
     notify.notifyType = "Student";
     notify.notifyPublisher = student?._id;

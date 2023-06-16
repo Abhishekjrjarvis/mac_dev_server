@@ -3808,12 +3808,8 @@ Application Admission Fees: Rs.${structure?.applicable_fees}`;
     status.feeStructure = structure?._id;
     status.for_selection = "Yes";
     status.instituteId = institute._id;
-    notify.notifyContent = `Your documents are submitted and verified successfully.
-
-Complete your admission by paying application admission fees from below:
-    
-Application Admission Fees: Rs.${structure?.applicable_fees}`.
-    notify.notifyReceiever = user?._id;
+    notify.notifyContent = `Your documents are submitted and verified successfully.Complete your admission by paying application admission fees from below: Application Admission Fees: Rs.${structure?.applicable_fees}`.
+    notify.notifyReceiever = `${user?._id}`;
     notify.notifySender = `${admission?.admissionAdminHead?.user}`;
     notify.notifyType = "Student";
     notify.notifyPublisher = student?._id;

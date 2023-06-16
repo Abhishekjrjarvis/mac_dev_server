@@ -2556,8 +2556,8 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
       if (student?.length > 0) {
         res.status(200).send({
           message: "Its a party time from DB 🙌",
-          remain: remain_fee,
-          remainCount: remain_fee?.length,
+          remain: student,
+          remainCount: student?.length,
         });
       } else {
         res

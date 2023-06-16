@@ -3772,8 +3772,8 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
         message: "Their is a bug need to fix immediately 😡",
         docs_status: false,
       });
-    const apply = await NewApplication.findById({ _id: aid });
-    const admission = await Admission.findById({
+    var apply = await NewApplication.findById({ _id: aid });
+    var admission = await Admission.findById({
       _id: `${apply?.admissionAdmin}`,
     }).populate({
       path: "admissionAdminHead",
@@ -3784,24 +3784,20 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
     var institute = await InstituteAdmin.findById({
       _id: `${admission.institute}`,
     });
-    const student = await Student.findById({ _id: sid });
+    var student = await Student.findById({ _id: sid });
     const structure = await FeeStructure.findById({
       _id: `${student?.fee_structure}`,
     });
-    const user = await User.findById({ _id: `${student.user}` });
-    const status = new Status({});
-    const notify = new StudentNotification({});
+    var user = await User.findById({ _id: `${student?.user}` });
+    var status = new Status({});
+    var notify = new StudentNotification({});
     for (let app of apply.selectedApplication) {
       if (`${app.student}` === `${student._id}`) {
         app.docs_collect = "Collected";
       } else {
       }
     }
-    status.content = `Your documents are submitted and verified successfully.
-
-Complete your admission by paying application admission fees from below:
-
-Application Admission Fees: Rs.${structure?.applicable_fees}`;
+    status.content = `Your documents are submitted and verified successfully.Complete your admission by paying application admission fees from below: Application Admission Fees: Rs.${structure?.applicable_fees}`;
     status.applicationId = apply._id;
     user.applicationStatus.push(status._id);
     status.finance = institute?.financeDepart?.[0];
@@ -3809,8 +3805,8 @@ Application Admission Fees: Rs.${structure?.applicable_fees}`;
     status.for_selection = "Yes";
     status.instituteId = institute._id;
     notify.notifyContent = `Your documents are submitted and verified successfully.Complete your admission by paying application admission fees from below: Application Admission Fees: Rs.${structure?.applicable_fees}`.
-    notify.notifyReceiever = `${user?._id}`;
     notify.notifySender = `${admission?.admissionAdminHead?.user}`;
+    notify.notifyReceiever = `${user?._id}`;
     notify.notifyType = "Student";
     notify.notifyPublisher = student?._id;
     user.activity_tab.push(notify?._id);

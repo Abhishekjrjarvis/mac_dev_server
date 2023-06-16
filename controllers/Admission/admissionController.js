@@ -2544,7 +2544,10 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
           ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
             ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
             : 0;
-        student.push(ele?.student);
+        if (student?.includes(ele?.student)) {
+        } else {
+          student.push(ele?.student);
+        }
       }
       student = student?.filter((ref) => {
         if (ref?.applicable_fees_pending > 0) return ref;

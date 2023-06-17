@@ -162,6 +162,7 @@ exports.fee_reordering_hostel = async (
         isEnable: true,
         fee_receipt: new_receipt?._id,
       });
+      new_remainFee.active_payment_type = "One Time Fees";
       new_remainFee.paid_fee += price;
       new_remainFee.remaining_fee +=
         student?.hostel_fee_structure?.total_admission_fees - price;
@@ -215,6 +216,7 @@ exports.fee_reordering_hostel = async (
         isEnable: true,
         fee_receipt: new_receipt?._id,
       });
+      new_remainFee.active_payment_type = "First Installment";
       new_remainFee.paid_fee += price;
       new_remainFee.remaining_fee += total_amount - price;
       student.remainingFeeList.push(new_remainFee?._id);

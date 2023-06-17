@@ -9,6 +9,7 @@ const FeeStructure = require("../models/Finance/FeesStructure");
 const ClassMaster = require("../models/ClassMaster");
 const HostelUnit = require("../models/Hostel/hostelUnit");
 const HostelRoom = require("../models/Hostel/hostelRoom");
+const Department = require("../models/Department");
 // const Batch = require("../models/Batch");
 
 exports.generate_excel_to_json = async (file, aid, fid, did) => {
@@ -424,5 +425,54 @@ exports.generate_excel_to_json_direct_hostelities = async (file, hid, fid) => {
     return { student_array: new_data_query, value: true };
   } catch (e) {
     console.log("Hostel Student Excel Query Not Resolved", e);
+  }
+};
+
+exports.generate_excel_to_json_scholarship_query = async (file) => {
+  try {
+    const w_query = xlsx.read(file.Body);
+    const w_sheet = w_query.Sheets["ScholarshipDetail"];
+    const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
+    return { scholar_array: data_query, value: true };
+  } catch (e) {
+    console.log("Scholarship Excel Query Not Resolved", e);
+  }
+};
+
+exports.generate_excel_to_json_scholarship_gr_batch_query = async (
+  id,
+  file
+) => {
+  try {
+    const w_query = xlsx.read(file.Body);
+    const w_sheet = w_query.Sheets["ScholarshipStudent"];
+    const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
+    var new_data_query = [];
+    for (var ref of data_query) {
+      var new_depart = await Department.findOne({
+        $and: [
+          { institute: id },
+          {
+            dName: { $regex: `${ref?.DepartName}`, $options: "i" },
+          },
+        ],
+      });
+      var new_batchId = await Batch.findOne({
+        $and: [
+          { department: new_depart?._id },
+          {
+            batchName: { $regex: `${ref?.BatchName}`, $options: "i" },
+          },
+        ],
+      });
+      new_data_query.push({
+        GRNO: ref?.GRNO,
+        ScholarNumber: ref?.ScholarNumber,
+        batchId: new_batchId,
+      });
+    }
+    return { gr_array: new_data_query, value: true };
+  } catch (e) {
+    console.log("Scholarship GR Batch Excel Query Not Resolved", e);
   }
 };

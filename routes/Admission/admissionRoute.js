@@ -475,6 +475,12 @@ router.patch(
   catchAsync(Admission.renderRemainingSetOffQuery)
 );
 
+router.patch(
+  "/:rcid/add/scholar/number/query",
+  // isLoggedIn,
+  catchAsync(Admission.renderRemainingScholarNewNumberQuery)
+);
+
 // router.patch(
 //   "/:new_fee_struct/edit/struct",
 //   catchAsync(Admission.renderRetroOneStudentStructureQuery)

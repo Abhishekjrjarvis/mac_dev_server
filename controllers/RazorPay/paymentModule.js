@@ -377,6 +377,7 @@ exports.admissionInstituteFunction = async (
           mode: "online",
           fee_receipt: new_receipt?._id,
         });
+        new_remainFee.active_payment_type = "First Installment";
         new_remainFee.paid_fee += parseInt(tx_amount_ad);
         new_remainFee.fee_structure = student?.fee_structure?._id;
         new_remainFee.remaining_fee += total_amount - parseInt(tx_amount_ad);
@@ -406,6 +407,7 @@ exports.admissionInstituteFunction = async (
           mode: "online",
           fee_receipt: new_receipt?._id,
         });
+        new_remainFee.active_payment_type = "One Time Fees";
         new_remainFee.paid_fee += parseInt(tx_amount_ad);
         new_remainFee.fee_structure = student?.fee_structure?._id;
         new_remainFee.remaining_fee +=
@@ -775,6 +777,7 @@ exports.hostelInstituteFunction = async (
           mode: "online",
           fee_receipt: new_receipt?._id,
         });
+        new_remainFee.active_payment_type = "First Installment";
         new_remainFee.paid_fee += parseInt(tx_amount_ad);
         new_remainFee.fee_structure = student?.hostel_fee_structure?._id;
         new_remainFee.remaining_fee += total_amount - parseInt(tx_amount_ad);
@@ -804,6 +807,7 @@ exports.hostelInstituteFunction = async (
           mode: "online",
           fee_receipt: new_receipt?._id,
         });
+        new_remainFee.active_payment_type = "One Time Fees";
         new_remainFee.paid_fee += parseInt(tx_amount_ad);
         new_remainFee.fee_structure = student?.hostel_fee_structure?._id;
         new_remainFee.remaining_fee +=
@@ -1590,6 +1594,7 @@ exports.directAdmissionInstituteFunction = async (
         isEnable: true,
         fee_receipt: new_receipt?._id,
       });
+      new_remainFee.active_payment_type = "First Installment";
       new_remainFee.paid_fee += price;
       new_remainFee.fee_structure = student?.fee_structure?._id;
       new_remainFee.remaining_fee += total_amount - price;
@@ -1620,6 +1625,7 @@ exports.directAdmissionInstituteFunction = async (
         isEnable: true,
         fee_receipt: new_receipt?._id,
       });
+      new_remainFee.active_payment_type = "One Time Fees";
       new_remainFee.paid_fee += price;
       new_remainFee.fee_structure = structure?._id;
       new_remainFee.remaining_fee += structure?.total_admission_fees - price;

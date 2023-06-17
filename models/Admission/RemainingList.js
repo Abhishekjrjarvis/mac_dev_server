@@ -92,6 +92,13 @@ const remainingFeeListSchema = new mongoose.Schema({
     type: String,
     default: "Normal",
   },
+  scholar_ship_number: {
+    type: String,
+  },
+  active_payment_type: {
+    type: String,
+    default: "No Process",
+  },
 });
 
 module.exports = mongoose.model("RemainingList", remainingFeeListSchema);

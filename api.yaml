@@ -24040,6 +24040,67 @@ paths:
         "200":
           description: OK
 
+  /api/v1/extra/excel/to/json/{aid}/query/scholarship/{scid}:
+    patch:
+      tags:
+        - Process Excel + Database Processing
+      summary: Upload One Excel File for Fee Category To Directly Finance Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This Admission ID
+        - in: path
+          name: scid
+          required: true
+          type: string
+          description: This Scholar Ship ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              excel_file:
+                type: string
+                description: Enter Key here
+                required: true
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/extra/excel/to/json/{id}/query/scholarship/gr/batch:
+    patch:
+      tags:
+        - Process Excel + Database Processing
+      summary: Upload One Excel File for Fee Category To Directly Finance Manager (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+          description: This Institute ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              excel_file:
+                type: string
+                description: Enter Key here
+                required: true
+      responses:
+        "200":
+          description: OK
+
   /api/v1/extra/excel/to/json/query/fee/head/master/{fid}:
     patch:
       tags:
@@ -30651,6 +30712,33 @@ paths:
           required: true
           type: string
           description: This is "CONFIRM_QUERY" || "CANCEL_QUERY"    
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{rcid}/add/scholar/number/query:
+    patch:
+      tags:
+        - Admission Admin Module Query
+      summary: Add Scholar Number By Admission Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: rcid
+          required: true
+          type: string
+          description: This is Remaining List id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              scholar_ship_number:
+                type: string
+                description: Enter Scholar Ship Number
       responses:
         "200":
           description: OK

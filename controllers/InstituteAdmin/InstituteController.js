@@ -45,6 +45,7 @@ const {
 const { announcement_feed_query } = require("../../Post/announceFeed");
 const { handle_undefined } = require("../../Handler/customError");
 const ExamFeeStructure = require("../../models/BacklogStudent/ExamFeeStructure");
+const { applicable_pending_calc } = require("../../Functions/SetOff");
 
 exports.getDashOneQuery = async (req, res) => {
   try {
@@ -1241,7 +1242,7 @@ exports.retrieveApproveStudentList = async (req, res) => {
         .limit(limit)
         .skip(skip)
         .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
+          "studentFirstName studentMiddleName applicable_fees_pending studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender admissionRemainFeeCount"
         )
         .populate({
           path: "user",
@@ -1250,18 +1251,27 @@ exports.retrieveApproveStudentList = async (req, res) => {
         .populate({
           path: "studentClass",
           select: "className classTitle classStatus",
+        })
+        .populate({
+          path: "remainingFeeList",
+          select: "paid_fee fee_structure",
+          populate: {
+            path: "fee_structure",
+            select: "applicable_fees",
+          },
         });
       if (studentIns) {
         // const sEncrypt = await encryptionPayload(studentIns);
-        studentIns.sort(function (st1, st2) {
+        var valid_list = await applicable_pending_calc(studentIns);
+        valid_list.sort(function (st1, st2) {
           return (
             parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
             parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
           );
         });
-        res.status(200).send({ message: "All Student with limit", studentIns });
+        res.status(200).send({ message: "All Student with limit", valid_list });
       } else {
-        res.status(404).send({ message: "Failure", studentIns: [] });
+        res.status(404).send({ message: "Failure", valid_list: [] });
       }
     } else {
       const student_ins = await InstituteAdmin.findById({ _id: id }).select(
@@ -1272,7 +1282,7 @@ exports.retrieveApproveStudentList = async (req, res) => {
       })
         .sort({ createdAt: -1 })
         .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
+          "studentFirstName studentMiddleName studentLastName applicable_fees_pending photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate admissionRemainFeeCount"
         )
         .populate({
           path: "user",
@@ -1281,18 +1291,27 @@ exports.retrieveApproveStudentList = async (req, res) => {
         .populate({
           path: "studentClass",
           select: "className classTitle classStatus",
+        })
+        .populate({
+          path: "remainingFeeList",
+          select: "paid_fee fee_structure",
+          populate: {
+            path: "fee_structure",
+            select: "applicable_fees",
+          },
         });
       if (studentIns) {
         // const sEncrypt = await encryptionPayload(studentIns);
-        studentIns.sort(function (st1, st2) {
+        var valid_list = await applicable_pending_calc(studentIns);
+        valid_list.sort(function (st1, st2) {
           return (
             parseInt(st1.studentGRNO.slice(student_ins?.gr_initials?.length)) -
             parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
           );
         });
-        res.status(200).send({ message: "Without Limit", studentIns });
+        res.status(200).send({ message: "Without Limit", valid_list });
       } else {
-        res.status(404).send({ message: "Failure", studentIns: [] });
+        res.status(404).send({ message: "Failure", valid_list: [] });
       }
     }
   } catch (e) {
@@ -1477,12 +1496,10 @@ exports.retrieveDepartmentList = async (req, res) => {
   try {
     const { id } = req.params;
     if (!id)
-      return res
-        .status(200)
-        .send({
-          message: "Their is a bug need to fixed immediatley",
-          access: false,
-        });
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
     const institute = await InstituteAdmin.findById({ _id: id })
       .select("insName")
       .populate({
@@ -2097,12 +2114,10 @@ exports.retrieveNewBatch = async (req, res) => {
         .status(200)
         .send({ message: "batch data", batch: batch._id, access: true });
     } else {
-      res
-        .status(200)
-        .send({
-          message: "Admission module must activate for this process",
-          access: false,
-        });
+      res.status(200).send({
+        message: "Admission module must activate for this process",
+        access: false,
+      });
     }
   } catch {}
 };

@@ -172,6 +172,7 @@ exports.fee_reordering = async (
         isEnable: true,
         fee_receipt: new_receipt?._id,
       });
+      new_remainFee.active_payment_type = "One Time Fees";
       new_remainFee.paid_fee += price;
       new_remainFee.remaining_fee +=
         student?.fee_structure?.total_admission_fees - price;
@@ -223,6 +224,7 @@ exports.fee_reordering = async (
         isEnable: true,
         fee_receipt: new_receipt?._id,
       });
+      new_remainFee.active_payment_type = "First Installment";
       new_remainFee.paid_fee += price;
       new_remainFee.remaining_fee += total_amount - price;
       student.remainingFeeList.push(new_remainFee?._id);
@@ -361,6 +363,7 @@ exports.fee_reordering_direct_student = async (
           isEnable: true,
           fee_receipt: new_receipt?._id,
         });
+        new_remainFee.active_payment_type = "One Time Fees";
         const valid_one_time_fees =
           fee_structure?.total_admission_fees - price == 0 ? true : false;
         if (valid_one_time_fees) {
@@ -402,6 +405,7 @@ exports.fee_reordering_direct_student = async (
           isEnable: true,
           fee_receipt: new_receipt?._id,
         });
+        new_remainFee.active_payment_type = "First Installment";
         await add_all_installment(
           apply,
           institute._id,
@@ -655,6 +659,7 @@ exports.fee_reordering_direct_student_payload = async (
                 isEnable: true,
                 fee_receipt: new_receipt?._id,
               });
+              new_remainFee.active_payment_type = "One Time Fees";
               const order = new OrderPayment({});
               order.payment_module_type = "Admission Fees";
               order.payment_to_end_user_id = institute?._id;
@@ -819,6 +824,7 @@ exports.fee_reordering_direct_student_payload = async (
                 isEnable: true,
                 fee_receipt: new_receipt?._id,
               });
+              new_remainFee.active_payment_type = "First Installment";
               if (nest?.mode) {
                 await lookup_applicable_grant(
                   nest?.mode,
@@ -870,6 +876,19 @@ exports.fee_reordering_direct_student_payload = async (
               price,
               student_structure
             );
+          }
+          if (
+            total_amount - price > 0 &&
+            price > 0 &&
+            `${student_structure?.fee_structure?.total_installments}` === "1"
+          ) {
+            new_remainFee.remaining_array.push({
+              remainAmount: total_amount - price,
+              appId: apply._id,
+              instituteId: institute._id,
+              installmentValue: "Installment Remain",
+              isEnable: true,
+            });
           }
         }
         student.admissionPaidFeeCount += price;

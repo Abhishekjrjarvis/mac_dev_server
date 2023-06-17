@@ -673,6 +673,14 @@ const instituteAdminSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Finance",
       },
+      admissionId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Admission",
+      },
+      instituteId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "InstituteAdmin",
+      },
       flow: { type: String },
       status: { type: String, default: "Not Uploaded" },
     },

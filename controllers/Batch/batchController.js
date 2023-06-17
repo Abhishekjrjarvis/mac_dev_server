@@ -394,12 +394,16 @@ exports.promoteStudent = async (req, res) => {
           const student = await Student.findById(stu).populate({
             path: "fee_structure",
           });
+          const sec_category = await FeeCategory.findOne({
+            current_status: "Secondary Category",
+          });
           var structure = department?.fees_structures?.filter((ref) => {
             if (
-              `${ref?.class_master}` === `${classes?.masterClassName}` &&
-              `${ref?.category_master}` ===
-                `${student?.fee_structure?.category_master}` &&
-              `${ref?.batch_master}` === `${batch?._id}`
+              (`${ref?.class_master}` === `${classes?.masterClassName}` &&
+                `${ref?.category_master}` ===
+                  `${student?.fee_structure?.category_master}`) ||
+              (`${sec_category?._id}` &&
+                `${ref?.batch_master}` === `${batch?._id}`)
             )
               return ref;
           });

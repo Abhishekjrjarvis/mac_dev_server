@@ -221,4 +221,16 @@ router.patch(
   catchAsync(Extra.renderExcelToJSONHostelitiesQuery)
 );
 
+router.patch(
+  "/excel/to/json/:aid/query/scholarship/:scid",
+  // isLoggedIn,
+  catchAsync(Extra.renderExcelToJSONAdmissionScholarshipQuery)
+);
+
+router.patch(
+  "/excel/to/json/:id/query/scholarship/gr/batch",
+  // isLoggedIn,
+  catchAsync(Extra.renderExcelToJSONScholarshipGRBatchQuery)
+);
+
 module.exports = router;

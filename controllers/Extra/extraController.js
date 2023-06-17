@@ -26,6 +26,8 @@ const {
   generate_excel_to_json_fee_structure,
   generate_excel_to_json_direct_staff,
   generate_excel_to_json_direct_hostelities,
+  generate_excel_to_json_scholarship_query,
+  generate_excel_to_json_scholarship_gr_batch_query,
 } = require("../../Custom/excelToJSON");
 const {
   retrieveInstituteDirectJoinQueryPayload,
@@ -39,6 +41,11 @@ const {
 const {
   renderDirectHostelJoinExcelQuery,
 } = require("../Hostel/hostelController");
+const { applicable_pending_calc_singleton } = require("../../Functions/SetOff");
+const {
+  renderAdmissionNewScholarNumberAutoQuery,
+  renderInstituteScholarNumberAutoQuery,
+} = require("../Admission/admissionController");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -219,7 +226,7 @@ exports.retrieveLeavingGRNO = async (req, res) => {
       $and: [{ studentGRNO: `${validGR}` }, { institute: id }],
     })
       .select(
-        "studentFirstName studentLeavingPreviousYear duplicate_copy studentPreviousSchool studentLeavingBehaviour studentUidaiNumber studentGRNO studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB admissionRemainFeeCount"
+        "studentFirstName studentLeavingPreviousYear duplicate_copy applicable_fees_pending studentPreviousSchool studentLeavingBehaviour studentUidaiNumber studentGRNO studentMiddleName certificateLeavingCopy studentAdmissionDate studentReligion studentCast studentCastCategory studentMotherName studentNationality studentBirthPlace studentMTongue studentLastName photoId studentProfilePhoto studentDOB admissionRemainFeeCount"
       )
       .populate({
         path: "studentClass",
@@ -233,6 +240,14 @@ exports.retrieveLeavingGRNO = async (req, res) => {
         path: "institute",
         select:
           "insName insAddress insState studentFormSetting.previousSchoolAndDocument.previousSchoolDocument insDistrict insAffiliated insEditableText insEditableTexts insPhoneNumber insPincode photoId insProfilePhoto",
+      })
+      .populate({
+        path: "remainingFeeList",
+        select: "paid_fee fee_structure",
+        populate: {
+          path: "fee_structure",
+          select: "applicable_fees",
+        },
       });
     if (
       institute.studentFormSetting.previousSchoolAndDocument
@@ -295,9 +310,10 @@ exports.retrieveLeavingGRNO = async (req, res) => {
     }
     await Promise.all([student.save(), institute.save()]);
     // Add Another Encryption
+    var valid_student = await applicable_pending_calc_singleton(student);
     res.status(200).send({
       message: "Student Leaving Certificate",
-      student,
+      student: valid_student,
       download: institute?.original_copy ? true : download,
       original_copy: student.certificateLeavingCopy?.originalCopy
         ? true
@@ -1469,6 +1485,107 @@ exports.renderExcelToJSONHostelitiesQuery = async (req, res) => {
     );
     if (is_converted?.value) {
       await renderDirectHostelJoinExcelQuery(hid, is_converted?.student_array);
+    } else {
+      console.log("false");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderExcelToJSONAdmissionScholarshipQuery = async (req, res) => {
+  try {
+    const { aid, scid } = req.params;
+    const { excel_file } = req.body;
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const one_ads = await Admission.findById({ _id: aid });
+    const one_ins = await InstituteAdmin.findById({
+      _id: `${one_ads?.institute}`,
+    });
+    one_ins.excel_data_query.push({
+      excel_file: excel_file,
+      admissionId: one_ads?._id,
+      status: "Uploaded",
+    });
+    await one_ins.save();
+    res.status(200).send({
+      message: "Update Excel To Backend Wait for Operation Completed",
+      access: true,
+    });
+
+    const update_ins = await InstituteAdmin.findById({
+      _id: `${one_ads?.institute}`,
+    });
+    var key;
+    for (var ref of update_ins?.excel_data_query) {
+      if (
+        `${ref.status}` === "Uploaded" &&
+        `${ref?.admissionId}` === `${one_ads?._id}`
+      ) {
+        key = ref?.excel_file;
+      }
+    }
+    const val = await simple_object(key);
+
+    const is_converted = await generate_excel_to_json_scholarship_query(val);
+    if (is_converted?.value) {
+      await renderAdmissionNewScholarNumberAutoQuery(
+        aid,
+        is_converted?.scholar_array,
+        scid
+      );
+    } else {
+      console.log("false");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderExcelToJSONScholarshipGRBatchQuery = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { excel_file } = req.body;
+    if (!id)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const one_ins = await InstituteAdmin.findById({
+      _id: id,
+    });
+    one_ins.excel_data_query.push({
+      excel_file: excel_file,
+      instituteId: id,
+      status: "Uploaded",
+    });
+    await one_ins.save();
+    res.status(200).send({
+      message: "Update Excel To Backend Wait for Operation Completed",
+      access: true,
+    });
+
+    const update_ins = await InstituteAdmin.findById({
+      _id: id,
+    });
+    var key;
+    for (var ref of update_ins?.excel_data_query) {
+      if (`${ref.status}` === "Uploaded" && `${ref?.instituteId}` === `${id}`) {
+        key = ref?.excel_file;
+      }
+    }
+    const val = await simple_object(key);
+
+    const is_converted =
+      await generate_excel_to_json_scholarship_gr_batch_query(id, val);
+    if (is_converted?.value) {
+      await renderInstituteScholarNumberAutoQuery(id, is_converted?.gr_array);
     } else {
       console.log("false");
     }

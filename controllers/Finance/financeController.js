@@ -4640,6 +4640,17 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
         access: false,
       });
     var exist_struct = await FeeStructure.findByIdAndUpdate(fsid, req.body);
+    const depart = await Department.findById({ _id: `${req.body?.department}`})
+    const category = await FeeCategory.findById({
+      _id: `${req.body?.category_master}`,
+    });
+    const class_master = await ClassMaster.findById({
+      _id: `${req.body?.class_master}`,
+    });
+    const batch_master = await Batch.findById({
+      _id: `${req.body?.batch_master}`,
+    });
+    exist_struct.unique_structure_name = `${category?.category_name} - ${depart?.dName} - ${batch_master?.batchName} - ${class_master?.className} / ${req.body?.structure_name}`;
     exist_struct.fees_heads = [];
     exist_struct.fees_heads_count = 0;
     if (heads?.length > 0) {

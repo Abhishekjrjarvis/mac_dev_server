@@ -1400,6 +1400,7 @@ exports.renderPayOfflineHostelFee = async (req, res) => {
         isEnable: true,
         fee_receipt: new_receipt?._id,
       });
+      new_remainFee.active_payment_type = "First Installment";
       new_remainFee.paid_fee += price;
       new_remainFee.fee_structure = student?.hostel_fee_structure?._id;
       new_remainFee.remaining_fee += total_amount - price;
@@ -1431,6 +1432,7 @@ exports.renderPayOfflineHostelFee = async (req, res) => {
         isEnable: true,
         fee_receipt: new_receipt?._id,
       });
+      new_remainFee.active_payment_type = "One Time Fees";
       new_remainFee.paid_fee += price;
       new_remainFee.fee_structure = student?.hostel_fee_structure?._id;
       new_remainFee.remaining_fee +=
@@ -2563,6 +2565,7 @@ const hostel_receipt_approve_query = async (
         isEnable: true,
         fee_receipt: one_receipt?._id,
       });
+      new_remainFee.active_payment_type = "First Installment";
       new_remainFee.paid_fee += price;
       new_remainFee.fee_structure = student?.hostel_fee_structure?._id;
       new_remainFee.remaining_fee += total_amount - price;
@@ -2594,6 +2597,7 @@ const hostel_receipt_approve_query = async (
         isEnable: true,
         fee_receipt: one_receipt?._id,
       });
+      new_remainFee.active_payment_type = "One Time Fees";
       new_remainFee.paid_fee += price;
       new_remainFee.fee_structure = student?.hostel_fee_structure?._id;
       new_remainFee.remaining_fee +=
@@ -3089,6 +3093,7 @@ const hostel_receipt_approve_query_renewal = async (
         isEnable: true,
         fee_receipt: one_receipt?._id,
       });
+      new_remainFee.active_payment_type = "First Installment";
       new_remainFee.paid_fee += price;
       new_remainFee.fee_structure = student?.hostel_fee_structure?._id;
       new_remainFee.remaining_fee += total_amount - price;
@@ -3120,6 +3125,7 @@ const hostel_receipt_approve_query_renewal = async (
         isEnable: true,
         fee_receipt: one_receipt?._id,
       });
+      new_remainFee.active_payment_type = "One Time Fees";
       new_remainFee.paid_fee += price;
       new_remainFee.fee_structure = student?.hostel_fee_structure?._id;
       new_remainFee.remaining_fee +=
@@ -4420,6 +4426,7 @@ exports.renderPayOfflineHostelFeeRenewal = async (req, res) => {
         isEnable: true,
         fee_receipt: new_receipt?._id,
       });
+      new_remainFee.active_payment_type = "First Installment";
       new_remainFee.paid_fee += price;
       new_remainFee.fee_structure = student?.hostel_fee_structure?._id;
       new_remainFee.remaining_fee += total_amount - price;
@@ -4451,6 +4458,7 @@ exports.renderPayOfflineHostelFeeRenewal = async (req, res) => {
         isEnable: true,
         fee_receipt: new_receipt?._id,
       });
+      new_remainFee.active_payment_type = "One Time Fees";
       new_remainFee.paid_fee += price;
       new_remainFee.fee_structure = student?.hostel_fee_structure?._id;
       new_remainFee.remaining_fee +=
@@ -6691,13 +6699,15 @@ exports.renderHostelMasterDepositQuery = async (req, res) => {
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
-    const one_hostel = await Hostel.findById({ _id: hid })
-    .populate({
+    const one_hostel = await Hostel.findById({ _id: hid }).populate({
       path: "institute",
-      select: "financeDepart"
-    })
+      select: "financeDepart",
+    });
     const master = await FeeMaster.findOne({
-      $and: [{ master_status: "Linked" }, { finance: one_hostel?.institute?.financeDepart?.[0] }],
+      $and: [
+        { master_status: "Linked" },
+        { finance: one_hostel?.institute?.financeDepart?.[0] },
+      ],
     }).select(
       "paid_student_count deposit_amount master_name refund_student_count refund_amount"
     );
@@ -6725,9 +6735,7 @@ exports.renderHostelMasterAllDepositHistory = async (req, res) => {
         access: false,
       });
 
-    const hostel = await Hostel.findById({ _id: hid }).select(
-      "refund_deposit"
-    );
+    const hostel = await Hostel.findById({ _id: hid }).select("refund_deposit");
 
     if (search) {
       var all_receipts = await FeeReceipt.find({

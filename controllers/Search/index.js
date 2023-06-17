@@ -17,6 +17,7 @@ const Batch = require("../../models/Batch");
 const Library = require("../../models/Library/Library");
 const { shuffleArray } = require("../../Utilities/Shuffle");
 const HashTag = require("../../models/HashTag/hashTag");
+const { applicable_pending_calc } = require("../../Functions/SetOff");
 
 exports.searchUserUniversalWeb = async (req, res) => {
   try {
@@ -776,7 +777,7 @@ exports.searchStudent = async (req, res) => {
         : {};
       var student = await Student.find(search)
         .select(
-          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO admissionRemainFeeCount studentAdmissionDate studentGender"
+          "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto applicable_fees_pending studentPhoneNumber studentGRNO studentROLLNO admissionRemainFeeCount studentAdmissionDate studentGender"
         )
         .populate({
           path: "user",
@@ -786,9 +787,18 @@ exports.searchStudent = async (req, res) => {
           path: "studentClass",
           select: "className classTitle classStatus",
         })
+        .populate({
+          path: "remainingFeeList",
+          select: "paid_fee fee_structure",
+          populate: {
+            path: "fee_structure",
+            select: "applicable_fees",
+          },
+        })
         .lean()
         .exec();
-      student.sort(function (st1, st2) {
+      var valid_list = await applicable_pending_calc(student);
+      valid_list.sort(function (st1, st2) {
         return (
           parseInt(st1.studentGRNO.slice(institute?.gr_initials?.length)) -
           parseInt(st2.studentGRNO.slice(institute?.gr_initials?.length))
@@ -796,7 +806,7 @@ exports.searchStudent = async (req, res) => {
       });
       res
         .status(200)
-        .send({ message: "Without Query All Student", student: student });
+        .send({ message: "Without Query All Student", student: valid_list });
     } else {
       const getPage = req.query.page ? parseInt(req.query.page) : 1;
       const itemPerPage = req.query.limit ? parseInt(req.query.limit) : 10;
@@ -807,7 +817,7 @@ exports.searchStudent = async (req, res) => {
         .limit(itemPerPage)
         .skip(dropItem)
         .select(
-          "studentFirstName studentMiddleName studentLastName photoId admissionRemainFeeCount studentProfilePhoto studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender"
+          "studentFirstName studentMiddleName studentLastName photoId admissionRemainFeeCount studentProfilePhoto applicable_fees_pending studentPhoneNumber studentGRNO studentROLLNO studentAdmissionDate studentGender"
         )
         .populate({
           path: "user",
@@ -817,9 +827,18 @@ exports.searchStudent = async (req, res) => {
           path: "studentClass",
           select: "className classTitle classStatus",
         })
+        .populate({
+          path: "remainingFeeList",
+          select: "paid_fee fee_structure",
+          populate: {
+            path: "fee_structure",
+            select: "applicable_fees",
+          },
+        })
         .lean()
         .exec();
-      student.sort(function (st1, st2) {
+      var valid_list = await applicable_pending_calc(student);
+      valid_list.sort(function (st1, st2) {
         return (
           parseInt(st1.studentGRNO.slice(institute?.gr_initials?.length)) -
           parseInt(st2.studentGRNO.slice(institute?.gr_initials?.length))
@@ -829,7 +848,7 @@ exports.searchStudent = async (req, res) => {
         res.status(202).send({ message: "Not found any search" });
       } else {
         res.status(200).send({
-          student,
+          student: valid_list,
         });
       }
     }

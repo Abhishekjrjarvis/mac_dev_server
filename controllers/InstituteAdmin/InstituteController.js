@@ -1269,9 +1269,9 @@ exports.retrieveApproveStudentList = async (req, res) => {
             parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
           );
         });
-        res.status(200).send({ message: "All Student with limit", valid_list });
+        res.status(200).send({ message: "All Student with limit", studentIns: valid_list });
       } else {
-        res.status(404).send({ message: "Failure", valid_list: [] });
+        res.status(404).send({ message: "Failure", studentIns: [] });
       }
     } else {
       const student_ins = await InstituteAdmin.findById({ _id: id }).select(
@@ -1309,9 +1309,9 @@ exports.retrieveApproveStudentList = async (req, res) => {
             parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
           );
         });
-        res.status(200).send({ message: "Without Limit", valid_list });
+        res.status(200).send({ message: "Without Limit", studentIns: valid_list });
       } else {
-        res.status(404).send({ message: "Failure", valid_list: [] });
+        res.status(404).send({ message: "Failure", studentIns: [] });
       }
     }
   } catch (e) {

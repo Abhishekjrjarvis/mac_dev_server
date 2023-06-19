@@ -1,0 +1,48 @@
+const mongoose = require("mongoose");
+
+const internalFeeSchema = new mongoose.Schema({
+  created_at: {
+    type: Date,
+    default: Date.now,
+  },
+  internal_fee_type: {
+    type: String,
+  },
+  internal_fee_amount: {
+    type: Number,
+    default: 0,
+  },
+  internal_fee_reason: {
+    type: String,
+  },
+  internal_fee_status: {
+    type: String,
+    default: "Not Paid",
+  },
+  fee_receipt: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "FeeReceipt",
+  },
+  fees: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Fees",
+  },
+  checklist: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Checklist",
+  },
+  exam_structure: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "ExamFeeStructure",
+  },
+  student: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Student",
+  },
+  department: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Department",
+  },
+});
+
+module.exports = mongoose.model("InternalFees", internalFeeSchema);

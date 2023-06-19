@@ -3815,6 +3815,35 @@ paths:
         "200":
           description: OK
 
+  /api/v1/fees/student/{sid}/internal/fees/query:
+    get:
+      tags:
+        - Student-Member-Tab
+      summary: Get All Internal Fees -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: This is Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: This is Limit
+      responses:
+        "200":
+          description: OK
+
   /api/v1/fees/student/{sid}:
     get:
       tags:

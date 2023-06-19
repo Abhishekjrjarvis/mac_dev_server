@@ -21,6 +21,7 @@ const Transport = require("../../models/Transport/transport");
 const Vehicle = require("../../models/Transport/vehicle");
 const RemainingList = require("../../models/Admission/RemainingList");
 const FeeReceipt = require("../../models/RazorPay/feeReceipt");
+const InternalFees = require("../../models/RazorPay/internalFees");
 const Exam = require("../../models/Exam");
 const ExamFeeStructure = require("../../models/BacklogStudent/ExamFeeStructure");
 const {
@@ -97,10 +98,22 @@ exports.feeInstituteFunction = async (
     });
     const orderPay = await OrderPayment.findById({ _id: order });
     const classes = await Class.findById({ _id: `${student.studentClass}` });
-    const fData = await Fees.findById({ _id: moduleId });
-    const checklistData = await Checklist.findById({ _id: moduleId });
+    var new_internal = await InternalFees.findById({ _id: moduleId });
+    var fData = await Fees.findOne({ _id: `${new_internal?.fees}` });
+    var checklistData = await Checklist.findOne({
+      _id: `${new_internal?.checklist}`,
+    });
     const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
-    const notify = new Notification({});
+    var notify = new Notification({});
+    var new_receipt = new FeeReceipt({});
+    new_receipt.fee_payment_amount = new_internal?.internal_fee_amount;
+    new_receipt.fee_payment_mode = "Payment Gateway - PG";
+    new_receipt.student = student?._id;
+    new_receipt.fee_transaction_date = new Date();
+    new_receipt.finance = finance?._id;
+    new_receipt.invoice_count = orderPay?.payment_invoice_number;
+    new_receipt.order_history = orderPay?._id;
+    new_internal.fee_receipt = new_receipt?._id;
     if (fData) {
       if (
         fData.studentsList.length >= 1 &&
@@ -112,6 +125,7 @@ exports.feeInstituteFunction = async (
           student.studentFee.push(fData._id);
           fData.onlineList.push(student._id);
           student.onlineFeeList.push(fData._id);
+          new_internal.internal_fee_status = "Paid";
           student.studentPaidFeeCount += fData.feeAmount;
           if (student.studentRemainingFeeCount >= fData.feeAmount) {
             student.studentRemainingFeeCount -= fData.feeAmount;
@@ -181,6 +195,8 @@ exports.feeInstituteFunction = async (
             classes.save(),
             studentUser.save(),
             orderPay.save(),
+            new_internal.save(),
+            new_receipt.save(),
           ]);
         } catch (e) {
           console.log(e);
@@ -202,6 +218,7 @@ exports.feeInstituteFunction = async (
           }
           checklistData.studentsList.push(student._id);
           student.onlineCheckList.push(checklistData._id);
+          new_internal.internal_fee_status = "Paid";
           if (is_author) {
             finance.financeBankBalance =
               finance.financeBankBalance + parseInt(tx_amount);
@@ -262,6 +279,8 @@ exports.feeInstituteFunction = async (
             admin.save(),
             studentUser.save(),
             orderPay.save(),
+            new_internal.save(),
+            new_receipt.save(),
           ]);
         } catch (e) {
           console.log(e);
@@ -1368,13 +1387,15 @@ exports.backlogFunction = async (
   tx_amount_ad,
   tx_amount_ad_charges,
   moduleId,
-  notify_id,
   is_author
 ) => {
   try {
     const student = await Student.findById({ _id: paidBy });
     const user = await User.findById({ _id: `${student.user}` });
-    const exam_struct = await ExamFeeStructure.findById({ _id: moduleId });
+    var new_internal = await InternalFees.findById({ _id: moduleId });
+    var exam_struct = await ExamFeeStructure.findById({
+      _id: `${new_internal?.exam_structure}`,
+    });
     const valid_depart = await Department.findById({
       _id: `${exam_struct?.department}`,
     });
@@ -1391,6 +1412,15 @@ exports.backlogFunction = async (
       select: "user",
     });
     const notify = new StudentNotification({});
+    var new_receipt = new FeeReceipt({});
+    new_receipt.fee_payment_amount = new_internal?.internal_fee_amount;
+    new_receipt.fee_payment_mode = "Payment Gateway - PG";
+    new_receipt.student = student?._id;
+    new_receipt.fee_transaction_date = new Date();
+    new_receipt.finance = finance?._id;
+    new_receipt.invoice_count = orderPay?.payment_invoice_number;
+    new_receipt.order_history = orderPay?._id;
+    new_internal.fee_receipt = new_receipt?._id;
     if (is_author) {
       finance.financeBankBalance =
         finance.financeBankBalance + parseInt(tx_amount_ad);
@@ -1415,14 +1445,15 @@ exports.backlogFunction = async (
         ref.status = "Paid";
       }
     }
-    var valid_fees = student?.backlog_exam_fee?.filter((ref) => {
-      if (`${ref?._id}` === `${notify_id}`) return ref;
-    });
-    if (valid_fees?.length > 0) {
-      for (var ref of valid_fees) {
-        ref.status = "Paid";
-      }
-    }
+    // var valid_fees = student?.backlog_exam_fee?.filter((ref) => {
+    //   if (`${ref?._id}` === `${notify_id}`) return ref;
+    // });
+    // if (valid_fees?.length > 0) {
+    //   for (var ref of valid_fees) {
+    //     ref.status = "Paid";
+    //   }
+    // }
+    new_internal.internal_fee_status = "Paid";
     notify.notifyContent = `${student.studentFirstName} ${
       student.studentMiddleName ? `${student.studentMiddleName} ` : ""
     } ${student.studentLastName} your transaction is successfull for ${
@@ -1450,6 +1481,8 @@ exports.backlogFunction = async (
       admin.save(),
       notify.save(),
       orderPay.save(),
+      new_internal.save(),
+      new_receipt.save(),
     ]);
     invokeMemberTabNotification(
       "Student Activity",

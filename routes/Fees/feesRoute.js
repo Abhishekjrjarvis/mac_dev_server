@@ -44,6 +44,10 @@ router
   .get(catchAsync(feesController.retrieveStudentQuery));
 
 router
+  .route("/student/:sid/internal/fees/query")
+  .get(catchAsync(feesController.retrieveStudentInternalQuery));
+
+router
   .route("/:fid/destroy/:did")
   .delete(catchAsync(feesController.renderFeesDeleteQuery));
 

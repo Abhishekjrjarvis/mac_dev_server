@@ -572,6 +572,12 @@ const studentSchema = new mongoose.Schema({
       },
     },
   ],
+  internal_fees_query: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "InternalFees",
+    },
+  ],
   mentor_assign_query: [
     {
       classId: {

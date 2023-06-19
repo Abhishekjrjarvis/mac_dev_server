@@ -261,7 +261,7 @@ exports.verifyRazorPayment = async (req, res) => {
           refactor_amount_nocharges,
           refactor_amount,
           payment_module_id,
-          ad_status_id,
+          // ad_status_id,
           Boolean(razor_author)
         );
         if (isApk) {

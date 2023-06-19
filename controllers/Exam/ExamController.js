@@ -22,6 +22,7 @@ const Backlog = require("../../models/BacklogStudent/backlog");
 const moment = require("moment");
 const Staff = require("../../models/Staff");
 const Seating = require("../../models/Exam/seating");
+const InternalFees = require("../../models/RazorPay/internalFees");
 const { handle_undefined } = require("../../Handler/customError");
 const { replace_query } = require("../../helper/dayTimer");
 const ExamMalicious = require("../../models/Exam/ExamMalicious");
@@ -3588,11 +3589,20 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
                       if (exist_fee?.exam_fee_amount > 0) {
                         student.studentRemainingFeeCount +=
                           exist_fee.exam_fee_amount;
-                        student.backlog_exam_fee.push({
-                          reason: "Backlog Fees",
-                          amount: exist_fee.exam_fee_amount,
-                          exam_structure: new_exam_struct?._id,
-                        });
+                        var new_internal = new InternalFees({});
+                        new_internal.internal_fee_type = "Backlog";
+                        new_internal.internal_fee_amount =
+                          exist_fee.exam_fee_amount;
+                        new_internal.exam_structure = new_exam_struct?._id;
+                        new_internal.internal_fee_reason = "Backlog Fees";
+                        new_internal.student = student?._id;
+                        new_internal.department = department?._id;
+                        student.internal_fees_query.push(new_internal?._id);
+                        // student.backlog_exam_fee.push({
+                        //   reason: "Backlog Fees",
+                        //   amount: exist_fee.exam_fee_amount,
+                        //   exam_structure: new_exam_struct?._id,
+                        // });
                         new_exam_struct.total_raised_collection +=
                           exist_fee.exam_fee_amount;
                         new_exam_struct.paid_student.push({
@@ -3613,11 +3623,20 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
                       if (exist_fee?.exam_fee_amount > 0) {
                         student.studentRemainingFeeCount +=
                           all_back?.length * exist_fee.exam_fee_amount;
-                        student.backlog_exam_fee.push({
-                          reason: "Backlog Fees",
-                          amount: all_back?.length * exist_fee.exam_fee_amount,
-                          exam_structure: new_exam_struct?._id,
-                        });
+                        var new_internal = new InternalFees({});
+                        new_internal.internal_fee_type = "Backlog";
+                        new_internal.internal_fee_amount =
+                          all_back?.length * exist_fee.exam_fee_amount;
+                        new_internal.exam_structure = new_exam_struct?._id;
+                        new_internal.internal_fee_reason = "Backlog Fees";
+                        new_internal.student = student?._id;
+                        new_internal.department = department?._id;
+                        student.internal_fees_query.push(new_internal?._id);
+                        // student.backlog_exam_fee.push({
+                        //   reason: "Backlog Fees",
+                        //   amount: all_back?.length * exist_fee.exam_fee_amount,
+                        //   exam_structure: new_exam_struct?._id,
+                        // });
                         new_exam_struct.total_raised_collection +=
                           all_back?.length * exist_fee.exam_fee_amount;
                         new_exam_struct.paid_student.push({
@@ -3725,6 +3744,7 @@ exports.renderNewBacklogExamQuery = async (req, res) => {
                 student_prev.save(),
                 notify.save(),
                 user.save(),
+                new_internal.save(),
               ]);
             }
             if (subject?.exams?.includes(exam._id)) {

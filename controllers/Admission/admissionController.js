@@ -694,7 +694,25 @@ Note: Stay tuned for further updates.`;
       fee_remain: 0,
     });
     apply.receievedCount += 1;
-    notify.notifyContent = `You have applied for ${apply?.applicationName} has been filled successfully.Stay updated to check status of your application.`;
+    notify.notifyContent = `Your application for ${apply?.applicationName} have been filled successfully.
+
+Below is the admission process:
+1. You will get notified here after your selection or rejection from the institute. ( In case there is no notification within 3 working days, visit or contact the admission department)
+
+2.After selection, confirm from your side and start the admission process.
+
+3.After confirmation from your side, visit the institute with the required documents and applicable fees. (You will get Required documents and application fees information on your selection from the institute side. (Till then check our standard required documents and fee structures)
+
+4.Payment modes available for fee payment: 
+Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe, Google pay, Paytm)
+
+5.After submission and verification of documents, you are required to pay application admission fees.
+
+6. Pay application admission fees and your admission will be confirmed and complete.
+
+7. For cancellation and refund, contact the admission department.
+
+Note: Stay tuned for further updates.`
     notify.notifySender = admission?.admissionAdminHead?.user;
     notify.notifyReceiever = user?._id;
     notify.notifyType = "Student";

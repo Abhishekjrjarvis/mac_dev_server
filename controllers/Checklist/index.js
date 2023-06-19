@@ -8,6 +8,7 @@ const StudentNotification = require("../../models/Marks/StudentNotification");
 const InstituteAdmin = require("../../models/InstituteAdmin");
 const Finance = require("../../models/Finance");
 const invokeMemberTabNotification = require("../../Firebase/MemberTab");
+const InternalFees = require("../../models/RazorPay/internalFees");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.viewDepartment = async (req, res) => {
@@ -96,10 +97,18 @@ exports.createChecklist = async (req, res) => {
     for (let i = 0; i < ClassId.length; i++) {
       const classes = await Class.findById({ _id: ClassId[i] });
       const student = await Student.find({ studentClass: `${classes._id}` });
-      student.forEach(async (st) => {
-        st.studentRemainingFeeCount += check.checklistAmount;
-        await st.save();
-      });
+      for (var ref of student) {
+        const new_internal = new InternalFees({});
+        new_internal.internal_fee_type = "Checklist";
+        new_internal.internal_fee_amount = check.checklistAmount;
+        new_internal.checklist = check?._id;
+        new_internal.internal_fee_reason = check?.checklistName;
+        new_internal.student = ref?._id;
+        new_internal.department = department?._id;
+        ref.studentRemainingFeeCount += check.checklistAmount;
+        ref.internal_fees_query.push(new_internal?._id);
+        await Promise.all([ref.save(), new_internal.save()]);
+      }
     }
     const institute = await InstituteAdmin.findById({
       _id: `${department.institute}`,
@@ -209,62 +218,67 @@ exports.getAllChecklistDepartment = async (req, res) => {
   }
 };
 
-
-const nested_function_fee = async(arr, fee) => {
-  var flag = false
-  const all_students = await Student.find({ studentClass: { $in: arr }})
-  for(var nest of all_students){
-    if(nest?.onlineCheckList?.includes(`${fee}`)){
-      flag = true
+const nested_function_fee = async (arr, fee) => {
+  var flag = false;
+  const all_students = await Student.find({ studentClass: { $in: arr } });
+  for (var nest of all_students) {
+    if (nest?.onlineCheckList?.includes(`${fee}`)) {
+      flag = true;
       break;
-    }
-    else if(nest?.allottedChecklist?.includes(`${fee}`)){
-      flag = true
+    } else if (nest?.allottedChecklist?.includes(`${fee}`)) {
+      flag = true;
       break;
-    }
-    else{
-      flag = false
+    } else {
+      flag = false;
     }
   }
-  return flag
-}
+  return flag;
+};
 
-exports.renderChecklistDeleteQuery = async(req, res) => {
-  try{
-    const { did, cid } = req.params
-    if(!cid) return res.status(200).send({ message: "Their is a bug need to fixed immediately 😡", access: false})
-    const depart = await Department.findById({_id: did})
-    const finance = await Finance.findOne({ institute: `${depart?.institute}`})
-    const checklists = await Checklist.findById({_id: cid})
-    const flag_status = await nested_function_fee(depart.class, cid)
-    if(flag_status){
-      res.status(200).send({ message: "Deletion Operation Denied Some Student Already Paid 😥", access: false})
-    }
-    else{
-      depart.checklists.pull(cid)
-      for(var cal of depart.class){
-        const classes = await Class.findById({ _id: cal})
-        for(var val of classes?.ApproveStudent){
-          const student = await Student.findById({ _id: val})
-          if(student?.studentRemainingFeeCount >= checklists?.feeAmount){
-            student.studentRemainingFeeCount -= checklists.feeAmount
+exports.renderChecklistDeleteQuery = async (req, res) => {
+  try {
+    const { did, cid } = req.params;
+    if (!cid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately 😡",
+        access: false,
+      });
+    const depart = await Department.findById({ _id: did });
+    const finance = await Finance.findOne({
+      institute: `${depart?.institute}`,
+    });
+    const checklists = await Checklist.findById({ _id: cid });
+    const flag_status = await nested_function_fee(depart.class, cid);
+    if (flag_status) {
+      res.status(200).send({
+        message: "Deletion Operation Denied Some Student Already Paid 😥",
+        access: false,
+      });
+    } else {
+      depart.checklists.pull(cid);
+      for (var cal of depart.class) {
+        const classes = await Class.findById({ _id: cal });
+        for (var val of classes?.ApproveStudent) {
+          const student = await Student.findById({ _id: val });
+          if (student?.studentRemainingFeeCount >= checklists?.feeAmount) {
+            student.studentRemainingFeeCount -= checklists.feeAmount;
           }
-          if(finance?.financeRaisedBalance >= checklists?.feeAmount){
-            finance.financeRaisedBalance -= checklists.feeAmount
+          if (finance?.financeRaisedBalance >= checklists?.feeAmount) {
+            finance.financeRaisedBalance -= checklists.feeAmount;
           }
-          await student.save()
+          await student.save();
         }
-        classes.checklist.pull(cid)
-        await classes.save()
+        classes.checklist.pull(cid);
+        await classes.save();
       }
-      await Promise.all([ finance.save(), depart.save()])
-      await Checklist.findByIdAndDelete(cid)
-      res.status(200).send({ 
-        message: "Deletion Operation Completed 😁", 
+      await Promise.all([finance.save(), depart.save()]);
+      await Checklist.findByIdAndDelete(cid);
+      res.status(200).send({
+        message: "Deletion Operation Completed 😁",
         access: true,
-      })
+      });
     }
-  }catch(e){
-    console.log(e)
+  } catch (e) {
+    console.log(e);
   }
-}
+};

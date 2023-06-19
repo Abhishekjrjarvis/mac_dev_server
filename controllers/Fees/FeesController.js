@@ -13,6 +13,7 @@ const moment = require("moment");
 const Admin = require("../../models/superAdmin");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
 const RemainingList = require("../../models/Admission/RemainingList");
+const InternalFees = require("../../models/RazorPay/internalFees");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.createFess = async (req, res) => {
@@ -65,10 +66,18 @@ exports.createFess = async (req, res) => {
     for (let i = 0; i < ClassId.length; i++) {
       const classes = await Class.findById({ _id: ClassId[i] });
       const student = await Student.find({ studentClass: `${classes._id}` });
-      student.forEach(async (st) => {
-        st.studentRemainingFeeCount += feeData.feeAmount;
-        await st.save();
-      });
+      for (var ref of student) {
+        const new_internal = new InternalFees({});
+        new_internal.internal_fee_type = "Fees";
+        new_internal.internal_fee_amount = feeData?.feeAmount;
+        new_internal.fees = feeData?._id;
+        new_internal.internal_fee_reason = feeData?.feeName;
+        new_internal.student = ref?._id;
+        new_internal.department = department?._id;
+        ref.studentRemainingFeeCount += feeData.feeAmount;
+        ref.internal_fees_query.push(new_internal?._id);
+        await Promise.all([ref.save(), new_internal.save()]);
+      }
     }
     const institute = await InstituteAdmin.findById({
       _id: `${department.institute}`,
@@ -560,6 +569,78 @@ exports.retrieveStudentQuery = async (req, res) => {
       res
         .status(200)
         .send({ message: "No Fee Data Available Currently...", mergePay: [] });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveStudentInternalQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const student = await Student.findById({ _id: sid }).select(
+      "internal_fees_query"
+    );
+
+    var all_internal = await InternalFees.find({
+      _id: { $in: student?.internal_fees_query },
+    })
+      .limit(limit)
+      .skip(skip)
+      .populate({
+        path: "fees",
+        select: "feeName",
+      })
+      .populate({
+        path: "checklist",
+        select: "checklistName",
+      })
+      .populate({
+        path: "fee_receipt",
+        populate: {
+          path: "finance",
+          select: "financeHead",
+          populate: {
+            path: "financeHead",
+            select: "staffFirstName staffMiddleName staffLastName",
+          },
+        },
+      })
+      .populate({
+        path: "fee_receipt",
+        populate: {
+          path: "order_history",
+        },
+      })
+      .populate({
+        path: "department",
+        select: "dName",
+      })
+      .populate({
+        path: "exam_structure",
+        select: "exam_fee_type",
+      });
+
+    if (all_internal?.length > 0) {
+      res.status(200).send({
+        message: "Explore New Internal Fees Redesign",
+        access: true,
+        all_internal: all_internal,
+      });
+    } else {
+      res.status(200).send({
+        message: "No New Internal Fees Redesign",
+        access: false,
+        all_internal: [],
+      });
     }
   } catch (e) {
     console.log(e);

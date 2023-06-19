@@ -6,7 +6,7 @@ const catchAsync = require("../../Utilities/catchAsync");
 
 router
   .route("/:cid")
-  .get(isLoggedIn, catchAsync(checklist.getOneChecklist))
+  .get(catchAsync(checklist.getOneChecklist))
   .patch(isLoggedIn, catchAsync(checklist.updateChecklist));
 router
   .route("/department/:did")
@@ -26,6 +26,6 @@ router
 
 router
   .route("/:cid/destroy/:did")
-  .delete( catchAsync(checklist.renderChecklistDeleteQuery));
+  .delete(catchAsync(checklist.renderChecklistDeleteQuery));
 
 module.exports = router;

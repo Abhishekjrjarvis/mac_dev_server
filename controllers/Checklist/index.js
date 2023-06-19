@@ -107,7 +107,8 @@ exports.createChecklist = async (req, res) => {
         new_internal.department = department?._id;
         ref.studentRemainingFeeCount += check.checklistAmount;
         ref.internal_fees_query.push(new_internal?._id);
-        await Promise.all([ref.save(), new_internal.save()]);
+        check.studentsList.push(ref?._id);
+        await Promise.all([ref.save(), new_internal.save(), check.save()]);
       }
     }
     const institute = await InstituteAdmin.findById({
@@ -141,9 +142,9 @@ exports.getOneChecklist = async (req, res) => {
   try {
     const checklist = await Checklist.findById(req.params.cid)
       .populate({
-        path: "student",
+        path: "studentsList",
         select:
-          "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName studentROLLNO",
+          "photoId studentProfilePhoto studentFirstName studentMiddleName studentLastName studentROLLNO onlineCheckList allottedChecklist",
       })
       .select("_id")
       .lean()

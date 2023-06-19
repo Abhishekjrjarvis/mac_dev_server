@@ -574,22 +574,25 @@ exports.retrieveStudentQuery = async (req, res) => {
       // Add Another Encryption
       // for(var ref of student){
       var all_remain = await RemainingList.find({ student: `${student?._id}` })
-        .select("applicable_fee paid_fee")
+        .select("applicable_fee paid_fee paid_by_government")
         .populate({
           path: "fee_structure",
           select: "applicable_fees",
         });
+      var g_total = 0;
       for (var ele of all_remain) {
         student.applicable_fees_pending +=
           ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
             ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
             : 0;
+        g_total += ele?.paid_by_government;
       }
       res.status(200).send({
         message: "Student Fee and Checklist",
         student,
         mergePay: mergePay,
         financeId: institute?.financeDepart[0],
+        paid_by_government: g_total,
       });
     } else {
       res
@@ -617,10 +620,7 @@ exports.retrieveStudentInternalQuery = async (req, res) => {
     );
 
     var all_internal = await InternalFees.find({
-      $and: [
-        { internal_fee_type: { $ne: "Backlog" } },
-        { _id: { $in: student?.internal_fees_query } },
-      ],
+      _id: { $in: student?.internal_fees_query },
     })
       .limit(limit)
       .skip(skip)

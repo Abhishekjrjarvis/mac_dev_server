@@ -19,6 +19,10 @@ const internalFeeSchema = new mongoose.Schema({
     type: String,
     default: "Not Paid",
   },
+  internal_fee_exempt_status: {
+    type: String,
+    default: "Not Exempted",
+  },
   fee_receipt: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "FeeReceipt",

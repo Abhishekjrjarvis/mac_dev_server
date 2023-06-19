@@ -14,6 +14,7 @@ const Admin = require("../../models/superAdmin");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
 const RemainingList = require("../../models/Admission/RemainingList");
 const InternalFees = require("../../models/RazorPay/internalFees");
+const FeeReceipt = require("../../models/RazorPay/feeReceipt");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.createFess = async (req, res) => {
@@ -137,7 +138,7 @@ exports.feesPaidByStudent = async (req, res) => {
       path: "classTeacher",
       select: "user",
     });
-    const fData = await Fees.findById({ _id: id });
+    var fData = await Fees.findById({ _id: id });
     const s_admin = await Admin.findById({
       _id: `${process.env.S_ADMIN_ID}`,
     }).select("invoice_count");
@@ -150,6 +151,9 @@ exports.feesPaidByStudent = async (req, res) => {
     if (offlineQuery?.length > 0) {
       for (let off of offlineQuery) {
         const student = await Student.findById({ _id: `${off}` });
+        var new_internal = await InternalFees.findOne({
+          $and: [{ fees: `${fData?._id}` }, { student: student?._id }],
+        });
         const user = await User.findById({ _id: `${student.user}` });
         if (
           fData.studentsList.length >= 1 &&
@@ -163,6 +167,7 @@ exports.feesPaidByStudent = async (req, res) => {
           student.offlineFeeList.push(fData._id);
           fData.offlineStudentsList.push(student._id);
           fData.offlineFee += fData.feeAmount;
+          new_internal.internal_fee_status = "Paid";
           finance.financeCollectedSBalance += fData.feeAmount;
           classes.offlineFeeCollection.push({
             fee: fData.feeAmount,
@@ -186,6 +191,15 @@ exports.feesPaidByStudent = async (req, res) => {
           }${new Date().getFullYear()}${s_admin.invoice_count}`;
           user.payment_history.push(order._id);
           institute.payment_history.push(order._id);
+          var new_receipt = new FeeReceipt({});
+          new_receipt.fee_payment_amount = new_internal?.internal_fee_amount;
+          new_receipt.fee_payment_mode = "Offline";
+          new_receipt.student = student?._id;
+          new_receipt.fee_transaction_date = new Date();
+          new_receipt.finance = finance?._id;
+          new_receipt.invoice_count = order?.payment_invoice_number;
+          new_receipt.order_history = order?._id;
+          new_internal.fee_receipt = new_receipt?._id;
           const notify = new StudentNotification({});
           notify.notifyContent = `${student.studentFirstName} ${
             student.studentMiddleName ? `${student.studentMiddleName} ` : ""
@@ -216,6 +230,8 @@ exports.feesPaidByStudent = async (req, res) => {
             order.save(),
             s_admin.save(),
             notify.save(),
+            new_receipt.save(),
+            new_internal.save(),
           ]);
         }
       }
@@ -234,6 +250,9 @@ exports.feesPaidByStudent = async (req, res) => {
     if (exemptQuery?.length > 0) {
       for (let exe of exemptQuery) {
         const student = await Student.findById({ _id: `${exe}` });
+        var new_internal = await InternalFees.findOne({
+          $and: [{ fees: `${fData?._id}` }, { student: student?._id }],
+        });
         const user = await User.findById({ _id: `${student.user}` });
         if (
           fData.studentExemptList.length >= 1 &&
@@ -246,6 +265,8 @@ exports.feesPaidByStudent = async (req, res) => {
           }
           student.exemptFeeList.push(fData._id);
           fData.exemptList.push(student._id);
+          new_internal.internal_fee_status = "Paid";
+          new_internal.internal_fee_exempt_status = "Exempted";
           classes.exemptFee += fData.feeAmount;
           finance.financeExemptBalance += fData.feeAmount;
           classes.exemptFeeCollection.push({
@@ -276,7 +297,10 @@ exports.feesPaidByStudent = async (req, res) => {
             "Student",
             notify
           );
-          await Promise.all([student.save(), user.save(), notify.save()]);
+          await Promise.all(
+            [student.save(), user.save(), notify.save()],
+            new_internal.save()
+          );
         }
       }
       exe_status = "Done";

@@ -6719,7 +6719,7 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
         { fee_flow: "FEE_HEADS" },
       ],
     });
-    // if (one_remain_list?.status === "Not Paid") {
+    if (one_remain_list?.status === "Not Paid") {
     if (new_struct?.total_admission_fees >= old_struct?.total_admission_fees) {
       one_remain_list.applicable_fee = new_struct?.total_admission_fees;
       one_remain_list.remaining_fee =
@@ -6882,11 +6882,11 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
       }
       await ref.save();
     }
-    // } else {
-    //   res
-    //     .status(200)
-    //     .send({ message: "Fee Structure Edit Not Possible", access: false });
-    // }
+    } else {
+      res
+        .status(200)
+        .send({ message: "Fee Structure Edit Not Possible", access: false });
+    }
   } catch (e) {
     console.log(e);
   }

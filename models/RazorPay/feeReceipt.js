@@ -119,8 +119,12 @@ const feeReceiptSchema = new mongoose.Schema({
   },
   order_history: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "OrderPayment"
-  }
+    ref: "OrderPayment",
+  },
+  internal_fees: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "InternalFees",
+  },
 });
 
 module.exports = mongoose.model("FeeReceipt", feeReceiptSchema);

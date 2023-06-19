@@ -3844,6 +3844,54 @@ paths:
         "200":
           description: OK
 
+  /api/v1/fees/student/{sid}/backlog/fees/query:
+    get:
+      tags:
+        - Student-Member-Tab
+      summary: Get All Backlog Fees -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: This is Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: This is Limit
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/fees/student/one/receipt/{orid}/query:
+    get:
+      tags:
+        - Student-Member-Tab
+      summary: Get All Backlog Fees -(verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: orid
+          required: true
+          type: string
+          description: This is Fee Receipt id
+      responses:
+        "200":
+          description: OK
+
   /api/v1/fees/student/{sid}:
     get:
       tags:

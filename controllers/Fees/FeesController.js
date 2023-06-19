@@ -15,6 +15,7 @@ const OrderPayment = require("../../models/RazorPay/orderPayment");
 const RemainingList = require("../../models/Admission/RemainingList");
 const InternalFees = require("../../models/RazorPay/internalFees");
 const FeeReceipt = require("../../models/RazorPay/feeReceipt");
+const BankAccount = require("../../models/Finance/BankAccount");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.createFess = async (req, res) => {
@@ -200,6 +201,7 @@ exports.feesPaidByStudent = async (req, res) => {
           new_receipt.invoice_count = order?.payment_invoice_number;
           new_receipt.order_history = order?._id;
           new_internal.fee_receipt = new_receipt?._id;
+          new_receipt.internal_fees = new_internal?._id;
           const notify = new StudentNotification({});
           notify.notifyContent = `${student.studentFirstName} ${
             student.studentMiddleName ? `${student.studentMiddleName} ` : ""
@@ -615,7 +617,10 @@ exports.retrieveStudentInternalQuery = async (req, res) => {
     );
 
     var all_internal = await InternalFees.find({
-      _id: { $in: student?.internal_fees_query },
+      $and: [
+        { internal_fee_type: { $ne: "Backlog" } },
+        { _id: { $in: student?.internal_fees_query } },
+      ],
     })
       .limit(limit)
       .skip(skip)
@@ -626,23 +631,6 @@ exports.retrieveStudentInternalQuery = async (req, res) => {
       .populate({
         path: "checklist",
         select: "checklistName",
-      })
-      .populate({
-        path: "fee_receipt",
-        populate: {
-          path: "finance",
-          select: "financeHead",
-          populate: {
-            path: "financeHead",
-            select: "staffFirstName staffMiddleName staffLastName",
-          },
-        },
-      })
-      .populate({
-        path: "fee_receipt",
-        populate: {
-          path: "order_history",
-        },
       })
       .populate({
         path: "department",
@@ -666,6 +654,128 @@ exports.retrieveStudentInternalQuery = async (req, res) => {
         all_internal: [],
       });
     }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveStudentBacklogQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    if (!sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+    const student = await Student.findById({ _id: sid }).select(
+      "internal_fees_query"
+    );
+
+    var all_internal = await InternalFees.find({
+      $and: [
+        { internal_fee_type: "Backlog" },
+        { _id: { $in: student?.internal_fees_query } },
+      ],
+    })
+      .limit(limit)
+      .skip(skip)
+      .populate({
+        path: "fees",
+        select: "feeName",
+      })
+      .populate({
+        path: "checklist",
+        select: "checklistName",
+      })
+      .populate({
+        path: "department",
+        select: "dName",
+      })
+      .populate({
+        path: "exam_structure",
+        select: "exam_fee_type",
+      });
+
+    if (all_internal?.length > 0) {
+      res.status(200).send({
+        message: "Explore New Backlog Fees Redesign",
+        access: true,
+        all_internal: all_internal,
+      });
+    } else {
+      res.status(200).send({
+        message: "No New Backlog Fees Redesign",
+        access: false,
+        all_internal: [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.retrieveStudentOneFeeReceiptQuery = async (req, res) => {
+  try {
+    const { orid } = req.params;
+    if (!orid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: false,
+      });
+
+    const receipt = await FeeReceipt.findById({ _id: orid })
+      .populate({
+        path: "student",
+        select:
+          "studentFirstName studentMiddleName studentGRNO studentLastName",
+      })
+      .populate({
+        path: "finance",
+        select: "financeHead",
+        populate: {
+          path: "financeHead",
+          select: "staffFirstName staffMiddleName staffLastName",
+        },
+      })
+      .populate({
+        path: "finance",
+        select: "institute",
+        populate: {
+          path: "institute",
+          select:
+            "insName name insAddress insPhoneNumber insEmail insState insDistrict insProfilePhoto photoId",
+          populate: {
+            path: "displayPersonList",
+            select: "displayTitle",
+            populate: {
+              path: "displayUser displayStaff",
+              select:
+                "userLegalName staffFirstName staffMiddleName staffLastName staffProfilePhoto photoId",
+            },
+          },
+        },
+      })
+      .populate({
+        path: "order_history",
+      })
+      .populate({
+        path: "internal_fees",
+      });
+    var one_account = await BankAccount.findOne({
+      department: receipt?.internal_fees?.department,
+    }).select(
+      "finance_bank_account_number finance_bank_name finance_bank_account_name finance_bank_ifsc_code finance_bank_branch_address finance_bank_upi_id finance_bank_upi_qrcode"
+    );
+
+    res.status(200).send({
+      message: "Come up with Tea and Snacks",
+      access: true,
+      receipt: receipt,
+      one_account: one_account,
+    });
   } catch (e) {
     console.log(e);
   }

@@ -114,6 +114,7 @@ exports.feeInstituteFunction = async (
     new_receipt.invoice_count = orderPay?.payment_invoice_number;
     new_receipt.order_history = orderPay?._id;
     new_internal.fee_receipt = new_receipt?._id;
+    new_receipt.internal_fees = new_internal?._id;
     if (fData) {
       if (
         fData.studentsList.length >= 1 &&
@@ -1421,6 +1422,7 @@ exports.backlogFunction = async (
     new_receipt.invoice_count = orderPay?.payment_invoice_number;
     new_receipt.order_history = orderPay?._id;
     new_internal.fee_receipt = new_receipt?._id;
+    new_receipt.internal_fees = new_internal?._id;
     if (is_author) {
       finance.financeBankBalance =
         finance.financeBankBalance + parseInt(tx_amount_ad);

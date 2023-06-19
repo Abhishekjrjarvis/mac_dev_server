@@ -48,6 +48,14 @@ router
   .get(catchAsync(feesController.retrieveStudentInternalQuery));
 
 router
+  .route("/student/:sid/backlog/fees/query")
+  .get(catchAsync(feesController.retrieveStudentBacklogQuery));
+
+router
+  .route("/student/one/receipt/:orid/query")
+  .get(catchAsync(feesController.retrieveStudentOneFeeReceiptQuery));
+
+router
   .route("/:fid/destroy/:did")
   .delete(catchAsync(feesController.renderFeesDeleteQuery));
 

@@ -637,6 +637,9 @@ exports.retrieveStudentInternalQuery = async (req, res) => {
         select: "dName",
       })
       .populate({
+        path: "fee_receipt",
+      })
+      .populate({
         path: "exam_structure",
         select: "exam_fee_type",
       });
@@ -693,6 +696,9 @@ exports.retrieveStudentBacklogQuery = async (req, res) => {
       .populate({
         path: "department",
         select: "dName",
+      })
+      .populate({
+        path: "fee_receipt",
       })
       .populate({
         path: "exam_structure",

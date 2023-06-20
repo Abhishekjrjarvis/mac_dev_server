@@ -871,3 +871,16 @@ exports.renderFeesEditQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+// const data_add = async () => {
+//   var new_internal = new InternalFees({});
+//   new_internal.internal_fee_type = "Backlog";
+//   new_internal.internal_fee_amount = 2000;
+//   new_internal.exam_structure = null;
+//   new_internal.internal_fee_reason = "Backlog Fees";
+//   new_internal.student = "6482c87de8460cfc8adae0fc";
+//   new_internal.department = "645706a9400d02d6fd2f3939";
+//   await new_internal.save();
+// };
+
+// console.log(data_add());

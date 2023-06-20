@@ -465,7 +465,7 @@ const userSchema = new mongoose.Schema({
   favourite_quote: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Quote",
+      ref: "Quotes",
     },
   ],
   favourite_quote_count: {
@@ -475,7 +475,7 @@ const userSchema = new mongoose.Schema({
   daily_quote_query: {
     quote: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Quote",
+      ref: "Quotes",
     },
     status: {
       type: String,

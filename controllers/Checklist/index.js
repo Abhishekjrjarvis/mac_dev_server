@@ -97,18 +97,25 @@ exports.createChecklist = async (req, res) => {
     for (let i = 0; i < ClassId.length; i++) {
       const classes = await Class.findById({ _id: ClassId[i] });
       const student = await Student.find({ studentClass: `${classes._id}` });
-      for (var ref of student) {
-        const new_internal = new InternalFees({});
-        new_internal.internal_fee_type = "Checklist";
-        new_internal.internal_fee_amount = check.checklistAmount;
-        new_internal.checklist = check?._id;
-        new_internal.internal_fee_reason = check?.checklistName;
-        new_internal.student = ref?._id;
-        new_internal.department = department?._id;
-        ref.studentRemainingFeeCount += check.checklistAmount;
-        ref.internal_fees_query.push(new_internal?._id);
-        check.studentsList.push(ref?._id);
-        await Promise.all([ref.save(), new_internal.save(), check.save()]);
+      if (check?.checklistFees === "Yes") {
+        for (var ref of student) {
+          const new_internal = new InternalFees({});
+          new_internal.internal_fee_type = "Checklist";
+          new_internal.internal_fee_amount = check.checklistAmount;
+          new_internal.checklist = check?._id;
+          new_internal.internal_fee_reason = check?.checklistName;
+          new_internal.student = ref?._id;
+          new_internal.department = department?._id;
+          ref.studentRemainingFeeCount += check.checklistAmount;
+          ref.internal_fees_query.push(new_internal?._id);
+          check.studentsList.push(ref?._id);
+          await Promise.all([ref.save(), new_internal.save(), check.save()]);
+        }
+      } else {
+        for (var ref of student) {
+          check.studentsList.push(ref?._id);
+          await check.save();
+        }
       }
     }
     const institute = await InstituteAdmin.findById({
@@ -119,18 +126,21 @@ exports.createChecklist = async (req, res) => {
     });
     //
     var strength = 0;
-    for (let i = 0; i < ClassId.length; i++) {
-      const classes = await Class.findById({ _id: ClassId[i] }).select(
-        "ApproveStudent"
-      );
-      strength += classes.ApproveStudent?.length;
-    }
-    if (strength > 0) {
-      finance.financeRaisedBalance += check.checklistAmount * strength;
-      await finance.save();
+    if (check?.checklistFees === "Yes") {
+      for (let i = 0; i < ClassId.length; i++) {
+        const classes = await Class.findById({ _id: ClassId[i] }).select(
+          "ApproveStudent"
+        );
+        strength += classes.ApproveStudent?.length;
+      }
+      if (strength > 0) {
+        finance.financeRaisedBalance += check.checklistAmount * strength;
+        await finance.save();
+      } else {
+        finance.financeRaisedBalance += check.checklistAmount * strength;
+        await finance.save();
+      }
     } else {
-      finance.financeRaisedBalance += check.checklistAmount * strength;
-      await finance.save();
     }
     //
   } catch (e) {

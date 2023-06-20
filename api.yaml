@@ -30819,3 +30819,25 @@ paths:
       responses:
         "200":
           description: OK
+
+
+#Quotes API
+
+  /api/v1/community/quote/{uid}/display:
+    patch:
+      tags:
+        - Quotes Query
+      summary: Display Random Quotes (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uid
+          required: true
+          type: string
+          description: This is User id 
+      responses:
+        "200":
+          description: OK

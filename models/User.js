@@ -462,6 +462,26 @@ const userSchema = new mongoose.Schema({
       ref: "Vehicle",
     },
   ],
+  favourite_quote: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Quote",
+    },
+  ],
+  favourite_quote_count: {
+    type: Number,
+    default: 0,
+  },
+  daily_quote_query: {
+    quote: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Quote",
+    },
+    status: {
+      type: String,
+      default: "Not Display",
+    },
+  },
 });
 
 userSchema.post("findOneAndDelete", async function (doc) {

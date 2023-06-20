@@ -5,6 +5,7 @@ const moment = require("moment");
 const Renewal = require("../models/Hostel/renewal");
 const HostelUnit = require("../models/Hostel/hostelUnit");
 const { custom_date_time } = require("../helper/dayTimer");
+const User = require("../models/User");
 
 exports.dueDateAlarm = async () => {
   try {
@@ -76,6 +77,24 @@ exports.renewal_request_alarm = async () => {
           ]);
         }
       }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.quote_disappear = async (req, res) => {
+  try {
+    var all_user = await User.find({}).select("daily_quote_query");
+    if (all_user?.length > 0) {
+      for (var ref of all_user) {
+        if (ref?.daily_quote_query?.status === "Displayed") {
+          ref.daily_quote_query.quote = null;
+          ref.daily_quote_query.status = "Not Display";
+          await ref.save();
+        }
+      }
+    } else {
     }
   } catch (e) {
     console.log(e);

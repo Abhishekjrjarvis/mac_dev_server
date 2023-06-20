@@ -36,13 +36,13 @@ exports.renderNewQuoteDisplayQuery = async (req, res) => {
 
 exports.renderNewQuoteQuery = async (req, res) => {
   try {
-    // const data = await axios.get("https://type.fit/api/quotes");
+    // var data = await axios.get("https://type.fit/api/quotes");
     // for (var ref of data) {
     //   const new_quote = new Quotes({
     //     quote_text: ref?.quote,
     //     quote_author: ref?.author,
     //     quote_tag: ref?.category,
-    //     quote_length: ref?.text?.length,
+    //     quote_length: ref?.quote?.length,
     //   });
     //   await new_quote.save();
     // }

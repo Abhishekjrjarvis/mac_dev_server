@@ -28,6 +28,7 @@ const FeeStructure = require("../../models/Finance/FeesStructure");
 const RemainingList = require("../../models/Admission/RemainingList");
 const Admission = require("../../models/Admission/Admission");
 const { add_all_installment_zero } = require("../../helper/Installment");
+const FeeCategory = require("../../models/Finance/FeesCategory");
 
 exports.preformedStructure = async (req, res) => {
   try {

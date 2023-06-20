@@ -1144,12 +1144,13 @@ exports.getQCoins = async (req, res) => {
 exports.getDashDataQuery = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await User.findById({ _id: id }).select(
-      "userLegalName username userBlock user_block_institute recoveryMail userPhoneNumber follow_hashtag ageRestrict blockedBy is_mentor show_suggestion photoId blockStatus one_line_about profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify userFollowers userFollowing userCircle"
-    )
-    .populate({
-      path: "daily_quote_query.quote",
-    });
+    const user = await User.findById({ _id: id })
+      .select(
+        "userLegalName username userBlock user_block_institute recoveryMail userPhoneNumber follow_hashtag ageRestrict blockedBy is_mentor show_suggestion photoId blockStatus one_line_about profilePhoto user_birth_privacy user_address_privacy user_circle_privacy tag_privacy user_follower_notify user_comment_notify user_answer_notify user_institute_notify userFollowers userFollowing userCircle"
+      )
+      .populate({
+        path: "daily_quote_query.quote",
+      });
     if (user?.userPosts && user?.userPosts.length < 1) {
       var post = [];
     }
@@ -2365,7 +2366,9 @@ exports.retrieveUserLocationPermission = async (req, res) => {
 exports.retrieveUserRoleQuery = async (req, res) => {
   try {
     const { uid } = req.params;
-    const user = await User.findById({ _id: uid }).select("staff student");
+    const user = await User.findById({ _id: uid }).select(
+      "staff student active_member_role"
+    );
 
     const staff = await Staff.find({ _id: { $in: user?.staff } })
       .sort("staffDesignationCount")
@@ -2388,11 +2391,13 @@ exports.retrieveUserRoleQuery = async (req, res) => {
       });
 
     var mergeArray = [...staff, ...student];
-    // var get_array = shuffleArray(mergeArray);
+    var get_array = mergeArray?.filter((val) => {
+      if (val?._id === user?.active_member_role) return val;
+    });
     // const roleEncrypt = await encryptionPayload(mergeArray);
     res.status(200).send({
       message: "User Role for Staff & Student",
-      role_query: mergeArray,
+      role_query: mergeArray.unshift(get_array?.[0]),
     });
   } catch (e) {
     console.log(e);

@@ -283,7 +283,7 @@ router.patch(
 // User Switch Staff & Student
 router.get(
   "/:uid/staff/student/role",
-  isLoggedIn,
+  // isLoggedIn,
   catchAsync(User.retrieveUserRoleQuery)
 );
 

@@ -125,6 +125,10 @@ const feeReceiptSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "InternalFees",
   },
+  set_off_status: {
+    type: String,
+    default: "Not Set off",
+  },
 });
 
 module.exports = mongoose.model("FeeReceipt", feeReceiptSchema);

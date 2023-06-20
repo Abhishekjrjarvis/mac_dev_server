@@ -192,7 +192,9 @@ exports.studentAssignChecklist = async (req, res) => {
       notify.save(),
     ]);
     res.status(200).send({ message: "checklist Assigned" });
-  } catch {}
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.updateChecklist = async (req, res) => {

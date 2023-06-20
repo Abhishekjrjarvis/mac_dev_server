@@ -6993,6 +6993,7 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
         new_receipt.student = student?._id;
         new_receipt.application = apply?._id;
         new_receipt.finance = finance?._id;
+        new_receipt.set_off_status = "Set Off"
         new_receipt.fee_transaction_date = new Date();
         const notify = new StudentNotification({});
         if (valid_remain_card?.paid_fee >= price) {
@@ -7106,23 +7107,23 @@ exports.renderRemainingSetOffQuery = async (req, res) => {
           student.admissionRemainFeeCount -= price;
         }
         student.admissionPaidFeeCount += price;
-        if (mode === "Online") {
-          admin_ins.onlineFee += price + extra_price;
-          apply.onlineFee += price + extra_price;
-          apply.collectedFeeCount += price + extra_price;
-          finance.financeTotalBalance += price + extra_price;
-          finance.financeAdmissionBalance += price + extra_price;
-          finance.financeBankBalance += price + extra_price;
-        } else if (mode === "Offline") {
-          admin_ins.offlineFee += price + extra_price;
-          apply.offlineFee += price + extra_price;
-          apply.collectedFeeCount += price + extra_price;
-          admin_ins.collected_fee += price + extra_price;
-          finance.financeTotalBalance += price + extra_price;
-          finance.financeAdmissionBalance += price + extra_price;
-          finance.financeSubmitBalance += price + extra_price;
-        } else {
-        }
+        // if (mode === "Online") {
+        //   admin_ins.onlineFee += price + extra_price;
+        //   apply.onlineFee += price + extra_price;
+        //   apply.collectedFeeCount += price + extra_price;
+        //   finance.financeTotalBalance += price + extra_price;
+        //   finance.financeAdmissionBalance += price + extra_price;
+        //   finance.financeBankBalance += price + extra_price;
+        // } else if (mode === "Offline") {
+        //   admin_ins.offlineFee += price + extra_price;
+        //   apply.offlineFee += price + extra_price;
+        //   apply.collectedFeeCount += price + extra_price;
+        //   admin_ins.collected_fee += price + extra_price;
+        //   finance.financeTotalBalance += price + extra_price;
+        //   finance.financeAdmissionBalance += price + extra_price;
+        //   finance.financeSubmitBalance += price + extra_price;
+        // } else {
+        // }
         // await set_fee_head_query(student, price, apply);
         if (req?.body?.fee_payment_mode === "Government/Scholarship") {
         } else {

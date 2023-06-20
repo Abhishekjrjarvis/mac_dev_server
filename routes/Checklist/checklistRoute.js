@@ -13,7 +13,7 @@ router
   .post(isLoggedIn, catchAsync(checklist.createChecklist));
 router
   .route("/:cid/assign-student/:sid")
-  .get(isLoggedIn, catchAsync(checklist.studentAssignChecklist));
+  .patch(isLoggedIn, catchAsync(checklist.studentAssignChecklist));
 router
   .route("/department/:did/all")
   .get(isLoggedIn, catchAsync(checklist.getAllChecklistDepartment));

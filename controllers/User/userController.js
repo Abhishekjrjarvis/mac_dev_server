@@ -2394,11 +2394,9 @@ exports.retrieveUserRoleQuery = async (req, res) => {
     var get_array = mergeArray?.filter((val) => {
       if (`${val?._id}` == `${user?.active_member_role}`) return val;
     });
-    for (var ref of mergeArray) {
-      if (`${ref?._id}` == `${user?.active_member_role}`) {
-        mergeArray.splice(ref, 1);
-      }
-    }
+    mergeArray = mergeArray?.filter((val) => {
+      if (`${val?._id}` != `${user?.active_member_role}`) return val;
+    });
     mergeArray.unshift(get_array?.[0]);
     // const roleEncrypt = await encryptionPayload(mergeArray);
     res.status(200).send({

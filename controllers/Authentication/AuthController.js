@@ -2051,6 +2051,7 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
           });
         }
       } else {
+        console.log(existing);
         var user = await User.findById({ _id: `${existing}` });
       }
     }

@@ -19,7 +19,7 @@ router
   .get(isLoggedIn, batchController.subjectSetting)
   .patch(isLoggedIn, batchController.subjectUpdateSetting);
 
-router.route("/class/:cid").get(isLoggedIn, batchController.allDepartment);
+router.route("/class/:cid").get(batchController.allDepartment);
 router.route("/promote/:cid").post(isLoggedIn, batchController.promoteStudent);
 
 router

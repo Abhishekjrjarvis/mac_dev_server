@@ -401,11 +401,11 @@ exports.promoteStudent = async (req, res) => {
           });
           var structure = department?.fees_structures?.filter((ref) => {
             if (
-              (`${ref?.class_master}` === `${classes?.masterClassName}` &&
-                `${ref?.category_master}` ===
-                  `${student?.fee_structure?.category_master}`) ||
-              (`${sec_category?._id}` &&
-                `${ref?.batch_master}` === `${batch?._id}`)
+              `${ref?.class_master}` === `${classes?.masterClassName}` &&
+              (`${ref?.category_master}` ===
+                `${student?.fee_structure?.category_master}` ||
+                `${sec_category?._id}`) &&
+              `${ref?.batch_master}` === `${batch?._id}`
             )
               return ref;
           });

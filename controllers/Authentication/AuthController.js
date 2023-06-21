@@ -1959,6 +1959,7 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
     const { id, cid } = req.params;
     const { existingUser } = req.query;
     var existing = handle_undefined(existingUser);
+    console.log(existing);
     const { sample_pic, fileArray, batch_set, is_remain, fee_struct } =
       req.body;
     if (

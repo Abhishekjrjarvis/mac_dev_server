@@ -102,7 +102,7 @@ exports.verifyRazorPayment = async (req, res) => {
       payment_installment,
       payment_card_type,
       payment_remain_1,
-      payment_remain_2,
+      // payment_remain_2,
       // razor_key, // Razor KEY Secret
       // razor_author, // Boolean
       ad_install,

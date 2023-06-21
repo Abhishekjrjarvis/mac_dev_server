@@ -3552,7 +3552,7 @@ exports.renderOneFeeStructure = async (req, res) => {
       })
       .populate({
         path: "batch_master",
-        select: "batchName batchStatus",
+        select: "batchName batchStatus createdAt",
       });
 
     res

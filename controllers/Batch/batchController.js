@@ -370,7 +370,7 @@ exports.promoteStudent = async (req, res) => {
     const previousclasses = await Class.findById(req.params.cid);
     const classes = await Class.findById(classId);
     const batch = await Batch.findById(batchId);
-    console.log(batch?._id);
+    // console.log(batch?._id);
     const department = await Department.findById(departmentId).populate({
       path: "fees_structures",
     });

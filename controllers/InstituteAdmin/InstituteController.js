@@ -1269,7 +1269,9 @@ exports.retrieveApproveStudentList = async (req, res) => {
             parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
           );
         });
-        res.status(200).send({ message: "All Student with limit", studentIns: valid_list });
+        res
+          .status(200)
+          .send({ message: "All Student with limit", studentIns: valid_list });
       } else {
         res.status(404).send({ message: "Failure", studentIns: [] });
       }
@@ -1309,7 +1311,9 @@ exports.retrieveApproveStudentList = async (req, res) => {
             parseInt(st2.studentGRNO.slice(student_ins?.gr_initials?.length))
           );
         });
-        res.status(200).send({ message: "Without Limit", studentIns: valid_list });
+        res
+          .status(200)
+          .send({ message: "Without Limit", studentIns: valid_list });
       } else {
         res.status(404).send({ message: "Failure", studentIns: [] });
       }
@@ -2084,6 +2088,9 @@ exports.retrieveNewBatch = async (req, res) => {
     const admission = await Admission.findById({
       _id: `${institute?.admissionDepart?.[0]}`,
     });
+    var rand = Math.floor(
+      Math.random() * department?.departmentClassMasters?.length
+    );
     if (admission) {
       const batch = new Batch({ ...req.body });
       department.batches.push(batch);
@@ -2095,7 +2102,7 @@ exports.retrieveNewBatch = async (req, res) => {
         applicationName: "Promote Student",
         applicationDepartment: department?._id,
         applicationBatch: batch?._id,
-        // applicationMaster: ref?.applicationMaster,
+        applicationMaster: department?.departmentClassMasters[rand],
         applicationTypeStatus: "Promote Application",
       });
       admission.newApplication.push(new_app._id);

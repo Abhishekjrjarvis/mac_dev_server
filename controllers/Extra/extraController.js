@@ -214,8 +214,16 @@ exports.retrieveLeavingGRNO = async (req, res) => {
   try {
     const { gr, id } = req.params;
     var download = true;
-    const { reason, study, previous, behaviour, remark, uidaiNumber, bookNO } =
-      req.body;
+    const {
+      reason,
+      study,
+      previous,
+      l_date,
+      behaviour,
+      remark,
+      uidaiNumber,
+      bookNO,
+    } = req.body;
     const institute = await InstituteAdmin.findById({
       _id: id,
     });
@@ -276,7 +284,9 @@ exports.retrieveLeavingGRNO = async (req, res) => {
     if (uidaiNumber) {
       student.studentUidaiNumber = uidaiNumber;
     }
-    student.studentLeavingInsDate = new Date();
+    if (l_date) {
+      student.studentLeavingInsDate = new Date(`${l_date}`);
+    }
     if (bookNO) {
       student.studentBookNo = bookNO;
     }

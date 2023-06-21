@@ -303,6 +303,9 @@ exports.admissionInstituteFunction = async (
   statusId,
   paidTo,
   type,
+  payment_type,
+  remain_1,
+  // remain_2,
   is_author
 ) => {
   try {
@@ -556,6 +559,149 @@ exports.admissionInstituteFunction = async (
         new_receipt.save(),
         new_remainFee.save(),
       ]);
+    } else if (payment_type === "Promote") {
+      var valid_remain_list = await RemainingList.findOne({
+        $and: [
+          { student: student?._id },
+          { appId: apply?._id },
+          { card_type: "Promote" },
+        ],
+      });
+      if (valid_remain_list?.access_mode_card === "Installment_Wise") {
+        const new_receipt = new FeeReceipt({
+          fee_payment_mode: "Payment Gateway / Online",
+          fee_payment_amount: parseInt(tx_amount_ad),
+        });
+        new_receipt.student = student?._id;
+        new_receipt.fee_transaction_date = new Date();
+        new_receipt.application = apply?._id;
+        new_receipt.finance = finance?._id;
+        admin.invoice_count += 1;
+        new_receipt.invoice_count = `${
+          new Date().getMonth() + 1
+        }${new Date().getFullYear()}${admin.invoice_count}`;
+        if (admission?.remainingFeeCount >= parseInt(tx_amount_ad)) {
+          admission.remainingFeeCount -= parseInt(tx_amount_ad);
+        }
+        if (apply?.remainingFee >= parseInt(tx_amount_ad)) {
+          apply.remainingFee -= parseInt(tx_amount_ad);
+        }
+        if (student?.admissionRemainFeeCount >= parseInt(tx_amount_ad)) {
+          student.admissionRemainFeeCount -= parseInt(tx_amount_ad);
+        }
+        if (valid_remain_list?.remaining_fee >= parseInt(tx_amount_ad)) {
+          valid_remain_list.remaining_fee -= parseInt(tx_amount_ad);
+        }
+        valid_remain_list.paid_fee += parseInt(tx_amount_ad);
+        admission.onlineFee += parseInt(tx_amount_ad);
+        admission.collected_fee += parseInt(tx_amount_ad);
+        apply.onlineFee += parseInt(tx_amount_ad);
+        apply.collectedFeeCount += parseInt(tx_amount_ad);
+        finance.financeAdmissionBalance += parseInt(tx_amount_ad);
+        student.admissionPaidFeeCount += parseInt(tx_amount_ad);
+        if (is_author) {
+          finance.financeBankBalance =
+            finance.financeBankBalance + parseInt(tx_amount_ad);
+          finance.financeTotalBalance =
+            finance.financeTotalBalance + parseInt(tx_amount_ad);
+          ins.insBankBalance = ins.insBankBalance + parseInt(tx_amount_ad);
+        } else {
+          admin.returnAmount += tx_amount_ad_charges;
+          ins.adminRepayAmount += parseInt(tx_amount_ad);
+        }
+        if (remain_1) {
+          var card_1 = valid_remain_list?.remaining_array?.filter((val) => {
+            if (`${val?._id}` === `${remain_1}`) return val;
+          });
+        }
+        var index = valid_remain_list?.remaining_array[card_1];
+        var len = valid_remain_list?.remaining_array?.length;
+        var diff = len - (index + 1);
+        var remain_2 = valid_remain_list?.remaining_array[diff]?._id;
+        if (remain_2) {
+          var card_2 = valid_remain_list?.remaining_array?.filter((val) => {
+            if (`${val?._id}` === `${remain_2}`) return val;
+          });
+        }
+        if (type === "First Installment") {
+          await set_fee_head_query(
+            student,
+            parseInt(tx_amount_ad),
+            apply,
+            new_receipt
+          );
+          student.paidFeeList.push({
+            paidAmount: parseInt(tx_amount_ad),
+            appId: apply?._id,
+          });
+          valid_remain_list.active_payment_type = "First Installment";
+        } else {
+          await update_fee_head_query(
+            student,
+            parseInt(tx_amount_ad),
+            apply,
+            new_receipt
+          );
+          for (var match of student?.paidFeeList) {
+            if (`${match.appId}` === `${apply._id}`) {
+              match.paidAmount += parseInt(tx_amount_ad);
+            }
+          }
+          valid_remain_list.active_payment_type = type;
+        }
+        await lookup_applicable_grant(
+          new_receipt?.fee_payment_mode,
+          parseInt(tx_amount_ad),
+          valid_remain_list,
+          new_receipt
+        );
+        if (card_1?.length > 0) {
+          card_1[0].status = "Paid";
+          card_1[0].mode = "Payment Gateway -PG";
+          card_1[0].fee_receipt = new_receipt?._id;
+        }
+        var valid_price =
+          card_1[0]?.remainAmount >= parseInt(tx_amount_ad)
+            ? card_1[0]?.remainAmount - parseInt(tx_amount_ad)
+            : 0;
+        if (valid_price) {
+          if (card_2?.length > 0) {
+            card_2[0].remainAmount += valid_price + card_2[0]?.remainAmount;
+            card_2[0].isEnable = true;
+          } else {
+            valid_remain_list.remaining_array.push({
+              remainAmount: valid_price,
+              appId: apply?._id,
+              instituteId: institute._id,
+              installmentValue: "Installment Remain",
+              isEnable: true,
+            });
+          }
+        } else {
+          valid_remain_list.status = "Paid";
+        }
+        valid_remain_list.fee_receipts.push(new_receipt?._id);
+        if (valid_remain_list?.remaining_fee == 0) {
+          admission.remainingFee.pull(student?._id);
+        }
+        ins.payment_history.push(order);
+        orderPay.payment_admission = apply?._id;
+        orderPay.payment_by_end_user_id = user._id;
+        new_receipt.order_history = orderPay?._id;
+        user.payment_history.push(order);
+        await Promise.all([
+          student.save(),
+          apply.save(),
+          admission.save(),
+          finance.save(),
+          ins.save(),
+          admin.save(),
+          valid_remain_list.save(),
+          new_receipt.save(),
+          orderPay.save(),
+          user.save(),
+        ]);
+      }
     } else {
       const new_receipt = new FeeReceipt({
         fee_payment_mode: "Payment Gateway / Online",

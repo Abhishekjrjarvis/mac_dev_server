@@ -100,6 +100,9 @@ exports.verifyRazorPayment = async (req, res) => {
       ad_status_id,
       isApk,
       payment_installment,
+      payment_card_type,
+      payment_remain_1,
+      payment_remain_2,
       // razor_key, // Razor KEY Secret
       // razor_author, // Boolean
       ad_install,
@@ -168,6 +171,9 @@ exports.verifyRazorPayment = async (req, res) => {
           payment_to_end_user_id,
           payment_installment,
           Boolean(razor_author),
+          payment_card_type,
+          payment_remain_1,
+          // payment_remain_2,
           Boolean(ad_install)
         );
         if (isApk) {

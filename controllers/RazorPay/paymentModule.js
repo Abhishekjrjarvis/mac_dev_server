@@ -300,13 +300,12 @@ exports.admissionInstituteFunction = async (
   tx_amount_ad,
   tx_amount_ad_charges,
   moduleId,
-  statusId,
   paidTo,
   type,
+  is_author,
   payment_type,
   remain_1,
-  // remain_2,
-  is_author
+  statusId
 ) => {
   try {
     console.log(payment_type, remain_1, type, paidTo);

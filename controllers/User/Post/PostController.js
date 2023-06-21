@@ -796,7 +796,12 @@ exports.retrieveAllUserPosts = async (req, res) => {
     //     postCount: is_cache.postCount,
     //     totalPage: is_cache.totalPage,
     //   });
-    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    if(page == 1){
+      var limit = 7
+    }
+    else{
+      var limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    }
     const p_types = req.query.p_type ? req.query.p_type : "";
     const query_search = req.query.search_key ? req.query.search_key : "";
     const skip = (page - 1) * limit;

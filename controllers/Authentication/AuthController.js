@@ -1959,7 +1959,6 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
     const { id, cid } = req.params;
     const { existingUser } = req.query;
     var existing = handle_undefined(existingUser);
-    console.log(existing);
     const { sample_pic, fileArray, batch_set, is_remain, fee_struct } =
       req.body;
     if (
@@ -1976,16 +1975,13 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       });
     const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     if (!existing) {
-      console.log("Enter Outer");
       var valid = await filter_unique_username(
         req.body.studentFirstName,
         req.body.studentDOB
       );
     }
     if (!existing) {
-      console.log("Enter");
       if (!valid?.exist) {
-        console.log("Enter Enter");
         const genUserPass = bcrypt.genSaltSync(12);
         const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
         var user = new User({
@@ -2054,10 +2050,9 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
             await ele.save();
           });
         }
+      } else {
+        var user = await User.findById({ _id: `${existing}` });
       }
-    } else {
-      console.log(existing);
-      var user = await User.findById({ _id: `${existing}` });
     }
     const classes = await Class.findById({ _id: cid });
     const batch = await Batch.findById({ _id: `${classes?.batch}` });

@@ -47,7 +47,7 @@ exports.renderNewQuoteQuery = async (req, res) => {
     //   await new_quote.save();
     // }
     res.status(200).send({
-      message: "All Quotes Insertion Successfully",
+      message: "All Quotes / User Insertion Successfully",
       access: true,
     });
   } catch (e) {

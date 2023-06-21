@@ -2397,7 +2397,9 @@ exports.retrieveUserRoleQuery = async (req, res) => {
     mergeArray = mergeArray?.filter((val) => {
       if (`${val?._id}` != `${user?.active_member_role}`) return val;
     });
-    mergeArray.unshift(get_array?.[0]);
+    if(get_array?.length > 0){
+      mergeArray.unshift(get_array?.[0]);
+    }
     // const roleEncrypt = await encryptionPayload(mergeArray);
     res.status(200).send({
       message: "User Role for Staff & Student",

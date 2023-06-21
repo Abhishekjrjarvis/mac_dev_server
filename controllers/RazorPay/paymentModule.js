@@ -616,9 +616,11 @@ exports.admissionInstituteFunction = async (
           });
         }
         var card_2 = valid_remain_list?.remaining_array?.filter((val) => {
-          if (`${val?._id}` !== `${remain_1}` && val?.status === "Not Paid")
+          if (`${val?._id}` != `${remain_1}` && val?.status === "Not Paid")
             return val;
         });
+        console.log("Card Data", card_2)
+        console.log("Card Data Length", card_2?.length)
         if (type === "First Installment") {
           await set_fee_head_query(
             student,
@@ -660,6 +662,7 @@ exports.admissionInstituteFunction = async (
           card_1[0]?.remainAmount >= parseInt(tx_amount_ad)
             ? card_1[0]?.remainAmount - parseInt(tx_amount_ad)
             : 0;
+        console.log("Valid Price", valid_price)
         if (valid_price) {
           if (card_2?.length > 0) {
             card_2[0].remainAmount += valid_price + card_2[0]?.remainAmount;
@@ -668,17 +671,17 @@ exports.admissionInstituteFunction = async (
             valid_remain_list.remaining_array.push({
               remainAmount: valid_price,
               appId: apply?._id,
-              instituteId: institute._id,
+              instituteId: ins._id,
               installmentValue: "Installment Remain",
               isEnable: true,
             });
           }
         } else {
-          valid_remain_list.status = "Paid";
         }
         valid_remain_list.fee_receipts.push(new_receipt?._id);
         if (valid_remain_list?.remaining_fee == 0) {
           admission.remainingFee.pull(student?._id);
+          valid_remain_list.status = "Paid";
         }
         ins.payment_history.push(order);
         orderPay.payment_admission = apply?._id;

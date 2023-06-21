@@ -665,7 +665,7 @@ exports.admissionInstituteFunction = async (
         console.log("Valid Price", valid_price);
         // if (valid_price || ) {
         if (card_2?.length > 0) {
-          card_2[0].remainAmount += valid_price + card_2[0]?.remainAmount;
+          card_2[0].remainAmount += valid_price;
           card_2[0].isEnable = true;
         } else {
           if (valid_price > 0) {

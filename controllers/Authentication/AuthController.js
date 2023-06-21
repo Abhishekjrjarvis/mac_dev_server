@@ -1975,13 +1975,16 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
       });
     const admins = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
     if (!existing) {
+      console.log("Enter Outer");
       var valid = await filter_unique_username(
         req.body.studentFirstName,
         req.body.studentDOB
       );
     }
     if (!existing) {
+      console.log("Enter");
       if (!valid?.exist) {
+        console.log("Enter Enter");
         const genUserPass = bcrypt.genSaltSync(12);
         const hashUserPass = bcrypt.hashSync(valid?.password, genUserPass);
         var user = new User({

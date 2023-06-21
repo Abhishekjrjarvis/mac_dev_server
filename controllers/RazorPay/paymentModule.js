@@ -657,6 +657,7 @@ exports.admissionInstituteFunction = async (
           card_1[0].status = "Paid";
           card_1[0].mode = "Payment Gateway / Online";
           card_1[0].fee_receipt = new_receipt?._id;
+          card_1[0].remainAmount = parseInt(tx_amount_ad);
         }
         var valid_price =
           card_1[0]?.remainAmount >= parseInt(tx_amount_ad)

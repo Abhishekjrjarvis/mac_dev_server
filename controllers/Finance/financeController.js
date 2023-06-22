@@ -4902,7 +4902,7 @@ exports.renderSecondaryStructureQuery = async (req, res) => {
       valid_category.current_status = "Secondary Category";
       old_cat.secondary_category = valid_category?._id;
       finance.secondary_category.status = "Assigned";
-      await Promise.all([finance.save(), valid_category.save()]);
+      await Promise.all([finance.save(), valid_category.save(), old_cat.save()]);
       res.status(200).send({
         message: "Explore New Secondary Fee Structure Query",
         access: true,

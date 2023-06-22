@@ -40,7 +40,7 @@ exports.generatePaytmTxnToken = async (req, res, next) => {
   params["TXN_AMOUNT"] = amount;
   params[
     "CALLBACK_URL"
-  ] = `http://54.224.4.209/api/api/v1/paytm/verify/internal/fee/${moduleId}/paid/${paidBy}/query/${name}`;
+  ] = `${process.env.CALLBACK_URLS}/v1/paytm/verify/internal/fee/${moduleId}/paid/${paidBy}/query/${name}`;
   let paytmChecksum = paytm.generateSignature(
     JSON.stringify(params),
     process.env.PAYTM_MERCHANT_KEY
@@ -108,9 +108,9 @@ exports.paytmVerifyResponseStatus = (req, res, next) => {
             let price = body?.txnAmount;
             if (status === "TXN_SUCCESS") {
               await internal_fee_query(moduleId, paidBy, status, price);
-              res.redirect(`http://54.224.4.209/q/${name}/feed`);
+              res.redirect(`https://qviple.com/q/${name}/feed`);
             } else {
-              res.redirect(`http://54.224.4.209/q/${name}/feed`);
+              res.redirect(`https://qviple.com/q/${name}/feed`);
             }
           });
         });

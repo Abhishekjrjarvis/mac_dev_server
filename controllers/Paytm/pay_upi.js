@@ -43,7 +43,7 @@ exports.generatePaytmTxnToken = async (req, res, next) => {
     "CALLBACK_URL"
   ] = `http://54.224.4.209/api/api/v1/paytm/verify/internal/fee/${moduleId}/paid/${paidBy}/query/${name}`;
   let paytmChecksum = paytm.generateSignature(
-    params,
+    JSON.stringify(params),
     process.env.PAYTM_MERCHANT_KEY
   );
   paytmChecksum

@@ -32,12 +32,12 @@ const ExamFeeStructure = require("../../models/BacklogStudent/ExamFeeStructure")
 exports.generatePaytmTxnToken = async (req, res, next) => {
   const { amount, moduleId, paidBy, name } = req.body;
   var params = {};
-  params["MID"] = process.env.PAYTM_MID;
-  params["WEBSITE"] = process.env.PAYTM_WEBSITE;
-  params["CHANNEL_ID"] = process.env.PAYTM_CHANNEL_ID;
-  params["INDUSTRY_TYPE_ID"] = process.env.PAYTM_INDUSTRY_TYPE;
+  params["MID"] = `${process.env.PAYTM_MID}`;
+  params["WEBSITE"] = `${process.env.PAYTM_WEBSITE}`;
+  params["CHANNEL_ID"] = `${process.env.PAYTM_CHANNEL_ID}`;
+  params["INDUSTRY_TYPE_ID"] = `${process.env.PAYTM_INDUSTRY_TYPE}`;
   params["ORDER_ID"] = "oid" + uuidv4();
-  params["CUST_ID"] = process.env.PAYTM_CUST_ID;
+  params["CUST_ID"] = `${process.env.PAYTM_CUST_ID}`;
   params["TXN_AMOUNT"] = amount;
   params[
     "CALLBACK_URL"

@@ -25,6 +25,10 @@ const feeCategorySchema = new mongoose.Schema({
     type: String,
     default: "Primary Category",
   },
+  secondary_category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "FeeCategory",
+  },
 });
 
 module.exports = mongoose.model("FeeCategory", feeCategorySchema);

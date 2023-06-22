@@ -4640,7 +4640,9 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
         access: false,
       });
     var exist_struct = await FeeStructure.findByIdAndUpdate(fsid, req.body);
-    const depart = await Department.findById({ _id: `${req.body?.department}`})
+    const depart = await Department.findById({
+      _id: `${req.body?.department}`,
+    });
     const category = await FeeCategory.findById({
       _id: `${req.body?.category_master}`,
     });
@@ -4678,7 +4680,7 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
       },
     });
     for (var ref of all_remain_query) {
-      var valid_ref = { paid_fee: ref?.paid_fee, appId: ref?.appId }
+      var valid_ref = { paid_fee: ref?.paid_fee, appId: ref?.appId };
       if (ref?.status === "Paid") {
         var one_student = await Student.findById({ _id: `${ref?.student}` });
         var filtered_head = one_student?.active_fee_heads?.filter((val) => {
@@ -4880,7 +4882,7 @@ exports.renderExistRetroStructureQuery = async (req, res) => {
 exports.renderSecondaryStructureQuery = async (req, res) => {
   try {
     const { fid } = req.params;
-    const { fee_category } = req.body;
+    const { fee_category, old_category } = req.body;
     if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -4891,9 +4893,11 @@ exports.renderSecondaryStructureQuery = async (req, res) => {
     const valid_category = await FeeCategory.findById({
       _id: `${fee_category}`,
     });
+    var old_cat = await FeeCategory.findById({ _id: `${old_category}` });
     if (valid_category) {
       finance.secondary_category.category = valid_category?._id;
       valid_category.current_status = "Secondary Category";
+      old_cat.secondary_category = valid_category?._id;
       finance.secondary_category.status = "Assigned";
       await Promise.all([finance.save(), valid_category.save()]);
       res.status(200).send({

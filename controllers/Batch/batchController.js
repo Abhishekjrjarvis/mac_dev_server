@@ -29,6 +29,7 @@ const RemainingList = require("../../models/Admission/RemainingList");
 const Admission = require("../../models/Admission/Admission");
 const { add_all_installment_zero } = require("../../helper/Installment");
 const FeeCategory = require("../../models/Finance/FeesCategory");
+const Finance = require("../../models/Finance");
 
 exports.preformedStructure = async (req, res) => {
   try {
@@ -377,6 +378,9 @@ exports.promoteStudent = async (req, res) => {
     var institute = await InstituteAdmin.findById({
       _id: `${department?.institute}`,
     });
+    var finance = await Finance.findById({
+      _id: `${institute?.financeDepart?.[0]}`,
+    });
     var admission = await Admission.findById({
       _id: `${institute?.admissionDepart?.[0]}`,
     });
@@ -396,19 +400,32 @@ exports.promoteStudent = async (req, res) => {
           const student = await Student.findById(stu).populate({
             path: "fee_structure",
           });
-          const sec_category = await FeeCategory.findOne({
-            current_status: "Secondary Category",
-          });
+          // const sec_category = await FeeCategory.findOne({
+          //   current_status: "Secondary Category",
+          // });
+          if (finance?.secondary_category?.status === "Assigned") {
+            var cate = finance?.secondary_category?.category;
+          }
           var structure = department?.fees_structures?.filter((ref) => {
             if (
               `${ref?.class_master}` === `${classes?.masterClassName}` &&
-              (`${ref?.category_master}` ===
-                `${student?.fee_structure?.category_master}` ||
-                `${sec_category?._id}`) &&
+              `${ref?.category_master}` ===
+                `${student?.fee_structure?.category_master}` &&
               `${ref?.batch_master}` === `${batch?._id}`
             )
               return ref;
           });
+          if (structure?.length > 0) {
+          } else {
+            var structure = department?.fees_structures?.filter((ref) => {
+              if (
+                `${ref?.class_master}` === `${classes?.masterClassName}` &&
+                `${ref?.category_master}` === `${cate}` &&
+                `${ref?.batch_master}` === `${batch?._id}`
+              )
+                return ref;
+            });
+          }
           const user = await User.findById({ _id: `${student.user}` });
           const previousData = new StudentPreviousData({
             studentCode: student.studentCode,

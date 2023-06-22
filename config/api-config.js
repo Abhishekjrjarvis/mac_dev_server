@@ -49,6 +49,7 @@ const event_manager = require("../routes/Event/eventRoutes");
 const alumini = require("../routes/Alumini/aluminiRoute");
 const siteRoute = require("../routes/Site/siteRoute");
 const hostel = require("../routes/Hostel/hostelRoute");
+const paytm = require("../routes/Paytm/pay_upi_route");
 const community = require("../routes/Community/communityRoute");
 
 // Api Middleware Func
@@ -100,6 +101,7 @@ router.use("/api/v1/event/process", event_manager);
 router.use("/api/v1/alumini", alumini);
 router.use("/api/v1/site", siteRoute);
 router.use("/api/v1/hostel", hostel);
+router.use("/api/v1/paytm", paytm);
 router.use("/api/v1/community", community);
 
 router.use("/api/v1/prod/access", prod);

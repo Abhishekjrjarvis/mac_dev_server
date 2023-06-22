@@ -87,8 +87,8 @@ exports.paytmVerifyResponseStatus = (req, res, next) => {
         };
         var post_data = JSON.stringify(paytmParams);
         var options = {
-          // hostname: "securegw-stage.paytm.in",
-          hostname: "securegw.paytm.in",
+          hostname: "securegw-stage.paytm.in",
+          // hostname: 'securegw.paytm.in',
           port: 443,
           path: "/v3/order/status",
           method: "POST",
@@ -108,9 +108,9 @@ exports.paytmVerifyResponseStatus = (req, res, next) => {
             let price = body?.txnAmount;
             if (status === "TXN_SUCCESS") {
               await internal_fee_query(moduleId, paidBy, status, price);
-              res.redirect(`https://qviple.com/q/${name}/feed`);
+              res.redirect(`http://54.224.4.209/q/${name}/feed`);
             } else {
-              res.redirect(`https://qviple.com/q/${name}/feed`);
+              res.redirect(`http://54.224.4.209/q/${name}/feed`);
             }
           });
         });

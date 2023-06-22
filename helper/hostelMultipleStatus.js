@@ -18,7 +18,7 @@ const {
   set_fee_head_query,
 } = require("../Functions/hostelInstallment");
 const Renewal = require("../models/Hostel/renewal");
-const { custom_month_query } = require("./dayTimer");
+const { custom_month_query, custom_month_query_hostel } = require("./dayTimer");
 
 exports.insert_multiple_hostel_status = async (
   args,
@@ -301,7 +301,10 @@ exports.fee_reordering_hostel = async (
     user.payment_history.push(order._id);
     institute.payment_history.push(order._id);
     var valid_end = student?.hostel_fee_structure?.structure_month;
-    var month_query = custom_month_query(valid_end);
+    var month_query = custom_month_query_hostel(
+      valid_end,
+      new Date(`${start_date}`)
+    );
     student.hostel_renewal = new Date(`${month_query}`);
     renew.renewal_student = student?._id;
     renew.renewal_application = apply?._id;

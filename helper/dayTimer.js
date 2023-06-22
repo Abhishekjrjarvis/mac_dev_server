@@ -212,6 +212,22 @@ exports.custom_month_query = (arg) => {
   return date_pattern;
 };
 
+exports.custom_month_query_hostel = (arg, start) => {
+  const date = new Date(`${start}`);
+  date.setMonth(date.getMonth() + arg);
+  var day = date.getDate();
+  var month = date.getMonth() + 1;
+  var year = date.getFullYear();
+  if (month < 10) {
+    month = `0${month}`;
+  }
+  if (day < 10) {
+    day = `0${day}`;
+  }
+  const date_pattern = `${year}-${month}-${day}`;
+  return date_pattern;
+};
+
 exports.custom_year_payroll_query = (arg) => {
   const date = new Date(new Date());
   date.setFullYear(date.getFullYear() + arg);

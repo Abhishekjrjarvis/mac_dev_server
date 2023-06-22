@@ -117,6 +117,7 @@ exports.fee_reordering_hostel = async (
   start_date
 ) => {
   try {
+    console.log(start_date);
     const room = await HostelRoom.findOne({
       $and: [{ _id: roomId }, { hostelUnit: one_unit?._id }],
     });

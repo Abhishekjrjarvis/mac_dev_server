@@ -2663,7 +2663,10 @@ exports.renderFinanceAllFeeCategoryQuery = async (req, res) => {
     })
       // .limit(limit)
       // .skip(skip)
-      .select("category_name created_at current_status");
+      .select("category_name created_at")
+      .populate({
+        path: "secondary_category"
+      })
 
     if (all_fees_format?.length > 0) {
       res.status(200).send({

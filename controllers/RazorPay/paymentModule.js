@@ -24,6 +24,7 @@ const FeeReceipt = require("../../models/RazorPay/feeReceipt");
 const InternalFees = require("../../models/RazorPay/internalFees");
 const Exam = require("../../models/Exam");
 const ExamFeeStructure = require("../../models/BacklogStudent/ExamFeeStructure");
+const Library = require("../../models/Library/Library");
 const {
   add_all_installment,
   render_installment,
@@ -1923,6 +1924,116 @@ exports.directAdmissionInstituteFunction = async (
       finance.save(),
     ]);
     return `${user?.username}`;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.libraryInstituteFunction = async (
+  order,
+  paidBy,
+  tx_amount,
+  tx_amount_charges,
+  moduleId,
+  is_author
+) => {
+  try {
+    const student = await Student.findById({ _id: paidBy });
+    const studentUser = await User.findById({ _id: `${student?.user}` });
+    const institute = await InstituteAdmin.findById({
+      _id: `${student?.institute}`,
+    });
+    const finance = await Finance.findById({
+      _id: `${institute?.financeDepart[0]}`,
+    }).populate({
+      path: "financeHead",
+      select: "user",
+    });
+    const library = await Library.findById({
+      _id: `${institute?.library[0]}`,
+    }).populate({
+      path: "libraryHead",
+      select: "user",
+    });
+    const user = await User.findById({
+      _id: `${finance.financeHead.user}`,
+    });
+    const orderPay = await OrderPayment.findById({ _id: order });
+    var new_internal = await InternalFees.findById({ _id: moduleId });
+    const admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    var notify = new Notification({});
+    var new_receipt = new FeeReceipt({});
+    new_receipt.fee_payment_amount = new_internal?.internal_fee_amount;
+    new_receipt.fee_payment_mode = "Payment Gateway - PG";
+    new_receipt.student = student?._id;
+    new_receipt.fee_transaction_date = new Date();
+    new_receipt.finance = finance?._id;
+    new_receipt.invoice_count = orderPay?.payment_invoice_number;
+    new_receipt.order_history = orderPay?._id;
+    new_internal.fee_receipt = new_receipt?._id;
+    new_receipt.internal_fees = new_internal?._id;
+    new_internal.internal_fee_status = "Paid";
+    student.studentPaidFeeCount += parseInt(tx_amount);
+    if (student.studentRemainingFeeCount >= parseInt(tx_amount)) {
+      student.studentRemainingFeeCount -= parseInt(tx_amount);
+    }
+    library.onlineFine += parseInt(tx_amount);
+    student.libraryFinePaidCount += parseInt(tx_amount);
+    if (student.libraryFineRemainCount >= parseInt(tx_amount)) {
+      student.libraryFineRemainCount -= parseInt(tx_amount);
+    }
+    library.paid_fee.push(student?._id);
+    library.pending_fee.pull(student?._id);
+    if (is_author) {
+      finance.financeBankBalance =
+        finance.financeBankBalance + parseInt(tx_amount);
+      finance.financeTotalBalance =
+        finance.financeTotalBalance + parseInt(tx_amount);
+      institute.insBankBalance = institute.insBankBalance + parseInt(tx_amount);
+    } else {
+      institute.adminRepayAmount =
+        institute.adminRepayAmount + parseInt(tx_amount);
+      admin.returnAmount += tx_amount_charges;
+    }
+    notify.notifyContent = `${student.studentFirstName} ${
+      student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+    } ${student.studentLastName} paid the Library Fee/ (Rs.${parseInt(
+      tx_amount
+    )}) successfully`;
+    notify.notify_hi_content = `${student.studentFirstName} ${
+      student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+    } ${student.studentLastName} ने Library Fee/ (Rs.${parseInt(
+      tx_amount
+    )}) का सफलतापूर्वक पेमेंट किया |`;
+    notify.notify_mr_content = `${student.studentFirstName} ${
+      student.studentMiddleName ? ` ${student.studentMiddleName}` : ""
+    } ${student.studentLastName} ने Library Fee/ (रु.${parseInt(
+      tx_amount
+    )}) यशस्वीरित्या भरले`;
+    notify.notifySender = student._id;
+    notify.notifyReceiever = user._id;
+    notify.notifyCategory = "Online Fee";
+    user.uNotify.push(notify._id);
+    notify.user = user._id;
+    notify.notifyByStudentPhoto = student._id;
+    studentUser.payment_history.push(order);
+    institute.payment_history.push(order);
+    orderPay.payment_library = library?._id;
+    orderPay.payment_by_end_user_id = studentUser._id;
+    await Promise.all([
+      student.save(),
+      library.save(),
+      finance.save(),
+      institute.save(),
+      user.save(),
+      notify.save(),
+      admin.save(),
+      studentUser.save(),
+      orderPay.save(),
+      new_internal.save(),
+      new_receipt.save(),
+    ]);
+    return `${studentUser?.username}`;
   } catch (e) {
     console.log(e);
   }

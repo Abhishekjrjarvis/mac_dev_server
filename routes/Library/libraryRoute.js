@@ -66,4 +66,8 @@ router
   .route("/site/books/:lid")
   .get(catchAsync(libraryController.allOnlineBookLandingPage));
 
+router
+  .route("/fine/charges/:lid/query")
+  .get(catchAsync(libraryController.renderFineChargesQuery));
+
 module.exports = router;

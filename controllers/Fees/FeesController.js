@@ -642,6 +642,10 @@ exports.retrieveStudentInternalQuery = async (req, res) => {
       .populate({
         path: "exam_structure",
         select: "exam_fee_type",
+      })
+      .populate({
+        path: "library",
+        select: "_id",
       });
 
     if (all_internal?.length > 0) {

@@ -12,6 +12,9 @@ const Admin = require("../../models/superAdmin");
 const OrderPayment = require("../../models/RazorPay/orderPayment");
 const Finance = require("../../models/Finance");
 const { designation_alarm } = require("../../WhatsAppSMS/payload");
+const InternalFees = require("../../models/RazorPay/internalFees");
+const FeeReceipt = require("../../models/RazorPay/feeReceipt");
+const BankAccount = require("../../models/Finance/BankAccount");
 
 //for Institute side Activate library
 exports.activateLibrary = async (req, res) => {
@@ -359,24 +362,27 @@ exports.bookColletedByStaffSide = async (req, res) => {
     student?.deposite?.push(collect._id);
     library?.issued?.pull(issue._id);
     library?.collected?.push(collect._id);
-    const order = new OrderPayment({});
-    order.payment_module_type = "Library Fine";
-    order.payment_to_end_user_id = institute?._id;
-    order.payment_by_end_user_id = user._id;
-    order.payment_module_id = library._id;
-    order.payment_amount = parseInt(price);
-    order.payment_status = "Captured";
-    order.payment_flag_to = "Credit";
-    order.payment_flag_by = "Debit";
-    order.payment_mode = req.body?.paymentType;
-    order.payment_admission = library._id;
-    order.payment_from = student._id;
-    s_admin.invoice_count += 1;
-    order.payment_invoice_number = `${
-      new Date().getMonth() + 1
-    }${new Date().getFullYear()}${s_admin.invoice_count}`;
-    user.payment_history.push(order._id);
-    institute.payment_history.push(order._id);
+    if (req.body?.paymentType === "Offline") {
+      const order = new OrderPayment({});
+      order.payment_module_type = "Library Fine";
+      order.payment_to_end_user_id = institute?._id;
+      order.payment_by_end_user_id = user._id;
+      order.payment_module_id = library._id;
+      order.payment_amount = parseInt(price);
+      order.payment_status = "Captured";
+      order.payment_flag_to = "Credit";
+      order.payment_flag_by = "Debit";
+      order.payment_mode = req.body?.paymentType;
+      order.payment_admission = library._id;
+      order.payment_from = student._id;
+      s_admin.invoice_count += 1;
+      order.payment_invoice_number = `${
+        new Date().getMonth() + 1
+      }${new Date().getFullYear()}${s_admin.invoice_count}`;
+      user.payment_history.push(order._id);
+      institute.payment_history.push(order._id);
+      await order.save();
+    }
     if (book.bookStatus === "Offline") book.leftCopies += 1;
 
     if (req.body?.chargeBy === "Damaged" || req.body?.chargeBy === "Lost") {
@@ -387,9 +393,20 @@ exports.bookColletedByStaffSide = async (req, res) => {
         library.collectedFine += price;
         // library.exemptFine +=req.body?.exemptFine
       } else {
-        library.onlineFine += price;
-        finance.financeTotalBalance += price;
-        finance.financeBankBalance += price;
+        // library.onlineFine += price;
+        // finance.financeTotalBalance += price;
+        // finance.financeBankBalance += price;
+        var new_internal = new InternalFees({});
+        new_internal.internal_fee_type = "Library Fees";
+        new_internal.internal_fee_amount = price;
+        new_internal.library = library?._id;
+        new_internal.internal_fee_reason = `${req.body?.chargeBy} Book Fine`;
+        new_internal.student = student?._id;
+        student.studentRemainingFeeCount += price;
+        student.internal_fees_query.push(new_internal?._id);
+        library.pending_fee.push(student?._id);
+        student.libraryFineRemainCount += price;
+        await new_internal.save();
       }
     }
     await Promise.all([
@@ -401,7 +418,6 @@ exports.bookColletedByStaffSide = async (req, res) => {
       user.save(),
       institute.save(),
       s_admin.save(),
-      order.save(),
       finance.save(),
     ]);
     res.status(201).send({ message: "book collected by librarian 😊😊" });
@@ -664,6 +680,78 @@ exports.allOnlineBookLandingPage = async (req, res) => {
       res.status(200).send({
         message: "List of All Books",
         books: library.books?.length ? library.books : [],
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderFineChargesQuery = async (req, res) => {
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const skip = (page - 1) * limit;
+    const { lid } = req.params;
+    const { flow } = req.query;
+    if (!lid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: true,
+      });
+
+    var one_lib = await Library.findById({ _id: lid }).select(
+      "pending_fee paid_fee"
+    );
+
+    if (`${flow}` === "Remaining") {
+      var all_student = await Student.find({
+        _id: { $in: one_lib?.pending_fee },
+      })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId studentGRNO libraryFineRemainCount"
+        )
+        .populate({
+          path: "studentClass",
+          select: "className classTitle",
+        });
+      all_student = all_student?.filter((val) => {
+        if (val?.libraryFineRemainCount > 0) return val;
+      });
+      res.status(200).send({
+        message: "Explore All Remaining Fine Charges Student Query",
+        access: true,
+        all_student: all_student,
+      });
+    } else if (`${flow}` === "Paid") {
+      var all_student = await Student.find({
+        _id: { $in: one_lib?.paid_fee },
+      })
+        .limit(limit)
+        .skip(skip)
+        .select(
+          "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId studentGRNO libraryFinePaidCount"
+        )
+        .populate({
+          path: "studentClass",
+          select: "className classTitle",
+        });
+
+      all_student = all_student?.filter((val) => {
+        if (val?.libraryFinePaidCount > 0) return val;
+      });
+      res.status(200).send({
+        message: "Explore All Remaining Fine Charges Student Query",
+        access: true,
+        all_student: all_student,
+      });
+    } else {
+      res.status(200).send({
+        message: "I Think You Lost In Space",
+        access: false,
+        all_student: [],
       });
     }
   } catch (e) {

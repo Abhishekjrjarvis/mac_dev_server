@@ -65,6 +65,18 @@ const librarySchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "BankAccount",
   },
+  pending_fee: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
+  paid_fee: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
 });
 
 module.exports = mongoose.model("Library", librarySchema);

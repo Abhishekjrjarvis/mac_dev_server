@@ -14,6 +14,7 @@ const {
   applicationFunction,
   hostelInstituteFunction,
   directAdmissionInstituteFunction,
+  libraryInstituteFunction,
 } = require("./paymentModule");
 const { handle_undefined } = require("../../Handler/customError");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
@@ -184,6 +185,22 @@ exports.verifyRazorPayment = async (req, res) => {
         res.redirect(
           `${process.env.FRONT_REDIRECT_URL}/q/${admission_status}/feed`
         );
+      } else if (payment_module_type === "Library Fees") {
+        const lib_status = await libraryInstituteFunction(
+          order_payment?._id,
+          payment_by_end_user_id,
+          refactor_amount_nocharges,
+          refactor_amount,
+          payment_module_id,
+          Boolean(razor_author)
+        );
+        if (isApk) {
+          res.status(200).send({
+            message: "Success with Razorpay Library Fees 😀",
+            check: true,
+          });
+        }
+        res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${lib_status}/feed`);
       } else if (payment_module_type === "Hostel") {
         const hostel_status = await hostelInstituteFunction(
           order_payment?._id,

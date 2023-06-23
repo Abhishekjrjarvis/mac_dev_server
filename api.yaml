@@ -30821,6 +30821,41 @@ paths:
           description: OK
 
 
+  /api/v1/library/fine/charges/{lid}/query:
+    get:
+      tags:
+        - Library Module 
+      summary: All Fine Charges Distinguished By Flow (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: This is Library id 
+        - in: query
+          name: page
+          required: true
+          type: string
+          description: Enter Page Number
+        - in: query
+          name: limit
+          required: true
+          type: string
+          description: Enter Limit
+        - in: query
+          name: flow
+          required: true
+          type: string
+          description: Enter Flow ("Remaining" || "Paid")
+      responses:
+        "200":
+          description: OK
+
+
 #Quotes API
 
   /api/v1/community/quote/{uid}/display:

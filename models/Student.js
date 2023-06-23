@@ -594,6 +594,14 @@ const studentSchema = new mongoose.Schema({
       },
     },
   ],
+  libraryFineRemainCount: {
+    type: Number,
+    default: 0,
+  },
+  libraryFinePaidCount: {
+    type: Number,
+    default: 0,
+  },
   applicable_fees_pending: {
     type: Number,
     default: 0,

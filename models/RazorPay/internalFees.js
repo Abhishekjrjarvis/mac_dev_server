@@ -47,6 +47,10 @@ const internalFeeSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Department",
   },
+  library: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Library",
+  },
 });
 
 module.exports = mongoose.model("InternalFees", internalFeeSchema);

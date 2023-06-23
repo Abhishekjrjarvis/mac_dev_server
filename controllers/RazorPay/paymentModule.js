@@ -1984,6 +1984,10 @@ exports.libraryInstituteFunction = async (
     }
     library.paid_fee.push(student?._id);
     library.pending_fee.pull(student?._id);
+    library.totalFine += parseInt(tx_amount);
+    if (library?.remainFine >= parseInt(tx_amount)) {
+      library.remainFine -= parseInt(tx_amount);
+    }
     if (is_author) {
       finance.financeBankBalance =
         finance.financeBankBalance + parseInt(tx_amount);

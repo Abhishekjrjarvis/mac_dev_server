@@ -99,7 +99,7 @@ exports.libraryByStaffSide = async (req, res) => {
           "staffProfilePhoto photoId staffFirstName staffMiddleName staffLastName",
       })
       .select(
-        "libraryHead libraryHeadTitle emailId phoneNumber about photoId photo coverId cover bookCount memberCount totalFine collectedFine requestStatus offlineFine onlineFine"
+        "libraryHead libraryHeadTitle emailId phoneNumber about photoId photo coverId cover bookCount memberCount totalFine collectedFine requestStatus offlineFine onlineFine remainFine"
       )
       .lean()
       .exec();
@@ -386,11 +386,11 @@ exports.bookColletedByStaffSide = async (req, res) => {
     if (book.bookStatus === "Offline") book.leftCopies += 1;
 
     if (req.body?.chargeBy === "Damaged" || req.body?.chargeBy === "Lost") {
-      library.totalFine += price;
       library.charge_history.push(collect?._id);
       if (req.body?.paymentType === "Offline") {
         library.offlineFine += price;
         library.collectedFine += price;
+        library.totalFine += price;
         // library.exemptFine +=req.body?.exemptFine
       } else {
         // library.onlineFine += price;
@@ -406,6 +406,7 @@ exports.bookColletedByStaffSide = async (req, res) => {
         student.internal_fees_query.push(new_internal?._id);
         library.pending_fee.push(student?._id);
         student.libraryFineRemainCount += price;
+        library.remainFine += price;
         await new_internal.save();
       }
     }
@@ -743,7 +744,7 @@ exports.renderFineChargesQuery = async (req, res) => {
         if (val?.libraryFinePaidCount > 0) return val;
       });
       res.status(200).send({
-        message: "Explore All Remaining Fine Charges Student Query",
+        message: "Explore All Paid Fine Charges Student Query",
         access: true,
         all_student: all_student,
       });

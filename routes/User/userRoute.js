@@ -34,7 +34,7 @@ router.get(
 
 router.get("/:id/referals/q-coins", isLoggedIn, catchAsync(User.getQCoins));
 
-router.get("/:id/dash/query", isLoggedIn, catchAsync(User.getDashDataQuery));
+router.get("/:id/dash/query", catchAsync(User.getDashDataQuery));
 
 router.patch(
   "/follow/institute",

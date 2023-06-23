@@ -51,7 +51,7 @@ exports.generatePaytmTxnToken = async (req, res, next) => {
         ...params,
         CHECKSUMHASH: checksum,
       };
-      console.log(paytmParams);
+      // console.log(paytmParams);
       res.status(200).json({
         paytmParams,
       });

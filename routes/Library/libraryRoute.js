@@ -70,4 +70,8 @@ router
   .route("/fine/charges/:lid/query")
   .get(catchAsync(libraryController.renderFineChargesQuery));
 
+router
+  .route("/fine/:lid/query/collect/offline")
+  .get(catchAsync(libraryController.renderFineChargesCollectOfflineQuery));
+
 module.exports = router;

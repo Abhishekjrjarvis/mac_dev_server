@@ -67,16 +67,48 @@ const librarySchema = new mongoose.Schema({
   },
   pending_fee: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Student",
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+      },
+      book: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Book",
+      },
+      created_at: {
+        type: Date,
+        default: Date.now,
+      },
+      fee_receipt: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeReceipt",
+      },
     },
   ],
   paid_fee: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Student",
+      student: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Student",
+      },
+      book: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Book",
+      },
+      created_at: {
+        type: Date,
+        default: Date.now,
+      },
+      fee_receipt: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "FeeReceipt",
+      },
     },
   ],
+  remainFine: {
+    type: Number,
+    default: 0,
+  },
 });
 
 module.exports = mongoose.model("Library", librarySchema);

@@ -15,6 +15,7 @@ const { designation_alarm } = require("../../WhatsAppSMS/payload");
 const InternalFees = require("../../models/RazorPay/internalFees");
 const FeeReceipt = require("../../models/RazorPay/feeReceipt");
 const BankAccount = require("../../models/Finance/BankAccount");
+const { nested_document_limit } = require("../../helper/databaseFunction");
 
 //for Institute side Activate library
 exports.activateLibrary = async (req, res) => {
@@ -404,7 +405,10 @@ exports.bookColletedByStaffSide = async (req, res) => {
         new_internal.student = student?._id;
         student.studentRemainingFeeCount += price;
         student.internal_fees_query.push(new_internal?._id);
-        library.pending_fee.push(student?._id);
+        library.pending_fee.push({
+          student: student?._id,
+          book: book?._id,
+        });
         student.libraryFineRemainCount += price;
         library.remainFine += price;
         await new_internal.save();
@@ -701,25 +705,30 @@ exports.renderFineChargesQuery = async (req, res) => {
         access: true,
       });
 
-    var one_lib = await Library.findById({ _id: lid }).select(
-      "pending_fee paid_fee"
-    );
+    var one_lib = await Library.findById({ _id: lid })
+      .select("pending_fee paid_fee")
+      .populate({
+        path: "pending_fee",
+        populate: {
+          path: "student book fee_receipt",
+        },
+      })
+      .populate({
+        path: "paid_fee",
+        populate: {
+          path: "student book fee_receipt",
+        },
+      });
 
     if (`${flow}` === "Remaining") {
-      var all_student = await Student.find({
-        _id: { $in: one_lib?.pending_fee },
-      })
-        .limit(limit)
-        .skip(skip)
-        .select(
-          "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId studentGRNO libraryFineRemainCount"
-        )
-        .populate({
-          path: "studentClass",
-          select: "className classTitle",
-        });
+      var all_student = nested_document_limit(
+        page,
+        limit,
+        one_lib?.pending_fee
+      );
+
       all_student = all_student?.filter((val) => {
-        if (val?.libraryFineRemainCount > 0) return val;
+        if (val?.student?.libraryFineRemainCount > 0) return val;
       });
       res.status(200).send({
         message: "Explore All Remaining Fine Charges Student Query",
@@ -727,21 +736,10 @@ exports.renderFineChargesQuery = async (req, res) => {
         all_student: all_student,
       });
     } else if (`${flow}` === "Paid") {
-      var all_student = await Student.find({
-        _id: { $in: one_lib?.paid_fee },
-      })
-        .limit(limit)
-        .skip(skip)
-        .select(
-          "studentFirstName studentMiddleName studentLastName studentProfilePhoto photoId studentGRNO libraryFinePaidCount"
-        )
-        .populate({
-          path: "studentClass",
-          select: "className classTitle",
-        });
+      var all_student = nested_document_limit(page, limit, one_lib?.paid_fee);
 
       all_student = all_student?.filter((val) => {
-        if (val?.libraryFinePaidCount > 0) return val;
+        if (val?.student?.libraryFinePaidCount > 0) return val;
       });
       res.status(200).send({
         message: "Explore All Paid Fine Charges Student Query",
@@ -759,3 +757,12 @@ exports.renderFineChargesQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+// exports.renderFineChargesCollectOfflineQuery = async(req, res) => {
+//   try{
+//     const { lid, sid }
+//   }
+//   catch(e){
+//     console.log(e)
+//   }
+// }

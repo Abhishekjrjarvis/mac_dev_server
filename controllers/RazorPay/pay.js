@@ -106,6 +106,7 @@ exports.verifyRazorPayment = async (req, res) => {
       // payment_remain_2,
       // razor_key, // Razor KEY Secret
       // razor_author, // Boolean
+      payment_book_id,
       ad_install,
     } = req.query;
     // const data_key = handle_undefined(razor_key);
@@ -192,7 +193,8 @@ exports.verifyRazorPayment = async (req, res) => {
           refactor_amount_nocharges,
           refactor_amount,
           payment_module_id,
-          Boolean(razor_author)
+          Boolean(razor_author),
+          payment_book_id
         );
         if (isApk) {
           res.status(200).send({

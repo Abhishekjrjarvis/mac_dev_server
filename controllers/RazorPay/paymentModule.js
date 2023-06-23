@@ -1935,7 +1935,8 @@ exports.libraryInstituteFunction = async (
   tx_amount,
   tx_amount_charges,
   moduleId,
-  is_author
+  is_author,
+  bookId
 ) => {
   try {
     const student = await Student.findById({ _id: paidBy });
@@ -1982,8 +1983,20 @@ exports.libraryInstituteFunction = async (
     if (student.libraryFineRemainCount >= parseInt(tx_amount)) {
       student.libraryFineRemainCount -= parseInt(tx_amount);
     }
-    library.paid_fee.push(student?._id);
-    library.pending_fee.pull(student?._id);
+    for (var ref of library?.pending_fee) {
+      if (
+        `${ref?.student}` === `${student?._id}` &&
+        `${ref?.book}` === `${bookId}`
+      ) {
+        library.pending_fee.pull(ref?._id);
+      }
+    }
+    library.paid_fee.push({
+      student: student?._id,
+      book: bookId,
+      fee_receipt: new_receipt?._id,
+    });
+    // library.pending_fee.pull(student?._id);
     library.totalFine += parseInt(tx_amount);
     if (library?.remainFine >= parseInt(tx_amount)) {
       library.remainFine -= parseInt(tx_amount);

@@ -6777,6 +6777,12 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
           one_app,
           all_receipts
         );
+        if(one_remain_list?.remaining_fee > 0){
+          one_remain_list.status = "Not Paid"
+        }
+        else{
+          one_remain_list.status = "Paid"
+        }
       } else {
         if (one_remain_list?.paid_fee >= new_struct?.total_admission_fees) {
           var refund_price =

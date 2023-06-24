@@ -1995,6 +1995,7 @@ exports.libraryInstituteFunction = async (
       student: student?._id,
       book: bookId,
       fee_receipt: new_receipt?._id,
+      fine_charge: parseInt(tx_amount)
     });
     // library.pending_fee.pull(student?._id);
     library.totalFine += parseInt(tx_amount);

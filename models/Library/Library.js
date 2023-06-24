@@ -83,6 +83,10 @@ const librarySchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "FeeReceipt",
       },
+      fine_charge: {
+        type: Number,
+        default: 0,
+      },
     },
   ],
   paid_fee: [
@@ -102,6 +106,10 @@ const librarySchema = new mongoose.Schema({
       fee_receipt: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "FeeReceipt",
+      },
+      fine_charge: {
+        type: Number,
+        default: 0,
       },
     },
   ],

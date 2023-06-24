@@ -53,7 +53,6 @@ router.post(
 
 router.post(
   "/:id/video",
-  isLoggedIn,
   upload.single("file"),
   catchAsync(Post.postWithVideo)
 );

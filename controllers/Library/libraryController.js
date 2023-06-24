@@ -389,9 +389,25 @@ exports.bookColletedByStaffSide = async (req, res) => {
     if (req.body?.chargeBy === "Damaged" || req.body?.chargeBy === "Lost") {
       library.charge_history.push(collect?._id);
       if (req.body?.paymentType === "Offline") {
+        const new_receipt = new FeeReceipt({});
+        new_receipt.fee_payment_mode = "By Cash";
+        new_receipt.fee_payment_amount = price;
+        new_receipt.student = student?._id;
+        new_receipt.finance = finance?._id;
+        new_receipt.fee_transaction_date = new Date();
+        new_receipt.invoice_count = `${
+          new Date().getMonth() + 1
+        }${new Date().getFullYear()}${s_admin.invoice_count}`;
         library.offlineFine += price;
         library.collectedFine += price;
         library.totalFine += price;
+        library.paid_fee.push({
+          student: student?._id,
+          book: book?._id,
+          fee_receipt: new_receipt?._id,
+          fine_charge: price,
+        });
+        await new_receipt.save();
         // library.exemptFine +=req.body?.exemptFine
       } else {
         // library.onlineFine += price;
@@ -403,11 +419,13 @@ exports.bookColletedByStaffSide = async (req, res) => {
         new_internal.library = library?._id;
         new_internal.internal_fee_reason = `${req.body?.chargeBy} Book Fine`;
         new_internal.student = student?._id;
+        new_internal.book = book?._id;
         student.studentRemainingFeeCount += price;
         student.internal_fees_query.push(new_internal?._id);
         library.pending_fee.push({
           student: student?._id,
           book: book?._id,
+          fine_charge: price,
         });
         student.libraryFineRemainCount += price;
         library.remainFine += price;
@@ -710,13 +728,49 @@ exports.renderFineChargesQuery = async (req, res) => {
       .populate({
         path: "pending_fee",
         populate: {
-          path: "student book fee_receipt",
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO libraryFineRemainCount",
+          populate: {
+            path: "studentClass",
+            select: "className classTitle",
+          },
+        },
+      })
+      .populate({
+        path: "pending_fee",
+        populate: {
+          path: "book",
+        },
+      })
+      .populate({
+        path: "pending_fee",
+        populate: {
+          path: "fee_receipt",
         },
       })
       .populate({
         path: "paid_fee",
         populate: {
-          path: "student book fee_receipt",
+          path: "student",
+          select:
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO libraryFineRemainCount",
+          populate: {
+            path: "studentClass",
+            select: "className classTitle",
+          },
+        },
+      })
+      .populate({
+        path: "paid_fee",
+        populate: {
+          path: "book",
+        },
+      })
+      .populate({
+        path: "paid_fee",
+        populate: {
+          path: "fee_receipt",
         },
       });
 

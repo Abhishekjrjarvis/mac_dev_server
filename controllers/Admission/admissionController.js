@@ -4649,6 +4649,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
     const { aid, rid } = req.params;
     const { status, reqId } = req.query;
     const { reason } = req.body;
+    console.log(status)
     if (!aid && !rid && !reqId)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",

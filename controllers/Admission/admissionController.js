@@ -5181,8 +5181,11 @@ exports.renderAdminSelectMode = async (req, res) => {
     const apply = await NewApplication.findById({ _id: aid }).select(
       "selectedApplication admissionAdmin"
     );
-    const student = await Student.findById({ _id: sid });
-    // const aStatus = new Status({});
+    const student = await Student.findById({ _id: sid })
+    .populate({
+      path: "fee_structure"
+    })
+    const aStatus = new Status({});
     const status = await Status.findOne({
       $and: [{ _id: student?.active_status }, { applicationId: apply?._id }],
     });
@@ -5193,7 +5196,7 @@ exports.renderAdminSelectMode = async (req, res) => {
       path: "admissionAdminHead",
       select: "user",
     });
-    // const notify = new StudentNotification({});
+    const notify = new StudentNotification({});
     const institute = await InstituteAdmin.findById({
       _id: `${admin_ins?.institute}`,
     });
@@ -5209,39 +5212,50 @@ exports.renderAdminSelectMode = async (req, res) => {
       status.payMode = "offline";
       status.sub_payment_mode = "By Cash";
       status.isPaid = "Not Paid";
+      status.for_docs = "Yes"
       // status.for_selection = "No";
-      // aStatus.content = `Your admission is on hold please visit ${institute.insName}, ${institute.insDistrict}. with required fees. or contact institute if neccessory`;
-      // aStatus.applicationId = apply._id;
-      // user.applicationStatus.push(aStatus._id);
-      // aStatus.instituteId = institute._id;
-      // notify.notifyContent = `Your admission is on hold please visit ${institute.insName}, ${institute.insDistrict}. with required fees. or contact institute if neccessory`;
-      // notify.notifySender = admin_ins?.admissionAdminHead?.user;
-      // notify.notifyReceiever = user?._id;
-      // notify.notifyType = "Student";
-      // notify.notifyPublisher = student?._id;
-      // user.activity_tab.push(notify?._id);
-      // notify.notifyByAdmissionPhoto = admin_ins?._id;
-      // notify.notifyCategory = "Status Alert";
-      // notify.redirectIndex = 29;
+      aStatus.admission_process = "Yes";
+      aStatus.content = `Your admission process has been started. 
+
+Visit ${institute?.insName} with required documents (Click to view Documents) and applicable fees Rs.${student?.fee_structure?.applicable_fees} (Click to view in detail).
+          
+Payment modes available:`;
+      aStatus.feeStructure = student?.fee_structure?._id;
+      aStatus.document_visible = true;
+      aStatus.applicationId = apply._id;
+      user.applicationStatus.push(aStatus._id);
+      aStatus.instituteId = institute._id;
+      aStatus.studentId = student._id;
+      aStatus.finance = finance?._id;
+      aStatus.admissionFee = student?.fee_structure.total_admission_fees;
+      notify.notifyContent = `Your admission is on hold please visit ${institute.insName}, ${institute.insDistrict}. with required fees. or contact institute if neccessory`;
+      notify.notifySender = admin_ins?.admissionAdminHead?.user;
+      notify.notifyReceiever = user?._id;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student?._id;
+      user.activity_tab.push(notify?._id);
+      notify.notifyByAdmissionPhoto = admin_ins?._id;
+      notify.notifyCategory = "Status Alert";
+      notify.redirectIndex = 29;
       // student.active_status.pull(status?._id);
       await Promise.all([
         status.save(),
-        // aStatus.save(),
+        aStatus.save(),
         user.save(),
-        // notify.save(),
+        notify.save(),
         // student.save(),
       ]);
       res.status(200).send({
         message: "Lets do some excercise visit institute",
         access: true,
       });
-      // invokeMemberTabNotification(
-      //   "Admission Status",
-      //   aStatus.content,
-      //   "Application Status",
-      //   user._id,
-      //   user.deviceToken
-      // );
+      invokeMemberTabNotification(
+        "Admission Status",
+        aStatus.content,
+        "Application Status",
+        user._id,
+        user.deviceToken
+      );
     } else {
       res.status(200).send({
         message: "You lost in space",

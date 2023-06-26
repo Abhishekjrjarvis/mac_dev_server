@@ -412,7 +412,8 @@ exports.postWithVideo = async (req, res) => {
     }
     const file = req.file;
     const results = await uploadVideo(file);
-    post.postVideo = results.Key;
+    post.postVideo.key = results.Key;
+    post.postVideo.extension = req?.file?.mimeType;
     post.imageId = "1";
     institute.posts.push(post._id);
     institute.postCount += 1;

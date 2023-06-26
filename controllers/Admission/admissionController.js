@@ -3279,12 +3279,14 @@ const request_mode_query_by_student = async (
     } else {
       await update_fee_head_query(student, price, apply, new_receipt);
     }
-    await lookup_applicable_grant(
-      new_receipt?.fee_payment_mode,
-      price,
-      remaining_fee_lists,
-      new_receipt
-    );
+    if (remaining_fee_lists) {
+      await lookup_applicable_grant(
+        new_receipt?.fee_payment_mode,
+        price,
+        remaining_fee_lists,
+        new_receipt
+      );
+    }
     for (var stu of student.paidFeeList) {
       if (`${stu.appId}` === `${apply._id}`) {
         stu.paidAmount += price;
@@ -4966,21 +4968,33 @@ exports.renderOneReceiptStatus = async (req, res) => {
         finance.financeBankBalance += price;
       } else {
       }
-      await set_fee_head_query(student, price, one_app, one_receipt);
-      for (let app of one_app.selectedApplication) {
+      if (one_receipt?.fee_payment_mode === "Government/Scholarship") {
+        // New Logic
+      } else {
+        await set_fee_head_query(student, price, one_app, one_receipt);
+      }
+      if (is_install) {
+        one_app.confirmedApplication.push({
+          student: student._id,
+          payment_status: mode,
+          install_type: "First Installment Paid",
+          fee_remain: total_amount - price,
+        });
+      } else {
+        one_app.confirmedApplication.push({
+          student: student._id,
+          payment_status: mode,
+          install_type: "One Time Fees Paid",
+          fee_remain: student?.fee_structure?.total_admission_fees - price,
+        });
+      }
+      for (let app of one_app?.selectedApplication) {
         if (`${app.student}` === `${student._id}`) {
-          app.payment_status = mode;
-          if (is_install) {
-            app.install_type = "First Installment Paid";
-            app.fee_remain = total_amount - price;
-          } else {
-            app.install_type = "One Time Fees Paid";
-            app.fee_remain =
-              student?.fee_structure?.total_admission_fees - price;
-          }
+          one_app.selectedApplication.pull(app?._id);
         } else {
         }
       }
+      one_app.confirmCount += 1;
       student.admissionPaidFeeCount += price;
       student.paidFeeList.push({
         paidAmount: price,

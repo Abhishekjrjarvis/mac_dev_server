@@ -14,7 +14,12 @@ const postSchema = new mongoose.Schema({
     type: String,
   },
   postVideo: {
-    type: String,
+    key: {
+      type: String,
+    },
+    extension: {
+      type: String,
+    },
   },
   postStatus: {
     type: String,

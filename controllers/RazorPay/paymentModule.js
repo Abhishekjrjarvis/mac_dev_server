@@ -478,14 +478,14 @@ exports.admissionInstituteFunction = async (
       if (is_install) {
         apply.confirmedApplication.push({
           student: student._id,
-          payment_status: Online,
+          payment_status: "Online",
           install_type: "First Installment Paid",
           fee_remain: total_amount - parseInt(tx_amount_ad),
         });
       } else {
         apply.confirmedApplication.push({
           student: student._id,
-          payment_status: Online,
+          payment_status: "Online",
           install_type: "One Time Fees Paid",
           fee_remain:
             student?.fee_structure?.total_admission_fees -
@@ -1995,7 +1995,7 @@ exports.libraryInstituteFunction = async (
       student: student?._id,
       book: bookId,
       fee_receipt: new_receipt?._id,
-      fine_charge: parseInt(tx_amount)
+      fine_charge: parseInt(tx_amount),
     });
     // library.pending_fee.pull(student?._id);
     library.totalFine += parseInt(tx_amount);

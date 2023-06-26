@@ -4840,8 +4840,8 @@ exports.renderOneReceiptStatus = async (req, res) => {
     // console.log(one_receipt?.fee_payment_type);
     var valid_receipt = await handle_undefined(one_receipt?.fee_payment_type);
     if (
-      status === "Approved" ||
-      (status === "Over_Rejection" && valid_receipt != "")
+      (status === "Approved" ||
+      status === "Over_Rejection") && valid_receipt != ""
     ) {
       console.log("In Exist Fee Receipt", valid_receipt);
       const pay_mode =

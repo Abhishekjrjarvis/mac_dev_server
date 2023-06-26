@@ -4649,7 +4649,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
     const { aid, rid } = req.params;
     const { status, reqId } = req.query;
     const { reason } = req.body;
-    console.log(status)
+    console.log(status);
     if (!aid && !rid && !reqId)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -4837,12 +4837,13 @@ exports.renderOneReceiptStatus = async (req, res) => {
       .status(200)
       .send({ message: `Receipts ${status} by Admission Admin`, access: true });
 
+    console.log(one_receipt?.fee_payment_type);
     var valid_receipt = handle_undefined(one_receipt?.fee_payment_type);
     if (
       status === "Approved" ||
       (status === "Over_Rejection" && valid_receipt)
     ) {
-      console.log("In Exist Fee Receipt", valid_receipt)
+      console.log("In Exist Fee Receipt", valid_receipt);
       const pay_mode =
         one_receipt?.fee_payment_mode === "By Cash" ? "Offline" : "Online";
       await request_mode_query_by_student(
@@ -4856,7 +4857,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
       );
     } else if (status === "Approved" || status === "Over_Rejection") {
       var is_install;
-      console.log("In Without Fee Receipt")
+      console.log("In Without Fee Receipt");
       var price = one_receipt?.fee_payment_amount;
       var mode =
         one_receipt?.fee_payment_mode === "By Cash" ? "Offline" : "Online";

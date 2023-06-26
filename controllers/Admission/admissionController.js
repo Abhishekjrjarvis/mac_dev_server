@@ -1336,6 +1336,7 @@ Start your admission process by confirming below.`;
     status.applicationId = apply._id;
     // status.for_selection = "Yes";
     status.for_docs = "Yes";
+    // status.docs_status
     status.studentId = student._id;
     status.admissionFee = structure.total_admission_fees;
     status.instituteId = admission_admin?.institute;
@@ -5222,7 +5223,8 @@ exports.renderAdminSelectMode = async (req, res) => {
       status.payMode = "offline";
       status.sub_payment_mode = "By Cash";
       status.isPaid = "Not Paid";
-      status.for_docs = "Yes";
+      status.docs_status = "Yes";
+      status.for_docs = "Yes"
       // status.for_selection = "No";
       aStatus.admission_process = "Yes";
       aStatus.content = `Your admission process has been started. 

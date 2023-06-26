@@ -1556,7 +1556,6 @@ exports.retrieveAdmissionPayMode = async (req, res) => {
     }).select("invoice_count");
     const user = await User.findById({ _id: `${student.user}` });
     const status = await Status.findById({ _id: statusId });
-    const aStatus = new Status({});
     const apply = await NewApplication.findById({ _id: aid }).select(
       "selectedApplication admissionAdmin"
     );
@@ -1580,8 +1579,32 @@ exports.retrieveAdmissionPayMode = async (req, res) => {
       await apply.save();
     }
     if (fee_payment_mode === "By Cash") {
+      const aStatus = new Status({});
       status.payMode = "offline";
       status.sub_payment_mode = "By Cash";
+      status.isPaid = "Not Paid";
+      status.for_selection = "No";
+      aStatus.content = `Your admission is on hold please visit ${institute.insName}, ${institute.insDistrict}. with required fees. or contact institute if neccessory`;
+      aStatus.applicationId = apply._id;
+      user.applicationStatus.push(aStatus._id);
+      aStatus.instituteId = institute._id;
+      notify.notifyContent = `Your admission is on hold please visit ${institute.insName}, ${institute.insDistrict}. with required fees. or contact institute if neccessory`;
+      notify.notifySender = admin_ins?.admissionAdminHead?.user;
+      notify.notifyReceiever = user?._id;
+      notify.notifyType = "Student";
+      notify.notifyPublisher = student?._id;
+      user.activity_tab.push(notify?._id);
+      notify.notifyByAdmissionPhoto = admin_ins?._id;
+      notify.notifyCategory = "Status Alert";
+      notify.redirectIndex = 29;
+      await Promise.all([aStatus.save(), notify.save()]);
+      invokeMemberTabNotification(
+        "Admission Status",
+        aStatus.content,
+        "Application Status",
+        user._id,
+        user.deviceToken
+      );
     } else {
       status.sub_payment_mode = fee_payment_mode;
       status.payMode = "online";
@@ -1607,39 +1630,11 @@ exports.retrieveAdmissionPayMode = async (req, res) => {
       }${new Date().getFullYear()}${s_admin.invoice_count}`;
       await Promise.all([receipt.save(), s_admin.save()]);
     }
-    status.isPaid = "Not Paid";
-    status.for_selection = "No";
-    aStatus.content = `Your admission is on hold please visit ${institute.insName}, ${institute.insDistrict}. with required fees & documents or contact institute if neccessory`;
-    aStatus.applicationId = apply._id;
-    user.applicationStatus.push(aStatus._id);
-    aStatus.instituteId = institute._id;
-    notify.notifyContent = `Your admission is on hold please visit ${institute.insName}, ${institute.insDistrict}. with required fees & documents or contact institute if neccessory`;
-    notify.notifySender = admin_ins?.admissionAdminHead?.user;
-    notify.notifyReceiever = user?._id;
-    notify.notifyType = "Student";
-    notify.notifyPublisher = student?._id;
-    user.activity_tab.push(notify?._id);
-    notify.notifyByAdmissionPhoto = admin_ins?._id;
-    notify.notifyCategory = "Status Alert";
-    notify.redirectIndex = 29;
-    await Promise.all([
-      status.save(),
-      aStatus.save(),
-      user.save(),
-      admin_ins.save(),
-      notify.save(),
-    ]);
+    await Promise.all([status.save(), user.save(), admin_ins.save()]);
     res.status(200).send({
       message: "Lets do some excercise visit institute",
       status: true,
     });
-    invokeMemberTabNotification(
-      "Admission Status",
-      aStatus.content,
-      "Application Status",
-      user._id,
-      user.deviceToken
-    );
   } catch (e) {
     console.log(e);
   }
@@ -5197,11 +5192,11 @@ exports.renderAdminSelectMode = async (req, res) => {
       status.sub_payment_mode = "By Cash";
       status.isPaid = "Not Paid";
       status.for_selection = "No";
-      aStatus.content = `Your admission is on hold please visit ${institute.insName}, ${institute.insDistrict}. with required fees & documents or contact institute if neccessory`;
+      aStatus.content = `Your admission is on hold please visit ${institute.insName}, ${institute.insDistrict}. with required fees. or contact institute if neccessory`;
       aStatus.applicationId = apply._id;
       user.applicationStatus.push(aStatus._id);
       aStatus.instituteId = institute._id;
-      notify.notifyContent = `Your admission is on hold please visit ${institute.insName}, ${institute.insDistrict}. with required fees & documents or contact institute if neccessory`;
+      notify.notifyContent = `Your admission is on hold please visit ${institute.insName}, ${institute.insDistrict}. with required fees. or contact institute if neccessory`;
       notify.notifySender = admin_ins?.admissionAdminHead?.user;
       notify.notifyReceiever = user?._id;
       notify.notifyType = "Student";
@@ -6720,176 +6715,173 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
       ],
     });
     // if (one_remain_list?.status === "Not Paid") {
-      if (
-        new_struct?.total_admission_fees >= old_struct?.total_admission_fees
-      ) {
-        one_remain_list.applicable_fee = new_struct?.total_admission_fees;
-        one_remain_list.remaining_fee =
-          new_struct?.total_admission_fees - one_remain_list?.paid_fee;
-        for (var ref of one_remain_list?.remaining_array) {
+    if (new_struct?.total_admission_fees >= old_struct?.total_admission_fees) {
+      one_remain_list.applicable_fee = new_struct?.total_admission_fees;
+      one_remain_list.remaining_fee =
+        new_struct?.total_admission_fees - one_remain_list?.paid_fee;
+      for (var ref of one_remain_list?.remaining_array) {
+        if (
+          ref?.installmentValue === "One Time Fees" ||
+          ref?.installmentValue === "One Time Fees Remain"
+        ) {
           if (
-            ref?.installmentValue === "One Time Fees" ||
-            ref?.installmentValue === "One Time Fees Remain"
+            ref?.installmentValue === "One Time Fees Remain" &&
+            ref?.status === "Not Paid"
           ) {
-            if (
-              ref?.installmentValue === "One Time Fees Remain" &&
-              ref?.status === "Not Paid"
-            ) {
-              ref.remainAmount = one_remain_list.remaining_fee;
-            } else if (
-              ref?.installmentValue === "One Time Fees" &&
-              ref?.status === "Not Paid"
-            ) {
-              ref.remainAmount = one_remain_list.applicable_fee;
-            } else {
-              // if (one_remain_list.remaining_fee > 0) {
-              //   one_remain_list?.remaining_array.push({
-              //     remainAmount: one_remain_list.remaining_fee,
-              //     appId: one_app?._id,
-              //     instituteId: institute,
-              //     isEnable: true,
-              //     installmentValue: "One Time Fees Remain",
-              //   });
-              // }
-            }
+            ref.remainAmount = one_remain_list.remaining_fee;
+          } else if (
+            ref?.installmentValue === "One Time Fees" &&
+            ref?.status === "Not Paid"
+          ) {
+            ref.remainAmount = one_remain_list.applicable_fee;
           } else {
-            await set_retro_installment(
-              institute,
-              new_struct,
-              one_app,
-              one_remain_list
-            );
+            // if (one_remain_list.remaining_fee > 0) {
+            //   one_remain_list?.remaining_array.push({
+            //     remainAmount: one_remain_list.remaining_fee,
+            //     appId: one_app?._id,
+            //     instituteId: institute,
+            //     isEnable: true,
+            //     installmentValue: "One Time Fees Remain",
+            //   });
+            // }
           }
-        }
-        one_remain_list.fee_structure = new_struct?._id;
-        one_student.fee_structure = new_struct?._id;
-        one_student.admissionRemainFeeCount = one_remain_list.remaining_fee;
-        var filtered_head = one_student?.active_fee_heads?.filter((val) => {
-          if (`${val?.fee_structure}` === `${old_struct?._id}`) return val;
-        });
-        for (var ref of filtered_head) {
-          one_student.active_fee_heads.pull(ref?._id);
-        }
-        await one_student.save();
-        await set_fee_head_query_retro(
-          one_student,
-          one_remain_list?.paid_fee,
-          one_app,
-          all_receipts
-        );
-        if(one_remain_list?.remaining_fee > 0){
-          one_remain_list.status = "Not Paid"
-        }
-        else{
-          one_remain_list.status = "Paid"
-        }
-      } else {
-        if (one_remain_list?.paid_fee >= new_struct?.total_admission_fees) {
-          var refund_price =
-            one_remain_list?.paid_fee - new_struct?.total_admission_fees;
         } else {
-          var over_price =
-            new_struct?.total_admission_fees - one_remain_list?.paid_fee;
+          await set_retro_installment(
+            institute,
+            new_struct,
+            one_app,
+            one_remain_list
+          );
         }
-        one_remain_list.applicable_fee = new_struct?.total_admission_fees;
-        one_remain_list.remaining_fee = over_price ?? 0;
-        one_remain_list.refund_fee = refund_price ?? 0;
-        for (var ref of one_remain_list?.remaining_array) {
+      }
+      one_remain_list.fee_structure = new_struct?._id;
+      one_student.fee_structure = new_struct?._id;
+      one_student.admissionRemainFeeCount = one_remain_list.remaining_fee;
+      var filtered_head = one_student?.active_fee_heads?.filter((val) => {
+        if (`${val?.fee_structure}` === `${old_struct?._id}`) return val;
+      });
+      for (var ref of filtered_head) {
+        one_student.active_fee_heads.pull(ref?._id);
+      }
+      await one_student.save();
+      await set_fee_head_query_retro(
+        one_student,
+        one_remain_list?.paid_fee,
+        one_app,
+        all_receipts
+      );
+      if (one_remain_list?.remaining_fee > 0) {
+        one_remain_list.status = "Not Paid";
+      } else {
+        one_remain_list.status = "Paid";
+      }
+    } else {
+      if (one_remain_list?.paid_fee >= new_struct?.total_admission_fees) {
+        var refund_price =
+          one_remain_list?.paid_fee - new_struct?.total_admission_fees;
+      } else {
+        var over_price =
+          new_struct?.total_admission_fees - one_remain_list?.paid_fee;
+      }
+      one_remain_list.applicable_fee = new_struct?.total_admission_fees;
+      one_remain_list.remaining_fee = over_price ?? 0;
+      one_remain_list.refund_fee = refund_price ?? 0;
+      for (var ref of one_remain_list?.remaining_array) {
+        if (
+          ref?.installmentValue === "One Time Fees" ||
+          ref?.installmentValue === "One Time Fees Remain"
+        ) {
           if (
-            ref?.installmentValue === "One Time Fees" ||
-            ref?.installmentValue === "One Time Fees Remain"
+            ref?.installmentValue === "One Time Fees Remain" &&
+            ref?.status === "Not Paid"
           ) {
-            if (
-              ref?.installmentValue === "One Time Fees Remain" &&
-              ref?.status === "Not Paid"
-            ) {
-              ref.remainAmount = one_remain_list.remaining_fee;
-            } else if (
-              ref?.installmentValue === "One Time Fees" &&
-              ref?.status === "Not Paid"
-            ) {
-              ref.remainAmount = one_remain_list.applicable_fee;
-            } else {
-              // if (one_remain_list.remaining_fee > 0) {
-              //   one_remain_list?.remaining_array.push({
-              //     remainAmount: one_remain_list.remaining_fee,
-              //     appId: one_app?._id,
-              //     instituteId: institute?._id,
-              //     isEnable: true,
-              //     installmentValue: "One Time Fees Remain",
-              //   });
-              // }
-            }
+            ref.remainAmount = one_remain_list.remaining_fee;
+          } else if (
+            ref?.installmentValue === "One Time Fees" &&
+            ref?.status === "Not Paid"
+          ) {
+            ref.remainAmount = one_remain_list.applicable_fee;
           } else {
-            if (
-              one_remain_list?.applicable_fee <= one_remain_list?.paid_fee &&
-              one_remain_list?.remaining_fee >= 0
-            ) {
-              for (var ref of one_remain_list?.remaining_array) {
-                if (ref?.status === "Not Paid") {
-                  one_remain_list.remaining_array.pull(ref?._id);
-                }
+            // if (one_remain_list.remaining_fee > 0) {
+            //   one_remain_list?.remaining_array.push({
+            //     remainAmount: one_remain_list.remaining_fee,
+            //     appId: one_app?._id,
+            //     instituteId: institute?._id,
+            //     isEnable: true,
+            //     installmentValue: "One Time Fees Remain",
+            //   });
+            // }
+          }
+        } else {
+          if (
+            one_remain_list?.applicable_fee <= one_remain_list?.paid_fee &&
+            one_remain_list?.remaining_fee >= 0
+          ) {
+            for (var ref of one_remain_list?.remaining_array) {
+              if (ref?.status === "Not Paid") {
+                one_remain_list.remaining_array.pull(ref?._id);
               }
             }
-            await set_retro_installment(
-              institute,
-              new_struct,
-              one_app,
-              one_remain_list
-            );
           }
-        }
-        if (
-          one_remain_list?.applicable_fee <= one_remain_list?.paid_fee &&
-          one_remain_list?.remaining_fee === 0
-        ) {
-          one_remain_list.status = "Paid";
-        }
-        one_remain_list.fee_structure = new_struct?._id;
-        one_student.fee_structure = new_struct?._id;
-        one_student.admissionRemainFeeCount =
-          one_remain_list?.applicable_fee >= one_remain_list?.paid_fee
-            ? one_remain_list?.applicable_fee - one_remain_list?.paid_fee
-            : 0;
-        var filtered_head = one_student?.active_fee_heads?.filter((val) => {
-          if (`${val?.fee_structure}` === `${old_struct?._id}`) return val;
-        });
-        for (var ref of filtered_head) {
-          one_student.active_fee_heads.pull(ref?._id);
-        }
-        await one_student.save();
-        await set_fee_head_query_retro(
-          one_student,
-          one_remain_list?.paid_fee,
-          one_app,
-          all_receipts
-        );
-      }
-      await Promise.all([
-        one_remain_list.save(),
-        one_student.save(),
-        one_app.save(),
-      ]);
-      res
-        .status(200)
-        .send({ message: "Explore New Fee Structure Edit", access: true });
-      for (var ref of one_remain_list?.remaining_array) {
-        if (ref?.status === "Not Paid" && ref?.remainAmount === 0) {
-          one_remain_list.remaining_array.pull(ref?._id);
+          await set_retro_installment(
+            institute,
+            new_struct,
+            one_app,
+            one_remain_list
+          );
         }
       }
-      await one_remain_list.save();
-      for (var ref of all_receipts) {
-        for (var ele of ref?.fee_heads) {
-          if (`${ele?.fee_structure}` === `${old_struct?._id}`) {
-            console.log("Pull");
-            ref.fee_heads.pull(ele?._id);
-          } else {
-            console.log("Push with some bugs");
-          }
-        }
-        await ref.save();
+      if (
+        one_remain_list?.applicable_fee <= one_remain_list?.paid_fee &&
+        one_remain_list?.remaining_fee === 0
+      ) {
+        one_remain_list.status = "Paid";
       }
+      one_remain_list.fee_structure = new_struct?._id;
+      one_student.fee_structure = new_struct?._id;
+      one_student.admissionRemainFeeCount =
+        one_remain_list?.applicable_fee >= one_remain_list?.paid_fee
+          ? one_remain_list?.applicable_fee - one_remain_list?.paid_fee
+          : 0;
+      var filtered_head = one_student?.active_fee_heads?.filter((val) => {
+        if (`${val?.fee_structure}` === `${old_struct?._id}`) return val;
+      });
+      for (var ref of filtered_head) {
+        one_student.active_fee_heads.pull(ref?._id);
+      }
+      await one_student.save();
+      await set_fee_head_query_retro(
+        one_student,
+        one_remain_list?.paid_fee,
+        one_app,
+        all_receipts
+      );
+    }
+    await Promise.all([
+      one_remain_list.save(),
+      one_student.save(),
+      one_app.save(),
+    ]);
+    res
+      .status(200)
+      .send({ message: "Explore New Fee Structure Edit", access: true });
+    for (var ref of one_remain_list?.remaining_array) {
+      if (ref?.status === "Not Paid" && ref?.remainAmount === 0) {
+        one_remain_list.remaining_array.pull(ref?._id);
+      }
+    }
+    await one_remain_list.save();
+    for (var ref of all_receipts) {
+      for (var ele of ref?.fee_heads) {
+        if (`${ele?.fee_structure}` === `${old_struct?._id}`) {
+          console.log("Pull");
+          ref.fee_heads.pull(ele?._id);
+        } else {
+          console.log("Push with some bugs");
+        }
+      }
+      await ref.save();
+    }
     // } else {
     //   res
     //     .status(200)

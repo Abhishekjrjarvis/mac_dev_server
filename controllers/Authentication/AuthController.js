@@ -2659,7 +2659,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
       student.studentOptionalSubject.push(...studentOptionalSubject);
     }
     if (sample_pic) {
-      user.profilePhoto = sample_pic;
+      // user.profilePhoto = sample_pic;
       student.photoId = "0";
       student.studentProfilePhoto = sample_pic;
     }

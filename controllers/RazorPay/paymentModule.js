@@ -510,7 +510,7 @@ exports.admissionInstituteFunction = async (
       });
       aStatus.content = `Your seat has been confirmed, You will be alloted your class shortly, Stay Update!`;
       aStatus.applicationId = apply._id;
-      aStatus.document_visible = true;
+      aStatus.document_visible = false;
       user.applicationStatus.push(aStatus._id);
       aStatus.instituteId = ins._id;
       user.payment_history.push(order);

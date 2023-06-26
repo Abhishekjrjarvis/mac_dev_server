@@ -5021,12 +5021,12 @@ exports.renderOneReceiptStatus = async (req, res) => {
       order.payment_invoice_number = s_admin.invoice_count;
       user.payment_history.push(order._id);
       institute.payment_history.push(order._id);
-      status.content = `Welcome to Institute ${institute.insName}, ${institute.insDistrict}.Please visit with Required Documents to confirm your admission`;
+      status.content = `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`;
       status.applicationId = one_app._id;
       user.applicationStatus.push(status._id);
       status.instituteId = institute._id;
-      status.document_visible = true;
-      notify.notifyContent = `Welcome to Institute ${institute.insName}, ${institute.insDistrict}.Please visit with Required Documents to confirm your admission`;
+      status.document_visible = false;
+      notify.notifyContent = `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`;
       notify.notifySender = ads_admin?.admissionAdminHead?.user;
       notify.notifyReceiever = user?._id;
       notify.notifyType = "Student";

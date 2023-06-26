@@ -462,7 +462,7 @@ exports.admissionInstituteFunction = async (
               parseInt(tx_amount_ad),
             appId: apply._id,
             status: "Not Paid",
-            instituteId: institute._id,
+            instituteId: ins?._id,
             installmentValue: "One Time Fees Remain",
             isEnable: true,
           });

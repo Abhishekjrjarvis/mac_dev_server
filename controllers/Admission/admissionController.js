@@ -5207,6 +5207,9 @@ exports.renderAdminSelectMode = async (req, res) => {
     const institute = await InstituteAdmin.findById({
       _id: `${admin_ins?.institute}`,
     });
+    const finance = await Finance.findById({
+      _id: `${institute?.financeDepart?.[0]}`,
+    });
     if (status) {
       if (apply?.selectedApplication?.length > 0) {
         apply?.selectedApplication?.forEach((ele) => {

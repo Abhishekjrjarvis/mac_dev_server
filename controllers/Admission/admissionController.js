@@ -1836,6 +1836,13 @@ exports.payOfflineAdmissionFee = async (req, res) => {
     apply.confirmCount += 1;
     for (let app of apply.selectedApplication) {
       if (`${app.student}` === `${student._id}`) {
+        if (app?.status_id) {
+          const valid_status = await Status.findById({
+            _id: `${app?.status_id}`,
+          });
+          valid_status.isPaid = "Paid";
+          await valid_status.save();
+        }
         apply.selectedApplication.pull(app?._id);
       } else {
       }
@@ -3844,6 +3851,7 @@ exports.retrieveAdmissionCollectDocs = async (req, res) => {
     for (let app of apply.selectedApplication) {
       if (`${app.student}` === `${student._id}`) {
         app.docs_collect = "Collected";
+        app.status_id = status?._id;
       } else {
       }
     }
@@ -5181,10 +5189,9 @@ exports.renderAdminSelectMode = async (req, res) => {
     const apply = await NewApplication.findById({ _id: aid }).select(
       "selectedApplication admissionAdmin"
     );
-    const student = await Student.findById({ _id: sid })
-    .populate({
-      path: "fee_structure"
-    })
+    const student = await Student.findById({ _id: sid }).populate({
+      path: "fee_structure",
+    });
     const aStatus = new Status({});
     const status = await Status.findOne({
       $and: [{ _id: student?.active_status }, { applicationId: apply?._id }],
@@ -5212,7 +5219,7 @@ exports.renderAdminSelectMode = async (req, res) => {
       status.payMode = "offline";
       status.sub_payment_mode = "By Cash";
       status.isPaid = "Not Paid";
-      status.for_docs = "Yes"
+      status.for_docs = "Yes";
       // status.for_selection = "No";
       aStatus.admission_process = "Yes";
       aStatus.content = `Your admission process has been started. 

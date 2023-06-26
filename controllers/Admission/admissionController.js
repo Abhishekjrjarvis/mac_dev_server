@@ -4841,6 +4841,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
       status === "Approved" ||
       (status === "Over_Rejection" && valid_receipt)
     ) {
+      console.log("In Exist Fee Receipt", valid_receipt)
       const pay_mode =
         one_receipt?.fee_payment_mode === "By Cash" ? "Offline" : "Online";
       await request_mode_query_by_student(
@@ -4854,6 +4855,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
       );
     } else if (status === "Approved" || status === "Over_Rejection") {
       var is_install;
+      console.log("In Without Fee Receipt")
       var price = one_receipt?.fee_payment_amount;
       var mode =
         one_receipt?.fee_payment_mode === "By Cash" ? "Offline" : "Online";

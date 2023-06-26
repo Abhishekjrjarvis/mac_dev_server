@@ -12,6 +12,7 @@ const {
 } = require("../../S3Configuration");
 const fs = require("fs");
 const util = require("util");
+const BankAccount = require("../../models/Finance/BankAccount");
 const unlinkFile = util.promisify(fs.unlink);
 const axios = require("axios");
 const jwt = require("jsonwebtoken");
@@ -1864,6 +1865,9 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
       const institute = await InstituteAdmin.findById({
         _id: `${admission.institute}`,
       });
+      var filtered_account = await BankAccount.findOne({
+        department: `${apply?.applicationDepartment}`,
+      });
       const status = new Status({});
       const studentOptionalSubject = req.body?.optionalSubject
         ? req.body?.optionalSubject
@@ -1897,9 +1901,30 @@ exports.retrieveDirectJoinAdmissionQuery = async (req, res) => {
         student.photoId = "0";
         student.studentProfilePhoto = sample_pic;
       }
-      status.content = `You have applied for ${apply.applicationName} has been filled successfully.Stay updated to check status of your application.Tap here to see username ${user?.username}`;
+      status.content = `Your application for ${apply?.applicationName} have been filled successfully.
+
+Below is the admission process:
+1. You will get notified here after your selection or rejection from the institute. ( In case there is no notification within 3 working days, visit or contact the admission department)
+
+2.After selection, confirm from your side and start the admission process.
+
+3.After confirmation from your side, visit the institute with the required documents and applicable fees. (You will get Required documents and application fees information on your selection from the institute side. (Till then check our standard required documents and fee structures)
+
+4.Payment modes available for fee payment: 
+Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe, Google pay, Paytm)
+
+5.After submission and verification of documents, you are required to pay application admission fees.
+
+6. Pay application admission fees and your admission will be confirmed and complete.
+
+7. For cancellation and refund, contact the admission department.
+
+Note: Stay tuned for further updates.`;
       status.applicationId = apply._id;
+      status.document_visible = true;
+      status.finance = institute?.financeDepart?.[0];
       user.student.push(student._id);
+      status.bank_account = filtered_account?._id;
       user.applyApplication.push(apply._id);
       student.user = user._id;
       user.applicationStatus.push(status._id);

@@ -2593,7 +2593,7 @@ exports.renderFinanceOneBankAccountQuery = async (req, res) => {
   try {
     const { acid } = req.params;
     const { delete_pic } = req.query;
-    const image = handle_undefined(delete_pic);
+    const image = await handle_undefined(delete_pic);
     if (!acid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -2884,9 +2884,9 @@ exports.renderFinanceAddFeeStructureAutoQuery = async (
       depart.fees_structures_count += 1;
       if (ref?.heads?.length > 0) {
         for (var val of ref?.heads) {
-          var valid_name = handle_undefined(val?.head_name);
-          var valid_amount = handle_undefined(val?.head_amount);
-          var valid_master = handle_undefined(val?.master);
+          var valid_name = await handle_undefined(val?.head_name);
+          var valid_amount = await handle_undefined(val?.head_amount);
+          var valid_master = await handle_undefined(val?.master);
           if (valid_name && valid_amount && valid_master) {
             struct_query.fees_heads.push({
               head_name: valid_name,
@@ -3076,8 +3076,8 @@ exports.renderDepartmentAllFeeStructure = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
     const { filter_by, batch_by } = req.query;
-    const master_query = handle_undefined(filter_by); // master Id
-    const batch_query = handle_undefined(batch_by); // batch Id
+    const master_query = await handle_undefined(filter_by); // master Id
+    const batch_query = await handle_undefined(batch_by); // batch Id
     if (!did)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",

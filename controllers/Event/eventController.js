@@ -841,7 +841,7 @@ exports.renderOneEventUpdateQuery = async (req, res) => {
   try {
     const { eid } = req.params;
     const { date, time, new_depart, deleteDepart, delete_pic } = req.body;
-    const image = handle_undefined(delete_pic);
+    const image = await handle_undefined(delete_pic);
     if (!eid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -892,7 +892,7 @@ exports.renderOneSeminarUpdateQuery = async (req, res) => {
   try {
     const { smid } = req.params;
     const { date, time, new_depart, deleteDepart, delete_pic } = req.body;
-    const image = handle_undefined(delete_pic);
+    const image = await handle_undefined(delete_pic);
     if (!smid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",

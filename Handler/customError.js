@@ -1,4 +1,4 @@
-exports.handle_undefined = (args) => {
+exports.handle_undefined = async (args) => {
   if (
     args === undefined ||
     args === null ||

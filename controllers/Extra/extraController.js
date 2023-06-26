@@ -159,7 +159,7 @@ exports.retrieveBonafideGRNO = async (req, res) => {
     const institute = await InstituteAdmin.findById({
       _id: id,
     });
-    const validGR = valid_initials(institute?.gr_initials, gr);
+    const validGR = await valid_initials(institute?.gr_initials, gr);
     if (!validGR)
       return res.status(200).send({ message: "I Think you lost in space" });
     const student = await Student.findOne({
@@ -227,7 +227,7 @@ exports.retrieveLeavingGRNO = async (req, res) => {
     const institute = await InstituteAdmin.findById({
       _id: id,
     });
-    const validGR = valid_initials(institute?.gr_initials, gr);
+    const validGR = await valid_initials(institute?.gr_initials, gr);
     if (!validGR)
       return res.status(200).send({ message: "I Think you lost in space" });
     const student = await Student.findOne({

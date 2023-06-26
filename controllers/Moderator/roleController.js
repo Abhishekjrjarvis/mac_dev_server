@@ -307,7 +307,7 @@ exports.updateAdmissionAppModeratorQuery = async (req, res) => {
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
-    var sid = handle_undefined(staffId);
+    var sid = await handle_undefined(staffId);
     var all_role = all_access_role();
     const one_moderator = await AdmissionModerator.findById({
       _id: mid,
@@ -578,7 +578,7 @@ exports.updateFinanceAppModeratorQuery = async (req, res) => {
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
-    var sid = handle_undefined(staffId);
+    var sid = await handle_undefined(staffId);
     var all_role = all_access_role_finance();
     const one_moderator = await FinanceModerator.findById({
       _id: mid,
@@ -822,7 +822,7 @@ exports.updateInstituteAppModeratorQuery = async (req, res) => {
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
-    var sid = handle_undefined(staffId);
+    var sid = await handle_undefined(staffId);
     var all_role = all_access_role_ins();
     const one_moderator = await FinanceModerator.findById({
       _id: mid,
@@ -1084,7 +1084,7 @@ exports.updateHostelAppModeratorQuery = async (req, res) => {
         message: "Their is a bug need to fixed immediately",
         access: false,
       });
-    var sid = handle_undefined(staffId);
+    var sid = await handle_undefined(staffId);
     var all_role = all_access_role_hostel();
     const one_moderator = await AdmissionModerator.findById({
       _id: mid,

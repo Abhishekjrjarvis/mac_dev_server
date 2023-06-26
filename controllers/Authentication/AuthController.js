@@ -1958,7 +1958,7 @@ exports.retrieveInstituteDirectJoinQuery = async (req, res) => {
   try {
     const { id, cid } = req.params;
     const { existingUser } = req.query;
-    var existing = handle_undefined(existingUser);
+    var existing = await handle_undefined(existingUser);
     const { sample_pic, fileArray, batch_set, is_remain, fee_struct } =
       req.body;
     if (
@@ -2298,7 +2298,7 @@ exports.retrieveInstituteDirectJoinStaffQuery = async (req, res) => {
   try {
     const { id, insId } = req.params;
     const { existingUser } = req.query;
-    var existing = handle_undefined(existingUser);
+    var existing = await handle_undefined(existingUser);
     const { sample_pic, fileArray } = req.body;
     if (
       !id &&
@@ -2559,7 +2559,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
   try {
     const { id, aid } = req.params;
     const { existingUser } = req.query;
-    var existing = handle_undefined(existingUser);
+    var existing = await handle_undefined(existingUser);
     const { sample_pic, fileArray, type, mode, amount, fee_struct } = req.body;
     if (
       !id &&
@@ -2747,7 +2747,7 @@ exports.renderDirectAppJoinConfirmQuery = async (req, res) => {
 
 exports.renderSelectAccountQuery = async (req, res) => {
   try {
-    const valid_key = handle_undefined(req.query.phoneKey);
+    const valid_key = await handle_undefined(req.query.phoneKey);
     if (!valid_key)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
@@ -2854,7 +2854,7 @@ exports.retrieveInstituteDirectJoinQueryPayload = async (
           await user.save();
         }
         //
-        var valid_dob = handle_undefined(user?.userDateOfBirth);
+        var valid_dob = await handle_undefined(user?.userDateOfBirth);
         if (valid_dob) {
           var b_date = user.userDateOfBirth?.slice(8, 10);
           var b_month = user.userDateOfBirth?.slice(5, 7);

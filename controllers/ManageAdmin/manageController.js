@@ -717,7 +717,7 @@ exports.renderAdministratorPersonalQuery = async (req, res) => {
   try {
     const { mid } = req.params;
     const { delete_pic } = req.query;
-    const image = handle_undefined(delete_pic);
+    const image = await handle_undefined(delete_pic);
     if (!mid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",

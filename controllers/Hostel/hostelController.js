@@ -519,7 +519,7 @@ exports.renderHostelAllFeeStructure = async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 10;
     const skip = (page - 1) * limit;
     const { filter_by } = req.query;
-    const master_query = handle_undefined(filter_by);
+    const master_query = await handle_undefined(filter_by);
     if (!hid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -3547,7 +3547,7 @@ exports.renderOneHostelReceiptReApply = async (req, res) => {
     const { sid, rid } = req.params;
     const { delete_pic } = req.query;
     const { transaction_date } = req.body;
-    const image = handle_undefined(delete_pic);
+    const image = await handle_undefined(delete_pic);
     if (!sid && !rid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
@@ -6219,7 +6219,7 @@ exports.renderDirectHostelJoinConfirmQuery = async (req, res) => {
   try {
     const { id, aid } = req.params;
     const { existingUser } = req.query;
-    var existing = handle_undefined(existingUser);
+    var existing = await handle_undefined(existingUser);
     const {
       sample_pic,
       fileArray,

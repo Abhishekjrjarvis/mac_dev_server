@@ -2178,7 +2178,7 @@ exports.retrieveCurrentSelectBatch = async (req, res) => {
   try {
     const { did, bid } = req.params;
     const department = await Department.findById({ _id: did });
-    var valid_active_batch = handle_undefined(
+    var valid_active_batch = await handle_undefined(
       department?.departmentSelectBatch
     );
     if (valid_active_batch) {

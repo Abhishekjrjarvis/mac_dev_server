@@ -103,7 +103,7 @@ exports.classReportSetting = async (req, res) => {
 exports.renderAllStudentMentors = async (req, res) => {
   try {
     const { sid } = req.params;
-    const stu = handle_undefined(sid);
+    const stu = await handle_undefined(sid);
     if (!stu)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",

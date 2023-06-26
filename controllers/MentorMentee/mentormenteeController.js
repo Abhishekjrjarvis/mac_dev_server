@@ -466,7 +466,7 @@ exports.renderOneQueryRemark = async (req, res) => {
     const { qid } = req.params;
     const { flow } = req.query;
     const { remark, forward } = req.body;
-    var valid_forward = handle_undefined(forward);
+    var valid_forward = await handle_undefined(forward);
     if (!qid && !flow)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",

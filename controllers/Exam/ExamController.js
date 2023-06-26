@@ -2111,7 +2111,7 @@ exports.renderNewSeatingArrangementQuery = async (req, res) => {
   try {
     const { eid } = req.params;
     const { papers } = req.body;
-    var valid_staff = handle_undefined(req?.body?.seat_block_staff);
+    var valid_staff = await handle_undefined(req?.body?.seat_block_staff);
     if (!eid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",
@@ -4554,7 +4554,7 @@ exports.renderNewBacklogSeatingArrangementQuery = async (req, res) => {
   try {
     const { eid } = req.params;
     const { papers } = req.body;
-    var valid_staff = handle_undefined(req?.body?.seat_block_staff);
+    var valid_staff = await handle_undefined(req?.body?.seat_block_staff);
     if (!eid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediately",

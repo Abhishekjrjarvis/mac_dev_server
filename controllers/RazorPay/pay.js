@@ -109,7 +109,7 @@ exports.verifyRazorPayment = async (req, res) => {
       payment_book_id,
       ad_install,
     } = req.query;
-    // const data_key = handle_undefined(razor_key);
+    // const data_key = await handle_undefined(razor_key);
     var refactor_amount = parseFloat(payment_amount) / 100;
     var refactor_amount_nocharges = parseInt(payment_amount_charges) / 100;
     const body = razorpay_order_id + "|" + razorpay_payment_id;

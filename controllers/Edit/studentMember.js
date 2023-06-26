@@ -59,8 +59,8 @@ exports.formEditByClassTeacher = async (req, res) => {
   try {
     if (!req.params.sid) throw "Please send student id to perform task";
     const { phone, email } = req.body;
-    var valid_phone = handle_undefined(phone);
-    var valid_email = handle_undefined(email);
+    var valid_phone = await handle_undefined(phone);
+    var valid_email = await handle_undefined(email);
     const old_data = {
       gender: "",
       caste: "",

@@ -4838,7 +4838,7 @@ exports.renderOneReceiptStatus = async (req, res) => {
       .send({ message: `Receipts ${status} by Admission Admin`, access: true });
 
     console.log(one_receipt?.fee_payment_type);
-    var valid_receipt = handle_undefined(one_receipt?.fee_payment_type);
+    var valid_receipt = await handle_undefined(one_receipt?.fee_payment_type);
     if (
       status === "Approved" ||
       (status === "Over_Rejection" && valid_receipt)
@@ -5068,7 +5068,7 @@ exports.renderOneReceiptReApply = async (req, res) => {
     const { sid, rid } = req.params;
     const { delete_pic } = req.query;
     const { transaction_date } = req.body;
-    const image = handle_undefined(delete_pic);
+    const image = await handle_undefined(delete_pic);
     if (!sid && !rid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",

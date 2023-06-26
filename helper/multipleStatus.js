@@ -34,6 +34,11 @@ exports.insert_multiple_status = async (
     });
     const statusArray = [
       {
+        content: `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`,
+        applicationId: args?._id,
+        instituteId: iargs?._id,
+      },
+      {
         content: `Your application for ${args?.applicationName} have been filled successfully.
 
 Below is the admission process:
@@ -82,11 +87,6 @@ Note: Stay tuned for further updates. Tap here to see username ${uargs?.username
       //   instituteId: iargs?._id,
       //   document_visible: true,
       // },
-      {
-        content: `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`,
-        applicationId: args?._id,
-        instituteId: iargs?._id,
-      },
     ];
 
     Status.insertMany(statusArray)

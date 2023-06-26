@@ -5209,7 +5209,7 @@ exports.renderAdminSelectMode = async (req, res) => {
       status.payMode = "offline";
       status.sub_payment_mode = "By Cash";
       status.isPaid = "Not Paid";
-      status.for_selection = "No";
+      // status.for_selection = "No";
       // aStatus.content = `Your admission is on hold please visit ${institute.insName}, ${institute.insDistrict}. with required fees. or contact institute if neccessory`;
       // aStatus.applicationId = apply._id;
       // user.applicationStatus.push(aStatus._id);

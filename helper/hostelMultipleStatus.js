@@ -225,13 +225,28 @@ exports.fee_reordering_hostel = async (
       new_remainFee.student = student?._id;
       new_remainFee.fee_receipts.push(new_receipt?._id);
       new_remainFee.fee_structure = student?.hostel_fee_structure?._id;
-      await add_all_installment(
-        apply,
-        institute._id,
-        new_remainFee,
-        price,
-        student
-      );
+      if (total_amount - price > 0 && price > 0) {
+        await add_all_installment(
+          apply,
+          institute._id,
+          new_remainFee,
+          price,
+          student
+        );
+      }
+      if (
+        total_amount - price > 0 &&
+        price > 0 &&
+        `${student?.hostel_fee_structure?.total_installments}` === "1"
+      ) {
+        new_remainFee.remaining_array.push({
+          remainAmount: total_amount - price,
+          appId: apply._id,
+          instituteId: institute._id,
+          installmentValue: "Installment Remain",
+          isEnable: true,
+        });
+      }
     }
     if (mode === "Offline") {
       hostel.collected_fee += price;

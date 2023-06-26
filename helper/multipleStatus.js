@@ -11,6 +11,7 @@ const FeeReceipt = require("../models/RazorPay/feeReceipt");
 const Admin = require("../models/superAdmin");
 const User = require("../models/User");
 const StudentNotification = require("../models/Marks/StudentNotification");
+const BankAccount = require("../models/Finance/BankAccount");
 const {
   add_all_installment,
   add_total_installment,
@@ -28,36 +29,61 @@ exports.insert_multiple_status = async (
   structure
 ) => {
   try {
+    var filtered_account = await BankAccount.findOne({
+      department: `${apply?.applicationDepartment}`,
+    });
     const statusArray = [
       {
-        content: `You have applied for ${args.applicationName} has been filled successfully.Stay updated to check status of your application.Tap here to see username ${uargs?.username}`,
-        applicationId: args?._id,
-        instituteId: iargs?._id,
-      },
-      {
-        content: `You have been selected for ${args.applicationName}. Visit ${iargs.insName} with required documents & fees. Your Fee Structure is ${structure?.structure_name}. Available payment modes.`,
-        applicationId: args?._id,
-        instituteId: iargs?._id,
-        for_selection: "No",
-        studentId: sid,
-        admissionFee: args.admissionFee,
-        finance: finance?._id,
-        payMode: "offline",
-        isPaid: "Paid",
-      },
-      {
-        content: `Your admission is on hold please visit ${iargs.insName}, ${iargs.insDistrict}. with required fees & documents or contact institute if neccessory`,
-        applicationId: args?._id,
-        instituteId: iargs?._id,
-      },
-      {
-        content: `Your documents have been verified and submitted successfully. Confirm your admission by paying applicable fees Rs.${structure?.applicable_fees}`,
+        content: `Your application for ${apply?.applicationName} have been filled successfully.
+
+Below is the admission process:
+1. You will get notified here after your selection or rejection from the institute. ( In case there is no notification within 3 working days, visit or contact the admission department)
+
+2.After selection, confirm from your side and start the admission process.
+
+3.After confirmation from your side, visit the institute with the required documents and applicable fees. (You will get Required documents and application fees information on your selection from the institute side. (Till then check our standard required documents and fee structures)
+
+4.Payment modes available for fee payment: 
+Online: UPI, Debit Card, Credit Card, Net banking & other payment apps (Phonepe, Google pay, Paytm)
+
+5.After submission and verification of documents, you are required to pay application admission fees.
+
+6. Pay application admission fees and your admission will be confirmed and complete.
+
+7. For cancellation and refund, contact the admission department.
+
+Note: Stay tuned for further updates. Tap here to see username ${uargs?.username}`,
+        // content: `You have applied for ${args.applicationName} has been filled successfully.Stay updated to check status of your application.Tap here to see username ${uargs?.username}`,
         applicationId: args?._id,
         instituteId: iargs?._id,
         document_visible: true,
+        finance: finance?._id,
+        bank_account: filtered_account?._id,
       },
+      // {
+      //   content: `You have been selected for ${args.applicationName}. Visit ${iargs.insName} with required documents & fees. Your Fee Structure is ${structure?.structure_name}. Available payment modes.`,
+      //   applicationId: args?._id,
+      //   instituteId: iargs?._id,
+      //   for_selection: "No",
+      //   studentId: sid,
+      //   admissionFee: args.admissionFee,
+      //   finance: finance?._id,
+      //   payMode: "offline",
+      //   isPaid: "Paid",
+      // },
+      // {
+      //   content: `Your admission is on hold please visit ${iargs.insName}, ${iargs.insDistrict}. with required fees & documents or contact institute if neccessory`,
+      //   applicationId: args?._id,
+      //   instituteId: iargs?._id,
+      // },
+      // {
+      //   content: `Your documents have been verified and submitted successfully. Confirm your admission by paying applicable fees Rs.${structure?.applicable_fees}`,
+      //   applicationId: args?._id,
+      //   instituteId: iargs?._id,
+      //   document_visible: true,
+      // },
       {
-        content: `Your seat has been confirmed, You will be alloted your class shortly, Stay Update!`,
+        content: `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`,
         applicationId: args?._id,
         instituteId: iargs?._id,
       },

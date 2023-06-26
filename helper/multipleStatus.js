@@ -30,11 +30,11 @@ exports.insert_multiple_status = async (
 ) => {
   try {
     var filtered_account = await BankAccount.findOne({
-      department: `${apply?.applicationDepartment}`,
+      department: `${args?.applicationDepartment}`,
     });
     const statusArray = [
       {
-        content: `Your application for ${apply?.applicationName} have been filled successfully.
+        content: `Your application for ${args?.applicationName} have been filled successfully.
 
 Below is the admission process:
 1. You will get notified here after your selection or rejection from the institute. ( In case there is no notification within 3 working days, visit or contact the admission department)

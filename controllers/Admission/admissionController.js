@@ -2017,11 +2017,11 @@ exports.cancelAdmissionApplication = async (req, res) => {
       if (admission.remainingFeeCount >= parseInt(remainAmount)) {
         admission.remainingFeeCount -= parseInt(remainAmount);
       }
-      aStatus.content = `our admission has been cancelled successfully with refund of Rs. ${price}`;
+      aStatus.content = `your admission has been cancelled successfully with refund of Rs. ${price}`;
       aStatus.applicationId = apply._id;
       user.applicationStatus.push(aStatus._id);
       aStatus.instituteId = institute._id;
-      notify.notifyContent = `our admission has been cancelled successfully with refund of Rs. ${price}`;
+      notify.notifyContent = `your admission has been cancelled successfully with refund of Rs. ${price}`;
       notify.notifySender = admission?.admissionAdminHead?.user;
       notify.notifyReceiever = user?._id;
       notify.notifyType = "Student";
@@ -5224,7 +5224,7 @@ exports.renderAdminSelectMode = async (req, res) => {
       status.sub_payment_mode = "By Cash";
       status.isPaid = "Not Paid";
       status.docs_status = "Yes";
-      status.for_docs = "Yes"
+      status.for_docs = "Yes";
       // status.for_selection = "No";
       aStatus.admission_process = "Yes";
       aStatus.content = `Your admission process has been started. 

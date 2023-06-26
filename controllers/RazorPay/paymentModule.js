@@ -515,7 +515,7 @@ exports.admissionInstituteFunction = async (
       aStatus.instituteId = ins._id;
       user.payment_history.push(order);
       (status.payMode = "online"), (status.isPaid = "Paid");
-      // status.for_selection = "No";
+      status.for_selection = "Yes";
       notify.notifyContent = `${student.studentFirstName} ${
         student.studentMiddleName ? `${student.studentMiddleName} ` : ""
       } ${
@@ -1065,7 +1065,7 @@ exports.hostelInstituteFunction = async (
       aStatus.instituteId = ins._id;
       user.payment_history.push(order);
       (status.payMode = "online"), (status.isPaid = "Paid");
-      // status.for_selection = "No";
+      status.for_selection = "Yes";
       notify.notifyContent = `${student.studentFirstName} ${
         student.studentMiddleName ? `${student.studentMiddleName} ` : ""
       } ${

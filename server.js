@@ -46,6 +46,7 @@ app.use(
       "https://demo.qviple.com",
       "https://spce.qviple.com",
       "https://dashboard.qviple.com",
+      "http://localhost:3001",
     ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,

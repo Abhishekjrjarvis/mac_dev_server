@@ -515,7 +515,7 @@ exports.admissionInstituteFunction = async (
       aStatus.instituteId = ins._id;
       user.payment_history.push(order);
       (status.payMode = "online"), (status.isPaid = "Paid");
-      status.for_selection = "No";
+      // status.for_selection = "No";
       notify.notifyContent = `${student.studentFirstName} ${
         student.studentMiddleName ? `${student.studentMiddleName} ` : ""
       } ${
@@ -1058,14 +1058,14 @@ exports.hostelInstituteFunction = async (
         paidAmount: parseInt(tx_amount_ad),
         appId: apply._id,
       });
-      aStatus.content = `Welcome to Institute ${ins.insName}, ${ins.insDistrict}.Please visit with Required Documents to confirm your admission`;
+      aStatus.content = `Your seat has been confirmed, You will be alloted your class shortly, Stay Updated!`;
       aStatus.applicationId = apply._id;
-      aStatus.document_visible = true;
+      aStatus.document_visible = false;
       user.applicationStatus.push(aStatus._id);
       aStatus.instituteId = ins._id;
       user.payment_history.push(order);
       (status.payMode = "online"), (status.isPaid = "Paid");
-      status.for_selection = "No";
+      // status.for_selection = "No";
       notify.notifyContent = `${student.studentFirstName} ${
         student.studentMiddleName ? `${student.studentMiddleName} ` : ""
       } ${

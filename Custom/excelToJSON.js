@@ -476,3 +476,23 @@ exports.generate_excel_to_json_scholarship_gr_batch_query = async (
     console.log("Scholarship GR Batch Excel Query Not Resolved", e);
   }
 };
+
+exports.generate_excel_to_json_library_offline_book_query = async (file) => {
+  try {
+    const w_query = xlsx.read(file.Body);
+    const w_sheet = w_query.Sheets["LibraryBook"];
+    const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
+    var new_data_query = [];
+    for (var val of data_query) {
+      val.bookName = val?.Name;
+      val.bookStatus = val?.Status;
+      val.author = val?.Author;
+      val.language = val?.Language;
+      val.totalCopies = val?.Copies;
+      new_data_query.push(val);
+    }
+    return { book_array: new_data_query, value: true };
+  } catch (e) {
+    console.log("Library Offline Book Excel Query Not Resolved", e);
+  }
+};

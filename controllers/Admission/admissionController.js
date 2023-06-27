@@ -3434,7 +3434,7 @@ exports.retrieveOneApplicationQuery = async (req, res) => {
     //   });
     const oneApply = await NewApplication.findById({ _id: aid })
       .select(
-        "applicationName applicationType applicationAbout admissionProcess applicationEndDate applicationStartDate admissionFee applicationPhoto photoId applicationSeats receievedCount selectCount confirmCount applicationStatus cancelCount allotCount onlineFee offlineFee remainingFee collectedFeeCount applicationMaster application_type"
+        "applicationName applicationType applicationAbout admissionProcess applicationEndDate applicationStartDate admissionFee applicationPhoto photoId applicationSeats receievedCount selectCount confirmCount applicationStatus cancelCount allotCount onlineFee offlineFee remainingFee collectedFeeCount applicationMaster application_type app_qr_code"
       )
       .populate({
         path: "applicationDepartment",
@@ -7747,6 +7747,26 @@ exports.renderInstituteScholarNumberAutoQuery = async (id, arr) => {
     console.log(e);
   }
 };
+
+exports.renderApplicationAutoQRCodeQuery = async(req, res) => {
+  try{
+    const { aid } = req.params
+    const { qr_code } = req.query
+    if (!aid)
+      return res.status(200).send({
+        message: "Their is a bug need to fix immediately 😡",
+        access: false,
+      });
+    
+    var new_app = await NewApplication.findById({ _id: aid})
+    new_app.app_qr_code = qr_code
+    await new_app.save()
+    res.status(200).send({ message: "Explore New Application QR Code Query", access: true})
+  }
+  catch(e){
+    console.log(e)
+  }
+}
 
 // exports.renderRetroOneStudentStructureQuery = async (req, res) => {
 //   try {

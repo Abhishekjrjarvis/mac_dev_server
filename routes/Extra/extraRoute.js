@@ -233,4 +233,10 @@ router.patch(
   catchAsync(Extra.renderExcelToJSONScholarshipGRBatchQuery)
 );
 
+router.patch(
+  "/excel/to/json/:lid/add/book/query",
+  // isLoggedIn,
+  catchAsync(Extra.renderExcelToJSONLibraryBookQuery)
+);
+
 module.exports = router;

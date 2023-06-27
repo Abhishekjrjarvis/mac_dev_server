@@ -1983,11 +1983,14 @@ exports.libraryInstituteFunction = async (
     if (student.libraryFineRemainCount >= parseInt(tx_amount)) {
       student.libraryFineRemainCount -= parseInt(tx_amount);
     }
+    var ele_type;
     for (var ref of library?.pending_fee) {
       if (
         `${ref?.student}` === `${student?._id}` &&
-        `${ref?.book}` === `${bookId}`
+        `${ref?.book}` === `${bookId}` && 
+        `${ref?.status}` === "Not Paid"
       ) {
+        ele_type = ref?.fine_type
         library.pending_fee.pull(ref?._id);
       }
     }
@@ -1996,6 +1999,8 @@ exports.libraryInstituteFunction = async (
       book: bookId,
       fee_receipt: new_receipt?._id,
       fine_charge: parseInt(tx_amount),
+      fine_type: `${ele_type}`,
+      status: "Paid"
     });
     // library.pending_fee.pull(student?._id);
     library.totalFine += parseInt(tx_amount);

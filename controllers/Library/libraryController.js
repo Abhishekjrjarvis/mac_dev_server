@@ -406,6 +406,7 @@ exports.bookColletedByStaffSide = async (req, res) => {
           book: book?._id,
           fee_receipt: new_receipt?._id,
           fine_charge: price,
+          fine_type: `${req.body?.chargeBy}`,
         });
         await new_receipt.save();
         // library.exemptFine +=req.body?.exemptFine
@@ -426,6 +427,7 @@ exports.bookColletedByStaffSide = async (req, res) => {
           student: student?._id,
           book: book?._id,
           fine_charge: price,
+          fine_type: `${req.body?.chargeBy}`,
         });
         student.libraryFineRemainCount += price;
         library.remainFine += price;
@@ -812,11 +814,132 @@ exports.renderFineChargesQuery = async (req, res) => {
   }
 };
 
-// exports.renderFineChargesCollectOfflineQuery = async(req, res) => {
-//   try{
-//     const { lid, sid }
-//   }
-//   catch(e){
-//     console.log(e)
-//   }
-// }
+exports.renderFineChargesCollectOfflineQuery = async (req, res) => {
+  try {
+    const { lid, sid, bid } = req.params;
+    const { amount, prid } = req.body;
+    if (!lid && !sid && !bid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: true,
+      });
+
+    var price = parseInt(amount);
+    const s_admin = await Admin.findById({ _id: `${process.env.S_ADMIN_ID}` });
+    const lib = await Library.findById({ _id: lid });
+    const institute = await InstituteAdmin.findById({
+      _id: `${lib?.institute}`,
+    });
+    const finance = await Finance.findById({
+      _id: `${institute?.financeDepart?.[0]}`,
+    });
+    const student = await Student.findById({ _id: sid });
+    const user = await User.findById({ _id: `${student?.user}` });
+    const book = await Book.findById({ _id: bid });
+    const new_receipt = new FeeReceipt({});
+    const order = new OrderPayment({});
+    order.payment_module_type = "Library Fine";
+    order.payment_to_end_user_id = institute?._id;
+    order.payment_by_end_user_id = user._id;
+    order.payment_module_id = lib._id;
+    order.payment_amount = parseInt(price);
+    order.payment_status = "Captured";
+    order.payment_flag_to = "Credit";
+    order.payment_flag_by = "Debit";
+    order.payment_mode = "Offline";
+    order.payment_admission = lib._id;
+    order.payment_from = student._id;
+    s_admin.invoice_count += 1;
+    order.payment_invoice_number = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${s_admin.invoice_count}`;
+    user.payment_history.push(order._id);
+    institute.payment_history.push(order._id);
+    new_receipt.fee_payment_mode = "By Cash";
+    new_receipt.fee_payment_amount = price;
+    new_receipt.student = student?._id;
+    new_receipt.finance = finance?._id;
+    new_receipt.fee_transaction_date = new Date();
+    new_receipt.invoice_count = `${
+      new Date().getMonth() + 1
+    }${new Date().getFullYear()}${s_admin.invoice_count}`;
+    var filtered_arr = lib.pending_fee?.filter((val) => {
+      if (`${val?._id}` === `${prid}`) return val;
+    });
+    if (filtered_arr?.length > 0) {
+      for (var val of filtered_arr) {
+        lib.paid_fee.push({
+          student: student?._id,
+          book: book?._id,
+          status: "Paid",
+          fine_charge: price,
+          fine_type: val?.fine_type,
+          fee_receipt: new_receipt?._id,
+        });
+        filtered_arr.pull(val?._id);
+      }
+    }
+    var valid_internal = await InternalFees.find({
+      $and: [
+        { _id: student?.internal_fees_query },
+        { book: book?._id },
+        { internal_fee_status: "Not Paid" },
+      ],
+    });
+    if (valid_internal?.length > 0) {
+      for (var val of valid_internal) {
+        val.internal_fee_status = "Paid";
+        val.fee_receipt = new_receipt?._id;
+        await val.save();
+      }
+    }
+    lib.offlineFine += price;
+    lib.collectedFine += price;
+    lib.totalFine += price;
+    if (lib?.remainFine >= price) {
+      lib.remainFine -= price;
+    }
+    student.libraryFinePaidCount += price;
+    if (student?.libraryFineRemainCount >= price) {
+      student.libraryFineRemainCount -= price;
+    }
+    await Promise.all([
+      new_receipt.save(),
+      s_admin.save(),
+      order.save(),
+      user.save(),
+      institute.save(),
+      lib.save(),
+      student.save(),
+    ]);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderNewOfflineBookAutoQuery = async (lid, book_array) => {
+  try {
+    if (!lid) {
+      var library = await Library.findById(lid);
+      for (var val of book_array) {
+        const book = new Book({
+          bookName: val?.bookName,
+          bookStatus: val?.bookStatus,
+          author: val?.author,
+          language: val?.language,
+          totalCopies: parseInt(val?.totalCopies),
+        });
+        library.books.push(book._id);
+        library.bookCount += 1;
+        book.library = lid;
+        book.leftCopies = book.totalCopies;
+        await book.save();
+      }
+      await library.save();
+    } else {
+      console.log("Invalid / Library ID");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};

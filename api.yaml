@@ -24178,6 +24178,34 @@ paths:
         "200":
           description: OK
 
+  /api/v1/extra/excel/to/json/{lid}/add/book/query:
+    patch:
+      tags:
+        - Process Excel + Database Processing
+      summary: Upload One Excel File for Upload New Book By Librarian (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: This Library ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              excel_file:
+                type: string
+                description: Enter Key here
+                required: true
+      responses:
+        "200":
+          description: OK
+
   /api/v1/extra/excel/to/json/query/fee/head/master/{fid}:
     patch:
       tags:
@@ -30856,6 +30884,47 @@ paths:
           description: OK
 
 
+  /api/v1/library/fine/{lid}/query/collect/{sid}/offline/{bid}:
+    patch:
+      tags:
+        - Library Module 
+      summary: Collect Fine Offline By Librarian (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: lid
+          required: true
+          type: string
+          description: This is Library id 
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student id 
+        - in: path
+          name: bid
+          required: true
+          type: string
+          description: This is Book id 
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                description: Enter price
+              prid:
+                type: string
+                description: Enter pending card ID
+      responses:
+        "200":
+          description: OK
+
+
 #Quotes API
 
   /api/v1/community/quote/{uid}/display:
@@ -30873,6 +30942,30 @@ paths:
           required: true
           type: string
           description: This is User id 
+      responses:
+        "200":
+          description: OK
+
+  /api/v1/admission/{aid}/add/auto/qrcode/query:
+    patch:
+      tags:
+        - Quotes Query
+      summary: Upload QR Code Query (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: aid
+          required: true
+          type: string
+          description: This is New Application ID
+        - in: query
+          name: qr_code
+          required: true
+          type: string
+          description: This is QR Code KEY
       responses:
         "200":
           description: OK

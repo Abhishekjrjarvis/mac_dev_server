@@ -28,6 +28,7 @@ const {
   generate_excel_to_json_direct_hostelities,
   generate_excel_to_json_scholarship_query,
   generate_excel_to_json_scholarship_gr_batch_query,
+  generate_excel_to_json_library_offline_book_query,
 } = require("../../Custom/excelToJSON");
 const {
   retrieveInstituteDirectJoinQueryPayload,
@@ -46,6 +47,10 @@ const {
   renderAdmissionNewScholarNumberAutoQuery,
   renderInstituteScholarNumberAutoQuery,
 } = require("../Admission/admissionController");
+const {
+  renderNewOfflineBookAutoQuery,
+} = require("../Library/libraryController");
+const Library = require("../../models/Library/Library");
 // const encryptionPayload = require("../../Utilities/Encrypt/payload");
 
 exports.validateUserAge = async (req, res) => {
@@ -1596,6 +1601,57 @@ exports.renderExcelToJSONScholarshipGRBatchQuery = async (req, res) => {
       await generate_excel_to_json_scholarship_gr_batch_query(id, val);
     if (is_converted?.value) {
       await renderInstituteScholarNumberAutoQuery(id, is_converted?.gr_array);
+    } else {
+      console.log("false");
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.renderExcelToJSONLibraryBookQuery = async (req, res) => {
+  try {
+    const { lid } = req.params;
+    const { excel_file } = req.body;
+    if (!lid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediately",
+        access: false,
+      });
+
+    const lib = await Library.findById({ _id: lid });
+    const one_ins = await InstituteAdmin.findById({
+      _id: `${lib?.institute}`,
+    });
+    one_ins.excel_data_query.push({
+      excel_file: excel_file,
+      libraryId: lib?._id,
+      status: "Uploaded",
+    });
+    await one_ins.save();
+    res.status(200).send({
+      message: "Update Excel To Backend Wait for Operation Completed",
+      access: true,
+    });
+
+    const update_ins = await InstituteAdmin.findById({
+      _id: `${lib?.institute}`,
+    });
+    var key;
+    for (var ref of update_ins?.excel_data_query) {
+      if (
+        `${ref.status}` === "Uploaded" &&
+        `${ref?.libraryId}` === `${lib?._id}`
+      ) {
+        key = ref?.excel_file;
+      }
+    }
+    const val = await simple_object(key);
+
+    const is_converted =
+      await generate_excel_to_json_library_offline_book_query(val);
+    if (is_converted?.value) {
+      await renderNewOfflineBookAutoQuery(lid, is_converted?.book_array);
     } else {
       console.log("false");
     }

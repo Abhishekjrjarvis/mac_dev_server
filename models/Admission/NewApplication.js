@@ -153,6 +153,9 @@ const newApplicationSchema = new mongoose.Schema({
   gr_initials: {
     type: String,
   },
+  app_qr_code: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.model("NewApplication", newApplicationSchema);

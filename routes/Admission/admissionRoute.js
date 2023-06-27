@@ -481,6 +481,11 @@ router.patch(
   catchAsync(Admission.renderRemainingScholarNewNumberQuery)
 );
 
+router.patch(
+  "/:aid/add/auto/qrcode/query",
+  catchAsync(Admission.renderApplicationAutoQRCodeQuery)
+);
+
 // router.patch(
 //   "/:new_fee_struct/edit/struct",
 //   catchAsync(Admission.renderRetroOneStudentStructureQuery)

@@ -87,6 +87,13 @@ const librarySchema = new mongoose.Schema({
         type: Number,
         default: 0,
       },
+      fine_type: {
+        type: String,
+      },
+      status: {
+        type: String,
+        default: "Not Paid",
+      },
     },
   ],
   paid_fee: [
@@ -110,6 +117,13 @@ const librarySchema = new mongoose.Schema({
       fine_charge: {
         type: Number,
         default: 0,
+      },
+      fine_type: {
+        type: String,
+      },
+      status: {
+        type: String,
+        default: "Not Paid",
       },
     },
   ],

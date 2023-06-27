@@ -681,6 +681,10 @@ const instituteAdminSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "InstituteAdmin",
       },
+      libraryId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Library",
+      },
       flow: { type: String },
       status: { type: String, default: "Not Uploaded" },
     },

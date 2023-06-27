@@ -71,7 +71,7 @@ router
   .get(catchAsync(libraryController.renderFineChargesQuery));
 
 router
-  .route("/fine/:lid/query/collect/offline")
-  .get(catchAsync(libraryController.renderFineChargesCollectOfflineQuery));
+  .route("/fine/:lid/query/collect/:sid/offline/:bid")
+  .patch(catchAsync(libraryController.renderFineChargesCollectOfflineQuery));
 
 module.exports = router;

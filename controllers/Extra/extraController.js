@@ -1659,3 +1659,29 @@ exports.renderExcelToJSONLibraryBookQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+exports.renderChangeExistingUserPhoneQuery = async (req, res) => {
+  try {
+    const { sid } = req.params;
+    const { userPhoneNumber } = req.body;
+    if (!sid)
+      return res
+        .status(200)
+        .send({
+          message: "Their is a bug need to fixed immediately",
+          access: true,
+        });
+
+    const valid_student = await Student.findById({ _id: sid });
+    const valid_user = await User.findById({ _id: `${student?.user}` });
+    valid_user.userPhoneNumber = userPhoneNumber
+      ? parseInt(userPhoneNumber)
+      : valid_user?.userPhoneNumber;
+    await valid_user.save();
+    res
+      .status(200)
+      .send({ message: "Explore New User Phone Number Query", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};

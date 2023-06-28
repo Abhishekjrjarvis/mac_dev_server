@@ -239,4 +239,9 @@ router.patch(
   catchAsync(Extra.renderExcelToJSONLibraryBookQuery)
 );
 
+router.patch(
+  "/:sid/existing/user/phone/query",
+  catchAsync(Extra.renderChangeExistingUserPhoneQuery)
+);
+
 module.exports = router;

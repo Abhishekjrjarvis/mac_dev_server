@@ -1,4 +1,4 @@
-const paytm = require("paytmchecksum");
+const PaytmChecksum = require("./PaytmChecksum");
 const https = require("https");
 const { v4: uuidv4 } = require("uuid");
 const Admin = require("../../models/superAdmin");
@@ -29,43 +29,49 @@ const Exam = require("../../models/Exam");
 const ExamFeeStructure = require("../../models/BacklogStudent/ExamFeeStructure");
 
 exports.generatePaytmTxnToken = async (req, res, next) => {
-  const { amount, moduleId, paidBy, name } = req.body;
-  var params = {};
-  params["MID"] = `${process.env.PAYTM_MID}`;
-  params["WEBSITE"] = `${process.env.PAYTM_WEBSITE}`;
-  params["CHANNEL_ID"] = `${process.env.PAYTM_CHANNEL_ID}`;
-  params["INDUSTRY_TYPE_ID"] = `${process.env.PAYTM_INDUSTRY_TYPE}`;
-  params["ORDER_ID"] = "oid" + uuidv4();
-  params["CUST_ID"] = `${process.env.PAYTM_CUST_ID}`;
-  params["TXN_AMOUNT"] = amount;
-  params[
-    "CALLBACK_URL"
-  ] = `${process.env.CALLBACK_URLS}/v1/paytm/verify/internal/fee/${moduleId}/paid/${paidBy}/query/${name}`;
-  let paytmChecksum = paytm.generateSignature(
-    JSON.stringify(params),
-    process.env.PAYTM_MERCHANT_KEY
-  );
-  paytmChecksum
-    .then(function (checksum) {
-      let paytmParams = {
-        ...params,
-        CHECKSUMHASH: checksum,
-      };
-      // console.log(paytmParams);
-      res.status(200).json({
-        paytmParams,
+  try {
+    const { amount, moduleId, paidBy, name } = req.body;
+
+    const totalAmount = JSON.stringify(amount);
+    var params = {};
+
+    (params["MID"] = process.env.PAYTM_MID),
+      (params["WEBSITE"] = process.env.PAYTM_WEBSITE),
+      (params["CHANNEL_ID"] = process.env.PAYTM_CHANNEL_ID),
+      (params["INDUSTRY_TYPE_ID"] = process.env.PAYTM_INDUSTRY_TYPE),
+      (params["ORDER_ID"] = uuidv4()),
+      (params["CUST_ID"] = process.env.PAYTM_CUST_ID),
+      (params["TXN_AMOUNT"] = totalAmount),
+      (params[
+        "CALLBACK_URL"
+      ] = `${process.env.CALLBACK_URLS}/v1/paytm/verify/internal/fee/${moduleId}/paid/${paidBy}/query/${name}`),
+      (params["MOBILE_NO"] = "9876543210");
+
+    var paytmChecksum = PaytmChecksum.generateSignature(
+      params,
+      process.env.PAYTM_MERCHANT_KEY
+    );
+    paytmChecksum
+      .then(function (checksum) {
+        let paytmParams = {
+          ...params,
+          CHECKSUMHASH: checksum,
+        };
+        res.json(paytmParams);
+      })
+      .catch(function (error) {
+        console.log(error);
       });
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 exports.paytmVerifyResponseStatus = (req, res, next) => {
   const { name, paidBy, moduleId } = req.params;
   let paytmChecksum = req.body.CHECKSUMHASH;
   delete req.body.CHECKSUMHASH;
-  let isVerifySignature = paytm.verifySignature(
+  let isVerifySignature = PaytmChecksum.verifySignature(
     req.body,
     process.env.PAYTM_MERCHANT_KEY,
     paytmChecksum
@@ -76,47 +82,45 @@ exports.paytmVerifyResponseStatus = (req, res, next) => {
       mid: req.body.MID,
       orderId: req.body.ORDERID,
     };
-    paytm
-      .generateSignature(
-        JSON.stringify(paytmParams.body),
-        process.env.PAYTM_MERCHANT_KEY
-      )
-      .then(function (checksum) {
-        paytmParams.head = {
-          signature: checksum,
-        };
-        var post_data = JSON.stringify(paytmParams);
-        var options = {
-          hostname: "securegw-stage.paytm.in",
-          // hostname: 'securegw.paytm.in',
-          port: 443,
-          path: "/v3/order/status",
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Content-Length": post_data.length,
-          },
-        };
-        var response = "";
-        var post_req = https.request(options, function (post_res) {
-          post_res.on("data", function (chunk) {
-            response += chunk;
-          });
-          post_res.on("end", async function () {
-            let { body } = JSON.parse(response);
-            let status = body?.resultInfo?.resultStatus;
-            let price = body?.txnAmount;
-            if (status === "TXN_SUCCESS") {
-              await internal_fee_query(moduleId, paidBy, status, price);
-              res.redirect(`http://54.224.4.209/q/${name}/feed`);
-            } else {
-              res.redirect(`http://54.224.4.209/q/${name}/feed`);
-            }
-          });
+    PaytmChecksum.generateSignature(
+      JSON.stringify(paytmParams.body),
+      process.env.PAYTM_MERCHANT_KEY
+    ).then(function (checksum) {
+      paytmParams.head = {
+        signature: checksum,
+      };
+      var post_data = JSON.stringify(paytmParams);
+      var options = {
+        hostname: "securegw-stage.paytm.in",
+        // hostname: 'securegw.paytm.in',
+        port: 443,
+        path: "/v3/order/status",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Length": post_data.length,
+        },
+      };
+      var response = "";
+      var post_req = https.request(options, function (post_res) {
+        post_res.on("data", function (chunk) {
+          response += chunk;
         });
-        post_req.write(post_data);
-        post_req.end();
+        post_res.on("end", async function () {
+          let { body } = JSON.parse(response);
+          let status = body?.resultInfo?.resultStatus;
+          let price = body?.txnAmount;
+          if (status === "TXN_SUCCESS") {
+            await internal_fee_query(moduleId, paidBy, status, price);
+            res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+          } else {
+            res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);
+          }
+        });
       });
+      post_req.write(post_data);
+      post_req.end();
+    });
   } else {
     console.log("Checksum Mismatched Error Query 😒");
   }

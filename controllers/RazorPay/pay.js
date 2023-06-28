@@ -172,9 +172,10 @@ exports.verifyRazorPayment = async (req, res) => {
           payment_to_end_user_id,
           payment_installment,
           Boolean(razor_author),
-          payment_card_type,
-          payment_remain_1,
-          ad_status_id,
+          payment_card_type ?? "",
+          payment_remain_1 ?? "",
+          ad_status_id ?? "",
+          // activity_id ?? "",
           Boolean(ad_install)
         );
         if (isApk) {
@@ -194,7 +195,7 @@ exports.verifyRazorPayment = async (req, res) => {
           refactor_amount,
           payment_module_id,
           Boolean(razor_author),
-          payment_book_id
+          payment_book_id ?? ""
         );
         if (isApk) {
           res.status(200).send({
@@ -210,9 +211,9 @@ exports.verifyRazorPayment = async (req, res) => {
           refactor_amount_nocharges,
           refactor_amount,
           payment_module_id,
-          ad_status_id,
-          payment_to_end_user_id,
-          payment_installment,
+          ad_status_id ?? "",
+          payment_to_end_user_id ?? "",
+          payment_installment ?? "",
           Boolean(razor_author),
           Boolean(ad_install)
         );
@@ -232,7 +233,7 @@ exports.verifyRazorPayment = async (req, res) => {
           refactor_amount_nocharges,
           refactor_amount,
           payment_module_id,
-          ad_status_id,
+          ad_status_id ?? "",
           Boolean(razor_author)
         );
         if (isApk) {

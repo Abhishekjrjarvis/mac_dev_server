@@ -1227,7 +1227,8 @@ exports.set_fee_head_query = async (
   price,
   apply_args,
   receipt_args,
-  direct_args
+  direct_args,
+  type
 ) => {
   try {
     var price_query = price;
@@ -1257,22 +1258,28 @@ exports.set_fee_head_query = async (
           ],
         });
         if (one_master) {
-          if (one_master?.paid_student?.includes(`${student_args?._id}`)) {
+          if (
+            type === "Renewal" &&
+            one_master?.master_status === "Hostel Linked"
+          ) {
           } else {
-            one_master.paid_student.push(student_args?._id);
-            one_master.paid_student_count += 1;
+            if (one_master?.paid_student?.includes(`${student_args?._id}`)) {
+            } else {
+              one_master.paid_student.push(student_args?._id);
+              one_master.paid_student_count += 1;
+            }
+            if (one_master?.master_status === "Hostel Linked") {
+              student_args.deposit_pending_amount =
+                price_query >= parent_head[`${i}`]?.head_amount
+                  ? parent_head[`${i}`].head_amount
+                  : price_query;
+              one_master.deposit_amount +=
+                price_query >= parent_head[`${i}`]?.head_amount
+                  ? parent_head[`${i}`].head_amount
+                  : price_query;
+            }
+            await one_master.save();
           }
-          if (one_master?.master_status === "Hostel Linked") {
-            student_args.deposit_pending_amount =
-              price_query >= parent_head[`${i}`]?.head_amount
-                ? parent_head[`${i}`].head_amount
-                : price_query;
-            one_master.deposit_amount +=
-              price_query >= parent_head[`${i}`]?.head_amount
-                ? parent_head[`${i}`].head_amount
-                : price_query;
-          }
-          await one_master.save();
         }
         student_args.active_fee_heads.push({
           appId: apply_args?._id,
@@ -1324,7 +1331,8 @@ exports.update_fee_head_query = async (
   student_args,
   price,
   apply_args,
-  receipt_args
+  receipt_args,
+  type
 ) => {
   try {
     var price_query = price;
@@ -1340,11 +1348,17 @@ exports.update_fee_head_query = async (
         $and: [{ _id: ele?.master }, { master_status: "Hostel Linked" }],
       });
       if (one_master) {
-        student_args.deposit_pending_amount +=
-          price_query >= ele.remain_fee ? ele.remain_fee : price_query;
-        one_master.deposit_amount +=
-          price_query >= ele.remain_fee ? ele.remain_fee : price_query;
-        await one_master.save();
+        if (
+          type === "Renewal" &&
+          one_master?.master_status === "Hostel Linked"
+        ) {
+        } else {
+          student_args.deposit_pending_amount +=
+            price_query >= ele.remain_fee ? ele.remain_fee : price_query;
+          one_master.deposit_amount +=
+            price_query >= ele.remain_fee ? ele.remain_fee : price_query;
+          await one_master.save();
+        }
       }
       if (ele?.paid_fee == ele?.applicable_fee) {
       } else {

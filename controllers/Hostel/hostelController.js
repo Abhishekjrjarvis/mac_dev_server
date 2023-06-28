@@ -3176,7 +3176,7 @@ const hostel_receipt_approve_query_renewal = async (
       finance.financeBankBalance += price;
     } else {
     }
-    await set_fee_head_query(student, price, one_app, one_receipt);
+    await set_fee_head_query(student, price, one_app, one_receipt, "", "Renewal");
     for (let app of one_unit?.renewal_selected_application) {
       if (`${app.student}` === `${student._id}`) {
         one_unit.renewal_selected_application.pull(app._id);
@@ -3426,7 +3426,7 @@ const request_hostel_mode_query_by_student_renewal = async (
     } else {
     }
     // await set_fee_head_query(student, price, apply);
-    await update_fee_head_query(student, price, apply, new_receipt);
+    await update_fee_head_query(student, price, apply, new_receipt, "Renewal");
     await hostel_lookup_applicable_grant(
       new_receipt?.fee_payment_mode,
       price,
@@ -4509,7 +4509,7 @@ exports.renderPayOfflineHostelFeeRenewal = async (req, res) => {
       finance.financeBankBalance += price;
     } else {
     }
-    await set_fee_head_query(student, price, apply, new_receipt);
+    await set_fee_head_query(student, price, apply, new_receipt, "", "Renewal");
     for (let app of one_unit?.renewal_selected_application) {
       if (`${app.student}` === `${student._id}`) {
         one_unit.renewal_selected_application.pull(app._id);

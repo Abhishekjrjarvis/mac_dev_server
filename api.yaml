@@ -30925,12 +30925,12 @@ paths:
           description: OK
 
 
-#Quotes API
+#New Add-Ons API
 
   /api/v1/community/quote/{uid}/display:
     patch:
       tags:
-        - Quotes Query
+        - New Add-Ons Query
       summary: Display Random Quotes (verified)
       consumes:
         - application/json
@@ -30949,7 +30949,7 @@ paths:
   /api/v1/admission/{aid}/add/auto/qrcode/query:
     patch:
       tags:
-        - Quotes Query
+        - New Add-Ons Query
       summary: Upload QR Code Query (verified)
       consumes:
         - application/json
@@ -30966,6 +30966,34 @@ paths:
           required: true
           type: string
           description: This is QR Code KEY
+      responses:
+        "200":
+          description: OK
+
+
+  /api/v1/extra/{sid}/existing/user/phone/query:
+    patch:
+      tags:
+        - New Add-Ons Query
+      summary: Update User Phone Number By Institute Admin (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+        - in : body
+          name: body
+          schema:
+            type: object
+            properties:
+              userPhoneNumber:
+                type: number
+                description: Enter Phone Number
       responses:
         "200":
           description: OK

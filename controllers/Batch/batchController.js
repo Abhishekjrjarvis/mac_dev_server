@@ -400,31 +400,35 @@ exports.promoteStudent = async (req, res) => {
           const student = await Student.findById(stu).populate({
             path: "fee_structure",
           });
+          var same_batch_promotion =
+            `${student?.batches}` === `${batch?._id}` ? true : false;
           // const sec_category = await FeeCategory.findOne({
           //   current_status: "Secondary Category",
           // });
-          if (finance?.secondary_category?.status === "Assigned") {
-            var cate = finance?.secondary_category?.category;
-          }
-          var structure = department?.fees_structures?.filter((ref) => {
-            if (
-              `${ref?.class_master}` === `${classes?.masterClassName}` &&
-              `${ref?.category_master}` ===
-                `${student?.fee_structure?.category_master}` &&
-              `${ref?.batch_master}` === `${batch?._id}`
-            )
-              return ref;
-          });
-          if (structure?.length > 0) {
-          } else {
+          if (!same_batch_promotion) {
+            if (finance?.secondary_category?.status === "Assigned") {
+              var cate = finance?.secondary_category?.category;
+            }
             var structure = department?.fees_structures?.filter((ref) => {
               if (
                 `${ref?.class_master}` === `${classes?.masterClassName}` &&
-                `${ref?.category_master}` === `${cate}` &&
+                `${ref?.category_master}` ===
+                  `${student?.fee_structure?.category_master}` &&
                 `${ref?.batch_master}` === `${batch?._id}`
               )
                 return ref;
             });
+            if (structure?.length > 0) {
+            } else {
+              var structure = department?.fees_structures?.filter((ref) => {
+                if (
+                  `${ref?.class_master}` === `${classes?.masterClassName}` &&
+                  `${ref?.category_master}` === `${cate}` &&
+                  `${ref?.batch_master}` === `${batch?._id}`
+                )
+                  return ref;
+              });
+            }
           }
           const user = await User.findById({ _id: `${student.user}` });
           const previousData = new StudentPreviousData({
@@ -603,7 +607,9 @@ exports.promoteStudent = async (req, res) => {
           student.sportEventCount = 0;
 
           // here assign new fee st
-          student.fee_structure = structure ? structure[0]?._id : null;
+          if (!same_batch_promotion) {
+            student.fee_structure = structure ? structure[0]?._id : null;
+          }
           student.active_fee_heads = [];
           /////
           student.certificateBonaFideCopy = {
@@ -636,36 +642,39 @@ exports.promoteStudent = async (req, res) => {
           student.refund_deposit = [];
           student.form_status = "Not Filled";
           student.fee_receipt = [];
-          var new_remainFee = new RemainingList({
-            appId: apply?._id,
-            applicable_fee: structure[0]?.total_admission_fees,
-          });
-          new_remainFee.access_mode_card = "Installment_Wise";
-          new_remainFee.card_type = "Promote";
-          var structure_card = {
-            fee_structure: structure[0],
-          };
-          await add_all_installment_zero(
-            apply,
-            institute._id,
-            new_remainFee,
-            structure[0]?.total_admission_fees,
-            structure_card
-          );
-          new_remainFee.fee_structure = structure[0]?._id;
-          new_remainFee.remaining_fee += structure[0]?.total_admission_fees;
-          student.remainingFeeList.push(new_remainFee?._id);
-          student.remainingFeeList_count += 1;
-          new_remainFee.student = student?._id;
-          admission.remainingFee.push(student._id);
-          student.admissionRemainFeeCount += structure[0]?.total_admission_fees;
-          apply.remainingFee += structure[0]?.total_admission_fees;
-          admission.remainingFeeCount += structure[0]?.total_admission_fees;
-          await Promise.all([
-            new_remainFee.save(),
-            admission.save(),
-            apply.save(),
-          ]);
+          if (!same_batch_promotion) {
+            var new_remainFee = new RemainingList({
+              appId: apply?._id,
+              applicable_fee: structure[0]?.total_admission_fees,
+            });
+            new_remainFee.access_mode_card = "Installment_Wise";
+            new_remainFee.card_type = "Promote";
+            var structure_card = {
+              fee_structure: structure[0],
+            };
+            await add_all_installment_zero(
+              apply,
+              institute._id,
+              new_remainFee,
+              structure[0]?.total_admission_fees,
+              structure_card
+            );
+            new_remainFee.fee_structure = structure[0]?._id;
+            new_remainFee.remaining_fee += structure[0]?.total_admission_fees;
+            student.remainingFeeList.push(new_remainFee?._id);
+            student.remainingFeeList_count += 1;
+            new_remainFee.student = student?._id;
+            admission.remainingFee.push(student._id);
+            student.admissionRemainFeeCount +=
+              structure[0]?.total_admission_fees;
+            apply.remainingFee += structure[0]?.total_admission_fees;
+            admission.remainingFeeCount += structure[0]?.total_admission_fees;
+            await Promise.all([
+              new_remainFee.save(),
+              admission.save(),
+              apply.save(),
+            ]);
+          }
           roll += 1;
           if (classes?.ApproveStudent?.includes(student._id)) {
           } else {
@@ -687,34 +696,42 @@ exports.promoteStudent = async (req, res) => {
 
           if (student.studentGender === "Male") {
             classes.boyCount += 1;
-            batch.student_category.boyCount += 1;
+            if (!same_batch_promotion) {
+              batch.student_category.boyCount += 1;
+            }
           } else if (student.studentGender === "Female") {
             classes.girlCount += 1;
-            batch.student_category.girlCount += 1;
+            if (!same_batch_promotion) {
+              batch.student_category.girlCount += 1;
+            }
           } else if (student.studentGender === "Other") {
             classes.otherCount += 1;
-            batch.student_category.otherCount += 1;
+            if (!same_batch_promotion) {
+              batch.student_category.otherCount += 1;
+            }
           } else {
           }
-          if (student.studentCastCategory === "General") {
-            batch.student_category.generalCount += 1;
-          } else if (student.studentCastCategory === "OBC") {
-            batch.student_category.obcCount += 1;
-          } else if (student.studentCastCategory === "SC") {
-            batch.student_category.scCount += 1;
-          } else if (student.studentCastCategory === "ST") {
-            batch.student_category.stCount += 1;
-          } else if (student.studentCastCategory === "NT-A") {
-            batch.student_category.ntaCount += 1;
-          } else if (student.studentCastCategory === "NT-B") {
-            batch.student_category.ntbCount += 1;
-          } else if (student.studentCastCategory === "NT-C") {
-            batch.student_category.ntcCount += 1;
-          } else if (student.studentCastCategory === "NT-D") {
-            batch.student_category.ntdCount += 1;
-          } else if (student.studentCastCategory === "VJ") {
-            batch.student_category.vjCount += 1;
-          } else {
+          if (!same_batch_promotion) {
+            if (student.studentCastCategory === "General") {
+              batch.student_category.generalCount += 1;
+            } else if (student.studentCastCategory === "OBC") {
+              batch.student_category.obcCount += 1;
+            } else if (student.studentCastCategory === "SC") {
+              batch.student_category.scCount += 1;
+            } else if (student.studentCastCategory === "ST") {
+              batch.student_category.stCount += 1;
+            } else if (student.studentCastCategory === "NT-A") {
+              batch.student_category.ntaCount += 1;
+            } else if (student.studentCastCategory === "NT-B") {
+              batch.student_category.ntbCount += 1;
+            } else if (student.studentCastCategory === "NT-C") {
+              batch.student_category.ntcCount += 1;
+            } else if (student.studentCastCategory === "NT-D") {
+              batch.student_category.ntdCount += 1;
+            } else if (student.studentCastCategory === "VJ") {
+              batch.student_category.vjCount += 1;
+            } else {
+            }
           }
           await Promise.all([classes.save(), batch.save()]);
         }

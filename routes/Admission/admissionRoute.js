@@ -496,4 +496,9 @@ router.patch(
   catchAsync(Admission.renderDropFeesStudentQuery)
 );
 
+router.get(
+  "/pending/list/query",
+  catchAsync(Admission.renderPendingListStudentQuery)
+);
+
 module.exports = router;

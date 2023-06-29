@@ -2665,8 +2665,8 @@ exports.renderFinanceAllFeeCategoryQuery = async (req, res) => {
       // .skip(skip)
       .select("category_name created_at")
       .populate({
-        path: "secondary_category"
-      })
+        path: "secondary_category",
+      });
 
     if (all_fees_format?.length > 0) {
       res.status(200).send({
@@ -3925,17 +3925,26 @@ exports.renderDeleteOneExcel = async (req, res) => {
 exports.renderFinanceMasterDepositQuery = async (req, res) => {
   try {
     const { fid } = req.params;
+    const { flow } = req.query
     if (!fid && !flow)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
 
-    const master = await FeeMaster.findOne({
-      $and: [{ master_status: "Linked" }, { finance: fid }],
-    }).select(
-      "paid_student_count deposit_amount master_name refund_student_count refund_amount"
-    );
+    if (flow === "Finance_Manager") {
+      var master = await FeeMaster.findOne({
+        $and: [{ master_status: "Linked" }, { finance: fid }],
+      }).select(
+        "paid_student_count deposit_amount master_name refund_student_count refund_amount"
+      );
+    } else if (flow === "Hostel_Manager") {
+      var master = await FeeMaster.findOne({
+        $and: [{ master_status: "Hostel Linked" }, { finance: fid }],
+      }).select(
+        "paid_student_count deposit_amount master_name refund_student_count refund_amount"
+      );
+    }
 
     res.status(200).send({
       message: "Explore Linked Fee Masters",
@@ -4902,7 +4911,11 @@ exports.renderSecondaryStructureQuery = async (req, res) => {
       valid_category.current_status = "Secondary Category";
       old_cat.secondary_category = valid_category?._id;
       finance.secondary_category.status = "Assigned";
-      await Promise.all([finance.save(), valid_category.save(), old_cat.save()]);
+      await Promise.all([
+        finance.save(),
+        valid_category.save(),
+        old_cat.save(),
+      ]);
       res.status(200).send({
         message: "Explore New Secondary Fee Structure Query",
         access: true,

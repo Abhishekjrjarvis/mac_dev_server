@@ -149,7 +149,7 @@ const second_payable = async (
           ele.originalFee = arg2.total_admission_fees;
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
-          arg1.active_payment_type = "Second Installment"
+          arg1.active_payment_type = "Second Installment";
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -212,7 +212,7 @@ const third_payable = async (
           ele.originalFee = arg2.total_admission_fees;
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
-          arg1.active_payment_type = "Third Installment"
+          arg1.active_payment_type = "Third Installment";
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -275,7 +275,7 @@ const four_payable = async (
           ele.originalFee = arg2.total_admission_fees;
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
-          arg1.active_payment_type = "Four Installment"
+          arg1.active_payment_type = "Four Installment";
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -338,7 +338,7 @@ const five_payable = async (
           ele.originalFee = arg2.total_admission_fees;
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
-          arg1.active_payment_type = "Five Installment"
+          arg1.active_payment_type = "Five Installment";
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -401,7 +401,7 @@ const six_payable = async (
           ele.originalFee = arg2.total_admission_fees;
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
-          arg1.active_payment_type = "Six Installment"
+          arg1.active_payment_type = "Six Installment";
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -464,7 +464,7 @@ const seven_payable = async (
           ele.originalFee = arg2.total_admission_fees;
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
-          arg1.active_payment_type = "Seven Installment"
+          arg1.active_payment_type = "Seven Installment";
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -527,7 +527,7 @@ const eight_payable = async (
           ele.originalFee = arg2.total_admission_fees;
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
-          arg1.active_payment_type = "Eight Installment"
+          arg1.active_payment_type = "Eight Installment";
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -590,7 +590,7 @@ const nine_payable = async (
           ele.originalFee = arg2.total_admission_fees;
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
-          arg1.active_payment_type = "Nine Installment"
+          arg1.active_payment_type = "Nine Installment";
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -653,7 +653,7 @@ const ten_payable = async (
           ele.originalFee = arg2.total_admission_fees;
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
-          arg1.active_payment_type = "Ten Installment"
+          arg1.active_payment_type = "Ten Installment";
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -716,7 +716,7 @@ const eleven_payable = async (
           ele.originalFee = arg2.total_admission_fees;
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
-          arg1.active_payment_type = "Eleven Installment"
+          arg1.active_payment_type = "Eleven Installment";
         }
         if (
           arg4?.newApplication?.includes(`${ele.appId}`) &&
@@ -778,7 +778,7 @@ const tweleve_payable = async (
           ele.originalFee = arg2.total_admission_fees;
           ele.isEnable = true;
           ele.fee_receipt = receipt_args?._id;
-          arg1.active_payment_type = "Tweleve Installment"
+          arg1.active_payment_type = "Tweleve Installment";
         }
         flex_tweleve = ele.remainAmount - amount;
       });
@@ -845,14 +845,14 @@ const installment_remain = async (
         ref.installmentValue = "Installment Paid";
         ref.mode = mode;
         ref.fee_receipt = receipt_args?._id;
-        arg1.active_payment_type = "Installment Paid"
+        arg1.active_payment_type = "Installment Paid";
       } else {
         ref.status = "Paid";
         ref.installmentValue = "All Installment Paid";
         ref.mode = mode;
         arg4.remainingFee.pull(arg5._id);
         arg1.status = "Paid";
-        arg1.active_payment_type = "All Installment Paid"
+        arg1.active_payment_type = "All Installment Paid";
         ref.fee_receipt = receipt_args?._id;
       }
     }
@@ -1560,11 +1560,15 @@ const retro_installment_sequence_query = async (new_fee_args) => {
 
 const buildObject = async (arr) => {
   var obj = {};
-  for (let i = 1; i <= arr.length; i++) {
-    var { query } = arr[i];
-    obj[`key${i}`] = query;
+  if (arr?.length > 0) {
+    for (let i = 1; i <= arr.length; i++) {
+      var { query } = arr[i];
+      obj[`key${i}`] = query;
+    }
+    return obj;
+  } else {
+    return "";
   }
-  return obj;
 };
 
 exports.set_retro_installment = async (
@@ -1579,6 +1583,7 @@ exports.set_retro_installment = async (
     for (var ref of remain_args?.remaining_array) {
       var index = remain_args?.remaining_array?.indexOf(ref);
       if (
+        results &&
         ref?.installmentValue === results[`key${index + 1}`] &&
         ref?.status === "Not Paid"
       ) {

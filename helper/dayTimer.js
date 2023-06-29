@@ -262,3 +262,18 @@ exports.custom_year_reverse = (arg) => {
   const date_pattern = `${year}-${month}-${day}`;
   return date_pattern;
 };
+
+exports.day_difference = async (ms) => {
+  if (ms) {
+    var val = ms / 86400000;
+    return val;
+  }
+};
+
+exports.ms_calc = async (old_date, new_date) => {
+  const date1 = new Date(`${new_date}`);
+  const date2 = new Date(`${old_date}`);
+  const diffTime = date2 - date1;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays;
+};

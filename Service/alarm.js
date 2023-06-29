@@ -4,7 +4,7 @@ const RemainingList = require("../models/Admission/RemainingList");
 const moment = require("moment");
 const Renewal = require("../models/Hostel/renewal");
 const HostelUnit = require("../models/Hostel/hostelUnit");
-const { custom_date_time } = require("../helper/dayTimer");
+const { custom_date_time, ms_calc } = require("../helper/dayTimer");
 const User = require("../models/User");
 
 exports.dueDateAlarm = async () => {
@@ -43,10 +43,12 @@ exports.renewal_request_alarm = async () => {
     for (var ref of all_renewals) {
       if (ref?.renewal_notification_status === "Requested") {
       } else {
-        var latest = custom_date_time(15);
-        if (
-          `${latest}` === `${moment(ref?.renewal_end).format("YYYY-MM-DD")}`
-        ) {
+        var latest = custom_date_time(0);
+        var num = await ms_calc(
+          moment(ref?.renewal_end).format("YYYY-MM-DD"),
+          latest
+        );
+        if (num > 0 && num <= 15) {
           var one_student = await Student.findById({
             _id: `${ref?.renewal_student}`,
           });
@@ -69,6 +71,8 @@ exports.renewal_request_alarm = async () => {
           renew.renewal_unit = one_student?.student_unit;
           one_student.student_renewal.push(renew?._id);
           ref.renewal_notification_status = "Requested";
+          // Check When Comes Again Later Add
+          renew.renewal_notification_status = "Requested";
           await Promise.all([
             ref.save(),
             one_student.save(),

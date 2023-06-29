@@ -6804,7 +6804,7 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
       }
       one_remain_list.fee_structure = new_struct?._id;
       one_student.fee_structure = new_struct?._id;
-      one_student.admissionRemainFeeCount = one_remain_list.remaining_fee;
+      one_student.admissionRemainFeeCount += one_remain_list?.remaining_fee;
       var filtered_head = one_student?.active_fee_heads?.filter((val) => {
         if (`${val?.fee_structure}` === `${old_struct?._id}`) return val;
       });
@@ -6887,7 +6887,7 @@ exports.renderRetroOneStudentStructureQuery = async (req, res) => {
       }
       one_remain_list.fee_structure = new_struct?._id;
       one_student.fee_structure = new_struct?._id;
-      one_student.admissionRemainFeeCount =
+      one_student.admissionRemainFeeCount +=
         one_remain_list?.applicable_fee >= one_remain_list?.paid_fee
           ? one_remain_list?.applicable_fee - one_remain_list?.paid_fee
           : 0;
@@ -7773,18 +7773,17 @@ exports.renderApplicationAutoQRCodeQuery = async (req, res) => {
   }
 };
 
-const update_drop_status = async(req, res) => {
-  try{
-    const all_card = await RemainingList.find({})
-    for(var val of all_card){
-      val.drop_status = "Disable"
-      await val.save()
+const update_drop_status = async (req, res) => {
+  try {
+    const all_card = await RemainingList.find({});
+    for (var val of all_card) {
+      val.drop_status = "Disable";
+      await val.save();
     }
+  } catch (e) {
+    console.log(e);
   }
-  catch(e){
-    console.log(e)
-  }
-}
+};
 
 exports.renderDropFeesStudentQuery = async (req, res) => {
   try {
@@ -7850,6 +7849,33 @@ exports.renderDropFeesStudentQuery = async (req, res) => {
     console.log(e);
   }
 };
+
+// exports.renderPendingListStudentQuery = async (req, res) => {
+//   try {
+//     var student = await Student.find({
+//       $and: [
+//         { institute: "6449c83598fec071fbffd3ad" },
+//         { studentStatus: "Approved" },
+//       ],
+//     });
+//     var ads_admin = await Admission.findById({
+//       _id: "644a09e3d1679fcd6e76e606",
+//     });
+//     for (var val of student) {
+//       if (val?.admissionRemainFeeCount > 0) {
+//         if (ads_admin?.remainingFee?.includes(val?._id)) {
+//         } else {
+//           ads_admin.remainingFee.push(val?._id);
+//           ads_admin.remainingFeeCount += val?.admissionRemainFeeCount;
+//         }
+//       }
+//     }
+//     await ads_admin.save();
+//     res.status(200).send({ message: "Added" });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
 
 // exports.renderRetroOneStudentStructureQuery = async (req, res) => {
 //   try {

@@ -317,11 +317,21 @@ exports.generate_excel_to_json_direct_staff = async (file) => {
     const data_query = xlsx.utils.sheet_to_json(w_sheet, { raw: false });
     var new_data_query = [];
     data_query?.map((ref) => {
-      ref.staffDOB = replace_query(ref?.DOB);
+      // ref.staffDOB = replace_query(ref?.DOB);
       ref.staffGender = ref?.Gender;
       ref.staffMotherName = ref?.MotherName;
       ref.staffPhoneNumber = ref?.PhoneNumber;
       ref.userPhoneNumber = parseInt(ref?.PhoneNumber);
+      ref.userEmail = ref?.Email ?? "";
+      ref.code = ref?.EmployeeCode ?? "";
+      ref.staffNationality = ref?.Nationality ?? "";
+      ref.staffReligion = ref?.Religion ?? "";
+      ref.staffCast = ref?.Caste ?? "";
+      ref.staffCastCategory = ref?.CasteCategory ?? "";
+      ref.staffMTongue = ref?.MotherTongue ?? "";
+      ref.staffAddress = ref?.Address ?? "";
+      ref.staffAadharNumber = ref?.AadharNumber ?? "";
+      ref.staffPanNumber = ref?.PanNumber ?? "";
       let name_query = ref?.Name?.split(" ");
       if (name_query?.length > 2) {
         new_data_query.push({

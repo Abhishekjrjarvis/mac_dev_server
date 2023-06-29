@@ -44,6 +44,9 @@ const finalReportSchema = new mongoose.Schema({
       //   type: String,
       //   default: "No",
       // },
+      course_credit: {
+        type: Number,
+      },
     },
   ],
   is_grade: Boolean,

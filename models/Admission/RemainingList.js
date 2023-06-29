@@ -99,6 +99,10 @@ const remainingFeeListSchema = new mongoose.Schema({
     type: String,
     default: "No Process",
   },
+  drop_status: {
+    type: String,
+    default: "Disable",
+  },
 });
 
 module.exports = mongoose.model("RemainingList", remainingFeeListSchema);

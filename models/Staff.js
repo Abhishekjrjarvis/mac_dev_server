@@ -39,6 +39,7 @@ const staffSchema = new mongoose.Schema({
   staffBankIfsc: { type: String },
   staffBankPassbook: { type: String },
   staffCasteCertificatePhoto: { type: String },
+  staffPanNumber: { type: String },
   staffDocuments: [
     {
       documentName: {

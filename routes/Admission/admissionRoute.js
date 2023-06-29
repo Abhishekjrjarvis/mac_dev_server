@@ -491,4 +491,9 @@ router.patch(
 //   catchAsync(Admission.renderRetroOneStudentStructureQuery)
 // );
 
+router.patch(
+  "/:rid/drop/fees/:sid/query",
+  catchAsync(Admission.renderDropFeesStudentQuery)
+);
+
 module.exports = router;

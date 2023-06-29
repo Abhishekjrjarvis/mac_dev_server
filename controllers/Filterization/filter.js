@@ -838,10 +838,10 @@ exports.retrievePendingFeeFilter = async (req, res) => {
         populate: {
           path: "fee_structure",
           select:
-            "structure_name unique_structure_name category_master total_admission_fees one_installments applicable_fees",
+            "structure_name unique_structure_name category_master total_admission_fees one_installments applicable_fees class_master batch_master",
           populate: {
-            path: "category_master",
-            select: "category_name",
+            path: "category_master batch_master class_master",
+            select: "category_name batchName className",
           },
         },
       });
@@ -851,32 +851,32 @@ exports.retrievePendingFeeFilter = async (req, res) => {
         parseInt(st2?.studentGRNO?.slice(1))
       );
     });
-    const buildObject = async (arr) => {
-      const obj = {};
-      for (let i = 0; i < arr.length; i++) {
-        const { amount, price, paymode, mode } = arr[i];
-        obj[amount] = price;
-        obj[paymode] = mode;
-      }
-      return obj;
-    };
+    // const buildObject = async (arr) => {
+    //   const obj = {};
+    //   for (let i = 0; i < arr.length; i++) {
+    //     const { amount, price, paymode, mode } = arr[i];
+    //     obj[amount] = price;
+    //     obj[paymode] = mode;
+    //   }
+    //   return obj;
+    // };
     var excel_list = [];
     var remain_array = [];
     for (var ref of valid_all_students) {
       for (var val of ref?.remainingFeeList) {
-        for (var num of val?.remaining_array) {
-          var i = 0;
-          if (num.status === "Paid") {
-            remain_array.push({
-              amount: `${i + 1}-Payment`,
-              price: num?.remainAmount,
-              paymode: `${i + 1}-Mode`,
-              mode: num?.mode,
-            });
-          }
-          i = val?.remaining_array?.length - i + 1;
-        }
-        var result = await buildObject(remain_array);
+        // for (var num of val?.remaining_array) {
+        //   var i = 0;
+        //   if (num.status === "Paid") {
+        //     remain_array.push({
+        //       amount: `${i + 1}-Payment`,
+        //       price: num?.remainAmount,
+        //       paymode: `${i + 1}-Mode`,
+        //       mode: num?.mode,
+        //     });
+        //   }
+        //   i = val?.remaining_array?.length - i + 1;
+        // }
+        // var result = await buildObject(remain_array);
 
         excel_list.push({
           GRNO: ref?.studentGRNO ?? "#NA",
@@ -891,18 +891,25 @@ exports.retrievePendingFeeFilter = async (req, res) => {
           Class:
             `${ref?.studentClass?.className}-${ref?.studentClass.classTitle}` ??
             "#NA",
-          Batch: `${val?.batchId?.batchName}` ?? "#NA",
+          Batch: `${val?.fee_structure?.batch_master?.batchName}` ?? "#NA",
           ActualFees: `${val?.fee_structure?.total_admission_fees}` ?? "0",
-          ApplicableFees: `${val?.applicable_fee}` ?? "0",
-          RemainingFees: `${val?.remaining_fee}` ?? "0",
+          ApplicableFees: `${val?.fee_structure?.applicable_fees}` ?? "0",
+          TotalRemainingFees: `${val?.remaining_fee}` ?? "0",
           ApplicationName: `${val?.appId?.applicationName}` ?? "#NA",
           TotalPaidFees: `${val?.paid_fee}` ?? "0",
+          TotalApplicableRemaining:
+            `${val?.fee_structure?.applicable_fees}` - `${val?.paid_fee}` > 0
+              ? `${val?.fee_structure?.applicable_fees}` - `${val?.paid_fee}`
+              : 0,
+          PaidByStudent: `${val?.paid_by_student}`,
+          PaidByGovernment: `${val?.paid_by_government}`,
+          Standard: `${val?.fee_structure?.class_master?.className}`,
           FeeStructure:
             `${val?.fee_structure?.category_master?.category_name}` ?? "#NA",
-          ...result,
           Address: `${ref?.studentAddress}` ?? "#NA",
+          // ...result,
         });
-        remain_array = [];
+        // remain_array = [];
       }
     }
     await json_to_excel_query(
@@ -1609,7 +1616,8 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
         })
           .populate({
             path: "fee_structure",
-            select: "applicable_fees total_admission_fees class_master batch_master unique_structure_name",
+            select:
+              "applicable_fees total_admission_fees class_master batch_master unique_structure_name",
             populate: {
               path: "class_master batch_master",
               select: "className batchName",
@@ -1624,21 +1632,21 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
             },
           });
         var head_array = [];
-        if(ref?.fee_heads?.length > 0){
-        for (var val of ref?.fee_heads) {
-          head_array.push({
-            HeadsName: val?.head_name,
-            PaidHeadFees: val?.original_paid,
-          });
+        if (ref?.fee_heads?.length > 0) {
+          for (var val of ref?.fee_heads) {
+            head_array.push({
+              HeadsName: val?.head_name,
+              PaidHeadFees: val?.original_paid,
+            });
+          }
         }
-      }
         if (remain_list?.paid_fee - remain_list?.applicable_fee > 0) {
           head_array.push({
             HeadsName: "Excess Fees",
             PaidHeadFees: remain_list?.paid_fee - remain_list?.applicable_fee,
           });
         }
-        if(ref?.fee_heads?.length > 0){
+        if (ref?.fee_heads?.length > 0) {
           var result = await buildStructureObject(head_array);
         }
         if (result) {
@@ -1669,7 +1677,8 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
             Standard:
               `${remain_list?.fee_structure?.class_master?.className}` ?? "#NA",
             Batch: remain_list?.fee_structure?.batch_master?.batchName ?? "#NA",
-            FeeStructure: remain_list?.fee_structure?.unique_structure_name ?? "#NA",
+            FeeStructure:
+              remain_list?.fee_structure?.unique_structure_name ?? "#NA",
             Remark: remain_list?.remark ?? "#NA",
             DepartmentBankName:
               ref?.application?.applicationDepartment?.bank_account
@@ -1697,7 +1706,7 @@ exports.renderFeeHeadsStructureReceiptQuery = async (req, res) => {
             } For Acacdemic Year ${ref?.student?.batches?.batchName}.`,
             ...result,
           });
-          result = []
+          result = [];
         }
         head_array = [];
       }

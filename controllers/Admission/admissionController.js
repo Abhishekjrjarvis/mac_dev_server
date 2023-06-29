@@ -3657,7 +3657,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       ],
     })
       .select(
-        "applicable_fee scholar_ship_number card_type remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end"
+        "applicable_fee scholar_ship_number card_type remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end drop_status"
       )
       .populate({
         path: "appId",
@@ -3723,7 +3723,7 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
       ],
     })
       .select(
-        "applicable_fee scholar_ship_number card_type remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end"
+        "applicable_fee scholar_ship_number card_type remaining_fee exempted_fee paid_by_student paid_by_government paid_fee refund_fee status created_at remark remaining_flow renewal_start renewal_end drop_status"
       )
       .populate({
         path: "appId",
@@ -3790,6 +3790,10 @@ exports.retrieveStudentAdmissionFees = async (req, res) => {
         ref?.paid_fee >= ref?.applicable_fee
           ? ref?.paid_fee - ref?.applicable_fee
           : 0;
+      if (ref?.applicable_fee === ref?.remaining_fee) {
+        ref.drop_status = "Enable";
+      } else {
+      }
     }
     for (var ref of valid_remain) {
       ref.setOffPrice = count;
@@ -7748,25 +7752,104 @@ exports.renderInstituteScholarNumberAutoQuery = async (id, arr) => {
   }
 };
 
-exports.renderApplicationAutoQRCodeQuery = async(req, res) => {
-  try{
-    const { aid } = req.params
-    const { qr_code } = req.query
+exports.renderApplicationAutoQRCodeQuery = async (req, res) => {
+  try {
+    const { aid } = req.params;
+    const { qr_code } = req.query;
     if (!aid)
       return res.status(200).send({
         message: "Their is a bug need to fix immediately 😡",
         access: false,
       });
-    
-    var new_app = await NewApplication.findById({ _id: aid})
-    new_app.app_qr_code = qr_code
-    await new_app.save()
-    res.status(200).send({ message: "Explore New Application QR Code Query", access: true})
+
+    var new_app = await NewApplication.findById({ _id: aid });
+    new_app.app_qr_code = qr_code;
+    await new_app.save();
+    res
+      .status(200)
+      .send({ message: "Explore New Application QR Code Query", access: true });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const update_drop_status = async(req, res) => {
+  try{
+    const all_card = await RemainingList.find({})
+    for(var val of all_card){
+      val.drop_status = "Disable"
+      await val.save()
+    }
   }
   catch(e){
     console.log(e)
   }
 }
+
+exports.renderDropFeesStudentQuery = async (req, res) => {
+  try {
+    const { rid, sid } = req.params;
+    if (!rid && !sid)
+      return res.status(200).send({
+        message: "Their is a bug need to fixed immediatley",
+        access: true,
+      });
+
+    var valid_remain_card = await RemainingList.findById({ _id: rid });
+    var valid_app = await NewApplication.findById({
+      _id: `${valid_remain_card?.appId}`,
+    });
+    var valid_admission = await Admission.findById({
+      _id: `${valid_app?.admissionAdmin}`,
+    });
+    var valid_student = await Student.findById({ _id: sid });
+    var drop_status =
+      valid_remain_card?.applicable_fee === valid_remain_card?.remaining_fee
+        ? true
+        : false;
+    if (drop_status) {
+      if (
+        valid_student?.admissionRemainFeeCount >=
+        valid_remain_card?.remaining_fee
+      ) {
+        valid_student.admissionRemainFeeCount -=
+          valid_remain_card.remaining_fee;
+      }
+      valid_student.remainingFeeList.pull(valid_remain_card?._id);
+      // if (valid_student?.remainingFeeList_count > 0) {
+      //   valid_student.remainingFeeList_count -= 1;
+      // }
+      if (valid_student?.admissionRemainFeeCount <= 0) {
+        valid_admission.remainingFee.pull(valid_student?._id);
+      }
+      if (valid_app?.remainingFee >= valid_remain_card?.remaining_fee) {
+        valid_app.remainingFee -= valid_remain_card.remaining_fee;
+      }
+      if (
+        valid_admission?.remainingFeeCount >= valid_remain_card?.remaining_fee
+      ) {
+        valid_admission.remainingFeeCount -= valid_remain_card?.remaining_fee;
+      }
+      await RemainingList.findByIdAndDelete(valid_remain_card?._id);
+      await Promise.all([
+        valid_student.save(),
+        valid_admission.save(),
+        valid_app.save(),
+      ]);
+      res.status(200).send({
+        message: "Drop becomes flood. Operations Execute with full DB Access",
+        access: true,
+      });
+    } else {
+      res.status(200).send({
+        message: "Drop becomes drought. No Operation Execute",
+        access: false,
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 // exports.renderRetroOneStudentStructureQuery = async (req, res) => {
 //   try {

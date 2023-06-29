@@ -30997,3 +30997,27 @@ paths:
       responses:
         "200":
           description: OK
+
+  /api/v1/admission/{rid}/drop/fees/{sid}/query:
+    patch:
+      tags:
+        - New Add-Ons Query
+      summary: Drop Remaining Fees Card (verified)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: rid
+          required: true
+          type: string
+          description: This is Remaining Card ID
+        - in: path
+          name: sid
+          required: true
+          type: string
+          description: This is Student ID
+      responses:
+        "200":
+          description: OK

@@ -1557,6 +1557,7 @@ exports.oneStudentReportCardFinalize = async (req, res) => {
       if (!subject.otherExamObtain || !subject.otherExamTotal) {
         throw "All Other Exam Marks is not updated";
       }
+      const backlogSub = await Subject.findById(subject._id);
       finalize.subjects.push({
         subject: subject._id,
         subjectName: subject.subjectName,
@@ -1572,8 +1573,8 @@ exports.oneStudentReportCardFinalize = async (req, res) => {
           subject.subjectCutoff > Math.ceil(subject.obtainTotalMarks)
             ? "FAIL"
             : "PASS",
+        course_credit: backlogSub?.course_credit,
       });
-      const backlogSub = await Subject.findById(subject._id);
       const backlogSubMaster = await SubjectMaster.findById({
         _id: backlogSub?.subjectMasterName,
       });
@@ -3444,6 +3445,7 @@ exports.finalizeAllStudentInOneClass = async (req, res) => {
         }
         if (compl_flag) {
           for (let subject of ch_format?.subjects) {
+            const backlogSub = await Subject.findById(subject._id);
             finalize.subjects.push({
               subject: subject._id,
               subjectName: subject.subjectName,
@@ -3459,8 +3461,9 @@ exports.finalizeAllStudentInOneClass = async (req, res) => {
                 subject.subjectCutoff > Math.ceil(subject.obtainTotalMarks)
                   ? "FAIL"
                   : "PASS",
+              course_credit: backlogSub?.course_credit,
             });
-            const backlogSub = await Subject.findById(subject._id);
+
             const backlogSubMaster = await SubjectMaster.findById({
               _id: backlogSub?.subjectMasterName,
             });

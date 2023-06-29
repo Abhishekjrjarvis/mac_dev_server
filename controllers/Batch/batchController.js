@@ -1096,6 +1096,7 @@ exports.classUncomplete = async (req, res) => {
     const classes = await Class.findById(req.params.cid);
     classes.classStatus = "UnCompleted";
     const class_teacher = await Staff.findById(classes?.classTeacher);
+    class_teacher.staffDesignationCount += 1;
     class_teacher.previousStaffClass.pull(classes._id);
     class_teacher.staffClass.push(classes._id);
     await Promise.all([class_teacher.save(), classes.save()]);
@@ -1127,67 +1128,71 @@ exports.assignDesignationToStaffByBatch = async (req, res) => {
 
     for (let clsId of batch?.classroom) {
       const current_cls = await Class.findById(clsId);
-      const staff = await Staff.findById(current_cls?.classTeacher);
-      const class_user = await User.findById({ _id: `${staff?.user}` });
-      staff?.staffClass.push(current_cls._id);
-      staff.staffDesignationCount += 1;
-      staff.recentDesignation = current_cls?.classHeadTitle;
-      staff.designation_array.push({
-        role: "Class Teacher",
-        role_id: current_cls?._id,
-      });
-      const notify = new Notification({});
-      notify.notifyContent = `you got the designation of ${current_cls.className} as ${current_cls.classHeadTitle}`;
-      notify.notifySender = current_cls?.institute;
-      notify.notifyReceiever = class_user._id;
-      notify.notifyCategory = "Class Designation";
-      class_user.uNotify.push(notify._id);
-      notify.user = class_user._id;
-      notify.notifyByInsPhoto = institute._id;
-      invokeFirebaseNotification(
-        "Designation Allocation",
-        notify,
-        institute.insName,
-        class_user._id,
-        class_user.deviceToken
-      );
-      await Promise.all([notify.save(), class_user.save(), staff.save()]);
-
-      for (let subId of current_cls?.subject) {
-        const current_sub = await Subject.findById(subId);
-        const sujectStaff = await Staff.findById(
-          current_sub?.subjectTeacherName
-        );
-        const subject_user = await User.findById({
-          _id: `${sujectStaff?.user}`,
+      if (current_cls && current_cls?.classStatus === "UnCompleted") {
+        const staff = await Staff.findById(current_cls?.classTeacher);
+        const class_user = await User.findById({ _id: `${staff?.user}` });
+        staff?.staffClass.push(current_cls._id);
+        staff.staffDesignationCount += 1;
+        staff.recentDesignation = current_cls?.classHeadTitle;
+        staff.designation_array.push({
+          role: "Class Teacher",
+          role_id: current_cls?._id,
         });
-        sujectStaff?.staffSubject.push(current_sub._id);
-        sujectStaff.staffDesignationCount += 1;
-        sujectStaff.recentDesignation = current_sub?.subjectTitle;
-        sujectStaff.designation_array.push({
-          role: "Subject Teacher",
-          role_id: current_sub?._id,
-        });
-        const notify_subject = new Notification({});
-        notify_subject.notifyContent = `you got the designation of ${current_sub.subjectName} as ${current_sub.subjectTitle}`;
-        notify_subject.notifySender = batch?.institute;
-        notify_subject.notifyReceiever = subject_user._id;
-        notify.notifyCategory = "Subject Designation";
-        subject_user.uNotify.push(notify_subject._id);
-        notify_subject.user = subject_user._id;
-        notify_subject.notifyByInsPhoto = institute._id;
+        const notify = new Notification({});
+        notify.notifyContent = `you got the designation of ${current_cls.className} as ${current_cls.classHeadTitle}`;
+        notify.notifySender = current_cls?.institute;
+        notify.notifyReceiever = class_user._id;
+        notify.notifyCategory = "Class Designation";
+        class_user.uNotify.push(notify._id);
+        notify.user = class_user._id;
+        notify.notifyByInsPhoto = institute._id;
         invokeFirebaseNotification(
           "Designation Allocation",
-          notify_subject,
+          notify,
           institute.insName,
-          subject_user._id,
-          subject_user.deviceToken
+          class_user._id,
+          class_user.deviceToken
         );
-        await Promise.all([
-          notify_subject.save(),
-          sujectStaff.save(),
-          subject_user.save(),
-        ]);
+        await Promise.all([notify.save(), class_user.save(), staff.save()]);
+
+        for (let subId of current_cls?.subject) {
+          const current_sub = await Subject.findById(subId);
+          if (current_sub && current_sub?.subjectStatus === "UnCompleted") {
+            const sujectStaff = await Staff.findById(
+              current_sub?.subjectTeacherName
+            );
+            const subject_user = await User.findById({
+              _id: `${sujectStaff?.user}`,
+            });
+            sujectStaff?.staffSubject.push(current_sub._id);
+            sujectStaff.staffDesignationCount += 1;
+            sujectStaff.recentDesignation = current_sub?.subjectTitle;
+            sujectStaff.designation_array.push({
+              role: "Subject Teacher",
+              role_id: current_sub?._id,
+            });
+            const notify_subject = new Notification({});
+            notify_subject.notifyContent = `you got the designation of ${current_sub.subjectName} as ${current_sub.subjectTitle}`;
+            notify_subject.notifySender = batch?.institute;
+            notify_subject.notifyReceiever = subject_user._id;
+            notify.notifyCategory = "Subject Designation";
+            subject_user.uNotify.push(notify_subject._id);
+            notify_subject.user = subject_user._id;
+            notify_subject.notifyByInsPhoto = institute._id;
+            invokeFirebaseNotification(
+              "Designation Allocation",
+              notify_subject,
+              institute.insName,
+              subject_user._id,
+              subject_user.deviceToken
+            );
+            await Promise.all([
+              notify_subject.save(),
+              sujectStaff.save(),
+              subject_user.save(),
+            ]);
+          }
+        }
       }
     }
     batch.designation_send = "Yes";
@@ -1196,6 +1201,104 @@ exports.assignDesignationToStaffByBatch = async (req, res) => {
       message: "Assign all designation to respective staff 😋😊",
       access: true,
     });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.batchCompleteAndUncomplete = async (req, res) => {
+  try {
+    const { bid } = req.params;
+    if (!bid)
+      return res.status(200).send({
+        message:
+          "Their is a bug to call api of batch related! need to fix it soon.",
+        access: true,
+      });
+    const batch = await Batch.findById(bid);
+    if (batch?.batchStatus === "UnLocked") {
+      for (let clsId of batch?.classroom) {
+        const classes = await Class.findById(clsId);
+        if (classes.classStatus !== "Completed") {
+          for (let subId of classes?.subject) {
+            const subject = await Subject.findById(subId);
+            if (subject.subjectStatus !== "Completed") {
+              subject.subjectStatus = "Completed";
+              const subStaff = await Staff.findById(
+                subject?.subjectTeacherName
+              );
+              if (subStaff.staffDesignationCount >= 1) {
+                subStaff.staffDesignationCount -= 1;
+              }
+              subStaff.previousStaffSubject?.push(subject._id);
+              subStaff.staffSubject.pull(subject._id);
+              await Promise.all([subStaff.save(), subject.save()]);
+            }
+          }
+          const staff = await Staff.findById(classes?.classTeacher);
+          if (staff.staffDesignationCount >= 1) {
+            staff.staffDesignationCount -= 1;
+          }
+          staff.previousStaffClass?.push(clsId);
+          staff.staffClass.pull(clsId);
+          classes.classStatus = "Completed";
+          await Promise.all([staff.save(), classes.save()]);
+        }
+      }
+      batch.batchStatus = "Locked";
+      await batch.save();
+    } else {
+      for (let clsId of batch?.classroom) {
+        const classes = await Class.findById(clsId);
+        if (classes.classStatus === "Completed") {
+          for (let subId of classes?.subject) {
+            const subject = await Subject.findById(subId);
+            if (subject.subjectStatus === "Completed") {
+              subject.subjectStatus = "UnCompleted";
+              const subStaff = await Staff.findById(
+                subject?.subjectTeacherName
+              );
+              subStaff.staffDesignationCount += 1;
+              subStaff.previousStaffSubject?.pull(subject._id);
+              subStaff.staffSubject.push(subject._id);
+              await Promise.all([subStaff.save(), subject.save()]);
+            }
+          }
+          const staff = await Staff.findById(classes?.classTeacher);
+          staff.staffDesignationCount += 1;
+          staff.previousStaffClass?.pull(clsId);
+          staff.staffClass.push(clsId);
+          classes.classStatus = "UnCompleted";
+          await Promise.all([staff.save(), classes.save()]);
+        }
+      }
+      batch.batchStatus = "UnLocked";
+      await batch.save();
+    }
+    res.status(200).send({ message: "Btach Action is completed." });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+exports.subjectCreditUpdate = async (req, res) => {
+  try {
+    const { smid } = req.params;
+    if (!smid)
+      return res.status(200).send({
+        message:
+          "Their is a bug to call api of batch related! need to fix it soon.",
+        access: true,
+      });
+    const sub_master = await SubjectMaster.findById(smid);
+    sub_master.course_credit = req.body?.course_credit;
+    for (let subId of sub_master?.subjects) {
+      const subject = await Subject.findById(subId);
+      subject.course_credit = req.body?.course_credit ?? 0;
+      await subject.save();
+    }
+    await sub_master.save();
+    res.status(200).send({ message: "Subject credit is updated" });
   } catch (e) {
     console.log(e);
   }

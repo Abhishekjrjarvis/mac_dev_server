@@ -3350,10 +3350,11 @@ exports.retrieveInstituteDirectJoinStaffAutoQuery = async (
             ref?.staffMiddleName ? ref?.staffMiddleName : ""
           } ${ref?.staffLastName ? ref?.staffLastName : ""}`,
           userGender: ref?.staffGender,
-          userDateOfBirth: ref?.staffDOB,
+          userDateOfBirth: ref?.staffDOB ?? "",
           username: valid?.username,
           userStatus: "Approved",
-          userPhoneNumber: ref?.userPhoneNumber,
+          userPhoneNumber: ref?.userPhoneNumber ?? 0,
+          userEmail: ref?.userEmail ?? "",
           userPassword: hashUserPass,
           photoId: "0",
           coverId: "2",
@@ -3422,6 +3423,14 @@ exports.retrieveInstituteDirectJoinStaffAutoQuery = async (
           staffGender: ref?.staffGender,
           staffMotherName: ref?.staffMotherName,
           staffPhoneNumber: ref?.staffPhoneNumber,
+          staffNationality: ref?.staffNationality,
+          staffReligion: ref?.staffReligion,
+          staffCast: ref?.staffCast,
+          staffCastCategory: ref?.staffCastCategory,
+          staffMTongue: ref?.staffMTongue,
+          staffAddress: ref?.staffAddress,
+          staffAadharNumber: ref?.staffAadharNumber,
+          staffPanNumber: ref?.staffPanNumber,
         });
         for (var file of ref?.fileArray) {
           if (file.name === "file") {
@@ -3471,7 +3480,9 @@ exports.retrieveInstituteDirectJoinStaffAutoQuery = async (
         admins.staffArray.push(staff._id);
         admins.staffCount += 1;
         institute.joinedUserList.push(user._id);
-        staff.staffROLLNO = institute.ApproveStaff.length;
+        staff.staffROLLNO = ref?.code
+          ? ref?.code
+          : institute.ApproveStaff.length;
         staff.staffJoinDate = new Date().toISOString();
         notify.notifyContent = `Congrats ${staff.staffFirstName} ${
           staff.staffMiddleName ? `${staff.staffMiddleName}` : ""

@@ -59,16 +59,16 @@ exports.uploadFile = uploadFile;
 //upload afile to s3
 async function uploadVideo(file) {
   const fileStream = fs.createReadStream(file.path);
-  var extension = "";
-  if (file?.mimetype === "video/mp4") {
-    extension = "mp4";
-  } else if (file?.mimetype === "video/quicktime") {
-    extension = "mov";
-  }
+  // var extension = "";
+  // if (file?.mimetype === "video/mp4") {
+  //   extension = "mp4";
+  // } else if (file?.mimetype === "video/quicktime") {
+  //   extension = "mov";
+  // }
   const uploadParams = {
     Bucket: bucketName,
     Body: fileStream,
-    Key: extension ? `${file.filename}.${extension}` : file?.filename,
+    Key: file?.originalname,
     ContentType: file?.mimetype,
   };
   return s3.upload(uploadParams).promise();
@@ -121,7 +121,7 @@ function uploadDocFile(file) {
   const uploadParams = {
     Bucket: bucketName,
     Body: fileStream,
-    Key: file.filename,
+    Key: file.originalname,
     ContentType: file.mimetype,
   };
   return s3.upload(uploadParams).promise();

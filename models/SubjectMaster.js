@@ -51,6 +51,10 @@ const subjectMasterSchema = new mongoose.Schema({
       ref: "SubjectMarkList",
     },
   ],
+  course_credit: {
+    type: Number,
+    default: 10,
+  },
 });
 
 const SubjectMaster = mongoose.model("SubjectMaster", subjectMasterSchema);

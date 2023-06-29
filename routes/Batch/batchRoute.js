@@ -44,4 +44,12 @@ router
     catchAsync(batchController.assignDesignationToStaffByBatch)
   );
 
+router
+  .route("/batch/:bid/complete/uncomplete/action")
+  .patch(isLoggedIn, catchAsync(batchController.batchCompleteAndUncomplete));
+
+router
+  .route("/subject/:smid/update/course/credit")
+  .patch(isLoggedIn, catchAsync(batchController.subjectCreditUpdate));
+
 module.exports = router;

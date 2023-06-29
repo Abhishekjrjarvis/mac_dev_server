@@ -1880,7 +1880,7 @@ exports.retrieveSubjectMaster = async (req, res) => {
   try {
     const { did } = req.params;
     const subjectMaster = await SubjectMaster.find({ department: did })
-      .select("subjectName subjects subjectType")
+      .select("subjectName subjects subjectType course_credit")
       .lean()
       .exec();
     if (subjectMaster) {
@@ -1891,7 +1891,9 @@ exports.retrieveSubjectMaster = async (req, res) => {
     } else {
       res.status(404).send({ message: "Failure" });
     }
-  } catch {}
+  } catch(e) {
+    console.log(e)
+  }
 };
 
 exports.retrieveClassArray = async (req, res) => {

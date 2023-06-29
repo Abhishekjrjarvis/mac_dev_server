@@ -38,14 +38,14 @@ exports.generatePaytmTxnToken = async (req, res, next) => {
     (params["MID"] = process.env.PAYTM_MID),
       (params["WEBSITE"] = process.env.PAYTM_WEBSITE),
       (params["CHANNEL_ID"] = process.env.PAYTM_CHANNEL_ID),
-      (params["INDUSTRY_TYPE_ID"] = process.env.PAYTM_INDUSTRY_TYPE),
+      (params["INDUSTRY_TYPE"] = process.env.PAYTM_INDUSTRY_TYPE),
       (params["ORDER_ID"] = uuidv4()),
       (params["CUST_ID"] = process.env.PAYTM_CUST_ID),
       (params["TXN_AMOUNT"] = totalAmount),
       (params[
         "CALLBACK_URL"
-      ] = `${process.env.CALLBACK_URLS}/v1/paytm/verify/internal/fee/${moduleId}/paid/${paidBy}/query/${name}`),
-      (params["MOBILE_NO"] = "9876543210");
+      ] = `${process.env.CALLBACK_URLS}/v1/paytm/verify/internal/fee/${moduleId}/paid/${paidBy}/query/${name}`);
+    // (params["MOBILE_NO"] = "9876543210");
 
     var paytmChecksum = PaytmChecksum.generateSignature(
       params,
@@ -110,6 +110,7 @@ exports.paytmVerifyResponseStatus = (req, res, next) => {
           let { body } = JSON.parse(response);
           let status = body?.resultInfo?.resultStatus;
           let price = body?.txnAmount;
+          console.log(status);
           if (status === "TXN_SUCCESS") {
             await internal_fee_query(moduleId, paidBy, status, price);
             res.redirect(`${process.env.FRONT_REDIRECT_URL}/q/${name}/feed`);

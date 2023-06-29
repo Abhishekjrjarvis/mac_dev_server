@@ -863,11 +863,8 @@ exports.renderFineChargesCollectOfflineQuery = async (req, res) => {
     new_receipt.invoice_count = `${
       new Date().getMonth() + 1
     }${new Date().getFullYear()}${s_admin.invoice_count}`;
-    var filtered_arr = lib.pending_fee?.filter((val) => {
-      if (`${val?._id}` === `${prid}`) return val;
-    });
-    if (filtered_arr?.length > 0) {
-      for (var val of filtered_arr) {
+    for (var val of lib?.pending_fee) {
+      if (`${val?._id}` === `${prid}`) {
         lib.paid_fee.push({
           student: student?._id,
           book: book?._id,
@@ -876,7 +873,7 @@ exports.renderFineChargesCollectOfflineQuery = async (req, res) => {
           fine_type: val?.fine_type,
           fee_receipt: new_receipt?._id,
         });
-        filtered_arr.pull(val?._id);
+        lib.pending_fee.pull(val?._id);
       }
     }
     var valid_internal = await InternalFees.find({

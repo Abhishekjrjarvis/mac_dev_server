@@ -924,7 +924,10 @@ exports.renderNewOfflineBookAutoQuery = async (lid, book_array) => {
           bookStatus: val?.bookStatus,
           author: val?.author,
           language: val?.language,
-          totalCopies: parseInt(val?.totalCopies),
+          totalCopies: val?.totalCopies ? parseInt(val?.totalCopies) : 0,
+          price: val?.price ? parseInt(val?.price) : 0,
+          description: val?.description,
+          shellNumber: val?.shellNumber,
         });
         library.books.push(book._id);
         library.bookCount += 1;

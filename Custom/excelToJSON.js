@@ -499,6 +499,9 @@ exports.generate_excel_to_json_library_offline_book_query = async (file) => {
       val.author = val?.Author;
       val.language = val?.Language;
       val.totalCopies = val?.Copies;
+      val.description = val?.Description;
+      val.price = val?.Amount;
+      val.shellNumber = val?.ShellNumber;
       new_data_query.push(val);
     }
     return { book_array: new_data_query, value: true };

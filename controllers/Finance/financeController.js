@@ -3925,26 +3925,17 @@ exports.renderDeleteOneExcel = async (req, res) => {
 exports.renderFinanceMasterDepositQuery = async (req, res) => {
   try {
     const { fid } = req.params;
-    const { flow } = req.query
-    if (!fid && !flow)
+    if (!fid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
       });
 
-    if (flow === "Finance_Manager") {
       var master = await FeeMaster.findOne({
         $and: [{ master_status: "Linked" }, { finance: fid }],
       }).select(
         "paid_student_count deposit_amount master_name refund_student_count refund_amount"
       );
-    } else if (flow === "Hostel_Manager") {
-      var master = await FeeMaster.findOne({
-        $and: [{ master_status: "Hostel Linked" }, { finance: fid }],
-      }).select(
-        "paid_student_count deposit_amount master_name refund_student_count refund_amount"
-      );
-    }
 
     res.status(200).send({
       message: "Explore Linked Fee Masters",

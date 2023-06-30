@@ -6694,7 +6694,7 @@ exports.renderDirectHostelJoinExcelQuery = async (hid, student_array) => {
 exports.renderHostelMasterDepositQuery = async (req, res) => {
   try {
     const { hid } = req.params;
-    if (!hid && !flow)
+    if (!hid)
       return res.status(200).send({
         message: "Their is a bug need to fixed immediatley",
         access: false,
@@ -6705,7 +6705,7 @@ exports.renderHostelMasterDepositQuery = async (req, res) => {
     });
     const master = await FeeMaster.findOne({
       $and: [
-        { master_status: "Linked" },
+        { master_status: "Hostel Linked" },
         { finance: one_hostel?.institute?.financeDepart?.[0] },
       ],
     }).select(

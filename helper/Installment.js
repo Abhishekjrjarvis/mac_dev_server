@@ -1405,6 +1405,7 @@ exports.update_fee_head_query = async (
             : ele.applicable_fee - ele.paid_fee;
       }
     }
+    student_args.fee_receipt.push(receipt_args?._id);
     await student_args.save();
     receipt_args.fee_flow = "FEE_HEADS";
     for (var ref of student_args?.active_fee_heads) {
@@ -1419,7 +1420,6 @@ exports.update_fee_head_query = async (
         original_paid: ref?.original_paid,
       });
     }
-    student_args.fee_receipt.push(receipt_args?._id);
     await receipt_args.save();
     return student_args;
   } catch (e) {

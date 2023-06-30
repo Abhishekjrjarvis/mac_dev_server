@@ -732,7 +732,7 @@ exports.renderFineChargesQuery = async (req, res) => {
         populate: {
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO libraryFineRemainCount",
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO libraryFineRemainCount libraryFinePaidCount",
           populate: {
             path: "studentClass",
             select: "className classTitle",
@@ -756,7 +756,7 @@ exports.renderFineChargesQuery = async (req, res) => {
         populate: {
           path: "student",
           select:
-            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO libraryFineRemainCount",
+            "studentFirstName studentMiddleName studentLastName photoId studentProfilePhoto studentGRNO libraryFineRemainCount libraryFinePaidCount",
           populate: {
             path: "studentClass",
             select: "className classTitle",
@@ -909,6 +909,10 @@ exports.renderFineChargesCollectOfflineQuery = async (req, res) => {
       lib.save(),
       student.save(),
     ]);
+    res.status(200).send({
+      message: "Explore Collected Fine Charges Query",
+      access: true,
+    });
   } catch (e) {
     console.log(e);
   }

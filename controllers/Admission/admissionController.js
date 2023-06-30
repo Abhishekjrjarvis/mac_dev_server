@@ -7862,6 +7862,10 @@ exports.renderDropFeesStudentQuery = async (req, res) => {
 //       _id: "644a09e3d1679fcd6e76e606",
 //     });
 //     for (var val of student) {
+//       var all_remain = await RemainingList.find({ $and: [{ _id: { $in: val?.remainingFeeList }}]})
+//       // for(val ref of all_remain){
+//       //   val.admissionRemainFeeCount += 
+//       // }
 //       if (val?.admissionRemainFeeCount > 0) {
 //         if (ads_admin?.remainingFee?.includes(val?._id)) {
 //         } else {

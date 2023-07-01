@@ -13,15 +13,15 @@ const {
 } = require("../controllers/DailyUpdate/dailyUpdateController");
 
 exports.timerFunction = () => {
-  // setInterval(async () => {
-  //   await election_vote_day();
-  // }, 86400000);
-  // setInterval(async () => {
-  //   await election_result_day();
-  // }, 86400000);
+  setInterval(async () => {
+    await election_vote_day();
+  }, 86400000);
+  setInterval(async () => {
+    await election_result_day();
+  }, 86400000);
   setInterval(async () => {
     await renewal_request_alarm();
-  }, 86400000);
+  }, 864000);
   setInterval(async () => {
     await quote_disappear();
   }, 86400000);

@@ -1490,7 +1490,7 @@ exports.getFullStudentInfo = async (req, res) => {
         })
         .populate({
           path: "institute",
-          select: "insName",
+          select: "insName admissionDepart financeDepart",
         })
         .populate({
           path: "studentClass",

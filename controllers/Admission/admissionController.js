@@ -7978,10 +7978,12 @@ exports.paidAlreadyCardRemainingFeeStudent = async (req, res) => {
               return val;
           });
         }
+        console.log("Card 1", card_1)
         var card_2 = valid_remain_list?.remaining_array?.filter((val) => {
           if (`${val?._id}` != `${remain_1}` && val?.status === "Not Paid")
             return val;
         });
+        console.log("Card 2", card_2)
         if (type === "First Installment") {
           await set_fee_head_query(student, price, apply, new_receipt);
           student.paidFeeList.push({

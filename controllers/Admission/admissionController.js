@@ -2550,21 +2550,23 @@ exports.retrieveAdmissionRemainingArray = async (req, res) => {
               select: "dName",
             },
           });
+        // console.log(all_remain);
         for (var ele of all_remain) {
-          ele.student.applicable_fees_pending +=
-            ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
-              ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
-              : 0;
-          if (student?.includes(ele?.student)) {
-          } else {
-            student.push(ele?.student);
+          if (ele?.student != null) {
+            ele.student.applicable_fees_pending +=
+              ele?.fee_structure?.applicable_fees - ele?.paid_fee > 0
+                ? ele?.fee_structure?.applicable_fees - ele?.paid_fee
+                : 0;
+            if (student?.includes(ele?.student)) {
+            } else {
+              student.push(ele?.student);
+            }
           }
         }
         student = student?.filter((ref) => {
           if (ref?.applicable_fees_pending > 0) return ref;
         });
-      } 
-      else {
+      } else {
         var student = [];
         var all_remain = await RemainingList.find({
           student: { $in: admin_ins?.remainingFee },
@@ -7938,7 +7940,7 @@ exports.paidAlreadyCardRemainingFeeStudent = async (req, res) => {
       );
       var apply = await NewApplication.findById({ _id: appId });
       var valid_remain_list = await RemainingList.findById({
-        _id: rid
+        _id: rid,
       });
       // console.log(valid_remain_list)
       const new_receipt = new FeeReceipt({ ...req.body });
@@ -8225,7 +8227,7 @@ exports.paidAlreadyCardRemainingFeeStudentFinanceQuery = async (req, res) => {
     new_receipt.fee_transaction_date = new Date(`${req.body.transaction_date}`);
     const notify = new StudentNotification({});
     const valid_remain_list = await RemainingList.findById({
-      _id: rid
+      _id: rid,
     });
     valid_remain_list.fee_receipts.push(new_receipt?._id);
     if (req?.body?.fee_payment_mode === "Government/Scholarship") {
@@ -8597,4 +8599,4 @@ exports.renderPendingListStudentQuery = async (req, res) => {
 //   } catch (e) {
 //     console.log(e);
 //   }
-// };
+// }

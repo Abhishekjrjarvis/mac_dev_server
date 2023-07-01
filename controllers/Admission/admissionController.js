@@ -7939,6 +7939,7 @@ exports.paidAlreadyCardRemainingFeeStudent = async (req, res) => {
       var valid_remain_list = await RemainingList.findOne({
         $and: [{ student: student?._id }, { appId: apply?._id }],
       });
+      console.log(valid_remain_list)
       const new_receipt = new FeeReceipt({ ...req.body });
       new_receipt.student = student?._id;
       new_receipt.application = apply?._id;
@@ -7952,7 +7953,7 @@ exports.paidAlreadyCardRemainingFeeStudent = async (req, res) => {
       order.payment_to_end_user_id = institute._id;
       order.payment_by_end_user_id = user._id;
       order.payment_module_id = apply._id;
-      order.payment_amount = extra_price;
+      order.payment_amount = price;
       order.payment_status = "Captured";
       order.payment_flag_to = "Credit";
       order.payment_flag_by = "Debit";
